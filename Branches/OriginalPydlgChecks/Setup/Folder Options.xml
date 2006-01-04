@@ -1,0 +1,1045 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<DIALOG>
+	<CONTROL
+		CLASS = "#32770"
+		STYLE_LONG = "-1798823740"
+		CTRLID_LONG = "0"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "66817"
+		FRIENDLYCLASS = "Dialog"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "1">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "380"
+			BOTTOM_LONG = "443"/>
+		<FONT
+			lfFaceName = "Tahoma"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "700"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM>
+				<MENUITEM
+					TITLE = "&amp;Move"
+					ID_LONG = "61456"
+					TYPE_LONG = "0"
+					STATE_LONG = "0"
+					ITEMDATA_LONG = "0"/>
+				<MENUITEM
+					TITLE = "&amp;Close&#9;Alt+F4"
+					ID_LONG = "61536"
+					TYPE_LONG = "0"
+					STATE_LONG = "0"
+					ITEMDATA_LONG = "0"/>
+			</MENUSYSTEM>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "386"
+			BOTTOM_LONG = "468"/>
+		<TITLES
+			s00000 = "Folder Options"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "#32770"
+		STYLE_LONG = "1342243908"
+		CTRLID_LONG = "0"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "65536"
+		FRIENDLYCLASS = "Dialog"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "360"
+			BOTTOM_LONG = "374"/>
+		<FONT
+			lfFaceName = "Tahoma"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "700"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "51"
+			LEFT_LONG = "13"
+			RIGHT_LONG = "373"
+			BOTTOM_LONG = "425"/>
+		<TITLES
+			s00000 = "General"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342308359"
+		CTRLID_LONG = "30080"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "GroupBox"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "339"
+			BOTTOM_LONG = "60"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "62"
+			LEFT_LONG = "24"
+			RIGHT_LONG = "363"
+			BOTTOM_LONG = "122"/>
+		<TITLES
+			s00000 = "Tasks"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342177289"
+		CTRLID_LONG = "30098"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "278"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "80"
+			LEFT_LONG = "75"
+			RIGHT_LONG = "353"
+			BOTTOM_LONG = "95"/>
+		<TITLES
+			s00000 = "Show common tasks in &amp;folders"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342242825"
+		CTRLID_LONG = "30099"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "278"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "98"
+			LEFT_LONG = "75"
+			RIGHT_LONG = "353"
+			BOTTOM_LONG = "113"/>
+		<TITLES
+			s00000 = "Use Windows class&amp;ic folders"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342308359"
+		CTRLID_LONG = "65535"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "GroupBox"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "339"
+			BOTTOM_LONG = "62"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "134"
+			LEFT_LONG = "24"
+			RIGHT_LONG = "363"
+			BOTTOM_LONG = "196"/>
+		<TITLES
+			s00000 = "Browse folders"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342242825"
+		CTRLID_LONG = "30100"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "278"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "153"
+			LEFT_LONG = "75"
+			RIGHT_LONG = "353"
+			BOTTOM_LONG = "168"/>
+		<TITLES
+			s00000 = "Open each folder in the sa&amp;me window"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342177289"
+		CTRLID_LONG = "30101"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "278"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "171"
+			LEFT_LONG = "75"
+			RIGHT_LONG = "353"
+			BOTTOM_LONG = "186"/>
+		<TITLES
+			s00000 = "Open each folder in its own &amp;window"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342308359"
+		CTRLID_LONG = "65535"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "GroupBox"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "339"
+			BOTTOM_LONG = "98"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "207"
+			LEFT_LONG = "24"
+			RIGHT_LONG = "363"
+			BOTTOM_LONG = "305"/>
+		<TITLES
+			s00000 = "Click items as follows"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342177289"
+		CTRLID_LONG = "30102"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "261"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "227"
+			LEFT_LONG = "75"
+			RIGHT_LONG = "336"
+			BOTTOM_LONG = "242"/>
+		<TITLES
+			s00000 = "&amp;Single-click to open an item (point to select)"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342242825"
+		CTRLID_LONG = "30103"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "278"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "280"
+			LEFT_LONG = "75"
+			RIGHT_LONG = "353"
+			BOTTOM_LONG = "295"/>
+		<TITLES
+			s00000 = "&amp;Double-click to open an item (single-click to select)"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1476591625"
+		CTRLID_LONG = "30104"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "258"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "244"
+			LEFT_LONG = "94"
+			RIGHT_LONG = "352"
+			BOTTOM_LONG = "259"/>
+		<TITLES
+			s00000 = "Underline icon titles consistent with my &amp;browser"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1476395017"
+		CTRLID_LONG = "30105"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "RadioButton"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "258"
+			BOTTOM_LONG = "15"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "262"
+			LEFT_LONG = "94"
+			RIGHT_LONG = "352"
+			BOTTOM_LONG = "277"/>
+		<TITLES
+			s00000 = "Underline icon titles only when I &amp;point at them"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342242816"
+		CTRLID_LONG = "30107"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Button"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "108"
+			BOTTOM_LONG = "23"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "318"
+			LEFT_LONG = "255"
+			RIGHT_LONG = "363"
+			BOTTOM_LONG = "341"/>
+		<TITLES
+			s00000 = "&amp;Restore Defaults"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Static"
+		STYLE_LONG = "1342177347"
+		CTRLID_LONG = "30109"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Static"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "32"
+			BOTTOM_LONG = "33"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<ICON_BMCOLOR
+			biSize_LONG = "40"
+			biWidth_LONG = "32"
+			biHeight_LONG = "32"
+			biPlanes_LONG = "1"
+			biXPelsPerMeter_LONG = "0"
+			biYPelsPerMeter_LONG = "0"/>
+		<ICON_BMMASK
+			biSize_LONG = "40"
+			biWidth_LONG = "32"
+			biHeight_LONG = "32"
+			biPlanes_LONG = "1"
+			biXPelsPerMeter_LONG = "0"
+			biYPelsPerMeter_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "80"
+			LEFT_LONG = "34"
+			RIGHT_LONG = "66"
+			BOTTOM_LONG = "113"/>
+		<TITLES
+			s00000 = ""/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Static"
+		STYLE_LONG = "1342177347"
+		CTRLID_LONG = "30110"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Static"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "32"
+			BOTTOM_LONG = "33"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<ICON_BMCOLOR
+			biSize_LONG = "40"
+			biWidth_LONG = "32"
+			biHeight_LONG = "32"
+			biPlanes_LONG = "1"
+			biXPelsPerMeter_LONG = "0"
+			biYPelsPerMeter_LONG = "0"/>
+		<ICON_BMMASK
+			biSize_LONG = "40"
+			biWidth_LONG = "32"
+			biHeight_LONG = "32"
+			biPlanes_LONG = "1"
+			biXPelsPerMeter_LONG = "0"
+			biYPelsPerMeter_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "153"
+			LEFT_LONG = "34"
+			RIGHT_LONG = "66"
+			BOTTOM_LONG = "186"/>
+		<TITLES
+			s00000 = ""/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Static"
+		STYLE_LONG = "1342177347"
+		CTRLID_LONG = "30111"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Static"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "32"
+			BOTTOM_LONG = "33"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<ICON_BMCOLOR
+			biSize_LONG = "40"
+			biWidth_LONG = "32"
+			biHeight_LONG = "32"
+			biPlanes_LONG = "1"
+			biXPelsPerMeter_LONG = "0"
+			biYPelsPerMeter_LONG = "0"/>
+		<ICON_BMMASK
+			biSize_LONG = "40"
+			biWidth_LONG = "32"
+			biHeight_LONG = "32"
+			biPlanes_LONG = "1"
+			biXPelsPerMeter_LONG = "0"
+			biYPelsPerMeter_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "227"
+			LEFT_LONG = "34"
+			RIGHT_LONG = "66"
+			BOTTOM_LONG = "260"/>
+		<TITLES
+			s00000 = ""/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342373888"
+		CTRLID_LONG = "1"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Button"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "75"
+			BOTTOM_LONG = "23"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "435"
+			LEFT_LONG = "140"
+			RIGHT_LONG = "215"
+			BOTTOM_LONG = "458"/>
+		<TITLES
+			s00000 = "OK"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1342242816"
+		CTRLID_LONG = "2"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Button"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "75"
+			BOTTOM_LONG = "23"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "435"
+			LEFT_LONG = "221"
+			RIGHT_LONG = "296"
+			BOTTOM_LONG = "458"/>
+		<TITLES
+			s00000 = "Cancel"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1476460544"
+		CTRLID_LONG = "12321"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Button"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "75"
+			BOTTOM_LONG = "23"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "435"
+			LEFT_LONG = "302"
+			RIGHT_LONG = "377"
+			BOTTOM_LONG = "458"/>
+		<TITLES
+			s00000 = "&amp;Apply"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "Button"
+		STYLE_LONG = "1073938432"
+		CTRLID_LONG = "9"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "Button"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "0"
+		BUTTONSTATE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "75"
+			BOTTOM_LONG = "23"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "435"
+			LEFT_LONG = "383"
+			RIGHT_LONG = "458"
+			BOTTOM_LONG = "458"/>
+		<TITLES
+			s00000 = "Help"/>
+	</CONTROL>
+	<CONTROL
+		CLASS = "SysTabControl32"
+		STYLE_LONG = "1409483264"
+		CTRLID_LONG = "12320"
+		HELPID_LONG = "0"
+		EXSTYLE_LONG = "4"
+		FRIENDLYCLASS = "SysTabControl32"
+		USERDATA_LONG = "0"
+		ISUNICODE_LONG = "1"
+		ISVISIBLE_LONG = "1"
+		TABEXSTYLE_LONG = "0"
+		HAS_MAIN_MENU_LONG = "0"
+		HAS_SYSTEM_MENU_LONG = "0"
+		CURRENT_SELECTION_LONG = "0">
+		<CLIENTRECT
+			TOP_LONG = "0"
+			LEFT_LONG = "0"
+			RIGHT_LONG = "368"
+			BOTTOM_LONG = "400"/>
+		<FONT
+			lfFaceName = "MS Shell Dlg"
+			lfWidth_LONG = "0"
+			lfHeight_LONG = "-11"
+			lfItalic_LONG = "0"
+			lfWeight_LONG = "400"
+			lfCharSet_LONG = "0"
+			lfQuality_LONG = "0"
+			lfStrikeOut_LONG = "0"
+			lfUnderline_LONG = "0"
+			lfEscapement_LONG = "0"
+			lfOrientation_LONG = "0"
+			lfOutPrecision_LONG = "0"
+			lfClipPrecision_LONG = "0"
+			lfPitchAndFamily_LONG = "0"/>
+		<MENUS>
+			<MENUMAIN/>
+			<MENUSYSTEM/>
+		</MENUS>
+		<RECTANGLE
+			TOP_LONG = "29"
+			LEFT_LONG = "9"
+			RIGHT_LONG = "377"
+			BOTTOM_LONG = "429"/>
+		<TITLES
+			s00000 = ""/>
+	</CONTROL>
+</DIALOG>
+

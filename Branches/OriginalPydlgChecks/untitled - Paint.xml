@@ -1,0 +1,777 @@
+
+<DIALOG
+	_version_="2.0">
+	<CONTROL
+		Class="MSPaintApp"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="66623"
+		ExStyle_LONG="272"
+		FriendlyClassName="Dialog"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="382713856"
+		Texts_00000="untitled - Paint"
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="755"
+			left_LONG="0"
+			right_LONG="642"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="0"
+			lfEscapement_LONG="0"
+			lfFaceName="Tahoma"
+			lfHeight_LONG="-11"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="0"
+			lfPitchAndFamily_LONG="0"
+			lfQuality_LONG="0"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="0" />
+		<Image_IMG
+			data="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\n"
+			mode="RGB"
+			size_00000_LONG="650"
+			size_00001_LONG="801" />
+		<MenuItems_00000
+			ID_LONG="66625"
+			State_LONG="0"
+			Text="&amp;File"
+			Type_LONG="0">
+			<MenuItems_00000
+				ID_LONG="57600"
+				State_LONG="0"
+				Text="&amp;New\tCtrl+N"
+				Type_LONG="0" />
+			<MenuItems_00001
+				ID_LONG="57601"
+				State_LONG="0"
+				Text="&amp;Open...\tCtrl+O"
+				Type_LONG="0" />
+			<MenuItems_00002
+				ID_LONG="57603"
+				State_LONG="0"
+				Text="&amp;Save\tCtrl+S"
+				Type_LONG="0" />
+			<MenuItems_00003
+				ID_LONG="57604"
+				State_LONG="0"
+				Text="Save &amp;As..."
+				Type_LONG="0" />
+			<MenuItems_00004
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00005
+				ID_LONG="37666"
+				State_LONG="0"
+				Text="From Scanner or &amp;Camera..."
+				Type_LONG="0" />
+			<MenuItems_00006
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00007
+				ID_LONG="57609"
+				State_LONG="0"
+				Text="Print Pre&amp;view"
+				Type_LONG="0" />
+			<MenuItems_00008
+				ID_LONG="57605"
+				State_LONG="0"
+				Text="Page Set&amp;up..."
+				Type_LONG="0" />
+			<MenuItems_00009
+				ID_LONG="57607"
+				State_LONG="0"
+				Text="&amp;Print...\tCtrl+P"
+				Type_LONG="0" />
+			<MenuItems_00010
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00011
+				ID_LONG="37662"
+				State_LONG="0"
+				Text="S&amp;end..."
+				Type_LONG="0" />
+			<MenuItems_00012
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00013
+				ID_LONG="57677"
+				State_LONG="0"
+				Text="Set As &amp;Background (Tiled)"
+				Type_LONG="0" />
+			<MenuItems_00014
+				ID_LONG="57675"
+				State_LONG="0"
+				Text="Set As Bac&amp;kground (Centered)"
+				Type_LONG="0" />
+			<MenuItems_00015
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00016
+				ID_LONG="57616"
+				State_LONG="1"
+				Text="Recent File"
+				Type_LONG="0" />
+			<MenuItems_00017
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00018
+				ID_LONG="57665"
+				State_LONG="0"
+				Text="E&amp;xit\tAlt+F4"
+				Type_LONG="0" />
+		</MenuItems_00000>
+		<MenuItems_00001
+			ID_LONG="66627"
+			State_LONG="0"
+			Text="&amp;Edit"
+			Type_LONG="0">
+			<MenuItems_00000
+				ID_LONG="57643"
+				State_LONG="0"
+				Text="&amp;Undo\tCtrl+Z"
+				Type_LONG="0" />
+			<MenuItems_00001
+				ID_LONG="57644"
+				State_LONG="3"
+				Text="&amp;Repeat\tCtrl+Y"
+				Type_LONG="0" />
+			<MenuItems_00002
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00003
+				ID_LONG="57635"
+				State_LONG="0"
+				Text="Cu&amp;t\tCtrl+X"
+				Type_LONG="0" />
+			<MenuItems_00004
+				ID_LONG="57634"
+				State_LONG="0"
+				Text="&amp;Copy\tCtrl+C"
+				Type_LONG="0" />
+			<MenuItems_00005
+				ID_LONG="57637"
+				State_LONG="3"
+				Text="&amp;Paste\tCtrl+V"
+				Type_LONG="0" />
+			<MenuItems_00006
+				ID_LONG="57632"
+				State_LONG="0"
+				Text="C&amp;lear Selection\tDel"
+				Type_LONG="0" />
+			<MenuItems_00007
+				ID_LONG="57642"
+				State_LONG="0"
+				Text="Select &amp;All\tCtrl+A"
+				Type_LONG="0" />
+			<MenuItems_00008
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00009
+				ID_LONG="37663"
+				State_LONG="0"
+				Text="C&amp;opy To..."
+				Type_LONG="0" />
+			<MenuItems_00010
+				ID_LONG="37664"
+				State_LONG="0"
+				Text="Paste &amp;From..."
+				Type_LONG="0" />
+		</MenuItems_00001>
+		<MenuItems_00002
+			ID_LONG="66629"
+			State_LONG="0"
+			Text="&amp;View"
+			Type_LONG="0">
+			<MenuItems_00000
+				ID_LONG="59415"
+				State_LONG="0"
+				Text="&amp;Tool Box\tCtrl+T"
+				Type_LONG="0" />
+			<MenuItems_00001
+				ID_LONG="59416"
+				State_LONG="0"
+				Text="&amp;Color Box\tCtrl+L"
+				Type_LONG="0" />
+			<MenuItems_00002
+				ID_LONG="59393"
+				State_LONG="0"
+				Text="&amp;Status Bar"
+				Type_LONG="0" />
+			<MenuItems_00003
+				ID_LONG="37678"
+				State_LONG="0"
+				Text="T&amp;ext Toolbar"
+				Type_LONG="0" />
+			<MenuItems_00004
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00005
+				ID_LONG="66631"
+				State_LONG="0"
+				Text="&amp;Zoom"
+				Type_LONG="0">
+				<MenuItems_00000
+					ID_LONG="37670"
+					State_LONG="2"
+					Text="&amp;Normal Size\tCtrl+PgUp"
+					Type_LONG="0" />
+				<MenuItems_00001
+					ID_LONG="37671"
+					State_LONG="0"
+					Text="&amp;Large Size\tCtrl+PgDn"
+					Type_LONG="0" />
+				<MenuItems_00002
+					ID_LONG="37672"
+					State_LONG="0"
+					Text="C&amp;ustom..."
+					Type_LONG="0" />
+				<MenuItems_00003
+					ID_LONG="0"
+					State_LONG="3"
+					Text=""
+					Type_LONG="2048" />
+				<MenuItems_00004
+					ID_LONG="37677"
+					State_LONG="2"
+					Text="Show &amp;Grid\tCtrl+G"
+					Type_LONG="0" />
+				<MenuItems_00005
+					ID_LONG="37676"
+					State_LONG="0"
+					Text="Show T&amp;humbnail"
+					Type_LONG="0" />
+			</MenuItems_00005>
+			<MenuItems_00006
+				ID_LONG="37673"
+				State_LONG="0"
+				Text="&amp;View Bitmap\tCtrl+F"
+				Type_LONG="0" />
+		</MenuItems_00002>
+		<MenuItems_00003
+			ID_LONG="66633"
+			State_LONG="0"
+			Text="&amp;Image"
+			Type_LONG="0">
+			<MenuItems_00000
+				ID_LONG="37680"
+				State_LONG="0"
+				Text="&amp;Flip/Rotate...\tCtrl+R"
+				Type_LONG="0" />
+			<MenuItems_00001
+				ID_LONG="37681"
+				State_LONG="0"
+				Text="&amp;Stretch/Skew...\tCtrl+W"
+				Type_LONG="0" />
+			<MenuItems_00002
+				ID_LONG="37682"
+				State_LONG="0"
+				Text="&amp;Invert Colors\tCtrl+I"
+				Type_LONG="0" />
+			<MenuItems_00003
+				ID_LONG="37683"
+				State_LONG="0"
+				Text="&amp;Attributes...\tCtrl+E"
+				Type_LONG="0" />
+			<MenuItems_00004
+				ID_LONG="37684"
+				State_LONG="0"
+				Text="&amp;Clear Image\tCtrl+Shft+N"
+				Type_LONG="0" />
+			<MenuItems_00005
+				ID_LONG="6868"
+				State_LONG="0"
+				Text="&amp;Draw Opaque"
+				Type_LONG="0" />
+		</MenuItems_00003>
+		<MenuItems_00004
+			ID_LONG="66635"
+			State_LONG="0"
+			Text="&amp;Colors"
+			Type_LONG="0">
+			<MenuItems_00000
+				ID_LONG="6869"
+				State_LONG="0"
+				Text="&amp;Edit Colors..."
+				Type_LONG="0" />
+		</MenuItems_00004>
+		<MenuItems_00005
+			ID_LONG="66637"
+			State_LONG="0"
+			Text="&amp;Help"
+			Type_LONG="0">
+			<MenuItems_00000
+				ID_LONG="57670"
+				State_LONG="0"
+				Text="&amp;Help Topics"
+				Type_LONG="0" />
+			<MenuItems_00001
+				ID_LONG="0"
+				State_LONG="3"
+				Text=""
+				Type_LONG="2048" />
+			<MenuItems_00002
+				ID_LONG="57664"
+				State_LONG="0"
+				Text="&amp;About Paint"
+				Type_LONG="0" />
+		</MenuItems_00005>
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="801"
+			left_LONG="0"
+			right_LONG="650"
+			top_LONG="0" />
+	</CONTROL>
+	<CONTROL
+		Class="AfxFrameOrView42u"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59648"
+		ExStyle_LONG="512"
+		FriendlyClassName="AfxFrameOrView42u"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1375731712"
+		Texts_00000=""
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="679"
+			left_LONG="0"
+			right_LONG="582"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Image_IMG
+			data="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\n"
+			mode="RGB"
+			size_00000_LONG="586"
+			size_00001_LONG="683" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="725"
+			left_LONG="60"
+			right_LONG="646"
+			top_LONG="42" />
+	</CONTROL>
+	<CONTROL
+		Class="Afx:1000000:8"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="0"
+		ExStyle_LONG="0"
+		FriendlyClassName="Afx:1000000:8"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1412431872"
+		Texts_00000=""
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="663"
+			left_LONG="0"
+			right_LONG="566"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Image_IMG
+			data="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\n"
+			mode="RGB"
+			size_00000_LONG="582"
+			size_00001_LONG="679" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="723"
+			left_LONG="62"
+			right_LONG="644"
+			top_LONG="44" />
+	</CONTROL>
+	<CONTROL
+		Class="msctls_statusbar32"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59393"
+		ExStyle_LONG="0"
+		FriendlyClassName="StatusBar"
+		HorizBorderWidth_LONG="0"
+		InterBorderWidth_LONG="2"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1409286478"
+		Texts_00000=""
+		Texts_00001="Draws a free-form line one pixel wide."
+		Texts_00002=""
+		Texts_00003=""
+		UserData_LONG="0"
+		VertBorderWidth_LONG="2">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="23"
+			left_LONG="0"
+			right_LONG="642"
+			top_LONG="0" />
+		<ClientRects_00001
+			__type__="RECT"
+			bottom_LONG="23"
+			left_LONG="0"
+			right_LONG="386"
+			top_LONG="2" />
+		<ClientRects_00002
+			__type__="RECT"
+			bottom_LONG="23"
+			left_LONG="388"
+			right_LONG="505"
+			top_LONG="2" />
+		<ClientRects_00003
+			__type__="RECT"
+			bottom_LONG="23"
+			left_LONG="507"
+			right_LONG="609"
+			top_LONG="2" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="0"
+			lfEscapement_LONG="0"
+			lfFaceName="Tahoma"
+			lfHeight_LONG="-11"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="0"
+			lfPitchAndFamily_LONG="0"
+			lfQuality_LONG="0"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="400"
+			lfWidth_LONG="0" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="797"
+			left_LONG="4"
+			right_LONG="646"
+			top_LONG="774" />
+	</CONTROL>
+	<CONTROL
+		Class="AfxControlBar42u"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59419"
+		ExStyle_LONG="0"
+		FriendlyClassName="AfxControlBar42u"
+		Image="None"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1442850816"
+		Texts_00000=""
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="-2"
+			left_LONG="0"
+			right_LONG="642"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="42"
+			left_LONG="4"
+			right_LONG="646"
+			top_LONG="42" />
+	</CONTROL>
+	<CONTROL
+		Class="AfxControlBar42u"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59422"
+		ExStyle_LONG="0"
+		FriendlyClassName="AfxControlBar42u"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1442873856"
+		Texts_00000="Colors"
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="47"
+			left_LONG="0"
+			right_LONG="642"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Image_IMG
+			data="QlpoOTFBWSZTWbxDu4gAABdWTtAAAQRAgkEEQAAIAABARAAACLABW0ZsEKU1DQ0YE1Sp6j1A0NAp\nKhJk00009eXqGWRm1yi51Reg8fIWuubrrJ8yU9ZWrEmURvuqa1iA7orK6q479e9TiI0jsR2ZUT+I\nVXwhVd3WRWzb+4OMU00VozB7y86LmwVPFqhSqKSmkoeZE8FoFxwKKkw229lo1mgBskCEIiCYqoV1\ngRc1MCG8Yyy3JXSqiTtSB1FqIOszlQvySONC0L/F3JFOFCQvEO7iAA==\n"
+			mode="RGB"
+			size_00000_LONG="642"
+			size_00001_LONG="49" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="774"
+			left_LONG="4"
+			right_LONG="646"
+			top_LONG="725" />
+	</CONTROL>
+	<CONTROL
+		Class="AfxWnd42u"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59416"
+		ExStyle_LONG="0"
+		FriendlyClassName="AfxWnd42u"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1409319424"
+		Texts_00000="Colors"
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="51"
+			left_LONG="0"
+			right_LONG="259"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Image_IMG
+			data="QlpoOTFBWSZTWRRgQQ4AAAzHRsAAQAAIAAABQAAAQEQAAAigAJAgBgFKJIek5RZFHlFxRbRe0XFF\n9ov0KHYUNovJRiWKqnYsgpNFFqWRaovVF2i/i7kinChICjAghwA=\n"
+			mode="RGB"
+			size_00000_LONG="259"
+			size_00001_LONG="51" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="774"
+			left_LONG="2"
+			right_LONG="261"
+			top_LONG="723" />
+	</CONTROL>
+	<CONTROL
+		Class="AfxControlBar42u"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59420"
+		ExStyle_LONG="0"
+		FriendlyClassName="AfxControlBar42u"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1442845696"
+		Texts_00000="Tools"
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="679"
+			left_LONG="0"
+			right_LONG="56"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Image_IMG
+			data="QlpoOTFBWSZTWd3xwxUAK/Z//9JJJJBJJJAARJJIBIIAJAJAPwJBJ+BAAABQRAABAEBI0AV+97aB\nYxrVMbUtsEMAANAAGTQAABoDAADQABk0AAAaAQpQinohoyGTRoAGgaAARJSnqMmaEAZBpk0BoNAa\nBEhImUCT1GjQ9MjSDQ0NAaPihetVqRrcn/Nlm2HSzYuRI7+N3Pnm5f41V9oLwi66wqqxHPdkvN6E\nujRGEqpTJiYw5OZy8mpXXthvqMDdpWGDlMW1kYHblJPmu0w43ag7Gb2NxlEq4RJv9l6+etuRFXuQ\nFYKiGqLIDpJIoAYDqebE7GKWxxg3xhGi0qNkGN4YYOFQ9Om7JTTRCAQCJ7D2+g2MU6BhrYw7/LKw\nedw2tnJlBY2UllDSFrbCxKLbGoSMYJTEq0yNsMPWwKNMIQfEppsXrJN+GeMmNvLRyaKlYdfDwGwa\nCBTIFFEJueZt7DQb4e6jY5NHSFh+mjDqLQwX4XWb7RvYrHc3Qlq8RgyXMtohpOijF3YcVAPTUxSq\nEUFINAUNBIoyUCMgrMsSShKxIQEBUVNLFQrRExDxgInX8fk6D8z9EMwPhpMNqEN1FTW4Yhs3o3us\ngDsK2F6JhLlGCjjSULu3NrQQ2NxKDW1K9P5QN5buhx+4hu85opdIbwN9DcHYIfAh8iFhhCIbGBEN\nugymwwNj3RDyqlKooQ+J8KBUyXoBEOQpQ5hFkcwQQTVBQNRQ7CEU/qHVuUVHSPqAGh88+qm7oont\nmU1oE9SIEbboSQgNADoFQz0ylN2LnSoMTz5wDmY6H7VEKbJtAKEiWJ1igUpULHLlOB2gdrDvk7zw\nFHj0oHgKNwhm18YUAiXw96KQhEYq9Yo5RDrFGCGcUYIY/1QRUTCCi7VBFRMYIJoIqOnFQnNmpOjw\nbLAykS0l7YQEM5JQdHikzKlHmNhFqySAyqp8hjseSQISdgXYQoOYdL8bqG2BVebCzyTq64nGQUpk\nlKHehXWTDCqgBxJE7oLoih6Mo45M0a0bkWQekTIo9hLJqagh3QRzaixiJ1IQRA2BgYZE75IAJow/\nyAHkhFA1ERQVSZKAES2ygF8apVQvIEengF/7QBiBC08SKaVgqLFDVw/oKLAqCp3Hu3JCVEihoqoh\nz8MB34hCL6rUooqBg0MFReCBIGwiAbkN8NJEFCoHLHPBxa4I1SmSmSCthkuFghk0/6HQk1IEwhyR\nw4EQi5hGIkGQehF5wpyMIiFQxtQoid0AKggBJxEd4uRQDP/F3JFOFCQ3fHDFQA==\n"
+			mode="RGB"
+			size_00000_LONG="56"
+			size_00001_LONG="683" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="725"
+			left_LONG="4"
+			right_LONG="60"
+			top_LONG="42" />
+	</CONTROL>
+	<CONTROL
+		Class="AfxWnd42u"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59415"
+		ExStyle_LONG="0"
+		FriendlyClassName="AfxWnd42u"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1409291312"
+		Texts_00000="Tools"
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="281"
+			left_LONG="0"
+			right_LONG="60"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Image_IMG
+			data="QlpoOTFBWSZTWWFLpLgABIL/3tJJIJJJIAIBQBBJJIBAAIJAACfiQACCQEQAAAjAAmqu2Y5OcJEF\nTaJAaADTT1AaASaUUhtQANAyAAAilT1AxNAAGgDT0gCopE0gGgDQDQAHkTdxYRkP+JIG8UWS2DVR\nD6XG90cdoBLrzwY0ZndqN2ZR1VaKlssYlltYV4uSpzjG7ZY3w7YV5ZS8xoaFky2NiVQ20bnapnVQ\nwjRuFD6fnsu3SEhsgADJIEk1hC1aBLTQhHKSbCUUMkYuuaLpQyWVlg47MMs8MMLSlPJq0yTW3NN3\ndgzaym8DLQ0soYJgxBoKIwMRuAzEkdbyLG2uiCCkG0zMd1EmhpI7KMFYGrTRCgNmpwk2ElYysJOH\nhqUsZmDTjBdopHO4TNu240TbaSKgWQKLYlotIsIVS1YiyLUqW2LKtLSKttVrRBiCxAskWIqyCQwA\nzWPSw2r7WayW65vKmMRVJ0sgoRKvI1Im1ciJataJC5USFoprrk/ASIfoJENiSREOXk1JARo2V0LV\nJGSSAywGVlslsWiJ3s2MzmwIqqQqAQtKJKlArFgGEkwhbSDBWH8zKQrCCoRUJsSEW0FNY/xdyRTh\nQkGFLpLg\n"
+			mode="RGB"
+			size_00000_LONG="60"
+			size_00001_LONG="281" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="400"
+			left_LONG="2"
+			right_LONG="62"
+			top_LONG="119" />
+	</CONTROL>
+	<CONTROL
+		Class="AfxControlBar42u"
+		ContextHelpID_LONG="0"
+		ControlID_LONG="59421"
+		ExStyle_LONG="0"
+		FriendlyClassName="AfxControlBar42u"
+		Image="None"
+		IsEnabled_LONG="1"
+		IsUnicode_LONG="1"
+		IsVisible_LONG="1"
+		Style_LONG="1442857216"
+		Texts_00000=""
+		UserData_LONG="0">
+		<ClientRects_00000
+			__type__="RECT"
+			bottom_LONG="679"
+			left_LONG="0"
+			right_LONG="0"
+			top_LONG="0" />
+		<Fonts_00000
+			__type__="LOGFONTW"
+			lfCharSet_LONG="0"
+			lfClipPrecision_LONG="2"
+			lfEscapement_LONG="0"
+			lfFaceName="System"
+			lfHeight_LONG="16"
+			lfItalic_LONG="0"
+			lfOrientation_LONG="0"
+			lfOutPrecision_LONG="1"
+			lfPitchAndFamily_LONG="34"
+			lfQuality_LONG="2"
+			lfStrikeOut_LONG="0"
+			lfUnderline_LONG="0"
+			lfWeight_LONG="700"
+			lfWidth_LONG="7" />
+		<Rectangle
+			__type__="RECT"
+			bottom_LONG="725"
+			left_LONG="646"
+			right_LONG="646"
+			top_LONG="42" />
+	</CONTROL>
+</DIALOG>
