@@ -1,0 +1,66 @@
+
+# TODO: Create a class that makes it easy to deal with a single window
+#       (e.g. no application)
+
+# TODO: Allow apps to be started in a different thread so we don't lock up
+#  - this is being done already - the problem is that some messages cannot
+#    be sent across processes if they have pointers (so we need to send a 
+#    synchronous message which waits for the other process to respond 
+#    before returning)
+
+# TODO: Message traps - how to handle unwanted message boxes popping up?
+# a) Wait for an Exception then handle it there
+# b) set a trap waiting for a specific dialog
+
+# TODO: Implement an opional timing/config module so that all timing can 
+#       be customized
+
+# TODO: Handle adding reference controls
+
+# TODO: Add referencing by closes static (or surrounding group box?)
+
+# TODO: find the reference name of a variable .e.g so that in Dialog._write() we 
+#       can know the variable name that called the _write on (this we don't have
+#       to repeat the XML file name!)
+
+
+# investigate using any of the following
+# BringWindowToTop
+# EnumThreadWindows
+# GetGUIThreadInfo
+# GetTopWindow
+# 
+
+
+
+
+# a) Dialogs returned from App (dialog)
+#    should respond to _ctrl and their own actions
+# b) Controls returned from Dialogs
+#    should respond to _ctrl and their own actions
+# c) Dialogs should be able to respond to calls of
+#    FindControl
+# d) Apps should be able to respond to calls of
+#    FindDialog
+# e) Dialogs need to be able to respond to MenuSelect
+
+# app.dlgTitle
+# app._Dialog(dlgSearchParams): raises WindowNotFound, WindowAmbiguous
+
+# dlg.ControlTitle
+# dlg._Control(ctrlSearchParams)
+
+# dlg._Menu(menupath).Select()
+# OR???
+# dlg._Menu.File.Open.Select()
+
+# dlg._.IsVisible
+# dlg.Close()
+
+# ctrl._.IsVisible
+# ctrl.Click()
+
+
+
+#App.Dialog.Control.Action()
+#or App.Dialog.Action()
