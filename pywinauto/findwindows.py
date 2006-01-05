@@ -3,8 +3,13 @@ import re
 import ctypes
 
 import win32functions
-import findbestmatch
 import handleprops
+
+# currently commented out as finding the best match control
+# requires that we know the Friendly class name - which is only
+# known by the control wrappers - and I would prefer to keep 
+# this module from having that dependency.
+#import findbestmatch
 
 #=========================================================================
 class WindowNotFoundError(Exception):
@@ -44,7 +49,7 @@ def find_windows(class_name = None,
 				top_level_only = True,
 				visible_only = True,
 				enabled_only = True,
-				best_match_title = None
+				#best_match = None
 	):
 	"""Find windows based on criteria passed in
 	
@@ -103,8 +108,8 @@ def find_windows(class_name = None,
 		windows = [win for win in windows 
 			if re.match(title_re, handleprops.text(win))]
 	
-	elif best_match_title and windows:
-		windows = [findbestmatch.find_best_control_match(best_match_title, wins),]
+#	elif best_match and windows:
+#		windows = [findbestmatch.find_best_control_match(best_match, wins),]
 		
 	if visible_only and windows:
 		windows = [win for win in windows if handleprops.isvisible(win)]
