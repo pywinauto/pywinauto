@@ -24,10 +24,24 @@
 from distutils.core import setup 
 
 
-setup(name='Distutils',
-      version='0.1',
-      description='Python library for GUI automation and testing',
-      author='Mark Mc Mahon',
-      author_email='mark.m.mcmahon@gmail.com',
-      packages=['pywinauto'],
-     )
+setup(name='pywinauto',
+	version='0.1',
+	description='Python library for GUI automation and testing',
+	url="no url",
+	author='Mark Mc Mahon',
+	author_email='mark.m.mcmahon@gmail.com',
+	packages = ["pywinauto"],
+	#py_modules=['application', 'test_application'],
+	license = "LGPL",
+	classifiers=[
+		'Development Status :: 4 - Beta',
+		'Environment :: Console',
+		'Intended Audience :: Developers',
+		'License :: OSI Approved :: GNU Lesser General Public License',
+		'Operating System :: Microsoft :: Windows',
+		'Programming Language :: Python',
+		],
+	)
+
+
+ 
