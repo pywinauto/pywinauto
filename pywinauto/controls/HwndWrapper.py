@@ -24,9 +24,9 @@ from pprint import pprint
 import PIL.ImageGrab
 from ctypes import * 
 
-from win32defines import *
-from win32functions import *
-from win32structures import *
+from pywinauto.win32defines import *
+from pywinauto.win32functions import *
+from pywinauto.win32structures import *
 
 
 #====================================================================
