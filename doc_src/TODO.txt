@@ -1,37 +1,40 @@
 
-# TODO: Create a class that makes it easy to deal with a single window
-#       (e.g. no application)
+============================================================================
+APPLICATION TODO's
+============================================================================
+* Create a class that makes it easy to deal with a single window  (e.g. no application)
 
-# TODO: Allow apps to be started in a different thread so we don't lock up
-#  - this is being done already - the problem is that some messages cannot
-#    be sent across processes if they have pointers (so we need to send a 
-#    synchronous message which waits for the other process to respond 
-#    before returning)
+* Allow apps to be started in a different thread so we don't lock up
+  - this is being done already - the problem is that some messages cannot
+    be sent across processes if they have pointers (so we need to send a 
+    synchronous message which waits for the other process to respond 
+    before returning)
 
-# TODO: Message traps - how to handle unwanted message boxes popping up?
-# a) Wait for an Exception then handle it there
-# b) set a trap waiting for a specific dialog
+* Message traps - how to handle unwanted message boxes popping up?
+  a) Wait for an Exception then handle it there
+  b) set a trap waiting for a specific dialog
 
-# TODO: Implement an opional timing/config module so that all timing can 
-#       be customized
+*  Implement an opional timing/config module so that all timing can be customized
 
-# TODO: Handle adding reference controls
+* Handle adding reference controls (in that they should be the controls used for finding windows)
 
-# TODO: Add referencing by closes static (or surrounding group box?)
+* Add referencing by closest static (or surrounding group box?)
 
-# TODO: find the reference name of a variable .e.g so that in Dialog._write() we 
-#       can know the variable name that called the _write on (this we don't have
-#       to repeat the XML file name!)
+* Find the reference name of a variable .e.g so that in Dialog._write() we 
+  can know the variable name that called the _write on (this we don't have
+  to repeat the XML file name!)
 
-
-# investigate using any of the following
-# BringWindowToTop
-# EnumThreadWindows
-# GetGUIThreadInfo
-# GetTopWindow
-# 
+Investigate using any of the following
+  BringWindowToTop
+  EnumThreadWindows
+  GetGUIThreadInfo
+  GetTopWindow
+ 
 
 
+============================================================================
+
+============================================================================
 
 
 # a) Dialogs returned from App (dialog)
