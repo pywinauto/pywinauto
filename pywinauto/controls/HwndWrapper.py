@@ -24,9 +24,9 @@ from pprint import pprint
 import PIL.ImageGrab
 from ctypes import * 
 
-from pywinauto.win32defines import *
-from pywinauto.win32functions import *
-from pywinauto.win32structures import *
+from win32defines import *
+from win32functions import *
+from win32structures import *
 
 
 #====================================================================
@@ -507,7 +507,7 @@ HwndWrappers = {}
 #====================================================================
 def Main():
 
-	from FindDialog import FindDialog
+	from findwindows import find_windows
 
 	if len(sys.argv) < 2:
 		handle = GetDesktopWindow()
@@ -517,13 +517,11 @@ def Main():
 			
 		except:
 			
-			handle = FindDialog("^" + sys.argv[1], testClass = "#32770")
+			handle = find_windows(title_re = "^" + sys.argv[1], class_name = "#32770")
 		
 			if not handle:
 				print "dialog not found"
 				sys.exit()
-			#print handle
-			#pprint (HwndWrapper(handle).GetProperties())
 			
 
 	#pprint(GetDialogPropsFromHandle(handle))
