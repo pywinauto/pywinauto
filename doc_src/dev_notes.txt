@@ -1,3 +1,56 @@
+===========
+FILE LAYOUT
+===========
+
+# used by just about everything (and considered a block!)
+win32defines.py
+win32functions.py
+win32structures.py
+
+# Find windows and their attributes
+findwindows.py
+handleprops.py
+
+# wrap windows, get extra info for particular controls
+# set the friendly class name
+controls\common_controls.py
+controls\controlactions.py
+controls\HwndWrapper.py
+controls\win32_controls.py
+
+# currently depends on the Friendly class name 
+# probably needs to be refactored to make it independent of controls!
+# maybe move that stuff to _application_?
+findbestmatch.py  # currently depends on controls!
+
+
+controlactions.py
+
+tests\allcontrols.py
+tests\asianhotkey.py
+tests\comboboxdroppedheight.py
+tests\comparetoreffont.py
+tests\leadtrailspaces.py
+tests\miscvalues.py
+tests\missalignment.py
+tests\missingextrastring.py
+tests\overlapping.py
+tests\repeatedhotkey.py
+tests\translation.py
+tests\truncation.py
+
+
+controlproperties.py
+
+XMLHelpers.py
+
+	FindDialog.py
+	PyDlgCheckerWrapper.py
+
+application.py
+test_application.py
+
+
 ====================
 ATTRIBUTE RESOLUTION
 ====================

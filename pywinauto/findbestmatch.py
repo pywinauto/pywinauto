@@ -22,6 +22,10 @@ import re
 import difflib
 
 
+# TODO: Refactor so that it does not require FriendlyClassName
+#       It would need to get the list of titles to match against
+#       from somewhere else.
+
 #====================================================================
 class MatchError(IndexError):
 	def __init__(self, msg = '', items = [], tofind = ''):
