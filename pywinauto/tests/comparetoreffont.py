@@ -18,33 +18,33 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
-import win32structures
 
 def CompareToRefFontTest(windows):
 	bugs = []
 	for win in windows:	
+		# if no reference then skip the control
 		if not win.ref:
 			continue
-		
-		diffs = {}
-		
-		for f in win32structures.LOGFONTW._fields_:
+				
+		# find each of the bugs
+		for fname, loc_value in win.Font._fields_:
 			
-			loc = getattr(win.Font, f[0])
-			ref = getattr(win.ref.Font, f[0])
-			if loc != ref:
-				diffs.append(f[0], loc, ref)
+			# get the reference value
+			ref_value = getattr(win.ref.Font, fname)
 			
-		for diff, locVal, refVal in diffs.items():
-			bugs.append((
-				[win, ],
-				{
-					"ValueType": diff,
-					"Ref": unicode(refVal),
-					"Loc": unicode(locVal),
-				},
-				"CompareToRefFont",
-				0,)
-			)
+			# If they are different
+			if loc_value != ref_value:
+		
+				# Add the bug information
+				bugs.append((
+					[win, ],
+					{
+						"ValueType": fname,
+						"Ref": unicode(ref_value),
+						"Loc": unicode(loc_value),
+					},
+					"CompareToRefFont",
+					0,)
+				)
 	return bugs
 
