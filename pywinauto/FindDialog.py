@@ -30,8 +30,9 @@ from win32functions import *
 from win32defines import *
 from win32structures import *
 import controls
+from findwindows import find_windows
 
-
+import handleprops
 
 __revision__ = "0.0.1"		
 
@@ -70,81 +71,81 @@ import PyDlgCheckerWrapper
 		
 
 
-totalWindowCount = 0
+#totalWindowCount = 0
 
-#====================================================================
-def FindDialog(titleToFind, caseSensitive = False, testClass = None, startWin = None):
-	"""Find a dialog based on the title
-	
-	
-Returns the dialog that has a title that matches the regular
-expression in titleToFind.
-If caseSensitive == True then it performs a case sensitive match
-If startWin == None then it starts searching from the desktop window
-otherwise it searches the child windows of the specified window."""
-
-	if caseSensitive:
-
-		flags = re.IGNORECASE
-	else:
-		flags = 0
-	
-	titleRe = re.compile(titleToFind, flags)
-
-	# If the startWin is NULL then we are just starting and we
-	# should start with the Desktop window and look from there
-	if startWin == None:
-		startWin = GetDesktopWindow()
-
-	# get the 1st child of the start window
-	winToTest = GetWindow (startWin, GW_CHILD)
-
-	# Now Iterate through all the children of the startwindow
-	# (ie ALL windows, dialogs, controls ) then if the HWND is a dialog
-	# get the Title and compare it to what we are looking for
-	# it makes a check first to make sure that the window has at
-	# least 1 child window
-	while winToTest:
-		global totalWindowCount
-		totalWindowCount += 1
-
-		# get the Title of the Window and if the Title the same as
-		# what we want if So then return it
-		title = controls.WrapHandle(winToTest).Text
-		
-		# Check the title to see if it is the same as the title we
-		# are looking for - if it is then return the handle
-		found = titleRe.search(title)
-		if found:
-		
-			if testClass:
-				if testClass == controls.WrapHandle(winToTest).Class:
-					return winToTest
-			else:
-				return winToTest
-			
-
-		# Now Check through the children of the present window
-		# this is recursive through all the children of the window
-		# It calls FindDialog with the title and the new window
-		# this will keep going recursively until the window is found
-		# or we reach the end of the children
-		tempWin = FindDialog (titleToFind, caseSensitive, testClass, winToTest)
-
-		if tempWin != None:
-			return tempWin
-
-		# So the last one wasnt it just continue with the next
-		# which will be the next window at the present level
-		winToTest = GetWindow (winToTest, GW_HWNDNEXT)
-
-	# we have gotten to here so we didnt find the window
-	# in the current depth of the tree return NULL to say
-	# that we didnt get it and continue at the previous depth
-	return None
-
-
-
+##====================================================================
+#def FindDialog(titleToFind, caseSensitive = False, testClass = None, startWin = None):
+#	"""Find a dialog based on the title
+#	
+#	
+#Returns the dialog that has a title that matches the regular
+#expression in titleToFind.
+#If caseSensitive == True then it performs a case sensitive match
+#If startWin == None then it starts searching from the desktop window
+#otherwise it searches the child windows of the specified window."""
+#
+#	if caseSensitive:
+#
+#		flags = re.IGNORECASE
+#	else:
+#		flags = 0
+#	
+#	titleRe = re.compile(titleToFind, flags)
+#
+#	# If the startWin is NULL then we are just starting and we
+#	# should start with the Desktop window and look from there
+#	if startWin == None:
+#		startWin = GetDesktopWindow()
+#
+#	# get the 1st child of the start window
+#	winToTest = GetWindow (startWin, GW_CHILD)
+#
+#	# Now Iterate through all the children of the startwindow
+#	# (ie ALL windows, dialogs, controls ) then if the HWND is a dialog
+#	# get the Title and compare it to what we are looking for
+#	# it makes a check first to make sure that the window has at
+#	# least 1 child window
+#	while winToTest:
+#		global totalWindowCount
+#		totalWindowCount += 1
+#
+#		# get the Title of the Window and if the Title the same as
+#		# what we want if So then return it
+#		title = controls.WrapHandle(winToTest).Text
+#		
+#		# Check the title to see if it is the same as the title we
+#		# are looking for - if it is then return the handle
+#		found = titleRe.search(title)
+#		if found:
+#		
+#			if testClass:
+#				if testClass == controls.WrapHandle(winToTest).Class:
+#					return winToTest
+#			else:
+#				return winToTest
+#			
+#
+#		# Now Check through the children of the present window
+#		# this is recursive through all the children of the window
+#		# It calls FindDialog with the title and the new window
+#		# this will keep going recursively until the window is found
+#		# or we reach the end of the children
+#		tempWin = FindDialog (titleToFind, caseSensitive, testClass, winToTest)
+#
+#		if tempWin != None:
+#			return tempWin
+#
+#		# So the last one wasnt it just continue with the next
+#		# which will be the next window at the present level
+#		winToTest = GetWindow (winToTest, GW_HWNDNEXT)
+#
+#	# we have gotten to here so we didnt find the window
+#	# in the current depth of the tree return NULL to say
+#	# that we didnt get it and continue at the previous depth
+#	return None
+#
+#
+#
 
 
 
@@ -278,7 +279,7 @@ if __name__ == '__main__':
 	
 	if options.windowTitle:
 		# find the dialog
-		handle =  FindDialog ("^" + options.windowTitle.decode("mbcs"))
+		handle =  find_windows(title_re = "^" + options.windowTitle.decode("mbcs"))[0]
 		
 		if not handle:
 			print "Could not find dialog"
@@ -314,7 +315,7 @@ if __name__ == '__main__':
 
 
 	if options.refWindow:
-		handle =  FindDialog ("^" + options.refWindow)
+		handle =  find_windows (title_re = "^" + options.refWindow)
 		PyDlgCheckerWrapper.AddReferenceFromWindow(handle)
 			
 	elif options.refXML:
@@ -357,12 +358,15 @@ if __name__ == '__main__':
 				ctrl.IsVisible,)
 				
 			try:
-
-				dlgRect = PyDlgCheckerWrapper.TestInfo['Controls'][0].handle.Rectangle
+				
+				#print PyDlgCheckerWrapper
+				#print PyDlgCheckerWrapper.TestInfo
+				dlgRect = handleprops.rectangle(PyDlgCheckerWrapper.TestInfo['Controls'][0].handle)
+				
 			
 				DrawOutline(ctrl.Rectangle + dlgRect, "red")
 			except AttributeError, e:
-				#print e
+				print e
 				pass
 				
 		print
