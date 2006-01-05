@@ -25,10 +25,10 @@
 
 __revision__ = "0.0.1"
 
+from ctypes import byref
 
 from win32defines import *
 from win32functions import *
-from ctypes import byref
 from win32structures import RECT
 
 
