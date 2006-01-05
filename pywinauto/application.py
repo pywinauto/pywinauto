@@ -32,7 +32,7 @@ import findbestmatch
 import controlproperties
 import controlactions
 import XMLHelpers
-
+import findwindows
 
 class AppStartError(Exception):
 	pass
@@ -46,8 +46,6 @@ class AppNotConnected(Exception):
 class WindowIsDisabled(Exception):
 	pass
 
-class WindowNotFoundError(Exception):
-	pass
 
 
 #=========================================================================
@@ -62,7 +60,7 @@ def WalkDialogControlAttribs(app, attr_path):
 	# get items to select between
 	# default options will filter hidden and disabled controls
 	# and will default to top level windows only
-	wins = FindWindows(process = app.process)
+	wins = find_windows(process = app.process)
 
 	# try to find the item
 	dialogWin = findbestmatch.find_best_control_match(attr_path[0], wins)
@@ -274,7 +272,7 @@ class Application(object):
 			connected = True
 
 		else:
-			handle = FindWindow(**kwargs)
+			handle = find_window(**kwargs)
 			self.process = handle.Process
 			connected = True
 						
@@ -301,7 +299,7 @@ class Application(object):
 		kwargs['process'] = self.process._id
 
 		# try and find the dialog (waiting for a max of 1 second
-		win = wait_for_function_success (FindWindow, *args, **kwargs)
+		win = wait_for_function_success (find_window, *args, **kwargs)
 		win = ActionDialog(win, self)
 
 		# wrap the Handle object (and store it in the cache
@@ -331,7 +329,7 @@ class Process(object):
 		return self.id_
 		
 	def windows(self):
-		return FindWindows(process = self)
+		return find_windows(process = self)
 			
 	def module(self):
 		# Set instance variable _module if not already set
@@ -374,109 +372,6 @@ class Process(object):
 
 		raise ProcessNotFoundError("No running process - '%s' found"% module)
 
-#=========================================================================
-def FindWindow(**kwargs):
-
-	windows = FindWindows(**kwargs)
-	
-	if not windows:
-		raise WindowNotFoundError
-	
-	if len(windows) > 1:
-		raise "ambiguous"
-	
-	return windows[0]
-
-#=========================================================================
-def FindWindows(class_name = None,
-				class_name_re = None,
-				parent = None,
-				process = None,
-				title = None,
-				title_re = None,
-				top_level_only = True,
-				visible_only = True,
-				enabled_only = True,
-				best_match_title = None
-	):
-	"""Find windows based on criteria passed in
-	
-	Possible values are: 
-		class_name		Windows with this window class
-		class_name_re	Windows whose class match this regular expression
-		parent			Windows that are children of this
-		process			Windows running in this process
-		title			Windows with this Text
-		title_re		Windows whose Text match this regular expression
-		top_level_only	Top level windows only (default=True)
-		visible_only	Visible windows only (default=True)
-		enabled_only	Enabled windows only (default=True)
-	"""
-	
-	
-	
-	if top_level_only:
-		windows = enum_windows()
-		
-		if parent:
-			windows = [win for win in windows if win.Parent == parent]
-			
-	else:
-		if parent:
-			windows = controls.WrapHandle(parent).Children
-		else:
-			parent = win32functions.GetDesktopWindow()
-			windows = controls.WrapHandle(parent).Children
-			windows = [win for win in windows if win.Parent == parent]
-	
-	if class_name and windows:
-		windows = [win for win in windows if class_name == win.Class]
-
-	if class_name_re and windows:
-		windows = [win for win in windows if re.match(class_name_re, win.Class)]
-		
-	if process and windows:	
-		windows = [win for win in windows if process == win.ProcessID]
-	
-	
-	if title and windows:
-		windows = [win for win in windows if title == win.Text]
-	
-	elif title_re and windows:
-		windows = [win for win in windows if re.match(title_re, win.Text)]
-	
-	elif best_match_title and windows:
-		windows = [findbestmatch.find_best_control_match(best_match_title, wins),]
-		
-	if visible_only and windows:
-		windows = [win for win in windows if win.IsVisible]
-
-	if enabled_only and windows:
-		windows = [win for win in windows if win.IsEnabled]
-	
-	return windows
-
-#=========================================================================
-def enum_windows():
-	windows = []
-	
-	# The callback function that will be called for each HWND
-	# all we do is append the wrapped handle
-	def enum_win_proc(hwnd, lparam):
-		windows.append(controls.WrapHandle(hwnd))
-		return True
-
-	# define the type of the child procedure
-	EnumWindowProc = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_long, ctypes.c_long)	
-	
-	# 'construct' the callback with our function
-	proc = EnumWindowProc(enum_win_proc)
-
-	# loop over all the children (callback called for each)
-	win32functions.EnumWindows(proc, 0)
-	
-	# return the collected wrapped windows
-	return windows
 
 
 if __name__ == '__main__':
