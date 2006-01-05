@@ -43,8 +43,6 @@ __revision__ = "0.0.1"
 #def MenuRepeatedHotkeyTest(windows):
 #	"Return the repeated hotkey errors"
 #	bugs = []
-#
-#	from InfoManager import TestFuncRegistry
 #	
 #	for win in windows:
 #		if win.MenuItems:
