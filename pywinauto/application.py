@@ -8,9 +8,9 @@
 #	TopLevel = true/false
 import time
 import os.path
+import re
 
 import ctypes
-import re
 
 import win32structures
 import win32functions
@@ -20,8 +20,6 @@ import findbestmatch
 import controlproperties
 import controlactions
 import XMLHelpers
-
-# should be possible to get the modules used by a process
 
 
 class AppStartError(Exception):
@@ -38,8 +36,6 @@ class WindowIsDisabled(Exception):
 
 class WindowNotFoundError(Exception):
 	pass
-
-
 
 
 #=========================================================================
@@ -471,5 +467,6 @@ def enum_windows():
 	return windows
 
 
-
-
+if __name__ == '__main__':
+	import test_application
+	test_application.Main()
