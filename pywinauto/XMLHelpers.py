@@ -95,9 +95,6 @@ def SetNodeProps(element, name, value):
 		# the image of a control that has 0 height or width
 		except SystemError, e:
 			pass
-			#print ";;;" * 20
-			#print value.mode, value.size
-			#imageData = ""
 
 	
 	elif isinstance(value, (list, tuple)):
@@ -125,6 +122,13 @@ def SetNodeProps(element, name, value):
 
 #-----------------------------------------------------------------------------
 def WriteDialogToFile(fileName, props):
+	
+	# if we are passed in a wrapped handle then 
+	# get the properties
+	try:
+		props = controls.GetDialogPropsFromHandle(handle)
+	except AttributeError:
+		pass
 	
 	# build a tree structure
 	root = Element("DIALOG")
