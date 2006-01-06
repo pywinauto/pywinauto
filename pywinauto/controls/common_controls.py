@@ -643,8 +643,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 				ret = self.SendMessage(TTM_ENUMTOOLSW, i, remoteMem.Address())
 
 				if not ret:
-					print WinError()
-					sys.exit()
+					raise WinError()
 				else:
 					remoteMem.Read(tipInfo)
 
