@@ -91,6 +91,9 @@ GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
 FindWindow			=	ctypes.windll.user32.FindWindowW
 GetTopWindow		=	ctypes.windll.user32.GetTopWindow
 
+SetCapture			=	ctypes.windll.user32.SetCapture
+ReleaseCapture		=	ctypes.windll.user32.ReleaseCapture
+
 GetGUIThreadInfo	=	ctypes.windll.user32.GetGUIThreadInfo
 ShowOwnedPopups		=	ctypes.windll.user32.ShowOwnedPopups
 WindowFromPoint 	=	ctypes.windll.user32.WindowFromPoint 

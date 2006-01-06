@@ -19,7 +19,9 @@
 #    Boston, MA 02111-1307 USA 
 
 import os
+import time
 
+import win32functions
 import application
 
 
@@ -95,7 +97,7 @@ def TestNotepad():
 		docProps.TabCtrl.Select(0)
 		docProps.TabCtrl.Select(1)
 		docProps.TabCtrl.Select(2)
-
+		
 		docProps.TabCtrl.Select("PaperQuality")
 		docProps.TabCtrl.Select("JobRetention")
 		docProps.TabCtrl.Select("Layout")
@@ -122,8 +124,13 @@ def TestNotepad():
 	app.PageSetupDlg.Ok.Click()
 
 	# type some text
-	app.Notepad.Edit.SetText("I am typing some text to Notepad\r\n\r\nAnd then I am going to quit")
+	app.Notepad.Edit.SetText(u"I am typing säme text to Notepad\r\n\r\nAnd then I am going to quit")
+	
+	# the following shows that 
+	app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText döés not süppôrt àcceñted characters", with_spaces = True)
+	
 
+	time.sleep(2)
 	# exit notepad
 	app.Notepad.MenuSelect("File->Exit")
 	app.Notepad.No.Click()
@@ -144,6 +151,18 @@ def TestPaint():
 	app._start(ur"c:\windows\system32\mspaint.exe")
 
 	pwin = app._window(title_re = ".* - Paint")
+	
+	# get the previous image size
+	pwin.MenuSelect("Image->Attributes")
+	prev_width = app.Attributes.Edit1.Texts[1]
+	prev_height = app.Attributes.Edit2.Texts[1] 
+
+	# set our preferred area
+	app.Attributes.Edit1.TypeKeys("350")  # you can use TypeKeys
+	app.Attributes.Edit2.SetText("350")   # or SetText - but they work differently!
+	
+	app.Attributes.OK.Click()
+	
 
 	# get the reference to the Canvas window
 	canvas = pwin.Afx100000008
@@ -164,25 +183,49 @@ def TestPaint():
 	print "*** if you move your mouse over Paint as it is drawing ***"
 	print "*** these lines then it will mess up the drawing!      ***\n"
 	for i in range(1, num_slants):
+		
 		canvas.PressMouse(coords = (size * num_slants, i * size)) # start
 
-		canvas.MoveMouse(coords = (size * (num_slants - i), size * num_slants)) # x and y axes
+		endcoords = (size * (num_slants - i), size * num_slants)
+		canvas.MoveMouse(coords = endcoords) # x and y axes
 
-		canvas.ReleaseMouse()
+		canvas.ReleaseMouse(coords = endcoords)
 
-	print "Saved image as: Application_Paint_test.png"
-	canvas._.CaptureAsImage().save(r"Application_Paint_test.png")
+	# may fail if PIL is not installed
+	image = canvas.CaptureAsImage()
+	if image:
+		image.save(r"Application_Paint_test.png")
+		print "Saved image as: Application_Paint_test.png"
+
+	# set it back to  original width and height
+	pwin.MenuSelect("Image->Attributes")
+	# set our preferred area
+	app.Attributes.Edit1.TypeKeys(prev_width)
+	app.Attributes.Edit2.SetText(prev_height)
+	app.Attributes.OK.Click()
+	
 	
 	# close Paint
 	pwin.MenuSelect("File->Exit")
 	
-	# Click the no button on teh message box asking if we want to save
-	app.Paint.No.Click()
+	try:
+		# Click the no button on teh message box asking if we want to save
+		app.Paint.No.Click()
+	except:
+		# if we got here it probably means that we did not modify teh image
+		# this can happen if the user's default image size is tiny and our
+		# lines did not hit it.
+		# this means that wer are not asked to save so File->Exit just quits
+		pass
 	
 def Main():
+	start = time.time()
+	
 	TestExceptions()
 	TestNotepad()
-	TestPaint()
+	#TestPaint()
+	
+	print "Total time taken:", time.time() - start
 
 if __name__ == "__main__":
 	Main()

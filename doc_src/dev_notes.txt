@@ -52,8 +52,36 @@ test_application.py
 
 
 ====================
+Best matching
+====================
+difflib provides this support
+For menu's it is simple we match against the text of the menu item.
+For controls the story is more complicated because we want to match
+against the following:
+   - Control text if it exists
+   - Friendly Class name 
+   - Control text + Friendly class name (if control text exists)
+   - (Possibly) closest static + FriendlyClassName
+   
+e.g.
+	FindWhatCombo, ComboBox1,
+or
+ 	Text, TextRiadio, RadioButton2
+
+1) the control itself knows what it should be referred to
+2) Need to disambiguate across all controls in the dialog
+3) then we need to match
+	
+
+
+====================
 ATTRIBUTE RESOLUTION
 ====================
+Thinking again...
+app.dlg.control
+
+
+
 
 TWO LEVELS 
  * application.member (Python resolves)

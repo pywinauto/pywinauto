@@ -24,6 +24,17 @@ APPLICATION TODO's
   can know the variable name that called the _write on (this we don't have
   to repeat the XML file name!)
 
+* If we remove the delay after a button click in controlactions then
+  trying to close two dialogs in a row might fail because the first
+  dialog hasn't closed yet and the 2nd may have similar title and 
+  same closing button e.g PageSetup.OK.Click(), PageSetup2.OK.Click().
+  A possible solution to this might be to keep a cache of windows in the
+  application and no two different dialog identifiers (PageSetup and PageSetup2
+  in this case) can have the same handle - so returning the handle of PageSetup
+  when we call PageSetup2 would fail (and we would do our usual waiting until
+  it succeeds or times out).
+
+
 Investigate using any of the following
   BringWindowToTop
   EnumThreadWindows

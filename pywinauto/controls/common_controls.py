@@ -18,9 +18,9 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
-from pywinauto.win32functions import *
-from pywinauto.win32defines import *
-from pywinauto.win32structures import *
+from win32functions import *
+from win32defines import *
+from win32structures import *
 
 import HwndWrapper
 
@@ -33,14 +33,7 @@ class RemoteMemoryBlock(object):
 	#----------------------------------------------------------------
 	def __init__(self, handle, size = 8192):
 		self.memAddress = 0
-		self.fileMap = 0
-		
-		# work with either a HwndWrapper or a real hwnd
-		#try:
-		#	handle = handle.hwnd
-		#except:
-		#	pass
-		
+		self.fileMap = 0		
 
 		processID = c_long()
 		GetWindowThreadProcessId(handle, byref(processID))
@@ -64,13 +57,13 @@ class RemoteMemoryBlock(object):
 				MEM_RESERVE | MEM_COMMIT,	# allocation type
 				PAGE_READWRITE	# protection
 				)
-				
+						
 			if not self.memAddress:
 				raise WinError()
-				
 			
 		else:
 			raise "Win9x allocation not supported"
+		
 
 
 	#----------------------------------------------------------------
@@ -207,7 +200,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
 			nIndex += 1
 		
-		
 		if cols:
 			self._extra_props['ColumnWidths'] = [col.cx for col in cols] 
 			self._extra_props['ColumnCount'] = len(cols)
@@ -254,7 +246,6 @@ def GetTreeViewElements(curElem, handle, remoteMem, items = None):
 		TVM_GETITEMW,
 		0,
 		remoteMem.Address())
-	
 
 	retval = 1
 	if retval:
@@ -292,7 +283,6 @@ def GetTreeViewElements(curElem, handle, remoteMem, items = None):
 			
 	return items
 
-	
 
 #====================================================================
 class TreeViewWrapper(HwndWrapper.HwndWrapper):
@@ -312,9 +302,6 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 			TVGN_ROOT)
 
 		self._extra_texts = GetTreeViewElements(rootElem, self, remoteMem)
-
-
-
 
 
 #====================================================================
@@ -375,8 +362,6 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 				charData = (c_wchar*2000)()
 				remoteMem.Read(charData, item.pszText)
 				self._extra_texts.append(charData.value)
-
-
 
 #====================================================================
 class StatusBarWrapper(HwndWrapper.HwndWrapper):
@@ -447,7 +432,6 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 		# 2nd is the same
 		#if len (self._extra_texts) >= 1 and self.Text == self._extra_texts[0]:
 		#	props["Titles"][0] = ""
-
 
 
 
@@ -561,8 +545,6 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 					ExStyle = extendedStyle
 				)
 			)
-
-
 	#		if button.fsStyle & TBSTYLE_DROPDOWN == TBSTYLE_DROPDOWN and \
 	#			extendedStyle & TBSTYLE_EX_DRAWDDARROWS != TBSTYLE_EX_DRAWDDARROWS:
 	#			props['Buttons'][-1]["DROPDOWNMENU"] = 1
@@ -572,8 +554,6 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 	#			print "Pressing", text.value
 	#			handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 1) 
 	#			handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 0) 
-
-
 
 			self._extra_texts.append(text.value)
 			
@@ -735,7 +715,9 @@ HwndWrapper.HwndWrappers[r"WindowsForms\d*\.msctls_statusbar32\..*"] = StatusBar
 HwndWrapper.HwndWrappers["SysTabControl32"] = TabControlWrapper
 
 HwndWrapper.HwndWrappers["ToolbarWindow32"] = ToolbarWrapper
-##HwndWrapper.HwndWrappers["Afx:00400000:8:00010011:00000010:00000000"] = ToolbarWrapper
+
+# doesn't work :-(
+##HwndWrapper.HwndWrappers["Afx:00400000:8:00010011:00000010:00000000"] = ToolbarWrapper 
 
 HwndWrapper.HwndWrappers["ReBarWindow32"] = RebarWrapper
 

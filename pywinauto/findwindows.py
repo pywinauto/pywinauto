@@ -3,7 +3,9 @@ import re
 import ctypes
 
 import win32functions
+import win32structures
 import handleprops
+
 
 # currently commented out as finding the best match control
 # requires that we know the Friendly class name - which is only
@@ -93,7 +95,7 @@ def find_windows(class_name = None,
 		
 	if process and windows:
 		try:
-			process_id = win.ProcessID
+			process_id = process.ProcessID
 		except AttributeError:
 			process_id = process
 			
@@ -151,7 +153,7 @@ def enum_child_windows(handle):
 	childWindows = []
 
 	# callback function for EnumChildWindows
-	def enumChildProc(hWnd, LPARAM):
+	def enumChildProc(hWnd, lparam):
 
 		# append it to our list
 		childWindows.append(hWnd)
@@ -160,11 +162,15 @@ def enum_child_windows(handle):
 		return True
 
 	# define the child proc type
-	EnumChildProc = WINFUNCTYPE(c_int, HWND, LPARAM)	
+	EnumChildProc = ctypes.WINFUNCTYPE(
+		ctypes.c_int, 			# return type
+		win32structures.HWND, 	# the window handle
+		win32structures.LPARAM)	# extra information
+		
 	proc = EnumChildProc(enumChildProc)
 
 	# loop over all the children (callback called for each)
-	EnumChildWindows(handle, proc, 0)
+	win32functions.EnumChildWindows(handle, proc, 0)
 
 	return childWindows
 

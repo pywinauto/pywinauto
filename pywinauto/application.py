@@ -31,8 +31,14 @@ import controls
 import findbestmatch
 import controlproperties
 import controlactions
-import XMLHelpers
 import findwindows 
+
+# Following only needed for writing out XML files
+# and can be (also requires elementtree)
+try:
+	import XMLHelpers
+except ImportError:
+    pass
 
 class AppStartError(Exception):
 	pass
@@ -54,6 +60,42 @@ def make_valid_filename(filename):
 		filename = filename.replace(char, '#%d#'% ord(char))
 	return filename
 
+
+#=========================================================================
+class ActionDialog(object):
+	def __init__(self, hwnd, app = None, props = None):
+		
+		self.wrapped_win = controlactions.add_actions(
+			controls.WrapHandle(hwnd))
+		
+		self.app = app
+		
+		dlg_controls = [self.wrapped_win, ]
+		dlg_controls.extend(self.wrapped_win.Children)
+		
+	def __getattr__(self, attr):
+		if hasattr(self.wrapped_win, attr):
+			return getattr(self.wrapped_win, attr)
+
+		# find the control that best matches our attribute		
+		ctrl = findbestmatch.find_best_control_match(
+			attr, self.wrapped_win.Children)
+
+		# add actions to the control and return it
+		return controlactions.add_actions(ctrl)
+		
+	
+	def _write(self, filename):
+		if self.app and self.app.xmlpath:
+			filename = os.path.join(self.app.xmlpath, filename + ".xml")
+		
+		controls = [self.wrapped_win]
+		controls.extend(self.wrapped_win.Children)
+		props = [c.GetProperties() for c in controls]
+		
+		XMLHelpers.WriteDialogToFile(filename, props)
+		
+		
 #=========================================================================
 def WalkDialogControlAttribs(app, attr_path):
 
@@ -77,69 +119,36 @@ def WalkDialogControlAttribs(app, attr_path):
 
 	return dlg, attr_value
 
-#=========================================================================
-class ActionControl(object):
-	def __init__(self, hwnd):
-		if isinstance(hwnd, ActionControl):
-			self._ = hwnd._
-		else:
-			try:
-				hwnd.FriendlyClassName
-				wrapped_hwnd = hwnd
-			except AttributeError:
-				wrapped_hwnd = controls.WrapHandle(hwnd)
-
-			self._ = wrapped_hwnd
-		
-		controlactions.add_actions(self)
 
 #=========================================================================
-class ActionDialog(ActionControl):
-	def __init__(self, wrapped_hwnd, app = None, props = None):
-		ActionControl.__init__(self, wrapped_hwnd)
+class DynamicAttributes(object):
+	def __init__(self, app):
 		self.app = app
-		
-		dlg_controls = [self._, ]
-		dlg_controls.extend(self._.Children)
-		try:
-			ret = controlproperties.SetReferenceControls(dlg_controls, props)
-		
-			if ret == 7:
-				print "Dialog matched Great"
-			elif ret == 5:
-				print "Hmmm1: All classes were the same but not all ID's"
-			elif ret == 3:
-				print "Hmmm2: All Id's were the same but not all classes"
-		except:
-			pass
-	
-	# TODO: Should MenuSelect be moved to the Actions?
-	def MenuSelect(self, path):
-		item_id = FindMenu(self._.MenuItems, path)
-
-		self._.PostMessage(win32defines.WM_COMMAND, item_id)
-	
+		self.attr_path = []
 		
 	def __getattr__(self, attr):
-		# get text for each item
-		#ctrl_texts = [
-		#	ctrl.Text or ctrl.FriendlyClassName for ctrl in self._.Children]
-
-		ctrl = findbestmatch.find_best_control_match(attr, self._.Children)
-
-		# return the control
-		return ActionControl(ctrl)
-	
-	def _write(self, filename):
-		if self.app and self.app.xmlpath:
-			filename = os.path.join(self.app.xmlpath, filename + ".xml")
+		# do something with this one
+		# and return a copy of ourselves with some
+		# data related to that attribute
+				
+		self.attr_path.append(attr)
 		
-		controls = [self._]
-		controls.extend(self._.Children)
-		props = [c.GetProperties() for c in controls]
+		# if we have a lenght of 2 then we have either 
+		#   dialog.attribute
+		# or
+		#   dialog.control
+		# so go ahead and resolve
+		if len(self.attr_path) == 2:
+			dlg, final = wait_for_function_success(
+				WalkDialogControlAttribs, self.app, self.attr_path)
+			
+			return final
 		
-		XMLHelpers.WriteDialogToFile(filename, props)
-
+		# we didn't hit the limit so continue collecting the 
+		# next attribute in the chain
+		return self
+		
+		
 #=========================================================================
 def wait_for_function_success(func, *args, **kwargs):
 	
@@ -166,65 +175,10 @@ def wait_for_function_success(func, *args, **kwargs):
 				raise
 
 #=========================================================================
-class DynamicAttributes(object):
-	def __init__(self, app):
-		self.app = app
-		self.attr_path = []
-		
-	def __getattr__(self, attr):
-		# do something with this one
-		# and return a copy of ourselves with some
-		# data related to that attribute
-		
-		if attr == "_":
-			dlg, ctrl =  wait_for_function_success(self.__resolve_attributes, self)				
-			
-			return ctrl._
-		
-		else:			
-			self.attr_path.append(attr)
-			return self
-	
-	def __resolve_attributes(self):
-		dlg, final = WalkDialogControlAttribs(self.app, self.attr_path)	
-		return dlg, final
-	
-	def __do_call(self, *args, **kwargs):
-		dlg, func = self.__resolve_attributes()
-
-		return dlg, func(*args, **kwargs)
-	
-	def __call__(self, *args, **kwargs):
-		dlg, return_val = wait_for_function_success(self.__do_call, *args, **kwargs)
-		
-		
-		return return_val
-	
-#====================================================================
-def FindMenu(menu_items, path_to_find):
-	# get the cleaned names from teh menu items
-	item_texts = [item['Text'] for item in menu_items]
-
-	# get the first part (and remainder)
-	parts = path_to_find.split("->", 1)
-	current_part = parts[0]	
-
-	# find the item that best matches the current part
-	item = findbestmatch.find_best_match(current_part, item_texts, menu_items)
-	
-	# if there are more parts - then get the next level
-	if parts[1:]:
-		return FindMenu(item['MenuItems'], parts[1])
-
-	else:
-		return item['ID']
-		
-#=========================================================================
 class Application(object):
 	def __init__(self):
 		self.process = None
 		self.xmlpath = ''
-		self.window_cache = {}
 	
 	def _start(self, cmd_line, timeout = 2000):
 		"Starts the application giving in cmd_line"
@@ -308,7 +262,7 @@ class Application(object):
 
 		# try and find the dialog (waiting for a max of 1 second
 		win = wait_for_function_success (findwindows.find_window, *args, **kwargs)
-		win = ActionDialog(win, self)
+		#win = ActionDialog(win, self)
 
 		# wrap the Handle object (and store it in the cache
 		return ActionDialog(win, self)

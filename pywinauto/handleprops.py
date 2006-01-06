@@ -1,8 +1,9 @@
 from ctypes import *
+
 import win32functions
 from win32defines import *
 import win32structures
-
+import findwindows # for children
 
 #=========================================================================
 def text(handle):
@@ -136,22 +137,19 @@ def processid(handle):
 	return process_id.value
 
 #=========================================================================
+def children(handle):
+	return findwindows.enum_child_windows(handle)
+
+
+#=========================================================================
 def has_style(handle, tocheck):
 	hwnd_style = style(handle)
-
-	if tocheck & hwnd_style == tocheck:
-		return True
-	else:
-		return False
+	return tocheck & hwnd_style == tocheck
 
 #=========================================================================
 def has_exstyle(handle, tocheck):
 	hwnd_exstyle = exstyle(handle)
-
-	if tocheck & hwnd_exstyle == tocheck:
-		return True
-	else:
-		return False
+	return tocheck & hwnd_exstyle == tocheck
 
 #=========================================================================
 def dumpwindow(handle):
@@ -173,6 +171,7 @@ def dumpwindow(handle):
 		isenabled,
 		isunicode,
 		isvisible,
+		children,
 		):
 	
 		props[func.__name__] = func(handle)

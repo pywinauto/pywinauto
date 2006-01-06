@@ -23,15 +23,29 @@
 
 from distutils.core import setup 
 
-
 setup(name='pywinauto',
 	version='0.1',
 	description='Python library for GUI automation and testing',
 	url="no url",
 	author='Mark Mc Mahon',
 	author_email='mark.m.mcmahon@gmail.com',
-	packages = ["pywinauto"],
-	#py_modules=['application', 'test_application'],
+
+	packages = ["controls"],
+
+	py_modules=[
+		'application',
+		'controlactions',
+		'controlproperties',
+		'findbestmatch',
+		'findwindows',
+		'handleprops',
+		'test_application',
+		'win32defines',
+		'win32functions',
+		'win32structures',
+		'XMLHelpers',
+	],
+	
 	license = "LGPL",
 	classifiers=[
 		'Development Status :: 4 - Beta',

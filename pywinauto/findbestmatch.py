@@ -26,6 +26,16 @@ import difflib
 #       It would need to get the list of titles to match against
 #       from somewhere else.
 
+
+# we are passed a list of items and a text getter func
+# we need to get the texts for each item
+# we need to make those texts unique
+# we need to find the best match for those texts
+# and return the equivalent item
+
+
+
+
 #====================================================================
 class MatchError(IndexError):
 	def __init__(self, msg = '', items = [], tofind = ''):
@@ -37,23 +47,58 @@ class MatchError(IndexError):
 	def __str__(self):
 		return "Could not find '%s' in '%s'"% (self.tofind, self.items)
 		
+
+# given a list of texts return the match score for each
+# and the best score and text with best score
 #====================================================================
-def clean_text(text):
-
-	# remove anything after the first tab
-	text_before_tab = re.sub(r"\t.*", "", text)
+def get_match_ratios(texts, match_against):
 	
-	# remove any whitespace or non alphanumeric characters
-	return re.sub(r"[^\w ]|\s+", "", text_before_tab).lower()
+	# now time to figre out the matching
+	ratio_calc = difflib.SequenceMatcher()	
+	ratio_calc.set_seq1(match_against)
 
-
-
+	ratios = {}
+	best_ratio = 0
+	best_text = ''
 	
+	for text in texts:
+		# set up the SequenceMatcher with other text
+		ratio_calc.set_seq2(text)
+	
+		# calculate ratio and store it
+		ratios[text] = ratio_calc.ratio()
+	
+		# if this is the best so far then update best stats
+		if ratios[text] > best_ratio:
+			best_ratio = ratios[text]
+			best_text = text
+
+	return ratios, best_ratio, best_text
+	
+	
+
+
+#====================================================================
+def find_best_match(search_text, item_texts, items):
+	search_text = clean_text(search_text)
+	
+	# Clean each item, make it unique and map to 
+	# to the item index
+	item_index_map = build_unique_index_map(item_texts)
+	
+	ratios, best_ratio, best_text = \
+		get_match_ratios(item_index_map.keys(), search_text)
+
+	if best_ratio < .5:
+		raise MatchError(items = item_index_map.keys(), tofind = search_text)
+	
+	return items[item_index_map[best_text]]
+
+
 #====================================================================
 def build_unique_index_map(items):
 	mapped_items = {}
 	
-	#counters = {}
 	for i, text in enumerate(items):
 		text = clean_text(text)
 	
@@ -77,32 +122,21 @@ def build_unique_index_map(items):
 				mapped_items[text + "1"] = mapped_items[text]
 				
 	return mapped_items
-			
+
 
 
 #====================================================================
-def find_best_match(search_text, item_texts, items):
-	search_text = clean_text(search_text)
+def clean_text(text):
+
+	# remove anything after the first tab
+	text_before_tab = re.sub(r"\t.*", "", text)
 	
-	# Clean each item, make it unique and map to 
-	# to the item index
-	item_index_map = build_unique_index_map(item_texts)
-	
-	# find the list of best matches
-	matches = difflib.get_close_matches (search_text, item_index_map.keys())
-	
-	# best match is the first one - so get the index stored 
-	# for that match text
-	try:
-		best_index = item_index_map[matches[0]]
-	except IndexError:
-		raise MatchError(items = item_texts, tofind = search_text)
-	
-	
-	return items[best_index]
-	
-		
-		
+	# remove non alphanumeric characters
+	return re.sub(r"\W", "", text_before_tab)
+
+
+
+
 #====================================================================
 def get_control_names(control):
 	names = []
@@ -123,24 +157,6 @@ def get_control_names(control):
 	# return the names (either 1 or 3 strings)
 	return names
 	
-	
-#====================================================================
-def junk_func(char):
-	if char in ':"/ \t\n\r][{}=-\\|!@#$%^&*,.<>?/()':
-		return True
-
-	return False
-
-
-
-#====================================================================
-def clean_text2(text): # doesn't change text to lowercase
-
-	# remove anything after the first tab
-	text_before_tab = re.sub(r"\t.*", "", text)
-	
-	# remove any whitespace or non alphanumeric characters
-	return re.sub(r"\W", "", text_before_tab)
 
 
 #====================================================================
@@ -153,7 +169,7 @@ def find_best_control_match(search_text, controls):
 	# and build a list of them
 	for c in controls:
 		ctrl_names = get_control_names(c)
-		ctrl_names = [clean_text2(n) for n in ctrl_names]
+		ctrl_names = [clean_text(n) for n in ctrl_names]
 		
 		# remove duplicates
 		ctrl_names = list(set(ctrl_names))
@@ -186,23 +202,15 @@ def find_best_control_match(search_text, controls):
 					name_control_map[n + "1"] = name_control_map[n]
 				
 	
-	# now time to figre out the matching
-	ratio_calc = difflib.SequenceMatcher()	
-	ratio_calc.set_seq1(clean_text2(search_text))
-
-	best_ratio = 0
-	best_control = None
-	
-	for name, control in name_control_map.items():
-		ratio_calc.set_seq2(name)
+	match_ratios, best_ratio, best_text = \
+		get_match_ratios(name_control_map.keys(), search_text)
 		
-		if ratio_calc.ratio() > best_ratio:
-			best_ratio = ratio_calc.quick_ratio()
-			best_control = control
-
 	if best_ratio < .5:
 		raise MatchError(items = name_control_map.keys(), tofind = search_text)
 		
-	return best_control
+	return name_control_map[best_text]
 		
-			
+
+
+	
+

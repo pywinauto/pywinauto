@@ -47,12 +47,11 @@ charReplacements = (
 	("\\x12" , "\x12"),
 )
 
-#todo - make the dialog reading function not actually know about the 
+#DONE: Make the dialog reading function not actually know about the 
 # types of each element (so that we can read the control properties
 # without having to know each and every element type)
 # probably need to store info on what type things are.
 #
-# This has mostly been done:
 # - if it is a ctypes struct then there is a __type__ field 
 #   which says what kind of stuct it is
 # - If it is an image then a "_IMG" is appeded to the the element tag
