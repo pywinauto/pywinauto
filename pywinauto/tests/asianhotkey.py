@@ -71,7 +71,6 @@ def AsianHotkeyFormatIncorrect(text):
 
 	# if it has a hotkey then check that it is correct Asian format
 	if char:
-		#print text, char
 		found = asianHotkeyRE.search(text)
 		if not found:
 			return True

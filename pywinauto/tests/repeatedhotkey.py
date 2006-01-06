@@ -30,11 +30,6 @@ def RepeatedHotkeyTest(windows):
 
 	hotkeyControls, allChars, hotkeys = CollectDialogInfo(windows)
 
-	#if windows[0].Class == "MenuItem":
-	#	print "=-" * 20
-	#	import pprint
-	#	pprint.pprint (windows)
-
 	# get the available characters in the dialog
 	dlgAvailable = allChars.difference(hotkeys)
 	

@@ -225,7 +225,6 @@ def ComboBoxTruncInfo(win):
 		newRect = win.ClientRects[0]
 		newRect.right -= widthAdj
 		truncData.append((title, newRect, win.Font, lineFormat))
-		#print title, newRect, win.Font, lineFormat
 	
 	return truncData
 

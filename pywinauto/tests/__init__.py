@@ -52,5 +52,64 @@ def __init_tests():
 		initialized[test_name] = test_class
 	
 	return initialized
+	
+
+def run_tests(controls, tests_to_run = None, test_visible_only = True):
+	
+	# allow either a string or list to be passed
+	try:
+		tests_to_run = tests_to_run.split()
+	except AttributeError:
+		pass
+
+	# if no tests specified run them all
+	if tests_to_run is None:
+		tests_to_run = registered.keys()
+
+	# Filter out hidden controls if requested
+	if test_visible_only:
+		controls = [c for c in controls if c.IsVisible]
+
+	bugs = []
+	# run each test
+	for test_name in tests_to_run:	
+		print test_name
+		bugs.extend(registered[test_name](controls))
+
+	return bugs				
+			
+
+def print_bugs(bugs):
+	for (ctrls, info, bType, inRef) in  bugs:
+		print "BugType:", bType,
+
+		for i in info:
+			print i, info[i],
+		print
+		
+		
+		for i, ctrl in enumerate(ctrls):
+			print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
+				ctrl.Text, 
+				ctrl.FriendlyClassName,
+				ctrl.Rectangle.left,
+				ctrl.Rectangle.top,
+				ctrl.Rectangle.right,
+				ctrl.Rectangle.bottom,
+				ctrl.IsVisible,)
+			
+			ctrl.DrawOutline()
+				
+#			try:				
+#				dlgRect = handleprops.rectangle(PyDlgCheckerWrapper.TestInfo['Controls'][0].handle)
+#			
+#				DrawOutline(ctrl.Rectangle + dlgRect, "red")
+#			except AttributeError, e:
+#				print e
+#				pass
+				
+		print
+	
+
 
 registered = __init_tests()
