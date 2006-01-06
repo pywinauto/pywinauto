@@ -94,12 +94,7 @@ def find_windows(class_name = None,
 			if re.match(class_name_re, handleprops.classname(win))]
 		
 	if process and windows:
-		try:
-			process_id = process.ProcessID
-		except AttributeError:
-			process_id = process
-			
-		windows = [win for win in windows if process == process_id]
+		windows = [win for win in windows if handleprops.processid(win) == process]
 	
 	
 	if title and windows:
@@ -118,6 +113,7 @@ def find_windows(class_name = None,
 
 	if enabled_only and windows:
 		windows = [win for win in windows if handleprops.isenabled(win)]
+	
 	
 	return windows
 
