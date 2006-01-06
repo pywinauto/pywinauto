@@ -102,7 +102,7 @@ def WalkDialogControlAttribs(app, attr_path):
 	# get items to select between
 	# default options will filter hidden and disabled controls
 	# and will default to top level windows only
-	wins = findwindows.find_windows(process = app.process)
+	wins = findwindows.find_windows(process = app.process._id)
 
 	# wrap each so that find_best_control_match works well
 	wins = [controls.WrapHandle(w) for w in wins]
@@ -291,7 +291,7 @@ class Process(object):
 		return self.id_
 		
 	def windows(self):
-		return findwindows.find_windows(process = self)
+		return findwindows.find_windows(process = self._id)
 			
 	def module(self):
 		# Set instance variable _module if not already set
