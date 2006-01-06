@@ -32,7 +32,7 @@ import findbestmatch
 import controlproperties
 import controlactions
 import XMLHelpers
-import findwindows
+import findwindows 
 
 class AppStartError(Exception):
 	pass
@@ -60,13 +60,15 @@ def WalkDialogControlAttribs(app, attr_path):
 	# get items to select between
 	# default options will filter hidden and disabled controls
 	# and will default to top level windows only
-	wins = find_windows(process = app.process)
+	wins = findwindows.find_windows(process = app.process)
+
+	# wrap each so that find_best_control_match works well
+	wins = [controls.WrapHandle(w) for w in wins]
 
 	# try to find the item
 	dialogWin = findbestmatch.find_best_control_match(attr_path[0], wins)
-	# get text for each item 
-	#texts = [w.Text for w in wins]
 	
+	# already wrapped
 	dlg = ActionDialog(dialogWin, app)
 	
 	attr_value = dlg
@@ -77,10 +79,16 @@ def WalkDialogControlAttribs(app, attr_path):
 
 #=========================================================================
 class ActionControl(object):
-	def __init__(self, wrapped_hwnd):
-		if isinstance(wrapped_hwnd, ActionControl):
-			self._ = wrapped_hwnd._
+	def __init__(self, hwnd):
+		if isinstance(hwnd, ActionControl):
+			self._ = hwnd._
 		else:
+			try:
+				hwnd.FriendlyClassName
+				wrapped_hwnd = hwnd
+			except AttributeError:
+				wrapped_hwnd = controls.WrapHandle(hwnd)
+
 			self._ = wrapped_hwnd
 		
 		controlactions.add_actions(self)
@@ -104,12 +112,13 @@ class ActionDialog(ActionControl):
 				print "Hmmm2: All Id's were the same but not all classes"
 		except:
 			pass
-		
+	
+	# TODO: Should MenuSelect be moved to the Actions?
 	def MenuSelect(self, path):
 		item_id = FindMenu(self._.MenuItems, path)
 
-		# TODO: and what does WM_MENUSELECT do?
 		self._.PostMessage(win32defines.WM_COMMAND, item_id)
+	
 		
 	def __getattr__(self, attr):
 		# get text for each item
@@ -194,7 +203,6 @@ class DynamicAttributes(object):
 #====================================================================
 def FindMenu(menu_items, path_to_find):
 	# get the cleaned names from teh menu items
-	
 	item_texts = [item['Text'] for item in menu_items]
 
 	# get the first part (and remainder)
@@ -272,7 +280,7 @@ class Application(object):
 			connected = True
 
 		else:
-			handle = find_window(**kwargs)
+			handle = findwindows.find_window(**kwargs)
 			self.process = handle.Process
 			connected = True
 						
@@ -299,7 +307,7 @@ class Application(object):
 		kwargs['process'] = self.process._id
 
 		# try and find the dialog (waiting for a max of 1 second
-		win = wait_for_function_success (find_window, *args, **kwargs)
+		win = wait_for_function_success (findwindows.find_window, *args, **kwargs)
 		win = ActionDialog(win, self)
 
 		# wrap the Handle object (and store it in the cache
@@ -329,7 +337,7 @@ class Process(object):
 		return self.id_
 		
 	def windows(self):
-		return find_windows(process = self)
+		return findwindows.find_windows(process = self)
 			
 	def module(self):
 		# Set instance variable _module if not already set
