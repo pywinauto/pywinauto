@@ -18,12 +18,12 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
-import os
+#import os
 import time
 
-import win32functions
 import application
 
+import tests
 
 def TestExceptions():
 	# test that trying to _connect to a non existent app fails
@@ -67,6 +67,11 @@ def TestNotepad():
 	app.Notepad.MenuSelect("File->PageSetup")
 
 	app.PageSetupDlg.ComboBox1.Select(4)
+	bugs = app.PageSetupDlg.RunTests('AsianHotkey')
+
+	tests.print_bugs(bugs)
+	time.sleep(1)
+	
 
 	app.PageSetupDlg.Printer.Click()		
 
@@ -113,7 +118,6 @@ def TestNotepad():
 		docProps._None.Click()
 		docProps.FrontToBack.Click()
 
-	#print docProps._ctrl
 	advbutton = docProps.Advanced
 	advbutton.Click()
 
@@ -131,6 +135,80 @@ def TestNotepad():
 	
 
 	time.sleep(2)
+	# exit notepad
+	app.Notepad.MenuSelect("File->Exit")
+	app.Notepad.No.Click()
+
+def MinimalNotepadTest():
+
+	app = application.Application()
+	app._start(ur"c:\windows\system32\notepad.exe")
+	
+	app.Notepad.MenuSelect("File->PageSetup")
+
+	# ----- Page Setup Dialog ----
+	# Select the 4th combobox item
+	app.PageSetupDlg.ComboBox1.Select(4)
+
+	# Select the 'Letter' combobox item
+	app.PageSetupDlg.ComboBox1.Select("Letter")
+
+	# ----- Next Page Setup Dialog ----
+	app.PageSetupDlg.Printer.Click()		
+
+	app.PageSetupDlg.Network.Click()
+	
+	# ----- Connect To Printer Dialog ----
+	# Select a checkbox
+	app.ConnectToPrinter.ExpandByDef.Check()
+	# Uncheck it again - but use Click this time!
+	app.ConnectToPrinter.ExpandByDef.Click()
+	
+	app.ConnectToPrinter.OK.Click()
+
+	# ----- 2nd Page Setup Dialog again ----
+	app.PageSetupDlg2.Properties.Click()
+
+	# ----- Document Properties Dialog ----
+	docProps = app._window(title_re = ".*Document Properties")
+	
+	# Two ways of selecting tabs
+	docProps.TabCtrl.Select(2)
+	docProps.TabCtrl.Select("Layout")
+
+	# click some Radio buttons
+	docProps.RotatedLandscape.Click()
+	docProps.BackToFront.Click()
+	docProps.FlipOnShortEdge.Click()
+
+	docProps.Portrait.Click()
+	docProps._None.Click()	# need to disambiguate from keyword None
+	docProps.FrontToBack.Click()
+
+	# open the Advanced options dialog in two steps
+	advbutton = docProps.Advanced
+	advbutton.Click()
+
+	# ----- Advanced Options Dialog ----
+	# close the 4 windows
+	app._window(title_re = ".* Advanced Options").Ok.Click()
+
+	# ----- Document Properties Dialog again ----
+	docProps.Cancel.Click()
+	# ----- 2nd Page Setup Dialog again ----
+	app.PageSetupDlg2.OK.Click()
+	# ----- Page Setup Dialog ----
+	app.PageSetupDlg.Ok.Click()
+
+	# type some text
+	app.Notepad.Edit.SetText(u"I am typing säme text to Notepad\r\n\r\n"
+		"And then I am going to quit")
+	
+	# the following shows that Sendtext does not accept 
+	# accented characters - but does allow 'control' characters
+	#app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText döés not "
+	#	"süppôrt àcceñted characters", with_spaces = True)
+	
 	# exit notepad
 	app.Notepad.MenuSelect("File->Exit")
 	app.Notepad.No.Click()
@@ -162,7 +240,6 @@ def TestPaint():
 	app.Attributes.Edit2.SetText("350")   # or SetText - but they work differently!
 	
 	app.Attributes.OK.Click()
-	
 
 	# get the reference to the Canvas window
 	canvas = pwin.Afx100000008
@@ -221,8 +298,10 @@ def TestPaint():
 def Main():
 	start = time.time()
 	
-	TestExceptions()
-	TestNotepad()
+	MinimalNotepadTest()
+	
+	#TestExceptions()
+	#TestNotepad()
 	#TestPaint()
 	
 	print "Total time taken:", time.time() - start
