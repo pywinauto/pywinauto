@@ -25,7 +25,10 @@ import SendKeys  # typekeys action
 
 from win32defines import *
 import win32functions
+import win32structures
+
 import findbestmatch
+import tests
 
 # we need a delay after button click
 delay_after_click = .05
@@ -119,6 +122,7 @@ def perform_click(ctrl, button = "left", pressed = "", coords = (0, 0), double =
 
 #====================================================================
 def click_action(ctrl, button = "left", pressed = "", coords = (0, 0), double = False):
+	#print ctrl.Text, ctrl.Class, ctrl.Rectangle, ctrl.Parent.Text
 	perform_click(ctrl, button, pressed, coords, double)
 
 #====================================================================
@@ -304,31 +308,41 @@ def draw_outline(ctrl, colour = 'green', thickness = 2, fill = BS_NULL, rect = N
 		rect = ctrl.Rectangle
 
 	# create the pen(outline)
-	hPen = CreatePen(PS_SOLID, 2, colour)
+	hPen = win32functions.CreatePen(PS_SOLID, 2, colour)
 	
 	# create the brush (inside)
-	brush = LOGBRUSH()
+	brush = win32structures.LOGBRUSH()
 	brush.lbStyle = fill
 	brush.lbHatch = HS_DIAGCROSS	
-	hBrush = CreateBrushIndirect(byref(brush))
+	hBrush = win32functions.CreateBrushIndirect(byref(brush))
 
 	# get the Device Context
-	dc = CreateDC(u"DISPLAY", None, None, None )
+	dc = win32functions.CreateDC(u"DISPLAY", None, None, None )
 	
 	# push our objects into it
-	SelectObject(dc, hBrush)
-	SelectObject(dc, hPen)
+	win32functions.SelectObject(dc, hBrush)
+	win32functions.SelectObject(dc, hPen)
 
 	win32functions.Rectangle(dc, rect.left, rect.top, rect.right, rect.bottom)
 
 	# Delete the brush and pen we created
-	DeleteObject(hBrush)
-	DeleteObject(hPen)
+	win32functions.DeleteObject(hBrush)
+	win32functions.DeleteObject(hPen)
 
 	# delete the Display context that we created
-	DeleteDC(dc)
+	win32functions.DeleteDC(dc)
 
 
+
+
+def run_tests_action(ctrl, tests_to_run = None):
+	# get all teh controls
+	controls = [ctrl]
+	controls.extend(ctrl.Children)
+	
+	return tests.run_tests(controls, tests_to_run)
+	
+	
 
 
 ######ANYWIN
@@ -640,6 +654,9 @@ class_specific_actions = {
 	),
 	"TabControl" : dict(
 		Select = select_tab_action,
+	),
+	"Dialog" : dict(
+		RunTests = run_tests_action,
 	),
 
 }	
