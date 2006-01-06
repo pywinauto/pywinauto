@@ -14,7 +14,7 @@ APPLICATION TODO's
   a) Wait for an Exception then handle it there
   b) set a trap waiting for a specific dialog
 
-*  Implement an opional timing/config module so that all timing can be customized
+* Implement an opional timing/config module so that all timing can be customized
 
 * Handle adding reference controls (in that they should be the controls used for finding windows)
 
