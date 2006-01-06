@@ -20,11 +20,14 @@
 
 import time
 
+import ctypes	 # write_debug_text action
+import SendKeys  # typekeys action
+
 from win32defines import *
 import win32functions
-import SendKeys
+import findbestmatch
 
-
+# we need a delay after button click
 delay_after_click = .05
 		
 class ControlNotEnabled(RuntimeError):
@@ -32,6 +35,7 @@ class ControlNotEnabled(RuntimeError):
 
 class ControlNotVisible(RuntimeError):
 	pass
+
 
 
 def verify_actionable(ctrl):
@@ -71,7 +75,7 @@ def calc_flags_and_coords(pressed, coords):
 	
 	return flags, click_point
 
-
+# TODO: Test simulating mouse clicks using SendInput of WM_* messages
 def perform_click(ctrl, button = "left", pressed = "", coords = (0, 0), double = False, down = True, up = True):
 	verify_enabled(ctrl)
 	
@@ -125,14 +129,13 @@ def doubleclick_action(ctrl, button = "left", pressed = "", coords = (0, 0), dou
 def rightclick_action(ctrl, button = "right", pressed = "", coords = (0, 0), double = True):
 	perform_click(ctrl, button, pressed, coords, double)
 
-
-
+#====================================================================
 def check_button_action(ctrl, select = True):
 	ctrl.SendMessage(BM_SETCHECK, 1)
 
+#====================================================================
 def uncheck_button_action(ctrl, select = True):
 	ctrl.SendMessage(BM_SETCHECK, 0)
-
 
 #====================================================================
 def press_mouse_action(ctrl, button = "left", pressed = "", coords = (0, 0)):
@@ -150,13 +153,15 @@ def move_mouse_action(ctrl, pressed = "left", coords = (0, 0)):
 	flags, click_point = calc_flags_and_coords(pressed, coords)	
 	ctrl.PostMessage(WM_MOUSEMOVE, flags, click_point)
 
+#====================================================================
 def settext_action(ctrl, text, append = False):
 	if append:
 		text = ctrl.Text + text
-	
+		
 	text = c_wchar_p(unicode(text))
 	ctrl.PostMessage(WM_SETTEXT, 0, text)
 
+#====================================================================
 def typekeys_action(
 	ctrl, 
 	keys, 
@@ -167,15 +172,18 @@ def typekeys_action(
     turn_off_numlock = True):
 
 	verify_enabled(ctrl)
-
-	win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), ctrl.Process(), 1)
+	
+	win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), ctrl.ProcessID, 1)
 	win32functions.SetForegroundWindow(ctrl)
-	SendKeys.SendKeys(keys, pause, with_spaces, with_tabs, with_newlines, turn_off_numlock)
-	win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), ctrl.Process(), 0)
+	SendKeys.SendKeys(keys.encode('mbcs'), pause, with_spaces, with_tabs, with_newlines, turn_off_numlock)
+	win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), ctrl.ProcessID, 0)
 	
 
 
+#====================================================================
 def combobox_select(ctrl, item):
+	verify_enabled(ctrl)
+
 	if isinstance(item, (int, long)):
 		index = item
 	else:
@@ -186,7 +194,10 @@ def combobox_select(ctrl, item):
 	
 
 
+#====================================================================
 def listbox_select(ctrl, item):
+	verify_enabled(ctrl)
+
 	if isinstance(item, (int, long)):
 		index = item
 	else:
@@ -197,7 +208,10 @@ def listbox_select(ctrl, item):
 
 
 
-def set_edit_text(ctrl, text, pos_start = -1, pos_end = -1):
+#====================================================================
+def set_edit_text(ctrl, text, pos_start = 0, pos_end = -1):
+	verify_enabled(ctrl)
+
 	set_edit_selection(ctrl, pos_start, pos_end)
 	
 	text = c_wchar_p(unicode(text))
@@ -205,7 +219,9 @@ def set_edit_text(ctrl, text, pos_start = -1, pos_end = -1):
 	
 	
 
+#====================================================================
 def set_edit_selection(ctrl, start = 0, end = -1):
+	verify_enabled(ctrl)
 
 	# if we have been asked to select a string
 	if isinstance(start, basestring):
@@ -218,46 +234,61 @@ def set_edit_selection(ctrl, start = 0, end = -1):
 
 
 
-
-def write_debug_text(ctrl, text):
-	dc = win32functions.CreateDC(u"DISPLAY", None, None, None )
-	
-	import ctypes
-	
-	if not dc:
-		raise ctypes.WinError()
-	
-	rect = ctrl.Rectangle
-	#rect.left = 0
-	#rect.top = 0
-	
-	#ret = win32functions.TextOut(dc, rect.left, rect.top, unicode(text), len(text))
-	
-	ret = win32functions.DrawText(dc, unicode(text), len(text), ctypes.byref(rect), DT_SINGLELINE)
-	
-	if not ret:
-		raise ctypes.WinError()
-
-
-def menupick_action(menuitem):
-	pass
-
-
-
+#====================================================================
 def select_tab_action(ctrl, tab):
+	verify_enabled(ctrl)
+	
 	if isinstance(tab, basestring):
 		# find the string in the tab control
-		import findbestmatch
 		bestText = findbestmatch.find_best_match(tab, ctrl.Texts, ctrl.Texts)
 		tab = ctrl.Texts.index(bestText) - 1
 	
 	ctrl.SendMessage(TCM_SETCURFOCUS, tab)
 
 
-
-
-def draw_outline(ctrl, colour = 'green', thickness = 2, fill = BS_NULL, rect = None):
 #====================================================================
+def select_menuitem_action(ctrl, path, items = None):
+	verify_enabled(ctrl)
+	
+	if not items:
+		items = ctrl.MenuItems
+
+	# get the text names from the menu items
+	item_texts = [item['Text'] for item in items]
+	
+	# get the first part (and remainder)
+	parts = path.split("->", 1)
+	current_part = parts[0]	
+
+	# find the item that best matches the current part
+	item = findbestmatch.find_best_match(current_part, item_texts, items)
+	
+	# if there are more parts - then get the next level
+	if parts[1:]:
+		select_menuitem_action(ctrl, "->".join(parts[1:]), item['MenuItems'])
+
+	else:
+		ctrl.PostMessage(WM_COMMAND, item['ID'])
+	
+
+#====================================================================
+def write_debug_text(ctrl, text):
+	dc = win32functions.CreateDC(u"DISPLAY", None, None, None )
+	
+	if not dc:
+		raise ctypes.WinError()
+	
+	rect = ctrl.Rectangle
+	
+	#ret = win32functions.TextOut(dc, rect.left, rect.top, unicode(text), len(text))
+	ret = win32functions.DrawText(dc, unicode(text), len(text), ctypes.byref(rect), DT_SINGLELINE)
+	
+	if not ret:
+		raise ctypes.WinError()
+
+
+#====================================================================
+def draw_outline(ctrl, colour = 'green', thickness = 2, fill = BS_NULL, rect = None):
 
 	colours = {
 		"green" : 0x00ff00,
@@ -570,12 +601,16 @@ standard_action_funcs = dict(
 	Click = click_action,
 	RightClick = rightclick_action,
 	DoubleClick = doubleclick_action,
+	
 	TypeKeys = typekeys_action,
 	SetText = settext_action,
+	
 	ReleaseMouse = release_mouse_action,
 	MoveMouse = move_mouse_action,
 	PressMouse = press_mouse_action,
+	
 	DebugMessage = write_debug_text,
+	DrawOutline = draw_outline,
 	)
 
 
@@ -604,9 +639,9 @@ class_specific_actions = {
 		UnCheck = uncheck_button_action,
 	),
 	"TabControl" : dict(
-		Select = select_tab_action
+		Select = select_tab_action,
 	),
-	
+
 }	
 
 
@@ -630,13 +665,12 @@ def add_actions(to_obj, deferred = False):
 	# add common actions:
 	import application
 	
-	if hasattr(to_obj, "_"):
-		defer_action = deferred_func
-		ctrl = to_obj._
-		
-	else:
-		defer_action = identity
-		ctrl = to_obj
+	#if hasattr(to_obj, "_"):
+	#	defer_action = deferred_func
+	#	ctrl = to_obj._		
+	#else:
+	defer_action = identity
+	ctrl = to_obj
 		
 	# for each of the standard actions
 	for action_name in standard_action_funcs:
@@ -648,5 +682,14 @@ def add_actions(to_obj, deferred = False):
 	
 		for action_name, action_func in actions.items():
 			setattr (to_obj.__class__, action_name, defer_action(action_func))
+	
+	# add some specific ones
+	if to_obj.MenuItems:
+		setattr (to_obj.__class__, "MenuSelect", defer_action(select_menuitem_action))
+	
+	return to_obj
+		
+
+
 
 	return ctrl
