@@ -30,7 +30,7 @@ setup(name='pywinauto',
 	author='Mark Mc Mahon',
 	author_email='mark.m.mcmahon@gmail.com',
 
-	packages = ["controls"],
+	packages = ["controls", "tests"],
 
 	py_modules=[
 		'application',
