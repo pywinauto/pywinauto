@@ -343,6 +343,42 @@ def run_tests_action(ctrl, tests_to_run = None):
 	return tests.run_tests(controls, tests_to_run)
 	
 	
+# TODO: Make the RemoteMemoryBlock stuff more automatic!
+def listview_checkbox_uncheck_action(ctrl, item):
+	lvitem = win32structures.LVITEMW()
+	
+	lvitem.mask = LVIF_STATE
+	lvitem.state = 0x1000
+	lvitem.stateMask = LVIS_STATEIMAGEMASK
+	
+	from controls.common_controls import RemoteMemoryBlock
+		
+	remoteMem = RemoteMemoryBlock(ctrl)
+	remoteMem.Write(lvitem)
+
+	ctrl.SendMessage(LVM_SETITEMSTATE, item, remoteMem.Address())
+	
+	del remoteMem
+	
+
+def listview_checkbox_check_action(ctrl, item):
+	lvitem = win32structures.LVITEMW()
+	
+	lvitem.mask = LVIF_STATE
+	lvitem.state = 0x2000
+	lvitem.stateMask = LVIS_STATEIMAGEMASK
+
+	from controls.common_controls import RemoteMemoryBlock
+		
+	remoteMem = RemoteMemoryBlock(ctrl)
+	remoteMem.Write(lvitem)
+
+	ctrl.SendMessage(LVM_SETITEMSTATE, item, remoteMem.Address())
+	
+	del remoteMem
+
+	
+
 
 
 ######ANYWIN
@@ -636,6 +672,11 @@ class_specific_actions = {
 
 	'ListBox' : dict(
 		Select = listbox_select,
+	),
+	
+	'ListView' : dict(
+		Check = listview_checkbox_check_action,
+		UnCheck = listview_checkbox_uncheck_action,
 	),
 
 	'Edit' : dict(
