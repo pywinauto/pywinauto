@@ -32,6 +32,7 @@ from win32structures import *
 import controls
 from findwindows import find_windows
 
+import XMLHelpers
 import handleprops
 
 __revision__ = "0.0.1"		
@@ -43,110 +44,6 @@ __revision__ = "0.0.1"
 
 
 import PyDlgCheckerWrapper
-
-#
-#def FindWindow(
-#	start_window = None,
-#	match_title = None,
-#	match_class = None,
-#	toplevel_only = False,
-#	recurse_children = True,
-#	this_thread_only = None,
-#	)
-#
-#	if start_window == None:
-#		start_window = GetDesktopWindow()
-#	
-#	if recurse_children:
-#		# get the 1st child of the start window
-#		win_to_test = GetWindow (start_window, GW_CHILD)
-#		
-#		wrapped = WrapHandle(win_to_test)
-#		
-#		if match_title:
-#			if re.match(match_title, wrapped.Text)
-#				
-#		
-		
-		
-
-
-#totalWindowCount = 0
-
-##====================================================================
-#def FindDialog(titleToFind, caseSensitive = False, testClass = None, startWin = None):
-#	"""Find a dialog based on the title
-#	
-#	
-#Returns the dialog that has a title that matches the regular
-#expression in titleToFind.
-#If caseSensitive == True then it performs a case sensitive match
-#If startWin == None then it starts searching from the desktop window
-#otherwise it searches the child windows of the specified window."""
-#
-#	if caseSensitive:
-#
-#		flags = re.IGNORECASE
-#	else:
-#		flags = 0
-#	
-#	titleRe = re.compile(titleToFind, flags)
-#
-#	# If the startWin is NULL then we are just starting and we
-#	# should start with the Desktop window and look from there
-#	if startWin == None:
-#		startWin = GetDesktopWindow()
-#
-#	# get the 1st child of the start window
-#	winToTest = GetWindow (startWin, GW_CHILD)
-#
-#	# Now Iterate through all the children of the startwindow
-#	# (ie ALL windows, dialogs, controls ) then if the HWND is a dialog
-#	# get the Title and compare it to what we are looking for
-#	# it makes a check first to make sure that the window has at
-#	# least 1 child window
-#	while winToTest:
-#		global totalWindowCount
-#		totalWindowCount += 1
-#
-#		# get the Title of the Window and if the Title the same as
-#		# what we want if So then return it
-#		title = controls.WrapHandle(winToTest).Text
-#		
-#		# Check the title to see if it is the same as the title we
-#		# are looking for - if it is then return the handle
-#		found = titleRe.search(title)
-#		if found:
-#		
-#			if testClass:
-#				if testClass == controls.WrapHandle(winToTest).Class:
-#					return winToTest
-#			else:
-#				return winToTest
-#			
-#
-#		# Now Check through the children of the present window
-#		# this is recursive through all the children of the window
-#		# It calls FindDialog with the title and the new window
-#		# this will keep going recursively until the window is found
-#		# or we reach the end of the children
-#		tempWin = FindDialog (titleToFind, caseSensitive, testClass, winToTest)
-#
-#		if tempWin != None:
-#			return tempWin
-#
-#		# So the last one wasnt it just continue with the next
-#		# which will be the next window at the present level
-#		winToTest = GetWindow (winToTest, GW_HWNDNEXT)
-#
-#	# we have gotten to here so we didnt find the window
-#	# in the current depth of the tree return NULL to say
-#	# that we didnt get it and continue at the previous depth
-#	return None
-#
-#
-#
-
 
 
 
@@ -236,7 +133,7 @@ if __name__ == '__main__':
 	import sys
 	import PyDlgCheckerWrapper
 	
-	PyDlgCheckerWrapper.InitializeModules(".")
+	#PyDlgCheckerWrapper.InitializeModules(".")
 
 
 	optParser = PopulateCommandLineParser()
@@ -272,11 +169,6 @@ if __name__ == '__main__':
 		sys.exit()
 		
 	
-	
-	
-	
-	
-	
 	if options.windowTitle:
 		# find the dialog
 		handle =  find_windows(title_re = "^" + options.windowTitle.decode("mbcs"))[0]
@@ -286,9 +178,13 @@ if __name__ == '__main__':
 			sys.exit()
 		
 		
-		PyDlgCheckerWrapper.InitDialogFromWindow(handle)
+		dialog = controls.WrapHandle(handle)
 		
-		outputXML = PyDlgCheckerWrapper.TestInfo['Controls'][0].Text
+		dialog.Text
+		
+		#PyDlgCheckerWrapper.InitDialogFromWindow(handle)
+		
+		outputXML = dialog.Text
 		outputXML = outputXML.replace("\\", '_')
 		outputXML = outputXML.replace("*", '_')
 		outputXML = outputXML.replace("?", '_')
@@ -299,10 +195,7 @@ if __name__ == '__main__':
 		outputXML = outputXML.replace("\"", '_')
 		outputXML = outputXML.replace(":", '_')
 		
-
-	
 	elif options.xmlFileName:
-	
 	
 		PyDlgCheckerWrapper.InitDialogFromFile(options.xmlFileName)
 		
@@ -311,7 +204,7 @@ if __name__ == '__main__':
 	print outputXML
 
 	# write out the XML file
-	PyDlgCheckerWrapper.WriteDialogToFile (outputXML + ".xml")
+	XMLHelpers.WriteDialogToFile (outputXML + ".xml")
 
 
 	if options.refWindow:
@@ -370,16 +263,3 @@ if __name__ == '__main__':
 				pass
 				
 		print
-	
-
-	
-
-
-
-	
-	
-
-
-
-
-	
