@@ -198,6 +198,10 @@ def ButtonTruncInfo(win):
 		widthAdj = 9
 		lineFormat = DT_SINGLELINE
 
+	# don't check image controls for truncation!
+	# we do this by specifying huge adjustments
+	# maybe a better/more pythonic way of doing this would be
+	# to set some special lineFormat (None or something?)
 	if win.HasStyle(BS_BITMAP) or win.HasStyle(BS_ICON):
 		heightAdj = -9000
 		widthAdj = -9000
