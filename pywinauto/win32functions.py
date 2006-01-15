@@ -120,3 +120,10 @@ WaitForInputIdle	= ctypes.windll.user32.WaitForInputIdle
 GetWindowThreadProcessId	=	ctypes.windll.user32.GetWindowThreadProcessId
 OpenProcess				=	ctypes.windll.kernel32.OpenProcess
 GetModuleFileNameEx		=	ctypes.windll.psapi.GetModuleFileNameExW
+
+
+
+#====================================================================
+def MakeLong(low, high):
+	"Pack high into the high word of a long and low into the low word"
+	return (high << 16) | low
