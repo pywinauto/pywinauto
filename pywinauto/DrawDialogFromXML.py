@@ -104,9 +104,13 @@ def Main():
 			# XML dialog
 			ctrls = ParseXML(xmlFile)
 			
+			#print "parsed"
+			
 			# convert the XML information into a dialog template understood by
 			# Win32ui
 			template = MakeOLDDlgTemplate(ctrls)
+
+			#print "templateized"
 
 			#try:
 			# construct the dialog
@@ -114,15 +118,23 @@ def Main():
 			#except DeprecationWarning, e:
 			#	pass
 			
+			#print "Dialoged"
+
 			# give the dialog the original control information
 			dlg.DlgControls = ctrls
 
+			#print "controls set"
 			
 			# show the dialog
 			ret =  dlg.DoModal()
 			if  ret == -1:
+				print "******didn't succeed******"
+				import win32api
+				print win32api.GetLastError()
 				pass
 			
+			
+			#print "donemodal"
 			
 			
 		except (AttributeError, XMLHelpers.XMLParsingError):
@@ -181,7 +193,7 @@ def MakeOLDDlgTemplate(controls):
 				ScaleToDialogUnitsAndConvert(ctrl["Rectangle"], True),
 				style,
 				int(ctrl["ExStyle"]),
-				(8, ctrl["Fonts"][0].lfFaceName, )
+				(8, "Tahoma"), #(8, ctrl["Fonts"][0].lfFaceName, )
 				#(ctrl["Font").lfHeight, ctrl["Font").lfFaceName, )
 
 				], ]
@@ -226,7 +238,8 @@ def MakeOLDDlgTemplate(controls):
 				"SysListView32", 
 				"SysTabControl32", 
 				"SysTreeView32", 
-				"ToolbarWindow32", 
+				"ToolbarWindow32",
+				"msctls_hotkey32"
 				#"SSDemoParent",
 				#"GraphCtl", 		# test
 				#"CHECKLIST_ACLUI",	# test
@@ -234,8 +247,11 @@ def MakeOLDDlgTemplate(controls):
 				#"RichEdit20W", 
 				):
 				
-				title = u"Was previously: " + ctrl["Class"]
-				ctrl["Class"] = "Static"
+				# if it doesn't have any text then skip it completely
+				if not title:
+					continue
+					
+				ctrl["Class"] = "Button"
 				#continue
 			
 			# don't  bother doing dialogs or Tab Controls
@@ -308,12 +324,13 @@ class XmlDialog (pywin.mfc.dialog.Dialog):
 				try:
 					ctrl = self.GetDlgItem(int(x['ControlID']))
 
+					
 					for subTitle in x["Texts"][1:]:
 						win32functions.SendMessage(
 							ctrl.GetSafeHwnd(), 
 							win32defines.LB_ADDSTRING, 
 							0, 
-							subTitle.encode('mbcs') )
+							subTitle)#.encode('mbcs') )
 				except:
 					pass
 			
@@ -333,26 +350,26 @@ class XmlDialog (pywin.mfc.dialog.Dialog):
 #				
 #				#dib.draw(hDC.GetHandleOutput(), (0, 0, 990, 990))
 
-	def OnPaint(self):
-		# loop over all the controls in the original dialog
-		for x in self.DlgControls:
-			
-			if x.has_key('Image'):
-				
-				try:
-					ctrl = self.GetDlgItem(int(x['ControlID']))
-				
-					bmp = x['Image']
-
-					from PIL import ImageWin
-					dib = ImageWin.Dib(bmp)
-
-					hdc, paint_struct = ctrl.BeginPaint()
-					dib.expose(hdc.GetHandleAttrib())
-
-					ctrl.EndPaint(paint_struct)
-				except:
-					pass
+#	def OnPaint(self):
+#		# loop over all the controls in the original dialog
+#		for x in self.DlgControls:
+#			
+#			if x.has_key('Image'):
+#				
+#				try:
+#					ctrl = self.GetDlgItem(int(x['ControlID']))
+#				
+#					bmp = x['Image']
+#
+#					from PIL import ImageWin
+#					dib = ImageWin.Dib(bmp)
+#
+#					hdc, paint_struct = ctrl.BeginPaint()
+#					dib.expose(hdc.GetHandleAttrib())
+#
+#					ctrl.EndPaint(paint_struct)
+#				except:
+#					pass
 				
 		#return True
 			
