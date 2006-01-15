@@ -73,7 +73,7 @@ def run_tests(controls, tests_to_run = None, test_visible_only = True):
 	bugs = []
 	# run each test
 	for test_name in tests_to_run:	
-		print test_name
+		#print test_name
 		bugs.extend(registered[test_name](controls))
 
 	return bugs				
@@ -98,15 +98,12 @@ def print_bugs(bugs):
 				ctrl.Rectangle.bottom,
 				ctrl.IsVisible,)
 			
-			ctrl.DrawOutline()
 				
-#			try:				
-#				dlgRect = handleprops.rectangle(PyDlgCheckerWrapper.TestInfo['Controls'][0].handle)
-#			
-#				DrawOutline(ctrl.Rectangle + dlgRect, "red")
-#			except AttributeError, e:
-#				print e
-#				pass
+			try:				
+				ctrl.DrawOutline()
+			except (AttributeError, KeyError), e:
+				#print e
+				pass
 				
 		print
 	
