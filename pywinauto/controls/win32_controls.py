@@ -100,16 +100,12 @@ class ComboBoxWrapper(HwndWrapper):
 		# default to ComboBox for FriendlyClassName				
 		self.FriendlyClassName = "ComboBox"
 		
-		self._extra_texts = get_multiple_text_items(self, CB_GETCOUNT, CB_GETLBTEXTLEN, CB_GETLBTEXT)
+		self._extra_texts = self.ItemTexts()
 		self._extra_props['DroppedRect'] = self.get_droppedrect()
-
-		# get selected item
-		self._extra_props['SelectedItem'] = self.get_selected_index()
 	
 	#-----------------------------------------------------------
-	def get_selected_index(self):
+	def SelectedIndex(self):
 		return self.SendMessage(CB_GETCURSEL)
-	CurrentlySelected = property(get_selected_index, doc = "The currently selected index of the combobox")
 		
 	#-----------------------------------------------------------
 	def get_droppedrect(self):
@@ -126,6 +122,34 @@ class ComboBoxWrapper(HwndWrapper):
 		
 		return droppedRect
 	DroppedRect = property(get_droppedrect, doc = "The dropped rectangle of the combobox")
+
+	#-----------------------------------------------------------
+	def ItemCount(self):
+		return self.SendMessage(CB_GETCOUNT)
+
+	#-----------------------------------------------------------
+	def ItemData(self, i):
+		return self.SendMessage(CB_GETITEMDATA, i)
+
+	#-----------------------------------------------------------
+	def ItemTexts(self):
+		return get_multiple_text_items(self, CB_GETCOUNT, CB_GETLBTEXTLEN, CB_GETLBTEXT)
+	
+	#-----------------------------------------------------------
+	def GetProperties(self):
+		props = HwndWrapper.GetProperties(self)
+		
+		# get selected item
+		props['SelectedItem'] = self.SelectedIndex()
+
+		props['DroppedRect'] = self.DroppedRect
+		
+		props['ItemData'] = []
+		for i in range(self.ItemCount()):
+			props['ItemData'].append(self.ItemData(i))		
+
+		return props
+		
 	
 
 #====================================================================
@@ -137,16 +161,51 @@ class ListBoxWrapper(HwndWrapper):
 		# default to LisBox for FriendlyClassName				
 		self.FriendlyClassName = "ListBox"
 		
-		self._extra_texts = get_multiple_text_items(self, LB_GETCOUNT, LB_GETTEXTLEN, LB_GETTEXT)
-
-		# get selected item
-		self._extra_props['SelectedItem'] = self.get_selected_index()
+		self._extra_texts = self.ItemTexts()
+		
 	
 	#-----------------------------------------------------------
-	def get_selected_index(self):
-		return self.SendMessage(LB_GETCURSEL)
-	CurrentlySelected = property(get_selected_index, doc = "The currently selected index of the listbox")
+	def SelectedIndices(self):
+		"The currently selected indices of the listbox"
+		num_selected = self.SendMessage(LB_GETSELCOUNT)
 		
+		if num_selected != LB_ERR:
+			items = (c_int * num_selected)()
+			
+			self.SendMessage(LB_GETSELITEMS, num_selected, byref(items))
+			
+		else:
+			items = [self.SendMessage(LB_GETCURSEL)]
+		
+		return items
+			
+			
+	#-----------------------------------------------------------
+	def ItemCount(self):
+		return self.SendMessage(LB_GETCOUNT)
+		
+	#-----------------------------------------------------------
+	def ItemData(self, i):
+		return self.SendMessage(LB_GETITEMDATA, i)
+
+	#-----------------------------------------------------------
+	def ItemTexts(self):
+		return get_multiple_text_items(self, LB_GETCOUNT, LB_GETTEXTLEN, LB_GETTEXT)
+		
+	#-----------------------------------------------------------
+	def GetProperties(self):
+		props = HwndWrapper.GetProperties(self)
+		
+		# get selected item
+		props['SelectedItems'] = self.SelectedIndices()
+
+		props['ItemData'] = []
+		for i in range(self.ItemCount()):
+			props['ItemData'].append(self.ItemData(i))
+		
+		return props
+
+
 
 #====================================================================
 class EditWrapper(HwndWrapper):
@@ -186,6 +245,10 @@ class EditWrapper(HwndWrapper):
 		
 		return (start.value, end.value)
 	SelectionIndices = property(get_selectionindices, doc = "The start and end indices of the current selection")
+
+	#-----------------------------------------------------------
+	def ItemTexts(self):
+		return get_multiple_text_items(self, LB_GETCOUNT, LB_GETTEXTLEN, LB_GETTEXT)
 
 
 
