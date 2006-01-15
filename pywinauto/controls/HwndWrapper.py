@@ -182,12 +182,21 @@ class HwndWrapper(object):
 
 	#-----------------------------------------------------------
 	def SendMessage(self, message, wparam = 0 , lparam = 0):
-		return SendMessage(self.handle, message, wparam, lparam)
+		return SendMessage(self, message, wparam, lparam)
 
 	#-----------------------------------------------------------
 	def PostMessage(self, message, wparam = 0 , lparam = 0):
-		return PostMessage(self.handle, message, wparam, lparam)
+		return PostMessage(self, message, wparam, lparam)
+
+	#-----------------------------------------------------------
+	def NotifyParent(self, message):
+		"Send the notification message to parent of this control"
 	
+		return self.Parent.PostMessage(
+			WM_COMMAND,
+			MakeLong(self.ControlID, message),
+			self)
+
 	#-----------------------------------------------------------	
 	def GetProperties(self):
 		props = self._extra_props
