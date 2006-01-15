@@ -43,6 +43,8 @@ def WrapHandle(hwnd, isDialog = False):
 
 	default_wrapper = HwndWrapper(hwnd)
 	
+	#print "wrapping:", default_wrapper.Class
+	
 	for wrapper_name in HwndWrappers:
 		if re.search(wrapper_name, default_wrapper.Class):
 			return HwndWrappers[wrapper_name](hwnd)
@@ -82,6 +84,9 @@ class HwndWrapper(object):
 		# if it is a main window
 		if self.IsDialog:
 			self.FriendlyClassName = "Dialog"
+			
+		# default to not having a reference control added
+		self.ref = None
 
 	Text = property (handleprops.text, doc = "Main text of the control")
 	Class = property (handleprops.classname, doc = "Class Name of the window")
@@ -97,6 +102,7 @@ class HwndWrapper(object):
 	IsEnabled = property (handleprops.isenabled, doc = "Whether the window is enabled or not")
 
 	Rectangle = property (handleprops.rectangle, doc = "Rectangle of window")
+	ClientRect = property (handleprops.clientrect, doc = "Client rectangle of window")
 
 	Font = property (handleprops.font, doc = "The font of the window")
 
@@ -328,11 +334,17 @@ class dummy_control(dict):
 def GetDialogPropsFromHandle(hwnd):
 	# wrap the dialog handle and start a new list for the 
 	# controls on the dialog
-	controls = [WrapHandle(hwnd, True), ]
-	
-	# add all the children of the dialog
-	controls.extend(controls[0].Children)
+	try:
+		controls = [hwnd, ]
+		controls.extend(hwnd.Children)
+	except AttributeError:
 		
+		controls = [WrapHandle(hwnd, True), ]
+	
+		# add all the children of the dialog
+		controls.extend(controls[0].Children)
+	
+	#print controls
 	props = []
 
 	# Add each control to the properties for this dialog
