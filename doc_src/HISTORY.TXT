@@ -1,0 +1,25 @@
+------------------------------------------------
+0.1.2 Add Readme and rollup various changes
+15-Jan-2006
+ * Updated Readme (original readme was incorrect)
+ * Added clipboard module
+ * Fixed DrawOutline part of tests.__init__.print_bugs
+ * Added a NotifyParent to HwndWrapper
+ * Make sure that HwndWrapper.ref is initialized to None
+ * Refactored some methods of ComboBox and ListBox
+ * Updated Combo/ListBox selection methods
+ * Removed hardcoded paths from test_application.py
+ * Added section to save the document as UTF-8 in MinimalNotepadTest
+ * Fixed EscapeSpecials and UnEscapeSpecials in XMLHelpers
+ * Made sure that overly large bitmaps do not break XML writing
+ 
+
+------------------------------------------------
+0.1.1 Minor bug fix release
+12-Jan-2006
+* Fixed some minor bugs discovered after release
+
+------------------------------------------------
+0.1.0 Initial Release
+6-Jan-2006
+
