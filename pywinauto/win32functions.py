@@ -104,23 +104,26 @@ SendMessageTimeout	=	ctypes.windll.user32.SendMessageTimeoutW
 WideCharToMultiByte	=	ctypes.windll.kernel32.WideCharToMultiByte
 GetACP				=	ctypes.windll.kernel32.GetACP
 
-
 CreateProcess 		= ctypes.windll.kernel32.CreateProcessW
 TerminateProcess	= ctypes.windll.kernel32.TerminateProcess
 ExitProcess 		= ctypes.windll.kernel32.ExitProcess
 
-
 WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
 WaitForInputIdle	= ctypes.windll.user32.WaitForInputIdle
 
-#@ stdcall(BOOL, 'kernel32', [POINTER(WCHAR), POINTER(WCHAR), c_long, c_long, c_int, c_ulong, c_long, c_long, c_long, c_long])
-#def CreateProcessW(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10):
-#    # C:/PROGRA~1/MICROS~4/VC98/Include/winbase.h 4271
-#    return CreateProcessW._api_(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
 GetWindowThreadProcessId	=	ctypes.windll.user32.GetWindowThreadProcessId
 OpenProcess				=	ctypes.windll.kernel32.OpenProcess
 GetModuleFileNameEx		=	ctypes.windll.psapi.GetModuleFileNameExW
 
+GetClipboardData = ctypes.windll.user32.GetClipboardData
+OpenClipboard = ctypes.windll.user32.OpenClipboard
+CountClipboardFormats = ctypes.windll.user32.CountClipboardFormats
+EnumClipboardFormats = ctypes.windll.user32.EnumClipboardFormats
+CloseClipboard = ctypes.windll.user32.CloseClipboard
+
+GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
+GlobalLock = ctypes.windll.kernel32.GlobalLock
+GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
 
 #====================================================================
