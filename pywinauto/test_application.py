@@ -62,7 +62,7 @@ def TestNotepad():
 #		app._connect(path = ur"c:\windows\system32\notepad.exe")
 #	except application.ProcessNotFoundError:	
 #		app._start(ur"c:\windows\system32\notepad.exe")
-	app._start(ur"c:\windows\system32\notepad.exe")
+	app._start(ur"notepad.exe")
 	
 	app.Notepad.MenuSelect("File->PageSetup")
 
@@ -142,7 +142,7 @@ def TestNotepad():
 def MinimalNotepadTest():
 
 	app = application.Application()
-	app._start(ur"c:\windows\system32\notepad.exe")
+	app._start(ur"notepad.exe")
 	
 	app.Notepad.MenuSelect("File->PageSetup")
 
@@ -209,9 +209,19 @@ def MinimalNotepadTest():
 	#app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText döés not "
 	#	"süppôrt àcceñted characters", with_spaces = True)
 	
+	app.Notepad.MenuSelect("File->SaveAs")
+	app.SaveAs.ComboBox5.Select("UTF-8")
+	app.SaveAs.edit1.SetText("Example-utf8.txt")
+	app.SaveAs.Save.Click()
+	
+	try:
+		app.SaveAs.Yes.Click()
+	except:
+		pass
+
 	# exit notepad
 	app.Notepad.MenuSelect("File->Exit")
-	app.Notepad.No.Click()
+	#app.Notepad.No.Click()
 
 
 
@@ -226,7 +236,7 @@ def TestPaint():
 #	except application.ProcessNotFoundError:	
 #		app._start(ur"c:\windows\system32\mspaint.exe")
 
-	app._start(ur"c:\windows\system32\mspaint.exe")
+	app._start(ur"mspaint.exe")
 
 	pwin = app._window(title_re = ".* - Paint")
 	
@@ -300,9 +310,9 @@ def Main():
 	
 	MinimalNotepadTest()
 	
-	#TestExceptions()
-	#TestNotepad()
-	#TestPaint()
+#	TestExceptions()
+#	TestNotepad()
+#	TestPaint()
 	
 	print "Total time taken:", time.time() - start
 
