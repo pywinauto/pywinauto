@@ -30,7 +30,7 @@ import xml.parsers.expat
 import ctypes
 import re
 import PIL.Image
-
+import controls
 
 from win32structures import RECT, LOGFONTW
 
@@ -85,6 +85,12 @@ def SetNodeProps(element, name, value):
 
 	elif isinstance(value, PIL.Image.Image):
 		try:
+			# if the image is too big then don't try to 
+			# write it out - it would probably product a MemoryError
+			# anyway
+			if value.size[0] * value.size[1] > (5000*5000):
+				raise MemoryError
+		
 			imageData = value.tostring().encode("bz2").encode("base64")
 			SetNodeProps(
 				element, 
@@ -93,7 +99,7 @@ def SetNodeProps(element, name, value):
 		
 		# a system error is raised from time to time when we try to grab
 		# the image of a control that has 0 height or width
-		except SystemError, e:
+		except (SystemError, MemoryError), e:
 			pass
 
 	
@@ -126,7 +132,7 @@ def WriteDialogToFile(fileName, props):
 	# if we are passed in a wrapped handle then 
 	# get the properties
 	try:
-		props = controls.GetDialogPropsFromHandle(handle)
+		props = controls.GetDialogPropsFromHandle(props)
 	except AttributeError:
 		pass
 	
@@ -143,35 +149,65 @@ def WriteDialogToFile(fileName, props):
 	tree.write(fileName, encoding="utf-8")
 
 
+
 #-----------------------------------------------------------------------------
-def EscapeSpecials(inStr):
+def EscapeSpecials(s):
 	"Ensure that some characters are escaped before writing to XML"
+
+	# ensure it is unicode
+	s = unicode(s)
 	
-	# make sure input is a unicode string or convert
-	inStr = unicode(inStr)
+	# escape backslashs
+	s = s.replace('\\', r'\\')
 
-	# unicode_escape encoding seems to be broken
-	#escaped = escaped.encode("unicode_escape")
+	# escape non printable characters (chars below 30)
+	for i in range(0, 31):
+		s = s.replace(unichr(i), "\\%02d"%i)
+	
+	return s
 
-	for (replacement, char) in charReplacements:
-		inStr = inStr.replace(char, replacement) 
 
-	return inStr
+#def EscapeSpecials(inStr):
+#	
+#	# make sure input is a unicode string or convert
+#	inStr = unicode(inStr)
+#
+#	# unicode_escape encoding seems to be broken
+#	#escaped = escaped.encode("unicode_escape")
+#
+#	for (replacement, char) in charReplacements:
+#		inStr = inStr.replace(char, replacement) 
+#
+#	return inStr
 		
-	
 #-----------------------------------------------------------------------------
-def UnEscapeSpecials(inStr):
+def UnEscapeSpecials(s):
 	"Replace escaped characters with real character"
-	
-	
-	#bits = inStr.split("\\\\")
-	#for i, bit in enumerate(bits):
-	#	for (replacement, char) in charReplacements[1:]:
-	#		inStr = inStr.replace(replacement, char)
-	
-	inStr = inStr.decode("unicode_escape")
 
-	return unicode(inStr)
+	# Unescape all the escape characters	
+	for i in range(0, 31):
+		s = s.replace("\\%02d"%i, unichr(i))
+
+	# convert doubled backslashes to a single backslash
+	s = s.replace(r'\\', '\\')
+
+	return unicode(s)
+    
+	
+##-----------------------------------------------------------------------------
+#def UnEscapeSpecials(inStr):
+#	"Replace escaped characters with real character"
+#	
+#	
+#	#bits = inStr.split("\\\\")
+#	#for i, bit in enumerate(bits):
+#	#	for (replacement, char) in charReplacements[1:]:
+#	#		inStr = inStr.replace(replacement, char)
+#	
+#	for (replacement, char) in charReplacements:
+#		inStr = inStr.replace(replacement, char) 
+#
+#	return unicode(inStr)
 
 
 #-----------------------------------------------------------------------------
