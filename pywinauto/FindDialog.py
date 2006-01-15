@@ -109,6 +109,10 @@ def PopulateCommandLineParser():
 	parser.add_option("-x", "--refxml", dest="refXML", #metavar="USER",
 					  help="username to access Domino DTS")
 					  
+
+	parser.add_option("-a", "--hwnd", dest="windowHandle", #metavar="USER",
+					  help="handle of window to find")
+
 					  
 #	parser.add_option("-p", "--pwd", dest="password", metavar="PASSWORD",
 #					  help="password for user to access Domino DTS")
@@ -146,7 +150,7 @@ if __name__ == '__main__':
 	
 	
 	
-	if not (options.windowTitle or options.xmlFileName):
+	if not (options.windowTitle or options.xmlFileName or options.windowHandle):
 		if args:
 			arg = args[0]
 			if arg.lower().endswith(".xml"):
@@ -177,10 +181,9 @@ if __name__ == '__main__':
 			print "Could not find dialog"
 			sys.exit()
 		
-		
 		dialog = controls.WrapHandle(handle)
 		
-		dialog.Text
+		print "Initialized dialog", dialog.Text
 		
 		#PyDlgCheckerWrapper.InitDialogFromWindow(handle)
 		
@@ -195,71 +198,108 @@ if __name__ == '__main__':
 		outputXML = outputXML.replace("\"", '_')
 		outputXML = outputXML.replace(":", '_')
 		
+		allcontrols = [dialog]
+		allcontrols.extend(dialog.Children)
+
+		print "done with dialog initialization"
+		
 	elif options.xmlFileName:
 	
-		PyDlgCheckerWrapper.InitDialogFromFile(options.xmlFileName)
+		import controlproperties
+		allcontrols = XMLHelpers.ReadPropertiesFromFile(options.xmlFileName)
 		
+		allcontrols = [controlproperties.ControlProps(ctrl) for ctrl in allcontrols]
+	
 		outputXML = options.xmlFileName
 
-	print outputXML
 
+	elif options.windowHandle:
+		dialog = controls.WrapHandle(eval(options.windowHandle), True)
+		
+		outputXML = dialog.Text
+		outputXML = outputXML.replace("\\", '_')
+		outputXML = outputXML.replace("*", '_')
+		outputXML = outputXML.replace("?", '_')
+		outputXML = outputXML.replace(">", '_')
+		outputXML = outputXML.replace("<", '_')
+		outputXML = outputXML.replace("/", '_')
+		outputXML = outputXML.replace("|", '_')
+		outputXML = outputXML.replace("\"", '_')
+		outputXML = outputXML.replace(":", '_')
+		
+		
+
+
+	#import tests
+	
+	#bugs = tests.run_tests(allcontrols, "Truncation")
+	
+	#tests.print_bugs(bugs)
+	
+	
+
+
+	
+	
 	# write out the XML file
-	XMLHelpers.WriteDialogToFile (outputXML + ".xml")
+	XMLHelpers.WriteDialogToFile (outputXML + ".xml", dialog)
 
+	#print "wrote dialog to %s.xml" %outputXML
+	#sys.exit()
 
-	if options.refWindow:
-		handle =  find_windows (title_re = "^" + options.refWindow)
-		PyDlgCheckerWrapper.AddReferenceFromWindow(handle)
-			
-	elif options.refXML:
-		PyDlgCheckerWrapper.AddReferenceFromFile(options.refXML)
-		
-
-
-
-
-	
-	
-	
-	for i in range(0, PyDlgCheckerWrapper.GetRegisteredTestCount()):
-		tst = PyDlgCheckerWrapper.GetRegisteredTestName(i)
-		if tst not in ("AllControls", "AsianHotkey", "Overlapping"):
-			print `tst`
-			PyDlgCheckerWrapper.AddTest(tst)
-			#print tst
-		
-	PyDlgCheckerWrapper.RunTests(True)
-
-		
-		
-	for (ctrls, info, bType, inRef) in  PyDlgCheckerWrapper.TestInfo['Bugs']:
-		print "BugType:", bType,
-
-		for i in info:
-			print i, info[i],
-		print
-		
-		
-		for i, ctrl in enumerate(ctrls):
-			print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
-				ctrl.Text, 
-				ctrl.FriendlyClassName,
-				ctrl.Rectangle.left,
-				ctrl.Rectangle.top,
-				ctrl.Rectangle.right,
-				ctrl.Rectangle.bottom,
-				ctrl.IsVisible,)
-				
-			try:
-				
-				#print PyDlgCheckerWrapper
-				#print PyDlgCheckerWrapper.TestInfo
-				dlgRect = handleprops.rectangle(PyDlgCheckerWrapper.TestInfo['Controls'][0].handle)
-				
-			
-				DrawOutline(ctrl.Rectangle + dlgRect, "red")
-			except AttributeError, e:
-				print e
-				pass
-				
-		print
+#	if options.refWindow:
+#		handle =  find_windows (title_re = "^" + options.refWindow)
+#		#PyDlgCheckerWrapper.AddReferenceFromWindow(handle)
+#			
+#	elif options.refXML:
+#		#PyDlgCheckerWrapper.AddReferenceFromFile(options.refXML)
+#		
+#
+#
+#
+#
+#	
+#	
+#	
+#	for i in range(0, PyDlgCheckerWrapper.GetRegisteredTestCount()):
+#		tst = PyDlgCheckerWrapper.GetRegisteredTestName(i)
+#		if tst not in ("AllControls", "AsianHotkey", "Overlapping"):
+#			print `tst`
+#			PyDlgCheckerWrapper.AddTest(tst)
+#			#print tst
+#		
+#	PyDlgCheckerWrapper.RunTests(True)
+#
+#		
+#		
+#	for (ctrls, info, bType, inRef) in  bugs:
+#		print "BugType:", bType,
+#
+#		for i in info:
+#			print i, info[i],
+#		print
+#		
+#		
+#		for i, ctrl in enumerate(ctrls):
+#			print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
+#				ctrl.Text, 
+#				ctrl.FriendlyClassName,
+#				ctrl.Rectangle.left,
+#				ctrl.Rectangle.top,
+#				ctrl.Rectangle.right,
+#				ctrl.Rectangle.bottom,
+#				ctrl.IsVisible,)
+#				
+#			try:
+#				
+#				#print PyDlgCheckerWrapper
+#				#print PyDlgCheckerWrapper.TestInfo
+#				dlgRect = handleprops.rectangle(PyDlgCheckerWrapper.TestInfo['Controls'][0].handle)
+#				
+#			
+#				DrawOutline(ctrl.Rectangle + dlgRect, "red")
+#			except AttributeError, e:
+#				print e
+#				pass
+#				
+#		print
