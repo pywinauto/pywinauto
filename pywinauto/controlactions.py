@@ -41,10 +41,12 @@ class ControlNotVisible(RuntimeError):
 
 
 
+#====================================================================
 def verify_actionable(ctrl):
 	verify_enabled(ctrl)
 	verify_visible(ctrl)
 
+#====================================================================
 def verify_enabled(ctrl):
 	if not ctrl.FriendlyClassName == "Dialog":
 		if not ctrl.Parent.IsEnabled:
@@ -53,10 +55,10 @@ def verify_enabled(ctrl):
 	if not ctrl.IsEnabled:
 		raise ControlNotEnabled()
 
+#====================================================================
 def verify_visible(ctrl):
 	if not ctrl.IsVisible or not ctrl.Parent.IsVisible:
 		raise ControlNotVisible()
-
 
 
 mouse_flags = {
@@ -68,17 +70,20 @@ mouse_flags = {
 }
 
 
+#====================================================================
 def calc_flags_and_coords(pressed, coords):
 	flags = 0
 	
 	for key in pressed.split():	
 		flags |= mouse_flags[key.lower()]
 	
-	click_point = coords[0] << 16 | coords[1]
+	click_point = win32functions.MakeLong(coords[1], coords[0])
 	
 	return flags, click_point
 
-# TODO: Test simulating mouse clicks using SendInput of WM_* messages
+
+#====================================================================
+# TODO: Test simulating mouse clicks using SendInput instead of WM_* messages
 def perform_click(ctrl, button = "left", pressed = "", coords = (0, 0), double = False, down = True, up = True):
 	verify_enabled(ctrl)
 	
@@ -184,32 +189,55 @@ def typekeys_action(
 	
 
 
+
 #====================================================================
 def combobox_select(ctrl, item):
+	"""Select the ComboBox item
+	
+	item can be either a 0 based index of the item to select
+	or it can be the string that you want to select
+	"""
 	verify_enabled(ctrl)
 
+	# Make sure we have an index  so if passed in a 
+	# string then find which item it is
 	if isinstance(item, (int, long)):
 		index = item
 	else:
-		index = ctrl.Texts.index(item)
-	
-	ctrl.PostMessage(CB_SETCURSEL, index, 0)
-	ctrl.PostMessage(CBN_SELCHANGE)
-	
+		index = ctrl.Texts.index(item) -1
+		
+	# change the selected item
+	ctrl.SendMessage(CB_SETCURSEL, index, 0)
 
+	# Notify the parent that we have changed
+	ctrl.NotifyParent(CBN_SELCHANGE)
+	
+	return ctrl
 
+	
 #====================================================================
 def listbox_select(ctrl, item):
+	"""Select the ListBox item
+	
+	item can be either a 0 based index of the item to select
+	or it can be the string that you want to select
+	"""
 	verify_enabled(ctrl)
 
+	# Make sure we have an index  so if passed in a 
+	# string then find which item it is
 	if isinstance(item, (int, long)):
 		index = item
 	else:
 		index = ctrl.Texts.index(item)
 	
+	# change the selected item
 	ctrl.PostMessage(LB_SETCURSEL, index, 0)
-	ctrl.PostMessage(LBN_SELCHANGE)
 
+	# Notify the parent that we have changed
+	ctrl.NotifyParent(LBN_SELCHANGE)
+
+	return ctrl
 
 
 #====================================================================
@@ -377,7 +405,18 @@ def listview_checkbox_check_action(ctrl, item):
 	
 	del remoteMem
 
-	
+
+def listbox_setfocusitem_action(ctrl, item):
+	if ctrl.HasStyle(LBS_EXTENDEDSEL) or ctrl.HasStyle(LBS_MULTIPLESEL):
+		ctrl.SendMessage(LB_SETCARETINDEX, item)
+	else:
+		ctrl.SendMessage(LB_SETCURSEL, item)
+
+
+def listbox_getcurrentselection_action(ctrl):
+	return ctrl.SendMessage(LB_GETCARETINDEX)
+
+
 
 
 
@@ -672,7 +711,10 @@ class_specific_actions = {
 
 	'ListBox' : dict(
 		Select = listbox_select,
+		FocusItem = listbox_getcurrentselection_action,
+		SetFocus = listbox_setfocusitem_action,
 	),
+	
 	
 	'ListView' : dict(
 		Check = listview_checkbox_check_action,
