@@ -72,18 +72,22 @@ class ActionDialog(object):
 		
 		dlg_controls = [self.wrapped_win, ]
 		dlg_controls.extend(self.wrapped_win.Children)
-		
-	def __getattr__(self, attr):
-		if hasattr(self.wrapped_win, attr):
-			return getattr(self.wrapped_win, attr)
 
+	def __getattr__(self, key):
+		return self[key]
+		
+	def __getitem__(self, attr):
+		try:
+			return getattr(self.wrapped_win, attr)
+		except (AttributeError, UnicodeEncodeError):
+			pass
+			
 		# find the control that best matches our attribute		
 		ctrl = findbestmatch.find_best_control_match(
 			attr, self.wrapped_win.Children)
 
 		# add actions to the control and return it
 		return controlactions.add_actions(ctrl)
-		
 	
 	def _write(self, filename):
 		if self.app and self.app.xmlpath:
@@ -122,13 +126,13 @@ def WalkDialogControlAttribs(app, attr_path):
 
 	# try to find the item
 	dialogWin = findbestmatch.find_best_control_match(attr_path[0], wins)
-	
+		
 	# already wrapped
 	dlg = ActionDialog(dialogWin, app)
 	
 	attr_value = dlg
 	for attr in attr_path[1:]:
-		attr_value = getattr(attr_value, attr)
+		attr_value = attr_value[attr]
 
 	return dlg, attr_value
 
@@ -140,6 +144,9 @@ class DynamicAttributes(object):
 		self.attr_path = []
 		
 	def __getattr__(self, attr):
+		return self[attr]
+
+	def __getitem__(self, attr):
 		# do something with this one
 		# and return a copy of ourselves with some
 		# data related to that attribute
@@ -154,6 +161,11 @@ class DynamicAttributes(object):
 		if len(self.attr_path) == 2:
 			dlg, final = wait_for_function_success(
 				WalkDialogControlAttribs, self.app, self.attr_path)
+			
+			# seing as we may already have a reference to the dialog
+			# we need to strip off the control so that our dialog
+			# reference is not messed up
+			self.attr_path = self.attr_path[:-1]
 			
 			return final
 		
@@ -280,12 +292,20 @@ class Application(object):
 		# wrap the Handle object (and store it in the cache
 		return ActionDialog(win, self)
 	
+	def __getitem__(self, key):
+		"Find the dialog of the application"
+		if not self.process:
+			raise AppNotConnected("Please use _start or _connect before trying anything else")		
+
+		return DynamicAttributes(self)[key]
+
 	def __getattr__(self, key):
 		"Find the dialog of the application"
 		if not self.process:
 			raise AppNotConnected("Please use _start or _connect before trying anything else")		
 
-		return getattr(DynamicAttributes(self), key)
+		return self[key]
+		#return getattr(DynamicAttributes(self), key)
 					
 #=========================================================================
 class Process(object):
