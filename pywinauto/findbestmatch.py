@@ -125,14 +125,18 @@ def build_unique_index_map(items):
 
 
 
+
 #====================================================================
+after_tab = re.compile(ur"\t.*", re.UNICODE)
+non_word_chars = re.compile(ur"\W", re.UNICODE)
+
 def clean_text(text):
 
 	# remove anything after the first tab
-	text_before_tab = re.sub(r"\t.*", "", text)
+	text_before_tab = after_tab.sub("", text)
 	
 	# remove non alphanumeric characters
-	return re.sub(r"\W", "", text_before_tab)
+	return non_word_chars.sub("", text_before_tab)
 
 
 
