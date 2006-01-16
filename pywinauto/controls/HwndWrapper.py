@@ -46,7 +46,7 @@ def WrapHandle(hwnd, isDialog = False):
 	#print "wrapping:", default_wrapper.Class
 	
 	for wrapper_name in HwndWrappers:
-		if re.search(wrapper_name, default_wrapper.Class):
+		if re.match(wrapper_name, default_wrapper.Class):
 			return HwndWrappers[wrapper_name](hwnd)
 	
 	if not isDialog:
