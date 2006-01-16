@@ -73,7 +73,7 @@ def find_windows(class_name = None,
 		windows = enum_windows()
 		
 		if parent:	
-			windows = [win for win in windows if win.Parent == parent]
+			windows = [win for win in windows if handleprops.parent(win) == parent]
 			
 	else:
 		if parent:
