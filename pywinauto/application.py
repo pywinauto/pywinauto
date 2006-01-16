@@ -66,7 +66,7 @@ class ActionDialog(object):
 	def __init__(self, hwnd, app = None, props = None):
 		
 		self.wrapped_win = controlactions.add_actions(
-			controls.WrapHandle(hwnd))
+			controls.WrapHandle(hwnd, True))
 		
 		self.app = app
 		
@@ -94,6 +94,19 @@ class ActionDialog(object):
 		props = [c.GetProperties() for c in controls]
 		
 		XMLHelpers.WriteDialogToFile(filename, props)
+	
+	def _control(self, **kwargs):
+		# add the restriction for this particular process
+		kwargs['parent'] = self.wrapped_win
+		kwargs['process'] = self.app.process
+		kwargs['top_level_only'] = False
+
+		# try and find the dialog (waiting for a max of 1 second
+		ctrl = findwindows.find_window(**kwargs)
+		#win = ActionDialog(win, self)
+		
+		return controlactions.add_actions(controls.WrapHandle(ctrl))
+
 		
 		
 #=========================================================================
@@ -105,7 +118,7 @@ def WalkDialogControlAttribs(app, attr_path):
 	wins = findwindows.find_windows(process = app.process)
 
 	# wrap each so that find_best_control_match works well
-	wins = [controls.WrapHandle(w) for w in wins]
+	wins = [controls.WrapHandle(w, True) for w in wins]
 
 	# try to find the item
 	dialogWin = findbestmatch.find_best_control_match(attr_path[0], wins)
@@ -235,7 +248,7 @@ class Application(object):
 
 		else:
 			handle = findwindows.find_window(**kwargs)
-			self.process = controls.WrapHandle(handle).ProcessID
+			self.process = controls.WrapHandle(handle, True).ProcessID
 			connected = True
 						
 		if not connected:
