@@ -132,9 +132,9 @@ def WriteDialogToFile(fileName, props):
 	# if we are passed in a wrapped handle then 
 	# get the properties
 	try:
+		props[0].keys()
+	except:
 		props = controls.GetDialogPropsFromHandle(props)
-	except AttributeError:
-		pass
 	
 	# build a tree structure
 	root = Element("DIALOG")
