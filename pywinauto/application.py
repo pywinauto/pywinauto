@@ -18,6 +18,36 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+"""The application module is the main one that users will user first.
+
+When starting to automate and application you must initialize an instance
+of the Application class. Then you must _start that application or _connect 
+to a running instance of that application.
+
+Once you have an Application instance you can access dialogs in that 
+application either by using one of the methods below.::
+
+   dlg = app.YourDialogTitle
+   dlg = app._window(title = "your title", class = "your class", ...) 
+   dlg = app['Your Dialog Title']
+   
+Similarly once you have a dialog you can get a control from that dialog
+in almost exactly the same ways.::
+
+  ctrl = dlg.YourControlTitle
+  ctrl = dlg._control(title = "Your control", class = "Button", ...)
+  ctrl = dlg["Your control"]
+  
+**Note:** For attribute access of controls and dialogs you do not have to 
+have the title of the control exactly, it does a best match of the 
+avialable dialogs or controls.
+
+**See also:**
+  findwindows.find_windows for the keyword arguments that can be
+  passed to both Application._window and ActionDialog._control
+  
+"""
+
 import time
 import os.path
 import re
@@ -56,6 +86,9 @@ class WindowIsDisabled(Exception):
 
 #=========================================================================
 def make_valid_filename(filename):
+	r"""Return a valid file name for the string passed in.
+	
+	Replaces any character in ``:\/*?"<>|`` with ``'#%d#'% ord(char)``"""
 	for char in ('\/:*?"<>|'):
 		filename = filename.replace(char, '#%d#'% ord(char))
 	return filename
@@ -63,7 +96,26 @@ def make_valid_filename(filename):
 
 #=========================================================================
 class ActionDialog(object):
+	"""ActionDialog wraps the dialog you are interacting with
+	
+	It provides support for finding controls using attribute access,
+	item access and the _control(...) method.
+	
+	You can dump information from a dialgo to XML using the _write() method
+	
+	A screenshot of the dialog can be taken using the underlying wrapped
+	HWND ie. my_action_dlg.wrapped_win.CaptureAsImage().save("dlg.png").
+	This is only available if you have PIL installed (fails silently 
+	otherwise).
+	"""
 	def __init__(self, hwnd, app = None, props = None):
+		"""Initialises an ActionDialog object::
+		
+		   hwnd (required) The handle of the dialog
+		   app An instance of an Application Object
+		   props future use (when we have an XML file for reference)
+		  
+		"""
 		
 		self.wrapped_win = controlactions.add_actions(
 			controls.WrapHandle(hwnd, True))
@@ -77,6 +129,14 @@ class ActionDialog(object):
 		return self[key]
 		
 	def __getitem__(self, attr):
+	
+		# if it is an integer - just return the
+		# child control at that index
+		if isinstance(attr, (int, long)):
+			return self.wrapped_win.Children[attr]
+	
+		# so it should be a string
+		# check if it is an attribute of the wrapped win first
 		try:
 			return getattr(self.wrapped_win, attr)
 		except (AttributeError, UnicodeEncodeError):
@@ -115,6 +175,9 @@ class ActionDialog(object):
 		
 #=========================================================================
 def WalkDialogControlAttribs(app, attr_path):
+	
+	if len(attr_path) != 2:
+		raise "yo you yo"
 
 	# get items to select between
 	# default options will filter hidden and disabled controls
@@ -124,15 +187,23 @@ def WalkDialogControlAttribs(app, attr_path):
 	# wrap each so that find_best_control_match works well
 	wins = [controls.WrapHandle(w, True) for w in wins]
 
-	# try to find the item
-	dialogWin = findbestmatch.find_best_control_match(attr_path[0], wins)
+
+	if isinstance(attr_path[0], (int, long)):
+		dialogWin  = wins[attr_path[0]]
+	else:
+		# try to find the item
+		dialogWin = findbestmatch.find_best_control_match(attr_path[0], wins)
 		
 	# already wrapped
 	dlg = ActionDialog(dialogWin, app)
 	
+	# for each of the other attributes ask the 
 	attr_value = dlg
 	for attr in attr_path[1:]:
-		attr_value = attr_value[attr]
+		try:
+			attr_value = getattr(attr_value, attr)
+		except UnicodeEncodeError:		
+			attr_value = attr_value[attr]
 
 	return dlg, attr_value
 
