@@ -31,26 +31,26 @@ setup(name='pywinauto',
 	author='Mark Mc Mahon',
 	author_email='mark.m.mcmahon@gmail.com',
 
-	packages = ["controls", "tests"],
+	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
 
-	py_modules=[
-		'application',
-		'clipboard',
-		'controlactions',
-		'controlproperties',
-		'findbestmatch',
-		'findwindows',
-		'handleprops',
-		'test_application',
-		'win32defines',
-		'win32functions',
-		'win32structures',
-		'XMLHelpers',
-	],
+#	py_modules=[
+#		'application',
+#		'clipboard',
+#		'controlactions',
+#		'controlproperties',
+#		'findbestmatch',
+#		'findwindows',
+#		'handleprops',
+#		'test_application',
+#		'win32defines',
+#		'win32functions',
+#		'win32structures',
+#		'XMLHelpers',
+#	],
 
-	data_files=[
-		('.', ['HISTORY.TXT', 'TODO.TXT', 'LICENSE.txt']),
-	],	
+#	data_files=[
+#		('.', ['HISTORY.TXT', 'TODO.TXT', 'LICENSE.txt']),
+#	],	
 	
 	license = "LGPL",
 	classifiers=[
