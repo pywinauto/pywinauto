@@ -35,7 +35,7 @@ from pywinauto.win32defines import *
 from pywinauto.win32functions import *
 from pywinauto.win32structures import *
 
-import handleprops
+from pywinauto import handleprops
 
 
 #====================================================================
