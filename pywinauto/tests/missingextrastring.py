@@ -18,6 +18,7 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+testname = "MissingExtraString"
 
 CharsToCheck = (
 	">", 
@@ -54,7 +55,7 @@ def MissingExtraStringTest(windows):
 						"MissingOrExtra": missingExtra,
 						"MissingOrExtraText": char 
 					},
-					"MissingExtraString",
+					testname,
 					0))	
 					
 	return bugs

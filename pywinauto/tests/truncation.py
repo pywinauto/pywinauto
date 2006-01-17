@@ -24,6 +24,7 @@
 
 
 __revision__ = "0.0.1"
+testname = "Truncation"
 
 from ctypes import byref
 
@@ -67,7 +68,7 @@ def TruncationTest(windows):
 					"StringIndices": truncIdxs, 
 					"Strings": truncStrings,
 				}, 
-				u"Truncation", 
+				testname, 
 				isInRef)
 			)
 			

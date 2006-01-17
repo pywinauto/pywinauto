@@ -18,6 +18,8 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+testname = "Translation"
+
 import re
 
 #-----------------------------------------------------------------------------
@@ -41,7 +43,7 @@ def TranslationTest(windows):
 					"StringIndices": indicesAsString,
 					"Strings": ('"%s"' % '","'.join(untranTitles))
 				},
-				"Translation",
+				testname,
 				0)
 			)	
 

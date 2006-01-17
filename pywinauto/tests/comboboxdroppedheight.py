@@ -18,6 +18,7 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+testname = "ComboBoxDroppedHeight"
 
 def ComboBoxDroppedHeightTest(windows):
 	bugs = []
@@ -33,7 +34,7 @@ def ComboBoxDroppedHeightTest(windows):
 			bugs.append((
 				[win, ],
 				{},
-				"ComboBoxDroppedHeight",
+				testname,
 				0,)
 			)
 

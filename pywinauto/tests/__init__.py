@@ -18,6 +18,13 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+import os.path
+import sys
+
+# import pywinauto so that we can get the package directory
+import pywinauto
+
+
 test_names = (
 		"AllControls",
 		"AsianHotkey",
@@ -35,24 +42,6 @@ test_names = (
 )
 
 
-def __init_tests():
-	"Initialize each test by loading it and then register it"
-	initialized = {}
-	
-	for test_name in test_names:
-		# get a reference to the package
-		package = __import__("tests."+ test_name.lower())  # 
-
-		# get the reference to the module		
-		test_module = getattr(package, test_name.lower())
-
-		# class name is the test name + "Test"
-		test_class = getattr(test_module, test_name + "Test")
-		
-		initialized[test_name] = test_class
-	
-	return initialized
-	
 
 def run_tests(controls, tests_to_run = None, test_visible_only = True):
 	
@@ -108,5 +97,26 @@ def print_bugs(bugs):
 		print
 	
 
+# we need to register the modules
+registered = {}
+def __init_tests(package_path):
+	"Initialize each test by loading it and then register it"
+	global registered
 
-registered = __init_tests()
+	for test_name in test_names:
+		
+		test_module = __import__(test_name.lower())
+
+		# class name is the test name + "Test"
+		test_class = getattr(test_module, test_name + "Test")
+		
+		registered[test_name] = test_class
+	
+
+package_path = os.path.split(pywinauto.__file__)[0]
+package_path = os.path.join(package_path, 'tests')
+sys.path.append(package_path)
+if not registered:
+	__init_tests(package_path)
+sys.path = sys.path[:-1]	
+

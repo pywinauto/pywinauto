@@ -17,9 +17,9 @@
 #    59 Temple Place,
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
-
 "test for overlapping controls"
 
+testname = "Overlapping"
 __revision__ = "0.0.1"
 
 import pywinauto.win32structures
@@ -59,7 +59,11 @@ def OverlappingTest(windows):
 					if Overlapped(first.ref.Rectangle, second.ref.Rectangle):
 						isInRef = 1
 
-				bugs.append(([first, second], {"OverlappedRect":ovlRect}, "Overlapping", isInRef))
+				bugs.append((
+					[first, second], 
+					{"OverlappedRect":ovlRect}, 
+					testname, 
+					isInRef))
 			
 	return bugs
 				

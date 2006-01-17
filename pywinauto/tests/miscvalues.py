@@ -18,6 +18,7 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+testname = "MiscValues"
 
 def MiscValuesTest(windows):
 	bugs = []
@@ -58,7 +59,7 @@ def MiscValuesTest(windows):
 					"Ref": unicode(vals[1]),
 					"Loc": unicode(vals[0]),
 				},
-				"MiscValues",
+				testname,
 				0,)
 			)
 	return bugs

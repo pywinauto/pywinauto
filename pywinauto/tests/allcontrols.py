@@ -20,6 +20,8 @@
 
 import re
 
+testname = "AllControls"
+
 #-----------------------------------------------------------------------------
 def AllControlsTest(windows):
 	"Returns just one bug for each control"
@@ -29,7 +31,7 @@ def AllControlsTest(windows):
 		bugs.append((
 			[win,],
 			{},
-			"AllControls",
+			testname,
 			0
 		))	
 

@@ -18,6 +18,8 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+testname = "Missalignment"
+
 from pywinauto.win32structures import RECT
 
 #====================================================================
@@ -63,7 +65,7 @@ def MissalignmentTest(windows):
 						"AlignmentType": side.upper(),
 						"AlignmentRect": overAllRect
 					}, 
-					"Missalignment", 
+					testname, 
 					0)
 				)
 				

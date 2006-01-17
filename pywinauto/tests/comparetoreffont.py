@@ -18,6 +18,7 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+testname = "CompareToRefFont"
 
 def CompareToRefFontTest(windows):
 	bugs = []
@@ -43,8 +44,10 @@ def CompareToRefFontTest(windows):
 						"Ref": unicode(ref_value),
 						"Loc": unicode(loc_value),
 					},
-					"CompareToRefFont",
+					testname,
 					0,)
 				)
 	return bugs
+	
+
 

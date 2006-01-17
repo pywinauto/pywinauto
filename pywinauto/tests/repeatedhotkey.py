@@ -20,6 +20,7 @@
 
 "tests a set of controls for repeated hotkey errors"
 
+testname = "RepeatedHotkey"
 __revision__ = "0.0.1"
 
 from pywinauto.win32defines import SS_NOPREFIX
@@ -73,7 +74,7 @@ def RepeatedHotkeyTest(windows):
 					"AllCharsInDialog" :    SetAsString(allChars),
 					"AvailableInControls" : ctrlsAvailableChars,
 				},
-				"RepeatedHotkey", 
+				testname, 
 				isInRef)
 			)
 

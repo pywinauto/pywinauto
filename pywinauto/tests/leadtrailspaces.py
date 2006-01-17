@@ -18,7 +18,7 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
-
+testname = "LeadTrailSpaces"
 def LeadTrailSpacesTest(windows):
 	bugs = []
 	for win in windows:	
@@ -46,7 +46,7 @@ def LeadTrailSpacesTest(windows):
 					"Ref": ref,
 					"Loc": loc,
 				},
-				"LeadTrailSpaces",
+				testname,
 				0,)
 			)
 	return bugs

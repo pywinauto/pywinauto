@@ -18,6 +18,8 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
+testname = "AsianHotkeyFormat"
+
 import re
 
 from repeatedhotkey import ImplementsHotkey, GetHotkey
@@ -56,7 +58,7 @@ def AsianHotkeyTest(windows):
 			bugs.append((
 				[win,],
 				{},
-				"AsianHotkeyFormat",
+				testname,
 				0)
 			)	
 
@@ -81,44 +83,6 @@ def AsianHotkeyFormatIncorrect(text):
 	
 
 
-#
-#
-#void CAsianHotkeyFormatTest::operator()(ControlPair control)
-#{
-#
-#	// get the 1st title
-#	std::string title = control.loc->Titles()[0];
-#
-#	// get the hotkey position
-#	size_t hotkeyPos = GetHotkeyPos(title);
-#	if (hotkeyPos == -1)
-#		return;
-#
-#	// if it uses this '&' as a hoktey
-#	if (!GetHotkeyCtrlData(control.loc))
-#		return;
-#
-#	// if we have the reference check to make sure that the SAME
-#	// hotkey character is used!
-#	if (control.ref) {
-#		char refHotkey = Hotkey(control.ref->Titles()[0]);
-#		char locHotkey = Hotkey(control.loc->Titles()[0]);
-#
-#		if (refHotkey != locHotkey)
-#			m_Bugs.push_back(new CAsianHotkeyFormatBug(control, "AsianHotkeyDiffRef"));
-#	}
-#
-#
-#
-#	// ignore strings like "&X:"
-#	if (title.length() <= 3)
-#		return;
-#		
-#	
-#	// so if we have reached here:
-#		// the control REALLY has a hotkey
-#		// and the lenght of the control is greater than 3
-#
 #	if (hotkeyPos - 2  >= 0 &&	// at least 4th character ".(&..."
 #		hotkeyPos + 1 <= title.length()-1 &&		// at most 2nd last character "...(&H)"
 #		title[hotkeyPos-2] == '(' &&
@@ -129,16 +93,6 @@ def AsianHotkeyFormatIncorrect(text):
 #		// OK So we know now that the format "..(&X).." is correct and that it is the 
 #		// last non space character in the title
 #		; // SO NO BUG!
-#	}
-#	else /// HEY - a bug!
-#	{
-#		m_Bugs.push_back(new CAsianHotkeyFormatBug(control, "AsianHotkeyFormat"));
-#
-#	}
-#
-#
-#
-#}
-#
+
 
 AsianHotkeyTest.TestsMenus = True
