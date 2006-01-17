@@ -220,7 +220,7 @@ def MinimalNotepadTest():
 		pass
 
 	# exit notepad
-	app.Notepad.MenuSelect("File->Exit")
+	app.NotepadDialog.MenuSelect("File->Exit")
 	#app.Notepad.No.Click()
 
 
@@ -310,9 +310,9 @@ def Main():
 	
 	MinimalNotepadTest()
 	
-#	TestExceptions()
-#	TestNotepad()
-#	TestPaint()
+	TestExceptions()
+	TestNotepad()
+	TestPaint()
 	
 	print "Total time taken:", time.time() - start
 
