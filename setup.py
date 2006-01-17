@@ -32,11 +32,11 @@ setup(name='pywinauto',
 	author_email='mark.m.mcmahon@gmail.com',
 
 	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
-
-	data_files=[
-		('docs', ['docs/HISTORY.TXT', 'docs/TODO.TXT', 'docs/LICENSE.txt']),
-	],	
-	
+#
+#	data_files=[
+#		('.', ['HISTORY.TXT', 'TODO.TXT', 'LICENSE.txt']),
+#	],	
+#	
 	license = "LGPL",
 	classifiers=[
 		'Development Status :: 4 - Beta',
