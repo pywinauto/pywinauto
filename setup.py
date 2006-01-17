@@ -25,7 +25,7 @@ from distutils.core import setup
 
 
 setup(name='pywinauto',
-	version='0.1.2',
+	version='0.1.3',
 	description='Python library for GUI automation and testing',
 	url="no url",
 	author='Mark Mc Mahon',
@@ -33,24 +33,9 @@ setup(name='pywinauto',
 
 	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
 
-#	py_modules=[
-#		'application',
-#		'clipboard',
-#		'controlactions',
-#		'controlproperties',
-#		'findbestmatch',
-#		'findwindows',
-#		'handleprops',
-#		'test_application',
-#		'win32defines',
-#		'win32functions',
-#		'win32structures',
-#		'XMLHelpers',
-#	],
-
-#	data_files=[
-#		('.', ['HISTORY.TXT', 'TODO.TXT', 'LICENSE.txt']),
-#	],	
+	data_files=[
+		('docs', ['docs/HISTORY.TXT', 'docs/TODO.TXT', 'docs/LICENSE.txt']),
+	],	
 	
 	license = "LGPL",
 	classifiers=[
