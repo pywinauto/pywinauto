@@ -18,9 +18,9 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
-from win32functions import *
-from win32defines import *
-from win32structures import *
+from pywinauto.win32functions import *
+from pywinauto.win32defines import *
+from pywinauto.win32structures import *
 
 import HwndWrapper
 

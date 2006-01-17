@@ -27,9 +27,9 @@ __revision__ = "0.0.1"
 
 from ctypes import byref
 
-from win32defines import *
-from win32functions import *
-from win32structures import RECT
+from pywinauto.win32defines import *
+from pywinauto.win32functions import *
+from pywinauto.win32structures import RECT
 
 
 #==============================================================================

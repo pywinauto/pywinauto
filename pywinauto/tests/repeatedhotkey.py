@@ -22,7 +22,7 @@
 
 __revision__ = "0.0.1"
 
-from win32defines import SS_NOPREFIX
+from pywinauto.win32defines import SS_NOPREFIX
 
 #-----------------------------------------------------------------------------
 def RepeatedHotkeyTest(windows):

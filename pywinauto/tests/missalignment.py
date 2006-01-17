@@ -18,7 +18,7 @@
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
 
-from win32structures import RECT
+from pywinauto.win32structures import RECT
 
 #====================================================================
 def MissalignmentTest(windows):

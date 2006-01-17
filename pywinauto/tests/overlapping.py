@@ -22,7 +22,7 @@
 
 __revision__ = "0.0.1"
 
-import win32structures
+import pywinauto.win32structures
 
 #====================================================================
 def OverlappingTest(windows):
