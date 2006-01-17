@@ -131,7 +131,11 @@ after_tab = re.compile(ur"\t.*", re.UNICODE)
 non_word_chars = re.compile(ur"\W", re.UNICODE)
 
 def clean_text(text):
-
+	# not sure we really need this function - we are returning the 
+	# best match we can - if the match is below .5 then it's not
+	# considered good enough
+	#return text.replace("&", "")
+	#return text
 	# remove anything after the first tab
 	text_before_tab = after_tab.sub("", text)
 	
