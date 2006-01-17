@@ -42,9 +42,7 @@ import handleprops
 def WrapHandle(hwnd, isDialog = False):
 
 	default_wrapper = HwndWrapper(hwnd)
-	
-	#print "wrapping:", default_wrapper.Class
-	
+		
 	for wrapper_name in HwndWrappers:
 		if re.match(wrapper_name, default_wrapper.Class):
 			return HwndWrappers[wrapper_name](hwnd)
@@ -251,6 +249,8 @@ class HwndWrapper(object):
 			image = PIL.ImageGrab.grab(box)
 			return image
 		
+		# if that fails due to a NameError - it is most likely because
+		# PIL was not found - and the package not loaded
 		except NameError:
 			pass
 		
@@ -265,9 +265,9 @@ class HwndWrapper(object):
 
 
 
-
+MIIM_STRING = 0x40
 #====================================================================
-def GetMenuItems(menuHandle):#, indent = ""):
+def GetMenuItems(menuHandle):
 	
 	# If it doesn't have a real menu just return
 	if not IsMenu(menuHandle):
@@ -280,7 +280,7 @@ def GetMenuItems(menuHandle):#, indent = ""):
 	# for each menu item 
 	for i in range(0, itemCount):
 
-		itemProp = {} #Controls_Standard.ControlProps()
+		itemProp = {}
 
 		# get the information on the menu Item
 		menuInfo  = MENUITEMINFOW()
@@ -290,8 +290,8 @@ def GetMenuItems(menuHandle):#, indent = ""):
 			MIIM_ID | \
 			MIIM_STATE | \
 			MIIM_SUBMENU | \
-			MIIM_TYPE
-			#MIIM_FTYPE | \
+			MIIM_TYPE #| \
+			#MIIM_FTYPE #| \
 			#MIIM_STRING
 			#MIIM_DATA | \
 
@@ -303,9 +303,6 @@ def GetMenuItems(menuHandle):#, indent = ""):
 		itemProp['State'] = menuInfo.fState
 		itemProp['Type'] = menuInfo.fType
 		itemProp['ID'] = menuInfo.wID
-		#itemProp.handle = menuHandle
-
-
 
 		# if there is text
 		if menuInfo.cch:
@@ -321,17 +318,13 @@ def GetMenuItems(menuHandle):#, indent = ""):
 		else:
 			itemProp['Text'] = ""
 
-
 		# if it's a sub menu then get it's items
 		if menuInfo.hSubMenu:
-			#indent += "  "
 			subMenuItems = GetMenuItems(menuInfo.hSubMenu)#, indent)
 			itemProp['MenuItems'] = subMenuItems
-			#indent = indent[1:-2]
 
 		items.append(itemProp)
 	
-
 	return items
 
 
@@ -353,7 +346,6 @@ def GetDialogPropsFromHandle(hwnd):
 		# add all the children of the dialog
 		controls.extend(controls[0].Children)
 	
-	#print controls
 	props = []
 
 	# Add each control to the properties for this dialog
