@@ -27,11 +27,13 @@ from win32defines import *
 import win32functions
 import win32structures
 
+import handleprops
 import findbestmatch
 import tests
 
-# we need a delay after button click
-delay_after_click = .05
+# we need a slight delay after button click
+# In most cases to allow the window to close
+delay_after_click = .08
 		
 class ControlNotEnabled(RuntimeError):
 	pass
@@ -48,10 +50,12 @@ def verify_actionable(ctrl):
 
 #====================================================================
 def verify_enabled(ctrl):
-	if not ctrl.FriendlyClassName == "Dialog":
+	# check is the parent enabled first
+	if not handleprops.friendlyclassname(ctrl) == "Dialog":
 		if not ctrl.Parent.IsEnabled:
 			raise ControlNotEnabled()
 
+	# then check if the control itself is enabled
 	if not ctrl.IsEnabled:
 		raise ControlNotEnabled()
 
@@ -284,7 +288,7 @@ def select_menuitem_action(ctrl, path, items = None):
 	
 	if not items:
 		items = ctrl.MenuItems
-
+	
 	# get the text names from the menu items
 	item_texts = [item['Text'] for item in items]
 	
@@ -294,13 +298,19 @@ def select_menuitem_action(ctrl, path, items = None):
 
 	# find the item that best matches the current part
 	item = findbestmatch.find_best_match(current_part, item_texts, items)
-	
+
 	# if there are more parts - then get the next level
 	if parts[1:]:
 		select_menuitem_action(ctrl, "->".join(parts[1:]), item['MenuItems'])
-
 	else:
-		ctrl.PostMessage(WM_COMMAND, item['ID'])
+
+		# unfortunately this is not always reliable :-(
+		#if item['State'] & MF_DISABLED or item['State'] & MF_GRAYED:
+		#	raise "TODO - replace with correct exception: Menu item is not enabled"
+		
+		#ctrl.PostMessage(WM_MENURBUTTONUP, win32functions.GetMenu(ctrl))		
+		#ctrl.PostMessage(WM_COMMAND, 0, item['ID'])
+		ctrl.NotifyMenuSelect(item['ID'])
 	
 
 #====================================================================
@@ -404,6 +414,15 @@ def listview_checkbox_check_action(ctrl, item):
 	ctrl.SendMessage(LVM_SETITEMSTATE, item, remoteMem.Address())
 	
 	del remoteMem
+
+def listview_isitemchecked_action(ctrl, item):
+	state = ctrl.SendMessage(LVM_GETITEMSTATE, item, LVIS_STATEIMAGEMASK)
+
+	checked = False
+	if state & 0x2000:
+		checked = True	
+
+	return checked
 
 
 def listbox_setfocusitem_action(ctrl, item):
@@ -719,6 +738,7 @@ class_specific_actions = {
 	'ListView' : dict(
 		Check = listview_checkbox_check_action,
 		UnCheck = listview_checkbox_uncheck_action,
+		IsChecked = listview_isitemchecked_action,
 	),
 
 	'Edit' : dict(
@@ -745,51 +765,25 @@ class_specific_actions = {
 }	
 
 
-
-
-#=========================================================================
-def deferred_func(func):
-	def func_wrapper(ctrl, *args, **kwargs):
-		
-		return func(ctrl._, *args, **kwargs)
-		
-	return func_wrapper
-
-#=========================================================================
-def identity(func):
-	return func
-
-
 #=========================================================================
 def add_actions(to_obj, deferred = False):
-	# add common actions:
-	import application
 	
-	#if hasattr(to_obj, "_"):
-	#	defer_action = deferred_func
-	#	ctrl = to_obj._		
-	#else:
-	defer_action = identity
-	ctrl = to_obj
-		
 	# for each of the standard actions
 	for action_name in standard_action_funcs:
 		# add it to the control class
-		setattr (to_obj.__class__, action_name, defer_action(standard_action_funcs[action_name]))
+		setattr (to_obj.__class__, action_name, standard_action_funcs[action_name])
 	
-	if class_specific_actions.has_key(ctrl.FriendlyClassName):
-		actions = class_specific_actions[ctrl.FriendlyClassName]
-	
+	# check if there are actions specific to this type of control
+	if class_specific_actions.has_key(to_obj.FriendlyClassName):
+		
+		# apply these actions to the class
+		actions = class_specific_actions[to_obj.FriendlyClassName]
 		for action_name, action_func in actions.items():
-			setattr (to_obj.__class__, action_name, defer_action(action_func))
+			setattr (to_obj.__class__, action_name, action_func)
 	
-	# add some specific ones
+	# If the object has menu items allow MenuSelect
 	if to_obj.MenuItems:
-		setattr (to_obj.__class__, "MenuSelect", defer_action(select_menuitem_action))
+		setattr (to_obj.__class__, "MenuSelect", select_menuitem_action)
 	
 	return to_obj
 		
-
-
-
-	return ctrl
