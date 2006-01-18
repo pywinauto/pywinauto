@@ -39,18 +39,36 @@ from pywinauto import handleprops
 
 
 #====================================================================
-def WrapHandle(hwnd, isDialog = False):
+class InvalidWindowHandle(RuntimeError):
+	def __init__(self, hwnd):
+		self.hwnd = hwnd
+	
+	def __str__():
+		return "Handle 0x%d is not a vaild window handle"% hwnd
 
-	default_wrapper = HwndWrapper(hwnd)
+
+#====================================================================
+def WrapHandle(hwnd, isDialog = False):
+	"""Return the hwnd wrapped with  the correct wraper
+	
+	Based on the type of the control
+	"""
+	
+	#default_wrapper = HwndWrapper(hwnd)
 		
 	for wrapper_name in HwndWrappers:
-		if re.match(wrapper_name, default_wrapper.Class):
+		if re.match(wrapper_name, handleprops.classname(hwnd)):
 			return HwndWrappers[wrapper_name](hwnd)
 	
-	if not isDialog:
-		default_wrapper._NeedsImageProp = True
+	# so it is not one of the 'known' classes - just wrap it with
+	# hwnd wrapper
+	wrapped_hwnd = HwndWrapper(hwnd)
+	
+	# if it's not a dialog - 
+	#if not isDialog:
+	#	wrapped_hwnd._NeedsImageProp = True
 
-	return default_wrapper
+	return wrapped_hwnd	
 	
 	
 #====================================================================
@@ -63,6 +81,10 @@ class HwndWrapper(object):
 		except AttributeError:
 			self.handle = hwnd
 		
+		# verify that we have been passed in a valid windows handle
+		if not IsWindow(hwnd):
+			raise InvalidWindowHandle(hwnd)
+		
 		# make it so that ctypes conversion happens correctly
 		self._as_parameter_ = self.handle
 
@@ -72,7 +94,6 @@ class HwndWrapper(object):
 		
 		# set the friendly class name to default to
 		# the class name
-		self.FriendlyClassName = self.Class
 		self._extra_texts = []
 		self._extra_clientrects = []
 		self._extra_props = {}
@@ -80,12 +101,17 @@ class HwndWrapper(object):
 		self._extra_props['MenuItems'] = self.MenuItems
 		
 		# if it is a main window
-		if self.IsDialog:
-			self.FriendlyClassName = "Dialog"
+		#if self.IsDialog:
+		#	self.FriendlyClassName = "Dialog"
 			
 		# default to not having a reference control added
 		self.ref = None
 
+
+	FriendlyClassName = property(
+		handleprops.friendlyclassname, 
+		doc = "FriendlyClassName of the window ")
+		
 	Text = property (handleprops.text, doc = "Main text of the control")
 	Class = property (handleprops.classname, doc = "Class Name of the window")
 	Style = property (handleprops.style, doc = "Style of window")
@@ -109,23 +135,7 @@ class HwndWrapper(object):
 	HasStyle = handleprops.has_style
 	HasExStyle = handleprops.has_exstyle
 
-#	#-----------------------------------------------------------
-#	def HasStyle(self, Style):
-#		return self.Style & Style == Style:
-#			
-#	#-----------------------------------------------------------
-#	def HasExStyle(self, Style):
-#		return  self.ExStyle & Style == Style:
-
-
-	
-	#-----------------------------------------------------------
-	def get_is_dialog(self):
-		if (self.HasStyle(WS_OVERLAPPED) or self.HasStyle(WS_CAPTION)) and not self.HasStyle(WS_CHILD):	
-			return True
-		else:
-			return False
-	IsDialog = property (get_is_dialog, doc = "Whether the window is a dialog or not")
+	IsDialog = property(handleprops.is_toplevel_window, doc = handleprops.is_toplevel_window.__doc__)
 	
 	#-----------------------------------------------------------
 	# define the Menu Property
@@ -138,7 +148,11 @@ class HwndWrapper(object):
 		
 	#-----------------------------------------------------------
 	def get_parent(self):
-		return HwndWrapper(handleprops.parent(self))
+		parent_hwnd = handleprops.parent(self)
+		if parent_hwnd:
+			return HwndWrapper(parent_hwnd)
+		else:	
+			return None
 	Parent = property (get_parent, doc = "Parent window of window")
 
 	#-----------------------------------------------------------
@@ -185,6 +199,14 @@ class HwndWrapper(object):
 	#-----------------------------------------------------------
 	def PostMessage(self, message, wparam = 0 , lparam = 0):
 		return PostMessage(self, message, wparam, lparam)
+
+	#-----------------------------------------------------------
+	def NotifyMenuSelect(self, menu_id):
+		return self.PostMessage(
+			WM_COMMAND,
+			MakeLong(menu_id, 0),
+			0)
+		
 
 	#-----------------------------------------------------------
 	def NotifyParent(self, message):
@@ -300,6 +322,7 @@ def GetMenuItems(menuHandle):
 		if not ret:
 			raise WinError()
 
+		itemProp['Index'] = i
 		itemProp['State'] = menuInfo.fState
 		itemProp['Type'] = menuInfo.fType
 		itemProp['ID'] = menuInfo.wID
