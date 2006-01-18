@@ -104,6 +104,13 @@ class RemoteMemoryBlock(object):
 		return data
 		
 
+# listview_itemcount(ctrl)
+# listview_columncount(ctrl)
+# listview_item_text(ctrl, item, subitem)
+# listview_item_state(ctrl, item, subitem, mask = -1)
+# listview_item_indent(ctrl, item)
+
+# listview_item_image(ctrl, item)
 
 #====================================================================
 class ListViewWrapper(HwndWrapper.HwndWrapper):
@@ -111,7 +118,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(ListViewWrapper, self).__init__(hwnd)
 
-		self.FriendlyClassName = "ListView"
+		#self.FriendlyClassName = "ListView"
 
 		# set up a memory block in the remote application
 		self.remoteMem = RemoteMemoryBlock(self)
@@ -258,6 +265,25 @@ def GetTreeViewElements(curElem, handle, remoteMem, items = None):
 		items.append(charData.value)
 		
 		if item.cChildren not in (0,1):
+		
+		
+			print "trying",
+		
+			blah = NMTVDISPINFOW() 
+			blah.hdr.hwndFrom = handle
+			blah.hdr.idFrom = handle.ControlID
+			blah.hdr.code = TVN_GETDISPINFO
+			
+			blah.item.mask = TVIF_CHILDREN 
+			remoteMem.Write(blah)
+			print handle.SendMessage(WM_NOTIFY, handle.ControlID, remoteMem.Address())
+			
+			blah = removeMem.Read(blah)
+			
+			print blah.item.cChildren
+		
+		
+		
 			print "##### not dealing with that TVN_GETDISPINFO stuff yet"
 			pass
 		
@@ -290,7 +316,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(TreeViewWrapper, self).__init__(hwnd)
 		
-		self.FriendlyClassName = "TreeView"
+		#self.FriendlyClassName = "TreeView"
 		
 		self._extra_text = []
 
@@ -310,7 +336,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(HeaderWrapper, self).__init__(hwnd)
 
-		self.FriendlyClassName = "Header"
+		#self.FriendlyClassName = "Header"
 
 		self._fill_header_info()
 		
@@ -369,7 +395,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(StatusBarWrapper, self).__init__(hwnd)
 
-		self.FriendlyClassName = "StatusBar"
+		#self.FriendlyClassName = "StatusBar"
 		
 		self._fill_statusbar_info()
 	
@@ -441,7 +467,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(TabControlWrapper, self).__init__(hwnd)
 
-		self.FriendlyClassName = "TabControl"
+		#self.FriendlyClassName = "TabControl"
 		
 		self._fill_tabcontrol_info()
 
@@ -493,7 +519,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(ToolbarWrapper, self).__init__(hwnd)
 
-		self.FriendlyClassName = "Toolbar"
+		#self.FriendlyClassName = "Toolbar"
 		
 		self._fill_toolbar_info()
 
@@ -563,7 +589,7 @@ class RebarWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(RebarWrapper, self).__init__(hwnd)
 
-		self.FriendlyClassName = "ReBar"
+		#self.FriendlyClassName = "ReBar"
 		
 		self._fill_rebar_info()
 
@@ -610,7 +636,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 	def __init__(self, hwnd):
 		super(ToolTipsWrapper, self).__init__(hwnd)
 
-		self.FriendlyClassName = "ToolTips"
+		#self.FriendlyClassName = "ToolTips"
 
 		self.PlayWithToolTipControls()
 
@@ -686,15 +712,6 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 		
 	
 	
-	
-#====================================================================
-def PrintCtypesStruct(struct, exceptList = []):
-	for f in struct._fields_:
-		name = f[0]
-		if name in exceptList:
-			continue
-		print "%20s "% name, getattr(struct, name)
-
 
 
 
