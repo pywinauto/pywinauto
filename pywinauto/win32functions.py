@@ -40,13 +40,24 @@ GetClassName		=	ctypes.windll.user32.GetClassNameW
 GetClientRect		=	ctypes.windll.user32.GetClientRect
 GetDC				=	ctypes.windll.user32.GetDC
 GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
+
+# menu functions
+DrawMenuBar			=	ctypes.windll.user32.DrawMenuBar
 GetMenu				=	ctypes.windll.user32.GetMenu
+GetMenuBarInfo		=	ctypes.windll.user32.GetMenuBarInfo
 GetMenuItemCount	=	ctypes.windll.user32.GetMenuItemCount
 GetMenuItemInfo		=	ctypes.windll.user32.GetMenuItemInfoW
+GetMenuItemRect		=	ctypes.windll.user32.GetMenuItemRect
+GetMenuState		=	ctypes.windll.user32.GetMenuState
+GetSystemMenu		=	ctypes.windll.user32.GetSystemMenu
+HiliteMenuItem		=	ctypes.windll.user32.HiliteMenuItem
+IsMenu				=	ctypes.windll.user32.IsMenu
+MenuItemFromPoint	=	ctypes.windll.user32.MenuItemFromPoint
+
+
 GetObject			=	ctypes.windll.gdi32.GetObjectW
 GetParent			=	ctypes.windll.user32.GetParent
 GetStockObject		=	ctypes.windll.gdi32.GetStockObject
-GetSystemMenu		=	ctypes.windll.user32.GetSystemMenu
 GetSystemMetrics	=	ctypes.windll.user32.GetSystemMetrics
 GetTextMetrics		=	ctypes.windll.gdi32.GetTextMetricsW
 GetVersion			=	ctypes.windll.kernel32.GetVersion
@@ -61,7 +72,6 @@ GetCurrentThreadId	=	ctypes.windll.Kernel32.GetCurrentThreadId
 GetWindowThreadProcessId =	ctypes.windll.user32.GetWindowThreadProcessId
 AttachThreadInput 	=	ctypes.windll.user32.AttachThreadInput
 IsChild				=	ctypes.windll.user32.IsChild
-IsMenu				=	ctypes.windll.user32.IsMenu
 IsWindow 			=	ctypes.windll.user32.IsWindow
 IsWindowUnicode		=	ctypes.windll.user32.IsWindowUnicode
 IsWindowVisible		=	ctypes.windll.user32.IsWindowVisible
@@ -85,7 +95,6 @@ VirtualAllocEx		=	ctypes.windll.kernel32.VirtualAllocEx
 VirtualFreeEx		=	ctypes.windll.kernel32.VirtualFreeEx
 VkKeyScan			=	ctypes.windll.user32.VkKeyScanW
 WriteProcessMemory	=	ctypes.windll.kernel32.WriteProcessMemory
-MenuItemFromPoint	=	ctypes.windll.user32.MenuItemFromPoint
 GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
 GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup 
 FindWindow			=	ctypes.windll.user32.FindWindowW
@@ -97,7 +106,6 @@ ReleaseCapture		=	ctypes.windll.user32.ReleaseCapture
 GetGUIThreadInfo	=	ctypes.windll.user32.GetGUIThreadInfo
 ShowOwnedPopups		=	ctypes.windll.user32.ShowOwnedPopups
 WindowFromPoint 	=	ctypes.windll.user32.WindowFromPoint 
-GetMenuBarInfo		=	ctypes.windll.user32.GetMenuBarInfo
 GetMessage			=	ctypes.windll.user32.GetMessageW
 SendMessageTimeout	=	ctypes.windll.user32.SendMessageTimeoutW
 
