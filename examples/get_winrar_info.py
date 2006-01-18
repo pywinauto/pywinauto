@@ -112,7 +112,7 @@ def get_winrar_dlgs(rar_dlg, x):
 	optionsdlg[t['CreateDefaultProfile'][x]].Click()
 	
 	defaultOptionsDlg = rar_dlg.app[t['ConfigureDefaultOptions'][x]]
-	defaultOptionsDlg._write("DefaultOptions_%1.xml"%x)
+	defaultOptionsDlg._write("DefaultOptions_%d.xml"%x)
 	defaultOptionsDlg.CaptureAsImage().save("DefaultOptions_%d.png"%x)
 	defaultOptionsDlg.OK.Click()
 	
