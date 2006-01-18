@@ -21,9 +21,9 @@
 #import os
 import time
 
-import application
+from pywinauto import application
 
-import tests
+from pywinauto import tests
 
 
 
@@ -33,88 +33,36 @@ def WindowsMedia():
 
 	app._connect(path = ur"C:\Program Files\Windows Media Player\wmplayer.exe")
 	
+	app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
 	app.WindowsMediaPlayer.MenuSelect("View->Choose Columns")
 	
-	for ctrl in app.ChoolseColumns.Children:
+	for ctrl in app.ChooseColumns.Children:
 		print ctrl.Class
 	
+	
+	print "Is it checked already:", app.ChooseColumsn.ListView.IsChecked(1)
+	
+	# Check an Item in the listview
 	app.ChooseColumns.ListView.Check(1)
 	time.sleep(.5)
+	print "Shold be checked now:", app.ChooseColumsn.ListView.IsChecked(1)
+
+	# Uncheck it
 	app.ChooseColumns.ListView.UnCheck(1)
 	time.sleep(.5)
+	print "Should not be checked now:", app.ChooseColumsn.ListView.IsChecked(1)
+
+	# Check it again
 	app.ChooseColumns.ListView.Check(1)
 	time.sleep(.5)
 	
 	app.ChooseColumsn.Cancel.Click()
-	
-
-def Mozilla_ListBox():
-	app = application.Application()
-
-	app._connect(title = ur"Select Components")
-	
-	lb = app.SelectComponents.ListBox
-	#print "sdfds", app.SelectComponents.ListBox.IsChecked(0)
-	#print "sdfds", app.SelectComponents.ListBox.IsChecked(1)
-	
-	import ctypes
-	print 'xxx', ctypes.windll.user32.GetListBoxInfo(lb)
-	#itemd = lb.SendMessage(win32defines.LB_GETITEMDATA, 1)
-	#print itemd
-	
-	for i in range(lb.ItemCount()):
-		print i
-		time.sleep(.2)
-		lb.SetFocus(i)
-		lb.TypeKeys("{SPACE}") #{DOWN}
-	
-	
-	#time.sleep(.5)
-	#app.SelectComponents.ListBox.UnCheck(0)
-	#time.sleep(.5)
-	#app.SelectComponents.ListBox.UnCheck(1)
-	#time.sleep(.5)
-
-def Textpad_ListBox():
-	app = application.Application()
-
-	app._connect(title = ur"Preferences")
-	
-	
-	lb = app.Preferences.ListBox0
-	
-	import ctypes
-	print 'xxx', ctypes.windll.user32.GetListBoxInfo(lb)
-	
-	print lb.ItemCount()
-	
-	for i in range(lb.ItemCount()):
-		time.sleep(.1)
-		lb.SetFocus(i)
-
 
 
 def Main():
 	start = time.time()
 	
-	from findwindows import find_window
-	win = find_window(title = "Tabs")
-	
-	dlg = application.ActionDialog(win)
-	
-	print dlg.ComboBox.Class
-	print "count", dlg.ComboBox.ItemCount()
-	print "idata", dlg.ComboBox.ItemData(0)
-	print "selected", dlg.ComboBox.SelectedIndex()
-	
-	
-	
-	
-	
-	#WindowsMedia()
-	
-	#Mozilla_ListBox()
-	#Textpad_ListBox()
+	WindowsMedia()
 	
 	print "Total time taken:", time.time() - start
 

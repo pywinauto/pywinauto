@@ -21,9 +21,9 @@
 
 import time
 
-import application
+from pywinauto import application
 
-import tests
+from pywinauto import tests
 
 
 def MinimalNotepadTest():
