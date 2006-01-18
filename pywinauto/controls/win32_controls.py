@@ -33,9 +33,10 @@ class ButtonWrapper(HwndWrapper):
 	def __init__(self, hwnd):
 		super(ButtonWrapper, self).__init__(hwnd)
 
-		# default to Button for FriendlyClassName				
-		self.FriendlyClassName = "Button"
-		self._set_FriendlyClassName()
+		# default to Button for FriendlyClassName	
+		# might be changed later
+		#self.FriendlyClassName = "Button"
+		#self._set_FriendlyClassName()
 		
 		self._set_if_needs_image()
 	
@@ -49,26 +50,26 @@ class ButtonWrapper(HwndWrapper):
 
 			self._NeedsImageProp = True
 						
-	#-----------------------------------------------------------
-	def _set_FriendlyClassName(self):
-
-	
-		# get the least significant bit
-		StyleLSB = self.Style & 0xF
-
-		if StyleLSB == BS_3STATE or StyleLSB == BS_AUTO3STATE or \
-			StyleLSB == BS_AUTOCHECKBOX or \
-			StyleLSB == BS_CHECKBOX:
-			self.FriendlyClassName = "CheckBox"
-
-		elif StyleLSB == BS_RADIOBUTTON or StyleLSB == BS_AUTORADIOBUTTON:
-			self.FriendlyClassName = "RadioButton"
-
-		elif StyleLSB ==  BS_GROUPBOX:
-			self.FriendlyClassName = "GroupBox"
-
-		if self.Style & BS_PUSHLIKE:
-			self.FriendlyClassName = "Button"
+#	#-----------------------------------------------------------
+#	def _set_FriendlyClassName(self):
+#
+#	
+#		# get the least significant bit
+#		StyleLSB = self.Style & 0xF
+#
+#		if StyleLSB == BS_3STATE or StyleLSB == BS_AUTO3STATE or \
+#			StyleLSB == BS_AUTOCHECKBOX or \
+#			StyleLSB == BS_CHECKBOX:
+#			self.FriendlyClassName = "CheckBox"
+#
+#		elif StyleLSB == BS_RADIOBUTTON or StyleLSB == BS_AUTORADIOBUTTON:
+#			self.FriendlyClassName = "RadioButton"
+#
+#		elif StyleLSB ==  BS_GROUPBOX:
+#			self.FriendlyClassName = "GroupBox"
+#
+#		if self.Style & BS_PUSHLIKE:
+#			self.FriendlyClassName = "Button"
 
 
 #====================================================================
@@ -97,8 +98,7 @@ class ComboBoxWrapper(HwndWrapper):
 	def __init__(self, hwnd):
 		super(ComboBoxWrapper, self).__init__(hwnd)
 		
-		# default to ComboBox for FriendlyClassName				
-		self.FriendlyClassName = "ComboBox"
+		#self.FriendlyClassName = "ComboBox"
 		
 		self._extra_texts = self.ItemTexts()
 		self._extra_props['DroppedRect'] = self.get_droppedrect()
@@ -158,8 +158,7 @@ class ListBoxWrapper(HwndWrapper):
 	def __init__(self, hwnd):
 		super(ListBoxWrapper, self).__init__(hwnd)
 
-		# default to LisBox for FriendlyClassName				
-		self.FriendlyClassName = "ListBox"
+		#self.FriendlyClassName = "ListBox"
 		
 		self._extra_texts = self.ItemTexts()
 		
@@ -213,8 +212,7 @@ class EditWrapper(HwndWrapper):
 	def __init__(self, hwnd):
 		super(EditWrapper, self).__init__(hwnd)
 
-		# default to Edit for FriendlyClassName				
-		self.FriendlyClassName = "Edit"
+		#self.FriendlyClassName = "Edit"
 		
 		# find out how many text items are in the combobox		
 		numItems = self.SendMessage(EM_GETLINECOUNT)
@@ -257,8 +255,7 @@ class StaticWrapper(HwndWrapper):
 	def __init__(self, hwnd):
 		super(StaticWrapper, self).__init__(hwnd)
 
-		# default to Edit for FriendlyClassName				
-		self.FriendlyClassName = "Static"
+		#self.FriendlyClassName = "Static"
 		
 		# if the control is visible - and it shows an image
 		if self.IsVisible and (
