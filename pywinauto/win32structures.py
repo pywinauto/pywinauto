@@ -22,6 +22,17 @@ from win32defines import LF_FACESIZE
 from ctypes import *
 
 
+	
+#====================================================================
+def PrintCtypesStruct(struct, exceptList = []):
+	for f in struct._fields_:
+		name = f[0]
+		if name in exceptList:
+			continue
+		print "%20s "% name, getattr(struct, name)
+
+
+
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
 #PTOOLINFOW = POINTER(tagTOOLINFOW)
 BOOL = c_int
@@ -105,6 +116,36 @@ class TVITEMW(Structure):
 	]
 assert sizeof(TVITEMW) == 40, sizeof(TVITEMW)
 assert alignment(TVITEMW) == 1, alignment(TVITEMW)
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
+class NMHDR(Structure):
+	_fields_ = [
+		# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
+		('hwndFrom', HWND),
+		('idFrom', UINT),
+		('code', UINT),
+	]
+assert sizeof(NMHDR) == 12, sizeof(NMHDR)
+assert alignment(NMHDR) == 4, alignment(NMHDR)
+
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4275
+class NMTVDISPINFOW(Structure):
+	_pack_ = 1
+	_fields_ = [
+		# C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4275
+		('hdr', NMHDR),
+		('item', TVITEMW),
+	]
+assert sizeof(NMTVDISPINFOW) == 52, sizeof(NMTVDISPINFOW)
+assert alignment(NMTVDISPINFOW) == 1, alignment(NMTVDISPINFOW)
+
+
+
+
+
 
 
 
