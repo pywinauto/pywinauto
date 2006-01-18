@@ -68,23 +68,23 @@ def find_windows(class_name = None,
 	"""
 	
 	
-	
+
 	if top_level_only:
+		# find the top level windows
 		windows = enum_windows()
 		
+		# if we have been given a parent
 		if parent:	
 			windows = [win for win in windows if handleprops.parent(win) == parent]
 			
 	else:
-		if parent:
-			windows = enum_child_windows(parent)
-		else:
-			# find all the children of the desktop
+		# if not given a parent - and not looking for top level windows
+		# look for all children of the desktop
+		if not parent:
 			parent = win32functions.GetDesktopWindow()
-			windows = enum_child_windows(parent)
-			
-			windows = [win for win in windows if handleprops.parent(win) == parent]
 	
+		# look for all children of that parent
+		windows = enum_child_windows(parent)
 	
 	if class_name and windows:
 		windows = [win for win in windows if class_name == handleprops.classname(win)]
