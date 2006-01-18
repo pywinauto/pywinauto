@@ -331,7 +331,7 @@ class Application(object):
 
 		else:
 			handle = findwindows.find_window(**kwargs)
-			self.process = controls.WrapHandle(handle, True).ProcessID
+			self.process = Process(controls.WrapHandle(handle, True).ProcessID)
 			connected = True
 						
 		if not connected:
