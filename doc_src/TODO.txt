@@ -2,21 +2,60 @@
 ============================================================================
 APPLICATION TODO's
 ============================================================================
-* Create a class that makes it easy to deal with a single window  (e.g. no application)
+* Allow delay after click to be removed. The main reason that this is needed
+  at the moment is because if you close a and then try an action on the parent
+  immediately it may not yet be active - so the delay is needed to allow it to
+  become active.
+  To fix this we may need to add more magic around calling actions on dialogs
+  e.g.
+  on an attribute access for an ActionDialog do the following:
+   - Check if it is an Action
+   - If it is not enabled then wait a little bit
+   - If it is then wait a little bit and try again
+   - repeat that until success or timeout
+  
+  The main thing that needs to be resolved is that you don't want two of these
+  waits happening at once (so a wait in a function at 1 level, and another wait
+  in a function called by the other one - because this would mean there would
+  be a VERY long delay while the timeout of the nested function was reached
+  the number of times the calling func tried to succeed!)
+
+* Need to make Menu items into classes so instead of Dlg.MenuSelect we should
+  be doing 
+     dlg.Menu("blah->blah").Select() 
+  or even
+     dlg.Menu.Blah.Blah.Select()
+  
+
+* Liberate the code from HwndWrapper - there is very little this add's beyond
+  what is available in handleprops. The main reason this is required is for 
+  the FriendlyClassName. So I need to look to see if this can be moved 
+  elsewhere.
+  
+  Doing this might flatten the heirarchy quite a bit and reduce the 
+  dependencies on the various packages
+
+* Create a class that makes it easy to deal with a single window  (e.g. no 
+  application)
 
 * Allow apps to be started in a different thread so we don't lock up
   - this is being done already - the problem is that some messages cannot
     be sent across processes if they have pointers (so we need to send a 
     synchronous message which waits for the other process to respond 
     before returning)
+    
+  - But I guess it would be possible to create a thread for sending
+    those messages?
 
 * Message traps - how to handle unwanted message boxes popping up?
   a) Wait for an Exception then handle it there
   b) set a trap waiting for a specific dialog
 
-* Implement an opional timing/config module so that all timing can be customized
+* Implement an opional timing/config module so that all timing can be 
+  customized
 
-* Handle adding reference controls (in that they should be the controls used for finding windows)
+* Handle adding reference controls (in that they should be the controls used 
+  for finding windows)
 
 * Add referencing by closest static (or surrounding group box?)
 
@@ -35,46 +74,20 @@ APPLICATION TODO's
   it succeeds or times out).
 
 
-Investigate using any of the following
-  BringWindowToTop
-  EnumThreadWindows
-  GetGUIThreadInfo
-  GetTopWindow
+* Document that I have not been able to figure out how to reliably check
+  if a menu item is enabled or not before selecting it.
+  
+  For Example in Media Player if you try and click the View->Choose Columns
+  menu item when it is not enabled it crashes Media Player. Theoretically
+  MF_DISABLED and MF_GRAYED should be used - but I found that these are not
+  updated (at least for Media Player) until they are dropped down.
+
+
+* Investigate using any of the following
+   - BringWindowToTop: probably necessary before image capture
+   - GetTopWindow: maybe to re-set top window after capture?
+
+   - EnumThreadWindows
+   - GetGUIThreadInfo
  
 
-
-============================================================================
-
-============================================================================
-
-
-# a) Dialogs returned from App (dialog)
-#    should respond to _ctrl and their own actions
-# b) Controls returned from Dialogs
-#    should respond to _ctrl and their own actions
-# c) Dialogs should be able to respond to calls of
-#    FindControl
-# d) Apps should be able to respond to calls of
-#    FindDialog
-# e) Dialogs need to be able to respond to MenuSelect
-
-# app.dlgTitle
-# app._Dialog(dlgSearchParams): raises WindowNotFound, WindowAmbiguous
-
-# dlg.ControlTitle
-# dlg._Control(ctrlSearchParams)
-
-# dlg._Menu(menupath).Select()
-# OR???
-# dlg._Menu.File.Open.Select()
-
-# dlg._.IsVisible
-# dlg.Close()
-
-# ctrl._.IsVisible
-# ctrl.Click()
-
-
-
-#App.Dialog.Control.Action()
-#or App.Dialog.Action()
