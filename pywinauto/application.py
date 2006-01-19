@@ -59,7 +59,6 @@ import win32functions
 import win32defines
 import controls
 import findbestmatch
-import controlproperties
 import controlactions
 import findwindows 
 
