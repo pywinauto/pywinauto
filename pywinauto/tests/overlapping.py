@@ -20,8 +20,8 @@
 "test for overlapping controls"
 
 testname = "Overlapping"
-__revision__ = "$Revision$"
-__modificationdate__ = "$LastChangedDate$"
+__revision__ = "$Revision: 123$"
+__modificationdate__ = "$LastChangedDate: asd$"
 
 import pywinauto.win32structures
 
