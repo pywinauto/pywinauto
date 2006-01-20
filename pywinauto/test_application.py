@@ -222,8 +222,11 @@ def MinimalNotepadTest():
     app.SaveAs.edit1.SetText("Example-utf8.txt")
     app.SaveAs.Save.Click()
 
-    if app.SaveAs.IsVisible:
+    try:
         app.SaveAs.Yes.Click()
+    except MatchError:
+        pass
+
 
     # exit notepad
     app.NotepadDialog.MenuSelect("File->Exit")
