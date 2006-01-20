@@ -1,4 +1,21 @@
 ------------------------------------------------
+0.1.3 Many many many changes
+15-Jan-2006
+* Wrote doc strings for all modules, classes and functions
+* Ran pychecker and pylint and fixed some errors/warnings
+* changed _connect, _start, _window, _control, _write to connect_, start_, window_, connect_, write_ respectively
+  If you forget to change _window, _connect and _start then you will probably get the following error.
+     TypeError: '_DynamicAttributes' object is not callable
+* pywinauto is now a package name - you need to import it or its modules
+* Changes to the code to deal with pywinauto package name
+* Fixed searching for windows if a Parent is passed in
+* Added Index to retrieved MenuItem dictionary
+* Added a check to ensure that a windows Handle is a valid window
+(191)
+ 
+  
+  
+------------------------------------------------
 0.1.2 Add Readme and rollup various changes
 15-Jan-2006
  * Updated Readme (original readme was incorrect)
