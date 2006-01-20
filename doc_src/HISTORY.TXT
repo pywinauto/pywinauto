@@ -1,9 +1,9 @@
-0.1.3 Many many many changes
+0.1.3 Many changes, few visible
 ------------------------------------------------
 15-Jan-2006 ::
 
     * Wrote doc strings for all modules, classes and functions
-    * Ran pychecker and pylint and fixed some errors/warnings
+    * Ran pychecker and pylint and fixed some errors/warning
     * changed _connect, _start, _window, _control, _write to connect_, start_, window_, connect_, write_ respectively
       If you forget to change _window, _connect and _start then you will probably get the following error.::
       
