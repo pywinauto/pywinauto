@@ -1,3 +1,4 @@
+
 """Automate WinRAR evaluation copy
 
 We hit a few dialogs and save XML dump and
@@ -96,33 +97,33 @@ t = {
 
 
 
-def get_winrar_dlgs(rar_dlg, x):
-    rar_dlg.MenuSelect(t["Options->Configure"][x])
+def get_winrar_dlgs(rar_dlg, lang):
+    rar_dlg.MenuSelect(t["Options->Configure"][lang])
 
-    optionsdlg = rar_dlg.app[t['Configure'][x]]
-    optionsdlg._write("Options_%d.xml"%x)
-    optionsdlg.CaptureAsImage().save("Options_%d.png"%x)
-    optionsdlg[t['Buttons'][x]].Click()
+    optionsdlg = rar_dlg.app[t['Configure'][lang]]
+    optionsdlg.write_("Options_%d.xml"%lang)
+    optionsdlg.CaptureAsImage().save("Options_%d.png"%lang)
+    optionsdlg[t['Buttons'][lang]].Click()
 
-    contextMenuDlg = rar_dlg.app[t['PeronnaliseToolbars'][x]]
-    contextMenuDlg._write("PersonaliseToolbars_%d.xml"%x)
-    contextMenuDlg.CaptureAsImage().save("PersonaliseToolbars_%d.png"%x)
+    contextMenuDlg = rar_dlg.app[t['PeronnaliseToolbars'][lang]]
+    contextMenuDlg.write_("PersonaliseToolbars_%d.xml"%lang)
+    contextMenuDlg.CaptureAsImage().save("PersonaliseToolbars_%d.png"%lang)
     contextMenuDlg.OK.Click()
 
     optionsdlg.TabCtrl.Select(1)
-    optionsdlg[t['CreateDefaultProfile'][x]].Click()
+    optionsdlg[t['CreateDefaultProfile'][lang]].Click()
 
-    defaultOptionsDlg = rar_dlg.app[t['ConfigureDefaultOptions'][x]]
-    defaultOptionsDlg._write("DefaultOptions_%d.xml"%x)
-    defaultOptionsDlg.CaptureAsImage().save("DefaultOptions_%d.png"%x)
+    defaultOptionsDlg = rar_dlg.app[t['ConfigureDefaultOptions'][lang]]
+    defaultOptionsDlg.write_("DefaultOptions_%d.xml"%lang)
+    defaultOptionsDlg.CaptureAsImage().save("DefaultOptions_%d.png"%lang)
     defaultOptionsDlg.OK.Click()
 
     optionsdlg.TabCtrl.Select(6)
-    optionsdlg[t['ContextMenus'][x]].Click()
+    optionsdlg[t['ContextMenus'][lang]].Click()
 
-    anotherMenuDlg = rar_dlg.app[t['contextMenuDlg'][x]]
-    anotherMenuDlg._write("2ndMenuDlg_%d.xml"%x)
-    anotherMenuDlg.CaptureAsImage().save("2ndMenuDlg_%d.png"%x)
+    anotherMenuDlg = rar_dlg.app[t['contextMenuDlg'][lang]]
+    anotherMenuDlg.write_("2ndMenuDlg_%d.xml"%lang)
+    anotherMenuDlg.CaptureAsImage().save("2ndMenuDlg_%d.png"%lang)
 
     anotherMenuDlg.OK.Click()
 
@@ -130,24 +131,25 @@ def get_winrar_dlgs(rar_dlg, x):
 
 
 # get the languages as an integer
-x = int(sys.argv[1])
+langs = [int(arg) for arg in sys.argv[1:]]
 
-# start the application
-app = Application()._start(t['apppath'][x])
+for lang in langs:
+    # start the application
+    app = Application().start_(t['apppath'][lang])
 
-# we have to wait for the Licence Dialog to open
-time.sleep(2)
+    # we have to wait for the Licence Dialog to open
+    time.sleep(2)
 
-# close the Buy licence dialog box
-licence_dlg = app[t['Buy Licence'][x]]
-licence_dlg[t['Close'][x]].Click()
+    # close the Buy licence dialog box
+    licence_dlg = app[t['Buy Licence'][lang]]
+    licence_dlg[t['Close'][lang]].Click()
 
-# find the WinRar main dialog
-rar_dlg = app._window(title_re = ".* - WinRAR.*")
+    # find the WinRar main dialog
+    rar_dlg = app.window_(title_re = ".* - WinRAR.*")
 
-# dump and capture some dialogs
-get_winrar_dlgs(rar_dlg, x)
+    # dump and capture some dialogs
+    get_winrar_dlgs(rar_dlg, lang)
 
-# exit WinRar
-time.sleep(.5)
-rar_dlg.MenuSelect(t['File->Exit'][x])
+    # exit WinRar
+    time.sleep(.5)
+    rar_dlg.MenuSelect(t['File->Exit'][lang])
