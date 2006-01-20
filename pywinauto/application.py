@@ -88,6 +88,11 @@ class AppNotConnected(Exception):
     pass
 
 
+window_find_timeout = 1
+window_retry_interval = .09
+wait_after_app_start = 3
+
+
 #=========================================================================
 def _make_valid_filename(filename):
     r"""Return a valid file name for the string passed in.
@@ -271,12 +276,12 @@ def _wait_for_function_success(func, *args, **kwargs):
     if kwargs.has_key('time_interval'):
         time_interval = kwargs['time_interval']
     else:
-        time_interval = .09 # seems to be a good time_interval
+        time_interval = window_retry_interval
 
     if kwargs.has_key('timeout'):
         timeout = kwargs['timeout']
     else:
-        timeout = 1
+        timeout = window_find_timeout
 
     # keep going until we either hit the return (success)
     # or an exception is raised (timeout)
@@ -298,7 +303,7 @@ class Application(object):
         self.process = None
         self.xmlpath = ''
 
-    def start_(self, cmd_line, timeout = 2000):
+    def start_(self, cmd_line, timeout = wait_after_app_start):
         "Starts the application giving in cmd_line"
 
         start_info = win32structures.STARTUPINFOW()
@@ -327,7 +332,7 @@ class Application(object):
         if not ret:
             raise AppStartError("CreateProcess: " + str(ctypes.WinError()))
 
-        if win32functions.WaitForInputIdle(proc_info.hProcess, timeout):
+        if win32functions.WaitForInputIdle(proc_info.hProcess, timeout * 1000):
             raise AppStartError("WaitForInputIdle: " + str(ctypes.WinError()))
 
         self.process = _Process(proc_info.dwProcessId)
