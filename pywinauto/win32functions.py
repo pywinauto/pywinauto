@@ -1,28 +1,27 @@
 # GUI Application automation and testing library
 # Copyright (C) 2006 Mark Mc Mahon
 #
-# This library is free software; you can redistribute it and/or 
-# modify it under the terms of the GNU Lesser General Public License 
-# as published by the Free Software Foundation; either version 2.1 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1
 # of the License, or (at your option) any later version.
 #
-# This library is distributed in the hope that it will be useful, 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public 
-# License along with this library; if not, write to the 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the
 #    Free Software Foundation, Inc.,
 #    59 Temple Place,
-#    Suite 330, 
-#    Boston, MA 02111-1307 USA 
+#    Suite 330,
+#    Boston, MA 02111-1307 USA
+"Defines Windows(tm) functions"
+
+__revision__ = "$Revision$"
 
 import ctypes
-from ctypes import * 
-
-import win32structures
-from win32structures import *
 
 CreateBrushIndirect	=	ctypes.windll.gdi32.CreateBrushIndirect
 CreateDC			=	ctypes.windll.gdi32.CreateDCW
@@ -96,7 +95,7 @@ VirtualFreeEx		=	ctypes.windll.kernel32.VirtualFreeEx
 VkKeyScan			=	ctypes.windll.user32.VkKeyScanW
 WriteProcessMemory	=	ctypes.windll.kernel32.WriteProcessMemory
 GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
-GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup 
+GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
 FindWindow			=	ctypes.windll.user32.FindWindowW
 GetTopWindow		=	ctypes.windll.user32.GetTopWindow
 
@@ -105,7 +104,7 @@ ReleaseCapture		=	ctypes.windll.user32.ReleaseCapture
 
 GetGUIThreadInfo	=	ctypes.windll.user32.GetGUIThreadInfo
 ShowOwnedPopups		=	ctypes.windll.user32.ShowOwnedPopups
-WindowFromPoint 	=	ctypes.windll.user32.WindowFromPoint 
+WindowFromPoint 	=	ctypes.windll.user32.WindowFromPoint
 GetMessage			=	ctypes.windll.user32.GetMessageW
 SendMessageTimeout	=	ctypes.windll.user32.SendMessageTimeoutW
 
@@ -136,5 +135,5 @@ GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
 #====================================================================
 def MakeLong(low, high):
-	"Pack high into the high word of a long and low into the low word"
-	return (high << 16) | low
+    "Pack high into the high word of a long and low into the low word"
+    return (high << 16) | low

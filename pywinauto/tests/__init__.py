@@ -1,22 +1,26 @@
 # GUI Application automation and testing library
 # Copyright (C) 2006 Mark Mc Mahon
 #
-# This library is free software; you can redistribute it and/or 
-# modify it under the terms of the GNU Lesser General Public License 
-# as published by the Free Software Foundation; either version 2.1 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1
 # of the License, or (at your option) any later version.
 #
-# This library is distributed in the hope that it will be useful, 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public 
-# License along with this library; if not, write to the 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the
 #    Free Software Foundation, Inc.,
 #    59 Temple Place,
-#    Suite 330, 
-#    Boston, MA 02111-1307 USA 
+#    Suite 330,
+#    Boston, MA 02111-1307 USA
+
+"Package of tests that can be run on controls or lists of controls"
+
+__revision__ = "$Revision$"
 
 import os.path
 import sys
@@ -26,97 +30,99 @@ import pywinauto
 
 
 test_names = (
-		"AllControls",
-		"AsianHotkey",
-		"ComboBoxDroppedHeight",
-		"CompareToRefFont",
-		"LeadTrailSpaces",
-		"MiscValues",
-		"Missalignment",
-		"MissingExtraString",
-		"Overlapping",
-		"RepeatedHotkey",
-		"Translation",
-		"Truncation",
-	#	"menux",
+        "AllControls",
+        "AsianHotkey",
+        "ComboBoxDroppedHeight",
+        "CompareToRefFont",
+        "LeadTrailSpaces",
+        "MiscValues",
+        "Missalignment",
+        "MissingExtraString",
+        "Overlapping",
+        "RepeatedHotkey",
+        "Translation",
+        "Truncation",
+    #	"menux",
 )
 
 
 
 def run_tests(controls, tests_to_run = None, test_visible_only = True):
-	
-	# allow either a string or list to be passed
-	try:
-		tests_to_run = tests_to_run.split()
-	except AttributeError:
-		pass
+    "Run the tests"
 
-	# if no tests specified run them all
-	if tests_to_run is None:
-		tests_to_run = registered.keys()
+    # allow either a string or list to be passed
+    try:
+        tests_to_run = tests_to_run.split()
+    except AttributeError:
+        pass
 
-	# Filter out hidden controls if requested
-	if test_visible_only:
-		controls = [c for c in controls if c.IsVisible]
+    # if no tests specified run them all
+    if tests_to_run is None:
+        tests_to_run = registered.keys()
 
-	bugs = []
-	# run each test
-	for test_name in tests_to_run:	
-		#print test_name
-		bugs.extend(registered[test_name](controls))
+    # Filter out hidden controls if requested
+    if test_visible_only:
+        controls = [ctrl for ctrl in controls if ctrl.IsVisible]
 
-	return bugs				
-			
+    bugs = []
+    # run each test
+    for test_name in tests_to_run:
+        #print test_name
+        bugs.extend(registered[test_name](controls))
+
+    return bugs
+
 
 def print_bugs(bugs):
-	for (ctrls, info, bType, inRef) in  bugs:
-		print "BugType:", bType,
+    "Print the bugs"
+    for (ctrls, info, bug_type, is_in_ref) in  bugs:
+        print "BugType:", bug_type, is_in_ref,
 
-		for i in info:
-			print i, info[i],
-		print
-		
-		
-		for i, ctrl in enumerate(ctrls):
-			print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
-				ctrl.Text, 
-				ctrl.FriendlyClassName,
-				ctrl.Rectangle.left,
-				ctrl.Rectangle.top,
-				ctrl.Rectangle.right,
-				ctrl.Rectangle.bottom,
-				ctrl.IsVisible,)
-			
-				
-			try:				
-				ctrl.DrawOutline()
-			except (AttributeError, KeyError), e:
-				#print e
-				pass
-				
-		print
-	
+        for i in info:
+            print i, info[i],
+        print
+
+
+        for i, ctrl in enumerate(ctrls):
+            print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
+                ctrl.Text,
+                ctrl.FriendlyClassName,
+                ctrl.Rectangle.left,
+                ctrl.Rectangle.top,
+                ctrl.Rectangle.right,
+                ctrl.Rectangle.bottom,
+                ctrl.IsVisible,)
+
+
+            try:
+                ctrl.DrawOutline()
+            except (AttributeError, KeyError):
+                #print e
+                pass
+
+        print
+
 
 # we need to register the modules
 registered = {}
-def __init_tests(package_path):
-	"Initialize each test by loading it and then register it"
-	global registered
+def __init_tests():
+    "Initialize each test by loading it and then register it"
+    global registered
 
-	for test_name in test_names:
-		
-		test_module = __import__(test_name.lower())
+    for test_name in test_names:
 
-		# class name is the test name + "Test"
-		test_class = getattr(test_module, test_name + "Test")
-		
-		registered[test_name] = test_class
-	
+        test_module = __import__(test_name.lower())
+
+        # class name is the test name + "Test"
+        test_class = getattr(test_module, test_name + "Test")
+
+        registered[test_name] = test_class
+
 
 package_path = os.path.split(pywinauto.__file__)[0]
 package_path = os.path.join(package_path, 'tests')
 sys.path.append(package_path)
 if not registered:
-	__init_tests(package_path)
-sys.path = sys.path[:-1]	
+    __init_tests()
+sys.path = sys.path[:-1]
 
