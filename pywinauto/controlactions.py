@@ -177,7 +177,7 @@ def _perform_click(
 def click_action(
     ctrl, button = "left", pressed = "", coords = (0, 0), double = False):
     "Peform a click action"
-    #print ctrl.Text, ctrl.Class, ctrl.Rectangle, ctrl.Parent.Text
+
     _perform_click(ctrl, button, pressed, coords, double)
 
 #====================================================================
