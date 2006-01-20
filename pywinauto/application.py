@@ -21,21 +21,21 @@
 """The application module is the main one that users will user first.
 
 When starting to automate and application you must initialize an instance
-of the Application class. Then you must _start that application or _connect
-to a running instance of that application.
+of the Application class. Then you must `start_()`_ that application or
+`connect_()`_ to a running instance of that application.
 
 Once you have an Application instance you can access dialogs in that
-application either by using one of the methods below.::
+application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app._window(title = "your title", class = "your class", ...)
+   dlg = app.window_(title = "your title", class = "your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
-in almost exactly the same ways.::
+in almost exactly the same ways. ::
 
   ctrl = dlg.YourControlTitle
-  ctrl = dlg._control(title = "Your control", class = "Button", ...)
+  ctrl = dlg.control_(title = "Your control", class = "Button", ...)
   ctrl = dlg["Your control"]
 
 **Note:** For attribute access of controls and dialogs you do not have to
@@ -43,8 +43,14 @@ have the title of the control exactly, it does a best match of the
 avialable dialogs or controls.
 
 **See also:**
-  findwindows.find_windows for the keyword arguments that can be
-  passed to both Application._window and ActionDialog._control
+  `findwindows.find_windows()`_   for the keyword arguments that can be
+  passed to both `Application.window_()`_ and `ActionDialog.control_()`_
+
+.. _start_(): class-pywinauto.application.Application.html#start_
+.. _connect_(): class-pywinauto.application.Application.html#connect_
+.. _findwindows.find_windows():  module-pywinauto.findwindows.html#find_windows
+.. _Application.window_(): class-pywinauto.application.Application.html#window_
+.. _ActionDialog.control_(): class-pywinauto.application.ActionDialog.html#control_
 
 """
 
@@ -83,7 +89,7 @@ class AppNotConnected(Exception):
 
 
 #=========================================================================
-def make_valid_filename(filename):
+def _make_valid_filename(filename):
     r"""Return a valid file name for the string passed in.
 
     Replaces any character in ``:\/*?"<>|`` with ``'#%d#'% ord(char)``"""
@@ -99,7 +105,7 @@ class ActionDialog(object):
     It provides support for finding controls using attribute access,
     item access and the _control(...) method.
 
-    You can dump information from a dialgo to XML using the _write() method
+    You can dump information from a dialgo to XML using the write_() method
 
     A screenshot of the dialog can be taken using the underlying wrapped
     HWND ie. my_action_dlg.wrapped_win.CaptureAsImage().save("dlg.png").
@@ -149,7 +155,7 @@ class ActionDialog(object):
         # add actions to the control and return it
         return controlactions.add_actions(ctrl)
 
-    def _write(self, filename):
+    def write_(self, filename):
         "Write the dialog an XML file (requires elementtree)"
         if self.app and self.app.xmlpath:
             filename = os.path.join(self.app.xmlpath, filename + ".xml")
@@ -160,7 +166,7 @@ class ActionDialog(object):
 
         XMLHelpers.WriteDialogToFile(filename, props)
 
-    def _control(self, **kwargs):
+    def control_(self, **kwargs):
         "Find the control that matches the arguments and return it"
 
         # add the restriction for this particular process
@@ -179,7 +185,7 @@ class ActionDialog(object):
 
 
 #=========================================================================
-def WalkDialogControlAttribs(app, attr_path):
+def _WalkDialogControlAttribs(app, attr_path):
     "Try and resolve the dialog and 2nd attribute, return both"
     if len(attr_path) != 2:
         raise RuntimeError("Expecting only 2 items in the attribute path")
@@ -214,7 +220,7 @@ def WalkDialogControlAttribs(app, attr_path):
 
 
 #=========================================================================
-class DynamicAttributes(object):
+class _DynamicAttributes(object):
     "Class that builds attributes until they are ready to be resolved"
 
     def __init__(self, app):
@@ -241,8 +247,8 @@ class DynamicAttributes(object):
         #   dialog.control
         # so go ahead and resolve
         if len(self.attr_path) == 2:
-            dlg, final = wait_for_function_success(
-                WalkDialogControlAttribs, self.app, self.attr_path)
+            dlg, final = _wait_for_function_success(
+                _WalkDialogControlAttribs, self.app, self.attr_path)
 
             # seing as we may already have a reference to the dialog
             # we need to strip off the control so that our dialog
@@ -257,7 +263,7 @@ class DynamicAttributes(object):
 
 
 #=========================================================================
-def wait_for_function_success(func, *args, **kwargs):
+def _wait_for_function_success(func, *args, **kwargs):
     """Retry the dialog up to timeout trying every time_interval seconds
 
     timeout defaults to 1 second
@@ -292,7 +298,7 @@ class Application(object):
         self.process = None
         self.xmlpath = ''
 
-    def _start(self, cmd_line, timeout = 2000):
+    def start_(self, cmd_line, timeout = 2000):
         "Starts the application giving in cmd_line"
 
         start_info = win32structures.STARTUPINFOW()
@@ -324,17 +330,17 @@ class Application(object):
         if win32functions.WaitForInputIdle(proc_info.hProcess, timeout):
             raise AppStartError("WaitForInputIdle: " + str(ctypes.WinError()))
 
-        self.process = Process(proc_info.dwProcessId)
+        self.process = _Process(proc_info.dwProcessId)
 
         return self
 
 
-    def _connect(self, **kwargs):
+    def connect_(self, **kwargs):
         "Connects to an already running process"
 
         connected = False
         if 'process' in kwargs:
-            self.process = Process(kwargs['process'])
+            self.process = _Process(kwargs['process'])
             connected = True
 
         elif 'handle' in kwargs:
@@ -342,12 +348,12 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            self.process = Process.process_from_module(kwargs['path'])
+            self.process = _Process.process_from_module(kwargs['path'])
             connected = True
 
         else:
             handle = findwindows.find_window(**kwargs)
-            self.process = Process(controls.WrapHandle(handle, True).ProcessID)
+            self.process = _Process(controls.WrapHandle(handle, True).ProcessID)
             connected = True
 
         if not connected:
@@ -356,16 +362,16 @@ class Application(object):
 
         return self
 
-    def _windows(self):
+    def windows_(self):
         "hmm - seems wrong!!"
         if not self.process:
-            raise AppNotConnected("Please use _start or _connect before "
+            raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
 
         return self.process.windows()
 
 
-    def _window(self, *args, **kwargs):
+    def window_(self, *args, **kwargs):
         """Return a window of the application
 
         You can specify the same parameters as findwindows.find_windows.
@@ -373,7 +379,7 @@ class Application(object):
         the current process.
         """
         if not self.process:
-            raise AppNotConnected("Please use _start or _connect before "
+            raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
 
         if args:
@@ -383,7 +389,7 @@ class Application(object):
         kwargs['process'] = self.process._id
 
         # try and find the dialog (waiting for a max of 1 second
-        win = wait_for_function_success (
+        win = _wait_for_function_success (
             findwindows.find_window,
             *args,
             **kwargs)
@@ -394,22 +400,21 @@ class Application(object):
     def __getitem__(self, key):
         "Find the dialog of the application"
         if not self.process:
-            raise AppNotConnected("Please use _start or _connect before "
+            raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
 
-        return DynamicAttributes(self)[key]
+        return _DynamicAttributes(self)[key]
 
     def __getattr__(self, key):
         "Find the dialog of the application"
         if not self.process:
-            raise AppNotConnected("Please use _start or _connect before "
+            raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
 
         return self[key]
-        #return getattr(DynamicAttributes(self), key)
 
 #=========================================================================
-class Process(object):
+class _Process(object):
     "A running process"
     def __init__(self, ID, module = None):
         "initialise the process instance"
@@ -444,7 +449,7 @@ class Process(object):
 
     def __eq__(self, other):
         "Check if this proces is the same as other"
-        if isinstance(other, Process):
+        if isinstance(other, _Process):
             return self._id == other._id
         else:
             return self._id == other
@@ -464,7 +469,7 @@ class Process(object):
 
         # check if the running process
         for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
-            temp_process = Process(processes[i])
+            temp_process = _Process(processes[i])
             if module.lower() in temp_process.module().lower():
                 return temp_process
 

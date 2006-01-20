@@ -20,10 +20,11 @@
 
 
 """Translation Test
-What is checked
+
+**What is checked**
 This checks for controls which appear not to be translated.
 
-How is it checked
+**How is it checked**
 It compares the text of the localised and reference controls.
 
 If there are more than string in the control then each item is searched for in
@@ -34,7 +35,8 @@ Also the untranslated strings themselves are returned (all as one string).
 These strings are not escaped and are delimited as
 "string1","string2",..."stringN".
 
-When is a bug reported
+**When is a bug reported**
+
  If the text of the localised control is identical to the reference control
  (in case, spacing i.e.  a binary compare) then it will be flagged as
  untranslated. Otherwise the control is treated as translated.
@@ -43,7 +45,7 @@ Note: This is the method to return the least number of bugs. If there are
 differences in any part of the string (e.g. a path or variable name) but the
 rest of the string is untranslated then a bug will not be highlighted
 
-Bug Extra Information
+**Bug Extra Information**
 The bug contains the following extra information
 Name	Description
 Strings		The list of the untranslated strings as explained above
@@ -51,10 +53,10 @@ StringIndices		The list of indices (0 based) that are untranslated.
 This will usually be 0 but if there are many strings in the control
 untranslated it will report ALL the strings e.g. 0,2,5,19,23
 
-Is Reference dialog needed
+**Is Reference dialog needed**
 The reference dialog is always necessary.
 
-False positive bug reports
+**False positive bug reports**
 False positive bugs will be reported in the following cases.
 -	The title of the control stays the same as the US because the
 translation is the same as the English text(e.g. Name: in German)
@@ -62,7 +64,7 @@ translation is the same as the English text(e.g. Name: in German)
 This can sometimes happen if the programmer displays something else on the
 control after the dialog is created.
 
-Test Identifier
+**Test Identifier**
 The identifier for this test/bug is "Translation" """
 
 __revision__ = "$Revision$"
@@ -81,7 +83,7 @@ def TranslationTest(windows):
             continue
 
         # get if any items are untranslated
-        untranTitles, untranIndices = GetUntranslations(win)
+        untranTitles, untranIndices = _GetUntranslations(win)
 
         if untranTitles:
             indicesAsString = ",".join([unicode(idx) for idx in untranIndices])
@@ -99,7 +101,7 @@ def TranslationTest(windows):
 
     return bugs
 
-def GetUntranslations(win):
+def _GetUntranslations(win):
     "Find the text items that are not translated"
     # remove ampersands and other non translatable bits from the string
 

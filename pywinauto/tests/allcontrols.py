@@ -19,27 +19,28 @@
 #    Boston, MA 02111-1307 USA
 
 """Get All Controls Test
-What is checked
+
+**What is checked**
 This test does no actual testing  it just returns each control.
 
-How is it checked
+**How is it checked**
 A loop over all the controls in the dialog is made and each control added to
 the list of bugs
 
-When is a bug reported
+**When is a bug reported**
 For each control.
 
-Bug Extra Information
+**Bug Extra Information**
 There is no extra information associated with this bug type
 
-Is Reference dialog needed
+**Is Reference dialog needed**
 No,but if available the reference control will be returned with the localised
 control.
 
-False positive bug reports
+**False positive bug reports**
 Not possible
 
-Test Identifier
+**Test Identifier**
 The identifier for this test/bug is "AllControls"
 """
 __revision__ = "$Revision$"

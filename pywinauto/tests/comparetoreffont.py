@@ -19,7 +19,8 @@
 #    Boston, MA 02111-1307 USA
 
 """Compare against reference font test
-What is checked
+
+**What is checked**
 This test checks all the parameters of the font for the control against the
 font for the reference control. If any value is different then this is reported
 as a bug.
@@ -40,31 +41,31 @@ lfQuality	The output quality
 lfPitchAndFamily	The pitch and family
 
 
-How is it checked
+**How is it checked**
 Each property of the font for the control being tested is compared against the
 equivalent property of the reference control font for equality.
 
-When is a bug reported
+**When is a bug reported**
 For each property of the font that is not identical to the reference font a bug
 is reported. So for example if the Font Face has changed and the text is bold
 then (at least) 2 bugs will be reported.
 
-Bug Extra Information
+**Bug Extra Information**
 The bug contains the following extra information
 Name	Description
 ValueType	What value is incorrect (see above), String
 Ref	The reference value converted to a string, String
 Loc	The localised value converted to a string, String
 
-Is Reference dialog needed
+**Is Reference dialog needed**
 This test will not run if the reference controls are not available.
 
-False positive bug reports
+**False positive bug reports**
 Running this test for Asian languages will result in LOTS and LOTS of false
 positives, because the font HAS to change for the localised text to display
 properly.
 
-Test Identifier
+**Test Identifier**
 The identifier for this test/bug is "CompareToRefFont"
 """
 

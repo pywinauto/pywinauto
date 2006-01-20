@@ -37,7 +37,7 @@ class AccessDenied(RuntimeError):
 
 
 #====================================================================
-class RemoteMemoryBlock(object):
+class _RemoteMemoryBlock(object):
     "Class that enables reading and writing memory in a different process"
     #----------------------------------------------------------------
     def __init__(self, handle, size = 8192):
@@ -147,15 +147,15 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         #self.FriendlyClassName = "ListView"
 
         # set up a memory block in the remote application
-        self.remote_mem = RemoteMemoryBlock(self)
+        self.remote_mem = _RemoteMemoryBlock(self)
 
         self._get_column_info()
 
-        self._extra_texts = self.get_extra_texts()
+        self._extra_texts = self._get_extra_texts()
 
 
     #-----------------------------------------------------------
-    def get_extra_texts(self):
+    def _get_extra_texts(self):
         "Get the extra text items of the ListView"
         colcount = len(self._get_column_info())
 
@@ -261,7 +261,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-def GetTreeViewElements(curElem, handle, remote_mem, items = None):
+def _GetTreeViewElements(curElem, handle, remote_mem, items = None):
     "Get the elements of the tree view"
     if items == None:
         items = []
@@ -328,7 +328,7 @@ def GetTreeViewElements(curElem, handle, remote_mem, items = None):
                 curElem)
 
             if childElem:
-                GetTreeViewElements(childElem, handle, remote_mem, items)
+                _GetTreeViewElements(childElem, handle, remote_mem, items)
 
         # get the next element
         nextElem = win32functions.SendMessage(
@@ -337,7 +337,7 @@ def GetTreeViewElements(curElem, handle, remote_mem, items = None):
             win32defines.TVGN_NEXT,
             curElem)
         if nextElem:
-            GetTreeViewElements(nextElem, handle, remote_mem, items)
+            _GetTreeViewElements(nextElem, handle, remote_mem, items)
 
     return items
 
@@ -354,14 +354,14 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
         self._extra_text = []
 
-        remote_mem = RemoteMemoryBlock(self)
+        remote_mem = _RemoteMemoryBlock(self)
 
         # get the root item:
         rootElem = self.SendMessage(
             win32defines.TVM_GETNEXTITEM,
             win32defines.TVGN_ROOT)
 
-        self._extra_texts = GetTreeViewElements(rootElem, self, remote_mem)
+        self._extra_texts = _GetTreeViewElements(rootElem, self, remote_mem)
 
 
 #====================================================================
@@ -380,7 +380,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
     #====================================================================
     def _fill_header_info(self):
         "Get the information from the header control"
-        remote_mem = RemoteMemoryBlock(self)
+        remote_mem = _RemoteMemoryBlock(self)
 
         # get the number of items in the header...
         itemCount = self.SendMessage(win32defines.HDM_GETITEMCOUNT)
@@ -442,7 +442,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def _fill_statusbar_info(self):
         "Get the information from the status bar"
-        remote_mem = RemoteMemoryBlock(self)
+        remote_mem = _RemoteMemoryBlock(self)
 
 
         # get the borders for each of the areas there can be a border.
@@ -523,7 +523,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         itemCount = self.SendMessage(win32defines.TCM_GETITEMCOUNT)
         self._extra_props['TabCount'] = itemCount
 
-        remote_mem = RemoteMemoryBlock(self)
+        remote_mem = _RemoteMemoryBlock(self)
 
         for i in range(0, itemCount):
 
@@ -579,7 +579,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         buttonCount = self.SendMessage(win32defines.TB_BUTTONCOUNT)
         self._extra_props['ButtonCount'] = buttonCount
 
-        remote_mem = RemoteMemoryBlock(self)
+        remote_mem = _RemoteMemoryBlock(self)
 
         for i in range(0, buttonCount):
 
@@ -666,7 +666,7 @@ class RebarWrapper(HwndWrapper.HwndWrapper):
         #print bandCount
         self._extra_props['BandCount'] = bandCount
 
-        remote_mem = RemoteMemoryBlock(self)
+        remote_mem = _RemoteMemoryBlock(self)
 
         for i in range(0, bandCount):
 
@@ -715,10 +715,10 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
         #self.FriendlyClassName = "ToolTips"
 
-        self.PlayWithToolTipControls()
+        self._PlayWithToolTipControls()
 
 
-    def PlayWithToolTipControls(self):
+    def _PlayWithToolTipControls(self):
         "Just playing for now!"
         # get the number of tooltips associated with the control
         count = self.SendMessage(win32defines.TTM_GETTOOLCOUNT, 0, 0)
@@ -728,7 +728,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
 
         try:
-            remote_mem = RemoteMemoryBlock(self)
+            remote_mem = _RemoteMemoryBlock(self)
         except AccessDenied:
             return
 
@@ -802,34 +802,34 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
 
 
-HwndWrapper.HwndWrappers["SysListView32"] = ListViewWrapper
-HwndWrapper.HwndWrappers[r"WindowsForms\d*\.SysListView32\..*"] = \
+HwndWrapper._HwndWrappers["SysListView32"] = ListViewWrapper
+HwndWrapper._HwndWrappers[r"WindowsForms\d*\.SysListView32\..*"] = \
     ListViewWrapper
 
-HwndWrapper.HwndWrappers["SysTreeView32"] = TreeViewWrapper
-HwndWrapper.HwndWrappers[r"WindowsForms\d*\.SysTreeView32\..*"] = \
+HwndWrapper._HwndWrappers["SysTreeView32"] = TreeViewWrapper
+HwndWrapper._HwndWrappers[r"WindowsForms\d*\.SysTreeView32\..*"] = \
     TreeViewWrapper
 
-HwndWrapper.HwndWrappers["SysHeader32"] = HeaderWrapper
+HwndWrapper._HwndWrappers["SysHeader32"] = HeaderWrapper
 
-HwndWrapper.HwndWrappers["msctls_statusbar32"] = StatusBarWrapper
-HwndWrapper.HwndWrappers["HSStatusBar"] = StatusBarWrapper
-HwndWrapper.HwndWrappers[r"WindowsForms\d*\.msctls_statusbar32\..*"] = \
+HwndWrapper._HwndWrappers["msctls_statusbar32"] = StatusBarWrapper
+HwndWrapper._HwndWrappers["HSStatusBar"] = StatusBarWrapper
+HwndWrapper._HwndWrappers[r"WindowsForms\d*\.msctls_statusbar32\..*"] = \
     StatusBarWrapper
 
-HwndWrapper.HwndWrappers["SysTabControl32"] = TabControlWrapper
+HwndWrapper._HwndWrappers["SysTabControl32"] = TabControlWrapper
 
-HwndWrapper.HwndWrappers["ToolbarWindow32"] = ToolbarWrapper
+HwndWrapper._HwndWrappers["ToolbarWindow32"] = ToolbarWrapper
 
 # doesn't work :-(
-##HwndWrapper.HwndWrappers["Afx:00400000:8:00010011:00000010:00000000"] = \
+##HwndWrapper._HwndWrappers["Afx:00400000:8:00010011:00000010:00000000"] = \
 #    ToolbarWrapper
 
-HwndWrapper.HwndWrappers["ReBarWindow32"] = RebarWrapper
+HwndWrapper._HwndWrappers["ReBarWindow32"] = RebarWrapper
 
-#HwndWrapper.HwndWrappers["tooltips_class32"] = ToolTipsWrapper
+#HwndWrapper._HwndWrappers["tooltips_class32"] = ToolTipsWrapper
 #
-##HwndWrapper.HwndWrappers["ComboBoxEx32"] = ComboBoxEx
+##HwndWrapper._HwndWrappers["ComboBoxEx32"] = ComboBoxEx
 #
 
 
@@ -879,7 +879,7 @@ HwndWrapper.HwndWrappers["ReBarWindow32"] = RebarWrapper
 #				0)
 #
 #			print "*"*20, numItems
-##			remote_mem = RemoteMemoryBlock(self)
+##			remote_mem = _RemoteMemoryBlock(self)
 ##
 ##
 ##			# get the text for each item in the combobox

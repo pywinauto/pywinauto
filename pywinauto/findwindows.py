@@ -87,15 +87,16 @@ def find_windows(class_name = None,
     """Find windows based on criteria passed in
 
     Possible values are:
-        class_name		Windows with this window class
-        class_name_re	Windows whose class match this regular expression
-        parent			Windows that are children of this
-        process			Windows running in this process
-        title			Windows with this Text
-        title_re		Windows whose Text match this regular expression
-        top_level_only	Top level windows only (default=True)
-        visible_only	Visible windows only (default=True)
-        enabled_only	Enabled windows only (default=True)
+
+    :class_name:  Windows with this window class
+    :class_name_re:  Windows whose class match this regular expression
+    :parent:    Windows that are children of this
+    :process:   Windows running in this process
+    :title:     Windows with this Text
+    :title_re:  Windows whose Text match this regular expression
+    :top_level_only: Top level windows only (default=True)
+    :visible_only:   Visible windows only (default=True)
+    :enabled_only:   Enabled windows only (default=True)
     """
 
 
@@ -209,7 +210,7 @@ def enum_child_windows(handle):
 
 
 #=========================================================================
-def Main():
+def _unittests():
     "Do a quick test of finding some windows"
     windows = find_windows(
         class_name_re = "#32770",
@@ -223,4 +224,4 @@ def Main():
 
 
 if __name__ == "__main__":
-    Main()
+    _unittests()

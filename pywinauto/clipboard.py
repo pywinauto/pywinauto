@@ -22,16 +22,22 @@
 
 __revision__ = "$Revision$"
 
+import ctypes
+
 import win32functions
 import win32defines
 
-import ctypes
+#====================================================================
+def _get_all_known_formats():
+    "Get the known formats by looking in win32defines"
+    formats = {}
+    for define_name in win32defines.__dict__.keys():
+        if define_name.startswith("CF_"):
+            formats[getattr(win32defines, define_name)] = define_name
+    return formats
 
 # get all the formats names keyed on the value
-all_formats = {}
-for x in win32defines.__dict__.keys():
-    if x.startswith("CF_"):
-        all_formats[getattr(win32defines, x)] = x
+_all_formats = _get_all_known_formats()
 
 
 #====================================================================
@@ -61,7 +67,7 @@ def GetClipboardFormats():
 #====================================================================
 def GetFormatName(format):
     "Get the string name for a format value"
-    return all_formats[format]
+    return _all_formats[format]
 
 
 #====================================================================
@@ -82,10 +88,15 @@ def GetData(format = win32defines.CF_UNICODETEXT):
 
 
 #====================================================================
-if __name__ == "__main__":
+def _unittests():
+    "do some basic tests"
     formats = GetClipboardFormats()
     print formats
 
     print [GetFormatName(f) for f in formats]
 
     print repr(GetData())
+
+#====================================================================
+if __name__ == "__main__":
+    _unittests()

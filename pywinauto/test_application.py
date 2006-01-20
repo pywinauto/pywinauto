@@ -30,18 +30,18 @@ import tests
 def TestExceptions():
     "Test some things that should raise exceptions"
 
-    # test that trying to _connect to a non existent app fails
+    # test that trying to connect_ to a non existent app fails
     try:
         app = application.Application()
-        app._connect(path = ur"No process with this please")
+        app.connect_(path = ur"No process with this please")
         assert False
     except application.ProcessNotFoundError:
         pass
 
-    # test that trying to _connect to a non existent app fails
+    # test that trying to connect_ to a non existent app fails
     try:
         app = application.Application()
-        app._start(cmd_line = ur"No process with this please")
+        app.start_(cmd_line = ur"No process with this please")
         assert False
     except application.AppStartError:
         pass
@@ -49,7 +49,7 @@ def TestExceptions():
     # try when it isn't connected
     try:
         app = application.Application()
-        #app._start(ur"c:\windows\system32\notepad.exe")
+        #app.start_(ur"c:\windows\system32\notepad.exe")
         app.Notepad.Click()
         assert False
     except application.AppNotConnected:
@@ -64,10 +64,10 @@ def TestNotepad():
 #	# for distribution we don't want to connect to anybodies application
 #   # because we may mess up something they are working on!
 #	try:
-#		app._connect(path = ur"c:\windows\system32\notepad.exe")
+#		app.connect_(path = ur"c:\windows\system32\notepad.exe")
 #	except application.ProcessNotFoundError:
-#		app._start(ur"c:\windows\system32\notepad.exe")
-    app._start(ur"notepad.exe")
+#		app.start_(ur"c:\windows\system32\notepad.exe")
+    app.start_(ur"notepad.exe")
 
     app.Notepad.MenuSelect("File->PageSetup")
 
@@ -100,7 +100,7 @@ def TestNotepad():
 
     app.PageSetupDlg2.Properties.Click()
 
-    docProps = app._window(title_re = ".*Document Properties")
+    docProps = app.window_(title_re = ".*Document Properties")
 
     TestingTabSelect = 1
     if TestingTabSelect:
@@ -127,7 +127,7 @@ def TestNotepad():
     advbutton.Click()
 
     # close the 4 windows
-    app._window(title_re = ".* Advanced Options").Ok.Click()
+    app.window_(title_re = ".* Advanced Options").Ok.Click()
     docProps.Cancel.Click()
     app.PageSetupDlg2.OK.Click()
     app.PageSetupDlg.Ok.Click()
@@ -150,7 +150,7 @@ def MinimalNotepadTest():
     "Run a quick test on Notepad"
 
     app = application.Application()
-    app._start(ur"notepad.exe")
+    app.start_(ur"notepad.exe")
 
     app.Notepad.MenuSelect("File->PageSetup")
 
@@ -178,7 +178,7 @@ def MinimalNotepadTest():
     app.PageSetupDlg2.Properties.Click()
 
     # ----- Document Properties Dialog ----
-    docProps = app._window(title_re = ".*Document Properties")
+    docProps = app.window_(title_re = ".*Document Properties")
 
     # Two ways of selecting tabs
     docProps.TabCtrl.Select(2)
@@ -199,7 +199,7 @@ def MinimalNotepadTest():
 
     # ----- Advanced Options Dialog ----
     # close the 4 windows
-    app._window(title_re = ".* Advanced Options").Ok.Click()
+    app.window_(title_re = ".* Advanced Options").Ok.Click()
 
     # ----- Document Properties Dialog again ----
     docProps.Cancel.Click()
@@ -238,13 +238,13 @@ def TestPaint():
 #	# for distribution we don't want to connect to anybodies application
 #   # because we may mess up something they are working on!
 #	try:
-#		app._connect(path = ur"c:\windows\system32\mspaint.exe")
+#		app.connect_(path = ur"c:\windows\system32\mspaint.exe")
 #	except application.ProcessNotFoundError:
-#		app._start(ur"c:\windows\system32\mspaint.exe")
+#		app.start_(ur"c:\windows\system32\mspaint.exe")
 
-    app._start(ur"mspaint.exe")
+    app.start_(ur"mspaint.exe")
 
-    pwin = app._window(title_re = ".* - Paint")
+    pwin = app.window_(title_re = ".* - Paint")
 
     # get the previous image size
     pwin.MenuSelect("Image->Attributes")

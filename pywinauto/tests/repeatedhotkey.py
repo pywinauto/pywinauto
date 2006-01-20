@@ -19,20 +19,21 @@
 #    Boston, MA 02111-1307 USA
 
 """Repeated Hotkeys Test
-What is checked
+
+**What is checked**
 This test checks all the controls in a dialog to see if there are controls that
 use the same hotkey character.
 
-How is it checked
+**How is it checked**
 A list of all the hotkeys (converted to uppercase) used in the dialog is
 created. Then this list is examined to see if any hotkeys are used more than
 once. If any are used more than once a list of all the controls that use this
 hotkey are compiled to be used in the bug report.
 
-When is a bug reported
+**When is a bug reported**
 If more than one control has the same hotkey then a bug is reported.
 
-Bug Extra Information
+**Bug Extra Information**
 The bug contains the following extra information
 Name	Description
 RepeatedHotkey	This is the hotkey that is repeated between the 2 controls
@@ -45,7 +46,7 @@ AvailableInControlS	A list of the available characters for each control.
 Any of the characters in this list could be used as the new hotkey without
 conflicting with any existing hotkey.
 
-Is Reference dialog needed
+**Is Reference dialog needed**
 The reference dialog does not need to be available. If it is available then
 for each bug discovered it is checked to see if it is a problem in the
 reference dialog.
@@ -56,13 +57,13 @@ same hotkey in the Localised software  then those same controls in the
 reference dialog must have the same hotkey for it to be reported as existing
 in the reference also.
 
-False positive bug reports
+**False positive bug reports**
 There should be very few false positives from this test. Sometimes a control
 only has one or 2 characters eg "X:" and it is impossible to avoid a hotkey
 clash. Also for Asian languages hotkeys should be the same as the US software
 so probably this test should be run on those languages.
 
-Test Identifier
+**Test Identifier**
 The identifier for this test/bug is "RepeatedHotkey"
 """
 
@@ -75,7 +76,7 @@ from pywinauto.win32defines import SS_NOPREFIX
 def RepeatedHotkeyTest(windows):
     "Return the repeated hotkey errors"
 
-    hotkeyControls, allChars, hotkeys = CollectDialogInfo(windows)
+    hotkeyControls, allChars, hotkeys = _CollectDialogInfo(windows)
 
     # get the available characters in the dialog
     dlgAvailable = allChars.difference(hotkeys)
@@ -100,13 +101,13 @@ def RepeatedHotkeyTest(windows):
 
                 controlAvailableChars = controlChars.intersection(dlgAvailable)
                 controlAvailableChars = \
-                    "<%s>" % SetAsString(controlAvailableChars)
+                    "<%s>" % _SetAsString(controlAvailableChars)
 
                 ctrlsAvailableChars += controlAvailableChars
 
             refCtrls = [ctrl.ref for ctrl in controls if ctrl.ref]
             refHotkeyControls, refAllChars, refHotkeys = \
-                CollectDialogInfo(refCtrls)
+                _CollectDialogInfo(refCtrls)
 
             isInRef = -1
             if len(refHotkeys) > 1:
@@ -118,8 +119,8 @@ def RepeatedHotkeyTest(windows):
                 controls,
                 {
                     "RepeatedHotkey" : 		char,
-                    "CharsUsedInDialog" :   SetAsString(hotkeys),
-                    "AllCharsInDialog" :    SetAsString(allChars),
+                    "CharsUsedInDialog" :   _SetAsString(hotkeys),
+                    "AllCharsInDialog" :    _SetAsString(allChars),
                     "AvailableInControls" : ctrlsAvailableChars,
                 },
                 testname,
@@ -143,7 +144,7 @@ def RepeatedHotkeyTest(windows):
 
 
 #-----------------------------------------------------------------------------
-def CollectDialogInfo(windows):
+def _CollectDialogInfo(windows):
     "Collect information on the hotkeys in the dialog"
     hotkeyControls = {}
     allChars = ''
@@ -209,7 +210,7 @@ def GetHotkey(text):
 
 
 #-----------------------------------------------------------------------------
-def SetAsString(settojoin):
+def _SetAsString(settojoin):
     "Convert the set to a ordered string"
     return "".join(sorted(settojoin))
 

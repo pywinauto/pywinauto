@@ -44,13 +44,6 @@ class XMLParsingError(RuntimeError):
     pass
 
 
-charReplacements = (
-    ("\\\\" , "\\"),
-    ("\\t" , "\t"),
-    ("\\r" , "\r"),
-    ("\\n" , "\n"),
-    ("\\x12" , "\x12"),
-)
 
 #DONE: Make the dialog reading function not actually know about the
 # types of each element (so that we can read the control properties
@@ -65,7 +58,7 @@ charReplacements = (
 
 
 #-----------------------------------------------------------------------------
-def SetNodeProps(element, name, value):
+def _SetNodeProps(element, name, value):
     "Set the properties of the node based on the type of object"
 
     # if it is a ctypes structure
@@ -86,7 +79,7 @@ def SetNodeProps(element, name, value):
                 propName += "_LONG"
                 itemVal = unicode(itemVal)
 
-            structElem.set(propName, EscapeSpecials(itemVal))
+            structElem.set(propName, _EscapeSpecials(itemVal))
 
     elif isinstance(value, PIL.Image.Image):
         try:
@@ -97,7 +90,7 @@ def SetNodeProps(element, name, value):
                 raise MemoryError
 
             imageData = value.tostring().encode("bz2").encode("base64")
-            SetNodeProps(
+            _SetNodeProps(
                 element,
                 name + "_IMG",
                 {"mode": value.mode, "size":value.size, "data":imageData})
@@ -116,19 +109,19 @@ def SetNodeProps(element, name, value):
         #name = name.rstrip('s')
 
         for i, attrVal in enumerate(value):
-            SetNodeProps(element, "%s_%05d"%(name, i), attrVal)
+            _SetNodeProps(element, "%s_%05d"%(name, i), attrVal)
 
     elif isinstance(value, dict):
         dictElem = SubElement(element, name)
 
         for n, val in value.items():
-            SetNodeProps(dictElem, n, val)
+            _SetNodeProps(dictElem, n, val)
 
     else:
         if isinstance(value, (int, long)):
             name += "_LONG"
 
-        element.set(name, EscapeSpecials(value))
+        element.set(name, _EscapeSpecials(value))
 
 
 #-----------------------------------------------------------------------------
@@ -150,7 +143,7 @@ def WriteDialogToFile(fileName, props):
     for ctrl in props:
         ctrlElem = SubElement(root, "CONTROL")
         for name, value in sorted(ctrl.items()):
-            SetNodeProps(ctrlElem, name, value)
+            _SetNodeProps(ctrlElem, name, value)
 
     # wrap it in an ElementTree instance, and save as XML
     tree = ElementTree(root)
@@ -159,7 +152,7 @@ def WriteDialogToFile(fileName, props):
 
 
 #-----------------------------------------------------------------------------
-def EscapeSpecials(s):
+def _EscapeSpecials(s):
     "Ensure that some characters are escaped before writing to XML"
 
     # ensure it is unicode
@@ -175,21 +168,8 @@ def EscapeSpecials(s):
     return s
 
 
-#def EscapeSpecials(inStr):
-#
-#	# make sure input is a unicode string or convert
-#	inStr = unicode(inStr)
-#
-#	# unicode_escape encoding seems to be broken
-#	#escaped = escaped.encode("unicode_escape")
-#
-#	for (replacement, char) in charReplacements:
-#		inStr = inStr.replace(char, replacement)
-#
-#	return inStr
-
 #-----------------------------------------------------------------------------
-def UnEscapeSpecials(s):
+def _UnEscapeSpecials(s):
     "Replace escaped characters with real character"
 
     # Unescape all the escape characters
@@ -202,24 +182,9 @@ def UnEscapeSpecials(s):
     return unicode(s)
 
 
-##-----------------------------------------------------------------------------
-#def UnEscapeSpecials(inStr):
-#	"Replace escaped characters with real character"
-#
-#
-#	#bits = inStr.split("\\\\")
-#	#for i, bit in enumerate(bits):
-#	#	for (replacement, char) in charReplacements[1:]:
-#	#		inStr = inStr.replace(replacement, char)
-#
-#	for (replacement, char) in charReplacements:
-#		inStr = inStr.replace(replacement, char)
-#
-#	return unicode(inStr)
-
 
 #-----------------------------------------------------------------------------
-def XMLToStruct(element, structType = None):
+def _XMLToStruct(element, structType = None):
     """Convert an ElementTree to a ctypes Struct
 
     If structType is not specified then element['__type__']
@@ -273,7 +238,7 @@ def XMLToStruct(element, structType = None):
 
 
 #====================================================================
-def OLD_XMLToTitles(element):
+def _OLD_XMLToTitles(element):
     "For OLD XML files convert the titles as a list"
     # get all the attribute names
     titleNames = element.keys()
@@ -298,13 +263,13 @@ def OLD_XMLToTitles(element):
 # TODO: this function should be broken up into smaller functions
 #       for each type of processing e.g.
 #       ElementTo
-def ExtractProperties(properties, propName, propValue):
+def _ExtractProperties(properties, propName, propValue):
     """Hmmm - confusing - can't remember exactly how
     all these similar functions call each other"""
 
     # get the base property name and number if it in the form
     #  "PROPNAME_00001" = ('PROPNAME', 1)
-    propName, reqdIndex = SplitNumber(propName)
+    propName, reqdIndex = _SplitNumber(propName)
 
     # if there is no required index, and the property
     # was not already set - then just set it
@@ -346,7 +311,7 @@ def ExtractProperties(properties, propName, propValue):
 
 
 #====================================================================
-def GetAttributes(element):
+def _GetAttributes(element):
     "Get the attributes from an element"
 
     properties = {}
@@ -361,27 +326,27 @@ def GetAttributes(element):
 
         else:
             # otherwise it is a string - make sure we get it as a unicode string
-            val = UnEscapeSpecials(val)
+            val = _UnEscapeSpecials(val)
 
-        ExtractProperties(properties, attribName, val)
+        _ExtractProperties(properties, attribName, val)
 
     return properties
 
 
 #====================================================================
 number = re.compile(r"^(.*)_(\d{5})$")
-def SplitNumber(propName):
+def _SplitNumber(propName):
     """Return (string, number) for a propname in the format string_number
 
     The number part has to be 5 digits long
     None is returned if there is no _number part
 
     e.g.
-    >>> SplitNumber("NoNumber")
+    >>> _SplitNumber("NoNumber")
     ('NoNumber', None)
-    >>> SplitNumber("Anumber_00003")
+    >>> _SplitNumber("Anumber_00003")
     ('Anumber', 3)
-    >>> SplitNumber("notEnoughDigits_0003")
+    >>> _SplitNumber("notEnoughDigits_0003")
     ('notEnoughDigits_0003', None)
     """
     found = number.search(propName)
@@ -394,24 +359,26 @@ def SplitNumber(propName):
 
 
 #====================================================================
-def ReadXMLStructure(controlElement):
+def _ReadXMLStructure(controlElement):
     """Convert an element into nested Python objects
 
     The values will be returned in a dictionary as following:
+
      - the attributes will be items of the dictionary
-     for each subelement
-       - if it has a __type__ attribute then it is converted to a
+       for each subelement
+
+       + if it has a __type__ attribute then it is converted to a
          ctypes structure
-       - if the element tag ends with _IMG then it is converted to
+       + if the element tag ends with _IMG then it is converted to
          a PIL image
 
-    if there are elements with the same name or attributes with
-    ordering e.g. texts_00001, texts_00002
-     - they will be put into a list (in the correct order)
+     - If there are elements with the same name or attributes with
+       ordering e.g. texts_00001, texts_00002 they will be put into a
+       list (in the correct order)
     """
 
     # get the attributes for the current element
-    properties = GetAttributes(controlElement)
+    properties = _GetAttributes(controlElement)
 
     for elem in controlElement:
         # if it is a ctypes structure
@@ -419,20 +386,20 @@ def ReadXMLStructure(controlElement):
             # create a new instance of the correct type
 
             # grab the data
-            propVal = XMLToStruct(elem)
+            propVal = _XMLToStruct(elem)
 
         elif elem.tag.endswith("_IMG"):
             elem.tag = elem.tag[:-4]
 
             # get image Attribs
-            img = GetAttributes(elem)
+            img = _GetAttributes(elem)
             data = img['data'].decode('base64').decode('bz2')
             propVal = PIL.Image.fromstring(img['mode'], img['size'], data)
 
         else:
-            propVal = ReadXMLStructure(elem)
+            propVal = _ReadXMLStructure(elem)
 
-        ExtractProperties(properties, elem.tag, propVal)
+        _ExtractProperties(properties, elem.tag, propVal)
 
     return properties
 
@@ -447,7 +414,7 @@ def ReadPropertiesFromFile(filename):
     parsed = ElementTree().parse(filename)
 
     # Return the list that has been stored under 'CONTROL'
-    props =  ReadXMLStructure(parsed)['CONTROL']
+    props =  _ReadXMLStructure(parsed)['CONTROL']
 
     # it is an old XML so let's fix it up a little
     if not parsed.attrib.has_key("_version_"):
@@ -455,14 +422,14 @@ def ReadPropertiesFromFile(filename):
         # find each of the control elements
         for ctrlProp in props:
 
-            ctrlProp['Fonts'] = [XMLToStruct(ctrlProp['FONT'], "LOGFONTW"), ]
+            ctrlProp['Fonts'] = [_XMLToStruct(ctrlProp['FONT'], "LOGFONTW"), ]
 
-            ctrlProp['Rectangle'] = XMLToStruct(ctrlProp["RECTANGLE"], "RECT")
+            ctrlProp['Rectangle'] = _XMLToStruct(ctrlProp["RECTANGLE"], "RECT")
 
             ctrlProp['ClientRects'] = [
-                XMLToStruct(ctrlProp["CLIENTRECT"], "RECT"),]
+                _XMLToStruct(ctrlProp["CLIENTRECT"], "RECT"),]
 
-            ctrlProp['Texts'] = OLD_XMLToTitles(ctrlProp["TITLES"])
+            ctrlProp['Texts'] = _OLD_XMLToTitles(ctrlProp["TITLES"])
 
             ctrlProp['Class'] = ctrlProp['CLASS']
             ctrlProp['ContextHelpID'] = ctrlProp['HELPID']
@@ -494,9 +461,9 @@ def ReadPropertiesFromFile(filename):
     return props
 
 
-
 #====================================================================
-if __name__ == "__main__":
+def _unittests():
+    "Perform some simple unit testing"
 
     import sys
 
@@ -505,5 +472,10 @@ if __name__ == "__main__":
 
     import pprint
     pprint.pprint(props)
+
+
+#====================================================================
+if __name__ == "__main__":
+    _unittests()
 
 

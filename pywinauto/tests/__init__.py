@@ -29,7 +29,7 @@ import sys
 import pywinauto
 
 
-test_names = (
+_test_names = (
         "AllControls",
         "AsianHotkey",
         "ComboBoxDroppedHeight",
@@ -58,7 +58,7 @@ def run_tests(controls, tests_to_run = None, test_visible_only = True):
 
     # if no tests specified run them all
     if tests_to_run is None:
-        tests_to_run = registered.keys()
+        tests_to_run = _registered.keys()
 
     # Filter out hidden controls if requested
     if test_visible_only:
@@ -68,7 +68,7 @@ def run_tests(controls, tests_to_run = None, test_visible_only = True):
     # run each test
     for test_name in tests_to_run:
         #print test_name
-        bugs.extend(registered[test_name](controls))
+        bugs.extend(_registered[test_name](controls))
 
     return bugs
 
@@ -104,25 +104,35 @@ def print_bugs(bugs):
 
 
 # we need to register the modules
-registered = {}
+_registered = {}
 def __init_tests():
     "Initialize each test by loading it and then register it"
-    global registered
+    global _registered
 
-    for test_name in test_names:
+    for test_name in _test_names:
 
         test_module = __import__(test_name.lower())
 
         # class name is the test name + "Test"
         test_class = getattr(test_module, test_name + "Test")
 
-        registered[test_name] = test_class
+        _registered[test_name] = test_class
 
 
-package_path = os.path.split(pywinauto.__file__)[0]
-package_path = os.path.join(package_path, 'tests')
-sys.path.append(package_path)
-if not registered:
+_package_path = os.path.split(pywinauto.__file__)[0]
+_package_path = os.path.join(_package_path, 'tests')
+sys.path.append(_package_path)
+del _package_path
+
+if not _registered:
     __init_tests()
+
 sys.path = sys.path[:-1]
+
+def _unittests():
+    "Some unit tests"
+    pass
+
+if __name__ == "__main__":
+    _unittests()
 

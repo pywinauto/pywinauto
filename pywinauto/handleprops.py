@@ -345,7 +345,7 @@ def dumpwindow(handle):
     return props
 
 #=========================================================================
-def Main():
+def _unittests():
     "Quick test of module"
     handle = win32functions.GetDesktopWindow()
 
@@ -353,4 +353,4 @@ def Main():
         print "%15s\t%s" % (name, value)
 
 if __name__ == "__main__":
-    Main()
+    _unittests()

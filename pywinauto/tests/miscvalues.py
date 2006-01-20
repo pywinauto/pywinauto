@@ -19,7 +19,8 @@
 #    Boston, MA 02111-1307 USA
 
 """Miscellaneous Control properties Test
-What is checked
+
+**What is checked**
 This checks various values related to a control in windows. The values tested
 are
 Class	The class type of the control
@@ -30,29 +31,29 @@ ControlID	The Control ID of the control (GetWindowLong)
 UserData	The User Data of the control (GetWindowLong)
 Visibility	Whether the control is visible or not
 
-How is it checked
+**How is it checked**
 After retrieving the information for the control we compare it to the same
 information from the reference control.
 
-When is a bug reported
+**When is a bug reported**
 If the information does not match then a bug is reported.
 
-Bug Extra Information
+**Bug Extra Information**
 The bug contains the following extra information
 Name	Description
 ValueType	What value is incorrect (see above), String
 Ref	The reference value converted to a string, String
 Loc	The localised value converted to a string, String
 
-Is Reference dialog needed
+**Is Reference dialog needed**
 This test will not run if the reference controls are not available.
 
-False positive bug reports
+**False positive bug reports**
 Some values can change easily without any bug being caused, for example User
 Data is actually meant for programmers to store information for the control
 and this can change every time the software is run.
 
-Test Identifier
+**Test Identifier**
 The identifier for this test/bug is "MiscValues"
 """
 __revision__ = "$Revision$"

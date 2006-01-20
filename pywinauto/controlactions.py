@@ -18,7 +18,15 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Actions for controls"
+"""Actions for controls
+
+You can change the following to affect waits after various actions
+
+:delay_after_click: Specify the delay after each click
+:delay_after_sendkeys_key: Specify the delay after selecting a menuitem
+:delay_after_sendkeys_key: Specify the delay after typing a sendkeys character
+
+"""
 
 __revision__ = "$Revision$"
 
@@ -41,6 +49,7 @@ import tests
 delay_after_click = .08
 delay_after_menuselect = .08
 delay_after_sendkeys_key = .001
+
 
 class ControlNotEnabled(RuntimeError):
     "Raised when a control is not enabled"
@@ -78,7 +87,7 @@ def verify_visible(ctrl):
         raise ControlNotVisible()
 
 
-mouse_flags = {
+_mouse_flags = {
     "left": win32defines.MK_LBUTTON,
     "right": win32defines.MK_RBUTTON,
     "middle": win32defines.MK_MBUTTON,
@@ -93,7 +102,7 @@ def calc_flags_and_coords(pressed, coords):
     flags = 0
 
     for key in pressed.split():
-        flags |= mouse_flags[key.lower()]
+        flags |= _mouse_flags[key.lower()]
 
     click_point = win32functions.MakeLong(coords[1], coords[0])
 
@@ -102,7 +111,7 @@ def calc_flags_and_coords(pressed, coords):
 
 #====================================================================
 # TODO: Test simulating mouse clicks using SendInput instead of WM_* messages
-def perform_click(
+def _perform_click(
         ctrl,
         button = "left",
         pressed = "",
@@ -169,19 +178,19 @@ def click_action(
     ctrl, button = "left", pressed = "", coords = (0, 0), double = False):
     "Peform a click action"
     #print ctrl.Text, ctrl.Class, ctrl.Rectangle, ctrl.Parent.Text
-    perform_click(ctrl, button, pressed, coords, double)
+    _perform_click(ctrl, button, pressed, coords, double)
 
 #====================================================================
 def doubleclick_action(
     ctrl, button = "left", pressed = "", coords = (0, 0), double = True):
     "Perform a double click action"
-    perform_click(ctrl, button, pressed, coords, double)
+    _perform_click(ctrl, button, pressed, coords, double)
 
 #====================================================================
 def rightclick_action(
     ctrl, button = "right", pressed = "", coords = (0, 0), double = True):
     "Perform a right click action"
-    perform_click(ctrl, button, pressed, coords, double)
+    _perform_click(ctrl, button, pressed, coords, double)
 
 #====================================================================
 def check_button_action(ctrl):
@@ -204,13 +213,13 @@ def press_mouse_action(ctrl, button = "left", pressed = "", coords = (0, 0)):
     "Press the mouse button"
     flags, click_point = calc_flags_and_coords(pressed, coords)
 
-    perform_click(ctrl, button, pressed, coords, up = False)
+    _perform_click(ctrl, button, pressed, coords, up = False)
 
 #====================================================================
 def release_mouse_action(ctrl, button = "left", pressed = "", coords = (0, 0)):
     "Release the mouse button"
     flags, click_point = calc_flags_and_coords(pressed, coords)
-    perform_click(ctrl, button, pressed, coords, down = False)
+    _perform_click(ctrl, button, pressed, coords, down = False)
 
 #====================================================================
 def move_mouse_action(ctrl, pressed = "left", coords = (0, 0)):
@@ -796,7 +805,7 @@ def listbox_getcurrentselection_action(ctrl):
 #VerifyValue
 
 
-standard_action_funcs = dict(
+_standard_action_funcs = dict(
     Click = click_action,
     RightClick = rightclick_action,
     DoubleClick = doubleclick_action,
@@ -813,7 +822,7 @@ standard_action_funcs = dict(
     )
 
 
-class_specific_actions = {
+_class_specific_actions = {
 
     'ComboBox' : dict(
         Select = combobox_select,
@@ -857,20 +866,21 @@ class_specific_actions = {
 
 
 #=========================================================================
+# TODO: Move actions into the appropriate controls module
 def add_actions(to_obj):
     "Add the appropriate actions to the control"
 
     # for each of the standard actions
-    for action_name in standard_action_funcs:
+    for action_name in _standard_action_funcs:
         # add it to the control class
         setattr (
-            to_obj.__class__, action_name, standard_action_funcs[action_name])
+            to_obj.__class__, action_name, _standard_action_funcs[action_name])
 
     # check if there are actions specific to this type of control
-    if class_specific_actions.has_key(to_obj.FriendlyClassName):
+    if _class_specific_actions.has_key(to_obj.FriendlyClassName):
 
         # apply these actions to the class
-        actions = class_specific_actions[to_obj.FriendlyClassName]
+        actions = _class_specific_actions[to_obj.FriendlyClassName]
         for action_name, action_func in actions.items():
             setattr (to_obj.__class__, action_name, action_func)
 

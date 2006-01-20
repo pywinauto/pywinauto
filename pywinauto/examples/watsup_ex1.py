@@ -11,7 +11,7 @@ from application import Application, WindowNotFoundError
 
 def do_test_1():
     "1st Watsup Test"
-    app = Application()._start(r"c:\windows\Notepad")
+    app = Application().start_(r"c:\windows\Notepad")
     notepadWindow = app.Notepad
 
     notepadWindow.Edit1.SetText(u"Hello, ägain!", 0, -1)
@@ -36,9 +36,9 @@ def do_test_2():
 
     app = Application()
     try:
-        app._connect(title ='Simple Form')
+        app.connect_(title ='Simple Form')
     except WindowNotFoundError:
-        app._start(r'examples\simple.exe')
+        app.start_(r'examples\simple.exe')
 
     form = app.SimpleForm
 
@@ -61,9 +61,9 @@ def do_test_3():
     "3rd Watsup Test"
     app = Application()
     try:
-        app._connect(title ='Performance Form 2')
+        app.connect_(title ='Performance Form 2')
     except WindowNotFoundError:
-        app._start(r'examples\perform2.exe')
+        app.start_(r'examples\perform2.exe')
 
     app.PerformanceForm1.Clickme.Click()
     waited = 0

@@ -55,7 +55,7 @@ class MatchError(IndexError):
 # given a list of texts return the match score for each
 # and the best score and text with best score
 #====================================================================
-def get_match_ratios(texts, match_against):
+def _get_match_ratios(texts, match_against):
     "Get the match ratio of how each item in texts compared to match_against"
 
     # now time to figre out the matching
@@ -86,14 +86,14 @@ def get_match_ratios(texts, match_against):
 #====================================================================
 def find_best_match(search_text, item_texts, items):
     "Return the item that best matches the search_text"
-    search_text = clean_text(search_text)
+    search_text = _clean_text(search_text)
 
     # Clean each item, make it unique and map to
     # to the item index
-    item_index_map = build_unique_index_map(item_texts)
+    item_index_map = _build_unique_index_map(item_texts)
 
     ratios, best_ratio, best_text = \
-        get_match_ratios(item_index_map.keys(), search_text)
+        _get_match_ratios(item_index_map.keys(), search_text)
 
     if best_ratio < .5:
         raise MatchError(items = item_index_map.keys(), tofind = search_text)
@@ -102,12 +102,12 @@ def find_best_match(search_text, item_texts, items):
 
 
 #====================================================================
-def build_unique_index_map(items):
+def _build_unique_index_map(items):
     """Build a map of item to item index making sure that each is unique"""
     mapped_items = {}
 
     for i, text in enumerate(items):
-        text = clean_text(text)
+        text = _clean_text(text)
 
         # no duplicates so just store it without modification
         if text not in mapped_items:
@@ -134,10 +134,10 @@ def build_unique_index_map(items):
 
 
 #====================================================================
-after_tab = re.compile(ur"\t.*", re.UNICODE)
-non_word_chars = re.compile(ur"\W", re.UNICODE)
+_after_tab = re.compile(ur"\t.*", re.UNICODE)
+_non_word_chars = re.compile(ur"\W", re.UNICODE)
 
-def clean_text(text):
+def _clean_text(text):
     "Clean out not characters from the string and return it"
 
     # not sure we really need this function - we are returning the
@@ -146,16 +146,16 @@ def clean_text(text):
     #return text.replace("&", "")
     #return text
     # remove anything after the first tab
-    text_before_tab = after_tab.sub("", text)
+    text_before_tab = _after_tab.sub("", text)
 
     # remove non alphanumeric characters
-    return non_word_chars.sub("", text_before_tab)
+    return _non_word_chars.sub("", text_before_tab)
 
 
 
 
 #====================================================================
-def get_control_names(control):
+def _get_control_names(control):
     "Returns a list of names for this control"
     names = []
 
@@ -168,7 +168,7 @@ def get_control_names(control):
 
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
-    if clean_text(control.Text):
+    if _clean_text(control.Text):
         names.append(control.Text)
         names.append(control.Text + control.FriendlyClassName)
 
@@ -177,7 +177,7 @@ def get_control_names(control):
 
 
 #TODO: Move uniquefying code out of this function and use
-# build_unique_index_map() to do it. (if that functions needs changing
+# _build_unique_index_map() to do it. (if that functions needs changing
 # then do it and modify functions that call it if necessary also!
 #====================================================================
 def find_best_control_match(search_text, controls):
@@ -198,8 +198,8 @@ def find_best_control_match(search_text, controls):
     # collect all the possible names for all controls
     # and build a list of them
     for ctrl in controls:
-        ctrl_names = get_control_names(ctrl)
-        ctrl_names = [clean_text(name) for name in ctrl_names]
+        ctrl_names = _get_control_names(ctrl)
+        ctrl_names = [_clean_text(name) for name in ctrl_names]
 
         # remove duplicates
         ctrl_names = list(set(ctrl_names))
@@ -233,7 +233,7 @@ def find_best_control_match(search_text, controls):
 
 
     match_ratios, best_ratio, best_text = \
-        get_match_ratios(name_control_map.keys(), search_text)
+        _get_match_ratios(name_control_map.keys(), search_text)
 
     if best_ratio < .5:
         raise MatchError(items = name_control_map.keys(), tofind = search_text)

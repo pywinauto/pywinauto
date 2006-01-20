@@ -60,9 +60,9 @@ def WrapHandle(hwnd, isDialog = False):
 
     #default_wrapper = HwndWrapper(hwnd)
 
-    for wrapper_name in HwndWrappers:
+    for wrapper_name in _HwndWrappers:
         if re.match(wrapper_name, handleprops.classname(hwnd)):
-            return HwndWrappers[wrapper_name](hwnd)
+            return _HwndWrappers[wrapper_name](hwnd)
 
     # so it is not one of the 'known' classes - just wrap it with
     # hwnd wrapper
@@ -156,62 +156,62 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     # define the Menu Property
-    def get_menuitems(self):
+    def _get_menuitems(self):
         "Return the menu items for the dialog"
         if self.IsDialog:
-            return GetMenuItems(win32functions.GetMenu(self))
+            return _GetMenuItems(win32functions.GetMenu(self))
         else:
             return []
-    MenuItems = property (get_menuitems,
+    MenuItems = property (_get_menuitems,
         doc = "Return the menu items for the dialog")
 
     #-----------------------------------------------------------
-    def get_parent(self):
+    def _get_parent(self):
         "Return the parent of this control"
         parent_hwnd = handleprops.parent(self)
         if parent_hwnd:
             return HwndWrapper(parent_hwnd)
         else:
             return None
-    Parent = property (get_parent,
+    Parent = property (_get_parent,
         doc = "Parent window of window")
 
     #-----------------------------------------------------------
     # TODO: Make _extra_texts a property/method of the class
     # rather then a property that is set at initialization
-    def get_texts(self):
+    def _get_texts(self):
         "Return the text for each item of this control"
         texts = [self.Text, ]
         texts.extend(self._extra_texts)
         return texts
-    Texts = property (get_texts, doc = "All text items of the control")
+    Texts = property (_get_texts, doc = "All text items of the control")
 
     #-----------------------------------------------------------
     # TODO: Make _extra_clientrects a property/method of the class
     # rather then a property that is set at initialization
-    def get_clientrects(self):
+    def _get_clientrects(self):
         "Return the client rect for each item in this control"
 
         clientrects = [self.ClientRect, ]
         clientrects.extend(self._extra_clientrects)
         return clientrects
     ClientRects = property (
-        get_clientrects, doc = "All client rectanbgles of the control")
+        _get_clientrects, doc = "All client rectanbgles of the control")
 
     #-----------------------------------------------------------
-    def get_Fonts(self):
+    def _get_Fonts(self):
         "Return the font for each item in this control"
         return [self.Font, ]
-    Fonts = property (get_Fonts, doc = "All fonts of the control")
+    Fonts = property (_get_Fonts, doc = "All fonts of the control")
 
     #-----------------------------------------------------------
-    def get_children(self):
+    def _get_children(self):
         "Return the children of this control"
         # this will be filled in the callback function
         child_windows = handleprops.children(self)
         return [WrapHandle(hwnd) for hwnd in child_windows]
 
-    Children = property (get_children, doc = "The list of children")
+    Children = property (_get_children, doc = "The list of children")
 
     #-----------------------------------------------------------
     def IsChild(self, parent):
@@ -320,10 +320,10 @@ class HwndWrapper(object):
 
 
 
-
-MIIM_STRING = 0x40
+# should really be in win32defines - I don't know why it isnt!
+_MIIM_STRING = 0x40
 #====================================================================
-def GetMenuItems(menuHandle):
+def _GetMenuItems(menuHandle):
     "Get the menu items as a list of dictionaries"
     # If it doesn't have a real menu just return
     if not win32functions.IsMenu(menuHandle):
@@ -379,7 +379,7 @@ def GetMenuItems(menuHandle):
 
         # if it's a sub menu then get it's items
         if menuInfo.hSubMenu:
-            subMenuItems = GetMenuItems(menuInfo.hSubMenu)#, indent)
+            subMenuItems = _GetMenuItems(menuInfo.hSubMenu)#, indent)
             itemProp['MenuItems'] = subMenuItems
 
         items.append(itemProp)
@@ -388,7 +388,7 @@ def GetMenuItems(menuHandle):
 
 
 #====================================================================
-class dummy_control(dict):
+class _dummy_control(dict):
     "A subclass of dict so that we can assign attributes"
     pass
 
@@ -412,8 +412,8 @@ def GetDialogPropsFromHandle(hwnd):
     # Add each control to the properties for this dialog
     for ctrl in controls:
         # Get properties for each control and wrap them in
-        # dummy_control so that we can assign handle
-        ctrlProps = dummy_control(ctrl.GetProperties())
+        # _dummy_control so that we can assign handle
+        ctrlProps = _dummy_control(ctrl.GetProperties())
 
         # assign the handle
         ctrlProps.handle = ctrl.handle
@@ -427,11 +427,11 @@ def GetDialogPropsFromHandle(hwnd):
 
 
 #====================================================================
-HwndWrappers = {}
+_HwndWrappers = {}
 
 
 #====================================================================
-def Main():
+def _unittests():
     "do some basic testing"
     from pywinauto.findwindows import find_windows
     import sys
@@ -457,7 +457,7 @@ def Main():
 
 
 if __name__ == "__main__":
-    Main()
+    _unittests()
 
 
 

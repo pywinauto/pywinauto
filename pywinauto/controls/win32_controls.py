@@ -22,7 +22,7 @@
 
 __revision__ = "$Revision$"
 
-from HwndWrapper import HwndWrapper, HwndWrappers
+from HwndWrapper import HwndWrapper, _HwndWrappers
 
 import ctypes
 
@@ -78,7 +78,7 @@ class ButtonWrapper(HwndWrapper):
 
 
 #====================================================================
-def get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
+def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
     "Helper function to get multiple text items from a control"
 
     texts = []
@@ -110,7 +110,7 @@ class ComboBoxWrapper(HwndWrapper):
         #self.FriendlyClassName = "ComboBox"
 
         self._extra_texts = self.ItemTexts()
-        self._extra_props['DroppedRect'] = self.get_droppedrect()
+        self._extra_props['DroppedRect'] = self._get_droppedrect()
 
     #-----------------------------------------------------------
     def SelectedIndex(self):
@@ -118,7 +118,7 @@ class ComboBoxWrapper(HwndWrapper):
         return self.SendMessage(win32defines.CB_GETCURSEL)
 
     #-----------------------------------------------------------
-    def get_droppedrect(self):
+    def _get_droppedrect(self):
         "Get the dropped rectangle of the combobox"
         droppedRect = win32structures.RECT()
 
@@ -131,7 +131,7 @@ class ComboBoxWrapper(HwndWrapper):
         droppedRect -= self.Rectangle
 
         return droppedRect
-    DroppedRect = property(get_droppedrect, doc =
+    DroppedRect = property(_get_droppedrect, doc =
         "The dropped rectangle of the combobox")
 
     #-----------------------------------------------------------
@@ -147,7 +147,7 @@ class ComboBoxWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def ItemTexts(self):
         "Return the text of the items of the combobox"
-        return get_multiple_text_items(
+        return _get_multiple_text_items(
             self,
             win32defines.CB_GETCOUNT,
             win32defines.CB_GETLBTEXTLEN,
@@ -214,7 +214,7 @@ class ListBoxWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def ItemTexts(self):
         "Return the text items of the control"
-        return get_multiple_text_items(
+        return _get_multiple_text_items(
             self,
             win32defines.LB_GETCOUNT,
             win32defines.LB_GETTEXTLEN,
@@ -267,10 +267,10 @@ class EditWrapper(HwndWrapper):
         self._extra_texts = ["\n".join(self._extra_texts), ]
 
         # get selected item
-        self._extra_props['SelectionIndices'] = self.get_selectionindices()
+        self._extra_props['SelectionIndices'] = self._get_selectionindices()
 
     #-----------------------------------------------------------
-    def get_selectionindices(self):
+    def _get_selectionindices(self):
         "Return the indices of the selection"
         start = ctypes.c_int()
         end = ctypes.c_int()
@@ -279,7 +279,7 @@ class EditWrapper(HwndWrapper):
 
         return (start.value, end.value)
     SelectionIndices = property(
-        get_selectionindices,
+        _get_selectionindices,
         doc = "The start and end indices of the current selection")
 
 
@@ -312,29 +312,29 @@ class DialogWrapper(HwndWrapper):
 
 
 #====================================================================
-HwndWrappers["ComboBox"] = ComboBoxWrapper
-HwndWrappers[r"WindowsForms\d*\.COMBOBOX\..*"] =  ComboBoxWrapper
-HwndWrappers["TComboBox"] = ComboBoxWrapper
+_HwndWrappers["ComboBox"] = ComboBoxWrapper
+_HwndWrappers[r"WindowsForms\d*\.COMBOBOX\..*"] =  ComboBoxWrapper
+_HwndWrappers["TComboBox"] = ComboBoxWrapper
 
-HwndWrappers["ListBox"] =  ListBoxWrapper
-HwndWrappers[r"WindowsForms\d*\.LISTBOX\..*"] =  ListBoxWrapper
-HwndWrappers["TListBox"] =  ListBoxWrapper
+_HwndWrappers["ListBox"] =  ListBoxWrapper
+_HwndWrappers[r"WindowsForms\d*\.LISTBOX\..*"] =  ListBoxWrapper
+_HwndWrappers["TListBox"] =  ListBoxWrapper
 
-HwndWrappers["Button"] =  ButtonWrapper
-HwndWrappers[r"WindowsForms\d*\.BUTTON\..*"] =  ButtonWrapper
-HwndWrappers["TButton"] =  ButtonWrapper
-#HwndWrappers["TCheckBox"] =  ButtonWrapper
-#HwndWrappers["TRadioButton"] =  ButtonWrapper
+_HwndWrappers["Button"] =  ButtonWrapper
+_HwndWrappers[r"WindowsForms\d*\.BUTTON\..*"] =  ButtonWrapper
+_HwndWrappers["TButton"] =  ButtonWrapper
+#_HwndWrappers["TCheckBox"] =  ButtonWrapper
+#_HwndWrappers["TRadioButton"] =  ButtonWrapper
 
-HwndWrappers["Static"] =  StaticWrapper
-HwndWrappers["TPanel"] =  StaticWrapper
+_HwndWrappers["Static"] =  StaticWrapper
+_HwndWrappers["TPanel"] =  StaticWrapper
 
-HwndWrappers["Edit"] =  EditWrapper
-HwndWrappers["TEdit"] =  EditWrapper
-HwndWrappers["TMemo"] =  EditWrapper
+_HwndWrappers["Edit"] =  EditWrapper
+_HwndWrappers["TEdit"] =  EditWrapper
+_HwndWrappers["TMemo"] =  EditWrapper
 
 
-HwndWrappers["#32770"] =  DialogWrapper
+_HwndWrappers["#32770"] =  DialogWrapper
 
 
 

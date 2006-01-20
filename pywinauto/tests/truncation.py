@@ -21,20 +21,21 @@
 # pylint: disable-msg=W0611
 
 """Truncation Test
-What is checked
+
+**What is checked**
 Checks for controls where the text does not fit in the space provided by the
 control.
 
-How is it checked
+**How is it checked**
 There is a function in windows (DrawText) that allows us to find the size that
 certain text will need. We use this function with correct fonts and other
 relevant information for the control to be as accurate as possible.
 
-When is a bug reported
+**When is a bug reported**
 When the calculated required size for the text is greater than the size of the
 space available for displaying the text.
 
-Bug Extra Information
+**Bug Extra Information**
 The bug contains the following extra information
 Name	Description
 Strings		The list of the truncated strings as explained above
@@ -43,17 +44,17 @@ will often just be 0 but if there are many strings in the control untranslated
 it will report ALL the strings e.g. 0,2,5,19,23
 
 
-Is Reference dialog needed
+**Is Reference dialog needed**
 The reference dialog does not need to be available. If it is available then
 for each bug discovered it is checked to see if it is a problem in the
 reference dialog.
 
-False positive bug reports
+**False positive bug reports**
 Certain controls do not display the text that is the title of the control, if
 this is not handled in a standard manner by the software then DLGCheck will
 report that the string is truncated.
 
-Test Identifier
+**Test Identifier**
 The identifier for this test/bug is "Truncation"
 """
 
@@ -77,7 +78,7 @@ def TruncationTest(windows):
     # for each of the windows in the dialog
     for win in windows:
 
-        truncIdxs, truncStrings = FindTruncations(win)
+        truncIdxs, truncStrings = _FindTruncations(win)
 
         isInRef = -1
 
@@ -88,7 +89,7 @@ def TruncationTest(windows):
             # check if the reference control has truncations
             if win.ref:
                 isInRef = 0
-                refTruncIdxs, refTruncStrings = FindTruncations(win.ref)
+                refTruncIdxs, refTruncStrings = _FindTruncations(win.ref)
 
                 if refTruncIdxs:
                     isInRef = 1
@@ -110,20 +111,20 @@ def TruncationTest(windows):
     return truncations
 
 #==============================================================================
-def FindTruncations(ctrl):
+def _FindTruncations(ctrl):
     "Return the index of the texts that are truncated for this control"
     truncIdxs = []
     truncStrings = []
 
     # for each of the titles this dialog
-    for idx, (text, rect, font, flags) in enumerate(GetTruncationInfo(ctrl)):
+    for idx, (text, rect, font, flags) in enumerate(_GetTruncationInfo(ctrl)):
 
         # skip if there is no text
         if not text:
             continue
 
         # get the minimum rectangle
-        minRect = GetMinimumRect(text, font, rect, flags)
+        minRect = _GetMinimumRect(text, font, rect, flags)
 
         # if the min rectangle is bigger than the rectangle of the
         # object
@@ -139,7 +140,7 @@ def FindTruncations(ctrl):
 
 
 #==============================================================================
-def GetMinimumRect(text, font, usableRect, drawFlags):
+def _GetMinimumRect(text, font, usableRect, drawFlags):
     """Return the minimum rectangle that the text will fit into
 
     Uses font, usableRect and drawFlags information to find how
@@ -204,7 +205,7 @@ def GetMinimumRect(text, font, usableRect, drawFlags):
 
 
 #==============================================================================
-def ButtonTruncInfo(win):
+def _ButtonTruncInfo(win):
     "Return truncation information specific to Button controls"
     lineFormat = win32defines.DT_SINGLELINE
 
@@ -258,7 +259,7 @@ def ButtonTruncInfo(win):
     return [(win.Text, newRect, win.Font, lineFormat), ]
 
 #==============================================================================
-def ComboBoxTruncInfo(win):
+def _ComboBoxTruncInfo(win):
     "Return truncation information specific to ComboBox controls"
     # canot wrap and never had a hotkey
     lineFormat = win32defines.DT_SINGLELINE | win32defines.DT_NOPREFIX
@@ -278,7 +279,7 @@ def ComboBoxTruncInfo(win):
     return truncData
 
 #==============================================================================
-def ComboLBoxTruncInfo(win):
+def _ComboLBoxTruncInfo(win):
     "Return truncation information specific to ComboLBox controls"
     # canot wrap and never had a hotkey
     lineFormat = win32defines.DT_SINGLELINE | win32defines.DT_NOPREFIX
@@ -293,7 +294,7 @@ def ComboLBoxTruncInfo(win):
 
 
 #==============================================================================
-def ListBoxTruncInfo(win):
+def _ListBoxTruncInfo(win):
     "Return truncation information specific to ListBox controls"
     # canot wrap and never had a hotkey
     lineFormat = win32defines.DT_SINGLELINE | win32defines.DT_NOPREFIX
@@ -309,7 +310,7 @@ def ListBoxTruncInfo(win):
 
 
 #==============================================================================
-def StaticTruncInfo(win):
+def _StaticTruncInfo(win):
     "Return truncation information specific to Static controls"
     lineFormat = win32defines.DT_WORDBREAK
 
@@ -324,7 +325,7 @@ def StaticTruncInfo(win):
     return [(win.Text, win.ClientRects[0], win.Font, lineFormat), ]
 
 #==============================================================================
-def EditTruncInfo(win):
+def _EditTruncInfo(win):
     "Return truncation information specific to Edit controls"
     lineFormat = win32defines.DT_WORDBREAK | win32defines.DT_NOPREFIX
 
@@ -335,7 +336,7 @@ def EditTruncInfo(win):
 
 
 #==============================================================================
-def DialogTruncInfo(win):
+def _DialogTruncInfo(win):
     "Return truncation information specific to Header controls"
     # move it down more into range
 
@@ -415,7 +416,7 @@ def DialogTruncInfo(win):
 
 
 #==============================================================================
-def StatusBarTruncInfo(win):
+def _StatusBarTruncInfo(win):
     "Return truncation information specific to StatusBar controls"
     truncInfo = WindowTruncInfo(win)
     for i, (title, rect, font, flag) in enumerate(truncInfo):
@@ -429,7 +430,7 @@ def StatusBarTruncInfo(win):
     return truncInfo
 
 #==============================================================================
-def HeaderTruncInfo(win):
+def _HeaderTruncInfo(win):
     "Return truncation information specific to Header controls"
     truncInfo = WindowTruncInfo(win)
 
@@ -444,7 +445,7 @@ def HeaderTruncInfo(win):
 
 
 #==============================================================================
-def WindowTruncInfo(win):
+def _WindowTruncInfo(win):
     "Return Default truncation information"
     matchedItems = []
 
@@ -472,14 +473,14 @@ def WindowTruncInfo(win):
 
 
 #==============================================================================
-TruncInfo = {
-    "#32770" : DialogTruncInfo,
-    "ComboBox" : ComboBoxTruncInfo,
-    "ComboLBox" : ComboLBoxTruncInfo,
-    "ListBox" : ListBoxTruncInfo,
-    "Button" : ButtonTruncInfo,
-    "Edit": EditTruncInfo,
-    "Static" : StaticTruncInfo,
+_TruncInfo = {
+    "#32770" : _DialogTruncInfo,
+    "ComboBox" : _ComboBoxTruncInfo,
+    "ComboLBox" : _ComboLBoxTruncInfo,
+    "ListBox" : _ListBoxTruncInfo,
+    "Button" : _ButtonTruncInfo,
+    "Edit": _EditTruncInfo,
+    "Static" : _StaticTruncInfo,
 
 #	"msctls_statusbar32" : StatusBarTruncInfo,
 #	"HSStatusBar" : StatusBarTruncInfo,
@@ -490,10 +491,10 @@ TruncInfo = {
 }
 
 #==============================================================================
-def GetTruncationInfo(win):
+def _GetTruncationInfo(win):
     "helper function to hide non special windows"
-    if win.Class in TruncInfo:
-        return TruncInfo[win.Class](win)
+    if win.Class in _TruncInfo:
+        return _TruncInfo[win.Class](win)
     else:
 
         return WindowTruncInfo(win)
