@@ -22,9 +22,8 @@
 
 __revision__ = "$Revision$"
 
-
 # pylint:  disable-msg=W0611
-import re
+
 #from pprint import pprint
 
 import ctypes
@@ -42,6 +41,7 @@ from pywinauto import win32structures
 from pywinauto import handleprops
 
 
+
 #====================================================================
 class InvalidWindowHandle(RuntimeError):
     "Raised when an invalid handle is passed to HwndWrapper "
@@ -51,28 +51,28 @@ class InvalidWindowHandle(RuntimeError):
             "Handle 0x%d is not a vaild window handle"% hwnd)
 
 
-#====================================================================
-def WrapHandle(hwnd, isDialog = False):
-    """Return the hwnd wrapped with  the correct wraper
 
-    Wrapper is chosen on the Class of the control
-    """
 
-    #default_wrapper = HwndWrapper(hwnd)
-
-    for wrapper_name in _HwndWrappers:
-        if re.match(wrapper_name, handleprops.classname(hwnd)):
-            return _HwndWrappers[wrapper_name](hwnd)
-
-    # so it is not one of the 'known' classes - just wrap it with
-    # hwnd wrapper
-    wrapped_hwnd = HwndWrapper(hwnd)
-
-    # if it's not a dialog -
-    #if not isDialog:
-    #	wrapped_hwnd._NeedsImageProp = True
-
-    return wrapped_hwnd
+#
+#    # Optimization - check if the control name matches exactly
+#    # before trying a re.match
+#    if class_name in _HwndWrappers:
+#        return _HwndWrappers[class_name][1](hwnd)
+#
+#    for wrapper_name, (regex, class_) in _HwndWrappers.items():
+#        if regex.match(class_name):
+#            #print wrapper_name
+#            return class_(hwnd)
+#
+#    # so it is not one of the 'known' classes - just wrap it with
+#    # hwnd wrapper
+#    wrapped_hwnd = HwndWrapper(hwnd)
+#
+#    # if it's not a dialog -
+#    #if not isDialog:
+#    #	wrapped_hwnd._NeedsImageProp = True
+#
+#    return wrapped_hwnd
 
 
 #====================================================================
@@ -117,10 +117,18 @@ class HwndWrapper(object):
         handleprops.friendlyclassname,
         doc = "FriendlyClassName of the window ")
 
-    Text = property (handleprops.text,
-        doc = "Main text of the control")
+    #-----------------------------------------------------------
+    #def _get_classname(self):
+    #    try:
+    #        return self._class_name
+    #    except AttributeError:
+    #        return handleprops.classname(self)
+
     Class = property (handleprops.classname,
         doc = "Class Name of the window")
+
+    Text = property (handleprops.text,
+        doc = "Main text of the control")
     Style = property (handleprops.style,
         doc = "Style of window")
     ExStyle = property (handleprops.exstyle,
@@ -207,6 +215,8 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def _get_children(self):
         "Return the children of this control"
+
+        from wraphandle import WrapHandle
         # this will be filled in the callback function
         child_windows = handleprops.children(self)
         return [WrapHandle(hwnd) for hwnd in child_windows]
@@ -279,8 +289,9 @@ class HwndWrapper(object):
 
         #props['MenuItems'] = []
 
-        if self._NeedsImageProp:
-            props['Image'] = self.CaptureAsImage()
+        #if self.IsVisible and self._NeedsImageProp:
+        #    print "\t", self.Class
+        #    props['Image'] = self.CaptureAsImage()
 
         #return the properties
         return props
@@ -301,8 +312,7 @@ class HwndWrapper(object):
         # grab the image and get raw data as a string
         # wrapped in try because PIL is optional
         try:
-            image = PIL.ImageGrab.grab(box)
-            return image
+            return PIL.ImageGrab.grab(box)
 
         # if that fails due to a NameError - it is most likely because
         # PIL was not found - and the package not loaded
@@ -395,13 +405,14 @@ class _dummy_control(dict):
 #====================================================================
 def GetDialogPropsFromHandle(hwnd):
     "Get the properties of all the controls as a list of dictionaries"
+
+    from wraphandle import WrapHandle
     # wrap the dialog handle and start a new list for the
     # controls on the dialog
     try:
         controls = [hwnd, ]
         controls.extend(hwnd.Children)
     except AttributeError:
-
         controls = [WrapHandle(hwnd, True), ]
 
         # add all the children of the dialog
@@ -413,21 +424,18 @@ def GetDialogPropsFromHandle(hwnd):
     for ctrl in controls:
         # Get properties for each control and wrap them in
         # _dummy_control so that we can assign handle
-        ctrlProps = _dummy_control(ctrl.GetProperties())
+        ctrl_props = _dummy_control(ctrl.GetProperties())
 
         # assign the handle
-        ctrlProps.handle = ctrl.handle
+        ctrl_props.handle = ctrl.handle
 
         # offset the rectangle from the dialog rectangle
-        ctrlProps['Rectangle'] -= controls[0].Rectangle
+        ctrl_props['Rectangle'] -= controls[0].Rectangle
 
-        props.append(ctrlProps)
+        props.append(ctrl_props)
 
     return props
 
-
-#====================================================================
-_HwndWrappers = {}
 
 
 #====================================================================
@@ -445,19 +453,22 @@ def _unittests():
         except ValueError:
 
             handle = find_windows(
-                title_re = "^" + sys.argv[1], class_name = "#32770")
+                title_re = "^" + sys.argv[1],
+                class_name = "#32770",
+                visible_only = False)
 
             if not handle:
                 print "dialog not found"
                 sys.exit()
 
-
-    GetDialogPropsFromHandle(handle)
+    props = GetDialogPropsFromHandle(handle)
+    print len(props)
     #pprint(GetDialogPropsFromHandle(handle))
 
 
 if __name__ == "__main__":
     _unittests()
+
 
 
 

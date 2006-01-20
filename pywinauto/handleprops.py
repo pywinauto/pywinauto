@@ -26,8 +26,6 @@ useful to other modules with the least conceptual overhead
 
 __revision__ = "$Revision$"
 
-import re
-
 import ctypes
 
 import win32functions
@@ -35,6 +33,7 @@ import win32defines
 import win32structures
 
 import findwindows # for children
+
 
 #=========================================================================
 def text(handle):
@@ -58,9 +57,9 @@ def text(handle):
 #=========================================================================
 def classname(handle):
     "Return the class name of the window"
-    className = (ctypes.c_wchar * 257)()
-    win32functions.GetClassName (handle, ctypes.byref(className), 256)
-    return className.value
+    class_name = (ctypes.c_wchar * 257)()
+    win32functions.GetClassName (handle, ctypes.byref(class_name), 256)
+    return class_name.value
 
 
 #=========================================================================
@@ -111,9 +110,9 @@ def isenabled(handle):
 #=========================================================================
 def clientrect(handle):
     "Return the client rectangle of the control"
-    clientRect = win32structures.RECT()
-    win32functions.GetClientRect(handle, ctypes.byref(clientRect))
-    return clientRect
+    client_rect = win32structures.RECT()
+    win32functions.GetClientRect(handle, ctypes.byref(client_rect))
+    return client_rect
 
 #=========================================================================
 def rectangle(handle):
@@ -127,18 +126,18 @@ def font(handle):
     "Return the font as a LOGFONTW of the window"
 
     # get the font handle
-    fontHandle = win32functions.SendMessage(
+    font_handle = win32functions.SendMessage(
         handle, win32defines.WM_GETFONT, 0, 0)
 
     # if the fondUsed is 0 then the control is using the
     # system font
-    if not fontHandle:
-        fontHandle = win32functions.GetStockObject(win32defines.SYSTEM_FONT)
+    if not font_handle:
+        font_handle = win32functions.GetStockObject(win32defines.SYSTEM_FONT)
 
     # Get the Logfont structure of the font of the control
     fontval = win32structures.LOGFONTW()
     ret = win32functions.GetObject(
-        fontHandle, ctypes.sizeof(fontval), ctypes.byref(fontval))
+        font_handle, ctypes.sizeof(fontval), ctypes.byref(fontval))
 
     # The function could not get the font - this is probably
     # because the control does not have associated Font/Text
@@ -220,22 +219,22 @@ def get_button_friendlyclassname(handle):
     "Return the friendly class name of a button control"
 
     # get the least significant bit
-    style_LSB = style(handle) & 0xF
+    style_lsb = style(handle) & 0xF
 
     # default to "Button"
     f_classname = "Button"
 
-    if style_LSB == win32defines.BS_3STATE or \
-        style_LSB == win32defines.BS_AUTO3STATE or \
-        style_LSB == win32defines.BS_AUTOCHECKBOX or \
-        style_LSB == win32defines.BS_CHECKBOX:
+    if style_lsb == win32defines.BS_3STATE or \
+        style_lsb == win32defines.BS_AUTO3STATE or \
+        style_lsb == win32defines.BS_AUTOCHECKBOX or \
+        style_lsb == win32defines.BS_CHECKBOX:
         f_classname = "CheckBox"
 
-    elif style_LSB == win32defines.BS_RADIOBUTTON or \
-        style_LSB == win32defines.BS_AUTORADIOBUTTON:
+    elif style_lsb == win32defines.BS_RADIOBUTTON or \
+        style_lsb == win32defines.BS_AUTORADIOBUTTON:
         f_classname = "RadioButton"
 
-    elif style_LSB == win32defines.BS_GROUPBOX:
+    elif style_lsb == win32defines.BS_GROUPBOX:
         f_classname = "GroupBox"
 
     if style(handle) & win32defines.BS_PUSHLIKE:
@@ -243,47 +242,6 @@ def get_button_friendlyclassname(handle):
 
     return f_classname
 
-
-
-_class_names = {
-    "ComboBox": "ComboBox",
-    r"WindowsForms\d*\.COMBOBOX\..*": "ComboBox",
-    "TComboBox": "ComboBox",
-
-    "ListBox": "ListBox",
-    r"WindowsForms\d*\.LISTBOX\..*": "ListBox",
-    "TListBox": "ListBox",
-
-    "Button": get_button_friendlyclassname,
-    r"WindowsForms\d*\.BUTTON\..*": get_button_friendlyclassname,
-    "TButton": get_button_friendlyclassname,
-
-    "Static": "Static",
-    "TPanel": "Static",
-
-    "Edit": "Edit",
-    "TEdit": "Edit",
-    "TMemo": "Edit",
-
-    "#32770": "Dialog",
-
-    "SysListView32": "ListView",
-    r"WindowsForms\d*\.SysListView32\..*": "ListView",
-
-    "SysTreeView32": "TreeView",
-    r"WindowsForms\d*\.SysTreeView32\..*": "TreeView",
-
-    "SysHeader32": "Header",
-
-    "msctls_statusbar32": "StatusBar",
-    "HSStatusBar": "StatusBar",
-    r"WindowsForms\d*\.msctls_statusbar32\..*": "StatusBar",
-
-    "SysTabControl32": "TabControl",
-    "ToolbarWindow32": "Toolbar",
-    "ReBarWindow32": "ReBar",
-
-}
 
 def friendlyclassname(handle):
     """Return the friendly class name of the window
@@ -297,20 +255,32 @@ def friendlyclassname(handle):
     if is_toplevel_window(handle):
         return "Dialog"
 
-    # Check if the class name is in the known classes
-    for cls_name, f_cls_name in _class_names.items():
+    class_name = classname(handle)
 
-        # OK we found it
-        if re.match(cls_name, classname(handle)):
-            # If it is a string then just return it
-            if isinstance(f_cls_name, basestring):
-                return f_cls_name
-            # otherwise it is a function so call it
-            else:
-                return f_cls_name(handle)
+    from controls import wraphandle
+    info = wraphandle._find_wrapper(class_name)
 
-    # unknown class - just return it's classname
-    return classname(handle)
+    if info:
+        return info.friendlyclassname
+
+    else:
+        return class_name
+#
+#
+#    # Check if the class name is in the known classes
+#    for cls_name, f_cls_name in _class_names.items():
+#
+#        # OK we found it
+#        if re.match(cls_name, classname(handle)):
+#            # If it is a string then just return it
+#            if isinstance(f_cls_name, basestring):
+#                return f_cls_name
+#            # otherwise it is a function so call it
+#            else:
+#                return f_cls_name(handle)
+#
+#    # unknown class - just return it's classname
+#    return classname(handle)
 
 
 

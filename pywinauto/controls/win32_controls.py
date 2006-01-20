@@ -22,7 +22,7 @@
 
 __revision__ = "$Revision$"
 
-from HwndWrapper import HwndWrapper, _HwndWrappers
+from HwndWrapper import HwndWrapper
 
 import ctypes
 
@@ -33,6 +33,12 @@ from pywinauto import win32structures
 #====================================================================
 class ButtonWrapper(HwndWrapper):
     "Wrap a windows Button control"
+
+    friendlyclassname = "Button"
+    windowclasses = [
+        "Button", r"WindowsForms\d*\.BUTTON\..*", "TButton" ]
+
+
     #-----------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the control"
@@ -102,6 +108,13 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
 #====================================================================
 class ComboBoxWrapper(HwndWrapper):
     "Wrap a windows ComboBox control"
+
+    friendlyclassname = "ComboBox"
+    windowclasses = [
+        "ComboBox",
+        "WindowsForms\d*\.COMBOBOX\..*",
+        "TComboBox"]
+
     #-----------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the control"
@@ -174,6 +187,11 @@ class ComboBoxWrapper(HwndWrapper):
 #====================================================================
 class ListBoxWrapper(HwndWrapper):
     "Wrap a windows ListBox control"
+
+    friendlyclassname = "ListBox"
+    windowclasses = [
+        "ListBox", r"WindowsForms\d*\.LISTBOX\..*", "TListBox",]
+
     #-----------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the control"
@@ -239,20 +257,25 @@ class ListBoxWrapper(HwndWrapper):
 #====================================================================
 class EditWrapper(HwndWrapper):
     "Wrap a windows Edit control"
+
+    friendlyclassname = "Edit"
+    windowclasses = ["Edit", "TEdit", "TMemo"]
+
     #-----------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the control"
         super(EditWrapper, self).__init__(hwnd)
 
-        #self.FriendlyClassName = "Edit"
+    def LineCount(self):
+        "Return how many lines there are in the Edit"
+        return  self.SendMessage(win32defines.EM_GETLINECOUNT)
 
-        # find out how many text items are in the combobox
-        numItems = self.SendMessage(win32defines.EM_GETLINECOUNT)
+    def _get_texts(self):
+        "Get the text of the edit control"
 
+        texts = [self.Text,]
 
-        # TODO: Move this to a method of EditWrapper!
-        # get the text for each item in the combobox
-        for i in range(0, numItems):
+        for i in range(0, self.LineCount()):
             textLen = self.SendMessage (win32defines.EM_LINELENGTH, i, 0)
 
             text = ctypes.create_unicode_buffer(textLen+1)
@@ -262,12 +285,11 @@ class EditWrapper(HwndWrapper):
 
             self.SendMessage (win32defines.EM_GETLINE, i, ctypes.byref(text))
 
-            self._extra_texts.append(text.value)
+            texts.append(text.value)
 
-        self._extra_texts = ["\n".join(self._extra_texts), ]
+        return texts
 
-        # get selected item
-        self._extra_props['SelectionIndices'] = self._get_selectionindices()
+    Texts = property(_get_texts, _get_texts.__doc__)
 
     #-----------------------------------------------------------
     def _get_selectionindices(self):
@@ -282,12 +304,26 @@ class EditWrapper(HwndWrapper):
         _get_selectionindices,
         doc = "The start and end indices of the current selection")
 
+    #-----------------------------------------------------------
+    def GetProperties(self):
+        "Return the properties of the control in a dictionary"
+        props = HwndWrapper.GetProperties(self)
+
+        # get selected item
+        props['SelectionIndices'] = self.SelectionIndices
+
+        return props
+
 
 
 
 #====================================================================
 class StaticWrapper(HwndWrapper):
     "Wrap a windows Static control"
+
+    friendlyclassname = "Static"
+    windowclasses = ["Static", "TPanel"]
+
     def __init__(self, hwnd):
         "Initialize the control"
         super(StaticWrapper, self).__init__(hwnd)
@@ -308,37 +344,10 @@ class StaticWrapper(HwndWrapper):
 # an image of it (as an unknown control class)
 class DialogWrapper(HwndWrapper):
     "Wrap a dialog"
+
+    friendlyclassname = "Dialog"
+    windowclasses = ["#32770", ]
+
     pass
 
 
-#====================================================================
-_HwndWrappers["ComboBox"] = ComboBoxWrapper
-_HwndWrappers[r"WindowsForms\d*\.COMBOBOX\..*"] =  ComboBoxWrapper
-_HwndWrappers["TComboBox"] = ComboBoxWrapper
-
-_HwndWrappers["ListBox"] =  ListBoxWrapper
-_HwndWrappers[r"WindowsForms\d*\.LISTBOX\..*"] =  ListBoxWrapper
-_HwndWrappers["TListBox"] =  ListBoxWrapper
-
-_HwndWrappers["Button"] =  ButtonWrapper
-_HwndWrappers[r"WindowsForms\d*\.BUTTON\..*"] =  ButtonWrapper
-_HwndWrappers["TButton"] =  ButtonWrapper
-#_HwndWrappers["TCheckBox"] =  ButtonWrapper
-#_HwndWrappers["TRadioButton"] =  ButtonWrapper
-
-_HwndWrappers["Static"] =  StaticWrapper
-_HwndWrappers["TPanel"] =  StaticWrapper
-
-_HwndWrappers["Edit"] =  EditWrapper
-_HwndWrappers["TEdit"] =  EditWrapper
-_HwndWrappers["TMemo"] =  EditWrapper
-
-
-_HwndWrappers["#32770"] =  DialogWrapper
-
-
-
-#
-#               'CheckBox': PCheckBox,
-#               'TCheckBox': PCheckBox,
-#
