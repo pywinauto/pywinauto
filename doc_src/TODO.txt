@@ -9,6 +9,7 @@ APPLICATION TODO's
   To fix this we may need to add more magic around calling actions on dialogs
   e.g.
   on an attribute access for an ActionDialog do the following:
+
    - Check if it is an Action
    - If it is not enabled then wait a little bit
    - If it is then wait a little bit and try again
@@ -21,9 +22,12 @@ APPLICATION TODO's
   the number of times the calling func tried to succeed!)
 
 * Need to make Menu items into classes so instead of Dlg.MenuSelect we should
-  be doing 
+  be doing ::
+  
      dlg.Menu("blah->blah").Select() 
-  or even
+     
+  or even ::
+  
      dlg.Menu.Blah.Blah.Select()
   
 
@@ -39,6 +43,7 @@ APPLICATION TODO's
   application)
 
 * Allow apps to be started in a different thread so we don't lock up
+
   - this is being done already - the problem is that some messages cannot
     be sent across processes if they have pointers (so we need to send a 
     synchronous message which waits for the other process to respond 
@@ -48,6 +53,7 @@ APPLICATION TODO's
     those messages?
 
 * Message traps - how to handle unwanted message boxes popping up?
+
   a) Wait for an Exception then handle it there
   b) set a trap waiting for a specific dialog
 

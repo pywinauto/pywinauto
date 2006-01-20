@@ -1,42 +1,48 @@
-------------------------------------------------
 0.1.3 Many many many changes
-15-Jan-2006
-* Wrote doc strings for all modules, classes and functions
-* Ran pychecker and pylint and fixed some errors/warnings
-* changed _connect, _start, _window, _control, _write to connect_, start_, window_, connect_, write_ respectively
-  If you forget to change _window, _connect and _start then you will probably get the following error.
-     TypeError: '_DynamicAttributes' object is not callable
-* pywinauto is now a package name - you need to import it or its modules
-* Changes to the code to deal with pywinauto package name
-* Fixed searching for windows if a Parent is passed in
-* Added Index to retrieved MenuItem dictionary
-* Added a check to ensure that a windows Handle is a valid window
-(191)
+------------------------------------------------
+15-Jan-2006 ::
+
+    * Wrote doc strings for all modules, classes and functions
+    * Ran pychecker and pylint and fixed some errors/warnings
+    * changed _connect, _start, _window, _control, _write to connect_, start_, window_, connect_, write_ respectively
+      If you forget to change _window, _connect and _start then you will probably get the following error.::
+      
+         TypeError: '_DynamicAttributes' object is not callable
+         
+    * pywinauto is now a package name - you need to import it or its modules
+    * Changes to the code to deal with pywinauto package name
+    * Fixed searching for windows if a Parent is passed in
+    * Added Index to retrieved MenuItem dictionary
+    * Added a check to ensure that a windows Handle is a valid window
+    * Refactored some of the methods in common_controls
+    * Refactored how FriendlyClassName is discovered (and still not really happy!
  
   
   
-------------------------------------------------
 0.1.2 Add Readme and rollup various changes
-15-Jan-2006
- * Updated Readme (original readme was incorrect)
- * Added clipboard module
- * Fixed DrawOutline part of tests.__init__.print_bugs
- * Added a NotifyParent to HwndWrapper
- * Make sure that HwndWrapper.ref is initialized to None
- * Refactored some methods of ComboBox and ListBox
- * Updated Combo/ListBox selection methods
- * Removed hardcoded paths from test_application.py
- * Added section to save the document as UTF-8 in MinimalNotepadTest
- * Fixed EscapeSpecials and UnEscapeSpecials in XMLHelpers
- * Made sure that overly large bitmaps do not break XML writing
+------------------------------------------------
+15-Jan-2006 ::
+
+    * Updated Readme (original readme was incorrect)
+    * Added clipboard module
+    * Fixed DrawOutline part of tests.__init__.print_bugs
+    * Added a NotifyParent to HwndWrapper
+    * Make sure that HwndWrapper.ref is initialized to None
+    * Refactored some methods of ComboBox and ListBox
+    * Updated Combo/ListBox selection methods
+    * Removed hardcoded paths from test_application.py
+    * Added section to save the document as UTF-8 in MinimalNotepadTest
+    * Fixed EscapeSpecials and UnEscapeSpecials in XMLHelpers
+    * Made sure that overly large bitmaps do not break XML writing
  
 
-------------------------------------------------
 0.1.1 Minor bug fix release
-12-Jan-2006
-* Fixed some minor bugs discovered after release
-
 ------------------------------------------------
+12-Jan-2006
+
+    * Fixed some minor bugs discovered after release
+
 0.1.0 Initial Release
+------------------------------------------------
 6-Jan-2006
 
