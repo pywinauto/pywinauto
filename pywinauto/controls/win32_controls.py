@@ -29,6 +29,7 @@ import ctypes
 from pywinauto import win32defines
 from pywinauto import win32structures
 
+from pywinauto import tests
 
 #====================================================================
 class ButtonWrapper(HwndWrapper):
@@ -44,12 +45,13 @@ class ButtonWrapper(HwndWrapper):
         "Initialize the control"
         super(ButtonWrapper, self).__init__(hwnd)
 
+        self._set_if_needs_image()
+
         # default to Button for FriendlyClassName
         # might be changed later
         #self.FriendlyClassName = "Button"
-        #self._set_FriendlyClassName()
+        self.FriendlyClassName = self._friendly_class_name()
 
-        self._set_if_needs_image()
 
     #-----------------------------------------------------------
     def _set_if_needs_image(self):
@@ -61,26 +63,67 @@ class ButtonWrapper(HwndWrapper):
 
             self._NeedsImageProp = True
 
-#	#-----------------------------------------------------------
-#	def _set_FriendlyClassName(self):
-#
-#
-#		# get the least significant bit
-#		StyleLSB = self.Style & 0xF
-#
-#		if StyleLSB == BS_3STATE or StyleLSB == BS_AUTO3STATE or \
-#			StyleLSB == BS_AUTOCHECKBOX or \
-#			StyleLSB == BS_CHECKBOX:
-#			self.FriendlyClassName = "CheckBox"
-#
-#		elif StyleLSB == BS_RADIOBUTTON or StyleLSB == BS_AUTORADIOBUTTON:
-#			self.FriendlyClassName = "RadioButton"
-#
-#		elif StyleLSB ==  BS_GROUPBOX:
-#			self.FriendlyClassName = "GroupBox"
-#
-#		if self.Style & BS_PUSHLIKE:
-#			self.FriendlyClassName = "Button"
+    #-----------------------------------------------------------
+    def _friendly_class_name(self):
+
+        # get the least significant bit
+        StyleLSB = self.Style & 0xF
+
+        f_class_name = 'Button'
+
+        if StyleLSB == win32defines.BS_3STATE or \
+            StyleLSB == win32defines.BS_AUTO3STATE or \
+            StyleLSB == win32defines.BS_AUTOCHECKBOX or \
+            StyleLSB == win32defines.BS_CHECKBOX:
+            f_class_name = "CheckBox"
+
+        elif StyleLSB == win32defines.BS_RADIOBUTTON or \
+            StyleLSB == win32defines.BS_AUTORADIOBUTTON:
+            f_class_name = "RadioButton"
+
+        elif StyleLSB ==  win32defines.BS_GROUPBOX:
+            f_class_name = "GroupBox"
+
+        if self.Style & win32defines.BS_PUSHLIKE:
+            f_class_name = "Button"
+
+        return f_class_name
+
+
+    #-----------------------------------------------------------
+    def GetCheckState(self):
+        "Return the check state of the checkbox"
+        return self.SendMessage(win32defines.BM_GETCHECK)
+
+    #-----------------------------------------------------------
+    def Check(self):
+        "Check a checkbox"
+        self.SendMessage(win32defines.BM_SETCHECK,
+            win32defines.BST_CHECKED)
+
+        # return this control so that actions can be chained.
+        return self
+
+
+    #-----------------------------------------------------------
+    def UnCheck(self):
+        "Uncheck a checkbox"
+        self.SendMessage(win32defines.BM_SETCHECK,
+            win32defines.BST_UNCHECKED)
+
+        # return this control so that actions can be chained.
+        return self
+
+    #-----------------------------------------------------------
+    def SetCheckIndeterminate(self):
+        "Set the checkbox to indeterminate"
+        self.SendMessage(win32defines.BM_SETCHECK,
+            win32defines.BST_INDETERMINATE)
+
+        # return this control so that actions can be chained.
+        return self
+
+
 
 
 #====================================================================
@@ -119,11 +162,6 @@ class ComboBoxWrapper(HwndWrapper):
     def __init__(self, hwnd):
         "Initialize the control"
         super(ComboBoxWrapper, self).__init__(hwnd)
-
-        #self.FriendlyClassName = "ComboBox"
-
-        self._extra_texts = self.ItemTexts()
-        self._extra_props['DroppedRect'] = self._get_droppedrect()
 
     #-----------------------------------------------------------
     def SelectedIndex(self):
@@ -167,6 +205,14 @@ class ComboBoxWrapper(HwndWrapper):
             win32defines.CB_GETLBTEXT)
 
     #-----------------------------------------------------------
+    def _get_texts(self):
+        texts = [self.Text]
+        texts.extend(self.ItemTexts())
+        return texts
+
+    Texts = property(_get_texts, doc = "get the texts of the listbox")
+
+    #-----------------------------------------------------------
     def GetProperties(self):
         "Return the properties of the control as a dictionary"
         props = HwndWrapper.GetProperties(self)
@@ -182,6 +228,31 @@ class ComboBoxWrapper(HwndWrapper):
 
         return props
 
+    #-----------------------------------------------------------
+    def Select(self, item):
+        """Select the ComboBox item
+
+        item can be either a 0 based index of the item to select
+        or it can be the string that you want to select
+        """
+        self.VerifyActionable()
+
+        # Make sure we have an index  so if passed in a
+        # string then find which item it is
+        if isinstance(item, (int, long)):
+            index = item
+        else:
+            index = self.Texts.index(item) -1
+
+        # change the selected item
+        self.SendMessage(win32defines.CB_SETCURSEL, index, 0)
+
+        # Notify the parent that we have changed
+        self.NotifyParent(win32defines.CBN_SELCHANGE)
+
+        # return this control so that actions can be chained.
+        return self
+
 
 
 #====================================================================
@@ -196,10 +267,6 @@ class ListBoxWrapper(HwndWrapper):
     def __init__(self, hwnd):
         "Initialize the control"
         super(ListBoxWrapper, self).__init__(hwnd)
-
-        #self.FriendlyClassName = "ListBox"
-
-        self._extra_texts = self.ItemTexts()
 
 
     #-----------------------------------------------------------
@@ -239,6 +306,14 @@ class ListBoxWrapper(HwndWrapper):
             win32defines.LB_GETTEXT)
 
     #-----------------------------------------------------------
+    def _get_texts(self):
+        texts = [self.Text]
+        texts.extend(self.ItemTexts)
+        return texts
+
+    Texts = property(_get_texts, doc = "get the texts of the listbox")
+
+    #-----------------------------------------------------------
     def GetProperties(self):
         "Return the properties as a dictionary for the control"
         props = HwndWrapper.GetProperties(self)
@@ -251,6 +326,58 @@ class ListBoxWrapper(HwndWrapper):
             props['ItemData'].append(self.ItemData(i))
 
         return props
+
+
+    #-----------------------------------------------------------
+    def Select(self, item):
+        """Select the ListBox item
+
+        item can be either a 0 based index of the item to select
+        or it can be the string that you want to select
+        """
+        self.VerifyActionable()
+
+        # Make sure we have an index  so if passed in a
+        # string then find which item it is
+        if isinstance(item, (int, long)):
+            index = item
+        else:
+            index = self.Texts.index(item)
+
+        # change the selected item
+        self.PostMessage(win32defines.LB_SETCURSEL, index, 0)
+
+        # Notify the parent that we have changed
+        self.NotifyParent(win32defines.LBN_SELCHANGE)
+
+        return self
+
+    #-----------------------------------------------------------
+    def SetFocus(self, item):
+        "Set the ListBox focus to the item at index"
+
+        # if it is a multiple selection dialog
+        if self.HasStyle(win32defines.LBS_EXTENDEDSEL) or \
+            self.HasStyle(win32defines.LBS_MULTIPLESEL):
+            self.SendMessage(win32defines.LB_SETCARETINDEX, item)
+        else:
+            self.SendMessage(win32defines.LB_SETCURSEL, item)
+
+        # return this control so that actions can be chained.
+        return self
+
+
+    #-----------------------------------------------------------
+    def GetFocus(self):
+        "Retrun the index of current selection in a ListBox"
+
+        # if it is a multiple selection dialog
+        if self.HasStyle(win32defines.LBS_EXTENDEDSEL) or \
+            self.HasStyle(win32defines.LBS_MULTIPLESEL):
+            return self.SendMessage(win32defines.LB_GETCARETINDEX)
+        else:
+            return self.SendMessage(win32defines.LB_GETCURSEL)
+
 
 
 
@@ -315,6 +442,57 @@ class EditWrapper(HwndWrapper):
         return props
 
 
+    #-----------------------------------------------------------
+    def SetText(self, text, pos_start = None, pos_end = None):
+        "Set the text of the edit control"
+        self.VerifyActionable()
+
+        # allow one or both of pos_start and pos_end to be None
+        if pos_start is not None or pos_end is not None:
+
+            # if only one has been specified - then set the other
+            # to the current selection start or end
+            start, end = self.SelectionIndices()
+            if pos_start is None:
+                pos_start = start
+            if pos_end is None:
+                pos_end = end
+
+            # set the selection if either start or end has
+            # been specified
+            self.Select(self, pos_start, pos_end)
+        else:
+            self.Select()
+
+        # replace the selection with
+        text = ctypes.c_wchar_p(unicode(text))
+        self.SendMessage(win32defines.EM_REPLACESEL, True, text)
+
+        # return this control so that actions can be chained.
+        return self
+
+    #-----------------------------------------------------------
+    def Select(self, start = 0, end = None):
+        "Set the edit selection of the edit control"
+        self.VerifyActionable()
+
+        # if we have been asked to select a string
+        if isinstance(start, basestring):
+            string_to_select = start
+            #
+            start = self.texts[1].index(string_to_select)
+
+            if end is None:
+                end = start + len(string_to_select)
+
+        if end is None:
+            end = -1
+
+        self.PostMessage(win32defines.EM_SETSEL, start, end)
+
+        # return this control so that actions can be chained.
+        return self
+
 
 
 #====================================================================
@@ -346,8 +524,16 @@ class DialogWrapper(HwndWrapper):
     "Wrap a dialog"
 
     friendlyclassname = "Dialog"
-    windowclasses = ["#32770", ]
+    #windowclasses = ["#32770", ]
 
-    pass
+    #-----------------------------------------------------------
+    def RunTests(self, tests_to_run = None):
+        "Run the tests on dialog"
+
+        # get all teh controls
+        controls = [self]
+        controls.extend(self.Children)
+
+        return tests.run_tests(controls, tests_to_run)
 
 
