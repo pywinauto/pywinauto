@@ -45,9 +45,11 @@ from pywinauto import win32structures
 from pywinauto import findbestmatch
 from pywinauto import handleprops
 
-delay_after_click = 0#.1
-delay_after_menuselect = .00
-delay_after_sendkeys_key = .001
+delay_after_click = 0.0 #5
+delay_after_menuselect = 0#0.05
+delay_after_sendkeys_key = .01
+delay_after_button_click = 0#.1
+delay_before_after_close_click = .2
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -108,6 +110,7 @@ class HwndWrapper(object):
     "Default wrapper for controls"
 
     friendlyclassname = ''
+    handle = None
 
     def __init__(self, hwnd):
         "Initialize the control"
@@ -270,15 +273,40 @@ class HwndWrapper(object):
         "Send a message to the control and wait for it to return"
         return win32functions.SendMessage(self, message, wparam, lparam)
 
+        #result = ctypes.c_long()
+        #ret = win32functions.SendMessageTimeout(self, message, wparam, lparam,
+        #    win32defines.SMTO_NORMAL, 400, ctypes.byref(result))
+
+        #return result.value
+
+
+    #-----------------------------------------------------------
+    def SendMessageTimeout(self, message, wparam = 0 , lparam = 0, timeout = .4):
+        "Send a message to the control and wait for it to return or for timout to finish"
+
+        result = ctypes.c_long()
+        ret = win32functions.SendMessageTimeout(self, message, wparam, lparam,
+            win32defines.SMTO_NORMAL, int(timeout * 1000), ctypes.byref(result))
+
+        return result.value
+
+
     #-----------------------------------------------------------
     def PostMessage(self, message, wparam = 0 , lparam = 0):
         "Post a message to the control messagem queue and return"
         return win32functions.PostMessage(self, message, wparam, lparam)
 
+        #result = ctypes.c_long()
+        #ret = win32functions.SendMessageTimeout(self, message, wparam, lparam,
+        #    win32defines.SMTO_NORMAL, 400, ctypes.byref(result))
+
+        #return result.value
+
+
     #-----------------------------------------------------------
     def NotifyMenuSelect(self, menu_id):
         "Notify the dialog that one of it's menu items was selected"
-        return self.PostMessage(
+        return self.SendMessageTimeout(
             win32defines.WM_COMMAND,
             win32functions.MakeLong(menu_id, 0),
             0)
@@ -364,9 +392,10 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def VerifyActionable(self):
         "Verify that the control is visible and enabled"
-
+        win32functions.WaitGuiThreadIdle(self)
         self.VerifyVisible()
         self.VerifyEnabled()
+
 
     #-----------------------------------------------------------
     def VerifyEnabled(self):
@@ -403,19 +432,27 @@ class HwndWrapper(object):
         "Peform a click action"
 
         _perform_click(self, button, pressed, coords, double)
+        return self
 
-        #import time
-        #start = time.time()
-        #ret = win32functions.WaitForInputIdle(self.ProcessID, 10000)
-        #if ret == win32defines.WAIT_FAILED:
-        #    raise ctypes.WinError()
+    #-----------------------------------------------------------
+    def CloseClick(
+        self, button = "left", pressed = "", coords = (0, 0), double = False):
+        "Peform a click action that should make the window go away"
 
-        #msgs = win32functions.GetQueueStatus(win32defines.QS_ALLEVENTS)
-        #print win32functions.HiWord(msgs), win32functions.LoWord(msgs)
+        time.sleep(delay_before_after_close_click)
 
-        #print "waited", time.time() -start, self.Text
+        _perform_click(self, button, pressed, coords, double)
+
+        waited = 0
+        # verify that we have been passed in a valid windows handle
+        while win32functions.IsWindow(self.handle) and waited < 1.5:
+            time.sleep(.1)
+            waited += .1
+
+        time.sleep(delay_before_after_close_click)
 
         return self
+
 
     #-----------------------------------------------------------
     def DoubleClick(
@@ -452,7 +489,8 @@ class HwndWrapper(object):
         "Move the mouse"
 
         flags, click_point = _calc_flags_and_coords(pressed, coords)
-        self.PostMessage(win32defines.WM_MOUSEMOVE, flags, click_point)
+        self.SendMessageTimeout(win32defines.WM_MOUSEMOVE, flags, click_point)
+        win32functions.WaitGuiThreadIdle(self)
 
         return self
 
@@ -482,6 +520,7 @@ class HwndWrapper(object):
 
         text = ctypes.c_wchar_p(unicode(text))
         self.PostMessage(win32defines.WM_SETTEXT, 0, text)
+        win32functions.WaitGuiThreadIdle(self)
 
         return self
 
@@ -517,6 +556,7 @@ class HwndWrapper(object):
         win32functions.AttachThreadInput(
             win32functions.GetCurrentThreadId(), self.ProcessID, 0)
 
+        win32functions.WaitGuiThreadIdle(self)
         return self
 
     #-----------------------------------------------------------
@@ -641,37 +681,12 @@ class HwndWrapper(object):
             #self.PostMessage(WM_COMMAND, 0, item['ID'])
             self.NotifyMenuSelect(item['ID'])
 
+            win32functions.WaitGuiThreadIdle(self)
+
         time.sleep(delay_after_menuselect)
 
         return self
 
-#    #-----------------------------------------------------------
-#    def WaitEnabled(self, timeout = 1):
-#        "Wait until the control is active"
-#
-#        waited = 0
-#        while not self.IsEnabled:
-#            if waited >= timeout :
-#                break
-#
-#            time.sleep(.1)
-#            waited += .1
-#
-#        if not self.IsEnabled:
-#            raise ControlNotEnabled()
-#
-#    #-----------------------------------------------------------
-#    def WaitNotEnabled(self, timeout = 1):
-#        waited = 0
-#        while self.IsEnabled:
-#            if waited >= timeout :
-#                break
-#
-#            time.sleep(.1)
-#            waited += .1
-#
-#        if self.IsEnabled:
-#            raise ControlNotEnabled()
 
     #-----------------------------------------------------------
     #def Close(self):
@@ -693,11 +708,6 @@ def _perform_click(
     "Low level method for performing click operations"
 
     ctrl.VerifyActionable()
-
-    if ctrl.Text == "&Printer...":
-        print button, coords, double, button_down, button_up
-        print ctrl.IsVisible
-        print ctrl.IsEnabled
 
     # figure out the messages for click/press
     msgs  = []
@@ -747,19 +757,10 @@ def _perform_click(
 
     # send each message
     for msg in msgs:
-        ret = ctrl.PostMessage(msg, flags, click_point)
+        ret = ctrl.SendMessageTimeout(msg, flags, click_point)
 
-        # ask the control if it has finished processing teh message
-        hprocess = win32functions.OpenProcess(
-            win32defines.PROCESS_QUERY_INFORMATION,
-            0,
-            ctrl.ProcessID)
-
-        start = time.time()
-        win32functions.WaitForInputIdle(hprocess, 1000)
-        print "waited", time.time() - start
-        #import pdb;pdb.set_trace()
-        win32functions.CloseHandle(hprocess)
+        # wait until the thread can accept another message
+        ret = win32functions.WaitGuiThreadIdle(ctrl)
 
     # wait a certain(short) time after the click
     time.sleep(delay_after_click)
