@@ -45,10 +45,14 @@ class MatchError(IndexError):
     "A suitable match could not be found"
     def __init__(self, items = None, tofind = ''):
         "Init the parent with the message"
-        if items is None:
-            items = []
+        self.tofind = tofind
+        self.items = items
+        if self.items is None:
+            self.items = []
+
         IndexError.__init__(self,
-            "Could not find '%s' in '%s'"% (tofind, items))
+            "Could not find '%s' in '%s'"% (tofind, self.items))
+
 
 
 
@@ -88,47 +92,21 @@ def find_best_match(search_text, item_texts, items):
     "Return the item that best matches the search_text"
     search_text = _clean_text(search_text)
 
+
+    text_item_map = UniqueDict()
     # Clean each item, make it unique and map to
     # to the item index
-    item_index_map = _build_unique_index_map(item_texts)
+    for text, item in zip(item_texts, items):
+        text_item_map[text] = item
 
     ratios, best_ratio, best_text = \
-        _get_match_ratios(item_index_map.keys(), search_text)
+        _get_match_ratios(text_item_map.keys(), search_text)
 
     if best_ratio < .5:
-        raise MatchError(items = item_index_map.keys(), tofind = search_text)
+        raise MatchError(items = text_item_map.keys(), tofind = search_text)
 
-    return items[item_index_map[best_text]]
+    return text_item_map[best_text]
 
-
-#====================================================================
-def _build_unique_index_map(items):
-    """Build a map of item to item index making sure that each is unique"""
-    mapped_items = {}
-
-    for i, text in enumerate(items):
-        text = _clean_text(text)
-
-        # no duplicates so just store it without modification
-        if text not in mapped_items:
-            mapped_items[text] = i
-
-        # else this item appears multiple times
-        else:
-            # find unique text
-            unique_text = text
-            counter = 2
-            while unique_text in mapped_items:
-                unique_text = text + str(counter)
-                counter += 1
-
-            mapped_items[unique_text] = i
-
-            if not mapped_items.has_key(text + "0"):
-                mapped_items[text + "0"] = mapped_items[text]
-                mapped_items[text + "1"] = mapped_items[text]
-
-    return mapped_items
 
 
 
@@ -168,19 +146,114 @@ def _get_control_names(control):
 
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
-    if _clean_text(control.Text):
-        names.append(control.Text)
-        names.append(control.Text + control.FriendlyClassName)
+    cleaned = _clean_text(control.Text)
+    if cleaned and cleaned not in names:
+        names.append(cleaned)
+        name_fclass = cleaned + control.FriendlyClassName
 
-    # return the names (either 1 or 3 strings)
+        if name_fclass not in names:
+            names.append(name_fclass)
+
+    # return the names
     return names
 
 
-#TODO: Move uniquefying code out of this function and use
-# _build_unique_index_map() to do it. (if that functions needs changing
-# then do it and modify functions that call it if necessary also!
+
+
+
 #====================================================================
-def find_best_control_match(search_text, controls):
+class UniqueDict(dict):
+
+    def __setitem__(self, text, item):
+
+        # this text is already in the map
+        # so we need to make it unique
+        if text in self:
+            # find next unique text after text1
+            unique_text = text
+            counter = 2
+            while unique_text in self:
+                unique_text = text + str(counter)
+                counter += 1
+
+            # now we also need to make sure the original item
+            # is under text0 and text1 also!
+            if text + '0' not in self:
+                dict.__setitem__(self, text+'0', self[text])
+                dict.__setitem__(self, text+'1', self[text])
+
+            # now that we don't need original 'text' anymore
+            # replace it with the uniq text
+            text = unique_text
+
+        # add our current item
+        dict.__setitem__(self, text, item)
+
+
+    def FindBestMatches(self, search_text):
+        # now time to figure out the matching
+        ratio_calc = difflib.SequenceMatcher()
+        ratio_calc.set_seq1(search_text)
+
+
+        ratios = {}
+        best_ratio = 0
+        best_texts = []
+
+        for text in self:
+            # set up the SequenceMatcher with other text
+            ratio_calc.set_seq2(text)
+
+            # calculate ratio and store it
+            ratios[text] = ratio_calc.ratio()
+
+            # if this is the best so far then update best stats
+            if ratios[text] > best_ratio:
+                best_ratio = ratios[text]
+                best_texts = [text]
+
+            elif ratios[text] == best_ratio:
+                best_texts.append(text)
+
+        return best_ratio, best_texts
+
+
+
+def GetControlMatchRatio(text, ctrl):
+    # get the texts for the control
+    ctrl_names = _get_control_names(ctrl)
+
+    #get the best match for these
+    matcher = UniqueDict()
+    for name in ctrl_names:
+        matcher[name] = ctrl
+
+    best_ratio, unused = matcher.FindBestMatches(text)
+
+    return best_ratio
+
+
+
+def get_controls_ratios(search_text, controls):
+    name_control_map = UniqueDict()
+
+    # collect all the possible names for all controls
+    # and build a list of them
+    for ctrl in controls:
+        ctrl_names = _get_control_names(ctrl)
+
+        # for each of the names
+        for name in ctrl_names:
+            name_control_map[name] = ctrl
+
+    match_ratios, best_ratio, best_text = \
+        _get_match_ratios(name_control_map.keys(), search_text)
+
+    return match_ratios, best_ratio, best_text,
+
+
+#====================================================================
+def find_best_control_matches(search_text, controls):
     """Returns the control that is the the best match to search_text
 
     This is slightly differnt from find_best_match in that it builds
@@ -193,52 +266,28 @@ def find_best_control_match(search_text, controls):
     then it will just add "ListView".
     """
 
-    name_control_map = {}
+    name_control_map = UniqueDict()
 
     # collect all the possible names for all controls
     # and build a list of them
     for ctrl in controls:
         ctrl_names = _get_control_names(ctrl)
-        ctrl_names = [_clean_text(name) for name in ctrl_names]
-
-        # remove duplicates
-        ctrl_names = list(set(ctrl_names))
 
         # for each of the names
         for name in ctrl_names:
+            name_control_map[name] = ctrl
 
-            # if its not there already then just add it
-            if not name_control_map.has_key(name):
+    best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
 
-                name_control_map[name] = ctrl
+    #if len(best_texts)
 
-            # else this item appears multiple times
-            else:
-                # find unique name
-                unique_text = name
-                counter = 2
-                while unique_text in name_control_map:
-                    unique_text = name + str(counter)
-                    counter += 1
-
-                # add it with that unique text
-                name_control_map[unique_text] = ctrl
-
-                # and if this was the first time that we noticied that
-                # it was a duplicated name then add new items based on the
-                # duplicated name but add '0' and '1'
-                if not name_control_map.has_key(name + "0"):
-                    name_control_map[name + "0"] = name_control_map[name]
-                    name_control_map[name + "1"] = name_control_map[name]
-
-
-    match_ratios, best_ratio, best_text = \
-        _get_match_ratios(name_control_map.keys(), search_text)
+    #match_ratios, best_ratio, best_text = \
+    #    _get_match_ratios(name_control_map.keys(), search_text)
 
     if best_ratio < .5:
         raise MatchError(items = name_control_map.keys(), tofind = search_text)
 
-    return name_control_map[best_text]
+    return [name_control_map[best_text] for best_text in best_texts]
 
 
 
