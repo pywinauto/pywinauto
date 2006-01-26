@@ -26,6 +26,7 @@ import time
 
 import application
 import tests
+from findbestmatch import MatchError
 
 def TestExceptions():
     "Test some things that should raise exceptions"
@@ -55,6 +56,126 @@ def TestExceptions():
     except application.AppNotConnected:
         pass
 
+def MinimalNotepadTest():
+    "Run a quick test on Notepad"
+
+    app = application.Application()
+    app.start_(ur"notepad.exe")
+
+    app.Notepad.WaitExists()
+
+    app.Notepad.MenuSelect("File->PageSetup")
+
+    # ----- Page Setup Dialog ----
+    # Select the 4th combobox item
+    app.PageSetupDlg.ComboBox1.Select(4)
+
+    try:
+        # specify a control that should not exist and
+        # ask for one of it's properties to make sure it is
+        # resolved.
+        print app.PageSetup.notFound.Font
+    except MatchError, e:
+        print "Text that you were looking for", e.tofind
+        print "========== Available list of controls ======="
+        for i in sorted(e.items):
+            print "\t%s"% i
+
+
+    print app.windows_()
+    # Select the 'Letter' combobox item
+    app.PageSetupDlg.ComboBox1.Select("Letter")
+
+    # ----- Next Page Setup Dialog ----
+    app.PageSetupDlg.Printer.Click()
+    #time.sleep(.2)
+
+    app.PageSetupDlg.Network.Click()
+
+    # ----- Connect To Printer Dialog ----
+    # Select a checkbox
+    app.ConnectToPrinter.ExpandByDef.Check()
+    # Uncheck it again - but use Click this time!
+    app.ConnectToPrinter.ExpandByDef.Click()
+
+    app.ConnectToPrinter.OK.CloseClick()
+
+    # ----- 2nd Page Setup Dialog again ----
+    app.PageSetupDlg2.Properties.Click()
+
+    # ----- Document Properties Dialog ----
+    docProps = app.window_(title_re = ".*Document Properties")
+
+    # Two ways of selecting tabs
+    docProps.TabCtrl.Select(2)
+    docProps.TabCtrl.Select("Layout")
+
+    # click some Radio buttons
+    docProps.RotatedLandscape.Click()
+    docProps.BackToFront.Click()
+    docProps.FlipOnShortEdge.Click()
+
+    docProps.Portrait.Click()
+    docProps._None.Click()  # need to disambiguate from keyword None
+    docProps.FrontToBack.Click()
+
+    # open the Advanced options dialog in two steps
+    advbutton = docProps.Advanced
+    advbutton.Click()
+
+    # ----- Advanced Options Dialog ----
+    # close the 4 windows
+    app.window_(title_re = ".* Advanced Options").Ok.Click()
+
+    # ----- Document Properties Dialog again ----
+    docProps.Cancel.CloseClick()
+    # ----- 2nd Page Setup Dialog again ----
+    app.PageSetup2.OK.CloseClick()
+    # ----- Page Setup Dialog ----
+    app.PageSetup.Ok.CloseClick()
+
+    # type some text
+    app.Notepad.Edit.SetText(u"I am typing säme text to Notepad\r\n\r\n"
+        "And then I am going to quit")
+
+    # the following shows that Sendtext does not accept
+    # accented characters - but does allow 'control' characters
+    #app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText döés not "
+    #   "süppôrt àcceñted characters", with_spaces = True)
+
+    app.Notepad.MenuSelect("File->SaveAs")
+    app.SaveAs.ComboBox5.Select("UTF-8")
+    app.SaveAs.edit1.SetText("Example-utf8.txt")
+    app.SaveAs.Save.CloseClick()
+
+    # my machine has a weird problem - when connected to the network
+    # the SaveAs Dialog appears - but doing anything with it can
+    # cause a LONG delay - the easiest thing is to just wait
+    # until the dialog is no longer active
+
+    # - Dialog might just be gone - because click worked
+    # - dialog might be waiting to disappear
+    #   so can't wait for next dialog or for it to be disabled
+    # - dialog might be waiting to display message box so can't wait
+    #   for it to be gone or for the main dialog to be enabled.
+
+    # while the dialog exists wait upto 30 seconds (and yes it can
+    # take that long on my computer sometimes :-( )
+    app.SaveAs.Cancel.WaitNotEnabled()
+
+    try:
+        app.SaveAs.Yes.CloseClick()
+    except MatchError:
+        pass
+
+    print app.NotepadDialog.handle, app.NotepadDialog.Texts, app.NotepadDialog.Class
+
+    time.sleep(.1)
+    # exit notepad
+    app.NotepadDialog.MenuSelect("File->Exit")
+    #app.Notepad.No.Click()
+
+
 
 def TestNotepad():
     "Run a test on notepad"
@@ -75,8 +196,6 @@ def TestNotepad():
     bugs = app.PageSetupDlg.RunTests('AsianHotkey')
 
     tests.print_bugs(bugs)
-    time.sleep(1)
-
 
     app.PageSetupDlg.Printer.Click()
 
@@ -96,7 +215,7 @@ def TestNotepad():
         app.ConnectToPrinter.ExpandByDefault.Click()
 
         # close the dialog
-        app.ConnectToPrinter.Cancel.Click()
+        app.ConnectToPrinter.Cancel.CloseClick()
 
     app.PageSetupDlg2.Properties.Click()
 
@@ -128,9 +247,9 @@ def TestNotepad():
 
     # close the 4 windows
     app.window_(title_re = ".* Advanced Options").Ok.Click()
-    docProps.Cancel.Click()
-    app.PageSetupDlg2.OK.Click()
-    app.PageSetupDlg.Ok.Click()
+    docProps.Cancel.CloseClick()
+    app.PageSetupDlg2.OK.CloseClick()
+    app.PageSetupDlg.Ok.CloseClick()
 
     # type some text
     app.Notepad.Edit.SetText(u"I am typing säme text to Notepad\r\n\r\n"
@@ -140,97 +259,9 @@ def TestNotepad():
     app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText döés not süppôrt "
         u"àcceñted characters", with_spaces = True)
 
-
-    time.sleep(2)
     # exit notepad
     app.Notepad.MenuSelect("File->Exit")
-    app.Notepad.No.Click()
-
-def MinimalNotepadTest():
-    "Run a quick test on Notepad"
-
-    app = application.Application()
-    app.start_(ur"notepad.exe")
-
-    app.Notepad.MenuSelect("File->PageSetup")
-
-    # ----- Page Setup Dialog ----
-    # Select the 4th combobox item
-    app.PageSetupDlg.ComboBox1.Select(4)
-
-    # Select the 'Letter' combobox item
-    app.PageSetupDlg.ComboBox1.Select("Letter")
-
-    # ----- Next Page Setup Dialog ----
-    app.PageSetupDlg.Printer.Click()
-
-    app.PageSetupDlg.Network.Click()
-
-    # ----- Connect To Printer Dialog ----
-    # Select a checkbox
-    app.ConnectToPrinter.ExpandByDef.Check()
-    # Uncheck it again - but use Click this time!
-    app.ConnectToPrinter.ExpandByDef.Click()
-
-    app.ConnectToPrinter.OK.Click()
-
-    # ----- 2nd Page Setup Dialog again ----
-    app.PageSetupDlg2.Properties.Click()
-
-    # ----- Document Properties Dialog ----
-    docProps = app.window_(title_re = ".*Document Properties")
-
-    # Two ways of selecting tabs
-    docProps.TabCtrl.Select(2)
-    docProps.TabCtrl.Select("Layout")
-
-    # click some Radio buttons
-    docProps.RotatedLandscape.Click()
-    docProps.BackToFront.Click()
-    docProps.FlipOnShortEdge.Click()
-
-    docProps.Portrait.Click()
-    docProps._None.Click()	# need to disambiguate from keyword None
-    docProps.FrontToBack.Click()
-
-    # open the Advanced options dialog in two steps
-    advbutton = docProps.Advanced
-    advbutton.Click()
-
-    # ----- Advanced Options Dialog ----
-    # close the 4 windows
-    app.window_(title_re = ".* Advanced Options").Ok.Click()
-
-    # ----- Document Properties Dialog again ----
-    docProps.Cancel.Click()
-    # ----- 2nd Page Setup Dialog again ----
-    app.PageSetupDlg2.OK.Click()
-    # ----- Page Setup Dialog ----
-    app.PageSetupDlg.Ok.Click()
-
-    # type some text
-    app.Notepad.Edit.SetText(u"I am typing säme text to Notepad\r\n\r\n"
-        "And then I am going to quit")
-
-    # the following shows that Sendtext does not accept
-    # accented characters - but does allow 'control' characters
-    #app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText döés not "
-    #	"süppôrt àcceñted characters", with_spaces = True)
-
-    app.Notepad.MenuSelect("File->SaveAs")
-    app.SaveAs.ComboBox5.Select("UTF-8")
-    app.SaveAs.edit1.SetText("Example-utf8.txt")
-    app.SaveAs.Save.Click()
-
-    try:
-        app.SaveAs.Yes.Click()
-    except MatchError:
-        pass
-
-
-    # exit notepad
-    app.NotepadDialog.MenuSelect("File->Exit")
-    #app.Notepad.No.Click()
+    app.Notepad.No.CloseClick()
 
 
 
@@ -258,7 +289,7 @@ def TestPaint():
     app.Attributes.Edit1.TypeKeys("350")  # you can use TypeKeys or
     app.Attributes.Edit2.SetText("350")   # SetText - they work differently!
 
-    app.Attributes.OK.Click()
+    app.Attributes.OK.CloseClick()
 
     # get the reference to the Canvas window
     canvas = pwin.Afx100000008
@@ -280,11 +311,9 @@ def TestPaint():
     print "*** these lines then it will mess up the drawing!      ***\n"
     for i in range(1, num_slants):
 
-        canvas.PressMouse(coords = (size * num_slants, i * size)) # start
-
         endcoords = (size * (num_slants - i), size * num_slants)
+        canvas.PressMouse(coords = (size * num_slants, i * size)) # start
         canvas.MoveMouse(coords = endcoords) # x and y axes
-
         canvas.ReleaseMouse(coords = endcoords)
 
     # may fail if PIL is not installed
@@ -298,21 +327,16 @@ def TestPaint():
     # set our preferred area
     app.Attributes.Edit1.TypeKeys(prev_width)
     app.Attributes.Edit2.SetText(prev_height)
-    app.Attributes.OK.Click()
+    app.Attributes.OK.CloseClick()
 
 
     # close Paint
     pwin.MenuSelect("File->Exit")
 
-    try:
-        # Click the no button on teh message box asking if we want to save
-        app.Paint.No.Click()
-    except:
-        # if we got here it probably means that we did not modify teh image
-        # this can happen if the user's default image size is tiny and our
-        # lines did not hit it.
-        # this means that wer are not asked to save so File->Exit just quits
-        pass
+    if app.Paint.No.Exists():
+        print "It existed!"
+        # Click the no button on the message box asking if we want to save
+        app.Paint.No.CloseClick()
 
 def Main():
     "Run the tests"
