@@ -11880,3 +11880,5 @@ SUBLANG_ENGLISH_SOUTH_AFRICA = 7 # Variable c_int
 WM_SETREDRAW = 11 # Variable c_int
 SUBLANG_ARABIC_UAE = 14 # Variable c_int
 HDM_GETITEMW = 4619 # Variable c_int
+
+MIIM_STRING = 0x40
