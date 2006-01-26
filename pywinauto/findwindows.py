@@ -32,6 +32,8 @@ import win32functions
 import win32structures
 import handleprops
 
+import findbestmatch
+
 
 # currently commented out as finding the best match control
 # requires that we know the Friendly class name - which is only
@@ -63,10 +65,12 @@ def find_window(**kwargs):
         raise WindowNotFoundError()
 
     if len(windows) > 1:
+        for w in windows:
+            print "ambig", handleprops.classname(w), handleprops.text(w), handleprops.processid(w)
         raise WindowAmbiguousError(
             "There are %d windows that match the criteria %s"% (
             len(windows),
-            str(kwargs),
+            unicode(kwargs),
             )
         )
 
@@ -82,7 +86,7 @@ def find_windows(class_name = None,
                 top_level_only = True,
                 visible_only = True,
                 enabled_only = True,
-                #best_match = None
+                best_match = None
     ):
     """Find windows based on criteria passed in
 
@@ -131,7 +135,6 @@ def find_windows(class_name = None,
         windows = [win for win in windows
             if handleprops.processid(win) == process]
 
-
     if title and windows:
         windows = [win for win in windows
             if title == handleprops.text(win)]
@@ -140,14 +143,17 @@ def find_windows(class_name = None,
         windows = [win for win in windows
             if re.match(title_re, handleprops.text(win))]
 
-#	elif best_match and windows:
-#		windows = [findbestmatch.find_best_control_match(best_match, wins),]
-
     if visible_only and windows:
         windows = [win for win in windows if handleprops.isvisible(win)]
 
     if enabled_only and windows:
         windows = [win for win in windows if handleprops.isenabled(win)]
+
+    if best_match and windows:
+        from controls import WrapHandle
+        windows = [WrapHandle(win) for win in windows]
+        windows = findbestmatch.find_best_control_matches(
+            best_match, windows)
 
 
     return windows
