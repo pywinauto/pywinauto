@@ -24,23 +24,36 @@ __revision__ = "$Revision$"
 
 from win32defines import LF_FACESIZE, NMTTDISPINFOW_V1_SIZE, HDITEMW_V1_SIZE
 
+import ctypes
 from ctypes import (
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char,
     c_ubyte, c_ushort, c_wchar_p,
-    POINTER, Structure, sizeof, alignment)
+    POINTER, sizeof, alignment)
 
 
+class Structure(ctypes.Structure):
+    def __str__(self):
+        """Print out the fields of the ctypes Structure
 
-#====================================================================
-def PrintCtypesStruct(struct, exceptList = []):
-    """Print out the fields of the ctypes Structure
+        fields in exceptList will not be printed"""
 
-    fields in exceptList will not be printed"""
-    for f in struct._fields_:
-        name = f[0]
-        if name in exceptList:
-            continue
-        print "%20s "% name, getattr(struct, name)
+        lines = []
+        for f in self._fields_:
+            name = f[0]
+            lines.append("%20s\t%s"% (name, getattr(self, name)))
+
+        return "\n".join(lines)
+
+##====================================================================
+#def PrintCtypesStruct(struct, exceptList = []):
+#    """Print out the fields of the ctypes Structure
+#
+#    fields in exceptList will not be printed"""
+#    for f in struct._fields_:
+#        name = f[0]
+#        if name in exceptList:
+#            continue
+#        print "%20s "% name, getattr(struct, name)
 
 
 
