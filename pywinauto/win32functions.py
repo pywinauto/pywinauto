@@ -42,7 +42,8 @@ GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
 
 # menu functions
 DrawMenuBar			=	ctypes.windll.user32.DrawMenuBar
-GetMenu				=	ctypes.windll.user32.GetMenu
+GetMenu             =   ctypes.windll.user32.GetMenu
+GetSubMenu	        =	ctypes.windll.user32.GetSubMenu
 GetMenuBarInfo		=	ctypes.windll.user32.GetMenuBarInfo
 GetMenuItemCount	=	ctypes.windll.user32.GetMenuItemCount
 GetMenuItemInfo		=	ctypes.windll.user32.GetMenuItemInfoW
@@ -52,7 +53,7 @@ GetSystemMenu		=	ctypes.windll.user32.GetSystemMenu
 HiliteMenuItem		=	ctypes.windll.user32.HiliteMenuItem
 IsMenu				=	ctypes.windll.user32.IsMenu
 MenuItemFromPoint	=	ctypes.windll.user32.MenuItemFromPoint
-
+BringWindowToTop    =   ctypes.windll.user32.BringWindowToTop
 
 GetObject			=	ctypes.windll.gdi32.GetObjectW
 GetParent			=	ctypes.windll.user32.GetParent
@@ -77,10 +78,12 @@ IsWindowVisible		=	ctypes.windll.user32.IsWindowVisible
 IsWindowEnabled		=	ctypes.windll.user32.IsWindowEnabled
 MapVirtualKey		=	ctypes.windll.user32.MapVirtualKeyW
 OpenProcess			=	ctypes.windll.kernel32.OpenProcess
+CloseHandle         =   ctypes.windll.kernel32.CloseHandle
 ReadProcessMemory	=	ctypes.windll.kernel32.ReadProcessMemory
 Rectangle			=	ctypes.windll.gdi32.Rectangle
 SelectObject		=	ctypes.windll.gdi32.SelectObject
 SendMessage			=	ctypes.windll.user32.SendMessageW
+SendMessageTimeout  =   ctypes.windll.user32.SendMessageTimeoutW
 SendMessageA		=	ctypes.windll.user32.SendMessageA
 PostMessage			=	ctypes.windll.user32.PostMessageW
 SetActiveWindow		=	ctypes.windll.user32.SetActiveWindow
@@ -132,8 +135,38 @@ GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
 GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
+GetQueueStatus = ctypes.windll.user32.GetQueueStatus
 
 #====================================================================
 def MakeLong(low, high):
     "Pack high into the high word of a long and low into the low word"
     return (high << 16) | low
+
+#====================================================================
+def HiWord(value):
+  return (value & (~ 0xFFFF)) / 0xFFFF
+
+#====================================================================
+def LoWord(value):
+    return value & 0xFFFF
+
+
+#====================================================================
+def WaitGuiThreadIdle(handle, timeout = 1):
+    import win32defines
+
+    process_id = ctypes.c_int()
+    GetWindowThreadProcessId(handle, ctypes.byref(process_id))
+
+    # ask the control if it has finished processing teh message
+    hprocess = OpenProcess(
+        win32defines.PROCESS_QUERY_INFORMATION,
+        0,
+        process_id.value)
+
+    # wait timout number of seconds
+    ret = WaitForInputIdle(hprocess, timeout * 1000)
+
+    CloseHandle(hprocess)
+
+    return ret
