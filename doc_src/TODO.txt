@@ -3,9 +3,9 @@
 APPLICATION TODO's
 ============================================================================
 * Allow delay after click to be removed. The main reason that this is needed
-  at the moment is because if you close a and then try an action on the parent
-  immediately it may not yet be active - so the delay is needed to allow it to
-  become active.
+  at the moment is because if you close a dialog and then try an action on 
+  the parent immediately it may not yet be active - so the delay is 
+  needed to allow it to become active.
   To fix this we may need to add more magic around calling actions on dialogs
   e.g.
   on an attribute access for an ActionDialog do the following:

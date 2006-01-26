@@ -31,6 +31,8 @@ Where to start
 Look at the examples provided in test_application.py
 There are examples in there to work with Notepad and MSPaint.
 
+Note: These examples currently only work on English.
+
 
 How does it work
 ----------------
