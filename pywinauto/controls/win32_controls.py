@@ -22,17 +22,18 @@
 
 __revision__ = "$Revision$"
 
-from HwndWrapper import HwndWrapper
+import time
 
 import ctypes
 
+import HwndWrapper
 from pywinauto import win32defines
 from pywinauto import win32structures
 
 from pywinauto import tests
 
 #====================================================================
-class ButtonWrapper(HwndWrapper):
+class ButtonWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows Button control"
 
     friendlyclassname = "Button"
@@ -98,7 +99,7 @@ class ButtonWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def Check(self):
         "Check a checkbox"
-        self.SendMessage(win32defines.BM_SETCHECK,
+        self.SendMessageTimeout(win32defines.BM_SETCHECK,
             win32defines.BST_CHECKED)
 
         # return this control so that actions can be chained.
@@ -108,7 +109,7 @@ class ButtonWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def UnCheck(self):
         "Uncheck a checkbox"
-        self.SendMessage(win32defines.BM_SETCHECK,
+        self.SendMessageTimeout(win32defines.BM_SETCHECK,
             win32defines.BST_UNCHECKED)
 
         # return this control so that actions can be chained.
@@ -117,11 +118,20 @@ class ButtonWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def SetCheckIndeterminate(self):
         "Set the checkbox to indeterminate"
-        self.SendMessage(win32defines.BM_SETCHECK,
+        self.SendMessageTimeout(win32defines.BM_SETCHECK,
             win32defines.BST_INDETERMINATE)
 
         # return this control so that actions can be chained.
         return self
+
+    #-----------------------------------------------------------
+    #def Click(self):
+    #    import win32functions
+    #    win32functions.WaitGuiThreadIdle(self)
+    #    self.NotifyParent(win32defines.BN_CLICKED)
+        HwndWrapper.HwndWrapper.Click(self)
+    #    win32functions.WaitGuiThreadIdle(self)
+        time.sleep(HwndWrapper.delay_after_button_click)
 
 
 
@@ -149,7 +159,7 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
 
 
 #====================================================================
-class ComboBoxWrapper(HwndWrapper):
+class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows ComboBox control"
 
     friendlyclassname = "ComboBox"
@@ -215,7 +225,7 @@ class ComboBoxWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def GetProperties(self):
         "Return the properties of the control as a dictionary"
-        props = HwndWrapper.GetProperties(self)
+        props = HwndWrapper.HwndWrapper.GetProperties(self)
 
         # get selected item
         props['SelectedItem'] = self.SelectedIndex()
@@ -245,7 +255,7 @@ class ComboBoxWrapper(HwndWrapper):
             index = self.Texts.index(item) -1
 
         # change the selected item
-        self.SendMessage(win32defines.CB_SETCURSEL, index, 0)
+        self.SendMessageTimeout(win32defines.CB_SETCURSEL, index)
 
         # Notify the parent that we have changed
         self.NotifyParent(win32defines.CBN_SELCHANGE)
@@ -256,7 +266,7 @@ class ComboBoxWrapper(HwndWrapper):
 
 
 #====================================================================
-class ListBoxWrapper(HwndWrapper):
+class ListBoxWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows ListBox control"
 
     friendlyclassname = "ListBox"
@@ -316,7 +326,7 @@ class ListBoxWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def GetProperties(self):
         "Return the properties as a dictionary for the control"
-        props = HwndWrapper.GetProperties(self)
+        props = HwndWrapper.HwndWrapper.GetProperties(self)
 
         # get selected item
         props['SelectedItems'] = self.SelectedIndices()
@@ -345,7 +355,7 @@ class ListBoxWrapper(HwndWrapper):
             index = self.Texts.index(item)
 
         # change the selected item
-        self.PostMessage(win32defines.LB_SETCURSEL, index, 0)
+        self.SendMessageTimeout(win32defines.LB_SETCURSEL, index, 0)
 
         # Notify the parent that we have changed
         self.NotifyParent(win32defines.LBN_SELCHANGE)
@@ -359,9 +369,9 @@ class ListBoxWrapper(HwndWrapper):
         # if it is a multiple selection dialog
         if self.HasStyle(win32defines.LBS_EXTENDEDSEL) or \
             self.HasStyle(win32defines.LBS_MULTIPLESEL):
-            self.SendMessage(win32defines.LB_SETCARETINDEX, item)
+            self.SendMessageTimeout(win32defines.LB_SETCARETINDEX, item)
         else:
-            self.SendMessage(win32defines.LB_SETCURSEL, item)
+            self.SendMessageTimeout(win32defines.LB_SETCURSEL, item)
 
         # return this control so that actions can be chained.
         return self
@@ -382,7 +392,7 @@ class ListBoxWrapper(HwndWrapper):
 
 
 #====================================================================
-class EditWrapper(HwndWrapper):
+class EditWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows Edit control"
 
     friendlyclassname = "Edit"
@@ -434,7 +444,7 @@ class EditWrapper(HwndWrapper):
     #-----------------------------------------------------------
     def GetProperties(self):
         "Return the properties of the control in a dictionary"
-        props = HwndWrapper.GetProperties(self)
+        props = HwndWrapper.HwndWrapper.GetProperties(self)
 
         # get selected item
         props['SelectionIndices'] = self.SelectionIndices
@@ -488,7 +498,7 @@ class EditWrapper(HwndWrapper):
         if end is None:
             end = -1
 
-        self.PostMessage(win32defines.EM_SETSEL, start, end)
+        self.SendMessageTimeout(win32defines.EM_SETSEL, start, end)
 
         # return this control so that actions can be chained.
         return self
@@ -496,7 +506,7 @@ class EditWrapper(HwndWrapper):
 
 
 #====================================================================
-class StaticWrapper(HwndWrapper):
+class StaticWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows Static control"
 
     friendlyclassname = "Static"
@@ -520,7 +530,7 @@ class StaticWrapper(HwndWrapper):
 # the main reason for this is just to make sure that
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
-class DialogWrapper(HwndWrapper):
+class DialogWrapper(HwndWrapper.HwndWrapper):
     "Wrap a dialog"
 
     friendlyclassname = "Dialog"
