@@ -137,11 +137,16 @@ class RECT(Structure):
     #----------------------------------------------------------------
     def __eq__(self, otherRect):
         "return true if the two rectangles have the same coordinates"
-        return \
-            self.left == otherRect.left and \
-            self.top == otherRect.top and \
-            self.right == otherRect.right and \
-            self.bottom == otherRect.bottom
+
+
+        try:
+            return \
+                self.left == otherRect.left and \
+                self.top == otherRect.top and \
+                self.right == otherRect.right and \
+                self.bottom == otherRect.bottom
+        except AttributeError:
+            return False
 
     #----------------------------------------------------------------
     def __str__(self):
@@ -677,4 +682,20 @@ assert alignment(PROCESS_INFORMATION) == 4, alignment(PROCESS_INFORMATION)
 
 
 
+# C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 3417
+class NMLISTVIEW(Structure):
+    _pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 3417
+        ('hdr', NMHDR),
+        ('iItem', c_int),
+        ('iSubItem', c_int),
+        ('uNewState', UINT),
+        ('uOldState', UINT),
+        ('uChanged', UINT),
+        ('ptAction', POINT),
+        ('lParam', LPARAM),
+    ]
+assert sizeof(NMLISTVIEW) == 44, sizeof(NMLISTVIEW)
+assert alignment(NMLISTVIEW) == 1, alignment(NMLISTVIEW)
 
