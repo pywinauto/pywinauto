@@ -26,20 +26,6 @@ import re
 import difflib
 
 
-# TODO: Refactor so that it does not require FriendlyClassName
-#       It would need to get the list of titles to match against
-#       from somewhere else.
-
-
-# we are passed a list of items and a text getter func
-# we need to get the texts for each item
-# we need to make those texts unique
-# we need to find the best match for those texts
-# and return the equivalent item
-
-
-
-
 #====================================================================
 class MatchError(IndexError):
     "A suitable match could not be found"
@@ -97,7 +83,7 @@ def find_best_match(search_text, item_texts, items):
     # Clean each item, make it unique and map to
     # to the item index
     for text, item in zip(item_texts, items):
-        text_item_map[text] = item
+        text_item_map[_clean_text(text)] = item
 
     ratios, best_ratio, best_text = \
         _get_match_ratios(text_item_map.keys(), search_text)
@@ -131,31 +117,72 @@ def _clean_text(text):
 
 
 
-
 #====================================================================
-def _get_control_names(control):
+distance_cuttoff = 999
+def GetNonTextControlName(ctrl, text_ctrls):
+    """return the name for this control by finding the closest
+    text control above and to its left"""
+
+    name = ''
+    closest = distance_cuttoff
+    # now for each of the visible text controls
+    for text_ctrl in text_ctrls:
+
+        # get aliases to the control rectangles
+        text_r = text_ctrl.Rectangle()
+        ctrl_r = ctrl.Rectangle()
+
+        # skip controls where w is to the right of ctrl
+        if text_r.left >= ctrl_r.right:
+            continue
+
+        # skip controls where w is below ctrl
+        if text_r.top >= ctrl_r.bottom:
+            continue
+
+        # calculate the distance between the controls
+        # (x^2 + y^2)^.5
+        distance = (
+            (text_r.left - ctrl_r.left) ** 2 +  #  (x^2 + y^2)
+            (text_r.top - ctrl_r.top) ** 2) \
+            ** .5  # ^.5
+
+        # if this distance was closer then the last one
+        if distance < closest:
+            closest = distance
+            name = _clean_text(text_ctrl.Text()) + ctrl.FriendlyClassName()
+
+    return name
+
+
+def get_control_names(control, visible_text_controls):
     "Returns a list of names for this control"
     names = []
 
     # if it has a reference control - then use that
-    if hasattr(control, 'ref') and control.ref:
-        control = control.ref
+    #if hasattr(control, 'ref') and control.ref:
+    #    control = control.ref
 
     # Add the control based on it's friendly class name
-    names.append(control.FriendlyClassName)
+    names.append(control.FriendlyClassName())
 
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
-    cleaned = _clean_text(control.Text)
-    if cleaned and cleaned not in names:
+    cleaned = _clean_text(control.Text())
+    if cleaned:
         names.append(cleaned)
-        name_fclass = cleaned + control.FriendlyClassName
+        names.append(cleaned + control.FriendlyClassName())
 
-        if name_fclass not in names:
-            names.append(name_fclass)
+    # it didn't have visible text
+    else:
+        # so find the text of the nearest text visible control
+        name = GetNonTextControlName(control, visible_text_controls)
+        # and if one was found - add it
+        if name:
+            names.append(name)
 
-    # return the names
-    return names
+    # return the names - and make sure there are no duplicates
+    return set(names)
 
 
 
@@ -163,7 +190,7 @@ def _get_control_names(control):
 
 #====================================================================
 class UniqueDict(dict):
-
+    "A dictionary subclass that handles making it's keys unique"
     def __setitem__(self, text, item):
 
         # this text is already in the map
@@ -191,6 +218,7 @@ class UniqueDict(dict):
 
 
     def FindBestMatches(self, search_text):
+        "Return the best matches"
         # now time to figure out the matching
         ratio_calc = difflib.SequenceMatcher()
         ratio_calc.set_seq1(search_text)
@@ -218,40 +246,6 @@ class UniqueDict(dict):
         return best_ratio, best_texts
 
 
-
-def GetControlMatchRatio(text, ctrl):
-    # get the texts for the control
-    ctrl_names = _get_control_names(ctrl)
-
-    #get the best match for these
-    matcher = UniqueDict()
-    for name in ctrl_names:
-        matcher[name] = ctrl
-
-    best_ratio, unused = matcher.FindBestMatches(text)
-
-    return best_ratio
-
-
-
-def get_controls_ratios(search_text, controls):
-    name_control_map = UniqueDict()
-
-    # collect all the possible names for all controls
-    # and build a list of them
-    for ctrl in controls:
-        ctrl_names = _get_control_names(ctrl)
-
-        # for each of the names
-        for name in ctrl_names:
-            name_control_map[name] = ctrl
-
-    match_ratios, best_ratio, best_text = \
-        _get_match_ratios(name_control_map.keys(), search_text)
-
-    return match_ratios, best_ratio, best_text,
-
-
 #====================================================================
 def find_best_control_matches(search_text, controls):
     """Returns the control that is the the best match to search_text
@@ -268,10 +262,15 @@ def find_best_control_matches(search_text, controls):
 
     name_control_map = UniqueDict()
 
+    # get the visible text controls so that we can get
+    # the closest text if the control has no text
+    visible_text_ctrls = [ctrl for ctrl in controls
+        if ctrl.IsVisible() and _clean_text(ctrl.Text())]
+
     # collect all the possible names for all controls
     # and build a list of them
     for ctrl in controls:
-        ctrl_names = _get_control_names(ctrl)
+        ctrl_names = get_control_names(ctrl, visible_text_ctrls)
 
         # for each of the names
         for name in ctrl_names:
@@ -293,3 +292,36 @@ def find_best_control_matches(search_text, controls):
 
 
 
+
+#
+#def GetControlMatchRatio(text, ctrl):
+#    # get the texts for the control
+#    ctrl_names = get_control_names(ctrl)
+#
+#    #get the best match for these
+#    matcher = UniqueDict()
+#    for name in ctrl_names:
+#        matcher[name] = ctrl
+#
+#    best_ratio, unused = matcher.FindBestMatches(text)
+#
+#    return best_ratio
+#
+#
+#
+#def get_controls_ratios(search_text, controls):
+#    name_control_map = UniqueDict()
+#
+#    # collect all the possible names for all controls
+#    # and build a list of them
+#    for ctrl in controls:
+#        ctrl_names = get_control_names(ctrl)
+#
+#        # for each of the names
+#        for name in ctrl_names:
+#            name_control_map[name] = ctrl
+#
+#    match_ratios, best_ratio, best_text = \
+#        _get_match_ratios(name_control_map.keys(), search_text)
+#
+#    return match_ratios, best_ratio, best_text,
