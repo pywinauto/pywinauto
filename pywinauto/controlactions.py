@@ -73,17 +73,17 @@ def verify_enabled(ctrl):
     "Verify that the control is enabled"
     # check is the parent enabled first
     if not handleprops.friendlyclassname(ctrl) == "Dialog":
-        if not ctrl.Parent.IsEnabled:
+        if not ctrl.Parent.IsEnabled():
             raise ControlNotEnabled()
 
     # then check if the control itself is enabled
-    if not ctrl.IsEnabled:
+    if not ctrl.IsEnabled():
         raise ControlNotEnabled()
 
 #====================================================================
 def verify_visible(ctrl):
     "Verify that the control is visible"
-    if not ctrl.IsVisible or not ctrl.Parent.IsVisible:
+    if not ctrl.IsVisible() or not ctrl.Parent.IsVisible():
         raise ControlNotVisible()
 
 
