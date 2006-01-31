@@ -65,8 +65,8 @@ def find_window(**kwargs):
         raise WindowNotFoundError()
 
     if len(windows) > 1:
-        for w in windows:
-            print "ambig", handleprops.classname(w), handleprops.text(w), handleprops.processid(w)
+        #for w in windows:
+        #    print "ambig", handleprops.classname(w), handleprops.text(w), handleprops.processid(w)
         raise WindowAmbiguousError(
             "There are %d windows that match the criteria %s"% (
             len(windows),
@@ -86,7 +86,8 @@ def find_windows(class_name = None,
                 top_level_only = True,
                 visible_only = True,
                 enabled_only = True,
-                best_match = None
+                best_match = None,
+                handle = None,
     ):
     """Find windows based on criteria passed in
 
@@ -101,9 +102,14 @@ def find_windows(class_name = None,
     :top_level_only: Top level windows only (default=True)
     :visible_only:   Visible windows only (default=True)
     :enabled_only:   Enabled windows only (default=True)
+    :best_match:  Windows with a title similar to this
+    :handle:      The handle of the window to return
     """
 
-
+    # allow a handle to be passed in
+    # if it is present - just return it
+    if handle is not None:
+        return [handle,]
 
     if top_level_only:
         # find the top level windows
