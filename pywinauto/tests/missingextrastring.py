@@ -92,9 +92,9 @@ def MissingExtraStringTest(windows):
         for char in CharsToCheck:
             missing_extra = ''
 
-            if win.Text.count(char) > win.ref.Text.count(char):
+            if win.Text().count(char) > win.ref.Text().count(char):
                 missing_extra = "ExtraCharacters"
-            elif win.Text.count(char) < win.ref.Text.count(char):
+            elif win.Text().count(char) < win.ref.Text().count(char):
                 missing_extra = "MissingCharacters"
 
             if missing_extra:
@@ -142,15 +142,17 @@ def _unittests():
         )
 
     class Control(object):
+        def Text(self):
+            return self.text
         pass
 
     ctrls = []
     total_bug_count = 0
     for loc, ref, num_bugs in test_strings:
         ctrl = Control()
-        ctrl.Text = loc
+        ctrl.text = loc
         ctrl.ref = Control()
-        ctrl.ref.Text = ref
+        ctrl.ref.text = ref
 
         total_bug_count += num_bugs
         num_found = len(MissingExtraStringTest([ctrl]))
@@ -158,6 +160,7 @@ def _unittests():
             assert num_found == num_bugs
         except:
             print num_found, num_bugs, loc, ref
+
 
         ctrls.append(ctrl)
 

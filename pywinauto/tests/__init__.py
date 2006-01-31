@@ -62,7 +62,7 @@ def run_tests(controls, tests_to_run = None, test_visible_only = True):
 
     # Filter out hidden controls if requested
     if test_visible_only:
-        controls = [ctrl for ctrl in controls if ctrl.IsVisible]
+        controls = [ctrl for ctrl in controls if ctrl.IsVisible()]
 
     bugs = []
     # run each test
@@ -85,13 +85,13 @@ def print_bugs(bugs):
 
         for i, ctrl in enumerate(ctrls):
             print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
-                ctrl.Text,
-                ctrl.FriendlyClassName,
-                ctrl.Rectangle.left,
-                ctrl.Rectangle.top,
-                ctrl.Rectangle.right,
-                ctrl.Rectangle.bottom,
-                ctrl.IsVisible,)
+                ctrl.Text(),
+                ctrl.FriendlyClassName(),
+                ctrl.Rectangle().left,
+                ctrl.Rectangle().top,
+                ctrl.Rectangle().right,
+                ctrl.Rectangle().bottom,
+                ctrl.IsVisible(),)
 
 
             try:

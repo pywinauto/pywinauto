@@ -117,12 +117,12 @@ def _GetUntranslations(win):
 
     # clean each of the loc titles for comparison
     cleanedLocTitles = []
-    for title in win.Texts:
+    for title in win.Texts():
         cleanedLocTitles.append(nonTransChars.sub("", title))
 
     # clean each of the ref titles for comparison
     cleanedRefTitles = []
-    for title in win.ref.Texts:
+    for title in win.ref.Texts():
         cleanedRefTitles.append(nonTransChars.sub("", title))
 
     untranslatedTitles = []

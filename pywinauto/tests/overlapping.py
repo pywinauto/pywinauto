@@ -100,29 +100,29 @@ def OverlappingTest(windows):
             # if the reference controls are available
             if first.ref and second.ref:
 
-                if first.ref.Rectangle == second.ref.Rectangle and \
-                    not first.Rectangle == second.Rectangle:
+                if first.ref.Rectangle() == second.ref.Rectangle() and \
+                    not first.Rectangle() == second.Rectangle():
 
                     bugs.append(([first, second], {}, "NotExactOverlap", 0))
 
-                elif _ContainedInOther(first.ref.Rectangle,
-                    second.ref.Rectangle) and \
-                    not _ContainedInOther(first.Rectangle, second.Rectangle):
+                elif _ContainedInOther(first.ref.Rectangle(),
+                    second.ref.Rectangle()) and \
+                    not _ContainedInOther(first.Rectangle(), second.Rectangle()):
 
                     bugs.append(
                         ([first, second], {}, "NotContainedOverlap", 0))
 
 
-            if _Overlapped(first.Rectangle, second.Rectangle) and \
-                not _ContainedInOther(first.Rectangle, second.Rectangle) and \
-                not first.Rectangle == second.Rectangle:
+            if _Overlapped(first.Rectangle(), second.Rectangle()) and \
+                not _ContainedInOther(first.Rectangle(), second.Rectangle()) and \
+                not first.Rectangle() == second.Rectangle():
 
-                ovlRect = _OverlapRect(first.Rectangle, second.Rectangle)
+                ovlRect = _OverlapRect(first.Rectangle(), second.Rectangle())
 
                 isInRef = -1
                 if first.ref and second.ref:
                     isInRef = 0
-                    if _Overlapped(first.ref.Rectangle, second.ref.Rectangle):
+                    if _Overlapped(first.ref.Rectangle(), second.ref.Rectangle()):
                         isInRef = 1
 
                 bugs.append((

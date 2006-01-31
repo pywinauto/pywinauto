@@ -76,7 +76,7 @@ def MissalignmentTest(windows):
 
 
         for side in ("top", "left", "right", "bottom"):
-            sideValue = getattr(win.ref.Rectangle, side)
+            sideValue = getattr(win.ref.Rectangle(), side)
 
             # make sure that the side dictionary has been created
             sideAlignments = refAlignments.setdefault(side, {})
@@ -89,20 +89,20 @@ def MissalignmentTest(windows):
     for side in refAlignments:
         for alignment in refAlignments[side]:
             controls = refAlignments[side][alignment]
-            sides = [getattr(ctrl.Rectangle, side) for ctrl in controls]
+            sides = [getattr(ctrl.Rectangle(), side) for ctrl in controls]
             sides = set(sides)
 
             if len(sides) > 1:
 
                 overAllRect = RECT()
                 overAllRect.left = min(
-                    [ctrl.Rectangle.left for ctrl in controls])
+                    [ctrl.Rectangle().left for ctrl in controls])
                 overAllRect.top = min(
-                    [ctrl.Rectangle.top for ctrl in controls])
+                    [ctrl.Rectangle().top for ctrl in controls])
                 overAllRect.right = max(
-                    [ctrl.Rectangle.right for ctrl in controls])
+                    [ctrl.Rectangle().right for ctrl in controls])
                 overAllRect.bottom = max(
-                    [ctrl.Rectangle.bottom for ctrl in controls])
+                    [ctrl.Rectangle().bottom for ctrl in controls])
 
 
                 bugs.append((
