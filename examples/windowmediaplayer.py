@@ -35,18 +35,18 @@ def WindowsMedia():
     app = application.Application()
 
     try:
-        app.connect_(
-            path = ur"C:\Program Files\Windows Media Player\wmplayer.exe")
+        app.start_(   # connect_(path =
+            ur"C:\Program Files\Windows Media Player\wmplayer.exe")
     except application.ProcessNotFoundError:
         print "You must first start Windows Media "\
             "Player before running this script"
         sys.exit()
 
-    app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
+    #app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
     app.WindowsMediaPlayer.MenuSelect("View->Choose Columns")
 
-    for ctrl in app.ChooseColumns.Children:
-        print ctrl.Class
+    #for ctrl in app.ChooseColumns.Children():
+    #    print ctrl.Class()
 
 
     print "Is it checked already:", app.ChooseColumsn.ListView.IsChecked(1)

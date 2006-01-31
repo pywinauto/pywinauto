@@ -97,32 +97,34 @@ t = {
 
 
 
-def get_winrar_dlgs(rar_dlg, lang):
+def get_winrar_dlgs(rar_dlg, app, lang):
     rar_dlg.MenuSelect(t["Options->Configure"][lang])
 
-    optionsdlg = rar_dlg.app[t['Configure'][lang]]
-    optionsdlg.write_("Options_%d.xml"%lang)
+    optionsdlg = app[t['Configure'][lang]]
+
+    optionsdlg.WriteToXML("Options_%d.xml"%lang)
+
     optionsdlg.CaptureAsImage().save("Options_%d.png"%lang)
     optionsdlg[t['Buttons'][lang]].Click()
 
-    contextMenuDlg = rar_dlg.app[t['PeronnaliseToolbars'][lang]]
-    contextMenuDlg.write_("PersonaliseToolbars_%d.xml"%lang)
+    contextMenuDlg = app[t['PeronnaliseToolbars'][lang]]
+    contextMenuDlg.WriteToXML("PersonaliseToolbars_%d.xml"%lang)
     contextMenuDlg.CaptureAsImage().save("PersonaliseToolbars_%d.png"%lang)
     contextMenuDlg.OK.Click()
 
     optionsdlg.TabCtrl.Select(1)
     optionsdlg[t['CreateDefaultProfile'][lang]].Click()
 
-    defaultOptionsDlg = rar_dlg.app[t['ConfigureDefaultOptions'][lang]]
-    defaultOptionsDlg.write_("DefaultOptions_%d.xml"%lang)
+    defaultOptionsDlg = app[t['ConfigureDefaultOptions'][lang]]
+    defaultOptionsDlg.WriteToXML("DefaultOptions_%d.xml"%lang)
     defaultOptionsDlg.CaptureAsImage().save("DefaultOptions_%d.png"%lang)
     defaultOptionsDlg.OK.Click()
 
     optionsdlg.TabCtrl.Select(6)
     optionsdlg[t['ContextMenus'][lang]].Click()
 
-    anotherMenuDlg = rar_dlg.app[t['contextMenuDlg'][lang]]
-    anotherMenuDlg.write_("2ndMenuDlg_%d.xml"%lang)
+    anotherMenuDlg = app[t['contextMenuDlg'][lang]]
+    anotherMenuDlg.WriteToXML("2ndMenuDlg_%d.xml"%lang)
     anotherMenuDlg.CaptureAsImage().save("2ndMenuDlg_%d.png"%lang)
 
     anotherMenuDlg.OK.Click()
@@ -148,7 +150,7 @@ for lang in langs:
     rar_dlg = app.window_(title_re = ".* - WinRAR.*")
 
     # dump and capture some dialogs
-    get_winrar_dlgs(rar_dlg, lang)
+    get_winrar_dlgs(rar_dlg, app,  lang)
 
     # exit WinRar
     time.sleep(.5)
