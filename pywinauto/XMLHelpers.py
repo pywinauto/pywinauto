@@ -120,6 +120,9 @@ def _SetNodeProps(element, name, value):
             _SetNodeProps(dictElem, n, val)
 
     else:
+        if isinstance(value, bool):
+            value = long(value)
+
         if isinstance(value, (int, long)):
             name += "_LONG"
 
