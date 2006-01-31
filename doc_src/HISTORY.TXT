@@ -1,3 +1,36 @@
+0.2.0 Significant refactoring
+------------------------------------------------
+XX-Feb-2006
+
+    * Changed how windows are searched for (from application)
+      This chage should not be a significant change for users
+    
+    * Started adding unit tests (and the have already uncovered bugs 
+      that been fixed). They also point to areas of missing functionality
+      that will be addded with future updates
+    
+    * Changed from property access to Control attributes to function access
+      If your code was accessing properties of controls then this might be a
+      significant change! The main reasons for doing this were due to the
+      inheritability of properties (or lack there-of!) and the additional scafolding
+      that was required to define them all.
+      
+    * Updated the ``DialogWrapper.MenuSelect()`` method to notify the parent that it
+      needs to initialize the menu's before it retrieves the items
+      
+    * Added functionality to associate 'non-text' controls with the 'text' control
+      closest to them. This allows controls to be referenced by::
+      
+        app.dlg.ClosetextWindowclass
+      
+      e.g. to reference the "Footer" edit control in the Page Setup dialog you could
+      use::
+       
+        app.PageSetup.FooterEdit
+      
+        
+
+
 0.1.3 Many changes, few visible
 ------------------------------------------------
 15-Jan-2006
