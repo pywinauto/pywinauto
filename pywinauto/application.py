@@ -57,7 +57,6 @@ avialable dialogs or controls.
 __revision__ = "$Revision$"
 
 import time
-import os.path
 
 import ctypes
 
@@ -70,10 +69,10 @@ import handleprops
 
 # Following only needed for writing out XML files
 # and can be (also requires elementtree)
-try:
-    import XMLHelpers
-except ImportError:
-    pass
+#try:
+#    import XMLHelpers
+#except ImportError:
+#    pass
 
 class AppStartError(Exception):
     "There was a problem starting the Application"
@@ -87,10 +86,71 @@ class AppNotConnected(Exception):
     "Application has been connected to a process yet"
     pass
 
-
+# Maximum wait time for a window to exist
 window_find_timeout = 3
+
+# How long to sleep between each try to looking for a window
 window_retry_interval = .09
-wait_after_app_start = 10
+
+# Maximum wait time to wait for the first window of an
+# application to exist
+app_start_timeout = 10
+
+# Maximum wait time when checking if a control exists
+exists_timeout = .5
+
+# How long to sleep between each try when checking if the window exists
+exists_retry_interval = .3
+
+
+def set_timing(
+    win_find = 3,
+    win_retry =.09,
+    app_start = 10,
+    exists = .5,
+    exists_retry = .3,
+    after_click = 0,
+    after_menu = 0,
+    after_sendkeys = .03,
+    after_button_click = 0,
+    after_close = .2):
+
+    """Set the timing for various things
+
+    win_find = 3    Max time to look for a window
+    win_retry =.09  Retry interval when finding a window
+    app_start = 10  Max time to look for a window after app start
+    exists = .5     Max time to check a window exists
+    exists_retry = .3  Retry interval when checking a window exists
+    after_click = 0    Delay after a mouse click
+    after_menu = 0     Delay after a menu selection
+    after_sendkeys = .03   Delay after each Sendkeys key
+    after_button_click = 0 Delay after a button click
+    after_close = .2       Delay after the CloseClick action
+
+    """
+
+    global window_find_timeout
+    window_find_timeout = win_find
+    global window_retry_interval
+    window_retry_interval = win_retry
+    global app_start_timeout
+    app_start_timeout = app_start
+    global exists_timeout
+    exists_timeout = exists
+    global exists_retry_interval
+    exists_retry_interval = exists_retry
+
+
+    import controls.HwndWrapper
+    controls.HwndWrapper.delay_after_click = after_click
+    controls.HwndWrapper.delay_after_menuselect = after_menu
+    controls.HwndWrapper.delay_after_sendkeys_key = after_sendkeys
+    controls.HwndWrapper.delay_after_button_click = after_button_click
+    controls.HwndWrapper.delay_before_after_close_click = after_close
+
+
+
 
 
 #=========================================================================
@@ -102,254 +162,101 @@ def _make_valid_filename(filename):
         filename = filename.replace(char, '#%d#'% ord(char))
     return filename
 
-#
-##=========================================================================
-#class ActionDialog(object):
-#    """ActionDialog wraps the dialog you are interacting with
-#
-#    It provides support for finding controls using attribute access,
-#    item access and the _control(...) method.
-#
-#    You can dump information from a dialgo to XML using the write_() method
-#
-#    A screenshot of the dialog can be taken using the underlying wrapped
-#    HWND ie. my_action_dlg.wrapped_win.CaptureAsImage().save("dlg.png").
-#    This is only available if you have PIL installed (fails silently
-#    otherwise).
-#    """
-#    def __init__(self, hwnd, app = None, props = None):
-#        """Initialises an ActionDialog object
-#
-#        ::
-#           hwnd (required) The handle of the dialog
-#           app An instance of an Application Object
-#           props future use (when we have an XML file for reference)
-#
-#        """
-#
-#        #self.wrapped_win = controlactions.add_actions(
-#        #    controls.WrapHandle(hwnd))
-#        self.wrapped_win = controls.WrapHandle(hwnd)
-#
-#        self.app = app
-#
-#        dlg_controls = [self.wrapped_win, ]
-#        dlg_controls.extend(self.wrapped_win.Children)
-#
-#    def __getattr__(self, key):
-#        "Attribute access - defer to item access"
-#        return self[key]
-#
-#    def __getitem__(self, attr):
-#        "find the control that best matches attr"
-#        # if it is an integer - just return the
-#        # child control at that index
-#        if isinstance(attr, (int, long)):
-#            return self.wrapped_win.Children[attr]
-#
-#        # so it should be a string
-#        # check if it is an attribute of the wrapped win first
-#        try:
-#            return getattr(self.wrapped_win, attr)
-#        except (AttributeError, UnicodeEncodeError):
-#            pass
-#
-#        # find the control that best matches our attribute
-#        ctrl = findbestmatch.find_best_control_match(
-#            attr, self.wrapped_win.Children)
-#
-#        # add actions to the control and return it
-#        return ctrl
-#
-#    def write_(self, filename):
-#        "Write the dialog an XML file (requires elementtree)"
-#        if self.app and self.app.xmlpath:
-#            filename = os.path.join(self.app.xmlpath, filename + ".xml")
-#
-#        controls = [self.wrapped_win]
-#        controls.extend(self.wrapped_win.Children)
-#        props = [ctrl.GetProperties() for ctrl in controls]
-#
-#        XMLHelpers.WriteDialogToFile(filename, props)
-#
-#    def control_(self, **kwargs):
-#        "Find the control that matches the arguments and return it"
-#
-#        # add the restriction for this particular process
-#        kwargs['parent'] = self.wrapped_win
-#        kwargs['process'] = self.app.process
-#        kwargs['top_level_only'] = False
-#
-#        # try and find the dialog (waiting for a max of 1 second
-#        ctrl = findwindows.find_window(**kwargs)
-#        #win = ActionDialog(win, self)
-#
-#        return controls.WrapHandle(ctrl)
-#
-#
-#
-#
-##=========================================================================
-#def _WalkDialogControlAttribs(app, attr_path):
-#    "Try and resolve the dialog and 2nd attribute, return both"
-#    if len(attr_path) != 2:
-#        raise RuntimeError("Expecting only 2 items in the attribute path")
-#
-#    # get items to select between
-#    # default options will filter hidden and disabled controls
-#    # and will default to top level windows only
-#    wins = findwindows.find_windows(process = app.process)
-#
-#    # wrap each so that find_best_control_match works well
-#    wins = [controls.WrapHandle(win) for win in wins]
-#
-#    # if an integer has been specified
-#    if isinstance(attr_path[0], (int, long)):
-#        dialogWin  = wins[attr_path[0]]
-#    else:
-#        # try to find the item
-#        dialogWin = findbestmatch.find_best_control_match(attr_path[0], wins)
-#
-#    # already wrapped
-#    dlg = ActionDialog(dialogWin, app)
-#
-#    # for each of the other attributes ask the
-#    attr_value = dlg
-#    for attr in attr_path[1:]:
-#        try:
-#            attr_value = getattr(attr_value, attr)
-#        except UnicodeEncodeError:
-#            attr_value = attr_value[attr]
-#
-#    return dlg, attr_value
-#
-#
-##=========================================================================
-#class _DynamicAttributes(object):
-#    "Class that builds attributes until they are ready to be resolved"
-#
-#    def __init__(self, app):
-#        "Initialize the attributes"
-#        self.app = app
-#        self.attr_path = []
-#
-#    def __getattr__(self, attr):
-#        "Attribute access - defer to item access"
-#        return self[attr]
-#
-#    def __getitem__(self, attr):
-#        "Item access[] for getting dialogs and controls from an application"
-#
-#        # do something with this one
-#        # and return a copy of ourselves with some
-#        # data related to that attribute
-#
-#        self.attr_path.append(attr)
-#
-#        # if we have a lenght of 2 then we have either
-#        #   dialog.attribute
-#        # or
-#        #   dialog.control
-#        # so go ahead and resolve
-#        if len(self.attr_path) == 2:
-#            dlg, final = _wait_for_function_success(
-#                _WalkDialogControlAttribs, self.app, self.attr_path)
-#
-#            # seing as we may already have a reference to the dialog
-#            # we need to strip off the control so that our dialog
-#            # reference is not messed up
-#            self.attr_path = self.attr_path[:-1]
-#
-#            return final
-#
-#        # we didn't hit the limit so continue collecting the
-#        # next attribute in the chain
-#        return self
-
-
-#=========================================================================
-def _wait_for_function_success(func, *args, **kwargs):
-    """Retry the dialog up to timeout trying every time_interval seconds
-
-    timeout defaults to 1 second
-    time_interval defaults to .09 of a second """
-    if kwargs.has_key('time_interval'):
-        time_interval = kwargs['time_interval']
-        del kwargs['time_interval']
-    else:
-        time_interval = window_retry_interval
-
-    if kwargs.has_key('timeout'):
-        timeout = kwargs['timeout']
-        del kwargs['timeout']
-    else:
-        timeout = window_find_timeout
-
-
-    # keep going until we either hit the return (success)
-    # or an exception is raised (timeout)
-    while 1:
-        try:
-            return func(*args, **kwargs)
-        except:
-            if timeout > 0:
-                time.sleep (time_interval)
-                timeout -= time_interval
-            else:
-                raise
-
-
-
-
-
-
-
-
-
-
-
-
 
 #=========================================================================
 class WindowSpecification(object):
+    """A specificiation for finding a window or control
+
+    Windows are resolved when used.
+    You can also wait for existance or non existance of a window
+    """
+
     def __init__(self, search_criteria):
+        """Initailize the class
+
+        :search_criteria: the criteria to match a dialog
+        """
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
 
+    def __call__(self, *args, **kwargs):
+        "No __call__ so return a usefull error"
+
+        if "best_match" in self.criteria[-1]:
+            raise AttributeError(self.criteria[-1]['best_match'])
+
+        message = \
+        "You tried to execute a function call on a WindowSpecification " \
+        "instance. You probably have a typo for one of the methods of this " \
+        "class.\n" \
+        "The criteria leading up to this is: " + str(self.criteria)
+
+        raise AttributeError(message)
+
+
     def Exists(self):
+        "Check if the window exists"
+
+        # modify the criteria as Exists should look for all
+        # windows - including not visible and disabled
+        exists_criteria = []
+        for criterion in self.criteria[:]:
+            criterion['enabled_only'] = False
+            criterion['visible_only'] = False
+            exists_criteria.append(criterion)
+
         try:
-            _wait_for_function_success(
-                self.__resolve_control,
-                timeout = .5,
-                time_interval = .3)
+            ctrl = _resolve_control(
+                exists_criteria, exists_timeout, exists_retry_interval)
+
             return True
         except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
             return False
 
+
+
+    def WaitReady(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be ready (Exists, Visible and Enabled)"
+
+        # modify the criteria as Exists should look for all
+        # windows - including not visible and disabled
+        ready_criteria = []
+        for criterion in self.criteria[:]:
+            criterion['enabled_only'] = True
+            criterion['visible_only'] = True
+            ready_criteria.append(criterion)
+
+        ctrl = _resolve_control(
+            ready_criteria,
+            timeout,
+            wait_interval)
+
         return ctrl
 
-    def WaitExists(self, timeout = 1, wait_interval = .3):
-        # TODO should we return how long we waited or the window?
-        ctrl = _wait_for_function_success(
-            self.__resolve_control,
-            timeout = timeout,
-            time_interval = wait_interval)
+#    def WaitEnabled(self):
+#
+#        ctrl = _resolve_control(
+#            self.criteria,
+#            timeout,
+#            wait_interval)
+#
+#    def WaitVisible(self):
+#        pass
+#    def WaitNotExists(self):
+#        pass
+    def WaitNotEnabled(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be disabled or not exist"
 
-        return ctrl
-
-    def WaitEnabled(self):
-        pass
-    def WaitVisible(self):
-        pass
-    def WaitNotExists(self):
-        pass
-    def WaitNotEnabled(self, timeout = 2, wait_interval = .5):
         waited = 0
         while True:
 
             try:
                 # stop trying if it is not enabled
-                if not self.__resolve_control().IsEnabled:
+                if not _resolve_control(self.criteria).IsEnabled():
                     break
 
             # stop trying if the window doesn't exist
@@ -365,22 +272,54 @@ class WindowSpecification(object):
             waited += wait_interval
 
 
-    def WaitNotVisible(self):
-        self.__resolvewindow()
-        pass
+    def WaitNotVisible(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be invisible or not exist"
+
+        # modify the criteria as Exists should look for all
+        # windows - including not visible and disabled
+        notvisible_criteria = []
+        for criterion in self.criteria[:]:
+            criterion['enabled_only'] = False
+            criterion['visible_only'] = False
+            notvisible_criteria.append(criterion)
+
+        waited = 0
+        while True:
+
+            try:
+                # stop trying if it is not enabled
+                if not _resolve_control(notvisible_criteria).IsVisible():
+                    break
+
+            # stop trying if the window doesn't exist
+            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+                break
+
+            # stop trying if we have reached the timeout
+            if waited >= timeout:
+                break
+
+            # other wise wait the interval, and try again
+            time.sleep(wait_interval)
+            waited += wait_interval
+
+    def ctrl_(self):
+        return _resolve_control(self.criteria)
 
     def window_(self, **criteria):
+        "Add the criteria that will be matched when we resolve the control"
 
         if len(self.criteria) < 2:
             self.criteria.append(criteria)
         else:
             self.criteria[1] = criteria
 
-        print self.criteria
-
         return self
 
     def __getitem__(self, key):
+        "Set the appropriate criteria from item access"
 
         # FUTURE REQUIREMENT - NOT REQUIRED YET
         # if we already have 2 levels of criteria (dlg, control)
@@ -396,7 +335,7 @@ class WindowSpecification(object):
         # We don't really want this because it brings us back to
         # not being able to do app.Dlg.Control.WaitExists()
         #if len(self.criteria) == 2:
-        #    return self.__resolve_control()
+        #    return self._resolve_control()
 
         return new_item
 
@@ -410,6 +349,19 @@ class WindowSpecification(object):
     # - We know the first one is a dialog so we an
     #   check if the attr is in the list of Dialog attributes!
     def __getattr__(self, attr):
+        """Attribute access for this class
+
+        If we already have criteria for both dialog and control then
+        resolve the control and return the requested attribute.
+
+        If we have only criteria for the dialog but the attribute
+        requested is an attribute of DialogWrapper then resolve the
+        dialog and return the requested attribute.
+
+        Otherwise delegate functionality to __getitem__() - which
+        sets the appropriate criteria for the control.
+        """
+
         from pywinauto.controls.win32_controls import DialogWrapper
 
         # if we already have 2 levels of criteria (dlg, conrol)
@@ -417,52 +369,102 @@ class WindowSpecification(object):
         # attribute and return it
         if len(self.criteria) == 2:
             return getattr(
-                _wait_for_function_success(self.__resolve_control),
+                _resolve_control(
+                    self.criteria,
+                    window_find_timeout,
+                    window_retry_interval),
                 attr)
+
         else:
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
             if len(self.criteria) == 1 and hasattr(DialogWrapper, attr):
-                return getattr(self.WaitExists(1, .3), attr)
+                return getattr(
+                    self.WaitReady(
+                        window_find_timeout,
+                        window_retry_interval),
+                    attr)
 
         # It is a dialog/control criterion so let getitem
         # deal with it
         return self[attr]
 
+    def print_control_identifiers(self):
+        """Prints the 'identifiers'
+
+        If you pass in a control then it just prints the identifiers
+        for that control
+
+        If you pass in a dialog then it prints the identiferis for all
+        controls in the dialog
+
+        :Note: The identifiers printed by this method have not been made
+               unique. So if you have 2 edit boxes, they will both have "Edit"
+               listed in their identifiers. In reality though the first one
+               can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
+               should be refered to as "Edit2".
+
+        """
+        ctrl = _resolve_control(
+            self.criteria,
+            window_find_timeout,
+            window_retry_interval)
+
+        if ctrl.IsDialog():
+            ctrls = ctrl.Children()
+            visible_text_ctrls = [ctrl for ctrl in ctrls
+                if ctrl.IsVisible() and ctrl.Text()]
+        else:
+            visible_text_ctrls = [ctrl for ctrl in ctrl.Parent().Children()
+                if ctrl.IsVisible() and ctrl.Text()]
+            ctrls = [ctrl]
+
+        for ctrl in ctrls:
+            print "%s - %s   %s"% (
+                ctrl.Class(), ctrl.Text(), str(ctrl.Rectangle()))
+
+            print "\t",
+            for text in findbestmatch.get_control_names(
+                ctrl, visible_text_ctrls):
+
+                print "'%s'" % text.encode("unicode_escape"),
+            print
 
 
-    def __resolve_control(self):
+def _resolve_control(criteria, timeout = 0, wait_interval = .2):
+    """Find a control using criteria
 
-        # hide this function in here - so it is clear that __resolve_control
-        # is the method that needs to be called
-        def __resolve_window(criteria):
+    :criteria: - a list that contains 1 or 2 dictionaries
+                 1st element is search criteria for the dialog
+                 2nd element is the search criteria for a control of the dialog
+    :timeout: -  maximum length of time to try to find the controls (default 0)
+    :wait_interval: - how long to wait between each retry (default .2)
+    """
 
-            criteria['visible_only'] = True
-            criteria['enabled_only'] = True
+    waited = 0
+    while True:
+        try:
+            dialog = controls.WrapHandle(
+                findwindows.find_window(**criteria[0]))
+
+            # if there is only criteria for a dialog then return it
+            if len(criteria) == 1:
+                return dialog
+
+            # so there was criteria for a control, add the extra criteria
+            # that are required for child controls
+            criteria = criteria[1]
+            criteria["top_level_only"] = False
+            criteria["parent"] = dialog.handle
+
+            # resolve the control and return it
             return controls.WrapHandle(findwindows.find_window(**criteria))
-
-
-        dialog = __resolve_window(self.criteria[0])
-
-        # if there is only criteria for a dialog then return it
-        if len(self.criteria) == 1:
-            return dialog
-
-        # so there was criteria for a control, add the extra criteria
-        # that are required for child controls
-        criteria = self.criteria[1]
-        criteria["top_level_only"] = False
-        criteria["parent"] = dialog
-
-        # resolve the control and return it
-        return __resolve_window(criteria)
-
-
-
-
-
-
-
+        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+            if waited < timeout:
+                waited += wait_interval
+                time.sleep(wait_interval)
+            else:
+                raise
 
 
 #=========================================================================
@@ -473,7 +475,7 @@ class Application(object):
         self.process = None
         self.xmlpath = ''
 
-    def start_(self, cmd_line, timeout = wait_after_app_start):
+    def start_(self, cmd_line, timeout = app_start_timeout):
         "Starts the application giving in cmd_line"
 
         start_info = win32structures.STARTUPINFOW()
@@ -498,19 +500,24 @@ class Application(object):
             ctypes.byref(start_info),# Pointer to STARTUPINFO structure.
             ctypes.byref(proc_info)) # Pointer to PROCESS_INFORMATION structure
 
-
         # if it failed for some reason
         if not ret:
             raise AppStartError("CreateProcess: " + str(ctypes.WinError()))
 
         self.process = _Process(proc_info.dwProcessId)
 
-        if win32functions.WaitForInputIdle(proc_info.hProcess, timeout * 1000):
-            raise AppStartError("WaitForInputIdle: " + str(ctypes.WinError()))
+        start = time.time()
+        while time.time() - start < timeout:
+            if not win32functions.WaitForInputIdle(
+                proc_info.hProcess, timeout * 1000):
+                break
+                #raise AppStartError(
+                #    "WaitForInputIdle: " + str(ctypes.WinError()))
 
-        while not self.process.windows():
-            print "sleeping waiting for startup"
-            time.sleep(.3)
+            if self.app_windows_():
+                break
+
+            time.sleep(.5)
 
         return self
 
@@ -542,16 +549,33 @@ class Application(object):
 
         return self
 
-    def windows_(self):
-        "hmm - seems wrong!!"
+    def app_windows_(self):
+        "Return a list of the handles for top level windows of the application"
+
         if not self.process:
             raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
 
-        return self.process.windows()
+        return findwindows.find_windows(
+            process = self.process._id,
+            visible_only = False,
+            enabled_only = False)
 
+    def top_window_(self):
+        "Return the current top window of the dialog"
+        if not self.process:
+            raise AppNotConnected("Please use start_ or connect_ before "
+                "trying anything else")
 
-    def window_(self, *args, **kwargs):
+        time.sleep(exists_timeout)
+        # very simple
+        windows = findwindows.find_windows(process = self.process._id)
+        criteria = {}
+        criteria['handle'] = windows[0]
+
+        return WindowSpecification(criteria)
+
+    def window_(self, **kwargs):
         """Return a window of the application
 
         You can specify the same parameters as findwindows.find_windows.
@@ -559,114 +583,51 @@ class Application(object):
         the current process.
         """
         if not self.process:
-            raise AppNotConnected("Please use start_ or connect_ before "
-                "trying anything else")
-
-        if args:
-            raise RuntimeError("You must use keyword arguments")
-
-
+            raise AppNotConnected(
+                "Please use start_ or connect_ before trying anything else")
 
         # add the restriction for this particular process
         kwargs['process'] = self.process._id
 
         return WindowSpecification(kwargs)
-#
-#
-#        # try and find the dialog (waiting for a max of 1 second
-#        win = _wait_for_function_success (
-#            findwindows.find_window,
-#            *args,
-#            **kwargs)
-#
-#        # wrap the Handle object (and store it in the cache
-#        return ActionDialog(win, self)
 
     def __getitem__(self, key):
-        "Find the dialog of the application"
-        if not self.process:
-            raise AppNotConnected("Please use start_ or connect_ before "
-                "trying anything else")
+        "Find the specified dialog of the application"
 
-        return WindowSpecification(dict(
-            process = self.process._id,
-            best_match = key)
-            )
-
-
-#        return _DynamicAttributes(self)[key]
+        # delegate searching functionality to self.window_()
+        return self.window_(best_match = key)
 
     def __getattr__(self, key):
-        "Find the dialog of the application"
-        if not self.process:
-            raise AppNotConnected("Please use start_ or connect_ before "
-                "trying anything else")
+        "Find the spedified dialog of the application"
 
+        # delegate all functionality to item access
         return self[key]
 
-#    def _wait_while_enabled(self, control, timeout = 1):
-#
-#        waited = 0
-#        # go for dialog first
-#        while True:
-#            wins = findwindows.find_windows(process = self.process)
-#            wins = [controls.WrapHandle(win) for win in wins]
-#
-#            try:
-#                # check if it is a string
-#                if isinstance(control, basestring):
-#
-#                    # get the dialog
-#                    parts = control.split('.')
-#                    to_check = findbestmatch.find_best_control_match(
-#                        parts[0], wins)
-#
-#                    # if there are more parts then get teh control
-#                    if parts[1:]:
-#                        to_check = findbestmatch.find_best_control_match(
-#                            parts[1], to_check.Children)
-#
-#                    # if it is enabled then we need to wait longer
-#                    if to_check.IsEnabled:
-#                        if waited >= timeout:
-#                            raise RuntimeError("Timed Out")
-#                        time.sleep(.5)
-#                        waited += .5
-#                    # OK so it is not enabled - we can break out
-#                    else:
-#                        break
-#
-#            except findbestmatch.MatchError, e:
-#                break
 
 #=========================================================================
 class _Process(object):
     "A running process"
-    def __init__(self, ID, module = None):
+    def __init__(self, proc_id, module = None):
         "initialise the process instance"
 
-        self._id = ID
+        self._id = proc_id
         self._module = module
 
     def id(self):
         "Return the process iD"
         return self._id
 
-    def windows(self):
-        "Get the windows in this process"
-        return findwindows.find_windows(process = self._id)
-
     def module(self):
         "Return the string module name of this process"
         # Set instance variable _module if not already set
         if not self._module:
-            hProcess = win32functions.OpenProcess(
+            process_handle = win32functions.OpenProcess(
                 0x400 | 0x010, 0, self._id) # read and query info
 
             # get module name from process handle
             filename = (ctypes.c_wchar * 2000)()
             win32functions.GetModuleFileNameEx(
-                hProcess, 0, ctypes.byref(filename), 2000)
+                process_handle, 0, ctypes.byref(filename), 2000)
 
             # set variable
             self._module = filename.value
