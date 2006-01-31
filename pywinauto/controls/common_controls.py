@@ -131,7 +131,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows ListView common control "
 
     friendlyclassname = "ListView"
-    windowclasses = ["SysListView32", r"WindowsForms\d*\.SysListView32\..*",]
+    windowclasses = ["SysListView32", r"WindowsForms\d*\.SysListView32\..*", ]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -156,10 +156,11 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem = _RemoteMemoryBlock(self)
 
         # Get each ListView columns text data
-        nIndex = 0
+        index = 0
         while True:
             col = win32structures.LVCOLUMNW()
             col.mask = win32defines.LVCF_WIDTH | win32defines.LVCF_FMT
+            #LVCF_TEXT, LVCF_SUBITEM, LVCF_IMAGE, LVCF_ORDER
 
             # put the information in the memory that the
             # other process can read/write
@@ -168,7 +169,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             # ask the other process to update the information
             retval = self.SendMessage(
                 win32defines.LVM_GETCOLUMNW,
-                nIndex,
+                index,
                 remote_mem.Address())
 
             col = remote_mem.Read(col)
@@ -182,7 +183,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
                 # OK - so it didn't work stop trying to get more columns
                 break
 
-            nIndex += 1
+            index += 1
 
         del (remote_mem)
 
@@ -202,7 +203,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         props['ColumnCount'] = self.ColumnCount()
         if props['ColumnCount'] == 0:
             props['ColumnCount'] = 1
-            props['ColumnWidths'] = [999,] # never trunctated
+            props['ColumnWidths'] = [999, ] # never trunctated
 
         props['ItemData'] = []
         for item in self.Items():
@@ -217,6 +218,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def GetItem(self, item_index, subitem_index = 0):
+        "Return the item of the list view"
 
         # set up a memory block in the remote application
         remote_mem = _RemoteMemoryBlock(self)
@@ -242,11 +244,11 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         if retval:
 
             # Read the remote text string
-            charData = ctypes.create_unicode_buffer(2000)
-            remote_mem.Read(charData, item.pszText)
+            char_data = ctypes.create_unicode_buffer(2000)
+            remote_mem.Read(char_data, item.pszText)
 
             # and add it to the titles
-            item.Text = charData.value
+            item.Text = char_data.value
         else:
             item.Text  = ''
 
@@ -276,15 +278,14 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         return items
 
     #-----------------------------------------------------------
-    def _get_texts(self):
+    def Texts(self):
         "Get the texts for the ListView control"
-        texts = [self.Text]
+        texts = [self.Text()]
         texts.extend([item.Text for item in self.Items()])
         return texts
-    Texts = property(_get_texts, doc = _get_texts.__doc__)
 
 
-
+    #-----------------------------------------------------------
     # TODO: Make the RemoteMemoryBlock stuff more automatic!
     def UnCheck(self, item):
         "Uncheck the ListView item"
@@ -297,16 +298,16 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         lvitem.state = 0x1000
         lvitem.stateMask = win32defines.LVIS_STATEIMAGEMASK
 
-        from controls.common_controls import RemoteMemoryBlock
+        remote_mem = _RemoteMemoryBlock(self)
+        remote_mem.Write(lvitem)
 
-        remoteMem = RemoteMemoryBlock(self)
-        remoteMem.Write(lvitem)
+        self.SendMessage(
+            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
 
-        self.SendMessage(win32defines.LVM_SETITEMSTATE, item, remoteMem.Address())
-
-        del remoteMem
+        del remote_mem
 
 
+    #-----------------------------------------------------------
     def Check(self, item):
         "Check the ListView item"
 
@@ -318,22 +319,83 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         lvitem.state = 0x2000
         lvitem.stateMask = win32defines.LVIS_STATEIMAGEMASK
 
-        from controls.common_controls import RemoteMemoryBlock
+        remote_mem = _RemoteMemoryBlock(self)
+        remote_mem.Write(lvitem)
 
-        remoteMem = RemoteMemoryBlock(self)
-        remoteMem.Write(lvitem)
+        self.SendMessage(
+            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
 
-        self.SendMessage(win32defines.LVM_SETITEMSTATE, item, remoteMem.Address())
+        del remote_mem
 
-        del remoteMem
-
+    #-----------------------------------------------------------
     def IsChecked(self, item):
         "Return whether the ListView item is checked or not"
         state = self.SendMessage(
-            win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_STATEIMAGEMASK)
+            win32defines.LVM_GETITEMSTATE,
+            item,
+            win32defines.LVIS_STATEIMAGEMASK)
 
-        return state & 0x2000
+        return state & 0x2000 == 0x2000
 
+    #-----------------------------------------------------------
+    def IsSelected(self, item):
+        "Return True if the item is selected"
+        return win32defines.LVIS_SELECTED == self.SendMessage(
+            win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_SELECTED)
+
+    #-----------------------------------------------------------
+    def IsFocused(self, item):
+        "Return True if the item has the focus"
+        return win32defines.LVIS_FOCUSED == self.SendMessage(
+            win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_FOCUSED)
+
+    #-----------------------------------------------------------
+    def Select(self, item):
+        "Mark the item as selected"
+
+        self.VerifyActionable()
+
+        # first we need to change the state of the item
+        lvitem = win32structures.LVITEMW()
+        lvitem.mask = win32defines.LVIF_STATE
+        lvitem.state = win32defines.LVIS_SELECTED
+        lvitem.stateMask = win32defines.LVIS_SELECTED
+
+        remote_mem = _RemoteMemoryBlock(self)
+        remote_mem.Write(lvitem)
+
+        self.SendMessage(
+            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+
+
+        # now we need to notify the parent that the state has chnaged
+        nmlv = win32structures.NMLISTVIEW()
+        nmlv.hdr.hwndFrom = self.handle
+        nmlv.hdr.idFrom = self.ControlID()
+        nmlv.hdr.code = win32defines.LVN_ITEMCHANGING
+
+        nmlv.iItem = item
+        #nmlv.iSubItem = 0
+        nmlv.uNewState = win32defines.LVIS_SELECTED
+        #nmlv.uOldState = 0
+        nmlv.uChanged = win32defines.LVIS_SELECTED
+        nmlv.ptAction = win32structures.POINT()
+
+        remote_mem.Write(nmlv)
+
+        self.Parent().SendMessage(
+            win32defines.WM_NOTIFY,
+            self.ControlID(),
+            remote_mem.Write(lvitem))
+
+        del remote_mem
+
+
+    #-----------------------------------------------------------
+    def GetSelectedCount(self):
+        "Return the number of selected items"
+
+        return self.SendMessage(win32defines.LVM_GETSELECTEDCOUNT)
 
 
 
@@ -351,24 +413,57 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
 
 class _treeview_element(object):
-
+    "Wrapper around TreeView items"
     #----------------------------------------------------------------
     def __init__(self, elem, tv_handle):
+        "Initialize the item"
         self.tree_ctrl = tv_handle
         self.elem = elem
         self._as_parameter_ = self.elem
 
     #----------------------------------------------------------------
     def Text(self):
+        "Return the text of the item"
         return self._readitem()[1]
 
     #----------------------------------------------------------------
     def Item(self):
+        "Return the item itself"
         return self._readitem()[0]
 
     #----------------------------------------------------------------
-    def Children(self):
+    def State(self):
+        "Return the state of the item"
+        return self.Item().state
 
+    #----------------------------------------------------------------
+    def Rectangle(self):
+        "Return the rectangle of the item"
+        remote_mem = _RemoteMemoryBlock(self.tree_ctrl)
+
+        # this is a bit weird
+        # we have to write the element handle
+        # but we read the Rectangle afterwards!
+        remote_mem.Write(ctypes.c_long(self.elem))
+
+        ret = self.tree_ctrl.SendMessage(
+            win32defines.TVM_GETITEMRECT, 0, remote_mem.Address())
+
+        # the item is not visible
+        if not ret:
+            rect = None
+        else:
+            # OK - it's visible so read it
+            rect = win32structures.RECT()
+            remote_mem.Read(rect)
+
+        del remote_mem
+        return rect
+
+
+    #----------------------------------------------------------------
+    def Children(self):
+        "Return the direct children of this control"
         if self.Item().cChildren not in (0, 1):
             print "##### not dealing with that TVN_GETDISPINFO stuff yet"
             pass
@@ -406,7 +501,7 @@ class _treeview_element(object):
 
     #----------------------------------------------------------------
     def Next(self):
-
+        "Return the next item"
         # get the next element
         next_elem = self.tree_ctrl.SendMessage(
             win32defines.TVM_GETNEXTITEM,
@@ -425,6 +520,7 @@ class _treeview_element(object):
 
     #----------------------------------------------------------------
     def SubElements(self):
+        "Return the list of Children of this control"
         sub_elems = []
 
         for child in self.Children():
@@ -437,17 +533,20 @@ class _treeview_element(object):
 
     #----------------------------------------------------------------
     def _readitem(self):
+        "Read the treeview item"
         remote_mem = _RemoteMemoryBlock(self.tree_ctrl)
 
         item = win32structures.TVITEMW()
         item.mask =  win32defines.TVIF_TEXT | \
             win32defines.TVIF_HANDLE | \
-            win32defines.TVIF_CHILDREN #| TVIF_STATE |
+            win32defines.TVIF_CHILDREN | \
+            win32defines.TVIF_STATE
 
         # set the address for the text
         item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 1
         item.cchTextMax = 2000
         item.hItem = self.elem
+        item.stateMask = -1
 
         # Write the local TVITEM structure to the remote memory block
         remote_mem.Write(item)
@@ -463,7 +562,7 @@ class _treeview_element(object):
         if retval:
             remote_mem.Read(item)
 
-            self.__item = item
+            #self.__item = item
             # Read the remote text string
             char_data = ctypes.create_unicode_buffer(2000)
             remote_mem.Read(char_data, item.pszText)
@@ -478,35 +577,35 @@ class _treeview_element(object):
 
 #====================================================================
 class TreeViewWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows TreeView common control "
+    "Class that wraps Windows TreeView common control"
 
     friendlyclassname = "TreeView"
-    windowclasses = ["SysTreeView32",r"WindowsForms\d*\.SysTreeView32\..*"]
+    windowclasses = ["SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
         super(TreeViewWrapper, self).__init__(hwnd)
 
-        self._extra_text = []
+        #self._extra_text = []
 
-        remote_mem = _RemoteMemoryBlock(self)
+        #remote_mem = _RemoteMemoryBlock(self)
 
     #----------------------------------------------------------------
     def Count(self):
+        "Return the number of items"
         return self.SendMessage(win32defines.TVM_GETCOUNT)
 
     #----------------------------------------------------------------
-    def _get_texts(self):
-        texts = [self.Text, self.Root().Text()]
+    def Texts(self):
+        "Return all the text for the tree view"
+        texts = [self.Text(), self.Root().Text()]
 
         elements = self.Root().SubElements()
 
         texts.extend(elem.Text() for elem in elements)
 
         return texts
-
-    Texts = property(_get_texts, doc = "Return all the text for the tree view")
 
     #----------------------------------------------------------------
     def Root(self):
@@ -522,14 +621,17 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetProperties(self):
         "Get the properties for the control as a dictionary"
-        props = HwndWrapper.GetProperties(self)
+        props = HwndWrapper.HwndWrapper.GetProperties(self)
 
         props['Count'] = self.Count()
 
         return props
 
 
+    #----------------------------------------------------------------
     def GetItem(self, path):
+        "Read the TreeView item"
+
         # work just based on integers for now
 
         current_elem = self.Root()
@@ -566,7 +668,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def Select(self, path):
-
+        "Select the treeview item"
         elem = self.GetItem(path)
         self.SendMessage(
             win32defines.TVM_SELECTITEM, # message
@@ -574,12 +676,84 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             elem)                 # item to select
 
 
+    #-----------------------------------------------------------
+    def IsSelected(self, path):
+        "Return True if the item is selected"
+        return win32defines.TVIS_SELECTED  == (win32defines.TVIS_SELECTED & \
+            self.GetItem(path).State())
+
+    #----------------------------------------------------------------
     def EnsureVisible(self, path):
+        "Make sure that the TreeView item is visible"
         elem = self.GetItem(path)
         self.SendMessage(
             win32defines.TVM_ENSUREVISIBLE, # message
             win32defines.TVGN_CARET,     # how to select
             elem)                 # item to select
+
+
+#
+#   #-----------------------------------------------------------
+#    # TODO: Make the RemoteMemoryBlock stuff more automatic!
+#    def UnCheck(self, path):
+#        "Uncheck the ListView item"
+#
+#        self.VerifyActionable()
+#
+#        elem = self.GetItem(path)
+#
+##        lvitem = win32structures.LVITEMW()
+##
+##        lvitem.mask = win32defines.LVIF_STATE
+##        lvitem.state = 0x1000
+##        lvitem.stateMask = win32defines.LVIS_STATEIMAGEMASK
+##
+##        remote_mem = _RemoteMemoryBlock(self)
+##        remote_mem.Write(lvitem)
+##
+##        self.SendMessage(
+##            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+##
+##        del remote_mem
+#
+#
+#    #-----------------------------------------------------------
+#    def Check(self, path):
+#        "Check the ListView item"
+#
+#        self.VerifyActionable()
+#
+#        elem = self.GetItem(path)
+#
+#        #lvitem = win32structures.LVITEMW()
+#
+#        lvitem.mask = win32defines.LVIF_STATE
+#        lvitem.state = 0x2000
+#        lvitem.stateMask = win32defines.LVIS_STATEIMAGEMASK
+#
+#        remote_mem = _RemoteMemoryBlock(self)
+#        remote_mem.Write(lvitem)
+#
+#        self.SendMessage(
+#            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+#
+#        del remote_mem
+#
+#    #-----------------------------------------------------------
+#    def IsChecked(self, path):
+#        "Return whether the ListView item is checked or not"
+#
+#        elem = self.GetItem(path)
+#
+#        elem.State
+#
+#        state = self.SendMessage(
+#            win32defines.LVM_GETITEMSTATE,
+#            item,
+#            win32defines.LVIS_STATEIMAGEMASK)
+#
+#        return state & 0x2000
+#
 
 
 
@@ -596,15 +770,17 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(HeaderWrapper, self).__init__(hwnd)
 
-        self._fill_header_info()
+        #self._fill_header_info()
 
     #----------------------------------------------------------------
     def Count(self):
+        "Return the number of columns in this header"
         # get the number of items in the header...
         return self.SendMessage(win32defines.HDM_GETITEMCOUNT)
 
     #----------------------------------------------------------------
     def ColumnRectangle(self, column_index):
+        "Return the rectangle for the column specified by column_index"
 
         remote_mem = _RemoteMemoryBlock(self)
         # get the column rect
@@ -625,8 +801,9 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         return rect
 
     #----------------------------------------------------------------
-    def _get_clientrects(self):
-        rects = [self.ClientRect,]
+    def ClientRects(self):
+        "Return all the client rectangles for the header control"
+        rects = [self.ClientRect(), ]
 
         for col_index in range(0, self.Count()):
 
@@ -634,12 +811,10 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 
         return rects
 
-    ClientRects = property(_get_clientrects,
-        doc = "Return all the client rectangles for the header control")
-
 
     #----------------------------------------------------------------
     def ColumnText(self, column_index):
+        "Return the text for the column specified by column_index"
 
         remote_mem = _RemoteMemoryBlock(self)
 
@@ -674,54 +849,49 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         return None
 
     #----------------------------------------------------------------
-    def _get_Texts(self):
-        texts = [self.Text, ]
+    def Texts(self):
+        "Return the texts of the Header control"
+        texts = [self.Text(), ]
         for i in range(0, self.Count()):
-            texts.append(self.ColumnText(self, i))
+            texts.append(self.ColumnText(i))
 
         return texts
 
-    Texts = property(_get_Texts)
+#    #----------------------------------------------------------------
+#    def _fill_header_info(self):
+#        "Get the information from the header control"
+#        remote_mem = _RemoteMemoryBlock(self)
+#
+#        for col_index in range(0, self.Count()):
+#
+#            item = win32structures.HDITEMW()
+#            item.mask = win32defines.HDI_FORMAT | \
+#                win32defines.HDI_WIDTH | \
+#                win32defines.HDI_TEXT #| HDI_ORDER
+#            item.cchTextMax = 2000
+#
+#            # set up the pointer to the text
+#            # it should be at the
+#            item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 1
+#
+#            # put the information in the memory that the
+#            # other process can read/write
+#            remote_mem.Write(item)
+#
+#            # ask the other process to update the information
+#            retval = self.SendMessage(
+#                win32defines.HDM_GETITEMW,
+#                col_index,
+#                remote_mem.Address())
+#
+#            if retval:
+#                item = remote_mem.Read(item)
+#
+#                # Read the remote text string
+#                charData = ctypes.create_unicode_buffer(2000)
+#                remote_mem.Read(charData, item.pszText)
+#                self._extra_texts.append(charData.value)
 
-    #----------------------------------------------------------------
-    def _fill_header_info(self):
-        "Get the information from the header control"
-        remote_mem = _RemoteMemoryBlock(self)
-
-        for col_index in range(0, self.Count()):
-
-            item = win32structures.HDITEMW()
-            item.mask = win32defines.HDI_FORMAT | \
-                win32defines.HDI_WIDTH | \
-                win32defines.HDI_TEXT #| HDI_ORDER
-            item.cchTextMax = 2000
-
-            # set up the pointer to the text
-            # it should be at the
-            item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 1
-
-            # put the information in the memory that the
-            # other process can read/write
-            remote_mem.Write(item)
-
-            # ask the other process to update the information
-            retval = self.SendMessage(
-                win32defines.HDM_GETITEMW,
-                col_index,
-                remote_mem.Address())
-
-            if retval:
-                item = remote_mem.Read(item)
-
-                # Read the remote text string
-                charData = ctypes.create_unicode_buffer(2000)
-                remote_mem.Read(charData, item.pszText)
-                self._extra_texts.append(charData.value)
-
-    #----------------------------------------------------------------
-    def _get_texts(self):
-        return self._extra_texts
-    Texts = property(_get_texts)
 
 #====================================================================
 class StatusBarWrapper(HwndWrapper.HwndWrapper):
@@ -740,12 +910,19 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def BorderWidths(self):
+        """Return the border widths of the StatusBar
+
+        A dictionary of the 3 available widths is returned:
+        Horizontal - the horizontal width
+        Vertical - The width above and below the status bar parts
+        Inter - The width between parts of the status bar
+        """
         remote_mem = _RemoteMemoryBlock(self)
 
         # get the borders for each of the areas there can be a border.
         borders = (ctypes.c_int*3)()
         remote_mem.Write(borders)
-        numParts = self.SendMessage(
+        self.SendMessage(
             win32defines.SB_GETBORDERS,
             0,
             remote_mem.Address()
@@ -753,7 +930,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         borders = remote_mem.Read(borders)
         borders_widths = {}
         borders_widths['Horizontal'] = borders[0]
-        borders_widths['Verttical'] = borders[1]
+        borders_widths['Vertical'] = borders[1]
         borders_widths['Inter'] = borders[2]
 
         del remote_mem
@@ -762,6 +939,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def NumParts(self):
+        "Return the number of parts"
         # get the number of parts for this status bar
         return self.SendMessage(
             win32defines.SB_GETPARTS,
@@ -770,6 +948,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def PartWidths(self):
+        "Return the widths of the parts"
         remote_mem = _RemoteMemoryBlock(self)
 
         # get the number of parts for this status bar
@@ -789,12 +968,13 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def GetPartRect(self, part_index):
+        "Return the rectangle of the part specified by part_index"
         remote_mem = _RemoteMemoryBlock(self)
 
         # get the rectangle for this item
         rect = win32structures.RECT()
         remote_mem.Write(rect)
-        num_parts = self.SendMessage(
+        self.SendMessage(
             win32defines.SB_GETRECT,
             part_index,
             remote_mem.Address())
@@ -804,18 +984,18 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         return rect
 
     #----------------------------------------------------------------
-    def _get_clientrects(self):
-        rects = [self.GetClientRect]
+    def ClientRects(self):
+        "Return the client rectangles for the control"
+        rects = [self.ClientRect()]
 
-        for i in range(numParts):
+        for i in range(self.NumParts()):
             rects.append(self.GetPartRect(i))
 
         return rects
-    GetClientRects = property(_get_clientrects,
-        doc = "Return the client rectangles for the control")
 
     #----------------------------------------------------------------
     def GetPartText(self, part_index):
+        "Return the text of the part specified by part_index"
 
         remote_mem = _RemoteMemoryBlock(self)
 
@@ -831,7 +1011,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         # get the text for this item
         text = ctypes.create_unicode_buffer(textlen + 1)
         remote_mem.Write(text)
-        numParts = self.SendMessage(
+        self.SendMessage(
             win32defines.SB_GETTEXTW,
             part_index,
             remote_mem.Address()
@@ -844,15 +1024,15 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
 
     #----------------------------------------------------------------
-    def _get_texts(self):
-        texts = [self.Text]
+    def Texts(self):
+        "Return the texts for the control"
+        texts = [self.Text()]
 
-        for i in range(numParts):
-            rects.append(self.GetPartText(i))
+        for i in range(self.NumParts()):
+            texts.append(self.GetPartText(i))
 
         return texts
-    Texts = property(_get_texts,
-        doc = "Return the texts for the control")
+
 
 
 
@@ -868,7 +1048,8 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(TabControlWrapper, self).__init__(hwnd)
 
-
+        self._extra_props = {}
+        self._extra_clientrects = []
         self._extra_texts = []
         self._fill_tabcontrol_info()
 
@@ -877,22 +1058,9 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         "Get the information from the Tab control"
         #tooltipHandle = self.SendMessage(win32defines.TCM_GETTOOLTIPS)
 
-        itemCount = self.SendMessage(win32defines.TCM_GETITEMCOUNT)
-        self._extra_props['TabCount'] = itemCount
-
         remote_mem = _RemoteMemoryBlock(self)
 
-        for i in range(0, itemCount):
-
-            rect = win32structures.RECT()
-            remote_mem.Write(rect)
-
-            self.SendMessage(
-                win32defines.TCM_GETITEMRECT, i, remote_mem.Address())
-
-            remote_mem.Read(rect)
-
-            self._extra_clientrects.append(rect)
+        for i in range(0, self.TabCount()):
 
             item = win32structures.TCITEMW()
             item.mask = win32defines.TCIF_STATE | win32defines.TCIF_TEXT
@@ -913,11 +1081,54 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
             self._extra_texts.append(text.value)
 
     #----------------------------------------------------------------
-    def _get_texts(self):
-        texts = [self.Text]
+    def GetProperties(self):
+        "Return the properties of the TabControl as a Dictionary"
+        props = HwndWrapper.HwndWrapper.GetProperties(self)
+
+        props['TabCount'] = self.TabCount()
+
+        props.update(self._extra_props)
+        return props
+
+    #----------------------------------------------------------------
+    def TabCount(self):
+        "Return the number of tabs"
+        return self.SendMessage(win32defines.TCM_GETITEMCOUNT)
+
+    #----------------------------------------------------------------
+    def GetTabRect(self, tab_index):
+        "Return the rectangle to the tab specified by tab_index"
+
+        remote_mem = _RemoteMemoryBlock(self)
+
+        rect = win32structures.RECT()
+        remote_mem.Write(rect)
+
+        self.SendMessage(
+            win32defines.TCM_GETITEMRECT, tab_index, remote_mem.Address())
+
+        remote_mem.Read(rect)
+
+        del remote_mem
+
+        return rect
+
+    #----------------------------------------------------------------
+    def ClientRects(self):
+        "Return the client rectangles for the Tab Control"
+
+        rects = [self.ClientRect()]
+        for tab_index in range(0, self.TabCount()):
+            rects.append(self.GetTabRect(tab_index))
+
+        return rects
+
+    #----------------------------------------------------------------
+    def Texts(self):
+        "Return the texts of the Tab Control"
+        texts = [self.Text()]
         texts.extend(self._extra_texts)
         return texts
-    Texts = property(_get_texts)
 
     #----------------------------------------------------------------
     def Select(self, tab):
@@ -927,13 +1138,16 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
         if isinstance(tab, basestring):
             # find the string in the tab control
-            bestText = findbestmatch.find_best_match(tab, self.Texts, self.Texts)
-            tab = self.Texts.index(bestText) - 1
+            best_text = findbestmatch.find_best_match(
+                tab, self.Texts(), self.Texts())
+            tab = self.Texts().index(best_text) - 1
 
         self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)
 
 
+#====================================================================
 class TBButtonWrappper(win32structures.TBBUTTONINFOW):
+    "Simple wrapper around TBBUTTONINFOW to allow setting new attributes"
     pass
 
 #====================================================================
@@ -952,18 +1166,23 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def ButtonCount(self):
+        "Return the number of buttons on the ToolBar"
         return self.SendMessage(win32defines.TB_BUTTONCOUNT)
 
     #----------------------------------------------------------------
     def GetButton(self, button_index):
+        "Return information on teh Toolbar button"
 
-        #button = win32structures.TBBUTTON()
+        remote_mem = _RemoteMemoryBlock(self)
 
-        #remote_mem.Write(button)
+        button = win32structures.TBBUTTON()
 
-        #self.SendMessage(win32defines.TB_GETBUTTON, i, remote_mem.Address())
+        remote_mem.Write(button)
 
-        #remote_mem.Read(button)
+        self.SendMessage(
+            win32defines.TB_GETBUTTON, button_index, remote_mem.Address())
+
+        remote_mem.Read(button)
 
         button_info = TBButtonWrappper()
         button_info.cbSize = ctypes.sizeof(button_info)
@@ -983,27 +1202,27 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         # fill the button_info structure
         remote_mem.Write(button_info)
         self.SendMessage(
-            win32defines.TB_GETbutton_infoW,
+            win32defines.TB_GETBUTTONINFOW,
             button.idCommand,
             remote_mem.Address())
         remote_mem.Read(button_info)
 
         # read the text
         button_info.text = ctypes.create_unicode_buffer(1999)
-        remote_mem.Read(button_info.text, remote_mem.Address() + \
+        remote_mem.Read(button_info.pszText, remote_mem.Address() + \
             ctypes.sizeof(button_info))
 
         del remote_mem
 
         return button_info
 
-    def _get_texts(self):
-        texts = [self.Text]
+    def Texts(self):
+        "Return the texts of the Toolbar"
+        texts = [self.Text()]
         for i in range(0, self.ButtonCount()):
             texts.append(self.GetButton(i).text)
 
         return texts
-    Texts = property(_get_texts)
 
 
 #    #----------------------------------------------------------------
@@ -1020,7 +1239,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #
 #            remote_mem.Write(button)
 #
-#            self.SendMessage(win32defines.TB_GETBUTTON, i, remote_mem.Address())
+#            self.SendMessage(
+#                win32defines.TB_GETBUTTON, i, remote_mem.Address())
 #
 #            remote_mem.Read(button)
 #
@@ -1081,6 +1301,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 # RB_GETBANDBORDERS
 
 class BandWrapper(win32structures.REBARBANDINFOW):
+    "Simple wrapper around REBARBANDINFOW to allow setting new attributes"
     pass
 
 #====================================================================
@@ -1097,15 +1318,17 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def NumBands(self):
+        "Return the number of bands in the control"
         return self.SendMessage(win32defines.RB_GETBANDCOUNT)
 
     #----------------------------------------------------------------
     def GetBand(self, band_index):
+        "Get a band of the ReBar control"
         remote_mem = _RemoteMemoryBlock(self)
 
         band_info = BandWrapper()
 
-        band_info.cbSize = ctypes.sizeof(bandInfo)
+        band_info.cbSize = ctypes.sizeof(band_info)
         band_info.fMask = \
             win32defines.RBBIM_CHILD | \
             win32defines.RBBIM_CHILDSIZE | \
@@ -1119,11 +1342,11 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
         # set the pointer for the text
         band_info.pszText = remote_mem.Address() + \
-            ctypes.sizeof(bandInfo)
+            ctypes.sizeof(band_info)
         band_info.cchText = 2000
 
         # write the structure
-        remote_mem.Write(bandInfo)
+        remote_mem.Write(band_info)
 
         # Fill the structure
         self.SendMessage(
@@ -1136,7 +1359,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
         # read the text
         band_info.text = ctypes.create_unicode_buffer(1999)
-        remote_mem.Read(band_info.text, remote_mem.Address() + \
+        remote_mem.Read(band_info.pszText, remote_mem.Address() + \
             ctypes.sizeof(band_info))
 
         del remote_mem
@@ -1144,18 +1367,19 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
 
     #----------------------------------------------------------------
-    def _get_texts(self):
-        texts = [self.Text]
+    def Texts(self):
+        "Return the texts of the Rebar"
+        texts = [self.Text()]
         for i in range(0, self.NumBands()):
             band = self.GetBand(i)
             texts.append(band.text)
 
         return texts
-    Texts = property(_get_texts)
 
     #----------------------------------------------------------------
     def GetProperties(self):
-        props = HwndWrapper.GetProperties(self)
+        "Return the properties for the ReBar"
+        props = HwndWrapper.HwndWrapper.GetProperties(self)
         props['BandCount'] = self.NumBands()
 
 
@@ -1244,87 +1468,343 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
 
 
+import unittest
+
+class ListViewTestCases(unittest.TestCase):
+    "Unit tests for the ListViewWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\List View.exe")
+
+        self.texts = [
+            ("Mercury", '57,910,000', '4,880', '3.30e23'),
+            ("Venus",   '108,200,000', '12,103.6', '4.869e24'),
+            ("Earth",   '149,600,000', '12,756.3', '5.9736e24'),
+            ("Mars",    '227,940,000', '6,794', '6.4219e23'),
+            ("Jupiter", '778,330,000', '142,984', '1.900e27'),
+            ("Saturn",  '1,429,400,000', '120,536', '5.68e26'),
+            ("Uranus",  '2,870,990,000', '51,118', '8.683e25'),
+            ("Neptune", '4,504,000,000', '49,532', '1.0247e26'),
+            ("Pluto",   '5,913,520,000', '2,274', '1.27e22'),
+         ]
+
+        self.app = app
+        self.dlg = app.MicrosoftControlSpy #top_window_()
+        self.ctrl = app.MicrosoftControlSpy.ListView.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always!
+        #app.ControlStyles.ListBox1.TypeKeys("{UP}" * 26 + "{SPACE}")
+
+        #self.app.ControlStyles.ListBox1.Select("LVS_SHOWSELALWAYS")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
 
 
-def test_listview(ctrl):
-    print "="*80
-    print "ListView"
-    print "="*80
-    lv = ListViewWrapper(ctrl)
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEquals (self.ctrl.FriendlyClassName(), "ListView")
 
-    print lv.ColumnCount()
-    print lv.ItemCount()
-    assert len(lv.Columns()) == lv.ColumnCount()
-    assert len(lv.Items()) == lv.ColumnCount() * lv.ItemCount()
+    def testItemCount(self):
+        "Test the ItemCount method"
+        self.assertEquals (self.ctrl.ItemCount(), 9)
 
-    for i in lv.Items():
-       print "%s '%s'"% ("   "* i.iSubItem, i.Text)
+    def testColumnCount(self):
+        "Test the ColumnCount method"
+        self.assertEquals (self.ctrl.ColumnCount(), 4)
 
-def test_treeview(ctrl):
-    print "="*80
-    print "TreeView"
-    print "="*80
-    tv = TreeViewWrapper(ctrl)
-    print "Number of items:", tv.Count()
-    root_elem = tv.Root()
-    print tv.Texts
+    def testItemText(self):
+        "Test the item.Text property"
+        item = self.ctrl.GetItem(1)
 
+        self.assertEquals(item.Text, "Venus")
 
-def test_header(ctrl):
-    print "="*80
-    print "Header"
-    print "="*80
-    header = HeaderWrapper(ctrl)
+    def testItems(self):
+        "Test the Items method"
 
-    for i in range(0, header.Count()):
-        print header.ColumnRectangle(i)
+        flat_texts = []
+        for row in self.texts:
+            flat_texts.extend(row)
+
+        for i, item in enumerate(self.ctrl.Items()):
+            self.assertEquals(item.Text, flat_texts[i])
 
 
-def test_statusbar(ctrl):
-    print "="*80
-    print "StatusBar"
-    print "="*80
-    stat_bar = StatusBarWrapper(ctrl)
+    def testTexts(self):
+        "Test teh Texts method"
 
-    print stat_bar.NumParts()
+        flat_texts = []
+        for row in self.texts:
+            flat_texts.extend(row)
 
-    print stat_bar.BorderWidths()
+        self.assertEquals(flat_texts, self.ctrl.Texts()[1:])
 
-    print stat_bar.PartWidths()
 
-    for i in range(0, stat_bar.NumParts()):
-        print "\t", `stat_bar.GetPartText(i)`
 
-def _unittests():
-    from pywinauto import findwindows
-    import os
-    import time
-    from pywinauto import handleprops
-    os.system(r"explorer")
-    time.sleep(1)
+    def testGetItem(self):
+        "Test the GetItem method"
 
-    explorer = findwindows.find_windows(class_name = "ExploreWClass")[0]
+        for row in range(self.ctrl.ItemCount()):
+            for col in range(self.ctrl.ColumnCount()):
+                self.assertEquals(
+                    self.ctrl.GetItem(row, col).Text, self.texts[row][col])
 
-    for ctrl in handleprops.children(explorer):
-        if handleprops.classname(ctrl) in ListViewWrapper.windowclasses:
-            pass
-            test_listview(ctrl)
 
-        if handleprops.classname(ctrl) in TreeViewWrapper.windowclasses:
-            pass
-            test_treeview(ctrl)
+    def testColumn(self):
+        "Test the Columns method"
 
-        if handleprops.classname(ctrl) in HeaderWrapper.windowclasses:
-            pass
-            test_header(ctrl)
+        cols = self.ctrl.Columns()
+        self.assertEqual (len(cols), self.ctrl.ColumnCount())
 
-        if handleprops.classname(ctrl) in StatusBarWrapper.windowclasses:
-            pass
-            test_statusbar(ctrl)
+        # todo add more checking of column values
+        #for col in cols:
+        #    print col
+
+
+    def testGetSelectionCount(self):
+        "Test the GetSelectedCount method"
+
+        self.assertEquals(self.ctrl.GetSelectedCount(), 0)
+
+        self.ctrl.Select(1)
+        self.ctrl.Select(7)
+        self.ctrl.Select(12)
+
+        self.assertEquals(self.ctrl.GetSelectedCount(), 2)
+
+
+    def testIsSelected(self):
+        "Test IsSelected for some items"
+
+        # ensure that the item is not selected
+        self.assertEquals(self.ctrl.IsSelected(1), False)
+
+        # select an item
+        self.ctrl.Select(1)
+
+        # now ensure that the item is selected
+        self.assertEquals(self.ctrl.IsSelected(1), True)
+
+
+    def _testFocused(self):
+        "Test checking the focus of some items"
+
+        print "Select something quick!!"
+        import time
+        time.sleep(3)
+        #self.ctrl.Select(1)
+
+        print self.ctrl.IsFocused(0)
+        print self.ctrl.IsFocused(1)
+        print self.ctrl.IsFocused(2)
+        print self.ctrl.IsFocused(3)
+        print self.ctrl.IsFocused(4)
+        print self.ctrl.IsFocused(5)
+        #for col in cols:
+        #    print col
+
+
+    def testSelect(self):
+        "Test Selecting some items"
+        self.ctrl.Select(1)
+        self.ctrl.Select(3)
+        self.ctrl.Select(4)
+
+        self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+
+#
+#    def testSubItems(self):
+#
+#        for row in range(self.ctrl.ItemCount())
+#
+#        for i in self.ctrl.Items():
+#
+#            #self.assertEquals(item.Text, texts[i])
+
+
+
+
+
+class TreeViewTestCases(unittest.TestCase):
+    "Unit tests for the TreeViewWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\Tree View.exe")
+
+        self.root_text = "The Planets"
+        self.texts = [
+            ("Mercury", '57,910,000', '4,880', '3.30e23'),
+            ("Venus",   '108,200,000', '12,103.6', '4.869e24'),
+            ("Earth",   '149,600,000', '12,756.3', '5.9736e24'),
+            ("Mars",    '227,940,000', '6,794', '6.4219e23'),
+            ("Jupiter", '778,330,000', '142,984', '1.900e27'),
+            ("Saturn",  '1,429,400,000', '120,536', '5.68e26'),
+            ("Uranus",  '2,870,990,000', '51,118', '8.683e25'),
+            ("Neptune", '4,504,000,000', '49,532', '1.0247e26'),
+            ("Pluto",   '5,913,520,000', '2,274', '1.27e22'),
+         ]
+
+        self.app = app
+        self.dlg = app.MicrosoftControlSpy #top_window_()
+        self.ctrl = app.MicrosoftControlSpy.TreeView.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys("{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEquals (self.ctrl.FriendlyClassName(), "TreeView")
+
+    def testItemCount(self):
+        "Test the ItemCount method"
+        self.assertEquals (self.ctrl.Count(), 37)
+
+
+    def testItemText(self):
+        "Test the ItemCount method"
+
+        self.assertEquals(self.ctrl.Root().Text(), self.root_text)
+
+        self.assertEquals(self.ctrl.GetItem((0,1,2)).Text(), self.texts[1][3] + " kg")
+
+
+    def testSelect(self):
+        self.ctrl.Select((0, 1, 2))
+
+        self.ctrl.GetItem((0, 1, 2)).State()
+
+        self.assertEquals(True, self.ctrl.IsSelected((0, 1, 2)))
+
+
+    def testEnsureVisible(self):
+        "make sure that the item is visible"
+
+        # note this is partially a fake test at the moment because
+        # just by getting an item - we usually make it visible
+        self.ctrl.EnsureVisible((0,8,2))
+
+        # make sure that the item is not hidden
+        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).Rectangle())
+
+
+
+
+#
+#def test_listview(ctrl):
+#    "Not called anymore"
+#    print "="*80
+#    print "ListView"
+#    print "="*80
+#    lv = ListViewWrapper(ctrl)
+#
+#    print lv.ColumnCount()
+#    print lv.ItemCount()
+#    assert len(lv.Columns()) == lv.ColumnCount()
+#    assert len(lv.Items()) == lv.ColumnCount() * lv.ItemCount()
+#
+#    for i in lv.Items():
+#       print "%s '%s'"% ("   "* i.iSubItem, i.Text)
+#
+#def test_treeview(ctrl):
+#    "Not called anymore"
+#    print "="*80
+#    print "TreeView"
+#    print "="*80
+#    tv = TreeViewWrapper(ctrl)
+#    print "Number of items:", tv.Count()
+#    root_elem = tv.Root()
+#    print tv.Texts
+#
+#
+#def test_header(ctrl):
+#    "Not called anymore"
+#    print "="*80
+#    print "Header"
+#    print "="*80
+#    header = HeaderWrapper(ctrl)
+#
+#    for i in range(0, header.Count()):
+#        print header.ColumnRectangle(i)
+#
+#
+#def test_statusbar(ctrl):
+#    "Not called anymore"
+#    print "="*80
+#    print "StatusBar"
+#    print "="*80
+#    stat_bar = StatusBarWrapper(ctrl)
+#
+#    print stat_bar.NumParts()
+#
+#    print stat_bar.BorderWidths()
+#
+#    print stat_bar.PartWidths()
+#
+#    for i in range(0, stat_bar.NumParts()):
+#        print "\t", `stat_bar.GetPartText(i)`
+#
+#def _unittests():
+#    "Run some Unittests - not called anymore!"
+#    from pywinauto import findwindows
+#    import os
+#    import time
+#    from pywinauto import handleprops
+#    os.system(r"explorer")
+#    time.sleep(1)
+#
+#    explorer = findwindows.find_windows(class_name = "ExploreWClass")[0]
+#
+#    for ctrl in handleprops.children(explorer):
+#        if handleprops.classname(ctrl) in ListViewWrapper.windowclasses:
+#            pass
+#            test_listview(ctrl)
+#
+#        if handleprops.classname(ctrl) in TreeViewWrapper.windowclasses:
+#            pass
+#            test_treeview(ctrl)
+#
+#        if handleprops.classname(ctrl) in HeaderWrapper.windowclasses:
+#            pass
+#            test_header(ctrl)
+#
+#        if handleprops.classname(ctrl) in StatusBarWrapper.windowclasses:
+#            pass
+#            test_statusbar(ctrl)
 
 
 if __name__ == "__main__":
-    _unittests()
+    #_unittests()
+
+    unittest.main()
+
 
 
 #

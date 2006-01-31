@@ -48,16 +48,10 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         self._set_if_needs_image()
 
-        # default to Button for FriendlyClassName
-        # might be changed later
-        #self.FriendlyClassName = "Button"
-        self.FriendlyClassName = self._friendly_class_name()
-
-
     #-----------------------------------------------------------
     def _set_if_needs_image(self):
         "Set the _NeedsImageProp attribute if it is an image button"
-        if self.IsVisible and (\
+        if self.IsVisible() and (\
             self.HasStyle(win32defines.BS_BITMAP) or \
             self.HasStyle(win32defines.BS_ICON) or \
             self.HasStyle(win32defines.BS_OWNERDRAW)):
@@ -65,27 +59,27 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
             self._NeedsImageProp = True
 
     #-----------------------------------------------------------
-    def _friendly_class_name(self):
+    def FriendlyClassName(self):
 
         # get the least significant bit
-        StyleLSB = self.Style & 0xF
+        style_lsb = self.Style() & 0xF
 
         f_class_name = 'Button'
 
-        if StyleLSB == win32defines.BS_3STATE or \
-            StyleLSB == win32defines.BS_AUTO3STATE or \
-            StyleLSB == win32defines.BS_AUTOCHECKBOX or \
-            StyleLSB == win32defines.BS_CHECKBOX:
+        if style_lsb == win32defines.BS_3STATE or \
+            style_lsb == win32defines.BS_AUTO3STATE or \
+            style_lsb == win32defines.BS_AUTOCHECKBOX or \
+            style_lsb == win32defines.BS_CHECKBOX:
             f_class_name = "CheckBox"
 
-        elif StyleLSB == win32defines.BS_RADIOBUTTON or \
-            StyleLSB == win32defines.BS_AUTORADIOBUTTON:
+        elif style_lsb == win32defines.BS_RADIOBUTTON or \
+            style_lsb == win32defines.BS_AUTORADIOBUTTON:
             f_class_name = "RadioButton"
 
-        elif StyleLSB ==  win32defines.BS_GROUPBOX:
+        elif style_lsb ==  win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"
 
-        if self.Style & win32defines.BS_PUSHLIKE:
+        if self.Style() & win32defines.BS_PUSHLIKE:
             f_class_name = "Button"
 
         return f_class_name
@@ -179,7 +173,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.CB_GETCURSEL)
 
     #-----------------------------------------------------------
-    def _get_droppedrect(self):
+    def DroppedRect(self):
         "Get the dropped rectangle of the combobox"
         droppedRect = win32structures.RECT()
 
@@ -189,11 +183,9 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
             ctypes.byref(droppedRect))
 
         # we need to offset the dropped rect from the control
-        droppedRect -= self.Rectangle
+        droppedRect -= self.Rectangle()
 
         return droppedRect
-    DroppedRect = property(_get_droppedrect, doc =
-        "The dropped rectangle of the combobox")
 
     #-----------------------------------------------------------
     def ItemCount(self):
@@ -215,12 +207,11 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
             win32defines.CB_GETLBTEXT)
 
     #-----------------------------------------------------------
-    def _get_texts(self):
-        texts = [self.Text]
+    def Texts(self):
+        "Return the text of the items in the listbox"
+        texts = [self.Text()]
         texts.extend(self.ItemTexts())
         return texts
-
-    Texts = property(_get_texts, doc = "get the texts of the listbox")
 
     #-----------------------------------------------------------
     def GetProperties(self):
@@ -230,7 +221,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         # get selected item
         props['SelectedItem'] = self.SelectedIndex()
 
-        props['DroppedRect'] = self.DroppedRect
+        props['DroppedRect'] = self.DroppedRect()
 
         props['ItemData'] = []
         for i in range(self.ItemCount()):
@@ -252,7 +243,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         if isinstance(item, (int, long)):
             index = item
         else:
-            index = self.Texts.index(item) -1
+            index = self.Texts().index(item) -1
 
         # change the selected item
         self.SendMessageTimeout(win32defines.CB_SETCURSEL, index)
@@ -263,7 +254,8 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
 
-
+    #def IsSelected(self, item):
+    #    pass
 
 #====================================================================
 class ListBoxWrapper(HwndWrapper.HwndWrapper):
@@ -308,7 +300,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def ItemTexts(self):
-        "Return the text items of the control"
+        "Return the text of the items of the listbox"
         return _get_multiple_text_items(
             self,
             win32defines.LB_GETCOUNT,
@@ -316,12 +308,11 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             win32defines.LB_GETTEXT)
 
     #-----------------------------------------------------------
-    def _get_texts(self):
-        texts = [self.Text]
-        texts.extend(self.ItemTexts)
+    def Texts(self):
+        "Return the texts of the control"
+        texts = [self.Text()]
+        texts.extend(self.ItemTexts())
         return texts
-
-    Texts = property(_get_texts, doc = "get the texts of the listbox")
 
     #-----------------------------------------------------------
     def GetProperties(self):
@@ -352,10 +343,10 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         if isinstance(item, (int, long)):
             index = item
         else:
-            index = self.Texts.index(item)
+            index = self.Texts().index(item) - 1
 
         # change the selected item
-        self.SendMessageTimeout(win32defines.LB_SETCURSEL, index, 0)
+        self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
 
         # Notify the parent that we have changed
         self.NotifyParent(win32defines.LBN_SELCHANGE)
@@ -403,43 +394,64 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(EditWrapper, self).__init__(hwnd)
 
+
+    #-----------------------------------------------------------
     def LineCount(self):
         "Return how many lines there are in the Edit"
         return  self.SendMessage(win32defines.EM_GETLINECOUNT)
 
-    def _get_texts(self):
+    #-----------------------------------------------------------
+    def LineLength(self, line_index):
+        "Return how many characters there are in the line"
+
+        # need to first get a character index of that line
+        char_index = self.SendMessage(win32defines.EM_LINEINDEX, line_index)
+
+        # now get the length of text on that line
+        return self.SendMessage (
+            win32defines.EM_LINELENGTH, char_index, 0)
+
+
+    #-----------------------------------------------------------
+    def GetLine(self, line_index):
+        "Return the line specified"
+
+        text_len = self.LineLength(line_index)
+        # create a buffer and set the length at the start of the buffer
+        text = ctypes.create_unicode_buffer(text_len+1)
+        text[0] = unichr(text_len)
+
+        # retrieve the line itself
+        self.SendMessage (win32defines.EM_GETLINE, line_index, ctypes.byref(text))
+
+        return text.value
+
+    #-----------------------------------------------------------
+    def Texts(self):
         "Get the text of the edit control"
 
-        texts = [self.Text,]
+        texts = [self.Text(),]
 
         for i in range(0, self.LineCount()):
-            textLen = self.SendMessage (win32defines.EM_LINELENGTH, i, 0)
-
-            text = ctypes.create_unicode_buffer(textLen+1)
-
-            # set the length - which is required
-            text[0] = unichr(textLen)
-
-            self.SendMessage (win32defines.EM_GETLINE, i, ctypes.byref(text))
-
-            texts.append(text.value)
+            texts.append(self.GetLine(i))
 
         return texts
 
-    Texts = property(_get_texts, _get_texts.__doc__)
+    #-----------------------------------------------------------
+    def TextBlock(self):
+        "Get the text of the edit control"
+
+        return "\n".join(self.Texts()[1:])
 
     #-----------------------------------------------------------
-    def _get_selectionindices(self):
-        "Return the indices of the selection"
+    def SelectionIndices(self):
+        "The start and end indices of the current selection"
         start = ctypes.c_int()
         end = ctypes.c_int()
         self.SendMessage(
             win32defines.EM_GETSEL, ctypes.byref(start), ctypes.byref(end))
 
         return (start.value, end.value)
-    SelectionIndices = property(
-        _get_selectionindices,
-        doc = "The start and end indices of the current selection")
 
     #-----------------------------------------------------------
     def GetProperties(self):
@@ -490,7 +502,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         if isinstance(start, basestring):
             string_to_select = start
             #
-            start = self.texts[1].index(string_to_select)
+            start = self.Texts()[1].index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
@@ -517,7 +529,7 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         super(StaticWrapper, self).__init__(hwnd)
 
         # if the control is visible - and it shows an image
-        if self.IsVisible and (
+        if self.IsVisible() and (
             self.HasStyle(win32defines.SS_ICON) or \
             self.HasStyle(win32defines.SS_BITMAP) or \
             self.HasStyle(win32defines.SS_CENTERIMAGE) or \
@@ -527,6 +539,7 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
 
 
 
+#====================================================================
 # the main reason for this is just to make sure that
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
@@ -542,8 +555,96 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
         # get all teh controls
         controls = [self]
-        controls.extend(self.Children)
+        controls.extend(self.Children())
 
         return tests.run_tests(controls, tests_to_run)
 
+    #-----------------------------------------------------------
+    def WriteToXML(self, filename):
+        "Write the dialog an XML file (requires elementtree)"
+        controls = [self]
+        controls.extend(self.Children())
+        props = [ctrl.GetProperties() for ctrl in controls]
 
+        from pywinauto import XMLHelpers
+        XMLHelpers.WriteDialogToFile(filename, props)
+
+
+
+
+import unittest
+class EditTestCases(unittest.TestCase):
+    "Unit tests for the TreeViewWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+
+        import os.path
+        path = os.path.split(__file__)[0]
+
+        test_file = os.path.join(path, "test.txt")
+
+        self.test_data = open(test_file, "r").read()
+        # remove the BOM if it exists
+        self.test_data = self.test_data.replace("\xef\xbb\xbf", "")
+        self.test_data = self.test_data.decode('utf-8')
+
+        app.start_("Notepad.exe " + test_file)
+
+        self.app = app
+        self.dlg = app.UntitledNotepad
+        self.ctrl = self.dlg.Edit.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys("{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.MenuSelect("File->Exit")
+
+
+        if self.app.Notepad.No.Exists():
+            self.app.Notepad.No.Click()
+
+    def testTypeKeys(self):
+        self.ctrl.SetText("Here is\r\nsome text")
+        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "Here is\nsome text")
+
+    def testSetText(self):
+        # typekeys types at the current caret position (start when opening a new file)
+        added_text = "Here is some more Text"
+        self.ctrl.TypeKeys(added_text, with_spaces = True)
+        expected_text = added_text + self.test_data
+
+        self.assertEquals(self.ctrl.TextBlock(), expected_text)
+
+    def testSelect(self):
+        self.ctrl.Select(10, 50)
+
+        self.assertEquals((10, 50), self.ctrl.SelectionIndices())
+
+    def testLineCount(self):
+        self.assertEquals(self.ctrl.LineCount(), self.test_data.count("\n")+1)
+
+    def testGetLine(self):
+        for i, line in enumerate(self.test_data.split("\n")):
+            self.assertEquals(self.ctrl.GetLine(i), line)
+
+    def testTextBlock(self):
+        self.assertEquals(self.ctrl.TextBlock(), self.test_data)
+
+
+if __name__ == "__main__":
+    #_unittests()
+
+    unittest.main()

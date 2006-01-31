@@ -28,7 +28,7 @@ from wraphandle import WrapHandle
 
 #====================================================================
 def _unittests():
-
+    "Run some tests on the controls"
     from pywinauto import win32functions
 
     "do some basic testing"
@@ -36,7 +36,6 @@ def _unittests():
     import sys
 
     if len(sys.argv) < 2:
-        print "blah"
         handle = win32functions.GetDesktopWindow()
     else:
         try:

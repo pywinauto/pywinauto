@@ -112,6 +112,7 @@ class HwndWrapper(object):
     friendlyclassname = ''
     handle = None
 
+    #-----------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the control"
         # handle if hwnd is actually a HwndWrapper
@@ -119,12 +120,6 @@ class HwndWrapper(object):
             self.handle = hwnd.handle
         except AttributeError:
             self.handle = hwnd
-
-        if not self.friendlyclassname:
-            self.FriendlyClassName = handleprops.classname(hwnd)
-        else:
-            self.FriendlyClassName = self.friendlyclassname
-
 
         # verify that we have been passed in a valid windows handle
         if not win32functions.IsWindow(hwnd):
@@ -137,128 +132,149 @@ class HwndWrapper(object):
         # when asked for properties
         self._NeedsImageProp = False
 
-        # set the friendly class name to default to
-        # the class name
-        self._extra_clientrects = []
-        self._extra_props = {}
-
-        self._extra_props['MenuItems'] = self.MenuItems
-
-        # if it is a main window
-        #if self.IsDialog:
-        #	self.FriendlyClassName = "Dialog"
-
         # default to not having a reference control added
         self.ref = None
 
 
-    #FriendlyClassName = property(
-    #    handleprops.friendlyclassname,
-    #    doc = "FriendlyClassName of the window ")
+    #-----------------------------------------------------------
+    def FriendlyClassName(self):
+        "Return the friendly class name for the control"
+        if not self.friendlyclassname:
+            return handleprops.classname(self)
+        else:
+            return self.friendlyclassname
 
     #-----------------------------------------------------------
-    #def _get_classname(self):
-    #    try:
-    #        return self._class_name
-    #    except AttributeError:
-    #        return handleprops.classname(self)
+    def Class(self):
+        "Class Name of the window"
+        return handleprops.classname(self)
 
-    Class = property (handleprops.classname,
-        doc = "Class Name of the window")
+    #-----------------------------------------------------------
+    def Text(self):
+        "Main text of the control"
+        return handleprops.text(self)
 
-    Text = property (handleprops.text,
-        doc = "Main text of the control")
-    Style = property (handleprops.style,
-        doc = "Style of window")
-    ExStyle = property (handleprops.exstyle,
-        doc = "Extended Style of window")
-    ControlID = property (handleprops.controlid,
-        doc = "The ID of the window")
-    UserData = property (handleprops.userdata,
-        doc = "Extra data associted with the window")
-    ContextHelpID = property (handleprops.contexthelpid,
-        doc = "The Context Help ID of the window")
-    IsVisible = property (handleprops.isvisible,
-        doc = "Whether the window is visible or not")
-    IsUnicode = property (handleprops.isunicode,
-        doc = "Whether the window is unicode or not")
-    IsEnabled = property (handleprops.isenabled,
-        doc = "Whether the window is enabled or not")
+    #-----------------------------------------------------------
+    def Style(self):
+        "Style of window"
+        return handleprops.style(self)
 
-    Rectangle = property (handleprops.rectangle,
-        doc = "Rectangle of window")
-    ClientRect = property (handleprops.clientrect,
-        doc = "Client rectangle of window")
+    #-----------------------------------------------------------
+    def ExStyle(self):
+        "Extended Style of window"
+        return handleprops.exstyle(self)
 
-    Font = property (handleprops.font, doc = "The font of the window")
+    #-----------------------------------------------------------
+    def ControlID(self):
+        "The ID of the window"
+        return handleprops.controlid(self)
 
-    ProcessID = property (handleprops.processid,
-        doc = "ID of process that controls this window")
+    #-----------------------------------------------------------
+    def UserData(self):
+        "Extra data associted with the window"
+        return handleprops.userdata(self)
 
-    HasStyle = handleprops.has_style
-    HasExStyle = handleprops.has_exstyle
+    #-----------------------------------------------------------
+    def ContextHelpID(self):
+        "The Context Help ID of the window"
+        return handleprops.contexthelpid(self)
 
-    IsDialog = property(handleprops.is_toplevel_window,
-        doc = handleprops.is_toplevel_window.__doc__)
+    #-----------------------------------------------------------
+    def IsVisible(self):
+        "Whether the window is visible or not"
+        return handleprops.isvisible(self)
+
+    #-----------------------------------------------------------
+    def IsUnicode(self):
+        "Whether the window is unicode or not"
+        return handleprops.isunicode(self)
+
+    #-----------------------------------------------------------
+    def IsEnabled(self):
+        "Whether the window is enabled or not"
+        return handleprops.isenabled(self)
+
+    #-----------------------------------------------------------
+    def Rectangle(self):
+        "Rectangle of window"
+        return handleprops.rectangle(self)
+
+    #-----------------------------------------------------------
+    def ClientRect(self):
+        "Client rectangle of window"
+        return handleprops.clientrect(self)
+
+    #-----------------------------------------------------------
+    def Font(self):
+        "The font of the window"
+        return handleprops.font(self)
+
+    #-----------------------------------------------------------
+    def ProcessID(self):
+        "ID of process that controls this window"
+        return handleprops.processid(self)
+
+    #-----------------------------------------------------------
+    def HasStyle(self, style):
+        "Retrun true if the control has the specified sytle"
+        return handleprops.has_style(self, style)
+
+    #-----------------------------------------------------------
+    def HasExStyle(self, exstyle):
+        "Retrun true if the control has the specified extended sytle"
+        return handleprops.has_exstyle(self, exstyle)
+
+    #-----------------------------------------------------------
+    def IsDialog(self):
+        "Retrun true if the control is a top level window"
+        return handleprops.is_toplevel_window(self)
 
     #-----------------------------------------------------------
     # define the Menu Property
-    def _get_menuitems(self):
+    def MenuItems(self):
         "Return the menu items for the dialog"
-        if self.IsDialog:
-            return _GetMenuItems(win32functions.GetMenu(self))
+        if self.IsDialog():
+            menu_handle = win32functions.GetMenu(self)
+            self.SendMessage(win32defines.WM_INITMENU, menu_handle)
+            return _GetMenuItems(menu_handle, self)
         else:
             return []
-    MenuItems = property (_get_menuitems,
-        doc = "Return the menu items for the dialog")
 
     #-----------------------------------------------------------
-    def _get_parent(self):
+    def Parent(self):
         "Return the parent of this control"
         parent_hwnd = handleprops.parent(self)
-
 
         if parent_hwnd:
             return WrapHandle(parent_hwnd)
         else:
             return None
-    Parent = property (_get_parent,
-        doc = "Parent window of window")
 
     #-----------------------------------------------------------
-    def _get_texts(self):
+    def Texts(self):
         "Return the text for each item of this control"
-        texts = [self.Text, ]
+        texts = [self.Text(), ]
         return texts
-    Texts = property (_get_texts, doc = "All text items of the control")
 
     #-----------------------------------------------------------
-    # TODO: Make _extra_clientrects a property/method of the class
-    # rather then a property that is set at initialization
-    def _get_clientrects(self):
+    def ClientRects(self):
         "Return the client rect for each item in this control"
 
-        clientrects = [self.ClientRect, ]
-        clientrects.extend(self._extra_clientrects)
-        return clientrects
-    ClientRects = property (
-        _get_clientrects, doc = "All client rectanbgles of the control")
+        return [self.ClientRect(), ]
 
     #-----------------------------------------------------------
-    def _get_fonts(self):
+    def Fonts(self):
         "Return the font for each item in this control"
-        return [self.Font, ]
-    Fonts = property (_get_fonts, doc = "All fonts of the control")
+        return [self.Font(), ]
 
     #-----------------------------------------------------------
-    def _get_children(self):
+    def Children(self):
         "Return the children of this control"
 
         # this will be filled in the callback function
         child_windows = handleprops.children(self)
         return [WrapHandle(hwnd) for hwnd in child_windows]
 
-    Children = property (_get_children, doc = "The list of children")
 
     #-----------------------------------------------------------
     def IsChild(self, parent):
@@ -281,11 +297,12 @@ class HwndWrapper(object):
 
 
     #-----------------------------------------------------------
-    def SendMessageTimeout(self, message, wparam = 0 , lparam = 0, timeout = .4):
-        "Send a message to the control and wait for it to return or for timout to finish"
+    def SendMessageTimeout(
+        self, message, wparam = 0 , lparam = 0, timeout = .4):
+        "Send a message to the control and wait for it to return or to timeout"
 
         result = ctypes.c_long()
-        ret = win32functions.SendMessageTimeout(self, message, wparam, lparam,
+        win32functions.SendMessageTimeout(self, message, wparam, lparam,
             win32defines.SMTO_NORMAL, int(timeout * 1000), ctypes.byref(result))
 
         return result.value
@@ -316,40 +333,40 @@ class HwndWrapper(object):
     def NotifyParent(self, message):
         "Send the notification message to parent of this control"
 
-        return self.Parent.PostMessage(
+        return self.Parent().PostMessage(
             win32defines.WM_COMMAND,
-            win32functions.MakeLong(self.ControlID, message),
+            win32functions.MakeLong(self.ControlID(), message),
             self)
 
     #-----------------------------------------------------------
     def GetProperties(self):
         "Return the properties of the control as a dictionary"
-        props = self._extra_props
+        props = {}
 
         # get the className
-        props['Class'] = self.Class
+        props['Class'] = self.Class()
 
         # set up the friendlyclass defaulting
         # to the class Name
-        props['FriendlyClassName'] = self.FriendlyClassName
+        props['FriendlyClassName'] = self.FriendlyClassName()
 
-        props['Texts'] = self.Texts
-        props['Style'] = self.Style
-        props['ExStyle'] = self.ExStyle
-        props['ControlID'] = self.ControlID
-        props['UserData'] = self.UserData
-        props['ContextHelpID'] = self.ContextHelpID
+        props['Texts'] = self.Texts()
+        props['Style'] = self.Style()
+        props['ExStyle'] = self.ExStyle()
+        props['ControlID'] = self.ControlID()
+        props['UserData'] = self.UserData()
+        props['ContextHelpID'] = self.ContextHelpID()
 
-        props['Fonts'] = self.Fonts
-        props['ClientRects'] = self.ClientRects
+        props['Fonts'] = self.Fonts()
+        props['ClientRects'] = self.ClientRects()
 
-        props['Rectangle'] = self.Rectangle
+        props['Rectangle'] = self.Rectangle()
 
-        props['IsVisible'] =  self.IsVisible
-        props['IsUnicode'] =  self.IsUnicode
-        props['IsEnabled'] =  self.IsEnabled
+        props['IsVisible'] =  self.IsVisible()
+        props['IsUnicode'] =  self.IsUnicode()
+        props['IsEnabled'] =  self.IsEnabled()
 
-        #props['MenuItems'] = []
+        props['MenuItems'] = self.MenuItems()
 
         #if self.IsVisible and self._NeedsImageProp:
         #    print "\t", self.Class
@@ -361,15 +378,15 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def CaptureAsImage(self):
         "Return a PIL image of the dialog"
-        if not (self.Rectangle.width() and self.Rectangle.height()):
+        if not (self.Rectangle().width() and self.Rectangle().height()):
             return None
 
         # get the control rectangle in a way that PIL likes it
         box = (
-            self.Rectangle.left,
-            self.Rectangle.top,
-            self.Rectangle.right,
-            self.Rectangle.bottom)
+            self.Rectangle().left,
+            self.Rectangle().top,
+            self.Rectangle().right,
+            self.Rectangle().bottom)
 
         # grab the image and get raw data as a string
         # wrapped in try because PIL is optional
@@ -404,11 +421,11 @@ class HwndWrapper(object):
         # check first if it's parent is enabled
         # (as long as it is not a dialog!)
         if not self.friendlyclassname == "Dialog":
-            if not self.Parent.IsEnabled:
+            if not self.Parent().IsEnabled():
                 raise ControlNotEnabled()
 
         # then check if the control itself is enabled
-        if not self.IsEnabled:
+        if not self.IsEnabled():
             raise ControlNotEnabled()
 
     #-----------------------------------------------------------
@@ -418,11 +435,11 @@ class HwndWrapper(object):
         # check first if it's parent is visible
         # (as long as it is not a dialog!)
         if not self.friendlyclassname == "Dialog":
-            if not self.Parent.IsVisible:
+            if not self.Parent().IsVisible():
                 raise ControlNotVisible()
 
         # then check if the control itself is Visible
-        if not self.IsVisible:
+        if not self.IsVisible():
             raise ControlNotVisible()
 
 
@@ -444,8 +461,12 @@ class HwndWrapper(object):
         _perform_click(self, button, pressed, coords, double)
 
         waited = 0
-        # verify that we have been passed in a valid windows handle
-        while win32functions.IsWindow(self.handle) and waited < 1.5:
+        # Keep waiting until both this control and it's parent
+        # are no longer valid controls
+        while (win32functions.IsWindow(self) or \
+            win32functions.IsWindow(self.Parent())) and \
+            waited < 1.5:
+
             time.sleep(.1)
             waited += .1
 
@@ -516,7 +537,7 @@ class HwndWrapper(object):
         self.VerifyActionable()
 
         if append:
-            text = self.Text + text
+            text = self.Text() + text
 
         text = ctypes.c_wchar_p(unicode(text))
         self.PostMessage(win32defines.WM_SETTEXT, 0, text)
@@ -539,7 +560,7 @@ class HwndWrapper(object):
 
         # attach the Python process with the process that self is in
         win32functions.AttachThreadInput(
-            win32functions.GetCurrentThreadId(), self.ProcessID, 1)
+            win32functions.GetCurrentThreadId(), self.ProcessID(), 1)
 
         # make sure that the control is in the foreground
         win32functions.SetForegroundWindow(self)
@@ -554,7 +575,7 @@ class HwndWrapper(object):
 
         # detach the python process from the window's process
         win32functions.AttachThreadInput(
-            win32functions.GetCurrentThreadId(), self.ProcessID, 0)
+            win32functions.GetCurrentThreadId(), self.ProcessID(), 0)
 
         win32functions.WaitGuiThreadIdle(self)
         return self
@@ -600,7 +621,7 @@ class HwndWrapper(object):
         "Draw an outline around the window"
 
         # don't draw if dialog is not visible
-        if not self.IsVisible:
+        if not self.IsVisible():
             return
 
         colours = {
@@ -614,7 +635,7 @@ class HwndWrapper(object):
             colour = colours[colour]
 
         if not rect:
-            rect = self.Rectangle
+            rect = self.Rectangle()
 
         # create the pen(outline)
         pen_handle = win32functions.CreatePen(
@@ -655,7 +676,7 @@ class HwndWrapper(object):
         # if the menu items haven't been passed in then
         # get them from the window
         if not items:
-            items = self.MenuItems
+            items = self.MenuItems()
 
         # get the text names from the menu items
         item_texts = [item['Text'] for item in items]
@@ -757,10 +778,10 @@ def _perform_click(
 
     # send each message
     for msg in msgs:
-        ret = ctrl.SendMessageTimeout(msg, flags, click_point)
+        ctrl.SendMessageTimeout(msg, flags, click_point)
 
         # wait until the thread can accept another message
-        ret = win32functions.WaitGuiThreadIdle(ctrl)
+        win32functions.WaitGuiThreadIdle(ctrl)
 
     # wait a certain(short) time after the click
     time.sleep(delay_after_click)
@@ -792,15 +813,15 @@ def _calc_flags_and_coords(pressed, coords):
 
 # should really be in win32defines - I don't know why it isnt!
 #====================================================================
-def _GetMenuItems(menuHandle):
+def _GetMenuItems(menu_handle, ctrl):
     "Get the menu items as a list of dictionaries"
     # If it doesn't have a real menu just return
-    if not win32functions.IsMenu(menuHandle):
+    if not win32functions.IsMenu(menu_handle):
         return []
 
     items = []
 
-    item_count = win32functions.GetMenuItemCount(menuHandle)
+    item_count = win32functions.GetMenuItemCount(menu_handle)
 
     # for each menu item
     for i in range(0, item_count):
@@ -822,7 +843,7 @@ def _GetMenuItems(menuHandle):
 
 
         ret = win32functions.GetMenuItemInfo (
-            menuHandle, i, True, ctypes.byref(menu_info))
+            menu_handle, i, True, ctypes.byref(menu_info))
         if not ret:
             raise ctypes.WinError()
 
@@ -834,21 +855,28 @@ def _GetMenuItems(menuHandle):
         # if there is text
         if menu_info.cch:
             # allocate a buffer
-            bufferSize = menu_info.cch+1
-            text = (ctypes.c_wchar * bufferSize)()
+            buffer_size = menu_info.cch+1
+            text = ctypes.create_unicode_buffer(buffer_size)
 
             # update the structure and get the text info
             menu_info.dwTypeData = ctypes.addressof(text)
-            menu_info.cch = bufferSize
+            menu_info.cch = buffer_size
             win32functions.GetMenuItemInfo (
-                menuHandle, i, True, ctypes.byref(menu_info))
+                menu_handle, i, True, ctypes.byref(menu_info))
             item_prop['Text'] = text.value
         else:
             item_prop['Text'] = ""
 
         # if it's a sub menu then get it's items
         if menu_info.hSubMenu:
-            sub_menu_items = _GetMenuItems(menu_info.hSubMenu)#, indent)
+            # make sure that the app updates the menu if it need to
+            ctrl.SendMessage(
+                win32defines.WM_INITMENUPOPUP, menu_info.hSubMenu, i)
+
+            # get the sub menu items
+            sub_menu_items = _GetMenuItems(menu_info.hSubMenu, ctrl)#, indent)
+
+            # append them
             item_prop['MenuItems'] = sub_menu_items
 
         items.append(item_prop)
@@ -869,12 +897,12 @@ def GetDialogPropsFromHandle(hwnd):
     # controls on the dialog
     try:
         controls = [hwnd, ]
-        controls.extend(hwnd.Children)
+        controls.extend(hwnd.Children())
     except AttributeError:
         controls = [WrapHandle(hwnd), ]
 
         # add all the children of the dialog
-        controls.extend(controls[0].Children)
+        controls.extend(controls[0].Children())
 
     props = []
 
@@ -888,7 +916,7 @@ def GetDialogPropsFromHandle(hwnd):
         ctrl_props.handle = ctrl.handle
 
         # offset the rectangle from the dialog rectangle
-        ctrl_props['Rectangle'] -= controls[0].Rectangle
+        ctrl_props['Rectangle'] -= controls[0].Rectangle()
 
         props.append(ctrl_props)
 
