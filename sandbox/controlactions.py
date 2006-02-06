@@ -104,7 +104,7 @@ def calc_flags_and_coords(pressed, coords):
     for key in pressed.split():
         flags |= _mouse_flags[key.lower()]
 
-    click_point = win32functions.MakeLong(coords[1], coords[0])
+    click_point = win32functions.MakeLong(coords[0], coords[1])
 
     return flags, click_point
 
