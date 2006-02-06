@@ -75,13 +75,13 @@ def _SetNodeProps(element, name, value):
         # iterate over the fields in the structure
         for propName in value._fields_:
             propName = propName[0]
-            itemVal = getattr(value, propName)
+            item_val = getattr(value, propName)
 
-            if isinstance(itemVal, (int, long)):
+            if isinstance(item_val, (int, long)):
                 propName += "_LONG"
-                itemVal = unicode(itemVal)
+                item_val = unicode(item_val)
 
-            structElem.set(propName, _EscapeSpecials(itemVal))
+            structElem.set(propName, _EscapeSpecials(item_val))
 
     elif isinstance(value, PIL.Image.Image):
         try:
@@ -91,11 +91,11 @@ def _SetNodeProps(element, name, value):
             if value.size[0] * value.size[1] > (5000*5000):
                 raise MemoryError
 
-            imageData = value.tostring().encode("bz2").encode("base64")
+            image_data = value.tostring().encode("bz2").encode("base64")
             _SetNodeProps(
                 element,
                 name + "_IMG",
-                {"mode": value.mode, "size":value.size, "data":imageData})
+                {"mode": value.mode, "size":value.size, "data":image_data})
 
         # a system error is raised from time to time when we try to grab
         # the image of a control that has 0 height or width
@@ -105,13 +105,11 @@ def _SetNodeProps(element, name, value):
 
     elif isinstance(value, (list, tuple)):
         # add the element to hold the values
-        #listElem = SubElement(element, name)
-
-        # remove the s at the end (if there)
-        #name = name.rstrip('s')
+        # we do this to be able to support empty lists
+        listElem = SubElement(element, name + "_LIST")
 
         for i, attrVal in enumerate(value):
-            _SetNodeProps(element, "%s_%05d"%(name, i), attrVal)
+            _SetNodeProps(listElem, "%s_%05d"%(name, i), attrVal)
 
     elif isinstance(value, dict):
         dictElem = SubElement(element, name)
@@ -130,7 +128,7 @@ def _SetNodeProps(element, name, value):
 
 
 #-----------------------------------------------------------------------------
-def WriteDialogToFile(fileName, props):
+def WriteDialogToFile(filename, props):
     """Write the props to the file
 
     props can be either a dialog of a dictionary
@@ -152,7 +150,7 @@ def WriteDialogToFile(fileName, props):
 
     # wrap it in an ElementTree instance, and save as XML
     tree = ElementTree(root)
-    tree.write(fileName, encoding="utf-8")
+    tree.write(filename, encoding="utf-8")
 
 
 
@@ -167,7 +165,7 @@ def _EscapeSpecials(s):
     s = s.replace('\\', r'\\')
 
     # escape non printable characters (chars below 30)
-    for i in range(0, 31):
+    for i in range(0, 32):
         s = s.replace(unichr(i), "\\%02d"%i)
 
     return s
@@ -178,7 +176,7 @@ def _UnEscapeSpecials(s):
     "Replace escaped characters with real character"
 
     # Unescape all the escape characters
-    for i in range(0, 31):
+    for i in range(0, 32):
         s = s.replace("\\%02d"%i, unichr(i))
 
     # convert doubled backslashes to a single backslash
@@ -215,7 +213,7 @@ def _XMLToStruct(element, structType = None):
     # for each of the attributes in the element
     for propName in attribs:
 
-        # get teh value
+        # get the value
         val = attribs[propName]
 
         # if the value ends with "_long"
@@ -401,6 +399,23 @@ def _ReadXMLStructure(controlElement):
             data = img['data'].decode('base64').decode('bz2')
             propVal = PIL.Image.fromstring(img['mode'], img['size'], data)
 
+        elif elem.tag.endswith("_LIST"):
+            # All this is just to handle the edge case of
+            # an empty list
+            elem.tag = elem.tag[:-5]
+
+            # read the structure
+            propVal = _ReadXMLStructure(elem)
+
+            # if it was empty then convert the returned dict
+            # to a list
+            if propVal == {}:
+                propVal = []
+
+            # otherwise extract the list out of the returned dict
+            else:
+                propVal = propVal[elem.tag]
+
         else:
             propVal = _ReadXMLStructure(elem)
 
@@ -420,6 +435,9 @@ def ReadPropertiesFromFile(filename):
 
     # Return the list that has been stored under 'CONTROL'
     props =  _ReadXMLStructure(parsed)['CONTROL']
+    if not isinstance(props, list):
+        props = [props]
+
 
     # it is an old XML so let's fix it up a little
     if not parsed.attrib.has_key("_version_"):
@@ -466,21 +484,102 @@ def ReadPropertiesFromFile(filename):
     return props
 
 
-#====================================================================
-def _unittests():
-    "Perform some simple unit testing"
+import unittest
 
-    import sys
+class XMLHelperTestCases(unittest.TestCase):
+    "Unit tests for the ListViewWrapper class"
 
-    props = ReadPropertiesFromFile(sys.argv[1])
-    WriteDialogToFile(sys.argv[1] + "__", props)
+    def setUp(self):
+        """Actually does nothing!"""
+        pass
 
-    import pprint
-    pprint.pprint(props)
+    def tearDown(self):
+        "delete the file we have created"
+        import os
+        os.unlink("__unittests.xml")
+
+
+    def assertReadWriteSame(self, props):
+        "Make sure that roundtripping produces identical file"
+        WriteDialogToFile("__unittests.xml", props)
+
+        read_props = ReadPropertiesFromFile("__unittests.xml")
+        self.assertEquals(props, read_props)
+
+    def testOneUnicode(self):
+        "Make sure the friendly class is set correctly"
+        props = [dict(test = u"hiya")]
+        self.assertReadWriteSame(props)
+
+    def testOneString(self):
+        "Make sure the friendly class is set correctly"
+        props = [dict(test = "hiya")]
+        self.assertReadWriteSame(props)
+
+    def testSomeEscapes(self):
+        "Make sure the friendly class is set correctly"
+
+        test_string = []
+        for i in range(0, 50000):
+            test_string.append(unichr(i))
+
+        test_string = "".join(test_string)
+
+        props = [dict(test = test_string)]
+        self.assertReadWriteSame(props)
+
+
+    def testOneBool(self):
+        "Test writing/reading Bool"
+        props = [dict(test = True)]
+        self.assertReadWriteSame(props)
+
+    def testOneList(self):
+        "Test writing/reading a list"
+        props = [dict(test = [1, 2, 3, 4, 5, 6])]
+        self.assertReadWriteSame(props)
+
+    def testOneDict(self):
+        "Make sure the friendly class is set correctly"
+        props = [dict(test_value = dict(test = 1))]
+        self.assertReadWriteSame(props)
+
+    def testOneLong(self):
+        "Test writing/reading one long is correct"
+        props = [dict(test = 1)]
+        self.assertReadWriteSame(props)
+
+    def testLOGFONTW(self):
+        "Test writing/reading one LOGFONTW is correct"
+        font = LOGFONTW()
+        font.lfWeight = 23
+        font.lfFaceName = u"wowow"
+        props = [dict(test = font)]
+        self.assertReadWriteSame(props)
+
+    def testRECT(self):
+        "Test writing/reading one RECT is correct"
+        props = [dict(test = RECT(1, 2, 3, 4))]
+        self.assertReadWriteSame(props)
+
+    def testTwoLong(self):
+        "Test writing/reading two longs is correct"
+        props = [dict(test = 1), dict(test_blah = 2)]
+        self.assertReadWriteSame(props)
+
+    def testEmptyList(self):
+        "Test writing/reading empty list"
+        props = [dict(test = [])]
+        self.assertReadWriteSame(props)
+
+    def testEmptyDict(self):
+        "Test writing/reading empty dict"
+        props = [dict(test = {})]
+        self.assertReadWriteSame(props)
 
 
 #====================================================================
 if __name__ == "__main__":
-    _unittests()
+    unittest.main()
 
 
