@@ -33,6 +33,8 @@ print "Setting timings to slow settings, may be necessary for"
 print "slow applications or slow machines."
 application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 
+
+start = time.time()
 app = application.Application()
 
 ## for distribution we don't want to connect to anybodies application
@@ -78,7 +80,7 @@ app.PageSetupDlg.Printer.Click()
 # do some radio button clicks
 # Open the Connect to printer dialog so we can
 # try out checking/unchecking a checkbox
-app.PageSetupDlg.Network.Click()
+app.PageSetupDlg2.Network.Click()
 
 # ----- Connect To Printer Dialog ----
 # Select a checkbox
@@ -102,6 +104,7 @@ doc_props = app.window_(title_re = ".*Document Properties")
 # ----- Document Properties Dialog ----
 # some tab control selections
 # Two ways of selecting tabs with indices...
+#import pdb;pdb.set_trace()
 doc_props.TabCtrl.Select(0)
 doc_props.TabCtrl.Select(1)
 doc_props.TabCtrl.Select(2)
@@ -110,7 +113,6 @@ doc_props.TabCtrl.Select(2)
 doc_props.TabCtrl.Select("PaperQuality")
 doc_props.TabCtrl.Select("JobRetention")
 doc_props.TabCtrl.Select("Layout")
-
 
 # do some radio button clicks
 doc_props.RotatedLandscape.Click()
@@ -167,7 +169,7 @@ app.SaveAs.Save.CloseClick()
 app.SaveAs.Cancel.WaitNotEnabled()
 
 try:
-    app.SaveAs.Yes.CloseClick()
+    app.SaveAs2.Yes.CloseClick()
 except MatchError:
     pass
 
@@ -175,4 +177,4 @@ except MatchError:
 app.Notepad.MenuSelect("File->Exit")
 
 
-
+print "That took %.3f to run"% (time.time() - start)
