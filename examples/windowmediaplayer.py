@@ -42,7 +42,7 @@ def WindowsMedia():
             "Player before running this script"
         sys.exit()
 
-    #app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
+    app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
     app.WindowsMediaPlayer.MenuSelect("View->Choose Columns")
 
     #for ctrl in app.ChooseColumns.Children():
@@ -66,6 +66,8 @@ def WindowsMedia():
     time.sleep(.5)
 
     app.ChooseColumsn.Cancel.Click()
+
+    app.WindowsMediaPlayer.MenuSelect("File->Exit")
 
 
 def Main():
