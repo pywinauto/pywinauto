@@ -57,6 +57,8 @@ avialable dialogs or controls.
 __revision__ = "$Revision$"
 
 import time
+##import os.path
+##import os
 
 import ctypes
 
@@ -67,12 +69,12 @@ import findbestmatch
 import findwindows
 import handleprops
 
-# Following only needed for writing out XML files
-# and can be (also requires elementtree)
-#try:
-#    import XMLHelpers
-#except ImportError:
-#    pass
+### Following only needed for writing out XML files
+### and can be (also requires elementtree)
+##try:
+##    import XMLHelpers
+##except ImportError:
+##    pass
 
 class AppStartError(Exception):
     "There was a problem starting the Application"
@@ -85,6 +87,10 @@ class ProcessNotFoundError(Exception):
 class AppNotConnected(Exception):
     "Application has been connected to a process yet"
     pass
+
+##_READ_APP_DATA = True
+##_WRITE_APP_DATA = False
+##_APP_DATA_FOLDER  = r"c:\.temp\notepad"
 
 # Maximum wait time for a window to exist
 window_find_timeout = 3
@@ -102,6 +108,94 @@ exists_timeout = .5
 # How long to sleep between each try when checking if the window exists
 exists_retry_interval = .3
 
+##
+##class func_wrapper(object):
+##    def __init__(self, value):
+##        self.value = value
+##
+##    def __call__(self, *args, **kwargs):
+##        return self.value
+##
+##
+##class CtrlProps(dict):
+##
+##    def __getattr__(self, attr):
+##        if not self.has_key(attr):
+##            plural = attr + 's'
+##            if self.has_key(plural):
+##                #print self[plural]
+##                return func_wrapper(self[plural][0])
+##
+##        return func_wrapper(self[attr])
+##
+##    def HasStyle(self, style):
+##        return self['Style'] & style == style
+##    def HasExStyle(self, exstyle):
+##        return self['ExStyle'] & exstyle == exstyle
+##
+##
+##
+##
+##window_cache = []
+##def filename_from_criteria(criteria):
+##    filename_parts = []
+##    for criterion in sorted(criteria.keys()):
+##        filename_parts.append("%s=%s"% (criterion, criteria[criterion]))
+##
+##    filename = _make_valid_filename(".".join(filename_parts))
+##
+##    return filename
+##
+##def ReadAppData(criteria_):
+##    if not _READ_APP_DATA:
+##        return None
+##
+##    criteria = criteria_[0].copy()
+##    if criteria.has_key('process'):
+##        criteria['process'] = 0
+##    if criteria.has_key('parent'):
+##        criteria['parent'] = 0
+##
+##    filename = filename_from_criteria(criteria)
+##
+##    #print "-----", filename
+##    filepath = os.path.join(_APP_DATA_FOLDER, filename)
+##    if os.path.exists(filepath):
+##        props = XMLHelpers.ReadPropertiesFromFile(filepath)
+##        controls = []
+##        for ctrl_dict in props:
+##            controls.append(CtrlProps(ctrl_dict))
+##
+##        return controls
+##
+##    else:
+##        return None
+##
+##
+##
+##def WriteAppDataForDialog(criteria_, dialog):
+##    criteria = criteria_[0].copy()
+##    if criteria.has_key('process'):
+##        criteria['process'] = 0
+##    if criteria.has_key('parent'):
+##        criteria['parent'] = 0
+##
+##    if criteria not in  window_cache and _WRITE_APP_DATA:
+##        filename = filename_from_criteria(criteria)
+##        ctrls = [dialog]
+##        ctrls.extend(dialog.Children())
+##        props = [ctrl_.GetProperties() for ctrl_ in ctrls]
+##
+##        try:
+##            os.makedirs(_APP_DATA_FOLDER)
+##        except:
+##            pass
+##        XMLHelpers.WriteDialogToFile(
+##            os.path.join(_APP_DATA_FOLDER, filename), props)
+##
+##        window_cache.append(criteria)
+##
+
 
 def set_timing(
     win_find = 3,
@@ -117,16 +211,16 @@ def set_timing(
 
     """Set the timing for various things
 
-    win_find = 3    Max time to look for a window
-    win_retry =.09  Retry interval when finding a window
-    app_start = 10  Max time to look for a window after app start
-    exists = .5     Max time to check a window exists
-    exists_retry = .3  Retry interval when checking a window exists
-    after_click = 0    Delay after a mouse click
-    after_menu = 0     Delay after a menu selection
-    after_sendkeys = .03   Delay after each Sendkeys key
-    after_button_click = 0 Delay after a button click
-    after_close = .2       Delay after the CloseClick action
+    :win_find: = 3    Max time to look for a window
+    :win_retry: =.09  Retry interval when finding a window
+    :app_start: = 10  Max time to look for a window after app start
+    :exists: = .5     Max time to check a window exists
+    :exists_retry: = .3  Retry interval when checking a window exists
+    :after_click: = 0    Delay after a mouse click
+    :after_menu: = 0     Delay after a menu selection
+    :after_sendkeys: = .03   Delay after each Sendkeys key
+    :after_button_click: = 0 Delay after a button click
+    :after_close: = .2       Delay after the CloseClick action
 
     """
 
@@ -150,15 +244,12 @@ def set_timing(
     controls.HwndWrapper.delay_before_after_close_click = after_close
 
 
-
-
-
 #=========================================================================
 def _make_valid_filename(filename):
     r"""Return a valid file name for the string passed in.
 
     Replaces any character in ``:\/*?"<>|`` with ``'#%d#'% ord(char)``"""
-    for char in ('\/:*?"<>|'):
+    for char in ('#\/:*?"<>|'):
         filename = filename.replace(char, '#%d#'% ord(char))
     return filename
 
@@ -206,7 +297,7 @@ class WindowSpecification(object):
             exists_criteria.append(criterion)
 
         try:
-            ctrl = _resolve_control(
+            _resolve_control(
                 exists_criteria, exists_timeout, exists_retry_interval)
 
             return True
@@ -260,7 +351,8 @@ class WindowSpecification(object):
                     break
 
             # stop trying if the window doesn't exist
-            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+            except (
+                findwindows.WindowNotFoundError, findbestmatch.MatchError), e:
                 break
 
             # stop trying if we have reached the timeout
@@ -306,6 +398,7 @@ class WindowSpecification(object):
             waited += wait_interval
 
     def ctrl_(self):
+        "Allow the calling code to get the HwndWrapper object"
         return _resolve_control(self.criteria)
 
     def window_(self, **criteria):
@@ -363,6 +456,10 @@ class WindowSpecification(object):
         """
 
         from pywinauto.controls.win32_controls import DialogWrapper
+
+        #if self.criteria[0].has_key("title_re") and \
+        #    "Document" in self.criteria[0]['title_re']:
+        #    print attr, self.criteria
 
         # if we already have 2 levels of criteria (dlg, conrol)
         # this third must be an attribute so resolve and get the
@@ -431,7 +528,7 @@ class WindowSpecification(object):
             print
 
 
-def _resolve_control(criteria, timeout = 0, wait_interval = .2):
+def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
     """Find a control using criteria
 
     :criteria: - a list that contains 1 or 2 dictionaries
@@ -441,6 +538,53 @@ def _resolve_control(criteria, timeout = 0, wait_interval = .2):
     :wait_interval: - how long to wait between each retry (default .2)
     """
 
+    criteria = [crit.copy() for crit in criteria_]
+#
+##    app_data = ReadAppData(criteria)
+##
+##    if app_data:
+##
+##        # if best match was specified for the dialog
+##        # then we need to replace it with other values
+##        # for now we will just use Class
+##        for crit in ['best_match', 'title', 'title_re']:
+##            if crit in criteria[0]:
+##                del(criteria[0][crit])
+##                criteria[0]['class_name'] = app_data[0].Class()#['Class']
+##
+##            if len(criteria) > 1:
+##                # find the best match of the application data
+##                if criteria[1].has_key('best_match'):
+##                    best_match = findbestmatch.find_best_control_matches(
+##                        criteria[1]['best_match'], app_data)[0]
+##
+##                    #visible_controls = [ctrl in app_data if ctrl.IsVisible()]
+##
+##                    #find the index of the best match item
+##                    ctrl_index = app_data.index(best_match)
+##                    #print best_match[0].Text()
+##                    ctrl_index, best_match.Text()
+##
+##                    criteria[1]['ctrl_index'] = ctrl_index -1
+##                    #criteria[1]['class_name'] = best_match.Class()
+##                    #del(criteria[1]['best_match'])
+##
+## One idea here would be to run the new criteria on the app_data dialog and
+## if it returns more then one control then you figure out which one would be
+## best - so that you have that info when running on the current dialog
+##
+##            #for criterion in criteria[1:]:
+##                # this part is weird - we now have to go off and find the
+##                # index, class, text of the control in the app_data
+##                # and then find the best match for this control in the
+##                # current dialog
+##            #    pass
+##
+##    else:
+##        #print "No Appdata for ", criteria[0]
+##        pass
+##
+
     waited = 0
     while True:
         try:
@@ -448,17 +592,20 @@ def _resolve_control(criteria, timeout = 0, wait_interval = .2):
                 findwindows.find_window(**criteria[0]))
 
             # if there is only criteria for a dialog then return it
-            if len(criteria) == 1:
-                return dialog
+            if not len(criteria) == 1:
+                # so there was criteria for a control, add the extra criteria
+                # that are required for child controls
+                ctrl_criteria = criteria[1]
+                ctrl_criteria["top_level_only"] = False
+                ctrl_criteria["parent"] = dialog.handle
 
-            # so there was criteria for a control, add the extra criteria
-            # that are required for child controls
-            criteria = criteria[1]
-            criteria["top_level_only"] = False
-            criteria["parent"] = dialog.handle
-
-            # resolve the control and return it
-            return controls.WrapHandle(findwindows.find_window(**criteria))
+                # resolve the control and return it
+                ctrl = controls.WrapHandle(
+                    findwindows.find_window(**ctrl_criteria))
+                break
+            else:
+                ctrl = dialog
+                break
         except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
             if waited < timeout:
                 waited += wait_interval
@@ -466,6 +613,10 @@ def _resolve_control(criteria, timeout = 0, wait_interval = .2):
             else:
                 raise
 
+##    if not _READ_APP_DATA:
+##        WriteAppDataForDialog(criteria, dialog)
+
+    return ctrl
 
 #=========================================================================
 class Application(object):
@@ -504,7 +655,7 @@ class Application(object):
         if not ret:
             raise AppStartError("CreateProcess: " + str(ctypes.WinError()))
 
-        self.process = _Process(proc_info.dwProcessId)
+        self.process = proc_info.dwProcessId
 
         start = time.time()
         while time.time() - start < timeout:
@@ -527,20 +678,20 @@ class Application(object):
 
         connected = False
         if 'process' in kwargs:
-            self.process = _Process(kwargs['process'])
+            self.process = kwargs['process']
             connected = True
 
         elif 'handle' in kwargs:
-            self.process = kwargs['handle'].Process
+            self.process = handleprops.processid(kwargs['handle'])
             connected = True
 
         elif 'path' in kwargs:
-            self.process = _Process.process_from_module(kwargs['path'])
+            self.process = process_from_module(kwargs['path'])
             connected = True
 
         else:
             handle = findwindows.find_window(**kwargs)
-            self.process = _Process(handleprops.processid(handle))
+            self.process = handleprops.processid(handle)
             connected = True
 
         if not connected:
@@ -557,7 +708,7 @@ class Application(object):
                 "trying anything else")
 
         return findwindows.find_windows(
-            process = self.process._id,
+            process = self.process,
             visible_only = False,
             enabled_only = False)
 
@@ -569,7 +720,7 @@ class Application(object):
 
         time.sleep(exists_timeout)
         # very simple
-        windows = findwindows.find_windows(process = self.process._id)
+        windows = findwindows.find_windows(process = self.process)
         criteria = {}
         criteria['handle'] = windows[0]
 
@@ -587,7 +738,7 @@ class Application(object):
                 "Please use start_ or connect_ before trying anything else")
 
         # add the restriction for this particular process
-        kwargs['process'] = self.process._id
+        kwargs['process'] = self.process
 
         return WindowSpecification(kwargs)
 
@@ -605,65 +756,79 @@ class Application(object):
 
 
 #=========================================================================
-class _Process(object):
-    "A running process"
-    def __init__(self, proc_id, module = None):
-        "initialise the process instance"
+def process_module(process_id):
+    "Return the string module name of this process"
+    # Set instance variable _module if not already set
+    process_handle = win32functions.OpenProcess(
+        0x400 | 0x010, 0, process_id) # read and query info
 
-        self._id = proc_id
-        self._module = module
+    # get module name from process handle
+    filename = (ctypes.c_wchar * 2000)()
+    win32functions.GetModuleFileNameEx(
+        process_handle, 0, ctypes.byref(filename), 2000)
 
-    def id(self):
-        "Return the process iD"
-        return self._id
+    # return the process value
+    return filename.value
 
-    def module(self):
-        "Return the string module name of this process"
-        # Set instance variable _module if not already set
-        if not self._module:
-            process_handle = win32functions.OpenProcess(
-                0x400 | 0x010, 0, self._id) # read and query info
+#=========================================================================
+def process_from_module(module):
+    "Return the running process with path module"
 
-            # get module name from process handle
-            filename = (ctypes.c_wchar * 2000)()
-            win32functions.GetModuleFileNameEx(
-                process_handle, 0, ctypes.byref(filename), 2000)
+    # set up the variable to pass to EnumProcesses
+    processes = (ctypes.c_int * 2000)()
+    bytes_returned = ctypes.c_int()
 
-            # set variable
-            self._module = filename.value
+    # collect all the running processes
+    ctypes.windll.psapi.EnumProcesses(
+        ctypes.byref(processes),
+        ctypes.sizeof(processes),
+        ctypes.byref(bytes_returned))
 
-        return self._module
+    # check if any of the running process has this module
+    for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
 
-    def __eq__(self, other):
-        "Check if this proces is the same as other"
-        if isinstance(other, _Process):
-            return self._id == other._id
-        else:
-            return self._id == other
+        if module.lower() in process_module(processes[i]).lower():
+            processes[i]
 
-    @staticmethod
-    def process_from_module(module):
-        "Return the running process with path module"
-
-        # set up the variable to pass to EnumProcesses
-        processes = (ctypes.c_int * 2000)()
-        bytes_returned = ctypes.c_int()
-        # collect all the running processes
-        ctypes.windll.psapi.EnumProcesses(
-            ctypes.byref(processes),
-            ctypes.sizeof(processes),
-            ctypes.byref(bytes_returned))
-
-        # check if the running process
-        for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
-            temp_process = _Process(processes[i])
-            if module.lower() in temp_process.module().lower():
-                return temp_process
-
-        raise ProcessNotFoundError("No running process - '%s' found"% module)
+    raise ProcessNotFoundError("No running process - '%s' found"% module)
 
 
 
-if __name__ == '__main__':
-    import test_application
-    test_application.Main()
+import unittest
+
+class ApplicationTestCases(unittest.TestCase):
+    "Unit tests for the ListViewWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+        pass
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        #self.dlg.SendMessage(win32defines.WM_CLOSE)
+        pass
+
+    def testNotConnected(self):
+        "Make sure the friendly class is set correctly"
+        self.assertRaises (AppNotConnected, Application().__getattr__, 'Hiya')
+        self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
+        self.assertRaises (AppNotConnected, Application().window_, title = 'Hiya')
+        self.assertRaises (AppNotConnected, Application().top_window_,)
+
+    def testStartProplem(self):
+        "Make sure the friendly class is set correctly"
+        self.assertRaises (AppStartError, Application().start_, 'Hiya')
+
+    #def testStartProplem(self):
+    #    "Make sure the friendly class is set correctly"
+    #    self.assertRaises (AppStartError, Application().start_, 'Hiya')
+
+
+
+if __name__ == "__main__":
+    #_unittests()
+
+    unittest.main()
+
