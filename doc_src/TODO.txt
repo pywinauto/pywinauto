@@ -1,19 +1,18 @@
 
 ============================================================================
-APPLICATION TODO's
+PYWINAUTO TODO's
 ============================================================================
-* Need to make Menu items into classes so instead of Dlg.MenuSelect we should
-  be doing ::
-  
-     dlg.Menu("blah->blah").Select() 
-     
-  or even ::
-  
-     dlg.Menu.Blah.Blah.Select()
-  
- To do this we need to change how menu's are retrieved - rather than get all 
- menuitems at the start - then we just get the requested level.
 
+* Maybe supply an option so that scripts can be run by using::
+
+   pywinauto.exe yourscript.py
+   
+  This would work by creating a Py2exe wrapper that would import the script 
+  (and optionally call a particular function?)
+  
+  This way pywinauto could be made available to people without python
+  installed (whether this is a big requirement or not I don't know
+  because the automation language is python anyway!.
 
 * Message traps - how to handle unwanted message boxes popping up?
 
@@ -21,8 +20,8 @@ APPLICATION TODO's
   b) set a trap waiting for a specific dialog
   c) on calls to window specification, if we fail to find our window then we can 
      run quickly through the available specified traps to see if any of them apply
-      - then if they do we can run the associated actions - then try our original 
-        dialog again
+     - then if they do we can run the associated actions - then try our original 
+     dialog again
 
 * Implement an opional timing/config module so that all timing can be 
   customized
@@ -30,7 +29,7 @@ APPLICATION TODO's
 * Handle adding reference controls (in that they should be the controls used 
   for finding windows)
 
-* Find the reference name of a variable .e.g so that in Dialog._write() we 
+* Find the reference name of a variable e.g so that in Dialog._write() we 
   can know the variable name that called the _write on (this we don't have
   to repeat the XML file name!)
 
@@ -58,6 +57,7 @@ APPLICATION TODO's
 
 
 * Investigate using any of the following
+
    - BringWindowToTop: probably necessary before image capture
    - GetTopWindow: maybe to re-set top window after capture?
 
@@ -65,9 +65,16 @@ APPLICATION TODO's
    - GetGUIThreadInfo
  
 
-*  Make it easy to work with context(right click) menu's
+* Make it easy to work with context(right click) menu's
 
-passLOW PRIORITY
+* Look at supporting the Sytem Tray (e.g. right click on an icon)
+
+* Further support .NET controls and download/create a test .NET application
+
+
+
+**LOW PRIORITY**
+
 * Create a class that makes it easy to deal with a single window  (e.g. no 
   application)
 
@@ -88,6 +95,25 @@ passLOW PRIORITY
   
   Doing this might flatten the heirarchy quite a bit and reduce the 
   dependencies on the various packages
+
+
+* Need to make Menu items into classes so instead of Dlg.MenuSelect we should
+  be doing ::
+  
+     dlg.Menu("blah->blah").Select() 
+     
+  or even ::
+  
+     dlg.Menu.Blah.Blah.Select()
+  
+ To do this we need to change how menu's are retrieved - rather than get all 
+ menuitems at the start - then we just get the requested level.
+ 
+ This would also enable things like ::
+ 
+ 	dlg.Menu.Blah.Blah.IsChecked()  IsEnabled(), etc
+
+
 
 
 
