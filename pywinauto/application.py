@@ -274,7 +274,9 @@ class WindowSpecification(object):
         "No __call__ so return a usefull error"
 
         if "best_match" in self.criteria[-1]:
-            raise AttributeError(self.criteria[-1]['best_match'])
+            raise AttributeError(
+                "WindowSpecification class has no '%s' method" %
+                self.criteria[-1]['best_match'])
 
         message = \
         "You tried to execute a function call on a WindowSpecification " \
@@ -404,12 +406,10 @@ class WindowSpecification(object):
     def window_(self, **criteria):
         "Add the criteria that will be matched when we resolve the control"
 
-        if len(self.criteria) < 2:
-            self.criteria.append(criteria)
-        else:
-            self.criteria[1] = criteria
+        new_item = WindowSpecification(self.criteria[0])
+        new_item.criteria.append(criteria)
 
-        return self
+        return new_item
 
     def __getitem__(self, key):
         """Allow access to dialogs/controls through item access
@@ -635,6 +635,22 @@ class Application(object):
         "Set the attributes"
         self.process = None
         self.xmlpath = ''
+
+    def _start(self, *args, **kwargs):
+        "start_ used to be named _start"
+        import warnings
+        message = "_start and _connect are deprecated " \
+            "please use start_ and connect_"
+        warnings.warn(message, DeprecationWarning)
+        self.start_(*args, **kwargs)
+
+    def _connect(self, *args, **kwargs):
+        "connect_ used to be named _connect"
+        import warnings
+        message = "_start and _connect are deprecated " \
+            "please use start_ and connect_"
+        warnings.warn(message, DeprecationWarning)
+        self.start_(*args, **kwargs)
 
     def start_(self, cmd_line, timeout = app_start_timeout):
         "Starts the application giving in cmd_line"
