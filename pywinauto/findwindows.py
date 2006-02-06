@@ -66,7 +66,8 @@ def find_window(**kwargs):
 
     if len(windows) > 1:
         #for w in windows:
-        #    print "ambig", handleprops.classname(w), handleprops.text(w), handleprops.processid(w)
+        #    print "ambig", handleprops.classname(w), \
+        #    handleprops.text(w), handleprops.processid(w)
         raise WindowAmbiguousError(
             "There are %d windows that match the criteria %s"% (
             len(windows),
@@ -88,6 +89,7 @@ def find_windows(class_name = None,
                 enabled_only = True,
                 best_match = None,
                 handle = None,
+                ctrl_index = None,
     ):
     """Find windows based on criteria passed in
 
@@ -104,12 +106,14 @@ def find_windows(class_name = None,
     :enabled_only:   Enabled windows only (default=True)
     :best_match:  Windows with a title similar to this
     :handle:      The handle of the window to return
+    :ctrl_index:  The index of the child window to return
     """
 
     # allow a handle to be passed in
     # if it is present - just return it
     if handle is not None:
-        return [handle,]
+        return [handle, ]
+
 
     if top_level_only:
         # find the top level windows
@@ -128,6 +132,12 @@ def find_windows(class_name = None,
 
         # look for all children of that parent
         windows = enum_child_windows(parent)
+
+        # if the ctrl_index has been specified then just return
+        # that control
+        if ctrl_index:
+            return [windows[ctrl_index]]
+
 
     if class_name and windows:
         windows = [win for win in windows
@@ -195,14 +205,14 @@ def enum_child_windows(handle):
     "Return a list of handles of the child windows of this handle"
 
     # this will be filled in the callback function
-    childWindows = []
+    child_windows = []
 
     # callback function for EnumChildWindows
-    def enumChildProc(hWnd, lparam):
+    def enumChildProc(hwnd, lparam):
         "Called for each child - adds child hwnd to list"
 
         # append it to our list
-        childWindows.append(hWnd)
+        child_windows.append(hwnd)
 
         # return true to keep going
         return True
@@ -218,7 +228,7 @@ def enum_child_windows(handle):
     # loop over all the children (callback called for each)
     win32functions.EnumChildWindows(handle, proc, 0)
 
-    return childWindows
+    return child_windows
 
 
 #=========================================================================

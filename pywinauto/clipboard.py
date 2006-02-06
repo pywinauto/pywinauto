@@ -46,7 +46,7 @@ def GetClipboardFormats():
     if not win32functions.OpenClipboard(0):
         raise RuntimeError("Couldn't open clipboard")
 
-    availableFormats = []
+    available_formats = []
     format = 0
     while True:
         # retrieve the next format
@@ -57,11 +57,11 @@ def GetClipboardFormats():
         if not format:
             break
 
-        availableFormats.append(format)
+        available_formats.append(format)
 
     win32functions.CloseClipboard()
 
-    return availableFormats
+    return available_formats
 
 
 #====================================================================
@@ -93,7 +93,7 @@ def _unittests():
     formats = GetClipboardFormats()
     print formats
 
-    print [GetFormatName(f) for f in formats]
+    print [GetFormatName(format) for format in formats]
 
     print repr(GetData())
 

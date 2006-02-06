@@ -32,6 +32,7 @@ from ctypes import (
 
 
 class Structure(ctypes.Structure):
+    #----------------------------------------------------------------
     def __str__(self):
         """Print out the fields of the ctypes Structure
 
@@ -43,6 +44,23 @@ class Structure(ctypes.Structure):
             lines.append("%20s\t%s"% (name, getattr(self, name)))
 
         return "\n".join(lines)
+
+    #----------------------------------------------------------------
+    def __eq__(self, other_struct):
+        "return true if the two rectangles have the same coordinates"
+
+        try:
+            are_equal = True
+            for field in self._fields_:
+                name = field[0]
+                if getattr(self, name) != getattr(other_struct, name):
+                    are_equal = False
+                    break
+
+            return are_equal
+
+        except AttributeError:
+            return False
 
 ##====================================================================
 #def PrintCtypesStruct(struct, exceptList = []):
@@ -134,19 +152,18 @@ class RECT(Structure):
             self.bottom = long(bottom)
 
 
-    #----------------------------------------------------------------
-    def __eq__(self, otherRect):
-        "return true if the two rectangles have the same coordinates"
-
-
-        try:
-            return \
-                self.left == otherRect.left and \
-                self.top == otherRect.top and \
-                self.right == otherRect.right and \
-                self.bottom == otherRect.bottom
-        except AttributeError:
-            return False
+#    #----------------------------------------------------------------
+#    def __eq__(self, otherRect):
+#        "return true if the two rectangles have the same coordinates"
+#
+#        try:
+#            return \
+#                self.left == otherRect.left and \
+#                self.top == otherRect.top and \
+#                self.right == otherRect.right and \
+#                self.bottom == otherRect.bottom
+#        except AttributeError:
+#            return False
 
     #----------------------------------------------------------------
     def __str__(self):

@@ -39,6 +39,7 @@ GetClassName		=	ctypes.windll.user32.GetClassNameW
 GetClientRect		=	ctypes.windll.user32.GetClientRect
 GetDC				=	ctypes.windll.user32.GetDC
 GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
+MoveWindow          =   ctypes.windll.user32.MoveWindow
 
 # menu functions
 DrawMenuBar			=	ctypes.windll.user32.DrawMenuBar
@@ -137,28 +138,31 @@ GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
 GetQueueStatus = ctypes.windll.user32.GetQueueStatus
 
+
 #====================================================================
-def MakeLong(low, high):
+def MakeLong(high, low):
     "Pack high into the high word of a long and low into the low word"
     return (high << 16) | low
 
 #====================================================================
 def HiWord(value):
-  return (value & (~ 0xFFFF)) / 0xFFFF
+    "Return the high word from a long"
+    return (value & (~ 0xFFFF)) / 0xFFFF
 
 #====================================================================
 def LoWord(value):
+    "Return the low word from a long"
     return value & 0xFFFF
-
 
 #====================================================================
 def WaitGuiThreadIdle(handle, timeout = 1):
+    "Wait until the thread of the specified handle is ready"
     import win32defines
 
     process_id = ctypes.c_int()
     GetWindowThreadProcessId(handle, ctypes.byref(process_id))
 
-    # ask the control if it has finished processing teh message
+    # ask the control if it has finished processing the message
     hprocess = OpenProcess(
         win32defines.PROCESS_QUERY_INFORMATION,
         0,
