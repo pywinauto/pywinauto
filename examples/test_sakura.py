@@ -26,12 +26,12 @@ from pywinauto import application
 from pywinauto import tests
 
 
-def MinimalNotepadTest():
+def SakuraTest():
 
 	app = application.Application()
-	app._start(ur"\Program Files\sakura\sakura.exe")
+	app.start_(ur"\Program Files\sakura\sakura.exe")
 	
-	mainwin = app._window(title_re = u'\(無題\) - sakura .*')
+	mainwin = app.window_(title_re = u'\(無題\) - sakura .*')
 
 	# menu's from this application are not recovered well
 	# but even with Japanese Regional settings they are not
@@ -41,8 +41,8 @@ def MinimalNotepadTest():
 	# open some dialog
 	mainwin.TypeKeys("%OC")
 
-	dlg = app._window(title = u'共通設定')
-	dlg._control(title_re = ur"フリーカーソル.*").Click()
+	dlg = app.window_(title = u'共通設定')
+	dlg.window_(title_re = ur"フリーカーソル.*").Click()
 	dlg.MSDOS.Click()
 	dlg.Cancel.Click()
 
@@ -54,7 +54,7 @@ def MinimalNotepadTest():
 def Main():
 	start = time.time()
 	
-	MinimalNotepadTest()	
+	SakuraTest()	
 	
 	print "Total time taken:", time.time() - start
 

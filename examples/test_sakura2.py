@@ -26,7 +26,7 @@ from pywinauto import application
 from pywinauto import tests
 
 
-def MinimalNotepadTest():
+def SakuraTest():
 
 	app = application.Application()
 	app._start(ur"\Program Files\sakura\sakura.exe")
@@ -57,7 +57,7 @@ def MinimalNotepadTest():
 def Main():
 	start = time.time()
 	
-	MinimalNotepadTest()	
+	SakuraTest()	
 	
 	print "Total time taken:", time.time() - start
 
