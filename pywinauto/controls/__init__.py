@@ -44,7 +44,8 @@ def _unittests():
         except ValueError:
 
             handle = find_windows(
-                title_re = "^" + sys.argv[1], class_name = "#32770", )#visible_only = False)
+                title_re = "^" + sys.argv[1], class_name = "#32770", )
+                #visible_only = False)
 
             if not handle:
                 print "dialog not found"

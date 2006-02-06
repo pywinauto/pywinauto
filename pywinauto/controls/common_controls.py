@@ -128,7 +128,16 @@ class _RemoteMemoryBlock(object):
 
 #====================================================================
 class ListViewWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows ListView common control "
+    """Class that wraps Windows ListView common control
+
+    This class derives from HwndWrapper - so has all the methods o
+    that class also
+
+    **see** HwndWrapper.HwndWrapper_
+
+    .. _HwndWrapper.HwndWrapper: class-pywinauto.controls.HwndWrapper.HwndWrapper.html
+
+    """
 
     friendlyclassname = "ListView"
     windowclasses = ["SysListView32", r"WindowsForms\d*\.SysListView32\..*", ]
@@ -145,7 +154,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def ItemCount(self):
-        "The number of items in teh ListView"
+        "The number of items in the ListView"
         return self.SendMessage(win32defines.LVM_GETITEMCOUNT)
 
     #-----------------------------------------------------------
@@ -587,10 +596,6 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(TreeViewWrapper, self).__init__(hwnd)
 
-        #self._extra_text = []
-
-        #remote_mem = _RemoteMemoryBlock(self)
-
     #----------------------------------------------------------------
     def Count(self):
         "Return the number of items"
@@ -636,7 +641,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
         current_elem = self.Root()
 
-        # get teh correct lowest level item
+        # get the correct lowest level item
         for i in range(0, path[0]):
             current_elem = current_elem.Next()
 
@@ -769,8 +774,6 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
     def __init__(self, hwnd):
         "Initialise the instance"
         super(HeaderWrapper, self).__init__(hwnd)
-
-        #self._fill_header_info()
 
     #----------------------------------------------------------------
     def Count(self):
@@ -1033,6 +1036,13 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
         return texts
 
+    #----------------------------------------------------------------
+    def GetProperties(self):
+        "Return the properties fo the StatusBar"
+        props = HwndWrapper.GetProperties(self)
+
+        props['BorderWidths'] = self.BorderWidths()
+
 
 
 
@@ -1132,7 +1142,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def Select(self, tab):
-        "Select the specified tab on teh tab control"
+        "Select the specified tab on the tab control"
 
         self.VerifyActionable()
 
@@ -1162,8 +1172,6 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ToolbarWrapper, self).__init__(hwnd)
 
-#        self._fill_toolbar_info()
-
     #----------------------------------------------------------------
     def ButtonCount(self):
         "Return the number of buttons on the ToolBar"
@@ -1171,7 +1179,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def GetButton(self, button_index):
-        "Return information on teh Toolbar button"
+        "Return information on the Toolbar button"
 
         remote_mem = _RemoteMemoryBlock(self)
 
@@ -1209,7 +1217,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         # read the text
         button_info.text = ctypes.create_unicode_buffer(1999)
-        remote_mem.Read(button_info.pszText, remote_mem.Address() + \
+        remote_mem.Read(button_info.text, remote_mem.Address() + \
             ctypes.sizeof(button_info))
 
         del remote_mem
@@ -1544,7 +1552,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testTexts(self):
-        "Test teh Texts method"
+        "Test the Texts method"
 
         flat_texts = []
         for row in self.texts:
@@ -1670,7 +1678,8 @@ class TreeViewTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys("{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
@@ -1693,10 +1702,12 @@ class TreeViewTestCases(unittest.TestCase):
 
         self.assertEquals(self.ctrl.Root().Text(), self.root_text)
 
-        self.assertEquals(self.ctrl.GetItem((0,1,2)).Text(), self.texts[1][3] + " kg")
+        self.assertEquals(
+            self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
 
 
     def testSelect(self):
+        "Test selecting an item"
         self.ctrl.Select((0, 1, 2))
 
         self.ctrl.GetItem((0, 1, 2)).State()
@@ -1709,40 +1720,13 @@ class TreeViewTestCases(unittest.TestCase):
 
         # note this is partially a fake test at the moment because
         # just by getting an item - we usually make it visible
-        self.ctrl.EnsureVisible((0,8,2))
+        self.ctrl.EnsureVisible((0, 8, 2))
 
         # make sure that the item is not hidden
         self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).Rectangle())
 
 
 
-
-#
-#def test_listview(ctrl):
-#    "Not called anymore"
-#    print "="*80
-#    print "ListView"
-#    print "="*80
-#    lv = ListViewWrapper(ctrl)
-#
-#    print lv.ColumnCount()
-#    print lv.ItemCount()
-#    assert len(lv.Columns()) == lv.ColumnCount()
-#    assert len(lv.Items()) == lv.ColumnCount() * lv.ItemCount()
-#
-#    for i in lv.Items():
-#       print "%s '%s'"% ("   "* i.iSubItem, i.Text)
-#
-#def test_treeview(ctrl):
-#    "Not called anymore"
-#    print "="*80
-#    print "TreeView"
-#    print "="*80
-#    tv = TreeViewWrapper(ctrl)
-#    print "Number of items:", tv.Count()
-#    root_elem = tv.Root()
-#    print tv.Texts
-#
 #
 #def test_header(ctrl):
 #    "Not called anymore"
@@ -1771,38 +1755,10 @@ class TreeViewTestCases(unittest.TestCase):
 #    for i in range(0, stat_bar.NumParts()):
 #        print "\t", `stat_bar.GetPartText(i)`
 #
-#def _unittests():
-#    "Run some Unittests - not called anymore!"
-#    from pywinauto import findwindows
-#    import os
-#    import time
-#    from pywinauto import handleprops
-#    os.system(r"explorer")
-#    time.sleep(1)
-#
-#    explorer = findwindows.find_windows(class_name = "ExploreWClass")[0]
-#
-#    for ctrl in handleprops.children(explorer):
-#        if handleprops.classname(ctrl) in ListViewWrapper.windowclasses:
-#            pass
-#            test_listview(ctrl)
-#
-#        if handleprops.classname(ctrl) in TreeViewWrapper.windowclasses:
-#            pass
-#            test_treeview(ctrl)
-#
-#        if handleprops.classname(ctrl) in HeaderWrapper.windowclasses:
-#            pass
-#            test_header(ctrl)
-#
-#        if handleprops.classname(ctrl) in StatusBarWrapper.windowclasses:
-#            pass
-#            test_statusbar(ctrl)
+
 
 
 if __name__ == "__main__":
-    #_unittests()
-
     unittest.main()
 
 

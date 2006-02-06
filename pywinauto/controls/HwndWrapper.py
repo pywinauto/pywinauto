@@ -51,6 +51,12 @@ delay_after_sendkeys_key = .01
 delay_after_button_click = 0#.1
 delay_before_after_close_click = .2
 
+
+#====================================================================
+class MenuItemNotEnabled(RuntimeError):
+    "Raised when a menuitem is not enabled"
+    pass
+
 #====================================================================
 class ControlNotEnabled(RuntimeError):
     "Raised when a control is not enabled"
@@ -325,7 +331,7 @@ class HwndWrapper(object):
         "Notify the dialog that one of it's menu items was selected"
         return self.SendMessageTimeout(
             win32defines.WM_COMMAND,
-            win32functions.MakeLong(menu_id, 0),
+            win32functions.MakeLong(0, menu_id),
             0)
 
 
@@ -335,7 +341,7 @@ class HwndWrapper(object):
 
         return self.Parent().PostMessage(
             win32defines.WM_COMMAND,
-            win32functions.MakeLong(self.ControlID(), message),
+            win32functions.MakeLong(message, self.ControlID()),
             self)
 
     #-----------------------------------------------------------
@@ -654,7 +660,7 @@ class HwndWrapper(object):
         win32functions.SelectObject(dc, brush_handle)
         win32functions.SelectObject(dc, pen_handle)
 
-        # draw the rectangle to teh DC
+        # draw the rectangle to the DC
         win32functions.Rectangle(
             dc, rect.left, rect.top, rect.right, rect.bottom)
 
@@ -694,9 +700,11 @@ class HwndWrapper(object):
         else:
 
             # unfortunately this is not always reliable :-(
-            #if item['State'] & MF_DISABLED or item['State'] & MF_GRAYED:
-            #   raise "TODO - replace with correct exception: " \
-            #       "Menu item is not enabled"
+            if \
+                item['State'] & win32defines.MF_DISABLED or \
+                item['State'] & win32defines.MF_GRAYED:
+
+                raise MenuItemNotEnabled("MenuItem '%s' is disabled"% path)
 
             #self.PostMessage(WM_MENURBUTTONUP, win32functions.GetMenu(self))
             #self.PostMessage(WM_COMMAND, 0, item['ID'])
@@ -708,6 +716,41 @@ class HwndWrapper(object):
 
         return self
 
+
+    #-----------------------------------------------------------
+    def MoveWindow(
+        self,
+        x = None,
+        y = None,
+        width = None,
+        height = None,
+        repaint = True):
+        """Move the window to the new coordinates"""
+
+        cur_rect = self.Rectangle()
+
+        # if no X is specified - so use current coordinate
+        if x is None:
+            x = cur_rect.left
+
+        # if no Y is specified - so use current coordinate
+        if y is None:
+            y = cur_rect.top
+
+        # if no width is specified - so use current width
+        if width is None:
+            width = cur_rect.width()
+
+        # if no height is specified - so use current height
+        if height is None:
+            height = cur_rect.height()
+
+        # ask for the window to be moved
+        ret = win32functions.MoveWindow(self, x, y, width, height, repaint)
+
+        # check that it worked correctly
+        if not ret:
+            raise ctypes.WinError()
 
     #-----------------------------------------------------------
     #def Close(self):
@@ -803,7 +846,7 @@ def _calc_flags_and_coords(pressed, coords):
     for key in pressed.split():
         flags |= _mouse_flags[key.lower()]
 
-    click_point = win32functions.MakeLong(coords[1], coords[0])
+    click_point = win32functions.MakeLong(coords[0], coords[1])
 
     return flags, click_point
 
@@ -924,36 +967,122 @@ def GetDialogPropsFromHandle(hwnd):
 
 
 
-#====================================================================
-def _unittests():
-    "do some basic testing"
-    from pywinauto.findwindows import find_windows
-    import sys
 
-    if len(sys.argv) < 2:
-        handle = win32functions.GetDesktopWindow()
-    else:
-        try:
-            handle = int(eval(sys.argv[1]))
+import unittest
 
-        except ValueError:
+class HwndWrapperTests(unittest.TestCase):
+    "Unit tests for the TreeViewWrapper class"
 
-            handle = find_windows(
-                title_re = "^" + sys.argv[1],
-                class_name = "#32770",
-                visible_only = False)
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
 
-            if not handle:
-                print "dialog not found"
-                sys.exit()
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
 
-    props = GetDialogPropsFromHandle(handle)
-    print len(props)
-    #pprint(GetDialogPropsFromHandle(handle))
+        import os.path
+        path = os.path.split(__file__)[0]
+
+        test_file = os.path.join(path, "test.txt")
+
+        self.test_data = open(test_file, "r").read()
+        # remove the BOM if it exists
+        self.test_data = self.test_data.replace("\xef\xbb\xbf", "")
+        self.test_data = self.test_data.decode('utf-8')
+
+        app.start_("Notepad.exe " + test_file)
+
+        self.app = app
+        self.dlg = app.UntitledNotepad
+        #self.ctrl = self.dlg.Edit.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.MenuSelect("File->Exit")
+
+        if self.app.Notepad.No.Exists():
+            self.app.Notepad.No.Click()
+
+    #def testText(self):
+    #    "Test getting the window Text of the dialog"
+    #    self.assertEquals(self.dlg.Text(), "Untitled - Notepad")
+
+    def testText(self):
+        "Test getting the window Text of the dialog"
+        self.assertEquals(self.dlg.Text(), "test.txt - Notepad")
+
+    def testClass(self):
+        "Test getting the classname of the dialog"
+        self.assertEquals(self.dlg.Class(), "Notepad")
+
+    def testFriendlyClassName(self):
+        "Test getting the friendly classname of the dialog"
+        self.assertEquals(self.dlg.FriendlyClassName(), "Dialog")
+
+    def testRectangle(self):
+        "Test getting the rectangle of the dialog"
+        rect = self.dlg.Rectangle()
+        self.assertNotEqual(rect.top, None)
+        self.assertNotEqual(rect.left, None)
+        self.assertNotEqual(rect.bottom, None)
+        self.assertNotEqual(rect.right, None)
+
+    def testMoveWindow_same(self):
+        "Test calling movewindow without any parameters"
+        prevRect = self.dlg.Rectangle()
+        self.dlg.MoveWindow()
+        self.assertEquals(prevRect, self.dlg.Rectangle())
+
+    def testMoveWindow(self):
+        "Test moving the window"
+        #prevRect = self.dlg.Rectangle()
+        self.dlg.MoveWindow(150, 100, 250, 200)
+        self.assertEquals(
+            self.dlg.Rectangle(),
+            win32structures.RECT(150, 100, 150+250, 100+200))
+
+
+
+##====================================================================
+#def _unittests():
+#    "do some basic testing"
+#    from pywinauto.findwindows import find_windows
+#    import sys
+#
+#    if len(sys.argv) < 2:
+#        handle = win32functions.GetDesktopWindow()
+#    else:
+#        try:
+#            handle = int(eval(sys.argv[1]))
+#
+#        except ValueError:
+#
+#            handle = find_windows(
+#                title_re = "^" + sys.argv[1],
+#                class_name = "#32770",
+#                visible_only = False)
+#
+#            if not handle:
+#                print "dialog not found"
+#                sys.exit()
+#
+#    props = GetDialogPropsFromHandle(handle)
+#    print len(props)
+#    #pprint(GetDialogPropsFromHandle(handle))
 
 
 if __name__ == "__main__":
-    _unittests()
+    unittest.main()
 
 
 

@@ -60,7 +60,18 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
+        """Return the friendly class name of the button
 
+        Windows controls with the class "Button" can look like different
+        controls based on their style. They can look like the following
+        controls:
+
+          - Buttons
+          - CheckBoxes
+          - RadioButtons
+          - GroupBoxes
+
+        """
         # get the least significant bit
         style_lsb = self.Style() & 0xF
 
@@ -119,7 +130,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         return self
 
     #-----------------------------------------------------------
-    #def Click(self):
+    def Click(self):
+        "Click the Button control"
     #    import win32functions
     #    win32functions.WaitGuiThreadIdle(self)
     #    self.NotifyParent(win32defines.BN_CLICKED)
@@ -175,17 +187,17 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def DroppedRect(self):
         "Get the dropped rectangle of the combobox"
-        droppedRect = win32structures.RECT()
+        dropped_rect = win32structures.RECT()
 
         self.SendMessage(
             win32defines.CB_GETDROPPEDCONTROLRECT,
             0,
-            ctypes.byref(droppedRect))
+            ctypes.byref(dropped_rect))
 
         # we need to offset the dropped rect from the control
-        droppedRect -= self.Rectangle()
+        dropped_rect -= self.Rectangle()
 
-        return droppedRect
+        return dropped_rect
 
     #-----------------------------------------------------------
     def ItemCount(self):
@@ -398,7 +410,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def LineCount(self):
         "Return how many lines there are in the Edit"
-        return  self.SendMessage(win32defines.EM_GETLINECOUNT)
+        return  self.SendMessage(win32defines.EM_GETLINECOUNT)-1
 
     #-----------------------------------------------------------
     def LineLength(self, line_index):
@@ -418,11 +430,12 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         text_len = self.LineLength(line_index)
         # create a buffer and set the length at the start of the buffer
-        text = ctypes.create_unicode_buffer(text_len+1)
+        text = ctypes.create_unicode_buffer(text_len+3)
         text[0] = unichr(text_len)
 
         # retrieve the line itself
-        self.SendMessage (win32defines.EM_GETLINE, line_index, ctypes.byref(text))
+        self.SendMessage (
+            win32defines.EM_GETLINE, line_index, ctypes.byref(text))
 
         return text.value
 
@@ -430,9 +443,9 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     def Texts(self):
         "Get the text of the edit control"
 
-        texts = [self.Text(),]
+        texts = [self.Text(), ]
 
-        for i in range(0, self.LineCount()):
+        for i in range(0, self.LineCount()+1):
             texts.append(self.GetLine(i))
 
         return texts
@@ -441,7 +454,12 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     def TextBlock(self):
         "Get the text of the edit control"
 
-        return "\n".join(self.Texts()[1:])
+        length = self.SendMessage(win32defines.WM_GETTEXTLENGTH)
+        text = ctypes.create_unicode_buffer(length + 1)
+        self.SendMessage(win32defines.WM_GETTEXT, length+1, ctypes.byref(text))
+
+        text = text.value.replace("\r\n", "\n")
+        return text
 
     #-----------------------------------------------------------
     def SelectionIndices(self):
@@ -482,7 +500,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
             # set the selection if either start or end has
             # been specified
-            self.Select(self, pos_start, pos_end)
+            self.Select(pos_start, pos_end)
         else:
             self.Select()
 
@@ -539,6 +557,7 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
 
 
 
+
 #====================================================================
 # the main reason for this is just to make sure that
 # a Dialog is a known class - and we don't need to take
@@ -553,7 +572,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     def RunTests(self, tests_to_run = None):
         "Run the tests on dialog"
 
-        # get all teh controls
+        # get all the controls
         controls = [self]
         controls.extend(self.Children())
 
@@ -568,6 +587,27 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
         from pywinauto import XMLHelpers
         XMLHelpers.WriteDialogToFile(filename, props)
+
+#    #-----------------------------------------------------------
+#    def AddReference(self, reference):
+#
+#        if len(self.Children() != len(reference)):
+#            raise "different number of reference controls"
+#
+#        for i, ctrl in enumerate(reference):
+#        # loop over each of the controls
+#        # and set the reference
+#            if isinstance(ctrl, dict):
+#                ctrl = CtrlProps(ctrl)
+#
+#            self.
+#            if ctrl.Class() != self.Children()[i+1].Class():
+#                print "different classes"
+
+
+
+
+
 
 
 
@@ -600,28 +640,39 @@ class EditTestCases(unittest.TestCase):
         self.dlg = app.UntitledNotepad
         self.ctrl = self.dlg.Edit.ctrl_()
 
+        self.old_pos = self.dlg.Rectangle
+
+        self.dlg.MoveWindow(10, 10, 400, 400)
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys("{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
         "Close the application after tests"
+
+        # set it back to it's old position so not to annoy users :-)
+        self.old_pos = self.dlg.Rectangle
+
         # close the application
         self.dlg.MenuSelect("File->Exit")
-
 
         if self.app.Notepad.No.Exists():
             self.app.Notepad.No.Click()
 
-    def testTypeKeys(self):
-        self.ctrl.SetText("Here is\r\nsome text")
-        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "Here is\nsome text")
-
     def testSetText(self):
-        # typekeys types at the current caret position (start when opening a new file)
+        "Test setting the text of the edit control"
+        self.ctrl.SetText("Here is\r\nsome text")
+        self.assertEquals(
+            "\n".join(self.ctrl.Texts()[1:]), "Here is\nsome text")
+
+    def testTypeKeys(self):
+        "Test typing some text into the edit control"
+        # typekeys types at the current caret position
+        # (start when opening a new file)
         added_text = "Here is some more Text"
         self.ctrl.TypeKeys(added_text, with_spaces = True)
         expected_text = added_text + self.test_data
@@ -629,18 +680,31 @@ class EditTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.TextBlock(), expected_text)
 
     def testSelect(self):
+        "Test selecting some text of the edit control"
         self.ctrl.Select(10, 50)
 
         self.assertEquals((10, 50), self.ctrl.SelectionIndices())
 
     def testLineCount(self):
-        self.assertEquals(self.ctrl.LineCount(), self.test_data.count("\n")+1)
+        "Test getting the line count of the edit control"
+        for i in range (0, self.ctrl.LineCount()):
+            self.assertEquals(
+                self.ctrl.LineLength(i),
+                len(self.test_data.split("\n")[i]))
 
     def testGetLine(self):
+        "Test getting each line of the edit control"
+
+        #for i in range(0, self.ctrl.LineCount()):
+        #    print `self.ctrl.GetLine(i)`
+
         for i, line in enumerate(self.test_data.split("\n")):
+            #print `line`
+            #print `self.ctrl.GetLine(i)`
             self.assertEquals(self.ctrl.GetLine(i), line)
 
     def testTextBlock(self):
+        "Test getting the text block of the edit control"
         self.assertEquals(self.ctrl.TextBlock(), self.test_data)
 
 

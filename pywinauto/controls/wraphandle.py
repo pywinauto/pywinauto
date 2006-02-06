@@ -26,8 +26,13 @@ import win32_controls
 import common_controls
 from pywinauto import handleprops
 
+__revision__ = "$Revision $"
+
 #====================================================================
+# get all the classes/functinos from win32_contols
 _all_classes = win32_controls.__dict__.values()
+
+# and add all the classes/functinos from common_controls
 _all_classes.extend(common_controls.__dict__.values())
 
 _wrapper_info = {}
