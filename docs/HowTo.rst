@@ -256,7 +256,7 @@ Or use ``window_()`` explictly::
 
   app.window_(title_re = "NonAsciiCharacters").window_(title = "MoreNonAsciiCharacters").Click()
 
-To see an example of this see ``pywinauto.test_application.MinimalNotepadTest_item()``
+To see an example of this see ``examples\MiscExamples.py.GetInfo()``
 
 
 
