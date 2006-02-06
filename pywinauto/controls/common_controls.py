@@ -1051,7 +1051,9 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Tab common control "
 
     friendlyclassname = "TabControl"
-    windowclasses = ["SysTabControl32", ]
+    windowclasses = [
+        "SysTabControl32",
+        r"WindowsForms\d*\.SysTabControl32\..*"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1165,7 +1167,9 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Toolbar common control "
 
     friendlyclassname = "Toolbar"
-    windowclasses = ["ToolbarWindow32", ]
+    windowclasses = [
+        "ToolbarWindow32",
+        r"WindowsForms\d*\.ToolbarWindow32\..*"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):

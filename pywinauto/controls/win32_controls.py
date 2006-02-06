@@ -38,7 +38,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Button"
     windowclasses = [
-        "Button", r"WindowsForms\d*\.BUTTON\..*", "TButton" ]
+        "Button",
+        r"WindowsForms\d*\.BUTTON\..*",
+        "TButton" ]
 
 
     #-----------------------------------------------------------
@@ -275,7 +277,9 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "ListBox"
     windowclasses = [
-        "ListBox", r"WindowsForms\d*\.LISTBOX\..*", "TListBox",]
+        "ListBox",
+        r"WindowsForms\d*\.LISTBOX\..*",
+        "TListBox",]
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -399,7 +403,12 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows Edit control"
 
     friendlyclassname = "Edit"
-    windowclasses = ["Edit", "TEdit", "TMemo"]
+    windowclasses = [
+        "Edit",
+        "TEdit",
+        "TMemo",
+        r"WindowsForms\d*\.EDIT\..*",
+        ]
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -540,7 +549,10 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows Static control"
 
     friendlyclassname = "Static"
-    windowclasses = ["Static", "TPanel"]
+    windowclasses = [
+        "Static",
+        r"WindowsForms\d*\.STATIC\..*",
+        "TPanel"]
 
     def __init__(self, hwnd):
         "Initialize the control"
