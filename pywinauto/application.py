@@ -412,7 +412,17 @@ class WindowSpecification(object):
         return self
 
     def __getitem__(self, key):
-        "Set the appropriate criteria from item access"
+        """Allow access to dialogs/controls through item access
+
+        This allows::
+
+            app.['DialogTitle']['ControlTextClass']
+
+        to be used to access dialogs and controls.
+
+        Both this and __getattr__ use the rules outlined in the
+        HowTo document.
+        """
 
         # FUTURE REQUIREMENT - NOT REQUIRED YET
         # if we already have 2 levels of criteria (dlg, control)
@@ -792,43 +802,4 @@ def process_from_module(module):
 
     raise ProcessNotFoundError("No running process - '%s' found"% module)
 
-
-
-import unittest
-
-class ApplicationTestCases(unittest.TestCase):
-    "Unit tests for the ListViewWrapper class"
-
-    def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
-        pass
-
-    def tearDown(self):
-        "Close the application after tests"
-        # close the application
-        #self.dlg.SendMessage(win32defines.WM_CLOSE)
-        pass
-
-    def testNotConnected(self):
-        "Make sure the friendly class is set correctly"
-        self.assertRaises (AppNotConnected, Application().__getattr__, 'Hiya')
-        self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
-        self.assertRaises (AppNotConnected, Application().window_, title = 'Hiya')
-        self.assertRaises (AppNotConnected, Application().top_window_,)
-
-    def testStartProplem(self):
-        "Make sure the friendly class is set correctly"
-        self.assertRaises (AppStartError, Application().start_, 'Hiya')
-
-    #def testStartProplem(self):
-    #    "Make sure the friendly class is set correctly"
-    #    self.assertRaises (AppStartError, Application().start_, 'Hiya')
-
-
-
-if __name__ == "__main__":
-    #_unittests()
-
-    unittest.main()
 

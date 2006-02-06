@@ -142,12 +142,16 @@ GetQueueStatus = ctypes.windll.user32.GetQueueStatus
 #====================================================================
 def MakeLong(high, low):
     "Pack high into the high word of a long and low into the low word"
-    return (high << 16) | low
+
+    # we need to AND each value with 0xFFFF to account for numbers
+    # greater then normal WORD (short) size
+    return ((high & 0xFFFF) << 16) | (low & 0xFFFF)
 
 #====================================================================
 def HiWord(value):
     "Return the high word from a long"
-    return (value & (~ 0xFFFF)) / 0xFFFF
+    #return (value & (~ 0xFFFF)) / 0xFFFF
+    return (value >> 16) & 0xffff
 
 #====================================================================
 def LoWord(value):
