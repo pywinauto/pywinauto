@@ -1,18 +1,25 @@
 @echo off
 
-c:\.temp\pudge\pudge\cli --documents docs\index.rst,history.txt,license.txt,todo.txt,docs\howto.rst --title pywinauto -v -d pudge_output_green_paste -m pywinauto.application,pywinauto.clipboard,pywinauto.controlactions,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests  -t \.temp\pudge\pudge\template\green_paste
-
-REM docs\about.rst
-
-REM c:\.temp\pudge\pudge\cli --title pywinauto -v -d pudge_output_green -m pywinauto.application,pywinauto.clipboard,pywinauto.controlactions,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests  -t \.temp\pudge\pudge\template\green
-
-REM c:\.temp\pudge\pudge\cli --title pywinauto -v -d pudge_output_lesscode -m pywinauto.application,pywinauto.clipboard,pywinauto.controlactions,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests  -t \.temp\pudge\pudge\template\lesscode.org
-REM c:\.temp\pudge\pudge\cli --title pywinauto -v -d pudge_output_base -m pywinauto.application,pywinauto.clipboard,pywinauto.controlactions,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests  -t \.temp\pudge\pudge\template\base
-REM c:\.temp\pudge\pudge\cli --title pywinauto -v -d pudge_output_pythonpaste -m pywinauto.application,pywinauto.clipboard,pywinauto.controlactions,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests  -t \.temp\pudge\pudge\template\pythonpaste.org
-
-REM pywinauto.win32defines
-REM pywinauto.win32functions
-REM pywinauto.win32structures
+c:\.temp\pudge\pudge\cli  --documents doc_source\index.rst,doc_source\howto.rst,history.txt,license.txt,todo.txt --title pywinauto  -v  -d documentation  -m pywinauto.application,pywinauto.clipboard,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests   -t \.temp\pudge\pudge\template\green_paste
 
 
-REM pywinauto.application, pywinauto.clipboard, pywinauto.controlactions, pywinauto.findbestmatch, pywinauto.findwindows, pywinauto.handleprops, pywinauto.XMLHelpers, pywinauto.controls, pywinauto.tests
+
+
+REM These are the python modules
+REM application.py
+REM clipboard.py
+REM findbestmatch.py
+REM findwindows.py
+REM handleprops.py
+REM win32defines.py
+REM win32functions.py
+REM win32structures.py
+REM XMLHelpers.py
+REM controls
+REM tests
+
+
+
+
+REM c:\.temp\pudge\pudge\cli --title pywinauto -v -m pywinauto --documents docs\index.rst,history.txt,license.txt,todo.txt,docs\howto.rst -d pudge_output_green_paste   -t \.temp\pudge\pudge\template\green_paste
+
