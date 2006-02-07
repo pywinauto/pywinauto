@@ -25,7 +25,7 @@ from distutils.core import setup
 
 
 setup(name='pywinauto',
-	version='0.1.3',
+	version='0.2.0',
 	description='Python library for GUI automation and testing',
 	url="no url",
 	author='Mark Mc Mahon',
