@@ -173,3 +173,5 @@ except MatchError:
 # exit notepad
 app.Notepad.MenuSelect("File->Exit")
 
+if app.Notepad.No.Exists(1):
+    app.Notepad.No.Click()

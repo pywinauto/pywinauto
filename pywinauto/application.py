@@ -287,7 +287,7 @@ class WindowSpecification(object):
         raise AttributeError(message)
 
 
-    def Exists(self):
+    def Exists(self, timeout = exists_timeout):
         "Check if the window exists"
 
         # modify the criteria as Exists should look for all
