@@ -12,19 +12,19 @@
     * Changed from property access to Control attributes to function access
       If your code was accessing properties of controls then this might be a
       significant change! The main reasons for doing this were due to the
-      inheritability of properties (or lack there-of!) and the additional scafolding
-      that was required to define them all.
+      inheritability of properties (or lack there-of!) and the additional 
+      scafolding that was required to define them all.
       
-    * Updated the ``DialogWrapper.MenuSelect()`` method to notify the parent that it
-      needs to initialize the menu's before it retrieves the items
+    * Updated the ``DialogWrapper.MenuSelect()`` method to notify the parent 
+      that it needs to initialize the menu's before it retrieves the items
       
-    * Added functionality to associate 'non-text' controls with the 'text' control
-      closest to them. This allows controls to be referenced by::
+    * Added functionality to associate 'non-text' controls with the 'text' 
+      control closest to them. This allows controls to be referenced by::
       
         app.dlg.<Nearby_text><Window_class>
       
-      e.g. to reference the "Footer" edit control in the Page Setup dialog you could
-      use::
+      e.g. to reference the "Footer" edit control in the Page Setup dialog 
+      you could use::
        
         app.PageSetup.FooterEdit
       
