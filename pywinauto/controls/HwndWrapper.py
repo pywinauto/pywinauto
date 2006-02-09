@@ -141,6 +141,27 @@ class HwndWrapper(object):
         # default to not having a reference control added
         self.ref = None
 
+        # build the list of default properties to be written
+        # Derived classes can either modify this list or override 
+        # GetProperties depending on how much control they need.
+        self.writable_props = [
+            'Class',
+            'FriendlyClassName',
+            'Texts',
+            'Style',
+            'ExStyle',
+            'ControlID',
+            'UserData',
+            'ContextHelpID',
+            'Fonts',
+            'ClientRects',
+            'Rectangle',
+            'IsVisible',
+            'IsUnicode',
+            'IsEnabled',
+            'MenuItems',
+            ]
+
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
@@ -349,41 +370,16 @@ class HwndWrapper(object):
         "Return the properties of the control as a dictionary"
         props = {}
 
-        # get the className
-        props['Class'] = self.Class()
-
-        # set up the friendlyclass defaulting
-        # to the class Name
-        props['FriendlyClassName'] = self.FriendlyClassName()
-
-        props['Texts'] = self.Texts()
-        props['Style'] = self.Style()
-        props['ExStyle'] = self.ExStyle()
-        props['ControlID'] = self.ControlID()
-        props['UserData'] = self.UserData()
-        props['ContextHelpID'] = self.ContextHelpID()
-
-        props['Fonts'] = self.Fonts()
-        props['ClientRects'] = self.ClientRects()
-
-        props['Rectangle'] = self.Rectangle()
-
-        props['IsVisible'] =  self.IsVisible()
-        props['IsUnicode'] =  self.IsUnicode()
-        props['IsEnabled'] =  self.IsEnabled()
-
-        props['MenuItems'] = self.MenuItems()
-
-        #if self.IsVisible and self._NeedsImageProp:
-        #    print "\t", self.Class
-        #    props['Image'] = self.CaptureAsImage()
-
-        #return the properties
+        # for each of the properties that can be written out
+        for propname in self.writable_props:
+            # set the item in the props dictionary keyed on the propname
+            props[propname] = getattr(self, propname)()
+        
         return props
 
     #-----------------------------------------------------------
     def CaptureAsImage(self):
-        "Return a PIL image of the dialog"
+        "Return a PIL image of the control"
         if not (self.Rectangle().width() and self.Rectangle().height()):
             return None
 
@@ -414,7 +410,11 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def VerifyActionable(self):
-        "Verify that the control is visible and enabled"
+        """Verify that the control is both visible and enabled
+        
+        raise either ControlNotEnalbed or ControlNotVisible if not
+        enabled or visible respectively.
+        """
         win32functions.WaitGuiThreadIdle(self)
         self.VerifyVisible()
         self.VerifyEnabled()
@@ -422,13 +422,16 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def VerifyEnabled(self):
-        "Verify that the control is enabled"
+        """Verify that the control is enabled
+        
+        Check first if the parent is visible. (skip if no parent)
+        Then check if this control is visible.
+        """
 
         # check first if it's parent is enabled
         # (as long as it is not a dialog!)
-        if not self.friendlyclassname == "Dialog":
-            if not self.Parent().IsEnabled():
-                raise ControlNotEnabled()
+        if self.Parent() and not self.Parent().IsEnabled():
+            raise ControlNotEnabled()
 
         # then check if the control itself is enabled
         if not self.IsEnabled():
@@ -436,13 +439,16 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def VerifyVisible(self):
-        "Verify that the control is visible"
+        """Verify that the control is visible
+        
+        Check first if the parent is visible. (skip if no parent)
+        Then check if this control is visible.
+        """
 
         # check first if it's parent is visible
         # (as long as it is not a dialog!)
-        if not self.friendlyclassname == "Dialog":
-            if not self.Parent().IsVisible():
-                raise ControlNotVisible()
+        if self.Parent() and not self.Parent().IsVisible():
+            raise ControlNotVisible()
 
         # then check if the control itself is Visible
         if not self.IsVisible():
@@ -483,16 +489,18 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def DoubleClick(
-        self, button = "left", pressed = "", coords = (0, 0), double = True):
+        self, button = "left", pressed = "", coords = (0, 0)):
         "Perform a double click action"
-        _perform_click(self, button, pressed, coords, double)
+        _perform_click(self, button, pressed, coords, double = True)
         return self
 
     #-----------------------------------------------------------
     def RightClick(
-        self, button = "right", pressed = "", coords = (0, 0), double = True):
+        self, pressed = "", coords = (0, 0)):
         "Perform a right click action"
-        _perform_click(self, button, pressed, coords, double)
+
+        _perform_click(self, "right", "right " + pressed, coords, button_up = False)
+        _perform_click(self, "right", pressed, coords, button_down = False)
         return self
 
 
@@ -822,6 +830,8 @@ def _perform_click(
     # send each message
     for msg in msgs:
         ctrl.SendMessageTimeout(msg, flags, click_point)
+        #ctrl.PostMessage(msg, flags, click_point)
+        #flags = 0
 
         # wait until the thread can accept another message
         win32functions.WaitGuiThreadIdle(ctrl)
@@ -916,8 +926,11 @@ def _GetMenuItems(menu_handle, ctrl):
             ctrl.SendMessage(
                 win32defines.WM_INITMENUPOPUP, menu_info.hSubMenu, i)
 
+            #ctrl.SendMessage(
+            #    win32defines.WM_INITMENU, menu_info.hSubMenu, )
+
             # get the sub menu items
-            sub_menu_items = _GetMenuItems(menu_info.hSubMenu, ctrl)#, indent)
+            sub_menu_items = _GetMenuItems(menu_info.hSubMenu, ctrl)
 
             # append them
             item_prop['MenuItems'] = sub_menu_items
