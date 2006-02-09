@@ -24,7 +24,15 @@ __revision__ = "$Revision: 214 $"
 
 import time
 
-from pywinauto import application
+try:
+    from pywinauto import application
+except ImportError:
+    import os.path
+    pywinauto_path = os.path.abspath(__file__)
+    pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
+    import sys
+    sys.path.append(pywinauto_path)
+    from pywinauto import application
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
@@ -138,6 +146,10 @@ app.PageSetupDlg.Ok.CloseClick()
 # type some text - note that extended characters ARE allowed
 app.Notepad.Edit.SetText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
     "And then I am going to quit")
+
+app.Notepad.Edit.RightClick()
+time.sleep(3)
+app.Notepad.Edit.TypeKeys("{ESC}")
 
 # the following shows that Sendtext does not accept
 # accented characters - but does allow 'control' characters
