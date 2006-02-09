@@ -22,7 +22,16 @@
 
 __revision__ = "$Revision: 234 $"
 
-from pywinauto.controls.HwndWrapper import *
+try:
+    from pywinauto.controls.HwndWrapper import *
+except ImportError:
+    # allow it to be imported in a dev environment
+    import sys
+    
+    pywinauto_imp = "\\".join(__file__.split('\\')[:-3])    
+    print "sdfdsf", pywinauto_imp
+    sys.path.append(pywinauto_imp)
+    from pywinauto.controls.HwndWrapper import *
 
 import unittest
 
@@ -83,7 +92,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testFriendlyClassName(self):
         "Test getting the friendly classname of the dialog"
-        self.assertEquals(self.dlg.FriendlyClassName(), "Dialog")
+        self.assertEquals(self.dlg.FriendlyClassName(), "Notepad")
 
     def testRectangle(self):
         "Test getting the rectangle of the dialog"
@@ -106,6 +115,19 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEquals(
             self.dlg.Rectangle(),
             win32structures.RECT(150, 100, 150+250, 100+200))
+
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.dlg.GetProperties()
+        
+        self.assertEquals(
+            self.dlg.FriendlyClassName(), props['FriendlyClassName'])
+        
+        self.assertEquals(
+            self.dlg.Texts(), props['Texts'])
+        
+        for prop_name in props:
+            self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
 
 
 
