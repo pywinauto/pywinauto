@@ -27,6 +27,8 @@ import time
 import ctypes
 
 import HwndWrapper
+
+from pywinauto import win32functions
 from pywinauto import win32defines
 from pywinauto import win32structures
 
@@ -580,6 +582,14 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "Dialog"
     #windowclasses = ["#32770", ]
 
+    def __init__(self, hwnd):
+        HwndWrapper.HwndWrapper.__init__(self, hwnd)
+
+        if self.Class() == "#32770":
+            self.friendlyclassname = "Dialog"
+        else:
+            self.friendlyclassname = self.Class()
+
     #-----------------------------------------------------------
     def RunTests(self, tests_to_run = None):
         "Run the tests on dialog"
@@ -618,9 +628,33 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
 
 
+#====================================================================
+# the main reason for this is just to make sure that
+# a Dialog is a known class - and we don't need to take
+# an image of it (as an unknown control class)
+class PopupMenuWrapper(HwndWrapper.HwndWrapper):
+    "Wrap a Popup Menu"
+
+    friendlyclassname = "PopupMenu"
+    windowclasses = ["#32768", ]
+
+    def IsDialog(self):
+        return True
 
 
+    def MenuItems(self):
 
+        mbi = win32structures.MENUBARINFO()
+        mbi.cbSize = ctypes.sizeof(mbi)
+        ret = win32functions.GetMenuBarInfo(
+            self,
+            win32defines.OBJID_CLIENT,
+            0,
+            ctypes.byref(mbi))
+
+        if ret:
+           self.SendMessage(win32defines.WM_INITMENU, mbi.hMenu)
+           return HwndWrapper._GetMenuItems(mbi.hMenu, self)
 
 
 
