@@ -22,7 +22,8 @@
 
 __revision__ = "$Revision: 234 $"
 
-from pywinauto.controls.common_controls import * 
+from pywinauto.controls.common_controls import *
+from pywinauto.win32structures import RECT
 
 import unittest
 
@@ -74,13 +75,13 @@ class ListViewTestCases(unittest.TestCase):
         "Make sure the friendly class is set correctly"
         self.assertEquals (self.ctrl.FriendlyClassName(), "ListView")
 
-    def testItemCount(self):
-        "Test the ItemCount method"
-        self.assertEquals (self.ctrl.ItemCount(), 9)
-
     def testColumnCount(self):
         "Test the ColumnCount method"
         self.assertEquals (self.ctrl.ColumnCount(), 4)
+
+    def testItemCount(self):
+        "Test the ItemCount method"
+        self.assertEquals (self.ctrl.ItemCount(), 9)
 
     def testItemText(self):
         "Test the item.Text property"
@@ -272,6 +273,98 @@ class TreeViewTestCases(unittest.TestCase):
 
         # make sure that the item is not hidden
         self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).Rectangle())
+
+
+
+
+
+
+
+class StatusBarTestCases(unittest.TestCase):
+    "Unit tests for the TreeViewWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\Status bar.exe")
+
+        self.texts = ["Long text", "", "Status Bar"]
+        self.part_rects = [
+            RECT(0, 2, 65, 20),
+            RECT(67, 2, 90, 20),
+            RECT(92, 2, 264, 20)]
+        self.app = app
+        self.dlg = app.MicrosoftControlSpy
+        self.ctrl = app.MicrosoftControlSpy.StatusBar.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEquals (self.ctrl.FriendlyClassName(), "StatusBar")
+
+    def testTexts(self):
+        "Make sure the texts are set correctly"
+        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+
+    def testBorderWidths(self):
+        "Make sure the border widths are retrieved correctly"
+        self.assertEquals (
+            self.ctrl.BorderWidths(),
+            dict(
+                Horizontal = 0,
+                Vertical = 2,
+                Inter = 2,
+                )
+            )
+
+    def testNumParts(self):
+        "Make sure the number of parts is retrieved correctly"
+        self.assertEquals (self.ctrl.NumParts(), 3)
+
+    def testGetPartRect(self):
+        "Make sure the part rectangles are retrieved correctly"
+
+        for i in range(0, self.ctrl.NumParts()):
+            self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
+
+    def testPartRightEdges(self):
+        "Make sure the part widths are retrieved correctly"
+
+        for i in range(0, self.ctrl.NumParts()-1):
+            self.assertEquals (self.ctrl.PartRightEdges()[i], self.part_rects[i].right)
+
+        self.assertEquals(self.ctrl.PartRightEdges()[i+1], -1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
