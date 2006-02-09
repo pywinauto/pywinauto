@@ -147,6 +147,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ListViewWrapper, self).__init__(hwnd)
 
+        self.writable_props.extend([
+            'ColumnCount',
+            'ItemCount', ])
+
     #-----------------------------------------------------------
     def ColumnCount(self):
         """Return the number of columns"""
@@ -207,12 +211,9 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # get selected item
         props['ColumnWidths'] = [col.cx for col in self.Columns()]
 
-        props['ItemCount'] = self.ItemCount()
-
-        props['ColumnCount'] = self.ColumnCount()
-        if props['ColumnCount'] == 0:
-            props['ColumnCount'] = 1
-            props['ColumnWidths'] = [999, ] # never trunctated
+        #if props['ColumnCount'] == 0:
+        #    props['ColumnCount'] = 1
+        #    props['ColumnWidths'] = [999, ] # never trunctated
 
         props['ItemData'] = []
         for item in self.Items():
@@ -395,7 +396,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         self.Parent().SendMessage(
             win32defines.WM_NOTIFY,
             self.ControlID(),
-            remote_mem.Write(lvitem))
+            remote_mem.Address())
 
         del remote_mem
 
@@ -911,6 +912,13 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(StatusBarWrapper, self).__init__(hwnd)
 
+        self.writable_props.extend([
+            'BorderWidths',
+            'NumParts',
+            'PartWidths',
+
+        ])
+
     #----------------------------------------------------------------
     def BorderWidths(self):
         """Return the border widths of the StatusBar
@@ -950,7 +958,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
             0 )
 
     #----------------------------------------------------------------
-    def PartWidths(self):
+    def PartRightEdges(self):
         "Return the widths of the parts"
         remote_mem = _RemoteMemoryBlock(self)
 
@@ -1036,12 +1044,6 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
         return texts
 
-    #----------------------------------------------------------------
-    def GetProperties(self):
-        "Return the properties fo the StatusBar"
-        props = HwndWrapper.GetProperties(self)
-
-        props['BorderWidths'] = self.BorderWidths()
 
 
 
@@ -1064,6 +1066,28 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         self._extra_clientrects = []
         self._extra_texts = []
         self._fill_tabcontrol_info()
+
+    #----------------------------------------------------------------
+    def GetTab(self, tab_index):
+        remote_mem = _RemoteMemoryBlock(self)
+
+        item = win32structures.TCITEMW()
+        item.mask = win32defines.TCIF_STATE | win32defines.TCIF_TEXT
+        item.cchTextMax = 1999
+        item.pszText = remote_mem.Address() + ctypes.sizeof(item)
+        remote_mem.Write(item)
+
+        self.SendMessage(
+            win32defines.TCM_GETITEMW, tab_index, remote_mem.Address())
+
+        remote_mem.Read(item)
+
+        # Read the text that has been written
+        text = ctypes.create_unicode_buffer(2000)
+        text = remote_mem.Read(text, remote_mem.Address() + \
+            ctypes.sizeof(item))
+
+
 
     #----------------------------------------------------------------
     def _fill_tabcontrol_info(self):
@@ -1224,6 +1248,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Read(button_info.text, remote_mem.Address() + \
             ctypes.sizeof(button_info))
 
+        button_info.text = button_info.text.value
+
         del remote_mem
 
         return button_info
@@ -1235,6 +1261,106 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             texts.append(self.GetButton(i).text)
 
         return texts
+
+    def GetButtonRect(self, button_index):
+        "Get the rectangle of a button on the toolbar"
+
+        remote_mem = _RemoteMemoryBlock(self)
+
+        rect = win32structures.RECT()
+
+        remote_mem.Write(rect)
+
+        self.SendMessage(
+            win32defines.TB_GETITEMRECT,
+            button_index,
+            remote_mem.Address())
+
+        rect = remote_mem.Read(rect)
+
+        del remote_mem
+
+        return rect
+
+    def Right_Click(self, button_index, **kwargs):
+
+
+        win32functions.SetCapture(self)
+
+        button = self.GetButton(button_index)
+        #print button.text
+
+        rect = self.GetButtonRect(button_index)
+
+        x = (rect.left + rect.right) /2
+        y = (rect.top + rect.bottom) /2
+
+        #print x, y
+
+
+        self.MoveMouse(coords = (x, y))
+        self.SendMessage(
+            win32defines.WM_MOUSEACTIVATE,
+            self.Parent().Parent().Parent(),
+            win32functions.MakeLong(win32defines.WM_RBUTTONDOWN, win32defines.HTCLIENT))
+
+        self.PressMouse(pressed = "right", button = "right", coords = (x,y))
+
+#        remote_mem = _RemoteMemoryBlock(self)
+#
+#        # now we need to notify the parent that the state has changed
+#        nmlv = win32structures.NMMOUSE()
+#        nmlv.hdr.hwndFrom = self.handle
+#        nmlv.hdr.idFrom = self.ControlID()
+#        nmlv.hdr.code = win32defines.NM_RCLICK
+#
+#
+#        nmlv.dwItemSpec = button.idCommand
+#        #nmlv.dwItemData
+#
+#        nmlv.pt = win32structures.POINT()
+#
+#        remote_mem.Write(nmlv)
+#
+#        self.SendMessage(
+#            win32defines.WM_NOTIFY,
+#            self.ControlID(),
+#            remote_mem.Address())
+#
+#        del remote_mem
+
+
+        self.ReleaseMouse(button = "right", coords = (x, y))
+
+        win32functions.ReleaseCapture()
+
+
+
+
+
+
+    def PressButton(self, button_index):
+        "Get the rectangle of a button on the toolbar"
+
+        button = self.GetButton(button_index)
+
+        remote_mem = _RemoteMemoryBlock(self)
+
+        rect = win32structures.RECT()
+
+        remote_mem.Write(rect)
+
+        self.SendMessage(
+            win32defines.TB_PRESSBUTTON,
+            button.idCommand,
+            win32functions.MakeLong(1, 0))
+
+        rect = remote_mem.Read(rect)
+
+        del remote_mem
+
+        return rect
+
 
 
 #    #----------------------------------------------------------------
@@ -1400,13 +1526,13 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows ToolTips common control (not fully implemented)"
 
     # mask this class as it is not ready for prime time yet!
-    # friendlyclassname = "ToolTips"
-    # windowclasses = ["tooltips_class32", ]
+    friendlyclassname = "ToolTips"
+    windowclasses = ["tooltips_class32", ]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the instance"
-        super(ToolTipsWrapper, self).__init__(hwnd)
+        HwndWrapper.HwndWrapper.__init__(self, hwnd)
 
         self._PlayWithToolTipControls()
 
@@ -1414,7 +1540,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     def _PlayWithToolTipControls(self):
         "Just playing for now!"
         # get the number of tooltips associated with the control
-        count = self.SendMessage(win32defines.TTM_GETTOOLCOUNT, 0, 0)
+        count = self.SendMessage(win32defines.TTM_GETTOOLCOUNT)
 
         # find the owner window of the tooltip
         #parent = Window(GetWindow (winToTest, GW_OWNER))
@@ -1427,44 +1553,57 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
         for i in range(0, count):
 
-            for i2 in range(0, count):
-                tipinfo = win32structures.TOOLINFOW()
-                tipinfo.cbSize = ctypes.sizeof(tipinfo)
-                tipinfo.lpszText  = remote_mem.Address() + \
+            tipinfo = win32structures.TOOLINFOW()
+            tipinfo.cbSize = ctypes.sizeof(tipinfo)
+            #tipinfo.lpszText  = remote_mem.Address() + \
+            #    ctypes.sizeof(tipinfo) +1
+            #tipinfo.uId = i2
+            #tipInfo.uFlags = 0xff
+
+            remote_mem.Write(tipinfo)
+
+            ret = self.SendMessage(
+                win32defines.TTM_ENUMTOOLSW, i, remote_mem.Address())
+
+            if not ret:
+                raise ctypes.WinError()
+            else:
+                remote_mem.Read(tipinfo)
+
+                tipinfo.lpszText = remote_mem.Address() + \
                     ctypes.sizeof(tipinfo) +1
-                tipinfo.uId = i2
-                #tipInfo.uFlags = 0xff
 
                 remote_mem.Write(tipinfo)
 
-                ret = self.SendMessage(
-                    win32defines.TTM_ENUMTOOLSW, i, remote_mem.Address())
+                self.SendMessage(win32defines.TTM_GETTEXTW, 0, remote_mem.Address())
 
-                if not ret:
-                    raise ctypes.WinError()
-                else:
-                    remote_mem.Read(tipinfo)
+                text = ctypes.create_unicode_buffer(200)
 
+                remote_mem.Read(text, tipinfo.lpszText)
 
-                    #print i, i2, tipInfo.lpszText
-                    #print "-" * 10
-                    #PrintCtypesStruct(tipInfo)
+                #print text.value
 
 
-                    if tipinfo.lpszText in (
-                        win32defines.LPSTR_TEXTCALLBACKW, 0, -1):
-                        #print "CALLBACK CALLBACK CALLBACK"
-                        pass
 
-                    else:
-                        try:
-                            text = ctypes.create_unicode_buffer(2000)
-                            remote_mem.Read(text, tipinfo.lpszText)
-
-                            #print "TTT"* 10, `text.value`, i, i2
-                        except RuntimeError:
-                            pass
-
+                #print i, i2, tipInfo.lpszText
+                #print "-" * 10
+                #PrintCtypesStruct(tipInfo)
+#
+#
+#                if tipinfo.lpszText in (
+#                    win32defines.LPSTR_TEXTCALLBACKW, 0, -1):
+#                    #print "CALLBACK CALLBACK CALLBACK"
+#                    pass
+#
+#                else:
+#                    try:
+#                        text = ctypes.create_unicode_buffer(2000)
+#                        remote_mem.Read(text, tipinfo.lpszText)
+#
+#                        #print "TTT"* 10, `text.value`, i, i2
+#                    except RuntimeError:
+#                        pass
+#
 
 
 
