@@ -73,20 +73,22 @@ def WrapHandle(hwnd):
     Wrapper is chosen on the Class of the control
     """
 
-    if handleprops.is_toplevel_window(hwnd):
-        return win32_controls.DialogWrapper(hwnd)
-
     from HwndWrapper import HwndWrapper
 
     class_name = handleprops.classname(hwnd)
     wrapper = _find_wrapper(class_name)
 
     if wrapper is None:
-        wrapped_hwnd = HwndWrapper(hwnd)
+        if handleprops.is_toplevel_window(hwnd):
+            wrapped_hwnd = win32_controls.DialogWrapper(hwnd)
+        else:
+            wrapped_hwnd = HwndWrapper(hwnd)
 
         if not handleprops.is_toplevel_window(hwnd):
             wrapped_hwnd._NeedsImageProp = True
+
     else:
         wrapped_hwnd = wrapper(hwnd)
 
     return wrapped_hwnd
+
