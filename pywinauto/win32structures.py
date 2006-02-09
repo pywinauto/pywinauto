@@ -28,7 +28,7 @@ import ctypes
 from ctypes import (
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char,
     c_ubyte, c_ushort, c_wchar_p,
-    POINTER, sizeof, alignment)
+    POINTER, sizeof, alignment, Union)
 
 
 class Structure(ctypes.Structure):
@@ -716,3 +716,90 @@ class NMLISTVIEW(Structure):
 assert sizeof(NMLISTVIEW) == 44, sizeof(NMLISTVIEW)
 assert alignment(NMLISTVIEW) == 1, alignment(NMLISTVIEW)
 
+
+
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 235
+class NMMOUSE(Structure):
+    _pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 235
+        ('hdr', NMHDR),
+        ('dwItemSpec', DWORD),
+        ('dwItemData', DWORD),
+        ('pt', POINT),
+        ('dwHitInfo', DWORD),
+    ]
+assert sizeof(NMMOUSE) == 32, sizeof(NMMOUSE)
+assert alignment(NMMOUSE) == 1, alignment(NMMOUSE)
+
+
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
+class MOUSEINPUT(Structure):
+    _pack_ = 2
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
+        ('dx', LONG),
+        ('dy', LONG),
+        ('mouseData', DWORD),
+        ('dwFlags', DWORD),
+        ('time', DWORD),
+        ('dwExtraInfo', DWORD),
+    ]
+assert sizeof(MOUSEINPUT) == 24, sizeof(MOUSEINPUT)
+assert alignment(MOUSEINPUT) == 2, alignment(MOUSEINPUT)
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
+class KEYBDINPUT(Structure):
+    _pack_ = 2
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
+        ('wVk', WORD),
+        ('wScan', WORD),
+        ('dwFlags', DWORD),
+        ('time', DWORD),
+        ('dwExtraInfo', DWORD),
+    ]
+assert sizeof(KEYBDINPUT) == 16, sizeof(KEYBDINPUT)
+assert alignment(KEYBDINPUT) == 2, alignment(KEYBDINPUT)
+
+
+class HARDWAREINPUT(Structure):
+    _pack_ = 2
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4300
+        ('uMsg', DWORD),
+        ('wParamL', WORD),
+        ('wParamH', WORD),
+    ]
+assert sizeof(HARDWAREINPUT) == 8, sizeof(HARDWAREINPUT)
+assert alignment(HARDWAREINPUT) == 2, alignment(HARDWAREINPUT)
+
+
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
+class UNION_INPUT_STRUCTS(Union):
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
+        ('mi', MOUSEINPUT),
+        ('ki', KEYBDINPUT),
+        ('hi', HARDWAREINPUT),
+    ]
+assert sizeof(UNION_INPUT_STRUCTS) == 24, sizeof(UNION_INPUT_STRUCTS)
+assert alignment(UNION_INPUT_STRUCTS) == 2, alignment(UNION_INPUT_STRUCTS)
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
+class INPUT(Structure):
+    _pack_ = 2
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
+        ('type', DWORD),
+        # Unnamed field renamed to '_'
+        ('_', UNION_INPUT_STRUCTS),
+    ]
+assert sizeof(INPUT) == 28, sizeof(INPUT)
+assert alignment(INPUT) == 2, alignment(INPUT)

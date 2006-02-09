@@ -22,6 +22,11 @@
 __revision__ = "$Revision$"
 
 import ctypes
+from ctypes import *
+
+UINT = c_uint
+SHORT = c_short
+
 
 CreateBrushIndirect	=	ctypes.windll.gdi32.CreateBrushIndirect
 CreateDC			=	ctypes.windll.gdi32.CreateDCW
@@ -40,6 +45,9 @@ GetClientRect		=	ctypes.windll.user32.GetClientRect
 GetDC				=	ctypes.windll.user32.GetDC
 GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
 MoveWindow          =   ctypes.windll.user32.MoveWindow
+
+SendInput           =   ctypes.windll.user32.SendInput
+SetCursorPos        =   ctypes.windll.user32.SetCursorPos
 
 # menu functions
 DrawMenuBar			=	ctypes.windll.user32.DrawMenuBar
@@ -77,7 +85,6 @@ IsWindow 			=	ctypes.windll.user32.IsWindow
 IsWindowUnicode		=	ctypes.windll.user32.IsWindowUnicode
 IsWindowVisible		=	ctypes.windll.user32.IsWindowVisible
 IsWindowEnabled		=	ctypes.windll.user32.IsWindowEnabled
-MapVirtualKey		=	ctypes.windll.user32.MapVirtualKeyW
 OpenProcess			=	ctypes.windll.kernel32.OpenProcess
 CloseHandle         =   ctypes.windll.kernel32.CloseHandle
 ReadProcessMemory	=	ctypes.windll.kernel32.ReadProcessMemory
@@ -96,7 +103,6 @@ SetWindowLong		=	ctypes.windll.user32.SetWindowLongW
 SystemParametersInfo =	ctypes.windll.user32.SystemParametersInfoW
 VirtualAllocEx		=	ctypes.windll.kernel32.VirtualAllocEx
 VirtualFreeEx		=	ctypes.windll.kernel32.VirtualFreeEx
-VkKeyScan			=	ctypes.windll.user32.VkKeyScanW
 WriteProcessMemory	=	ctypes.windll.kernel32.WriteProcessMemory
 GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
 GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
@@ -137,6 +143,23 @@ GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
 GetQueueStatus = ctypes.windll.user32.GetQueueStatus
+
+
+
+def VkKeyScanW(p1):
+    # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4225
+    return VkKeyScanW._api_(p1)
+VkKeyScan = stdcall(SHORT, 'user32', [c_wchar]) (VkKeyScanW)
+
+def MapVirtualKeyExW(p1, p2, p3):
+    # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4376
+    return MapVirtualKeyExW._api_(p1, p2, p3)
+MapVirtualKeyEx = stdcall(UINT, 'user32', [c_uint, c_uint, c_long]) (MapVirtualKeyExW)
+
+def MapVirtualKeyW(p1, p2):
+    # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4355
+    return MapVirtualKeyW._api_(p1, p2)
+MapVirtualKey = stdcall(UINT, 'user32', [c_uint, c_uint]) (MapVirtualKeyW)
 
 
 #====================================================================
