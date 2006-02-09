@@ -1,3 +1,18 @@
+0.X.X Significant refactoring
+------------------------------------------------
+XX-Feb-2006
+
+    * Not all top level windows now have a FriendlyClassName of Dialog.
+      I changed this because it made it hard to get windows of a particular
+      class. For example the main Notepad window has a class name of "Notepad".
+      
+      This was primarily implemented due to work I did getting the System Tray.
+      
+    * Added support for a new control PopupMenuWrapper for  context menu's
+    
+    * 
+
+
 0.2.0 Significant refactoring
 ------------------------------------------------
 06-Feb-2006
