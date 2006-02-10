@@ -22,9 +22,6 @@
 
 __revision__ = "$Revision$"
 
-import os.path
-import sys
-
 _test_names = (
         "AllControls",
         "AsianHotkey",
@@ -107,7 +104,7 @@ def __init_tests():
 
     for test_name in _test_names:
 
-        test_module = __import__(test_name.lower())
+        test_module = __import__(test_name.lower(), globals(), locals())
 
         # class name is the test name + "Test"
         test_class = getattr(test_module, test_name + "Test")
@@ -115,19 +112,6 @@ def __init_tests():
         _registered[test_name] = test_class
 
 
-_package_path = os.path.split(__file__)[0]
-sys.path.append(_package_path)
-del _package_path
-
 if not _registered:
     __init_tests()
-
-sys.path = sys.path[:-1]
-
-def _unittests():
-    "Some unit tests"
-    pass
-
-if __name__ == "__main__":
-    _unittests()
 
