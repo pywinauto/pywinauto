@@ -183,6 +183,11 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(ComboBoxWrapper, self).__init__(hwnd)
 
+        self.writable_props.extend([
+            "SelectedIndex",
+            "DroppedRect",
+            ])
+
     #-----------------------------------------------------------
     def SelectedIndex(self):
         "Return the selected index"
@@ -234,11 +239,6 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "Return the properties of the control as a dictionary"
         props = HwndWrapper.HwndWrapper.GetProperties(self)
 
-        # get selected item
-        props['SelectedItem'] = self.SelectedIndex()
-
-        props['DroppedRect'] = self.DroppedRect()
-
         props['ItemData'] = []
         for i in range(self.ItemCount()):
             props['ItemData'].append(self.ItemData(i))
@@ -288,6 +288,8 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(ListBoxWrapper, self).__init__(hwnd)
 
+        self.writable_props.extend([
+            "'SelectedIndices'"])
 
     #-----------------------------------------------------------
     def SelectedIndices(self):
@@ -337,15 +339,11 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "Return the properties as a dictionary for the control"
         props = HwndWrapper.HwndWrapper.GetProperties(self)
 
-        # get selected item
-        props['SelectedItems'] = self.SelectedIndices()
-
         props['ItemData'] = []
         for i in range(self.ItemCount()):
             props['ItemData'].append(self.ItemData(i))
 
         return props
-
 
     #-----------------------------------------------------------
     def Select(self, item):
@@ -417,6 +415,8 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(EditWrapper, self).__init__(hwnd)
 
+        self.writable_props.extend([
+            'SelectionIndices'])
 
     #-----------------------------------------------------------
     def LineCount(self):
@@ -481,16 +481,6 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             win32defines.EM_GETSEL, ctypes.byref(start), ctypes.byref(end))
 
         return (start.value, end.value)
-
-    #-----------------------------------------------------------
-    def GetProperties(self):
-        "Return the properties of the control in a dictionary"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
-
-        # get selected item
-        props['SelectionIndices'] = self.SelectionIndices
-
-        return props
 
 
     #-----------------------------------------------------------
