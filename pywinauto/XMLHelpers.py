@@ -32,6 +32,7 @@ __revision__ = "$Revision$"
 
 import elementtree
 from elementtree.ElementTree import Element, SubElement, ElementTree
+from cElementTree import Element, SubElement, ElementTree
 import ctypes
 import re
 import PIL.Image
@@ -137,7 +138,7 @@ def WriteDialogToFile(filename, props):
     # get the properties
     try:
         props[0].keys()
-    except AttributeError:
+    except (TypeError, AttributeError):
         props = controls.GetDialogPropsFromHandle(props)
 
     # build a tree structure
@@ -194,7 +195,7 @@ def _XMLToStruct(element, structType = None):
     will be used for the ctypes struct type"""
 
     # handle if we are passed in an element or a dictionary
-    if isinstance(element, elementtree.ElementTree._ElementInterface):
+    if isinstance(element, ElementTree._ElementInterface):
         attribs = element.attrib
     else:
         attribs = element
