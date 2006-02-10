@@ -915,7 +915,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         self.writable_props.extend([
             'BorderWidths',
             'NumParts',
-            'PartWidths',
+            'PartRightEdges',
 
         ])
 
@@ -1454,8 +1454,10 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ReBarWrapper, self).__init__(hwnd)
 
+        self.writable_props.extend(['BandCount'])
+
     #----------------------------------------------------------------
-    def NumBands(self):
+    def BandCount(self):
         "Return the number of bands in the control"
         return self.SendMessage(win32defines.RB_GETBANDCOUNT)
 
@@ -1508,17 +1510,11 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
     def Texts(self):
         "Return the texts of the Rebar"
         texts = [self.Text()]
-        for i in range(0, self.NumBands()):
+        for i in range(0, self.BandCount()):
             band = self.GetBand(i)
             texts.append(band.text)
 
         return texts
-
-    #----------------------------------------------------------------
-    def GetProperties(self):
-        "Return the properties for the ReBar"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
-        props['BandCount'] = self.NumBands()
 
 
 #====================================================================
