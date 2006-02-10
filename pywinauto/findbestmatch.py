@@ -132,20 +132,41 @@ def GetNonTextControlName(ctrl, text_ctrls):
         text_r = text_ctrl.Rectangle()
         ctrl_r = ctrl.Rectangle()
 
-        # skip controls where w is to the right of ctrl
+        # skip controls where text win is to the right of ctrl
         if text_r.left >= ctrl_r.right:
             continue
 
-        # skip controls where w is below ctrl
+        # skip controls where text win is below ctrl
         if text_r.top >= ctrl_r.bottom:
             continue
 
+
+        #find the closest point between the controsl
+        closest = abs(text_r.left - ctrl_r.left)
+
+
         # calculate the distance between the controls
+        # at first I just calculated the distance from the top let
+        # corner of one control to the top left corner of the other control
+        # but this was not best, so as a text control should either be above
+        # or to the left of the control I get the distance between
+        # the top left of the non text control against the
+        #    Top-Right of the text control (text control to the left)
+        #    Bottom-Left of the text control (text control above)
+        # then I get the min of these two
+
         # (x^2 + y^2)^.5
         distance = (
             (text_r.left - ctrl_r.left) ** 2 +  #  (x^2 + y^2)
+            (text_r.bottom - ctrl_r.top) ** 2) \
+            ** .5  # ^.5
+
+        distance2 = (
+            (text_r.right - ctrl_r.left) ** 2 +  #  (x^2 + y^2)
             (text_r.top - ctrl_r.top) ** 2) \
             ** .5  # ^.5
+
+        distance = min(distance, distance2)
 
         # if this distance was closer then the last one
         if distance < closest:
