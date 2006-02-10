@@ -1609,7 +1609,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
                 #ret = ReadProcessMemory(process, y.lpszText, \
                 #    ctypes.byref(n), ctypes.sizeof(n), 0)
 
-                #print y.uFlags, Window(y.hwnd).Class, \
+                #print y.uFlags, Window(y.hwnd).Class(), \
                 #    Window(y.hwnd).Title, y.uId,  y.hinst, repr(n.value)
                 #curTool += 1
 

@@ -142,7 +142,7 @@ class HwndWrapper(object):
         self.ref = None
 
         # build the list of default properties to be written
-        # Derived classes can either modify this list or override 
+        # Derived classes can either modify this list or override
         # GetProperties depending on how much control they need.
         self.writable_props = [
             'Class',
@@ -374,7 +374,7 @@ class HwndWrapper(object):
         for propname in self.writable_props:
             # set the item in the props dictionary keyed on the propname
             props[propname] = getattr(self, propname)()
-        
+
         return props
 
     #-----------------------------------------------------------
@@ -411,7 +411,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def VerifyActionable(self):
         """Verify that the control is both visible and enabled
-        
+
         raise either ControlNotEnalbed or ControlNotVisible if not
         enabled or visible respectively.
         """
@@ -423,7 +423,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def VerifyEnabled(self):
         """Verify that the control is enabled
-        
+
         Check first if the parent is visible. (skip if no parent)
         Then check if this control is visible.
         """
@@ -440,7 +440,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def VerifyVisible(self):
         """Verify that the control is visible
-        
+
         Check first if the parent is visible. (skip if no parent)
         Then check if this control is visible.
         """
@@ -578,6 +578,8 @@ class HwndWrapper(object):
 
         # make sure that the control is in the foreground
         win32functions.SetForegroundWindow(self)
+        #win32functions.SetActiveWindow(self)
+
 
         # Play the keys to the active window
         SendKeys.SendKeys(
@@ -765,6 +767,18 @@ class HwndWrapper(object):
     #    self.SendMessage(win32defines.WM_CLOSE)
 
 
+    def GetFocus(self):
+
+        win32functions.GetFocus(self)
+
+
+    def SetFocus(self):
+
+        # make sure that the control is in the foreground
+        win32functions.SetForegroundWindow(self)
+
+
+        win32functions.SetFocus(self)
 
 
 #====================================================================

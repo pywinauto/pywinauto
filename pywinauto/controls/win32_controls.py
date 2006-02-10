@@ -229,7 +229,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def Texts(self):
-        "Return the text of the items in the listbox"
+        "Return the text of the items in the combobox"
         texts = [self.Text()]
         texts.extend(self.ItemTexts())
         return texts
@@ -289,7 +289,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         super(ListBoxWrapper, self).__init__(hwnd)
 
         self.writable_props.extend([
-            "'SelectedIndices'"])
+            "SelectedIndices"])
 
     #-----------------------------------------------------------
     def SelectedIndices(self):
@@ -334,16 +334,16 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         texts.extend(self.ItemTexts())
         return texts
 
-    #-----------------------------------------------------------
-    def GetProperties(self):
-        "Return the properties as a dictionary for the control"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
-
-        props['ItemData'] = []
-        for i in range(self.ItemCount()):
-            props['ItemData'].append(self.ItemData(i))
-
-        return props
+#    #-----------------------------------------------------------
+#    def GetProperties(self):
+#        "Return the properties as a dictionary for the control"
+#        props = HwndWrapper.HwndWrapper.GetProperties(self)
+#
+#        props['ItemData'] = []
+#        for i in range(self.ItemCount()):
+#            props['ItemData'].append(self.ItemData(i))
+#
+#        return props
 
     #-----------------------------------------------------------
     def Select(self, item):
