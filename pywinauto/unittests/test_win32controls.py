@@ -121,6 +121,68 @@ class EditTestCases(unittest.TestCase):
         "Test getting the text block of the edit control"
         self.assertEquals(self.ctrl.TextBlock(), self.test_data)
 
+    #def testSelectionIndices(self):
+    #    "Test getting the text block of the edit control"
+    #    self.assertEquals(self.ctrl.TextBlock(), self.test_data)
+
+
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.dlg.GetProperties()
+
+        self.assertEquals(
+            self.dlg.FriendlyClassName(), props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.dlg.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
+
+
+
+class ListBoxTestCases(unittest.TestCase):
+    "Unit tests for the TreeViewWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        self.app = Application()
+
+        self.app.start_(r"c:\Program Files\Windows NT\Accessories\wordpad.exe")
+        self.app.DocumentWordPad.MenuSelect("Insert->Date and time...")
+
+        self.dlg = self.app.DateAndTime
+        self.ctrl = self.dlg.ListBox.ctrl_()
+
+    def tearDown(self):
+        "Close the application after tests"
+
+        self.dlg.Cancel.Click()
+
+        # close the application
+        self.app.DocumentWordPad.MenuSelect("File->Exit")
+
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.ctrl.GetProperties()
+
+        self.assertEquals(
+            "ListBox", props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.ctrl.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+
+
+
+
+
 
 if __name__ == "__main__":
     #_unittests()

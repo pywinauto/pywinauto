@@ -16,7 +16,8 @@ for root, dirs, files in os.walk(testfolder):
             file.endswith('.py')]
 
     for mod in test_modules:
-        globals().update(__import__(mod).__dict__)
+        #globals().update(__import__(mod, globals(), locals()).__dict__)
+        globals().update(__import__(mod, globals(), locals()).__dict__)
 
 
 unittest.main()

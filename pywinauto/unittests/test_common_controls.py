@@ -352,6 +352,19 @@ class StatusBarTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.PartRightEdges()[i+1], -1)
 
 
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.dlg.GetProperties()
+
+        self.assertEquals(
+            self.dlg.FriendlyClassName(), props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.dlg.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
+
 
 
 
