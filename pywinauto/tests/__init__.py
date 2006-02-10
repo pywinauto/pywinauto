@@ -25,10 +25,6 @@ __revision__ = "$Revision$"
 import os.path
 import sys
 
-# import pywinauto so that we can get the package directory
-import pywinauto
-
-
 _test_names = (
         "AllControls",
         "AsianHotkey",
@@ -119,8 +115,7 @@ def __init_tests():
         _registered[test_name] = test_class
 
 
-_package_path = os.path.split(pywinauto.__file__)[0]
-_package_path = os.path.join(_package_path, 'tests')
+_package_path = os.path.split(__file__)[0]
 sys.path.append(_package_path)
 del _package_path
 
