@@ -213,7 +213,7 @@ def _ButtonTruncInfo(win):
     heightAdj = 0
 
     # get the last byte of the style
-    buttonStyle = win.Style & 0xF
+    buttonStyle = win.Style() & 0xF
 
     if win.HasStyle(win32defines.BS_MULTILINE):
         lineFormat = win32defines.DT_WORDBREAK
@@ -317,6 +317,7 @@ def _StaticTruncInfo(win):
     if win.HasStyle(win32defines.SS_CENTERIMAGE) or \
         win.HasStyle(win32defines.SS_SIMPLE) or \
         win.HasStyle(win32defines.SS_LEFTNOWORDWRAP):
+
         lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.SS_NOPREFIX):
@@ -493,8 +494,8 @@ _TruncInfo = {
 #==============================================================================
 def _GetTruncationInfo(win):
     "helper function to hide non special windows"
-    if win.Class in _TruncInfo:
-        return _TruncInfo[win.Class](win)
+    if win.Class() in _TruncInfo:
+        return _TruncInfo[win.Class()](win)
     else:
 
         return _WindowTruncInfo(win)
