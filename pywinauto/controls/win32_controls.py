@@ -144,6 +144,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         time.sleep(HwndWrapper.delay_after_button_click)
 
 
+    #def IsSelected (self):
+    #    (for radio buttons)
+
 
 
 #====================================================================
@@ -214,9 +217,9 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.CB_GETCOUNT)
 
     #-----------------------------------------------------------
-    def ItemData(self, i):
+    def ItemData(self, item):
         "Returns the item data associated with the item if any"
-        return self.SendMessage(win32defines.CB_GETITEMDATA, i)
+        return self.SendMessage(win32defines.CB_GETITEMDATA, item)
 
     #-----------------------------------------------------------
     def ItemTexts(self):
@@ -239,9 +242,9 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "Return the properties of the control as a dictionary"
         props = HwndWrapper.HwndWrapper.GetProperties(self)
 
-        props['ItemData'] = []
-        for i in range(self.ItemCount()):
-            props['ItemData'].append(self.ItemData(i))
+        #props['ItemData'] = []
+        #for i in range(self.ItemCount()):
+        #    props['ItemData'].append(self.ItemData(i))
 
         return props
 
@@ -258,6 +261,16 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         # string then find which item it is
         if isinstance(item, (int, long)):
             index = item
+
+            if index >= self.ItemCount():
+                raise IndexError(
+                    "Combobox has %d items, you requested item %d"%
+                        (self.ItemCount(),
+                        index))
+
+            # negative index
+            if index < 0:
+                index = (self.ItemCount() + index)
         else:
             index = self.Texts().index(item) -1
 
@@ -270,8 +283,14 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
 
-    #def IsSelected(self, item):
-    #    pass
+    #TODO def EditControl(self):
+    #
+    #
+    #TODO def ListControl(self):
+
+    #TODO def ItemText(self, index):
+
+    #TODO def
 
 #====================================================================
 class ListBoxWrapper(HwndWrapper.HwndWrapper):
