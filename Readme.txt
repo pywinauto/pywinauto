@@ -22,7 +22,7 @@ Sendkeys     http://www.rutherfurd.net/python/sendkeys/index.html
 To check you have it installed correctly
 run Python
 >>> import application
->>> app = application.Application()._start("notepad")
+>>> app = application.Application().start_("notepad")
 >>> app.notepad.TypeKeys("%FX") 
 
 
