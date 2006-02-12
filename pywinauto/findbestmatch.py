@@ -111,6 +111,7 @@ def _clean_text(text):
     #return text
     # remove anything after the first tab
     text_before_tab = _after_tab.sub("", text)
+    return text_before_tab
 
     # remove non alphanumeric characters
     return _non_word_chars.sub("", text_before_tab)
@@ -171,7 +172,7 @@ def GetNonTextControlName(ctrl, text_ctrls):
         # if this distance was closer then the last one
         if distance < closest:
             closest = distance
-            name = _clean_text(text_ctrl.Text()) + ctrl.FriendlyClassName()
+            name = _clean_text(text_ctrl.WindowText()) + ctrl.FriendlyClassName()
 
     return name
 
@@ -189,7 +190,7 @@ def get_control_names(control, visible_text_controls):
 
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
-    cleaned = _clean_text(control.Text())
+    cleaned = _clean_text(control.WindowText())
     if cleaned:
         names.append(cleaned)
         names.append(cleaned + control.FriendlyClassName())
@@ -287,7 +288,7 @@ def find_best_control_matches(search_text, controls):
     # get the visible text controls so that we can get
     # the closest text if the control has no text
     visible_text_ctrls = [ctrl for ctrl in controls
-        if ctrl.IsVisible() and _clean_text(ctrl.Text())]
+        if ctrl.IsVisible() and _clean_text(ctrl.WindowText())]
 
     # collect all the possible names for all controls
     # and build a list of them

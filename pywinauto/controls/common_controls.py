@@ -290,7 +290,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def Texts(self):
         "Get the texts for the ListView control"
-        texts = [self.Text()]
+        texts = [self.WindowText()]
         texts.extend([item.Text for item in self.Items()])
         return texts
 
@@ -605,11 +605,11 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Texts(self):
         "Return all the text for the tree view"
-        texts = [self.Text(), self.Root().Text()]
+        texts = [self.WindowText(), self.Root().WindowText()]
 
         elements = self.Root().SubElements()
 
-        texts.extend(elem.Text() for elem in elements)
+        texts.extend(elem.WindowText() for elem in elements)
 
         return texts
 
@@ -648,7 +648,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
             if current_elem is None:
                 raise IndexError("Root Item '%s' does not have %d sibling(s)"%
-                    (self.Root().Text(), i + 1))
+                    (self.Root().WindowText(), i + 1))
 
         self.SendMessage(
             win32defines.TVM_EXPAND,
@@ -662,7 +662,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                 current_elem = current_elem.Children()[child_index]
             except IndexError:
                 raise IndexError("Item '%s' does not have %d children"%
-                    (current_elem.Text(), child_index + 1))
+                    (current_elem.WindowText(), child_index + 1))
 
 
             self.SendMessage(
@@ -855,7 +855,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Texts(self):
         "Return the texts of the Header control"
-        texts = [self.Text(), ]
+        texts = [self.WindowText(), ]
         for i in range(0, self.Count()):
             texts.append(self.ColumnText(i))
 
@@ -1037,7 +1037,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Texts(self):
         "Return the texts for the control"
-        texts = [self.Text()]
+        texts = [self.WindowText()]
 
         for i in range(self.NumParts()):
             texts.append(self.GetPartText(i))
@@ -1162,7 +1162,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Texts(self):
         "Return the texts of the Tab Control"
-        texts = [self.Text()]
+        texts = [self.WindowText()]
         texts.extend(self._extra_texts)
         return texts
 
@@ -1256,7 +1256,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
     def Texts(self):
         "Return the texts of the Toolbar"
-        texts = [self.Text()]
+        texts = [self.WindowText()]
         for i in range(0, self.ButtonCount()):
             texts.append(self.GetButton(i).text)
 
@@ -1509,7 +1509,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Texts(self):
         "Return the texts of the Rebar"
-        texts = [self.Text()]
+        texts = [self.WindowText()]
         for i in range(0, self.BandCount()):
             band = self.GetBand(i)
             texts.append(band.text)

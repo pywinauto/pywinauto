@@ -50,7 +50,7 @@ prev_height = app.Attributes.Edit2.Texts()[1]
 
 # set our preferred area
 app.Attributes.Edit1.TypeKeys("350")  # you can use TypeKeys or
-app.Attributes.Edit2.SetText("350")   # SetText - they work differently!
+app.Attributes.Edit2.SetEditText("350")   # SetText - they work differently!
 
 app.Attributes.OK.CloseClick()
 
@@ -89,7 +89,7 @@ if image:
 pwin.MenuSelect("Image->Attributes")
 # set our preferred area
 app.Attributes.Edit1.TypeKeys(prev_width)
-app.Attributes.Edit2.SetText(prev_height)
+app.Attributes.Edit2.SetEditText(prev_height)
 app.Attributes.OK.CloseClick()
 
 

@@ -139,7 +139,7 @@ app.PageSetupDlg2.OK.CloseClick()
 app.PageSetupDlg.Ok.CloseClick()
 
 # type some text - note that extended characters ARE allowed
-app.Notepad.Edit.SetText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
+app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
     "And then I am going to quit")
 
 # the following shows that Sendtext does not accept
@@ -150,7 +150,7 @@ app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
 # Try and save
 app.Notepad.MenuSelect("File->SaveAs")
 app.SaveAs.ComboBox5.Select("UTF-8")
-app.SaveAs.edit1.SetText("Example-utf8.txt")
+app.SaveAs.edit1.SetEditText("Example-utf8.txt")
 app.SaveAs.Save.CloseClick()
 
 # my machine has a weird problem - when connected to the network

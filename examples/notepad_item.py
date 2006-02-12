@@ -91,7 +91,7 @@ app['PageSetup2']['OK'].CloseClick()
 app['PageSetup']['Ok'].CloseClick()
 
 # type some text
-app['Notepad']['Edit'].SetText(u"I am typing s\xe4me text to Notepad"
+app['Notepad']['Edit'].SetEditText(u"I am typing s\xe4me text to Notepad"
     "\r\n\r\nAnd then I am going to quit")
 
 # exit notepad

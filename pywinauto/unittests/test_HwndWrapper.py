@@ -27,8 +27,8 @@ try:
 except ImportError:
     # allow it to be imported in a dev environment
     import sys
-    
-    pywinauto_imp = "\\".join(__file__.split('\\')[:-3])    
+
+    pywinauto_imp = "\\".join(__file__.split('\\')[:-3])
     print "sdfdsf", pywinauto_imp
     sys.path.append(pywinauto_imp)
     from pywinauto.controls.HwndWrapper import *
@@ -80,11 +80,11 @@ class HwndWrapperTests(unittest.TestCase):
 
     #def testText(self):
     #    "Test getting the window Text of the dialog"
-    #    self.assertEquals(self.dlg.Text(), "Untitled - Notepad")
+    #    self.assertEquals(self.dlg.WindowText(), "Untitled - Notepad")
 
     def testText(self):
         "Test getting the window Text of the dialog"
-        self.assertEquals(self.dlg.Text(), "test.txt - Notepad")
+        self.assertEquals(self.dlg.WindowText(), "test.txt - Notepad")
 
     def testClass(self):
         "Test getting the classname of the dialog"
@@ -119,13 +119,13 @@ class HwndWrapperTests(unittest.TestCase):
     def testGetProperties(self):
         "Test getting the properties for the control"
         props  = self.dlg.GetProperties()
-        
+
         self.assertEquals(
             self.dlg.FriendlyClassName(), props['FriendlyClassName'])
-        
+
         self.assertEquals(
             self.dlg.Texts(), props['Texts'])
-        
+
         for prop_name in props:
             self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
 

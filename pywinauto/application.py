@@ -520,15 +520,15 @@ class WindowSpecification(object):
         if ctrl.IsDialog():
             ctrls = ctrl.Children()
             visible_text_ctrls = [ctrl for ctrl in ctrls
-                if ctrl.IsVisible() and ctrl.Text()]
+                if ctrl.IsVisible() and ctrl.WindowText()]
         else:
             visible_text_ctrls = [ctrl for ctrl in ctrl.Parent().Children()
-                if ctrl.IsVisible() and ctrl.Text()]
+                if ctrl.IsVisible() and ctrl.WindowText()]
             ctrls = [ctrl]
 
         for ctrl in ctrls:
             print "%s - %s   %s"% (
-                ctrl.Class(), ctrl.Text(), str(ctrl.Rectangle()))
+                ctrl.Class(), ctrl.WindowText(), str(ctrl.Rectangle()))
 
             print "\t",
             for text in findbestmatch.get_control_names(
@@ -572,8 +572,8 @@ def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
 ##
 ##                    #find the index of the best match item
 ##                    ctrl_index = app_data.index(best_match)
-##                    #print best_match[0].Text()
-##                    ctrl_index, best_match.Text()
+##                    #print best_match[0].WindowText()
+##                    ctrl_index, best_match.WindowText()
 ##
 ##                    criteria[1]['ctrl_index'] = ctrl_index -1
 ##                    #criteria[1]['class_name'] = best_match.Class()

@@ -14,12 +14,12 @@ def do_test_1():
     app = Application().start_(r"c:\windows\Notepad")
     notepadWindow = app.Notepad
 
-    notepadWindow.Edit1.SetText(u"Hello, ägain!", 0, -1)
+    notepadWindow.Edit1.SetEditText(u"Hello, ägain!", 0, -1)
     sleep(0.8)
-    notepadWindow.Edit.SetText("\r\nYou still there?")
+    notepadWindow.Edit.SetEditText("\r\nYou still there?")
 
     sleep(0.2)
-    notepadWindow.Edit.SetText("\r\nGoing Bye Bye now!!")
+    notepadWindow.Edit.SetEditText("\r\nGoing Bye Bye now!!")
 
     sleep(1)
     notepadWindow.MenuSelect("File->Exit")

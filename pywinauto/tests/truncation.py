@@ -256,7 +256,7 @@ def _ButtonTruncInfo(win):
     newRect.right -=  widthAdj
     newRect.bottom -=  heightAdj
 
-    return [(win.Text(), newRect, win.Font(), lineFormat), ]
+    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
 
 #==============================================================================
 def _ComboBoxTruncInfo(win):
@@ -323,7 +323,7 @@ def _StaticTruncInfo(win):
     if win.HasStyle(win32defines.SS_NOPREFIX):
         lineFormat |= win32defines.DT_NOPREFIX
 
-    return [(win.Text(), win.ClientRects()[0], win.Font(), lineFormat), ]
+    return [(win.WindowText(), win.ClientRects()[0], win.Font(), lineFormat), ]
 
 #==============================================================================
 def _EditTruncInfo(win):
@@ -333,7 +333,7 @@ def _EditTruncInfo(win):
     if not win.HasStyle(win32defines.ES_MULTILINE):
         lineFormat |= win32defines.DT_SINGLELINE
 
-    return [(win.Text(), win.ClientRects()[0], win.Font(), lineFormat), ]
+    return [(win.WindowText(), win.ClientRects()[0], win.Font(), lineFormat), ]
 
 
 #==============================================================================
@@ -413,7 +413,7 @@ def _DialogTruncInfo(win):
             if 'min' in buttons and 'help' in buttons:
                 diff += 4
 
-    return [(win.Text(), newRect, win.Font(), win32defines.DT_SINGLELINE), ]
+    return [(win.WindowText(), newRect, win.Font(), win32defines.DT_SINGLELINE), ]
 
 
 #==============================================================================

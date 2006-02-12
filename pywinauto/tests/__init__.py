@@ -78,7 +78,7 @@ def print_bugs(bugs):
 
         for i, ctrl in enumerate(ctrls):
             print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
-                ctrl.Text(),
+                ctrl.WindowText(),
                 ctrl.FriendlyClassName(),
                 ctrl.Rectangle().left,
                 ctrl.Rectangle().top,

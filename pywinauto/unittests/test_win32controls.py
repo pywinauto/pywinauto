@@ -92,7 +92,7 @@ class ButtonTestCases(unittest.TestCase):
         from pywinauto.controls import WrapHandle
 
         children = self.calc.Children()
-        no_text_buttons = [c for c in children if not c.Text() and c.Class() == "Button"]
+        no_text_buttons = [c for c in children if not c.WindowText() and c.Class() == "Button"]
 
         first_group = no_text_buttons[0]
 
@@ -309,7 +309,7 @@ class EditTestCases(unittest.TestCase):
 
     def testSetText(self):
         "Test setting the text of the edit control"
-        self.ctrl.SetText("Here is\r\nsome text")
+        self.ctrl.SetEditText("Here is\r\nsome text")
         self.assertEquals(
             "\n".join(self.ctrl.Texts()[1:]), "Here is\nsome text")
 

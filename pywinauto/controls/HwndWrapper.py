@@ -177,7 +177,7 @@ class HwndWrapper(object):
         return handleprops.classname(self)
 
     #-----------------------------------------------------------
-    def Text(self):
+    def WindowText(self):
         "Main text of the control"
         return handleprops.text(self)
 
@@ -280,7 +280,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def Texts(self):
         "Return the text for each item of this control"
-        texts = [self.Text(), ]
+        texts = [self.WindowText(), ]
         return texts
 
     #-----------------------------------------------------------
@@ -545,13 +545,13 @@ class HwndWrapper(object):
 
 
     #-----------------------------------------------------------
-    def SetText(self, text, append = False):
+    def SetWindowText(self, text, append = False):
         "Set the text of the window"
 
         self.VerifyActionable()
 
         if append:
-            text = self.Text() + text
+            text = self.WindowText() + text
 
         text = ctypes.c_wchar_p(unicode(text))
         self.PostMessage(win32defines.WM_SETTEXT, 0, text)

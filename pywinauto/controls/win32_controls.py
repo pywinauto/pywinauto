@@ -233,7 +233,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def Texts(self):
         "Return the text of the items in the combobox"
-        texts = [self.Text()]
+        texts = [self.WindowText()]
         texts.extend(self.ItemTexts())
         return texts
 
@@ -349,7 +349,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def Texts(self):
         "Return the texts of the control"
-        texts = [self.Text()]
+        texts = [self.WindowText()]
         texts.extend(self.ItemTexts())
         return texts
 
@@ -473,7 +473,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     def Texts(self):
         "Get the text of the edit control"
 
-        texts = [self.Text(), ]
+        texts = [self.WindowText(), ]
 
         for i in range(0, self.LineCount()+1):
             texts.append(self.GetLine(i))
@@ -501,9 +501,13 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         return (start.value, end.value)
 
+    def SetWindowText(self):
+        HwndWrapper.HwndWrapper.SetWindowText(self)
+        raise UserWarning(
+            "SetWindowText() should probably not be called for Edit Controls")
 
     #-----------------------------------------------------------
-    def SetText(self, text, pos_start = None, pos_end = None):
+    def SetEditText(self, text, pos_start = None, pos_end = None):
         "Set the text of the edit control"
         self.VerifyActionable()
 
@@ -530,6 +534,9 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
+
+    # set SetText as an alias to SetEditText
+    SetText = SetEditText
 
     #-----------------------------------------------------------
     def Select(self, start = 0, end = None):

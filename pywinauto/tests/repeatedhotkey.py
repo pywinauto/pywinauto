@@ -97,7 +97,7 @@ def RepeatedHotkeyTest(windows):
             # build up the available characters for each control
             for ctrl in controls:
                 controlChars = ""
-                controlChars = set(ctrl.Text().lower())
+                controlChars = set(ctrl.WindowText().lower())
 
                 controlAvailableChars = controlChars.intersection(dlgAvailable)
                 controlAvailableChars = \
@@ -155,7 +155,7 @@ def _CollectDialogInfo(windows):
             continue
 
         # get the hotkey
-        pos, char = GetHotkey(win.Text())
+        pos, char = GetHotkey(win.WindowText())
 
         # if no hotkey for this control
         # then continue
@@ -169,7 +169,7 @@ def _CollectDialogInfo(windows):
 
         # Add the title of this control to the list of available
         # characters for the dialog
-        allChars += win.Text().lower()
+        allChars += win.WindowText().lower()
 
 
     allChars = set(allChars)

@@ -194,10 +194,11 @@ def _XMLToStruct(element, structType = None):
     If structType is not specified then element['__type__']
     will be used for the ctypes struct type"""
 
+
     # handle if we are passed in an element or a dictionary
-    if isinstance(element, ElementTree._ElementInterface):
+    try:
         attribs = element.attrib
-    else:
+    except AttributeError:
         attribs = element
 
     # if the type has not been passed in

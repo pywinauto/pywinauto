@@ -139,23 +139,23 @@ def find_windows(class_name = None,
             return [windows[ctrl_index]]
 
 
-    if class_name and windows:
+    if class_name  is not None and windows:
         windows = [win for win in windows
             if class_name == handleprops.classname(win)]
 
-    if class_name_re and windows:
+    if class_name_re  is not None and windows:
         windows = [win for win in windows
             if re.match(class_name_re, handleprops.classname(win))]
 
-    if process and windows:
+    if process is not None and windows:
         windows = [win for win in windows
             if handleprops.processid(win) == process]
 
-    if title and windows:
+    if title is not None and windows:
         windows = [win for win in windows
             if title == handleprops.text(win)]
 
-    elif title_re and windows:
+    elif title_re  is not None and windows:
         windows = [win for win in windows
             if re.match(title_re, handleprops.text(win))]
 
@@ -165,7 +165,7 @@ def find_windows(class_name = None,
     if enabled_only and windows:
         windows = [win for win in windows if handleprops.isenabled(win)]
 
-    if best_match and windows:
+    if best_match  is not None and windows:
         from controls import WrapHandle
         windows = [WrapHandle(win) for win in windows]
         windows = findbestmatch.find_best_control_matches(

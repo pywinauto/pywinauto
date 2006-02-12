@@ -74,11 +74,11 @@ def LeadTrailSpacesTest(windows):
         if not win.ref:
             continue
 
-        locLeadSpaces = GetLeadSpaces(win.Text())
-        locTrailSpaces = GetTrailSpaces(win.Text())
+        locLeadSpaces = GetLeadSpaces(win.WindowText())
+        locTrailSpaces = GetTrailSpaces(win.WindowText())
 
-        refLeadSpaces = GetLeadSpaces(win.ref.Text())
-        refTrailSpaces = GetTrailSpaces(win.ref.Text())
+        refLeadSpaces = GetLeadSpaces(win.ref.WindowText())
+        refTrailSpaces = GetTrailSpaces(win.ref.WindowText())
 
         diffs = []
         if locLeadSpaces != refLeadSpaces:
