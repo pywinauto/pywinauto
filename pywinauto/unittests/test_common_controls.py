@@ -72,25 +72,25 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the ListView friendly class is set correctly"
         self.assertEquals (self.ctrl.FriendlyClassName(), "ListView")
 
     def testColumnCount(self):
-        "Test the ColumnCount method"
+        "Test the ListView ColumnCount method"
         self.assertEquals (self.ctrl.ColumnCount(), 4)
 
     def testItemCount(self):
-        "Test the ItemCount method"
+        "Test the ListView ItemCount method"
         self.assertEquals (self.ctrl.ItemCount(), 9)
 
     def testItemText(self):
-        "Test the item.Text property"
+        "Test the ListView item.Text property"
         item = self.ctrl.GetItem(1)
 
         self.assertEquals(item.Text, "Venus")
 
     def testItems(self):
-        "Test the Items method"
+        "Test the ListView Items method"
 
         flat_texts = []
         for row in self.texts:
@@ -101,7 +101,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testTexts(self):
-        "Test the Texts method"
+        "Test the ListView Texts method"
 
         flat_texts = []
         for row in self.texts:
@@ -112,7 +112,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testGetItem(self):
-        "Test the GetItem method"
+        "Test the ListView GetItem method"
 
         for row in range(self.ctrl.ItemCount()):
             for col in range(self.ctrl.ColumnCount()):
@@ -121,18 +121,18 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testColumn(self):
-        "Test the Columns method"
+        "Test the ListView Columns method"
 
         cols = self.ctrl.Columns()
         self.assertEqual (len(cols), self.ctrl.ColumnCount())
 
-        # todo add more checking of column values
+        # TODO: add more checking of column values
         #for col in cols:
         #    print col
 
 
     def testGetSelectionCount(self):
-        "Test the GetSelectedCount method"
+        "Test the ListView GetSelectedCount method"
 
         self.assertEquals(self.ctrl.GetSelectedCount(), 0)
 
@@ -144,7 +144,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testIsSelected(self):
-        "Test IsSelected for some items"
+        "Test ListView IsSelected for some items"
 
         # ensure that the item is not selected
         self.assertEquals(self.ctrl.IsSelected(1), False)
@@ -157,7 +157,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def _testFocused(self):
-        "Test checking the focus of some items"
+        "Test checking the focus of some ListView items"
 
         print "Select something quick!!"
         import time
@@ -175,7 +175,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testSelect(self):
-        "Test Selecting some items"
+        "Test ListView Selecting some items"
         self.ctrl.Select(1)
         self.ctrl.Select(3)
         self.ctrl.Select(4)
@@ -333,20 +333,20 @@ class StatusBarTestCases(unittest.TestCase):
                 )
             )
 
-    def testNumParts(self):
+    def testPartCount(self):
         "Make sure the number of parts is retrieved correctly"
-        self.assertEquals (self.ctrl.NumParts(), 3)
+        self.assertEquals (self.ctrl.PartCount(), 3)
 
     def testGetPartRect(self):
         "Make sure the part rectangles are retrieved correctly"
 
-        for i in range(0, self.ctrl.NumParts()):
+        for i in range(0, self.ctrl.PartCount()):
             self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
 
     def testPartRightEdges(self):
         "Make sure the part widths are retrieved correctly"
 
-        for i in range(0, self.ctrl.NumParts()-1):
+        for i in range(0, self.ctrl.PartCount()-1):
             self.assertEquals (self.ctrl.PartRightEdges()[i], self.part_rects[i].right)
 
         self.assertEquals(self.ctrl.PartRightEdges()[i+1], -1)
@@ -372,6 +372,70 @@ class StatusBarTestCases(unittest.TestCase):
 
 
 
+class TabControlTestCases(unittest.TestCase):
+    "Unit tests for the TreeViewWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\Tab.exe")
+
+        self.texts = [
+            "Pluto", "Neptune", "Uranus",
+            "Saturn", "Jupiter", "Mars",
+            "Earth", "Venus", "Mercury", "Sun"]
+
+        self.app = app
+        self.dlg = app.MicrosoftControlSpy
+        self.ctrl = app.MicrosoftControlSpy.TabControl.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEquals (self.ctrl.FriendlyClassName(), "TabControl")
+
+    def testTexts(self):
+        "Make sure the texts are set correctly"
+        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+
+    def testTabCount(self):
+        "Make sure the number of parts is retrieved correctly"
+        self.assertEquals (self.ctrl.TabCount(), 10)
+
+#    def testTabRect(self):
+#        "Make sure the part rectangles are retrieved correctly"
+#
+#        for i in range(0, self.ctrl.PartCount()):
+#            self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
+#
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.ctrl.GetProperties()
+
+        self.assertEquals(
+            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.ctrl.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
 
 
@@ -381,34 +445,13 @@ class StatusBarTestCases(unittest.TestCase):
 
 
 
-#
-#def test_header(ctrl):
-#    "Not called anymore"
-#    print "="*80
-#    print "Header"
-#    print "="*80
-#    header = HeaderWrapper(ctrl)
-#
-#    for i in range(0, header.Count()):
-#        print header.ColumnRectangle(i)
-#
-#
-#def test_statusbar(ctrl):
-#    "Not called anymore"
-#    print "="*80
-#    print "StatusBar"
-#    print "="*80
-#    stat_bar = StatusBarWrapper(ctrl)
-#
-#    print stat_bar.NumParts()
-#
-#    print stat_bar.BorderWidths()
-#
-#    print stat_bar.PartWidths()
-#
-#    for i in range(0, stat_bar.NumParts()):
-#        print "\t", `stat_bar.GetPartText(i)`
-#
+
+
+
+
+
+
+
 
 
 
