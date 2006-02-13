@@ -650,7 +650,7 @@ class Application(object):
         message = "_start and _connect are deprecated " \
             "please use start_ and connect_"
         warnings.warn(message, DeprecationWarning)
-        self.start_(*args, **kwargs)
+        self.connect_(*args, **kwargs)
 
     def start_(self, cmd_line, timeout = app_start_timeout):
         "Starts the application giving in cmd_line"
@@ -726,18 +726,6 @@ class Application(object):
 
         return self
 
-    def app_windows_(self):
-        "Return a list of the handles for top level windows of the application"
-
-        if not self.process:
-            raise AppNotConnected("Please use start_ or connect_ before "
-                "trying anything else")
-
-        return findwindows.find_windows(
-            process = self.process,
-            visible_only = False,
-            enabled_only = False)
-
     def top_window_(self):
         "Return the current top window of the dialog"
         if not self.process:
@@ -751,6 +739,26 @@ class Application(object):
         criteria['handle'] = windows[0]
 
         return WindowSpecification(criteria)
+
+    def windows_(self, **kwargs):
+        "Return a list of the handles for top level windows of the application"
+
+        if not self.process:
+            raise AppNotConnected("Please use start_ or connect_ before "
+                "trying anything else")
+
+        if 'visible_only' not in kwargs:
+            kwargs['visible_only'] = False
+
+        if 'enabled_only' not in kwargs:
+            kwargs['enabled_only'] = False
+
+        kwargs['process'] = self.process
+
+        windows = findwindows.find_windows(**kwargs)
+
+        return [controls.WrapHandle(win) for win in windows]
+
 
     def window_(self, **kwargs):
         """Return a window of the application
