@@ -141,11 +141,6 @@ def GetNonTextControlName(ctrl, text_ctrls):
         if text_r.top >= ctrl_r.bottom:
             continue
 
-
-        #find the closest point between the controsl
-        closest = abs(text_r.left - ctrl_r.left)
-
-
         # calculate the distance between the controls
         # at first I just calculated the distance from the top let
         # corner of one control to the top left corner of the other control
