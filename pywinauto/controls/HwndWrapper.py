@@ -767,13 +767,15 @@ class HwndWrapper(object):
     #    self.SendMessage(win32defines.WM_CLOSE)
 
 
+    # TODO - implement fully and test
     def GetFocus(self):
-
+        "Return the control that has the Focus"
         win32functions.GetFocus(self)
 
 
+    # TODO - implement fully and test
     def SetFocus(self):
-
+        "Set the focus to this control"
         # make sure that the control is in the foreground
         win32functions.SetForegroundWindow(self)
 
