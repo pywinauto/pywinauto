@@ -2,7 +2,7 @@
 ------------------------------------------------
 XX-Feb-2006
 
-    * Not all top level windows now have a FriendlyClassName of Dialog.
+    * Not all top level windows now have a FriendlyClassName of "Dialog".
       I changed this because it made it hard to get windows of a particular
       class. For example the main Notepad window has a class name of "Notepad".
       
@@ -10,7 +10,26 @@ XX-Feb-2006
       
     * Added support for a new control PopupMenuWrapper for  context menu's
     
+    * Renamed StatusBarWrapper.PartWidths() to PartRightEdges() as this is more
+      correct
+      
+    * Changed HwndWrapper.Text() and SetText() to WindowText() and 
+      SetWindowText() respectively to try and make it clearer that it is 
+      the text returned by GetWindowText and not the text that is visible 
+      on the control. This change also suggested that EditWrapper.SetText()
+      be changed to SetEditText() (though this is not a hard requirement
+      EditWrapper.SetText() still exists - but may be deprecated.
+      
+    * Allow access to non text controls using the closest Text control.
+      This closest text control will normally be the static/label associated
+      with the control. For example in Notepad, Format->Font dialog, the 1st
+      combobox can be refered to as "FontComboBox" rather than "ComboBox1"
+      
     * 
+    
+    * 
+    
+    * Added yet more unit tests - now a total of 80/84 tests.
 
 
 0.2.0 Significant refactoring
