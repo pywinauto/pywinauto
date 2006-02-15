@@ -117,14 +117,52 @@ def _clean_text(text):
     return _non_word_chars.sub("", text_before_tab)
 
 
+def IsAboveOrToLeft(ref_control, other_ctrl):
+    "Return true if the other_ctrl is above or to the left of ref_control"
+    text_r = other_ctrl.Rectangle()
+    ctrl_r = ref_control.Rectangle()
+
+    # skip controls where text win is to the right of ctrl
+    if text_r.left >= ctrl_r.right:
+        return False
+
+    # skip controls where text win is below ctrl
+    if text_r.top >= ctrl_r.bottom:
+        return False
+
+    return True
+
 
 #====================================================================
 distance_cuttoff = 999
-def GetNonTextControlName(ctrl, text_ctrls):
+def GetNonTextControlName(ctrl, controls):
     """return the name for this control by finding the closest
     text control above and to its left"""
 
-    name = ''
+
+    names = []
+
+    ctrl_index = controls.index(ctrl)
+
+    if ctrl_index != 0:
+        prev_ctrl = controls[ctrl_index-1]
+
+        if prev_ctrl.FriendlyClassName() == "Static" and \
+            prev_ctrl.IsVisible() and _clean_text(prev_ctrl.WindowText()) and \
+            IsAboveOrToLeft(ctrl, prev_ctrl):
+
+            names.append(
+                _clean_text(prev_ctrl.WindowText()) +
+                    ctrl.FriendlyClassName())
+
+
+    # get the visible text controls so that we can get
+    # the closest text if the control has no text
+    text_ctrls = [ctrl_ for ctrl_ in controls
+        if ctrl_.IsVisible() and _clean_text(ctrl_.WindowText())]
+
+
+    best_name = ''
     closest = distance_cuttoff
     # now for each of the visible text controls
     for text_ctrl in text_ctrls:
@@ -167,12 +205,16 @@ def GetNonTextControlName(ctrl, text_ctrls):
         # if this distance was closer then the last one
         if distance < closest:
             closest = distance
-            name = _clean_text(text_ctrl.WindowText()) + ctrl.FriendlyClassName()
+            best_name = _clean_text(
+                text_ctrl.WindowText()) + ctrl.FriendlyClassName()
 
-    return name
+    names.append(best_name)
+
+    return names
 
 
-def get_control_names(control, visible_text_controls):
+#====================================================================
+def get_control_names(control, allcontrols):
     "Returns a list of names for this control"
     names = []
 
@@ -193,10 +235,10 @@ def get_control_names(control, visible_text_controls):
     # it didn't have visible text
     else:
         # so find the text of the nearest text visible control
-        name = GetNonTextControlName(control, visible_text_controls)
+        non_text_names = GetNonTextControlName(control, allcontrols)
         # and if one was found - add it
-        if name:
-            names.append(name)
+        if non_text_names:
+            names.extend(non_text_names)
 
     # return the names - and make sure there are no duplicates
     return set(names)
@@ -280,15 +322,11 @@ def find_best_control_matches(search_text, controls):
 
     name_control_map = UniqueDict()
 
-    # get the visible text controls so that we can get
-    # the closest text if the control has no text
-    visible_text_ctrls = [ctrl for ctrl in controls
-        if ctrl.IsVisible() and _clean_text(ctrl.WindowText())]
 
     # collect all the possible names for all controls
     # and build a list of them
     for ctrl in controls:
-        ctrl_names = get_control_names(ctrl, visible_text_ctrls)
+        ctrl_names = get_control_names(ctrl, controls)
 
         # for each of the names
         for name in ctrl_names:
