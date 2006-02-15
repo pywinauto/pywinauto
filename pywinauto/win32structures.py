@@ -97,6 +97,7 @@ COLORREF = DWORD
 HBITMAP = LONG
 HINSTANCE = LONG
 HMENU = LONG
+HBRUSH = LONG
 HTREEITEM = LONG
 HWND = LONG
 LPARAM = LONG
@@ -803,3 +804,55 @@ class INPUT(Structure):
     ]
 assert sizeof(INPUT) == 28, sizeof(INPUT)
 assert alignment(INPUT) == 2, alignment(INPUT)
+
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2415
+class NMUPDOWN(Structure):
+    _pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2415
+        ('hdr', NMHDR),
+        ('iPos', c_int),
+        ('iDelta', c_int),
+    ]
+assert sizeof(NMUPDOWN) == 20, sizeof(NMUPDOWN)
+assert alignment(NMUPDOWN) == 1, alignment(NMUPDOWN)
+
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 9821
+class GUITHREADINFO(Structure):
+    _pack_ = 2
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 9821
+        ('cbSize', DWORD),
+        ('flags', DWORD),
+        ('hwndActive', HWND),
+        ('hwndFocus', HWND),
+        ('hwndCapture', HWND),
+        ('hwndMenuOwner', HWND),
+        ('hwndMoveSize', HWND),
+        ('hwndCaret', HWND),
+        ('rcCaret', RECT),
+    ]
+assert sizeof(GUITHREADINFO) == 48, sizeof(GUITHREADINFO)
+assert alignment(GUITHREADINFO) == 2, alignment(GUITHREADINFO)
+
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
+class MENUINFO(Structure):
+    _pack_ = 2
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
+        ('cbSize', DWORD),
+        ('fMask', DWORD),
+        ('dwStyle', DWORD),
+        ('cyMax', UINT),
+        ('hbrBack', HBRUSH),
+        ('dwContextHelpID', DWORD),
+        ('dwMenuData', DWORD),
+    ]
+assert sizeof(MENUINFO) == 28, sizeof(MENUINFO)
+assert alignment(MENUINFO) == 2, alignment(MENUINFO)
