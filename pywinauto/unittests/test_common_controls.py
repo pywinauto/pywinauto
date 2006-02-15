@@ -26,6 +26,11 @@ from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
 
 import unittest
+import time
+import pprint
+import pdb
+
+controlspy_folder = r"C:\.projects\py_pywinauto\controlspy0798\\"
 
 class ListViewTestCases(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
@@ -37,7 +42,7 @@ class ListViewTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\List View.exe")
+        app.start_(controlspy_folder + "List View.exe")
 
         self.texts = [
             ("Mercury", '57,910,000', '4,880', '3.30e23'),
@@ -87,7 +92,7 @@ class ListViewTestCases(unittest.TestCase):
         "Test the ListView item.Text property"
         item = self.ctrl.GetItem(1)
 
-        self.assertEquals(item.Text, "Venus")
+        self.assertEquals(item['text'], "Venus")
 
     def testItems(self):
         "Test the ListView Items method"
@@ -97,7 +102,7 @@ class ListViewTestCases(unittest.TestCase):
             flat_texts.extend(row)
 
         for i, item in enumerate(self.ctrl.Items()):
-            self.assertEquals(item.Text, flat_texts[i])
+            self.assertEquals(item['text'], flat_texts[i])
 
 
     def testTexts(self):
@@ -117,7 +122,7 @@ class ListViewTestCases(unittest.TestCase):
         for row in range(self.ctrl.ItemCount()):
             for col in range(self.ctrl.ColumnCount()):
                 self.assertEquals(
-                    self.ctrl.GetItem(row, col).Text, self.texts[row][col])
+                    self.ctrl.GetItem(row, col)['text'], self.texts[row][col])
 
 
     def testColumn(self):
@@ -182,6 +187,25 @@ class ListViewTestCases(unittest.TestCase):
 
         self.assertEquals(self.ctrl.GetSelectedCount(), 3)
 
+
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.ctrl.GetProperties()
+
+        self.assertEquals(
+            "ListView", props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.ctrl.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+
+        self.assertEquals(props['ColumnCount'], 4)
+        self.assertEquals(props['ItemCount'], 9)
+
+
+
 #
 #    def testSubItems(self):
 #
@@ -205,7 +229,7 @@ class TreeViewTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\Tree View.exe")
+        app.start_(controlspy_folder + "Tree View.exe")
 
         self.root_text = "The Planets"
         self.texts = [
@@ -242,8 +266,8 @@ class TreeViewTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.FriendlyClassName(), "TreeView")
 
     def testItemCount(self):
-        "Test the ItemCount method"
-        self.assertEquals (self.ctrl.Count(), 37)
+        "Test the TreeView ItemCount method"
+        self.assertEquals (self.ctrl.ItemCount(), 37)
 
 
     def testItemText(self):
@@ -275,6 +299,19 @@ class TreeViewTestCases(unittest.TestCase):
         self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).Rectangle())
 
 
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.ctrl.GetProperties()
+
+        self.assertEquals(
+            "TreeView", props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.ctrl.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+
 
 
 
@@ -290,7 +327,7 @@ class StatusBarTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\Status bar.exe")
+        app.start_(controlspy_folder + "Status bar.exe")
 
         self.texts = ["Long text", "", "Status Bar"]
         self.part_rects = [
@@ -382,7 +419,7 @@ class TabControlTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(r"C:\.projects\py_pywinauto\controlspy0798\Tab.exe")
+        app.start_(controlspy_folder + "Tab.exe")
 
         self.texts = [
             "Pluto", "Neptune", "Uranus",
@@ -414,16 +451,6 @@ class TabControlTestCases(unittest.TestCase):
         "Make sure the texts are set correctly"
         self.assertEquals (self.ctrl.Texts()[1:], self.texts)
 
-    def testTabCount(self):
-        "Make sure the number of parts is retrieved correctly"
-        self.assertEquals (self.ctrl.TabCount(), 10)
-
-#    def testTabRect(self):
-#        "Make sure the part rectangles are retrieved correctly"
-#
-#        for i in range(0, self.ctrl.PartCount()):
-#            self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
-#
     def testGetProperties(self):
         "Test getting the properties for the control"
         props  = self.ctrl.GetProperties()
@@ -437,21 +464,112 @@ class TabControlTestCases(unittest.TestCase):
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
+    def testTabCount(self):
+        "Make sure the number of parts is retrieved correctly"
+        self.assertEquals (self.ctrl.TabCount(), 10)
+
+#    def testTabRect(self):
+#        "Make sure the part rectangles are retrieved correctly"
+#
+#        for i in range(0, self.ctrl.PartCount()):
+#            self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
+#
 
 
 
 
 
+class UpDownTestCases(unittest.TestCase):
+    "Unit tests for the UpDownWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(controlspy_folder + "Up-Down.exe")
+
+        self.app = app
+        self.dlg = app.MicrosoftControlSpy
+        self.ctrl = app.MicrosoftControlSpy.UpDown2.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEquals (self.ctrl.FriendlyClassName(), "UpDown")
+
+    def testTexts(self):
+        "Make sure the texts are set correctly"
+        self.assertEquals (self.ctrl.Texts()[1:], [])
+
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.ctrl.GetProperties()
+
+        self.assertEquals(
+            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.ctrl.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+
+    def testGetValue(self):
+        "Test getting up-down position"
+        self.assertEquals (self.ctrl.GetValue(), 0)
+
+        self.ctrl.SetValue(23)
+        self.assertEquals (self.ctrl.GetValue(), 23)
+
+    def testSetValue(self):
+        "Test setting up-down position"
+        self.assertEquals (self.ctrl.GetValue(), 0)
+
+        self.ctrl.SetValue(23)
+        self.assertEquals (self.ctrl.GetValue(), 23)
+        self.assertEquals(
+            int(self.ctrl.GetBuddyControl().Texts()[1]),
+            23)
+
+    def testGetBuddy(self):
+        "Test getting the buddy control"
+        self.assertEquals (self.ctrl.GetBuddyControl().handle, self.dlg.Edit6.handle)
 
 
+    def testIncrement(self):
+        "Test incremementing up-down position"
+        self.ctrl.Increment()
+        self.assertEquals (self.ctrl.GetValue(), 1)
+
+    def testDecrement(self):
+        "Test decrementing up-down position"
+        self.ctrl.SetValue(23)
+        self.ctrl.Decrement()
+        self.assertEquals (self.ctrl.GetValue(), 22)
 
 
+    def testGetBase(self):
+        "Test decrementing up-down position"
+        self.assertEquals (self.ctrl.GetBase(), 10)
+        self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
+        self.dlg.Send.Click()
 
-
-
-
-
-
+        self.assertEquals (self.ctrl.GetBase(), 16)
 
 
 

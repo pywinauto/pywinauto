@@ -228,6 +228,7 @@ class ListBoxTestCases(unittest.TestCase):
 
         self.app.start_(r"c:\Program Files\Windows NT\Accessories\wordpad.exe")
         self.app.DocumentWordPad.MenuSelect("Insert->Date and time...")
+        #pdb.set_trace()
 
         self.dlg = self.app.DateAndTime
         self.ctrl = self.dlg.ListBox.ctrl_()
