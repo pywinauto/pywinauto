@@ -39,10 +39,10 @@ _wrapper_info = {}
 
 for item in _all_classes:
     try:
-        for classname in item.windowclasses:
+        for classname_ in item.windowclasses:
             # set the info
-            _wrapper_info[classname] = (
-                re.compile(classname),
+            _wrapper_info[classname_] = (
+                re.compile(classname_),
                 item)
 
     except AttributeError, e:
