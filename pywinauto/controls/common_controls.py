@@ -46,6 +46,8 @@ class _RemoteMemoryBlock(object):
         self.memAddress = 0
         self.fileMap = 0
 
+        self._as_parameter_ = self.memAddress
+
         process_id = ctypes.c_long()
         win32functions.GetWindowThreadProcessId(
             handle, ctypes.byref(process_id))
@@ -78,6 +80,8 @@ class _RemoteMemoryBlock(object):
 
         else:
             raise RuntimeError("Win9x allocation not supported")
+
+        self._as_parameter_ = self.memAddress
 
     #----------------------------------------------------------------
     def __del__(self):
@@ -126,6 +130,8 @@ class _RemoteMemoryBlock(object):
         return data
 
 
+
+
 #====================================================================
 class ListViewWrapper(HwndWrapper.HwndWrapper):
     """Class that wraps Windows ListView common control
@@ -149,12 +155,14 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.writable_props.extend([
             'ColumnCount',
-            'ItemCount', ])
+            'ItemCount',
+            'Columns',
+            'Items'])
 
     #-----------------------------------------------------------
     def ColumnCount(self):
         """Return the number of columns"""
-        return len(self.Columns())
+        return self.GetHeaderControl().ItemCount()
 
     #-----------------------------------------------------------
     def ItemCount(self):
@@ -162,109 +170,137 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.LVM_GETITEMCOUNT)
 
     #-----------------------------------------------------------
+    def GetHeaderControl(self):
+        "Returns the Header control associated with the ListView"
+        import wraphandle
+        return wraphandle.WrapHandle(
+            self.SendMessage(win32defines.LVM_GETHEADER))
+
+    #-----------------------------------------------------------
+    def GetColumn(self, col_index):
+        "Get the information for a column of the ListView"
+
+        col_props = {}
+
+        col = win32structures.LVCOLUMNW()
+        col.mask = \
+            win32defines.LVCF_FMT | \
+            win32defines.LVCF_IMAGE | \
+            win32defines.LVCF_ORDER | \
+            win32defines.LVCF_SUBITEM | \
+            win32defines.LVCF_TEXT | \
+            win32defines.LVCF_WIDTH
+
+        remote_mem = _RemoteMemoryBlock(self)
+
+        col.cchTextMax = 2000
+        col.item = remote_mem.Address() + ctypes.sizeof(col) + 1
+
+
+        # put the information in the memory that the
+        # other process can read/write
+        remote_mem.Write(col)
+
+        # ask the other process to update the information
+        retval = self.SendMessage(
+            win32defines.LVM_GETCOLUMNW,
+            col_index,
+            remote_mem)
+
+        col = remote_mem.Read(col)
+
+        # if that succeeded then there was a column
+        if retval:
+            col = remote_mem.Read(col)
+
+            text = ctypes.create_unicode_buffer(1999)
+            remote_mem.Read(text, col.pszText)
+
+            col_props['order'] = col.iOrder
+            col_props['text'] = text.value
+            col_props['format'] = col.fmt
+            col_props['width'] = col.cx
+            col_props['image'] = col.iImage
+            col_props['subitem'] = col.iSubItem
+
+        return col_props
+
+
+
+    #-----------------------------------------------------------
     def Columns(self):
         "Get the information on the columns of the ListView"
         cols = []
 
-        remote_mem = _RemoteMemoryBlock(self)
-
-        # Get each ListView columns text data
-        index = 0
-        while True:
-            col = win32structures.LVCOLUMNW()
-            col.mask = win32defines.LVCF_WIDTH | win32defines.LVCF_FMT
-            #LVCF_TEXT, LVCF_SUBITEM, LVCF_IMAGE, LVCF_ORDER
-
-            # put the information in the memory that the
-            # other process can read/write
-            remote_mem.Write(col)
-
-            # ask the other process to update the information
-            retval = self.SendMessage(
-                win32defines.LVM_GETCOLUMNW,
-                index,
-                remote_mem.Address())
-
-            col = remote_mem.Read(col)
-
-            # if that succeeded then there was a column
-            if retval:
-                col = remote_mem.Read(col)
-
-                cols.append(col)
-            else:
-                # OK - so it didn't work stop trying to get more columns
-                break
-
-            index += 1
-
-        del (remote_mem)
+        for i in range(0,  self.ColumnCount()):
+            cols.append(self.GetColumn(i))
 
         return cols
 
 
     #-----------------------------------------------------------
-    def GetProperties(self):
-        "Return the properties of the control as a dictionary"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
+    def ColumnWidths(self):
+        "Return a list of all the column widths"
+        return [col['width'] for col in self.Columns()]
 
-        # get selected item
-        props['ColumnWidths'] = [col.cx for col in self.Columns()]
-
-        #if props['ColumnCount'] == 0:
-        #    props['ColumnCount'] = 1
-        #    props['ColumnWidths'] = [999, ] # never trunctated
-
-        props['ItemData'] = []
-        for item in self.Items():
-            props['ItemData'].append(dict(
-                state = item.state,
-                image = item.iImage,
-                indent = item.iIndent
-            ))
-
-        return props
 
 
     #-----------------------------------------------------------
     def GetItem(self, item_index, subitem_index = 0):
         "Return the item of the list view"
 
+        item_data = {}
+
         # set up a memory block in the remote application
         remote_mem = _RemoteMemoryBlock(self)
 
         # set up the item structure to get the text
         item = win32structures.LVITEMW()
+        item.mask = \
+            win32defines.LVIF_TEXT | \
+            win32defines.LVIF_IMAGE | \
+            win32defines.LVIF_INDENT | \
+            win32defines.LVIF_STATE
+
+        item.iItem = item_index
         item.iSubItem = subitem_index
+        item.stateMask = ctypes.c_uint(-1)
+
+        item.cchTextMax = 2000
         item.pszText = remote_mem.Address() + \
             ctypes.sizeof(item) + 1
-        item.cchTextMax = 2000
-        item.mask = win32defines.LVIF_TEXT
 
         # Write the local LVITEM structure to the remote memory block
         remote_mem.Write(item)
 
-        # get the text for the requested item
+        # Fill in the requested item
         retval = self.SendMessage(
-            win32defines.LVM_GETITEMTEXTW,
+            win32defines.LVM_GETITEMW,
             item_index,
-            remote_mem.Address())
+            remote_mem)
 
         # if it succeeded
         if retval:
+
+            remote_mem.Read(item)
 
             # Read the remote text string
             char_data = ctypes.create_unicode_buffer(2000)
             remote_mem.Read(char_data, item.pszText)
 
             # and add it to the titles
-            item.Text = char_data.value
+            item_data['text'] = char_data.value
+            item_data['state'] = item.state
+            item_data['image'] = item.iImage
+            item_data['indent'] = item.iIndent
+
         else:
-            item.Text  = ''
+            raise RuntimeError(
+                "We should never get to this part of ListView.GetItem()")
 
         del remote_mem
 
-        return item
+        return item_data
 
     #-----------------------------------------------------------
     def Items(self):
@@ -291,7 +327,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     def Texts(self):
         "Get the texts for the ListView control"
         texts = [self.WindowText()]
-        texts.extend([item.Text for item in self.Items()])
+        texts.extend([item['text'] for item in self.Items()])
         return texts
 
 
@@ -312,7 +348,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(lvitem)
 
         self.SendMessage(
-            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+            win32defines.LVM_SETITEMSTATE, item, remote_mem)
 
         del remote_mem
 
@@ -333,7 +369,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(lvitem)
 
         self.SendMessage(
-            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+            win32defines.LVM_SETITEMSTATE, item, remote_mem)
 
         del remote_mem
 
@@ -375,7 +411,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(lvitem)
 
         self.SendMessage(
-            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+            win32defines.LVM_SETITEMSTATE, item, remote_mem)
 
 
         # now we need to notify the parent that the state has chnaged
@@ -396,7 +432,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         self.Parent().SendMessage(
             win32defines.WM_NOTIFY,
             self.ControlID(),
-            remote_mem.Address())
+            remote_mem)
 
         del remote_mem
 
@@ -457,7 +493,7 @@ class _treeview_element(object):
         remote_mem.Write(ctypes.c_long(self.elem))
 
         ret = self.tree_ctrl.SendMessage(
-            win32defines.TVM_GETITEMRECT, 0, remote_mem.Address())
+            win32defines.TVM_GETITEMRECT, 0, remote_mem)
 
         # the item is not visible
         if not ret:
@@ -566,7 +602,7 @@ class _treeview_element(object):
             self.tree_ctrl,
             win32defines.TVM_GETITEMW,
             0,
-            remote_mem.Address())
+            remote_mem)
 
         text = ''
         if retval:
@@ -598,18 +634,18 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         super(TreeViewWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
-    def Count(self):
-        "Return the number of items"
+    def ItemCount(self):
+        "Return the count of the items in the treeview"
         return self.SendMessage(win32defines.TVM_GETCOUNT)
 
     #----------------------------------------------------------------
     def Texts(self):
         "Return all the text for the tree view"
-        texts = [self.WindowText(), self.Root().WindowText()]
+        texts = [self.WindowText(), self.Root().Text()]
 
         elements = self.Root().SubElements()
 
-        texts.extend(elem.WindowText() for elem in elements)
+        texts.extend(elem.Text() for elem in elements)
 
         return texts
 
@@ -629,7 +665,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         "Get the properties for the control as a dictionary"
         props = HwndWrapper.HwndWrapper.GetProperties(self)
 
-        props['Count'] = self.Count()
+        props['ItemCount'] = self.ItemCount()
 
         return props
 
@@ -718,7 +754,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 ##        remote_mem.Write(lvitem)
 ##
 ##        self.SendMessage(
-##            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+##            win32defines.LVM_SETITEMSTATE, item, remote_mem)
 ##
 ##        del remote_mem
 #
@@ -741,7 +777,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 #        remote_mem.Write(lvitem)
 #
 #        self.SendMessage(
-#            win32defines.LVM_SETITEMSTATE, item, remote_mem.Address())
+#            win32defines.LVM_SETITEMSTATE, item, remote_mem)
 #
 #        del remote_mem
 #
@@ -777,13 +813,13 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         super(HeaderWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
-    def Count(self):
+    def ItemCount(self):
         "Return the number of columns in this header"
         # get the number of items in the header...
         return self.SendMessage(win32defines.HDM_GETITEMCOUNT)
 
     #----------------------------------------------------------------
-    def ColumnRectangle(self, column_index):
+    def GetColumnRectangle(self, column_index):
         "Return the rectangle for the column specified by column_index"
 
         remote_mem = _RemoteMemoryBlock(self)
@@ -793,7 +829,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         retval = self.SendMessage(
             win32defines.HDM_GETITEMRECT,
             column_index,
-            remote_mem.Address())
+            remote_mem)
 
         if retval:
             rect = remote_mem.Read(rect)
@@ -809,15 +845,15 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         "Return all the client rectangles for the header control"
         rects = [self.ClientRect(), ]
 
-        for col_index in range(0, self.Count()):
+        for col_index in range(0, self.ItemCount()):
 
-            rects.append(self.ColumnRectangle(col_index))
+            rects.append(self.GetColumnRectangle(col_index))
 
         return rects
 
 
     #----------------------------------------------------------------
-    def ColumnText(self, column_index):
+    def GetColumnText(self, column_index):
         "Return the text for the column specified by column_index"
 
         remote_mem = _RemoteMemoryBlock(self)
@@ -840,7 +876,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         retval = self.SendMessage(
             win32defines.HDM_GETITEMW,
             column_index,
-            remote_mem.Address())
+            remote_mem)
 
         if retval:
             item = remote_mem.Read(item)
@@ -856,8 +892,8 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
     def Texts(self):
         "Return the texts of the Header control"
         texts = [self.WindowText(), ]
-        for i in range(0, self.Count()):
-            texts.append(self.ColumnText(i))
+        for i in range(0, self.ItemCount()):
+            texts.append(self.GetColumnText(i))
 
         return texts
 
@@ -886,7 +922,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 #            retval = self.SendMessage(
 #                win32defines.HDM_GETITEMW,
 #                col_index,
-#                remote_mem.Address())
+#                remote_mem)
 #
 #            if retval:
 #                item = remote_mem.Read(item)
@@ -914,7 +950,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
         self.writable_props.extend([
             'BorderWidths',
-            'NumParts',
+            'PartCount',
             'PartRightEdges',
 
         ])
@@ -936,7 +972,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         self.SendMessage(
             win32defines.SB_GETBORDERS,
             0,
-            remote_mem.Address()
+            remote_mem
         )
         borders = remote_mem.Read(borders)
         borders_widths = {}
@@ -949,7 +985,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         return borders_widths
 
     #----------------------------------------------------------------
-    def NumParts(self):
+    def PartCount(self):
         "Return the number of parts"
         # get the number of parts for this status bar
         return self.SendMessage(
@@ -963,12 +999,12 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         remote_mem = _RemoteMemoryBlock(self)
 
         # get the number of parts for this status bar
-        parts = (ctypes.c_int * self.NumParts())()
+        parts = (ctypes.c_int * self.PartCount())()
         remote_mem.Write(parts)
         self.SendMessage(
             win32defines.SB_GETPARTS,
-            self.NumParts(),
-            remote_mem.Address()
+            self.PartCount(),
+            remote_mem
         )
 
         parts = remote_mem.Read(parts)
@@ -988,7 +1024,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         self.SendMessage(
             win32defines.SB_GETRECT,
             part_index,
-            remote_mem.Address())
+            remote_mem)
 
         rect = remote_mem.Read(rect)
         del remote_mem
@@ -999,7 +1035,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         "Return the client rectangles for the control"
         rects = [self.ClientRect()]
 
-        for i in range(self.NumParts()):
+        for i in range(self.PartCount()):
             rects.append(self.GetPartRect(i))
 
         return rects
@@ -1025,7 +1061,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         self.SendMessage(
             win32defines.SB_GETTEXTW,
             part_index,
-            remote_mem.Address()
+            remote_mem
         )
 
         text = remote_mem.Read(text)
@@ -1039,11 +1075,10 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         "Return the texts for the control"
         texts = [self.WindowText()]
 
-        for i in range(self.NumParts()):
+        for i in range(self.PartCount()):
             texts.append(self.GetPartText(i))
 
         return texts
-
 
 
 
@@ -1062,69 +1097,17 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(TabControlWrapper, self).__init__(hwnd)
 
-        self._extra_props = {}
-        self._extra_clientrects = []
-        self._extra_texts = []
-        self._fill_tabcontrol_info()
+        self.writable_props.append("TabStates")
 
     #----------------------------------------------------------------
-    def GetTab(self, tab_index):
-        remote_mem = _RemoteMemoryBlock(self)
-
-        item = win32structures.TCITEMW()
-        item.mask = win32defines.TCIF_STATE | win32defines.TCIF_TEXT
-        item.cchTextMax = 1999
-        item.pszText = remote_mem.Address() + ctypes.sizeof(item)
-        remote_mem.Write(item)
-
-        self.SendMessage(
-            win32defines.TCM_GETITEMW, tab_index, remote_mem.Address())
-
-        remote_mem.Read(item)
-
-        # Read the text that has been written
-        text = ctypes.create_unicode_buffer(2000)
-        text = remote_mem.Read(text, remote_mem.Address() + \
-            ctypes.sizeof(item))
-
-
+    def RowCount(self):
+        "Return the number of rows of tabs"
+        return self.SendMessage(win32defines.TCM_GETROWCOUNT)
 
     #----------------------------------------------------------------
-    def _fill_tabcontrol_info(self):
-        "Get the information from the Tab control"
-        #tooltipHandle = self.SendMessage(win32defines.TCM_GETTOOLTIPS)
-
-        remote_mem = _RemoteMemoryBlock(self)
-
-        for i in range(0, self.TabCount()):
-
-            item = win32structures.TCITEMW()
-            item.mask = win32defines.TCIF_STATE | win32defines.TCIF_TEXT
-            item.cchTextMax = 1999
-            item.pszText = remote_mem.Address() + ctypes.sizeof(item)
-            remote_mem.Write(item)
-
-            self.SendMessage(
-                win32defines.TCM_GETITEMW, i, remote_mem.Address())
-
-            remote_mem.Read(item)
-
-            self._extra_props.setdefault('TabState', []).append(item.dwState)
-
-            text = ctypes.create_unicode_buffer(2000)
-            text = remote_mem.Read(text, remote_mem.Address() + \
-                ctypes.sizeof(item))
-            self._extra_texts.append(text.value)
-
-    #----------------------------------------------------------------
-    def GetProperties(self):
-        "Return the properties of the TabControl as a Dictionary"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
-
-        props['TabCount'] = self.TabCount()
-
-        props.update(self._extra_props)
-        return props
+    def GetSelectedTab(self):
+        "Return the index of the selected tab"
+        return self.SendMessage(win32defines.TCM_GETCURSEL)
 
     #----------------------------------------------------------------
     def TabCount(self):
@@ -1141,13 +1124,70 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(rect)
 
         self.SendMessage(
-            win32defines.TCM_GETITEMRECT, tab_index, remote_mem.Address())
+            win32defines.TCM_GETITEMRECT, tab_index, remote_mem)
 
         remote_mem.Read(rect)
 
         del remote_mem
 
         return rect
+
+    #----------------------------------------------------------------
+    def GetTabState(self, tab_index):
+        "Return the state of the tab"
+        remote_mem = _RemoteMemoryBlock(self)
+
+        item = win32structures.TCITEMW()
+        item.mask = win32defines.TCIF_STATE
+        remote_mem.Write(item)
+
+        self.SendMessage(
+            win32defines.TCM_GETITEMW, tab_index, remote_mem)
+
+        remote_mem.Read(item)
+
+        return item.dwState
+
+    #----------------------------------------------------------------
+    def GetTabText(self, tab_index):
+        "Return the text of the tab"
+        remote_mem = _RemoteMemoryBlock(self)
+
+        item = win32structures.TCITEMW()
+        item.mask = win32defines.TCIF_TEXT
+        item.cchTextMax = 1999
+        item.pszText = remote_mem.Address() + ctypes.sizeof(item)
+        remote_mem.Write(item)
+
+        self.SendMessage(
+            win32defines.TCM_GETITEMW, tab_index, remote_mem)
+
+        remote_mem.Read(item)
+
+        # Read the text that has been written
+        text = ctypes.create_unicode_buffer(2000)
+        text = remote_mem.Read(text, remote_mem.Address() + \
+            ctypes.sizeof(item))
+
+        return text.value
+
+    #----------------------------------------------------------------
+    def GetProperties(self):
+        "Return the properties of the TabControl as a Dictionary"
+        props = HwndWrapper.HwndWrapper.GetProperties(self)
+
+        props['TabCount'] = self.TabCount()
+
+
+        return props
+
+    #----------------------------------------------------------------
+    def TabStates(self):
+        "Return the tab state for all the tabs"
+        states = []
+        for i in range(0, self.TabCount()):
+            states.append(self.GetTabState(i))
+        return states
 
     #----------------------------------------------------------------
     def ClientRects(self):
@@ -1163,7 +1203,10 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
     def Texts(self):
         "Return the texts of the Tab Control"
         texts = [self.WindowText()]
-        texts.extend(self._extra_texts)
+
+        for i in range(0, self.TabCount()):
+            texts.append(self.GetTabText(i))
+
         return texts
 
     #----------------------------------------------------------------
@@ -1172,6 +1215,8 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
         self.VerifyActionable()
 
+        # if it's a string then find the index of
+        # the tab with that text
         if isinstance(tab, basestring):
             # find the string in the tab control
             best_text = findbestmatch.find_best_match(
@@ -1179,6 +1224,8 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
             tab = self.Texts().index(best_text) - 1
 
         self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)
+
+        return self
 
 
 #====================================================================
@@ -1216,7 +1263,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(button)
 
         self.SendMessage(
-            win32defines.TB_GETBUTTON, button_index, remote_mem.Address())
+            win32defines.TB_GETBUTTON, button_index, remote_mem)
 
         remote_mem.Read(button)
 
@@ -1240,7 +1287,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         self.SendMessage(
             win32defines.TB_GETBUTTONINFOW,
             button.idCommand,
-            remote_mem.Address())
+            remote_mem)
         remote_mem.Read(button_info)
 
         # read the text
@@ -1274,7 +1321,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         self.SendMessage(
             win32defines.TB_GETITEMRECT,
             button_index,
-            remote_mem.Address())
+            remote_mem)
 
         rect = remote_mem.Read(rect)
 
@@ -1282,30 +1329,38 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         return rect
 
-    def Right_Click(self, button_index, **kwargs):
+    def GetToolTipsControl(self):
+        "Return teh tooltip control associated with this control"
+        return ToolTipsWrapper(self.SendMessage(win32defines.TB_GETTOOLTIPS))
 
 
-        win32functions.SetCapture(self)
-
-        button = self.GetButton(button_index)
-        #print button.text
-
-        rect = self.GetButtonRect(button_index)
-
-        x = (rect.left + rect.right) /2
-        y = (rect.top + rect.bottom) /2
-
-        #print x, y
-
-
-        self.MoveMouse(coords = (x, y))
-        self.SendMessage(
-            win32defines.WM_MOUSEACTIVATE,
-            self.Parent().Parent().Parent(),
-            win32functions.MakeLong(win32defines.WM_RBUTTONDOWN, win32defines.HTCLIENT))
-
-        self.PressMouse(pressed = "right", button = "right", coords = (x,y))
-
+#    def Right_Click(self, button_index, **kwargs):
+#        "Right click for Toolbar buttons"
+#
+#        win32functions.SetCapture(self)
+#
+#        button = self.GetButton(button_index)
+#        #print button.text
+#
+#        rect = self.GetButtonRect(button_index)
+#
+#        x = (rect.left + rect.right) /2
+#        y = (rect.top + rect.bottom) /2
+#
+#        #print x, y
+#
+#
+#        self.MoveMouse(coords = (x, y))
+#        self.SendMessage(
+#            win32defines.WM_MOUSEACTIVATE,
+#            self.Parent().Parent().Parent(),
+#            win32functions.MakeLong(
+#                win32defines.WM_RBUTTONDOWN,
+#                win32defines.HTCLIENT)
+#            )
+#
+#        self.PressMouse(pressed = "right", button = "right", coords = (x, y))
+#
 #        remote_mem = _RemoteMemoryBlock(self)
 #
 #        # now we need to notify the parent that the state has changed
@@ -1325,41 +1380,42 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #        self.SendMessage(
 #            win32defines.WM_NOTIFY,
 #            self.ControlID(),
-#            remote_mem.Address())
+#            remote_mem)
 #
 #        del remote_mem
-
-
-        self.ReleaseMouse(button = "right", coords = (x, y))
-
-        win32functions.ReleaseCapture()
-
-
-
+#
+#
+#        self.ReleaseMouse(button = "right", coords = (x, y))
+#
+#        win32functions.ReleaseCapture()
+#
 
 
 
-    def PressButton(self, button_index):
-        "Get the rectangle of a button on the toolbar"
+    # TODO def Button(i or string).rect
+
+    def PressButton(self, button_identifier):
+        "Find where the button is and click it"
+
+        if isinstance(button_identifier, basestring):
+            best_text = findbestmatch.find_best_match(
+                button_identifier, self.Texts(), self.Texts())
+            button_index = self.Texts().index(best_text) - 1
+
+        else:
+            button_index = button_identifier
 
         button = self.GetButton(button_index)
 
-        remote_mem = _RemoteMemoryBlock(self)
-
-        rect = win32structures.RECT()
-
-        remote_mem.Write(rect)
-
-        self.SendMessage(
+        print self.SendMessage(
             win32defines.TB_PRESSBUTTON,
             button.idCommand,
             win32functions.MakeLong(1, 0))
 
-        rect = remote_mem.Read(rect)
-
-        del remote_mem
-
-        return rect
+        print self.SendMessage(
+            win32defines.TB_PRESSBUTTON,
+            button.idCommand,
+            win32functions.MakeLong(0, 0))
 
 
 
@@ -1378,7 +1434,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #            remote_mem.Write(button)
 #
 #            self.SendMessage(
-#                win32defines.TB_GETBUTTON, i, remote_mem.Address())
+#                win32defines.TB_GETBUTTON, i, remote_mem)
 #
 #            remote_mem.Read(button)
 #
@@ -1402,7 +1458,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #            self.SendMessage(
 #                win32defines.TB_GETBUTTONINFOW,
 #                button.idCommand,
-#                remote_mem.Address())
+#                remote_mem)
 #            remote_mem.Read(buttonInfo)
 #
 #            # read the text
@@ -1492,7 +1548,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         self.SendMessage(
             win32defines.RB_GETBANDINFOW,
             band_index,
-            remote_mem.Address())
+            remote_mem)
 
         # read it back
         remote_mem.Read(band_info)
@@ -1505,6 +1561,11 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
         return band_info
 
+
+    #----------------------------------------------------------------
+    def GetToolTipsControl(self):
+        "Return the tooltip control associated with this control"
+        return ToolTipsWrapper(self.SendMessage(win32defines.TB_GETTOOLTIPS))
 
     #----------------------------------------------------------------
     def Texts(self):
@@ -1530,7 +1591,45 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
         "Initialize the instance"
         HwndWrapper.HwndWrapper.__init__(self, hwnd)
 
-        self._PlayWithToolTipControls()
+        #self._PlayWithToolTipControls()
+
+
+    #----------------------------------------------------------------
+    def ToolCount(self):
+        "Return the number of tooltips"
+        return self.SendMessage(win32defines.TTM_GETTOOLCOUNT)
+
+
+    #----------------------------------------------------------------
+    def GetTipText(self, tip_index):
+        "Return the text of the tooltip"
+        remote_mem = _RemoteMemoryBlock(self)
+        tipinfo = win32structures.TOOLINFOW()
+        tipinfo.cbSize = ctypes.sizeof(tipinfo)
+
+        ret = self.SendMessage(
+            win32defines.TTM_ENUMTOOLSW, tip_index, remote_mem)
+
+        if not ret:
+            raise ctypes.WinError()
+
+        remote_mem.Read(tipinfo)
+
+        print tipinfo
+
+        tipinfo.lpszText = remote_mem.Address() + \
+            ctypes.sizeof(tipinfo) +1
+
+        remote_mem.Write(tipinfo)
+
+        self.SendMessage(
+            win32defines.TTM_GETTEXTW, 0, remote_mem)
+
+        text = ctypes.create_unicode_buffer(200)
+
+        remote_mem.Read(text, tipinfo.lpszText)
+
+        return text.value
 
 
     def _PlayWithToolTipControls(self):
@@ -1559,7 +1658,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
             remote_mem.Write(tipinfo)
 
             ret = self.SendMessage(
-                win32defines.TTM_ENUMTOOLSW, i, remote_mem.Address())
+                win32defines.TTM_ENUMTOOLSW, i, remote_mem)
 
             if not ret:
                 raise ctypes.WinError()
@@ -1571,7 +1670,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
                 remote_mem.Write(tipinfo)
 
-                self.SendMessage(win32defines.TTM_GETTEXTW, 0, remote_mem.Address())
+                self.SendMessage(
+                    win32defines.TTM_GETTEXTW, 0, remote_mem)
 
                 text = ctypes.create_unicode_buffer(200)
 
@@ -1618,11 +1718,136 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
 
 
+#====================================================================
+class UpDownWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows UpDown common control "
 
-#
-## doesn't work :-(
-###HwndWrapper._HwndWrappers["Afx:00400000:8:00010011:00000010:00000000"] = \
-##    ToolbarWrapper
+    friendlyclassname = "UpDown"
+    windowclasses = ["msctls_updown", ]
+
+    #----------------------------------------------------------------
+    def __init__(self, hwnd):
+        "Initialise the instance"
+        HwndWrapper.HwndWrapper.__init__(self, hwnd)
+
+    def GetValue(self):
+        "Get the current value of the UpDown control"
+        pos = self.SendMessage(win32defines.UDM_GETPOS)
+        return win32functions.LoWord(pos)
+
+    def GetBase(self):
+        "Get the base the UpDown control (either 10 or 16)"
+        return self.SendMessage(win32defines.UDM_GETBASE)
+
+    def GetRange(self):
+        "Return the lower, upper range of the up down control"
+        updown_range = self.SendMessage(win32defines.UDM_GETRANGE)
+        updown_range = (
+            win32functions.HiWord(updown_range),
+            win32functions.LoWord(updown_range)
+            )
+        return updown_range
+
+    def GetBuddyControl(self):
+        "Get the buddy control of the updown control"
+        import wraphandle
+        buddy_handle = self.SendMessage(win32defines.UDM_GETBUDDY)
+        return wraphandle.WrapHandle(buddy_handle)
+
+    def SetValue(self, new_pos):
+        "Set the value of the of the UpDown control to some integer value"
+        self.SendMessage(
+            win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos))
+
+    def Increment(self):
+        "Increment the number in the UpDown control by one"
+        # hmmm - VM_SCROLL and UDN_DELTAPOS don't seem to be working for me :-(
+        # I will fake it for now either use Click, or GetValue() + 1
+        self.SetValue(self.GetValue() + 1)
+
+    def Decrement(self):
+        "Decrement the number in the UpDown control by one"
+        self.SetValue(self.GetValue() - 1)
+
+
+
+
+
+
+#====================================================================
+class TrackbarWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows Trackbar common control "
+
+    friendlyclassname = "Trackbar"
+    windowclasses = ["msctls_trackbar", ]
+
+#====================================================================
+class AnimationWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows Animation common control "
+
+    friendlyclassname = "Animation"
+    windowclasses = ["SysAnimate32", ]
+
+
+#====================================================================
+class ComboBoxExWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows ComboBoxEx common control "
+
+    friendlyclassname = "ComboBoxEx"
+    windowclasses = ["ComboBoxEx32", ]
+
+
+#====================================================================
+class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows DateTimePicker common control "
+
+    friendlyclassname = "DateTimePicker"
+    windowclasses = ["SysDateTimePick32", ]
+
+
+#====================================================================
+class HotkeyWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows Hotkey common control "
+
+    friendlyclassname = "Hotkey"
+    windowclasses = ["msctls_hotkey32", ]
+
+
+#====================================================================
+class IPAddressWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows IPAddress common control "
+
+    friendlyclassname = "IPAddress"
+    windowclasses = ["SysIPAddress32", ]
+
+
+#====================================================================
+class CalendarWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows Calendar common control "
+
+    friendlyclassname = "Calendar"
+    windowclasses = ["SysMonthCal32", ]
+
+
+#====================================================================
+class PagerWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows Pager common control "
+
+    friendlyclassname = "Pager"
+    windowclasses = ["SysPager", ]
+
+
+#====================================================================
+class ProgressWrapper(HwndWrapper.HwndWrapper):
+    "Class that wraps Windows Progress common control "
+
+    friendlyclassname = "Progress"
+    windowclasses = ["msctls_progress", ]
+
+
+
+
+
 #
 ##
 ###HwndWrapper._HwndWrappers["ComboBoxEx32"] = ComboBoxEx
@@ -1692,7 +1917,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 ##					self,
 ##					CBEM_GETITEMW,
 ##					0,
-##					remote_mem.Address()
+##					remote_mem
 ##					)
 ##
 ##				if retval:
