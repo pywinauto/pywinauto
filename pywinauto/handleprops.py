@@ -93,6 +93,11 @@ def contexthelpid(handle):
     return win32functions.GetWindowContextHelpId (handle)
 
 #=========================================================================
+def iswindow(handle):
+    "Return True if the handle is a window"
+    return bool(win32functions.IsWindow(handle))
+
+#=========================================================================
 def isvisible(handle):
     "Return True if the window is visible"
     return bool(win32functions.IsWindowVisible(handle))
