@@ -69,12 +69,8 @@ import findbestmatch
 import findwindows
 import handleprops
 
-### Following only needed for writing out XML files
-### and can be (also requires elementtree)
-##try:
-##    import XMLHelpers
-##except ImportError:
-##    pass
+#import appdata
+
 
 class AppStartError(Exception):
     "There was a problem starting the Application"
@@ -88,9 +84,7 @@ class AppNotConnected(Exception):
     "Application has been connected to a process yet"
     pass
 
-##_READ_APP_DATA = True
-##_WRITE_APP_DATA = False
-##_APP_DATA_FOLDER  = r"c:\.temp\notepad"
+
 
 # Maximum wait time for a window to exist
 window_find_timeout = 3
@@ -108,93 +102,6 @@ exists_timeout = .5
 # How long to sleep between each try when checking if the window exists
 exists_retry_interval = .3
 
-##
-##class func_wrapper(object):
-##    def __init__(self, value):
-##        self.value = value
-##
-##    def __call__(self, *args, **kwargs):
-##        return self.value
-##
-##
-##class CtrlProps(dict):
-##
-##    def __getattr__(self, attr):
-##        if not self.has_key(attr):
-##            plural = attr + 's'
-##            if self.has_key(plural):
-##                #print self[plural]
-##                return func_wrapper(self[plural][0])
-##
-##        return func_wrapper(self[attr])
-##
-##    def HasStyle(self, style):
-##        return self['Style'] & style == style
-##    def HasExStyle(self, exstyle):
-##        return self['ExStyle'] & exstyle == exstyle
-##
-##
-##
-##
-##window_cache = []
-##def filename_from_criteria(criteria):
-##    filename_parts = []
-##    for criterion in sorted(criteria.keys()):
-##        filename_parts.append("%s=%s"% (criterion, criteria[criterion]))
-##
-##    filename = _make_valid_filename(".".join(filename_parts))
-##
-##    return filename
-##
-##def ReadAppData(criteria_):
-##    if not _READ_APP_DATA:
-##        return None
-##
-##    criteria = criteria_[0].copy()
-##    if criteria.has_key('process'):
-##        criteria['process'] = 0
-##    if criteria.has_key('parent'):
-##        criteria['parent'] = 0
-##
-##    filename = filename_from_criteria(criteria)
-##
-##    #print "-----", filename
-##    filepath = os.path.join(_APP_DATA_FOLDER, filename)
-##    if os.path.exists(filepath):
-##        props = XMLHelpers.ReadPropertiesFromFile(filepath)
-##        controls = []
-##        for ctrl_dict in props:
-##            controls.append(CtrlProps(ctrl_dict))
-##
-##        return controls
-##
-##    else:
-##        return None
-##
-##
-##
-##def WriteAppDataForDialog(criteria_, dialog):
-##    criteria = criteria_[0].copy()
-##    if criteria.has_key('process'):
-##        criteria['process'] = 0
-##    if criteria.has_key('parent'):
-##        criteria['parent'] = 0
-##
-##    if criteria not in  window_cache and _WRITE_APP_DATA:
-##        filename = filename_from_criteria(criteria)
-##        ctrls = [dialog]
-##        ctrls.extend(dialog.Children())
-##        props = [ctrl_.GetProperties() for ctrl_ in ctrls]
-##
-##        try:
-##            os.makedirs(_APP_DATA_FOLDER)
-##        except:
-##            pass
-##        XMLHelpers.WriteDialogToFile(
-##            os.path.join(_APP_DATA_FOLDER, filename), props)
-##
-##        window_cache.append(criteria)
-##
 
 
 def set_timing(
@@ -244,15 +151,6 @@ def set_timing(
     controls.HwndWrapper.delay_before_after_close_click = after_close
 
 
-#=========================================================================
-def _make_valid_filename(filename):
-    r"""Return a valid file name for the string passed in.
-
-    Replaces any character in ``:\/*?"<>|`` with ``'#%d#'% ord(char)``"""
-    for char in ('#\/:*?"<>|'):
-        filename = filename.replace(char, '#%d#'% ord(char))
-    return filename
-
 
 #=========================================================================
 class WindowSpecification(object):
@@ -285,119 +183,6 @@ class WindowSpecification(object):
         "The criteria leading up to this is: " + str(self.criteria)
 
         raise AttributeError(message)
-
-
-    def Exists(self, timeout = exists_timeout):
-        "Check if the window exists"
-
-        # modify the criteria as Exists should look for all
-        # windows - including not visible and disabled
-        exists_criteria = []
-        for criterion in self.criteria[:]:
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
-            exists_criteria.append(criterion)
-
-        try:
-            _resolve_control(
-                exists_criteria, exists_timeout, exists_retry_interval)
-
-            return True
-        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-            return False
-
-
-
-    def WaitReady(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
-        "Wait for the control to be ready (Exists, Visible and Enabled)"
-
-        # modify the criteria as Exists should look for all
-        # windows - including not visible and disabled
-        ready_criteria = []
-        for criterion in self.criteria[:]:
-            criterion['enabled_only'] = True
-            criterion['visible_only'] = True
-            ready_criteria.append(criterion)
-
-        ctrl = _resolve_control(
-            ready_criteria,
-            timeout,
-            wait_interval)
-
-        return ctrl
-
-#    def WaitEnabled(self):
-#
-#        ctrl = _resolve_control(
-#            self.criteria,
-#            timeout,
-#            wait_interval)
-#
-#    def WaitVisible(self):
-#        pass
-#    def WaitNotExists(self):
-#        pass
-    def WaitNotEnabled(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
-        "Wait for the control to be disabled or not exist"
-
-        waited = 0
-        while True:
-
-            try:
-                # stop trying if it is not enabled
-                if not _resolve_control(self.criteria).IsEnabled():
-                    break
-
-            # stop trying if the window doesn't exist
-            except (
-                findwindows.WindowNotFoundError, findbestmatch.MatchError), e:
-                break
-
-            # stop trying if we have reached the timeout
-            if waited >= timeout:
-                break
-
-            # other wise wait the interval, and try again
-            time.sleep(wait_interval)
-            waited += wait_interval
-
-
-    def WaitNotVisible(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
-        "Wait for the control to be invisible or not exist"
-
-        # modify the criteria as Exists should look for all
-        # windows - including not visible and disabled
-        notvisible_criteria = []
-        for criterion in self.criteria[:]:
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
-            notvisible_criteria.append(criterion)
-
-        waited = 0
-        while True:
-
-            try:
-                # stop trying if it is not enabled
-                if not _resolve_control(notvisible_criteria).IsVisible():
-                    break
-
-            # stop trying if the window doesn't exist
-            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-                break
-
-            # stop trying if we have reached the timeout
-            if waited >= timeout:
-                break
-
-            # other wise wait the interval, and try again
-            time.sleep(wait_interval)
-            waited += wait_interval
 
     def ctrl_(self):
         "Allow the calling code to get the HwndWrapper object"
@@ -496,6 +281,120 @@ class WindowSpecification(object):
         # deal with it
         return self[attr]
 
+
+
+    def Exists(self, timeout = exists_timeout):
+        "Check if the window exists"
+
+        # modify the criteria as Exists should look for all
+        # windows - including not visible and disabled
+        exists_criteria = []
+        for criterion in self.criteria[:]:
+            criterion['enabled_only'] = False
+            criterion['visible_only'] = False
+            exists_criteria.append(criterion)
+
+        try:
+            _resolve_control(
+                exists_criteria, timeout, exists_retry_interval)
+
+            return True
+        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+            return False
+
+
+
+    def WaitReady(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be ready (Exists, Visible and Enabled)"
+
+        # modify the criteria as Exists should look for all
+        # windows - including not visible and disabled
+        ready_criteria = []
+        for criterion in self.criteria[:]:
+            criterion['enabled_only'] = True
+            criterion['visible_only'] = True
+            ready_criteria.append(criterion)
+
+        ctrl = _resolve_control(
+            ready_criteria,
+            timeout,
+            wait_interval)
+
+        return ctrl
+
+#    def WaitEnabled(self):
+#
+#        ctrl = _resolve_control(
+#            self.criteria,
+#            timeout,
+#            wait_interval)
+#
+#    def WaitVisible(self):
+#        pass
+#    def WaitNotExists(self):
+#        pass
+    def WaitNotEnabled(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be disabled or not exist"
+
+        waited = 0
+        while True:
+
+            try:
+                # stop trying if it is not enabled
+                if not _resolve_control(self.criteria).IsEnabled():
+                    break
+
+            # stop trying if the window doesn't exist
+            except (
+                findwindows.WindowNotFoundError, findbestmatch.MatchError):
+                break
+
+            # stop trying if we have reached the timeout
+            if waited >= timeout:
+                break
+
+            # other wise wait the interval, and try again
+            time.sleep(wait_interval)
+            waited += wait_interval
+
+
+    def WaitNotVisible(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be invisible or not exist"
+
+        # modify the criteria as Exists should look for all
+        # windows - including not visible and disabled
+        notvisible_criteria = []
+        for criterion in self.criteria[:]:
+            criterion['enabled_only'] = False
+            criterion['visible_only'] = False
+            notvisible_criteria.append(criterion)
+
+        waited = 0
+        while True:
+
+            try:
+                # stop trying if it is not enabled
+                if not _resolve_control(notvisible_criteria).IsVisible():
+                    break
+
+            # stop trying if the window doesn't exist
+            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+                break
+
+            # stop trying if we have reached the timeout
+            if waited >= timeout:
+                break
+
+            # other wise wait the interval, and try again
+            time.sleep(wait_interval)
+            waited += wait_interval
+
     def print_control_identifiers(self):
         """Prints the 'identifiers'
 
@@ -518,24 +417,35 @@ class WindowSpecification(object):
             window_retry_interval)
 
         if ctrl.IsDialog():
-            ctrls = ctrl.Children()
-            visible_text_ctrls = [ctrl for ctrl in ctrls
-                if ctrl.IsVisible() and ctrl.WindowText()]
+            ctrls_to_print = ctrl.Children()
+            dialog_controls = ctrl.Children()
         else:
-            visible_text_ctrls = [ctrl for ctrl in ctrl.Parent().Children()
-                if ctrl.IsVisible() and ctrl.WindowText()]
-            ctrls = [ctrl]
+            dialog_controls = ctrl.TopLevelParent().Children()
+            ctrls_to_print = [ctrl]
 
-        for ctrl in ctrls:
+        # filter out hidden controls
+        ctrls_to_print = [ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
+        for ctrl in ctrls_to_print:
             print "%s - %s   %s"% (
                 ctrl.Class(), ctrl.WindowText(), str(ctrl.Rectangle()))
 
             print "\t",
             for text in findbestmatch.get_control_names(
-                ctrl, visible_text_ctrls):
+                ctrl, dialog_controls):
 
                 print "'%s'" % text.encode("unicode_escape"),
             print
+
+
+
+
+
+
+
+
+
+
+
 
 
 def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
@@ -548,7 +458,10 @@ def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
     :wait_interval: - how long to wait between each retry (default .2)
     """
 
+
     criteria = [crit.copy() for crit in criteria_]
+
+
 #
 ##    app_data = ReadAppData(criteria)
 ##
@@ -623,8 +536,7 @@ def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
             else:
                 raise
 
-##    if not _READ_APP_DATA:
-##        WriteAppDataForDialog(criteria, dialog)
+    #appdata.WriteAppDataForDialog(criteria, dialog)
 
     return ctrl
 
@@ -679,7 +591,9 @@ class Application(object):
 
         # if it failed for some reason
         if not ret:
-            raise AppStartError("CreateProcess: " + str(ctypes.WinError()))
+            message = 'Could not create the process "%s"\n'\
+                'Error returned by CreateProcess: ' + str(ctypes.WinError())
+            raise AppStartError(message)
 
         self.process = proc_info.dwProcessId
 
@@ -691,7 +605,7 @@ class Application(object):
                 #raise AppStartError(
                 #    "WaitForInputIdle: " + str(ctypes.WinError()))
 
-            if self.app_windows_():
+            if self.windows_():
                 break
 
             time.sleep(.5)
@@ -705,17 +619,26 @@ class Application(object):
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
+            AssertValidProcess(self.process)
             connected = True
 
         elif 'handle' in kwargs:
+
+            if not handleprops.iswindow(kwargs['handle']):
+                message = "Invalid handle 0x%x passed to connect_()"% (
+                    kwargs['handle'])
+                raise RuntimeError(message)
+
+
             self.process = handleprops.processid(kwargs['handle'])
+
             connected = True
 
         elif 'path' in kwargs:
             self.process = process_from_module(kwargs['path'])
             connected = True
 
-        else:
+        elif kwargs:
             handle = findwindows.find_window(**kwargs)
             self.process = handleprops.processid(handle)
             connected = True
@@ -789,12 +712,24 @@ class Application(object):
         return self[key]
 
 
-#=========================================================================
-def process_module(process_id):
-    "Return the string module name of this process"
+def AssertValidProcess(process_id):
+    "Raise ProcessNotFound error if process_id is not a valid process id"
     # Set instance variable _module if not already set
     process_handle = win32functions.OpenProcess(
         0x400 | 0x010, 0, process_id) # read and query info
+
+    if not process_handle:
+        message = "Process with ID '%d' could not be opened" % process_id
+        raise ProcessNotFoundError(message)
+
+    return process_handle
+
+
+
+#=========================================================================
+def process_module(process_id):
+    "Return the string module name of this process"
+    process_handle = AssertValidProcess(process_id)
 
     # get module name from process handle
     filename = (ctypes.c_wchar * 2000)()
@@ -820,10 +755,14 @@ def process_from_module(module):
 
     # check if any of the running process has this module
     for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
+        try:
+            p_module = process_module(processes[i]).lower()
+            if module.lower() in p_module:
+                return processes[i]
+        except ProcessNotFoundError:
+            pass
 
-        if module.lower() in process_module(processes[i]).lower():
-            processes[i]
-
-    raise ProcessNotFoundError("No running process - '%s' found"% module)
+    message = "Could not find any process with a module of '%s'" % module
+    raise ProcessNotFoundError(message)
 
 
