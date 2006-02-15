@@ -278,6 +278,24 @@ class HwndWrapper(object):
             return None
 
     #-----------------------------------------------------------
+    def TopLevelParent(self):
+        "Return the top level window that is the parent of this control"
+        if self.IsDialog():
+            return self
+
+        parent = self.Parent()
+
+        if not parent:
+            return self
+
+        if not parent.IsDialog():
+            return parent.TopLevelParent()
+        else:
+            return parent
+
+
+
+    #-----------------------------------------------------------
     def Texts(self):
         "Return the text for each item of this control"
         texts = [self.WindowText(), ]
@@ -309,7 +327,7 @@ class HwndWrapper(object):
 
         # Call the IsChild API funciton and convert the result
         # to True/False
-        return win32functions.IsChild(self.handle, parent) != 0
+        return win32functions.IsChild(parent, self.handle) != 0
 
     #-----------------------------------------------------------
     def SendMessage(self, message, wparam = 0 , lparam = 0):
@@ -350,8 +368,19 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def NotifyMenuSelect(self, menu_id):
         "Notify the dialog that one of it's menu items was selected"
+
+
+        msg = win32defines.WM_COMMAND
+        #if win32defines.WM_APP < win32functions.LoWord(menu_id) < 0xBFFF:
+        #    menu_id = win32functions.LoWord(menu_id)
+        #    print "WM_APP", hex(menu_id)
+        #
+        #    msg = menu_id #win32defines.WM_APP
+        #    menu_id = 0
+
+
         return self.SendMessageTimeout(
-            win32defines.WM_COMMAND,
+            msg,
             win32functions.MakeLong(0, menu_id),
             0)
 
@@ -463,6 +492,15 @@ class HwndWrapper(object):
         _perform_click(self, button, pressed, coords, double)
         return self
 
+
+    #-----------------------------------------------------------
+    def ClickInput(
+        self, button = "left", coords = (None, None), double = False ):
+        "Click at the specified coordinates"
+        _perform_click_input(self, button, coords, double)
+
+
+
     #-----------------------------------------------------------
     def CloseClick(
         self, button = "left", pressed = "", coords = (0, 0), double = False):
@@ -495,13 +533,25 @@ class HwndWrapper(object):
         return self
 
     #-----------------------------------------------------------
+    def DoubleClickInput(self, button = "left", coords = (None, None)):
+        "Double click at the specified coordinates"
+        _perform_click_input(self, button, coords, double = True)
+
+
+    #-----------------------------------------------------------
     def RightClick(
         self, pressed = "", coords = (0, 0)):
         "Perform a right click action"
 
-        _perform_click(self, "right", "right " + pressed, coords, button_up = False)
+        _perform_click(
+            self, "right", "right " + pressed, coords, button_up = False)
         _perform_click(self, "right", pressed, coords, button_down = False)
         return self
+
+    #-----------------------------------------------------------
+    def RightClickInput(self, coords = (None, None)):
+        "Right click at the specified coords"
+        _perform_click_input(self, 'right', coords)
 
 
     #-----------------------------------------------------------
@@ -513,11 +563,22 @@ class HwndWrapper(object):
         return self
 
     #-----------------------------------------------------------
+    def PressMouseInput(self, button = "left", coords = (None, None)):
+        "Press a mouse button using SendInput"
+        _perform_click_input(self, button, coords, up = False)
+
+
+    #-----------------------------------------------------------
     def ReleaseMouse(self, button = "left", pressed = "", coords = (0, 0)):
         "Release the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
         _perform_click(self, button, pressed, coords, button_down = False)
         return self
+
+    #-----------------------------------------------------------
+    def ReleaseMouseInput(self, button = "left", coords = (None, None)):
+        "Release the mouse button"
+        _perform_click_input(self, button, coords, down = False)
 
     #-----------------------------------------------------------
     def MoveMouse(self, pressed = "left", coords = (0, 0)):
@@ -682,6 +743,30 @@ class HwndWrapper(object):
         win32functions.DeleteDC(dc)
 
 
+    def PopupWindow(self):
+        """Return any owned Popups
+
+        Please do not use in production code yet - not tested fully
+        """
+        popup = win32functions.GetWindow(self, win32defines.GW_HWNDNEXT)
+
+        return popup
+
+
+    def Owner(self):
+        """Return the owner handle for the window if it exists
+
+        Returns None if no owner handle"""
+        owner = win32functions.GetWindow(self, win32defines.GW_OWNER)
+        if owner:
+            return WrapHandle(owner)
+        else:
+            return None
+
+    #-----------------------------------------------------------
+    def ContextMenuSelect(self, path, x = None, y = None):
+        "TODO Not Implemented"
+        pass
 
     #-----------------------------------------------------------
     def MenuSelect(self, path, items = None):
@@ -718,6 +803,7 @@ class HwndWrapper(object):
 
             #self.PostMessage(WM_MENURBUTTONUP, win32functions.GetMenu(self))
             #self.PostMessage(WM_COMMAND, 0, item['ID'])
+
             self.NotifyMenuSelect(item['ID'])
 
             win32functions.WaitGuiThreadIdle(self)
@@ -742,6 +828,14 @@ class HwndWrapper(object):
         # if no X is specified - so use current coordinate
         if x is None:
             x = cur_rect.left
+        else:
+            try:
+                y = x.top
+                width = x.width()
+                height = x.height()
+                x = x.left
+            except AttributeError:
+                pass
 
         # if no Y is specified - so use current coordinate
         if y is None:
@@ -767,24 +861,95 @@ class HwndWrapper(object):
     #    self.SendMessage(win32defines.WM_CLOSE)
 
 
-    # TODO - implement fully and test
+    #-----------------------------------------------------------
     def GetFocus(self):
-        "Return the control that has the Focus"
-        win32functions.GetFocus(self)
+        "Return the control in the windows process that has the Focus"
 
+        gui_info = win32structures.GUITHREADINFO()
+        gui_info.cbSize = ctypes.sizeof(gui_info)
+        ret = win32functions.GetGUIThreadInfo(
+            win32functions.GetWindowThreadProcessId(self, 0),
+            ctypes.byref(gui_info))
 
-    # TODO - implement fully and test
+        if not ret:
+            return None
+
+        return WrapHandle(gui_info.hwndFocus)
+
+    #-----------------------------------------------------------
     def SetFocus(self):
         "Set the focus to this control"
-        # make sure that the control is in the foreground
+
+        # set the focus
         win32functions.SetForegroundWindow(self)
 
+        # make sure that we are idle before returning
+        win32functions.WaitGuiThreadIdle(self)
 
-        win32functions.SetFocus(self)
+        return self
+
+#====================================================================
+def _perform_click_input(
+    ctrl,
+    button = "left",
+    coords = (None, None),
+    double = False,
+    button_down = True,
+    button_up = True):
+    "Peform a click action using SendInput"
+
+    events = []
+    if button.lower() == 'left':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_LEFTDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_LEFTUP)
+    elif button.lower() == 'right':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_RIGHTDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_RIGHTUP)
+    elif button.lower() == 'middle':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_MIDDLEDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_MIDDLEUP)
+    elif button.lower() == 'x':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_XDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_XUP)
+
+
+    # if we were asked to double click (and we are doing a full click
+    # not just up or down.
+    if double and button_down and button_up:
+        events *= 2
+
+    # set the default coordinates
+    if coords[0] is None:
+        coords[0] = ctrl.Rectangle().left
+    if coords[1] is None:
+        coords[1] = ctrl.Rectangle().top
+
+    # set the cursor position
+    win32functions.SetCursorPos(coords[0], coords[1])
+    time.sleep(.1)
+
+    inp_struct = win32structures.INPUT()
+    inp_struct.type = win32defines.INPUT_MOUSE
+    for event in events:
+        inp_struct._.mi.dwFlags = event
+        win32functions.SendInput(
+            1,
+            ctypes.pointer(inp_struct),
+            ctypes.sizeof(inp_struct))
+
+        time.sleep(.1)
+
 
 
 #====================================================================
-# TODO: Test simulating mouse clicks using SendInput instead of WM_* messages
 def _perform_click(
         ctrl,
         button = "left",
