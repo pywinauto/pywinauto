@@ -31,8 +31,11 @@ import HwndWrapper
 from pywinauto import win32functions
 from pywinauto import win32defines
 from pywinauto import win32structures
+from pywinauto import findbestmatch
 
 from pywinauto import tests
+
+delay_after_menuselect = 0#0.05
 
 #====================================================================
 class ButtonWrapper(HwndWrapper.HwndWrapper):
@@ -285,12 +288,12 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
     #TODO def EditControl(self):
     #
-    #
     #TODO def ListControl(self):
 
     #TODO def ItemText(self, index):
 
-    #TODO def
+    #TODO def EditText(self):  # or should this be self.EditControl.Text()?
+
 
 #====================================================================
 class ListBoxWrapper(HwndWrapper.HwndWrapper):
@@ -501,8 +504,14 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         return (start.value, end.value)
 
-    def SetWindowText(self):
-        HwndWrapper.HwndWrapper.SetWindowText(self)
+    #-----------------------------------------------------------
+    def SetWindowText(self, text, append = False):
+        """Override SetWindowText for edit controls because it should not be
+        used for Edit controls.
+
+        Edit Controls should either use SetEditText() or TypeKeys() to modify
+        the contents of the edit control."""
+        HwndWrapper.HwndWrapper.SetWindowText(self, text, append)
         raise UserWarning(
             "SetWindowText() should probably not be called for Edit Controls")
 
@@ -586,8 +595,6 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
             self._NeedsImageProp = True
 
 
-
-
 #====================================================================
 # the main reason for this is just to make sure that
 # a Dialog is a known class - and we don't need to take
@@ -599,6 +606,12 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     #windowclasses = ["#32770", ]
 
     def __init__(self, hwnd):
+        """Initialize the DialogWrapper
+
+        The only extra functionality here is to modify self.friendlyclassname
+        to make it "Dialog" if the class is "#32770" otherwise to leave it
+        the same as the window class.
+        """
         HwndWrapper.HwndWrapper.__init__(self, hwnd)
 
         if self.Class() == "#32770":
@@ -625,6 +638,16 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
         from pywinauto import XMLHelpers
         XMLHelpers.WriteDialogToFile(filename, props)
+
+    #-----------------------------------------------------------
+    def ClientAreaRect(self):
+        """Return the client area rectangle
+
+        TODO explain how this is different from ClientRect"""
+        rect = win32structures.RECT(self.Rectangle())
+        self.SendMessage(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
+        return rect
+
 
 #    #-----------------------------------------------------------
 #    def AddReference(self, reference):
@@ -655,11 +678,33 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
     windowclasses = ["#32768", ]
 
     def IsDialog(self):
+        "Return whether it is a dialgo"
         return True
 
 
-    def MenuItems(self):
+    def MenuInfo(self):
+        "Get info"
+        menu = self.MenuHandle()
 
+        info = win32structures.MENUINFO()
+
+        info.cbSize = ctypes.sizeof(info)
+        info.fMask = win32defines.MIM_STYLE
+        print "sdfdsf", win32functions.GetMenuInfo(menu, ctypes.byref(info))
+
+        print self.Parent()
+        print self.Owner()
+        print info
+        print info.dwStyle & win32defines.MNS_NOTIFYBYPOS
+
+        item_rect = win32structures.RECT()
+        for i in range(0, 10):
+            win32functions.GetMenuItemRect(
+                self, menu, i, ctypes.byref(item_rect))
+            print i, item_rect
+
+    def MenuHandle(self):
+        "Get the popup menu handle"
         mbi = win32structures.MENUBARINFO()
         mbi.cbSize = ctypes.sizeof(mbi)
         ret = win32functions.GetMenuBarInfo(
@@ -668,9 +713,62 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
             0,
             ctypes.byref(mbi))
 
-        if ret:
-           self.SendMessage(win32defines.WM_INITMENU, mbi.hMenu)
-           return HwndWrapper._GetMenuItems(mbi.hMenu, self)
+        return mbi.hMenu
+
+    def MenuItems(self):
+        "return the menu items from teh popup"
+        menu_handle = self.MenuHandle()
+
+        self.SendMessage(win32defines.WM_INITMENU, menu_handle)
+        return HwndWrapper._GetMenuItems(menu_handle, self)
+
+    def MenuSelect(self, path, ctrl, items=None):
+        "Select a popup menu item"
+        # if the menu items haven't been passed in then
+        # get them from the window
+        if not items:
+            items = self.MenuItems()
+
+
+
+        # get the text names from the menu items
+        item_texts = [item['Text'] for item in items]
+
+        # get the first part (and remainder)
+        parts = path.split("->", 1)
+        current_part = parts[0]
+
+        # find the item that best matches the current part
+        item = findbestmatch.find_best_match(current_part, item_texts, items)
+
+        time.sleep(.5)
+        # if there are more parts - then get the next level
+        if parts[1:]:
+            win32functions.HiliteMenuItem(
+                self,
+                self.MenuHandle(),
+                item['ID'],
+                win32defines.MF_HILITE | win32defines.MF_BYCOMMAND)
+            time.sleep(.5)
+            self.MenuSelect(
+                "->".join(parts[1:]), ctrl, items = item['MenuItems'])
+        else:
+
+            # unfortunately this is not always reliable :-(
+            if \
+                item['State'] & win32defines.MF_DISABLED or \
+                item['State'] & win32defines.MF_GRAYED:
+
+                raise RuntimeError("MenuItem '%s' is disabled"% path)
+
+            #self.PostMessage(WM_MENURBUTTONUP, win32functions.GetMenu(self))
+            #self.PostMessage(WM_COMMAND, 0, item['ID'])
+
+            ctrl.NotifyMenuSelect(item['ID'])
+
+            win32functions.WaitGuiThreadIdle(self)
+
+        time.sleep(delay_after_menuselect)
 
 
 
