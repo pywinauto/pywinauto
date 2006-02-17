@@ -26,6 +26,8 @@ import re
 import difflib
 
 
+find_best_control_match_cutoff = .6
+
 #====================================================================
 class MatchError(IndexError):
     "A suitable match could not be found"
@@ -76,14 +78,14 @@ def _get_match_ratios(texts, match_against):
 #====================================================================
 def find_best_match(search_text, item_texts, items):
     "Return the item that best matches the search_text"
-    search_text = _clean_text(search_text)
+    search_text = _cut_at_tab(search_text)
 
 
     text_item_map = UniqueDict()
     # Clean each item, make it unique and map to
     # to the item index
     for text, item in zip(item_texts, items):
-        text_item_map[_clean_text(text)] = item
+        text_item_map[_cut_at_tab(text)] = item
 
     ratios, best_ratio, best_text = \
         _get_match_ratios(text_item_map.keys(), search_text)
@@ -101,20 +103,17 @@ def find_best_match(search_text, item_texts, items):
 _after_tab = re.compile(ur"\t.*", re.UNICODE)
 _non_word_chars = re.compile(ur"\W", re.UNICODE)
 
-def _clean_text(text):
-    "Clean out not characters from the string and return it"
+def _cut_at_tab(text):
+    "Clean out non characters from the string and return it"
 
-    # not sure we really need this function - we are returning the
-    # best match we can - if the match is below .5 then it's not
-    # considered good enough
-    #return text.replace("&", "")
-    #return text
     # remove anything after the first tab
-    text_before_tab = _after_tab.sub("", text)
-    return text_before_tab
+    return  _after_tab.sub("", text)
+
+def _clean_non_chars(text):
+    # should this also remove everything after the first tab?
 
     # remove non alphanumeric characters
-    return _non_word_chars.sub("", text_before_tab)
+    return _non_word_chars.sub("", text)
 
 
 def IsAboveOrToLeft(ref_control, other_ctrl):
@@ -148,18 +147,18 @@ def GetNonTextControlName(ctrl, controls):
         prev_ctrl = controls[ctrl_index-1]
 
         if prev_ctrl.FriendlyClassName() == "Static" and \
-            prev_ctrl.IsVisible() and _clean_text(prev_ctrl.WindowText()) and \
+            prev_ctrl.IsVisible() and prev_ctrl.WindowText() and \
             IsAboveOrToLeft(ctrl, prev_ctrl):
 
             names.append(
-                _clean_text(prev_ctrl.WindowText()) +
+                prev_ctrl.WindowText() +
                     ctrl.FriendlyClassName())
 
 
     # get the visible text controls so that we can get
     # the closest text if the control has no text
     text_ctrls = [ctrl_ for ctrl_ in controls
-        if ctrl_.IsVisible() and _clean_text(ctrl_.WindowText())]
+        if ctrl_.IsVisible() and ctrl_.WindowText()]
 
 
     best_name = ''
@@ -205,8 +204,7 @@ def GetNonTextControlName(ctrl, controls):
         # if this distance was closer then the last one
         if distance < closest:
             closest = distance
-            best_name = _clean_text(
-                text_ctrl.WindowText()) + ctrl.FriendlyClassName()
+            best_name = text_ctrl.WindowText() + ctrl.FriendlyClassName()
 
     names.append(best_name)
 
@@ -227,7 +225,7 @@ def get_control_names(control, allcontrols):
 
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
-    cleaned = _clean_text(control.WindowText())
+    cleaned = control.WindowText()
     if cleaned:
         names.append(cleaned)
         names.append(cleaned + control.FriendlyClassName())
@@ -277,33 +275,66 @@ class UniqueDict(dict):
         dict.__setitem__(self, text, item)
 
 
-    def FindBestMatches(self, search_text):
-        "Return the best matches"
+    def FindBestMatches(
+        self,
+        search_text,
+        clean = False,
+        ignore_case = False):
+
+        """Return the best matches for search_text in the items
+
+        :search_text_: the text to look for
+        :clean: whether to clean non text characters out of the strings
+        :ignore_case: compare strings case insensitively
+        """
+
         # now time to figure out the matching
         ratio_calc = difflib.SequenceMatcher()
-        ratio_calc.set_seq1(search_text)
 
+        if ignore_case:
+            search_text = search_text.lower()
+
+        ratio_calc.set_seq1(search_text)
 
         ratios = {}
         best_ratio = 0
         best_texts = []
 
-        for text in self:
+        for text_ in self:
+
+            # make a copy of the text as we need the original later
+            text = text_
+
+            if clean:
+                text = _clean_non_chars(text)
+
+            if ignore_case:
+                text = text.lower()
+
             # set up the SequenceMatcher with other text
             ratio_calc.set_seq2(text)
 
             # calculate ratio and store it
-            ratios[text] = ratio_calc.ratio()
+            ratios[text_] = ratio_calc.ratio()
 
             # if this is the best so far then update best stats
-            if ratios[text] > best_ratio:
-                best_ratio = ratios[text]
-                best_texts = [text]
+            if ratios[text_] > best_ratio:
+                best_ratio = ratios[text_]
+                best_texts = [text_]
 
-            elif ratios[text] == best_ratio:
-                best_texts.append(text)
+            elif ratios[text_] == best_ratio:
+                best_texts.append(text_)
+
+        if clean:
+            best_ratio *= .9
+
+        if ignore_case:
+            best_ratio *= .9
 
         return best_ratio, best_texts
+
+
+
 
 
 #====================================================================
@@ -332,14 +363,33 @@ def find_best_control_matches(search_text, controls):
         for name in ctrl_names:
             name_control_map[name] = ctrl
 
+
     best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
 
-    #if len(best_texts)
+    best_ratio_ci, best_texts_ci = \
+        name_control_map.FindBestMatches(search_text, ignore_case = True)
 
-    #match_ratios, best_ratio, best_text = \
-    #    _get_match_ratios(name_control_map.keys(), search_text)
+    best_ratio_clean, best_texts_clean = \
+        name_control_map.FindBestMatches(search_text, clean = True)
 
-    if best_ratio < .5:
+    best_ratio_clean_ci, best_texts_clean_ci = \
+        name_control_map.FindBestMatches(
+            search_text, clean = True, ignore_case = True)
+
+
+    if best_ratio_ci > best_ratio:
+        best_ratio = best_ratio_ci
+        best_texts = best_texts_ci
+
+    if best_ratio_clean > best_ratio:
+        best_ratio = best_ratio_clean
+        best_texts = best_texts_clean
+
+    if best_ratio_clean_ci > best_ratio:
+        best_ratio = best_ratio_clean_ci
+        best_texts = best_texts_clean_ci
+
+    if best_ratio < find_best_control_match_cutoff:
         raise MatchError(items = name_control_map.keys(), tofind = search_text)
 
     return [name_control_map[best_text] for best_text in best_texts]
