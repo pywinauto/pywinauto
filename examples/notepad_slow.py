@@ -24,7 +24,16 @@ __revision__ = "$Revision: 214 $"
 
 import time
 
-from pywinauto import application
+try:
+    from pywinauto import application
+except ImportError:
+    import os.path
+    pywinauto_path = os.path.abspath(__file__)
+    pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
+    import sys
+    sys.path.append(pywinauto_path)
+    from pywinauto import application
+
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
@@ -104,7 +113,6 @@ doc_props = app.window_(title_re = ".*Document Properties")
 # ----- Document Properties Dialog ----
 # some tab control selections
 # Two ways of selecting tabs with indices...
-#import pdb;pdb.set_trace()
 doc_props.TabCtrl.Select(0)
 doc_props.TabCtrl.Select(1)
 doc_props.TabCtrl.Select(2)
@@ -142,6 +150,24 @@ app.PageSetupDlg.Ok.CloseClick()
 app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
     "And then I am going to quit")
 
+app.Notepad.Edit.RightClick()
+app.Popup.MenuSelect("Right To Left Reading Order")
+
+#app.PopupMenu.MenuSelect("Paste", app.Notepad.ctrl_())
+#app.Notepad.Edit.RightClick()
+#app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
+#app.PopupMenu.MenuSelect("Show unicode control characters", app.Notepad.ctrl_())
+#time.sleep(1)
+#app.Notepad.Edit.RightClick()
+#app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
+#time.sleep(1)
+
+#app.Notepad.Edit.RightClick()
+#app.PopupMenu.MenuSelect("Insert Unicode control character -> IAFS", app.Notepad.ctrl_())
+#time.sleep(1)
+
+#app.Notepad.Edit.TypeKeys("{ESC}")
+
 # the following shows that Sendtext does not accept
 # accented characters - but does allow 'control' characters
 app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
@@ -149,8 +175,8 @@ app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
 
 # Try and save
 app.Notepad.MenuSelect("File->SaveAs")
-app.SaveAs.ComboBox5.Select("UTF-8")
-app.SaveAs.edit1.SetEditText("Example-utf8.txt")
+app.SaveAs.EncodingComboBox.Select("UTF-8")
+app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
 app.SaveAs.Save.CloseClick()
 
 # my machine has a weird problem - when connected to the network
@@ -176,5 +202,7 @@ except MatchError:
 # exit notepad
 app.Notepad.MenuSelect("File->Exit")
 
+if app.Notepad.No.Exists():
+    app.Notepad.No.Click()
 
 print "That took %.3f to run"% (time.time() - start)
