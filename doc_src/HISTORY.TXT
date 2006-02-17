@@ -1,17 +1,38 @@
-0.X.X Significant refactoring
+0.2.1 Small Release number - big changes
 ------------------------------------------------
-XX-Feb-2006
+17-Feb-2006
 
+    * Quick release to get many changes out there - but this release has 
+      been less tested then I would like for a .3 release.
+    
+    * Allow access to non text controls using the closest Text control.
+      This closest text control will normally be the static/label associated
+      with the control. For example in Notepad, Format->Font dialog, the 1st
+      combobox can be refered to as "FontComboBox" rather than "ComboBox1"
+      
+    * Added a new control wrapper - ``PopupMenuWrapper`` for context menu's
+      You can now work easily with context menu's
+      e.g. ::
+      
+         app.Notepad.Edit.RightClick()
+         # need to use MenuClick rather then MenuSelect
+         app.PopupMenu.MenuClick("Select All") 
+         app.Notepad.Edit.RightClick()
+         app.PopupMenu.MenuClick("Copy") 
+      
+      I could think of merging the ``RightClick()`` and ``MenuSelect()`` into one method 
+      ``ContextMenuSelect()`` if that makes sense to most people.
+    
+    * Added Support for Up-Down controls
+    
     * Not all top level windows now have a FriendlyClassName of "Dialog".
       I changed this because it made it hard to get windows of a particular
       class. For example the main Notepad window has a class name of "Notepad".
       
       This was primarily implemented due to work I did getting the System Tray.
       
-    * Added support for a new control PopupMenuWrapper for  context menu's
-    
-    * Renamed StatusBarWrapper.PartWidths() to PartRightEdges() as this is more
-      correct
+    * Renamed ``StatusBarWrapper.PartWidths()`` to ``PartRightEdges()`` as this 
+      is more correct for what it returns.
       
     * Changed HwndWrapper.Text() and SetText() to WindowText() and 
       SetWindowText() respectively to try and make it clearer that it is 
@@ -20,16 +41,46 @@ XX-Feb-2006
       be changed to SetEditText() (though this is not a hard requirement
       EditWrapper.SetText() still exists - but may be deprecated.
       
-    * Allow access to non text controls using the closest Text control.
-      This closest text control will normally be the static/label associated
-      with the control. For example in Notepad, Format->Font dialog, the 1st
-      combobox can be refered to as "FontComboBox" rather than "ComboBox1"
+    * Added ClickInput, DoubleClickInput, RightClickInput, PressMouseInput
+      ReleaseMouseInput to HwndWrapper - these use SendInput rather then
+      WM_LBUTTONDOWN, WM_RBUTTONUP, etc used by Click, DoubleClick etc.
       
-    * 
-    
-    * 
-    
-    * Added yet more unit tests - now a total of 80/84 tests.
+      I also added a MenuClick method that allows you to click on menu
+      items. This means you can now 'physically' drop menus down. 
+      
+    * Some further working with tooltips that need to be cleaned up.
+
+    * Fixed a bug where coordinates passed to any of the Click operations had
+      the X and Y coordinates swapped.
+
+    * Added new MenuItem and Menu classes that are to the most part hidden
+      but you can get a menu item by doing ::
+      
+        app.Notepad.MenuItem("View")
+	    app.Notepad.MenuItem("View->Status Bar")
+	 
+	  MenuItems have various actions so for example you can use 
+	  ``MenuItem.IsChecked()`` to check if the menu item is checked.
+	  Among other methods there are ``Click()`` and ``Enabled()``.
+
+    * Modified the 'best match' algorithm for finding controls. 
+      It now searches a couple of times, and tries to find the best
+      fit for the text passed to it. The idea here is to make it more
+      "Select what I want - not that other thing that looks a bit like
+      what I want!". It is possible this change could mean you need to 
+      use new identifiers in scripts - but in general very little modification
+      should be necessary.
+      
+      There was also a change to the algorithm that looked for the closest
+      text control. It missed some obvious controls in the previous
+      implementation. It also had a bug for controls above the control
+      rather than to the left.
+      
+    * Added a new example scripts SaveFromInternetExplorer.py and 
+      SaveFromFirefox.py which show automating downloading of a page
+      from either of these browsers.
+
+    * Added yet more unit tests, there are now a total of 134 tests.
 
 
 0.2.0 Significant refactoring

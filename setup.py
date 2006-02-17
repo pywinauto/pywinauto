@@ -25,9 +25,9 @@ from distutils.core import setup
 
 
 setup(name='pywinauto',
-	version='0.2.0',
+	version='0.2.1',
 	description='Python library for GUI automation and testing',
-	url="no url",
+    url="http://sourceforge.net/projects/pywinauto",
 	author='Mark Mc Mahon',
 	author_email='mark.m.mcmahon@gmail.com',
 

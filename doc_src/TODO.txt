@@ -3,6 +3,15 @@
 PYWINAUTO TODO's
 ============================================================================
 
+* Add tests for SendInput click methods
+
+* Finish example of saving a page from IE
+
+* Give example how to work with Tray Window
+
+* Fix ToolbarWrapper.PressButton() which doesn't seem to work (found wile working
+  on IE example script)
+
 * Maybe supply an option so that scripts can be run by using::
 
    pywinauto.exe yourscript.py
@@ -52,9 +61,6 @@ PYWINAUTO TODO's
   MF_DISABLED and MF_GRAYED should be used - but I found that these are not
   updated (at least for Media Player) until they are dropped down.
 
-* Need to modularize the methods of the common_controls because at the moment
-  they are much too monolithic.
-
 
 * Investigate using any of the following
 
@@ -67,9 +73,17 @@ PYWINAUTO TODO's
 
 * Make it easy to work with context(right click) menu's
 
+* Further support .NET controls and download/create a test .NET application
+
 * Look at supporting the Sytem Tray (e.g. right click on an icon)
 
-* Further support .NET controls and download/create a test .NET application
+* supply SystemTray class (singleton probably)
+
+* Look at clicking and text input - maybe use SendInput
+
+* Support Up-Down controls and other common controls
+
+* Find out whether control.item.action() or control.action(item) is better
 
 
 
@@ -119,7 +133,7 @@ PYWINAUTO TODO's
 
 
 ============================================================================
-HANDLED (in some way or the other)
+CLOSED (in some way or the other)
 ============================================================================
 * Allow delay after click to be removed. The main reason that this is needed
   at the moment is because if you close a dialog and then try an action on 
@@ -141,4 +155,7 @@ HANDLED (in some way or the other)
   the number of times the calling func tried to succeed!)
 
 * Add referencing by closest static (or surrounding group box?)
+
+* Need to modularize the methods of the common_controls because at the moment
+  they are much too monolithic.
 
