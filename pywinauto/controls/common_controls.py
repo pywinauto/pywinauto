@@ -87,11 +87,13 @@ class _RemoteMemoryBlock(object):
     def __del__(self):
         "Ensure that the memory is Freed"
         # Free the memory in the remote process's address space
-        ret = win32functions.VirtualFreeEx(
-            self.process, self.memAddress, 0, win32defines.MEM_RELEASE)
 
-        if not ret:
-            raise ctypes.WinError()
+        if self.process:
+            ret = win32functions.VirtualFreeEx(
+                self.process, self.memAddress, 0, win32defines.MEM_RELEASE)
+
+            if not ret:
+                raise ctypes.WinError()
 
     #----------------------------------------------------------------
     def Address(self):
@@ -1334,6 +1336,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         return ToolTipsWrapper(self.SendMessage(win32defines.TB_GETTOOLTIPS))
 
 
+
 #    def Right_Click(self, button_index, **kwargs):
 #        "Right click for Toolbar buttons"
 #
@@ -1407,12 +1410,12 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         button = self.GetButton(button_index)
 
-        print self.SendMessage(
+        self.SendMessage(
             win32defines.TB_PRESSBUTTON,
             button.idCommand,
             win32functions.MakeLong(1, 0))
 
-        print self.SendMessage(
+        self.SendMessage(
             win32defines.TB_PRESSBUTTON,
             button.idCommand,
             win32functions.MakeLong(0, 0))
@@ -1578,6 +1581,116 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         return texts
 
 
+
+class ToolTip(object):
+    def __init__(self, ctrl, tip_index):
+        self.ctrl = ctrl
+        self.index = tip_index
+
+        remote_mem = _RemoteMemoryBlock(self.ctrl)
+        tipinfo = win32structures.TOOLINFOW()
+        tipinfo.cbSize = ctypes.sizeof(tipinfo)
+        tipinfo.lpszText = remote_mem.Address() + \
+            ctypes.sizeof(tipinfo) +1
+
+        remote_mem.Write(tipinfo)
+
+        ret = self.ctrl.SendMessage(
+            win32defines.TTM_ENUMTOOLSW,
+            self.index,
+            remote_mem)
+
+        if not ret:
+            raise ctypes.WinError()
+
+        remote_mem.Read(tipinfo)
+
+        self.info = tipinfo
+        print self.info.lpszText
+
+        if win32functions.HiWord(self.info.lpszText) == 0 and self.info.hinst:
+            text = ctypes.create_unicode_buffer(2000)
+
+            ret =  win32functions.LoadString(
+                self.info.hinst,
+                self.info.uId,
+                #remote_mem.Address() + ctypes.sizeof(self.info),
+                ctypes.byref(text),
+                2000)
+
+            #if not ret:
+            #    print self.info
+            #    raise(ctypes.WinError())
+
+            #remote_mem.Read(text, self.info.lpszText)
+            if text.value:
+                print "xx"*40, `text.value`
+
+        #print self.info
+#        if tipinfo.lpszText in (win32defines.LPSTR_TEXTCALLBACKW, 0, -1):
+#            self.text = "**CALLBACK**"
+#
+#            nmttdi = win32structures.NMTTDISPINFOW()
+#
+#            #nmttdi.hdr.hwndFrom = self.ctrl.handle
+#            nmttdi.hdr.hwndFrom = self.info.hwnd
+#
+#            if self.info.uFlags & win32defines.TTF_IDISHWND:
+#                nmttdi.hdr.idFrom = self.info.hwnd
+#            else:
+#                nmttdi.hdr.idFrom = self.info.uId
+#            nmttdi.hdr.code = win32defines.TTN_NEEDTEXTW
+#
+#            nmttdi.lpszText = remote_mem.Address() + ctypes.sizeof(nmttdi)
+#            nmttdi.hinst = self.info.hinst
+#            nmttdi.uFlags = self.info.uFlags
+#
+#            remote_mem.Write(nmttdi)
+#
+#            #self.Parent().SendMessage(
+#            self.ctrl.Parent().SendMessage(
+#                win32defines.WM_NOTIFY,
+#                self.ctrl.ControlID(),
+#                remote_mem)
+#
+#            print "--", nmttdi
+#
+#            text = ctypes.create_unicode_buffer(2000)
+#            remote_mem.Read(text, nmttdi.lpszText)
+#            self.text = text.value
+
+
+
+        #else:
+
+        #if self.info.uFlags & win32defines.TTF_IDISHWND:
+        #    print "IDISHWND"
+
+        self.info.lpszText = remote_mem.Address() + \
+            ctypes.sizeof(self.info) +1
+
+        remote_mem.Write(self.info)
+
+        self.ctrl.SendMessage(
+            win32defines.TTM_GETTEXTW, 0, remote_mem)
+
+        text = ctypes.create_unicode_buffer(2000)
+
+        remote_mem.Read(text, self.info.lpszText)
+
+        self.text = text.value
+
+        if not self.text:
+            if self.info.uFlags & win32defines.TTF_IDISHWND:
+                print "IDISHWND"
+        print self.info
+
+
+        del remote_mem
+
+
+
+
 #====================================================================
 class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows ToolTips common control (not fully implemented)"
@@ -1595,6 +1708,11 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
 
     #----------------------------------------------------------------
+    def GetTip(self, tip_index):
+        return ToolTip(self, tip_index)
+
+
+    #----------------------------------------------------------------
     def ToolCount(self):
         "Return the number of tooltips"
         return self.SendMessage(win32defines.TTM_GETTOOLCOUNT)
@@ -1603,33 +1721,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetTipText(self, tip_index):
         "Return the text of the tooltip"
-        remote_mem = _RemoteMemoryBlock(self)
-        tipinfo = win32structures.TOOLINFOW()
-        tipinfo.cbSize = ctypes.sizeof(tipinfo)
 
-        ret = self.SendMessage(
-            win32defines.TTM_ENUMTOOLSW, tip_index, remote_mem)
-
-        if not ret:
-            raise ctypes.WinError()
-
-        remote_mem.Read(tipinfo)
-
-        print tipinfo
-
-        tipinfo.lpszText = remote_mem.Address() + \
-            ctypes.sizeof(tipinfo) +1
-
-        remote_mem.Write(tipinfo)
-
-        self.SendMessage(
-            win32defines.TTM_GETTEXTW, 0, remote_mem)
-
-        text = ctypes.create_unicode_buffer(200)
-
-        remote_mem.Read(text, tipinfo.lpszText)
-
-        return text.value
+        return ToolTip(self, tip_index).text
 
 
     def _PlayWithToolTipControls(self):
