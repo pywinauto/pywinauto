@@ -37,9 +37,12 @@ from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
 
-application.set_timing(2, .01, 10, .001, .001, 0, 0, 0, 0, 0)
+print "Trying fast timeing settings - it's  possible these won't work"
+print "if pywinauto tries to access a window that is not accessible yet"
+application.set_timing(2, .01, 10, .01, .05, 0, 0, .1, 0, 0)
 
 
+start = time.time()
 app = application.Application()
 
 ## for distribution we don't want to connect to anybodies application
@@ -54,10 +57,10 @@ app.Notepad.MenuSelect("File->PageSetup")
 
 # ----- Page Setup Dialog ----
 # Select the 4th combobox item
-app.PageSetupDlg.ComboBox1.Select(4)
+app.PageSetupDlg.SizeComboBox.Select(4)
 
 # Select the 'Letter' combobox item
-app.PageSetupDlg.ComboBox1.Select("Letter")
+app.PageSetupDlg.SizeComboBox.Select("Letter")
 
 # run some tests on the Dialog. List of available tests:
 #        "AllControls",
@@ -118,7 +121,6 @@ doc_props.TabCtrl.Select("PaperQuality")
 doc_props.TabCtrl.Select("JobRetention")
 doc_props.TabCtrl.Select("Layout")
 
-
 # do some radio button clicks
 doc_props.RotatedLandscape.Click()
 doc_props.BackToFront.Click()
@@ -148,8 +150,22 @@ app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
     "And then I am going to quit")
 
 app.Notepad.Edit.RightClick()
-time.sleep(3)
-app.Notepad.Edit.TypeKeys("{ESC}")
+app.Popup.MenuSelect("Right To Left Reading Order")
+
+#app.PopupMenu.MenuSelect("Paste", app.Notepad.ctrl_())
+#app.Notepad.Edit.RightClick()
+#app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
+#app.PopupMenu.MenuSelect("Show unicode control characters", app.Notepad.ctrl_())
+#time.sleep(1)
+#app.Notepad.Edit.RightClick()
+#app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
+#time.sleep(1)
+
+#app.Notepad.Edit.RightClick()
+#app.PopupMenu.MenuSelect("Insert Unicode control character -> IAFS", app.Notepad.ctrl_())
+#time.sleep(1)
+
+#app.Notepad.Edit.TypeKeys("{ESC}")
 
 # the following shows that Sendtext does not accept
 # accented characters - but does allow 'control' characters
@@ -158,8 +174,8 @@ app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
 
 # Try and save
 app.Notepad.MenuSelect("File->SaveAs")
-app.SaveAs.ComboBox5.Select("UTF-8")
-app.SaveAs.edit1.SetEditText("Example-utf8.txt")
+app.SaveAs.EncodingCombo.Select("UTF-8")
+app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
 app.SaveAs.Save.CloseClick()
 
 # my machine has a weird problem - when connected to the network
@@ -185,5 +201,7 @@ except MatchError:
 # exit notepad
 app.Notepad.MenuSelect("File->Exit")
 
-if app.Notepad.No.Exists(1):
+if app.Notepad.No.Exists():
     app.Notepad.No.Click()
+
+print "That took %.3f to run"% (time.time() - start)
