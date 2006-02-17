@@ -67,7 +67,7 @@ def GetInfo():
     app.Notepad.MenuSelect("File->PageSetup")
 
     print "==" * 20
-    print "Windows of this application:", app.app_windows_()
+    print "Windows of this application:", app.windows_()
 
     print "The list of identifiers for the Page Setup dialog in Notepad"
     print "==" * 20
