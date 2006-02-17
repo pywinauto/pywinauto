@@ -254,46 +254,6 @@ class HwndWrapperTests(unittest.TestCase):
 #        self.assertRaises()
 
 
-#    def testClick(self):
-#        pass
-#
-#    def testCloseClick(self):
-#        pass
-#
-#    def testDoubleClick(self):
-#        pass
-#
-#    def testRightClick(self):
-#        pass
-#
-#    def testPressMouse(self):
-#        pass
-#
-#    def testReleaseMouse(self):
-#        pass
-#
-#    def testMoveMouse(self):
-#        pass
-#
-#    def testDragMouse(self):
-#        pass
-#
-#    def testSetWindowText(self):
-#        pass
-#
-#    def testTypeKeys(self):
-#        pass
-#
-#    def testDebugMessage(self):
-#        pass
-#
-#    def testDrawOutline(self):
-#        pass
-#
-#    def testMenuSelect(self):
-#        pass
-#
-
     def testMoveWindow_same(self):
         "Test calling movewindow without any parameters"
         prevRect = self.dlg.Rectangle()
@@ -342,6 +302,93 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Hyp.handle)
         self.dlg.Hyp.SetFocus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Hyp.handle)
+
+
+
+
+class HwndWrapperMouseTests(unittest.TestCase):
+    "Unit tests for mouse actions of the HwndWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application()
+        self.app.start_("notepad.exe")
+
+        self.dlg = self.app.UntitledNotepad
+        self.ctrl = HwndWrapper(self.dlg.Edit.handle)
+        self.dlg.edit.SetEditText("Here is some text\r\n and some more")
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.TypeKeys("%{F4}")
+        if self.app.Notepad.No.Exists():
+            self.app.Notepad.No.Click()
+
+
+    #def testText(self):
+    #    "Test getting the window Text of the dialog"
+    #    self.assertEquals(self.dlg.WindowText(), "Untitled - Notepad")
+
+
+    def testClick(self):
+        self.ctrl.Click(coords = (50, 10))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (5,5))
+
+    def testClickInput(self):
+        self.ctrl.ClickInput(coords = (50, 10))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (5,5))
+
+
+#    def testCloseClick(self):
+#        self.dlg.Sta.Click()
+#        self.app.StatisticsBox.CloseClick()
+#
+#        self.assertEquals(self.app.StatisticsBox.Exists(), False)
+#
+    def testDoubleClick(self):
+        self.ctrl.DoubleClick(coords = (60, 30))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (24,29))
+
+    def testDoubleClickInput(self):
+        self.ctrl.DoubleClickInput(coords = (60, 30))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (24,29))
+
+
+#
+#    def testRightClick(self):
+#        pass
+#
+#    def testPressMouse(self):
+#        pass
+#
+#    def testReleaseMouse(self):
+#        pass
+#
+#    def testMoveMouse(self):
+#        pass
+#
+#    def testDragMouse(self):
+#        pass
+#
+#    def testSetWindowText(self):
+#        pass
+#
+#    def testTypeKeys(self):
+#        pass
+#
+#    def testDebugMessage(self):
+#        pass
+#
+#    def testDrawOutline(self):
+#        pass
+#
+#    def testMenuSelect(self):
+#        pass
+#
 
 
 
