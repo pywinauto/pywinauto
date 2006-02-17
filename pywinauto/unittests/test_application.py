@@ -30,6 +30,7 @@ import pprint
 import pdb
 
 from pywinauto.application import *
+from pywinauto import findwindows
 
 class ApplicationTestCases(unittest.TestCase):
     "Unit tests for the application.Application class"
@@ -116,7 +117,7 @@ class ApplicationTestCases(unittest.TestCase):
         app_conn = Application()
         try:
             app_conn.connect_(title = "Untitled - Notepad")
-        except WindowAmbiguousError:
+        except findwindows.WindowAmbiguousError:
             self.assertEqual("There was more then one Notepad window open", "")
             pass
         self.assertEqual(app1.process, app_conn.process)
