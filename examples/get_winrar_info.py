@@ -34,7 +34,7 @@ t = {
     'Buy Licence' : (
         "Acheter une licence pur winRAR",
         "Bittekaufensieeine",
-        "Zakuptesiprosm"),
+        "Zakuptesiprosmlicenci WinRARu"),
     'Close' : (
         "Fermer",
         "Schleissen",
