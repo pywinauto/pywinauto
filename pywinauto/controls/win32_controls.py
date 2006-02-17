@@ -280,8 +280,17 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         # change the selected item
         self.SendMessageTimeout(win32defines.CB_SETCURSEL, index)
 
+        # Notify the parent that we are finished selecting
+        self.NotifyParent(win32defines.CBN_SELENDOK)
+
         # Notify the parent that we have changed
         self.NotifyParent(win32defines.CBN_SELCHANGE)
+
+        # simple combo boxes don't have drop downs so they do not recieve
+        # this notification
+        if not self.HasStyle(win32defines.CBS_SIMPLE):
+            # Notify the parent that the drop down has closed
+            self.NotifyParent(win32defines.CBN_CLOSEUP)
 
         # return this control so that actions can be chained.
         return self
@@ -682,29 +691,7 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
         return True
 
 
-    def MenuInfo(self):
-        "Get info"
-        menu = self.MenuHandle()
-
-        info = win32structures.MENUINFO()
-
-        info.cbSize = ctypes.sizeof(info)
-        info.fMask = win32defines.MIM_STYLE
-        print "sdfdsf", win32functions.GetMenuInfo(menu, ctypes.byref(info))
-
-        print self.Parent()
-        print self.Owner()
-        print info
-        print info.dwStyle & win32defines.MNS_NOTIFYBYPOS
-
-        item_rect = win32structures.RECT()
-        for i in range(0, 10):
-            win32functions.GetMenuItemRect(
-                self, menu, i, ctypes.byref(item_rect))
-            print i, item_rect
-
-    def MenuHandle(self):
-        "Get the popup menu handle"
+    def _menu_handle(self):
         mbi = win32structures.MENUBARINFO()
         mbi.cbSize = ctypes.sizeof(mbi)
         ret = win32functions.GetMenuBarInfo(
@@ -715,60 +702,84 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
 
         return mbi.hMenu
 
-    def MenuItems(self):
-        "return the menu items from teh popup"
-        menu_handle = self.MenuHandle()
 
-        self.SendMessage(win32defines.WM_INITMENU, menu_handle)
-        return HwndWrapper._GetMenuItems(menu_handle, self)
-
-    def MenuSelect(self, path, ctrl, items=None):
-        "Select a popup menu item"
-        # if the menu items haven't been passed in then
-        # get them from the window
-        if not items:
-            items = self.MenuItems()
-
-
-
-        # get the text names from the menu items
-        item_texts = [item['Text'] for item in items]
-
-        # get the first part (and remainder)
-        parts = path.split("->", 1)
-        current_part = parts[0]
-
-        # find the item that best matches the current part
-        item = findbestmatch.find_best_match(current_part, item_texts, items)
-
-        time.sleep(.5)
-        # if there are more parts - then get the next level
-        if parts[1:]:
-            win32functions.HiliteMenuItem(
-                self,
-                self.MenuHandle(),
-                item['ID'],
-                win32defines.MF_HILITE | win32defines.MF_BYCOMMAND)
-            time.sleep(.5)
-            self.MenuSelect(
-                "->".join(parts[1:]), ctrl, items = item['MenuItems'])
-        else:
-
-            # unfortunately this is not always reliable :-(
-            if \
-                item['State'] & win32defines.MF_DISABLED or \
-                item['State'] & win32defines.MF_GRAYED:
-
-                raise RuntimeError("MenuItem '%s' is disabled"% path)
-
-            #self.PostMessage(WM_MENURBUTTONUP, win32functions.GetMenu(self))
-            #self.PostMessage(WM_COMMAND, 0, item['ID'])
-
-            ctrl.NotifyMenuSelect(item['ID'])
-
-            win32functions.WaitGuiThreadIdle(self)
-
-        time.sleep(delay_after_menuselect)
-
-
-
+#
+#    def MenuInfo(self):
+#        "Get info"
+#        menu = self.MenuHandle()
+#
+#        info = win32structures.MENUINFO()
+#
+#        info.cbSize = ctypes.sizeof(info)
+#        info.fMask = win32defines.MIM_STYLE
+#        #print "sdfdsf", win32functions.GetMenuInfo(menu, ctypes.byref(info))
+#
+#        #print self.Parent()
+#        #print self.Owner()
+#        #print info
+#        #print info.dwStyle & win32defines.MNS_NOTIFYBYPOS
+#
+#        item_rect = win32structures.RECT()
+#        for i in range(0, 10):
+#            win32functions.GetMenuItemRect(
+#                self, menu, i, ctypes.byref(item_rect))
+#            #print i, item_rect
+#
+#    def MenuHandle(self):
+#        "Get the popup menu handle"
+#        mbi = win32structures.MENUBARINFO()
+#        mbi.cbSize = ctypes.sizeof(mbi)
+#        ret = win32functions.GetMenuBarInfo(
+#            self,
+#            win32defines.OBJID_CLIENT,
+#            0,
+#            ctypes.byref(mbi))
+#
+#        return mbi.hMenu
+#
+#    def MenuItems(self):
+#        "return the menu items from teh popup"
+#        menu_handle = self.MenuHandle()
+#
+#        self.SendMessage(win32defines.WM_INITMENU, menu_handle)
+#        return HwndWrapper._GetMenuItems(menu_handle, self)
+#
+#
+#    #-----------------------------------------------------------
+#    def MenuSelect(self, path, menu = None):
+#        "Select the menuitem specifed in path"
+#
+#        if menu is None:
+#            menu = HwndWrapper.Menu(self, self.MenuHandle())
+#
+#
+#        # get the text names from the menu items
+#        items = menu.Items()
+#        item_texts = [item.Text() for item in items]
+#
+#        # get the first part (and remainder)
+#        parts = path.split("->", 1)
+#        current_part = parts[0]
+#
+#        # find the item that best matches the current part
+#        best_item = findbestmatch.find_best_match(
+#            current_part,
+#            item_texts,
+#            menu.Items())
+#
+#
+#        # if there are more parts - then get the next level
+#        if parts[1:]:
+#            # click the item to open it up
+#            best_item.Click()
+#            self.MenuSelect("->".join(parts[1:]), best_item.SubMenu())
+#
+#        else:
+#            # check that it is enabled
+#            if not best_item.IsEnabled():
+#                raise MenuItemNotEnabled("MenuItem '%s' is disabled"% path)
+#
+#            # click the item
+#            best_item.Click()
+#
+#        return self
