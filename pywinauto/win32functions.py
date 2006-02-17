@@ -53,6 +53,7 @@ GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
 
 SendInput           =   ctypes.windll.user32.SendInput
 SetCursorPos        =   ctypes.windll.user32.SetCursorPos
+GetCaretPos         =   ctypes.windll.user32.GetCaretPos
 
 # menu functions
 DrawMenuBar			=	ctypes.windll.user32.DrawMenuBar
@@ -61,8 +62,9 @@ GetMenuBarInfo		=	ctypes.windll.user32.GetMenuBarInfo
 GetMenuInfo         =   ctypes.windll.user32.GetMenuInfo
 GetMenuItemCount	=	ctypes.windll.user32.GetMenuItemCount
 GetMenuItemInfo		=	ctypes.windll.user32.GetMenuItemInfoW
+SetMenuItemInfo     =   ctypes.windll.user32.SetMenuItemInfoW
 GetMenuItemRect     =   ctypes.windll.user32.GetMenuItemRect
-GetMenuItemRect		=	ctypes.windll.user32.GetMenuItemRect
+CheckMenuItem		=	ctypes.windll.user32.CheckMenuItem
 GetMenuState		=	ctypes.windll.user32.GetMenuState
 GetSubMenu	        =	ctypes.windll.user32.GetSubMenu
 GetSystemMenu		=	ctypes.windll.user32.GetSystemMenu
@@ -153,6 +155,7 @@ CloseClipboard = ctypes.windll.user32.CloseClipboard
 
 GetQueueStatus = ctypes.windll.user32.GetQueueStatus
 
+LoadString = ctypes.windll.user32.LoadStringW
 
 
 def VkKeyScanW(p1):

@@ -856,3 +856,27 @@ class MENUINFO(Structure):
     ]
 assert sizeof(MENUINFO) == 28, sizeof(MENUINFO)
 assert alignment(MENUINFO) == 2, alignment(MENUINFO)
+
+
+
+
+
+
+
+
+NMTTDISPINFOW_V1_SIZE = 184 # Variable c_uint
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
+class NMTTDISPINFOW(Structure):
+    _pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
+        ('hdr', NMHDR),
+        ('lpszText', LPWSTR),
+        ('szText', WCHAR * 80),
+        ('hinst', HINSTANCE),
+        ('uFlags', UINT),
+        ('lParam', LPARAM),
+    ]
+assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
+assert alignment(NMTTDISPINFOW) == 1, alignment(NMTTDISPINFOW)
