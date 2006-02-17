@@ -283,7 +283,7 @@ class UniqueDict(dict):
 
         """Return the best matches for search_text in the items
 
-        :search_text_: the text to look for
+        :search_text: the text to look for
         :clean: whether to clean non text characters out of the strings
         :ignore_case: compare strings case insensitively
         """
