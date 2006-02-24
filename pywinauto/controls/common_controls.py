@@ -1223,6 +1223,12 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
                 tab, self.Texts(), self.Texts())
             tab = self.Texts().index(best_text) - 1
 
+        if tab >= self.TabCount():
+            raise IndexError(
+                "Only %d tabs available you asked for tab %d (zero based)" % (
+                self.TabCount(),
+                tab))
+
         self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)
 
         return self
@@ -1247,6 +1253,9 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ToolbarWrapper, self).__init__(hwnd)
 
+        self.writable_props.extend(['ButtonCount'])
+
+
     #----------------------------------------------------------------
     def ButtonCount(self):
         "Return the number of buttons on the ToolBar"
@@ -1255,6 +1264,11 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetButton(self, button_index):
         "Return information on the Toolbar button"
+
+        if button_index >= self.ButtonCount():
+            raise IndexError(
+                "0 to %d are acceptiple for button_index",
+                self.ButtonCount())
 
         remote_mem = _RemoteMemoryBlock(self)
 
@@ -1319,7 +1333,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(rect)
 
         self.SendMessage(
-            win32defines.TB_GETITEMRECT,
+            win32defines.TB_GETRECT,
             button_index,
             remote_mem)
 
@@ -1538,8 +1552,8 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
             win32defines.RBBIM_TEXT
 
         # set the pointer for the text
-        band_info.pszText = remote_mem.Address() + \
-            ctypes.sizeof(band_info)
+        band_info.pszText = ctypes.c_long(remote_mem.Address() + \
+            ctypes.sizeof(band_info))
         band_info.cchText = 2000
 
         # write the structure
@@ -1556,8 +1570,10 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
         # read the text
         band_info.text = ctypes.create_unicode_buffer(1999)
-        remote_mem.Read(band_info.pszText, remote_mem.Address() + \
+        remote_mem.Read(band_info.text, remote_mem.Address() + \
             ctypes.sizeof(band_info))
+
+        band_info.text = band_info.text.value
 
         del remote_mem
         return band_info
@@ -1658,6 +1674,13 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
         return ToolTip(self, tip_index).text
 
+    #----------------------------------------------------------------
+    def Texts(self):
+        texts = [self.WindowText(),]
+        for tip_index in range(0, self.ToolCount()):
+            texts.append(self.GetTipText(tip_index))
+
+        return texts
 
 
 #====================================================================
