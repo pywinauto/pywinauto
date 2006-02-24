@@ -70,7 +70,7 @@ def MiscValuesTest(windows):
         diffs = {}
 
         if win.Class() != win.ref.Class():
-            diffs["Class"] = (win.Class(), win.ref.Class)
+            diffs["Class"] = (win.Class(), win.ref.Class())
 
 
         if win.Style() != win.ref.Style():

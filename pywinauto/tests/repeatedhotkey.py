@@ -220,14 +220,14 @@ def ImplementsHotkey(win):
     "checks whether a control interprets & character to be a hotkey"
 
     # buttons always implement hotkey
-    if win.Class == "Button":
+    if win.Class() == "Button":
         return True
 
     # Statics do if they don't have SS_NOPREFIX style
-    elif win.Class == "Static" and not win.HasStyle(SS_NOPREFIX):
+    elif win.Class() == "Static" and not win.HasStyle(SS_NOPREFIX):
         return True
 
-    if win.Class == "MenuItem" and win.State != "2048":
+    if win.Class() == "MenuItem" and win.State() != "2048":
         return True
 
     # Most controls don't - so just return false if
