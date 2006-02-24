@@ -245,8 +245,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         "Return a list of all the column widths"
         return [col['width'] for col in self.Columns()]
 
-
-
     #-----------------------------------------------------------
     def GetItem(self, item_index, subitem_index = 0):
         "Return the item of the list view"
@@ -1606,66 +1604,8 @@ class ToolTip(object):
         remote_mem.Read(tipinfo)
 
         self.info = tipinfo
-        print self.info.lpszText
 
-        if win32functions.HiWord(self.info.lpszText) == 0 and self.info.hinst:
-            text = ctypes.create_unicode_buffer(2000)
-
-            ret =  win32functions.LoadString(
-                self.info.hinst,
-                self.info.uId,
-                #remote_mem.Address() + ctypes.sizeof(self.info),
-                ctypes.byref(text),
-                2000)
-
-            #if not ret:
-            #    print self.info
-            #    raise(ctypes.WinError())
-
-            #remote_mem.Read(text, self.info.lpszText)
-            if text.value:
-                print "xx"*40, `text.value`
-
-        #print self.info
-#        if tipinfo.lpszText in (win32defines.LPSTR_TEXTCALLBACKW, 0, -1):
-#            self.text = "**CALLBACK**"
-#
-#            nmttdi = win32structures.NMTTDISPINFOW()
-#
-#            #nmttdi.hdr.hwndFrom = self.ctrl.handle
-#            nmttdi.hdr.hwndFrom = self.info.hwnd
-#
-#            if self.info.uFlags & win32defines.TTF_IDISHWND:
-#                nmttdi.hdr.idFrom = self.info.hwnd
-#            else:
-#                nmttdi.hdr.idFrom = self.info.uId
-#            nmttdi.hdr.code = win32defines.TTN_NEEDTEXTW
-#
-#            nmttdi.lpszText = remote_mem.Address() + ctypes.sizeof(nmttdi)
-#            nmttdi.hinst = self.info.hinst
-#            nmttdi.uFlags = self.info.uFlags
-#
-#            remote_mem.Write(nmttdi)
-#
-#            #self.Parent().SendMessage(
-#            self.ctrl.Parent().SendMessage(
-#                win32defines.WM_NOTIFY,
-#                self.ctrl.ControlID(),
-#                remote_mem)
-#
-#            print "--", nmttdi
-#
-#            text = ctypes.create_unicode_buffer(2000)
-#            remote_mem.Read(text, nmttdi.lpszText)
-#            self.text = text.value
-
-
-
-        #else:
-
-        #if self.info.uFlags & win32defines.TTF_IDISHWND:
-        #    print "IDISHWND"
-
+        # now get the text
         self.info.lpszText = remote_mem.Address() + \
             ctypes.sizeof(self.info) +1
 
@@ -1679,12 +1619,6 @@ class ToolTip(object):
         remote_mem.Read(text, self.info.lpszText)
 
         self.text = text.value
-
-        if not self.text:
-            if self.info.uFlags & win32defines.TTF_IDISHWND:
-                print "IDISHWND"
-        print self.info
-
 
         del remote_mem
 
@@ -1723,91 +1657,6 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
         "Return the text of the tooltip"
 
         return ToolTip(self, tip_index).text
-
-
-    def _PlayWithToolTipControls(self):
-        "Just playing for now!"
-        # get the number of tooltips associated with the control
-        count = self.SendMessage(win32defines.TTM_GETTOOLCOUNT)
-
-        # find the owner window of the tooltip
-        #parent = Window(GetWindow (winToTest, GW_OWNER))
-
-
-        try:
-            remote_mem = _RemoteMemoryBlock(self)
-        except AccessDenied:
-            return
-
-        for i in range(0, count):
-
-            tipinfo = win32structures.TOOLINFOW()
-            tipinfo.cbSize = ctypes.sizeof(tipinfo)
-            #tipinfo.lpszText  = remote_mem.Address() + \
-            #    ctypes.sizeof(tipinfo) +1
-            #tipinfo.uId = i2
-            #tipInfo.uFlags = 0xff
-
-            remote_mem.Write(tipinfo)
-
-            ret = self.SendMessage(
-                win32defines.TTM_ENUMTOOLSW, i, remote_mem)
-
-            if not ret:
-                raise ctypes.WinError()
-            else:
-                remote_mem.Read(tipinfo)
-
-                tipinfo.lpszText = remote_mem.Address() + \
-                    ctypes.sizeof(tipinfo) +1
-
-                remote_mem.Write(tipinfo)
-
-                self.SendMessage(
-                    win32defines.TTM_GETTEXTW, 0, remote_mem)
-
-                text = ctypes.create_unicode_buffer(200)
-
-                remote_mem.Read(text, tipinfo.lpszText)
-
-                #print text.value
-
-
-
-                #print i, i2, tipInfo.lpszText
-                #print "-" * 10
-                #PrintCtypesStruct(tipInfo)
-#
-#
-#                if tipinfo.lpszText in (
-#                    win32defines.LPSTR_TEXTCALLBACKW, 0, -1):
-#                    #print "CALLBACK CALLBACK CALLBACK"
-#                    pass
-#
-#                else:
-#                    try:
-#                        text = ctypes.create_unicode_buffer(2000)
-#                        remote_mem.Read(text, tipinfo.lpszText)
-#
-#                        #print "TTT"* 10, `text.value`, i, i2
-#                    except RuntimeError:
-#                        pass
-#
-
-
-
-                #SendMessage(y.hwnd, WM_NOTIFY, )
-
-                #n = ctypes.create_unicode_buffer(2000)
-                #ret = ReadProcessMemory(process, y.lpszText, \
-                #    ctypes.byref(n), ctypes.sizeof(n), 0)
-
-                #print y.uFlags, Window(y.hwnd).Class(), \
-                #    Window(y.hwnd).Title, y.uId,  y.hinst, repr(n.value)
-                #curTool += 1
-
-
-
 
 
 
@@ -1861,10 +1710,6 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     def Decrement(self):
         "Decrement the number in the UpDown control by one"
         self.SetValue(self.GetValue() - 1)
-
-
-
-
 
 
 #====================================================================
