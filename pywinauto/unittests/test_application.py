@@ -71,6 +71,20 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Exit")
 
+    def testStart_bug01(self):
+        "On SourceForge forum AppStartError forgot to include %s for application name"
+
+        app = Application()
+        self.assertEqual(app.process, None)
+        app_name = r"I am not * and Application!/\.exe"
+        try:
+            app.start_(app_name)
+        except AppStartError, e:
+            self.assertEquals(app_name in str(e), True)
+
+
+
+
     def testConnect_path(self):
         app1 = Application()
         app1.start_("notepad.exe")

@@ -573,5 +573,123 @@ class UpDownTestCases(unittest.TestCase):
 
 
 
+
+class ToolbarTestCases(unittest.TestCase):
+    "Unit tests for the UpDownWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(controlspy_folder + "toolbar.exe")
+
+        self.app = app
+        self.dlg = app.MicrosoftControlSpy
+        self.ctrl = app.MicrosoftControlSpy.Toolbar.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEquals (self.ctrl.FriendlyClassName(), "Toolbar")
+
+    def testTexts(self):
+        "Make sure the texts are set correctly"
+        for txt in self.ctrl.Texts():
+            self.assertEquals (isinstance(txt, basestring), True)
+
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.ctrl.GetProperties()
+
+        self.assertEquals(
+            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+
+        self.assertEquals(
+            self.ctrl.Texts(), props['Texts'])
+
+        self.assertEquals(
+            self.ctrl.ButtonCount(), props['ButtonCount'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+
+    def testButtonCount(self):
+        "Test the button count method of the toolbar"
+        self.assertEquals(self.ctrl.ButtonCount(), 14)
+
+    def testGetButton(self):
+        self.assertRaises(IndexError, self.ctrl.GetButton, 29)
+
+    def testGetButtonRect(self):
+        self.assertEquals(self.ctrl.GetButtonRect(1), RECT(91, 0, 114, 22))
+
+    def testGetToolTipsControls(self):
+        tips = self.ctrl.GetToolTipsControl()
+
+        self.assertEquals(
+            "Button ID 7" in tips.Texts(),
+            True)
+
+
+class RebarTestCases(unittest.TestCase):
+    "Unit tests for the UpDownWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(controlspy_folder + "rebar.exe")
+
+        self.app = app
+        self.dlg = app.MicrosoftControlSpy
+        self.ctrl = app.MicrosoftControlSpy.Rebar.ctrl_()
+
+        #self.dlg.MenuSelect("Styles")
+
+        # select show selection always, and show checkboxes
+        #app.ControlStyles.ListBox1.TypeKeys(
+        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
+        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEquals (self.ctrl.FriendlyClassName(), "ReBar")
+
+    def testTexts(self):
+        "Make sure the texts are set correctly"
+        for txt in self.ctrl.Texts():
+            self.assertEquals (isinstance(txt, basestring), True)
+
+    def testBandCount(self):
+        self.assertEquals(self.ctrl.BandCount(), 2)
+
+    def testGetBand(self):
+        pass
+
+
 if __name__ == "__main__":
     unittest.main()
