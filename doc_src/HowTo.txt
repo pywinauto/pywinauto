@@ -313,4 +313,84 @@ Edit control above the list, and you CAN get the text of the item from there e.g
   # print the text of the item currently selected in the list box 
   # (as long as you are not typing into the Edit control!)
   print app.HelpTopics.Edit.Texts()[1]
+
+
+How to Access the System Tray (aka SysTray, aka 'Notification Area')
+------------------------------------------------------------------------------------
+
+Near the clock are icons representing running applications, this area is 
+normally referred to as the "System Tray". There are actually many different 
+windows/controls in this area. The control that contains the icons is actually
+a toolbar. It is in a Pager control, in within a window with a class TrayNotifyWnd, 
+which is in yet another window with a class Shell_TrayWnd and all these windows
+are part of the running Explorer instance. Thankfully you don't need to remeber 
+all that :-).
+
+The things that are important to remember is that you are looking for a 
+window in the "Explorer.exe" application with the class "Shell_TrayWnd" that has 
+a Toolbar control with a title "Notification Area".
+
+One way to get this is to do the following::
   
+  imprt pywinauto.application
+  app = pywinauto.application.Application().connect_(path = "explorer")
+  systray_icons = app.ShellTrayWnd.NotificationAreaToolbar
+  
+The taskbar module provides very preliminary access to the System Tray.
+
+It defines the following variables: 
+
+:``explorer_app``:  defines an Application() object connected to the running
+                    explorer. You probably don't need to use this your self
+                    very much.
+
+:``TaskBar``:  The handle to the task bar (the bar containing Start Button,
+               the QuickLaunch icons, running tasks, etc
+
+:``StartButton``:  "Start me up" :-) I think you might know what this is!
+
+:``QuickLaunch``: The Toolbar with the quick launch icons
+
+:``SystemTray``: The window that contains the Clock and System Tray Icons
+
+:``Clock``:	 The clock
+
+:``SystemTrayIcons``: The toolbar representing the system tray icons
+
+:``RunningApplications``: The toolbar representing the running applications
+
+
+I have also provided 2 functions in the module that can be used to click on 
+system tray icons:
+
+
+:``ClickSystemTrayIcon(button)``: You can use this to left click a visible icon 
+    in the system tray. I had to specifically say
+    visible icon as there may be many invisible 
+    icons that obviously cannot be clicked. Button
+    can be any integer. If you specify 3 then it will
+    find and click the 3rd visible button. (very little
+    error checking is performed and this method will
+    more then likely be moved/renamed in the futures.
+
+:``RightClickSystemTrayIcon(button)``: Similar to ``ClickSytemTrayIcon`` but performs
+    a right click.
+
+
+Often when you click/right click on an icon - you get a popup menu. The thing to 
+remember at this point is that the popup menu is part of the application being 
+automated not part of explorer.
+
+e.g.  ::
+
+    # connect to outlook
+    outlook = Application().connect_(path = 'outlook.exe')
+
+    # click on Outlook's icon
+    taskbar.ClickSystemTrayIcon(2)
+
+    # Select an item in the popup menu
+    outlook.PopupMenu.MenuClick("Cancel Server Request")
+
+
+
