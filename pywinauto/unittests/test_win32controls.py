@@ -55,7 +55,6 @@ class ButtonTestCases(unittest.TestCase):
 
         self.calc.TypeKeys("%{F4}")
 
-
     def testGetProperties(self):
         "Test getting the properties for the control"
         props  = self.calc._6.GetProperties()
@@ -72,16 +71,8 @@ class ButtonTestCases(unittest.TestCase):
         for prop_name in props:
             self.assertEquals(getattr(self.calc._6, prop_name)(), props[prop_name])
 
-    def testClick(self):
-        "Test getting the properties for the control"
-        self.calc._6.Click()
-        self.calc._5.Click()
-        self.calc['+'].Click()
-        self.calc._4.Click()
-        self.calc._3.Click()
-        self.calc['='].Click()
-        self.assertEquals(self.calc.Edit.Texts()[1], "108. ")
-
+    def test_set_if_needs_image(self):
+        self.assertEquals(self.calc._8._NeedsImageProp, False)
 
     def testFriendlyClass(self):
         self.assertEquals(self.calc._8.FriendlyClassName(), "Button")
@@ -114,6 +105,17 @@ class ButtonTestCases(unittest.TestCase):
 #        "indeterminate"
 #        self.calc.Inv.SetCheckIndeterminate()
 #        self.assertEquals(self.calc.Inv.GetCheckState(), 0)
+
+    def testClick(self):
+        "Test getting the properties for the control"
+        self.calc._6.Click()
+        self.calc._5.Click()
+        self.calc['+'].Click()
+        self.calc._4.Click()
+        self.calc._3.Click()
+        self.calc['='].Click()
+        self.assertEquals(self.calc.Edit.Texts()[1], "108. ")
+
 
     def testIsSelected(self):
 
