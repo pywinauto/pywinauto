@@ -592,7 +592,8 @@ class Application(object):
         # if it failed for some reason
         if not ret:
             message = 'Could not create the process "%s"\n'\
-                'Error returned by CreateProcess: ' + str(ctypes.WinError())
+                'Error returned by CreateProcess: '%(cmd_line) \
+                + str(ctypes.WinError())
             raise AppStartError(message)
 
         self.process = proc_info.dwProcessId
