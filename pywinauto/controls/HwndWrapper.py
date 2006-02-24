@@ -29,7 +29,14 @@ __revision__ = "$Revision$"
 import time
 
 import ctypes
-import SendKeys
+
+# the wrappers may be used in an environment that does not need
+# the actions - as such I don't want to require sendkeys - so
+# the following makes the import optional.
+try:
+    import SendKeys
+except ImportError:
+    pass
 
 
 # I leave this optional because PIL is a large dependency
@@ -420,6 +427,10 @@ class HwndWrapper(object):
         for propname in self.writable_props:
             # set the item in the props dictionary keyed on the propname
             props[propname] = getattr(self, propname)()
+
+        if self._NeedsImageProp:
+            props["Image"] = self.CaptureAsImage()
+
 
         return props
 
