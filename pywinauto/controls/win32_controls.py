@@ -288,7 +288,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
         # simple combo boxes don't have drop downs so they do not recieve
         # this notification
-        if not self.HasStyle(win32defines.CBS_SIMPLE):
+        if self.HasStyle(win32defines.CBS_DROPDOWN):
             # Notify the parent that the drop down has closed
             self.NotifyParent(win32defines.CBN_CLOSEUP)
 
@@ -327,14 +327,16 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "The currently selected indices of the listbox"
         num_selected = self.SendMessage(win32defines.LB_GETSELCOUNT)
 
-        if num_selected != win32defines.LB_ERR:
+        # if we got LB_ERR then it is a single selection list box
+        if num_selected == win32defines.LB_ERR:
+            items = [self.SendMessage(win32defines.LB_GETCURSEL)]
+
+        # otherwise it is a multiselection list box
+        else:
             items = (ctypes.c_int * num_selected)()
 
             self.SendMessage(
                 win32defines.LB_GETSELITEMS, num_selected, ctypes.byref(items))
-
-        else:
-            items = [self.SendMessage(win32defines.LB_GETCURSEL)]
 
         return items
 
@@ -401,7 +403,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         return self
 
     #-----------------------------------------------------------
-    def SetFocus(self, item):
+    def SetItemFocus(self, item):
         "Set the ListBox focus to the item at index"
 
         # if it is a multiple selection dialog
@@ -416,7 +418,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
 
     #-----------------------------------------------------------
-    def GetFocus(self):
+    def GetItemFocus(self):
         "Retrun the index of current selection in a ListBox"
 
         # if it is a multiple selection dialog
@@ -500,8 +502,8 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         text = ctypes.create_unicode_buffer(length + 1)
         self.SendMessage(win32defines.WM_GETTEXT, length+1, ctypes.byref(text))
 
-        text = text.value.replace("\r\n", "\n")
-        return text
+        #text = text.value.replace("\r\n", "\n")
+        return text.value
 
     #-----------------------------------------------------------
     def SelectionIndices(self):
@@ -565,7 +567,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         if isinstance(start, basestring):
             string_to_select = start
             #
-            start = self.Texts()[1].index(string_to_select)
+            start = self.TextBlock().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
@@ -574,6 +576,10 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             end = -1
 
         self.SendMessageTimeout(win32defines.EM_SETSEL, start, end)
+
+        # give the control a chance to catch up before continuing
+        win32functions.WaitGuiThreadIdle(self)
+
 
         # return this control so that actions can be chained.
         return self

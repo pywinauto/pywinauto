@@ -60,7 +60,6 @@ class _RemoteMemoryBlock(object):
             process_id)
 
         if not self.process:
-            # TODO - work in a way that cannot be denied (or fail gracefully)
             raise AccessDenied(
                 str(ctypes.WinError()) + "process: %d",
                 process_id.value)
@@ -332,7 +331,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
 
     #-----------------------------------------------------------
-    # TODO: Make the RemoteMemoryBlock stuff more automatic!
     def UnCheck(self, item):
         "Uncheck the ListView item"
 
@@ -736,7 +734,6 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
 #
 #   #-----------------------------------------------------------
-#    # TODO: Make the RemoteMemoryBlock stuff more automatic!
 #    def UnCheck(self, path):
 #        "Uncheck the ListView item"
 #
@@ -1597,7 +1594,9 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
 
 class ToolTip(object):
+    "Class that Wraps a single tip from a ToolTip control"
     def __init__(self, ctrl, tip_index):
+        "Read the required information"
         self.ctrl = ctrl
         self.index = tip_index
 
@@ -1654,11 +1653,9 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
         "Initialize the instance"
         HwndWrapper.HwndWrapper.__init__(self, hwnd)
 
-        #self._PlayWithToolTipControls()
-
-
     #----------------------------------------------------------------
     def GetTip(self, tip_index):
+        "Return the particular tooltip"
         return ToolTip(self, tip_index)
 
 
@@ -1676,7 +1673,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def Texts(self):
-        texts = [self.WindowText(),]
+        "Return the text of all the tooltips"
+        texts = [self.WindowText(), ]
         for tip_index in range(0, self.ToolCount()):
             texts.append(self.GetTipText(tip_index))
 
