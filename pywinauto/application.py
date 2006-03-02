@@ -59,6 +59,7 @@ __revision__ = "$Revision$"
 import time
 ##import os.path
 ##import os
+import warnings
 
 import ctypes
 
@@ -102,6 +103,7 @@ exists_timeout = .5
 # How long to sleep between each try when checking if the window exists
 exists_retry_interval = .3
 
+delay_after_app_start = .5
 
 
 def set_timing(
@@ -151,6 +153,8 @@ def set_timing(
     controls.HwndWrapper.delay_before_after_close_click = after_close
 
 
+wait_method_deprecation = "Wait* functions are just simple wrappers around " \
+    "Wait() or WaitNot(), so they may be removed in the future!"
 
 #=========================================================================
 class WindowSpecification(object):
@@ -282,12 +286,12 @@ class WindowSpecification(object):
         return self[attr]
 
 
-
     def Exists(self, timeout = exists_timeout):
         "Check if the window exists"
 
         # modify the criteria as Exists should look for all
         # windows - including not visible and disabled
+
         exists_criteria = []
         for criterion in self.criteria[:]:
             criterion['enabled_only'] = False
@@ -303,84 +307,118 @@ class WindowSpecification(object):
             return False
 
 
+    def Wait(self, *args, **kwargs):
+        """Wait for the window to be in any of the following states:
 
-    def WaitReady(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
-        "Wait for the control to be ready (Exists, Visible and Enabled)"
+        'exists'
+        'visible'
+        'enabled'
+        'ready'
 
-        # modify the criteria as Exists should look for all
-        # windows - including not visible and disabled
-        ready_criteria = []
-        for criterion in self.criteria[:]:
-            criterion['enabled_only'] = True
-            criterion['visible_only'] = True
-            ready_criteria.append(criterion)
+        e.g. self.Dlg.Wait("exists", "enabled", "visible", "ready")
+
+        'exists' means that the window is a valid handle
+        'visible' means that the window is not hidden
+        'enabled' means that the window is not disabled
+        'ready' means that the window is visible and enabled
+
+        See also: ``Application.WaitNot()``
+        """
+
+        # allow spaces and case mixups - just to make it easier to use
+        args = [arg.lower().strip() for arg in args]
+
+        # make a copy of the criteria that we can modify
+        wait_criteria = self.criteria[:]
+
+        # update the criteria based on what has been requested
+        # we go from least strict to most strict in case the user
+        # has specified conflicting wait conditions
+        for criterion in wait_criteria:
+            if 'exists' in args:
+                criterion['enabled_only'] = False
+                criterion['visible_only'] = False
+
+            if 'visible' in args:
+                criterion['enabled_only'] = False
+                criterion['visible_only'] = True
+
+            if 'enabled' in args:
+                criterion['enabled_only'] = True
+                criterion['visible_only'] = False
+
+            if 'ready' in args:
+                criterion['visible_only'] = True
+                criterion['enabled_only'] = True
+
+        # get the specified timings or defaults if not specified
+        timeout = kwargs.get('timeout', window_find_timeout)
+        wait_interval = kwargs.get(
+            'wait_interval',
+            window_retry_interval)
 
         ctrl = _resolve_control(
-            ready_criteria,
+            wait_criteria,
             timeout,
             wait_interval)
 
         return ctrl
 
-#    def WaitEnabled(self):
-#
-#        ctrl = _resolve_control(
-#            self.criteria,
-#            timeout,
-#            wait_interval)
-#
-#    def WaitVisible(self):
-#        pass
-#    def WaitNotExists(self):
-#        pass
-    def WaitNotEnabled(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
-        "Wait for the control to be disabled or not exist"
+    def WaitNot(self, *args, **kwargs):
+        """Wait for the window to not be in any of the following states:
 
-        waited = 0
-        while True:
+        'exists'
+        'visible'
+        'enabled'
+        'ready'
 
-            try:
-                # stop trying if it is not enabled
-                if not _resolve_control(self.criteria).IsEnabled():
-                    break
+        e.g. self.Dlg.Wait("exists", "enabled", "visible", "ready")
 
-            # stop trying if the window doesn't exist
-            except (
-                findwindows.WindowNotFoundError, findbestmatch.MatchError):
-                break
+        'exists' means that the window is a valid handle
+        'visible' means that the window is not hidden
+        'enabled' means that the window is not disabled
+        'ready' means that the window is visible and enabled
 
-            # stop trying if we have reached the timeout
-            if waited >= timeout:
-                break
+        See also: ``Application.Wait()``
+        """
 
-            # other wise wait the interval, and try again
-            time.sleep(wait_interval)
-            waited += wait_interval
-
-
-    def WaitNotVisible(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
-        "Wait for the control to be invisible or not exist"
-
-        # modify the criteria as Exists should look for all
-        # windows - including not visible and disabled
-        notvisible_criteria = []
-        for criterion in self.criteria[:]:
+        waitnot_criteria = self.criteria[:]
+        for criterion in waitnot_criteria:
             criterion['enabled_only'] = False
             criterion['visible_only'] = False
-            notvisible_criteria.append(criterion)
+
+        # get the specified timings or defaults if not specified
+        timeout = kwargs.get('timeout', window_find_timeout)
+        wait_interval = kwargs.get(
+            'wait_interval',
+            window_retry_interval)
 
         waited = 0
         while True:
 
             try:
-                # stop trying if it is not enabled
-                if not _resolve_control(notvisible_criteria).IsVisible():
+                ctrl = _resolve_control(waitnot_criteria)
+
+                if 'exists' in args:
+                    # well if we got here then the control must have
+                    # existed so we are not ready to stop checking
+                    # because we didn't want th control to exist!
+                    continue
+
+                matched = True
+                if 'ready' in args:
+                    if ctrl.IsVisible() and ctrl.IsEnabled():
+                        matched = False
+
+                if 'enabled' in args:
+                    if ctrl.IsEnabled():
+                        matched = False
+
+                if 'visible' in args:
+                    if ctrl.IsVisible():
+                        matched = False
+
+                if matched:
                     break
 
             # stop trying if the window doesn't exist
@@ -394,6 +432,200 @@ class WindowSpecification(object):
             # other wise wait the interval, and try again
             time.sleep(wait_interval)
             waited += wait_interval
+
+
+    def WaitReady(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be ready (Exists, Visible and Enabled)"
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+        return self.Wait('ready',
+            timeout = timeout,
+            wait_interval = wait_interval)
+
+    def WaitNotReady(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be ready (Exists, Visible and Enabled)"
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+        return self.WaitNot('ready',
+            timeout = timeout,
+            wait_interval = wait_interval)
+
+
+    def WaitEnabled(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        """Wait for the control to become enabled
+
+        Returns the control"""
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+        return self.Wait('enabled',
+            timeout = timeout,
+            wait_interval = wait_interval)
+
+
+#        enabled_criteria = self.criteria[:]
+#        for criterion in enabled_criteria:
+#            criterion['enabled_only'] = True
+#
+#        ctrl = _resolve_control(
+#            enabled_criteria,
+#            timeout,
+#            wait_interval)
+#
+#        return ctrl
+
+
+    def WaitNotEnabled(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be disabled or not exist"
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+        self.WaitNot('enabled',
+            timeout = timeout,
+            wait_interval = wait_interval)
+
+#        waited = 0
+#        while True:
+#
+#            try:
+#                # stop trying if it is not enabled
+#                if not _resolve_control(self.criteria).IsEnabled():
+#                    break
+#
+#            # stop trying if the window doesn't exist
+#            except (
+#                findwindows.WindowNotFoundError, findbestmatch.MatchError):
+#                break
+#
+#            # stop trying if we have reached the timeout
+#            if waited >= timeout:
+#                break
+#
+#            # other wise wait the interval, and try again
+#            time.sleep(wait_interval)
+#            waited += wait_interval
+
+
+    def WaitVisible(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        """Wait for the control to become visible
+
+        Returns the control"""
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+        return self.Wait('visible',
+            timeout = timeout,
+            wait_interval = wait_interval)
+#
+#        visible_criteria = self.criteria[:]
+#        for criterion in visible_criteria:
+#            criterion['visible_only'] = True
+#
+#        ctrl = _resolve_control(
+#            visible_criteria,
+#            timeout,
+#            wait_interval)
+#
+#        return ctrl
+
+    def WaitNotVisible(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        "Wait for the control to be invisible or not exist"
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+        self.WaitNot('visible',
+            timeout = timeout,
+            wait_interval = wait_interval)
+
+#
+#        # modify the criteria as Exists should look for all
+#        # windows - including not visible and disabled
+#        notvisible_criteria = []
+#        for criterion in self.criteria[:]:
+#            criterion['enabled_only'] = False
+#            criterion['visible_only'] = False
+#            notvisible_criteria.append(criterion)
+#
+#        waited = 0
+#        while True:
+#
+#            try:
+#                # stop trying if it is not enabled
+#                if not _resolve_control(notvisible_criteria).IsVisible():
+#                    break
+#
+#            # stop trying if the window doesn't exist
+#            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+#                break
+#
+#            # stop trying if we have reached the timeout
+#            if waited >= timeout:
+#                break
+#
+#            # other wise wait the interval, and try again
+#            time.sleep(wait_interval)
+#            waited += wait_interval
+
+    def WaitExists(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        """Wait for the control to not exist anymore"""
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+        self.Wait('exists',
+            timeout = timeout,
+            wait_interval = wait_interval)
+
+    def WaitNotExists(self,
+        timeout = window_find_timeout,
+        wait_interval = window_retry_interval):
+        """Wait for the control to not exist anymore"""
+
+        warnings.warn(wait_method_deprecation, DeprecationWarning)
+
+
+        self.WaitNot('exists',
+            timeout = timeout,
+            wait_interval = wait_interval)
+#
+#        waited = 0
+#        while True:
+#
+#            try:
+#                # Try to resolve the control
+#                _resolve_control(self.criteria)
+#
+#            # stop trying if the window doesn't exist
+#            except (
+#                findwindows.WindowNotFoundError, findbestmatch.MatchError):
+#                break
+#
+#            # stop trying if we have reached the timeout
+#            if waited >= timeout:
+#                break
+#
+#            # other wise wait the interval, and try again
+#            time.sleep(wait_interval)
+#            waited += wait_interval
+
+
+
+
 
     def print_control_identifiers(self):
         """Prints the 'identifiers'
@@ -548,9 +780,18 @@ class Application(object):
         self.process = None
         self.xmlpath = ''
 
+    def __start(*args, **kwargs):
+        "Convenience static method that calls start"
+        return Application().start_(*args, **kwargs)
+    start = staticmethod(__start)
+
+    def __connect(*args, **kwargs):
+        "Convenience static method that calls start"
+        return Application().connect_(*args, **kwargs)
+    connect = staticmethod(__connect)
+
     def _start(self, *args, **kwargs):
         "start_ used to be named _start"
-        import warnings
         message = "_start and _connect are deprecated " \
             "please use start_ and connect_"
         warnings.warn(message, DeprecationWarning)
@@ -558,7 +799,6 @@ class Application(object):
 
     def _connect(self, *args, **kwargs):
         "connect_ used to be named _connect"
-        import warnings
         message = "_start and _connect are deprecated " \
             "please use start_ and connect_"
         warnings.warn(message, DeprecationWarning)
@@ -609,7 +849,7 @@ class Application(object):
             if self.windows_():
                 break
 
-            time.sleep(.5)
+            time.sleep(delay_after_app_start)
 
         return self
 
@@ -629,7 +869,6 @@ class Application(object):
                 message = "Invalid handle 0x%x passed to connect_()"% (
                     kwargs['handle'])
                 raise RuntimeError(message)
-
 
             self.process = handleprops.processid(kwargs['handle'])
 
@@ -665,7 +904,9 @@ class Application(object):
         return WindowSpecification(criteria)
 
     def windows_(self, **kwargs):
-        "Return a list of the handles for top level windows of the application"
+        """Return list of wrapped windows of the top level windows of
+        the application
+        """
 
         if not self.process:
             raise AppNotConnected("Please use start_ or connect_ before "
@@ -754,14 +995,29 @@ def process_from_module(module):
         ctypes.sizeof(processes),
         ctypes.byref(bytes_returned))
 
-    # check if any of the running process has this module
+
+    modules = []
+    # Get the process names
     for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
         try:
-            p_module = process_module(processes[i]).lower()
-            if module.lower() in p_module:
-                return processes[i]
+            modules.append((processes[i], process_module(processes[i])))
         except ProcessNotFoundError:
             pass
+
+    # check for a module with a matching name in reverse order
+    # as we are most likely to want to connect to the last
+    # run instance
+    for process, name in reversed(modules):
+        if module.lower() in name.lower():
+            return process
+
+#    # check if any of the running process has this module
+#    for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
+#        try:
+#            p_module = process_module(processes[i]).lower()
+#            if module.lower() in p_module:
+#                return processes[i]
+#
 
     message = "Could not find any process with a module of '%s'" % module
     raise ProcessNotFoundError(message)
