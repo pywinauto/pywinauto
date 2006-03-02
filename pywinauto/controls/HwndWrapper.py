@@ -49,8 +49,12 @@ from pywinauto import win32defines
 from pywinauto import win32functions
 from pywinauto import win32structures
 
-from pywinauto import findbestmatch
+#from pywinauto import findbestmatch
 from pywinauto import handleprops
+
+# also import MenuItemNotEnabled so that it is
+# accessible from HwndWrapper module
+from menuwrapper import Menu, MenuItemNotEnabled
 
 delay_after_click = 0.0 #5
 delay_after_menuselect = 0#0.05
@@ -58,11 +62,6 @@ delay_after_sendkeys_key = .01
 delay_after_button_click = 0#.1
 delay_before_after_close_click = .2
 
-
-#====================================================================
-class MenuItemNotEnabled(RuntimeError):
-    "Raised when a menuitem is not enabled"
-    pass
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -122,7 +121,10 @@ def WrapHandle(hwnd):
 
 #====================================================================
 class HwndWrapper(object):
-    "Default wrapper for controls"
+    """Default wrapper for controls.
+
+    Most of the methods of this class are simple wrappers around
+    API calls and as such they do the simplest thing possible"""
 
     friendlyclassname = ''
     handle = None
@@ -174,7 +176,16 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
-        "Return the friendly class name for the control"
+        """Return the friendly class name for the control
+
+        This differs from the class of the control in some cases.
+        Class() is the actual 'Registered' window class of the control
+        while FriendlyClassName() is hopefully something that will make
+        more sense to the user.
+
+        For example Checkboxes are implemented as Buttons - so the class
+        of a CheckBox is "Button" - but the friendly class is "CheckBox"
+        """
         if not self.friendlyclassname:
             return handleprops.classname(self)
         else:
@@ -217,7 +228,11 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def IsVisible(self):
-        "Whether the window is visible or not"
+        """Whether the window is visible or not
+
+        If you want to wait for a control to become visible (or wait
+        for it to become hidden) use ``Application.Wait('visible')`` or
+        ``Application.WaitNot('visible')``."""
         return handleprops.isvisible(self)
 
     #-----------------------------------------------------------
@@ -227,7 +242,11 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def IsEnabled(self):
-        "Whether the window is enabled or not"
+        """Whether the window is enabled or not
+
+        If you want to wait for a control to become enabled (or wait
+        for it to become disabled) use ``Application.Wait('visible')`` or
+        ``Application.WaitNot('visible')``."""
         return handleprops.isenabled(self)
 
     #-----------------------------------------------------------
@@ -266,23 +285,6 @@ class HwndWrapper(object):
         return handleprops.is_toplevel_window(self)
 
     #-----------------------------------------------------------
-    # define the Menu Property
-    def MenuItems(self):
-        """Return the menu items for the dialog
-
-        If there are no menu items then return an empty list
-        """
-        if self.IsDialog():
-            menu_handle = win32functions.GetMenu(self)
-            self.SendMessage(win32defines.WM_INITMENU, menu_handle)
-            return Menu(self, menu_handle).GetProperties()
-
-            #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
-            #return _GetMenuItems(menu_handle, self)
-        else:
-            return []
-
-    #-----------------------------------------------------------
     def Parent(self):
         "Return the parent of this control"
         parent_hwnd = handleprops.parent(self)
@@ -313,8 +315,6 @@ class HwndWrapper(object):
             return parent.TopLevelParent()
         else:
             return parent
-
-
 
     #-----------------------------------------------------------
     def Texts(self):
@@ -597,7 +597,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def PressMouseInput(self, button = "left", coords = (None, None)):
         "Press a mouse button using SendInput"
-        _perform_click_input(self, button, coords, up = False)
+        _perform_click_input(self, button, coords, button_up = False)
 
 
     #-----------------------------------------------------------
@@ -610,7 +610,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def ReleaseMouseInput(self, button = "left", coords = (None, None)):
         "Release the mouse button"
-        _perform_click_input(self, button, coords, down = False)
+        _perform_click_input(self, button, coords, button_down = False)
 
     #-----------------------------------------------------------
     def MoveMouse(self, pressed = "left", coords = (0, 0)):
@@ -732,7 +732,15 @@ class HwndWrapper(object):
         thickness = 2,
         fill = win32defines.BS_NULL,
         rect = None):
-        "Draw an outline around the window"
+        """Draw an outline around the window
+
+        :colour: can be either an integer or one of 'red', 'green', 'blue'
+                 (default 'green')
+        :thickness: thickness of rectangle (default 2)
+        :fill: how to fill in the rectangle (default BS_NULL)
+        :rect: the coordinates of the rectangle to draw (defaults to
+               the rectangle of the control.
+        """
 
         # don't draw if dialog is not visible
         if not self.IsVisible():
@@ -780,6 +788,7 @@ class HwndWrapper(object):
         win32functions.DeleteDC(dc)
 
 
+    #-----------------------------------------------------------
     def PopupWindow(self):
         """Return any owned Popups
 
@@ -790,10 +799,11 @@ class HwndWrapper(object):
         return popup
 
 
+    #-----------------------------------------------------------
     def Owner(self):
-        """Return the owner handle for the window if it exists
+        """Return the owner window for the window if it exists
 
-        Returns None if no owner handle"""
+        Returns None if there is no owner"""
         owner = win32functions.GetWindow(self, win32defines.GW_OWNER)
         if owner:
             return WrapHandle(owner)
@@ -803,10 +813,9 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def ContextMenuSelect(self, path, x = None, y = None):
         "TODO Not Implemented"
-        raise NotImplementedError(
-            "HwndWrapper.ContextMenuSelect not implemented yet")
-
-
+        pass
+        #raise NotImplementedError(
+        #    "HwndWrapper.ContextMenuSelect not implemented yet")
 
     #-----------------------------------------------------------
     def _menu_handle(self):
@@ -814,30 +823,61 @@ class HwndWrapper(object):
         return win32functions.GetMenu(self)
 
     #-----------------------------------------------------------
-    def MenuItem(self, path):
-        menu = Menu(self, self._menu_handle())
-        return menu.GetMenuPath(path)[-1]
+    def Menu(self):
+        "Return the menu of the control"
+        return Menu(self, self._menu_handle())
 
     #-----------------------------------------------------------
-    def MenuClick(self, path):
-        "Select the menuitem specifed in path"
+    def MenuItem(self, path):
+        """Return the menu item specifed by path
 
-        self.VerifyActionable()
+        Path can be a string in the form "MenuItem->MenuItem->MenuItem..."
+        where each MenuItem is the text of an item at that level of the menu.
+        E.g.
+          "File->Export->ExportAsPNG"
+        spaces are not important so you could also have written...
+          "File -> Export -> Export As PNG"
+        """
+        return self.Menu().GetMenuPath(path)[-1]
 
-        self.SetFocus()
+    #-----------------------------------------------------------
+    def MenuItems(self):
+        """Return the menu items for the dialog
 
-        menu = Menu(self, self._menu_handle())
+        If there are no menu items then return an empty list
+        """
+        if self.IsDialog():
+            #menu_handle = win32functions.GetMenu(self)
+            #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
+            return self.Menu().GetProperties()
 
-        path_items = menu.GetMenuPath(path)
+            #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
+            #return _GetMenuItems(menu_handle, self)
+        else:
+            return []
 
-        for menu_item in path_items:
-            if not menu_item.IsEnabled():
-                raise MenuItemNotEnabled(
-                    "MenuItem '%s' is disabled"% menu_item.Text())
 
-            menu_item.Click()
 
-        return self
+#    #-----------------------------------------------------------
+#    def MenuClick(self, path):
+#        "Select the menuitem specifed in path"
+#
+#        self.VerifyActionable()
+#
+#        self.SetFocus()
+#
+#        menu = Menu(self, self._menu_handle())
+#
+#        path_items = menu.GetMenuPath(path)
+#
+#        for menu_item in path_items:
+#            if not menu_item.IsEnabled():
+#                raise MenuItemNotEnabled(
+#                    "MenuItem '%s' is disabled"% menu_item.Text())
+#
+#            menu_item.Click()
+#
+#        return self
 
 
     #-----------------------------------------------------------
@@ -846,15 +886,19 @@ class HwndWrapper(object):
 
         self.VerifyActionable()
 
-        menu = Menu(self, self._menu_handle())
-
-        path_items = menu.GetMenuPath(path)
-
-        if not path_items[-1].IsEnabled():
-            raise MenuItemNotEnabled(
-                "MenuItem '%s' is disabled"% path_items[-1].Text())
-
-        path_items[-1].Select()
+        self.MenuItem(path).Select()
+#        return self.Menu().GetMenuPath(path)[-1]
+#
+#
+#        menu = Menu(self, self._menu_handle())
+#
+#        path_items = menu.GetMenuPath(path)
+#
+#        if not path_items[-1].IsEnabled():
+#            raise MenuItemNotEnabled(
+#                "MenuItem '%s' is disabled"% path_items[-1].Text())
+#
+#        path_items[-1].Select()
 
 
     #-----------------------------------------------------------
@@ -978,9 +1022,26 @@ class HwndWrapper(object):
 
         return self
 
+#
+#def MouseLeftClick():
+#    pass
+#def MouseRightClick():
+#    pass
+#def MouseDoubleClick():
+#    pass
+#def MouseDown():
+#    pass
+#def MouseUp():
+#    pass
+#def MoveMouse():
+#    pass
+#def DragMouse():
+#    pass
+#
+
 #====================================================================
 def _perform_click_input(
-    ctrl,
+    ctrl = None,
     button = "left",
     coords = (None, None),
     double = False,
@@ -1017,6 +1078,9 @@ def _perform_click_input(
     if double and button_down and button_up:
         events *= 2
 
+
+    if ctrl == None:
+        ctrl = HwndWrapper(win32functions.GetDesktopWindow())
 
 
     coords = list(coords)
@@ -1142,406 +1206,6 @@ def _calc_flags_and_coords(pressed, coords):
     return flags, click_point
 
 
-
-class MenuItem(object):
-    def __init__(self, ctrl, menu, index, on_main_menu = False):
-        self.index = index
-        self.menuhandle = menu
-        self.ctrl = ctrl
-        self.on_main_menu = on_main_menu
-
-
-    def _read_item(self):
-        menu_info  = win32structures.MENUITEMINFOW()
-        menu_info.cbSize = ctypes.sizeof (menu_info)
-        menu_info.fMask = \
-            win32defines.MIIM_CHECKMARKS | \
-            win32defines.MIIM_ID | \
-            win32defines.MIIM_STATE | \
-            win32defines.MIIM_SUBMENU | \
-            win32defines.MIIM_TYPE #| \
-            #MIIM_FTYPE #| \
-            #MIIM_STRING
-            #MIIM_DATA | \
-
-        ret = win32functions.GetMenuItemInfo (
-            self.menuhandle,
-            self.index,
-            True,
-            ctypes.byref(menu_info))
-
-        if not ret:
-            raise ctypes.WinError()
-
-        return menu_info
-
-
-    def Rectangle(self):
-        rect = win32structures.RECT()
-
-        if self.on_main_menu:
-            ctrl = self.ctrl
-        else:
-            ctrl = 0
-
-        win32functions.GetMenuItemRect(
-            ctrl,
-            self.menuhandle,
-            self.index,
-            ctypes.byref(rect))
-
-        return rect
-
-    def Index(self):
-        return self.index
-
-    def State(self):
-        return self._read_item().fState
-
-    def ID(self):
-        return self._read_item().wID
-
-    def Type(self):
-        return self._read_item().fType
-
-    def Text(self):
-
-        info = self._read_item()
-        # if there is text
-        if info.cch:
-            # allocate a buffer
-            buffer_size = info.cch+1
-            text = ctypes.create_unicode_buffer(buffer_size)
-
-            # update the structure and get the text info
-            info.dwTypeData = ctypes.addressof(text)
-            info.cch = buffer_size
-
-            win32functions.GetMenuItemInfo (
-                self.menuhandle,
-                self.index,
-                True,
-                ctypes.byref(info))
-
-            text = text.value
-        else:
-            text = ''
-
-        return text
-
-    def SubMenu(self):
-
-        submenu_handle = self._read_item().hSubMenu
-
-        if submenu_handle:
-            self.ctrl.SendMessage(
-                win32defines.WM_INITMENUPOPUP,
-                submenu_handle,
-                self.index)
-
-            return Menu(self.ctrl, submenu_handle, False)
-
-        return None
-
-    def IsEnabled(self):
-        return not (
-            self.State() & win32defines.MF_DISABLED or
-            self.State() & win32defines.MF_GRAYED)
-
-    def IsChecked(self):
-        return bool(self.State() & win32defines.MF_CHECKED)
-
-
-    def Click(self):
-        """Click on the menu item
-
-        If the menu is open this it will click with the mouse on the item.
-        If the menu is not open
-
-        """
-
-        self.ctrl.VerfiyEnabled()
-
-        rect = self.Rectangle()
-
-        print rect
-        x_pt = (rect.left + rect.right) /2
-        y_pt = (rect.top + rect.bottom) /2
-
-        _perform_click_input(
-            None,
-            coords = (x_pt, y_pt),
-            absolute = True)
-
-        win32functions.WaitGuiThreadIdle(self.ctrl)
-
-        time.sleep(delay_after_menuselect)
-
-
-    def Select(self):
-        """Select the menu item
-
-        This will send a message to the parent window that the
-        item was picked"""
-        self.ctrl.NotifyMenuSelect(self.ID())
-        win32functions.WaitGuiThreadIdle(self.ctrl)
-        time.sleep(delay_after_menuselect)
-
-    def GetProperties(self):
-        """Return the properties for the item as a dict
-
-        If this item opens a sub menu then call Menu.GetProperties()
-        to return the list of items in the sub menu. This is avialable
-        under teh 'MenuItems' key
-        """
-        props = {}
-        props['Index'] = self.Index()
-        props['State'] = self.State()
-        props['Type'] = self.Type()
-        props['ID'] = self.ID()
-        props['Text'] = self.Text()
-
-        submenu =  self.SubMenu()
-        if submenu:
-            props['MenuItems'] = submenu.GetProperties()
-
-        return props
-
-    def __repr__(self):
-        return "<MenuItem %s>" % `self.Text()`
-
-
-
-#    def Check(self):
-#        item = self._read_item()
-#        item.fMask = win32defines.MIIM_STATE
-#        item.fState &= win32defines.MF_CHECKED
-#
-##        ret = win32functions.SetMenuItemInfo(
-##            self.menuhandle,
-##            self.ID(),
-##            0, # by position
-##            ctypes.byref(item))
-##
-##        if not ret:
-##            raise ctypes.WinError()
-#
-#        print win32functions.CheckMenuItem(
-#            self.menuhandle,
-#            self.index,
-#            win32defines.MF_BYPOSITION | win32defines.MF_CHECKED)
-#
-#        win32functions.DrawMenuBar(self.ctrl)
-#
-#    def UnCheck(self):
-#        item = self._read_item()
-#        item.fMask = win32defines.MIIM_STATE
-#        item.fState &= win32defines.MF_UNCHECKED
-#
-#        ret = win32functions.SetMenuItemInfo(
-#            self.menuhandle,
-#            self.ID(),
-#            0, # by position
-#            ctypes.byref(item))
-#
-#        if not ret:
-#            raise ctypes.WinError()
-#
-#        win32functions.DrawMenuBar(self.ctrl)
-#
-#
-
-class Menu(object):
-    ""
-    def __init__(self, owner_ctrl, menuhandle, is_main_menu = True):
-        """Initialize the class.
-
-        :owner_ctrl: is the Control that owns this menu
-        :menuhandle: is the menu handle of the menu
-        :is_main_menu: we have to track whether it is the main menu or a popup
-                       menu
-
-        """
-        self.ctrl = owner_ctrl
-        self.handle = menuhandle
-        self.is_main_menu = is_main_menu
-
-        if self.is_main_menu:
-            self.ctrl.SendMessage(win32defines.WM_INITMENU, self.handle)
-
-    def ItemCount(self):
-        "Return the count of items in this menu"
-        return win32functions.GetMenuItemCount(self.handle)
-
-    def Item(self, index):
-        """Return a specific menu item
-
-        :index: is the 0 based index of the menu item you want
-        """
-        return MenuItem(self.ctrl, self.handle, index, self.is_main_menu)
-
-    def Items(self):
-        "Return a list of all the items in this menu"
-        items = []
-        for i in range(0, self.ItemCount()):
-            items.append(self.Item(i))
-
-        return items
-
-    def GetProperties(self):
-        """Return the properties for the menu as a list of dictionaries
-
-        This method is actually recursive. It calls GetProperties() for each
-        of the items. If the item has a sub menu it will call this
-        GetProperties to get the sub menu items.
-        """
-        props = []
-
-        for item in self.Items():
-            props.append(item.GetProperties())
-
-        return props
-
-    def GetMenuPath(self, path, path_items = None):
-        if path_items is None:
-            path_items = []
-
-        # get the text names from the menu items
-        item_texts = [item.Text() for item in self.Items()]
-
-        # get the first part (and remainder)
-        parts = path.split("->", 1)
-        current_part = parts[0]
-
-        # find the item that best matches the current part
-        best_item = findbestmatch.find_best_match(
-            current_part,
-            item_texts,
-            self.Items())
-
-        path_items.append(best_item)
-
-        # if there are more parts - then get the next level
-        if parts[1:]:
-            if best_item.SubMenu() is not None:
-                best_item.SubMenu().GetMenuPath("->".join(parts[1:]), path_items)
-
-        return path_items
-
-
-    def __repr__(self):
-        return "<Menu %d>" % self.handle
-
-
-
-#    def GetProperties(self):
-#
-#        for i in range(0, self.ItemCount()):
-#            menu_info = self.Item(self, i)[0]
-#
-#            item_prop['Index'] = i
-#            item_prop['State'] = menu_info.fState
-#            item_prop['Type'] = menu_info.fType
-#            item_prop['ID'] = menu_info.wID
-#
-#            else:
-#                item_prop['Text'] = ""
-#
-#            if self.IsSubMenu(i):
-#                item_prop['MenuItems'] = self.SubMenu(i).GetProperties()
-#
-#            return item_prop
-
-
-##====================================================================
-#def _GetMenuItems(menu_handle, ctrl):
-#    "Get the menu items as a list of dictionaries"
-#    # If it doesn't have a real menu just return
-#    if not win32functions.IsMenu(menu_handle):
-#        return []
-#
-#
-#    menu = Menu(ctrl, menu_handle)
-#
-#    props = []
-#    for item in menu.Items():
-#        item_props = {}
-#
-#        item_prop['Index'] = item.Index()
-#        item_prop['State'] = item.State()
-#        item_prop['Type'] = item.Type()
-#        item_prop['ID'] = item.ID()
-#        item_prop['Text'] = item.Text()
-#
-#        props.append(item_props)
-#
-#
-#
-#
-#
-#
-#
-#    items = []
-#
-#
-#    # for each menu item
-#    for i in range(0, item_count):
-#
-#        item_prop = {}
-#
-#        # get the information on the menu Item
-#        menu_info  = win32structures.MENUITEMINFOW()
-#        menu_info.cbSize = ctypes.sizeof (menu_info)
-#        menu_info.fMask = \
-#            win32defines.MIIM_CHECKMARKS | \
-#            win32defines.MIIM_ID | \
-#            win32defines.MIIM_STATE | \
-#            win32defines.MIIM_SUBMENU | \
-#            win32defines.MIIM_TYPE #| \
-#            #MIIM_FTYPE #| \
-#            #MIIM_STRING
-#            #MIIM_DATA | \
-#
-#
-#        ret = win32functions.GetMenuItemInfo (
-#            menu_handle, i, True, ctypes.byref(menu_info))
-#        if not ret:
-#            raise ctypes.WinError()
-#
-#        # if there is text
-#        if menu_info.cch:
-#            # allocate a buffer
-#            buffer_size = menu_info.cch+1
-#            text = ctypes.create_unicode_buffer(buffer_size)
-#
-#            # update the structure and get the text info
-#            menu_info.dwTypeData = ctypes.addressof(text)
-#            menu_info.cch = buffer_size
-#            win32functions.GetMenuItemInfo (
-#                menu_handle, i, True, ctypes.byref(menu_info))
-#            item_prop['Text'] = text.value
-#        else:
-#            item_prop['Text'] = ""
-#
-#        # if it's a sub menu then get it's items
-#        if menu_info.hSubMenu:
-#            # make sure that the app updates the menu if it need to
-#            ctrl.SendMessage(
-#                win32defines.WM_INITMENUPOPUP, menu_info.hSubMenu, i)
-#
-#            #ctrl.SendMessage(
-#            #    win32defines.WM_INITMENU, menu_info.hSubMenu, )
-#
-#            # get the sub menu items
-#            sub_menu_items = _GetMenuItems(menu_info.hSubMenu, ctrl)
-#
-#            # append them
-#            item_prop['MenuItems'] = sub_menu_items
-#
-#        items.append(item_prop)
-#
-#    return items
-#
 
 #====================================================================
 class _dummy_control(dict):
