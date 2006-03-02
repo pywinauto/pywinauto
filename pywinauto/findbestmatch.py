@@ -110,6 +110,7 @@ def _cut_at_tab(text):
     return  _after_tab.sub("", text)
 
 def _clean_non_chars(text):
+    "Remove non word characters"
     # should this also remove everything after the first tab?
 
     # remove non alphanumeric characters

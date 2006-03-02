@@ -166,7 +166,8 @@ VkKeyScan = stdcall(SHORT, 'user32', [c_wchar]) (VkKeyScanW)
 def MapVirtualKeyExW(p1, p2, p3):
     # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4376
     return MapVirtualKeyExW._api_(p1, p2, p3)
-MapVirtualKeyEx = stdcall(UINT, 'user32', [c_uint, c_uint, c_long]) (MapVirtualKeyExW)
+MapVirtualKeyEx = stdcall(
+    UINT, 'user32', [c_uint, c_uint, c_long]) (MapVirtualKeyExW)
 
 def MapVirtualKeyW(p1, p2):
     # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4355

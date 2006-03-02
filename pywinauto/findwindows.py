@@ -181,17 +181,17 @@ def enum_windows():
 
     # The callback function that will be called for each HWND
     # all we do is append the wrapped handle
-    def enum_win_proc(hwnd, lparam):
+    def EnumWindowProc(hwnd, lparam):
         "Called for each window - adds handles to a list"
         windows.append(hwnd)
         return True
 
     # define the type of the child procedure
-    EnumWindowProc = ctypes.WINFUNCTYPE(
+    enum_win_proc = ctypes.WINFUNCTYPE(
         ctypes.c_int, ctypes.c_long, ctypes.c_long)
 
     # 'construct' the callback with our function
-    proc = EnumWindowProc(enum_win_proc)
+    proc = enum_win_proc(EnumWindowProc)
 
     # loop over all the children (callback called for each)
     win32functions.EnumWindows(proc, 0)
@@ -208,7 +208,7 @@ def enum_child_windows(handle):
     child_windows = []
 
     # callback function for EnumChildWindows
-    def enumChildProc(hwnd, lparam):
+    def EnumChildProc(hwnd, lparam):
         "Called for each child - adds child hwnd to list"
 
         # append it to our list
@@ -218,12 +218,13 @@ def enum_child_windows(handle):
         return True
 
     # define the child proc type
-    EnumChildProc = ctypes.WINFUNCTYPE(
+    enum_child_proc = ctypes.WINFUNCTYPE(
         ctypes.c_int, 			# return type
         win32structures.HWND, 	# the window handle
         win32structures.LPARAM)	# extra information
 
-    proc = EnumChildProc(enumChildProc)
+    # update the proc to the correct type
+    proc = enum_child_proc(EnumChildProc)
 
     # loop over all the children (callback called for each)
     win32functions.EnumChildWindows(handle, proc, 0)

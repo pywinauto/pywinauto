@@ -30,7 +30,7 @@ __revision__ = "$Revision$"
 # maybe using elementtree
 # others?
 
-import elementtree
+#import elementtree
 from elementtree.ElementTree import Element, SubElement, ElementTree
 from cElementTree import Element, SubElement, ElementTree
 import ctypes
@@ -96,7 +96,12 @@ def _SetNodeProps(element, name, value):
             _SetNodeProps(
                 element,
                 name + "_IMG",
-                {"mode": value.mode, "size":value.size, "data":image_data})
+                {
+                    "mode": value.mode,
+                    "size_x":value.size[0],
+                    "size_y":value.size[1],
+                    "data":image_data
+                })
 
         # a system error is raised from time to time when we try to grab
         # the image of a control that has 0 height or width
@@ -399,7 +404,11 @@ def _ReadXMLStructure(control_element):
             # get image Attribs
             img = _GetAttributes(elem)
             data = img['data'].decode('base64').decode('bz2')
-            propval = PIL.Image.fromstring(img['mode'], img['size'], data)
+
+            propval = PIL.Image.fromstring(
+                img['mode'],
+                (img['size_x'], img['size_y']),
+                data)
 
         elif elem.tag.endswith("_LIST"):
             # All this is just to handle the edge case of
@@ -412,7 +421,7 @@ def _ReadXMLStructure(control_element):
             # if it was empty then convert the returned dict
             # to a list
             if propval == {}:
-                propval = []
+                propval = list()
 
             # otherwise extract the list out of the returned dict
             else:
