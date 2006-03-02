@@ -32,6 +32,7 @@ from ctypes import (
 
 
 class Structure(ctypes.Structure):
+    "Override the Structure class from ctypes to add printing and comparison"
     #----------------------------------------------------------------
     def __str__(self):
         """Print out the fields of the ctypes Structure
@@ -47,20 +48,40 @@ class Structure(ctypes.Structure):
 
     #----------------------------------------------------------------
     def __eq__(self, other_struct):
-        "return true if the two rectangles have the same coordinates"
+        "return true if the two structures have the same coordinates"
 
-        try:
-            are_equal = True
-            for field in self._fields_:
-                name = field[0]
-                if getattr(self, name) != getattr(other_struct, name):
-                    are_equal = False
-                    break
+        if isinstance(other_struct, ctypes.Structure):
 
-            return are_equal
+            try:
+                # pretend they are two structures - check that they both
+                # have the same value for all fields
+                are_equal = True
+                for field in self._fields_:
+                    name = field[0]
+                    if getattr(self, name) != getattr(other_struct, name):
+                        are_equal = False
+                        break
 
-        except AttributeError:
-            return False
+                return are_equal
+
+            except AttributeError:
+                return False
+
+        if isinstance(other_struct, (list, tuple)):
+            # Now try to see if we have been passed in a list or tuple
+            try:
+                are_equal = True
+                for i, field in enumerate(self._fields_):
+                    name = field[0]
+                    if getattr(self, name) != other_struct[i]:
+                        are_equal = False
+                        break
+                return are_equal
+
+            except:
+                return False
+
+        return False
 
 ##====================================================================
 #def PrintCtypesStruct(struct, exceptList = []):
