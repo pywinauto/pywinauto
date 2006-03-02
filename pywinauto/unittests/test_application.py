@@ -132,8 +132,9 @@ class ApplicationTestCases(unittest.TestCase):
         try:
             app_conn.connect_(title = "Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
-            self.assertEqual("There was more then one Notepad window open", "")
-            pass
+            wins = findwindows.find_windows(title = "Untitled - Notepad")
+            app_conn.connect_(handle = wins[0])
+
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')

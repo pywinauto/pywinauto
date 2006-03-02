@@ -23,9 +23,11 @@
 from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import win32structures, win32defines
+
 import time
 import pprint
 import pdb
+import ctypes
 
 __revision__ = "$Revision: 234 $"
 
@@ -61,6 +63,11 @@ class HwndWrapperTests(unittest.TestCase):
         # close the application
         self.dlg.TypeKeys("%{F4}")
 
+
+    def testInvalidHandle(self):
+        "Test that an exception is raised with an invalid window handle"
+        self.assertRaises(InvalidWindowHandle, HwndWrapper, -1)
+
     #def testText(self):
     #    "Test getting the window Text of the dialog"
     #    self.assertEquals(self.dlg.WindowText(), "Untitled - Notepad")
@@ -68,6 +75,7 @@ class HwndWrapperTests(unittest.TestCase):
     def testFriendlyClassName(self):
         "Test getting the friendly classname of the dialog"
         self.assertEquals(self.ctrl.FriendlyClassName(), "Button")
+
 
     def testClass(self):
         "Test getting the classname of the dialog"
@@ -211,12 +219,25 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(self.dlg.IsChild(self.ctrl), False)
 
 
-#    def testSendMessage(self):
-#        pass
-#    def testSendMessageTimeout(self):
-#        pass
-#    def testPostMessage(self):
-#        pass
+    def testSendMessage(self):
+        vk = self.dlg.SendMessage(win32defines.WM_GETDLGCODE)
+        self.assertEqual(0, vk)
+
+        code = self.dlg.Inv.SendMessage(win32defines.WM_GETDLGCODE)
+        self.assertEqual(0, vk)
+
+
+    def testSendMessageTimeout(self):
+        vk = self.dlg.SendMessageTimeout(win32defines.WM_GETDLGCODE)
+        self.assertEqual(0, vk)
+
+        code = self.dlg.Inv.SendMessageTimeout(win32defines.WM_GETDLGCODE)
+        self.assertEqual(0, vk)
+
+    def testPostMessage(self):
+        self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
+        self.assertNotEquals(0, self.dlg.Inv.PostMessage(win32defines.WM_PAINT))
+
 #    def testNotifyMenuSelect(self):
 #        pass
 #    def testNotifyParent(self):

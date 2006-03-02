@@ -23,6 +23,7 @@
 __revision__ = "$Revision: 234 $"
 
 
+
 from pywinauto.controls.win32_controls import *
 
 import unittest
@@ -32,7 +33,6 @@ import unittest
 import time
 import pdb
 import pprint
-
 
 
 class ButtonTestCases(unittest.TestCase):
@@ -88,6 +88,14 @@ class ButtonTestCases(unittest.TestCase):
         first_group = no_text_buttons[0]
 
         self.assertEquals(first_group.FriendlyClassName(), "GroupBox")
+
+    def testCheckUncheck(self):
+        "Test unchecking a control"
+
+        self.calc.Inv.Check()
+        self.assertEquals(self.calc.Inv.GetCheckState(), 1)
+        self.calc.Inv.UnCheck()
+        self.assertEquals(self.calc.Inv.GetCheckState(), 0)
 
 
     def testGetCheckState_unchecked(self):
@@ -204,11 +212,31 @@ class ComboBoxTestCases(unittest.TestCase):
 
     def testSelect_toohigh(self):
         "Test that the Select correctly raises if the item is too high"
-        self.assertRaises(IndexError, self.ctrl.Select, 21)
+        self.assertRaises(IndexError, self.ctrl.Select, 211)
+
+    def testSelect_string(self):
+        "Test that we can select based on a string"
+        self.ctrl.Select(0)
+        self.assertEquals(self.ctrl.SelectedIndex(), 0)
+        self.ctrl.Select("Italic")
+        self.assertEquals(self.ctrl.SelectedIndex(), 1)
+
+        # now do it with a typo
+        self.assertRaises(ValueError, self.ctrl.Select, "Bold Italc")
 
 
-#    def testItemData(self):
-#        pass
+    def testSelect_simpleCombo(self):
+        self.app.Font.ScriptComboBox.Select(0)
+        self.assertEquals(self.app.Font.ScriptComboBox.SelectedIndex(), 0)
+        self.app.Font.ScriptComboBox.Select(2)
+        self.assertEquals(self.app.Font.ScriptComboBox.SelectedIndex(), 2)
+
+
+    def testItemData(self):
+        self.ctrl.ItemData(0)
+
+        self.ctrl.ItemData("Italic")
+
 #
 #    def testTexts(self):
 #        pass
@@ -256,6 +284,36 @@ class ListBoxTestCases(unittest.TestCase):
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
+    def testItemCount(self):
+        self.assertEquals(self.ctrl.ItemCount(), 14)
+
+    def testItemData(self):
+        # I can't test much with this
+        self.ctrl.ItemData(1)
+
+    def testSelectedIndices(self):
+        self.assertEquals(self.ctrl.SelectedIndices(), [0,])
+        self.ctrl.Select(2)
+        self.assertEquals(self.ctrl.SelectedIndices(), [2,])
+
+    def testSelect(self):
+        self.ctrl.Select(5)
+        self.assertEquals(self.ctrl.SelectedIndices(), [5,])
+
+        from datetime import datetime
+        today = datetime.today()
+        date_string = "%d/%d/%d" % (today.month, today.day, today.year)
+
+        self.ctrl.Select(date_string)
+        self.assertEquals(self.ctrl.SelectedIndices(), [1,])
+
+    def testGetSetItemFocus(self):
+        self.ctrl.SetItemFocus(0)
+        self.assertEquals(self.ctrl.GetItemFocus(), 0)
+
+        self.ctrl.SetItemFocus(5)
+        self.assertEquals(self.ctrl.GetItemFocus(), 5)
+
 
 
 
@@ -276,7 +334,7 @@ class EditTestCases(unittest.TestCase):
 
         test_file = os.path.join(path, "test.txt")
 
-        self.test_data = open(test_file, "r").read()
+        self.test_data = open(test_file, "rb").read()
         # remove the BOM if it exists
         self.test_data = self.test_data.replace("\xef\xbb\xbf", "")
         self.test_data = self.test_data.decode('utf-8')
@@ -337,7 +395,7 @@ class EditTestCases(unittest.TestCase):
         for i in range (0, self.ctrl.LineCount()):
             self.assertEquals(
                 self.ctrl.LineLength(i),
-                len(self.test_data.split("\n")[i]))
+                len(self.test_data.split("\r\n")[i]))
 
     def testGetLine(self):
         "Test getting each line of the edit control"
@@ -345,7 +403,7 @@ class EditTestCases(unittest.TestCase):
         #for i in range(0, self.ctrl.LineCount()):
         #    print `self.ctrl.GetLine(i)`
 
-        for i, line in enumerate(self.test_data.split("\n")):
+        for i, line in enumerate(self.test_data.split("\r\n")):
             #print `line`
             #print `self.ctrl.GetLine(i)`
             self.assertEquals(self.ctrl.GetLine(i), line)
@@ -354,30 +412,142 @@ class EditTestCases(unittest.TestCase):
         "Test getting the text block of the edit control"
         self.assertEquals(self.ctrl.TextBlock(), self.test_data)
 
-    #def testSelectionIndices(self):
-    #    "Test getting the text block of the edit control"
-    #    self.assertEquals(self.ctrl.TextBlock(), self.test_data)
+    def testSelection(self):
+        "Test selecting text in the edit control in various ways"
+
+        self.ctrl.Select(0, 0)
+        self.assertEquals((0, 0), self.ctrl.SelectionIndices())
+
+        self.ctrl.Select()
+        self.assertEquals((0, len(self.test_data)), self.ctrl.SelectionIndices())
+
+        self.ctrl.Select(10, 25)
+        self.assertEquals((10, 25), self.ctrl.SelectionIndices())
+
+        self.ctrl.Select(18, 7)
+        self.assertEquals((7, 18), self.ctrl.SelectionIndices())
+
+        txt = u"\xc7a-va? Et"
+        self.test_data.index(txt)
+
+        self.ctrl.Select(txt)
+        start = self.test_data.index(txt)
+        end = start + len(txt)
+        self.assertEquals((start, end), self.ctrl.SelectionIndices())
+
+
+
+
+
+
+class DialogTestCases(unittest.TestCase):
+    "Unit tests for the DialogWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        self.app = Application()
+
+        self.app.start_("calc.exe")
+        self.calc = self.app.SciCalc
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.calc.TypeKeys("%{F4}")
 
 
     def testGetProperties(self):
         "Test getting the properties for the control"
-        props  = self.dlg.GetProperties()
+        props  = self.calc.GetProperties()
 
         self.assertEquals(
-            self.dlg.FriendlyClassName(), props['FriendlyClassName'])
+            "SciCalc", props['FriendlyClassName'])
 
-        self.assertEquals(
-            self.dlg.Texts(), props['Texts'])
+        self.assertEquals(self.calc.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
+            self.assertEquals(getattr(self.calc, prop_name)(), props[prop_name])
+
+    def testRunTests(self):
+        bugs = self.calc.RunTests()
+        from pywinauto.controls.HwndWrapper import HwndWrapper
+        self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
+
+    def testWriteToXML(self):
+        self.calc.WriteToXML("test_output.xml")
+
+        all_props = [self.calc.GetProperties()]
+        all_props.extend([c.GetProperties() for c in self.calc.Children()])
+
+        from pywinauto import XMLHelpers
+
+        props = XMLHelpers.ReadPropertiesFromFile("test_output.xml")
+        #for i, ctrl in enumerate(props):
+        #    for key, value in ctrl.items():
+        #        if isinstance(value, (list, tuple)):
+        #            self.assertEquals(list(value), list(all_props[i][key]))
+        #        else:
+        #            self.assertEquals(value, all_props[i][key])
+
+        import os
+        os.unlink("test_output.xml")
 
 
+    def testClientAreaRect(self):
+        clientarea = self.calc.ClientAreaRect()
+        self.assertEquals(self.calc.Rectangle().left + 3, clientarea.left)
+        self.assertEquals(self.calc.Rectangle().top + 41, clientarea.top)
+        self.assertEquals(self.calc.Rectangle().right - 3, clientarea.right)
+        self.assertEquals(self.calc.Rectangle().bottom - 3, clientarea.bottom)
+
+
+
+class PopupMenuTestCases(unittest.TestCase):
+    "Unit tests for the DialogWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        self.app = Application()
+
+        self.app.start_("notepad.exe")
+        self.app.Notepad.Edit.RightClick()
+        self.popup = self.app.PopupMenu.ctrl_()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.popup.TypeKeys("{ESC}")
+        self.app.Notepad.TypeKeys("%{F4}")
+
+
+    def testGetProperties(self):
+        "Test getting the properties for the control"
+        props  = self.popup.GetProperties()
+
+        self.assertEquals(
+            "PopupMenu", props['FriendlyClassName'])
+
+        self.assertEquals(self.popup.Texts(), props['Texts'])
+
+        for prop_name in props:
+            self.assertEquals(getattr(self.popup, prop_name)(), props[prop_name])
+
+    def testIsDialog(self):
+        self.assertEquals(True, self.popup.IsDialog())
+
+    def test_menu_handle(self):
+        handle = self.popup._menu_handle()
+        self.assertNotEquals(0, handle)
 
 
 
 
 if __name__ == "__main__":
     #_unittests()
-
     unittest.main()
