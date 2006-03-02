@@ -115,11 +115,21 @@ doc_props = app.window_(title_re = ".*Document Properties")
 # Two ways of selecting tabs with indices...
 doc_props.TabCtrl.Select(0)
 doc_props.TabCtrl.Select(1)
+try:
 doc_props.TabCtrl.Select(2)
+except IndexError:
+    # not all users have 3 tabs in this dialog
+    pass
 
 # or with text...
 doc_props.TabCtrl.Select("PaperQuality")
+
+try:
 doc_props.TabCtrl.Select("JobRetention")
+except MatchError:
+    # some people do not have the "Job Retention" tab
+    pass
+
 doc_props.TabCtrl.Select("Layout")
 
 # do some radio button clicks
