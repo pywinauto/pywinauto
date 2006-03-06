@@ -1,3 +1,40 @@
+0.x.x Small Release number - big changes
+------------------------------------------------
+xx-Mar-2006
+
+    * Added wrapper classes for Menus and MenuItems this enabled cleaner
+      interaction with Menu's. It also gives more functionality - you can now 
+      programmatically Click() on menus, and query if a menu item is checked 
+      or not.
+      
+    * Added application.WindowSpecification.Wait() and WaitNot() methods. 
+      These methods allow you to wait for a control to exist, be visible,
+      be enabled, be ready (both enabled and visible!) or to wait for the
+      control to not be in any of these states. WaitReady(), 
+      WaitNotEnabled(), WaitNotVisible() now use these methods. I was able to also
+      add the missing methods WaitNotReady(), WaitEnabled(), WaitVisible(), 
+      WaitExists(), WaitnotExists(). Please use Wait() and WaitNot() as I have
+      Deprecated these Wait* methods.
+      
+    * Slightly modified timeout waits for control resolution so that a timed 
+      function more accurately follows the timeout value specified.
+      
+    * Added application.Application.start() and connect() static methods. These
+      methods are factory methods in that they will return an initialized Application
+      instance. They work exactly the same as start_() and connect() as they are 
+      implemented in terms of those.
+        
+        from pywinauto.application import Application
+        notepad = Application.start("notepad")
+        same_notepad = Application.connect(path = "notepad")
+        
+    * Updated the examples to follow changes to the code - and to make them a little
+      more robust.
+        
+    * Added more unit tests now up 174 to from 134
+    
+
+
 0.2.1 Small Release number - big changes
 ------------------------------------------------
 17-Feb-2006

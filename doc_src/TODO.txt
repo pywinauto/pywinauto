@@ -5,7 +5,9 @@ PYWINAUTO TODO's
 
 * Add tests for SendInput click methods
 
-* Finish example of saving a page from IE
+* Need to move the checking if a control is a Ownerdrawn/bitmap control out
+  of __init__ methods and into it's own method something like 
+  IsNormallyRendered()
 
 * Give example how to work with Tray Window
 
@@ -51,16 +53,6 @@ PYWINAUTO TODO's
   in this case) can have the same handle - so returning the handle of PageSetup
   when we call PageSetup2 would fail (and we would do our usual waiting until
   it succeeds or times out).
-
-
-* Document that I have not been able to figure out how to reliably check
-  if a menu item is enabled or not before selecting it. (Probably FIXED NOW!)
-  
-  For Example in Media Player if you try and click the View->Choose Columns
-  menu item when it is not enabled it crashes Media Player. Theoretically
-  MF_DISABLED and MF_GRAYED should be used - but I found that these are not
-  updated (at least for Media Player) until they are dropped down.
-
 
 * Investigate using any of the following
 
@@ -158,4 +150,14 @@ CLOSED (in some way or the other)
 
 * Need to modularize the methods of the common_controls because at the moment
   they are much too monolithic.
+
+* Finish example of saving a page from IE
+
+* Document that I have not been able to figure out how to reliably check
+  if a menu item is enabled or not before selecting it. (Probably FIXED NOW!)
+  
+  For Example in Media Player if you try and click the View->Choose Columns
+  menu item when it is not enabled it crashes Media Player. Theoretically
+  MF_DISABLED and MF_GRAYED should be used - but I found that these are not
+  updated (at least for Media Player) until they are dropped down.
 
