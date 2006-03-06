@@ -22,7 +22,8 @@
 
 These wrappers allow you to work easily with menu items.
 You can select or click on items and check if they are
-checked or unchecked."""
+checked or unchecked.
+"""
 
 __revision__ = "$Revision: 330 $"
 
@@ -50,6 +51,7 @@ class MenuItem(object):
         :menu:	The menu that this item is on
         :index:	The Index of this menuitem on the menu
         :on_main_menu:	True if the item is on the main menu
+
         """
         self.index = index
         self.menu = menu
@@ -61,7 +63,7 @@ class MenuItem(object):
         """Read the menu item info
 
         See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menufunctions/getmenuiteminfo.asp
-        for more information"""
+        for more information."""
         menu_info  = win32structures.MENUITEMINFOW()
         menu_info.cbSize = ctypes.sizeof (menu_info)
         menu_info.fMask = \
@@ -119,8 +121,9 @@ class MenuItem(object):
         """Return the Type of this menu item
 
         Main types are MF_STRING, MF_BITMAP, MF_SEPARATOR.
+
         See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menustructures/menuiteminfo.asp
-        for further information"""
+        for further information."""
         return self._read_item().fType
 
     def Text(self):
@@ -219,7 +222,8 @@ class MenuItem(object):
         """Select the menu item
 
         This will send a message to the parent window that the
-        item was picked"""
+        item was picked
+        """
 
         if not self.IsEnabled():
             raise MenuItemNotEnabled(

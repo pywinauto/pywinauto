@@ -833,10 +833,14 @@ class HwndWrapper(object):
 
         Path can be a string in the form "MenuItem->MenuItem->MenuItem..."
         where each MenuItem is the text of an item at that level of the menu.
-        E.g.
-          "File->Export->ExportAsPNG"
-        spaces are not important so you could also have written...
-          "File -> Export -> Export As PNG"
+        E.g. ::
+
+          File->Export->ExportAsPNG
+
+        spaces are not important so you could also have written... ::
+
+          File -> Export -> Export As PNG
+
         """
         return self.Menu().GetMenuPath(path)[-1]
 
