@@ -12,6 +12,7 @@ dialogs and controls.
 
 Installation
 ------------
+
 Unzip the pywinauto zip file to a folder.
 Install the following Python packages
 ctypes       http://starship.python.net/crew/theller/ctypes/
