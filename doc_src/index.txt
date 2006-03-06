@@ -14,6 +14,7 @@ Installation
 ------------
  - Unzip the pywinauto zip file to a folder.
  - Install the following Python packages
+ 
     - ctypes       http://starship.python.net/crew/theller/ctypes/
     - Sendkeys     http://www.rutherfurd.net/python/sendkeys/index.html
     - *Optional* PIL          http://www.pythonware.com/products/pil/index.htm
@@ -69,20 +70,66 @@ This avoid the user having to use time.sleep or a "WaitForDialog" function.
 Some similar tools for comparison
 ---------------------------------
  * Python tools
+
     - Watsup
     - winGuiAuto
 
  * Other scripting language tools
+
     - Perl Win32::GuiTest
     - Ruby GuiTest
     - others?
 
  * Other free tools
+
     - AutoIt
     - See collection at: 
 
  * Commercial tools
+
     - WinRunner
     - SilkTest
     - Visual Test
     - Many Others
+
+    
+Why write yet another automation tool if there are so many out there?
+---------------------------------------------------------------------
+There are loads of reasons :-)
+
+*Takes a different approach*
+Most other tools are not object oriented you end  up writing stuff like::
+
+    window = findwindow(title = "Untitled - Notepad", class = "Notepad")
+    SendKeys(window, "%OF")  # Format -> Font
+    fontdialog  = findwindow("title = "Font")
+    buttonClick(fontdialog, "OK")
+    
+I was hoping to create something more userfriendly (and pythonic). For example
+the translation of above would be::
+    
+    win = app.UntitledNotepad
+    win.MenuSelect("Format->Font")
+    app.Font.OK.Click()
+
+*Python makes it easy*
+Python is a great programming language, but I didn't find
+any automation tools that were Pythonic (I only found one
+that was implemented in python) and I didn't care for it 
+too much.
+
+*Localization as a main requirement*
+I work in the localization industry and GUI
+automation is used extensively as often all
+you need to do is ensure that your UI behaves
+and is correct with respect to the Source
+UI. This is actually an easier job then for
+testing the original source UI.
+
+But most automation tools are based off of coordinates or text of the 
+controls and these can change in the localized software. So my goal (
+though not yet implemented) is to allow scripts to run unchanged
+between original source language (often English) and the translated
+software (Japanese, German, etc).
+                                     
+                                     
