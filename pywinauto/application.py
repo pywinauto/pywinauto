@@ -213,16 +213,16 @@ class WindowSpecification(object):
         HowTo document.
         """
 
-        # FUTURE REQUIREMENT - NOT REQUIRED YET
         # if we already have 2 levels of criteria (dlg, control)
         # then resolve the control and do a getitem on it for the
-        # key
         if len(self.criteria) == 2:
             ctrl = _resolve_control(
                 self.criteria,
                 window_find_timeout,
                 window_retry_interval)
 
+            # try to return a good error message if the control does not
+            # have a __getitem__() method)
             if hasattr(ctrl, '__getitem__'):
                 return ctrl[key]
             else:
@@ -232,28 +232,16 @@ class WindowSpecification(object):
 
                 raise AttributeError(message)
 
-
-        # END FUTURE REQUIREMENT - NOT REQUIRED YET
-
+        # if we get here then we must have only had one criteria so far
+        # so create a new WindowSpecification for this control
         new_item = WindowSpecification(self.criteria[0])
-        new_item.criteria.append({"best_match" : key})
 
-        # We don't really want this because it brings us back to
-        # not being able to do app.Dlg.Control.WaitExists()
-        #if len(self.criteria) == 2:
-        #    return self._resolve_control()
+        # add our new criteria
+        new_item.criteria.append({"best_match" : key})
 
         return new_item
 
-    # now there is a problem what if we do
-    #app.Dlg.Click(), or app.Dlg.Font
-    # one way would be to resolve on __call__
-    # or maybe resolve - if window found and attribute found
-    # then return it
 
-    # - resolve on call - that will handle all actions
-    # - We know the first one is a dialog so we an
-    #   check if the attr is in the list of Dialog attributes!
     def __getattr__(self, attr):
         """Attribute access for this class
 
@@ -269,10 +257,6 @@ class WindowSpecification(object):
         """
 
         from pywinauto.controls.win32_controls import DialogWrapper
-
-        #if self.criteria[0].has_key("title_re") and \
-        #    "Document" in self.criteria[0]['title_re']:
-        #    print attr, self.criteria
 
         # if we already have 2 levels of criteria (dlg, conrol)
         # this third must be an attribute so resolve and get the
@@ -483,7 +467,6 @@ class WindowSpecification(object):
             timeout = timeout,
             wait_interval = wait_interval)
 
-
     def WaitEnabled(self,
         timeout = window_find_timeout,
         wait_interval = window_retry_interval):
@@ -497,19 +480,6 @@ class WindowSpecification(object):
             timeout = timeout,
             wait_interval = wait_interval)
 
-
-#        enabled_criteria = self.criteria[:]
-#        for criterion in enabled_criteria:
-#            criterion['enabled_only'] = True
-#
-#        ctrl = _resolve_control(
-#            enabled_criteria,
-#            timeout,
-#            wait_interval)
-#
-#        return ctrl
-
-
     def WaitNotEnabled(self,
         timeout = window_find_timeout,
         wait_interval = window_retry_interval):
@@ -520,28 +490,6 @@ class WindowSpecification(object):
         self.WaitNot('enabled',
             timeout = timeout,
             wait_interval = wait_interval)
-
-#        waited = 0
-#        while True:
-#
-#            try:
-#                # stop trying if it is not enabled
-#                if not _resolve_control(self.criteria).IsEnabled():
-#                    break
-#
-#            # stop trying if the window doesn't exist
-#            except (
-#                findwindows.WindowNotFoundError, findbestmatch.MatchError):
-#                break
-#
-#            # stop trying if we have reached the timeout
-#            if waited >= timeout:
-#                break
-#
-#            # other wise wait the interval, and try again
-#            time.sleep(wait_interval)
-#            waited += wait_interval
-
 
     def WaitVisible(self,
         timeout = window_find_timeout,
@@ -555,17 +503,6 @@ class WindowSpecification(object):
         return self.Wait('visible',
             timeout = timeout,
             wait_interval = wait_interval)
-#
-#        visible_criteria = self.criteria[:]
-#        for criterion in visible_criteria:
-#            criterion['visible_only'] = True
-#
-#        ctrl = _resolve_control(
-#            visible_criteria,
-#            timeout,
-#            wait_interval)
-#
-#        return ctrl
 
     def WaitNotVisible(self,
         timeout = window_find_timeout,
@@ -577,35 +514,6 @@ class WindowSpecification(object):
         self.WaitNot('visible',
             timeout = timeout,
             wait_interval = wait_interval)
-
-#
-#        # modify the criteria as Exists should look for all
-#        # windows - including not visible and disabled
-#        notvisible_criteria = []
-#        for criterion in self.criteria[:]:
-#            criterion['enabled_only'] = False
-#            criterion['visible_only'] = False
-#            notvisible_criteria.append(criterion)
-#
-#        waited = 0
-#        while True:
-#
-#            try:
-#                # stop trying if it is not enabled
-#                if not _resolve_control(notvisible_criteria).IsVisible():
-#                    break
-#
-#            # stop trying if the window doesn't exist
-#            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-#                break
-#
-#            # stop trying if we have reached the timeout
-#            if waited >= timeout:
-#                break
-#
-#            # other wise wait the interval, and try again
-#            time.sleep(wait_interval)
-#            waited += wait_interval
 
     def WaitExists(self,
         timeout = window_find_timeout,
@@ -629,30 +537,6 @@ class WindowSpecification(object):
         self.WaitNot('exists',
             timeout = timeout,
             wait_interval = wait_interval)
-#
-#        waited = 0
-#        while True:
-#
-#            try:
-#                # Try to resolve the control
-#                _resolve_control(self.criteria)
-#
-#            # stop trying if the window doesn't exist
-#            except (
-#                findwindows.WindowNotFoundError, findbestmatch.MatchError):
-#                break
-#
-#            # stop trying if we have reached the timeout
-#            if waited >= timeout:
-#                break
-#
-#            # other wise wait the interval, and try again
-#            time.sleep(wait_interval)
-#            waited += wait_interval
-
-
-
-
 
     def print_control_identifiers(self):
         """Prints the 'identifiers'
@@ -694,14 +578,6 @@ class WindowSpecification(object):
 
                 print "'%s'" % text.encode("unicode_escape"),
             print
-
-
-
-
-
-
-
-
 
 
 
