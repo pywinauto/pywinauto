@@ -23,13 +23,15 @@
 
 from distutils.core import setup
 
+import pywinauto
+
 
 setup(name='pywinauto',
-	version='0.2.1',
-	description='Python library for GUI automation and testing',
-    url="http://sourceforge.net/projects/pywinauto",
-	author='Mark Mc Mahon',
-	author_email='mark.m.mcmahon@gmail.com',
+    version = pywinauto.__version__,
+	description = 'Python library for GUI automation and testing',
+    url = "http://sourceforge.net/projects/pywinauto",
+	author = 'Mark Mc Mahon',
+	author_email = 'mark.m.mcmahon@gmail.com',
 
 	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
 #
