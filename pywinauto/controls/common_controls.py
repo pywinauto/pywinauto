@@ -661,7 +661,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetProperties(self):
         "Get the properties for the control as a dictionary"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
+        props = super(TreeViewWrapper, self).GetProperties()
 
         props['ItemCount'] = self.ItemCount()
 
@@ -1171,7 +1171,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetProperties(self):
         "Return the properties of the TabControl as a Dictionary"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
+        props = super(TabControlWrapper, self).GetProperties()
 
         props['TabCount'] = self.TabCount()
 
@@ -1651,7 +1651,9 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the instance"
-        HwndWrapper.HwndWrapper.__init__(self, hwnd)
+        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
+        super(ToolTipsWrapper, self).__init__(hwnd)
+
 
     #----------------------------------------------------------------
     def GetTip(self, tip_index):
@@ -1691,7 +1693,8 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
-        HwndWrapper.HwndWrapper.__init__(self, hwnd)
+        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
+        super(UpDownWrapper, self).__init__(hwnd)
 
     def GetValue(self):
         "Get the current value of the UpDown control"
