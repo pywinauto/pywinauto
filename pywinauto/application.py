@@ -217,8 +217,22 @@ class WindowSpecification(object):
         # if we already have 2 levels of criteria (dlg, control)
         # then resolve the control and do a getitem on it for the
         # key
-        #if len(self.criteria) == 2:
-        #    return self.__resolvewindow()[key]
+        if len(self.criteria) == 2:
+            ctrl = _resolve_control(
+                self.criteria,
+                window_find_timeout,
+                window_retry_interval)
+
+            if hasattr(ctrl, '__getitem__'):
+                return ctrl[key]
+            else:
+                message = "The control does not have a __getitem__ method " \
+                    "for item access (i.e. ctrl[key]) so maybe you have " \
+                    "requested this in error?"
+
+                raise AttributeError(message)
+
+
         # END FUTURE REQUIREMENT - NOT REQUIRED YET
 
         new_item = WindowSpecification(self.criteria[0])
@@ -276,7 +290,7 @@ class WindowSpecification(object):
             # then resolve the window and return the attribute
             if len(self.criteria) == 1 and hasattr(DialogWrapper, attr):
                 return getattr(
-                    self.WaitReady(
+                    self.Wait("ready",
                         window_find_timeout,
                         window_retry_interval),
                     attr)
@@ -307,26 +321,32 @@ class WindowSpecification(object):
             return False
 
 
-    def Wait(self, *args, **kwargs):
-        """Wait for the window to be in any of the following states:
+    def Wait(self,
+            wait_for,
+            timeout = window_find_timeout,
+            wait_interval = window_retry_interval):
 
-        'exists'
-        'visible'
-        'enabled'
-        'ready'
+        """Wait for the window to be in a particular state
 
-        e.g. self.Dlg.Wait("exists", "enabled", "visible", "ready")
+        :wait_for: The state to wait for the window to be in. It can be any
+                   of the following states
 
-        'exists' means that the window is a valid handle
-        'visible' means that the window is not hidden
-        'enabled' means that the window is not disabled
-        'ready' means that the window is visible and enabled
+                    * 'exists' means that the window is a valid handle
+                    * 'visible' means that the window is not hidden
+                    * 'enabled' means that the window is not disabled
+                    * 'ready' means that the window is visible and enabled
+
+        :timeout: Raise an error if the window is not in the appropriate
+                  state after this number of seconds.
+        :wiat_interval: How long to sleep between each retry
+
+        e.g. self.Dlg.Wait("exists enabled visible ready")
 
         See also: ``Application.WaitNot()``
         """
 
-        # allow spaces and case mixups - just to make it easier to use
-        args = [arg.lower().strip() for arg in args]
+        # allow for case mixups - just to make it easier to use
+        waitfor = wait_for.lower()
 
         # make a copy of the criteria that we can modify
         wait_criteria = self.criteria[:]
@@ -335,27 +355,21 @@ class WindowSpecification(object):
         # we go from least strict to most strict in case the user
         # has specified conflicting wait conditions
         for criterion in wait_criteria:
-            if 'exists' in args:
+            if 'exists' in waitfor:
                 criterion['enabled_only'] = False
                 criterion['visible_only'] = False
 
-            if 'visible' in args:
+            if 'visible' in waitfor:
                 criterion['enabled_only'] = False
                 criterion['visible_only'] = True
 
-            if 'enabled' in args:
+            if 'enabled' in waitfor:
                 criterion['enabled_only'] = True
                 criterion['visible_only'] = False
 
-            if 'ready' in args:
+            if 'ready' in waitfor:
                 criterion['visible_only'] = True
                 criterion['enabled_only'] = True
-
-        # get the specified timings or defaults if not specified
-        timeout = kwargs.get('timeout', window_find_timeout)
-        wait_interval = kwargs.get(
-            'wait_interval',
-            window_retry_interval)
 
         ctrl = _resolve_control(
             wait_criteria,
@@ -364,22 +378,28 @@ class WindowSpecification(object):
 
         return ctrl
 
-    def WaitNot(self, *args, **kwargs):
-        """Wait for the window to not be in any of the following states:
+    def WaitNot(self,
+            wait_for_not,
+            timeout = window_find_timeout,
+            wait_interval = window_retry_interval):
 
-        'exists'
-        'visible'
-        'enabled'
-        'ready'
+        """Wait for the window to not be in a particular state
 
-        e.g. self.Dlg.Wait("exists", "enabled", "visible", "ready")
+        :wait_for: The state to wait for the window to not be in. It can be any
+                   of the following states
 
-        'exists' means that the window is a valid handle
-        'visible' means that the window is not hidden
-        'enabled' means that the window is not disabled
-        'ready' means that the window is visible and enabled
+                    * 'exists' means that the window is a valid handle
+                    * 'visible' means that the window is not hidden
+                    * 'enabled' means that the window is not disabled
+                    * 'ready' means that the window is visible and enabled
 
-        See also: ``Application.Wait()``
+        :timeout: Raise an error if the window is sill in the
+                  state after this number of seconds.(Optional)
+        :wiat_interval: How long to sleep between each retry (Optional)
+
+        e.g. self.Dlg.WaitNot("exists enabled visible ready")
+
+        See also: ``Application.WaitNot("exists enabled visible ready")``
         """
 
         waitnot_criteria = self.criteria[:]
@@ -387,51 +407,58 @@ class WindowSpecification(object):
             criterion['enabled_only'] = False
             criterion['visible_only'] = False
 
-        # get the specified timings or defaults if not specified
-        timeout = kwargs.get('timeout', window_find_timeout)
-        wait_interval = kwargs.get(
-            'wait_interval',
-            window_retry_interval)
+        wait_for_not = wait_for_not.lower()
 
-        waited = 0
+        # remember the start time so we can do an accurate wait for the timeout
+        start = time.time()
+
         while True:
 
             try:
-                ctrl = _resolve_control(waitnot_criteria)
-
-                if 'exists' in args:
-                    # well if we got here then the control must have
-                    # existed so we are not ready to stop checking
-                    # because we didn't want th control to exist!
-                    continue
+                ctrl = _resolve_control(waitnot_criteria, 0, .01)
 
                 matched = True
-                if 'ready' in args:
+                if 'exists' in wait_for_not:
+                    # well if we got here then the control must have
+                    # existed so we are not ready to stop checking
+                    # because we didn't want the control to exist!
+                    matched = False
+
+                if 'ready' in wait_for_not:
                     if ctrl.IsVisible() and ctrl.IsEnabled():
                         matched = False
 
-                if 'enabled' in args:
+                if 'enabled' in wait_for_not:
                     if ctrl.IsEnabled():
                         matched = False
 
-                if 'visible' in args:
+                if 'visible' in wait_for_not:
                     if ctrl.IsVisible():
                         matched = False
 
                 if matched:
                     break
 
-            # stop trying if the window doesn't exist
+            # stop trying if the window doesn't exist - because it MUST
+            # be out of one of the states if it doesn't exist anymore!
             except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
                 break
 
             # stop trying if we have reached the timeout
-            if waited >= timeout:
-                break
 
-            # other wise wait the interval, and try again
-            time.sleep(wait_interval)
-            waited += wait_interval
+            waited = time.time() - start
+            if  waited < timeout:
+                # wait the interval or the time left until the timeout expires
+                # and let the loop run again
+                time.sleep(min(wait_interval, timeout - waited))
+
+            else:
+                raise RuntimeError(
+                    "Timed out while waiting for window to not be in "
+                    "'%s' state"%
+                        ( "', '".join( wait_for_not.split() ) )
+                    )
+
 
 
     def WaitReady(self,
@@ -679,7 +706,7 @@ class WindowSpecification(object):
 
 
 
-
+#matched = []
 def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
     """Find a control using criteria
 
@@ -740,9 +767,14 @@ def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
 ##        pass
 ##
 
+#    dialog = None
+
+    start = time.time()
+
     waited = 0
     while True:
         try:
+
             dialog = controls.WrapHandle(
                 findwindows.find_window(**criteria[0]))
 
@@ -762,13 +794,24 @@ def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
                 ctrl = dialog
                 break
         except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-            if waited < timeout:
-                waited += wait_interval
-                time.sleep(wait_interval)
+
+            waited = time.time() - start
+            if  waited < timeout:
+                # wait the interval or the time left until the timeout expires
+                # and let the loop run again
+                time.sleep(min(wait_interval, timeout - waited))
+
             else:
+#                if dialog:
+#                    dlg_props = dialog.GetProperties()
+#                else:
+#                    dlg_props = None
+#                matched.append((criteria, dlg_props, None))
                 raise
 
     #appdata.WriteAppDataForDialog(criteria, dialog)
+
+    #matched.append((criteria, dialog.GetProperties(), ctrl.GetProperties()))
 
     return ctrl
 
@@ -795,14 +838,14 @@ class Application(object):
         message = "_start and _connect are deprecated " \
             "please use start_ and connect_"
         warnings.warn(message, DeprecationWarning)
-        self.start_(*args, **kwargs)
+        return self.start_(*args, **kwargs)
 
     def _connect(self, *args, **kwargs):
         "connect_ used to be named _connect"
         message = "_start and _connect are deprecated " \
             "please use start_ and connect_"
         warnings.warn(message, DeprecationWarning)
-        self.connect_(*args, **kwargs)
+        return self.connect_(*args, **kwargs)
 
     def start_(self, cmd_line, timeout = app_start_timeout):
         "Starts the application giving in cmd_line"
@@ -953,6 +996,41 @@ class Application(object):
         # delegate all functionality to item access
         return self[key]
 
+#    def WriteAppData(self, filename):
+#        import pickle
+#        f = open(filename, "wb")
+#        for m in matched:
+#            for n in m:
+#                if isinstance(n, dict) and n.has_key('MenuItems'):
+#                    #n['MenuItems'] = 0
+#                    #n['Fonts'] = 0
+#                    n['Rectangle'] = 0
+#                    n['ClientRects'] = 0
+#                    n['DroppedRect'] = 0
+#                try:
+#                    pickle(matched)
+#                    for v in n:
+#                        try:
+#                            pickle.dump(v, f)
+#                            print "SUCCESS"
+#                        except TypeError:
+#                            from pprint import pprint
+#                            print "FAILED"
+#                            pprint (v)
+#                            import sys
+#                            sys.exit()
+#                    pickle.dump(n, f)
+#                except TypeError:
+#                    print "trying", n
+#
+#                    #for a,b in n.items():
+#                    #    print type (a)
+#                    #    print type (b)
+#
+#                    pickle.dump(n, f)
+#                    print "-"*200
+#            pickle.dump(m, f)
+#        f.close()
 
 def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
