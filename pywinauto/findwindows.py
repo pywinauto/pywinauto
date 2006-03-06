@@ -170,6 +170,7 @@ def find_windows(class_name = None,
         windows = [WrapHandle(win) for win in windows]
         windows = findbestmatch.find_best_control_matches(
             best_match, windows)
+        windows = [win.handle for win in windows]
 
 
     return windows
