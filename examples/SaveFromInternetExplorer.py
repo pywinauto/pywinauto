@@ -17,6 +17,8 @@ else:
     outputfilename = outputfilename.replace('\\', '')
     outputfilename = outputfilename.replace(':', '')
 
+outputfilename = os.path.abspath(outputfilename)
+
 
 # start IE with a start URL of what was passed in
 app = Application().start_(

@@ -116,7 +116,7 @@ doc_props = app.window_(title_re = ".*Document Properties")
 doc_props.TabCtrl.Select(0)
 doc_props.TabCtrl.Select(1)
 try:
-doc_props.TabCtrl.Select(2)
+    doc_props.TabCtrl.Select(2)
 except IndexError:
     # not all users have 3 tabs in this dialog
     pass
@@ -125,7 +125,7 @@ except IndexError:
 doc_props.TabCtrl.Select("PaperQuality")
 
 try:
-doc_props.TabCtrl.Select("JobRetention")
+    doc_props.TabCtrl.Select("JobRetention")
 except MatchError:
     # some people do not have the "Job Retention" tab
     pass
@@ -202,7 +202,7 @@ app.SaveAs.Save.CloseClick()
 
 # while the dialog exists wait upto 30 seconds (and yes it can
 # take that long on my computer sometimes :-( )
-app.SaveAs.Cancel.WaitNotEnabled()
+app.SaveAs.Cancel.WaitNot('enabled')
 
 try:
     app.SaveAs2.Yes.CloseClick()

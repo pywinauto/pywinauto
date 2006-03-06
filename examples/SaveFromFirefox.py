@@ -16,7 +16,13 @@ else:
     outputfilename = outputfilename.replace('/', '')
     outputfilename = outputfilename.replace('\\', '')
     outputfilename = outputfilename.replace(':', '')
+    if not (outputfilename.lower().endswith("htm") or
+       outputfilename.lower().endswith("html")):
+       outputfilename += ".html"
 
+# make sure that we have an absolute path - otherwise it is
+# hard to know where firefox might save the file!
+outputfilename = os.path.abspath(outputfilename)
 
 # start IE with a start URL of what was passed in
 app = Application().start_(

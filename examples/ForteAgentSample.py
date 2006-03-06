@@ -1,3 +1,12 @@
+"""Perform some tests with Forte Agent
+
+NOTE: Forte Agent has a very dynamic interface
+e.g. whether it is free or not, whether it is still in the grace
+period. For this reason this example script may or may not work well
+for you"""
+
+print __doc__
+
 import time
 from pprint import pprint
 
@@ -7,60 +16,65 @@ from pywinauto.application import Application
 app = Application().start_(r"c:\program files\agent\agent.exe")
 
 # if the trial nag dialog pops up
-if app.ForteAgentTrial.Exists():
-    app.ForteAgentTrial.IdLikeToContinueUsingAgentfor7moredays.Click()
+if app.window_(title = "Forte Agent Trial").Exists():
+    #app.ForteAgentTrial.IdLikeToContinueUsingAgentfor7moredays.Click()
+    app.ForteAgentTrial.IdliketouseFreeAgent
     app.ForteAgentTrial.OK.Click()
 
 # wait until the app is ready
-app.Agent.WaitReady()
+app.FreeAgent.Wait("ready")
 
 # if we get the Agent Setup wizard pops up close it
-if app.AgentSetupWizard.Cancel.Exists():
+if app.AgentSetupWizard.Cancel.Exists(1):
     app.AgentSetupWizard.Cancel.Click()
     app.AgentSetupWizard2.Yes.Click()
 
 # Select to emtpy trash
-app.Agent.MenuSelect("File->EmptyTrash")
+app.FreeAgent.MenuSelect("File->EmptyTrash")
 app.EmptyTrash.No.Click()
 
 # Select some more menus (typo not important :-)
-app.Agent.MenuSelect("File->Purge and Compact -> Compact All Folders")
-app.Agent.OK.Click()
+app.FreeAgent.MenuSelect("File->Purge and Compact -> Compact All Folders")
+app.FreeAgent.OK.Click()
 
-app.Agent.MenuSelect("File->Purge and Compact->PurgeFoldersInDesks")
-app.PurgeFoldersInDesks.Cancel.Click()
+#print app.FreeAgent.MenuItem("File->Purge and compact").GetProperties()
+#app.FreeAgent.MenuSelect("File->Purge and Compact->PurgeFolder")
+#app.PurgeFoldersInDesks.Cancel.Click()
 
 
 # this is strange - when I do it by hand this is "Purge Folder" but during
 # automation the text of the menu item is Purge Selected Folders
 # FIXED - need to init the sub menu!
-app.Agent.MenuSelect("File->Purge and Compact->Purge Folder")
+app.FreeAgent.MenuSelect("File->Purge and Compact->Purge Folder")
 app.AgentTip.OK.Click()
 
-app.Agent.MenuSelect("File->Import and Export->Import Messages")
+app.FreeAgent.MenuSelect("File->Import and Export->Import Messages")
 app.ImportMessages.Cancel.Click()
 
-app.Agent.MenuSelect("File->Import and Export->Import Address Book")
+app.FreeAgent.MenuSelect("File->Import and Export->Import Address Book")
 app.ImportAddresses.Cancel.Click()
 
-app.Agent.MenuSelect("File->Import and Export->Export Address Book")
+app.FreeAgent.MenuSelect("File->Import and Export->Export Address Book")
 app.ExportAddresses.Cancel.Click()
 
 # pick something other then a file menu item
-app.Agent.MenuSelect("Tools->ApplyFiltersToFolder")
-app.AgentTip.OK.Click()
-app.ApplyFiltersToFolders.Cancel.Click()
+app.FreeAgent.MenuSelect("Tools->ApplyFiltersToFolder")
+if app.ToolsApplyFilters.OK.Exists():
+    app.ToolsApplyFilters.OK.Click()
+
+#app.AgentTip.OK.Click()
+#app.ApplyFiltersToFolders.Cancel.Click()
 
 
 print "==" * 20
 print "The Agent File Menu..."
 print "==" * 20
-pprint (app.Agent.MenuItems()[1])
+pprint (app.FreeAgent.MenuItems()[1])
 try:
-    app.Agent.MenuSelect("File->Print")
+    app.FreeAgent.MenuSelect("File->Print")
     app.Print.Cancel.Click()
 except:
     print "Print Menu was probably disabled"
 
 # quit Agent
-app.Agent.MenuSelect("File -> Exit")
+app.FreeAgent.MenuSelect("File -> Exit")

@@ -37,9 +37,9 @@ from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
 
-print "Trying fast timeing settings - it's  possible these won't work"
+print "Trying fast timing settings - it's  possible these won't work"
 print "if pywinauto tries to access a window that is not accessible yet"
-application.set_timing(2, .01, 10, .01, .05, 0, 0, .1, 0, 0)
+application.set_timing(2, .01, 10, .01, .05, 0, 0, .1, 0, .05)
 
 
 start = time.time()
@@ -201,7 +201,7 @@ app.SaveAs.Save.CloseClick()
 
 # while the dialog exists wait upto 30 seconds (and yes it can
 # take that long on my computer sometimes :-( )
-app.SaveAs.Cancel.WaitNotEnabled()
+app.SaveAs.Cancel.WaitNot('enabled')
 
 try:
     app.SaveAs.Yes.CloseClick()
@@ -214,4 +214,8 @@ app.Notepad.MenuSelect("File->Exit")
 if app.Notepad.No.Exists():
     app.Notepad.No.Click()
 
+#app.WriteAppData("testing123.pkl")
+
 print "That took %.3f to run"% (time.time() - start)
+
+
