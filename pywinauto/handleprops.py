@@ -151,9 +151,7 @@ def font(handle):
         fontval = win32structures.LOGFONTW()
 
     # if it is a main window
-    if (has_style(handle, win32defines.WS_OVERLAPPED) or \
-        has_style(handle, win32defines.WS_CAPTION)) and \
-        not has_style(handle, win32defines.WS_CHILD):
+    if is_toplevel_window(handle):
 
         if "MS Shell Dlg" in fontval.lfFaceName or \
             fontval.lfFaceName == "System":
@@ -224,32 +222,33 @@ def is_toplevel_window(handle):
         return False
 
 
-def get_button_friendlyclassname(handle):
-    "Return the friendly class name of a button control"
-
-    # get the least significant bit
-    style_lsb = style(handle) & 0xF
-
-    # default to "Button"
-    f_classname = "Button"
-
-    if style_lsb == win32defines.BS_3STATE or \
-        style_lsb == win32defines.BS_AUTO3STATE or \
-        style_lsb == win32defines.BS_AUTOCHECKBOX or \
-        style_lsb == win32defines.BS_CHECKBOX:
-        f_classname = "CheckBox"
-
-    elif style_lsb == win32defines.BS_RADIOBUTTON or \
-        style_lsb == win32defines.BS_AUTORADIOBUTTON:
-        f_classname = "RadioButton"
-
-    elif style_lsb == win32defines.BS_GROUPBOX:
-        f_classname = "GroupBox"
-
-    if style(handle) & win32defines.BS_PUSHLIKE:
-        f_classname = "Button"
-
-    return f_classname
+#=========================================================================
+#def get_button_friendlyclassname(handle):
+#    "Return the friendly class name of a button control"
+#
+#    # get the least significant bit
+#    style_lsb = style(handle) & 0xF
+#
+#    # default to "Button"
+#    f_classname = "Button"
+#
+#    if style_lsb == win32defines.BS_3STATE or \
+#        style_lsb == win32defines.BS_AUTO3STATE or \
+#        style_lsb == win32defines.BS_AUTOCHECKBOX or \
+#        style_lsb == win32defines.BS_CHECKBOX:
+#        f_classname = "CheckBox"
+#
+#    elif style_lsb == win32defines.BS_RADIOBUTTON or \
+#        style_lsb == win32defines.BS_AUTORADIOBUTTON:
+#        f_classname = "RadioButton"
+#
+#    elif style_lsb == win32defines.BS_GROUPBOX:
+#        f_classname = "GroupBox"
+#
+#    if style(handle) & win32defines.BS_PUSHLIKE:
+#        f_classname = "Button"
+#
+#    return f_classname
 
 
 def friendlyclassname(handle):
@@ -260,20 +259,29 @@ def friendlyclassname(handle):
     rather then the windows class name for the window.
     """
 
+    import warnings
+    warnings.warn("handleprops.friendlyclassname() is deprecated. Please use"
+        "FriendlyClassMethod() of HwndWrapper",
+        DeprecationWarning)
+
     # if it's a dialog then return that
-    if is_toplevel_window(handle):
+    if is_toplevel_window(handle) and classname(handle) == "#32770":
         return "Dialog"
 
+    # otherwise ask the wrapper class for the friendly class name
     class_name = classname(handle)
 
     from controls import wraphandle
     info = wraphandle._find_wrapper(class_name)
 
     if info:
-        return info.friendlyclassname
+       return info.friendlyclassname
 
     else:
         return class_name
+
+
+
 #
 #
 #    # Check if the class name is in the known classes
@@ -323,13 +331,3 @@ def dumpwindow(handle):
 
     return props
 
-#=========================================================================
-def _unittests():
-    "Quick test of module"
-    handle = win32functions.GetDesktopWindow()
-
-    for name, value in dumpwindow(handle).items():
-        print "%15s\t%s" % (name, value)
-
-if __name__ == "__main__":
-    _unittests()
