@@ -162,12 +162,14 @@ class RECT(Structure):
         e.g. my_rect = RECT(otherRect)
         or   my_rect = RECT(10, 20, 34, 100)
         """
-        if type(otherRect_or_left) == type(self):
+        if isinstance(otherRect_or_left, RECT):
             self.left = otherRect_or_left.left
             self.right = otherRect_or_left.right
             self.top = otherRect_or_left.top
             self.bottom = otherRect_or_left.bottom
         else:
+            #if not isinstance(otherRect_or_left, (int, long)):
+            #    print type(self), type(otherRect_or_left), otherRect_or_left
             self.left = long(otherRect_or_left)
             self.right = long(right)
             self.top = long(top)
