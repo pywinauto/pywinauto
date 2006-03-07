@@ -528,7 +528,13 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def ClickInput(
         self, button = "left", coords = (None, None), double = False ):
-        "Click at the specified coordinates"
+        """Click at the specified coordinates
+
+        Defaults to left clicking at the top, left of the control.
+
+        This is different from Click in that it requires the control to
+        be visible on the screen but performs a more realistic 'click'
+        """
         _perform_click_input(self, button, coords, double)
 
 
@@ -536,7 +542,11 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def CloseClick(
         self, button = "left", pressed = "", coords = (0, 0), double = False):
-        "Peform a click action that should make the window go away"
+        """Peform a click action that should make the window go away
+
+        The only difference from Click is that there are extra delays
+        before and after the click action.
+        """
 
         time.sleep(delay_before_after_close_click)
 
