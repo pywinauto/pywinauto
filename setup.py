@@ -29,7 +29,7 @@ import pywinauto
 setup(name='pywinauto',
     version = pywinauto.__version__,
     description = 'pywinauto is a set of python modules to automate the Microsoft Windows GUI',
-    keywords = "windows automation gui GuiAuto"
+    keywords = "windows automation gui GuiAuto",
     url = "http://sourceforge.net/projects/pywinauto",
 	author = 'Mark Mc Mahon',
 	author_email = 'mark.m.mcmahon@gmail.com',
@@ -37,7 +37,7 @@ setup(name='pywinauto',
 At it's simplest it allows you to send mouse and keyboard
 actions to windows dialogs and controls, but It has support for more complex
 controls also.
-"""
+""",
 
 	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
 #
