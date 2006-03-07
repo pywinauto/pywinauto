@@ -1,6 +1,6 @@
-0.x.x Small Release number - big changes
+0.2.5 More refactoring, more tests
 ------------------------------------------------
-xx-Mar-2006
+07-Mar-2006
 
     * Added wrapper classes for Menus and MenuItems this enabled cleaner
       interaction with Menu's. It also gives more functionality - you can now 
@@ -30,8 +30,11 @@ xx-Mar-2006
         
     * Updated the examples to follow changes to the code - and to make them a little
       more robust.
+
+    * Added a new Controls Overview document page which lists all the actions on
+      all controls.    
         
-    * Added more unit tests now up 174 to from 134
+    * Added more unit tests now up to 207 from 134 (added 68 tests)
     
 
 
