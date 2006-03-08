@@ -680,6 +680,8 @@ class HwndWrapper(object):
 
         self.VerifyActionable()
 
+        self.SetFocus()
+
         # attach the Python process with the process that self is in
         win32functions.AttachThreadInput(
             win32functions.GetCurrentThreadId(), self.ProcessID(), 1)
