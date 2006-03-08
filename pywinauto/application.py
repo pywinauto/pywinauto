@@ -75,15 +75,15 @@ import handleprops
 
 class AppStartError(Exception):
     "There was a problem starting the Application"
-    pass
+    pass    #pragma: no cover
 
 class ProcessNotFoundError(Exception):
     "Could not find that process"
-    pass
+    pass    #pragma: no cover
 
 class AppNotConnected(Exception):
     "Application has been connected to a process yet"
-    pass
+    pass    #pragma: no cover
 
 
 
@@ -290,11 +290,10 @@ class WindowSpecification(object):
         # modify the criteria as Exists should look for all
         # windows - including not visible and disabled
 
-        exists_criteria = []
-        for criterion in self.criteria[:]:
+        exists_criteria = self.criteria[:]
+        for criterion in exists_criteria:
             criterion['enabled_only'] = False
             criterion['visible_only'] = False
-            exists_criteria.append(criterion)
 
         try:
             _resolve_control(
@@ -522,7 +521,7 @@ class WindowSpecification(object):
 
         warnings.warn(wait_method_deprecation, DeprecationWarning)
 
-        self.Wait('exists',
+        return self.Wait('exists',
             timeout = timeout,
             wait_interval = wait_interval)
 
@@ -694,6 +693,10 @@ def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
 #=========================================================================
 class Application(object):
     "Represents an application"
+
+    connect_start_deprecated = "_start and _connect are deprecated " \
+            "please use start_ and connect_"
+
     def __init__(self):
         "Set the attributes"
         self.process = None
@@ -711,16 +714,12 @@ class Application(object):
 
     def _start(self, *args, **kwargs):
         "start_ used to be named _start"
-        message = "_start and _connect are deprecated " \
-            "please use start_ and connect_"
-        warnings.warn(message, DeprecationWarning)
+        warnings.warn(self.connect_start_deprecated, DeprecationWarning)
         return self.start_(*args, **kwargs)
 
     def _connect(self, *args, **kwargs):
         "connect_ used to be named _connect"
-        message = "_start and _connect are deprecated " \
-            "please use start_ and connect_"
-        warnings.warn(message, DeprecationWarning)
+        warnings.warn(self.connect_start_deprecated, DeprecationWarning)
         return self.connect_(*args, **kwargs)
 
     def start_(self, cmd_line, timeout = app_start_timeout):
