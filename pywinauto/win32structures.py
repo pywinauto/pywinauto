@@ -25,10 +25,10 @@ __revision__ = "$Revision$"
 from win32defines import LF_FACESIZE, NMTTDISPINFOW_V1_SIZE, HDITEMW_V1_SIZE
 
 import ctypes
-from ctypes import (
-    c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char,
-    c_ubyte, c_ushort, c_wchar_p,
-    POINTER, sizeof, alignment, Union)
+from ctypes import \
+    c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
+    c_ubyte, c_ushort, c_wchar_p, \
+    POINTER, sizeof, alignment, Union
 
 
 class Structure(ctypes.Structure):
