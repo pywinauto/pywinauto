@@ -960,7 +960,8 @@ def process_from_module(module):
     # check for a module with a matching name in reverse order
     # as we are most likely to want to connect to the last
     # run instance
-    for process, name in reversed(modules):
+    modules.reverse()
+    for process, name in modules:
         if module.lower() in name.lower():
             return process
 

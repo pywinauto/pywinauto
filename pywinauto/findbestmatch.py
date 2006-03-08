@@ -25,6 +25,8 @@ __revision__ = "$Revision$"
 import re
 import difflib
 
+# need to use sets.Set for python 2.3 compatability
+import sets
 
 find_best_control_match_cutoff = .6
 
@@ -240,7 +242,7 @@ def get_control_names(control, allcontrols):
             names.extend(non_text_names)
 
     # return the names - and make sure there are no duplicates
-    return set(names)
+    return sets.Set(names)
 
 
 
