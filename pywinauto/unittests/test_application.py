@@ -75,6 +75,20 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Exit")
 
+    def test_start(self):
+        app = Application()
+        self.assertEqual(app.process, None)
+        app._start("notepad.exe")
+        self.assertNotEqual(app.process, None)
+
+        self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
+
+        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
+        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
+
+        app.UntitledNotepad.MenuSelect("File->Exit")
+
+
     def testStart_bug01(self):
         "On SourceForge forum AppStartError forgot to include %s for application name"
 
@@ -136,6 +150,19 @@ class ApplicationTestCases(unittest.TestCase):
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
+    def test_Connect(self):
+        app1 = Application()
+        app1.start_("notepad.exe")
+
+        app_conn = Application()
+        app_conn._connect(path = r"system32\notepad.exe")
+        self.assertEqual(app1.process, app_conn.process)
+
+        app_conn = Application()
+        app_conn._connect(path = r"c:\windows\system32\notepad.exe")
+        self.assertEqual(app1.process, app_conn.process)
+
+        app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
     def testConnect_process(self):
         app1 = Application()
@@ -218,6 +245,9 @@ class ApplicationTestCases(unittest.TestCase):
 
     def testWindows(self):
         app = Application()
+
+        self.assertRaises(AppNotConnected, app.windows_, **{'title' : 'not connected'})
+
         app.start_('notepad.exe')
 
         notepad_handle = app.UntitledNotepad.handle
@@ -499,22 +529,88 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
 
-#    def testWaitReady(self):
-#        "Make sure the friendly class is set correctly"
-#        pass
-#
-#    def testWaitNotEnabled(self):
-#        "Make sure the friendly class is set correctly"
-#        pass
-#
-#    def testWaitNotVisible(self):
-#        "Make sure the friendly class is set correctly"
-#        pass
-#
-#    def testPrintControlIdentifiers(self):
-#        "Make sure the friendly class is set correctly"
-#        pass
-#
+    def testWaitReady(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitReady(.1, .05))
+        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+
+
+    def testWaitNotReady(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertRaises(RuntimeError, self.dlgspec.WaitNotReady, .1, .05)
+        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+
+
+    def testWaitEnabled(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitEnabled(.1, .05))
+        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+
+
+    def testWaitNotEnabled(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertRaises(RuntimeError, self.dlgspec.WaitNotEnabled, .1, .05)
+        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+
+    def testWaitVisible(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitVisible(.1, .05))
+        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+
+    def testWaitNotVisible(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertRaises(RuntimeError, self.dlgspec.WaitNotVisible, .1, .05)
+        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+
+    def testWaitExists(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitExists(.1, .05))
+        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+
+    def testWaitNotExists(self):
+        "Make sure the friendly class is set correctly"
+
+        allowable_error = .02
+
+        start = time.time()
+        self.assertRaises(RuntimeError, self.dlgspec.WaitNotExists, .1, .05)
+        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+
+
+    def testPrintControlIdentifiers(self):
+        "Make sure the friendly class is set correctly"
+
+        self.dlgspec.print_control_identifiers()
+        self.ctrlspec.print_control_identifiers()
+
 
 if __name__ == "__main__":
     #_unittests()
