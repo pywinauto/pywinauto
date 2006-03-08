@@ -70,7 +70,14 @@ The identifier for this test/bug is "RepeatedHotkey"
 testname = "RepeatedHotkey"
 __revision__ = "$Revision$"
 
+# to be able to run on Python 2.3 we need to use sets module
+# rather then built-in set object
+
+import sets
+
 from pywinauto.win32defines import SS_NOPREFIX
+
+
 
 #-----------------------------------------------------------------------------
 def RepeatedHotkeyTest(windows):
@@ -82,7 +89,7 @@ def RepeatedHotkeyTest(windows):
     dlgAvailable = allChars.difference(hotkeys)
 
     # remove some characters that aren't good choices for hotkeys
-    dlgAvailable.difference_update(set("-& _"))
+    dlgAvailable.difference_update(sets.Set("-& _"))
 
 
     bugs = []
@@ -97,7 +104,7 @@ def RepeatedHotkeyTest(windows):
             # build up the available characters for each control
             for ctrl in controls:
                 controlChars = ""
-                controlChars = set(ctrl.WindowText().lower())
+                controlChars = sets.Set(ctrl.WindowText().lower())
 
                 controlAvailableChars = controlChars.intersection(dlgAvailable)
                 controlAvailableChars = \
@@ -172,8 +179,8 @@ def _CollectDialogInfo(windows):
         allChars += win.WindowText().lower()
 
 
-    allChars = set(allChars)
-    hotkeys = set(hotkeyControls.keys())
+    allChars = sets.Set(allChars)
+    hotkeys = sets.Set(hotkeyControls.keys())
 
     return hotkeyControls, allChars, hotkeys
 
