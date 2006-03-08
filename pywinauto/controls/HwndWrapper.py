@@ -980,59 +980,43 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def SetFocus(self):
-        "Set the focus to this control"
-##
-##        lock_timeout = ctypes.c_int()
-##        print win32functions.SystemParametersInfo(
-##            win32defines.SPI_GETFOREGROUNDLOCKTIMEOUT,
-##            0,
-##            ctypes.byref(lock_timeout),
-##            0 #win32defines.SPIF_SENDWININICHANGE #|
-##                #win32defines.SPIF_UPDATEINIFILE)
-##            )
-##
-##
-##        print win32functions.SystemParametersInfo(
-##            win32defines.SPI_SETFOREGROUNDLOCKTIMEOUT,
-##            0,
-##            0,
-##            win32defines.SPIF_SENDWININICHANGE |
-##                win32defines.SPIF_UPDATEINIFILE
-##            )
-#
-#        # get the foreground window
-#        foreground_win = WrapHandle(win32functions.GetForegroundWindow())
-#        print foreground_win.WindowText()
-#
-#        # attach the Python process with the process that self is in
-#        win32functions.AttachThreadInput(
-#            win32functions.GetCurrentThreadId(),
-#            foreground_win.ProcessID(),
-#            1)
-#
-#
-#        # set the focus
-#        print win32functions.SetActiveWindow(self)
-        win32functions.SetForegroundWindow(self)
+        """Set the focus to this control
 
-#        # dettach the Python process with the process that self is in
-#        win32functions.AttachThreadInput(
-#            win32functions.GetCurrentThreadId(),
-#            foreground_win.ProcessID(),
-#            0)
-#
-#
-#        print win32functions.SystemParametersInfo(
-#            win32defines.SPI_SETFOREGROUNDLOCKTIMEOUT,
-#            0,
-#            ctypes.byref(lock_timeout),
-#                win32defines.SPIF_SENDWININICHANGE |
-#                win32defines.SPIF_UPDATEINIFILE)
-#
-#
-        # make sure that we are idle before returning
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(.06)
+        Activate the window if necessary"""
+
+        # find the current foreground window
+        cur_foreground = win32functions.GetForegroundWindow()
+
+        # if it is already foreground then just return
+        if self.handle != cur_foreground:
+
+            # get the thread of the window that is in the foreground
+            cur_fore_thread = win32functions.GetWindowThreadProcessId(
+                cur_foreground, 0)
+
+            # get the thread of the window that we want to be in the foreground
+            control_thread = win32functions.GetWindowThreadProcessId(self, 0)
+
+            # if a different thread owns the active window
+            if cur_fore_thread != control_thread:
+                # Attach the two threads and set the foreground window
+                win32functions.AttachThreadInput(
+                    cur_fore_thread, control_thread, True)
+
+                win32functions.SetForegroundWindow(self)
+
+                # detach the thread again
+                win32functions.AttachThreadInput(
+                    cur_fore_thread, control_thread, False)
+
+            else:   # same threads - just set the foreground window
+                win32functions.SetForegroundWindow(self)
+
+            # make sure that we are idle before returning
+            win32functions.WaitGuiThreadIdle(self)
+
+            # only sleep if we had to change something!
+            time.sleep(.06)
 
         return self
 
