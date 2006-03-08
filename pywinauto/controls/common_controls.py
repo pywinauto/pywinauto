@@ -1532,6 +1532,12 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetBand(self, band_index):
         "Get a band of the ReBar control"
+
+        if band_index >= self.BandCount():
+            raise IndexError(
+                "band_index %d greater then number of available bands: %d" %
+                    (band_index, self.BandCount()))
+
         remote_mem = _RemoteMemoryBlock(self)
 
         band_info = BandWrapper()
@@ -1579,7 +1585,10 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetToolTipsControl(self):
         "Return the tooltip control associated with this control"
-        return ToolTipsWrapper(self.SendMessage(win32defines.TB_GETTOOLTIPS))
+        tips_handle = self.SendMessage(win32defines.TB_GETTOOLTIPS)
+
+        if tips_handle:
+            return ToolTipsWrapper(tips_handle)
 
     #----------------------------------------------------------------
     def Texts(self):
@@ -1658,6 +1667,10 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetTip(self, tip_index):
         "Return the particular tooltip"
+        if tip_index >= self.ToolCount():
+            raise IndexError(
+                "tip_index %d greater then number of available tips: %d" %
+                    (tip_index, self.ToolCount()))
         return ToolTip(self, tip_index)
 
 
