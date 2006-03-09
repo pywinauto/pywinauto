@@ -643,7 +643,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
         elements = self.Root().SubElements()
 
-        texts.extend(elem.Text() for elem in elements)
+        texts.extend([elem.Text() for elem in elements])
 
         return texts
 
@@ -1013,6 +1013,14 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetPartRect(self, part_index):
         "Return the rectangle of the part specified by part_index"
+
+        if part_index >= self.PartCount():
+            raise IndexError(
+                "Only %d parts available you asked for part %d (zero based)" % (
+                self.PartCount(),
+                part_index))
+
+
         remote_mem = _RemoteMemoryBlock(self)
 
         # get the rectangle for this item
@@ -1040,6 +1048,12 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetPartText(self, part_index):
         "Return the text of the part specified by part_index"
+
+        if part_index >= self.PartCount():
+            raise IndexError(
+                "Only %d parts available you asked for part %d (zero based)" % (
+                self.PartCount(),
+                part_index))
 
         remote_mem = _RemoteMemoryBlock(self)
 
@@ -1094,7 +1108,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(TabControlWrapper, self).__init__(hwnd)
 
-        self.writable_props.append("TabStates")
+        #self.writable_props.append("TabStates")
 
     #----------------------------------------------------------------
     def RowCount(self):
@@ -1115,6 +1129,12 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
     def GetTabRect(self, tab_index):
         "Return the rectangle to the tab specified by tab_index"
 
+        if tab_index >= self.TabCount():
+            raise IndexError(
+                "Only %d tabs available you asked for tab %d (zero based)" % (
+                self.TabCount(),
+                tab_index))
+
         remote_mem = _RemoteMemoryBlock(self)
 
         rect = win32structures.RECT()
@@ -1129,25 +1149,43 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
         return rect
 
-    #----------------------------------------------------------------
-    def GetTabState(self, tab_index):
-        "Return the state of the tab"
-        remote_mem = _RemoteMemoryBlock(self)
-
-        item = win32structures.TCITEMW()
-        item.mask = win32defines.TCIF_STATE
-        remote_mem.Write(item)
-
-        self.SendMessage(
-            win32defines.TCM_GETITEMW, tab_index, remote_mem)
-
-        remote_mem.Read(item)
-
-        return item.dwState
+#    #----------------------------------------------------------------
+#    def GetTabState(self, tab_index):
+#        "Return the state of the tab"
+#
+#        if tab_index >= self.TabCount():
+#            raise IndexError(
+#                "Only %d tabs available you asked for tab %d (zero based)" % (
+#                self.TabCount(),
+#                tab_index))
+#
+#        remote_mem = _RemoteMemoryBlock(self)
+#
+#        item = win32structures.TCITEMW()
+#        item.mask = win32defines.TCIF_STATE
+#        remote_mem.Write(item)
+#
+#        ret = self.SendMessage(
+#            win32defines.TCM_GETITEMW, tab_index, remote_mem)
+#
+#        remote_mem.Read(item)
+#        del remote_mem
+#
+#        if not ret:
+#            raise ctypes.WinError()
+#
+#        return item.dwState
 
     #----------------------------------------------------------------
     def GetTabText(self, tab_index):
         "Return the text of the tab"
+
+        if tab_index >= self.TabCount():
+            raise IndexError(
+                "Only %d tabs available you asked for tab %d (zero based)" % (
+                self.TabCount(),
+                tab_index))
+
         remote_mem = _RemoteMemoryBlock(self)
 
         item = win32structures.TCITEMW()
@@ -1178,13 +1216,13 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
         return props
 
-    #----------------------------------------------------------------
-    def TabStates(self):
-        "Return the tab state for all the tabs"
-        states = []
-        for i in range(0, self.TabCount()):
-            states.append(self.GetTabState(i))
-        return states
+#    #----------------------------------------------------------------
+#    def TabStates(self):
+#        "Return the tab state for all the tabs"
+#        states = []
+#        for i in range(0, self.TabCount()):
+#            states.append(self.GetTabState(i))
+#        return states
 
     #----------------------------------------------------------------
     def ClientRects(self):
@@ -1585,7 +1623,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetToolTipsControl(self):
         "Return the tooltip control associated with this control"
-        tips_handle = self.SendMessage(win32defines.TB_GETTOOLTIPS)
+        tips_handle = self.SendMessage(win32defines.RB_GETTOOLTIPS)
 
         if tips_handle:
             return ToolTipsWrapper(tips_handle)
