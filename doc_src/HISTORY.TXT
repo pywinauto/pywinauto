@@ -1,3 +1,23 @@
+0.2.7 More refactoring, more tests
+------------------------------------------------
+XX-Mar-2006
+
+    * Fixed HwndWrapper.SetFocus() so that it would work even if the window
+      was not in the foreground. (it now makes the window foreground as well
+      as giving it focus)
+      
+    * Changed some 2.4'isms that an anonymous commenter left on my blog :-)
+      with these changes pywinauto should run on Python 2.3 (though I haven't
+      done extensive testing)
+    
+    * Commented out controls.common_controls.TabControlWrapper.GetTabState() 
+      and TabStates() as these did not seem to be returning valid values anyway.
+ 
+    * 
+    
+    * Added more unit tests now up to 247 from 207
+
+
 0.2.5 More refactoring, more tests
 ------------------------------------------------
 07-Mar-2006

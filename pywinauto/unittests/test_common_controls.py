@@ -341,10 +341,10 @@ class HeaderTestCases(unittest.TestCase):
         app.start_(controlspy_folder + "Header.exe")
 
         self.texts = [u'Distance', u'Diameter', u'Mass']
-        self.part_rects = [
-            RECT(0, 2, 65, 20),
-            RECT(67, 2, 90, 20),
-            RECT(92, 2, 264, 20)]
+        self.item_rects = [
+            RECT(0, 0, 90, 21),
+            RECT(90, 0, 180, 21),
+            RECT(180, 0, 260, 21)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
         self.ctrl = app.MicrosoftControlSpy.Header.ctrl_()
@@ -365,28 +365,40 @@ class HeaderTestCases(unittest.TestCase):
 
     def testGetProperties(self):
         "Test getting the properties for the control"
-        props  = self.dlg.GetProperties()
+        props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.dlg.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
 
         self.assertEquals(
-            self.dlg.Texts(), props['Texts'])
+            self.ctrl.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemCount(self):
-        raise "header hiya"
+        self.assertEquals(3, self.ctrl.ItemCount())
 
     def testGetColumnRectangle(self):
-        raise "header hiya"
+        for i in range(0, 3):
+            self.assertEquals(
+                self.item_rects[i],
+                self.ctrl.GetColumnRectangle(i))
 
     def testClientRects(self):
-        raise "header hiya"
+        test_rects = self.item_rects
+        test_rects.insert(0, self.ctrl.ClientRect())
+
+        self.assertEquals(
+            test_rects,
+            self.ctrl.ClientRects())
 
     def testGetColumnText(self):
-        raise "header hiya"
+        for i in range(0, 3):
+            self.assertEquals(
+                self.texts[i],
+                self.ctrl.GetColumnText(i))
+
 
 
 
@@ -434,16 +446,16 @@ class StatusBarTestCases(unittest.TestCase):
 
     def testGetProperties(self):
         "Test getting the properties for the control"
-        props  = self.dlg.GetProperties()
+        props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.dlg.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
 
         self.assertEquals(
-            self.dlg.Texts(), props['Texts'])
+            self.ctrl.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
 
     def testBorderWidths(self):
@@ -475,11 +487,18 @@ class StatusBarTestCases(unittest.TestCase):
         for i in range(0, self.ctrl.PartCount()):
             self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
 
+        self.assertRaises(IndexError, self.ctrl.GetPartRect, 99)
+
     def testClientRects(self):
-        raise "Status bar test"
+        self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
+        self.assertEquals(self.part_rects, self.ctrl.ClientRects()[1:])
 
     def testGetPartText(self):
-        raise "Status bar test"
+        self.assertRaises(IndexError, self.ctrl.GetPartText, 99)
+
+        for i, text in enumerate(self.texts):
+            self.assertEquals(text, self.ctrl.GetPartText(i))
+
 
 
 
@@ -503,6 +522,19 @@ class TabControlTestCases(unittest.TestCase):
             "Pluto", "Neptune", "Uranus",
             "Saturn", "Jupiter", "Mars",
             "Earth", "Venus", "Mercury", "Sun"]
+
+        self.rects = [
+            RECT(2,2,80,21),
+            RECT(80,2,174,21),
+            RECT(174,2,261,21),
+            RECT(2,21,91,40),
+            RECT(91,21,180,40),
+            RECT(180,21,261,40),
+            RECT(2,40,64,59),
+            RECT(64,40,131,59),
+            RECT(131,40,206,59),
+            RECT(206,40,261,59),
+        ]
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
@@ -543,10 +575,14 @@ class TabControlTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testRowCount(self):
-        raise "hiay"
+        self.assertEquals(3, self.ctrl.RowCount())
 
     def testGetSelectedTab(self):
-        raise "hiay"
+        self.assertEquals(6, self.ctrl.GetSelectedTab())
+        self.ctrl.Select(0)
+        self.assertEquals(0, self.ctrl.GetSelectedTab())
+        self.ctrl.Select("Jupiter")
+        self.assertEquals(4, self.ctrl.GetSelectedTab())
 
     def testTabCount(self):
         "Make sure the number of parts is retrieved correctly"
@@ -555,27 +591,50 @@ class TabControlTestCases(unittest.TestCase):
     def testGetTabRect(self):
         "Make sure the part rectangles are retrieved correctly"
 
-        for i in range(0, self.ctrl.PartCount()):
-            self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
+        for i, rect in enumerate(self.rects):
+            self.assertEquals (self.ctrl.GetTabRect(i), self.rects[i])
 
+        self.assertRaises(IndexError, self.ctrl.GetTabRect, 99)
 
-    def testGetTabState(self):
-        raise "hiay"
+#    def testGetTabState(self):
+#        self.assertRaises(IndexError, self.ctrl.GetTabState, 99)
+#
+#        self.dlg.StatementEdit.SetEditText ("MSG (TCM_HIGHLIGHTITEM,1,MAKELONG(TRUE,0))")
+#
+#        time.sleep(.3)
+#        # use CloseClick to allow the control time to respond to the message
+#        self.dlg.Send.CloseClick()
+#        time.sleep(2)
+#        print "==\n",self.ctrl.TabStates()
+#
+#        self.assertEquals (self.ctrl.GetTabState(1), 1)
+#
+#    def testTabStates(self):
+#        print self.ctrl.TabStates()
+#        raise "tabstates hiay"
+
 
     def testGetTabText(self):
-        raise "hiay"
+        for i, text in enumerate(self.texts):
+            self.assertEquals(text, self.ctrl.GetTabText(i))
 
-    def testTabStates(self):
-        raise "hiay"
+        self.assertRaises(IndexError, self.ctrl.GetTabText, 99)
 
     def testClientRects(self):
-        raise "hiay"
+        self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
+        self.assertEquals(self.rects, self.ctrl.ClientRects()[1:])
 
     def testSelect(self):
-        self.ctrl.select(1)
-        self.ctrl.select("Mercury")
+        self.assertEquals(6, self.ctrl.GetSelectedTab())
 
-        raise "hiay"
+        self.ctrl.Select(1)
+        self.assertEquals(1, self.ctrl.GetSelectedTab())
+        self.ctrl.Select("Mercury")
+        self.assertEquals(8, self.ctrl.GetSelectedTab())
+
+        self.assertRaises(IndexError, self.ctrl.Select, 99)
+
+
 
 
 
@@ -702,9 +761,12 @@ class RebarTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.GetBand, 99)
         self.assertRaises(IndexError, self.ctrl.GetBand, 2)
 
-        band = self.ctrl.GetBand(1)
+        band = self.ctrl.GetBand(0)
 
-        self.assertEquals(band.text, "blah")
+
+        self.assertEquals(band.hwndChild, self.dlg.ToolBar.handle)
+
+        #self.assertEquals(band.text, "blah")
 
     def testGetToolTipsControl(self):
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
