@@ -581,7 +581,7 @@ class WindowSpecification(object):
 
 
 
-#matched = []
+matched = []
 def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
     """Find a control using criteria
 
@@ -686,7 +686,7 @@ def _resolve_control(criteria_, timeout = 0, wait_interval = .2):
 
     #appdata.WriteAppDataForDialog(criteria, dialog)
 
-    #matched.append((criteria, dialog.GetProperties(), ctrl.GetProperties()))
+    matched.append((criteria, dialog.GetProperties(), ctrl.GetProperties()))
 
     return ctrl
 
@@ -871,41 +871,11 @@ class Application(object):
         # delegate all functionality to item access
         return self[key]
 
-#    def WriteAppData(self, filename):
-#        import pickle
-#        f = open(filename, "wb")
-#        for m in matched:
-#            for n in m:
-#                if isinstance(n, dict) and n.has_key('MenuItems'):
-#                    #n['MenuItems'] = 0
-#                    #n['Fonts'] = 0
-#                    n['Rectangle'] = 0
-#                    n['ClientRects'] = 0
-#                    n['DroppedRect'] = 0
-#                try:
-#                    pickle(matched)
-#                    for v in n:
-#                        try:
-#                            pickle.dump(v, f)
-#                            print "SUCCESS"
-#                        except TypeError:
-#                            from pprint import pprint
-#                            print "FAILED"
-#                            pprint (v)
-#                            import sys
-#                            sys.exit()
-#                    pickle.dump(n, f)
-#                except TypeError:
-#                    print "trying", n
-#
-#                    #for a,b in n.items():
-#                    #    print type (a)
-#                    #    print type (b)
-#
-#                    pickle.dump(n, f)
-#                    print "-"*200
-#            pickle.dump(m, f)
-#        f.close()
+    def WriteAppData(self, filename):
+        import pickle
+        f = open(filename, "wb")
+        pickle.dump(matched, f)
+        f.close()
 
 def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"

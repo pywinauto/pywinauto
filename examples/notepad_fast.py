@@ -214,7 +214,7 @@ app.Notepad.MenuSelect("File->Exit")
 if app.Notepad.No.Exists():
     app.Notepad.No.Click()
 
-#app.WriteAppData("testing123.pkl")
+app.WriteAppData("testing123.pkl")
 
 print "That took %.3f to run"% (time.time() - start)
 
