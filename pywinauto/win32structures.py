@@ -95,6 +95,22 @@ class Structure(ctypes.Structure):
 #        print "%20s "% name, getattr(struct, name)
 
 
+# allow ctypes structures to be pickled
+# set struct.__reduce__ = _reduce
+# e.g. RECT.__reduce__ = _reduce
+def _construct(typ, buf):
+    #print "construct", (typ, buf)
+    obj = typ.__new__(typ)
+    ctypes.memmove(ctypes.addressof(obj), buf, len(buf))
+    return obj
+
+def _reduce(self):
+    return (_construct, (self.__class__, str(buffer(self))))
+
+
+
+
+
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
 #PTOOLINFOW = POINTER(tagTOOLINFOW)
@@ -240,6 +256,7 @@ class RECT(Structure):
     #def __hash__(self):
     #	return hash (self.left, self.top, self.right, self.bottom)
 
+RECT.__reduce__ = _reduce
 
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
@@ -353,6 +370,8 @@ class LOGFONTW(Structure):
     #----------------------------------------------------------------
     def __repr__(self):
         return "<LOGFONTW '%s' %d>" % (self.lfFaceName, self.lfHeight)
+
+LOGFONTW.__reduce__ = _reduce
 
 assert sizeof(LOGFONTW) == 92, sizeof(LOGFONTW)
 assert alignment(LOGFONTW) == 4, alignment(LOGFONTW)
