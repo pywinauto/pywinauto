@@ -84,6 +84,8 @@ def GetData(format = win32defines.CF_UNICODETEXT):
 
     win32functions.GlobalUnlock(handle)
 
+    win32functions.CloseClipboard()
+
     return data
 
 
