@@ -71,19 +71,17 @@ class ClipboardTestCases(unittest.TestCase):
 
     def testBug1452832(self):
         "Failing test for sourceforge bug 1452832"
+        self.app1.UntitledNotepad.MenuSelect("Edit -> Select All")
         typetext(self.app1, "some text")
-        self.app1.UntitledNotepad.SetFocus()
         copytext(self.app1)
 
         # was not closing the clipboard!
-        #data = GetData()
-        #self.assertEquals(data, "some text")
+        data = GetData()
+        self.assertEquals(data, "some text")
 
 
         self.assertEquals(gettext(self.app2), "")
         pastetext(self.app2)
-        self.app2.UntitledNotepad.SetFocus()
-        self.app2.UntitledNotepad.SetFocus()
         self.assertEquals(gettext(self.app2), "some text")
 
 
