@@ -25,6 +25,8 @@ __revision__ = "$Revision$"
 import re
 import difflib
 
+import fuzzydict
+
 # need to use sets.Set for python 2.3 compatability
 import sets
 

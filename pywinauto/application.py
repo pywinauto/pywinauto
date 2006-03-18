@@ -620,6 +620,7 @@ class WindowSpecification(object):
                should be refered to as "Edit2".
 
         """
+        print "Control Identifiers:"
         ctrls = _resolve_control(
             self.criteria,
             window_find_timeout,
@@ -635,7 +636,7 @@ class WindowSpecification(object):
         # filter out hidden controls
         ctrls_to_print = [ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
         for ctrl in ctrls_to_print:
-            print "%s - %s   %s"% (
+            print "%s - '%s'   %s"% (
                 ctrl.Class(), ctrl.WindowText(), str(ctrl.Rectangle()))
 
             print "\t",

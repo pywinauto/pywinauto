@@ -88,16 +88,11 @@ def GetData(format = win32defines.CF_UNICODETEXT):
 
     return data
 
-
 #====================================================================
-def _unittests():
-    "do some basic tests"
-    formats = GetClipboardFormats()
-    print formats
+# Todo: Implement setting clipboard data
+#def SetData(data, formats = [win32defines.CF_UNICODETEXT, ]):
+#    pass
 
-    print [GetFormatName(format) for format in formats]
-
-    print repr(GetData())
 
 #====================================================================
 if __name__ == "__main__":

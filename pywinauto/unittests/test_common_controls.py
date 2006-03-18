@@ -710,7 +710,7 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testPressButton(self):
         self.ctrl.PressButton(0)
-        print self.ctrl.Texts()
+        #print self.ctrl.Texts()
         self.ctrl.PressButton("10")
         raise "not fully tested"
 

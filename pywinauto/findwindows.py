@@ -235,20 +235,3 @@ def enum_child_windows(handle):
 
     return child_windows
 
-
-#=========================================================================
-def _unittests():
-    "Do a quick test of finding some windows"
-    windows = find_windows(
-        class_name_re = "#32770",
-        enabled_only = False,
-        visible_only = False)
-
-    for win in windows:
-        print "==" * 20
-        print handleprops.dumpwindow(win)
-
-
-
-if __name__ == "__main__":
-    _unittests()
