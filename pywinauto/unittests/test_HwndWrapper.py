@@ -388,15 +388,22 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def testMenuSelectNotepad_bug(self):
         "In notepad - MenuSelect Edit->Paste does not work"
 
+        text = u'Here are some unicode characters \xef\xfc\r\n'
         app2 = Application.start("notepad")
+        app2.UntitledNotepad.Edit.SetEditText(text)
+
+        app2.UntitledNotepad.MenuSelect("Edit->Select All")
+        app2.UntitledNotepad.MenuSelect("Edit->Copy")
 
         self.dlg.MenuSelect("Edit->Select All")
-        self.dlg.MenuSelect("Edit->Copy")
+        self.dlg.MenuSelect("Edit->Paste")
+        self.dlg.MenuSelect("Edit->Paste")
+        self.dlg.MenuSelect("Edit->Paste")
 
-        app2.UntitledNotepad.MenuSelect("Edit->Paste")
-        app2.UntitledNotepad.MenuSelect("Edit->Paste")
-        app2.UntitledNotepad.MenuSelect("Edit->Paste")
-        self.assertEquals(app2.UntitledNotepad.Edit.TextBlock(), "1,234,567. ")
+        app2.UntitledNotepad.MenuSelect("File->Exit")
+        app2.Notepad.No.Click()
+
+        self.assertEquals(self.dlg.Edit.TextBlock(), text*3)
 
 
 #
