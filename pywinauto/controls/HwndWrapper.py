@@ -171,6 +171,7 @@ class HwndWrapper(object):
             'IsUnicode',
             'IsEnabled',
             'MenuItems',
+            'ControlCount',
             ]
 
 
@@ -233,7 +234,9 @@ class HwndWrapper(object):
         If you want to wait for a control to become visible (or wait
         for it to become hidden) use ``Application.Wait('visible')`` or
         ``Application.WaitNot('visible')``."""
-        return handleprops.isvisible(self)
+
+        return handleprops.isvisible(self.TopLevelParent()) and \
+            handleprops.isvisible(self)
 
     #-----------------------------------------------------------
     def IsUnicode(self):
@@ -247,7 +250,8 @@ class HwndWrapper(object):
         If you want to wait for a control to become enabled (or wait
         for it to become disabled) use ``Application.Wait('visible')`` or
         ``Application.WaitNot('visible')``."""
-        return handleprops.isenabled(self)
+        return handleprops.isenabled(self.TopLevelParent()) and \
+            handleprops.isenabled(self)
 
     #-----------------------------------------------------------
     def Rectangle(self):
@@ -340,6 +344,13 @@ class HwndWrapper(object):
         # this will be filled in the callback function
         child_windows = handleprops.children(self)
         return [WrapHandle(hwnd) for hwnd in child_windows]
+
+    #-----------------------------------------------------------
+    def ControlCount(self):
+        "Return the children of this control"
+
+        return len(handleprops.children(self))
+
 
 
     #-----------------------------------------------------------
