@@ -43,7 +43,7 @@ application.set_timing(2, .01, 10, .01, .05, 0, 0, .1, 0, .05)
 
 
 start = time.time()
-app = application.Application()
+app = application.Application("notepad_fast.pkl")
 
 ## for distribution we don't want to connect to anybodies application
 ## because we may mess up something they are working on!
@@ -51,7 +51,7 @@ app = application.Application()
 #    app.connect_(path = ur"c:\windows\system32\notepad.exe")
 #except application.ProcessNotFoundError:
 #    app.start_(ur"c:\windows\system32\notepad.exe")
-app.start_(ur"notepad.exe")
+app.start_(ur"c:\.projects\py_pywinauto\examples\it_notepad.exe")
 
 app.Notepad.MenuSelect("File->PageSetup")
 
@@ -60,7 +60,8 @@ app.Notepad.MenuSelect("File->PageSetup")
 app.PageSetupDlg.SizeComboBox.Select(4)
 
 # Select the 'Letter' combobox item
-app.PageSetupDlg.SizeComboBox.Select("Letter")
+#app.PageSetupDlg.SizeComboBox.Select("Letter")
+app.PageSetupDlg.SizeComboBox.Select(2)
 
 # run some tests on the Dialog. List of available tests:
 #        "AllControls",
@@ -121,15 +122,18 @@ except IndexError:
     pass
 
 # or with text...
-doc_props.TabCtrl.Select("PaperQuality")
+#doc_props.TabCtrl.Select("PaperQuality")
+doc_props.TabCtrl.Select(1)
 
 try:
-    doc_props.TabCtrl.Select("JobRetention")
+    #doc_props.TabCtrl.Select("JobRetention")
+    doc_props.TabCtrl.Select("3")
 except MatchError:
     # some people do not have the "Job Retention" tab
     pass
 
-doc_props.TabCtrl.Select("Layout")
+#doc_props.TabCtrl.Select("Layout")
+doc_props.TabCtrl.Select(0)
 
 # do some radio button clicks
 doc_props.RotatedLandscape.Click()
@@ -184,6 +188,7 @@ app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
 
 # Try and save
 app.Notepad.MenuSelect("File->SaveAs")
+#app.Notepad.MenuSelect("File->Salva con nome")
 app.SaveAs.EncodingCombo.Select("UTF-8")
 app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
 app.SaveAs.Save.CloseClick()
@@ -208,8 +213,8 @@ app.SaveAs.Yes.Wait('exists').CloseClick()
 
 # exit notepad
 app.Notepad.MenuSelect("File->Exit")
+#app.Notepad.MenuSelect("File->Esci")
 
-app.WriteAppData("Notepad_fast.pkl")
 
 print "That took %.3f to run"% (time.time() - start)
 
