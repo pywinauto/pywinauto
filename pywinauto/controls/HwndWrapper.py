@@ -404,8 +404,33 @@ class HwndWrapper(object):
     def NotifyMenuSelect(self, menu_id):
         "Notify the dialog that one of it's menu items was selected"
 
+#        self.SendMessage(win32defines.WM_ENTERMENULOOP)
+#        self.SendMessage(win32defines.WM_MENUSELECT, 0xffff0000)
+#
+#        if bypos:
+#            msg = win32defines.WM_MENUCOMMAND
+#
+#            return self.SendMessageTimeout(
+#                msg,
+#                menu_id, #wparam
+#                )
+#
+#        else:
+
+        # for example if the window does not have focus
+        # then Paste in Notepad will not work
+        self.SetFocus()
 
         msg = win32defines.WM_COMMAND
+
+        return self.SendMessageTimeout(
+            msg,
+            win32functions.MakeLong(0, menu_id), #wparam
+            )
+
+#        self.SendMessage(win32defines.WM_EXITMENULOOP)
+
+
         #if win32defines.WM_APP < win32functions.LoWord(menu_id) < 0xBFFF:
         #    menu_id = win32functions.LoWord(menu_id)
         #    print "WM_APP", hex(menu_id)
@@ -414,10 +439,6 @@ class HwndWrapper(object):
         #    menu_id = 0
 
 
-        return self.SendMessageTimeout(
-            msg,
-            win32functions.MakeLong(0, menu_id),
-            0)
 
 
     #-----------------------------------------------------------
