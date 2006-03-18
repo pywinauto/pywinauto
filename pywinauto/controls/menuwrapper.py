@@ -230,6 +230,12 @@ class MenuItem(object):
                 "MenuItem '%s' is disabled"% self.Text())
 
         from HwndWrapper import delay_after_menuselect
+
+        #if self.State() & win32defines.MF_BYPOSITION:
+        #    print self.Text(), "BYPOSITION"
+        #    self.ctrl.NotifyMenuSelect(self.Index(), True)
+        #else:
+
         self.ctrl.NotifyMenuSelect(self.ID())
         win32functions.WaitGuiThreadIdle(self.ctrl)
         time.sleep(delay_after_menuselect)
