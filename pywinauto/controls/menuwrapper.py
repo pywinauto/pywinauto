@@ -370,19 +370,24 @@ class Menu(object):
 
         return props
 
-    def GetMenuPath(self, path, path_items = None):
+    def GetMenuPath(self, path, path_items = None, appdata = None):
         "Walk the items in this menu to find the item specified by path"
 
 
         if path_items is None:
             path_items = []
 
-        # get the text names from the menu items
-        item_texts = [item.Text() for item in self.Items()]
 
         # get the first part (and remainder)
         parts = path.split("->", 1)
         current_part = parts[0]
+
+        # get the text names from the menu items
+        if appdata is None:
+            item_texts = [item.Text() for item in self.Items()]
+
+        else:
+            item_texts = [item['Text'] for item in appdata]
 
         # find the item that best matches the current part
         best_item = findbestmatch.find_best_match(
@@ -392,12 +397,16 @@ class Menu(object):
 
         path_items.append(best_item)
 
+        if appdata:
+            appdata = appdata[best_item.Index()]['MenuItems']
+
         # if there are more parts - then get the next level
         if parts[1:]:
             if best_item.SubMenu() is not None:
                 best_item.SubMenu().GetMenuPath(
                     "->".join(parts[1:]),
-                    path_items)
+                    path_items,
+                    appdata)
 
         return path_items
 
