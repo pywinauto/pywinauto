@@ -365,6 +365,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         "Test creating a new spec by hand"
 
         wspec = WindowSpecification(
+            self.app,
             dict(
                 best_match = u"UntitledNotepad",
                 process = self.app.process)
@@ -381,6 +382,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         # no best_match!
         wspec = WindowSpecification(
+            self.app,
             dict(title = u"blah",) )
 
         self.assertRaises(AttributeError, wspec)
@@ -593,7 +595,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         start = time.time()
         self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitExists(.1, .05))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+
+        # it it didn't finish in the allocated time.
+        if not 0 <= (time.time() - start) < 0 + allowable_error:
+            self.assertEqual(.1, time.time() - start)
 
     def testWaitNotExists(self):
         "Make sure the friendly class is set correctly"
