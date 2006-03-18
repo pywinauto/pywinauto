@@ -152,6 +152,8 @@ class HwndWrapper(object):
         # default to not having a reference control added
         self.ref = None
 
+        self.appdata = None
+
         # build the list of default properties to be written
         # Derived classes can either modify this list or override
         # GetProperties depending on how much control they need.
@@ -350,8 +352,6 @@ class HwndWrapper(object):
         "Return the children of this control"
 
         return len(handleprops.children(self))
-
-
 
     #-----------------------------------------------------------
     def IsChild(self, parent):
@@ -886,7 +886,13 @@ class HwndWrapper(object):
           File -> Export -> Export As PNG
 
         """
-        return self.Menu().GetMenuPath(path)[-1]
+        if self.appdata is not None:
+            menu_appdata = self.appdata['MenuItems']
+        else:
+            menu_appdata = None
+
+        return self.Menu().GetMenuPath(path, appdata = menu_appdata)[-1]
+
 
     #-----------------------------------------------------------
     def MenuItems(self):
@@ -935,18 +941,6 @@ class HwndWrapper(object):
         self.VerifyActionable()
 
         self.MenuItem(path).Select()
-#        return self.Menu().GetMenuPath(path)[-1]
-#
-#
-#        menu = Menu(self, self._menu_handle())
-#
-#        path_items = menu.GetMenuPath(path)
-#
-#        if not path_items[-1].IsEnabled():
-#            raise MenuItemNotEnabled(
-#                "MenuItem '%s' is disabled"% path_items[-1].Text())
-#
-#        path_items[-1].Select()
 
 
     #-----------------------------------------------------------
@@ -1053,6 +1047,12 @@ class HwndWrapper(object):
             time.sleep(.06)
 
         return self
+
+
+
+    #-----------------------------------------------------------
+    def SetApplicationData(self, appdata):
+        self.appdata = appdata
 
 #
 #def MouseLeftClick():
