@@ -324,6 +324,13 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.Hyp.SetFocus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Hyp.handle)
 
+    def testMenuSelect(self):
+        self.dlg.TypeKeys("1234567")
+        self.dlg.MenuSelect("Edit->Copy")
+        self.dlg.CE.Click()
+        self.dlg.MenuSelect("Edit->Paste")
+        self.assertEquals(self.dlg.Edit.Texts()[1], "1,234,567. ")
+
 
 
 
@@ -378,6 +385,19 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.ctrl.DoubleClickInput(coords = (60, 30))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (24,29))
 
+    def testMenuSelectNotepad_bug(self):
+        "In notepad - MenuSelect Edit->Paste does not work"
+
+        app2 = Application.start("notepad")
+
+        self.dlg.MenuSelect("Edit->Select All")
+        self.dlg.MenuSelect("Edit->Copy")
+
+        app2.UntitledNotepad.MenuSelect("Edit->Paste")
+        app2.UntitledNotepad.MenuSelect("Edit->Paste")
+        app2.UntitledNotepad.MenuSelect("Edit->Paste")
+        self.assertEquals(app2.UntitledNotepad.Edit.TextBlock(), "1,234,567. ")
+
 
 #
 #    def testRightClick(self):
@@ -407,9 +427,9 @@ class HwndWrapperMouseTests(unittest.TestCase):
 #    def testDrawOutline(self):
 #        pass
 #
-#    def testMenuSelect(self):
-#        pass
-#
+
+
+
 
 
 
