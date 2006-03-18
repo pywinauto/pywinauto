@@ -90,6 +90,7 @@ def find_windows(class_name = None,
                 best_match = None,
                 handle = None,
                 ctrl_index = None,
+                predicate_func = None
     ):
     """Find windows based on criteria passed in
 
@@ -172,6 +173,8 @@ def find_windows(class_name = None,
             best_match, windows)
         windows = [win.handle for win in windows]
 
+    if predicate_func is not None and windows:
+        windows = [win for win in windows if predicate_func(win)]
 
     return windows
 
