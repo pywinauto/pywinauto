@@ -20,14 +20,17 @@
 
 "Tests for HwndWrapper"
 
+import time
+import pprint
+import pdb
+import warnings
+
+import ctypes
+
 from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import win32structures, win32defines
 
-import time
-import pprint
-import pdb
-import ctypes
 
 __revision__ = "$Revision: 234 $"
 
@@ -44,12 +47,15 @@ except ImportError:
 
 import unittest
 
+
+
 class HwndWrapperTests(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+
 
         # start the application
         self.app = Application()
