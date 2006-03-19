@@ -288,9 +288,9 @@ class UniqueDict(dict):
 
         """Return the best matches for search_text in the items
 
-        :search_text: the text to look for
-        :clean: whether to clean non text characters out of the strings
-        :ignore_case: compare strings case insensitively
+        * **search_text** the text to look for
+        * **clean** whether to clean non text characters out of the strings
+        * **ignore_case** compare strings case insensitively
         """
 
         # now time to figure out the matching

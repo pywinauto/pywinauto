@@ -121,16 +121,16 @@ def set_timing(
 
     """Set the timing for various things
 
-    :win_find: = 3    Max time to look for a window
-    :win_retry: =.09  Retry interval when finding a window
-    :app_start: = 10  Max time to look for a window after app start
-    :exists: = .5     Max time to check a window exists
-    :exists_retry: = .3  Retry interval when checking a window exists
-    :after_click: = 0    Delay after a mouse click
-    :after_menu: = 0     Delay after a menu selection
-    :after_sendkeys: = .03   Delay after each Sendkeys key
-    :after_button_click: = 0 Delay after a button click
-    :after_close: = .2       Delay after the CloseClick action
+    * **win_find** = 3    Max time to look for a window
+    * **win_retry** =.09  Retry interval when finding a window
+    * **app_start** = 10  Max time to look for a window after app start
+    * **exists** = .5     Max time to check a window exists
+    * **exists_retry** = .3  Retry interval when checking a window exists
+    * **after_click** = 0    Delay after a mouse click
+    * **after_menu** = 0     Delay after a menu selection
+    * **after_sendkeys** = .03   Delay after each Sendkeys key
+    * **after_button_click** = 0 Delay after a button click
+    * **after_close** = .2       Delay after the CloseClick action
 
     """
 
@@ -168,7 +168,7 @@ class WindowSpecification(object):
     def __init__(self, app, search_criteria):
         """Initailize the class
 
-        :search_criteria: the criteria to match a dialog
+        * **search_criteria** the criteria to match a dialog
         """
         self.app = app
 
@@ -220,7 +220,7 @@ class WindowSpecification(object):
         This allows::
 
             app.['DialogTitle']['ControlTextClass']
-:
+
         to be used to access dialogs and controls.
 
         Both this and __getattr__ use the rules outlined in the
@@ -362,17 +362,18 @@ class WindowSpecification(object):
 
         """Wait for the window to be in a particular state
 
-        :wait_for: The state to wait for the window to be in. It can be any
-                   of the following states
+        * **wait_for** The state to wait for the window to be in. It can be any
+          of the following states
 
-                    * 'exists' means that the window is a valid handle
-                    * 'visible' means that the window is not hidden
-                    * 'enabled' means that the window is not disabled
-                    * 'ready' means that the window is visible and enabled
+            * 'exists' means that the window is a valid handle
+            * 'visible' means that the window is not hidden
+            * 'enabled' means that the window is not disabled
+            * 'ready' means that the window is visible and enabled
 
-        :timeout: Raise an error if the window is not in the appropriate
-                  state after this number of seconds.
-        :wiat_interval: How long to sleep between each retry
+        * **timeout** Raise an error if the window is not in the appropriate
+          state after this number of seconds.
+
+        * **wait_interval** How long to sleep between each retry
 
         e.g. self.Dlg.Wait("exists enabled visible ready")
 
@@ -428,17 +429,17 @@ class WindowSpecification(object):
 
         """Wait for the window to not be in a particular state
 
-        :wait_for: The state to wait for the window to not be in. It can be any
-                   of the following states
+        * **wait_for** The state to wait for the window to not be in. It can be any
+          of the following states
 
-                    * 'exists' means that the window is a valid handle
-                    * 'visible' means that the window is not hidden
-                    * 'enabled' means that the window is not disabled
-                    * 'ready' means that the window is visible and enabled
+            * 'exists' means that the window is a valid handle
+            * 'visible' means that the window is not hidden
+            * 'enabled' means that the window is not disabled
+            * 'ready' means that the window is visible and enabled
 
-        :timeout: Raise an error if the window is sill in the
-                  state after this number of seconds.(Optional)
-        :wiat_interval: How long to sleep between each retry (Optional)
+        * **timeout** Raise an error if the window is sill in the
+          state after this number of seconds.(Optional)
+        * **wiat_interval** How long to sleep between each retry (Optional)
 
         e.g. self.Dlg.WaitNot("exists enabled visible ready")
 
@@ -506,7 +507,9 @@ class WindowSpecification(object):
                 raise RuntimeError(
                     "Timed out while waiting for window (%s - '%s') "
                     "to not be in '%s' state"%
-                        (ctrls[-1].Class(), ctrls[-1].WindowText(), "', '".join( wait_for_not.split() ) )
+                        (ctrls[-1].Class(),
+                        ctrls[-1].WindowText(),
+                        "', '".join( wait_for_not.split() ) )
                     )
 
 
@@ -727,15 +730,17 @@ def _resolve_from_appdata(criteria_, app, timeout = 0, wait_interval = .2):
     dialog = None
     ctrl = None
     if len(process_hwnds) >= 1:
-        #print "***** need to try and select the RIGHT dialog not just the first one"
 
         similar_child_count = [h for h in process_hwnds
-            if matched_control[1]['ControlCount'] -2 <= len(handleprops.children(h)) and
-                matched_control[1]['ControlCount'] +2 >= len(handleprops.children(h))]
+            if matched_control[1]['ControlCount'] -2 <=
+                    len(handleprops.children(h)) and
+                matched_control[1]['ControlCount'] +2 >=
+                    len(handleprops.children(h))]
 
         if len(similar_child_count) == 0:
             print "None Similar child count!!???"
-            print matched_control[1]['ControlCount'], len(handleprops.children(h))
+            print matched_control[1]['ControlCount'], \
+                len(handleprops.children(h))
         else:
             process_hwnds = similar_child_count
 
@@ -755,8 +760,10 @@ def _resolve_from_appdata(criteria_, app, timeout = 0, wait_interval = .2):
 
                 #def has_same_id(other_ctrl):
                 #    print "==="*20
-                #    print "testing", item[2]['ControlID'], "against", other_ctrl
-                #    return item[2]['ControlID'] == handleprops.controlid(other_ctrl)
+                #    print "testing", item[2]['ControlID'],
+                #    print "against", other_ctrl
+                #    return item[2]['ControlID'] == \
+                #    handleprops.controlid(other_ctrl)
 
                 ctrl_criterion['class_name'] = matched_control[2]['Class']
                 ctrl_criterion['parent'] = dialog.handle
@@ -768,7 +775,8 @@ def _resolve_from_appdata(criteria_, app, timeout = 0, wait_interval = .2):
                 if len(ctrl_hwnds) > 1:
                     same_ids = \
                         [hwnd for hwnd in ctrl_hwnds
-                            if handleprops.controlid(hwnd) == matched_control[2]['ControlID']]
+                            if handleprops.controlid(hwnd) == \
+                                matched_control[2]['ControlID']]
 
                     if len(same_ids) >= 1:
                         ctrl_hwnds = same_ids
@@ -849,11 +857,14 @@ def _resolve_from_appdata(criteria_, app, timeout = 0, wait_interval = .2):
 def _resolve_control(criteria, timeout = 0, wait_interval = .2):
     """Find a control using criteria
 
-    :criteria: - a list that contains 1 or 2 dictionaries
-                 1st element is search criteria for the dialog
-                 2nd element is the search criteria for a control of the dialog
-    :timeout: -  maximum length of time to try to find the controls (default 0)
-    :wait_interval: - how long to wait between each retry (default .2)
+    * **criteria** - a list that contains 1 or 2 dictionaries
+
+         1st element is search criteria for the dialog
+
+         2nd element is the search criteria for a control of the dialog
+
+    * **timeout** -  maximum length of time to try to find the controls (default 0)
+    * **wait_interval** - how long to wait between each retry (default .2)
     """
 
     start = time.time()

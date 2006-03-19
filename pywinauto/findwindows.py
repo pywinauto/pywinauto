@@ -96,18 +96,18 @@ def find_windows(class_name = None,
 
     Possible values are:
 
-    :class_name:  Windows with this window class
-    :class_name_re:  Windows whose class match this regular expression
-    :parent:    Windows that are children of this
-    :process:   Windows running in this process
-    :title:     Windows with this Text
-    :title_re:  Windows whose Text match this regular expression
-    :top_level_only: Top level windows only (default=True)
-    :visible_only:   Visible windows only (default=True)
-    :enabled_only:   Enabled windows only (default=True)
-    :best_match:  Windows with a title similar to this
-    :handle:      The handle of the window to return
-    :ctrl_index:  The index of the child window to return
+    * **class_name**  Windows with this window class
+    * **class_name_re**  Windows whose class match this regular expression
+    * **parent**    Windows that are children of this
+    * **process**   Windows running in this process
+    * **title**     Windows with this Text
+    * **title_re**  Windows whose Text match this regular expression
+    * **top_level_only** Top level windows only (default=True)
+    * **visible_only**   Visible windows only (default=True)
+    * **enabled_only**   Enabled windows only (default=True)
+    * **best_match**  Windows with a title similar to this
+    * **handle**      The handle of the window to return
+    * **ctrl_index**  The index of the child window to return
     """
 
     # allow a handle to be passed in
