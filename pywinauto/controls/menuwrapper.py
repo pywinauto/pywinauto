@@ -47,10 +47,10 @@ class MenuItem(object):
     def __init__(self, ctrl, menu, index, on_main_menu = False):
         """Initalize the menu item
 
-        :ctrl:	The dialog or control that owns this menu
-        :menu:	The menu that this item is on
-        :index:	The Index of this menuitem on the menu
-        :on_main_menu:	True if the item is on the main menu
+        * **ctrl**	The dialog or control that owns this menu
+        * **menu**	The menu that this item is on
+        * **index**	The Index of this menuitem on the menu
+        * **on_main_menu**	True if the item is on the main menu
 
         """
         self.index = index
@@ -236,7 +236,13 @@ class MenuItem(object):
         #    self.ctrl.NotifyMenuSelect(self.Index(), True)
         #else:
 
-        self.ctrl.NotifyMenuSelect(self.ID())
+        # notify the control that a menu item was selected
+        self.ctrl.SetFocus()
+        self.ctrl.SendMessageTimeout(
+            win32defines.WM_COMMAND,
+            win32functions.MakeLong(0, self.ID()))
+
+        #self.ctrl.NotifyMenuSelect(self.ID())
         win32functions.WaitGuiThreadIdle(self.ctrl)
         time.sleep(delay_after_menuselect)
 
@@ -318,13 +324,13 @@ class Menu(object):
         owner_item = None):
         """Initialize the class.
 
-        :owner_ctrl: is the Control that owns this menu
-        :menuhandle: is the menu handle of the menu
-        :is_main_menu: we have to track whether it is the main menu or a popup
-                       menu
-        :owner_item: The item that contains this menu - this will be None for
-                     the main menu, it will be a MenuItem instance for a
-                     submenu.
+        * **owner_ctrl** is the Control that owns this menu
+        * **menuhandle** is the menu handle of the menu
+        * **is_main_menu** we have to track whether it is the main menu
+          or a popup menu
+        * **owner_item** The item that contains this menu - this will be
+          None for the main menu, it will be a MenuItem instance for a
+          submenu.
 
         """
         self.ctrl = owner_ctrl
@@ -344,7 +350,7 @@ class Menu(object):
     def Item(self, index):
         """Return a specific menu item
 
-        :index: is the 0 based index of the menu item you want
+        * **index** is the 0 based index of the menu item you want
         """
         return MenuItem(self.ctrl, self, index, self.is_main_menu)
 
