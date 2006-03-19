@@ -28,6 +28,7 @@ import unittest
 import time
 import pprint
 import pdb
+import warnings
 
 from pywinauto import application
 from pywinauto.application import *
@@ -42,13 +43,16 @@ class ApplicationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        pass
+        self.prev_warn = warnings.showwarning
+        def no_warnings(*args, **kwargs): pass
+        warnings.showwarning = no_warnings
 
     def tearDown(self):
         "Close the application after tests"
         # close the application
         #self.dlg.SendMessage(win32defines.WM_CLOSE)
-        pass
+        warnings.showwarning = self.prev_warn
+
 
     def testNotConnected(self):
         "Make sure the friendly class is set correctly"
