@@ -40,18 +40,18 @@ not match the equivalent spaces of the reference control exactly.
 **Bug Extra Information**
 The bug contains the following extra information
 
-  + :Lead-Trail:  Whether this bug report is for the leading or trailing spaces of
-                  the control, String
+  * **Lead-Trail**  Whether this bug report is for the leading or
+    trailing spaces of the control, String
 
     This will be either:
 
       - "Leading"  bug relating to leading spaces
       - "Trailing"  bug relating to trailing spaces
 
-  + :Ref:  The leading or trailings spaces of the reference string (depending on
-           Lead-Trail value), String
-  + :Loc:  The leading or trailings spaces of the local string (depending on
-           Lead-Trail value), String
+  * **Ref**  The leading or trailings spaces of the reference string
+    (depending on Lead-Trail value), String
+  * **Loc**  The leading or trailings spaces of the local string (depending on
+    Lead-Trail value), String
 
 **Is Reference dialog needed**
 This test will not run if the reference controls are not available.
