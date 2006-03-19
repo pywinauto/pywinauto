@@ -90,7 +90,7 @@ class InvalidWindowHandle(RuntimeError):
 def WrapHandle(hwnd):
     """Wrap a window handle
 
-    :hwnd: the handle of the window to wrap
+    * **hwnd** the handle of the window to wrap
 
     This is a simple wrapper around wraphandle.WrapHandle
     that we need to have due to import cross dependencies."""
@@ -123,15 +123,34 @@ def WrapHandle(hwnd):
 class HwndWrapper(object):
     """Default wrapper for controls.
 
+    All other wrappers are derived from this.
+
+    This class wraps a lot of functionality of underlying windows API
+    features for working with windows.
+
+    Most of the methods apply to every single window type. For example
+    you can Click() on any window.
+
     Most of the methods of this class are simple wrappers around
-    API calls and as such they do the simplest thing possible"""
+    API calls and as such they try do the simplest thing possible.
+
+    A HwndWrapper object can be passed directly to a ctypes wrapped
+    C function - and it will get converted to a Long with the value of
+    it's handle (see ctypes, _as_parameter_)"""
 
     friendlyclassname = ''
     handle = None
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
-        "Initialize the control"
+        """Initialize the control
+
+        * **hwnd** is either a valid window handle or it can be an
+          instance or subclass of HwndWrapper.
+
+        If the handle is not valid then an InvalidWindowHandle error
+        is raised.
+        """
         # handle if hwnd is actually a HwndWrapper
         try:
             self.handle = hwnd.handle
@@ -196,93 +215,172 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def Class(self):
-        "Class Name of the window"
+        """Return the class name of the window"""
         return handleprops.classname(self)
 
     #-----------------------------------------------------------
     def WindowText(self):
-        "Main text of the control"
+        """Window text of the control
+
+        Quite  a few contorls have other text that is visible, for example
+        Edit controls usually have an empty string for WindowText but still
+        have text displayed in the edit window.
+        """
         return handleprops.text(self)
 
     #-----------------------------------------------------------
     def Style(self):
-        "Style of window"
+        """Returns the style of window
+
+        Return value is a long.
+
+        Combination of WS_* and specific control specific styles.
+        See HwndWrapper.HasStyle() to easily check if the window has a
+        particular style.
+        """
         return handleprops.style(self)
 
     #-----------------------------------------------------------
     def ExStyle(self):
-        "Extended Style of window"
+        """Returns the Extended style of window
+
+        Return value is a long.
+
+        Combination of WS_* and specific control specific styles.
+        See HwndWrapper.HasStyle() to easily check if the window has a
+        particular style.
+        """
         return handleprops.exstyle(self)
 
     #-----------------------------------------------------------
     def ControlID(self):
-        "The ID of the window"
+        """Return the ID of the window
+
+        Only controls have a valid ID - dialogs usually have no ID assigned.
+
+        The ID usually identified the control in the window - but there can
+        be duplicate ID's for example lables in a dialog may have duplicate
+        ID's.
+        """
         return handleprops.controlid(self)
 
     #-----------------------------------------------------------
     def UserData(self):
-        "Extra data associted with the window"
+        """Extra data associted with the window
+
+        This value is a long value that has been associated with the window
+        and rarely has useful data (or at least data that you know the use
+        of).
+        """
         return handleprops.userdata(self)
 
     #-----------------------------------------------------------
     def ContextHelpID(self):
-        "The Context Help ID of the window"
+        "Return the Context Help ID of the window"
         return handleprops.contexthelpid(self)
+
+    #-----------------------------------------------------------
+    def IsUnicode(self):
+        """Whether the window is unicode or not
+
+        A window is Unicode if it was registered by the Wide char version
+        of RegisterClass(Ex).
+        """
+        return handleprops.isunicode(self)
+
 
     #-----------------------------------------------------------
     def IsVisible(self):
         """Whether the window is visible or not
 
+        Checks that both the Top Level Parent (probably dialog) that
+        owns this window and the window itself are both visible.
+
         If you want to wait for a control to become visible (or wait
         for it to become hidden) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``."""
+        ``Application.WaitNot('visible')``.
+
+        If you want to raise an exception immediately if a window is
+        not visible then you can use the HwndWrapper.VerifyVisible().
+        HwndWrapper.VerifyActionable() raises if the window is not both
+        visible and enabled.
+        """
 
         return handleprops.isvisible(self.TopLevelParent()) and \
             handleprops.isvisible(self)
 
     #-----------------------------------------------------------
-    def IsUnicode(self):
-        "Whether the window is unicode or not"
-        return handleprops.isunicode(self)
-
-    #-----------------------------------------------------------
     def IsEnabled(self):
         """Whether the window is enabled or not
 
+        Checks that both the Top Level Parent (probably dialog) that
+        owns this window and the window itself are both enabled.
+
         If you want to wait for a control to become enabled (or wait
         for it to become disabled) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``."""
+        ``Application.WaitNot('visible')``.
+
+        If you want to raise an exception immediately if a window is
+        not enabled then you can use the HwndWrapper.VerifyEnabled().
+        HwndWrapper.VerifyReady() raises if the window is not both
+        visible and enabled.
+        """
         return handleprops.isenabled(self.TopLevelParent()) and \
             handleprops.isenabled(self)
 
     #-----------------------------------------------------------
     def Rectangle(self):
-        "Rectangle of window"
+        """Return the rectangle of window
+
+        The rectangle is the rectangle of the control on the screen,
+        coordinates are given from the top left of the screen.
+
+        This method returns a RECT structure, Which has attributes - top,
+        left, right, bottom. and has methods width() and height().
+        See win32structures.RECT for more information.
+        """
         return handleprops.rectangle(self)
 
     #-----------------------------------------------------------
     def ClientRect(self):
-        "Client rectangle of window"
+        """Returns the client rectangle of window
+
+        The client rectangle is the window rectangle minus any borders that
+        are not available to the control for drawing.
+
+        Both top and left are always 0 for this method.
+
+        This method returns a RECT structure, Which has attributes - top,
+        left, right, bottom. and has methods width() and height().
+        See win32structures.RECT for more information.
+        """
         return handleprops.clientrect(self)
 
     #-----------------------------------------------------------
     def Font(self):
-        "The font of the window"
+        """Return the font of the window
+
+        The font of the window is used to draw the text of that window.
+        It is a structure which has attributes for Font name, height, width
+        etc.
+
+        See win32structures.LOGFONTW for more information.
+        """
         return handleprops.font(self)
 
     #-----------------------------------------------------------
     def ProcessID(self):
-        "ID of process that controls this window"
+        """Return the ID of process that owns this window"""
         return handleprops.processid(self)
 
     #-----------------------------------------------------------
     def HasStyle(self, style):
-        "Retrun true if the control has the specified sytle"
+        "Return True if the control has the specified sytle"
         return handleprops.has_style(self, style)
 
     #-----------------------------------------------------------
     def HasExStyle(self, exstyle):
-        "Retrun true if the control has the specified extended sytle"
+        "Return True if the control has the specified extended sytle"
         return handleprops.has_exstyle(self, exstyle)
 
     #-----------------------------------------------------------
@@ -292,7 +390,15 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def Parent(self):
-        "Return the parent of this control"
+        """Return the parent of this control
+
+        Note that the parent of a control is not necesarily a dialog or
+        other main window. A group box may be the parent of some radio
+        buttons for example.
+
+        To get the main (or top level) window then use
+        HwndWrapper.TopLevelParent().
+        """
         parent_hwnd = handleprops.parent(self)
 
         if parent_hwnd:
@@ -302,12 +408,16 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def TopLevelParent(self):
-        """Return the top level window that is the parent of this control
+        """Return the top level window of this control
 
         The TopLevel parent is different from the parent in that the Parent
         is the window that owns this window - but it may not be a dialog/main
         window. For example most Comboboxes have an Edit. The ComboBox is the
         parent of the Edit control.
+
+        This will always return a valid window handle (if the control has
+        no top level parent then the control itself is returned - as it is
+        a top level window already!)
         """
         if self.IsDialog():
             return self
@@ -324,38 +434,79 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def Texts(self):
-        """Return the text for each item of this control"""
+        """Return the text for each item of this control"
+
+        It is a list of strings for the control. It is frequently over-ridden
+        to extract all strings from a control with multiple items.
+
+        It is always a list with one or more strings:
+
+          * First elemtent is the window text of the control
+          * Subsequent elements contain the text of any items of the
+            control (e.g. items in a listbox/combobox, tabs in a tabcontrol)
+        """
         texts = [self.WindowText(), ]
         return texts
 
     #-----------------------------------------------------------
     def ClientRects(self):
-        "Return the client rect for each item in this control"
+        """Return the client rect for each item in this control
+
+        It is a list of rectangles for the control. It is frequently over-ridden
+        to extract all rectangles from a control with multiple items.
+
+        It is always a list with one or more rectangles:
+
+          * First elemtent is the client rectangle of the control
+          * Subsequent elements contain the client rectangle of any items of
+            the control (e.g. items in a listbox/combobox, tabs in a
+            tabcontrol)
+        """
 
         return [self.ClientRect(), ]
 
     #-----------------------------------------------------------
     def Fonts(self):
-        "Return the font for each item in this control"
+        """Return the font for each item in this control
+
+        It is a list of fonts for the control. It is frequently over-ridden
+        to extract all fonts from a control with multiple items.
+
+        It is always a list with one or more fonts:
+
+          * First elemtent is the control font
+          * Subsequent elements contain the font of any items of
+            the control (e.g. items in a listbox/combobox, tabs in a
+            tabcontrol)
+        """
         return [self.Font(), ]
 
     #-----------------------------------------------------------
     def Children(self):
-        "Return the children of this control"
+        """Return the children of this control as a list
 
-        # this will be filled in the callback function
+        It returns a list of HwndWrapper (or subclass) instances, it
+        returns an empty list if there are no children.
+        """
+
         child_windows = handleprops.children(self)
         return [WrapHandle(hwnd) for hwnd in child_windows]
 
     #-----------------------------------------------------------
     def ControlCount(self):
-        "Return the children of this control"
+        "Return the number of children of this control"
 
         return len(handleprops.children(self))
 
     #-----------------------------------------------------------
     def IsChild(self, parent):
-        "Return whether the window is a child of parent."
+        """Return True if this window is a child of 'parent'.
+
+        A window is a child of another window when it is a direct of the
+        other window. A window is a direct descendant of a given
+        window if the parent window is the the chain of parent windows
+        for the child window.
+        """
 
         # Call the IsChild API funciton and convert the result
         # to True/False
@@ -378,7 +529,8 @@ class HwndWrapper(object):
         self, message, wparam = 0 , lparam = 0, timeout = .4):
         """Send a message to the control and wait for it to return or to timeout
 
-        If no timeout is given then a default timeout of .4 will be used.
+        If no timeout is given then a default timeout of .4 of a second will
+        be used.
         """
 
         result = ctypes.c_long()
@@ -402,43 +554,25 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def NotifyMenuSelect(self, menu_id):
-        "Notify the dialog that one of it's menu items was selected"
+        """Notify the dialog that one of it's menu items was selected
 
-#        self.SendMessage(win32defines.WM_ENTERMENULOOP)
-#        self.SendMessage(win32defines.WM_MENUSELECT, 0xffff0000)
-#
-#        if bypos:
-#            msg = win32defines.WM_MENUCOMMAND
-#
-#            return self.SendMessageTimeout(
-#                msg,
-#                menu_id, #wparam
-#                )
-#
-#        else:
+        **This method is Deprecated**
+        """
 
-        # for example if the window does not have focus
-        # then Paste in Notepad will not work
+
+        import warnings
+        warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
+            "equivalent functionality is being moved to the MenuWrapper class."
+        warnings.warn(warning_msg, DeprecationWarning)
+
+
         self.SetFocus()
 
         msg = win32defines.WM_COMMAND
-
         return self.SendMessageTimeout(
             msg,
             win32functions.MakeLong(0, menu_id), #wparam
             )
-
-#        self.SendMessage(win32defines.WM_EXITMENULOOP)
-
-
-        #if win32defines.WM_APP < win32functions.LoWord(menu_id) < 0xBFFF:
-        #    menu_id = win32functions.LoWord(menu_id)
-        #    print "WM_APP", hex(menu_id)
-        #
-        #    msg = menu_id #win32defines.WM_APP
-        #    menu_id = 0
-
-
 
 
     #-----------------------------------------------------------
@@ -463,12 +597,15 @@ class HwndWrapper(object):
         if self._NeedsImageProp:
             props["Image"] = self.CaptureAsImage()
 
-
         return props
 
     #-----------------------------------------------------------
     def CaptureAsImage(self):
-        "Return a PIL image of the control"
+        """Return a PIL image of the control
+
+        See PIL documentation to know what you can do with the resulting
+        image"""
+
         if not (self.Rectangle().width() and self.Rectangle().height()):
             return None
 
@@ -491,7 +628,7 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def __eq__(self, other):
-        "Return true if the control handles are the same"
+        "Returns True if the handles of both controls are the same"
         if isinstance(other, HwndWrapper):
             return self.handle == other.handle
         else:
@@ -501,7 +638,7 @@ class HwndWrapper(object):
     def VerifyActionable(self):
         """Verify that the control is both visible and enabled
 
-        raise either ControlNotEnalbed or ControlNotVisible if not
+        Raise either ControlNotEnalbed or ControlNotVisible if not
         enabled or visible respectively.
         """
         win32functions.WaitGuiThreadIdle(self)
@@ -513,16 +650,11 @@ class HwndWrapper(object):
     def VerifyEnabled(self):
         """Verify that the control is enabled
 
-        Check first if the parent is visible. (skip if no parent)
-        Then check if this control is visible.
+        Check first if the control's parent is enabled (skip if no parent),
+        then check if control itself is enabled.
         """
 
-        # check first if it's parent is enabled
-        # (as long as it is not a dialog!)
-        if self.Parent() and not self.Parent().IsEnabled():
-            raise ControlNotEnabled()
-
-        # then check if the control itself is enabled
+        # Check if the control and it's parent are enabled
         if not self.IsEnabled():
             raise ControlNotEnabled()
 
@@ -530,16 +662,11 @@ class HwndWrapper(object):
     def VerifyVisible(self):
         """Verify that the control is visible
 
-        Check first if the parent is visible. (skip if no parent)
-        Then check if this control is visible.
+        Check first if the control's parent is visible. (skip if no parent),
+        then check if control itself is visible.
         """
 
-        # check first if it's parent is visible
-        # (as long as it is not a dialog!)
-        if self.Parent() and not self.Parent().IsVisible():
-            raise ControlNotVisible()
-
-        # then check if the control itself is Visible
+        # check if the control and it's parent are visible
         if not self.IsVisible():
             raise ControlNotVisible()
 
@@ -547,10 +674,14 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def Click(
         self, button = "left", pressed = "", coords = (0, 0), double = False):
-        """Send messages to the control to signify that it has been clicked
+        """Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
-        'realistic' mouse click use ClickInput()
+        'realistic' mouse click use ClickInput() which uses SendInput() API
+        to perform the click.
+
+        This method does not require that the control be visible on the screen
+        (i.e. is can be hidden beneath another window and it will still work.)
         """
 
         _perform_click(self, button, pressed, coords, double)
@@ -562,10 +693,18 @@ class HwndWrapper(object):
         self, button = "left", coords = (None, None), double = False ):
         """Click at the specified coordinates
 
-        Defaults to left clicking at the top, left of the control.
+        * **button** The mouse button to click. One of 'left', 'right',
+          'middle' or 'x' (Default: 'left')
+        * **coords** The coordinates to click at.(Default: center of control)
+        * **double** Whether to perform a double click or not (Default: False)
 
         This is different from Click in that it requires the control to
         be visible on the screen but performs a more realistic 'click'
+        simulation.
+
+        This method is also vulnerable if the mouse if moved by the user
+        as that could easily move the mouse off the control before the
+        Click has finished.
         """
         _perform_click_input(self, button, coords, double)
 
@@ -778,12 +917,12 @@ class HwndWrapper(object):
         rect = None):
         """Draw an outline around the window
 
-        :colour: can be either an integer or one of 'red', 'green', 'blue'
-                 (default 'green')
-        :thickness: thickness of rectangle (default 2)
-        :fill: how to fill in the rectangle (default BS_NULL)
-        :rect: the coordinates of the rectangle to draw (defaults to
-               the rectangle of the control.
+        * **colour** can be either an integer or one of 'red', 'green', 'blue'
+          (default 'green')
+        * **thickness** thickness of rectangle (default 2)
+        * **fill** how to fill in the rectangle (default BS_NULL)
+        * **rect** the coordinates of the rectangle to draw (defaults to
+          the rectangle of the control.
         """
 
         # don't draw if dialog is not visible
@@ -855,11 +994,11 @@ class HwndWrapper(object):
             return None
 
     #-----------------------------------------------------------
-    def ContextMenuSelect(self, path, x = None, y = None):
-        "TODO Not Implemented"
-        pass
-        #raise NotImplementedError(
-        #    "HwndWrapper.ContextMenuSelect not implemented yet")
+#    def ContextMenuSelect(self, path, x = None, y = None):
+#        "TODO ContextMenuSelect Not Implemented"
+#        pass
+#        #raise NotImplementedError(
+#        #    "HwndWrapper.ContextMenuSelect not implemented yet")
 
     #-----------------------------------------------------------
     def _menu_handle(self):
@@ -951,7 +1090,20 @@ class HwndWrapper(object):
         width = None,
         height = None,
         repaint = True):
-        """Move the window to the new coordinates"""
+        """Move the window to the new coordinates
+
+        * **x** Specifies the new left position of the window.
+          Defaults to the current left position of the window.
+        * **y** Specifies the new top position of the window.
+          Defaults to the current top position of the window.
+        * **width** Specifies the new width of the window. Defaults to the
+          current width of the window.
+        * **height** Specifies the new height of the window. Default to the
+          current height of the window.
+        * **repaint** Whether the window should be repainted or not.
+          Defaults to True
+
+        """
 
         cur_rect = self.Rectangle()
 
@@ -993,7 +1145,8 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def GetFocus(self):
-        "Return the control in the windows process that has the Focus"
+        """Return the control in the process of this window that has the Focus
+        """
 
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
@@ -1010,7 +1163,7 @@ class HwndWrapper(object):
     def SetFocus(self):
         """Set the focus to this control
 
-        Activate the window if necessary"""
+        Bring the window to the foreground first if necessary."""
 
         # find the current foreground window
         cur_foreground = win32functions.GetForegroundWindow()
@@ -1052,6 +1205,11 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def SetApplicationData(self, appdata):
+        """Application data is data from a previous run of the software
+
+        It is essential for running scripts written for one spoke language
+        on a different spoken langauge
+        """
         self.appdata = appdata
 
 #
@@ -1080,7 +1238,10 @@ def _perform_click_input(
     button_down = True,
     button_up = True,
     absolute = False):
-    "Peform a click action using SendInput"
+    """Peform a click action using SendInput
+
+    All the *ClickInput() and *MouseInput() methods use this function.
+    """
 
     events = []
     if button.lower() == 'left':
@@ -1118,9 +1279,9 @@ def _perform_click_input(
     coords = list(coords)
     # set the default coordinates
     if coords[0] is None:
-        coords[0] = 0
+        coords[0] = ctrl.Rectangle().width() / 2
     if coords[1] is None:
-        coords[1] = 0
+        coords[1] = ctrl.Rectangle().height() / 2
 
     if not absolute:
         coords[0] = coords[0] + ctrl.Rectangle().left
@@ -1128,7 +1289,7 @@ def _perform_click_input(
 
     # set the cursor position
     win32functions.SetCursorPos(coords[0], coords[1])
-    time.sleep(.1)
+    time.sleep(.01)
 
     inp_struct = win32structures.INPUT()
     inp_struct.type = win32defines.INPUT_MOUSE
