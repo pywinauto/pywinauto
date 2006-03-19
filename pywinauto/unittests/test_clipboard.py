@@ -70,7 +70,10 @@ class ClipboardTestCases(unittest.TestCase):
         )
 
     def testBug1452832(self):
-        "Failing test for sourceforge bug 1452832"
+        """Failing test for sourceforge bug 1452832
+
+        Where GetData was not closing the clipboard. FIXED.
+        """
         self.app1.UntitledNotepad.MenuSelect("Edit -> Select All")
         typetext(self.app1, "some text")
         copytext(self.app1)
