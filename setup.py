@@ -41,9 +41,9 @@ controls also.
 
 	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
 
-	data_files=[
-		('examples', ['examples/notepad_fast.pkl', ]),
-	],
+	#data_files=[
+	#	('examples', ['examples/notepad_fast.pkl', ]),
+	#],
 
 	license = "LGPL",
 	classifiers=[
