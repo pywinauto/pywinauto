@@ -1,5 +1,5 @@
 0.3.0 Added Application data - now useful for localization testing
-------------------------------------------------
+------------------------------------------------------------------
 20-Mar-2006
 
     * Added automatic Application data collection which can be used when
@@ -24,8 +24,8 @@
         app.Find.Close.Click()
         app.NotePad.MenuSelect("File->Exit")
       
-      1st change was to implement static methods '`start()`` and 
-      ``connect`()``. These methods return a new Application instance
+      1st change was to implement static methods ``start()`` and 
+      ``connect()``. These methods return a new Application instance
       so the above code becomes::
       
         app = Application.connect(title = 'Find')
@@ -34,8 +34,8 @@
         
       I also wanted to make it easier to start working with a simple 
       application - that may or may not have only one dialog. To make this
-      situation easier I made window_ not throw if the application has not
-      been 'start()ed' or 'connect()ed' first. This leads to simpler code 
+      situation easier I made ``window_()`` not throw if the application has not
+      been ``start()ed`` or ``connect()ed`` first. This leads to simpler code 
       like::
       
         app = Application()
