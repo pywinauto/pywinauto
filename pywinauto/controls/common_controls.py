@@ -64,7 +64,7 @@ class _RemoteMemoryBlock(object):
                 str(ctypes.WinError()) + "process: %d",
                 process_id.value)
 
-        if win32functions.GetVersion() < 0x80000000:
+        if win32functions.GetVersion() < 2147483648L:
             self.memAddress = win32functions.VirtualAllocEx(
                 self.process,	# remote process
                 0,				# let Valloc decide where
