@@ -739,9 +739,10 @@ def _resolve_from_appdata(criteria_, app, timeout = 0, wait_interval = .2):
                     len(handleprops.children(h))]
 
         if len(similar_child_count) == 0:
-            print "None Similar child count!!???"
-            print matched_control[1]['ControlCount'], \
-                len(handleprops.children(h))
+            #print "None Similar child count!!???"
+            #print matched_control[1]['ControlCount'], \
+            #    len(handleprops.children(h))
+            pass
         else:
             process_hwnds = similar_child_count
 
