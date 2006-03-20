@@ -406,11 +406,11 @@ class Menu(object):
 
         path_items.append(best_item)
 
-        if appdata:
-            appdata = appdata[best_item.Index()]['MenuItems']
 
         # if there are more parts - then get the next level
         if parts[1:]:
+            if appdata:
+                appdata = appdata[best_item.Index()]['MenuItems']
             if best_item.SubMenu() is not None:
                 best_item.SubMenu().GetMenuPath(
                     "->".join(parts[1:]),
