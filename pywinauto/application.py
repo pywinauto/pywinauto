@@ -446,6 +446,9 @@ class WindowSpecification(object):
         See also: ``Application.WaitNot("exists enabled visible ready")``
         """
 
+        # remember the start time so we can do an accurate wait for the timeout
+        start = time.time()
+
         waitnot_criteria = self.criteria[:]
         for criterion in waitnot_criteria:
             criterion['enabled_only'] = False
@@ -453,15 +456,13 @@ class WindowSpecification(object):
 
         wait_for_not = wait_for_not.lower()
 
-        # remember the start time so we can do an accurate wait for the timeout
-        start = time.time()
-
         try:
             if self.app.use_history:
                 ctrls = _resolve_from_appdata(
                     waitnot_criteria, self.app, 0, .01)
             else:
                 ctrls = _resolve_control(waitnot_criteria, 0, .01)
+
         # stop trying if the window doesn't exist - because it MUST
         # be out of one of the states if it doesn't exist anymore!
         except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
@@ -1063,14 +1064,19 @@ class Application(object):
         It will add the process parameter to ensure that the window is from
         the current process.
         """
+
         if not self.process:
-            raise AppNotConnected(
-                "Please use start_ or connect_ before trying anything else")
-
+            #raise AppNotConnected(
+            #    "Please use start_ or connect_ before trying anything else")
+            win_spec = WindowSpecification(self, kwargs)
+            self.process = win_spec.ctrl_().ProcessID()
         # add the restriction for this particular process
-        kwargs['process'] = self.process
+        else:
+            kwargs['process'] = self.process
 
-        return WindowSpecification(self, kwargs)
+            win_spec = WindowSpecification(self, kwargs)
+
+        return win_spec
 
     def __getitem__(self, key):
         "Find the specified dialog of the application"
