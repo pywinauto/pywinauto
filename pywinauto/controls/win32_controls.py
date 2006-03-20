@@ -220,9 +220,32 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.CB_GETCOUNT)
 
     #-----------------------------------------------------------
+    def _get_item_index(self, ident):
+        if isinstance(ident, (int, long)):
+
+            if ident >= self.ItemCount():
+                raise IndexError(
+                    "Combobox has %d items, you requested item %d"%
+                        (self.ItemCount(),
+                        ident))
+
+            # negative index
+            if ident < 0:
+                ident = (self.ItemCount() + ident)
+
+        elif isinstance(ident, basestring):
+            # todo - implement fuzzy lookup for ComboBox items
+            # todo - implement appdata lookup for combobox items
+            ident = self.ItemTexts().index(ident) -1
+
+        return ident
+
+
+    #-----------------------------------------------------------
     def ItemData(self, item):
+        index = self._get_item_index(item)
         "Returns the item data associated with the item if any"
-        return self.SendMessage(win32defines.CB_GETITEMDATA, item)
+        return self.SendMessage(win32defines.CB_GETITEMDATA, index)
 
     #-----------------------------------------------------------
     def ItemTexts(self):
@@ -260,22 +283,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         """
         self.VerifyActionable()
 
-        # Make sure we have an index  so if passed in a
-        # string then find which item it is
-        if isinstance(item, (int, long)):
-            index = item
-
-            if index >= self.ItemCount():
-                raise IndexError(
-                    "Combobox has %d items, you requested item %d"%
-                        (self.ItemCount(),
-                        index))
-
-            # negative index
-            if index < 0:
-                index = (self.ItemCount() + index)
-        else:
-            index = self.Texts().index(item) -1
+        index = self._get_item_index(item)
 
         # change the selected item
         self.SendMessageTimeout(win32defines.CB_SETCURSEL, index)
@@ -340,6 +348,28 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         return items
 
+    #-----------------------------------------------------------
+    def _get_item_index(self, ident):
+        if isinstance(ident, (int, long)):
+
+            if ident >= self.ItemCount():
+                raise IndexError(
+                    "ListBox has %d items, you requested item %d"%
+                        (self.ItemCount(),
+                        ident))
+
+            # negative index
+            if ident < 0:
+                ident = (self.ItemCount() + ident)
+
+        elif isinstance(ident, basestring):
+            # todo - implement fuzzy lookup for ComboBox items
+            # todo - implement appdata lookup for combobox items
+            ident = self.ItemTexts().index(ident) -1
+
+        return ident
+
+
 
     #-----------------------------------------------------------
     def ItemCount(self):
@@ -349,7 +379,10 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def ItemData(self, i):
         "Return the ItemData if any associted with the item"
-        return self.SendMessage(win32defines.LB_GETITEMDATA, i)
+
+        index = self._get_item_index(i)
+
+        return self.SendMessage(win32defines.LB_GETITEMDATA, index)
 
     #-----------------------------------------------------------
     def ItemTexts(self):
@@ -389,10 +422,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         # Make sure we have an index  so if passed in a
         # string then find which item it is
-        if isinstance(item, (int, long)):
-            index = item
-        else:
-            index = self.Texts().index(item) - 1
+        index = self._get_item_index(i)
 
         # change the selected item
         self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
@@ -406,12 +436,14 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     def SetItemFocus(self, item):
         "Set the ListBox focus to the item at index"
 
+        index = self._get_item_index(item)
+
         # if it is a multiple selection dialog
         if self.HasStyle(win32defines.LBS_EXTENDEDSEL) or \
             self.HasStyle(win32defines.LBS_MULTIPLESEL):
-            self.SendMessageTimeout(win32defines.LB_SETCARETINDEX, item)
+            self.SendMessageTimeout(win32defines.LB_SETCARETINDEX, index)
         else:
-            self.SendMessageTimeout(win32defines.LB_SETCURSEL, item)
+            self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
 
         # return this control so that actions can be chained.
         return self
@@ -427,8 +459,6 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             return self.SendMessage(win32defines.LB_GETCARETINDEX)
         else:
             return self.SendMessage(win32defines.LB_GETCURSEL)
-
-
 
 
 #====================================================================
@@ -693,7 +723,7 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
     windowclasses = ["#32768", ]
 
     def IsDialog(self):
-        "Return whether it is a dialgo"
+        "Return whether it is a dialog"
         return True
 
 

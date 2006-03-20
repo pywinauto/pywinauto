@@ -561,6 +561,9 @@ class _treeview_element(object):
         #else:
         #    raise ctypes.WinError()
 
+    #def Click(self):
+    #    print self.Rectangle()
+    #    self.t
 
     #----------------------------------------------------------------
     def SubElements(self):
