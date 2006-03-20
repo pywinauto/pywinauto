@@ -23,27 +23,37 @@
 __revision__ = "$Revision: 214 $"
 
 import time
+import os.path
+import sys
 
-try:
-    from pywinauto import application
-except ImportError:
-    import os.path
-    pywinauto_path = os.path.abspath(__file__)
-    pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
-    import sys
-    sys.path.append(pywinauto_path)
-    from pywinauto import application
+from pywinauto import application
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
 
+
+print "Run with option 'language' e.g. notepad_fast.py language to use"
+print "application data. This should then work on any language Windows/Notepad"
+print
 print "Trying fast timing settings - it's  possible these won't work"
 print "if pywinauto tries to access a window that is not accessible yet"
 application.set_timing(2, .01, 10, .01, .05, 0, 0, .1, 0, .05)
 
-
 start = time.time()
-app = application.Application()
+
+run_with_appdata = False
+if len(sys.argv) > 1 and sys.argv[1].lower() == 'language':
+    run_with_appdata = True
+
+scriptdir = os.path.split(os.path.abspath(__file__))[0]
+if run_with_appdata:
+    print "\nRunning this script so it will load application data and run"
+    print "against any lanuguage version of Notepad/Windows"
+
+    # make sure that the app data gets read from the same folder as the script
+    app = application.Application(os.path.join(scriptdir, "Notepad_fast.pkl"))
+else:
+    app = application.Application()
 
 ## for distribution we don't want to connect to anybodies application
 ## because we may mess up something they are working on!
@@ -61,6 +71,7 @@ app.PageSetupDlg.SizeComboBox.Select(4)
 
 # Select the 'Letter' combobox item
 app.PageSetupDlg.SizeComboBox.Select("Letter")
+app.PageSetupDlg.SizeComboBox.Select(2)
 
 # run some tests on the Dialog. List of available tests:
 #        "AllControls",
@@ -121,15 +132,18 @@ except IndexError:
     pass
 
 # or with text...
-doc_props.TabCtrl.Select("PaperQuality")
+#doc_props.TabCtrl.Select("PaperQuality")
+doc_props.TabCtrl.Select(1)
 
 try:
-    doc_props.TabCtrl.Select("JobRetention")
+    #doc_props.TabCtrl.Select("JobRetention")
+    doc_props.TabCtrl.Select("3")
 except MatchError:
     # some people do not have the "Job Retention" tab
     pass
 
-doc_props.TabCtrl.Select("Layout")
+#doc_props.TabCtrl.Select("Layout")
+doc_props.TabCtrl.Select(0)
 
 # do some radio button clicks
 doc_props.RotatedLandscape.Click()
@@ -184,6 +198,7 @@ app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
 
 # Try and save
 app.Notepad.MenuSelect("File->SaveAs")
+#app.Notepad.MenuSelect("File->Salva con nome")
 app.SaveAs.EncodingCombo.Select("UTF-8")
 app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
 app.SaveAs.Save.CloseClick()
@@ -209,7 +224,10 @@ app.SaveAs.Yes.Wait('exists').CloseClick()
 # exit notepad
 app.Notepad.MenuSelect("File->Exit")
 
-app.WriteAppData("Notepad_fast.pkl")
+if not run_with_appdata:
+    app.WriteAppData(os.path.join(scriptdir, "Notepad_fast.pkl"))
+
+
 
 print "That took %.3f to run"% (time.time() - start)
 
