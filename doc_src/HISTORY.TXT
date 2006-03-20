@@ -1,21 +1,80 @@
-0.2.7 More refactoring, more tests
+0.3.0 More refactoring, more tests
 ------------------------------------------------
-XX-Mar-2006
+20-Mar-2006
 
+    * Added automatic Application data collection which can be used when
+      running the same test on a different spoken language version. Support
+      is still preliminary and is expected to change. Please treat as early
+      Alpha.
+
+      If you have a different language version of Windows then you can try
+      this out by running the notepad_fast.py example with the langauge
+      argument e.g. ::
+      
+        examples\notepad_fast.py language
+      
+      This will load the application data from the supplied file 
+      notepad_fast.pkl and use it for finding the right menu items and 
+      controls to select.
+      
+    * Test implementation to make it easier to start using an application.
+      Previously you needed to write code like ::
+      
+        app = Application().connect_(title = 'Find')
+        app.Find.Close.Click()
+        app.NotePad.MenuSelect("File->Exit")
+      
+      1st change was to implement static methods '`start()`` and 
+      ``connect`()``. These methods return a new Application instance
+      so the above code becomes::
+      
+        app = Application.connect(title = 'Find')
+        app.Find.Close.Click()
+        app.NotePad.MenuSelect("File->Exit")
+        
+      I also wanted to make it easier to start working with a simple 
+      application - that may or may not have only one dialog. To make this
+      situation easier I made window_ not throw if the application has not
+      been 'start()ed' or 'connect()ed' first. This leads to simpler code 
+      like::
+      
+        app = Application()
+        app.Find.Close.Click()
+        app.NotePad.MenuSelect("File->Exit")
+	  
+	  What happens here is that when you execute any of Application.window_(),
+	  Application.__getattr__() or Application.__getitem__() when the 
+	  application hasn't been connected or started. It looks for the window
+	  that best matches your specification and connects the application to
+	  that process. 
+	  
+	  This is extra functionality - existing connect_() and 
+	  start_() methods still exist
+        
     * Fixed HwndWrapper.SetFocus() so that it would work even if the window
       was not in the foreground. (it now makes the window foreground as well
-      as giving it focus)
+      as giving it focus). This overcomes a restriction in Windows where
+      you can only change the foreground window if you own the foreground
+      window.
       
     * Changed some 2.4'isms that an anonymous commenter left on my blog :-)
       with these changes pywinauto should run on Python 2.3 (though I haven't
-      done extensive testing)
+      done extensive testing).
     
     * Commented out controls.common_controls.TabControlWrapper.GetTabState() 
       and TabStates() as these did not seem to be returning valid values anyway.
  
-    * 
+    * Fixed documentation issues were parts of the documentation were not 
+      getting generated to the HTML files.
+      
+    * Fixed issue where MenuSelect would sometimes not work as expected. 
+      Some Menu actions require that the window that owns the menu be active.
+      Added a call to SetFocus() before selecting a menu item to ensure that
+      the window was active.
+      
+    * Fixed Bug 1452832 where clipboard was not closed in clipboard.GetData()
     
-    * Added more unit tests now up to 247 from 207
+    * Added more unit tests now up to 248 from 207
 
 
 0.2.5 More refactoring, more tests

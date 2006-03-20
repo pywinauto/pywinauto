@@ -40,11 +40,11 @@ controls also.
 """,
 
 	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
-#
-#	data_files=[
-#		('.', ['HISTORY.TXT', 'TODO.TXT', 'LICENSE.txt']),
-#	],
-#
+
+	data_files=[
+		('examples', ['examples/notepad_fast.pkl', ]),
+	],
+
 	license = "LGPL",
 	classifiers=[
 		'Development Status :: 4 - Beta',

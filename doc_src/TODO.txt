@@ -5,6 +5,12 @@ PYWINAUTO TODO's
 
 * Add tests for SendInput click methods
 
+* Implement findbestmatch using FuzzyDict.
+
+* Find a way of doing application data in a better way. Currently if someone
+  even adds a call to print_control_identifiers() it will break the matching
+  algorithm!
+
 * Need to move the checking if a control is a Ownerdrawn/bitmap control out
   of __init__ methods and into it's own method something like 
   IsNormallyRendered()
