@@ -236,7 +236,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         elif isinstance(ident, basestring):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
-            ident = self.ItemTexts().index(ident) -1
+            ident = self.ItemTexts().index(ident)
 
         return ident
 
@@ -365,7 +365,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         elif isinstance(ident, basestring):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
-            ident = self.ItemTexts().index(ident) -1
+            ident = self.ItemTexts().index(ident) #-1
 
         return ident
 
@@ -422,7 +422,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         # Make sure we have an index  so if passed in a
         # string then find which item it is
-        index = self._get_item_index(i)
+        index = self._get_item_index(item)
 
         # change the selected item
         self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
