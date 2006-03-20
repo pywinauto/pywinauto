@@ -1,4 +1,4 @@
-0.3.0 More refactoring, more tests
+0.3.0 Added Application data - now useful for localization testing
 ------------------------------------------------
 20-Mar-2006
 
