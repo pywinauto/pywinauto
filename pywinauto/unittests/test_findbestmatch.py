@@ -23,42 +23,37 @@
 __revision__ = "$Revision: 234 $"
 
 import unittest
+import os.path
 
-from pywinauto.findbestmatch import *
+test_path = os.path.split(__file__)[0]
 
-#class ApplicationTestCases(unittest.TestCase):
-#    "Unit tests for the ListViewWrapper class"
-#
-#    def setUp(self):
-#        """Start the application set some data and ensure the application
-#        is in the state we want it."""
-#        pass
-#
-#    def tearDown(self):
-#        "Close the application after tests"
-#        # close the application
-#        #self.dlg.SendMessage(win32defines.WM_CLOSE)
-#        pass
-#
-#    def testNotConnected(self):
-#        "Make sure the friendly class is set correctly"
-#        self.assertRaises (AppNotConnected, Application().__getattr__, 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().window_, title = 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().top_window_,)
-#
-#    def testStartProplem(self):
-#        "Make sure the friendly class is set correctly"
-#        self.assertRaises (AppStartError, Application().start_, 'Hiya')
-#
-#    #def testStartProplem(self):
-#    #    "Make sure the friendly class is set correctly"
-#    #    self.assertRaises (AppStartError, Application().start_, 'Hiya')
-#
+from pywinauto import findbestmatch
+
+
+class TestFindBestMatch(unittest.TestCase):
+
+    def setUp(self):
+        # load the test strings
+        self.strings = open(os.path.join(test_path, "testtext.txt"), "rb").readlines()
+        self.strings = (line.decode('utf-8')[:-1] for line in self.strings)
+
+    def testclean_text_1(self):
+        s = "nothingremovedhere"
+        result =  findbestmatch._clean_non_chars(s)
+        self.assertEqual(s, result)
+
+    def testclean_text_2(self):
+        s = "#$%#^$%&**"
+        result =  findbestmatch._clean_non_chars(s)
+        self.assertEqual('', result)
+
+    def testclean_text_3(self):
+        s = ""
+        result =  findbestmatch._clean_non_chars(s)
+        self.assertEqual('', result)
 
 
 if __name__ == "__main__":
-    #_unittests()
 
     unittest.main()
 
