@@ -145,8 +145,9 @@ def find_windows(class_name = None,
             if class_name == handleprops.classname(win)]
 
     if class_name_re  is not None and windows:
+        class_name_regex = re.compile(class_name_re)
         windows = [win for win in windows
-            if re.match(class_name_re, handleprops.classname(win))]
+            if class_name_regex.match(handleprops.classname(win))]
 
     if process is not None and windows:
         windows = [win for win in windows
@@ -157,8 +158,9 @@ def find_windows(class_name = None,
             if title == handleprops.text(win)]
 
     elif title_re  is not None and windows:
+        title_regex = re.compile(title_re)
         windows = [win for win in windows
-            if re.match(title_re, handleprops.text(win))]
+            if title_regex.match(handleprops.text(win))]
 
     if visible_only and windows:
         windows = [win for win in windows if handleprops.isvisible(win)]
