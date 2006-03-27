@@ -193,16 +193,26 @@ def GetNonTextControlName(ctrl, controls):
         #    Bottom-Left of the text control (text control above)
         # then I get the min of these two
 
-        # (x^2 + y^2)^.5
-        distance = (
-            (text_r.left - ctrl_r.left) ** 2 +  #  (x^2 + y^2)
-            (text_r.bottom - ctrl_r.top) ** 2) \
-            ** .5  # ^.5
 
-        distance2 = (
-            (text_r.right - ctrl_r.left) ** 2 +  #  (x^2 + y^2)
-            (text_r.top - ctrl_r.top) ** 2) \
-            ** .5  # ^.5
+        # We do not actually need to calculate the difference here as we
+        # only need a comparative number. As long as we find the closest one
+        # the actual distance is not all that important to us.
+        # this reduced the unit tests run on my by about 1 second
+        # (from 61 ->60 s)
+
+        # (x^2 + y^2)^.5
+        #distance = (
+        #    (text_r.left - ctrl_r.left) ** 2 +  #  (x^2 + y^2)
+        #    (text_r.bottom - ctrl_r.top) ** 2) \
+        #    ** .5  # ^.5
+
+        #distance2 = (
+        #    (text_r.right - ctrl_r.left) ** 2 +  #  (x^2 + y^2)
+        #    (text_r.top - ctrl_r.top) ** 2) \
+        #    ** .5  # ^.5
+
+        distance = abs(text_r.left - ctrl_r.left) + abs(text_r.bottom - ctrl_r.top)
+        distance2 = abs(text_r.right - ctrl_r.left) + abs(text_r.top - ctrl_r.top)
 
         distance = min(distance, distance2)
 
