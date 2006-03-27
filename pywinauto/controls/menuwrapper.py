@@ -236,11 +236,15 @@ class MenuItem(object):
         #    self.ctrl.NotifyMenuSelect(self.Index(), True)
         #else:
 
+        # seems like SetFoucs might be messing with getting the
+        # id for Popup menu items - so I calling it before SetFocus
+        command_id = self.ID()
+
         # notify the control that a menu item was selected
         self.ctrl.SetFocus()
         self.ctrl.SendMessageTimeout(
             win32defines.WM_COMMAND,
-            win32functions.MakeLong(0, self.ID()))
+            win32functions.MakeLong(0, command_id))
 
         #self.ctrl.NotifyMenuSelect(self.ID())
         win32functions.WaitGuiThreadIdle(self.ctrl)

@@ -22,23 +22,6 @@
 
 __revision__ = "$Revision$"
 
-_test_names = (
-        "AllControls",
-        "AsianHotkey",
-        "ComboBoxDroppedHeight",
-        "CompareToRefFont",
-        "LeadTrailSpaces",
-        "MiscValues",
-        "Missalignment",
-        "MissingExtraString",
-        "Overlapping",
-        "RepeatedHotkey",
-        "Translation",
-        "Truncation",
-    #	"menux",
-)
-
-
 
 def run_tests(controls, tests_to_run = None, test_visible_only = True):
     "Run the tests"
@@ -86,7 +69,6 @@ def print_bugs(bugs):
                 ctrl.Rectangle().bottom,
                 ctrl.IsVisible(),)
 
-
             try:
                 ctrl.DrawOutline()
             except (AttributeError, KeyError):
@@ -102,7 +84,23 @@ def __init_tests():
     "Initialize each test by loading it and then register it"
     global _registered
 
-    for test_name in _test_names:
+    standard_test_names = (
+            "AllControls",
+            "AsianHotkey",
+            "ComboBoxDroppedHeight",
+            "CompareToRefFont",
+            "LeadTrailSpaces",
+            "MiscValues",
+            "Missalignment",
+            "MissingExtraString",
+            "Overlapping",
+            "RepeatedHotkey",
+            "Translation",
+            "Truncation",
+        #   "menux",
+    )
+
+    for test_name in standard_test_names:
 
         test_module = __import__(test_name.lower(), globals(), locals())
 
@@ -110,6 +108,13 @@ def __init_tests():
         test_class = getattr(test_module, test_name + "Test")
 
         _registered[test_name] = test_class
+
+    # allow extension of the tests available through a separate file
+    try:
+        import extra_tests
+        extra_tests.ModifyRegisteredTests(_registered)
+    except ImportError:
+        pass
 
 
 if not _registered:
