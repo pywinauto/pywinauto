@@ -526,7 +526,7 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def SendMessageTimeout(
-        self, message, wparam = 0 , lparam = 0, timeout = .4):
+        self, message, wparam = 0 , lparam = 0, timeout = .001):
         """Send a message to the control and wait for it to return or to timeout
 
         If no timeout is given then a default timeout of .4 of a second will
