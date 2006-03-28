@@ -205,7 +205,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the listview control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -315,7 +315,7 @@ class TreeViewTestCases(unittest.TestCase):
 
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the treeview control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -364,7 +364,7 @@ class HeaderTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.Texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the header control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -445,7 +445,7 @@ class StatusBarTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.Texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the status bar control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -562,7 +562,7 @@ class TabControlTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.Texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the tabcontrol"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -678,7 +678,7 @@ class ToolbarTestCases(unittest.TestCase):
             self.assertEquals (isinstance(txt, basestring), True)
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the toolbar control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -820,7 +820,7 @@ class ToolTipsTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.Texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the tooltips control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -887,7 +887,7 @@ class UpDownTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.Texts()[1:], [])
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the updown control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -917,16 +917,17 @@ class UpDownTestCases(unittest.TestCase):
             23)
 
     def testGetBase(self):
-        "Test decrementing up-down position"
+        "Test getting the base of the up-down control"
         self.assertEquals (self.ctrl.GetBase(), 10)
         self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
 
         # use CloseClick to allow the control time to respond to the message
-        self.dlg.Send.CloseClick()
+        self.dlg.Send.Click()
 
         self.assertEquals (self.ctrl.GetBase(), 16)
 
     def testGetRange(self):
+        "Test getting the range of the up-down control"
         self.assertEquals((0, 9999), self.ctrl.GetRange())
 
     def testGetBuddy(self):
