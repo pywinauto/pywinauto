@@ -559,12 +559,10 @@ class HwndWrapper(object):
         **This method is Deprecated**
         """
 
-
         import warnings
         warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
             "equivalent functionality is being moved to the MenuWrapper class."
         warnings.warn(warning_msg, DeprecationWarning)
-
 
         self.SetFocus()
 
