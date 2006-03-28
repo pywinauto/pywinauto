@@ -308,25 +308,23 @@ class ApplicationTestCases(unittest.TestCase):
         app = Application()
         app.start_('notepad.exe')
 
-        application.window_find_timeout = .5
         try:
             app['blahblah']
         except:
             pass
 
 
+        prev_timeout = application.window_find_timeout
+        application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
-            app['blahblah'].__getattr__, 'handle')
+            app['blahblah']['not here'].__getitem__, 'handle')
 
         self.assertEqual(
             app[u'Unt\xeftledNotepad'].handle,
             app.window_(title = "Untitled - Notepad").handle)
 
         app.UntitledNotepad.MenuSelect("File->Page Setup")
-
-        self.assertRaises(findbestmatch.MatchError,
-            app[u'N\xeftepad'].__getattr__, 'handle')
 
         self.assertEqual(
             app['PageSetup'].handle,
@@ -335,12 +333,15 @@ class ApplicationTestCases(unittest.TestCase):
         app.PageSetup.Cancel.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
+        application.window_find_timeout = prev_timeout
 
     def testGetattr(self):
         "Test that __getattr__() works correctly"
         app = Application()
         app.start_('notepad.exe')
 
+        prev_timeout = application.window_find_timeout
+        application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
             app.blahblah.__getattr__, 'handle')
@@ -361,6 +362,7 @@ class ApplicationTestCases(unittest.TestCase):
         app.PageSetup.Cancel.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
+        application.window_find_timeout = prev_timeout
 
 
 
@@ -535,7 +537,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         start = time.time()
         self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        if .1 < (time.time() - start)  > .1 + allowable_error:
+            self.assertEqual(.12, taken)
 
         start = time.time()
         self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "  ready", .1, .05)
