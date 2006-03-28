@@ -26,6 +26,11 @@ import re
 import difflib
 
 import fuzzydict
+#import ctypes
+#import ldistance
+#levenshtein_distance = ctypes.cdll.levenshtein.levenshtein_distance
+#levenshtein_distance = ldistance.distance
+
 
 # need to use sets.Set for python 2.3 compatability
 import sets
@@ -65,6 +70,11 @@ def _get_match_ratios(texts, match_against):
     for text in texts:
         # set up the SequenceMatcher with other text
         ratio_calc.set_seq2(text)
+
+        # try using the levenshtein distance instead
+        #lev_dist = levenshtein_distance(unicode(match_against), unicode(text))
+        #ratio = 1 - lev_dist / 10.0
+        #ratios[text] = ratio
 
         # calculate ratio and store it
         ratios[text] = ratio_calc.ratio()
@@ -331,6 +341,13 @@ class UniqueDict(dict):
 
             # calculate ratio and store it
             ratios[text_] = ratio_calc.ratio()
+
+
+            # try using the levenshtein distance instead
+            #lev_dist = levenshtein_distance(unicode(search_text), unicode(text))
+            #ratio = 1 - lev_dist / 10.0
+            #ratios[text_] = ratio
+            #print "%5s" %("%0.2f"% ratio), search_text, `text`
 
             # if this is the best so far then update best stats
             if ratios[text_] > best_ratio:
