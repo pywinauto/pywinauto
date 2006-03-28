@@ -53,17 +53,29 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(ButtonWrapper, self).__init__(hwnd)
 
-        self._set_if_needs_image()
+        #self._set_if_needs_image()
 
+
+    def _set_if_needs_image(self, value):
+        pass
     #-----------------------------------------------------------
-    def _set_if_needs_image(self):
+    def _get_if_needs_image(self):
         "Set the _NeedsImageProp attribute if it is an image button"
-        if self.IsVisible() and (\
-            self.HasStyle(win32defines.BS_BITMAP) or \
-            self.HasStyle(win32defines.BS_ICON) or \
-            self.HasStyle(win32defines.BS_OWNERDRAW)):
 
-            self._NeedsImageProp = True
+        # optimization call Style once and work with that rather than
+        # calling HasStyle a number of times
+        style = self.Style()
+
+        if self.IsVisible() and (\
+            style & win32defines.BS_BITMAP == style or \
+            style & win32defines.BS_ICON == style or \
+            style & win32defines.BS_OWNERDRAW == style):
+
+            #self._NeedsImageProp = True
+            return True
+        else:
+            return False
+    _NeedsImageProp = property(_get_if_needs_image, _set_if_needs_image)
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
@@ -136,6 +148,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
 
+    def IsDialog(self):
+        return False
+
     #-----------------------------------------------------------
     def Click(self):
         "Click the Button control"
@@ -167,7 +182,7 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
 
         text = ctypes.create_unicode_buffer(text_len + 1)
 
-        wrapper.SendMessage (item_get_msg, i, ctypes.byref(text))
+        wrapper.SendMessage(item_get_msg, i, ctypes.byref(text))
 
         texts.append(text.value)
 
@@ -508,7 +523,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         text[0] = unichr(text_len)
 
         # retrieve the line itself
-        self.SendMessage (
+        self.SendMessage(
             win32defines.EM_GETLINE, line_index, ctypes.byref(text))
 
         return text.value
@@ -580,7 +595,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         # replace the selection with
         text = ctypes.c_wchar_p(unicode(text))
-        self.SendMessage(win32defines.EM_REPLACESEL, True, text)
+        self.SendMessageTimeout(win32defines.EM_REPLACESEL, True, text)
 
         # return this control so that actions can be chained.
         return self

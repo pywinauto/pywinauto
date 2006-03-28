@@ -345,7 +345,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem = _RemoteMemoryBlock(self)
         remote_mem.Write(lvitem)
 
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.LVM_SETITEMSTATE, item, remote_mem)
 
         del remote_mem
@@ -366,7 +366,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem = _RemoteMemoryBlock(self)
         remote_mem.Write(lvitem)
 
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.LVM_SETITEMSTATE, item, remote_mem)
 
         del remote_mem
@@ -408,7 +408,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem = _RemoteMemoryBlock(self)
         remote_mem.Write(lvitem)
 
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.LVM_SETITEMSTATE, item, remote_mem)
 
 
@@ -427,7 +427,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         remote_mem.Write(nmlv)
 
-        self.Parent().SendMessage(
+        self.Parent().SendMessageTimeout(
             win32defines.WM_NOTIFY,
             self.ControlID(),
             remote_mem)
@@ -687,7 +687,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                 raise IndexError("Root Item '%s' does not have %d sibling(s)"%
                     (self.Root().WindowText(), i + 1))
 
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.TVM_EXPAND,
             win32defines.TVE_EXPAND,
             current_elem)
@@ -702,7 +702,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                     (current_elem.WindowText(), child_index + 1))
 
 
-            self.SendMessage(
+            self.SendMessageTimeout(
                 win32defines.TVM_EXPAND,
                 win32defines.TVE_EXPAND,
                 current_elem)
@@ -713,7 +713,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     def Select(self, path):
         "Select the treeview item"
         elem = self.GetItem(path)
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.TVM_SELECTITEM, # message
             win32defines.TVGN_CARET,     # how to select
             elem)                 # item to select
@@ -729,7 +729,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     def EnsureVisible(self, path):
         "Make sure that the TreeView item is visible"
         elem = self.GetItem(path)
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.TVM_ENSUREVISIBLE, # message
             win32defines.TVGN_CARET,     # how to select
             elem)                 # item to select
@@ -1267,7 +1267,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
                 self.TabCount(),
                 tab))
 
-        self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)
+        self.SendMessageTimeout(win32defines.TCM_SETCURFOCUS, tab)
 
         return self
 
@@ -1460,12 +1460,12 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         button = self.GetButton(button_index)
 
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.TB_PRESSBUTTON,
             button.idCommand,
             win32functions.MakeLong(1, 0))
 
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.TB_PRESSBUTTON,
             button.idCommand,
             win32functions.MakeLong(0, 0))
@@ -1776,7 +1776,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
 
     def SetValue(self, new_pos):
         "Set the value of the of the UpDown control to some integer value"
-        self.SendMessage(
+        self.SendMessageTimeout(
             win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos))
 
     def Increment(self):
