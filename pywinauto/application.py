@@ -466,7 +466,7 @@ class WindowSpecification(object):
         # stop trying if the window doesn't exist - because it MUST
         # be out of one of the states if it doesn't exist anymore!
         except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-            raise
+            #raise
             return
 
         self.app.RecordMatch(self.criteria, ctrls)
