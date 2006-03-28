@@ -4,20 +4,29 @@ import os.path
 import os
 import sys
 
-testfolder = os.path.split(__file__)[0]
 
-sys.path.append(testfolder)
+def run_tests():
+    testfolder = os.path.abspath(os.path.split(__file__)[0])
+    print testfolder
 
-
-for root, dirs, files in os.walk(testfolder):
-    test_modules = [
-        file.replace('.py', '') for file in files if
-            file.startswith('test_') and
-            file.endswith('.py')]
-
-    for mod in test_modules:
-        #globals().update(__import__(mod, globals(), locals()).__dict__)
-        globals().update(__import__(mod, globals(), locals()).__dict__)
+    sys.path.append(testfolder)
 
 
-unittest.main()
+    for root, dirs, files in os.walk(testfolder):
+        test_modules = [
+            file.replace('.py', '') for file in files if
+                file.startswith('test_') and
+                file.endswith('.py')]
+
+        for mod in test_modules:
+            #globals().update(__import__(mod, globals(), locals()).__dict__)
+            # import it
+            imported_mod = __import__(mod, globals(), locals())
+            #print imported_mod.__dict__
+            globals().update(imported_mod.__dict__)
+
+
+    unittest.main()
+
+if __name__ == '__main__':
+    run_tests()
