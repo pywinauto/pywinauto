@@ -250,7 +250,7 @@ class HwndWrapperTests(unittest.TestCase):
 #        pass
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the HwndWrapped control"
         props  = self.dlg.GetProperties()
 
         self.assertEquals(
