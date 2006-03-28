@@ -29,13 +29,14 @@ from pywinauto import handleprops
 __revision__ = "$Revision $"
 
 #====================================================================
-# get all the classes/functinos from win32_contols
+# get all the classes/functions from win32_contols
 _all_classes = win32_controls.__dict__.values()
 
 # and add all the classes/functinos from common_controls
 _all_classes.extend(common_controls.__dict__.values())
 
 _wrapper_info = {}
+_wrapper_cache = {}
 
 for item in _all_classes:
     try:
@@ -45,8 +46,11 @@ for item in _all_classes:
                 re.compile(classname_),
                 item)
 
+            _wrapper_cache[classname_] = item
+
     except AttributeError, e:
         pass
+
 
 def _find_wrapper(classname):
     """return the wrapper that handles this classname
@@ -54,17 +58,31 @@ def _find_wrapper(classname):
     If there is no match found then return None.
     """
 
-    # Optimization - check if the control name matches exactly
-    # before trying a re.match
-    if classname in _wrapper_info:
-        return _wrapper_info[classname][1]
-
-    for regex, wrapper in _wrapper_info.values():
-        if regex.match(classname):
-            #print wrapper_name
-            return wrapper
+    try:
+        #print classname in _wrapper_cache, classname
 
 
+        # Optimization - return the item from the cache if it exists
+        # in the cache
+        return _wrapper_cache[classname]
+
+        # Optimization - then check if the control name matches
+        # exactly before trying a re.match (and add it to the cache)
+        #if classname in _wrapper_info:
+        #    _wrapper_cache[classname] = _wrapper_info[classname][1]
+        #    return _wrapper_info[classname][1]
+    except KeyError:
+        for regex, wrapper in _wrapper_info.values():
+            if regex.match(classname):
+
+                # save this regex match for later (most classnames
+                # don't change that much so it will be faster)
+
+                _wrapper_cache[classname] = wrapper
+                return wrapper
+
+    _wrapper_cache[classname] = None
+    return None
 
 #====================================================================
 def WrapHandle(hwnd):
@@ -76,19 +94,23 @@ def WrapHandle(hwnd):
     from HwndWrapper import HwndWrapper
 
     class_name = handleprops.classname(hwnd)
+
+    _needs_image = False
+
     wrapper = _find_wrapper(class_name)
 
     if wrapper is None:
         if handleprops.is_toplevel_window(hwnd):
-            wrapped_hwnd = win32_controls.DialogWrapper(hwnd)
+            wrapper = win32_controls.DialogWrapper
         else:
-            wrapped_hwnd = HwndWrapper(hwnd)
+            wrapper = HwndWrapper
 
         if not handleprops.is_toplevel_window(hwnd):
-            wrapped_hwnd._NeedsImageProp = True
+            _needs_image = True
 
-    else:
-        wrapped_hwnd = wrapper(hwnd)
+    wrapped_hwnd = wrapper(hwnd)
+    if _needs_image:
+        wrapped_hwnd._NeedsImageProp = True
 
     return wrapped_hwnd
 
