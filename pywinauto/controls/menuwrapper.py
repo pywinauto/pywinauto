@@ -157,7 +157,7 @@ class MenuItem(object):
         submenu_handle = self._read_item().hSubMenu
 
         if submenu_handle:
-            self.ctrl.SendMessage(
+            self.ctrl.SendMessageTimeout(
                 win32defines.WM_INITMENUPOPUP,
                 submenu_handle,
                 self.index)
@@ -345,7 +345,7 @@ class Menu(object):
         self._as_parameter_ = self.handle
 
         if self.is_main_menu:
-            self.ctrl.SendMessage(win32defines.WM_INITMENU, self.handle)
+            self.ctrl.SendMessageTimeout(win32defines.WM_INITMENU, self.handle)
 
     def ItemCount(self):
         "Return the count of items in this menu"
