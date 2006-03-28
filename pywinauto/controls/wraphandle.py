@@ -52,19 +52,17 @@ for item in _all_classes:
         pass
 
 
-def _find_wrapper(classname):
+def _find_wrapper(class_name):
     """return the wrapper that handles this classname
 
     If there is no match found then return None.
     """
 
     try:
-        #print classname in _wrapper_cache, classname
-
 
         # Optimization - return the item from the cache if it exists
         # in the cache
-        return _wrapper_cache[classname]
+        return _wrapper_cache[class_name]
 
         # Optimization - then check if the control name matches
         # exactly before trying a re.match (and add it to the cache)
@@ -72,17 +70,21 @@ def _find_wrapper(classname):
         #    _wrapper_cache[classname] = _wrapper_info[classname][1]
         #    return _wrapper_info[classname][1]
     except KeyError:
+
+        wrapper_match = None
+
         for regex, wrapper in _wrapper_info.values():
-            if regex.match(classname):
+            if regex.match(class_name):
 
-                # save this regex match for later (most classnames
-                # don't change that much so it will be faster)
+                wrapper_match = wrapper
 
-                _wrapper_cache[classname] = wrapper
-                return wrapper
+    # save this classname - wrapper match for later
+    # There are not so many classnames registerd usually so this saves
+    # time
+    _wrapper_cache[class_name] = wrapper_match
 
-    _wrapper_cache[classname] = None
-    return None
+    # return the wrapper that matched
+    return wrapper_match
 
 #====================================================================
 def WrapHandle(hwnd):
@@ -90,7 +92,6 @@ def WrapHandle(hwnd):
 
     Wrapper is chosen on the Class of the control
     """
-
     from HwndWrapper import HwndWrapper
 
     class_name = handleprops.classname(hwnd)
@@ -100,12 +101,15 @@ def WrapHandle(hwnd):
     wrapper = _find_wrapper(class_name)
 
     if wrapper is None:
-        if handleprops.is_toplevel_window(hwnd):
+        # yet another optimization to not call this function too often
+        is_top_level_win = handleprops.is_toplevel_window(hwnd)
+
+        if is_top_level_win:
             wrapper = win32_controls.DialogWrapper
         else:
             wrapper = HwndWrapper
 
-        if not handleprops.is_toplevel_window(hwnd):
+        if not is_top_level_win:
             _needs_image = True
 
     wrapped_hwnd = wrapper(hwnd)
@@ -113,4 +117,3 @@ def WrapHandle(hwnd):
         wrapped_hwnd._NeedsImageProp = True
 
     return wrapped_hwnd
-
