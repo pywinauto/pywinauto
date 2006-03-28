@@ -210,13 +210,13 @@ def has_exstyle(handle, tocheck):
 def is_toplevel_window(handle):
     "Return whether the window is a top level window or not"
 
-    # I don't like this so I have commented it out
-    #if classname(handle) in ['tooltips_class32']:
-    #    return False
+    # only request the style once - this is an optimization over calling
+    # (handle, style) for each style I wan to check!
+    style_ = style(handle)
 
-    if (has_style(handle, win32defines.WS_OVERLAPPED) or \
-        has_style(handle, win32defines.WS_CAPTION)) and \
-        not has_style(handle, win32defines.WS_CHILD):
+    if (style_ & win32defines.WS_OVERLAPPED == win32defines.WS_OVERLAPPED or \
+        style_ & win32defines.WS_CAPTION == win32defines.WS_CAPTION) and \
+        not (style_ & win32defines.WS_CHILD == win32defines.WS_CHILD):
         return True
     else:
         return False
