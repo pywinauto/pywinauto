@@ -1,3 +1,36 @@
+0.3.x Performance tune-ups
+------------------------------------------------------------------
+XX-Xxx-2006
+
+    * Change calculation of distance in findbestmatch.GetNonTextControlName()
+      so that it does not need to square or get the square root to
+      find the real distance - as we only need to compare values - not have
+      the actual distance. (Thanks to Stefaan Himple)
+    
+    * Compiled regular expression patterns before doing the match to 
+      avoid compiling the regular expression for window that is being
+      tested (Thanks to Stefaan Himple)
+      
+    * ?? 0.3.0 ??Made it easier to add your own control tests by adding a file 
+      extra_tests.py which needs to export a ModifyRegisteredTests() method.
+      Also cleaned up the code a little.
+    
+    * Updated notepad_fast.py to make it easier to profile (adde a method)
+
+    * Changed WrapHandle to use a cache for classes it has matched - this is to
+      avoid having to match against all classes constantly.
+
+    * Changed default timeout in SendMessageTimeout to .001 seconds from .4 seconds
+      this results in a significant speedup. Will need to make this value modifiable
+      via the timing module/routine.
+
+    * WaitNot was raising an error if the control was not found - it should have
+      returned (i.e. success - control is not in any particular state because it does
+      not exist!).
+
+    * 
+
+
 0.3.0 Added Application data - now useful for localization testing
 ------------------------------------------------------------------
 20-Mar-2006
