@@ -56,7 +56,7 @@ class ButtonTestCases(unittest.TestCase):
         self.calc.TypeKeys("%{F4}")
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the button control"
         props  = self.calc._6.GetProperties()
 
         self.assertEquals(
@@ -115,7 +115,7 @@ class ButtonTestCases(unittest.TestCase):
 #        self.assertEquals(self.calc.Inv.GetCheckState(), 0)
 
     def testClick(self):
-        "Test getting the properties for the control"
+        "Test clicking on buttons"
         self.calc._6.Click()
         self.calc._5.Click()
         self.calc['+'].Click()
@@ -169,7 +169,7 @@ class ComboBoxTestCases(unittest.TestCase):
 
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the combobox control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -272,7 +272,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.app.DocumentWordPad.MenuSelect("File->Exit")
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the listbox control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -460,7 +460,7 @@ class DialogTestCases(unittest.TestCase):
 
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the dialog box"
         props  = self.calc.GetProperties()
 
         self.assertEquals(
@@ -527,7 +527,7 @@ class PopupMenuTestCases(unittest.TestCase):
 
 
     def testGetProperties(self):
-        "Test getting the properties for the control"
+        "Test getting the properties for the PopupMenu"
         props  = self.popup.GetProperties()
 
         self.assertEquals(
