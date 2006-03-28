@@ -26,7 +26,8 @@ def run_tests():
             globals().update(imported_mod.__dict__)
 
 
-    unittest.main()
+    runner = unittest.TextTestRunner(verbosity = 2)
+    unittest.main(testRunner = runner)
 
 if __name__ == '__main__':
     run_tests()
