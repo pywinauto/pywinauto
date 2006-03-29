@@ -394,15 +394,18 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_FOCUSED)
 
     #-----------------------------------------------------------
-    def Select(self, item):
-        "Mark the item as selected"
+    def _modify_selection(self, item, to_select):
+        ""
 
         self.VerifyActionable()
 
         # first we need to change the state of the item
         lvitem = win32structures.LVITEMW()
         lvitem.mask = win32defines.LVIF_STATE
-        lvitem.state = win32defines.LVIS_SELECTED
+
+        if to_select:
+            lvitem.state = win32defines.LVIS_SELECTED
+
         lvitem.stateMask = win32defines.LVIS_SELECTED
 
         remote_mem = _RemoteMemoryBlock(self)
@@ -410,7 +413,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.SendMessageTimeout(
             win32defines.LVM_SETITEMSTATE, item, remote_mem)
-
 
         # now we need to notify the parent that the state has chnaged
         nmlv = win32structures.NMLISTVIEW()
@@ -434,6 +436,24 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         del remote_mem
 
+    #-----------------------------------------------------------
+    def Select(self, item):
+        """Mark the item as selected
+
+        The ListView control must be enabled and visible before an
+        Item can be selected otherwise an exception is raised"""
+        self._modify_selection(item, True)
+
+    #-----------------------------------------------------------
+    def Deselect(self, item):
+        """Mark the item as not selected
+
+        The ListView control must be enabled and visible before an
+        Item can be selected otherwise an exception is raised"""
+        self._modify_selection(item, False)
+
+    # Naming is not clear - so create an alias.
+    #UnSelect = Deselect
 
     #-----------------------------------------------------------
     def GetSelectedCount(self):
