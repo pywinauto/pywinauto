@@ -22,7 +22,6 @@
 
 __revision__ = "$Revision$"
 
-
 import ctypes
 
 from pywinauto import win32functions
@@ -399,6 +398,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.VerifyActionable()
 
+        if item >= self.ItemCount():
+            raise IndexError("There are only %d items in the list view not %d"%
+                (self.ItemCount(), item + 1))
+
         # first we need to change the state of the item
         lvitem = win32structures.LVITEMW()
         lvitem.mask = win32defines.LVIF_STATE
@@ -435,6 +438,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             remote_mem)
 
         del remote_mem
+
+        win32functions.WaitGuiThreadIdle(self)
 
     #-----------------------------------------------------------
     def Select(self, item):
