@@ -500,7 +500,9 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         start = time.time()
         self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait("enaBleD "))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        time_taken = (time.time() - start)
+        if not 0 <= time_taken < (0 + allowable_error):
+            self.assertEqual(.02,  time_taken)
 
         start = time.time()
         self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait("  ready"))

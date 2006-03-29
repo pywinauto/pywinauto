@@ -159,9 +159,19 @@ class ListViewTestCases(unittest.TestCase):
 
         self.ctrl.Select(1)
         self.ctrl.Select(7)
-        self.ctrl.Select(12)
 
         self.assertEquals(self.ctrl.GetSelectedCount(), 2)
+
+
+#    def testGetSelectionCount(self):
+#        "Test the ListView GetSelectedCount method"
+#
+#        self.assertEquals(self.ctrl.GetSelectedCount(), 0)
+#
+#        self.ctrl.Select(1)
+#        self.ctrl.Select(7)
+#
+#        self.assertEquals(self.ctrl.GetSelectedCount(), 2)
 
 
     def testIsSelected(self):
@@ -201,7 +211,24 @@ class ListViewTestCases(unittest.TestCase):
         self.ctrl.Select(3)
         self.ctrl.Select(4)
 
+        self.assertRaises(IndexError, self.ctrl.Deselect, 23)
+
         self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+
+
+    def testDeselect(self):
+        "Test ListView Selecting some items"
+        self.ctrl.Select(1)
+        self.ctrl.Select(4)
+
+        self.ctrl.Deselect(3)
+        self.ctrl.Deselect(4)
+
+        self.assertRaises(IndexError, self.ctrl.Deselect, 23)
+
+        self.assertEquals(self.ctrl.GetSelectedCount(), 1)
+
+
 
 
     def testGetProperties(self):

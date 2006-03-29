@@ -177,7 +177,6 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(self.ctrl.HasStyle(win32defines.WS_SYSMENU), False)
         self.assertEqual(self.dlg.HasStyle(win32defines.WS_SYSMENU), True)
 
-
     def testHasExStyle(self):
         self.assertEqual(self.ctrl.HasExStyle(win32defines.WS_EX_NOPARENTNOTIFY), True)
         self.assertEqual(self.dlg.HasExStyle(win32defines.WS_EX_NOPARENTNOTIFY), False)
@@ -191,11 +190,12 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testMenuItems(self):
         self.assertEqual(self.ctrl.MenuItems(), [])
-
         self.assertEqual(self.dlg.MenuItems()[1]['Text'], '&View')
+
 
     def testParent(self):
         self.assertEqual(self.ctrl.Parent(), self.dlg.handle)
+
 
     def testTopLevelParent(self):
         self.assertEqual(self.ctrl.TopLevelParent(), self.dlg.handle)
@@ -204,7 +204,6 @@ class HwndWrapperTests(unittest.TestCase):
     def testTexts(self):
         self.assertEqual(self.dlg.Texts(), [u'Calculator'])
         self.assertEqual(self.ctrl.Texts(), [u'Backspace'])
-
         self.assertEqual(self.dlg.Edit.Texts(), ['', "0. "])
 
     def testClientRects(self):
@@ -234,6 +233,7 @@ class HwndWrapperTests(unittest.TestCase):
 
 
     def testSendMessageTimeout(self):
+
         vk = self.dlg.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
@@ -244,10 +244,15 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
         self.assertNotEquals(0, self.dlg.Inv.PostMessage(win32defines.WM_PAINT))
 
-#    def testNotifyMenuSelect(self):
-#        pass
-#    def testNotifyParent(self):
-#        pass
+    def testNotifyMenuSelect(self):
+        "Call NotifyMenuSelect to ensure it does not reaise"
+        self.ctrl.NotifyMenuSelect(1234)
+        self.dlg.NotifyMenuSelect(1234)
+
+    def testNotifyParent(self):
+        "Call NotifyParent to ensure it does not raise"
+        self.ctrl.NotifyParent(1234)
+        #self.dlg.NotifyParent(1234)
 
     def testGetProperties(self):
         "Test getting the properties for the HwndWrapped control"
@@ -443,6 +448,38 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
 
+
+
+class GetDialogPropsFromHandleTest(unittest.TestCase):
+    "Unit tests for mouse actions of the HwndWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application()
+        self.app.start_("notepad.exe")
+
+        self.dlg = self.app.UntitledNotepad
+        self.ctrl = HwndWrapper(self.dlg.Edit.handle)
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.TypeKeys("%{F4}")
+
+
+    def test_GetDialogPropsFromHandle(self):
+        "Test some small stuff regarding GetDialogPropsFromHandle"
+
+        props_from_handle = GetDialogPropsFromHandle(self.dlg.handle)
+
+        props_from_dialog = GetDialogPropsFromHandle(self.dlg)
+
+        props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
+
+        self.assertEquals(props_from_handle, props_from_dialog)
 
 
 
