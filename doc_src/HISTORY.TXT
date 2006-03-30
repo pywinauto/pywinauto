@@ -1,6 +1,6 @@
-0.3.x Performance tune-ups
+0.3.1 Performance tune-ups
 ------------------------------------------------------------------
-XX-Xxx-2006
+30-Mar-2006
 
     * Change calculation of distance in findbestmatch.GetNonTextControlName()
       so that it does not need to square or get the square root to
@@ -11,25 +11,34 @@ XX-Xxx-2006
       avoid compiling the regular expression for window that is being
       tested (Thanks to Stefaan Himple)
       
-    * ?? 0.3.0 ??Made it easier to add your own control tests by adding a file 
+    * Made it easier to add your own control tests by adding a file 
       extra_tests.py which needs to export a ModifyRegisteredTests() method.
       Also cleaned up the code a little.
     
     * Updated notepad_fast.py to make it easier to profile (adde a method)
 
-    * Changed WrapHandle to use a cache for classes it has matched - this is to
-      avoid having to match against all classes constantly.
+    * Changed WrapHandle to use a cache for classes it has matched - this is 
+      to avoid having to match against all classes constantly.
 
-    * Changed default timeout in SendMessageTimeout to .001 seconds from .4 seconds
-      this results in a significant speedup. Will need to make this value modifiable
-      via the timing module/routine.
+    * Changed default timeout in SendMessageTimeout to .001 seconds from .4 
+      seconds this results in a significant speedup. Will need to make this 
+      value modifiable via the timing module/routine.
 
-    * WaitNot was raising an error if the control was not found - it should have
-      returned (i.e. success - control is not in any particular state because it does
-      not exist!).
+    * WaitNot was raising an error if the control was not found - it should 
+      have returned (i.e. success - control is not in any particular state 
+      because it does not exist!).
 
-    * 
+    * Added ListViewWrapper.Deselect() per Chistophe Keller's suggestion. 
+      While I was at it I added a check on the item value passed in and added
+      a call to WaitGuiIdle(self) so that the control has a chance to process
+      the message.
 
+    * Changed doc templates and moved dependencies into pywinauto
+      subversion to ensure that all files were availabe at www.openqa.org and
+      that they are not broken when viewed there.
+      
+    * Moved all timing information into the timings.Timings class. There are
+      some simple methods for changing the timings.
 
 0.3.0 Added Application data - now useful for localization testing
 ------------------------------------------------------------------
