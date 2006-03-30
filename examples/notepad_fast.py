@@ -30,13 +30,16 @@ from pywinauto import application
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 
+from pywinauto.timings import Timings
+
 def RunNotepad():
     print "Run with option 'language' e.g. notepad_fast.py language to use"
     print "application data. This should then work on any language Windows/Notepad"
     print
     print "Trying fast timing settings - it's  possible these won't work"
     print "if pywinauto tries to access a window that is not accessible yet"
-    application.set_timing(2, .01, 10, .01, .05, 0, 0, .1, 0, .05)
+    #application.set_timing(2, .01, 10, .01, .05, 0, 0, .1, 0, .05)
+    Timings.Fast()
 
     start = time.time()
 
