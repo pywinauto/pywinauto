@@ -24,7 +24,7 @@ To check you have it installed correctly
 Run Python ::
 
   >>> import application
-  >>> app = application.Application()._start("notepad")
+  >>> app = application.Application.start("notepad.exe")
   >>> app.notepad.TypeKeys("%FX") 
 
 
