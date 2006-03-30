@@ -48,7 +48,9 @@ for item in _all_classes:
 
             _wrapper_cache[classname_] = item
 
-    except AttributeError, e:
+    # needed to add KeyError so that Pudge could
+    # generate the documentation
+    except (KeyError, AttributeError), e:
         pass
 
 
