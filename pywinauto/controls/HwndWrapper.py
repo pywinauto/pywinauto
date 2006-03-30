@@ -48,6 +48,7 @@ except ImportError:
 from pywinauto import win32defines
 from pywinauto import win32functions
 from pywinauto import win32structures
+from pywinauto.timings import Timings
 
 #from pywinauto import findbestmatch
 from pywinauto import handleprops
@@ -56,11 +57,11 @@ from pywinauto import handleprops
 # accessible from HwndWrapper module
 from menuwrapper import Menu, MenuItemNotEnabled
 
-delay_after_click = 0.0 #5
-delay_after_menuselect = 0#0.05
-delay_after_sendkeys_key = .01
-delay_after_button_click = 0#.1
-delay_before_after_close_click = .2
+#delay_after_click = 0.0 #5
+#delay_after_menuselect = 0#0.05
+#delay_after_sendkeys_key = .01
+#delay_after_button_click = 0#.1
+#delay_before_after_close_click = .2
 
 
 #====================================================================
@@ -717,21 +718,24 @@ class HwndWrapper(object):
         before and after the click action.
         """
 
-        time.sleep(delay_before_after_close_click)
+        time.sleep(Timings.before_closeclick_wait)
 
         _perform_click(self, button, pressed, coords, double)
 
-        waited = 0
+        start = time.time()
+        timeout = Timings.closeclick_dialog_close_wait
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
         while (win32functions.IsWindow(self) or \
             win32functions.IsWindow(self.Parent())) and \
-            waited < 1.5:
+            time.time() - start < timeout:
 
-            time.sleep(.1)
-            waited += .1
+            time.sleep(Timings.closeclick_retry)
+            waited += Timings.closeclick_retry
 
-        time.sleep(delay_before_after_close_click)
+        time.sleep(min(
+            Timings.after_closeclick_wait,
+            time.time() - start < timeout))
 
         return self
 
@@ -835,7 +839,7 @@ class HwndWrapper(object):
     def TypeKeys(
         self,
         keys,
-        pause = delay_after_sendkeys_key,
+        pause = None,
         with_spaces = False,
         with_tabs = False,
         with_newlines = False,
@@ -848,6 +852,9 @@ class HwndWrapper(object):
         """
 
         self.VerifyActionable()
+
+        if pause is None:
+            pause = Timings.after_sendkeys_key_wait
 
         self.SetFocus()
 
@@ -1195,7 +1202,7 @@ class HwndWrapper(object):
             win32functions.WaitGuiThreadIdle(self)
 
             # only sleep if we had to change something!
-            time.sleep(.06)
+            time.sleep(Timings.after_setfocus_wait)
 
         return self
 
@@ -1287,7 +1294,7 @@ def _perform_click_input(
 
     # set the cursor position
     win32functions.SetCursorPos(coords[0], coords[1])
-    time.sleep(.01)
+    time.sleep(Timings.after_setcursorpos_wait)
 
     inp_struct = win32structures.INPUT()
     inp_struct.type = win32defines.INPUT_MOUSE
@@ -1298,7 +1305,7 @@ def _perform_click_input(
             ctypes.pointer(inp_struct),
             ctypes.sizeof(inp_struct))
 
-        time.sleep(.1)
+        time.sleep(Timings.after_clickinput_wait)
 
 
 
@@ -1373,7 +1380,7 @@ def _perform_click(
         win32functions.WaitGuiThreadIdle(ctrl)
 
     # wait a certain(short) time after the click
-    time.sleep(delay_after_click)
+    time.sleep(Timings.after_click_wait)
 
 
 _mouse_flags = {

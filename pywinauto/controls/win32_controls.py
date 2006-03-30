@@ -34,8 +34,9 @@ from pywinauto import win32structures
 from pywinauto import findbestmatch
 
 from pywinauto import tests
+from pywinauto.timings import Timings
 
-delay_after_menuselect = 0#0.05
+#delay_after_menuselect = 0#0.05
 
 #====================================================================
 class ButtonWrapper(HwndWrapper.HwndWrapper):
@@ -159,7 +160,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     #    self.NotifyParent(win32defines.BN_CLICKED)
         HwndWrapper.HwndWrapper.Click(self)
     #    win32functions.WaitGuiThreadIdle(self)
-        time.sleep(HwndWrapper.delay_after_button_click)
+        time.sleep(Timings.after_button_click_wait)
 
 
     #def IsSelected (self):

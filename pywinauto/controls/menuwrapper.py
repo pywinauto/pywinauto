@@ -34,6 +34,7 @@ from pywinauto import win32structures
 from pywinauto import win32functions
 from pywinauto import win32defines
 from pywinauto import findbestmatch
+from pywinauto.timings import Timings
 
 
 class MenuItemNotEnabled(RuntimeError):
@@ -229,7 +230,7 @@ class MenuItem(object):
             raise MenuItemNotEnabled(
                 "MenuItem '%s' is disabled"% self.Text())
 
-        from HwndWrapper import delay_after_menuselect
+        #from HwndWrapper import delay_after_menuselect
 
         #if self.State() & win32defines.MF_BYPOSITION:
         #    print self.Text(), "BYPOSITION"
@@ -248,7 +249,7 @@ class MenuItem(object):
 
         #self.ctrl.NotifyMenuSelect(self.ID())
         win32functions.WaitGuiThreadIdle(self.ctrl)
-        time.sleep(delay_after_menuselect)
+        time.sleep(Timings.after_menu_wait)
 
     def GetProperties(self):
         """Return the properties for the item as a dict

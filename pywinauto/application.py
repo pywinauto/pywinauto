@@ -71,7 +71,7 @@ import findbestmatch
 import findwindows
 import handleprops
 
-#import appdata
+from timings import Timings
 
 
 class AppStartError(Exception):
@@ -88,70 +88,70 @@ class AppNotConnected(Exception):
 
 
 
-# Maximum wait time for a window to exist
-window_find_timeout = 3
-
-# How long to sleep between each try to looking for a window
-window_retry_interval = .09
-
-# Maximum wait time to wait for the first window of an
-# application to exist
-app_start_timeout = 10
-
-# Maximum wait time when checking if a control exists
-exists_timeout = .5
-
-# How long to sleep between each try when checking if the window exists
-exists_retry_interval = .3
-
-delay_after_app_start = .5
-
-
-def set_timing(
-    win_find = 3,
-    win_retry =.09,
-    app_start = 10,
-    exists = .5,
-    exists_retry = .3,
-    after_click = 0,
-    after_menu = 0,
-    after_sendkeys = .03,
-    after_button_click = 0,
-    after_close = .2):
-
-    """Set the timing for various things
-
-    * **win_find** = 3    Max time to look for a window
-    * **win_retry** =.09  Retry interval when finding a window
-    * **app_start** = 10  Max time to look for a window after app start
-    * **exists** = .5     Max time to check a window exists
-    * **exists_retry** = .3  Retry interval when checking a window exists
-    * **after_click** = 0    Delay after a mouse click
-    * **after_menu** = 0     Delay after a menu selection
-    * **after_sendkeys** = .03   Delay after each Sendkeys key
-    * **after_button_click** = 0 Delay after a button click
-    * **after_close** = .2       Delay after the CloseClick action
-
-    """
-
-    global window_find_timeout
-    window_find_timeout = win_find
-    global window_retry_interval
-    window_retry_interval = win_retry
-    global app_start_timeout
-    app_start_timeout = app_start
-    global exists_timeout
-    exists_timeout = exists
-    global exists_retry_interval
-    exists_retry_interval = exists_retry
-
-
-    import controls.HwndWrapper
-    controls.HwndWrapper.delay_after_click = after_click
-    controls.HwndWrapper.delay_after_menuselect = after_menu
-    controls.HwndWrapper.delay_after_sendkeys_key = after_sendkeys
-    controls.HwndWrapper.delay_after_button_click = after_button_click
-    controls.HwndWrapper.delay_before_after_close_click = after_close
+## Maximum wait time for a window to exist
+#window_find_timeout = 3
+#
+## How long to sleep between each try to looking for a window
+#window_retry_interval = .09
+#
+## Maximum wait time to wait for the first window of an
+## application to exist
+#app_start_timeout = 10
+#
+## Maximum wait time when checking if a control exists
+#exists_timeout = .5
+#
+## How long to sleep between each try when checking if the window exists
+#exists_retry_interval = .3
+#
+#delay_after_app_start = .5
+#
+#
+#def set_timing(
+#    win_find = 3,
+#    win_retry =.09,
+#    app_start = 10,
+#    exists = .5,
+#    exists_retry = .3,
+#    after_click = 0,
+#    after_menu = 0,
+#    after_sendkeys = .03,
+#    after_button_click = 0,
+#    after_close = .2):
+#
+#    """Set the timing for various things
+#
+#    * **win_find** = 3    Max time to look for a window
+#    * **win_retry** =.09  Retry interval when finding a window
+#    * **app_start** = 10  Max time to look for a window after app start
+#    * **exists** = .5     Max time to check a window exists
+#    * **exists_retry** = .3  Retry interval when checking a window exists
+#    * **after_click** = 0    Delay after a mouse click
+#    * **after_menu** = 0     Delay after a menu selection
+#    * **after_sendkeys** = .03   Delay after each Sendkeys key
+#    * **after_button_click** = 0 Delay after a button click
+#    * **after_close** = .2       Delay after the CloseClick action
+#
+#    """
+#
+#    global window_find_timeout
+#    window_find_timeout = win_find
+#    global window_retry_interval
+#    window_retry_interval = win_retry
+#    global app_start_timeout
+#    app_start_timeout = app_start
+#    global exists_timeout
+#    exists_timeout = exists
+#    global exists_retry_interval
+#    exists_retry_interval = exists_retry
+#
+#
+#    import controls.HwndWrapper
+#    controls.HwndWrapper.delay_after_click = after_click
+#    controls.HwndWrapper.delay_after_menuselect = after_menu
+#    controls.HwndWrapper.delay_after_sendkeys_key = after_sendkeys
+#    controls.HwndWrapper.delay_after_button_click = after_button_click
+#    controls.HwndWrapper.delay_before_after_close_click = after_close
 
 
 wait_method_deprecation = "Wait* functions are just simple wrappers around " \
@@ -234,21 +234,17 @@ class WindowSpecification(object):
             if self.app.use_history:
                 ctrls = _resolve_from_appdata(
                     self.criteria,
-                    self.app,
-                    window_find_timeout,
-                    window_retry_interval)
+                    self.app)
             else:
                 ctrls = _resolve_control(
-                    self.criteria,
-                    window_find_timeout,
-                    window_retry_interval)
+                    self.criteria)
 
             self.app.RecordMatch(self.criteria, ctrls)
 
             # try to return a good error message if the control does not
             # have a __getitem__() method)
             if hasattr(ctrls[-1], '__getitem__'):
-                return ctrl[-1][key]
+                return ctrls[-1][key]
             else:
                 message = "The control does not have a __getitem__ method " \
                     "for item access (i.e. ctrl[key]) so maybe you have " \
@@ -290,14 +286,10 @@ class WindowSpecification(object):
             if self.app.use_history:
                 ctrls = _resolve_from_appdata(
                     self.criteria,
-                    self.app,
-                    window_find_timeout,
-                    window_retry_interval)
+                    self.app)
             else:
                 ctrls = _resolve_control(
-                    self.criteria,
-                    window_find_timeout,
-                    window_retry_interval)
+                    self.criteria)
 
             self.app.RecordMatch(self.criteria, ctrls)
             return getattr(ctrls[-1], attr)
@@ -310,14 +302,10 @@ class WindowSpecification(object):
                 if self.app.use_history:
                     ctrls = _resolve_from_appdata(
                         self.criteria,
-                        self.app,
-                        window_find_timeout,
-                        window_retry_interval)
+                        self.app)
                 else:
                     ctrls = _resolve_control(
-                        self.criteria,
-                        window_find_timeout,
-                        window_retry_interval)
+                        self.criteria)
 
                 self.app.RecordMatch(self.criteria, ctrls)
                 return getattr(ctrls[-1], attr)
@@ -335,12 +323,19 @@ class WindowSpecification(object):
         return self[attr]
 
 
-    def Exists(self, timeout = exists_timeout):
+    def Exists(self, timeout = None, retry_interval = None):
         "Check if the window exists"
+
+        # set the current timings -couldn't set as defaults as they are
+        # evaluated at import time - and timings may be changed at any time
+        if timeout is None:
+            timeout = Timings.exists_timeout
+        if retry_interval is None:
+            retry_interval = Timings.exists_retry
+
 
         # modify the criteria as Exists should look for all
         # windows - including not visible and disabled
-
         exists_criteria = self.criteria[:]
         for criterion in exists_criteria:
             criterion['enabled_only'] = False
@@ -348,7 +343,7 @@ class WindowSpecification(object):
 
         try:
             _resolve_control(
-                exists_criteria, timeout, exists_retry_interval)
+                exists_criteria, timeout, retry_interval)
 
             return True
         except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
@@ -357,8 +352,8 @@ class WindowSpecification(object):
 
     def Wait(self,
             wait_for,
-            timeout = window_find_timeout,
-            wait_interval = window_retry_interval):
+            timeout = None,
+            retry_interval = None):
 
         """Wait for the window to be in a particular state
 
@@ -373,12 +368,19 @@ class WindowSpecification(object):
         * **timeout** Raise an error if the window is not in the appropriate
           state after this number of seconds.
 
-        * **wait_interval** How long to sleep between each retry
+        * **retry_interval** How long to sleep between each retry
 
         e.g. self.Dlg.Wait("exists enabled visible ready")
 
         See also: ``Application.WaitNot()``
         """
+
+        # set the current timings -couldn't set as defaults as they are
+        # evaluated at import time - and timings may be changed at any time
+        if timeout is None:
+            timeout = Timings.exists_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
 
         # allow for case mixups - just to make it easier to use
         waitfor = wait_for.lower()
@@ -411,12 +413,12 @@ class WindowSpecification(object):
                 wait_criteria,
                 self.app,
                 timeout,
-                wait_interval)
+                retry_interval)
         else:
             ctrls = _resolve_control(
                 wait_criteria,
                 timeout,
-                wait_interval)
+                retry_interval)
 
         self.app.RecordMatch(self.criteria, ctrls)
 
@@ -424,8 +426,8 @@ class WindowSpecification(object):
 
     def WaitNot(self,
             wait_for_not,
-            timeout = window_find_timeout,
-            wait_interval = window_retry_interval):
+            timeout = None,
+            retry_interval = None):
 
         """Wait for the window to not be in a particular state
 
@@ -445,6 +447,14 @@ class WindowSpecification(object):
 
         See also: ``Application.WaitNot("exists enabled visible ready")``
         """
+
+        # set the current timings -couldn't set as defaults as they are
+        # evaluated at import time - and timings may be changed at any time
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+
 
         # remember the start time so we can do an accurate wait for the timeout
         start = time.time()
@@ -502,7 +512,7 @@ class WindowSpecification(object):
             if  waited < timeout:
                 # wait the interval or the time left until the timeout expires
                 # and let the loop run again
-                time.sleep(min(wait_interval, timeout - waited))
+                time.sleep(min(retry_interval, timeout - waited))
 
             else:
                 raise RuntimeError(
@@ -515,98 +525,51 @@ class WindowSpecification(object):
 
 
 
-    def WaitReady(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+    def WaitReady(self, timeout = None, retry_interval = None):
         "Wait for the control to be ready (Exists, Visible and Enabled)"
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
+        return self.Wait('ready', timeout, retry_interval)
 
-        return self.Wait('ready',
-            timeout = timeout,
-            wait_interval = wait_interval)
-
-    def WaitNotReady(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+    def WaitNotReady(self, timeout = None, retry_interval = None):
         "Wait for the control to be ready (Exists, Visible and Enabled)"
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
+        return self.WaitNot('ready', timeout, retry_interval)
 
-        return self.WaitNot('ready',
-            timeout = timeout,
-            wait_interval = wait_interval)
-
-    def WaitEnabled(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+    def WaitEnabled(self, timeout = None, retry_interval = None):
         """Wait for the control to become enabled
 
         Returns the control"""
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
+        return self.Wait('enabled', timeout, retry_interval)
 
-        return self.Wait('enabled',
-            timeout = timeout,
-            wait_interval = wait_interval)
-
-    def WaitNotEnabled(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+    def WaitNotEnabled(self, timeout = None, retry_interval = None):
         "Wait for the control to be disabled or not exist"
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
+        self.WaitNot('enabled', timeout, retry_interval)
 
-        self.WaitNot('enabled',
-            timeout = timeout,
-            wait_interval = wait_interval)
-
-    def WaitVisible(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+    def WaitVisible(self, timeout = None,retry_interval = None):
         """Wait for the control to become visible
 
         Returns the control"""
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
-
-        return self.Wait('visible',
-            timeout = timeout,
-            wait_interval = wait_interval)
+        return self.Wait('visible', timeout, retry_interval)
 
     def WaitNotVisible(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+        timeout = None,
+        retry_interval = None):
         "Wait for the control to be invisible or not exist"
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
+        self.WaitNot('visible', timeout, retry_interval)
 
-        self.WaitNot('visible',
-            timeout = timeout,
-            wait_interval = wait_interval)
-
-    def WaitExists(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+    def WaitExists(self, timeout = None, retry_interval = None):
         """Wait for the control to not exist anymore"""
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
+        return self.Wait('exists', timeout, retry_interval)
 
-        return self.Wait('exists',
-            timeout = timeout,
-            wait_interval = wait_interval)
-
-    def WaitNotExists(self,
-        timeout = window_find_timeout,
-        wait_interval = window_retry_interval):
+    def WaitNotExists(self, timeout = None, retry_interval = None):
         """Wait for the control to not exist anymore"""
-
         warnings.warn(wait_method_deprecation, DeprecationWarning)
-
-
-        self.WaitNot('exists',
-            timeout = timeout,
-            wait_interval = wait_interval)
+        self.WaitNot('exists', timeout, retry_interval)
 
     def print_control_identifiers(self):
         """Prints the 'identifiers'
@@ -626,9 +589,7 @@ class WindowSpecification(object):
         """
         print "Control Identifiers:"
         ctrls = _resolve_control(
-            self.criteria,
-            window_find_timeout,
-            window_retry_interval)
+            self.criteria)
 
         if ctrls[-1].IsDialog():
             ctrls_to_print = ctrls[-1].Children()
@@ -680,7 +641,13 @@ def _get_ctrl(criteria_):
 
 cur_item = 0
 
-def _resolve_from_appdata(criteria_, app, timeout = 0, wait_interval = .2):
+def _resolve_from_appdata(
+    criteria_, app, timeout = None, retry_interval = None):
+
+    if timeout is None:
+        timeout = Timings.window_find_timout
+    if retry_interval is None:
+        retry_interval = Timings.window_find_retry
 
     global cur_item
     # get the stored item corresponding to this request
@@ -851,12 +818,12 @@ def _resolve_from_appdata(criteria_, app, timeout = 0, wait_interval = .2):
 
 #    dialog = None
 
-    #return _resolve_control(criteria_, timeout, wait_interval)
+    #return _resolve_control(criteria_, timeout, retry_interval)
 
 
 
 
-def _resolve_control(criteria, timeout = 0, wait_interval = .2):
+def _resolve_control(criteria, timeout = None, retry_interval = None):
     """Find a control using criteria
 
     * **criteria** - a list that contains 1 or 2 dictionaries
@@ -866,10 +833,16 @@ def _resolve_control(criteria, timeout = 0, wait_interval = .2):
          2nd element is the search criteria for a control of the dialog
 
     * **timeout** -  maximum length of time to try to find the controls (default 0)
-    * **wait_interval** - how long to wait between each retry (default .2)
+    * **retry_interval** - how long to wait between each retry (default .2)
     """
 
     start = time.time()
+
+    if timeout is None:
+        timeout = Timings.window_find_timeout
+    if retry_interval is None:
+        retry_interval = Timings.window_find_retry
+
 
     waited = 0
     while True:
@@ -884,7 +857,7 @@ def _resolve_control(criteria, timeout = 0, wait_interval = .2):
             if  waited < timeout:
                 # wait the interval or the time left until the timeout expires
                 # and let the loop run again
-                time.sleep(min(wait_interval, timeout - waited))
+                time.sleep(min(retry_interval, timeout - waited))
 
             else:
                 raise
@@ -937,8 +910,14 @@ class Application(object):
         warnings.warn(self.connect_start_deprecated, DeprecationWarning)
         return self.connect_(*args, **kwargs)
 
-    def start_(self, cmd_line, timeout = app_start_timeout):
+    def start_(self, cmd_line, timeout = None, retry_interval = None):
         "Starts the application giving in cmd_line"
+
+        if timeout is None:
+            timeout = Timings.app_start_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_start_retry
+
 
         start_info = win32structures.STARTUPINFOW()
         start_info.sb = ctypes.sizeof(start_info)
@@ -972,9 +951,10 @@ class Application(object):
         self.process = proc_info.dwProcessId
 
         start = time.time()
-        while time.time() - start < timeout:
+        waited = 0
+        while waited < timeout:
             if not win32functions.WaitForInputIdle(
-                proc_info.hProcess, timeout * 1000):
+                proc_info.hProcess, int(timeout * 1000)):
                 break
                 #raise AppStartError(
                 #    "WaitForInputIdle: " + str(ctypes.WinError()))
@@ -982,7 +962,8 @@ class Application(object):
             if self.windows_():
                 break
 
-            time.sleep(delay_after_app_start)
+            time.sleep(min(retry_interval, timeout - waited))
+            waited = time.time() - start
 
         return self
 
@@ -1028,7 +1009,7 @@ class Application(object):
             raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
 
-        time.sleep(exists_timeout)
+        time.sleep(Timings.window_find_timeout)
         # very simple
         windows = findwindows.find_windows(process = self.process)
         criteria = {}
@@ -1092,7 +1073,6 @@ class Application(object):
         return self[key]
 
     def WriteAppData(self, filename):
-        import pickle
         f = open(filename, "wb")
         pickle.dump(self.match_history, f)
         f.close()

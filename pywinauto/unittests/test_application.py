@@ -33,9 +33,10 @@ import warnings
 from pywinauto import application
 from pywinauto.application import *
 from pywinauto import findwindows
+from pywinauto.timings import Timings
 
-
-application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
+Timings.Fast()
+#application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
 
 class ApplicationTestCases(unittest.TestCase):
     "Unit tests for the application.Application class"
@@ -109,38 +110,38 @@ class ApplicationTestCases(unittest.TestCase):
             self.assertEquals(app_name in str(e), True)
 
 
-    def testset_timing(self):
-        "Test that set_timing sets the timing correctly"
-        from pywinauto.controls import HwndWrapper
-        prev_timing = (
-            application.window_find_timeout,
-            application.window_retry_interval,
-            application.app_start_timeout,
-            application.exists_timeout,
-            application.exists_retry_interval,
-            HwndWrapper.delay_after_click,
-            HwndWrapper.delay_after_menuselect,
-            HwndWrapper.delay_after_sendkeys_key,
-            HwndWrapper.delay_after_button_click,
-            HwndWrapper.delay_before_after_close_click,
-        )
-        set_timing(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-
-        self.assertEquals(
-            (
-                application.window_find_timeout,
-                application.window_retry_interval,
-                application.app_start_timeout,
-                application.exists_timeout,
-                application.exists_retry_interval,
-                HwndWrapper.delay_after_click,
-                HwndWrapper.delay_after_menuselect,
-                HwndWrapper.delay_after_sendkeys_key,
-                HwndWrapper.delay_after_button_click,
-                HwndWrapper.delay_before_after_close_click,
-            ), (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) )
-
-        set_timing(*prev_timing)
+#    def testset_timing(self):
+#        "Test that set_timing sets the timing correctly"
+#        from pywinauto.controls import HwndWrapper
+#        prev_timing = (
+#            application.window_find_timeout,
+#            application.window_retry_interval,
+#            application.app_start_timeout,
+#            application.exists_timeout,
+#            application.exists_retry_interval,
+#            HwndWrapper.delay_after_click,
+#            HwndWrapper.delay_after_menuselect,
+#            HwndWrapper.delay_after_sendkeys_key,
+#            HwndWrapper.delay_after_button_click,
+#            HwndWrapper.delay_before_after_close_click,
+#        )
+#        set_timing(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+#
+#        self.assertEquals(
+#            (
+#                application.window_find_timeout,
+#                application.window_retry_interval,
+#                application.app_start_timeout,
+#                application.exists_timeout,
+#                application.exists_retry_interval,
+#                HwndWrapper.delay_after_click,
+#                HwndWrapper.delay_after_menuselect,
+#                HwndWrapper.delay_after_sendkeys_key,
+#                HwndWrapper.delay_after_button_click,
+#                HwndWrapper.delay_before_after_close_click,
+#            ), (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) )
+#
+#        set_timing(*prev_timing)
 
 
 
@@ -314,8 +315,8 @@ class ApplicationTestCases(unittest.TestCase):
             pass
 
 
-        prev_timeout = application.window_find_timeout
-        application.window_find_timeout = .1
+        #prev_timeout = application.window_find_timeout
+        #application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
             app['blahblah']['not here'].__getitem__, 'handle')
@@ -333,15 +334,15 @@ class ApplicationTestCases(unittest.TestCase):
         app.PageSetup.Cancel.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-        application.window_find_timeout = prev_timeout
+        #application.window_find_timeout = prev_timeout
 
     def testGetattr(self):
         "Test that __getattr__() works correctly"
         app = Application()
         app.start_('notepad.exe')
 
-        prev_timeout = application.window_find_timeout
-        application.window_find_timeout = .1
+        #prev_timeout = application.window_find_timeout
+        #application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
             app.blahblah.__getattr__, 'handle')
@@ -362,7 +363,7 @@ class ApplicationTestCases(unittest.TestCase):
         app.PageSetup.Cancel.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-        application.window_find_timeout = prev_timeout
+        #application.window_find_timeout = prev_timeout
 
 
 
