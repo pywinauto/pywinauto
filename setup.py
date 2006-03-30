@@ -25,6 +25,10 @@ from distutils.core import setup
 
 import pywinauto
 
+import shutil
+shutil.move(r"pywinauto\website", "documentation")
+
+
 
 setup(name='pywinauto',
     version = pywinauto.__version__,
@@ -58,3 +62,4 @@ controls also.
 	)
 
 
+shutil.move("documentation", r"pywinauto\website")
