@@ -39,6 +39,7 @@
       
     * Moved all timing information into the timings.Timings class. There are
       some simple methods for changing the timings.
+      
 
 0.3.0 Added Application data - now useful for localization testing
 ------------------------------------------------------------------
