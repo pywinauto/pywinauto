@@ -25,8 +25,11 @@ from distutils.core import setup
 
 import pywinauto
 
-import shutil
-shutil.move(r"pywinauto\website", "documentation")
+import sys
+
+if sys.argv[1].lower() == "sdist":
+    import shutil
+    shutil.move(r"pywinauto\website", "documentation")
 
 
 
@@ -62,4 +65,5 @@ controls also.
 	)
 
 
-shutil.move("documentation", r"pywinauto\website")
+if sys.argv[1].lower() == "sdist":
+    shutil.move("documentation", r"pywinauto\website")

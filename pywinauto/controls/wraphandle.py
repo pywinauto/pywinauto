@@ -36,6 +36,11 @@ _all_classes = win32_controls.__dict__.values()
 _all_classes.extend(common_controls.__dict__.values())
 
 _wrapper_info = {}
+
+# Many thanks to Stefaan Himpe for suggesting the wrapper cache
+# it saves a lot of time because there are really not that many
+# registered window classes so it doesn't make sense to search
+# from scratch for every window!.
 _wrapper_cache = {}
 
 for item in _all_classes:
