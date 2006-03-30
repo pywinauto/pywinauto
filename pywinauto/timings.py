@@ -86,10 +86,11 @@ class TimeConfig(object):
         'closeclick_dialog_close_wait' : .05,
         'after_closeclick_wait' : .2,
 
-
         'after_setfocus_wait' : .06,
 
         'after_setcursorpos_wait' : .01,
+
+        'sendmessagetimeout_timeout' : .001
 
     }
 

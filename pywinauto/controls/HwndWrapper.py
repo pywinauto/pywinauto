@@ -527,12 +527,15 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def SendMessageTimeout(
-        self, message, wparam = 0 , lparam = 0, timeout = .001):
+        self, message, wparam = 0 , lparam = 0, timeout = None):
         """Send a message to the control and wait for it to return or to timeout
 
         If no timeout is given then a default timeout of .4 of a second will
         be used.
         """
+
+        if timeout is None:
+            timeout = Timings.sendmessagetimeout_timeout
 
         result = ctypes.c_long()
         win32functions.SendMessageTimeout(self, message, wparam, lparam,
