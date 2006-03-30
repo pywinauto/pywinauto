@@ -1,0 +1,29 @@
+include Readme.txt
+include dev_notes.txt
+include HISTORY.TXT
+include LICENSE.txt
+include TODO.txt
+include setup.cfg
+include setup.py
+
+
+include pywinauto
+include pywinauto\controls\*.py
+include pywinauto\tests\*.py
+include pywinauto\unittests\*.py
+exclude pywinauto\.svn\*
+
+# include the examples - but not Watsup or .svn directories
+include pywinauto\examples\*.pkl
+include examples\*.py
+include examples\*.txt
+exclude examples\.svn\README.txt
+exclude examples\examples_watsup\*.*
+
+# include all the website folder and make sure that
+# the sub version files are not included
+include documentation\*.*
+exclude documentation\.svn\*
+exclude documentation\pywinauto\.svn\*
+exclude documentation\pywinauto\controls\.svn\*
+exclude documentation\pywinauto\tests\.svn\*
