@@ -23,4 +23,4 @@ Python package for automating GUI manipulation on Windows
 
 """
 __revision__ = "$Revision$"
-__version__ = "0.3.0"
+__version__ = "0.3.1"
