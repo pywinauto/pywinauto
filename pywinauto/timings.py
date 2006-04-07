@@ -68,6 +68,13 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_updownchange_wait  default(.001)
 
+* after_movewindow_wait  default(0)
+* after_buttoncheck_wait  default(0)
+* after_comboselect_wait  default(0)
+* after_listboxselect_wait  default(0)
+* after_listboxfocuschange_wait  default(0)
+* after_editsetedittext_wait  default(0)
+* after_editselect_wait  default(0)
 
 """
 
@@ -113,6 +120,14 @@ class TimeConfig(object):
         'after_toobarpressbutton_wait': .001,
 
         'after_updownchange_wait': .001,
+
+        'after_movewindow_wait': 0,
+        'after_buttoncheck_wait': 0,
+        'after_comboboxselect_wait': 0,
+        'after_listboxselect_wait': 0,
+        'after_listboxfocuschange_wait': 0,
+        'after_editsetedittext_wait': 0,
+        'after_editselect_wait': 0,
     }
 
 

@@ -57,13 +57,6 @@ from pywinauto import handleprops
 # accessible from HwndWrapper module
 from menuwrapper import Menu, MenuItemNotEnabled
 
-#delay_after_click = 0.0 #5
-#delay_after_menuselect = 0#0.05
-#delay_after_sendkeys_key = .01
-#delay_after_button_click = 0#.1
-#delay_before_after_close_click = .2
-
-
 #====================================================================
 class ControlNotEnabled(RuntimeError):
     "Raised when a control is not enabled"
@@ -73,8 +66,6 @@ class ControlNotEnabled(RuntimeError):
 class ControlNotVisible(RuntimeError):
     "Raised when a control is nto visible"
     pass
-
-
 
 #====================================================================
 class InvalidWindowHandle(RuntimeError):
@@ -288,7 +279,6 @@ class HwndWrapper(object):
         of RegisterClass(Ex).
         """
         return handleprops.isunicode(self)
-
 
     #-----------------------------------------------------------
     def IsVisible(self):
@@ -1145,6 +1135,10 @@ class HwndWrapper(object):
         # check that it worked correctly
         if not ret:
             raise ctypes.WinError()
+
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_movewindow_wait)
+
 
     #-----------------------------------------------------------
     #def Close(self):
