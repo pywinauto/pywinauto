@@ -5,7 +5,12 @@
     * Added wait for teh control to be active and configurable sleeps 
       after modifying actions (e.g. Select, Deselect, etc)
 
-    * 
+    * Fixed Timings.Slow() and Timings.Fast() - they could in certain 
+      circumstances do the opposite! If you had already set a timing
+      slower or faster then they would set it then they would blindly
+      ignore that and set their own times. I added functionality that
+      they will take either the slowest or fastest of the new/current
+      setting rather then blindly setting to the new value.
 
 
 0.3.2 Fixed setup.py and some typos

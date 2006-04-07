@@ -58,6 +58,8 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_setcursorpos_wait   (default .01)
 
+* sendmessagetimeout_timeout   (default .001)
+
 * after_tabselect_wait   (default .01)
 * after_listviewselect_wait   (default .01)
 * after_listviewcheck_wait  default(.001)
@@ -150,29 +152,35 @@ class TimeConfig(object):
 
     def Fast(self):
         for setting in self.__default_timing:
+            # set timeouts to the min of the current speed or 1 second
             if "_timeout" in setting:
-                self._timings[setting] = 1
+                self._timings[setting] = min(1, self._timings[setting])
 
             if "_wait" in setting:
                 self._timings[setting] = 0
 
-
             elif setting.endswith("_retry"):
                 self._timings[setting] = 0.001
 
-            self._timings['app_start_timeout'] = .5
+            #self._timings['app_start_timeout'] = .5
 
 
     def Slow(self):
         for setting in self.__default_timing:
             if "_timeout" in setting:
-                self._timings[setting] = self.__default_timing[setting] * 10
+                self._timings[setting] = max(
+                    self.__default_timing[setting] * 10,
+                    self._timings[setting])
 
             if "_wait" in setting:
-                self._timings[setting] = self.__default_timing[setting] * 3
+                self._timings[setting] = max(
+                    self.__default_timing[setting] * 3,
+                    self._timings[setting])
 
             elif setting.endswith("_retry"):
-                self._timings[setting] = self.__default_timing[setting] * 3
+                self._timings[setting] = max(
+                    self.__default_timing[setting] * 3,
+                    self._timings[setting])
 
     def Defaults(self):
         self._timings = self.__default_timing.copy()

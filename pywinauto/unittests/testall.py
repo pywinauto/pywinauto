@@ -4,6 +4,9 @@ import os.path
 import os
 import sys
 
+from pywinauto.timings import Timings
+Timings.Fast()
+
 
 def run_tests():
     testfolder = os.path.abspath(os.path.split(__file__)[0])
