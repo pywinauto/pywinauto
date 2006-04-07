@@ -723,12 +723,11 @@ class HwndWrapper(object):
             win32functions.IsWindow(self.Parent())) and \
             time.time() - start < timeout:
 
-            time.sleep(Timings.closeclick_retry)
-            waited += Timings.closeclick_retry
+            time.sleep(min(
+                Timings.closeclick_retry,
+                timeout - (time.time() - start) ))
 
-        time.sleep(min(
-            Timings.after_closeclick_wait,
-            time.time() - start < timeout))
+        time.sleep(Timings.after_closeclick_wait)
 
         return self
 

@@ -12,6 +12,8 @@
       they will take either the slowest or fastest of the new/current
       setting rather then blindly setting to the new value.
 
+    * Fixed some hidden bugs with HwndWrapper.CloseClick()
+
 
 0.3.2 Fixed setup.py and some typos
 ------------------------------------------------------------------

@@ -142,6 +142,15 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(self.dlg.IsEnabled(), True)
         self.assertEqual(self.dlg.window_(title = 'Ave', enabled_only = False).IsEnabled(), False)
 
+    def testCloseClick_bug(self):
+        self.dlg.Sta.Click()
+        Timings.closeclick_dialog_close_wait = .5
+        self.app.StatisticsBox.CAD.CloseClick()
+        self.app.StatisticsBox.TypeKeys("%{F4}")
+
+        #self.assertEquals(self.app.StatisticsBox.Exists(), False)
+
+
     def testRectangle(self):
         "Test getting the rectangle of the dialog"
         rect = self.dlg.Rectangle()
@@ -381,13 +390,6 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.ctrl.ClickInput(coords = (50, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (5,5))
 
-
-#    def testCloseClick(self):
-#        self.dlg.Sta.Click()
-#        self.app.StatisticsBox.CloseClick()
-#
-#        self.assertEquals(self.app.StatisticsBox.Exists(), False)
-#
     def testDoubleClick(self):
         self.ctrl.DoubleClick(coords = (60, 30))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (24,29))
