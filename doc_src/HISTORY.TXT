@@ -1,3 +1,13 @@
+0.3.X ????
+------------------------------------------------------------------
+??-???-2006
+
+    * Added wait for teh control to be active and configurable sleeps 
+      after modifying actions (e.g. Select, Deselect, etc)
+
+    * 
+
+
 0.3.2 Fixed setup.py and some typos
 ------------------------------------------------------------------
 31-Mar-2006

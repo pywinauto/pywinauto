@@ -58,6 +58,17 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_setcursorpos_wait   (default .01)
 
+* after_tabselect_wait   (default .01)
+* after_listviewselect_wait   (default .01)
+* after_listviewcheck_wait  default(.001)
+
+* after_treeviewselect_wait  default(.001)
+
+* after_toobarpressbutton_wait  default(.001)
+
+* after_updownchange_wait  default(.001)
+
+
 """
 
 
@@ -90,8 +101,18 @@ class TimeConfig(object):
 
         'after_setcursorpos_wait' : .01,
 
-        'sendmessagetimeout_timeout' : .001
+        'sendmessagetimeout_timeout' : .001,
 
+        'after_tabselect_wait': .01,
+
+        'after_listviewselect_wait': .01,
+        'after_listviewcheck_wait': .001,
+
+        'after_treeviewselect_wait': .001,
+
+        'after_toobarpressbutton_wait': .001,
+
+        'after_updownchange_wait': .001,
     }
 
 

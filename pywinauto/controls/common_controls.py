@@ -22,6 +22,7 @@
 
 __revision__ = "$Revision$"
 
+import time
 import ctypes
 
 from pywinauto import win32functions
@@ -29,6 +30,8 @@ from pywinauto import win32defines
 from pywinauto import win32structures
 from pywinauto import findbestmatch
 import HwndWrapper
+
+from pywinauto.timings import Timings
 
 class AccessDenied(RuntimeError):
     "Raised when we cannot allocate memory in the control's process"
@@ -225,8 +228,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         return col_props
 
-
-
     #-----------------------------------------------------------
     def Columns(self):
         "Get the information on the columns of the ListView"
@@ -236,7 +237,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             cols.append(self.GetColumn(i))
 
         return cols
-
 
     #-----------------------------------------------------------
     def ColumnWidths(self):
@@ -328,7 +328,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         texts.extend([item['text'] for item in self.Items()])
         return texts
 
-
     #-----------------------------------------------------------
     def UnCheck(self, item):
         "Uncheck the ListView item"
@@ -347,8 +346,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         self.SendMessageTimeout(
             win32defines.LVM_SETITEMSTATE, item, remote_mem)
 
-        del remote_mem
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_listviewcheck_wait)
 
+        del remote_mem
 
     #-----------------------------------------------------------
     def Check(self, item):
@@ -367,6 +368,9 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.SendMessageTimeout(
             win32defines.LVM_SETITEMSTATE, item, remote_mem)
+
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_listviewcheck_wait)
 
         del remote_mem
 
@@ -440,6 +444,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_listviewselect_wait)
 
     #-----------------------------------------------------------
     def Select(self, item):
@@ -743,6 +748,8 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             win32defines.TVGN_CARET,     # how to select
             elem)                 # item to select
 
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_treeviewselect_wait)
 
     #-----------------------------------------------------------
     def IsSelected(self, path):
@@ -758,6 +765,8 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             win32defines.TVM_ENSUREVISIBLE, # message
             win32defines.TVGN_CARET,     # how to select
             elem)                 # item to select
+
+        win32functions.WaitGuiThreadIdle(self)
 
 
 #
@@ -1294,6 +1303,9 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
         self.SendMessageTimeout(win32defines.TCM_SETCURFOCUS, tab)
 
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_tabselect_wait)
+
         return self
 
 
@@ -1495,6 +1507,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             button.idCommand,
             win32functions.MakeLong(0, 0))
 
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_toobarpressbutton_wait)
 
 
 #    #----------------------------------------------------------------
@@ -1804,15 +1818,24 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
         self.SendMessageTimeout(
             win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos))
 
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_updownchange_wait)
+
     def Increment(self):
         "Increment the number in the UpDown control by one"
         # hmmm - VM_SCROLL and UDN_DELTAPOS don't seem to be working for me :-(
         # I will fake it for now either use Click, or GetValue() + 1
         self.SetValue(self.GetValue() + 1)
 
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_updownchange_wait)
+
     def Decrement(self):
         "Decrement the number in the UpDown control by one"
         self.SetValue(self.GetValue() - 1)
+
+        win32functions.WaitGuiThreadIdle(self)
+        time.sleep(Timings.after_updownchange_wait)
 
 
 #====================================================================
