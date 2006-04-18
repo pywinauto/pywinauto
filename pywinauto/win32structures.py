@@ -108,10 +108,6 @@ def _reduce(self):
     return (_construct, (self.__class__, str(buffer(self))))
 
 
-
-
-
-
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
 #PTOOLINFOW = POINTER(tagTOOLINFOW)
 BOOL = c_int
@@ -143,8 +139,6 @@ LPWSTR = c_long# POINTER(WCHAR)
 
 
 
-
-
 class POINT(Structure):
     _fields_ = [
         # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 307
@@ -153,7 +147,6 @@ class POINT(Structure):
     ]
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
-
 
 
 #====================================================================
@@ -296,7 +289,6 @@ assert sizeof(LVITEMW) == 40, sizeof(LVITEMW)
 assert alignment(LVITEMW) == 1, alignment(LVITEMW)
 
 
-
 class TVITEMW(Structure):
     _pack_ = 1
     _fields_ = [
@@ -328,8 +320,6 @@ assert sizeof(NMHDR) == 12, sizeof(NMHDR)
 assert alignment(NMHDR) == 4, alignment(NMHDR)
 
 
-
-
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4275
 class NMTVDISPINFOW(Structure):
     _pack_ = 1
@@ -340,8 +330,6 @@ class NMTVDISPINFOW(Structure):
     ]
 assert sizeof(NMTVDISPINFOW) == 52, sizeof(NMTVDISPINFOW)
 assert alignment(NMTVDISPINFOW) == 1, alignment(NMTVDISPINFOW)
-
-
 
 
 class LOGFONTW(Structure):
@@ -375,8 +363,6 @@ LOGFONTW.__reduce__ = _reduce
 
 assert sizeof(LOGFONTW) == 92, sizeof(LOGFONTW)
 assert alignment(LOGFONTW) == 4, alignment(LOGFONTW)
-
-
 
 
 class TEXTMETRICW(Structure):
@@ -433,8 +419,6 @@ assert sizeof(NONCLIENTMETRICSW) == 500, sizeof(NONCLIENTMETRICSW)
 assert alignment(NONCLIENTMETRICSW) == 2, alignment(NONCLIENTMETRICSW)
 
 
-
-
 # C:/PROGRA~1/MIAF9D~1/VC98/Include/wingdi.h 1025
 class LOGBRUSH(Structure):
     _fields_ = [
@@ -445,8 +429,6 @@ class LOGBRUSH(Structure):
     ]
 assert sizeof(LOGBRUSH) == 12, sizeof(LOGBRUSH)
 assert alignment(LOGBRUSH) == 4, alignment(LOGBRUSH)
-
-
 
 # C:/PROGRA~1/MIAF9D~1/VC98/Include/winuser.h 5147
 class MENUITEMINFOW(Structure):
@@ -467,8 +449,6 @@ class MENUITEMINFOW(Structure):
     ]
 assert sizeof(MENUITEMINFOW) == 44, sizeof(MENUITEMINFOW)
 assert alignment(MENUITEMINFOW) == 2, alignment(MENUITEMINFOW)
-
-
 
 class MENUBARINFO(Structure):
     _fields_ = [
@@ -496,13 +476,6 @@ assert sizeof(MSG) == 28, sizeof(MSG)
 assert alignment(MSG) == 4, alignment(MSG)
 
 
-
-
-
-
-
-
-
 # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 1865
 class TOOLINFOW(Structure):
     _pack_ = 1
@@ -521,10 +494,6 @@ assert sizeof(TOOLINFOW) == 44, sizeof(TOOLINFOW)
 assert alignment(TOOLINFOW) == 1, alignment(TOOLINFOW)
 
 
-
-
-
-
 # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2068
 class NMTTDISPINFOW(Structure):
     _pack_ = 1
@@ -540,7 +509,6 @@ class NMTTDISPINFOW(Structure):
 
 assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
 assert alignment(NMTTDISPINFOW) == 1, alignment(NMTTDISPINFOW)
-
 
 
 class HDITEMW(Structure):
@@ -561,10 +529,6 @@ assert sizeof(HDITEMW) == 36, sizeof(HDITEMW)
 assert alignment(HDITEMW) == 1, alignment(HDITEMW)
 
 
-
-
-
-
 # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 4456
 class COMBOBOXEXITEMW(Structure):
     _pack_ = 1
@@ -582,8 +546,6 @@ class COMBOBOXEXITEMW(Structure):
 ]
 assert sizeof(COMBOBOXEXITEMW) == 36, sizeof(COMBOBOXEXITEMW)
 assert alignment(COMBOBOXEXITEMW) == 1, alignment(COMBOBOXEXITEMW)
-
-
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4757
@@ -686,11 +648,6 @@ assert sizeof(REBARBANDINFOW) == 80, sizeof(REBARBANDINFOW)
 assert alignment(REBARBANDINFOW) == 1, alignment(REBARBANDINFOW)
 
 
-
-
-
-
-
 # C:/PROGRA~1/MICROS~4/VC98/Include/winbase.h 223
 class SECURITY_ATTRIBUTES(Structure):
     _fields_ = [
@@ -741,7 +698,6 @@ assert sizeof(PROCESS_INFORMATION) == 16, sizeof(PROCESS_INFORMATION)
 assert alignment(PROCESS_INFORMATION) == 4, alignment(PROCESS_INFORMATION)
 
 
-
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 3417
 class NMLISTVIEW(Structure):
     _pack_ = 1
@@ -760,9 +716,6 @@ assert sizeof(NMLISTVIEW) == 44, sizeof(NMLISTVIEW)
 assert alignment(NMLISTVIEW) == 1, alignment(NMLISTVIEW)
 
 
-
-
-
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 235
 class NMMOUSE(Structure):
     _pack_ = 1
@@ -776,8 +729,6 @@ class NMMOUSE(Structure):
     ]
 assert sizeof(NMMOUSE) == 32, sizeof(NMMOUSE)
 assert alignment(NMMOUSE) == 1, alignment(NMMOUSE)
-
-
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
@@ -820,8 +771,6 @@ class HARDWAREINPUT(Structure):
     ]
 assert sizeof(HARDWAREINPUT) == 8, sizeof(HARDWAREINPUT)
 assert alignment(HARDWAREINPUT) == 2, alignment(HARDWAREINPUT)
-
-
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
@@ -901,11 +850,6 @@ assert alignment(MENUINFO) == 2, alignment(MENUINFO)
 
 
 
-
-
-
-
-
 NMTTDISPINFOW_V1_SIZE = 184 # Variable c_uint
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
@@ -922,3 +866,18 @@ class NMTTDISPINFOW(Structure):
     ]
 assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
 assert alignment(NMTTDISPINFOW) == 1, alignment(NMTTDISPINFOW)
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2208
+class WINDOWPLACEMENT(Structure):
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2208
+        ('length', UINT),
+        ('flags', UINT),
+        ('showCmd', UINT),
+        ('ptMinPosition', POINT),
+        ('ptMaxPosition', POINT),
+        ('rcNormalPosition', RECT),
+    ]
+assert sizeof(WINDOWPLACEMENT) == 44, sizeof(WINDOWPLACEMENT)
+assert alignment(WINDOWPLACEMENT) == 4, alignment(WINDOWPLACEMENT)

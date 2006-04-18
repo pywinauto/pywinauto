@@ -11066,6 +11066,7 @@ ERROR_SEVERITY_ERROR = 3221225472L # Variable c_uint
 SE_BACKUP_NAME = u'SeBackupPrivilege' # Variable POINTER(c_wchar)
 SWP_SHOWWINDOW = 64 # Variable c_int
 SMTO_ABORTIFHUNG = 2 # Variable c_int
+SMTO_NOTIMEOUTIFNOTHUNG  = 0x0008
 POLYGONALCAPS = 32 # Variable c_int
 TCN_LAST = 4294966716L # Variable c_uint
 MCI_SYSINFO = 2064 # Variable c_int

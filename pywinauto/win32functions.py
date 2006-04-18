@@ -81,6 +81,7 @@ GetWindow			=	ctypes.windll.user32.GetWindow
 ShowWindow			= 	ctypes.windll.user32.ShowWindow
 GetWindowContextHelpId =	ctypes.windll.user32.GetWindowContextHelpId
 GetWindowLong		=	ctypes.windll.user32.GetWindowLongW
+GetWindowPlacement  =   ctypes.windll.user32.GetWindowPlacement
 GetWindowRect		=	ctypes.windll.user32.GetWindowRect
 GetWindowText		=	ctypes.windll.user32.GetWindowTextW
 GetWindowTextLength	=	ctypes.windll.user32.GetWindowTextLengthW
