@@ -31,7 +31,7 @@ import HwndWrapper
 from pywinauto import win32functions
 from pywinauto import win32defines
 from pywinauto import win32structures
-from pywinauto import findbestmatch
+#from pywinauto import findbestmatch
 
 from pywinauto import tests
 from pywinauto.timings import Timings
@@ -56,6 +56,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
 
     def _set_if_needs_image(self, value):
+        "Does nothing see _get_if_needs_image"
         pass
     #-----------------------------------------------------------
     def _get_if_needs_image(self):
@@ -84,10 +85,10 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         controls based on their style. They can look like the following
         controls:
 
-          - Buttons
-          - CheckBoxes
-          - RadioButtons
-          - GroupBoxes
+          - Buttons, this method returns "Button"
+          - CheckBoxes, this method returns "CheckBox"
+          - RadioButtons, this method returns "RadioButton"
+          - GroupBoxes, this method returns "GroupBox"
 
         """
         # get the least significant bit
@@ -116,7 +117,18 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def GetCheckState(self):
-        "Return the check state of the checkbox"
+        """Return the check state of the checkbox
+
+        The check state is represented by an integer
+        0 - unchecked
+        1 - checked
+        2 - indeterminate
+
+        The following constants are defined in the win32defines module
+        BST_UNCHECKED = 0
+        BST_CHECKED = 1
+        BST_INDETERMINATE = 2
+        """
         return self.SendMessage(win32defines.BM_GETCHECK)
 
     #-----------------------------------------------------------
@@ -156,16 +168,18 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
 
+    #-----------------------------------------------------------
     def IsDialog(self):
+        "Buttons are never dialogs so return False"
         return False
 
     #-----------------------------------------------------------
-    def Click(self):
+    def Click(self, *args, **kwargs):
         "Click the Button control"
     #    import win32functions
     #    win32functions.WaitGuiThreadIdle(self)
     #    self.NotifyParent(win32defines.BN_CLICKED)
-        HwndWrapper.HwndWrapper.Click(self)
+        HwndWrapper.HwndWrapper.Click(self, *args, **kwargs)
     #    win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_button_click_wait)
 
@@ -218,11 +232,6 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
             ])
 
     #-----------------------------------------------------------
-    def SelectedIndex(self):
-        "Return the selected index"
-        return self.SendMessage(win32defines.CB_GETCURSEL)
-
-    #-----------------------------------------------------------
     def DroppedRect(self):
         "Get the dropped rectangle of the combobox"
         dropped_rect = win32structures.RECT()
@@ -243,7 +252,13 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.CB_GETCOUNT)
 
     #-----------------------------------------------------------
+    def SelectedIndex(self):
+        "Return the selected index"
+        return self.SendMessage(win32defines.CB_GETCURSEL)
+
+    #-----------------------------------------------------------
     def _get_item_index(self, ident):
+        "Get the index for the item with this 'ident'"
         if isinstance(ident, (int, long)):
 
             if ident >= self.ItemCount():
@@ -254,6 +269,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
             # negative index
             if ident < 0:
+                # convert it to a positive index
                 ident = (self.ItemCount() + ident)
 
         elif isinstance(ident, basestring):
@@ -266,6 +282,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def ItemData(self, item):
+        "Return the item data associted with this item"
         index = self._get_item_index(item)
         "Returns the item data associated with the item if any"
         return self.SendMessage(win32defines.CB_GETITEMDATA, index)
@@ -330,8 +347,12 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
 
+    #-----------------------------------------------------------
+    #def Deselect(self, item):
+    # Not implemented because it doesn't make sense for combo boxes.
+
     #TODO def EditControl(self):
-    #
+
     #TODO def ListControl(self):
 
     #TODO def ItemText(self, index):
@@ -377,6 +398,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
+        "Return the index of the item 'ident'"
         if isinstance(ident, (int, long)):
 
             if ident >= self.ItemCount():
@@ -395,8 +417,6 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             ident = self.ItemTexts().index(ident) #-1
 
         return ident
-
-
 
     #-----------------------------------------------------------
     def ItemCount(self):
@@ -727,7 +747,9 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     def ClientAreaRect(self):
         """Return the client area rectangle
 
-        TODO explain how this is different from ClientRect"""
+        From MSDN
+        The client area of a control is the bounds of the control, minus the
+        nonclient elements such as scroll bars, borders, title bars, and menus."""
         rect = win32structures.RECT(self.Rectangle())
         self.SendMessage(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
@@ -767,6 +789,7 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
 
 
     def _menu_handle(self):
+        "Get the menu handle for the popup menu menu"
         mbi = win32structures.MENUBARINFO()
         mbi.cbSize = ctypes.sizeof(mbi)
         ret = win32functions.GetMenuBarInfo(
@@ -774,6 +797,9 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
             win32defines.OBJID_CLIENT,
             0,
             ctypes.byref(mbi))
+
+        if not ret:
+            raise ctypes.WinError()
 
         return mbi.hMenu
 

@@ -55,7 +55,7 @@ from pywinauto import handleprops
 
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
-from menuwrapper import Menu, MenuItemNotEnabled
+from menuwrapper import Menu #, MenuItemNotEnabled
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -517,7 +517,12 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def SendMessageTimeout(
-        self, message, wparam = 0 , lparam = 0, timeout = None):
+        self,
+        message,
+        wparam = 0 ,
+        lparam = 0,
+        timeout = None,
+        timeoutflags = win32defines.SMTO_NORMAL):
         """Send a message to the control and wait for it to return or to timeout
 
         If no timeout is given then a default timeout of .4 of a second will
@@ -528,8 +533,10 @@ class HwndWrapper(object):
             timeout = Timings.sendmessagetimeout_timeout
 
         result = ctypes.c_long()
-        win32functions.SendMessageTimeout(self, message, wparam, lparam,
-            win32defines.SMTO_NORMAL, int(timeout * 1000), ctypes.byref(result))
+        win32functions.SendMessageTimeout(self,
+            message, wparam, lparam,
+            timeoutflags, int(timeout * 1000),
+            ctypes.byref(result))
 
         return result.value
 
@@ -546,26 +553,26 @@ class HwndWrapper(object):
         #return result.value
 
 
-    #-----------------------------------------------------------
-    def NotifyMenuSelect(self, menu_id):
-        """Notify the dialog that one of it's menu items was selected
-
-        **This method is Deprecated**
-        """
-
-        import warnings
-        warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
-            "equivalent functionality is being moved to the MenuWrapper class."
-        warnings.warn(warning_msg, DeprecationWarning)
-
-        self.SetFocus()
-
-        msg = win32defines.WM_COMMAND
-        return self.SendMessageTimeout(
-            msg,
-            win32functions.MakeLong(0, menu_id), #wparam
-            )
-
+#    #-----------------------------------------------------------
+#    def NotifyMenuSelect(self, menu_id):
+#        """Notify the dialog that one of it's menu items was selected
+#
+#        **This method is Deprecated**
+#        """
+#
+#        import warnings
+#        warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
+#            "equivalent functionality is being moved to the MenuWrapper class."
+#        warnings.warn(warning_msg, DeprecationWarning)
+#
+#        self.SetFocus()
+#
+#        msg = win32defines.WM_COMMAND
+#        return self.SendMessageTimeout(
+#            msg,
+#            win32functions.MakeLong(0, menu_id), #wparam
+#            )
+#
 
     #-----------------------------------------------------------
     def NotifyParent(self, message):
@@ -743,7 +750,6 @@ class HwndWrapper(object):
     def DoubleClickInput(self, button = "left", coords = (None, None)):
         "Double click at the specified coordinates"
         _perform_click_input(self, button, coords, double = True)
-
 
     #-----------------------------------------------------------
     def RightClick(
@@ -1140,8 +1146,92 @@ class HwndWrapper(object):
 
 
     #-----------------------------------------------------------
-    #def Close(self):
-    #    self.SendMessage(win32defines.WM_CLOSE)
+    def Close(self):
+        """Close the window
+
+        Code modified from http://msdn.microsoft.com/msdnmag/issues/02/08/CQA/
+
+        """
+
+        # tell the window it must close
+        self.PostMessage(win32defines.WM_CLOSE)
+
+        start = time.time()
+        # Keeps trying while
+        #    we have not timed out and
+        #    window is still a valid handle and
+        #    window is still visible
+        # any one of these conditions evaluates to false means the window is
+        # closed
+        while (
+            (time.time() - start) < Timings.after_windowclose_timeout and
+            win32functions.IsWindow(self) and
+            self.IsVisible()):
+
+            time.sleep(min(
+                Timings.after_windowclose_retry,
+                Timings.after_windowclose_timeout - (time.time() - start) ))
+
+
+#        # get a handle we can wait on
+#        process_wait_handle = win32functions.OpenProcess(
+#            win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE ,
+#            False ,
+#            self.ProcessID())
+#
+#        # wait for the window to close
+#        win32functions.WaitForSingleObject(
+#            process_wait_handle,
+#            )
+
+
+    #-----------------------------------------------------------
+    def Maximize(self):
+        """Maximize the window"""
+        win32functions.ShowWindow(self, win32defines.SW_MAXIMIZE)
+
+    #-----------------------------------------------------------
+    def Minimize(self):
+        """Minimize the window"""
+        win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
+
+    #-----------------------------------------------------------
+    def Restore(self):
+        """Restore the window"""
+
+        # do it twice just in case the window was minimized from being
+        # maximized - because then the window would come up maximized
+        # after the first ShowWindow, and Restored after the 2nd
+        win32functions.ShowWindow(self, win32defines.SW_RESTORE)
+        win32functions.ShowWindow(self, win32defines.SW_RESTORE)
+
+
+    #-----------------------------------------------------------
+    def GetShowState(self):
+        """Get the show state and Maximized/minimzed/restored state
+
+        Returns a value that is a union of the following
+
+        SW_HIDE the window is hidden.
+        SW_MAXIMIZE the window is maximized
+        SW_MINIMIZE the window is minimized
+        SW_RESTORE the window is in the 'restored'
+                   state (neither minimized or maximized)
+        SW_SHOW The window is not hidden
+        """
+
+        wp = win32structures.WINDOWPLACEMENT()
+        wp.lenght = ctypes.sizeof(wp)
+
+        ret = win32functions.GetWindowPlacement(self, ctypes.byref(wp))
+
+        if not ret:
+            raise ctypes.WinError()
+
+        return wp.showCmd
+
+
+
 
 
     #-----------------------------------------------------------
@@ -1212,6 +1302,8 @@ class HwndWrapper(object):
         on a different spoken langauge
         """
         self.appdata = appdata
+
+
 
 #
 #def MouseLeftClick():
