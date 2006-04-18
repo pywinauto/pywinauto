@@ -18,6 +18,9 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
+"Install and build pywinauto distributions"
+
+
 # to build files:
 # setup.py py2exe
 
@@ -25,17 +28,21 @@ from distutils.core import setup
 
 import pywinauto
 
-import sys
 
-if sys.argv[1].lower() == "sdist":
+# make sure the documentation is in the correct place for building
+import sys
+import os.path
+if "sdist" in sys.argv:
     import shutil
-    shutil.move(r"pywinauto\website", "documentation")
+    if not os.path.exists("documentation"):
+        shutil.move(r"pywinauto\website", "documentation")
 
 
 
 setup(name='pywinauto',
     version = pywinauto.__version__,
-    description = 'pywinauto is a set of python modules to automate the Microsoft Windows GUI',
+    description = 'pywinauto is a set of python '
+        'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
     url = "http://sourceforge.net/projects/pywinauto",
 	author = 'Mark Mc Mahon',
@@ -57,7 +64,8 @@ controls also.
 		'Development Status :: 4 - Beta',
 		'Environment :: Console',
 		'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+        'License :: OSI Approved :: '
+            'GNU Library or Lesser General Public License (LGPL)',
 		'Operating System :: Microsoft :: Windows',
 		'Programming Language :: Python',
         'Topic :: Software Development :: Libraries :: Python Modules'
@@ -65,5 +73,6 @@ controls also.
 	)
 
 
-if sys.argv[1].lower() == "sdist":
-    shutil.move("documentation", r"pywinauto\website")
+if "sdist" in sys.argv:
+    if not os.path.exists(r"pywinauto\website"):
+        shutil.move("documentation", r"pywinauto\website")
