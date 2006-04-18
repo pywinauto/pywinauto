@@ -2,8 +2,8 @@
 ------------------------------------------------------------------
 ??-???-2006
 
-    * Added wait for teh control to be active and configurable sleeps 
-      after modifying actions (e.g. Select, Deselect, etc)
+    * Added a wait for the control to be active and configurable 
+      sleeps after 'modifying' actions (e.g. Select, Deselect, etc)
 
     * Fixed Timings.Slow() and Timings.Fast() - they could in certain 
       circumstances do the opposite! If you had already set a timing
@@ -13,6 +13,23 @@
       setting rather then blindly setting to the new value.
 
     * Fixed some hidden bugs with HwndWrapper.CloseClick()
+    
+    * Fixed a bug in setup.py that would raise an error when no
+      argument was specified
+      
+    * Added an argument to HwndWrapper.SendMessageTimeout so that
+      the wait options could be passed in.
+      
+    * Added HwndWrapper.Close(), Maximize(), Minimize(), Restore() 
+      and GetShowState().
+    
+    * Commented out all deprecated methods (will be removed completely
+      in some future release).
+      
+    * Added Application.kill_() method - which closes all windows and 
+      kills the application. If the application is asking if you want
+      to save your changes - you will not be able to click yes or no
+      and the application will be killed anyway!.
 
 
 0.3.2 Fixed setup.py and some typos
