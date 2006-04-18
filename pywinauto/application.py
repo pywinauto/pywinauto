@@ -66,6 +66,7 @@ import ctypes
 
 import win32structures
 import win32functions
+import win32defines
 import controls
 import findbestmatch
 import findwindows
@@ -87,75 +88,8 @@ class AppNotConnected(Exception):
     pass    #pragma: no cover
 
 
-
-## Maximum wait time for a window to exist
-#window_find_timeout = 3
-#
-## How long to sleep between each try to looking for a window
-#window_retry_interval = .09
-#
-## Maximum wait time to wait for the first window of an
-## application to exist
-#app_start_timeout = 10
-#
-## Maximum wait time when checking if a control exists
-#exists_timeout = .5
-#
-## How long to sleep between each try when checking if the window exists
-#exists_retry_interval = .3
-#
-#delay_after_app_start = .5
-#
-#
-#def set_timing(
-#    win_find = 3,
-#    win_retry =.09,
-#    app_start = 10,
-#    exists = .5,
-#    exists_retry = .3,
-#    after_click = 0,
-#    after_menu = 0,
-#    after_sendkeys = .03,
-#    after_button_click = 0,
-#    after_close = .2):
-#
-#    """Set the timing for various things
-#
-#    * **win_find** = 3    Max time to look for a window
-#    * **win_retry** =.09  Retry interval when finding a window
-#    * **app_start** = 10  Max time to look for a window after app start
-#    * **exists** = .5     Max time to check a window exists
-#    * **exists_retry** = .3  Retry interval when checking a window exists
-#    * **after_click** = 0    Delay after a mouse click
-#    * **after_menu** = 0     Delay after a menu selection
-#    * **after_sendkeys** = .03   Delay after each Sendkeys key
-#    * **after_button_click** = 0 Delay after a button click
-#    * **after_close** = .2       Delay after the CloseClick action
-#
-#    """
-#
-#    global window_find_timeout
-#    window_find_timeout = win_find
-#    global window_retry_interval
-#    window_retry_interval = win_retry
-#    global app_start_timeout
-#    app_start_timeout = app_start
-#    global exists_timeout
-#    exists_timeout = exists
-#    global exists_retry_interval
-#    exists_retry_interval = exists_retry
-#
-#
-#    import controls.HwndWrapper
-#    controls.HwndWrapper.delay_after_click = after_click
-#    controls.HwndWrapper.delay_after_menuselect = after_menu
-#    controls.HwndWrapper.delay_after_sendkeys_key = after_sendkeys
-#    controls.HwndWrapper.delay_after_button_click = after_button_click
-#    controls.HwndWrapper.delay_before_after_close_click = after_close
-
-
-wait_method_deprecation = "Wait* functions are just simple wrappers around " \
-    "Wait() or WaitNot(), so they may be removed in the future!"
+#wait_method_deprecation = "Wait* functions are just simple wrappers around " \
+#    "Wait() or WaitNot(), so they may be removed in the future!"
 
 #=========================================================================
 class WindowSpecification(object):
@@ -455,7 +389,6 @@ class WindowSpecification(object):
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
 
-
         # remember the start time so we can do an accurate wait for the timeout
         start = time.time()
 
@@ -507,7 +440,6 @@ class WindowSpecification(object):
 
 
             # stop trying if we have reached the timeout
-
             waited = time.time() - start
             if  waited < timeout:
                 # wait the interval or the time left until the timeout expires
@@ -525,51 +457,51 @@ class WindowSpecification(object):
 
 
 
-    def WaitReady(self, timeout = None, retry_interval = None):
-        "Wait for the control to be ready (Exists, Visible and Enabled)"
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        return self.Wait('ready', timeout, retry_interval)
-
-    def WaitNotReady(self, timeout = None, retry_interval = None):
-        "Wait for the control to be ready (Exists, Visible and Enabled)"
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        return self.WaitNot('ready', timeout, retry_interval)
-
-    def WaitEnabled(self, timeout = None, retry_interval = None):
-        """Wait for the control to become enabled
-
-        Returns the control"""
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        return self.Wait('enabled', timeout, retry_interval)
-
-    def WaitNotEnabled(self, timeout = None, retry_interval = None):
-        "Wait for the control to be disabled or not exist"
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        self.WaitNot('enabled', timeout, retry_interval)
-
-    def WaitVisible(self, timeout = None,retry_interval = None):
-        """Wait for the control to become visible
-
-        Returns the control"""
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        return self.Wait('visible', timeout, retry_interval)
-
-    def WaitNotVisible(self,
-        timeout = None,
-        retry_interval = None):
-        "Wait for the control to be invisible or not exist"
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        self.WaitNot('visible', timeout, retry_interval)
-
-    def WaitExists(self, timeout = None, retry_interval = None):
-        """Wait for the control to not exist anymore"""
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        return self.Wait('exists', timeout, retry_interval)
-
-    def WaitNotExists(self, timeout = None, retry_interval = None):
-        """Wait for the control to not exist anymore"""
-        warnings.warn(wait_method_deprecation, DeprecationWarning)
-        self.WaitNot('exists', timeout, retry_interval)
+#    def WaitReady(self, timeout = None, retry_interval = None):
+#        "Wait for the control to be ready (Exists, Visible and Enabled)"
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        return self.Wait('ready', timeout, retry_interval)
+#
+#    def WaitNotReady(self, timeout = None, retry_interval = None):
+#        "Wait for the control to be ready (Exists, Visible and Enabled)"
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        return self.WaitNot('ready', timeout, retry_interval)
+#
+#    def WaitEnabled(self, timeout = None, retry_interval = None):
+#        """Wait for the control to become enabled
+#
+#        Returns the control"""
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        return self.Wait('enabled', timeout, retry_interval)
+#
+#    def WaitNotEnabled(self, timeout = None, retry_interval = None):
+#        "Wait for the control to be disabled or not exist"
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        self.WaitNot('enabled', timeout, retry_interval)
+#
+#    def WaitVisible(self, timeout = None,retry_interval = None):
+#        """Wait for the control to become visible
+#
+#        Returns the control"""
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        return self.Wait('visible', timeout, retry_interval)
+#
+#    def WaitNotVisible(self,
+#        timeout = None,
+#        retry_interval = None):
+#        "Wait for the control to be invisible or not exist"
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        self.WaitNot('visible', timeout, retry_interval)
+#
+#    def WaitExists(self, timeout = None, retry_interval = None):
+#        """Wait for the control to not exist anymore"""
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        return self.Wait('exists', timeout, retry_interval)
+#
+#    def WaitNotExists(self, timeout = None, retry_interval = None):
+#        """Wait for the control to not exist anymore"""
+#        warnings.warn(wait_method_deprecation, DeprecationWarning)
+#        self.WaitNot('exists', timeout, retry_interval)
 
     def print_control_identifiers(self):
         """Prints the 'identifiers'
@@ -613,6 +545,8 @@ class WindowSpecification(object):
 
 
 def _get_ctrl(criteria_):
+    "Get the control based on the various criteria"
+
     # make a copy of the criteria
     criteria = [crit.copy() for crit in criteria_]
 
@@ -643,6 +577,7 @@ cur_item = 0
 
 def _resolve_from_appdata(
     criteria_, app, timeout = None, retry_interval = None):
+    "Should not be used at the moment!"
 
     if timeout is None:
         timeout = Timings.window_find_timout
@@ -900,15 +835,15 @@ class Application(object):
         return Application().connect_(*args, **kwargs)
     connect = staticmethod(__connect)
 
-    def _start(self, *args, **kwargs):
-        "start_ used to be named _start"
-        warnings.warn(self.connect_start_deprecated, DeprecationWarning)
-        return self.start_(*args, **kwargs)
+    #def _start(self, *args, **kwargs):
+    #    "start_ used to be named _start"
+    #    warnings.warn(self.connect_start_deprecated, DeprecationWarning)
+    #    return self.start_(*args, **kwargs)
 
-    def _connect(self, *args, **kwargs):
-        "connect_ used to be named _connect"
-        warnings.warn(self.connect_start_deprecated, DeprecationWarning)
-        return self.connect_(*args, **kwargs)
+    #def _connect(self, *args, **kwargs):
+    #    "connect_ used to be named _connect"
+    #    warnings.warn(self.connect_start_deprecated, DeprecationWarning)
+    #    return self.connect_(*args, **kwargs)
 
     def start_(self, cmd_line, timeout = None, retry_interval = None):
         "Starts the application giving in cmd_line"
@@ -1073,11 +1008,13 @@ class Application(object):
         return self[key]
 
     def WriteAppData(self, filename):
+        "Should not be used - part of application data implementation"
         f = open(filename, "wb")
         pickle.dump(self.match_history, f)
         f.close()
 
     def GetMatchHistoryItem(self, index):
+        "Should not be used - part of application data implementation"
         return self.match_history[index]
 
     def RecordMatch(self, criteria, ctrls):
@@ -1104,6 +1041,99 @@ class Application(object):
 
 
 
+
+
+    def kill_(self):
+        """Try and kill the application
+
+        Dialogs may pop up asking to save data - but the application
+        will be killed anyway - you will not be able to click the buttons.
+        this should only be used
+        """
+
+        windows = self.windows_(visible_only = True)
+        ok_to_kill = True
+
+        for win in windows:
+
+            #t = threading.Thread(target = OKToClose, args = (win) )
+
+            #t.start()
+
+            #time.sleep(.2)
+            #win.Close()
+
+            #while t.isAlive() and not forcekill:
+            #    time.sleep(.5)
+
+
+            win.SendMessageTimeout(
+                win32defines.WM_QUERYENDSESSION,
+                timeout = .1,
+                timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
+                    #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+                    #win32defines.SMTO_BLOCK)
+
+            win.Close()
+            #print `ok_to_kill`, win.Texts()
+
+        #print `ok_to_kill`
+#        if ok_to_kill:
+#            for win in windows:
+#                print "\tclosing:", win.Texts()
+#                self.windows_()[0].Close()
+#        elif not forcekill:
+#            return False
+
+        # window has let us know that it doesn't want to die - so we abort
+        # this means that the app is not hung - but knows it doesn't want
+        # to close yet - e.g. it is asking the user if they want to save
+        #if not forcekill:
+        #    return False
+
+        #print "supposedly closed all windows!"
+
+        # so we have either closed the windows - or the app is hung
+
+        # get a handle we can wait on
+        process_wait_handle = win32functions.OpenProcess(
+            win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE ,
+            False,
+            self.process)
+
+        killed = True
+        if process_wait_handle:
+
+            # wait for the window to close
+            win32functions.WaitForSingleObject(
+                process_wait_handle,
+                Timings.after_windowclose_timeout * 1000)
+
+            #if forcekill:
+            win32functions.TerminateProcess(process_wait_handle, 0)
+            #else:
+            #    killed = False
+
+        win32functions.CloseHandle(process_wait_handle)
+
+        return killed
+
+
+#
+#
+#def OKToClose(window):
+#    return_val = bool(window.SendMessageTimeout(
+#        win32defines.WM_QUERYENDSESSION,
+#        timeout = 1000,
+#        timeoutflags = win32defines.SMTO_ABORTIFHUNG))# |
+#
+#    print "2343242343242"  * 100
+#
+#    return return_val
+
+
+
+
 def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
     # Set instance variable _module if not already set
@@ -1115,8 +1145,6 @@ def AssertValidProcess(process_id):
         raise ProcessNotFoundError(message)
 
     return process_handle
-
-
 
 #=========================================================================
 def process_module(process_id):

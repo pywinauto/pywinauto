@@ -251,34 +251,34 @@ def is_toplevel_window(handle):
 #    return f_classname
 
 
-def friendlyclassname(handle):
-    """Return the friendly class name of the window
-
-    The friendly class name might be subjective, but it
-    tries to be what a normal user would call a window
-    rather then the windows class name for the window.
-    """
-
-    import warnings
-    warnings.warn("handleprops.friendlyclassname() is deprecated. Please use"
-        "FriendlyClassMethod() of HwndWrapper",
-        DeprecationWarning)
-
-    # if it's a dialog then return that
-    if is_toplevel_window(handle) and classname(handle) == "#32770":
-        return "Dialog"
-
-    # otherwise ask the wrapper class for the friendly class name
-    class_name = classname(handle)
-
-    from controls import wraphandle
-    info = wraphandle._find_wrapper(class_name)
-
-    if info:
-       return info.friendlyclassname
-
-    else:
-        return class_name
+#def friendlyclassname(handle):
+#    """Return the friendly class name of the window
+#
+#    The friendly class name might be subjective, but it
+#    tries to be what a normal user would call a window
+#    rather then the windows class name for the window.
+#    """
+#
+#    import warnings
+#    warnings.warn("handleprops.friendlyclassname() is deprecated. Please use"
+#        "FriendlyClassMethod() of HwndWrapper",
+#        DeprecationWarning)
+#
+#    # if it's a dialog then return that
+#    if is_toplevel_window(handle) and classname(handle) == "#32770":
+#        return "Dialog"
+#
+#    # otherwise ask the wrapper class for the friendly class name
+#    class_name = classname(handle)
+#
+#    from controls import wraphandle
+#    info = wraphandle._find_wrapper(class_name)
+#
+#    if info:
+#       return info.friendlyclassname
+#
+#    else:
+#        return class_name
 
 
 
