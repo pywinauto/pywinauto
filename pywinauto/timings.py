@@ -54,6 +54,9 @@ The Following are the individual timing settings that can be adjusted:
 * closeclick_dialog_close_wait  (default .05)
 * after_closeclick_wait (default .2)
 
+* after_windowclose_timeout (default 2)
+* after_windowclose_retry (default .5)
+
 * after_setfocus_wait   (default .06)
 
 * after_setcursorpos_wait   (default .01)
@@ -80,8 +83,11 @@ The Following are the individual timing settings that can be adjusted:
 
 """
 
+__revision__ = "$Revision: 453 $"
+
 
 class TimeConfig(object):
+    "Central storage and minipulation of timing values"
     __default_timing = {
         'window_find_timeout' : 3,
         'window_find_retry' : .09,
@@ -105,6 +111,9 @@ class TimeConfig(object):
         'closeclick_retry' : .05,
         'closeclick_dialog_close_wait' : .05,
         'after_closeclick_wait' : .2,
+
+        'after_windowclose_timeout': 2,
+        'after_windowclose_retry':  .5,
 
         'after_setfocus_wait' : .06,
 
@@ -137,6 +146,7 @@ class TimeConfig(object):
     _cur_speed = 1
 
     def __getattr__(self, attr):
+        "Get the value for a particular timing"
         if attr in self.__default_timing:
             return self._timings[attr]
         else:
@@ -144,6 +154,7 @@ class TimeConfig(object):
                 "Unknown timing setting: %s" % attr)
 
     def __setattr__(self, attr, value):
+        "Set a particular timing"
         if attr in self.__default_timing:
             self._timings[attr] = value
         else:
@@ -151,6 +162,16 @@ class TimeConfig(object):
                 "Unknown timing setting: %s" % attr)
 
     def Fast(self):
+        """Set fast timing values
+
+        Currently this changes the timing in the following ways:
+        timeouts = 1 second
+        waits = 0 seconds
+        retries = .001 seconds (minimum!)
+
+        (if existing times are faster then keep existing times)
+        """
+
         for setting in self.__default_timing:
             # set timeouts to the min of the current speed or 1 second
             if "_timeout" in setting:
@@ -166,6 +187,15 @@ class TimeConfig(object):
 
 
     def Slow(self):
+        """Set slow timing values
+
+        Currently this changes the timing in the following ways:
+        timeouts = default timeouts * 10
+        waits = default waits * 3
+        retries = default retries * 3
+
+        (if existing times are slower then keep existing times)
+        """
         for setting in self.__default_timing:
             if "_timeout" in setting:
                 self._timings[setting] = max(
@@ -183,6 +213,7 @@ class TimeConfig(object):
                     self._timings[setting])
 
     def Defaults(self):
+        "Set all timings to the default time"
         self._timings = self.__default_timing.copy()
 
 
