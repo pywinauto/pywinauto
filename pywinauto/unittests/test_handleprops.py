@@ -207,14 +207,14 @@ class handlepropsTestCases(unittest.TestCase):
         self.assertEquals(False, is_toplevel_window(self.app.Replace.Cancel.handle))
         self.app.Replace.Cancel.Click()
 
-    def test_friendlyclassname(self):
-        "Make sure the friendly class is returned correctly"
-        self.assertEquals("Notepad", friendlyclassname(self.dlghandle))
-        self.assertEquals("Edit", friendlyclassname(self.edit_handle))
-
-        self.app.UntitledNotepad.MenuSelect("Edit->Replace")
-        self.assertEquals("Dialog", friendlyclassname(self.app.Replace.handle))
-        self.app.Replace.Cancel.Click()
+#    def test_friendlyclassname(self):
+#        "Make sure the friendly class is returned correctly"
+#        self.assertEquals("Notepad", friendlyclassname(self.dlghandle))
+#        self.assertEquals("Edit", friendlyclassname(self.edit_handle))
+#
+#        self.app.UntitledNotepad.MenuSelect("Edit->Replace")
+#        self.assertEquals("Dialog", friendlyclassname(self.app.Replace.handle))
+#        self.app.Replace.Cancel.Click()
 
 
     def test_dumpwindow(self):

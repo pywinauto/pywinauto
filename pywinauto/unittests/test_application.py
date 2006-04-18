@@ -82,19 +82,19 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-    def test_start(self):
-        "test start() works correctly"
-        app = Application()
-        self.assertEqual(app.process, None)
-        app._start("notepad.exe")
-        self.assertNotEqual(app.process, None)
-
-        self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
-
-        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
-        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
-
-        app.UntitledNotepad.MenuSelect("File->Exit")
+#    def test_start(self):
+#        "test start() works correctly"
+#        app = Application()
+#        self.assertEqual(app.process, None)
+#        app._start("notepad.exe")
+#        self.assertNotEqual(app.process, None)
+#
+#        self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
+#
+#        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
+#        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
+#
+#        app.UntitledNotepad.MenuSelect("File->Exit")
 
 
     def testStart_bug01(self):
@@ -146,7 +146,7 @@ class ApplicationTestCases(unittest.TestCase):
 
 
     def testConnect_path(self):
-        "Test that connect) works with a path"
+        "Test that connect_() works with a path"
         app1 = Application()
         app1.start_("notepad.exe")
 
@@ -160,20 +160,20 @@ class ApplicationTestCases(unittest.TestCase):
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
-    def test_Connect(self):
-        "Test that _connect() works with a path"
-        app1 = Application()
-        app1.start_("notepad.exe")
-
-        app_conn = Application()
-        app_conn._connect(path = r"system32\notepad.exe")
-        self.assertEqual(app1.process, app_conn.process)
-
-        app_conn = Application()
-        app_conn._connect(path = r"c:\windows\system32\notepad.exe")
-        self.assertEqual(app1.process, app_conn.process)
-
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+#    def test_Connect(self):
+#        "Test that connect_() works with a path"
+#        app1 = Application()
+#        app1.start_("notepad.exe")
+#
+#        app_conn = Application()
+#        app_conn.connect_(path = r"system32\notepad.exe")
+#        self.assertEqual(app1.process, app_conn.process)
+#
+#        app_conn = Application()
+#        app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
+#        self.assertEqual(app1.process, app_conn.process)
+#
+#        app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
     def testConnect_process(self):
         "Test that connect_() works with a process"
@@ -188,7 +188,7 @@ class ApplicationTestCases(unittest.TestCase):
 
 
     def testConnect_handle(self):
-        "Test that _connect() works with a handle"
+        "Test that connect_() works with a handle"
         app1 = Application()
         app1.start_("notepad.exe")
         handle = app1.UntitledNotepad.handle
@@ -201,7 +201,7 @@ class ApplicationTestCases(unittest.TestCase):
 
 
     def testConnect_windowspec(self):
-        "Test that _connect() works with a windowspec"
+        "Test that connect_() works with a windowspec"
         app1 = Application()
         app1.start_("notepad.exe")
         handle = app1.UntitledNotepad.handle
@@ -218,7 +218,7 @@ class ApplicationTestCases(unittest.TestCase):
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
     def testConnect_raises(self):
-        "Test that _connect() raises with invalid input"
+        "Test that connect_() raises with invalid input"
         # try an argument that does not exist
         self.assertRaises (
             TypeError,
@@ -364,6 +364,23 @@ class ApplicationTestCases(unittest.TestCase):
         app.UntitledNotepad.MenuSelect("File->Exit")
 
         #application.window_find_timeout = prev_timeout
+
+
+    def testkill_(self):
+
+        app = Application()
+        app.start('notepad.exe')
+
+        app.UntitledNotepad.Edit.TypeKeys("hello")
+
+        app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.PageSetup.Printer.Click()
+        app.PageSetup.Network.Click()
+
+        app.kill_()
+
+        self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
+
 
 
 
@@ -568,109 +585,109 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
 
-    def testWaitReady(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitReady(.1, .05))
-
-        # it it didn't finish in the allocated time then raise an error
-        # we assertEqual to something that we know is not right - to get a
-        # better error report
-        if not 0 <= (time.time() - start) < 0 + allowable_error:
-            self.assertEqual(0, time.time() - start)
-        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
-
-
-    def testWaitNotReady(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNotReady, .1, .05)
-
-        if not .1 <= (time.time() - start) < .1 + allowable_error:
-            self.assertEqual(.1, time.time() - start)
-
-        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
-
-
-    def testWaitEnabled(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitEnabled(.1, .05))
-
-        if not 0 <= (time.time() - start) < 0 + allowable_error:
-            self.assertEqual(0, time.time() - start)
-
-        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
-
-
-    def testWaitNotEnabled(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNotEnabled, .1, .05)
-        if not .1 <= (time.time() - start) < .1 + allowable_error:
-            self.assertEqual(.1, time.time() - start)
-        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
-
-    def testWaitVisible(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitVisible(.1, .05))
-        if not 0 <= (time.time() - start) < 0 + allowable_error:
-            self.assertEqual(0, time.time() - start)
-        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
-
-    def testWaitNotVisible(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNotVisible, .1, .05)
-        # it it didn't finish in the allocated time then raise an error
-        # we assertEqual to something that we know is not right - to get a
-        # better error report
-        if not .1 <= (time.time() - start) < .1 + allowable_error:
-            self.assertEqual(.1, time.time() - start)
-
-    def testWaitExists(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitExists(.1, .05))
-
-        # it it didn't finish in the allocated time then raise an error
-        # we assertEqual to something that we know is not right - to get a
-        # better error report
-        if not 0 <= (time.time() - start) < 0 + allowable_error:
-            self.assertEqual(.1, time.time() - start)
-
-    def testWaitNotExists(self):
-        "Make sure the friendly class is set correctly"
-
-        allowable_error = .02
-
-        start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNotExists, .1, .05)
-        if not .1 <= (time.time() - start) < .1 + allowable_error:
-            self.assertEqual(.1, time.time() - start)
-        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+#    def testWaitReady(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitReady(.1, .05))
+#
+#        # it it didn't finish in the allocated time then raise an error
+#        # we assertEqual to something that we know is not right - to get a
+#        # better error report
+#        if not 0 <= (time.time() - start) < 0 + allowable_error:
+#            self.assertEqual(0, time.time() - start)
+#        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+#
+#
+#    def testWaitNotReady(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertRaises(RuntimeError, self.dlgspec.WaitNotReady, .1, .05)
+#
+#        if not .1 <= (time.time() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, time.time() - start)
+#
+#        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+#
+#
+#    def testWaitEnabled(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitEnabled(.1, .05))
+#
+#        if not 0 <= (time.time() - start) < 0 + allowable_error:
+#            self.assertEqual(0, time.time() - start)
+#
+#        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+#
+#
+#    def testWaitNotEnabled(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertRaises(RuntimeError, self.dlgspec.WaitNotEnabled, .1, .05)
+#        if not .1 <= (time.time() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, time.time() - start)
+#        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+#
+#    def testWaitVisible(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitVisible(.1, .05))
+#        if not 0 <= (time.time() - start) < 0 + allowable_error:
+#            self.assertEqual(0, time.time() - start)
+#        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+#
+#    def testWaitNotVisible(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertRaises(RuntimeError, self.dlgspec.WaitNotVisible, .1, .05)
+#        # it it didn't finish in the allocated time then raise an error
+#        # we assertEqual to something that we know is not right - to get a
+#        # better error report
+#        if not .1 <= (time.time() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, time.time() - start)
+#
+#    def testWaitExists(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitExists(.1, .05))
+#
+#        # it it didn't finish in the allocated time then raise an error
+#        # we assertEqual to something that we know is not right - to get a
+#        # better error report
+#        if not 0 <= (time.time() - start) < 0 + allowable_error:
+#            self.assertEqual(.1, time.time() - start)
+#
+#    def testWaitNotExists(self):
+#        "Make sure the friendly class is set correctly"
+#
+#        allowable_error = .02
+#
+#        start = time.time()
+#        self.assertRaises(RuntimeError, self.dlgspec.WaitNotExists, .1, .05)
+#        if not .1 <= (time.time() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, time.time() - start)
+#        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
 
     def testPrintControlIdentifiers(self):

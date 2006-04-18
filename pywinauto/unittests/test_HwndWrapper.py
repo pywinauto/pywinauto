@@ -253,10 +253,10 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
         self.assertNotEquals(0, self.dlg.Inv.PostMessage(win32defines.WM_PAINT))
 
-    def testNotifyMenuSelect(self):
-        "Call NotifyMenuSelect to ensure it does not reaise"
-        self.ctrl.NotifyMenuSelect(1234)
-        self.dlg.NotifyMenuSelect(1234)
+#    def testNotifyMenuSelect(self):
+#        "Call NotifyMenuSelect to ensure it does not raise"
+#        self.ctrl.NotifyMenuSelect(1234)
+#        self.dlg.NotifyMenuSelect(1234)
 
     def testNotifyParent(self):
         "Call NotifyParent to ensure it does not raise"
@@ -331,6 +331,27 @@ class HwndWrapperTests(unittest.TestCase):
             self.ctrl.Rectangle(),
             prev_rect + dlgClientRect)
 
+
+    def testMaximize(self):
+        self.dlg.Maximize()
+
+        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWMAXIMIZED)
+        self.dlg.Restore()
+
+    def testMinimize(self):
+        self.dlg.Minimize()
+        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWMINIMIZED)
+        self.dlg.Restore()
+
+    def testRestore(self):
+        self.dlg.Maximize()
+        self.dlg.Restore()
+        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWNORMAL)
+
+        self.dlg.Minimize()
+        self.dlg.Restore()
+        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWNORMAL)
+
     def testGetFocus(self):
         self.assertNotEqual(self.dlg.GetFocus(), None)
         self.assertEqual(self.dlg.GetFocus(), self.ctrl.GetFocus())
@@ -338,19 +359,36 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.Hyp.SetFocus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Hyp.handle)
 
-
     def testSetFocus(self):
         self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Hyp.handle)
         self.dlg.Hyp.SetFocus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Hyp.handle)
 
     def testMenuSelect(self):
+        "Test selecting a menut item"
+
         self.dlg.TypeKeys("1234567")
         self.dlg.MenuSelect("Edit->Copy")
         self.dlg.CE.Click()
         self.dlg.MenuSelect("Edit->Paste")
         self.assertEquals(self.dlg.Edit.Texts()[1], "1,234,567. ")
 
+    def testClose(self):
+        "Test the Close() method of windows"
+        # open the statistics dialog
+        self.dlg.Sta.CloseClick()
+
+        # make sure it is open and visible
+        self.assertTrue(self.app.StatisticsBox.IsVisible(), True)
+
+        # close it
+        self.app.StatisticsBox.Close()
+
+        # make sure that it is not visible
+        self.assertRaises(AttributeError, self.app.StatisticsBox)
+
+        # make sure the main calculator dialog is still open
+        self.assertEquals(self.dlg.IsVisible(), True)
 
 
 
