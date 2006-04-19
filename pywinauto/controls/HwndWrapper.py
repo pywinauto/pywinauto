@@ -1212,12 +1212,12 @@ class HwndWrapper(object):
 
         Returns a value that is a union of the following
 
-        SW_HIDE the window is hidden.
-        SW_MAXIMIZE the window is maximized
-        SW_MINIMIZE the window is minimized
-        SW_RESTORE the window is in the 'restored'
-                   state (neither minimized or maximized)
-        SW_SHOW The window is not hidden
+        * SW_HIDE the window is hidden.
+        * SW_MAXIMIZE the window is maximized
+        * SW_MINIMIZE the window is minimized
+        * SW_RESTORE the window is in the 'restored'
+          state (neither minimized or maximized)
+        * SW_SHOW The window is not hidden
         """
 
         wp = win32structures.WINDOWPLACEMENT()
@@ -1229,10 +1229,6 @@ class HwndWrapper(object):
             raise ctypes.WinError()
 
         return wp.showCmd
-
-
-
-
 
     #-----------------------------------------------------------
     def GetFocus(self):

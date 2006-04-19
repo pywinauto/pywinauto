@@ -1,6 +1,6 @@
-0.3.X ????
+0.3.3 Added some methods, and fixed some small bugs
 ------------------------------------------------------------------
-??-???-2006
+19-Apr-2006
 
     * Added a wait for the control to be active and configurable 
       sleeps after 'modifying' actions (e.g. Select, Deselect, etc)

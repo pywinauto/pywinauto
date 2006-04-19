@@ -11,6 +11,7 @@ All Controls
   * CaptureAsImage_ 
   * Click_
   * ClickInput_
+  * Close_
   * CloseClick_
   * DebugMessage_
   * DoubleClick_
@@ -18,7 +19,10 @@ All Controls
   * DragMouse_
   * DrawOutline_
   * GetFocus_
+  * GetShowState_
+  * Maximize_
   * MenuSelect_
+  * Minimize_
   * MoveMouse_
   * MoveWindow_
   * NotifyMenuSelect_
@@ -27,6 +31,7 @@ All Controls
   * PressMouseInput_
   * ReleaseMouse_
   * ReleaseMouseInput_
+  * Restore_
   * RightClick_
   * RightClickInput_
   * RightClickInput_
@@ -35,6 +40,8 @@ All Controls
   * SetFocus_
   * SetWindowText_
   * TypeKeys_
+
+
 
 .. _CaptureAsImage: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#CaptureAsImage
 .. _Click: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#Click
@@ -63,6 +70,14 @@ All Controls
 .. _SetFocus: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#SetFocus
 .. _SetWindowText: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#SetWindowText
 .. _TypeKeys: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#TypeKeys
+.. _Close: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#Close
+.. _Restore: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#Restore
+.. _GetShowState: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#GetShowState
+.. _Maximize: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#Maximize
+.. _Minimize: class-pywinauto.controls.HwndWrapper.HwndWrapper.html#Minimize
+
+
+
 
   * Children_
   * Class_
