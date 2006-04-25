@@ -47,7 +47,7 @@ one of the following:
 :path: The path of the executable of the process (``GetModuleFileNameEx``
        is used to find the path of each process and compared against
        the value passed in)  e.g. 
-
+       
 ::
 
           app = Application()
@@ -59,6 +59,16 @@ passed to the ``findwindows.find_windows()`` function.  e.g. ::
           app = Application()
           app.connect_(title_re = ".*Notepad", class_name = "Notepad")
 
+
+**Note**: I have since added static methods Application.start() and 
+Application.connect() these can be used the same as above - except that
+you no longer need to instantiate an Application object first.
+
+**Note2**: The application has to be ready before you can use connect*().
+There is no timeout or retries like there is when finding the application
+after start*(). So if you start the application outside of pywinauto you
+need to either sleep or program a wait loop to wait until the application
+has fully started.
 
 
 How to sepcify a dialog of the application
@@ -102,6 +112,12 @@ module select the dialog you want. Once you have the handle you need
 then use ::
 	
 	Application.window_(handle = win)
+
+**Note**: If the title of the dialog is very long - then attribute access
+might be very long to type, in those cases it is usually easier to use::
+    
+    app.window_(title_re = ".*Part of Title.*")
+
 	
 
 How to specify a control on a dialog
@@ -131,9 +147,6 @@ the contol. And append the friendly class. So the list becomes
   
 Once a set of identifiers has been created for all controls in the dialog
 we disambiguate them. 
-  
-
-
 
 use the `WindowSpecification.print_control_identifiers()` method
 
@@ -262,7 +275,6 @@ To see an example of this see ``examples\MiscExamples.py.GetInfo()``
 
 How to deal with controls that do not respond as expected (e.g. OwnerDraw Controls)
 ------------------------------------------------------------------------------------
-
 Some controls (especially Ownerdrawn controls) do not respond to events as 
 expected. For example if you look at any HLP file and go to the Index Tab (click 
 'Search' button) you will see a listbox. Running Spy or Winspector on this
@@ -317,7 +329,6 @@ Edit control above the list, and you CAN get the text of the item from there e.g
 
 How to Access the System Tray (aka SysTray, aka 'Notification Area')
 ------------------------------------------------------------------------------------
-
 Near the clock are icons representing running applications, this area is 
 normally referred to as the "System Tray". There are actually many different 
 windows/controls in this area. The control that contains the icons is actually
