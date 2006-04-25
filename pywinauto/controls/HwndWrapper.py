@@ -130,7 +130,7 @@ class HwndWrapper(object):
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_)"""
 
-    friendlyclassname = ''
+    friendlyclassname = None
     handle = None
 
     #-----------------------------------------------------------
@@ -143,6 +143,7 @@ class HwndWrapper(object):
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
+
         # handle if hwnd is actually a HwndWrapper
         try:
             self.handle = hwnd.handle
@@ -156,6 +157,8 @@ class HwndWrapper(object):
         # make it so that ctypes conversion happens correctly
         self._as_parameter_ = self.handle
 
+        #win32functions.WaitGuiThreadIdle(self)
+
         # specify whether we need to grab an image of ourselves
         # when asked for properties
         self._NeedsImageProp = False
@@ -164,6 +167,8 @@ class HwndWrapper(object):
         self.ref = None
 
         self.appdata = None
+
+        self._cache = {}
 
         # build the list of default properties to be written
         # Derived classes can either modify this list or override
@@ -200,15 +205,16 @@ class HwndWrapper(object):
         For example Checkboxes are implemented as Buttons - so the class
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
-        if not self.friendlyclassname:
-            return handleprops.classname(self)
-        else:
-            return self.friendlyclassname
+        if self.friendlyclassname is None:
+            self.friendlyclassname = handleprops.classname(self)
+        return self.friendlyclassname
 
     #-----------------------------------------------------------
     def Class(self):
         """Return the class name of the window"""
-        return handleprops.classname(self)
+        if not self._cache.has_key("class"):
+            self._cache['class'] = handleprops.classname(self)
+        return self._cache['class']
 
     #-----------------------------------------------------------
     def WindowText(self):
@@ -377,7 +383,11 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def IsDialog(self):
         "Return true if the control is a top level window"
-        return handleprops.is_toplevel_window(self)
+
+        if not self._cache.has_key("isdialog"):
+            self._cache['isdialog'] = handleprops.is_toplevel_window(self)
+
+        return self._cache['isdialog']
 
     #-----------------------------------------------------------
     def Parent(self):
@@ -390,12 +400,19 @@ class HwndWrapper(object):
         To get the main (or top level) window then use
         HwndWrapper.TopLevelParent().
         """
-        parent_hwnd = handleprops.parent(self)
 
-        if parent_hwnd:
-            return WrapHandle(parent_hwnd)
-        else:
-            return None
+        if not self._cache.has_key("parent"):
+
+            parent_hwnd = handleprops.parent(self)
+
+            if parent_hwnd:
+                #return WrapHandle(parent_hwnd)
+
+                self._cache["parent"] = WrapHandle(parent_hwnd)
+            else:
+                self._cache["parent"] = None
+
+        return self._cache["parent"]
 
     #-----------------------------------------------------------
     def TopLevelParent(self):
@@ -410,18 +427,27 @@ class HwndWrapper(object):
         no top level parent then the control itself is returned - as it is
         a top level window already!)
         """
-        if self.IsDialog():
-            return self
 
-        parent = self.Parent()
+        if not self._cache.has_key("top_level_parent"):
 
-        if not parent:
-            return self
+            parent = self.Parent()
 
-        if not parent.IsDialog():
-            return parent.TopLevelParent()
-        else:
-            return parent
+            if self.IsDialog():
+                self._cache["top_level_parent"] = self
+                #return self
+
+            elif not parent:
+                self._cache["top_level_parent"] = self
+                #return self
+
+            elif not parent.IsDialog():
+                self._cache["top_level_parent"] = parent.TopLevelParent()
+                #return parent.TopLevelParent()
+            else:
+                self._cache["top_level_parent"] = parent
+                #return parent
+
+        return self._cache["top_level_parent"]
 
     #-----------------------------------------------------------
     def Texts(self):

@@ -51,7 +51,7 @@ class MatchError(IndexError):
             "Could not find '%s' in '%s'"% (tofind, self.items))
 
 
-
+_cache = {}
 
 # given a list of texts return the match score for each
 # and the best score and text with best score
@@ -67,17 +67,32 @@ def _get_match_ratios(texts, match_against):
     best_ratio = 0
     best_text = ''
 
+    global cache
+
     for text in texts:
-        # set up the SequenceMatcher with other text
-        ratio_calc.set_seq2(text)
 
-        # try using the levenshtein distance instead
-        #lev_dist = levenshtein_distance(unicode(match_against), unicode(text))
-        #ratio = 1 - lev_dist / 10.0
-        #ratios[text] = ratio
+        if 0:
+            pass
 
-        # calculate ratio and store it
-        ratios[text] = ratio_calc.ratio()
+        if (text, match_against) in _cache:
+            ratios[text] = _cache[(text, match_against)]
+
+        elif(match_against, text) in _cache:
+            ratios[text] = _cache[(match_against, text)]
+
+        else:
+            # set up the SequenceMatcher with other text
+            ratio_calc.set_seq2(text)
+
+            # try using the levenshtein distance instead
+            #lev_dist = levenshtein_distance(unicode(match_against), unicode(text))
+            #ratio = 1 - lev_dist / 10.0
+            #ratios[text] = ratio
+
+            # calculate ratio and store it
+            ratios[text] = ratio_calc.ratio()
+
+            _cache[(match_against, text)] = ratios[text]
 
         # if this is the best so far then update best stats
         if ratios[text] > best_ratio:
@@ -325,6 +340,13 @@ class UniqueDict(dict):
         best_ratio = 0
         best_texts = []
 
+        ratio_offset = 1
+        if clean:
+            ratio_offset *= .9
+
+        if ignore_case:
+            ratio_offset *= .9
+
         for text_ in self:
 
             # make a copy of the text as we need the original later
@@ -336,12 +358,31 @@ class UniqueDict(dict):
             if ignore_case:
                 text = text.lower()
 
-            # set up the SequenceMatcher with other text
-            ratio_calc.set_seq2(text)
+            # check if this item is in the cache - if yes, then retrieve it
+            if (text, search_text) in _cache:
+                ratios[text_] = _cache[(text, search_text)]
 
-            # calculate ratio and store it
-            ratios[text_] = ratio_calc.ratio()
+            elif(search_text, text) in _cache:
+                ratios[text_] = _cache[(search_text, text)]
 
+            # not in the cache - calculate it and add it to the cache
+            else:
+                # set up the SequenceMatcher with other text
+                ratio_calc.set_seq2(text)
+
+                # if a very quick check reveals that this is not going
+                # to match then
+                ratio = ratio_calc.real_quick_ratio()
+
+                if ratio * ratio_offset >  find_best_control_match_cutoff:
+                    ratio = ratio_calc.quick_ratio() * ratio_offset
+
+                    if ratio * ratio_offset > find_best_control_match_cutoff:
+                        ratio = ratio_calc.ratio()
+
+                # save the match we got and store it in the cache
+                ratios[text_] = ratio
+                _cache[(text, search_text)] = ratio
 
             # try using the levenshtein distance instead
             #lev_dist = levenshtein_distance(unicode(search_text), unicode(text))
@@ -357,11 +398,7 @@ class UniqueDict(dict):
             elif ratios[text_] == best_ratio:
                 best_texts.append(text_)
 
-        if clean:
-            best_ratio *= .9
-
-        if ignore_case:
-            best_ratio *= .9
+        best_ratio *= ratio_offset
 
         return best_ratio, best_texts
 
@@ -404,14 +441,14 @@ def find_best_control_matches(search_text, controls):
     name_control_map = build_unique_dict(controls)
 
 
-    # collect all the possible names for all controls
-    # and build a list of them
-    for ctrl in controls:
-        ctrl_names = get_control_names(ctrl, controls)
-
-        # for each of the names
-        for name in ctrl_names:
-            name_control_map[name] = ctrl
+#    # collect all the possible names for all controls
+#    # and build a list of them
+#    for ctrl in controls:
+#        ctrl_names = get_control_names(ctrl, controls)
+#
+#        # for each of the names
+#        for name in ctrl_names:
+#            name_control_map[name] = ctrl
 
 
     best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
