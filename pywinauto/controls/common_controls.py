@@ -1781,7 +1781,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows UpDown common control "
 
     friendlyclassname = "UpDown"
-    windowclasses = ["msctls_updown", ]
+    windowclasses = ["msctls_updown32", "msctls_updown", ]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
