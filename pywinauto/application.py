@@ -139,13 +139,14 @@ class WindowSpecification(object):
         #write_appdata(self.criteria, ctrls)
 
         return ctrls[-1]
+
     def ctrl_(self):
         "Allow the calling code to get the HwndWrapper object"
         message = "ctrl_() has been renamed to ControlObject() please use " \
             "that method in the future. ctrl_() will be removed at some " \
             "future time."
         warnings.warn(message, DeprecationWarning)
-        return self.ControlObject()
+        return self.WrapperObject()
 
     def Window_(self, **criteria):
         "Add the criteria that will be matched when we resolve the control"
