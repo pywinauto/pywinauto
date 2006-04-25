@@ -125,9 +125,9 @@ def find_windows(class_name = None,
             windows = [win for win in windows
                 if handleprops.parent(win) == parent]
 
+    # looking for child windows
     else:
-        # if not given a parent - and not looking for top level windows
-        # look for all children of the desktop
+        # if not given a parent look for all children of the desktop
         if not parent:
             parent = win32functions.GetDesktopWindow()
 
