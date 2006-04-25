@@ -1,6 +1,6 @@
-0.3.4 Fixed issue with latest ctypes, updated print_control_identifiers()
+0.3.4 Fixed issue with latest ctypes, speed gains, other changes
 ------------------------------------------------------------------
-XX-Apr-2006
+25-Apr-2006
 
 * The latest version of ctypes (0.9.9.6) removed the code generator
   I was using some generated code in win32functions.py (stdcall). I 
@@ -16,6 +16,14 @@ XX-Apr-2006
   
 * Added __hash__ to HwndWrapper so that controls could be dictionary
   keys.
+
+* Caching various information at various points. For example I cache
+  how well two pieces of text match. For short scripts this has 
+  little impact - but for larger script it could well have a major
+  impact. 
+  Also caching information for controls that cannot change
+  e.g. TopLeveParent, Parent, etc
+
 
 0.3.3 Added some methods, and fixed some small bugs
 ------------------------------------------------------------------
