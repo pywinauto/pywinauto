@@ -26,6 +26,7 @@ from  pywinauto.controls import common_controls
 from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
 from pywinauto.controls import WrapHandle
+#from pywinauto.controls.HwndWrapper import HwndWrapper
 
 import ctypes
 
@@ -823,6 +824,7 @@ class ToolTipsTestCases(unittest.TestCase):
             class_name = "tooltips_class32")
 
         self.ctrl = WrapHandle(tips[1])
+        #self.ctrl = HwndWrapper(tips[1])
 
 
         #self.dlg.MenuSelect("Styles")

@@ -79,9 +79,6 @@ class ButtonTestCases(unittest.TestCase):
         self.assertEquals(self.calc.Dec.FriendlyClassName(), "RadioButton")
         self.assertEquals(self.calc.Hyp.FriendlyClassName(), "CheckBox")
 
-        from pywinauto.findwindows import find_windows
-        from pywinauto.controls import WrapHandle
-
         children = self.calc.Children()
         no_text_buttons = [c for c in children if not c.WindowText() and c.Class() == "Button"]
 
@@ -234,7 +231,6 @@ class ComboBoxTestCases(unittest.TestCase):
 
     def testItemData(self):
         self.ctrl.ItemData(0)
-
         self.ctrl.ItemData("Italic")
 
 #

@@ -557,7 +557,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         start = time.time()
         self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
-        if .1 < (time.time() - start)  > .1 + allowable_error:
+        taken = time.time() - start
+        if .1 < (taken)  > .1 + allowable_error:
             self.assertEqual(.12, taken)
 
         start = time.time()
