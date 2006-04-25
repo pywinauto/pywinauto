@@ -366,7 +366,25 @@ class UniqueDict(dict):
         return best_ratio, best_texts
 
 
+#====================================================================
+def build_unique_dict(controls):
+    """Build the disambiguated list of controls
 
+    Separated out to a different function so that we can get
+    the control identifiers for printing.
+    """
+    name_control_map = UniqueDict()
+
+
+    # collect all the possible names for all controls
+    # and build a list of them
+    for ctrl in controls:
+        ctrl_names = get_control_names(ctrl, controls)
+
+        # for each of the names
+        for name in ctrl_names:
+            name_control_map[name] = ctrl
+    return name_control_map
 
 
 #====================================================================
@@ -383,7 +401,7 @@ def find_best_control_matches(search_text, controls):
     then it will just add "ListView".
     """
 
-    name_control_map = UniqueDict()
+    name_control_map = build_unique_dict(controls)
 
 
     # collect all the possible names for all controls

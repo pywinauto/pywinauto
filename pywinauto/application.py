@@ -126,7 +126,8 @@ class WindowSpecification(object):
 
         raise AttributeError(message)
 
-    def ctrl_(self):
+
+    def WrapperObject(self):
         "Allow the calling code to get the HwndWrapper object"
 
         if self.app.use_history:
@@ -138,15 +139,22 @@ class WindowSpecification(object):
         #write_appdata(self.criteria, ctrls)
 
         return ctrls[-1]
+    def ctrl_(self):
+        "Allow the calling code to get the HwndWrapper object"
+        message = "ctrl_() has been renamed to ControlObject() please use " \
+            "that method in the future. ctrl_() will be removed at some " \
+            "future time."
+        warnings.warn(message, DeprecationWarning)
+        return self.ControlObject()
 
-
-    def window_(self, **criteria):
+    def Window_(self, **criteria):
         "Add the criteria that will be matched when we resolve the control"
 
         new_item = WindowSpecification(self.app, self.criteria[0])
         new_item.criteria.append(criteria)
 
         return new_item
+    window_ = Window_
 
     def __getitem__(self, key):
         """Allow access to dialogs/controls through item access
@@ -503,7 +511,7 @@ class WindowSpecification(object):
 #        warnings.warn(wait_method_deprecation, DeprecationWarning)
 #        self.WaitNot('exists', timeout, retry_interval)
 
-    def print_control_identifiers(self):
+    def PrintControlIdentifiers(self):
         """Prints the 'identifiers'
 
         If you pass in a control then it just prints the identifiers
@@ -519,29 +527,54 @@ class WindowSpecification(object):
                should be refered to as "Edit2".
 
         """
-        print "Control Identifiers:"
         ctrls = _resolve_control(
             self.criteria)
 
         if ctrls[-1].IsDialog():
-            ctrls_to_print = ctrls[-1].Children()
+            # dialog controls are all the control on the dialog
             dialog_controls = ctrls[-1].Children()
+
+            ctrls_to_print = dialog_controls[:]
+            # filter out hidden controls
+            ctrls_to_print = [ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
         else:
             dialog_controls = ctrls[-1].TopLevelParent().Children()
             ctrls_to_print = [ctrls[-1]]
 
-        # filter out hidden controls
-        ctrls_to_print = [ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
+        # build the list of disambiguated list of control names
+        name_control_map = findbestmatch.build_unique_dict(dialog_controls)
+
+        # swap it around so that we are mapped off the controls
+        control_name_map = {}
+        for name, ctrl in name_control_map.items():
+            control_name_map.setdefault(ctrl, []).append(name)
+
+        print "Control Identifiers:"
         for ctrl in ctrls_to_print:
+
             print "%s - '%s'   %s"% (
                 ctrl.Class(), ctrl.WindowText(), str(ctrl.Rectangle()))
 
             print "\t",
-            for text in findbestmatch.get_control_names(
-                ctrl, dialog_controls):
-
-                print "'%s'" % text.encode("unicode_escape"),
+            names = control_name_map[ctrl]
+            names.sort()
+            for name in names:
+                print "'%s'" % name.encode("unicode_escape"),
             print
+
+
+#        for ctrl in ctrls_to_print:
+#            print "%s - '%s'   %s"% (
+#                ctrl.Class(), ctrl.WindowText(), str(ctrl.Rectangle()))
+#
+#            print "\t",
+#            for text in findbestmatch.get_control_names(
+#                ctrl, dialog_controls):
+#
+#                print "'%s'" % text.encode("unicode_escape"),
+#            print
+
+    print_control_identifiers = PrintControlIdentifiers
 
 
 def _get_ctrl(criteria_):
@@ -829,11 +862,13 @@ class Application(object):
         "Convenience static method that calls start"
         return Application().start_(*args, **kwargs)
     start = staticmethod(__start)
+    Start = start
 
     def __connect(*args, **kwargs):
         "Convenience static method that calls start"
         return Application().connect_(*args, **kwargs)
     connect = staticmethod(__connect)
+    Connect = connect
 
     #def _start(self, *args, **kwargs):
     #    "start_ used to be named _start"
@@ -902,6 +937,7 @@ class Application(object):
 
         return self
 
+    Start_ = start_
 
     def connect_(self, **kwargs):
         "Connects to an already running process"
@@ -937,6 +973,7 @@ class Application(object):
                 "You must specify one of process, handle or path")
 
         return self
+    Connect_ = connect_
 
     def top_window_(self):
         "Return the current top window of the dialog"
@@ -973,6 +1010,8 @@ class Application(object):
 
         return [controls.WrapHandle(win) for win in windows]
 
+    Windows_ = windows_
+
 
     def window_(self, **kwargs):
         """Return a window of the application
@@ -994,6 +1033,7 @@ class Application(object):
             win_spec = WindowSpecification(self, kwargs)
 
         return win_spec
+    Window_ = window_
 
     def __getitem__(self, key):
         "Find the specified dialog of the application"
@@ -1040,10 +1080,7 @@ class Application(object):
                 ctrl.appdata = matched_items[i+1]
 
 
-
-
-
-    def kill_(self):
+    def Kill_(self):
         """Try and kill the application
 
         Dialogs may pop up asking to save data - but the application
@@ -1052,7 +1089,7 @@ class Application(object):
         """
 
         windows = self.windows_(visible_only = True)
-        ok_to_kill = True
+        #ok_to_kill = True
 
         for win in windows:
 
@@ -1118,6 +1155,7 @@ class Application(object):
 
         return killed
 
+    kill_ = Kill_
 
 #
 #
@@ -1134,6 +1172,7 @@ class Application(object):
 
 
 
+#=========================================================================
 def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
     # Set instance variable _module if not already set
@@ -1201,4 +1240,18 @@ def process_from_module(module):
     message = "Could not find any process with a module of '%s'" % module
     raise ProcessNotFoundError(message)
 
-
+#
+#def WaitForDialog(dlg):
+#    waited = 0
+#    timeout = 10
+#    app = None
+#    while not app and waited <= timeout:
+#        try:
+#            app = Application.connect(best_match = dlg)
+#        except Exception, e:
+#            time.sleep(1)
+#            waited += 1
+#
+#    if app is None:
+#        raise RuntimeError("Window not found: '%s'"%dlg)
+#    return app, app[dlg]

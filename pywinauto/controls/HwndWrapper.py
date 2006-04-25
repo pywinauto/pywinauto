@@ -626,6 +626,11 @@ class HwndWrapper(object):
             pass
 
     #-----------------------------------------------------------
+    def __hash__(self):
+        "Returns the hash value of the handle"
+        return hash(self.handle)
+
+    #-----------------------------------------------------------
     def __eq__(self, other):
         "Returns True if the handles of both controls are the same"
         if isinstance(other, HwndWrapper):
