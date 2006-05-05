@@ -430,14 +430,14 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
 
 
-    def testCtrl(self):
+    def testWrapperObject(self):
         "Test that we can get a control "
         from pywinauto.controls import HwndWrapper
         self.assertEquals(True, isinstance(self.dlgspec, WindowSpecification))
 
         self.assertEquals(
             True,
-            isinstance(self.dlgspec.ctrl_(), HwndWrapper.HwndWrapper)
+            isinstance(self.dlgspec.WrapperObject(), HwndWrapper.HwndWrapper)
             )
 
     def testWindow(self):
@@ -517,33 +517,33 @@ class WindowSpecificationTestCases(unittest.TestCase):
         allowable_error = .02
 
         start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait("enaBleD "))
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))
         time_taken = (time.time() - start)
         if not 0 <= time_taken < (0 + allowable_error):
             self.assertEqual(.02,  time_taken)
 
         start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait("  ready"))
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("  ready"))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait(" exiSTS"))
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" exiSTS"))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait(" VISIBLE "))
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" VISIBLE "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait(" ready enabled"))
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" ready enabled"))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait("visible exists "))
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("visible exists "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         start = time.time()
-        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.Wait("exists "))
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
 

@@ -175,8 +175,9 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def GetHeaderControl(self):
         "Returns the Header control associated with the ListView"
-        import wraphandle
-        return wraphandle.WrapHandle(
+        #from wraphandle import WrapHandle
+        #from HwndWrapper import WrapHandle
+        return HwndWrapper.HwndWrapper(
             self.SendMessage(win32defines.LVM_GETHEADER))
 
     #-----------------------------------------------------------
@@ -398,7 +399,12 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def _modify_selection(self, item, to_select):
-        ""
+        """Change the selection of the item
+
+        item is the item you want to chagne
+        to_slect shoudl be tru to select the item and false
+        to deselect the item
+        """
 
         self.VerifyActionable()
 
@@ -1809,9 +1815,10 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
 
     def GetBuddyControl(self):
         "Get the buddy control of the updown control"
-        import wraphandle
+        #from wraphandle import WrapHandle
+        #from HwndWrapper import WrapHandle
         buddy_handle = self.SendMessage(win32defines.UDM_GETBUDDY)
-        return wraphandle.WrapHandle(buddy_handle)
+        return HwndWrapper.HwndWrapper(buddy_handle)
 
     def SetValue(self, new_pos):
         "Set the value of the of the UpDown control to some integer value"

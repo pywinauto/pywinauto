@@ -68,12 +68,15 @@ def find_window(**kwargs):
         #for w in windows:
         #    print "ambig", handleprops.classname(w), \
         #    handleprops.text(w), handleprops.processid(w)
-        raise WindowAmbiguousError(
+        exception =  WindowAmbiguousError(
             "There are %d windows that match the criteria %s"% (
             len(windows),
             unicode(kwargs),
             )
         )
+
+        exception.windows = windows
+        raise exception
 
     return windows[0]
 
@@ -173,6 +176,7 @@ def find_windows(class_name = None,
         windows = [WrapHandle(win) for win in windows]
         windows = findbestmatch.find_best_control_matches(
             best_match, windows)
+        # convert window back to handle
         windows = [win.handle for win in windows]
 
     if predicate_func is not None and windows:

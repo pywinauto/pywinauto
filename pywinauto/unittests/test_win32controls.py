@@ -150,7 +150,7 @@ class ComboBoxTestCases(unittest.TestCase):
 
         self.app.UntitledNotepad.MenuSelect("Format->Font")
 
-        self.ctrl = self.app.Font.ComboBox2.ctrl_()
+        self.ctrl = self.app.Font.ComboBox2.WrapperObject()
 
 
     def tearDown(self):
@@ -257,7 +257,7 @@ class ListBoxTestCases(unittest.TestCase):
         #pdb.set_trace()
 
         self.dlg = self.app.DateAndTime
-        self.ctrl = self.dlg.ListBox.ctrl_()
+        self.ctrl = self.dlg.ListBox.WrapperObject()
 
     def tearDown(self):
         "Close the application after tests"
@@ -339,7 +339,7 @@ class EditTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.UntitledNotepad
-        self.ctrl = self.dlg.Edit.ctrl_()
+        self.ctrl = self.dlg.Edit.WrapperObject()
 
         self.old_pos = self.dlg.Rectangle
 
@@ -514,7 +514,7 @@ class PopupMenuTestCases(unittest.TestCase):
 
         self.app.start_("notepad.exe")
         self.app.Notepad.Edit.RightClick()
-        self.popup = self.app.PopupMenu.ctrl_()
+        self.popup = self.app.PopupMenu.WrapperObject()
 
     def tearDown(self):
         "Close the application after tests"

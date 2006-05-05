@@ -75,7 +75,7 @@ class ListViewTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy #top_window_()
-        self.ctrl = app.MicrosoftControlSpy.ListView.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.ListView.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -290,7 +290,7 @@ class TreeViewTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy #top_window_()
-        self.ctrl = app.MicrosoftControlSpy.TreeView.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.TreeView.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -375,7 +375,7 @@ class HeaderTestCases(unittest.TestCase):
             RECT(180, 0, 260, 21)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.Header.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.Header.WrapperObject()
 
 
     def tearDown(self):
@@ -449,7 +449,7 @@ class StatusBarTestCases(unittest.TestCase):
             RECT(92, 2, 264, 20)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.StatusBar.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.StatusBar.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -566,7 +566,7 @@ class TabControlTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.TabControl.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.TabControl.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -681,7 +681,7 @@ class ToolbarTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.Toolbar.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.Toolbar.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -757,7 +757,7 @@ class RebarTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.Rebar.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.Rebar.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -892,7 +892,7 @@ class UpDownTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.UpDown2.ctrl_()
+        self.ctrl = app.MicrosoftControlSpy.UpDown2.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 

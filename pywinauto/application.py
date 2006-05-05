@@ -22,20 +22,20 @@
 
 When starting to automate and application you must initialize an instance
 of the Application class. Then you must `start_()`_ that application or
-`connect_()`_ to a running instance of that application.
+`Connect_()`_ to a running instance of that application.
 
 Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app.window_(title = "your title", class = "your class", ...)
+   dlg = app.Window_(title = "your title", classname = "your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
 in almost exactly the same ways. ::
 
   ctrl = dlg.YourControlTitle
-  ctrl = dlg.control_(title = "Your control", class = "Button", ...)
+  ctrl = dlg.Window_(title = "Your control", classname = "Button", ...)
   ctrl = dlg["Your control"]
 
 **Note:** For attribute access of controls and dialogs you do not have to
@@ -46,11 +46,11 @@ avialable dialogs or controls.
   `findwindows.find_windows()`_   for the keyword arguments that can be
   passed to both `Application.window_()`_ and `ActionDialog.control_()`_
 
-.. _start_(): class-pywinauto.application.Application.html#start_
-.. _connect_(): class-pywinauto.application.Application.html#connect_
+.. _Start_(): class-pywinauto.application.Application.html#start_
+.. _Connect_(): class-pywinauto.application.Application.html#connect_
 .. _findwindows.find_windows():  module-pywinauto.findwindows.html#find_windows
-.. _Application.window_(): class-pywinauto.application.Application.html#window_
-.. _ActionDialog.control_(): class-pywinauto.application.ActionDialog.html#control_
+.. _Application.Window_(): class-pywinauto.application.Application.html#window_
+.. _WindowSpecification.Window_(): class-pywinauto.application.WindowSpecification.html#control_
 
 """
 
@@ -135,21 +135,24 @@ class WindowSpecification(object):
         else:
             ctrls = _resolve_control(self.criteria)
 
-        self.app.RecordMatch(self.criteria, ctrls)
+        #self.app.RecordMatch(self.criteria, ctrls)
         #write_appdata(self.criteria, ctrls)
 
         return ctrls[-1]
 
     def ctrl_(self):
         "Allow the calling code to get the HwndWrapper object"
-        message = "ctrl_() has been renamed to ControlObject() please use " \
+        message = "ctrl_() has been renamed to WrapperObject() please use " \
             "that method in the future. ctrl_() will be removed at some " \
             "future time."
         warnings.warn(message, DeprecationWarning)
         return self.WrapperObject()
 
     def Window_(self, **criteria):
-        "Add the criteria that will be matched when we resolve the control"
+        """Add criteria for a control
+
+        When this window specification is resolved then this will be used
+        to match against a control."""
 
         new_item = WindowSpecification(self.app, self.criteria[0])
         new_item.criteria.append(criteria)
@@ -182,7 +185,7 @@ class WindowSpecification(object):
                 ctrls = _resolve_control(
                     self.criteria)
 
-            self.app.RecordMatch(self.criteria, ctrls)
+            #self.app.RecordMatch(self.criteria, ctrls)
 
             # try to return a good error message if the control does not
             # have a __getitem__() method)
@@ -234,7 +237,7 @@ class WindowSpecification(object):
                 ctrls = _resolve_control(
                     self.criteria)
 
-            self.app.RecordMatch(self.criteria, ctrls)
+            #self.app.RecordMatch(self.criteria, ctrls)
             return getattr(ctrls[-1], attr)
 
         else:
@@ -250,7 +253,7 @@ class WindowSpecification(object):
                     ctrls = _resolve_control(
                         self.criteria)
 
-                self.app.RecordMatch(self.criteria, ctrls)
+                #self.app.RecordMatch(self.criteria, ctrls)
                 return getattr(ctrls[-1], attr)
 
                 # why was I using wait below and not just
@@ -363,7 +366,7 @@ class WindowSpecification(object):
                 timeout,
                 retry_interval)
 
-        self.app.RecordMatch(self.criteria, ctrls)
+        #self.app.RecordMatch(self.criteria, ctrls)
 
         return ctrls[-1]
 
@@ -421,7 +424,7 @@ class WindowSpecification(object):
             #raise
             return
 
-        self.app.RecordMatch(self.criteria, ctrls)
+        #self.app.RecordMatch(self.criteria, ctrls)
 
         while True:
 
@@ -1060,6 +1063,8 @@ class Application(object):
 
     def RecordMatch(self, criteria, ctrls):
         "Save that a control request matched."
+
+        return
 
         # if we are not working from existing match
         # data then don't add the match

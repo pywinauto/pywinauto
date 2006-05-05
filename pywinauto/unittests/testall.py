@@ -7,6 +7,7 @@ import sys
 from pywinauto.timings import Timings
 Timings.Fast()
 
+excludes = ['test_sendkeys']
 
 def run_tests():
     testfolder = os.path.abspath(os.path.split(__file__)[0])
@@ -21,7 +22,9 @@ def run_tests():
                 file.startswith('test_') and
                 file.endswith('.py')]
 
+        test_modules = [mod for mod in test_modules if mod.lower() not in excludes]
         for mod in test_modules:
+
             #globals().update(__import__(mod, globals(), locals()).__dict__)
             # import it
             imported_mod = __import__(mod, globals(), locals())

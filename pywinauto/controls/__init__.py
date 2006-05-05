@@ -23,7 +23,14 @@
 __revision__ = "$Revision$"
 
 from HwndWrapper import GetDialogPropsFromHandle
-from wraphandle import WrapHandle
+
+# make an alias for the HwndWrapper object as WrapHandle
+from HwndWrapper import HwndWrapper as WrapHandle
+
+# import the control clases - this will register the classes they
+# contain
+import common_controls
+import win32_controls
 
 #
 ##====================================================================

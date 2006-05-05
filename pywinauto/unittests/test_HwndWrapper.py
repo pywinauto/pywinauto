@@ -229,7 +229,7 @@ class HwndWrapperTests(unittest.TestCase):
 
 
     def testIsChild(self):
-        self.assertEqual(self.ctrl.IsChild(self.dlg.ctrl_()), True)
+        self.assertEqual(self.ctrl.IsChild(self.dlg.WrapperObject()), True)
         self.assertEqual(self.dlg.IsChild(self.ctrl), False)
 
 

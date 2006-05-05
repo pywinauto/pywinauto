@@ -24,10 +24,8 @@ __revision__ = "$Revision$"
 
 # pylint:  disable-msg=W0611
 
-#from pprint import pprint
-
 import time
-
+import re
 import ctypes
 
 # the wrappers may be used in an environment that does not need
@@ -37,7 +35,6 @@ try:
     import SendKeys
 except ImportError:
     pass
-
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -76,39 +73,56 @@ class InvalidWindowHandle(RuntimeError):
             "Handle 0x%d is not a vaild window handle"% hwnd)
 
 
-#====================================================================
-# just wrap the importing of WrapHandle - because it imports us
-# and we import it - it can't be at the global level
-def WrapHandle(hwnd):
-    """Wrap a window handle
 
-    * **hwnd** the handle of the window to wrap
 
-    This is a simple wrapper around wraphandle.WrapHandle
-    that we need to have due to import cross dependencies."""
-    import wraphandle
-    return wraphandle.WrapHandle(hwnd)
+# metaclass that will know about
+class _MetaWrapper(type):
+    "Metaclass for Wrapper objects"
+    re_wrappers = {}
+    str_wrappers = {}
 
-#
-#    # Optimization - check if the control name matches exactly
-#    # before trying a re.match
-#    if class_name in _HwndWrappers:
-#        return _HwndWrappers[class_name][1](hwnd)
-#
-#    for wrapper_name, (regex, class_) in _HwndWrappers.items():
-#        if regex.match(class_name):
-#            #print wrapper_name
-#            return class_(hwnd)
-#
-#    # so it is not one of the 'known' classes - just wrap it with
-#    # hwnd wrapper
-#    wrapped_hwnd = HwndWrapper(hwnd)
-#
-#    # if it's not a dialog -
-#    #if not isDialog:
-#    #	wrapped_hwnd._NeedsImageProp = True
-#
-#    return wrapped_hwnd
+    def __init__(cls, name, bases, attrs):
+        # register the class names, both the regular expression
+        # or the classes directly
+
+        #print "metaclass __init__", cls
+        type.__init__(cls, name, bases, attrs)
+
+        for win_class in cls.windowclasses:
+            _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
+            _MetaWrapper.str_wrappers[win_class] = cls
+
+    def FindWrapper(handle):
+        """Find the correct wrapper for this handle"""
+        class_name = handleprops.classname(handle)
+
+
+        try:
+            return _MetaWrapper.str_wrappers[class_name]
+        except KeyError:
+            wrapper_match = None
+
+            for regex, wrapper in _MetaWrapper.re_wrappers.items():
+                if regex.match(class_name):
+                    wrapper_match = wrapper
+                    _MetaWrapper.str_wrappers[class_name] = wrapper
+
+                    break
+
+        # if it is a dialog then override the wrapper we found
+        # and make it a DialogWrapper
+        if handleprops.is_toplevel_window(handle):
+            import win32_controls
+            wrapper_match = win32_controls.DialogWrapper
+
+        if wrapper_match is None:
+            wrapper_match = HwndWrapper
+        return wrapper_match
+
+
+        #if handle in meta.wrappers:
+        #    return meta.wrappers[handle]
+    FindWrapper = staticmethod(FindWrapper)
 
 
 #====================================================================
@@ -130,8 +144,21 @@ class HwndWrapper(object):
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_)"""
 
+    __metaclass__ = _MetaWrapper
+
     friendlyclassname = None
+    windowclasses = []
     handle = None
+
+    #-----------------------------------------------------------
+    def __new__(cls, handle):
+        new_class = cls.FindWrapper(handle)
+        #super(currentclass, cls).__new__(cls[, ...])"
+
+        obj = object.__new__(new_class)
+        obj.__init__(handle)
+        return obj
+
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -408,7 +435,7 @@ class HwndWrapper(object):
             if parent_hwnd:
                 #return WrapHandle(parent_hwnd)
 
-                self._cache["parent"] = WrapHandle(parent_hwnd)
+                self._cache["parent"] = HwndWrapper(parent_hwnd)
             else:
                 self._cache["parent"] = None
 
@@ -507,7 +534,7 @@ class HwndWrapper(object):
         """
 
         child_windows = handleprops.children(self)
-        return [WrapHandle(hwnd) for hwnd in child_windows]
+        return [HwndWrapper(hwnd) for hwnd in child_windows]
 
     #-----------------------------------------------------------
     def ControlCount(self):
@@ -1023,7 +1050,7 @@ class HwndWrapper(object):
         Returns None if there is no owner"""
         owner = win32functions.GetWindow(self, win32defines.GW_OWNER)
         if owner:
-            return WrapHandle(owner)
+            return HwndWrapper(owner)
         else:
             return None
 
@@ -1275,7 +1302,7 @@ class HwndWrapper(object):
         if not ret:
             return None
 
-        return WrapHandle(gui_info.hwndFocus)
+        return HwndWrapper(gui_info.hwndFocus)
 
     #-----------------------------------------------------------
     def SetFocus(self):
@@ -1535,7 +1562,7 @@ def GetDialogPropsFromHandle(hwnd):
         controls = [hwnd, ]
         controls.extend(hwnd.Children())
     except AttributeError:
-        controls = [WrapHandle(hwnd), ]
+        controls = [HwndWrapper(hwnd), ]
 
         # add all the children of the dialog
         controls.extend(controls[0].Children())

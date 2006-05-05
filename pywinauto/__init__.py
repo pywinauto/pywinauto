@@ -24,3 +24,7 @@ Python package for automating GUI manipulation on Windows
 """
 __revision__ = "$Revision$"
 __version__ = "0.3.4"
+
+import findwindows
+WindowAmbiguousError = findwindows.WindowAmbiguousError
+WindowNotFoundError = findwindows.WindowNotFoundError
