@@ -28,7 +28,11 @@ from pywinauto import application
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
+from pywinauto import WindowAmbiguousError
+from pywinauto.controls import WrapHandle
 
+from pywinauto.timings import Timings
+Timings.Fast()
 
 app = application.Application()
 
@@ -54,8 +58,17 @@ app.Attributes.Edit2.SetEditText("350")   # SetText - they work differently!
 
 app.Attributes.OK.CloseClick()
 
-# get the reference to the Canvas window
-canvas = pwin.Afx100000008
+try:
+    # get the reference to the Canvas window
+    canvas = pwin.Afx100000008
+    canvas.WrapperObject()
+except WindowAmbiguousError, e:
+    print e, e.windows
+    for w in e.windows:
+        w = WrapHandle(w)
+        print w.WindowText(), w.Class()
+    import sys
+    sys.exit()
 
 # make sure the pencil tool is selected
 pwin.Tools2.Click(coords = (91, 16))

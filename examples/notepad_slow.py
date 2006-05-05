@@ -37,10 +37,13 @@ except ImportError:
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
+from pywinauto.timings import Timings
 
 print "Setting timings to slow settings, may be necessary for"
 print "slow applications or slow machines."
-application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
+Timings.Slow()
+
+#application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 
 
 start = time.time()
@@ -202,7 +205,7 @@ app.SaveAs.Save.CloseClick()
 
 # while the dialog exists wait upto 30 seconds (and yes it can
 # take that long on my computer sometimes :-( )
-app.SaveAs.Cancel.WaitNot('enabled')
+app.SaveAsDialog2.Cancel.WaitNot('enabled')
 
 try:
     app.SaveAs2.Yes.CloseClick()

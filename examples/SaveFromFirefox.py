@@ -3,6 +3,8 @@ import sys
 import time
 import os.path
 
+from pywinauto import WindowAmbiguousError
+
 if len(sys.argv) < 2:
     print "please specify a web address to download"
     sys.exit()
@@ -53,9 +55,14 @@ app.SaveAs.FileNameEdit.SetEditText(outputfilename)
 
 app.SaveAs.Save.CloseClick()
 
-# if asked to overwrite say yes
-if app.SaveAs.Yes.Exists():
-    app.SaveAs.Yes.CloseClick()
+try:
+    # if asked to overwrite say yes
+    if app.SaveAs.Yes.Exists():
+        app.SaveAs.Yes.CloseClick()
+except WindowAmbiguousError, e:
+    for w in e.windows:
+        w = HwndWrapper(w)
+        print w.WindowText(), w.Class()
 
 print "saved:", outputfilename
 

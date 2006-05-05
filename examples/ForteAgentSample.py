@@ -15,11 +15,24 @@ from pywinauto.application import Application
 # start the application and wait for the Agent Dialog to be ready
 app = Application().start_(r"c:\program files\agent\agent.exe")
 
+while not app.Windows_():
+    time.sleep(.5)
+
 # if the trial nag dialog pops up
 if app.window_(title = "Forte Agent Trial").Exists():
     #app.ForteAgentTrial.IdLikeToContinueUsingAgentfor7moredays.Click()
     app.ForteAgentTrial.IdliketouseFreeAgent
     app.ForteAgentTrial.OK.Click()
+
+if app.window_(title = "Free Agent Registration").Exists():
+    app.FreeAgentRegistration.ImreallybusyRemindmein30.Click()
+    app.FreeAgentRegistration.OK.CloseClick()
+
+if app.window_(title = "What's New Reminder").Exists():
+    app.WhatsNewReminder.ImreallybusyRemindmein90.Click()
+    app.WhatsNewReminder.OK.CloseClick()
+
+
 
 # wait until the app is ready
 app.FreeAgent.Wait("ready")

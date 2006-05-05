@@ -30,14 +30,14 @@ from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
 
 
-application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
+#application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 
 "Run a quick test on Notepad"
 
 app = application.Application()
 app.start_(ur"notepad.exe")
 
-app['Notepad'].WaitReady()
+app['Notepad'].Wait('ready')
 
 app['Notepad'].MenuSelect("File->PageSetup")
 

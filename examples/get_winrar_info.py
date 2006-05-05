@@ -1,4 +1,3 @@
-
 """Automate WinRAR evaluation copy
 
 We hit a few dialogs and save XML dump and

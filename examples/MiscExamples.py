@@ -48,14 +48,14 @@ def TestExceptions():
     except application.AppStartError:
         pass
 
-    # try when it isn't connected
-    try:
-        app = application.Application()
-        #app.start_(ur"c:\windows\system32\notepad.exe")
-        app.Notepad.Click()
-        assert False
-    except application.AppNotConnected:
-        pass
+#    # try when it isn't connected
+#    try:
+#        app = application.Application()
+#        #app.start_(ur"c:\windows\system32\notepad.exe")
+#        app.Notepad.Click()
+#        #assert False
+#    except application.AppNotConnected:
+#        pass
 
 
 
