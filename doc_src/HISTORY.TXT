@@ -1,3 +1,24 @@
+0.3.5 Moved to Metaclass control wrapping
+------------------------------------------------------------------
+XX-May-2006
+* Moved to a metaclass implementation of control finding. This
+  removes some cyclic importing that had to be worked around and
+  other then metaclass magic makes the code a bit simpler.
+
+* Some of the sample files would not run - so I updated them
+  so they would (Thanks to Stefaan Himpe for pointing this out)
+  
+* Disabled saving application data (it was still being saved in
+  Application.RecordMatch() even if the rest of the application
+  data code is disabled. This was causing what appeared to be a 
+  memory leak where pywinauto would keep grabbing more and more
+  memory (especially for controls that contain a lot of 
+  information). Thanks to Frank Martinez for leading me to this).
+  
+* 
+
+
+
 0.3.4 Fixed issue with latest ctypes, speed gains, other changes
 ------------------------------------------------------------------
 25-Apr-2006
