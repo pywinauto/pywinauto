@@ -95,34 +95,41 @@ def OverlappingTest(windows):
     bugs = []
 
     for i, first in enumerate(windows[:-1]):
+        first_rect = first.Rectangle()
+
+        if first.ref:
+            first_ref_rect = first.ref.Rectangle()
+
         for second in windows[i+1:]:
+            second_rect = second.Rectangle()
+
 
             # if the reference controls are available
             if first.ref and second.ref:
+                second_ref_rect = second.ref.Rectangle()
 
-                if first.ref.Rectangle() == second.ref.Rectangle() and \
-                    not first.Rectangle() == second.Rectangle():
+                if first_ref_rect == second_ref_rect and \
+                    not first_rect == second_rect:
 
                     bugs.append(([first, second], {}, "NotExactOverlap", 0))
 
-                elif _ContainedInOther(first.ref.Rectangle(),
-                    second.ref.Rectangle()) and \
-                    not _ContainedInOther(first.Rectangle(), second.Rectangle()):
+                elif _ContainedInOther(first_ref_rect,second_ref_rect) and \
+                    not _ContainedInOther(first_rect, second_rect):
 
                     bugs.append(
                         ([first, second], {}, "NotContainedOverlap", 0))
 
 
-            if _Overlapped(first.Rectangle(), second.Rectangle()) and \
-                not _ContainedInOther(first.Rectangle(), second.Rectangle()) and \
-                not first.Rectangle() == second.Rectangle():
+            if _Overlapped(first_rect, second_rect) and \
+                not _ContainedInOther(first_rect, second_rect) and \
+                not first_rect == second_rect:
 
-                ovlRect = _OverlapRect(first.Rectangle(), second.Rectangle())
+                ovlRect = _OverlapRect(first_rect, second_rect)
 
                 isInRef = -1
                 if first.ref and second.ref:
                     isInRef = 0
-                    if _Overlapped(first.ref.Rectangle(), second.ref.Rectangle()):
+                    if _Overlapped(first_ref_rect, second_ref_rect):
                         isInRef = 1
 
                 bugs.append((
@@ -182,10 +189,13 @@ def _Overlapped(rect1, rect2):
 # L2        R2
 # ------------
 #
+
+class OptRect(object): pass
+
 def _OverlapRect (rect1, rect2):
     "check whether the 2 rectangles are actually overlapped"
 
-    ovlRect = win32structures.RECT()
+    ovlRect = OptRect()#win32structures.RECT()
 
     ovlRect.left   = max(rect1.left,   rect2.left)
     ovlRect.right  = min(rect1.right,  rect2.right)
