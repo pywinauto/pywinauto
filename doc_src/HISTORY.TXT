@@ -1,6 +1,6 @@
 0.3.5 Moved to Metaclass control wrapping
 ------------------------------------------------------------------
-XX-May-2006
+24-May-2006
 * Moved to a metaclass implementation of control finding. This
   removes some cyclic importing that had to be worked around and
   other then metaclass magic makes the code a bit simpler.
@@ -15,9 +15,13 @@ XX-May-2006
   memory (especially for controls that contain a lot of 
   information). Thanks to Frank Martinez for leading me to this).
   
-* 
-
-
+* Added ListViewWrapper.GetItemRect() to enable retrieving the 
+  rectangle for a particular item in the listview.
+  
+* Removed references to _ctrl() method within pywinauto as it 
+  was raising a DeprecationWarning internally even if the user
+  was not using it.
+  
 
 0.3.4 Fixed issue with latest ctypes, speed gains, other changes
 ------------------------------------------------------------------

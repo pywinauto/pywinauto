@@ -245,6 +245,36 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         return [col['width'] for col in self.Columns()]
 
     #-----------------------------------------------------------
+    def GetItemRect(self, item_index):
+        "Return the bounding rectangle of the list view item"
+        # set up a memory block in the remote application
+        remote_mem = _RemoteMemoryBlock(self)
+        rect = win32structures.RECT()
+
+        rect.left = win32defines.LVIR_SELECTBOUNDS
+
+        # Write the local RECT structure to the remote memory block
+        remote_mem.Write(rect)
+
+        # Fill in the requested item
+        retval = self.SendMessage(
+            win32defines.LVM_GETITEMRECT,
+            item_index,
+            remote_mem)
+
+        # if it succeeded
+        if not retval:
+        	del remote_mem
+        	raise RuntimeError("Did not succeed in getting rectable")
+
+        rect = remote_mem.Read(rect)
+
+        del remote_mem
+
+        return rect
+
+
+    #-----------------------------------------------------------
     def GetItem(self, item_index, subitem_index = 0):
         "Return the item of the list view"
 
@@ -1795,15 +1825,18 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
         #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(UpDownWrapper, self).__init__(hwnd)
 
+    #----------------------------------------------------------------
     def GetValue(self):
         "Get the current value of the UpDown control"
         pos = self.SendMessage(win32defines.UDM_GETPOS)
         return win32functions.LoWord(pos)
 
+    #----------------------------------------------------------------
     def GetBase(self):
         "Get the base the UpDown control (either 10 or 16)"
         return self.SendMessage(win32defines.UDM_GETBASE)
 
+    #----------------------------------------------------------------
     def GetRange(self):
         "Return the lower, upper range of the up down control"
         updown_range = self.SendMessage(win32defines.UDM_GETRANGE)
@@ -1813,6 +1846,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
             )
         return updown_range
 
+    #----------------------------------------------------------------
     def GetBuddyControl(self):
         "Get the buddy control of the updown control"
         #from wraphandle import WrapHandle
@@ -1820,6 +1854,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
         buddy_handle = self.SendMessage(win32defines.UDM_GETBUDDY)
         return HwndWrapper.HwndWrapper(buddy_handle)
 
+    #----------------------------------------------------------------
     def SetValue(self, new_pos):
         "Set the value of the of the UpDown control to some integer value"
         self.SendMessageTimeout(
@@ -1828,6 +1863,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_updownchange_wait)
 
+    #----------------------------------------------------------------
     def Increment(self):
         "Increment the number in the UpDown control by one"
         # hmmm - VM_SCROLL and UDN_DELTAPOS don't seem to be working for me :-(
@@ -1837,6 +1873,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_updownchange_wait)
 
+    #----------------------------------------------------------------
     def Decrement(self):
         "Decrement the number in the UpDown control by one"
         self.SetValue(self.GetValue() - 1)
@@ -1851,6 +1888,29 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
+
+#
+#    #----------------------------------------------------------------
+#	def GetNumTicks(self):
+#		return self.SendMessage(win32defines.TBM_GETNUMTICS)
+#
+#    #----------------------------------------------------------------
+#	def GetPos(self):
+#		return self.SendMessage(win32defines.TBM_GETPOS)
+#
+#    #----------------------------------------------------------------
+#	def GetRangeMax(self):
+#		return self.SendMessage(win32defines.TBM_GETRANGEMAX)
+#
+#    #----------------------------------------------------------------
+#	def GetRangeMin(self):
+#		return self.SendMessage(win32defines.TBM_GETRANGEMIN)
+#
+#    #----------------------------------------------------------------
+#    def GetToolTipsControl(self):
+#        "Return teh tooltip control associated with this control"
+#        return ToolTipsWrapper(self.SendMessage(win32defines.TBM_GETTOOLTIPS))
+
 
 #====================================================================
 class AnimationWrapper(HwndWrapper.HwndWrapper):

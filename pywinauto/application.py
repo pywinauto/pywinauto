@@ -515,22 +515,8 @@ class WindowSpecification(object):
 #        warnings.warn(wait_method_deprecation, DeprecationWarning)
 #        self.WaitNot('exists', timeout, retry_interval)
 
-    def PrintControlIdentifiers(self):
-        """Prints the 'identifiers'
+    def _ctrl_identifiers(self):
 
-        If you pass in a control then it just prints the identifiers
-        for that control
-
-        If you pass in a dialog then it prints the identiferis for all
-        controls in the dialog
-
-        :Note: The identifiers printed by this method have not been made
-               unique. So if you have 2 edit boxes, they will both have "Edit"
-               listed in their identifiers. In reality though the first one
-               can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
-               should be refered to as "Edit2".
-
-        """
         ctrls = _resolve_control(
             self.criteria)
 
@@ -551,6 +537,49 @@ class WindowSpecification(object):
         # swap it around so that we are mapped off the controls
         control_name_map = {}
         for name, ctrl in name_control_map.items():
+            control_name_map.setdefault(ctrl, []).append(name)
+
+        return control_name_map
+
+    def PrintControlIdentifiers(self):
+        """Prints the 'identifiers'
+
+        If you pass in a control then it just prints the identifiers
+        for that control
+
+        If you pass in a dialog then it prints the identiferis for all
+        controls in the dialog
+
+        :Note: The identifiers printed by this method have not been made
+               unique. So if you have 2 edit boxes, they will both have "Edit"
+               listed in their identifiers. In reality though the first one
+               can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
+               should be refered to as "Edit2".
+
+        """
+
+        #name_control_map = self._ctrl_identifiers()
+        ctrls = _resolve_control(
+            self.criteria)
+
+        if ctrls[-1].IsDialog():
+            # dialog controls are all the control on the dialog
+            dialog_controls = ctrls[-1].Children()
+
+            ctrls_to_print = dialog_controls[:]
+            # filter out hidden controls
+            ctrls_to_print = [ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
+        else:
+            dialog_controls = ctrls[-1].TopLevelParent().Children()
+            ctrls_to_print = [ctrls[-1]]
+
+        # build the list of disambiguated list of control names
+        name_control_map = findbestmatch.build_unique_dict(dialog_controls)
+
+        # swap it around so that we are mapped off the controls
+        control_name_map = {}
+        for name, ctrl in name_control_map.items():
+            #print name, ctrl
             control_name_map.setdefault(ctrl, []).append(name)
 
         print "Control Identifiers:"
@@ -1029,7 +1058,7 @@ class Application(object):
             #raise AppNotConnected(
             #    "Please use start_ or connect_ before trying anything else")
             win_spec = WindowSpecification(self, kwargs)
-            self.process = win_spec.ctrl_().ProcessID()
+            self.process = win_spec.WrapperObject().ProcessID()
         # add the restriction for this particular process
         else:
             kwargs['process'] = self.process
