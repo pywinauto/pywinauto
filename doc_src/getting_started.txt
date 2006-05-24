@@ -1,0 +1,77 @@
+==========================
+Getting Started
+==========================
+
+Once you have installed pywinauto - how do you get going?
+
+
+Look at the examples
+--------------------
+
+The following examples are included:
+**Note**: Examples are language dependent - they will only work on the 
+language of product that they were programmed for. All examples have 
+been programmed for English Software except where highlighted.
+
+mspaint.py         Control MSPaint
+notepad_fast.py    Use fast timing settings to control Notepad
+notepad_slow.py    Use slow timing settings to control Notepad
+notepad_item.py    Use item rather then attribute access to control Notepad.
+
+MiscExamples.py    Show some exceptions and how to get control identifiers.
+
+SaveFromInternetExplorer.py	Save a Web Page from Internet Explorer
+SaveFromFirefox.py			Save a Web Page from Firefox.
+
+get_winrar_info.py    Example of how to do multilingual automation. 
+This is not an ideal example (works on French, Czech and German WinRar)
+
+ForteAgentSample.py   Example of dealing with a complex application that
+is quite dynamic and gives different dialogs often when starting.
+
+windowmediaplayer.py  Just another example - deals with check boxes in a 
+ListView.
+
+test_sakura.py    Two examples of automating a Japanase product.
+test_sakura2.py
+
+Automate notepad at the command line
+-------------------------------------
+
+Please find below a sample run 
+
+.     C:\>python
+.     Python 2.4.2 (#67, Sep 28 2005, 12:41:11) [MSC v.1310 32 bit (Intel)] on win32
+.     Type "help", "copyright", "credits" or "license" for more information.
+(1)   >>> from pywinauto import application
+(2)   >>> app = application.Application()
+(3)   >>> app.Start_("Notepad.exe")
+<pywinauto.application.Application object at 0x00AE0990>
+(4)   >>> app.Notepad.DrawOutline()
+(5)   >>> app.Notepad.MenuSelect("Edit -> Replace")
+(6)   >>> app.Replace.PrintControlIdentifiers()
+.     Control Identifiers:
+.     Static - 'Fi&nd what:'   (L1018, T159, R1090, B172)
+.             'Fi&nd what:' 'Fi&nd what:Static' 'Static' 'Static0' 'Static1'
+.     Edit - ''   (L1093, T155, R1264, B175)
+.             'Edit' 'Edit0' 'Edit1' 'Fi&nd what:Edit'
+.     Static - 'Re&place with:'   (L1018, T186, R1090, B199)
+.             'Re&place with:' 'Re&place with:Static' 'Static2'
+.     Edit - ''   (L1093, T183, R1264, B203)
+.             'Edit2' 'Re&place with:Edit'
+.     Button - 'Match &case'   (L1020, T245, R1109, B265)
+.             'CheckBox2' 'Match &case' 'Match &caseCheckBox'
+.     Button - '&Find Next'   (L1273, T151, R1348, B174)
+.             '&Find Next' '&Find NextButton' 'Button' 'Button0' 'Button1'
+.     Button - '&Replace'   (L1273, T178, R1348, B201)
+.             '&Replace' '&ReplaceButton' 'Button2'
+.     Button - 'Replace &All'   (L1273, T206, R1348, B229)
+.             'Button3' 'Replace &All' 'Replace &AllButton'
+.     Button - 'Cancel'   (L1273, T233, R1348, B256)
+.             'Button4' 'Cancel' 'CancelButton'
+(7)   >>> app.Replace.Cancel.Click()
+(8)   >>> app.Notepad.Edit.TypeKeys("Hi from Python interactive prompt %s" % str(dir()))
+.     <pywinauto.controls.win32_controls.EditWrapper object at 0x00DDC2D0>
+(9)   >>> app.Notepad.MenuSelect("File -> Exit")
+(10)  >>> app.Notepad.No.Click()
+>>>
