@@ -1,6 +1,7 @@
 0.3.5 Moved to Metaclass control wrapping
 ------------------------------------------------------------------
 24-May-2006
+
 * Moved to a metaclass implementation of control finding. This
   removes some cyclic importing that had to be worked around and
   other then metaclass magic makes the code a bit simpler.

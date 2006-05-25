@@ -586,7 +586,9 @@ class WindowSpecification(object):
         for ctrl in ctrls_to_print:
 
             print "%s - '%s'   %s"% (
-                ctrl.Class(), ctrl.WindowText(), str(ctrl.Rectangle()))
+                ctrl.Class(),
+                ctrl.WindowText().encode("unicode-escape"),
+                str(ctrl.Rectangle()))
 
             print "\t",
             names = control_name_map[ctrl]

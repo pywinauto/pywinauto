@@ -1,6 +1,6 @@
 @echo off
 
-c:\.temp\pudge\pudge\cli  --documents doc_source\index.rst,doc_source\controls_overview.rst,doc_source\howto.rst,history.txt,license.txt,todo.txt --title pywinauto  -v  -d pywinauto\website  -m pywinauto.application,pywinauto.taskbar,pywinauto.clipboard,pywinauto.timings,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests   -t doc_source\template
+c:\.temp\pudge\pudge\cli  --documents doc_source\index.rst,doc_source\controls_overview.rst,doc_source\howto.rst,doc_source\getting_started.rst,history.txt,license.txt,todo.txt --title pywinauto  -v  -d website  -m pywinauto.application,pywinauto.taskbar,pywinauto.clipboard,pywinauto.timings,pywinauto.findbestmatch,pywinauto.findwindows,pywinauto.handleprops,pywinauto.XMLHelpers,pywinauto.controls,pywinauto.tests   -t doc_source\template
 
 
 

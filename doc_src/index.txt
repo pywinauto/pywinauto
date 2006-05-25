@@ -12,8 +12,10 @@ dialogs and controls.
 
 Installation
 ------------
- - Unzip the pywinauto zip file to a folder.
- - Install the following Python packages
+- Download pywinauto from https://sourceforge.net/project/showfiles.php?group_id=157379
+- Unzip the pywinauto zip file to a folder.
+- Run ``python.exe setup.py install``
+- Install the following Python packages
  
     - ctypes       http://starship.python.net/crew/theller/ctypes/
     - Sendkeys     http://www.rutherfurd.net/python/sendkeys/index.html
@@ -26,7 +28,6 @@ Run Python ::
   >>> import application
   >>> app = application.Application.start("notepad.exe")
   >>> app.notepad.TypeKeys("%FX") 
-
 
 Where to start
 --------------
@@ -69,28 +70,27 @@ This avoid the user having to use time.sleep or a "WaitForDialog" function.
 
 Some similar tools for comparison
 ---------------------------------
- * Python tools
+* Python tools
 
-    - Watsup
-    - winGuiAuto
+    - Watsup (http://www.tizmoi.net/watsup/intro.html)
+    - winGuiAuto (http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html)
 
- * Other scripting language tools
+* Other scripting language tools
 
-    - Perl Win32::GuiTest
-    - Ruby GuiTest
-    - others?
+    - Perl Win32::GuiTest  (http://erngui.com/prog/perl/guitest/)
+    - Ruby GuiTest (http://raa.ruby-lang.org/list.rhtml?name=win32-guitest)
+    - others (http://opensourcetesting.org/)
 
- * Other free tools
+* Other free tools
 
-    - AutoIt
-    - See collection at: 
+    - AutoIt (http://www.autoitscript.com/)
+    - See collection at: http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html
 
- * Commercial tools
+* Commercial tools
 
-    - WinRunner
-    - SilkTest
-    - Visual Test
-    - Many Others
+    - WinRunner (http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/)
+    - SilkTest (http://www.segue.com/products/functional-regressional-testing/silktest.asp)
+    - Many Others (http://www.testingfaqs.org/t-gui.html)
 
     
 Why write yet another automation tool if there are so many out there?
