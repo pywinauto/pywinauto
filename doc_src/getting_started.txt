@@ -10,7 +10,7 @@ Sit back and have a look at a little movie
 Jeff Winkler has created a nice screencast of using pywinauto, you 
 can see it at : 
    
-   http://www.showmedo.com/videoPage?name=UsingpyWinAutoToControlAWindowsApplication
+   http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&fromSeriesID=7
 
 
 Look at the examples
