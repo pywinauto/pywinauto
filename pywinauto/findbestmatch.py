@@ -372,13 +372,13 @@ class UniqueDict(dict):
 
                 # if a very quick check reveals that this is not going
                 # to match then
-                ratio = ratio_calc.real_quick_ratio()
+                ratio = ratio_calc.real_quick_ratio() * ratio_offset
 
-                if ratio * ratio_offset >  find_best_control_match_cutoff:
+                if ratio  >=  find_best_control_match_cutoff:
                     ratio = ratio_calc.quick_ratio() * ratio_offset
 
-                    if ratio * ratio_offset > find_best_control_match_cutoff:
-                        ratio = ratio_calc.ratio()
+                    if ratio >= find_best_control_match_cutoff:
+                        ratio = ratio_calc.ratio() * ratio_offset
 
                 # save the match we got and store it in the cache
                 ratios[text_] = ratio
@@ -391,14 +391,16 @@ class UniqueDict(dict):
             #print "%5s" %("%0.2f"% ratio), search_text, `text`
 
             # if this is the best so far then update best stats
-            if ratios[text_] > best_ratio:
+            if ratios[text_] > best_ratio and \
+                ratios[text_] >= find_best_control_match_cutoff:
+
                 best_ratio = ratios[text_]
                 best_texts = [text_]
 
             elif ratios[text_] == best_ratio:
                 best_texts.append(text_)
 
-        best_ratio *= ratio_offset
+        #best_ratio *= ratio_offset
 
         return best_ratio, best_texts
 
@@ -450,6 +452,7 @@ def find_best_control_matches(search_text, controls):
 #        for name in ctrl_names:
 #            name_control_map[name] = ctrl
 
+    search_text = unicode(search_text)
 
     best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
 
