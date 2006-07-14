@@ -212,6 +212,9 @@ class TimeConfig(object):
                     self.__default_timing[setting] * 3,
                     self._timings[setting])
 
+            if self._timings[setting] < .2:
+                self._timings[setting]= .2
+
     def Defaults(self):
         "Set all timings to the default time"
         self._timings = self.__default_timing.copy()
