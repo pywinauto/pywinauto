@@ -17,7 +17,7 @@ Installation
 - Run ``python.exe setup.py install``
 - Install the following Python packages
  
-    - ctypes       http://starship.python.net/crew/theller/ctypes/
+    - ctypes       http://starship.python.net/crew/theller/ctypes/ (download from http://sourceforge.net/project/showfiles.php?group_id=71702)
     - Sendkeys     http://www.rutherfurd.net/python/sendkeys/index.html
     - *Optional* PIL          http://www.pythonware.com/products/pil/index.htm
     - *Optional* elementtree  http://effbot.org/downloads/
@@ -25,7 +25,7 @@ Installation
 To check you have it installed correctly
 Run Python ::
 
-  >>> import application
+  >>> from pywinauto import application
   >>> app = application.Application.start("notepad.exe")
   >>> app.notepad.TypeKeys("%FX") 
 
