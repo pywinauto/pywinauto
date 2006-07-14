@@ -648,7 +648,7 @@ def _resolve_from_appdata(
     "Should not be used at the moment!"
 
     if timeout is None:
-        timeout = Timings.window_find_timout
+        timeout = Timings.window_find_timeout
     if retry_interval is None:
         retry_interval = Timings.window_find_retry
 
