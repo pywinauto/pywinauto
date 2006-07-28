@@ -11,7 +11,6 @@ excludes = ['test_sendkeys']
 
 def run_tests():
     testfolder = os.path.abspath(os.path.split(__file__)[0])
-    print testfolder
 
     sys.path.append(testfolder)
 
