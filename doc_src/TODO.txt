@@ -13,7 +13,7 @@ PYWINAUTO TODO's
 
 * Need to move the checking if a control is a Ownerdrawn/bitmap control out
   of __init__ methods and into it's own method something like 
-  IsNormallyRendered()
+  IsNormallyRendered() (Why?)
 
 * Give example how to work with Tray Window
 
@@ -39,9 +39,6 @@ PYWINAUTO TODO's
      run quickly through the available specified traps to see if any of them apply
      - then if they do we can run the associated actions - then try our original 
      dialog again
-
-* Implement an opional timing/config module so that all timing can be 
-  customized
 
 * Handle adding reference controls (in that they should be the controls used 
   for finding windows)
@@ -166,4 +163,7 @@ CLOSED (in some way or the other)
   menu item when it is not enabled it crashes Media Player. Theoretically
   MF_DISABLED and MF_GRAYED should be used - but I found that these are not
   updated (at least for Media Player) until they are dropped down.
+
+* Implement an opional timing/config module so that all timing can be 
+  customized
 
