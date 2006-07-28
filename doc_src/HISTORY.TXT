@@ -1,3 +1,28 @@
+0.3.6 Scrolling and Treview Item Clicking added
+------------------------------------------------------------------
+28-July-2006
+
+* Added parameter to ``_treeview_item.Rectangle()`` to have an option
+  to get the Text rectangle of the item. And defaulted to this.
+
+* Added ``_treeview_item.Click()`` method to make it easy to click 
+  on tree view items.
+
+* Fixed a bug in ``TreeView.GetItem()`` that was expanding items 
+  when it shouldn't.
+
+* Added ``HwndWrapper.Scroll()`` method to allow scrolling. This 
+  is a very minimal implementation - and if the scrollbars are 
+  implemented as separate controls (rather then a property of a
+  control - this will probably not work for you!). It works for
+  Notepad and Paint - that is all I have tried so far.
+  
+* Added a call to ``HwndWrapper.SetFocus()`` in 
+  ``_perform_click_input()`` so that calls to 
+  ``HwndWrapper.ClickInput()`` will make sure to click on the 
+  correct window.
+  
+
 0.3.5 Moved to Metaclass control wrapping
 ------------------------------------------------------------------
 24-May-2006
