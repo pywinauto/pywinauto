@@ -28,8 +28,6 @@ from pywinauto.handleprops import *
 from pywinauto.application import Application
 
 
-
-
 class handlepropsTestCases(unittest.TestCase):
     "Unit tests for the handleprops module"
 
@@ -65,7 +63,7 @@ class handlepropsTestCases(unittest.TestCase):
     def test_style(self):
         "Make sure the style method returns correct result"
         self.assertEquals(0x14cf0000, style(self.dlghandle))
-        self.assertEquals(0x50300104, style(self.edit_handle))
+        self.assertEquals(0x50200104, style(self.edit_handle))
 
     def test_exstyle(self):
         "Make sure the exstyle method returns correct result"
