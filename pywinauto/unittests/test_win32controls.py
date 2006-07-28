@@ -296,11 +296,11 @@ class ListBoxTestCases(unittest.TestCase):
         self.ctrl.Select(5)
         self.assertEquals(self.ctrl.SelectedIndices(), [5,])
 
-        from datetime import datetime
-        today = datetime.today()
-        date_string = "%d/%d/%d" % (today.month, today.day, today.year)
+        # get the text of the 2nd item (3rd item in list
+        # because of empty WindowText)
+        item_to_select = self.ctrl.Texts()[2]
 
-        self.ctrl.Select(date_string)
+        self.ctrl.Select(item_to_select)
         self.assertEquals(self.ctrl.SelectedIndices(), [1,])
 
     def testGetSetItemFocus(self):
