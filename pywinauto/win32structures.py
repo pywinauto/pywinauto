@@ -246,6 +246,14 @@ class RECT(Structure):
         "Return the height of the rect"
         return self.bottom - self.top
 
+    #----------------------------------------------------------------
+    def mid_point(self):
+        "Return a POINT structure representing the mid point"
+        pt = POINT()
+        pt.x = int(self.left + self.width()/2)
+        pt.y = int(self.top + self.height()/2)
+        return pt
+
     #def __hash__(self):
     #	return hash (self.left, self.top, self.right, self.bottom)
 
@@ -881,3 +889,18 @@ class WINDOWPLACEMENT(Structure):
     ]
 assert sizeof(WINDOWPLACEMENT) == 44, sizeof(WINDOWPLACEMENT)
 assert alignment(WINDOWPLACEMENT) == 4, alignment(WINDOWPLACEMENT)
+
+
+# C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4052
+class TVHITTESTINFO(Structure):
+    _pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4052
+        ('pt', POINT),
+        ('flags', UINT),
+        ('hItem', HTREEITEM),
+    ]
+assert sizeof(TVHITTESTINFO) == 16, sizeof(TVHITTESTINFO)
+assert alignment(TVHITTESTINFO) == 1, alignment(TVHITTESTINFO)
+
+
