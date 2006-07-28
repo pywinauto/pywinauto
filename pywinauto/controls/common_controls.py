@@ -547,8 +547,14 @@ class _treeview_element(object):
         return self.Item().state
 
     #----------------------------------------------------------------
-    def Rectangle(self):
-        "Return the rectangle of the item"
+    def Rectangle(self, text_area_rect = True):
+        """Return the rectangle of the item
+
+        If text_area_rect is set to False then it will return
+        the rectangle for the whole item (usually left if 0).
+        Defaults to True - which returns just the rectangle of the
+        text of the item
+        """
         remote_mem = _RemoteMemoryBlock(self.tree_ctrl)
 
         # this is a bit weird
@@ -557,7 +563,7 @@ class _treeview_element(object):
         remote_mem.Write(ctypes.c_long(self.elem))
 
         ret = self.tree_ctrl.SendMessage(
-            win32defines.TVM_GETITEMRECT, 0, remote_mem)
+            win32defines.TVM_GETITEMRECT, text_area_rect, remote_mem)
 
         # the item is not visible
         if not ret:
@@ -569,6 +575,63 @@ class _treeview_element(object):
 
         del remote_mem
         return rect
+
+
+    #----------------------------------------------------------------
+    def Click(self, button = "left", double = False, where = "text"):
+        """Click on the treeview item
+
+        where can be any one of "text", "icon", "button"
+        defaults to "text"
+        """
+
+        # find the text rectangle for the item,
+        point_to_click = self.Rectangle().mid_point()
+
+        if where.lower() != "text":
+            remote_mem = _RemoteMemoryBlock(self.tree_ctrl)
+
+            point_to_click.x = self.Rectangle().left
+
+            found = False
+            while found == False and point_to_click.x >= 0:
+
+                hittest = win32structures.TVHITTESTINFO()
+                hittest.pt = point_to_click
+                hittest.hItem = self.elem
+
+                remote_mem.Write(hittest)
+
+                self.tree_ctrl.SendMessage(win32defines.TVM_HITTEST, 0, remote_mem)
+                remote_mem.Read(hittest)
+
+
+                if where.lower() == 'button' and \
+                    hittest.flags == win32defines.TVHT_ONITEMBUTTON:
+                    found = True
+                    break
+
+                if where.lower() == 'icon' and \
+                    hittest.flags == win32defines.TVHT_ONITEMICON:
+                    found = True
+                    break
+
+
+                point_to_click.x -= 1
+
+            if not found:
+                raise Exception("Area ('%s') not found for this tree view item"% where)
+
+        self.tree_ctrl.ClickInput(
+            button,
+            coords = (point_to_click.x, point_to_click.y),
+            double = double)
+
+        # if we use click instead of clickInput - then we need to tell the
+        # treeview to update itself
+        #self.tree_ctrl.
+
+
 
 
     #----------------------------------------------------------------
@@ -753,14 +816,16 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                 raise IndexError("Root Item '%s' does not have %d sibling(s)"%
                     (self.Root().WindowText(), i + 1))
 
-        self.SendMessageTimeout(
-            win32defines.TVM_EXPAND,
-            win32defines.TVE_EXPAND,
-            current_elem)
 
         # now for each of the lower levels
         # just index into it's children
         for child_index in path[1:]:
+
+            self.SendMessageTimeout(
+                win32defines.TVM_EXPAND,
+                win32defines.TVE_EXPAND,
+                current_elem)
+
             try:
                 current_elem = current_elem.Children()[child_index]
             except IndexError:
@@ -768,10 +833,10 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                     (current_elem.WindowText(), child_index + 1))
 
 
-            self.SendMessageTimeout(
-                win32defines.TVM_EXPAND,
-                win32defines.TVE_EXPAND,
-                current_elem)
+            #self.SendMessageTimeout(
+            #    win32defines.TVM_EXPAND,
+            #    win32defines.TVE_EXPAND,
+            #    current_elem)
 
         return  current_elem
 
