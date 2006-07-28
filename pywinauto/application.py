@@ -44,7 +44,7 @@ avialable dialogs or controls.
 
 **See also:**
   `findwindows.find_windows()`_   for the keyword arguments that can be
-  passed to both `Application.window_()`_ and `ActionDialog.control_()`_
+  passed to both `Application.window_()`_ and `WindowSpecification.Window_()`_
 
 .. _Start_(): class-pywinauto.application.Application.html#start_
 .. _Connect_(): class-pywinauto.application.Application.html#connect_
