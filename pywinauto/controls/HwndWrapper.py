@@ -1358,6 +1358,54 @@ class HwndWrapper(object):
         self.appdata = appdata
 
 
+    _scroll_types = {"left": {
+            "line" : win32defines.SB_LINELEFT,
+            "page" : win32defines.SB_PAGELEFT,
+            "end" :  win32defines.SB_LEFT,
+            },
+        "right": {
+                "line" : win32defines.SB_LINERIGHT,
+                "page" : win32defines.SB_PAGERIGHT,
+                "end" :  win32defines.SB_RIGHT,
+            },
+        "up": {
+                "line" : win32defines.SB_LINEUP,
+                "page" : win32defines.SB_PAGEUP,
+                "end" :  win32defines.SB_TOP,
+            },
+        "down": {
+                "line" : win32defines.SB_LINEDOWN,
+                "page" : win32defines.SB_PAGEDOWN,
+                "end" :  win32defines.SB_BOTTOM,
+            },
+        }
+
+    #-----------------------------------------------------------
+    def Scroll(self, direction, amount, count = 1):
+        """Ask the control to scroll itself
+
+        direction can be any of "up", "down", "left", "right"
+        amount can be one of "line", "page", "end"
+        count (optional) the number of times to scroll
+        """
+
+        # check which message we want to send
+        if direction.lower() in ("left", "right"):
+            message = win32defines.WM_HSCROLL
+        elif direction.lower() in ("up", "down"):
+            message = win32defines.WM_VSCROLL
+
+        # the constant that matches direction, and how much
+        scroll_type = \
+            HwndWrapper._scroll_types[direction.lower()][amount.lower()]
+
+        # Scroll as often as we have been asked to
+        while count > 0:
+            self.SendMessage(message, scroll_type)
+            count -= 1
+
+        return self
+
 
 #
 #def MouseLeftClick():
@@ -1375,6 +1423,26 @@ class HwndWrapper(object):
 #def DragMouse():
 #    pass
 #
+#def LeftClick(x, y):
+#    win32defines.MOUSEEVENTF_LEFTDOWN
+#    win32defines.MOUSEEVENTF_LEFTUP
+#
+#    # set the cursor position
+#    win32functions.SetCursorPos(x, y)
+#    time.sleep(Timings.after_setcursorpos_wait)
+#
+#    inp_struct = win32structures.INPUT()
+#    inp_struct.type = win32defines.INPUT_MOUSE
+#    for event in (win32defines.MOUSEEVENTF_LEFTDOWN, win32defines.MOUSEEVENTF_LEFTUP):
+#        inp_struct._.mi.dwFlags = event
+#        win32functions.SendInput(
+#            1,
+#            ctypes.pointer(inp_struct),
+#            ctypes.sizeof(inp_struct))
+#
+#        time.sleep(Timings.after_clickinput_wait)
+
+
 
 #====================================================================
 def _perform_click_input(
@@ -1389,6 +1457,7 @@ def _perform_click_input(
 
     All the *ClickInput() and *MouseInput() methods use this function.
     """
+
 
     events = []
     if button.lower() == 'left':
@@ -1421,9 +1490,17 @@ def _perform_click_input(
 
     if ctrl == None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
+    else:
+        ctrl.SetFocus()
 
 
+
+#    # allow points objects to be passed as the coords
+#    if isinstance(coords, win32structures.POINT):
+#        coords = [coords.x, coords.y]
+#    else:
     coords = list(coords)
+
     # set the default coordinates
     if coords[0] is None:
         coords[0] = ctrl.Rectangle().width() / 2
