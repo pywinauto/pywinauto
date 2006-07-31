@@ -35,7 +35,7 @@ import os.path
 if "sdist" in sys.argv:
     import shutil
     if not os.path.exists("documentation"):
-        shutil.move(r"pywinauto\website", "documentation")
+        shutil.move(r"website", "documentation")
 
 
 
@@ -74,5 +74,5 @@ controls also.
 
 
 if "sdist" in sys.argv:
-    if not os.path.exists(r"pywinauto\website"):
-        shutil.move("documentation", r"pywinauto\website")
+    if not os.path.exists(r"website"):
+        shutil.move("documentation", r"website")
