@@ -1,3 +1,15 @@
+0.3.6b Changes not documented in 0.3.6 history
+------------------------------------------------------------------
+31-July-2006
+
+* Fixed a bug in how findbestmatch.FindBestMatches was working.
+  It would match against text when it should not!
+
+* Updated how timings.Timings.Slow() worked, if any time setting 
+  was less then .2 after 'slowing' then set it to .2 
+  
+
+
 0.3.6 Scrolling and Treview Item Clicking added
 ------------------------------------------------------------------
 28-July-2006
