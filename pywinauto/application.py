@@ -579,7 +579,6 @@ class WindowSpecification(object):
         # swap it around so that we are mapped off the controls
         control_name_map = {}
         for name, ctrl in name_control_map.items():
-            #print name, ctrl
             control_name_map.setdefault(ctrl, []).append(name)
 
         print "Control Identifiers:"

@@ -53,6 +53,7 @@ GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
 
 SendInput           =   ctypes.windll.user32.SendInput
 SetCursorPos        =   ctypes.windll.user32.SetCursorPos
+GetCursorPos        =   ctypes.windll.user32.GetCursorPos
 GetCaretPos         =   ctypes.windll.user32.GetCaretPos
 
 # menu functions
