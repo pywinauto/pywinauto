@@ -80,6 +80,7 @@ PYWINAUTO TODO's
 
 * Find out whether control.item.action() or control.action(item) is better
 
+* Create a Recorder to visually create tests (being worked on right now)
 
 
 **LOW PRIORITY**
