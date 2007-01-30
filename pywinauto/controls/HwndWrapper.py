@@ -747,7 +747,7 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def ClickInput(
-        self, button = "left", coords = (None, None), double = False ):
+        self, button = "left", coords = (None, None), double = False, wheel_dist = 0):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
@@ -763,7 +763,7 @@ class HwndWrapper(object):
         as that could easily move the mouse off the control before the
         Click has finished.
         """
-        _perform_click_input(self, button, coords, double)
+        _perform_click_input(self, button, coords, double, wheel_dist = wheel_dist)
 
 
 
@@ -1452,7 +1452,8 @@ def _perform_click_input(
     double = False,
     button_down = True,
     button_up = True,
-    absolute = False):
+    absolute = False,
+    wheel_dist = 0):
     """Peform a click action using SendInput
 
     All the *ClickInput() and *MouseInput() methods use this function.
@@ -1480,6 +1481,8 @@ def _perform_click_input(
             events.append(win32defines.MOUSEEVENTF_XDOWN)
         if button_up:
             events.append(win32defines.MOUSEEVENTF_XUP)
+    if button.lower() == 'wheel':
+            events.append(win32defines.MOUSEEVENTF_WHEEL)
 
 
     # if we were asked to double click (and we are doing a full click
@@ -1517,8 +1520,14 @@ def _perform_click_input(
 
     inp_struct = win32structures.INPUT()
     inp_struct.type = win32defines.INPUT_MOUSE
+
     for event in events:
         inp_struct._.mi.dwFlags = event
+        if button.lower() == 'wheel':
+            inp_struct._.mi.mouseData = wheel_dist
+        else:
+            inp_struct._.mi.mouseData = 0
+
         win32functions.SendInput(
             1,
             ctypes.pointer(inp_struct),
