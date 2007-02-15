@@ -93,7 +93,8 @@ def find_windows(class_name = None,
                 best_match = None,
                 handle = None,
                 ctrl_index = None,
-                predicate_func = None
+                predicate_func = None,
+                active_only = False,
     ):
     """Find windows based on criteria passed in
 
@@ -111,6 +112,7 @@ def find_windows(class_name = None,
     * **best_match**  Windows with a title similar to this
     * **handle**      The handle of the window to return
     * **ctrl_index**  The index of the child window to return
+    * **active_only**  Active windows only (default=False)
     """
 
     # allow a handle to be passed in
@@ -141,6 +143,22 @@ def find_windows(class_name = None,
         # that control
         if ctrl_index is not None:
             return [windows[ctrl_index]]
+
+    if active_only:
+        if not process:
+            raise RuntimeError("Can only get active window of a process - " \
+                "please specify 'process' too")
+
+        print process
+        gui_info = win32structures.GUITHREADINFO()
+        gui_info.cbSize = ctypes.sizeof(gui_info)
+        ret = win32functions.GetGUIThreadInfo(process, ctypes.byref(gui_info))
+
+        if not ret:
+            raise ctypes.WinError()
+           #raise RuntimeError("GetGUIThreadInfo returned 0 (failure)")
+
+        return [gui_info.hwndActive]
 
 
     if class_name is not None and windows:
