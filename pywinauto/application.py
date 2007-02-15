@@ -310,6 +310,7 @@ class WindowSpecification(object):
             * 'visible' means that the window is not hidden
             * 'enabled' means that the window is not disabled
             * 'ready' means that the window is visible and enabled
+            * 'active' means that the window is visible and enabled
 
         * **timeout** Raise an error if the window is not in the appropriate
           state after this number of seconds.
@@ -354,6 +355,9 @@ class WindowSpecification(object):
                 criterion['visible_only'] = True
                 criterion['enabled_only'] = True
 
+            if 'active' in waitfor:
+                criterion['active_only'] = True
+
         if self.app.use_history:
             ctrls = _resolve_from_appdata(
                 wait_criteria,
@@ -384,6 +388,7 @@ class WindowSpecification(object):
             * 'visible' means that the window is not hidden
             * 'enabled' means that the window is not disabled
             * 'ready' means that the window is visible and enabled
+            * 'active' means that the window is visible and enabled
 
         * **timeout** Raise an error if the window is sill in the
           state after this number of seconds.(Optional)
@@ -1010,7 +1015,7 @@ class Application(object):
     Connect_ = connect_
 
     def top_window_(self):
-        "Return the current top window of the dialog"
+        "Return the current top window of the application"
         if not self.process:
             raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
@@ -1022,6 +1027,21 @@ class Application(object):
         criteria['handle'] = windows[0]
 
         return WindowSpecification(self, criteria)
+
+    def active_(self):
+        "Return the active window of the application"
+        if not self.process:
+            raise AppNotConnected("Please use start_ or connect_ before "
+                "trying anything else")
+
+        time.sleep(Timings.window_find_timeout)
+        # very simple
+        windows = findwindows.find_windows(process = self.process, active_only = True)
+        criteria = {}
+        criteria['handle'] = windows[0]
+
+        return WindowSpecification(self, criteria)
+
 
     def windows_(self, **kwargs):
         """Return list of wrapped windows of the top level windows of
