@@ -631,7 +631,19 @@ class _treeview_element(object):
         # treeview to update itself
         #self.tree_ctrl.
 
-
+    #----------------------------------------------------------------
+    # TODO: add code for this
+    def Collapse(self):
+        "Collapse the children of this tree view item"
+        pass
+        
+    #----------------------------------------------------------------
+    def Expand(self):
+        "Expand the children of this tree view item"
+        self.tree_ctrl.SendMessageTimeout(
+            win32defines.TVM_EXPAND,
+            win32defines.TVE_EXPAND,
+            self)
 
 
     #----------------------------------------------------------------
@@ -669,8 +681,7 @@ class _treeview_element(object):
             #else:
             #    raise ctypes.WinError()
 
-        return children
-
+        return children    
 
     #----------------------------------------------------------------
     def Next(self):
@@ -706,6 +717,31 @@ class _treeview_element(object):
 
         return sub_elems
 
+    #----------------------------------------------------------------
+    def GetChild(self, child_spec):
+        """Return the child item of this item
+        
+        Accepts either a string or an index"""
+
+        print child_spec
+        
+        if isinstance(child_spec, basestring):
+            for c in  self.Children():
+                print `c.Text()`
+            matching = [c for c in self.Children() if c.Text() == child_spec]
+            print matching
+            if not matching:
+                raise RuntimeError("No child matches '%s'" % child_spec)
+            
+            if len(matching) > 1 :
+                raise RuntimeError(
+                    "There are multiple children that match that spec '%s'"%
+                        child_spec)
+                        
+            return matching[0]
+        else:
+            return self.Children()[child_spec]
+                
 
     #----------------------------------------------------------------
     def _readitem(self):
@@ -789,7 +825,6 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
         return _treeview_element(root_elem, self)
 
-
     #----------------------------------------------------------------
     def GetProperties(self):
         "Get the properties for the control as a dictionary"
@@ -800,6 +835,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         return props
 
 
+
     #----------------------------------------------------------------
     def GetItem(self, path):
         "Read the TreeView item"
@@ -808,29 +844,43 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
         current_elem = self.Root()
 
-        # get the correct lowest level item
-        for i in range(0, path[0]):
-            current_elem = current_elem.Next()
+        # Ensure the path is absolute
+        if isinstance(path, basestring):
+            if not path.startswith("\\"):
+                raise RuntimeError(
+                    "Only absolute paths allowed - "
+                    "please start the path with \\")                
+                    
+            path = path.split("\\")
+        else:
+            # get the correct lowest level item
+            for i in range(0, path[0]):
+                current_elem = current_elem.Next()
 
-            if current_elem is None:
-                raise IndexError("Root Item '%s' does not have %d sibling(s)"%
-                    (self.Root().WindowText(), i + 1))
-
+                if current_elem is None:
+                    raise IndexError("Root Item '%s' does not have %d sibling(s)"%
+                        (self.Root().WindowText(), i + 1))
+        
+        # remove the first item as we have dealt with it (string or integer)
+        path = path[1:]
 
         # now for each of the lower levels
         # just index into it's children
-        for child_index in path[1:]:
-
-            self.SendMessageTimeout(
-                win32defines.TVM_EXPAND,
-                win32defines.TVE_EXPAND,
-                current_elem)
-
+        for child_spec in path:
+            
+            # ensure that the item is expanded (as this is sometimes required
+            # for loading the tree view branches
+            current_elem.Expand()
+            
             try:
-                current_elem = current_elem.Children()[child_index]
+                current_elem = current_elem.GetChild(child_spec)
             except IndexError:
-                raise IndexError("Item '%s' does not have %d children"%
-                    (current_elem.WindowText(), child_index + 1))
+                if isinstance(child_spec, basestring):
+                    raise IndexError("Item '%s' does not have a child '%s'"%
+                        (current_elem.WindowText(), child_spec))
+                else:
+                    raise IndexError("Item '%s' does not have %d children"%
+                        (current_elem.WindowText(), child_spec + 1))
 
 
             #self.SendMessageTimeout(
