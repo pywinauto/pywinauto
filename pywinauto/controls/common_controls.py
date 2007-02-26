@@ -85,16 +85,27 @@ class _RemoteMemoryBlock(object):
         self._as_parameter_ = self.memAddress
 
     #----------------------------------------------------------------
-    def __del__(self):
-        "Ensure that the memory is Freed"
-        # Free the memory in the remote process's address space
-
+    def CleanUp(self):
+        "Free Memory and the process handle"
         if self.process:
+            # free up the memory we allocated        
             ret = win32functions.VirtualFreeEx(
                 self.process, self.memAddress, 0, win32defines.MEM_RELEASE)
 
             if not ret:
                 raise ctypes.WinError()
+
+            # close the handle to the process.
+            ret = win32functions.CloseHandle(self.process)
+
+            if not ret:
+                raise ctypes.WinError()
+
+    #----------------------------------------------------------------
+    def __del__(self):
+        "Ensure that the memory is Freed"
+        # Free the memory in the remote process's address space
+        self.CleanUp()
 
     #----------------------------------------------------------------
     def Address(self):
@@ -200,7 +211,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         col.cchTextMax = 2000
         col.item = remote_mem.Address() + ctypes.sizeof(col) + 1
 
-
         # put the information in the memory that the
         # other process can read/write
         remote_mem.Write(col)
@@ -226,6 +236,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             col_props['width'] = col.cx
             col_props['image'] = col.iImage
             col_props['subitem'] = col.iSubItem
+        
+        del remote_mem
 
         return col_props
 
@@ -265,7 +277,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # if it succeeded
         if not retval:
         	del remote_mem
-        	raise RuntimeError("Did not succeed in getting rectable")
+        	raise RuntimeError("Did not succeed in getting rectangle")
 
         rect = remote_mem.Read(rect)
 
@@ -343,7 +355,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # now get the item values...
         # for each of the rows
         for item_index in range(0, self.ItemCount()):
-
+            
             # and each of the columns for that row
             for subitem_index in range(0, colcount):
 
@@ -594,7 +606,7 @@ class _treeview_element(object):
             point_to_click.x = self.Rectangle().left
 
             found = False
-            while found == False and point_to_click.x >= 0:
+            while not found and point_to_click.x >= 0:
 
                 hittest = win32structures.TVHITTESTINFO()
                 hittest.pt = point_to_click
@@ -605,7 +617,6 @@ class _treeview_element(object):
                 self.tree_ctrl.SendMessage(win32defines.TVM_HITTEST, 0, remote_mem)
                 remote_mem.Read(hittest)
 
-
                 if where.lower() == 'button' and \
                     hittest.flags == win32defines.TVHT_ONITEMBUTTON:
                     found = True
@@ -615,7 +626,6 @@ class _treeview_element(object):
                     hittest.flags == win32defines.TVHT_ONITEMICON:
                     found = True
                     break
-
 
                 point_to_click.x -= 1
 
