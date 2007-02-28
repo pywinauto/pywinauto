@@ -142,6 +142,16 @@ class ListViewTestCases(unittest.TestCase):
                     self.ctrl.GetItem(row, col)['text'], self.texts[row][col])
 
 
+    def testGetItemText(self):
+        "Test the ListView GetItem method - with text this time"
+        
+        for text in [row[0] for row in self.texts]:
+            self.assertEquals(
+                self.ctrl.GetItem(text)['text'], text)
+        
+        self.assertRaises(ValueError, self.ctrl.GetItem, "Item not in this list")
+
+
     def testColumn(self):
         "Test the ListView Columns method"
 
@@ -215,6 +225,18 @@ class ListViewTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.Deselect, 23)
 
         self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+
+
+    def testSelectText(self):
+        "Test ListView Selecting some items"
+        self.ctrl.Select("Venus")
+        self.ctrl.Select("Jupiter")
+        self.ctrl.Select("Uranus")
+
+        self.assertRaises(ValueError, self.ctrl.Deselect, "Item not in list")
+
+        self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+
 
 
     def testDeselect(self):

@@ -38,6 +38,13 @@ class AccessDenied(RuntimeError):
     pass
 
 
+# Todo: I should return iterators from things like Items() and Texts()
+#       to save building full lists all the time
+# Todo: ListViews should be based off of GetItem, and then have actions
+#       Applied to that e.g. ListView.Item(xxx).Select(), rather then
+#       ListView.Select(xxx)
+#       Or at least most of the functions should call GetItem to get the 
+#       Item they want to work with.
 
 #====================================================================
 class _RemoteMemoryBlock(object):
@@ -285,12 +292,28 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         return rect
 
+    #-----------------------------------------------------------
+    def _as_item_index(self, item):
+        """Ensure that item is an item index
+        
+        If a string is passed in then it will be searched for in the 
+        list of item titles.
+        """
+        index = item
+        if isinstance(item, basestring):
+            index = (self.Texts().index(item) - 1) / self.ColumnCount()
+        
+        return index
 
     #-----------------------------------------------------------
     def GetItem(self, item_index, subitem_index = 0):
         "Return the item of the list view"
 
         item_data = {}
+        
+        # ensure the item_index is an integer or 
+        # convert it to one
+        item_index = self._as_item_index(item_index)
 
         # set up a memory block in the remote application
         remote_mem = _RemoteMemoryBlock(self)
@@ -377,6 +400,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.VerifyActionable()
 
+        # ensure the item is an integer or 
+        # convert it to one
+        item = self._as_item_index(item)
+
         lvitem = win32structures.LVITEMW()
 
         lvitem.mask = win32defines.LVIF_STATE
@@ -400,6 +427,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.VerifyActionable()
 
+        # ensure the item is an integer or 
+        # convert it to one
+        item = self._as_item_index(item)
+
         lvitem = win32structures.LVITEMW()
 
         lvitem.mask = win32defines.LVIF_STATE
@@ -420,6 +451,11 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def IsChecked(self, item):
         "Return whether the ListView item is checked or not"
+
+        # ensure the item is an integer or 
+        # convert it to one
+        item = self._as_item_index(item)        
+        
         state = self.SendMessage(
             win32defines.LVM_GETITEMSTATE,
             item,
@@ -430,12 +466,22 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def IsSelected(self, item):
         "Return True if the item is selected"
+
+        # ensure the item is an integer or 
+        # convert it to one
+        item = self._as_item_index(item)
+
         return win32defines.LVIS_SELECTED == self.SendMessage(
             win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_SELECTED)
 
     #-----------------------------------------------------------
     def IsFocused(self, item):
         "Return True if the item has the focus"
+
+        # ensure the item is an integer or 
+        # convert it to one
+        item = self._as_item_index(item)
+
         return win32defines.LVIS_FOCUSED == self.SendMessage(
             win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_FOCUSED)
 
@@ -449,6 +495,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         """
 
         self.VerifyActionable()
+
+        # ensure the item is an integer or 
+        # convert it to one
+        item = self._as_item_index(item)
 
         if item >= self.ItemCount():
             raise IndexError("There are only %d items in the list view not %d"%
