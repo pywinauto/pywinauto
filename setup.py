@@ -24,19 +24,38 @@
 # to build files:
 # setup.py py2exe
 
-from distutils.core import setup
+try:
+    from ez_setup import use_setuptools
+    use_setuptools()
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
+import os.path
+import sys
+
+# We need the path to setup.py to be able to run 
+# the setup from a different folder
+def SetupPath(path = ""):
+    # get the path to the setup file
+    setup_path = os.path.abspath(os.path.split(__file__)[0])
+    
+    return os.path.join(setup_path, path)
+
+
+# add it to the system path
+sys.path.append(SetupPath())
+
+# now it should be save to import pywinauto
 import pywinauto
 
 
+
 # make sure the documentation is in the correct place for building
-import sys
-import os.path
 if "sdist" in sys.argv:
     import shutil
-    if not os.path.exists("documentation"):
-        shutil.move(r"website", "documentation")
-
+    if not os.path.exists(SetupPath("documentation")):
+        shutil.move(SetupPath("website"), SetupPath("documentation"))
 
 
 setup(name='pywinauto',
@@ -74,5 +93,13 @@ controls also.
 
 
 if "sdist" in sys.argv:
-    if not os.path.exists(r"website"):
-        shutil.move("documentation", r"website")
+    if not os.path.exists(SetupPath("website")):
+        shutil.move(SetupPath("documentation"), SetupPath("website"))
+
+
+try:
+    import ctypes
+    import SendKeys
+except ImportError, e:
+    print "The following module has to be installed before running pywinauto..."
+    print "\t", str(e).replace("No module named ", "")
