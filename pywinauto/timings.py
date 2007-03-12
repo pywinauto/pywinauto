@@ -69,7 +69,7 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_treeviewselect_wait  default(.001)
 
-* after_toobarpressbutton_wait  default(.001)
+* after_toobarpressbutton_wait  default(.01)
 
 * after_updownchange_wait  default(.001)
 
@@ -128,7 +128,7 @@ class TimeConfig(object):
 
         'after_treeviewselect_wait': .001,
 
-        'after_toobarpressbutton_wait': .001,
+        'after_toobarpressbutton_wait': .01,
 
         'after_updownchange_wait': .001,
 

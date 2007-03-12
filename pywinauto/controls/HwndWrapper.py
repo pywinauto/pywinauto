@@ -1497,6 +1497,8 @@ def _perform_click_input(
         ctrl.SetFocus()
 
 
+    if isinstance(coords, win32structures.RECT):
+        coords = (coords.left, coords.top)
 
 #    # allow points objects to be passed as the coords
 #    if isinstance(coords, win32structures.POINT):
@@ -1551,6 +1553,9 @@ def _perform_click(
     "Low level method for performing click operations"
 
     ctrl.VerifyActionable()
+
+    if isinstance(coords, win32structures.RECT):
+        coords = (coords.left, coords.top)
 
     # figure out the messages for click/press
     msgs  = []

@@ -1520,10 +1520,172 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         return self
 
 
+
+
+
+
 #====================================================================
-class TBButtonWrappper(win32structures.TBBUTTONINFOW):
-    "Simple wrapper around TBBUTTONINFOW to allow setting new attributes"
-    pass
+class _toolbar_button(object):
+    "Wrapper around TreeView items"
+    #----------------------------------------------------------------
+    def __init__(self, index_, tb_handle):
+        "Initialize the item"
+        self.toolbar_ctrl = tb_handle
+        self.index = index_
+        
+        self.info = win32structures.TBBUTTONINFOW()
+        self.info.cbSize = ctypes.sizeof(self.info)
+        self.info.dwMask = \
+            win32defines.TBIF_COMMAND | \
+            win32defines.TBIF_SIZE | \
+            win32defines.TBIF_STYLE | \
+            win32defines.TBIF_IMAGE | \
+            win32defines.TBIF_LPARAM | \
+            win32defines.TBIF_STATE | \
+            win32defines.TBIF_TEXT  | \
+            win32defines.TBIF_BYINDEX
+            #win32defines.TBIF_IMAGELABEL
+            
+        self.info.cchText = 2000
+
+        remote_mem = _RemoteMemoryBlock(self.toolbar_ctrl)
+
+        # set the text address to after the structures
+        self.info.pszText = remote_mem.Address() + \
+            ctypes.sizeof(self.info)
+
+        # fill the info structure
+        remote_mem.Write(self.info)
+        ret = self.toolbar_ctrl.SendMessage(
+            win32defines.TB_GETBUTTONINFOW,
+            self.index,
+            remote_mem)
+        remote_mem.Read(self.info)
+
+        if ret == -1:
+            del remote_mem
+            raise RuntimeError(
+                "GetButtonInfo failed for button with command id %d"% 
+                    button.idCommand)
+
+        # read the text
+        self.info.text = ctypes.create_unicode_buffer(1999)
+        remote_mem.Read(self.info.text, remote_mem.Address() + \
+            ctypes.sizeof(self.info))
+
+        self.info.text = self.info.text.value
+
+        del remote_mem
+        
+        
+        
+    #----------------------------------------------------------------
+    def Rectangle(self):
+        "Get the rectangle of a button on the toolbar"
+
+        remote_mem = _RemoteMemoryBlock(self.toolbar_ctrl)
+
+        rect = win32structures.RECT()
+
+        remote_mem.Write(rect)
+
+        self.toolbar_ctrl.SendMessage(
+            win32defines.TB_GETRECT,
+            self.info.idCommand,
+            remote_mem)
+
+        rect = remote_mem.Read(rect)
+
+        del remote_mem
+
+        return rect
+        
+#    #----------------------------------------------------------------
+#    def Press(self, press = True):
+#        "Find where the button is and click it"
+#
+#        if press:
+#            press_flag = win32functions.MakeLong(0, 1)
+#        else:
+#            press_flag = 0
+#
+#        ret = self.toolbar_ctrl.SendMessageTimeout(
+#            win32defines.TB_PRESSBUTTON,
+#            self.info.idCommand,
+#            press_flag)
+#
+#        # Notify the parent that we are finished selecting
+#        #self.toolbar_ctrl.NotifyParent(win32defines.TBN_TOOLBARCHANGE)
+#                
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        time.sleep(Timings.after_toobarpressbutton_wait)
+#
+#    #----------------------------------------------------------------
+#    def Press(self):
+#        "Find where the button is and click it"
+#        self.Press(press = False)
+#
+#    #----------------------------------------------------------------
+#    def Check(self, check = True):
+#        "Find where the button is and click it"
+#
+#        if check:
+#            check_flag = win32functions.MakeLong(0, 1)
+#        else:
+#            check_flag = 0
+#
+#        ret = self.toolbar_ctrl.SendMessageTimeout(
+#            win32defines.TB_CHECKBUTTON,
+#            self.info.idCommand,
+#            check_flag)
+#
+#        # Notify the parent that we are finished selecting
+#        #self.toolbar_ctrl.NotifyParent(win32defines.TBN_TOOLBARCHANGE)
+#                
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        time.sleep(Timings.after_toobarpressbutton_wait)
+#
+#    #----------------------------------------------------------------
+#    def UnCheck(self):
+#        self.Check(check = False)
+    
+    #----------------------------------------------------------------
+    def Style(self, AND = -1):
+        "Return the style of the button"
+        return self.toolbar_ctrl.SendMessageTimeout(
+            win32defines.TB_GETSTYLE, self.info.idCommand)
+    
+    #----------------------------------------------------------------
+    def State(self, AND = -1):
+        "Return the state of the button"
+        return self.toolbar_ctrl.SendMessageTimeout(
+            win32defines.TB_GETSTATE, self.info.idCommand)
+    
+    #----------------------------------------------------------------
+    def IsCheckable(self):
+        "Return if the button can be checked"
+        return self.Style() & win32defines.TBSTYLE_CHECK 
+        
+    #----------------------------------------------------------------
+    def IsPressable(self):
+        "Return if the button can be pressed"
+        return self.Style() & win32defines.TBSTYLE_BUTTON
+
+    #----------------------------------------------------------------
+    def IsChecked(self):
+        "Return if the button is in the checked state"
+        return self.State() & win32defines.TBSTATE_CHECKED
+
+    #----------------------------------------------------------------
+    def IsPressed(self):
+        "Return if the button is in the pressed state"
+        return self.State() & win32defines.TBSTATE_PRESSED 
+
+    #----------------------------------------------------------------
+    def Click(self):
+        "Left click on the Toolbar button"
+        self.toolbar_ctrl.Click(coords = self.Rectangle())
+
 
 #====================================================================
 class ToolbarWrapper(HwndWrapper.HwndWrapper):
@@ -1548,12 +1710,21 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.TB_BUTTONCOUNT)
 
     #----------------------------------------------------------------
+    def Button(self, button_index):
+        return _toolbar_button(button_index, self)
+
+    #----------------------------------------------------------------
     def GetButton(self, button_index):
         "Return information on the Toolbar button"
 
+#        import warnings
+#        warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
+#            "equivalent functionality is being moved to the MenuWrapper class."
+#        warnings.warn(warning_msg, DeprecationWarning)
+
         if button_index >= self.ButtonCount():
             raise IndexError(
-                "0 to %d are acceptiple for button_index",
+                "0 to %d are acceptiple for button_index"%
                 self.ButtonCount())
 
         remote_mem = _RemoteMemoryBlock(self)
@@ -1562,19 +1733,26 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         remote_mem.Write(button)
 
-        self.SendMessage(
+        ret = self.SendMessage(
             win32defines.TB_GETBUTTON, button_index, remote_mem)
+    
+        if not ret:
+            raise RuntimeError(
+                "GetButton failed for button index %d"% button_index)
 
         remote_mem.Read(button)
 
-        button_info = TBButtonWrappper()
+        button_info = win32structures.TBBUTTONINFOW()
         button_info.cbSize = ctypes.sizeof(button_info)
-        button_info.dwMask = win32defines.TBIF_TEXT | \
+        button_info.dwMask = \
             win32defines.TBIF_COMMAND | \
             win32defines.TBIF_SIZE | \
-            win32defines.TBIF_COMMAND | \
             win32defines.TBIF_STYLE | \
-            win32defines.TBIF_STATE
+            win32defines.TBIF_IMAGE | \
+            win32defines.TBIF_LPARAM | \
+            win32defines.TBIF_STATE | \
+            win32defines.TBIF_TEXT
+            #win32defines.TBIF_IMAGELABEL | \
 
         button_info.cchText = 2000
 
@@ -1584,11 +1762,16 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         # fill the button_info structure
         remote_mem.Write(button_info)
-        self.SendMessage(
+        ret = self.SendMessage(
             win32defines.TB_GETBUTTONINFOW,
             button.idCommand,
             remote_mem)
         remote_mem.Read(button_info)
+
+        if ret == -1:
+            raise RuntimeError(
+                "GetButtonInfo failed for button with command id %d"% 
+                    button.idCommand)
 
         # read the text
         button_info.text = ctypes.create_unicode_buffer(1999)
@@ -1601,6 +1784,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         return button_info
 
+    #----------------------------------------------------------------
     def Texts(self):
         "Return the texts of the Toolbar"
         texts = [self.WindowText()]
@@ -1609,10 +1793,19 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         return texts
 
+    #----------------------------------------------------------------
     def GetButtonRect(self, button_index):
         "Get the rectangle of a button on the toolbar"
 
+#        import warnings
+#        warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
+#            "equivalent functionality is being moved to the MenuWrapper class."
+#        warnings.warn(warning_msg, DeprecationWarning)
+
+        button_struct = self.GetButton(button_index)
+
         remote_mem = _RemoteMemoryBlock(self)
+
 
         rect = win32structures.RECT()
 
@@ -1620,7 +1813,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         self.SendMessage(
             win32defines.TB_GETRECT,
-            button_index,
+            button_struct.idCommand,
             remote_mem)
 
         rect = remote_mem.Read(rect)
@@ -1629,8 +1822,9 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         return rect
 
+    #----------------------------------------------------------------
     def GetToolTipsControl(self):
-        "Return teh tooltip control associated with this control"
+        "Return the tooltip control associated with this control"
         return ToolTipsWrapper(self.SendMessage(win32defines.TB_GETTOOLTIPS))
 
 
@@ -1695,8 +1889,14 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
     # TODO def Button(i or string).rect
 
+    #----------------------------------------------------------------
     def PressButton(self, button_identifier):
         "Find where the button is and click it"
+
+#        import warnings
+#        warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
+#            "equivalent functionality is being moved to the MenuWrapper class."
+#        warnings.warn(warning_msg, DeprecationWarning)
 
         if isinstance(button_identifier, basestring):
             best_text = findbestmatch.find_best_match(
@@ -1708,18 +1908,15 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         button = self.GetButton(button_index)
 
-        self.SendMessageTimeout(
+        ret = self.SendMessageTimeout(
             win32defines.TB_PRESSBUTTON,
             button.idCommand,
-            win32functions.MakeLong(1, 0))
-
-        self.SendMessageTimeout(
-            win32defines.TB_PRESSBUTTON,
-            button.idCommand,
-            win32functions.MakeLong(0, 0))
-
+            win32functions.MakeLong(0, 1))
+                
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_toobarpressbutton_wait)
+
+
 
 
 #    #----------------------------------------------------------------
