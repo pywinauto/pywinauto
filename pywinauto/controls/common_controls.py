@@ -1682,10 +1682,26 @@ class _toolbar_button(object):
         return self.State() & win32defines.TBSTATE_PRESSED 
 
     #----------------------------------------------------------------
+    def IsEnabled(self):
+        "Return if the button is in the pressed state"
+        
+        # make sure it has an ID
+        if not self.info.idCommand:
+            return False
+        
+        return self.State() & win32defines.TBSTATE_ENABLED
+
+    #----------------------------------------------------------------
     def Click(self):
         "Left click on the Toolbar button"
         self.toolbar_ctrl.Click(coords = self.Rectangle())
+        time.sleep(Timings.after_toobarpressbutton_wait)
 
+    #----------------------------------------------------------------
+    def ClickInput(self):
+        "Left click on the Toolbar button"
+        self.toolbar_ctrl.ClickInput(coords = self.Rectangle())
+        time.sleep(Timings.after_toobarpressbutton_wait)
 
 #====================================================================
 class ToolbarWrapper(HwndWrapper.HwndWrapper):
