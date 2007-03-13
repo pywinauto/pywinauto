@@ -150,10 +150,11 @@ OpenProcess				=	ctypes.windll.kernel32.OpenProcess
 GetModuleFileNameEx		=	ctypes.windll.psapi.GetModuleFileNameExW
 
 GetClipboardData = ctypes.windll.user32.GetClipboardData
-OpenClipboard = ctypes.windll.user32.OpenClipboard
-CountClipboardFormats = ctypes.windll.user32.CountClipboardFormats
-EnumClipboardFormats = ctypes.windll.user32.EnumClipboardFormats
-CloseClipboard = ctypes.windll.user32.CloseClipboard
+OpenClipboard    = ctypes.windll.user32.OpenClipboard
+CloseClipboard   = ctypes.windll.user32.CloseClipboard
+CountClipboardFormats  = ctypes.windll.user32.CountClipboardFormats
+EnumClipboardFormats   = ctypes.windll.user32.EnumClipboardFormats
+GetClipboardFormatName = ctypes.windll.user32.GetClipboardFormatNameW
 
 GetQueueStatus = ctypes.windll.user32.GetQueueStatus
 

@@ -28,7 +28,7 @@ import win32functions
 import win32defines
 
 #====================================================================
-def _get_all_known_formats():
+def _get_standard_formats():
     "Get the known formats by looking in win32defines"
     formats = {}
     for define_name in win32defines.__dict__.keys():
@@ -37,14 +37,14 @@ def _get_all_known_formats():
     return formats
 
 # get all the formats names keyed on the value
-_all_formats = _get_all_known_formats()
+_standard_formats = _get_standard_formats()
 
 
 #====================================================================
 def GetClipboardFormats():
     "Get a list of the formats currently in the clipboard"
     if not win32functions.OpenClipboard(0):
-        raise RuntimeError("Couldn't open clipboard")
+        raise WinError()
 
     available_formats = []
     format = 0
@@ -67,21 +67,49 @@ def GetClipboardFormats():
 #====================================================================
 def GetFormatName(format):
     "Get the string name for a format value"
-    return _all_formats[format]
+
+    # standard formats should not be passed to GetClipboardFormatName    
+    if format in _standard_formats:
+        return _standard_formats[format]
+
+    if not win32functions.OpenClipboard(0):
+        raise WinError()    
+
+    max_size = 500
+    buffer_ = ctypes.create_unicode_buffer(max_size+1)
+    from ctypes.wintypes import *
+
+    ret = win32functions.GetClipboardFormatName(
+        format, ctypes.byref(buffer_), max_size)
+    
+    if not ret:
+        raise RuntimeError("test")
+    
+    win32functions.CloseClipboard()
+
+    return buffer_.value
 
 
 #====================================================================
 def GetData(format = win32defines.CF_UNICODETEXT):
     "Return the data from the clipboard in the requested format"
+    if format not in GetClipboardFormats():
+        raise RuntimeError("That format is not available")
+    
     if not win32functions.OpenClipboard(0):
-        raise RuntimeError("Couldn't open clipboard")
+        raise WinError()
 
     handle = win32functions.GetClipboardData(format)
-
+    
+    if not handle:
+        error = ctypes.WinError()
+        win32functions.CloseClipboard()
+        raise error
+    
     buffer_ = ctypes.c_wchar_p(win32functions.GlobalLock(handle))
-
+    
     data = buffer_.value
-
+    
     win32functions.GlobalUnlock(handle)
 
     win32functions.CloseClipboard()
