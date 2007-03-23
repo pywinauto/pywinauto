@@ -31,8 +31,14 @@ __revision__ = "$Revision$"
 # others?
 
 #import elementtree
-from elementtree.ElementTree import Element, SubElement, ElementTree
-from cElementTree import Element, SubElement, ElementTree
+try:
+    # Python 2.5 (thanks to Daisuke Yamashita)
+    from xml.etree.ElementTree import Element, SubElement, ElementTree
+    from xml.etree.cElementTree import Element, SubElement, ElementTree 
+except ImportError:
+    from elementtree.ElementTree import Element, SubElement, ElementTree
+    from cElementTree import Element, SubElement, ElementTree
+    
 import ctypes
 import re
 import PIL.Image
