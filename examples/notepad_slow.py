@@ -164,7 +164,7 @@ app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
     "And then I am going to quit")
 
 app.Notepad.Edit.RightClick()
-app.Popup.MenuSelect("Right To Left Reading Order")
+app.Popup.MenuItem("Right To Left Reading Order").Click()
 
 #app.PopupMenu.MenuSelect("Paste", app.Notepad.ctrl_())
 #app.Notepad.Edit.RightClick()
