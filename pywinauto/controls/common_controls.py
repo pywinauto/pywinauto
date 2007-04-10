@@ -53,7 +53,6 @@ class _RemoteMemoryBlock(object):
     def __init__(self, handle, size = 8192):
         "Allocatte the memory"
         self.memAddress = 0
-        self.fileMap = 0
 
         self._as_parameter_ = self.memAddress
 
@@ -91,6 +90,15 @@ class _RemoteMemoryBlock(object):
 
         self._as_parameter_ = self.memAddress
 
+
+    #----------------------------------------------------------------
+    def _CloseHandle(self):
+        # close the handle to the process.
+        ret = win32functions.CloseHandle(self.process)
+
+        if not ret:
+            raise ctypes.WinError()
+
     #----------------------------------------------------------------
     def CleanUp(self):
         "Free Memory and the process handle"
@@ -100,13 +108,11 @@ class _RemoteMemoryBlock(object):
                 self.process, self.memAddress, 0, win32defines.MEM_RELEASE)
 
             if not ret:
+                self._CloseHandle()
                 raise ctypes.WinError()
+                
+            self._CloseHandle()
 
-            # close the handle to the process.
-            ret = win32functions.CloseHandle(self.process)
-
-            if not ret:
-                raise ctypes.WinError()
 
     #----------------------------------------------------------------
     def __del__(self):
@@ -783,24 +789,24 @@ class _treeview_element(object):
         
         Accepts either a string or an index"""
 
-        print child_spec
+        #print child_spec
         
         if isinstance(child_spec, basestring):
-            for c in  self.Children():
-                print `c.Text()`
-            matching = [c for c in self.Children() if c.Text() == child_spec]
-            print matching
-            if not matching:
-                raise RuntimeError("No child matches '%s'" % child_spec)
+
+            texts = [c.Text() for c in self.Children()]
+            indices = range(0, len(texts))
+            index = findbestmatch.find_best_match(
+                child_spec, texts, indices)
             
-            if len(matching) > 1 :
-                raise RuntimeError(
-                    "There are multiple children that match that spec '%s'"%
-                        child_spec)
+            #if len(matching) > 1 :
+            #    raise RuntimeError(
+            #        "There are multiple children that match that spec '%s'"%
+            #            child_spec)
                         
-            return matching[0]
         else:
-            return self.Children()[child_spec]
+            index = child_spec
+        
+        return self.Children()[index]
                 
 
     #----------------------------------------------------------------
@@ -912,15 +918,16 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                     "please start the path with \\")                
                     
             path = path.split("\\")
-        else:
-            # get the correct lowest level item
-            for i in range(0, path[0]):
-                current_elem = current_elem.Next()
 
-                if current_elem is None:
-                    raise IndexError("Root Item '%s' does not have %d sibling(s)"%
-                        (self.Root().WindowText(), i + 1))
-        
+        # get the correct lowest level item
+#        current_elem.GetChild
+#        for i in range(0, path[0]):
+#            current_elem = current_elem.Next()
+#
+#            if current_elem is None:
+#                raise IndexError("Root Item '%s' does not have %d sibling(s)"%
+#                    (self.Root().WindowText(), i + 1))
+#        
         # remove the first item as we have dealt with it (string or integer)
         path = path[1:]
 
@@ -937,7 +944,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             except IndexError:
                 if isinstance(child_spec, basestring):
                     raise IndexError("Item '%s' does not have a child '%s'"%
-                        (current_elem.WindowText(), child_spec))
+                        (current_elem.Text(), child_spec))
                 else:
                     raise IndexError("Item '%s' does not have %d children"%
                         (current_elem.WindowText(), child_spec + 1))
@@ -1719,7 +1726,6 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         self.writable_props.extend(['ButtonCount'])
 
-
     #----------------------------------------------------------------
     def ButtonCount(self):
         "Return the number of buttons on the ToolBar"
@@ -1753,6 +1759,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             win32defines.TB_GETBUTTON, button_index, remote_mem)
     
         if not ret:
+            del remote_mem
             raise RuntimeError(
                 "GetButton failed for button index %d"% button_index)
 
@@ -1785,6 +1792,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Read(button_info)
 
         if ret == -1:
+            del remote_mem
             raise RuntimeError(
                 "GetButtonInfo failed for button with command id %d"% 
                     button.idCommand)
@@ -1821,7 +1829,6 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         button_struct = self.GetButton(button_index)
 
         remote_mem = _RemoteMemoryBlock(self)
-
 
         rect = win32structures.RECT()
 
@@ -1914,11 +1921,17 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #            "equivalent functionality is being moved to the MenuWrapper class."
 #        warnings.warn(warning_msg, DeprecationWarning)
 
+        texts = self.Texts()
         if isinstance(button_identifier, basestring):
-            best_text = findbestmatch.find_best_match(
-                button_identifier, self.Texts(), self.Texts())
-            button_index = self.Texts().index(best_text) - 1
-
+        
+            # one of these will be returned for the matching
+            # text
+            indices = [i for i in range(0, len(texts[1:]))]
+            
+            # find which index best matches that text
+            button_index = findbestmatch.find_best_match(
+                button_identifier, texts[1:], indices)
+                
         else:
             button_index = button_identifier
 

@@ -27,6 +27,9 @@ import ctypes
 import win32functions
 import win32defines
 
+#from ctypes.wintypes import *
+
+
 #====================================================================
 def _get_standard_formats():
     "Get the known formats by looking in win32defines"
@@ -77,7 +80,6 @@ def GetFormatName(format):
 
     max_size = 500
     buffer_ = ctypes.create_unicode_buffer(max_size+1)
-    from ctypes.wintypes import *
 
     ret = win32functions.GetClipboardFormatName(
         format, ctypes.byref(buffer_), max_size)

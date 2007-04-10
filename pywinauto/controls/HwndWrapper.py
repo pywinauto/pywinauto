@@ -1103,7 +1103,7 @@ class HwndWrapper(object):
         if self.IsDialog():
             #menu_handle = win32functions.GetMenu(self)
             #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
-            return self.Menu().GetProperties()
+            return self.Menu().GetProperties()['MenuItems']
 
             #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
             #return _GetMenuItems(menu_handle, self)

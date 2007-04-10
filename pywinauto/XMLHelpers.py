@@ -38,7 +38,7 @@ try:
 except ImportError:
     from elementtree.ElementTree import Element, SubElement, ElementTree
     from cElementTree import Element, SubElement, ElementTree
-    
+
 import ctypes
 import re
 import PIL.Image

@@ -83,9 +83,14 @@ The Following are the individual timing settings that can be adjusted:
 
 """
 
+import time
+import operator
+
+
 __revision__ = "$Revision: 453 $"
 
 
+#=========================================================================
 class TimeConfig(object):
     "Central storage and minipulation of timing values"
     __default_timing = {
@@ -221,6 +226,136 @@ class TimeConfig(object):
 
 
 Timings = TimeConfig()
+
+
+#=========================================================================
+class TimeoutError(RuntimeError):
+    pass
+
+
+#=========================================================================
+def WaitUntil(
+    timeout, 
+    retry_interval, 
+    func, 
+    value = True, 
+    op = operator.eq,
+    *args):
+    
+    """Wait until ``op(function(*args), value)`` is True or until timeout 
+       expires
+    
+     * **timeout**  how long the function will try the function
+     * **retry_interval**  how long to wait between retries
+     * **func** the function that will be executed
+     * **value**  the value to be compared against (defaults to True)
+     * **op** the comparison function (defaults to equality)\
+     * **args** optional arguments to be passed to func when called
+     
+     Returns the return value of the function
+     If the operation times out then the return value of the the function 
+     is in the 'function_value' attribute of the raised exception.
+     
+     e.g. ::
+      
+      try:
+         # wait a maximum of 10.5 seconds for the 
+         # the objects ItemCount() method to return 10
+         # in increments of .5 of a second
+         WaitUntil(10.5, .5, self.ItemCount, 10)
+      except TimeoutError, e:
+         print "timed out"
+     
+    """
+    
+    start = time.time()
+
+    func_val = func(*args)
+    # while the function hasn't returned what we are waiting for    
+    while not op(func_val, value):
+            
+        # find how long we have waited
+        waited = time.time() - start
+    
+        # if we have to wait some more        
+        if waited < timeout:
+            # wait either the retry_interval or else the amount of
+            # time until the timeout expires (whichever is less)
+            time.sleep(min(retry_interval, timeout - waited))
+            func_val = func(*args)
+        else:
+            err = TimeoutError("timed out")
+            err.function_value = func_val
+            raise err
+            
+    return func_val
+
+
+#def WaitUntilNot(timeout, retry_interval, func, value = True)
+#    return WaitUntil(timeout, retry_interval, func, value = True)
+    
+
+def WaitUntilPasses(
+    timeout, 
+    retry_interval, 
+    func, 
+    exceptions = (Exception),
+    *args):
+
+    """Wait until ``func(*args)`` does not raise one of the exceptions in 
+       exceptions
+    
+     * **timeout**  how long the function will try the function
+     * **retry_interval**  how long to wait between retries
+     * **func** the function that will be executed
+     * **exceptions**  list of exceptions to test against (default: Exception)
+     * **args** optional arguments to be passed to func when called
+     
+     Returns the return value of the function
+     If the operation times out then the original exception raised is in
+     the 'original_exception' attribute of the raised exception.
+     
+     e.g. ::
+     
+      try:
+         # wait a maximum of 10.5 seconds for the 
+         # window to be found in increments of .5 of a second.
+         # P.int a message and re-raise the original exception if never found.
+         WaitUntil(10.5, .5, self.Exists, (WindowNotFoundError))
+      except TimeoutError, e:
+         print "timed out"
+         raise e.
+     
+    """
+    
+    start = time.time()
+    waited = 0
+
+    # keep trying until the timeout is passed
+    while waited <= timeout:
+        try:
+            # Call the function with any arguments
+            func_val = func(*args)
+            
+            # if this did not raise an exception -then we are finised
+            break
+        
+        # An exception was raised - so wait and try again
+        except exceptions, e:
+            waited = time.time() - start
+
+            if  waited < timeout:
+                time.sleep(min(retry_interval, timeout - waited))
+            else:
+                # re-raise the original exeption
+                err = TimeoutError()
+                err.original_exception = e
+                raise err
+    
+    # return the function value
+    return func_val
+
+
 #
 #
 #

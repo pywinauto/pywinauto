@@ -72,7 +72,7 @@ import findbestmatch
 import findwindows
 import handleprops
 
-from timings import Timings
+from timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
 
 
 class AppStartError(Exception):
@@ -406,8 +406,8 @@ class WindowSpecification(object):
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
 
-        # remember the start time so we can do an accurate wait for the timeout
-        start = time.time()
+        ## remember the start time so we can do an accurate wait for the timeout
+        #start = time.time()
 
         waitnot_criteria = self.criteria[:]
         for criterion in waitnot_criteria:
@@ -416,61 +416,119 @@ class WindowSpecification(object):
 
         wait_for_not = wait_for_not.lower()
 
-        try:
-            if self.app.use_history:
-                ctrls = _resolve_from_appdata(
-                    waitnot_criteria, self.app, 0, .01)
-            else:
-                ctrls = _resolve_control(waitnot_criteria, 0, .01)
-
-        # stop trying if the window doesn't exist - because it MUST
-        # be out of one of the states if it doesn't exist anymore!
-        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-            #raise
-            return
 
         #self.app.RecordMatch(self.criteria, ctrls)
 
-        while True:
 
-            matched = True
+        def WindowIsNotXXX():
+            """Local function that returns False if the window is not 
+            Visible, etc. Otherwise returns the best matching control"""
+
+            # first check if the window doesn't exist, because if it doesn't
+            # exist, it definitely can't be visible, active enabled or ready
+            try:
+                if self.app.use_history:
+                    ctrls = _resolve_from_appdata(
+                        waitnot_criteria, self.app, 0, .01)
+                else:
+                    ctrls = _resolve_control(waitnot_criteria, 0, .01)
+                # if we get here - then the window exists and we need to 
+                # do the other checks below
+                
+            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+                # Window doesn't exist
+                return True
+        
             if 'exists' in wait_for_not:
                 # well if we got here then the control must have
                 # existed so we are not ready to stop checking
                 # because we didn't want the control to exist!
-                matched = False
+                return ctrls
 
             if 'ready' in wait_for_not:
                 if ctrls[-1].IsVisible() and ctrls[-1].IsEnabled():
-                    matched = False
+                    return ctrls
 
             if 'enabled' in wait_for_not:
                 if ctrls[-1].IsEnabled():
-                    matched = False
+                    return ctrls
 
             if 'visible' in wait_for_not:
                 if ctrls[-1].IsVisible():
-                    matched = False
+                    return ctrls            
+        
+            return True
 
-            if matched:
-                break
+        try:
+            wait_val = WaitUntil(timeout, retry_interval, WindowIsNotXXX)
+        except TimeoutError, e:
+            raise RuntimeError(
+                "Timed out while waiting for window (%s - '%s') "
+                "to not be in '%s' state"% ( 
+                    e.function_value[-1].Class(),
+                    e.function_value[-1].WindowText(),
+                    "', '".join( wait_for_not.split() ) )
+                )
+            
+
+        
+#        try:
+#            # wait until the 
+#            WaitUntil(timeout, retry_interval, WindowIsNotXXX)
+#        except TimeoutError, e:
+#            raise RuntimeError(
+#                "Timed out while waiting for window (%s - '%s') "
+#                "to not be in '%s' state"%
+#                    (e.function_value[-1].Class(),
+#                    e.function_value[-1].WindowText(),
+#                    "', '".join( wait_for_not.split() ) )
+#                )
+            
 
 
-            # stop trying if we have reached the timeout
-            waited = time.time() - start
-            if  waited < timeout:
-                # wait the interval or the time left until the timeout expires
-                # and let the loop run again
-                time.sleep(min(retry_interval, timeout - waited))
 
-            else:
-                raise RuntimeError(
-                    "Timed out while waiting for window (%s - '%s') "
-                    "to not be in '%s' state"%
-                        (ctrls[-1].Class(),
-                        ctrls[-1].WindowText(),
-                        "', '".join( wait_for_not.split() ) )
-                    )
+
+#
+#        while True:
+#
+#            matched = True
+#            if 'exists' in wait_for_not:
+#                # well if we got here then the control must have
+#                # existed so we are not ready to stop checking
+#                # because we didn't want the control to exist!
+#                matched = False
+#
+#            if 'ready' in wait_for_not:
+#                if ctrls[-1].IsVisible() and ctrls[-1].IsEnabled():
+#                    matched = False
+#
+#            if 'enabled' in wait_for_not:
+#                if ctrls[-1].IsEnabled():
+#                    matched = False
+#
+#            if 'visible' in wait_for_not:
+#                if ctrls[-1].IsVisible():
+#                    matched = False
+#
+#            if matched:
+#                break
+#
+#
+#            # stop trying if we have reached the timeout
+#            waited = time.time() - start
+#            if  waited < timeout:
+#                # wait the interval or the time left until the timeout expires
+#                # and let the loop run again
+#                time.sleep(min(retry_interval, timeout - waited))
+#
+#            else:
+#                raise RuntimeError(
+#                    "Timed out while waiting for window (%s - '%s') "
+#                    "to not be in '%s' state"%
+#                        (ctrls[-1].Class(),
+#                        ctrls[-1].WindowText(),
+#                        "', '".join( wait_for_not.split() ) )
+#                    )
 
 
 
@@ -851,23 +909,34 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
         retry_interval = Timings.window_find_retry
 
 
-    waited = 0
-    while True:
-        try:
-
-            ctrl = _get_ctrl(criteria)
-            break
-
-        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-
-            waited = time.time() - start
-            if  waited < timeout:
-                # wait the interval or the time left until the timeout expires
-                # and let the loop run again
-                time.sleep(min(retry_interval, timeout - waited))
-
-            else:
-                raise
+    try:
+        ctrl = WaitUntilPasses(
+            timeout, 
+            retry_interval,  
+            _get_ctrl, 
+            (findwindows.WindowNotFoundError, findbestmatch.MatchError),
+            criteria)
+        
+    except TimeoutError, e:
+        raise e.original_exception
+#        
+#    waited = 0
+#    while True:
+#        try:
+#
+#            ctrl = _get_ctrl(criteria)
+#            break
+#
+#        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+#
+#            waited = time.time() - start
+#            if  waited < timeout:
+#                # wait the interval or the time left until the timeout expires
+#                # and let the loop run again
+#                time.sleep(min(retry_interval, timeout - waited))
+#
+#            else:
+#                raise
 
     return ctrl
 
@@ -959,20 +1028,33 @@ class Application(object):
 
         self.process = proc_info.dwProcessId
 
-        start = time.time()
-        waited = 0
-        while waited < timeout:
-            if not win32functions.WaitForInputIdle(
-                proc_info.hProcess, int(timeout * 1000)):
-                break
-                #raise AppStartError(
-                #    "WaitForInputIdle: " + str(ctypes.WinError()))
 
-            if self.windows_():
-                break
+        def AppIdle():
+            if not bool(win32functions.WaitForInputIdle(
+                proc_info.hProcess, int(timeout * 1000))):
+                return True
+            
+            return bool(self.windows_())
 
-            time.sleep(min(retry_interval, timeout - waited))
-            waited = time.time() - start
+        try:
+            WaitUntil(timeout, retry_interval, AppIdle)
+        except TimeoutError:
+            pass
+
+#        start = time.time()
+#        waited = 0
+#        while waited < timeout:
+#            if not win32functions.WaitForInputIdle(
+#                proc_info.hProcess, int(timeout * 1000)):
+#                break
+#                #raise AppStartError(
+#                #    "WaitForInputIdle: " + str(ctypes.WinError()))
+#
+#            if self.windows_():
+#                break
+#
+#            time.sleep(min(retry_interval, timeout - waited))
+#            waited = time.time() - start
 
         return self
 

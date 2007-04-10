@@ -27,6 +27,7 @@ from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
 from pywinauto.controls import WrapHandle
 #from pywinauto.controls.HwndWrapper import HwndWrapper
+from pywinauto import findbestmatch
 
 import ctypes
 
@@ -334,6 +335,23 @@ class TreeViewTestCases(unittest.TestCase):
     def testItemCount(self):
         "Test the TreeView ItemCount method"
         self.assertEquals (self.ctrl.ItemCount(), 37)
+
+
+    def testGetItem(self):
+        "Test the ItemCount method"
+
+        self.assertRaises(RuntimeError, self.ctrl.GetItem, "test\here\please")
+
+        self.assertRaises(IndexError, self.ctrl.GetItem, r"\test\here\please")
+
+        self.assertEquals(
+            self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
+
+        self.assertEquals(
+            self.ctrl.GetItem(r"\Venus\4.869").Text(), self.texts[1][3] + " kg")
+
+        self.assertEquals(
+            self.ctrl.GetItem(["Root", "Venus", "4.869"]).Text(), self.texts[1][3] + " kg")
 
 
     def testItemText(self):
@@ -751,7 +769,7 @@ class ToolbarTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.GetButton, 29)
 
     def testGetButtonRect(self):
-        self.assertEquals(self.ctrl.GetButtonRect(1), RECT(91, 0, 114, 22))
+        self.assertEquals(self.ctrl.GetButtonRect(0), RECT(6, 0, 29, 22))
 
     def testGetToolTipsControls(self):
         tips = self.ctrl.GetToolTipsControl()
@@ -761,8 +779,13 @@ class ToolbarTestCases(unittest.TestCase):
     def testPressButton(self):
         self.ctrl.PressButton(0)
         #print self.ctrl.Texts()
+        self.assertRaises(
+            findbestmatch.MatchError, 
+            self.ctrl.PressButton, 
+            "asdfdasfasdf")
+
         self.ctrl.PressButton("10")
-        raise "not fully tested"
+
 
 
 class RebarTestCases(unittest.TestCase):

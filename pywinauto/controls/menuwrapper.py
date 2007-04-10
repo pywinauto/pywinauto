@@ -374,12 +374,12 @@ class Menu(object):
         of the items. If the item has a sub menu it will call this
         GetProperties to get the sub menu items.
         """
-        props = []
+        item_props = []
 
         for item in self.Items():
-            props.append(item.GetProperties())
+            item_props.append(item.GetProperties())
 
-        return props
+        return {'MenuItems': item_props}
 
 
     def GetMenuPath(self, path, path_items = None, appdata = None):
