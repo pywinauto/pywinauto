@@ -754,6 +754,7 @@ class HwndWrapper(object):
           'middle' or 'x' (Default: 'left')
         * **coords** The coordinates to click at.(Default: center of control)
         * **double** Whether to perform a double click or not (Default: False)
+        * **wheel_dist** The distance to move the mouse week (default: 0)
 
         This is different from Click in that it requires the control to
         be visible on the screen but performs a more realistic 'click'

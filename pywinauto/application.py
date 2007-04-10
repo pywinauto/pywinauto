@@ -1119,6 +1119,10 @@ class Application(object):
         time.sleep(Timings.window_find_timeout)
         # very simple
         windows = findwindows.find_windows(process = self.process, active_only = True)
+        
+        if not windows:
+            raise RuntimeError("No Windows of that application are active")
+        
         criteria = {}
         criteria['handle'] = windows[0]
 

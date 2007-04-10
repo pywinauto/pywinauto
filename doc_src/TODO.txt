@@ -3,6 +3,10 @@
 PYWINAUTO TODO's
 ============================================================================
 
+* Make sure to add documentation strings for all undocumented methods/functions
+
+* Check coverage of the tests and work to increase it.
+
 * Add tests for SendInput click methods
 
 * Implement findbestmatch using FuzzyDict.
@@ -80,7 +84,7 @@ PYWINAUTO TODO's
 
 * Find out whether control.item.action() or control.action(item) is better
 
-* Create a Recorder to visually create tests (being worked on right now)
+* Create a Recorder to visually create tests
 
 
 **LOW PRIORITY**

@@ -105,7 +105,7 @@ def _get_match_ratios(texts, match_against):
 
 
 #====================================================================
-def find_best_match(search_text, item_texts, items):
+def find_best_match(search_text, item_texts, items, limit_ratio = .5):
     "Return the item that best matches the search_text"
     search_text = _cut_at_tab(search_text)
 
@@ -119,7 +119,7 @@ def find_best_match(search_text, item_texts, items):
     ratios, best_ratio, best_text = \
         _get_match_ratios(text_item_map.keys(), search_text)
 
-    if best_ratio < .5:
+    if best_ratio < limit_ratio:
         raise MatchError(items = text_item_map.keys(), tofind = search_text)
 
     return text_item_map[best_text]

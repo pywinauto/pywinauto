@@ -1,3 +1,52 @@
+0.3.7 Merge of Wait changes and various bug fixes/improvements
+------------------------------------------------------------------
+10-April-2007
+ 
+* Added Timings.WaitUntil() and Timings.WaitUntilPasses() which 
+  handle the various wait until something in the code. Also 
+  refactored existing waits to use these two methods.
+
+* Fixed a major Handle leak in RemoteMemorBlock class (which is 
+  used extensively for 'Common' controls. I was using OpenHandle
+  to open the process handle, but was not calling CloseHandle() 
+  for each corresponding OpenHandle().
+
+* Added an active_() method to Application class to return the
+  active window of the application.
+
+* Added an 'active' option to WindowSpecification.Wait() and 
+  WaitNot().
+
+* Some cleanup of the clipboard module. GetFormatName() 
+  was improved and GetData() made a little more robust.
+
+* Added an option to findwindows.find_windows() to find only 
+  active windows (e.g. active_only = True). Default is False.
+
+* Fixed a bug in the timings.Timings class - timing values are
+  Now accessed through the class (Timings) and not through the
+  intance (self).
+
+* Updated ElementTree import in XMLHelpers so that it would work
+  on Python 2.5 (where elementtree is a standard module) as well 
+  as other versions where ElementTree is a separate module.
+
+* Enhanced Item selection for ListViews, TreeViews - it is now 
+  possible to pass strings and they will be searched for. More
+  documentation is required though.
+
+* Greatly enhanced Toolbar button clicking, selection, etc.
+  Though more documentation is required.
+
+* Added option to ClickInput() to allow mouse wheel movements
+  to be made.
+
+* menuwrapper.Menu.GetProperties() now returns a dict like all other
+  GetProperties() methods. This dict for now only has one key
+  'MenuItems' which contains the list of menuitems (which had been
+  the previous return value).
+
+
 0.3.6b Changes not documented in 0.3.6 history
 ------------------------------------------------------------------
 31-July-2006

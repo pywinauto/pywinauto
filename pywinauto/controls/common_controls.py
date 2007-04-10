@@ -93,7 +93,7 @@ class _RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def _CloseHandle(self):
-        # close the handle to the process.
+        "Close the handle to the process."
         ret = win32functions.CloseHandle(self.process)
 
         if not ret:
@@ -313,7 +313,13 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def GetItem(self, item_index, subitem_index = 0):
-        "Return the item of the list view"
+        """Return the item of the list view"
+         
+        * **item_index** Can be either the index of the item or a string
+          with the text of the item you want returned.
+        * **subitem_index** The 0 based index of the item you want returned.
+          Defaults to 0.
+        """
 
         item_data = {}
         
@@ -787,16 +793,19 @@ class _treeview_element(object):
     def GetChild(self, child_spec):
         """Return the child item of this item
         
-        Accepts either a string or an index"""
+        Accepts either a string or an index. 
+        If a string is passed then it returns the child item
+        with the best match for the string."""
 
         #print child_spec
+        
         
         if isinstance(child_spec, basestring):
 
             texts = [c.Text() for c in self.Children()]
             indices = range(0, len(texts))
             index = findbestmatch.find_best_match(
-                child_spec, texts, indices)
+                child_spec, texts, indices, limit_ratio = .6)
             
             #if len(matching) > 1 :
             #    raise RuntimeError(
@@ -805,7 +814,8 @@ class _treeview_element(object):
                         
         else:
             index = child_spec
-        
+
+        print "matched %s for %s"% (self.Children()[index].Text(), child_spec)
         return self.Children()[index]
                 
 
@@ -904,7 +914,21 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def GetItem(self, path):
-        "Read the TreeView item"
+        """Read the TreeView item
+        
+        * **path** the path to the item to return. This can be one of 
+          the following:
+          
+          * A string separated by \\ characters. The first character must 
+            be \\. This string is split on the \\ characters and each of 
+            these is used to find the specific child at each level. The 
+            \\ represents the root item - so you don't need to specify the
+            root itself.
+          * A list/tuple of strings - The first item should be the root 
+            element.
+          * A list/tuple of integers - The first item should be 0 
+            representing the root element.
+        """
 
         # work just based on integers for now
 
@@ -1572,8 +1596,7 @@ class _toolbar_button(object):
         if ret == -1:
             del remote_mem
             raise RuntimeError(
-                "GetButtonInfo failed for button with command id %d"% 
-                    button.idCommand)
+                "GetButtonInfo failed for button with index %d"% self.index)
 
         # read the text
         self.info.text = ctypes.create_unicode_buffer(1999)
@@ -1733,6 +1756,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def Button(self, button_index):
+        "Return the button at index button_index"
         return _toolbar_button(button_index, self)
 
     #----------------------------------------------------------------
