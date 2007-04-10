@@ -815,7 +815,6 @@ class _treeview_element(object):
         else:
             index = child_spec
 
-        print "matched %s for %s"% (self.Children()[index].Text(), child_spec)
         return self.Children()[index]
                 
 

@@ -106,7 +106,16 @@ def _get_match_ratios(texts, match_against):
 
 #====================================================================
 def find_best_match(search_text, item_texts, items, limit_ratio = .5):
-    "Return the item that best matches the search_text"
+    """Return the item that best matches the search_text
+    
+    * **search_text** The text to search for
+    * **item_texts** The list of texts to search through
+    * **items** The list of items corresponding (1 to 1) 
+      to the list of texts to search through.
+    * **limit_ratio** How well the text has to match the best match.
+      If the best match matches lower then this then it is not 
+      considered a match and a MatchError is raised, (default = .5)
+    """
     search_text = _cut_at_tab(search_text)
 
 
