@@ -27,6 +27,8 @@ import os.path
 
 test_path = os.path.split(__file__)[0]
 
+import sys
+sys.path.append(".")
 from pywinauto import findbestmatch
 
 

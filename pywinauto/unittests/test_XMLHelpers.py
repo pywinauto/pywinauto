@@ -22,6 +22,8 @@
 
 __revision__ = "$Revision: 236 $"
 
+import sys
+sys.path.append(".")
 
 from pywinauto.XMLHelpers import *
 

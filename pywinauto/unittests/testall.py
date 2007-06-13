@@ -3,6 +3,7 @@ import unittest
 import os.path
 import os
 import sys
+sys.path.append(".")
 
 from pywinauto.timings import Timings
 Timings.Fast()

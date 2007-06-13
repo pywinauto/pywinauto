@@ -20,6 +20,8 @@
 
 "Tests for HwndWrapper"
 
+import sys
+sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import win32structures, win32defines

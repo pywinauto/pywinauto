@@ -22,7 +22,9 @@
 
 __revision__ = "$Revision: 234 $"
 
-from  pywinauto.controls import common_controls
+import sys
+sys.path.append(".")
+from pywinauto.controls import common_controls
 from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
 from pywinauto.controls import WrapHandle
@@ -777,7 +779,14 @@ class ToolbarTestCases(unittest.TestCase):
         self.assertEquals("Button ID 7" in tips.Texts(),True)
 
     def testPressButton(self):
+        
+        
+        
         self.ctrl.PressButton(0)
+        
+        import pdb;pdb.set_trace()
+        
+        
         #print self.ctrl.Texts()
         self.assertRaises(
             findbestmatch.MatchError, 

@@ -24,6 +24,8 @@ __revision__ = "$Revision: 234 $"
 
 import unittest
 
+import sys
+sys.path.append(".")
 from pywinauto.findwindows import *
 
 

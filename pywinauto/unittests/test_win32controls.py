@@ -24,6 +24,8 @@ __revision__ = "$Revision: 234 $"
 
 
 
+import sys
+sys.path.append(".")
 from pywinauto.controls.win32_controls import *
 
 import unittest

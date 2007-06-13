@@ -24,6 +24,8 @@ __revision__ = "$Revision: 234 $"
 
 import unittest
 
+import sys
+sys.path.append(".")
 from pywinauto.win32functions import *
 
 import struct

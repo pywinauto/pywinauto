@@ -30,6 +30,8 @@ import pprint
 import pdb
 import warnings
 
+import sys
+sys.path.append(".")
 from pywinauto import application
 from pywinauto.application import *
 from pywinauto import findwindows
