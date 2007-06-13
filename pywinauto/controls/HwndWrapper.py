@@ -628,12 +628,15 @@ class HwndWrapper(object):
 #
 
     #-----------------------------------------------------------
-    def NotifyParent(self, message):
+    def NotifyParent(self, message, controlID = None):
         "Send the notification message to parent of this control"
+        
+        if controlID is None:
+            controlID = self.ControlID()
 
         return self.Parent().PostMessage(
             win32defines.WM_COMMAND,
-            win32functions.MakeLong(message, self.ControlID()),
+            win32functions.MakeLong(message, controlID),
             self)
 
     #-----------------------------------------------------------

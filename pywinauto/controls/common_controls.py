@@ -1959,14 +1959,20 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             button_index = button_identifier
 
         button = self.GetButton(button_index)
+        
+        # transliterated from 
+        # http://source.winehq.org/source/dlls/comctl32/toolbar.c
 
-        ret = self.SendMessageTimeout(
-            win32defines.TB_PRESSBUTTON,
-            button.idCommand,
-            win32functions.MakeLong(0, 1))
-                
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(Timings.after_toobarpressbutton_wait)
+        # if the button is enabled
+        if button.IsEnabled():
+            
+            ret = self.NotifyParent(
+                #win32defines.TB_PRESSBUTTON,
+                message = win32defines.BN_CLICKED,
+                controlID = button.idCommand)
+
+            win32functions.WaitGuiThreadIdle(self)
+            time.sleep(Timings.after_toobarpressbutton_wait)
 
 
 
