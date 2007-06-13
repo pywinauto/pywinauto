@@ -44,7 +44,10 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "Button",
         r"WindowsForms\d*\.BUTTON\..*",
-        "TButton" ]
+        "TButton",
+        "ThunderCommandButton",
+        "ThunderOptionButton",
+        "ThunderCheckBox"]
 
 
     #-----------------------------------------------------------
@@ -96,6 +99,16 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         f_class_name = 'Button'
 
+
+        vb_buttons = {
+            "ThunderOptionButton": "RadioButton",
+            "ThunderCheckBox": "CheckBox",
+            "ThunderCommandButton": "Button"
+        }
+        
+        if self.Class() in vb_buttons:
+            f_class_name = vb_buttons[self.Class()]
+
         if style_lsb == win32defines.BS_3STATE or \
             style_lsb == win32defines.BS_AUTO3STATE or \
             style_lsb == win32defines.BS_AUTOCHECKBOX or \
@@ -108,6 +121,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         elif style_lsb ==  win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"
+
 
         if self.Style() & win32defines.BS_PUSHLIKE:
             f_class_name = "Button"
@@ -368,6 +382,8 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "ListBox",
         r"WindowsForms\d*\.LISTBOX\..*",
+        "ThunderListBox",
+        "ThunderFileListBox",
         "TListBox",]
 
     #-----------------------------------------------------------
@@ -524,6 +540,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "TEdit",
         "TMemo",
         r"WindowsForms\d*\.EDIT\..*",
+        "ThunderTextBox",
         ]
 
     #-----------------------------------------------------------
