@@ -79,7 +79,6 @@ _font_attribs = [field[0] for field in win32structures.LOGFONTW._fields_]
 def CompareToRefFontTest(windows):
     "Compare the font to the font of the reference control"
 
-
     bugs = []
     for win in windows:
         # if no reference then skip the control
@@ -100,7 +99,7 @@ def CompareToRefFontTest(windows):
                 bugs.append((
                     [win, ],
                     {
-                        "ValueType": fname,
+                        "ValueType": font_attrib,
                         "Ref": unicode(ref_value),
                         "Loc": unicode(loc_value),
                     },
