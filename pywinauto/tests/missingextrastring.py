@@ -93,9 +93,9 @@ def MissingExtraStringTest(windows):
             missing_extra = ''
 
             if win.WindowText().count(char) > win.ref.WindowText().count(char):
-                missing_extra = "ExtraCharacters"
+                missing_extra = u"ExtraCharacters"
             elif win.WindowText().count(char) < win.ref.WindowText().count(char):
-                missing_extra = "MissingCharacters"
+                missing_extra = u"MissingCharacters"
 
             if missing_extra:
                 bugs.append((
