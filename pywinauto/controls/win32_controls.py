@@ -94,8 +94,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
           - GroupBoxes, this method returns "GroupBox"
 
         """
-        # get the least significant nibble
-        style_lsn = self.Style() & 0x7
+        # get the least significant BIT
+        style_lsb = self.Style() & 0xF
 
         f_class_name = 'Button'
 
@@ -109,15 +109,15 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         if self.Class() in vb_buttons:
             f_class_name = vb_buttons[self.Class()]
 
-        if style_lsn == win32defines.BS_3STATE or \
-            style_lsn == win32defines.BS_AUTO3STATE or \
-            style_lsn == win32defines.BS_AUTOCHECKBOX or \
-            style_lsn == win32defines.BS_CHECKBOX:
+        if style_lsb == win32defines.BS_3STATE or \
+            style_lsb == win32defines.BS_AUTO3STATE or \
+            style_lsb == win32defines.BS_AUTOCHECKBOX or \
+            style_lsb == win32defines.BS_CHECKBOX:
             f_class_name = "CheckBox"
-        elif style_lsn == win32defines.BS_RADIOBUTTON or \
-            style_lsn == win32defines.BS_AUTORADIOBUTTON:
+        elif style_lsb == win32defines.BS_RADIOBUTTON or \
+            style_lsb == win32defines.BS_AUTORADIOBUTTON:
             f_class_name = "RadioButton"
-        elif style_lsn ==  win32defines.BS_GROUPBOX:
+        elif style_lsb ==  win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"
         
         if self.Style() & win32defines.BS_PUSHLIKE:
