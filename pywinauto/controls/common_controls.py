@@ -189,7 +189,9 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def ColumnCount(self):
         """Return the number of columns"""
-        return self.GetHeaderControl().ItemCount()
+        if self.GetHeaderControl() is not None:
+            return self.GetHeaderControl().ItemCount()
+        return 0
 
     #-----------------------------------------------------------
     def ItemCount(self):
@@ -201,8 +203,12 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         "Returns the Header control associated with the ListView"
         #from wraphandle import WrapHandle
         #from HwndWrapper import WrapHandle
-        return HwndWrapper.HwndWrapper(
-            self.SendMessage(win32defines.LVM_GETHEADER))
+
+        try:
+            return HwndWrapper.HwndWrapper(
+                self.SendMessage(win32defines.LVM_GETHEADER))
+        except HwndWrapper.InvalidWindowHandle:
+            return None
 
     #-----------------------------------------------------------
     def GetColumn(self, col_index):
