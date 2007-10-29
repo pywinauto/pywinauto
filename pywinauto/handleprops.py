@@ -135,10 +135,32 @@ def font(handle):
         handle, win32defines.WM_GETFONT, 0, 0)
 
     # if the fondUsed is 0 then the control is using the
-    # system font
+    # system font (well probably not - even though that is what the docs say)
+    # instead we switch to teh default GUI font - which is more likely correct.
     if not font_handle:
-        font_handle = win32functions.GetStockObject(win32defines.SYSTEM_FONT)
 
+        # So just get the default system font
+        font_handle = win32functions.GetStockObject(win32defines.DEFAULT_GUI_FONT)
+
+        # if we still don't have a font!
+        # ----- ie, we're on an antiquated OS, like NT 3.51
+        if not font_handle:
+
+            # ----- On Asian platforms, ANSI font won't show.
+            if win32functions.GetSystemMetrics(win32defines.SM_DBCSENABLED):
+                # ----- was...(SYSTEM_FONT)
+                font_handle = win32functions.GetStockObject(
+                    win32defines.SYSTEM_FONT)
+            else:
+                # ----- was...(SYSTEM_FONT)
+                font_handle = win32functions.GetStockObject(
+                    win32defines.ANSI_VAR_FONT)
+
+    else:        
+        fontval = win32structures.LOGFONTW()
+        ret = win32functions.GetObject(
+	    font_handle, ctypes.sizeof(fontval), ctypes.byref(fontval))
+    
     # Get the Logfont structure of the font of the control
     fontval = win32structures.LOGFONTW()
     ret = win32functions.GetObject(
