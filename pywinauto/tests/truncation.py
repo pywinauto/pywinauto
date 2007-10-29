@@ -130,10 +130,12 @@ def _FindTruncations(ctrl):
         # object
         if minRect.right > rect.right or \
             minRect.bottom > rect.bottom:
-
+            
             # append the index and the rectangle to list of bug items
             truncIdxs.append(idx)
             truncStrings.append(text)
+        
+            #print "%s'\n\tRECT: %s\n\t MIN: %s" %(text, rect, minRect)
 
     return truncIdxs, truncStrings
 
@@ -152,31 +154,29 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     txtDC = win32functions.CreateDC(u"DISPLAY", None, None, None )
 
     hFontGUI = win32functions.CreateFontIndirect(ctypes.byref(font))
-
-    # Maybe we could not get the font or we got the system font
-    if not hFontGUI:
-
-        # So just get the default system font
-        hFontGUI = win32functions.GetStockObject(win32defines.DEFAULT_GUI_FONT)
-
-        # if we still don't have a font!
-        # ----- ie, we're on an antiquated OS, like NT 3.51
-        if not hFontGUI:
-
-            # ----- On Asian platforms, ANSI font won't show.
-            if win32functions.GetSystemMetrics(win32defines.SM_DBCSENABLED):
-                # ----- was...(SYSTEM_FONT)
-                hFontGUI = win32functions.GetStockObject(
-                    win32defines.SYSTEM_FONT)
-            else:
-                # ----- was...(SYSTEM_FONT)
-                hFontGUI = win32functions.GetStockObject(
-                    win32defines.ANSI_VAR_FONT)
-
+        
+#    # Maybe we could not get the font or we got the system font
+#    if not hFontGUI:
+#
+#        # So just get the default system font
+#        hFontGUI = win32functions.GetStockObject(win32defines.DEFAULT_GUI_FONT)
+#
+#        # if we still don't have a font!
+#        # ----- ie, we're on an antiquated OS, like NT 3.51
+#        if not hFontGUI:
+#
+#            # ----- On Asian platforms, ANSI font won't show.
+#            if win32functions.GetSystemMetrics(win32defines.SM_DBCSENABLED):
+#                # ----- was...(SYSTEM_FONT)
+#                hFontGUI = win32functions.GetStockObject(
+#                    win32defines.SYSTEM_FONT)
+#            else:
+#                # ----- was...(SYSTEM_FONT)
+#                hFontGUI = win32functions.GetStockObject(
+#                    win32defines.ANSI_VAR_FONT)
 
     # put our font into the Device Context
     win32functions.SelectObject (txtDC, hFontGUI)
-
 
     modifiedRect = RECT(usableRect)
     # Now write the text to our DC with our font to get the
@@ -205,42 +205,99 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
 
 
 #==============================================================================
-def _ButtonTruncInfo(win):
+def _GroupBoxTruncInfo(win):
     "Return truncation information specific to Button controls"
     lineFormat = win32defines.DT_SINGLELINE
 
-    widthAdj = 0
-    heightAdj = 0
+    heightAdj = 4
+    widthAdj = 9
 
-    # get the last byte of the style
-    buttonStyle = win.Style() & 0xF
+    # don't check image controls for truncation!
+    # we do this by specifying huge adjustments
+    # maybe a better/more pythonic way of doing this would be
+    # to set some special lineFormat (None or something?)
+    if win.HasStyle(win32defines.BS_BITMAP) or \
+        win.HasStyle(win32defines.BS_ICON):
+        heightAdj = -9000
+        widthAdj = -9000
+        lineFormat = win32defines.DT_WORDBREAK
+
+    newRect = win.ClientRects()[0]
+    newRect.right -=  widthAdj
+    newRect.bottom -=  heightAdj
+
+    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
+
+
+#==============================================================================
+def _RadioButtonTruncInfo(win):
+    "Return truncation information specific to Button controls"
+    lineFormat = win32defines.DT_SINGLELINE
+
+    if win.HasStyle(win32defines.BS_MULTILINE):
+        lineFormat = win32defines.DT_WORDBREAK
+    
+    widthAdj = 19
+
+    # don't check image controls for truncation!
+    # we do this by specifying huge adjustments
+    # maybe a better/more pythonic way of doing this would be
+    # to set some special lineFormat (None or something?)
+    if win.HasStyle(win32defines.BS_BITMAP) or \
+        win.HasStyle(win32defines.BS_ICON):
+        heightAdj = -9000
+        widthAdj = -9000
+        lineFormat = win32defines.DT_WORDBREAK
+
+    newRect = win.ClientRects()[0]
+    newRect.right -=  widthAdj
+
+    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
+
+
+#==============================================================================
+def _CheckBoxTruncInfo(win):
+    "Return truncation information specific to Button controls"
+    lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.BS_MULTILINE):
         lineFormat = win32defines.DT_WORDBREAK
 
-    if buttonStyle == win32defines.BS_PUSHBUTTON:
-        heightAdj = 4
-        widthAdj = 5
+    widthAdj = 18
+    
+    # don't check image controls for truncation!
+    # we do this by specifying huge adjustments
+    # maybe a better/more pythonic way of doing this would be
+    # to set some special lineFormat (None or something?)
+    if win.HasStyle(win32defines.BS_BITMAP) or \
+        win.HasStyle(win32defines.BS_ICON):
+        heightAdj = -9000
+        widthAdj = -9000
+        lineFormat = win32defines.DT_WORDBREAK
 
-    elif win.HasStyle(win32defines.BS_PUSHLIKE):
+    newRect = win.ClientRects()[0]
+    newRect.right -=  widthAdj
+    
+    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
+
+
+#==============================================================================
+def _ButtonTruncInfo(win):
+    "Return truncation information specific to Button controls"
+    lineFormat = win32defines.DT_SINGLELINE
+
+    if win.HasStyle(win32defines.BS_MULTILINE):
+        lineFormat = win32defines.DT_WORDBREAK
+
+    heightAdj = 4
+    widthAdj = 5
+
+    if win.HasStyle(win32defines.BS_PUSHLIKE):
         widthAdj = 3
         heightAdj = 3 # 3
         if win.HasStyle(win32defines.BS_MULTILINE):
             widthAdj = 9
             heightAdj = 2 # 3
-
-    elif buttonStyle == win32defines.BS_CHECKBOX or \
-        buttonStyle == win32defines.BS_AUTOCHECKBOX:
-        widthAdj = 18
-
-    elif buttonStyle == win32defines.BS_RADIOBUTTON or \
-        buttonStyle == win32defines.BS_AUTORADIOBUTTON:
-        widthAdj = 19
-
-    elif buttonStyle == win32defines.BS_GROUPBOX:
-        heightAdj = 4
-        widthAdj = 9
-        lineFormat = win32defines.DT_SINGLELINE
 
     # don't check image controls for truncation!
     # we do this by specifying huge adjustments
@@ -318,7 +375,8 @@ def _StaticTruncInfo(win):
         win.HasStyle(win32defines.SS_SIMPLE) or \
         win.HasStyle(win32defines.SS_LEFTNOWORDWRAP):
 
-        lineFormat = win32defines.DT_SINGLELINE
+        if "WindowsForms" not in win.Class():
+            lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.SS_NOPREFIX):
         lineFormat |= win32defines.DT_NOPREFIX
@@ -480,6 +538,10 @@ _TruncInfo = {
     "ComboLBox" : _ComboLBoxTruncInfo,
     "ListBox" : _ListBoxTruncInfo,
     "Button" : _ButtonTruncInfo,
+    "CheckBox" : _CheckBoxTruncInfo,
+    "GroupBox" : _GroupBoxTruncInfo,
+    "RadioButton" : _RadioButtonTruncInfo,
+    "Button" : _ButtonTruncInfo,
     "Edit": _EditTruncInfo,
     "Static" : _StaticTruncInfo,
 
@@ -494,10 +556,9 @@ _TruncInfo = {
 #==============================================================================
 def _GetTruncationInfo(win):
     "helper function to hide non special windows"
-    if win.Class() in _TruncInfo:
-        return _TruncInfo[win.Class()](win)
+    if win.FriendlyClassName() in _TruncInfo:
+        return _TruncInfo[win.FriendlyClassName()](win)
     else:
-
         return _WindowTruncInfo(win)
 
 
