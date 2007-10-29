@@ -88,6 +88,8 @@ class MenuItem(object):
 
         return menu_info
 
+    def FriendlyClassName(self):
+        return "MenuItem"
 
     def Rectangle(self):
         "Get the rectangle of the menu item"
