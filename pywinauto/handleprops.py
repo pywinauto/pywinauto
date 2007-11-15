@@ -38,7 +38,8 @@ import findwindows # for children
 #=========================================================================
 def text(handle):
     "Return the text of the window"
-    length = win32functions.GetWindowTextLength(handle,)
+    length = win32functions.SendMessage(
+        handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
 
     textval = ''
     if length:
@@ -46,8 +47,8 @@ def text(handle):
 
         buffer_ = (ctypes.c_wchar * length)()
 
-        ret =  win32functions.GetWindowText(
-            handle, ctypes.byref(buffer_), length)
+        ret = win32functions.SendMessage(
+            handle, win32defines.WM_GETTEXT, length, ctypes.byref(buffer_))
 
         if ret:
             textval = buffer_.value
@@ -156,11 +157,11 @@ def font(handle):
                 font_handle = win32functions.GetStockObject(
                     win32defines.ANSI_VAR_FONT)
 
-    else:        
+    else:
         fontval = win32structures.LOGFONTW()
         ret = win32functions.GetObject(
 	    font_handle, ctypes.sizeof(fontval), ctypes.byref(fontval))
-    
+
     # Get the Logfont structure of the font of the control
     fontval = win32structures.LOGFONTW()
     ret = win32functions.GetObject(
