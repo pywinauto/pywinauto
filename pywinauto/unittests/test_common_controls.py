@@ -38,7 +38,7 @@ import time
 import pprint
 import pdb
 
-controlspy_folder = r"C:\.projects\py_pywinauto\controlspy0798\\"
+controlspy_folder = r"C:\_projects\py_pywinauto\controlspy0798\\"
 
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
@@ -147,11 +147,11 @@ class ListViewTestCases(unittest.TestCase):
 
     def testGetItemText(self):
         "Test the ListView GetItem method - with text this time"
-        
+
         for text in [row[0] for row in self.texts]:
             self.assertEquals(
                 self.ctrl.GetItem(text)['text'], text)
-        
+
         self.assertRaises(ValueError, self.ctrl.GetItem, "Item not in this list")
 
 
@@ -779,18 +779,18 @@ class ToolbarTestCases(unittest.TestCase):
         self.assertEquals("Button ID 7" in tips.Texts(),True)
 
     def testPressButton(self):
-        
-        
-        
+
+
+
         self.ctrl.PressButton(0)
-        
+
         import pdb;pdb.set_trace()
-        
-        
+
+
         #print self.ctrl.Texts()
         self.assertRaises(
-            findbestmatch.MatchError, 
-            self.ctrl.PressButton, 
+            findbestmatch.MatchError,
+            self.ctrl.PressButton,
             "asdfdasfasdf")
 
         self.ctrl.PressButton("10")

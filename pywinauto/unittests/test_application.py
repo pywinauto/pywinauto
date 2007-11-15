@@ -376,6 +376,7 @@ class ApplicationTestCases(unittest.TestCase):
         app.UntitledNotepad.Edit.TypeKeys("hello")
 
         app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.PageSetup.Wait("exists", 2, .5)
         app.PageSetup.Printer.Click()
         app.PageSetup.Network.Click()
 
