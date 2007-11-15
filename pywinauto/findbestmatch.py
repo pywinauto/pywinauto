@@ -107,13 +107,13 @@ def _get_match_ratios(texts, match_against):
 #====================================================================
 def find_best_match(search_text, item_texts, items, limit_ratio = .5):
     """Return the item that best matches the search_text
-    
+
     * **search_text** The text to search for
     * **item_texts** The list of texts to search through
-    * **items** The list of items corresponding (1 to 1) 
+    * **items** The list of items corresponding (1 to 1)
       to the list of texts to search through.
     * **limit_ratio** How well the text has to match the best match.
-      If the best match matches lower then this then it is not 
+      If the best match matches lower then this then it is not
       considered a match and a MatchError is raised, (default = .5)
     """
     search_text = _cut_at_tab(search_text)
@@ -275,7 +275,8 @@ def get_control_names(control, allcontrols):
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
     cleaned = control.WindowText()
-    if cleaned:
+    if cleaned and not control.FriendlyClassName() in (
+        "Edit", "ListBox", "Combobox", "ListView", "TreeView"):
         names.append(cleaned)
         names.append(cleaned + control.FriendlyClassName())
 
