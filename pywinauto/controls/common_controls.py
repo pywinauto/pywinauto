@@ -43,7 +43,7 @@ class AccessDenied(RuntimeError):
 # Todo: ListViews should be based off of GetItem, and then have actions
 #       Applied to that e.g. ListView.Item(xxx).Select(), rather then
 #       ListView.Select(xxx)
-#       Or at least most of the functions should call GetItem to get the 
+#       Or at least most of the functions should call GetItem to get the
 #       Item they want to work with.
 
 #====================================================================
@@ -103,14 +103,14 @@ class _RemoteMemoryBlock(object):
     def CleanUp(self):
         "Free Memory and the process handle"
         if self.process:
-            # free up the memory we allocated        
+            # free up the memory we allocated
             ret = win32functions.VirtualFreeEx(
                 self.process, self.memAddress, 0, win32defines.MEM_RELEASE)
 
             if not ret:
                 self._CloseHandle()
                 raise ctypes.WinError()
-                
+
             self._CloseHandle()
 
 
@@ -255,7 +255,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             col_props['width'] = col.cx
             col_props['image'] = col.iImage
             col_props['subitem'] = col.iSubItem
-        
+
         del remote_mem
 
         return col_props
@@ -307,20 +307,20 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def _as_item_index(self, item):
         """Ensure that item is an item index
-        
-        If a string is passed in then it will be searched for in the 
+
+        If a string is passed in then it will be searched for in the
         list of item titles.
         """
         index = item
         if isinstance(item, basestring):
             index = (self.Texts().index(item) - 1) / self.ColumnCount()
-        
+
         return index
 
     #-----------------------------------------------------------
     def GetItem(self, item_index, subitem_index = 0):
         """Return the item of the list view"
-         
+
         * **item_index** Can be either the index of the item or a string
           with the text of the item you want returned.
         * **subitem_index** The 0 based index of the item you want returned.
@@ -328,8 +328,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         """
 
         item_data = {}
-        
-        # ensure the item_index is an integer or 
+
+        # ensure the item_index is an integer or
         # convert it to one
         item_index = self._as_item_index(item_index)
 
@@ -396,7 +396,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # now get the item values...
         # for each of the rows
         for item_index in range(0, self.ItemCount()):
-            
+
             # and each of the columns for that row
             for subitem_index in range(0, colcount):
 
@@ -418,7 +418,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.VerifyActionable()
 
-        # ensure the item is an integer or 
+        # ensure the item is an integer or
         # convert it to one
         item = self._as_item_index(item)
 
@@ -445,7 +445,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.VerifyActionable()
 
-        # ensure the item is an integer or 
+        # ensure the item is an integer or
         # convert it to one
         item = self._as_item_index(item)
 
@@ -470,10 +470,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     def IsChecked(self, item):
         "Return whether the ListView item is checked or not"
 
-        # ensure the item is an integer or 
+        # ensure the item is an integer or
         # convert it to one
-        item = self._as_item_index(item)        
-        
+        item = self._as_item_index(item)
+
         state = self.SendMessage(
             win32defines.LVM_GETITEMSTATE,
             item,
@@ -485,7 +485,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     def IsSelected(self, item):
         "Return True if the item is selected"
 
-        # ensure the item is an integer or 
+        # ensure the item is an integer or
         # convert it to one
         item = self._as_item_index(item)
 
@@ -496,7 +496,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     def IsFocused(self, item):
         "Return True if the item has the focus"
 
-        # ensure the item is an integer or 
+        # ensure the item is an integer or
         # convert it to one
         item = self._as_item_index(item)
 
@@ -514,7 +514,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         self.VerifyActionable()
 
-        # ensure the item is an integer or 
+        # ensure the item is an integer or
         # convert it to one
         item = self._as_item_index(item)
 
@@ -631,7 +631,7 @@ class _treeview_element(object):
         """Return the rectangle of the item
 
         If text_area_rect is set to False then it will return
-        the rectangle for the whole item (usually left if 0).
+        the rectangle for the whole item (usually left is equal to 0).
         Defaults to True - which returns just the rectangle of the
         text of the item
         """
@@ -714,7 +714,7 @@ class _treeview_element(object):
     def Collapse(self):
         "Collapse the children of this tree view item"
         pass
-        
+
     #----------------------------------------------------------------
     def Expand(self):
         "Expand the children of this tree view item"
@@ -759,7 +759,7 @@ class _treeview_element(object):
             #else:
             #    raise ctypes.WinError()
 
-        return children    
+        return children
 
     #----------------------------------------------------------------
     def Next(self):
@@ -798,31 +798,31 @@ class _treeview_element(object):
     #----------------------------------------------------------------
     def GetChild(self, child_spec):
         """Return the child item of this item
-        
-        Accepts either a string or an index. 
+
+        Accepts either a string or an index.
         If a string is passed then it returns the child item
         with the best match for the string."""
 
         #print child_spec
-        
-        
+
+
         if isinstance(child_spec, basestring):
 
             texts = [c.Text() for c in self.Children()]
             indices = range(0, len(texts))
             index = findbestmatch.find_best_match(
                 child_spec, texts, indices, limit_ratio = .6)
-            
+
             #if len(matching) > 1 :
             #    raise RuntimeError(
             #        "There are multiple children that match that spec '%s'"%
             #            child_spec)
-                        
+
         else:
             index = child_spec
 
         return self.Children()[index]
-                
+
 
     #----------------------------------------------------------------
     def _readitem(self):
@@ -920,18 +920,18 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetItem(self, path):
         """Read the TreeView item
-        
-        * **path** the path to the item to return. This can be one of 
+
+        * **path** the path to the item to return. This can be one of
           the following:
-          
-          * A string separated by \\ characters. The first character must 
-            be \\. This string is split on the \\ characters and each of 
-            these is used to find the specific child at each level. The 
+
+          * A string separated by \\ characters. The first character must
+            be \\. This string is split on the \\ characters and each of
+            these is used to find the specific child at each level. The
             \\ represents the root item - so you don't need to specify the
             root itself.
-          * A list/tuple of strings - The first item should be the root 
+          * A list/tuple of strings - The first item should be the root
             element.
-          * A list/tuple of integers - The first item should be 0 
+          * A list/tuple of integers - The first item should be 0
             representing the root element.
         """
 
@@ -944,8 +944,8 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             if not path.startswith("\\"):
                 raise RuntimeError(
                     "Only absolute paths allowed - "
-                    "please start the path with \\")                
-                    
+                    "please start the path with \\")
+
             path = path.split("\\")
 
         # get the correct lowest level item
@@ -956,18 +956,18 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 #            if current_elem is None:
 #                raise IndexError("Root Item '%s' does not have %d sibling(s)"%
 #                    (self.Root().WindowText(), i + 1))
-#        
+#
         # remove the first item as we have dealt with it (string or integer)
         path = path[1:]
 
         # now for each of the lower levels
         # just index into it's children
         for child_spec in path:
-            
+
             # ensure that the item is expanded (as this is sometimes required
             # for loading the tree view branches
             current_elem.Expand()
-            
+
             try:
                 current_elem = current_elem.GetChild(child_spec)
             except IndexError:
@@ -1568,7 +1568,7 @@ class _toolbar_button(object):
         "Initialize the item"
         self.toolbar_ctrl = tb_handle
         self.index = index_
-        
+
         self.info = win32structures.TBBUTTONINFOW()
         self.info.cbSize = ctypes.sizeof(self.info)
         self.info.dwMask = \
@@ -1581,7 +1581,7 @@ class _toolbar_button(object):
             win32defines.TBIF_TEXT  | \
             win32defines.TBIF_BYINDEX
             #win32defines.TBIF_IMAGELABEL
-            
+
         self.info.cchText = 2000
 
         remote_mem = _RemoteMemoryBlock(self.toolbar_ctrl)
@@ -1611,9 +1611,9 @@ class _toolbar_button(object):
         self.info.text = self.info.text.value
 
         del remote_mem
-        
-        
-        
+
+
+
     #----------------------------------------------------------------
     def Rectangle(self):
         "Get the rectangle of a button on the toolbar"
@@ -1634,7 +1634,7 @@ class _toolbar_button(object):
         del remote_mem
 
         return rect
-        
+
 #    #----------------------------------------------------------------
 #    def Press(self, press = True):
 #        "Find where the button is and click it"
@@ -1651,7 +1651,7 @@ class _toolbar_button(object):
 #
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.NotifyParent(win32defines.TBN_TOOLBARCHANGE)
-#                
+#
 #        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #
@@ -1676,31 +1676,31 @@ class _toolbar_button(object):
 #
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.NotifyParent(win32defines.TBN_TOOLBARCHANGE)
-#                
+#
 #        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #
 #    #----------------------------------------------------------------
 #    def UnCheck(self):
 #        self.Check(check = False)
-    
+
     #----------------------------------------------------------------
     def Style(self, AND = -1):
         "Return the style of the button"
         return self.toolbar_ctrl.SendMessageTimeout(
             win32defines.TB_GETSTYLE, self.info.idCommand)
-    
+
     #----------------------------------------------------------------
     def State(self, AND = -1):
         "Return the state of the button"
         return self.toolbar_ctrl.SendMessageTimeout(
             win32defines.TB_GETSTATE, self.info.idCommand)
-    
+
     #----------------------------------------------------------------
     def IsCheckable(self):
         "Return if the button can be checked"
-        return self.Style() & win32defines.TBSTYLE_CHECK 
-        
+        return self.Style() & win32defines.TBSTYLE_CHECK
+
     #----------------------------------------------------------------
     def IsPressable(self):
         "Return if the button can be pressed"
@@ -1714,16 +1714,16 @@ class _toolbar_button(object):
     #----------------------------------------------------------------
     def IsPressed(self):
         "Return if the button is in the pressed state"
-        return self.State() & win32defines.TBSTATE_PRESSED 
+        return self.State() & win32defines.TBSTATE_PRESSED
 
     #----------------------------------------------------------------
     def IsEnabled(self):
         "Return if the button is in the pressed state"
-        
+
         # make sure it has an ID
         if not self.info.idCommand:
             return False
-        
+
         return self.State() & win32defines.TBSTATE_ENABLED
 
     #----------------------------------------------------------------
@@ -1786,7 +1786,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         ret = self.SendMessage(
             win32defines.TB_GETBUTTON, button_index, remote_mem)
-    
+
         if not ret:
             del remote_mem
             raise RuntimeError(
@@ -1823,7 +1823,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         if ret == -1:
             del remote_mem
             raise RuntimeError(
-                "GetButtonInfo failed for button with command id %d"% 
+                "GetButtonInfo failed for button with command id %d"%
                     button.idCommand)
 
         # read the text
@@ -1952,26 +1952,26 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         texts = self.Texts()
         if isinstance(button_identifier, basestring):
-        
+
             # one of these will be returned for the matching
             # text
             indices = [i for i in range(0, len(texts[1:]))]
-            
+
             # find which index best matches that text
             button_index = findbestmatch.find_best_match(
                 button_identifier, texts[1:], indices)
-                
+
         else:
             button_index = button_identifier
 
         button = self.GetButton(button_index)
-        
-        # transliterated from 
+
+        # transliterated from
         # http://source.winehq.org/source/dlls/comctl32/toolbar.c
 
         # if the button is enabled
         if button.IsEnabled():
-            
+
             ret = self.NotifyParent(
                 #win32defines.TB_PRESSBUTTON,
                 message = win32defines.BN_CLICKED,
