@@ -862,6 +862,7 @@ class _treeview_element(object):
 
             text = char_data.value
         else:
+            # seems that this may not always be correct
             raise ctypes.WinError()
 
         return item, text
@@ -888,11 +889,12 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Texts(self):
         "Return all the text for the tree view"
-        texts = [self.WindowText(), self.Root().Text()]
+        texts = [self.WindowText(),]
+        if self.ItemCount():
+            texts.append(self.Root().Text())
+            elements = self.Root().SubElements()
 
-        elements = self.Root().SubElements()
-
-        texts.extend([elem.Text() for elem in elements])
+            texts.extend([elem.Text() for elem in elements])
 
         return texts
 
@@ -903,6 +905,10 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         root_elem = self.SendMessage(
             win32defines.TVM_GETNEXTITEM,
             win32defines.TVGN_ROOT)
+
+        # Sometimes there is no root element
+        if not root_elem:
+            return None
 
         return _treeview_element(root_elem, self)
 
@@ -936,6 +942,9 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         """
 
         # work just based on integers for now
+
+        if not self.ItemCount():
+            return None
 
         current_elem = self.Root()
 
