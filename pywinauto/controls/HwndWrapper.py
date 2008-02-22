@@ -630,7 +630,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def NotifyParent(self, message, controlID = None):
         "Send the notification message to parent of this control"
-        
+
         if controlID is None:
             controlID = self.ControlID()
 
@@ -1073,7 +1073,11 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def Menu(self):
         "Return the menu of the control"
-        return Menu(self, self._menu_handle())
+        menu_hwnd = self._menu_handle()
+        if menu_hwnd and win32functions.IsMenu(menu_hwnd):
+            return Menu(self, menu_hwnd)
+        else:
+            return None
 
     #-----------------------------------------------------------
     def MenuItem(self, path):
@@ -1095,8 +1099,11 @@ class HwndWrapper(object):
         else:
             menu_appdata = None
 
-        return self.Menu().GetMenuPath(path, appdata = menu_appdata)[-1]
+        menu = self.Menu()
+        if menu:
+            return self.Menu().GetMenuPath(path, appdata = menu_appdata)[-1]
 
+        raise RuntimeError("There is no menu.")
 
     #-----------------------------------------------------------
     def MenuItems(self):
@@ -1104,7 +1111,7 @@ class HwndWrapper(object):
 
         If there are no menu items then return an empty list
         """
-        if self.IsDialog():
+        if self.IsDialog() and self.Menu():
             #menu_handle = win32functions.GetMenu(self)
             #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
             return self.Menu().GetProperties()['MenuItems']
