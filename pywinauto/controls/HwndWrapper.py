@@ -1074,7 +1074,7 @@ class HwndWrapper(object):
     def Menu(self):
         "Return the menu of the control"
         menu_hwnd = self._menu_handle()
-        if menu_hwnd and win32functions.IsMenu(menu_hwnd):
+        if menu_hwnd: # and win32functions.IsMenu(menu_hwnd):
             return Menu(self, menu_hwnd)
         else:
             return None
