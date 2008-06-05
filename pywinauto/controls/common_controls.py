@@ -913,6 +913,18 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         return _treeview_element(root_elem, self)
 
     #----------------------------------------------------------------
+    def Roots(self):
+        roots = []
+
+        cur_elem = self.Root()
+        while cur_elem:
+            roots.append(cur_elem)
+
+            cur_elem = cur_elem.Next()
+
+        return roots
+
+    #----------------------------------------------------------------
     def GetProperties(self):
         "Get the properties for the control as a dictionary"
         props = super(TreeViewWrapper, self).GetProperties()
@@ -920,8 +932,6 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         props['ItemCount'] = self.ItemCount()
 
         return props
-
-
 
     #----------------------------------------------------------------
     def GetItem(self, path):
@@ -937,16 +947,14 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             root itself.
           * A list/tuple of strings - The first item should be the root
             element.
-          * A list/tuple of integers - The first item should be 0
-            representing the root element.
+          * A list/tuple of integers - The first item the index which root
+            to select.
         """
 
         # work just based on integers for now
 
         if not self.ItemCount():
             return None
-
-        current_elem = self.Root()
 
         # Ensure the path is absolute
         if isinstance(path, basestring):
@@ -955,7 +963,22 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                     "Only absolute paths allowed - "
                     "please start the path with \\")
 
-            path = path.split("\\")
+            path = path.split("\\")[1:]
+
+        current_elem = None
+
+        # find the correct root elem
+        if isinstance(path[0], int):
+            current_elem = self.Roots()[path[0]]
+
+        else:
+            texts = [r.Text() for r in self.Roots()]
+            indices = range(0, len(texts))
+            try:
+                current_elem = findbestmatch.find_best_match(
+                    path[0], texts, self.Roots(), limit_ratio = .6)
+            except IndexError:
+                raise IndexError("There is no root element '%s'"% path[0])
 
         # get the correct lowest level item
 #        current_elem.GetChild
@@ -966,7 +989,8 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 #                raise IndexError("Root Item '%s' does not have %d sibling(s)"%
 #                    (self.Root().WindowText(), i + 1))
 #
-        # remove the first item as we have dealt with it (string or integer)
+        # remove the first (empty) item and the root element as we have
+        # dealt with it (string or integer)
         path = path[1:]
 
         # now for each of the lower levels
@@ -1571,7 +1595,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 class _toolbar_button(object):
-    "Wrapper around TreeView items"
+    "Wrapper around Toolbar button (TBBUTTONINFO) items"
     #----------------------------------------------------------------
     def __init__(self, index_, tb_handle):
         "Initialize the item"
@@ -1973,7 +1997,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         else:
             button_index = button_identifier
 
-        button = self.GetButton(button_index)
+        button = self.Button(button_index)
 
         # transliterated from
         # http://source.winehq.org/source/dlls/comctl32/toolbar.c
@@ -1984,7 +2008,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             ret = self.NotifyParent(
                 #win32defines.TB_PRESSBUTTON,
                 message = win32defines.BN_CLICKED,
-                controlID = button.idCommand)
+                controlID = button.info.idCommand)
 
             win32functions.WaitGuiThreadIdle(self)
             time.sleep(Timings.after_toobarpressbutton_wait)

@@ -350,10 +350,10 @@ class TreeViewTestCases(unittest.TestCase):
             self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
 
         self.assertEquals(
-            self.ctrl.GetItem(r"\Venus\4.869").Text(), self.texts[1][3] + " kg")
+            self.ctrl.GetItem(r"\The Planets\Venus\4.869").Text(), self.texts[1][3] + " kg")
 
         self.assertEquals(
-            self.ctrl.GetItem(["Root", "Venus", "4.869"]).Text(), self.texts[1][3] + " kg")
+            self.ctrl.GetItem(["The Planets", "Venus", "4.869"]).Text(), self.texts[1][3] + " kg")
 
 
     def testItemText(self):
@@ -780,12 +780,7 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testPressButton(self):
 
-
-
         self.ctrl.PressButton(0)
-
-        import pdb;pdb.set_trace()
-
 
         #print self.ctrl.Texts()
         self.assertRaises(
@@ -793,6 +788,7 @@ class ToolbarTestCases(unittest.TestCase):
             self.ctrl.PressButton,
             "asdfdasfasdf")
 
+        # todo more tests for pressbutton
         self.ctrl.PressButton("10")
 
 
