@@ -228,7 +228,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem = _RemoteMemoryBlock(self)
 
         col.cchTextMax = 2000
-        col.item = remote_mem.Address() + ctypes.sizeof(col) + 1
+        col.pszText = remote_mem.Address() + ctypes.sizeof(col) + 1
 
         # put the information in the memory that the
         # other process can read/write

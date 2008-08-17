@@ -124,7 +124,6 @@ class ListViewTestCases(unittest.TestCase):
         for i, item in enumerate(self.ctrl.Items()):
             self.assertEquals(item['text'], flat_texts[i])
 
-
     def testTexts(self):
         "Test the ListView Texts method"
 
@@ -135,7 +134,6 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(flat_texts, self.ctrl.Texts()[1:])
 
 
-
     def testGetItem(self):
         "Test the ListView GetItem method"
 
@@ -143,7 +141,6 @@ class ListViewTestCases(unittest.TestCase):
             for col in range(self.ctrl.ColumnCount()):
                 self.assertEquals(
                     self.ctrl.GetItem(row, col)['text'], self.texts[row][col])
-
 
     def testGetItemText(self):
         "Test the ListView GetItem method - with text this time"
@@ -153,7 +150,6 @@ class ListViewTestCases(unittest.TestCase):
                 self.ctrl.GetItem(text)['text'], text)
 
         self.assertRaises(ValueError, self.ctrl.GetItem, "Item not in this list")
-
 
     def testColumn(self):
         "Test the ListView Columns method"
@@ -274,6 +270,19 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(props['ItemCount'], 9)
 
 
+    def testGetColumnTexts(self):
+        self.dlg.MenuSelect("Styles")
+        self.app.ControlStyles.StylesListBox.TypeKeys(
+            "{HOME}" + "{DOWN}"* 12 + "{SPACE}")
+
+        self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
+        self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
+
+        self.assertEquals(self.ctrl.GetColumn(0)['text'], "Planet")
+        self.assertEquals(self.ctrl.GetColumn(1)['text'], "Distance (km)")
+        self.assertEquals(self.ctrl.GetColumn(2)['text'], "Diameter (km)")
+        self.assertEquals(self.ctrl.GetColumn(3)['text'], "Mass (kg)")
+
 
 #
 #    def testSubItems(self):
@@ -353,7 +362,9 @@ class TreeViewTestCases(unittest.TestCase):
             self.ctrl.GetItem(r"\The Planets\Venus\4.869").Text(), self.texts[1][3] + " kg")
 
         self.assertEquals(
-            self.ctrl.GetItem(["The Planets", "Venus", "4.869"]).Text(), self.texts[1][3] + " kg")
+            self.ctrl.GetItem(
+                ["The Planets", "Venus", "4.869"]).Text(),
+            self.texts[1][3] + " kg")
 
 
     def testItemText(self):
