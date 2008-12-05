@@ -2442,11 +2442,23 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Progress common control "
 
     friendlyclassname = "Progress"
-    windowclasses = ["msctls_progress", ]
+    windowclasses = ["msctls_progress", "msctls_progress32", ]
 
 
+    def GetPosition(self):
+        return self.SendMessage(win32defines.PBM_GETPOS)
 
+    def SetPosition(self, pos):
+        return self.SendMessage(win32defines.PBM_SETPOS, pos)
 
+    def GetState(self):
+        return self.SendMessage(win32defines.PBM_GETSTATE)
+
+    def GetStep(self):
+        return self.SendMessage(win32defines.PBM_GETSTEP)
+
+    def StepIt(self):
+        return self.SendMessage(win32defines.PBM_STEPIT)
 
 #
 ##
