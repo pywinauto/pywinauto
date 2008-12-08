@@ -197,7 +197,7 @@ class ComboBoxTestCases(unittest.TestCase):
 
 
     def testSelectedIndex(self):
-        "That teh control returns the correct index for the selected item"
+        "That the control returns the correct index for the selected item"
         self.ctrl.Select(2)
         self.assertEquals(self.ctrl.SelectedIndex(), 2)
         self.assertEquals(self.ctrl.Texts()[3], self.app.Font.Edit2.Texts()[1])
