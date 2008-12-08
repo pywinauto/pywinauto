@@ -2436,6 +2436,14 @@ class PagerWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "Pager"
     windowclasses = ["SysPager", ]
 
+    def GetPosition(self):
+        "Return the current position of the pager"
+        return self.SendMessage(win32defines.PGM_GETPOS)
+
+    def SetPosition(self, pos):
+        "Set the current position of the pager"
+        return self.SendMessage(win32defines.PGM_SETPOS, pos)
+
 
 #====================================================================
 class ProgressWrapper(HwndWrapper.HwndWrapper):
@@ -2446,18 +2454,29 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 
 
     def GetPosition(self):
+        "Return the current position of the progress bar"
         return self.SendMessage(win32defines.PBM_GETPOS)
 
     def SetPosition(self, pos):
+        "Set the current position of the progress bar"
         return self.SendMessage(win32defines.PBM_SETPOS, pos)
 
     def GetState(self):
+        """Get the state of the progress bar
+        
+        State will be one of the following constants:
+         * PBST_NORMAL
+         * PBST_ERROR
+         * PBST_PAUSED
+        """
         return self.SendMessage(win32defines.PBM_GETSTATE)
 
     def GetStep(self):
+        "Get the step size of the progress bar"
         return self.SendMessage(win32defines.PBM_GETSTEP)
 
     def StepIt(self):
+        "Move the progress bar one step size forward"
         return self.SendMessage(win32defines.PBM_STEPIT)
 
 #
