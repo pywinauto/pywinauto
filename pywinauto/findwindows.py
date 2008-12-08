@@ -89,12 +89,13 @@ def find_windows(class_name = None,
                 title_re = None,
                 top_level_only = True,
                 visible_only = True,
-                enabled_only = True,
+                enabled_only = False,
                 best_match = None,
                 handle = None,
                 ctrl_index = None,
                 predicate_func = None,
                 active_only = False,
+                control_id = None,
     ):
     """Find windows based on criteria passed in
 
@@ -113,13 +114,17 @@ def find_windows(class_name = None,
     * **handle**      The handle of the window to return
     * **ctrl_index**  The index of the child window to return
     * **active_only**  Active windows only (default=False)
-    """
+     * **control_id**  Windows with this control id
+   """
 
     # allow a handle to be passed in
     # if it is present - just return it
     if handle is not None:
         return [handle, ]
 
+    if control_id is not None and windows:
+        windows = [win for win in windows if
+            handleprops.controlid(win) == control_id]
 
     if top_level_only:
         # find the top level windows
@@ -151,7 +156,7 @@ def find_windows(class_name = None,
 
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
-        
+
         # get the active windows for all windows (not just the process)
         ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
 
@@ -163,7 +168,6 @@ def find_windows(class_name = None,
             windows = [gui_info.hwndActive]
         else:
             windows = []
-
 
     if class_name is not None and windows:
         windows = [win for win in windows
@@ -192,6 +196,7 @@ def find_windows(class_name = None,
 
     if enabled_only and windows:
         windows = [win for win in windows if handleprops.isenabled(win)]
+
 
     if best_match is not None and windows:
         from controls import WrapHandle
