@@ -105,7 +105,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
             "ThunderCheckBox": "CheckBox",
             "ThunderCommandButton": "Button"
         }
-        
+
         if self.Class() in vb_buttons:
             f_class_name = vb_buttons[self.Class()]
 
@@ -119,7 +119,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
             f_class_name = "RadioButton"
         elif style_lsb ==  win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"
-        
+
         if self.Style() & win32defines.BS_PUSHLIKE:
             f_class_name = "Button"
 
@@ -398,7 +398,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         # if we got LB_ERR then it is a single selection list box
         if num_selected == win32defines.LB_ERR:
-            items = [self.SendMessage(win32defines.LB_GETCURSEL)]
+            items = (self.SendMessage(win32defines.LB_GETCURSEL), )
 
         # otherwise it is a multiselection list box
         else:
@@ -406,6 +406,9 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
             self.SendMessage(
                 win32defines.LB_GETSELITEMS, num_selected, ctypes.byref(items))
+
+            # Need to convert from Ctypes array to a python tuple
+            items = tuple(items)
 
         return items
 
@@ -538,6 +541,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "TMemo",
         r"WindowsForms\d*\.EDIT\..*",
         "ThunderTextBox",
+        "ThunderRT6TextBox",
         ]
 
     #-----------------------------------------------------------

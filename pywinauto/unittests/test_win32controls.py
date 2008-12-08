@@ -284,26 +284,28 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testItemCount(self):
         self.assertEquals(self.ctrl.ItemCount(), 14)
-
+        
     def testItemData(self):
         # I can't test much with this
         self.ctrl.ItemData(1)
-
+        
     def testSelectedIndices(self):
-        self.assertEquals(self.ctrl.SelectedIndices(), [0,])
+        self.assertEquals(self.ctrl.SelectedIndices(), (0,))
         self.ctrl.Select(2)
-        self.assertEquals(self.ctrl.SelectedIndices(), [2,])
+        self.assertEquals(self.ctrl.SelectedIndices(), (2,))
+        
+        self.assertTrue(type(self.ctrl.SelectedIndices()) == tuple)
 
     def testSelect(self):
         self.ctrl.Select(5)
-        self.assertEquals(self.ctrl.SelectedIndices(), [5,])
+        self.assertEquals(self.ctrl.SelectedIndices(), (5,))
 
         # get the text of the 2nd item (3rd item in list
         # because of empty WindowText)
         item_to_select = self.ctrl.Texts()[2]
 
         self.ctrl.Select(item_to_select)
-        self.assertEquals(self.ctrl.SelectedIndices(), [1,])
+        self.assertEquals(self.ctrl.SelectedIndices(), (1,))
 
     def testGetSetItemFocus(self):
         self.ctrl.SetItemFocus(0)
