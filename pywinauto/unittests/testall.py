@@ -5,8 +5,8 @@ import os
 import sys
 sys.path.append(".")
 
-from pywinauto.timings import Timings
-Timings.Fast()
+#from pywinauto.timings import Timings
+#Timings.Fast()
 
 excludes = ['test_sendkeys']
 
