@@ -369,9 +369,13 @@ class HwndWrapperTests(unittest.TestCase):
     def testMenuSelect(self):
         "Test selecting a menut item"
 
+        if not self.dlg.MenuItem("View -> Digit grouping").IsChecked():
+            self.dlg.MenuSelect("View -> Digit grouping")
+
         self.dlg.TypeKeys("1234567")
         self.dlg.MenuSelect("Edit->Copy")
         self.dlg.CE.Click()
+        self.assertEquals(self.dlg.Edit.Texts()[1], "0. ")
         self.dlg.MenuSelect("Edit->Paste")
         self.assertEquals(self.dlg.Edit.Texts()[1], "1,234,567. ")
 
