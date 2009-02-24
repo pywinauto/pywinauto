@@ -33,7 +33,12 @@ import fuzzydict
 
 
 # need to use sets.Set for python 2.3 compatability
-import sets
+# but 2.6 raises a deprecation warning about sets module
+try:
+    set
+except NameError:
+    import sets
+    set = sets.Set
 
 find_best_control_match_cutoff = .6
 
@@ -289,7 +294,7 @@ def get_control_names(control, allcontrols):
             names.extend(non_text_names)
 
     # return the names - and make sure there are no duplicates
-    return sets.Set(names)
+    return set(names)
 
 
 
