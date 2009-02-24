@@ -45,7 +45,7 @@ def text(handle):
     if length:
         length += 1
 
-        buffer_ = (ctypes.c_wchar * length)()
+        buffer_ = ctypes.create_unicode_buffer(length)
 
         ret = win32functions.SendMessage(
             handle, win32defines.WM_GETTEXT, length, ctypes.byref(buffer_))
