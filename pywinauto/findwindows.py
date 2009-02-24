@@ -114,7 +114,7 @@ def find_windows(class_name = None,
     * **handle**      The handle of the window to return
     * **ctrl_index**  The index of the child window to return
     * **active_only**  Active windows only (default=False)
-     * **control_id**  Windows with this control id
+    * **control_id**  Windows with this control id
    """
 
     # allow a handle to be passed in
