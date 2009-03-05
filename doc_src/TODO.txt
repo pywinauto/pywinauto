@@ -132,9 +132,9 @@ PYWINAUTO TODO's
 
 
 
-============================================================================
+----------------------------------
 CLOSED (in some way or the other)
-============================================================================
+----------------------------------
 * Allow delay after click to be removed. The main reason that this is needed
   at the moment is because if you close a dialog and then try an action on 
   the parent immediately it may not yet be active - so the delay is 

@@ -1,3 +1,7 @@
+++++++++++++++++++++
+Dev Notes
+++++++++++++++++++++
+
 ===========
 FILE LAYOUT
 ===========
@@ -58,6 +62,7 @@ difflib provides this support
 For menu's it is simple we match against the text of the menu item.
 For controls the story is more complicated because we want to match
 against the following:
+
    - Control text if it exists
    - Friendly Class name 
    - Control text + Friendly class name (if control text exists)
@@ -103,8 +108,10 @@ FOUR LEVELS (leaving out Python resolved)
  
  
 DELAYED RESOLUTION FOR SUCCESS
-Taking the example 
+Taking the example ::
+
 	app.dlg.control.action()
+
 If we leave out syntax and programming errors there are still a number of reasons why it could fail.
 
 dlg might not be found
@@ -140,11 +147,13 @@ app.PageSetup.Properties.Click()
 WRITING TO DIALOGS
 ==================
 We need a way of making sure that the dialog is active without having to access a control on it.
-e.g. 
-	app.MainWin.MenuSelect("Something That->Loads a Dialog")
-	app.Dlg._write("dlg.xml")
+e.g. ::
 
-or a harder problem:
+  app.MainWin.MenuSelect("Something That->Loads a Dialog")
+  app.Dlg._write("dlg.xml")
+
+or a harder problem::
+
 	app.PageSetup.Printer.Click()
 	app.PageSetup._write("pagesetup.xml") 
 
