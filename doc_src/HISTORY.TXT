@@ -1,3 +1,62 @@
+0.3.8 Various minor changes and fixes
+------------------------------------------------------------------
+10-December-2008
+
+ * Ensured that return value from ComboBoxWrapper.SelectedIndices 
+   is always a tuple (there was a bug where it would sometimes be 
+   a ctypes array)
+
+ * Changed default for finding windows to find disabled windows. 
+   (note this may impact scripts that relied on the previous 
+   setting!)
+
+ * Added a control_id parameter to find_windows which allows 
+   finding windows based off of their control id's
+
+ * Added some baic support for Pager and Progress controls 
+   (no tests yet)
+
+ * Added some more VB 'edit' window classes
+
+ * Added some more VB 'listbox' window classes
+
+ * Added some more VB 'button' window classes
+
+ * Added a FriendlyClassName method to MenuItem
+
+ * Fixed toolbar button pressing - This required for 
+   HwndWrapper.NotifyParent() to be updated (to accept a new 
+   ID parameter)
+
+ * Fixed a bug wherea listview without a column control would
+   make pywinauto fail to capture the dialog.
+
+ * Split up the functions for button truncation data
+
+ * Commented out code to get a new font if the font could not 
+   be recovered 
+
+ * Moved code to get the control font from Truncation test to
+   handleprops 
+
+ * Added a function to get the string representation of the 
+   bug. (need to refactor PrintBugs at some point).
+
+ * Fixed a variable name (from fname -> font_attrib as fname 
+   was not a defined variable!)
+
+ * Forced some return values from MissingExtraString test 
+   to be Unicode
+
+ * Fixed the MiscValues test (converted to Unicode and 
+   removed some extraneous characters)
+
+ * Updated the path for all unittests
+
+ * made two unit tests sligthly more robust and less dependent 
+   on computer/app settings
+
+
 0.3.7 Merge of Wait changes and various bug fixes/improvements
 ------------------------------------------------------------------
 10-April-2007
