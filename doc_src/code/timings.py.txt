@@ -1,0 +1,6 @@
+pywinauto.timings
+-----------------
+ .. automodule:: pywinauto.timings
+    :members:
+    :undoc-members:
+

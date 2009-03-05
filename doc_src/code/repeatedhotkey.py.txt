@@ -1,0 +1,6 @@
+pywinauto.tests.repeatedhotkey
+------------------------------
+ .. automodule:: pywinauto.tests.repeatedhotkey
+    :members:
+    :undoc-members:
+

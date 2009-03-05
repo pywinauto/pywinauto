@@ -1,0 +1,6 @@
+pywinauto.handleprops
+---------------------
+ .. automodule:: pywinauto.handleprops
+    :members:
+    :undoc-members:
+

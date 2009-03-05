@@ -1,0 +1,6 @@
+pywinauto.tests.asianhotkey
+---------------------------
+ .. automodule:: pywinauto.tests.asianhotkey
+    :members:
+    :undoc-members:
+

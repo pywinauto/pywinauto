@@ -1,0 +1,6 @@
+pywinauto.tests.missalignment
+-----------------------------
+ .. automodule:: pywinauto.tests.missalignment
+    :members:
+    :undoc-members:
+

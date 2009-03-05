@@ -1,0 +1,6 @@
+pywinauto.taskbar
+-----------------
+ .. automodule:: pywinauto.taskbar
+    :members:
+    :undoc-members:
+

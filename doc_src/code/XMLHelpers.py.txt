@@ -1,0 +1,6 @@
+pywinauto.XMLHelpers
+--------------------
+ .. automodule:: pywinauto.XMLHelpers
+    :members:
+    :undoc-members:
+

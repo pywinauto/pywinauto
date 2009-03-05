@@ -1,0 +1,14 @@
+pywinauto.application
+---------------------
+
+ .. automodule:: pywinauto.application
+    :members: Application, AppNotConnected, AppStartError, AssertValidProcess, ProcessNotFoundError, process_from_module, process_module
+    :undoc-members:
+    :show-inheritance:
+   
+ .. autoclass:: pywinauto.application.WindowSpecification
+    :members:
+    
+    .. automethod:: pywinauto.application.WindowSpecification.__getitem__
+    .. automethod:: pywinauto.application.WindowSpecification.__getattr__
+
