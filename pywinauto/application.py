@@ -21,8 +21,9 @@
 """The application module is the main one that users will user first.
 
 When starting to automate and application you must initialize an instance
-of the Application class. Then you must `start_()`_ that application or
-`Connect_()`_ to a running instance of that application.
+of the Application class. Then you must :func:`Application.Start` that 
+application or :func:`Application.Connect()` to a running instance of that 
+application.
 
 Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
@@ -38,19 +39,17 @@ in almost exactly the same ways. ::
   ctrl = dlg.Window_(title = "Your control", classname = "Button", ...)
   ctrl = dlg["Your control"]
 
-**Note:** For attribute access of controls and dialogs you do not have to
-have the title of the control exactly, it does a best match of the
-avialable dialogs or controls.
+.. note::
 
-**See also:**
-  `findwindows.find_windows()`_   for the keyword arguments that can be
-  passed to both `Application.window_()`_ and `WindowSpecification.Window_()`_
+   For attribute access of controls and dialogs you do not have to
+   have the title of the control exactly, it does a best match of the
+   avialable dialogs or controls.
 
-.. _Start_(): class-pywinauto.application.Application.html#start_
-.. _Connect_(): class-pywinauto.application.Application.html#connect_
-.. _findwindows.find_windows():  module-pywinauto.findwindows.html#find_windows
-.. _Application.Window_(): class-pywinauto.application.Application.html#window_
-.. _WindowSpecification.Window_(): class-pywinauto.application.WindowSpecification.html#control_
+.. seealso::
+
+  :func:`pywinauto.findwindows.find_windows` for the keyword arguments that can be
+  passed to both :func:`Application.window_` and 
+  :func:`WindowSpecification.Window_`
 
 """
 
@@ -169,7 +168,7 @@ class WindowSpecification(object):
 
         to be used to access dialogs and controls.
 
-        Both this and __getattr__ use the rules outlined in the
+        Both this and :func:`__getattr__` use the rules outlined in the
         HowTo document.
         """
 
@@ -199,7 +198,7 @@ class WindowSpecification(object):
                 raise AttributeError(message)
 
         # if we get here then we must have only had one criteria so far
-        # so create a new WindowSpecification for this control
+        # so create a new :class:`WindowSpecification` for this control
         new_item = WindowSpecification(self.app, self.criteria[0])
 
         # add our new criteria
@@ -218,7 +217,7 @@ class WindowSpecification(object):
         requested is an attribute of DialogWrapper then resolve the
         dialog and return the requested attribute.
 
-        Otherwise delegate functionality to __getitem__() - which
+        Otherwise delegate functionality to :func:`__getitem__` - which
         sets the appropriate criteria for the control.
         """
 
@@ -317,9 +316,14 @@ class WindowSpecification(object):
 
         * **retry_interval** How long to sleep between each retry
 
-        e.g. self.Dlg.Wait("exists enabled visible ready")
+        An example to wait until the dialog 
+        exists, is ready, enabled and visible
+        
+           self.Dlg.Wait("exists enabled visible ready")
 
-        See also: ``Application.WaitNot()``
+        .. seealso:: 
+          
+           :func:`WindowSpecification.WaitNot()`
         """
 
         # set the current timings -couldn't set as defaults as they are
@@ -396,7 +400,9 @@ class WindowSpecification(object):
 
         e.g. self.Dlg.WaitNot("exists enabled visible ready")
 
-        See also: ``Application.WaitNot("exists enabled visible ready")``
+        .. seealso:: 
+          
+           :func:`WindowSpecification.Wait()`
         """
 
         # set the current timings -couldn't set as defaults as they are
