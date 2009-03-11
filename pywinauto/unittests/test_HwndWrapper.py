@@ -215,7 +215,7 @@ class HwndWrapperTests(unittest.TestCase):
     def testTexts(self):
         self.assertEqual(self.dlg.Texts(), [u'Calculator'])
         self.assertEqual(self.ctrl.Texts(), [u'Backspace'])
-        self.assertEqual(self.dlg.Edit.Texts(), ['', "0. "])
+        self.assertEqual(self.dlg.Edit.Texts(), ['0. ', "0. "])
 
     def testClientRects(self):
         self.assertEqual(self.ctrl.ClientRects()[0], self.ctrl.ClientRect())
