@@ -2,9 +2,11 @@
 Change Log
 ==========
 
-0.3.8 Various minor changes and fixes
+0.3.8 Collecting improvements from last 2 years
 ------------------------------------------------------------------
-10-December-2008
+10-March-2009
+
+ * Converted documenation from Pudge generated to Sphinx Generated
 
  * Ensured that return value from ComboBoxWrapper.SelectedIndices 
    is always a tuple (there was a bug where it would sometimes be 

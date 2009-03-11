@@ -5,6 +5,8 @@ What is pywinauto
 Released under the LGPL licence
 
 
+:ref:`Full table of contents. <contents-root>`
+
 What is it?
 -----------
 pywinauto is a set of python modules to automate the Microsoft Windows GUI. 
@@ -40,18 +42,18 @@ There are examples in there to work with Notepad and MSPaint.
 
 How does it work
 ----------------
-A lot is done through attribute access (__getattr__) for each class. For example
+A lot is done through attribute access (``__getattr__``) for each class. For example
 when you get the attribute of an Application or Dialog object it looks for a 
 dialog or control (respectively).
 
 ::
 
  myapp.Notepad # looks for a Window/Dialog of your app that has a title 'similar'
-              # to "Notepad"
+               # to "Notepad"
               
  myapp.PageSetup.OK # looks first for a dialog with a title like "PageSetup"
-                   # then it looks for a control on that dialog with a title
-                   # like "OK"
+                    # then it looks for a control on that dialog with a title
+                    # like "OK"
                    
 This attribute resolution is delayed (currently a hard coded amount of time) until
 it succeeds. So for example if you Select a menu option and then look for the
@@ -100,39 +102,41 @@ Why write yet another automation tool if there are so many out there?
 ---------------------------------------------------------------------
 There are loads of reasons :-)
 
-*Takes a different approach*
-Most other tools are not object oriented you end  up writing stuff like::
+**Takes a different approach:**
+    Most other tools are not object oriented you end  up writing stuff like::
 
-    window = findwindow(title = "Untitled - Notepad", class = "Notepad")
-    SendKeys(window, "%OF")  # Format -> Font
-    fontdialog  = findwindow("title = "Font")
-    buttonClick(fontdialog, "OK")
-    
-I was hoping to create something more userfriendly (and pythonic). For example
-the translation of above would be::
-    
-    win = app.UntitledNotepad
-    win.MenuSelect("Format->Font")
-    app.Font.OK.Click()
+        window = findwindow(title = "Untitled - Notepad", class = "Notepad")
+        SendKeys(window, "%OF")  # Format -> Font
+        fontdialog  = findwindow("title = "Font")
+        buttonClick(fontdialog, "OK")
 
-*Python makes it easy*
-Python is a great programming language, but I didn't find
-any automation tools that were Pythonic (I only found one
-that was implemented in python) and I didn't care for it 
-too much.
+    I was hoping to create something more userfriendly (and pythonic). For example
+    the translation of above would be::
 
-*Localization as a main requirement*
-I work in the localization industry and GUI
-automation is used extensively as often all
-you need to do is ensure that your UI behaves
-and is correct with respect to the Source
-UI. This is actually an easier job then for
-testing the original source UI.
+        win = app.UntitledNotepad
+        win.MenuSelect("Format->Font")
+        app.Font.OK.Click()
 
-But most automation tools are based off of coordinates or text of the 
-controls and these can change in the localized software. So my goal (
-though not yet implemented) is to allow scripts to run unchanged
-between original source language (often English) and the translated
-software (Japanese, German, etc).
+
+**Python makes it easy:**
+    Python is a great programming language, but I didn't find
+    any automation tools that were Pythonic (I only found one
+    that was implemented in python) and I didn't care for it 
+    too much.
+
+
+**Localization as a main requirement:**
+    I work in the localization industry and GUI
+    automation is used extensively as often all
+    you need to do is ensure that your UI behaves
+    and is correct with respect to the Source
+    UI. This is actually an easier job then for
+    testing the original source UI.
+
+    But most automation tools are based off of coordinates or text of the 
+    controls and these can change in the localized software. So my goal (
+    though not yet implemented) is to allow scripts to run unchanged
+    between original source language (often English) and the translated
+    software (Japanese, German, etc).
                                      
                                      

@@ -46,16 +46,17 @@ def SetupPath(path = ""):
 # add it to the system path
 sys.path.append(SetupPath())
 
-# now it should be save to import pywinauto
+# now it should be safe to import pywinauto
 import pywinauto
 
 
 
 # make sure the documentation is in the correct place for building
-if "sdist" in sys.argv:
-    import shutil
-    if not os.path.exists(SetupPath("documentation")):
-        shutil.move(SetupPath("website"), SetupPath("documentation"))
+# todo: see how to build the website
+#if "sdist" in sys.argv:
+#    import shutil
+#    if not os.path.exists(SetupPath("docs")):
+#        shutil.move(SetupPath("website"), SetupPath("docs"))
 
 
 setup(name='pywinauto',
@@ -91,10 +92,10 @@ controls also.
 		],
 	)
 
-
-if "sdist" in sys.argv:
-    if not os.path.exists(SetupPath("website")):
-        shutil.move(SetupPath("documentation"), SetupPath("website"))
+# todo: see how to build the website later
+#if "sdist" in sys.argv:
+#    if not os.path.exists(SetupPath("website")):
+#        shutil.move(SetupPath("documentation"), SetupPath("website"))
 
 
 try:

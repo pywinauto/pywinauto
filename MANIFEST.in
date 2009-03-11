@@ -22,8 +22,8 @@ exclude examples\examples_watsup\*.*
 
 # include all the website folder and make sure that
 # the sub version files are not included
-include documentation\*.*
-exclude documentation\.svn\*
-exclude documentation\pywinauto\.svn\*
-exclude documentation\pywinauto\controls\.svn\*
-exclude documentation\pywinauto\tests\.svn\*
+include docs\*.*
+exclude docs\.svn\*
+exclude docs\pywinauto\.svn\*
+exclude docs\pywinauto\controls\.svn\*
+exclude docs\pywinauto\tests\.svn\*
