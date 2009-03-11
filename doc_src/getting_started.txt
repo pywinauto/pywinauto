@@ -1,5 +1,5 @@
 ==========================
-Getting Started
+Automating an application
 ==========================
 
 Once you have installed pywinauto - how do you get going?

@@ -1,10 +1,12 @@
-pywinauto 
-(c) Mark Mc Mahon 2006 
+====================
+What is pywinauto
+====================
+(c) Mark Mc Mahon 2006-2009
 Released under the LGPL licence
 
 
-What is it
-----------
+What is it?
+-----------
 pywinauto is a set of python modules to automate the Microsoft Windows GUI. 
 At it's simplest it allows you to send mouse and keyboard actions to windows 
 dialogs and controls.
@@ -28,6 +30,7 @@ Run Python ::
   >>> from pywinauto import application
   >>> app = application.Application.start("notepad.exe")
   >>> app.notepad.TypeKeys("%FX") 
+
 
 Where to start
 --------------

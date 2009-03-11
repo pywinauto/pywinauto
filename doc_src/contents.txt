@@ -2,30 +2,22 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pywinauto's documentation!
+Contents
 =====================================
-
-
-Contents:
 
 .. toctree::
    :maxdepth: 2
    
-   about
    index
-   HISTORY
+   getting_started
    HowTo
    controls_overview
    credits
-   getting_started
 
    code/code
    dev_notes
    TODO
-
-
-
-
+   HISTORY
 
 
 Indices and tables
