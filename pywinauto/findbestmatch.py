@@ -280,6 +280,7 @@ def get_control_names(control, allcontrols):
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
     cleaned = control.WindowText()
+    # Todo - I don't like the hardcoded classnames here!
     if cleaned and not control.FriendlyClassName() in (
         "Edit", "ListBox", "Combobox", "ListView", "TreeView"):
         names.append(cleaned)
