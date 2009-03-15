@@ -36,6 +36,10 @@ import time
 import pdb
 import pprint
 
+from pywinauto.timings import Timings
+Timings.Fast()
+Timings.window_find_timeout = 5
+
 
 class ButtonTestCases(unittest.TestCase):
     "Unit tests for the ComboBoxWrapper class"
@@ -131,8 +135,6 @@ class ButtonTestCases(unittest.TestCase):
         self.calc.Hex.Click()
 
         self.assertEquals(self.calc.Hex.GetCheckState(), 1)
-
-
 
 
 
@@ -283,6 +285,7 @@ class ListBoxTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemCount(self):
+        #import pdb;pdb.set_trace()
         self.assertEquals(self.ctrl.ItemCount(), 14)
         
     def testItemData(self):
