@@ -44,6 +44,11 @@ from pywinauto.timings import Timings
 Timings.Fast()
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
 
+# page setup dialog takes a long time to load
+# so make sure that we wait for it.
+Timings.window_find_timeout = 10
+
+
 class ApplicationTestCases(unittest.TestCase):
     "Unit tests for the application.Application class"
 
@@ -333,8 +338,6 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Page Setup")
 
-        app.PageSetup.Wait('exists')
-
         self.assertEqual(
             app['PageSetup'].handle,
             app.window_(title = "Page Setup").handle)
@@ -367,7 +370,6 @@ class ApplicationTestCases(unittest.TestCase):
         #self.assertRaises(findbestmatch.MatchError,
         #    app.Notepad.__getattr__, 'handle')
 
-        app.PageSetup.Wait('exists', timeout=20)
         self.assertEqual(
             app.PageSetup.handle,
             app.window_(title = "Page Setup").handle)
@@ -387,7 +389,7 @@ class ApplicationTestCases(unittest.TestCase):
         app.UntitledNotepad.Edit.TypeKeys("hello")
 
         app.UntitledNotepad.MenuSelect("File->Page Setup")
-        app.PageSetup.Wait("exists", 2, .5)
+
         app.PageSetup.Printer.Click()
         app.PageSetup.Network.Click()
 
