@@ -37,11 +37,7 @@ import findbestmatch
 import controls
 
 
-# currently commented out as finding the best match control
-# requires that we know the Friendly class name - which is only
-# known by the control wrappers - and I would prefer to keep
-# this module from having that dependency.
-#import findbestmatch
+# todo: we should filter out invalid windows before returning
 
 #=========================================================================
 class WindowNotFoundError(Exception):
