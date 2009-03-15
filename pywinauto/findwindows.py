@@ -204,7 +204,6 @@ def find_windows(class_name = None,
             except controls.InvalidWindowHandle:
                 # skip invalid handles - they have dissapeared 
                 # since the list of windows was retrieved
-                print "invalid"
                 pass
         windows = findbestmatch.find_best_control_matches(
             best_match, wrapped_wins)
