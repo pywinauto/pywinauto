@@ -27,3 +27,4 @@ exclude docs\.svn\*
 exclude docs\pywinauto\.svn\*
 exclude docs\pywinauto\controls\.svn\*
 exclude docs\pywinauto\tests\.svn\*
+exclude docs\.doctrees\*
