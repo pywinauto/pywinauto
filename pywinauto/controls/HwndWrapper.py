@@ -149,6 +149,7 @@ class HwndWrapper(object):
     friendlyclassname = None
     windowclasses = []
     handle = None
+    can_be_label = False
 
     #-----------------------------------------------------------
     def __new__(cls, handle):
@@ -158,7 +159,6 @@ class HwndWrapper(object):
         obj = object.__new__(new_class)
         obj.__init__(handle)
         return obj
-
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -218,7 +218,6 @@ class HwndWrapper(object):
             'MenuItems',
             'ControlCount',
             ]
-
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
