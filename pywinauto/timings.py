@@ -180,10 +180,11 @@ class TimeConfig(object):
         for setting in TimeConfig.__default_timing:
             # set timeouts to the min of the current speed or 1 second
             if "_timeout" in setting:
-                TimeConfig._timings[setting] = min(1, TimeConfig._timings[setting])
+                TimeConfig._timings[setting] = \
+                    min(1, TimeConfig._timings[setting])
 
             if "_wait" in setting:
-                TimeConfig._timings[setting] = 0
+                TimeConfig._timings[setting] = TimeConfig._timings[setting] / 2
 
             elif setting.endswith("_retry"):
                 TimeConfig._timings[setting] = 0.001
