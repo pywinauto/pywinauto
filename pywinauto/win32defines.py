@@ -11982,3 +11982,5 @@ PBS_SMOOTHREVERSE = 0x10  # Windows Vista ~
 PBST_NORMAL = 0x0001  # Windows Vista ~
 PBST_ERROR = 0x0002
 PBST_PAUSED = 0x0003
+
+WAIT_TIMEOUT = 258L    # dderror
