@@ -150,6 +150,7 @@ class HwndWrapper(object):
     windowclasses = []
     handle = None
     can_be_label = False
+    has_title = True
 
     #-----------------------------------------------------------
     def __new__(cls, handle):
@@ -1619,6 +1620,8 @@ def _perform_click(
         #ctrl.PostMessage(msg, flags, click_point)
         #flags = 0
 
+        time.sleep(Timings.sendmessagetimeout_timeout)
+        
         # wait until the thread can accept another message
         win32functions.WaitGuiThreadIdle(ctrl)
 
