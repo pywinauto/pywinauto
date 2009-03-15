@@ -201,12 +201,10 @@ def GetNonTextControlName(ctrl, controls):
                 prev_ctrl.WindowText() +
                     ctrl.FriendlyClassName())
 
-
     # get the visible text controls so that we can get
     # the closest text if the control has no text
     text_ctrls = [ctrl_ for ctrl_ in controls
         if ctrl_.IsVisible() and ctrl_.WindowText() and ctrl_.can_be_label]
-
 
     best_name = ''
     closest = distance_cuttoff
@@ -280,12 +278,11 @@ def get_control_names(control, allcontrols):
     # Add the control based on it's friendly class name
     names.append(control.FriendlyClassName())
 
-
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
     cleaned = control.WindowText()
     # Todo - I don't like the hardcoded classnames here!
-    if cleaned and control.can_be_label:
+    if cleaned and control.has_title:
         names.append(cleaned)
         names.append(cleaned + control.FriendlyClassName())
 
