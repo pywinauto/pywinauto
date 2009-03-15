@@ -1,4 +1,14 @@
-from pywinauto.application import Application
+
+try:
+    from pywinauto import application
+except ImportError:
+    import os.path
+    pywinauto_path = os.path.abspath(__file__)
+    pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
+    import sys
+    sys.path.append(pywinauto_path)
+    from pywinauto import application
+
 import sys
 import time
 import os.path
@@ -27,7 +37,7 @@ else:
 outputfilename = os.path.abspath(outputfilename)
 
 # start IE with a start URL of what was passed in
-app = Application().start_(
+app = application.Application().start_(
     r"c:\program files\Mozilla Firefox\Firefox.exe %s"% web_addresss)
 
 # some pages are slow to open - so wait some seconds
@@ -42,7 +52,7 @@ if app.windows_():
     mozilla =  app.window_(title_re = ".*Mozilla Firefox")
 
 else:
-    app = Application().connect_(title_re = ".*Mozilla Firefox")
+    app = application.Application().connect_(title_re = ".*Mozilla Firefox")
     mozilla = app.window_(title_re = ".*Mozilla Firefox")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!

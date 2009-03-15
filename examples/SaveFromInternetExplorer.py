@@ -1,4 +1,14 @@
-from pywinauto.application import Application
+
+try:
+    from pywinauto import application
+except ImportError:
+    import os.path
+    pywinauto_path = os.path.abspath(__file__)
+    pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
+    import sys
+    sys.path.append(pywinauto_path)
+    from pywinauto import application
+
 import sys
 import time
 import os.path
@@ -21,7 +31,7 @@ outputfilename = os.path.abspath(outputfilename)
 
 
 # start IE with a start URL of what was passed in
-app = Application().start_(
+app = application.Application().start_(
     r"c:\program files\internet explorer\iexplore.exe %s"% web_addresss)
 
 # some pages are slow to open - so wait some seconds

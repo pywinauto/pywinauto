@@ -45,177 +45,184 @@ Timings.Slow()
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 
+def RunNotepad():
+    "Run notepad and do some small stuff with it"
 
-start = time.time()
-app = application.Application()
+    start = time.time()
+    app = application.Application()
 
-## for distribution we don't want to connect to anybodies application
-## because we may mess up something they are working on!
-#try:
-#    app.connect_(path = ur"c:\windows\system32\notepad.exe")
-#except application.ProcessNotFoundError:
-#    app.start_(ur"c:\windows\system32\notepad.exe")
-app.start_(ur"notepad.exe")
+    ## for distribution we don't want to connect to anybodies application
+    ## because we may mess up something they are working on!
+    #try:
+    #    app.connect_(path = ur"c:\windows\system32\notepad.exe")
+    #except application.ProcessNotFoundError:
+    #    app.start_(ur"c:\windows\system32\notepad.exe")
+    app.start_(ur"notepad.exe")
 
-app.Notepad.MenuSelect("File->PageSetup")
+    app.Notepad.MenuSelect("File->PageSetup")
 
-# ----- Page Setup Dialog ----
-# Select the 4th combobox item
-app.PageSetupDlg.ComboBox1.Select(4)
+    # ----- Page Setup Dialog ----
+    # Select the 4th combobox item
+    app.PageSetupDlg.SizeComboBox.Select(4)
 
-# Select the 'Letter' combobox item
-app.PageSetupDlg.ComboBox1.Select("Letter")
+    # Select the 'Letter' combobox item
+    app.PageSetupDlg.SizeComboBox.Select("Letter")
+    app.PageSetupDlg.SizeComboBox.Select(2)
 
-# run some tests on the Dialog. List of available tests:
-#        "AllControls",
-#        "AsianHotkey",
-#        "ComboBoxDroppedHeight",
-#        "CompareToRefFont",
-#        "LeadTrailSpaces",
-#        "MiscValues",
-#        "Missalignment",
-#        "MissingExtraString",
-#        "Overlapping",
-#        "RepeatedHotkey",
-#        "Translation",
-#        "Truncation",
+    # run some tests on the Dialog. List of available tests:
+    #        "AllControls",
+    #        "AsianHotkey",
+    #        "ComboBoxDroppedHeight",
+    #        "CompareToRefFont",
+    #        "LeadTrailSpaces",
+    #        "MiscValues",
+    #        "Missalignment",
+    #        "MissingExtraString",
+    #        "Overlapping",
+    #        "RepeatedHotkey",
+    #        "Translation",
+    #        "Truncation",
 
-bugs = app.PageSetupDlg.RunTests('RepeatedHotkey Truncation')
+    bugs = app.PageSetupDlg.RunTests('RepeatedHotkey Truncation')
 
-# if there are any bugs they will be printed to the console
-# and the controls will be highlighted
-tests.print_bugs(bugs)
+    # if there are any bugs they will be printed to the console
+    # and the controls will be highlighted
+    tests.print_bugs(bugs)
 
-# ----- Next Page Setup Dialog ----
-app.PageSetupDlg.Printer.Click()
+    # ----- Next Page Setup Dialog ----
+    app.PageSetupDlg.Printer.Click()
 
-# do some radio button clicks
-# Open the Connect to printer dialog so we can
-# try out checking/unchecking a checkbox
-app.PageSetupDlg2.Network.Click()
+    # do some radio button clicks
+    # Open the Connect to printer dialog so we can
+    # try out checking/unchecking a checkbox
+    app.PageSetupDlg.Network.Click()
 
-# ----- Connect To Printer Dialog ----
-# Select a checkbox
-app.ConnectToPrinter.ExpandByDefault.Check()
+    # ----- Connect To Printer Dialog ----
+    # Select a checkbox
+    app.ConnectToPrinter.ExpandByDefault.Check()
 
-app.ConnectToPrinter.ExpandByDefault.UnCheck()
+    app.ConnectToPrinter.ExpandByDefault.UnCheck()
 
-# try doing the same by using click
-app.ConnectToPrinter.ExpandByDefault.Click()
+    # try doing the same by using click
+    app.ConnectToPrinter.ExpandByDefault.Click()
 
-app.ConnectToPrinter.ExpandByDefault.Click()
+    app.ConnectToPrinter.ExpandByDefault.Click()
 
-# close the dialog
-app.ConnectToPrinter.Cancel.CloseClick()
+    # close the dialog
+    app.ConnectToPrinter.Cancel.CloseClick()
 
-# ----- 2nd Page Setup Dialog again ----
-app.PageSetupDlg2.Properties.Click()
+    # ----- 2nd Page Setup Dialog again ----
+    app.PageSetupDlg.Properties.Click()
 
-doc_props = app.window_(title_re = ".*Document Properties")
+    doc_props = app.window_(title_re = ".*Document Properties")
 
-# ----- Document Properties Dialog ----
-# some tab control selections
-# Two ways of selecting tabs with indices...
-doc_props.TabCtrl.Select(0)
-doc_props.TabCtrl.Select(1)
-try:
-    doc_props.TabCtrl.Select(2)
-except IndexError:
-    # not all users have 3 tabs in this dialog
-    pass
+    # ----- Document Properties Dialog ----
+    # some tab control selections
+    # Two ways of selecting tabs with indices...
+    doc_props.TabCtrl.Select(0)
+    doc_props.TabCtrl.Select(1)
+    try:
+        doc_props.TabCtrl.Select(2)
+    except IndexError:
+        # not all users have 3 tabs in this dialog
+        pass
 
-# or with text...
-doc_props.TabCtrl.Select("PaperQuality")
+    # or with text...
+    doc_props.TabCtrl.Select("PaperQuality")
 
-try:
-    doc_props.TabCtrl.Select("JobRetention")
-except MatchError:
-    # some people do not have the "Job Retention" tab
-    pass
+    try:
+        doc_props.TabCtrl.Select("JobRetention")
+    except MatchError:
+        # some people do not have the "Job Retention" tab
+        pass
 
-doc_props.TabCtrl.Select("Layout")
+#    doc_props.TabCtrl.Select("Layout")
+#
+#    # do some radio button clicks
+#    doc_props.RotatedLandscape.Click()
+#    doc_props.BackToFront.Click()
+#    doc_props.FlipOnShortEdge.Click()
+#
+#    doc_props.Portrait.Click()
+#    doc_props._None.Click()
+#    doc_props.FrontToBack.Click()
+#
+#    # open the Advanced options dialog in two steps
+#    advbutton = doc_props.Advanced
+#    advbutton.Click()
+#
+#    # close the 4 windows
+#
+#    # ----- Advanced Options Dialog ----
+#    app.window_(title_re = ".* Advanced Options").Ok.Click()
 
-# do some radio button clicks
-doc_props.RotatedLandscape.Click()
-doc_props.BackToFront.Click()
-doc_props.FlipOnShortEdge.Click()
+    # ----- Document Properties Dialog again ----
+    doc_props.Cancel.CloseClick()
+    # ----- 2nd Page Setup Dialog again ----
+    app.PageSetupDlg.OK.CloseClick()
+    # ----- Page Setup Dialog ----
+    app.PageSetupDlg.Ok.CloseClick()
 
-doc_props.Portrait.Click()
-doc_props._None.Click()
-doc_props.FrontToBack.Click()
+    # type some text - note that extended characters ARE allowed
+    app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
+        "And then I am going to quit")
 
-# open the Advanced options dialog in two steps
-advbutton = doc_props.Advanced
-advbutton.Click()
+    app.Notepad.Edit.RightClick()
+    app.Popup.MenuItem("Right To Left Reading Order").Click()
 
-# close the 4 windows
+    #app.PopupMenu.MenuSelect("Paste", app.Notepad.ctrl_())
+    #app.Notepad.Edit.RightClick()
+    #app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
+    #app.PopupMenu.MenuSelect("Show unicode control characters", app.Notepad.ctrl_())
+    #time.sleep(1)
+    #app.Notepad.Edit.RightClick()
+    #app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
+    #time.sleep(1)
 
-# ----- Advanced Options Dialog ----
-app.window_(title_re = ".* Advanced Options").Ok.Click()
-# ----- Document Properties Dialog again ----
-doc_props.Cancel.CloseClick()
-# ----- 2nd Page Setup Dialog again ----
-app.PageSetupDlg2.OK.CloseClick()
-# ----- Page Setup Dialog ----
-app.PageSetupDlg.Ok.CloseClick()
+    #app.Notepad.Edit.RightClick()
+    #app.PopupMenu.MenuSelect("Insert Unicode control character -> IAFS", app.Notepad.ctrl_())
+    #time.sleep(1)
 
-# type some text - note that extended characters ARE allowed
-app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
-    "And then I am going to quit")
+    #app.Notepad.Edit.TypeKeys("{ESC}")
 
-app.Notepad.Edit.RightClick()
-app.Popup.MenuItem("Right To Left Reading Order").Click()
+    # the following shows that Sendtext does not accept
+    # accented characters - but does allow 'control' characters
+    app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
+        u"s\xfcpp\xf4rt \xe0cce\xf1ted characters", with_spaces = True)
 
-#app.PopupMenu.MenuSelect("Paste", app.Notepad.ctrl_())
-#app.Notepad.Edit.RightClick()
-#app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
-#app.PopupMenu.MenuSelect("Show unicode control characters", app.Notepad.ctrl_())
-#time.sleep(1)
-#app.Notepad.Edit.RightClick()
-#app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
-#time.sleep(1)
+    # Try and save
+    app.Notepad.MenuSelect("File->SaveAs")
+    app.SaveAs.EncodingComboBox.Select("UTF-8")
+    app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
+    app.SaveAs.Save.CloseClick()
 
-#app.Notepad.Edit.RightClick()
-#app.PopupMenu.MenuSelect("Insert Unicode control character -> IAFS", app.Notepad.ctrl_())
-#time.sleep(1)
+    # my machine has a weird problem - when connected to the network
+    # the SaveAs Dialog appears - but doing anything with it can
+    # cause a LONG delay - the easiest thing is to just wait
+    # until the dialog is no longer active
 
-#app.Notepad.Edit.TypeKeys("{ESC}")
+    # - Dialog might just be gone - because click worked
+    # - dialog might be waiting to disappear
+    #   so can't wait for next dialog or for it to be disabled
+    # - dialog might be waiting to display message box so can't wait
+    #   for it to be gone or for the main dialog to be enabled.
 
-# the following shows that Sendtext does not accept
-# accented characters - but does allow 'control' characters
-app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
-    u"s\xfcpp\xf4rt \xe0cce\xf1ted characters", with_spaces = True)
+    # while the dialog exists wait upto 30 seconds (and yes it can
+    # take that long on my computer sometimes :-( )
+    app.SaveAsDialog2.Cancel.WaitNot('enabled')
 
-# Try and save
-app.Notepad.MenuSelect("File->SaveAs")
-app.SaveAs.EncodingComboBox.Select("UTF-8")
-app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
-app.SaveAs.Save.CloseClick()
+    # If file exists - it asks you if you want to overwrite
+    app.SaveAs.Yes.Wait('exists').CloseClick()
 
-# my machine has a weird problem - when connected to the network
-# the SaveAs Dialog appears - but doing anything with it can
-# cause a LONG delay - the easiest thing is to just wait
-# until the dialog is no longer active
+    # exit notepad
+    app.Notepad.MenuSelect("File->Exit")
 
-# - Dialog might just be gone - because click worked
-# - dialog might be waiting to disappear
-#   so can't wait for next dialog or for it to be disabled
-# - dialog might be waiting to display message box so can't wait
-#   for it to be gone or for the main dialog to be enabled.
+    #if not run_with_appdata:
+    #    app.WriteAppData(os.path.join(scriptdir, "Notepad_fast.pkl"))
 
-# while the dialog exists wait upto 30 seconds (and yes it can
-# take that long on my computer sometimes :-( )
-app.SaveAsDialog2.Cancel.WaitNot('enabled')
 
-try:
-    app.SaveAs2.Yes.CloseClick()
-except MatchError:
-    pass
 
-# exit notepad
-app.Notepad.MenuSelect("File->Exit")
+    print "That took %.3f to run"% (time.time() - start)
 
-if app.Notepad.No.Exists():
-    app.Notepad.No.Click()
-
-print "That took %.3f to run"% (time.time() - start)
+if __name__ == "__main__":
+    RunNotepad()

@@ -27,7 +27,15 @@ __revision__ = "$Revision$"
 import time
 import sys
 
-from pywinauto import application
+try:
+    from pywinauto import application
+except ImportError:
+    import os.path
+    pywinauto_path = os.path.abspath(__file__)
+    pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
+    import sys
+    sys.path.append(pywinauto_path)
+    from pywinauto import application
 
 
 def WindowsMedia():

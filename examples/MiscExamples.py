@@ -24,10 +24,22 @@ __revision__ = "$Revision: 214 $"
 
 import time
 
-from pywinauto import application
+try:
+    from pywinauto import application
+except ImportError:
+    import os.path
+    pywinauto_path = os.path.abspath(__file__)
+    pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
+    import sys
+    sys.path.append(pywinauto_path)
+    from pywinauto import application
+
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
 from pywinauto import findwindows
+from pywinauto.timings import Timings
+
+Timings.window_find_timeout = 10
 
 def TestExceptions():
     "Test some things that should raise exceptions"
