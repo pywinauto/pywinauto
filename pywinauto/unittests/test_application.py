@@ -18,6 +18,10 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
+#pylint: disable-msg=C0301
+#pylint: disable-msg=F0401
+#pylint: disable-msg=W0142
+
 "Tests for application.py"
 
 __revision__ = "$Revision: 234 $"
@@ -329,6 +333,8 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Page Setup")
 
+        app.PageSetup.Wait('exists')
+
         self.assertEqual(
             app['PageSetup'].handle,
             app.window_(title = "Page Setup").handle)
@@ -361,6 +367,7 @@ class ApplicationTestCases(unittest.TestCase):
         #self.assertRaises(findbestmatch.MatchError,
         #    app.Notepad.__getattr__, 'handle')
 
+        app.PageSetup.Wait('exists', timeout=20)
         self.assertEqual(
             app.PageSetup.handle,
             app.window_(title = "Page Setup").handle)
@@ -372,6 +379,7 @@ class ApplicationTestCases(unittest.TestCase):
 
 
     def testkill_(self):
+        "test killing the application"
 
         app = Application()
         app.start('notepad.exe')
