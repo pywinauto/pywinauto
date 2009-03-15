@@ -6,18 +6,14 @@ Change Log
 ------------------------------------------------------------------
 10-March-2009
 
+ * Fixed toolbar button pressing - This required for 
+   HwndWrapper.NotifyParent() to be updated (to accept a new 
+   ID parameter)
+
+ * Fixed a bug wherea listview without a column control would
+   make pywinauto fail to capture the dialog.
+
  * Converted documenation from Pudge generated to Sphinx Generated
-
- * Ensured that return value from ComboBoxWrapper.SelectedIndices 
-   is always a tuple (there was a bug where it would sometimes be 
-   a ctypes array)
-
- * Changed default for finding windows to find disabled windows. 
-   (note this may impact scripts that relied on the previous 
-   setting!)
-
- * Added a control_id parameter to find_windows which allows 
-   finding windows based off of their control id's
 
  * Added some baic support for Pager and Progress controls 
    (no tests yet)
@@ -27,15 +23,34 @@ Change Log
  * Added some more VB 'listbox' window classes
 
  * Added some more VB 'button' window classes
+ 
+ * Ensured that return value from ComboBoxWrapper.SelectedIndices 
+   is always a tuple (there was a bug where it would sometimes be 
+   a ctypes array)
+
+ * Changed default for finding windows to find disabled windows 
+   as well as enabled ones (previous was to find enabled windows only) 
+   (note this may impact scripts that relied on the previous 
+   setting i.e. in cases where two dialogs have the same title!)
+
+ * Much better handling of InvalidWindowHandle during automation
+   runs. This could be raised when a closing window is still available
+   when the automation was called, but is gone half way through
+   whatever function was called.
+   
+ * Made clicking more robust by adding a tiny wait between each
+   SendMessageTimeout in _perform_click().
+   
+ * Added attributes ``can_be_label`` and ``has_title`` to ``HwndWrapper``
+   and subclasses to specify whether a control can act as a label for
+   other controls, and whether the title should be used for identifying
+   the control. If you have created your own HwndWrapper subclasses you
+   may need to override the defaults.
+
+ * Added a ``control_id`` parameter to find_windows which allows 
+   finding windows based off of their control id's
 
  * Added a FriendlyClassName method to MenuItem
-
- * Fixed toolbar button pressing - This required for 
-   HwndWrapper.NotifyParent() to be updated (to accept a new 
-   ID parameter)
-
- * Fixed a bug wherea listview without a column control would
-   make pywinauto fail to capture the dialog.
 
  * Split up the functions for button truncation data
 
@@ -59,8 +74,12 @@ Change Log
 
  * Updated the path for all unittests
 
- * made two unit tests sligthly more robust and less dependent 
+ * Made two unit tests sligthly more robust and less dependent 
    on computer/app settings
+   
+ * Updated timing settings for unit tests
+   
+ * Updated the examples to work in dev environment.
 
 
 0.3.7 Merge of Wait changes and various bug fixes/improvements
