@@ -48,7 +48,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         "ThunderCommandButton",
         "ThunderOptionButton",
         "ThunderCheckBox"]
-
+    can_be_label = True
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -702,6 +702,7 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         "Static",
         r"WindowsForms\d*\.STATIC\..*",
         "TPanel"]
+    can_be_label = True
 
     def __init__(self, hwnd):
         "Initialize the control"
@@ -726,6 +727,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Dialog"
     #windowclasses = ["#32770", ]
+    can_be_label = True
 
     def __init__(self, hwnd):
         """Initialize the DialogWrapper
