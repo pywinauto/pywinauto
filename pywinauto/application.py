@@ -117,11 +117,11 @@ class WindowSpecification(object):
                 "WindowSpecification class has no '%s' method" %
                 self.criteria[-1]['best_match'])
 
-        message = \
-        "You tried to execute a function call on a WindowSpecification " \
-        "instance. You probably have a typo for one of the methods of this " \
-        "class.\n" \
-        "The criteria leading up to this is: " + str(self.criteria)
+        message = (
+            "You tried to execute a function call on a WindowSpecification " 
+            "instance. You probably have a typo for one of the methods of "
+            "this class.\n" 
+            "The criteria leading up to this is: " + str(self.criteria))
 
         raise AttributeError(message)
 
@@ -254,14 +254,6 @@ class WindowSpecification(object):
 
                 #self.app.RecordMatch(self.criteria, ctrls)
                 return getattr(ctrls[-1], attr)
-
-                # why was I using wait below and not just
-                # getting the dialog and returning it's attribute
-                #return getattr(
-                #    self.Wait("ready",
-                #        window_find_timeout,
-                #        window_retry_interval),
-                #    attr)
 
         # It is a dialog/control criterion so let getitem
         # deal with it
@@ -523,7 +515,6 @@ class WindowSpecification(object):
                listed in their identifiers. In reality though the first one
                can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
                should be refered to as "Edit2".
-
         """
 
         #name_control_map = self._ctrl_identifiers()
