@@ -34,6 +34,8 @@ import handleprops
 
 import findbestmatch
 
+import controls
+
 
 # currently commented out as finding the best match control
 # requires that we know the Friendly class name - which is only
@@ -122,10 +124,6 @@ def find_windows(class_name = None,
     if handle is not None:
         return [handle, ]
 
-    if control_id is not None and windows:
-        windows = [win for win in windows if
-            handleprops.controlid(win) == control_id]
-
     if top_level_only:
         # find the top level windows
         windows = enum_windows()
@@ -149,6 +147,10 @@ def find_windows(class_name = None,
         if ctrl_index is not None:
             return [windows[ctrl_index]]
 
+    if control_id is not None and windows:
+        windows = [win for win in windows if
+            handleprops.controlid(win) == control_id]
+            
     if active_only:
         if not process:
             raise RuntimeError("Can only get active window of a process - " \
@@ -197,12 +199,20 @@ def find_windows(class_name = None,
     if enabled_only and windows:
         windows = [win for win in windows if handleprops.isenabled(win)]
 
-
     if best_match is not None and windows:
-        from controls import WrapHandle
-        windows = [WrapHandle(win) for win in windows]
+        wrapped_wins = []
+        
+        for win in windows:
+            try:
+                wrapped_wins.append(controls.WrapHandle(win))
+            except controls.InvalidWindowHandle:
+                # skip invalid handles - they have dissapeared 
+                # since the list of windows was retrieved
+                print "invalid"
+                pass
         windows = findbestmatch.find_best_control_matches(
-            best_match, windows)
+            best_match, wrapped_wins)
+        
         # convert window back to handle
         windows = [win.handle for win in windows]
 
