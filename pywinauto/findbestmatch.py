@@ -123,7 +123,6 @@ def find_best_match(search_text, item_texts, items, limit_ratio = .5):
     """
     search_text = _cut_at_tab(search_text)
 
-
     text_item_map = UniqueDict()
     # Clean each item, make it unique and map to
     # to the item index
@@ -172,6 +171,11 @@ def IsAboveOrToLeft(ref_control, other_ctrl):
     # skip controls where text win is below ctrl
     if text_r.top >= ctrl_r.bottom:
         return False
+        
+    # text control top left corner is below control
+    # top left corner - so not to the above or left :)
+    if text_r.top >= ctrl_r.top and text_r.left >= ctrl_r.left:
+        return False
 
     return True
 
@@ -181,7 +185,6 @@ distance_cuttoff = 999
 def GetNonTextControlName(ctrl, controls):
     """return the name for this control by finding the closest
     text control above and to its left"""
-
 
     names = []
 
@@ -202,7 +205,7 @@ def GetNonTextControlName(ctrl, controls):
     # get the visible text controls so that we can get
     # the closest text if the control has no text
     text_ctrls = [ctrl_ for ctrl_ in controls
-        if ctrl_.IsVisible() and ctrl_.WindowText()]
+        if ctrl_.IsVisible() and ctrl_.WindowText() and ctrl_.can_be_label]
 
 
     best_name = ''
@@ -277,12 +280,12 @@ def get_control_names(control, allcontrols):
     # Add the control based on it's friendly class name
     names.append(control.FriendlyClassName())
 
+
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
     cleaned = control.WindowText()
     # Todo - I don't like the hardcoded classnames here!
-    if cleaned and not control.FriendlyClassName() in (
-        "Edit", "ListBox", "Combobox", "ListView", "TreeView"):
+    if cleaned and control.can_be_label:
         names.append(cleaned)
         names.append(cleaned + control.FriendlyClassName())
 
@@ -290,15 +293,13 @@ def get_control_names(control, allcontrols):
     else:
         # so find the text of the nearest text visible control
         non_text_names = GetNonTextControlName(control, allcontrols)
+        
         # and if one was found - add it
         if non_text_names:
             names.extend(non_text_names)
 
     # return the names - and make sure there are no duplicates
     return set(names)
-
-
-
 
 
 #====================================================================
