@@ -231,6 +231,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "ComboBox",
         "WindowsForms\d*\.COMBOBOX\..*",
         "TComboBox"]
+    has_title = False
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -382,6 +383,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "ThunderListBox",
         "ThunderFileListBox",
         "TListBox",]
+    has_title = False
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -543,6 +545,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "ThunderTextBox",
         "ThunderRT6TextBox",
         ]
+    has_title = False
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
@@ -802,6 +805,7 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "PopupMenu"
     windowclasses = ["#32768", ]
+    has_title = False
 
     def IsDialog(self):
         "Return whether it is a dialog"

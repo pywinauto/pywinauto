@@ -2395,6 +2395,7 @@ class ComboBoxExWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "ComboBoxEx"
     windowclasses = ["ComboBoxEx32", ]
+    has_title = False
 
 
 #====================================================================
@@ -2403,6 +2404,7 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "DateTimePicker"
     windowclasses = ["SysDateTimePick32", ]
+    has_title = False
 
 
 #====================================================================
@@ -2411,6 +2413,7 @@ class HotkeyWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Hotkey"
     windowclasses = ["msctls_hotkey32", ]
+    has_title = False
 
 
 #====================================================================
@@ -2419,6 +2422,7 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "IPAddress"
     windowclasses = ["SysIPAddress32", ]
+    has_title = False
 
 
 #====================================================================
@@ -2427,6 +2431,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
+    has_title = False
 
 
 #====================================================================
@@ -2451,6 +2456,7 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Progress"
     windowclasses = ["msctls_progress", "msctls_progress32", ]
+    has_title = False
 
 
     def GetPosition(self):
