@@ -47,8 +47,8 @@ in almost exactly the same ways. ::
 
 .. seealso::
 
-  :func:`pywinauto.findwindows.find_windows` for the keyword arguments that can be
-  passed to both :func:`Application.window_` and 
+  :func:`pywinauto.findwindows.find_windows` for the keyword arguments that 
+  can be passed to both :func:`Application.window_` and 
   :func:`WindowSpecification.Window_`
 
 """
@@ -291,7 +291,10 @@ class WindowSpecification(object):
                 exists_criteria, timeout, retry_interval)
 
             return True
-        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+        except (
+            findwindows.WindowNotFoundError, 
+            findbestmatch.MatchError,
+            controls.InvalidWindowHandle):
             return False
 
 
@@ -440,8 +443,11 @@ class WindowSpecification(object):
                     ctrls = _resolve_control(waitnot_criteria, 0, .01)
                 # if we get here - then the window exists and we need to 
                 # do the other checks below
-                
-            except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
+
+            except (
+                findwindows.WindowNotFoundError, 
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle):
                 # Window doesn't exist
                 return True
         
@@ -476,113 +482,6 @@ class WindowSpecification(object):
                     "', '".join( wait_for_not.split() ) )
                 )
             
-
-        
-#        try:
-#            # wait until the 
-#            WaitUntil(timeout, retry_interval, WindowIsNotXXX)
-#        except TimeoutError, e:
-#            raise RuntimeError(
-#                "Timed out while waiting for window (%s - '%s') "
-#                "to not be in '%s' state"%
-#                    (e.function_value[-1].Class(),
-#                    e.function_value[-1].WindowText(),
-#                    "', '".join( wait_for_not.split() ) )
-#                )
-            
-
-
-
-
-#
-#        while True:
-#
-#            matched = True
-#            if 'exists' in wait_for_not:
-#                # well if we got here then the control must have
-#                # existed so we are not ready to stop checking
-#                # because we didn't want the control to exist!
-#                matched = False
-#
-#            if 'ready' in wait_for_not:
-#                if ctrls[-1].IsVisible() and ctrls[-1].IsEnabled():
-#                    matched = False
-#
-#            if 'enabled' in wait_for_not:
-#                if ctrls[-1].IsEnabled():
-#                    matched = False
-#
-#            if 'visible' in wait_for_not:
-#                if ctrls[-1].IsVisible():
-#                    matched = False
-#
-#            if matched:
-#                break
-#
-#
-#            # stop trying if we have reached the timeout
-#            waited = time.time() - start
-#            if  waited < timeout:
-#                # wait the interval or the time left until the timeout expires
-#                # and let the loop run again
-#                time.sleep(min(retry_interval, timeout - waited))
-#
-#            else:
-#                raise RuntimeError(
-#                    "Timed out while waiting for window (%s - '%s') "
-#                    "to not be in '%s' state"%
-#                        (ctrls[-1].Class(),
-#                        ctrls[-1].WindowText(),
-#                        "', '".join( wait_for_not.split() ) )
-#                    )
-
-
-
-#    def WaitReady(self, timeout = None, retry_interval = None):
-#        "Wait for the control to be ready (Exists, Visible and Enabled)"
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        return self.Wait('ready', timeout, retry_interval)
-#
-#    def WaitNotReady(self, timeout = None, retry_interval = None):
-#        "Wait for the control to be ready (Exists, Visible and Enabled)"
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        return self.WaitNot('ready', timeout, retry_interval)
-#
-#    def WaitEnabled(self, timeout = None, retry_interval = None):
-#        """Wait for the control to become enabled
-#
-#        Returns the control"""
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        return self.Wait('enabled', timeout, retry_interval)
-#
-#    def WaitNotEnabled(self, timeout = None, retry_interval = None):
-#        "Wait for the control to be disabled or not exist"
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        self.WaitNot('enabled', timeout, retry_interval)
-#
-#    def WaitVisible(self, timeout = None,retry_interval = None):
-#        """Wait for the control to become visible
-#
-#        Returns the control"""
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        return self.Wait('visible', timeout, retry_interval)
-#
-#    def WaitNotVisible(self,
-#        timeout = None,
-#        retry_interval = None):
-#        "Wait for the control to be invisible or not exist"
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        self.WaitNot('visible', timeout, retry_interval)
-#
-#    def WaitExists(self, timeout = None, retry_interval = None):
-#        """Wait for the control to not exist anymore"""
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        return self.Wait('exists', timeout, retry_interval)
-#
-#    def WaitNotExists(self, timeout = None, retry_interval = None):
-#        """Wait for the control to not exist anymore"""
-#        warnings.warn(wait_method_deprecation, DeprecationWarning)
-#        self.WaitNot('exists', timeout, retry_interval)
 
     def _ctrl_identifiers(self):
 
@@ -920,29 +819,13 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
             timeout, 
             retry_interval,  
             _get_ctrl, 
-            (findwindows.WindowNotFoundError, findbestmatch.MatchError),
+            (findwindows.WindowNotFoundError, 
+            findbestmatch.MatchError,
+            controls.InvalidWindowHandle),
             criteria)
         
     except TimeoutError, e:
         raise e.original_exception
-#        
-#    waited = 0
-#    while True:
-#        try:
-#
-#            ctrl = _get_ctrl(criteria)
-#            break
-#
-#        except (findwindows.WindowNotFoundError, findbestmatch.MatchError):
-#
-#            waited = time.time() - start
-#            if  waited < timeout:
-#                # wait the interval or the time left until the timeout expires
-#                # and let the loop run again
-#                time.sleep(min(retry_interval, timeout - waited))
-#
-#            else:
-#                raise
 
     return ctrl
 
@@ -979,7 +862,7 @@ class Application(object):
     Start = start
 
     def __connect(*args, **kwargs):
-        "Convenience static method that calls start"
+        "Convenience static method that calls connect"
         return Application().connect_(*args, **kwargs)
     connect = staticmethod(__connect)
     Connect = connect
@@ -1036,31 +919,25 @@ class Application(object):
 
 
         def AppIdle():
-            if not bool(win32functions.WaitForInputIdle(
-                proc_info.hProcess, int(timeout * 1000))):
+            "Return true when the application is ready to start"
+            result = win32functions.WaitForInputIdle(
+                proc_info.hProcess, int(timeout * 1000))
+            
+            # wait completed successfully
+            if result == 0:
                 return True
             
+            # the wait returned because it timed out
+            if result == WAIT_TIMEOUT:
+                return false
+            
             return bool(self.windows_())
-
+        
+        # Wait until the application is ready after starting it
         try:
             WaitUntil(timeout, retry_interval, AppIdle)
         except TimeoutError:
             pass
-
-#        start = time.time()
-#        waited = 0
-#        while waited < timeout:
-#            if not win32functions.WaitForInputIdle(
-#                proc_info.hProcess, int(timeout * 1000)):
-#                break
-#                #raise AppStartError(
-#                #    "WaitForInputIdle: " + str(ctypes.WinError()))
-#
-#            if self.windows_():
-#                break
-#
-#            time.sleep(min(retry_interval, timeout - waited))
-#            waited = time.time() - start
 
         return self
 
@@ -1168,8 +1045,6 @@ class Application(object):
         """
 
         if not self.process:
-            #raise AppNotConnected(
-            #    "Please use start_ or connect_ before trying anything else")
             win_spec = WindowSpecification(self, kwargs)
             self.process = win_spec.WrapperObject().ProcessID()
         # add the restriction for this particular process
