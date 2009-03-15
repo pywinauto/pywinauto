@@ -23,7 +23,7 @@
 __revision__ = "$Revision$"
 
 from HwndWrapper import GetDialogPropsFromHandle
-
+from HwndWrapper import InvalidWindowHandle
 # make an alias for the HwndWrapper object as WrapHandle
 from HwndWrapper import HwndWrapper as WrapHandle
 
