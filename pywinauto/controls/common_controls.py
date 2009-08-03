@@ -2377,7 +2377,7 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
 #
 #    #----------------------------------------------------------------
 #    def GetToolTipsControl(self):
-#        "Return teh tooltip control associated with this control"
+#        "Return the tooltip control associated with this control"
 #        return ToolTipsWrapper(self.SendMessage(win32defines.TBM_GETTOOLTIPS))
 
 
