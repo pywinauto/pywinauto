@@ -148,19 +148,14 @@ def find_windows(class_name = None,
             handleprops.controlid(win) == control_id]
             
     if active_only:
-        if not process:
-            raise RuntimeError("Can only get active window of a process - " \
-                "please specify 'process' too")
-
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
 
-        # get the active windows for all windows (not just the process)
+        # get all the active windows (not just the specified process)
         ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
 
         if not ret:
             raise ctypes.WinError()
-           #raise RuntimeError("GetGUIThreadInfo returned 0 (failure)")
 
         if gui_info.hwndActive in windows:
             windows = [gui_info.hwndActive]
