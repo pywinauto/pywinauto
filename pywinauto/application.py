@@ -152,7 +152,11 @@ class WindowSpecification(object):
 
         When this window specification is resolved then this will be used
         to match against a control."""
-
+        
+        # default to non top level windows because we are usualy looking for a control
+        if 'top_level_only' not in criteria:
+            criteria['top_level_only'] = False
+            
         new_item = WindowSpecification(self.app, self.criteria[0])
         new_item.criteria.append(criteria)
 
@@ -631,7 +635,7 @@ def _resolve_from_appdata(
     #    if c.has_key('process'):
     #        del c['process']
     #
-    # They should match - so if htey don't print it out.
+    # They should match - so if they don't print it out.
     #if found_criteria != search_criteria:
     #    print "\t\t", matched[cur_index - 3][0]
     #    print "\t" ,matched[cur_index - 2][0]
@@ -876,7 +880,6 @@ class Application(object):
         if retry_interval is None:
             retry_interval = Timings.app_start_retry
 
-
         start_info = win32structures.STARTUPINFOW()
         start_info.sb = ctypes.sizeof(start_info)
 
@@ -919,7 +922,7 @@ class Application(object):
                 return True
             
             # the wait returned because it timed out
-            if result == WAIT_TIMEOUT:
+            if result == win32defines.WAIT_TIMEOUT:
                 return false
             
             return bool(self.windows_())
@@ -1240,6 +1243,7 @@ def process_from_module(module):
     # run instance
     modules.reverse()
     for process, name in modules:
+        print name
         if module.lower() in name.lower():
             return process
 
