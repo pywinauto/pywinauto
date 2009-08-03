@@ -137,7 +137,7 @@ def font(handle):
 
     # if the fondUsed is 0 then the control is using the
     # system font (well probably not - even though that is what the docs say)
-    # instead we switch to teh default GUI font - which is more likely correct.
+    # instead we switch to the default GUI font - which is more likely correct.
     if not font_handle:
 
         # So just get the default system font
