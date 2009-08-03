@@ -258,7 +258,7 @@ class MenuItem(object):
 
         If this item opens a sub menu then call Menu.GetProperties()
         to return the list of items in the sub menu. This is avialable
-        under teh 'MenuItems' key
+        under the 'MenuItems' key
         """
         props = {}
         props['Index'] = self.Index()
@@ -385,7 +385,19 @@ class Menu(object):
 
 
     def GetMenuPath(self, path, path_items = None, appdata = None):
-        "Walk the items in this menu to find the item specified by path"
+        """Walk the items in this menu to find the item specified by path
+        
+        The path is specified by a list of items separated by '->' each Item
+        can be either a string (can include spaces) e.g. "Save As" or the zero
+        based index of the item to return prefaced by # e.g. #1. 
+        
+        These can be mixed as necessary. For Example:
+            "#0 -> Save As", 
+            "Tools -> #0 -> Configure"
+        
+        Text matching is done using a 'best match' fuzzy algorithm, so you don't
+        have to add all puntuation, elipses, etc.
+        """
 
         if path_items is None:
             path_items = []
