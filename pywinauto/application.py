@@ -1243,7 +1243,6 @@ def process_from_module(module):
     # run instance
     modules.reverse()
     for process, name in modules:
-        print name
         if module.lower() in name.lower():
             return process
 
