@@ -537,7 +537,6 @@ def parse_keys(string,
 
         c = string[index]
         index += 1
-
         # check if one of CTRL, SHIFT, ALT has been pressed
         if c in MODIFIERS.keys():
             modifier = MODIFIERS[c]
@@ -584,15 +583,21 @@ def parse_keys(string,
                 c == '\t' and not with_tabs or
                 c == '\n' and not with_newlines):
                 continue
-
+            
             # output nuewline
-            if c in ('~'):
-                keys.append(KeyAction("\n"))
+            if c in ('~', '\n'):
+                keys.append(VirtualKeyAction(CODES["ENTER"]))
+
+            # safest are the virtual keys - so if our key is a virtual key
+            # use a VirtualKeyAction
+            #if ord(c) in CODE_NAMES:
+            #    keys.append(VirtualKeyAction(ord(c)))
+                
+            elif modifiers:
+                keys.append(EscapedKeyAction(c))
+                
             else:
-                if modifiers:
-                    keys.append(EscapedKeyAction(c))
-                else:
-                    keys.append(KeyAction(c))
+                keys.append(KeyAction(c))
 
         # as we have handled the text - release the modifiers
         while modifiers:
