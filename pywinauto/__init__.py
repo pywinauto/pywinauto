@@ -28,3 +28,6 @@ __version__ = "0.3.8"
 import findwindows
 WindowAmbiguousError = findwindows.WindowAmbiguousError
 WindowNotFoundError = findwindows.WindowNotFoundError
+
+import findbestmatch
+MatchError = findbestmatch.MatchError
