@@ -22,18 +22,17 @@
 
 __revision__ = "$Revision: 234 $"
 
-
+# pylint:  disable-msg=W0212,F0401,R0904
 
 import sys
 sys.path.append(".")
 from pywinauto.controls.win32_controls import *
+from pywinauto import XMLHelpers
 
 import unittest
 
 # following imports are not required for the tests
 # but are useful for debugging
-import time
-import pdb
 import pprint
 
 from pywinauto.timings import Timings
@@ -63,7 +62,7 @@ class ButtonTestCases(unittest.TestCase):
 
     def testGetProperties(self):
         "Test getting the properties for the button control"
-        props  = self.calc._6.GetProperties()
+        props = self.calc._6.GetProperties()
 
         self.assertEquals(
             "Button", props['FriendlyClassName'])
@@ -75,18 +74,23 @@ class ButtonTestCases(unittest.TestCase):
             self.calc._6.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.calc._6, prop_name)(), props[prop_name])
+            self.assertEquals(
+                getattr(self.calc._6, prop_name)(), props[prop_name])
 
     def test_set_if_needs_image(self):
+        "test whether an image needs to be saved with the properties"
         self.assertEquals(self.calc._8._NeedsImageProp, False)
 
     def testFriendlyClass(self):
+        "Test the FriendlyClassName method"
         self.assertEquals(self.calc._8.FriendlyClassName(), "Button")
         self.assertEquals(self.calc.Dec.FriendlyClassName(), "RadioButton")
         self.assertEquals(self.calc.Hyp.FriendlyClassName(), "CheckBox")
 
         children = self.calc.Children()
-        no_text_buttons = [c for c in children if not c.WindowText() and c.Class() == "Button"]
+        no_text_buttons = [
+            c for c in children
+                if not c.WindowText() and c.Class() == "Button"]
 
         first_group = no_text_buttons[0]
 
@@ -100,17 +104,14 @@ class ButtonTestCases(unittest.TestCase):
         self.calc.Inv.UnCheck()
         self.assertEquals(self.calc.Inv.GetCheckState(), 0)
 
-
     def testGetCheckState_unchecked(self):
         "unchecked"
         self.assertEquals(self.calc.Inv.GetCheckState(), 0)
-
 
     def testGetCheckState_checked(self):
         "checked"
         self.calc.Inv.Check()
         self.assertEquals(self.calc.Inv.GetCheckState(), 1)
-
 
 #    def testGetCheckState_indeterminate(self):
 #        "indeterminate"
@@ -127,15 +128,15 @@ class ButtonTestCases(unittest.TestCase):
         self.calc['='].Click()
         self.assertEquals(self.calc.Edit.Texts()[1], "108. ")
 
-
     def testIsSelected(self):
-
+        "Test whether the control is selected or not"
+        # Todo - I need to find an application where a button can be
+        # selected - I don't see one in Calc at least :)
         self.assertEquals(self.calc.Hex.GetCheckState(), 0)
 
         self.calc.Hex.Click()
 
         self.assertEquals(self.calc.Hex.GetCheckState(), 1)
-
 
 
 class ComboBoxTestCases(unittest.TestCase):
@@ -151,11 +152,9 @@ class ComboBoxTestCases(unittest.TestCase):
 
         self.app.start_("Notepad.exe")
 
-
         self.app.UntitledNotepad.MenuSelect("Format->Font")
 
         self.ctrl = self.app.Font.ComboBox2.WrapperObject()
-
 
     def tearDown(self):
         "Close the application after tests"
@@ -168,10 +167,9 @@ class ComboBoxTestCases(unittest.TestCase):
         if self.app.Notepad.No.Exists():
             self.app.Notepad.No.Click()
 
-
     def testGetProperties(self):
         "Test getting the properties for the combobox control"
-        props  = self.ctrl.GetProperties()
+        props = self.ctrl.GetProperties()
 
         self.assertEquals(
             "ComboBox", props['FriendlyClassName'])
@@ -180,13 +178,12 @@ class ComboBoxTestCases(unittest.TestCase):
             self.ctrl.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
-
+            self.assertEquals(
+                getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemCount(self):
         "Test that ItemCount returns the correct number of items"
         self.assertEquals(self.ctrl.ItemCount(), 4)
-
 
     def testDroppedRect(self):
         "Test that the dropped rect is correct"
@@ -197,19 +194,16 @@ class ComboBoxTestCases(unittest.TestCase):
         self.assertEquals(rect.right, self.ctrl.ClientRect().right)
         self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() - 3)
 
-
     def testSelectedIndex(self):
         "That the control returns the correct index for the selected item"
         self.ctrl.Select(2)
         self.assertEquals(self.ctrl.SelectedIndex(), 2)
         self.assertEquals(self.ctrl.Texts()[3], self.app.Font.Edit2.Texts()[1])
 
-
     def testSelect_negative(self):
         "Test that the Select method correctly handles negative indices"
         self.ctrl.Select(-1)
         self.assertEquals(self.ctrl.SelectedIndex(), 3)
-
 
     def testSelect_toohigh(self):
         "Test that the Select correctly raises if the item is too high"
@@ -225,25 +219,24 @@ class ComboBoxTestCases(unittest.TestCase):
         # now do it with a typo
         self.assertRaises(ValueError, self.ctrl.Select, "Bold Italc")
 
-
     def testSelect_simpleCombo(self):
+        "Test selection for a simple combo"
         self.app.Font.ScriptComboBox.Select(0)
         self.assertEquals(self.app.Font.ScriptComboBox.SelectedIndex(), 0)
         self.app.Font.ScriptComboBox.Select(2)
         self.assertEquals(self.app.Font.ScriptComboBox.SelectedIndex(), 2)
 
-
     def testItemData(self):
+        "Test that it doesn't raise"
         self.ctrl.ItemData(0)
+        self.ctrl.ItemData(1)
         self.ctrl.ItemData("Italic")
+        self.ctrl.ItemData(self.ctrl.ItemCount())
 
 #
 #    def testTexts(self):
 #        pass
 #
-
-
-
 
 class ListBoxTestCases(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
@@ -273,7 +266,7 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testGetProperties(self):
         "Test getting the properties for the listbox control"
-        props  = self.ctrl.GetProperties()
+        props = self.ctrl.GetProperties()
 
         self.assertEquals(
             "ListBox", props['FriendlyClassName'])
@@ -282,43 +275,45 @@ class ListBoxTestCases(unittest.TestCase):
             self.ctrl.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEquals(
+                getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemCount(self):
-        #import pdb;pdb.set_trace()
+        "test that the count of items is correct"
         self.assertEquals(self.ctrl.ItemCount(), 14)
-        
+
     def testItemData(self):
-        # I can't test much with this
+        "For the moment - just test that it does not raise"
         self.ctrl.ItemData(1)
-        
+        self.ctrl.ItemData(self.ctrl.ItemCount())
+
     def testSelectedIndices(self):
-        self.assertEquals(self.ctrl.SelectedIndices(), (0,))
+        "test that the selected indices are correct"
+        self.assertEquals(self.ctrl.SelectedIndices(), (0, ))
         self.ctrl.Select(2)
-        self.assertEquals(self.ctrl.SelectedIndices(), (2,))
-        
+        self.assertEquals(self.ctrl.SelectedIndices(), (2, ))
+
         self.assertTrue(type(self.ctrl.SelectedIndices()) == tuple)
 
     def testSelect(self):
+        "Test selecting an item"
         self.ctrl.Select(5)
-        self.assertEquals(self.ctrl.SelectedIndices(), (5,))
+        self.assertEquals(self.ctrl.SelectedIndices(), (5, ))
 
         # get the text of the 2nd item (3rd item in list
         # because of empty WindowText)
         item_to_select = self.ctrl.Texts()[2]
 
         self.ctrl.Select(item_to_select)
-        self.assertEquals(self.ctrl.SelectedIndices(), (1,))
+        self.assertEquals(self.ctrl.SelectedIndices(), (1, ))
 
     def testGetSetItemFocus(self):
+        "Test setting and getting the focus of a particular item"
         self.ctrl.SetItemFocus(0)
         self.assertEquals(self.ctrl.GetItemFocus(), 0)
 
         self.ctrl.SetItemFocus(5)
         self.assertEquals(self.ctrl.GetItemFocus(), 5)
-
-
-
 
 
 class EditTestCases(unittest.TestCase):
@@ -395,7 +390,7 @@ class EditTestCases(unittest.TestCase):
 
     def testLineCount(self):
         "Test getting the line count of the edit control"
-        for i in range (0, self.ctrl.LineCount()):
+        for i in range(0, self.ctrl.LineCount()):
             self.assertEquals(
                 self.ctrl.LineLength(i),
                 len(self.test_data.split("\r\n")[i]))
@@ -422,7 +417,8 @@ class EditTestCases(unittest.TestCase):
         self.assertEquals((0, 0), self.ctrl.SelectionIndices())
 
         self.ctrl.Select()
-        self.assertEquals((0, len(self.test_data)), self.ctrl.SelectionIndices())
+        self.assertEquals(
+            (0, len(self.test_data)), self.ctrl.SelectionIndices())
 
         self.ctrl.Select(10, 25)
         self.assertEquals((10, 25), self.ctrl.SelectionIndices())
@@ -439,10 +435,6 @@ class EditTestCases(unittest.TestCase):
         self.assertEquals((start, end), self.ctrl.SelectionIndices())
 
 
-
-
-
-
 class DialogTestCases(unittest.TestCase):
     "Unit tests for the DialogWrapper class"
 
@@ -457,14 +449,16 @@ class DialogTestCases(unittest.TestCase):
         self.app.start_("calc.exe")
         self.calc = self.app.SciCalc
 
+        # write out the XML so that we can read it in later
+        self.app.Calculator.WriteToXML("ref_controls.xml")
+
     def tearDown(self):
         "Close the application after tests"
         self.calc.TypeKeys("%{F4}")
 
-
     def testGetProperties(self):
         "Test getting the properties for the dialog box"
-        props  = self.calc.GetProperties()
+        props = self.calc.GetProperties()
 
         self.assertEquals(
             "SciCalc", props['FriendlyClassName'])
@@ -472,40 +466,59 @@ class DialogTestCases(unittest.TestCase):
         self.assertEquals(self.calc.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.calc, prop_name)(), props[prop_name])
+            self.assertEquals(
+                getattr(self.calc, prop_name)(), props[prop_name])
 
     def testRunTests(self):
+        "Test running the UI tests on the dialog"
         bugs = self.calc.RunTests()
         from pywinauto.controls.HwndWrapper import HwndWrapper
         self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
 
+    def testRunTestsWithReference(self):
+        "Add a ref control, get the bugs and validate that the hande "
+        import controlproperties
+        ref_controls = [controlproperties.ControlProps(ctrl) for
+                ctrl in XMLHelpers.ReadPropertiesFromFile("ref_controls.xml")]
+
+        bugs = self.calc.RunTests(ref_controls = ref_controls)
+        from pywinauto import tests
+        tests.print_bugs(bugs)
+        from pywinauto.controls.HwndWrapper import HwndWrapper
+        self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
+
     def testWriteToXML(self):
+        "Write the output and validate that it is the same as the test output"
         self.calc.WriteToXML("test_output.xml")
 
         all_props = [self.calc.GetProperties()]
         all_props.extend([c.GetProperties() for c in self.calc.Children()])
 
-        from pywinauto import XMLHelpers
-
         props = XMLHelpers.ReadPropertiesFromFile("test_output.xml")
-        #for i, ctrl in enumerate(props):
-        #    for key, value in ctrl.items():
-        #        if isinstance(value, (list, tuple)):
-        #            self.assertEquals(list(value), list(all_props[i][key]))
-        #        else:
-        #            self.assertEquals(value, all_props[i][key])
+        for i, ctrl in enumerate(props):
+            for key, ctrl_value in ctrl.items():
+                expected_value = all_props[i][key]
+                if isinstance(ctrl_value, (list, tuple)):
+                    self.assertEquals(list(ctrl_value), list(expected_value))
+
+                elif "Image" in ctrl_value.__class__.__name__:
+                    self.assertEquals(
+                        ctrl_value.tostring(), expected_value.tostring())
+
+                else:
+                    self.assertEquals(ctrl_value, expected_value)
 
         import os
         os.unlink("test_output.xml")
 
-
     def testClientAreaRect(self):
+        """Validate that the client area rect is the right size
+        (comparing against the full rectangle)"""
         clientarea = self.calc.ClientAreaRect()
         self.assertEquals(self.calc.Rectangle().left + 3, clientarea.left)
         self.assertEquals(self.calc.Rectangle().top + 41, clientarea.top)
         self.assertEquals(self.calc.Rectangle().right - 3, clientarea.right)
         self.assertEquals(self.calc.Rectangle().bottom - 3, clientarea.bottom)
-
 
 
 class PopupMenuTestCases(unittest.TestCase):
@@ -528,10 +541,9 @@ class PopupMenuTestCases(unittest.TestCase):
         self.popup.TypeKeys("{ESC}")
         self.app.Notepad.TypeKeys("%{F4}")
 
-
     def testGetProperties(self):
         "Test getting the properties for the PopupMenu"
-        props  = self.popup.GetProperties()
+        props = self.popup.GetProperties()
 
         self.assertEquals(
             "PopupMenu", props['FriendlyClassName'])
@@ -539,16 +551,17 @@ class PopupMenuTestCases(unittest.TestCase):
         self.assertEquals(self.popup.Texts(), props['Texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.popup, prop_name)(), props[prop_name])
+            self.assertEquals(
+                getattr(self.popup, prop_name)(), props[prop_name])
 
     def testIsDialog(self):
+        "Ensure that IsDialog works correctly"
         self.assertEquals(True, self.popup.IsDialog())
 
     def test_menu_handle(self):
+        "Ensure that the menu handle is returned"
         handle = self.popup._menu_handle()
         self.assertNotEquals(0, handle)
-
-
 
 
 if __name__ == "__main__":
