@@ -31,16 +31,13 @@ import ctypes
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
-try:
-    import SendKeys
-except ImportError:
-    pass
+import SendKeysCtypes as SendKeys
 
 # I leave this optional because PIL is a large dependency
 try:
     import PIL.ImageGrab
 except ImportError:
-    pass
+    PIL.ImageGrab = None
 
 from pywinauto import win32defines
 from pywinauto import win32functions
@@ -54,6 +51,9 @@ from pywinauto import handleprops
 # accessible from HwndWrapper module
 from menuwrapper import Menu #, MenuItemNotEnabled
 
+
+
+        
 #====================================================================
 class ControlNotEnabled(RuntimeError):
     "Raised when a control is not enabled"
@@ -154,9 +154,16 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def __new__(cls, handle):
+        # only use the meta class to find the wrapper for HwndWrapper
+        # so allow users to force the wrapper if they want
+        # thanks to Raghav for finding this.
+        if cls != HwndWrapper:
+            obj = object.__new__(cls)
+            obj.__init__(handle)
+            return obj
+
         new_class = cls.FindWrapper(handle)
         #super(currentclass, cls).__new__(cls[, ...])"
-
         obj = object.__new__(new_class)
         obj.__init__(handle)
         return obj
@@ -671,15 +678,14 @@ class HwndWrapper(object):
             self.Rectangle().right,
             self.Rectangle().bottom)
 
+        # PIL is optional so check first
+        if not PIL.ImageGrab:
+            print("PIL does not seem to be installed. "
+                "PIL is required for CaptureAsImage")
+        
         # grab the image and get raw data as a string
-        # wrapped in try because PIL is optional
-        try:
-            return PIL.ImageGrab.grab(box)
+        return PIL.ImageGrab.grab(box)
 
-        # if that fails due to a NameError - it is most likely because
-        # PIL was not found - and the package not loaded
-        except NameError:
-            pass
 
     #-----------------------------------------------------------
     def __hash__(self):
@@ -759,13 +765,14 @@ class HwndWrapper(object):
         * **double** Whether to perform a double click or not (Default: False)
         * **wheel_dist** The distance to move the mouse week (default: 0)
 
-        This is different from Click in that it requires the control to
-        be visible on the screen but performs a more realistic 'click'
-        simulation.
+        NOTES: 
+           This is different from Click in that it requires the control to
+           be visible on the screen but performs a more realistic 'click'
+           simulation.
 
-        This method is also vulnerable if the mouse if moved by the user
-        as that could easily move the mouse off the control before the
-        Click has finished.
+           This method is also vulnerable if the mouse if moved by the user
+           as that could easily move the mouse off the control before the
+           Click has finished.        
         """
         _perform_click_input(self, button, coords, double, wheel_dist = wheel_dist)
 
@@ -929,7 +936,7 @@ class HwndWrapper(object):
 
         # Play the keys to the active window
         SendKeys.SendKeys(
-            keys.encode('mbcs'),
+            keys,
             pause, with_spaces,
             with_tabs,
             with_newlines,
@@ -1076,8 +1083,7 @@ class HwndWrapper(object):
         menu_hwnd = self._menu_handle()
         if menu_hwnd: # and win32functions.IsMenu(menu_hwnd):
             return Menu(self, menu_hwnd)
-        else:
-            return None
+        return None
 
     #-----------------------------------------------------------
     def MenuItem(self, path):
@@ -1468,8 +1474,22 @@ def _perform_click_input(
     """Peform a click action using SendInput
 
     All the *ClickInput() and *MouseInput() methods use this function.
+    
+    Thanks to a bug report from Tomas Walch (twalch) on sourceforge and code 
+    seen at http://msdn.microsoft.com/en-us/magazine/cc164126.aspx this 
+    function now always works the same way whether the mouse buttons are 
+    swapped or not.
+    
+    For example if you send a right click to Notepad.Edit - it will always
+    bring up a popup menu rather than 'clicking' it.
     """
 
+    # Handle if the mouse buttons are swapped
+    if win32functions.GetSystemMetrics(win32defines.SM_SWAPBUTTON):
+        if button.lower() == 'left':
+            button = 'right'
+        else:
+            button = 'left'
 
     events = []
     if button.lower() == 'left':
@@ -1492,8 +1512,9 @@ def _perform_click_input(
             events.append(win32defines.MOUSEEVENTF_XDOWN)
         if button_up:
             events.append(win32defines.MOUSEEVENTF_XUP)
+
     if button.lower() == 'wheel':
-            events.append(win32defines.MOUSEEVENTF_WHEEL)
+        events.append(win32defines.MOUSEEVENTF_WHEEL)
 
 
     # if we were asked to double click (and we are doing a full click
@@ -1506,7 +1527,6 @@ def _perform_click_input(
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     else:
         ctrl.SetFocus()
-
 
     if isinstance(coords, win32structures.RECT):
         coords = (coords.left, coords.top)
