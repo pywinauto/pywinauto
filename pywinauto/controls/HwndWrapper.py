@@ -31,7 +31,7 @@ import ctypes
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
-import SendKeysCtypes as SendKeys
+from pywinauto import SendKeysCtypes as SendKeys
 
 # I leave this optional because PIL is a large dependency
 try:
