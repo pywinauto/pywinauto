@@ -923,7 +923,7 @@ class Application(object):
             
             # the wait returned because it timed out
             if result == win32defines.WAIT_TIMEOUT:
-                return false
+                return False
             
             return bool(self.windows_())
         
