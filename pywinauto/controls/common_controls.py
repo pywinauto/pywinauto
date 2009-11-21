@@ -173,7 +173,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     """
 
     friendlyclassname = "ListView"
-    windowclasses = ["SysListView32", r"WindowsForms\d*\.SysListView32\..*", ]
+    windowclasses = [
+        "SysListView32", 
+        r"WindowsForms\d*\.SysListView32\..*", 
+        "TSysListView",]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -874,7 +877,8 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows TreeView common control"
 
     friendlyclassname = "TreeView"
-    windowclasses = ["SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*"]
+    windowclasses = [
+        "SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*", "TTreeView"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -889,7 +893,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Texts(self):
         "Return all the text for the tree view"
-        texts = [self.WindowText(),]
+        texts = [self.WindowText(), ]
         if self.ItemCount():
             texts.append(self.Root().Text())
             elements = self.Root().SubElements()
