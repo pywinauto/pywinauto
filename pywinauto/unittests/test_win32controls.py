@@ -231,7 +231,7 @@ class ComboBoxTestCases(unittest.TestCase):
         self.ctrl.ItemData(0)
         self.ctrl.ItemData(1)
         self.ctrl.ItemData("Italic")
-        self.ctrl.ItemData(self.ctrl.ItemCount())
+        self.ctrl.ItemData(self.ctrl.ItemCount() - 1)
 
 #
 #    def testTexts(self):
@@ -285,7 +285,7 @@ class ListBoxTestCases(unittest.TestCase):
     def testItemData(self):
         "For the moment - just test that it does not raise"
         self.ctrl.ItemData(1)
-        self.ctrl.ItemData(self.ctrl.ItemCount())
+        self.ctrl.ItemData(self.ctrl.ItemCount() - 1)
 
     def testSelectedIndices(self):
         "test that the selected indices are correct"
@@ -477,7 +477,7 @@ class DialogTestCases(unittest.TestCase):
 
     def testRunTestsWithReference(self):
         "Add a ref control, get the bugs and validate that the hande "
-        import controlproperties
+        from pywinauto import controlproperties
         ref_controls = [controlproperties.ControlProps(ctrl) for
                 ctrl in XMLHelpers.ReadPropertiesFromFile("ref_controls.xml")]
 
