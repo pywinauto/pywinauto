@@ -32,6 +32,7 @@ from pywinauto import win32functions
 from pywinauto import win32defines
 from pywinauto import win32structures
 #from pywinauto import findbestmatch
+from pywinauto import controlproperties
 
 from pywinauto import tests
 from pywinauto.timings import Timings
@@ -275,7 +276,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
             if ident >= self.ItemCount():
                 raise IndexError(
-                    "Combobox has %d items, you requested item %d"%
+                    "Combobox has %d items, you requested item %d (0 based)"%
                         (self.ItemCount(),
                         ident))
 
@@ -291,12 +292,10 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
         return ident
 
-
     #-----------------------------------------------------------
     def ItemData(self, item):
-        "Return the item data associted with this item"
-        index = self._get_item_index(item)
         "Returns the item data associated with the item if any"
+        index = self._get_item_index(item)
         return self.SendMessage(win32defines.CB_GETITEMDATA, index)
 
     #-----------------------------------------------------------
@@ -363,11 +362,11 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     #def Deselect(self, item):
     # Not implemented because it doesn't make sense for combo boxes.
 
-    #TODO def EditControl(self):
+    #TODO def EditControl(self): # return the edit control of the Combobox
 
-    #TODO def ListControl(self):
+    #TODO def ListControl(self): # return the list control of the combobox
 
-    #TODO def ItemText(self, index):
+    #TODO def ItemText(self, index):  # get the test of item XX?
 
     #TODO def EditText(self):  # or should this be self.EditControl.Text()?
 
@@ -421,7 +420,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
             if ident >= self.ItemCount():
                 raise IndexError(
-                    "ListBox has %d items, you requested item %d"%
+                    "ListBox has %d items, you requested item %d (0 based)"%
                         (self.ItemCount(),
                         ident))
 
@@ -690,10 +689,8 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         time.sleep(Timings.after_editselect_wait)
 
-
         # return this control so that actions can be chained.
         return self
-
 
 
 #====================================================================
@@ -732,6 +729,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     #windowclasses = ["#32770", ]
     can_be_label = True
 
+    #-----------------------------------------------------------
     def __init__(self, hwnd):
         """Initialize the DialogWrapper
 
@@ -747,20 +745,31 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
             self.friendlyclassname = self.Class()
 
     #-----------------------------------------------------------
-    def RunTests(self, tests_to_run = None):
+    def RunTests(self, tests_to_run = None, ref_controls = None):
         "Run the tests on dialog"
 
         # get all the controls
-        controls = [self]
-        controls.extend(self.Children())
-
+        controls = [self] + self.Children()
+        
+        # add the reference controls
+        if ref_controls is not None:                        
+            matched_flags = controlproperties.SetReferenceControls(
+                controls, ref_controls)
+            
+            # todo: allow some checking of how well the controls matched
+            # matched_flags says how well they matched
+            # 1 = same number of controls
+            # 2 = ID's matched
+            # 4 = control classes matched
+            # i.e. 1 + 2 + 4 = perfect match
+        
         return tests.run_tests(controls, tests_to_run)
 
     #-----------------------------------------------------------
     def WriteToXML(self, filename):
         "Write the dialog an XML file (requires elementtree)"
-        controls = [self]
-        controls.extend(self.Children())
+        
+        controls = [self] + self.Children()
         props = [ctrl.GetProperties() for ctrl in controls]
 
         from pywinauto import XMLHelpers
@@ -772,10 +781,17 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
         From MSDN
         The client area of a control is the bounds of the control, minus the
-        nonclient elements such as scroll bars, borders, title bars, and menus."""
+        nonclient elements such as scroll bars, borders, title bars, and 
+        menus."""
         rect = win32structures.RECT(self.Rectangle())
         self.SendMessage(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
+
+#    #-----------------------------------------------------------
+#    def ReadControlsFromXML(self, filename):
+#        from pywinauto import XMLHelpers
+#        [controlproperties.ControlProps(ctrl) for
+#            ctrl in XMLHelpers.ReadPropertiesFromFile(handle)]  
 
 
 #    #-----------------------------------------------------------
@@ -807,11 +823,12 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
     windowclasses = ["#32768", ]
     has_title = False
 
+    #-----------------------------------------------------------
     def IsDialog(self):
         "Return whether it is a dialog"
         return True
 
-
+    #-----------------------------------------------------------
     def _menu_handle(self):
         "Get the menu handle for the popup menu menu"
         mbi = win32structures.MENUBARINFO()
