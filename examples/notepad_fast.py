@@ -34,6 +34,7 @@ except ImportError:
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
+import pywinauto
 from pywinauto import application
 from pywinauto import tests
 #from pywinauto.findbestmatch import MatchError
@@ -84,8 +85,12 @@ def RunNotepad():
     # Select the 4th combobox item
     app.PageSetupDlg.SizeComboBox.Select(4)
 
-    # Select the 'Letter' combobox item
-    app.PageSetupDlg.SizeComboBox.Select("Letter")
+    # Select the 'Letter' combobox item or the Letter 
+    try:
+        app.PageSetupDlg.SizeComboBox.Select("Letter")
+    except ValueError:
+        app.PageSetupDlg.SizeComboBox.Select('Letter (8.5" x 11")')
+                                         
     app.PageSetupDlg.SizeComboBox.Select(2)
 
     # run some tests on the Dialog. List of available tests:
@@ -133,7 +138,9 @@ def RunNotepad():
     # ----- 2nd Page Setup Dialog again ----
     app.PageSetupDlg.Properties.Click()
 
-    doc_props = app.window_(title_re = ".*Document Properties")
+    doc_props = app.window_(title_re = ".*Properties$")
+    doc_props.Wait('exists', timeout = 40)
+    
 #
 #    # ----- Document Properties Dialog ----
 #    # some tab control selections
@@ -197,8 +204,7 @@ def RunNotepad():
         "And then I am going to quit")
 
     app.Notepad.Edit.RightClick()
-    app.Popup.MenuSelect("Right To Left Reading Order")
-
+    app.Popup.MenuItem("Right To Left Reading Order").Click()
     #app.PopupMenu.MenuSelect("Paste", app.Notepad.ctrl_())
     #app.Notepad.Edit.RightClick()
     #app.PopupMenu.MenuSelect(
@@ -219,8 +225,8 @@ def RunNotepad():
 
     # the following shows that Sendtext does not accept
     # accented characters - but does allow 'control' characters
-    app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s not "
-        u"s\xfcpp\xf4rt \xe0cce\xf1ted characters", with_spaces = True)
+    app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s "
+        u"s\xfcpp\xf4rt \xe0cce\xf1ted characters!!!", with_spaces = True)
 
     # Try and save
     app.Notepad.MenuSelect("File->SaveAs")
@@ -244,7 +250,10 @@ def RunNotepad():
     app.SaveAsDialog2.Cancel.WaitNot('enabled')
 
     # If file exists - it asks you if you want to overwrite
-    app.SaveAs.Yes.Wait('exists').CloseClick()
+    try:
+        app.SaveAs.Yes.Wait('exists').CloseClick()
+    except pywinauto.MatchError:
+        pass
 
     # exit notepad
     app.Notepad.MenuSelect("File->Exit")
