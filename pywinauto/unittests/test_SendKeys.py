@@ -1,3 +1,4 @@
+# -*- coding: latin-1 -*-
 # GUI Application automation and testing library
 # Copyright (C) 2006 Mark Mc Mahon
 #
@@ -37,10 +38,12 @@ a
 __revision__ = "$Revision: 236 $"
 
 
-from SendKeys import *
-
-import unittest
 import sys
+sys.path.append(".")
+from pywinauto.SendKeysCtypes import *
+#from SendKeys import *
+import os
+import unittest
 from msvcrt import getch
 
 class SendKeysTests(unittest.TestCase):
@@ -103,15 +106,23 @@ class SendKeysTests(unittest.TestCase):
 
     def testTabWithTabs(self):
         "Make sure that with spaces option works"
-        SendKeys("\t \t \t{ENTER}", pause = .001, with_tabs = True)
+        SendKeys("\t \t \t{ENTER}", pause = .1, with_tabs = True)
         received = raw_input()
         self.assertEquals("\t\t\t", received)
 
     def testTabWithoutTabs(self):
         "Make sure that with spaces option works"
-        SendKeys("\t \t \t{ENTER}", pause = .001, with_tabs = False)
+        SendKeys("\t a\t b\t{ENTER}", pause = .1, with_tabs = False)
         received = raw_input()
-        self.assertEquals("", received)
+        self.assertEquals("ab", received)
+
+
+    def testTab(self):
+        "Make sure that with spaces option works"
+        SendKeys("{TAB}  {TAB} {ENTER}", pause = .3)
+        received = raw_input()
+        self.assertEquals("\t\t", received)
+
 
 
     # Newline tests
@@ -125,31 +136,38 @@ class SendKeysTests(unittest.TestCase):
 
     def testNewlinesWithNewlines(self):
         "Make sure that with spaces option works"
-        SendKeys("\t \t \t\n\{ENTER}", pause = .001, with_newlines = True)
+        SendKeys("\t \t \t a~\tb\nc{ENTER}", pause = .1, with_newlines = True)
         received = raw_input()
-        self.assertEquals("", received)
-        # there are actally two enter's above - so we need to clear the buffer
+        self.assertEquals("a", received)
+        
         received = raw_input()
+        self.assertEquals("b", received)
+
+        received = raw_input()
+        self.assertEquals("c", received)
 
     def testNewlinesWithoutNewlines(self):
         "Make sure that with spaces option works"
-        SendKeys("\t \t \t\na{ENTER}", pause = .001, with_newlines = False)
+        SendKeys("\t \t \t\na{ENTER}", pause = .01, with_newlines = False)
         received = raw_input()
         self.assertEquals("a", received)
 
 
     def testANSIExtendedCharacters(self):
         "Make sure that sending any character in range "
-
+        os.system("chcp 850")
         matched = 0
-        extended_chars = "äëïöüáéíóúâêîôûàèìòùãõñıç"
+        extended_chars = u"äëïöüáéíóúâêîôûàèìòùãõñıç"
         for char in extended_chars:
 
-            SendKeys(char + "{ENTER}", pause = .001)
-            received = raw_input()
+            SendKeys(char + "{ENTER}", pause = .01)
+            received = raw_input().decode("cp850")
 
             if char == received:
                 matched += 1
+            else:
+                print "expected %s, recieved %s"% (
+                    repr(char), repr(received))
 
         self.assertEquals(matched, len(extended_chars))
 
