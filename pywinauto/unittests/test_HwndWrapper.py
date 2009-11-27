@@ -58,7 +58,6 @@ class HwndWrapperTests(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-
         # start the application
         self.app = Application()
         self.app.start_("calc.exe")
@@ -409,12 +408,30 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.app = Application()
         self.app.start_("notepad.exe")
 
+        # Get the old font
+        self.app.UntitledNotepad.MenuSelect("Format->Font")        
+        #import pdb; pdb.set_trace()
+        self.old_font = self.app.Font.FontComboBox.SelectedIndex()
+        self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
+        
+        # ensure we have the correct settings for this test
+        self.app.Font.FontStyleCombo.Select(0)
+        self.app.Font.FontComboBox.Select("Lucida Console")
+        self.app.Font.OK.Click()
+
         self.dlg = self.app.UntitledNotepad
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
         self.dlg.edit.SetEditText("Here is some text\r\n and some more")
 
     def tearDown(self):
         "Close the application after tests"
+
+        # Set the old font again
+        self.app.UntitledNotepad.MenuSelect("Format->Font")        
+        self.app.Font.FontComboBox.Select(self.old_font)
+        self.app.Font.FontStyleCombo.Select(self.old_font_style)
+        self.app.Font.OK.Click()
+
         # close the application
         self.dlg.TypeKeys("%{F4}")
         if self.app.Notepad.No.Exists():
