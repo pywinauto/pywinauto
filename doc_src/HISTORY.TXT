@@ -4,7 +4,7 @@ Change Log
 
 0.3.9 Experimental! New Sendkeys, and various fixes
 ------------------------------------------------------------------
-XX-November-2009
+27-November-2009
 
  * Major change this release is that Sendkeys is no longer a requirement!
    A replacement that supports Unicode is included with pywinauto. (hopefully
