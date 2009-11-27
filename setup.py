@@ -65,32 +65,32 @@ setup(name='pywinauto',
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
     url = "http://sourceforge.net/projects/pywinauto",
-	author = 'Mark Mc Mahon',
-	author_email = 'mark.m.mcmahon@gmail.com',
+    author = 'Mark Mc Mahon',
+    author_email = 'mark.m.mcmahon@gmail.com',
     long_description = """
 At it's simplest it allows you to send mouse and keyboard
 actions to windows dialogs and controls, but It has support for more complex
 controls also.
 """,
 
-	packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
+    packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
 
-	#data_files=[
-	#	('examples', ['examples/notepad_fast.pkl', ]),
-	#],
+    #data_files=[
+    #	('examples', ['examples/notepad_fast.pkl', ]),
+    #],
 
-	license = "LGPL",
-	classifiers=[
-		'Development Status :: 4 - Beta',
-		'Environment :: Console',
-		'Intended Audience :: Developers',
+    license = "LGPL",
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
         'License :: OSI Approved :: '
             'GNU Library or Lesser General Public License (LGPL)',
-		'Operating System :: Microsoft :: Windows',
-		'Programming Language :: Python',
+        'Operating System :: Microsoft :: Windows',
+        'Programming Language :: Python',
         'Topic :: Software Development :: Libraries :: Python Modules'
-		],
-	)
+        ],
+    )
 
 # todo: see how to build the website later
 #if "sdist" in sys.argv:
