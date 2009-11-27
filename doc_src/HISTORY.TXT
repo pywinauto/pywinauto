@@ -2,6 +2,37 @@
 Change Log
 ==========
 
+0.3.9 Experimental! New Sendkeys, and various fixes
+------------------------------------------------------------------
+XX-November-2009
+
+ * Major change this release is that Sendkeys is no longer a requirement!
+   A replacement that supports Unicode is included with pywinauto. (hopefully
+   soon to be released as a standalone module). Please note - this is still
+   quite untested so this release should be treated with some care..
+   
+ * Made sure that default for WindowSpecification.Window_() was to look 
+   for non top level windows. The defaults in find_windows() had been 
+   changed previously and it now needed to be explicitly overridden.
+ 
+ * Fixed a missing reference to 'win32defines' when referencing WAIT_TIMEOUT
+   another typo of false (changed to False)
+ 
+ * Removed the restriction to only get the active windows for the process, 
+   now it will be possible to get the active windows, even if a process is 
+   not specified. 
+   From http://msdn.microsoft.com/en-us/library/ms633506%28VS.85%29.aspx 
+   it gets the active window for the foreground thread.
+
+ * Hopefully improved Delphi TreeView and ListView handling (added window 
+   class names as supported window classes to the appropriate classes).
+   
+ * Added support for running UI tests with reference controls. (requried 
+   for some localization tests)
+ 
+ * Various PyLint and PEP8 fixes made.
+ 
+
 0.3.8 Collecting improvements from last 2 years
 ------------------------------------------------------------------
 10-March-2009
