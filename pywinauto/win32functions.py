@@ -24,6 +24,13 @@ __revision__ = "$Revision$"
 import ctypes
 from ctypes import *
 
+import sys
+if sys.platform == "cygwin":
+    windll = cdll
+    HRESULT = c_long
+
+
+
 UINT = c_uint
 SHORT = c_short
 
