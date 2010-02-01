@@ -176,7 +176,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "SysListView32", 
         r"WindowsForms\d*\.SysListView32\..*", 
-        "TSysListView",]
+        "TSysListView",
+        "ListView20WndClass"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -188,6 +189,19 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             'ItemCount',
             'Columns',
             'Items'])
+        
+        if self.IsUnicode():
+            self.create_buffer = ctypes.create_unicode_buffer
+            self.LVCOLUMN       = win32structures.LVCOLUMNW
+            self.LVITEM         = win32structures.LVITEMW
+            self.LVM_GETITEM    = win32defines.LVM_GETITEMW
+            self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNW
+        else:
+            self.create_buffer = ctypes.create_string_buffer
+            self.LVCOLUMN       = win32structures.LVCOLUMNW
+            self.LVITEM         = win32structures.LVITEMW
+            self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
+            self.LVM_GETITEM    = win32defines.LVM_GETITEMA            
 
     #-----------------------------------------------------------
     def ColumnCount(self):
@@ -219,7 +233,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         col_props = {}
 
-        col = win32structures.LVCOLUMNW()
+        col = self.LVCOLUMN()
         col.mask = \
             win32defines.LVCF_FMT | \
             win32defines.LVCF_IMAGE | \
@@ -239,7 +253,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         # ask the other process to update the information
         retval = self.SendMessage(
-            win32defines.LVM_GETCOLUMNW,
+            self.LVM_GETCOLUMN,
             col_index,
             remote_mem)
 
@@ -249,7 +263,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         if retval:
             col = remote_mem.Read(col)
 
-            text = ctypes.create_unicode_buffer(1999)
+            text = self.create_buffer(1999)
             remote_mem.Read(text, col.pszText)
 
             col_props['order'] = col.iOrder
@@ -340,7 +354,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem = _RemoteMemoryBlock(self)
 
         # set up the item structure to get the text
-        item = win32structures.LVITEMW()
+        item = self.LVITEM()
         item.mask = \
             win32defines.LVIF_TEXT | \
             win32defines.LVIF_IMAGE | \
@@ -360,7 +374,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         # Fill in the requested item
         retval = self.SendMessage(
-            win32defines.LVM_GETITEMW,
+            self.LVM_GETITEM,
             item_index,
             remote_mem)
 
@@ -370,7 +384,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             remote_mem.Read(item)
 
             # Read the remote text string
-            char_data = ctypes.create_unicode_buffer(2000)
+            char_data = self.create_buffer(2000)
             remote_mem.Read(char_data, item.pszText)
 
             # and add it to the titles
@@ -425,7 +439,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # convert it to one
         item = self._as_item_index(item)
 
-        lvitem = win32structures.LVITEMW()
+        lvitem = self.LVITEM()
 
         lvitem.mask = win32defines.LVIF_STATE
         lvitem.state = 0x1000
@@ -452,7 +466,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # convert it to one
         item = self._as_item_index(item)
 
-        lvitem = win32structures.LVITEMW()
+        lvitem = self.LVITEM()
 
         lvitem.mask = win32defines.LVIF_STATE
         lvitem.state = 0x2000
@@ -510,8 +524,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     def _modify_selection(self, item, to_select):
         """Change the selection of the item
 
-        item is the item you want to chagne
-        to_slect shoudl be tru to select the item and false
+        item is the item you want to change
+        to_select should be True to select the item and false
         to deselect the item
         """
 
@@ -526,7 +540,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
                 (self.ItemCount(), item + 1))
 
         # first we need to change the state of the item
-        lvitem = win32structures.LVITEMW()
+        lvitem = self.LVITEM()
         lvitem.mask = win32defines.LVIF_STATE
 
         if to_select:
@@ -1123,7 +1137,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows ListView Header common control "
 
     friendlyclassname = "Header"
-    windowclasses = ["SysHeader32", ]
+    windowclasses = ["SysHeader32", "msvb_lib_header"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
