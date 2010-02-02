@@ -98,12 +98,11 @@ class WindowSpecification(object):
     You can also wait for existance or non existance of a window
     """
 
-    def __init__(self, app, search_criteria):
+    def __init__(self, search_criteria):
         """Initailize the class
 
         * **search_criteria** the criteria to match a dialog
         """
-        self.app = app
 
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
@@ -129,13 +128,7 @@ class WindowSpecification(object):
     def WrapperObject(self):
         "Allow the calling code to get the HwndWrapper object"
 
-        if self.app.use_history:
-            ctrls = _resolve_from_appdata(self.criteria, self.app)
-        else:
-            ctrls = _resolve_control(self.criteria)
-
-        #self.app.RecordMatch(self.criteria, ctrls)
-        #write_appdata(self.criteria, ctrls)
+        ctrls = _resolve_control(self.criteria)
 
         return ctrls[-1]
 
@@ -157,11 +150,12 @@ class WindowSpecification(object):
         if 'top_level_only' not in criteria:
             criteria['top_level_only'] = False
             
-        new_item = WindowSpecification(self.app, self.criteria[0])
+        new_item = WindowSpecification(self.criteria[0])
         new_item.criteria.append(criteria)
 
         return new_item
     window_ = Window_
+    ChildWindow = Window_
 
     def __getitem__(self, key):
         """Allow access to dialogs/controls through item access
@@ -180,15 +174,7 @@ class WindowSpecification(object):
         # then resolve the control and do a getitem on it for the
         if len(self.criteria) == 2:
 
-            if self.app.use_history:
-                ctrls = _resolve_from_appdata(
-                    self.criteria,
-                    self.app)
-            else:
-                ctrls = _resolve_control(
-                    self.criteria)
-
-            #self.app.RecordMatch(self.criteria, ctrls)
+            ctrls = _resolve_control(self.criteria)
 
             # try to return a good error message if the control does not
             # have a __getitem__() method)
@@ -203,7 +189,7 @@ class WindowSpecification(object):
 
         # if we get here then we must have only had one criteria so far
         # so create a new :class:`WindowSpecification` for this control
-        new_item = WindowSpecification(self.app, self.criteria[0])
+        new_item = WindowSpecification(self.criteria[0])
 
         # add our new criteria
         new_item.criteria.append({"best_match" : key})
@@ -232,15 +218,8 @@ class WindowSpecification(object):
         # attribute and return it
         if len(self.criteria) == 2:
 
-            if self.app.use_history:
-                ctrls = _resolve_from_appdata(
-                    self.criteria,
-                    self.app)
-            else:
-                ctrls = _resolve_control(
-                    self.criteria)
+            ctrls = _resolve_control(self.criteria)
 
-            #self.app.RecordMatch(self.criteria, ctrls)
             return getattr(ctrls[-1], attr)
 
         else:
@@ -248,15 +227,8 @@ class WindowSpecification(object):
             # then resolve the window and return the attribute
             if len(self.criteria) == 1 and hasattr(DialogWrapper, attr):
 
-                if self.app.use_history:
-                    ctrls = _resolve_from_appdata(
-                        self.criteria,
-                        self.app)
-                else:
-                    ctrls = _resolve_control(
-                        self.criteria)
+                ctrls = _resolve_control(self.criteria)
 
-                #self.app.RecordMatch(self.criteria, ctrls)
                 return getattr(ctrls[-1], attr)
 
         # It is a dialog/control criterion so let getitem
@@ -361,19 +333,7 @@ class WindowSpecification(object):
             if 'active' in waitfor:
                 criterion['active_only'] = True
 
-        if self.app.use_history:
-            ctrls = _resolve_from_appdata(
-                wait_criteria,
-                self.app,
-                timeout,
-                retry_interval)
-        else:
-            ctrls = _resolve_control(
-                wait_criteria,
-                timeout,
-                retry_interval)
-
-        #self.app.RecordMatch(self.criteria, ctrls)
+        ctrls = _resolve_control(wait_criteria, timeout, retry_interval)
 
         return ctrls[-1]
 
@@ -422,9 +382,6 @@ class WindowSpecification(object):
         wait_for_not = wait_for_not.lower()
 
 
-        #self.app.RecordMatch(self.criteria, ctrls)
-
-
         def WindowIsNotXXX():
             """Local function that returns False if the window is not 
             Visible, etc. Otherwise returns the best matching control"""
@@ -432,11 +389,7 @@ class WindowSpecification(object):
             # first check if the window doesn't exist, because if it doesn't
             # exist, it definitely can't be visible, active enabled or ready
             try:
-                if self.app.use_history:
-                    ctrls = _resolve_from_appdata(
-                        waitnot_criteria, self.app, 0, .01)
-                else:
-                    ctrls = _resolve_control(waitnot_criteria, 0, .01)
+                ctrls = _resolve_control(waitnot_criteria, 0, .01)
                 # if we get here - then the window exists and we need to 
                 # do the other checks below
 
@@ -989,7 +942,7 @@ class Application(object):
         criteria = {}
         criteria['handle'] = windows[0]
 
-        return WindowSpecification(self, criteria)
+        return WindowSpecification(criteria)
 
     def active_(self):
         "Return the active window of the application"
@@ -1007,7 +960,7 @@ class Application(object):
         criteria = {}
         criteria['handle'] = windows[0]
 
-        return WindowSpecification(self, criteria)
+        return WindowSpecification(criteria)
 
 
     def windows_(self, **kwargs):
@@ -1043,13 +996,13 @@ class Application(object):
         """
 
         if not self.process:
-            win_spec = WindowSpecification(self, kwargs)
+            win_spec = WindowSpecification(kwargs)
             self.process = win_spec.WrapperObject().ProcessID()
         # add the restriction for this particular process
         else:
             kwargs['process'] = self.process
 
-            win_spec = WindowSpecification(self, kwargs)
+            win_spec = WindowSpecification(kwargs)
 
         return win_spec
     Window_ = window_
