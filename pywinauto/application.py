@@ -211,6 +211,13 @@ class WindowSpecification(object):
         sets the appropriate criteria for the control.
         """
 
+        # dir (and possibly other code introspection asks for the following
+        # members, these are deprecated and I am not using them so just 
+        # raise an attribute error immediately
+        if attr in ('__members__', '__methods__'):
+            raise AttributeError(
+                "Application object has no attribute '%s'"% attr)
+
         from pywinauto.controls.win32_controls import DialogWrapper
 
         # if we already have 2 levels of criteria (dlg, conrol)
@@ -1015,6 +1022,13 @@ class Application(object):
 
     def __getattr__(self, key):
         "Find the spedified dialog of the application"
+
+        # dir (and possibly other code introspection asks for the following
+        # members, these are deprecated and I am not using them so just 
+        # raise an attribute error immediately
+        if key in ('__members__', '__methods__'):
+            raise AttributeError(
+                "Application object has no attribute '%s'"% key)
 
         # delegate all functionality to item access
         return self[key]
