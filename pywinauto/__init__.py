@@ -31,3 +31,5 @@ WindowNotFoundError = findwindows.WindowNotFoundError
 
 import findbestmatch
 MatchError = findbestmatch.MatchError
+
+from application import Application, WindowSpecification
