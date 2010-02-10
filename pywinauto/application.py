@@ -215,7 +215,7 @@ class WindowSpecification(object):
         # dir (and possibly other code introspection asks for the following
         # members, these are deprecated and I am not using them so just
         # raise an attribute error immediately
-        if attr in ('__members__', '__methods__'):
+        if attr.startswith("__") or attr.endswith("__"):
             raise AttributeError(
                 "Application object has no attribute '%s'"% attr)
 
@@ -1030,7 +1030,7 @@ class Application(object):
         # dir (and possibly other code introspection asks for the following
         # members, these are deprecated and I am not using them so just
         # raise an attribute error immediately
-        if key in ('__members__', '__methods__'):
+        if key.startswith("__") or key.endswith("__"):
             raise AttributeError(
                 "Application object has no attribute '%s'"% key)
 
