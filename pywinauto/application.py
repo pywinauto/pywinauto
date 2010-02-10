@@ -1047,30 +1047,6 @@ class Application(object):
         "Should not be used - part of application data implementation"
         return self.match_history[index]
 
-    def RecordMatch(self, criteria, ctrls):
-        "Save that a control request matched."
-
-        return
-
-        # if we are not working from existing match
-        # data then don't add the match
-        if not self.use_history:
-            # set up the item and add the criteria
-            self.match_history.append([])
-            self.match_history[-1].append(criteria)
-
-            for ctrl in ctrls:
-                props = ctrl.GetProperties()
-                props['handle'] = ctrl.handle
-                self.match_history[-1].append(props)
-
-        # so if we are using history - we better let the control know
-        # the information we have about the old dialog
-        else:
-            matched_items = self.GetMatchHistoryItem(cur_item-1)
-            for i, ctrl in enumerate(ctrls):
-                ctrl.appdata = matched_items[i+1]
-
 
     def Kill_(self):
         """Try and kill the application
