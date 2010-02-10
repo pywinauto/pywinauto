@@ -21,8 +21,8 @@
 """The application module is the main one that users will user first.
 
 When starting to automate and application you must initialize an instance
-of the Application class. Then you must :func:`Application.Start` that 
-application or :func:`Application.Connect()` to a running instance of that 
+of the Application class. Then you must :func:`Application.Start` that
+application or :func:`Application.Connect()` to a running instance of that
 application.
 
 Once you have an Application instance you can access dialogs in that
@@ -47,8 +47,8 @@ in almost exactly the same ways. ::
 
 .. seealso::
 
-  :func:`pywinauto.findwindows.find_windows` for the keyword arguments that 
-  can be passed to both :func:`Application.window_` and 
+  :func:`pywinauto.findwindows.find_windows` for the keyword arguments that
+  can be passed to both :func:`Application.window_` and
   :func:`WindowSpecification.Window_`
 
 """
@@ -117,9 +117,9 @@ class WindowSpecification(object):
                 self.criteria[-1]['best_match'])
 
         message = (
-            "You tried to execute a function call on a WindowSpecification " 
+            "You tried to execute a function call on a WindowSpecification "
             "instance. You probably have a typo for one of the methods of "
-            "this class.\n" 
+            "this class.\n"
             "The criteria leading up to this is: " + str(self.criteria))
 
         raise AttributeError(message)
@@ -145,11 +145,12 @@ class WindowSpecification(object):
 
         When this window specification is resolved then this will be used
         to match against a control."""
-        
-        # default to non top level windows because we are usualy looking for a control
+
+        # default to non top level windows because we are usualy
+        # looking for a control
         if 'top_level_only' not in criteria:
             criteria['top_level_only'] = False
-            
+
         new_item = WindowSpecification(self.criteria[0])
         new_item.criteria.append(criteria)
 
@@ -212,7 +213,7 @@ class WindowSpecification(object):
         """
 
         # dir (and possibly other code introspection asks for the following
-        # members, these are deprecated and I am not using them so just 
+        # members, these are deprecated and I am not using them so just
         # raise an attribute error immediately
         if attr in ('__members__', '__methods__'):
             raise AttributeError(
@@ -267,7 +268,7 @@ class WindowSpecification(object):
 
             return True
         except (
-            findwindows.WindowNotFoundError, 
+            findwindows.WindowNotFoundError,
             findbestmatch.MatchError,
             controls.InvalidWindowHandle):
             return False
@@ -294,13 +295,13 @@ class WindowSpecification(object):
 
         * **retry_interval** How long to sleep between each retry
 
-        An example to wait until the dialog 
+        An example to wait until the dialog
         exists, is ready, enabled and visible
-        
+
            self.Dlg.Wait("exists enabled visible ready")
 
-        .. seealso:: 
-          
+        .. seealso::
+
            :func:`WindowSpecification.WaitNot()`
         """
 
@@ -366,8 +367,8 @@ class WindowSpecification(object):
 
         e.g. self.Dlg.WaitNot("exists enabled visible ready")
 
-        .. seealso:: 
-          
+        .. seealso::
+
            :func:`WindowSpecification.Wait()`
         """
 
@@ -390,23 +391,23 @@ class WindowSpecification(object):
 
 
         def WindowIsNotXXX():
-            """Local function that returns False if the window is not 
+            """Local function that returns False if the window is not
             Visible, etc. Otherwise returns the best matching control"""
 
             # first check if the window doesn't exist, because if it doesn't
             # exist, it definitely can't be visible, active enabled or ready
             try:
                 ctrls = _resolve_control(waitnot_criteria, 0, .01)
-                # if we get here - then the window exists and we need to 
+                # if we get here - then the window exists and we need to
                 # do the other checks below
 
             except (
-                findwindows.WindowNotFoundError, 
+                findwindows.WindowNotFoundError,
                 findbestmatch.MatchError,
                 controls.InvalidWindowHandle):
                 # Window doesn't exist
                 return True
-        
+
             if 'exists' in wait_for_not:
                 # well if we got here then the control must have
                 # existed so we are not ready to stop checking
@@ -423,8 +424,8 @@ class WindowSpecification(object):
 
             if 'visible' in wait_for_not:
                 if ctrls[-1].IsVisible():
-                    return ctrls            
-        
+                    return ctrls
+
             return True
 
         try:
@@ -432,12 +433,12 @@ class WindowSpecification(object):
         except TimeoutError, e:
             raise RuntimeError(
                 "Timed out while waiting for window (%s - '%s') "
-                "to not be in '%s' state"% ( 
+                "to not be in '%s' state"% (
                     e.function_value[-1].Class(),
                     e.function_value[-1].WindowText(),
                     "', '".join( wait_for_not.split() ) )
                 )
-            
+
 
     def _ctrl_identifiers(self):
 
@@ -450,7 +451,8 @@ class WindowSpecification(object):
 
             ctrls_to_print = dialog_controls[:]
             # filter out hidden controls
-            ctrls_to_print = [ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
+            ctrls_to_print = [
+                ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
         else:
             dialog_controls = ctrls[-1].TopLevelParent().Children()
             ctrls_to_print = [ctrls[-1]]
@@ -491,7 +493,8 @@ class WindowSpecification(object):
 
             ctrls_to_print = dialog_controls[:]
             # filter out hidden controls
-            ctrls_to_print = [ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
+            ctrls_to_print = [
+                ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
         else:
             dialog_controls = ctrls[-1].TopLevelParent().Children()
             ctrls_to_print = [ctrls[-1]]
@@ -771,14 +774,14 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
 
     try:
         ctrl = WaitUntilPasses(
-            timeout, 
-            retry_interval,  
-            _get_ctrl, 
-            (findwindows.WindowNotFoundError, 
+            timeout,
+            retry_interval,
+            _get_ctrl,
+            (findwindows.WindowNotFoundError,
             findbestmatch.MatchError,
             controls.InvalidWindowHandle),
             criteria)
-        
+
     except TimeoutError, e:
         raise e.original_exception
 
@@ -864,9 +867,9 @@ class Application(object):
 
         # if it failed for some reason
         if not ret:
-            message = 'Could not create the process "%s"\n'\
-                'Error returned by CreateProcess: '%(cmd_line) \
-                + str(ctypes.WinError())
+            message = ('Could not create the process "%s"\n'
+                'Error returned by CreateProcess: %s')% (
+                    cmd_line, ctypes.WinError())
             raise AppStartError(message)
 
         self.process = proc_info.dwProcessId
@@ -876,17 +879,17 @@ class Application(object):
             "Return true when the application is ready to start"
             result = win32functions.WaitForInputIdle(
                 proc_info.hProcess, int(timeout * 1000))
-            
+
             # wait completed successfully
             if result == 0:
                 return True
-            
+
             # the wait returned because it timed out
             if result == win32defines.WAIT_TIMEOUT:
                 return False
-            
+
             return bool(self.windows_())
-        
+
         # Wait until the application is ready after starting it
         try:
             WaitUntil(timeout, retry_interval, AppIdle)
@@ -942,10 +945,10 @@ class Application(object):
         time.sleep(Timings.window_find_timeout)
         # very simple
         windows = findwindows.find_windows(process = self.process)
-        
+
         if not windows:
             raise RuntimeError("No windows for that process could be found")
-            
+
         criteria = {}
         criteria['handle'] = windows[0]
 
@@ -959,11 +962,12 @@ class Application(object):
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_windows(process = self.process, active_only = True)
-        
+        windows = findwindows.find_windows(
+            process = self.process, active_only = True)
+
         if not windows:
             raise RuntimeError("No Windows of that application are active")
-        
+
         criteria = {}
         criteria['handle'] = windows[0]
 
@@ -1024,7 +1028,7 @@ class Application(object):
         "Find the spedified dialog of the application"
 
         # dir (and possibly other code introspection asks for the following
-        # members, these are deprecated and I am not using them so just 
+        # members, these are deprecated and I am not using them so just
         # raise an attribute error immediately
         if key in ('__members__', '__methods__'):
             raise AttributeError(
