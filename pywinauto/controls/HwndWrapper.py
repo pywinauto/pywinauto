@@ -35,9 +35,9 @@ from pywinauto import SendKeysCtypes as SendKeys
 
 # I leave this optional because PIL is a large dependency
 try:
-    import PIL.ImageGrab
+    import ImageGrab
 except ImportError:
-    PIL.ImageGrab = None
+    ImageGrab = None
 
 from pywinauto import win32defines
 from pywinauto import win32functions
@@ -679,12 +679,12 @@ class HwndWrapper(object):
             self.Rectangle().bottom)
 
         # PIL is optional so check first
-        if not PIL.ImageGrab:
+        if not ImageGrab:
             print("PIL does not seem to be installed. "
                 "PIL is required for CaptureAsImage")
         
         # grab the image and get raw data as a string
-        return PIL.ImageGrab.grab(box)
+        return ImageGrab.grab(box)
 
 
     #-----------------------------------------------------------
@@ -932,7 +932,6 @@ class HwndWrapper(object):
         # make sure that the control is in the foreground
         win32functions.SetForegroundWindow(self)
         #win32functions.SetActiveWindow(self)
-
 
         # Play the keys to the active window
         SendKeys.SendKeys(
@@ -1634,9 +1633,12 @@ def _perform_click(
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
 
+    win32functions.AttachThreadInput(
+        win32functions.GetCurrentThreadId(), ctrl.ProcessID(), 1)
+
     # send each message
     for msg in msgs:
-        ctrl.SendMessageTimeout(msg, flags, click_point)
+        ctrl.PostMessage(msg, flags, click_point)
         #ctrl.PostMessage(msg, flags, click_point)
         #flags = 0
 
@@ -1644,6 +1646,10 @@ def _perform_click(
         
         # wait until the thread can accept another message
         win32functions.WaitGuiThreadIdle(ctrl)
+
+    # dettach the Python process with the process that self is in
+    win32functions.AttachThreadInput(
+        win32functions.GetCurrentThreadId(), ctrl.ProcessID(), 0)
 
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)
