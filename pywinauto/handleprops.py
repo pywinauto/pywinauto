@@ -38,8 +38,18 @@ import findwindows # for children
 #=========================================================================
 def text(handle):
     "Return the text of the window"
-    length = win32functions.SendMessage(
-        handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
+
+    length = ctypes.c_long()
+    win32functions.SendMessageTimeout(
+        handle,
+        win32defines.WM_GETTEXTLENGTH,
+        0,
+        0,
+        win32defines.SMTO_ABORTIFHUNG,
+        100,  # .1 of a second
+        ctypes.byref(length))
+
+    length = length.value
 
     textval = ''
     if length:
