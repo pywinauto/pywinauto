@@ -158,6 +158,7 @@ GetModuleFileNameEx		=	ctypes.windll.psapi.GetModuleFileNameExW
 
 GetClipboardData = ctypes.windll.user32.GetClipboardData
 OpenClipboard    = ctypes.windll.user32.OpenClipboard
+EmptyClipboard   = ctypes.windll.user32.EmptyClipboard
 CloseClipboard   = ctypes.windll.user32.CloseClipboard
 CountClipboardFormats  = ctypes.windll.user32.CountClipboardFormats
 EnumClipboardFormats   = ctypes.windll.user32.EnumClipboardFormats

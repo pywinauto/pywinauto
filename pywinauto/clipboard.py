@@ -118,6 +118,15 @@ def GetData(format = win32defines.CF_UNICODETEXT):
 
     return data
 
+
+#====================================================================
+def EmptyClipboard():
+    if not win32functions.OpenClipboard(0):
+        raise RuntimeError("Couldn't open clipboard")
+    win32functions.EmptyClipboard()
+    win32functions.CloseClipboard()
+
+
 #====================================================================
 # Todo: Implement setting clipboard data
 #def SetData(data, formats = [win32defines.CF_UNICODETEXT, ]):
