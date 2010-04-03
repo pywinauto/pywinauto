@@ -275,14 +275,14 @@ def WaitUntil(
     # while the function hasn't returned what we are waiting for    
     while not op(func_val, value):
             
-        # find how long we have waited
-        waited = time.time() - start
+        # find out how much of the time is left
+        time_left = timeout - ( time.time() - start)
     
         # if we have to wait some more        
-        if waited < timeout:
+        if time_left > 0:
             # wait either the retry_interval or else the amount of
             # time until the timeout expires (whichever is less)
-            time.sleep(min(retry_interval, timeout - waited))
+            time.sleep(min(retry_interval, time_left))
             func_val = func(*args)
         else:
             err = TimeoutError("timed out")
@@ -333,7 +333,7 @@ def WaitUntilPasses(
     waited = 0
 
     # keep trying until the timeout is passed
-    while waited <= timeout:
+    while True:
         try:
             # Call the function with any arguments
             func_val = func(*args)
@@ -343,12 +343,19 @@ def WaitUntilPasses(
         
         # An exception was raised - so wait and try again
         except exceptions, e:
-            waited = time.time() - start
+        
+            # find out how much of the time is left
+            time_left = timeout - ( time.time() - start)
+        
+            # if we have to wait some more        
+            if time_left > 0:
+                # wait either the retry_interval or else the amount of
+                # time until the timeout expires (whichever is less)
+                time.sleep(min(retry_interval, time_left))
 
-            if  waited < timeout:
-                time.sleep(min(retry_interval, timeout - waited))
             else:
-                # re-raise the original exeption
+                # Raise a TimeoutError - and put the original exception
+                # inside it
                 err = TimeoutError()
                 err.original_exception = e
                 raise err
