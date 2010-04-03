@@ -5,7 +5,8 @@ Change Log
 0.4.0 Various cleanup and bug fixes.
 ------------------------------------------------------------------
 03-April-2010
- *  Gracefully Handle dir() calls on Application or WindowSpecification objects
+
+ * Gracefully Handle dir() calls on Application or WindowSpecification objects
    (which used hang for a while as these classes would search for windows
    matching __members__, __methods__ and __bases__). The code now checks for
    any attribute that starts with '__' and ends with '__' and raises
@@ -46,7 +47,6 @@ Change Log
    deprecation messages for the other functions.
  
  * Improved the tests (fixed test failures which were not pywinauto issues)
-   
 
 
 0.3.9 Experimental! New Sendkeys, and various fixes
