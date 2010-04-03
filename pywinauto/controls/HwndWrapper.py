@@ -668,8 +668,14 @@ class HwndWrapper(object):
 
         See PIL documentation to know what you can do with the resulting
         image"""
-
+        
         if not (self.Rectangle().width() and self.Rectangle().height()):
+            return None
+
+        # PIL is optional so check first
+        if not ImageGrab:
+            print("PIL does not seem to be installed. "
+                "PIL is required for CaptureAsImage")
             return None
 
         # get the control rectangle in a way that PIL likes it
@@ -679,14 +685,8 @@ class HwndWrapper(object):
             self.Rectangle().right,
             self.Rectangle().bottom)
 
-        # PIL is optional so check first
-        if not ImageGrab:
-            print("PIL does not seem to be installed. "
-                "PIL is required for CaptureAsImage")
-        
         # grab the image and get raw data as a string
         return ImageGrab.grab(box)
-
 
     #-----------------------------------------------------------
     def __hash__(self):
