@@ -146,7 +146,11 @@ class HwndWrapperTests(unittest.TestCase):
     def testCloseClick_bug(self):
         self.dlg.Sta.Click()
         Timings.closeclick_dialog_close_wait = .5
-        self.app.StatisticsBox.CAD.CloseClick()
+        try:
+            self.app.StatisticsBox.CAD.CloseClick()
+        except timings.TimeoutError:
+            pass
+            
         self.app.StatisticsBox.TypeKeys("%{F4}")
 
         #self.assertEquals(self.app.StatisticsBox.Exists(), False)
@@ -381,8 +385,10 @@ class HwndWrapperTests(unittest.TestCase):
     def testClose(self):
         "Test the Close() method of windows"
         # open the statistics dialog
-        self.dlg.Sta.CloseClick()
-
+        try:
+            self.dlg.Sta.CloseClick()
+        except timings.TimeoutError:
+            pass
         # make sure it is open and visible
         self.assertTrue(self.app.StatisticsBox.IsVisible(), True)
 
@@ -410,7 +416,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
         # Get the old font
         self.app.UntitledNotepad.MenuSelect("Format->Font")        
-        #import pdb; pdb.set_trace()
+
         self.old_font = self.app.Font.FontComboBox.SelectedIndex()
         self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
         
@@ -437,7 +443,6 @@ class HwndWrapperMouseTests(unittest.TestCase):
         if self.app.Notepad.No.Exists():
             self.app.Notepad.No.Click()
 
-
     #def testText(self):
     #    "Test getting the window Text of the dialog"
     #    self.assertEquals(self.dlg.WindowText(), "Untitled - Notepad")
@@ -460,7 +465,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (24,29))
 
     def testMenuSelectNotepad_bug(self):
-        "In notepad - MenuSelect Edit->Paste does not work"
+        "In notepad - MenuSelect Edit->Paste did not work"
 
         text = u'Here are some unicode characters \xef\xfc\r\n'
         app2 = Application.start("notepad")
