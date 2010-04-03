@@ -90,7 +90,7 @@ def _SetNodeProps(element, name, value):
 
             struct_elem.set(prop_name, _EscapeSpecials(item_val))
 
-    elif isinstance(value, PIL.Image.Image):
+    elif hasattr(value, 'tostring') and hasattr(value, 'size'):
         try:
             # if the image is too big then don't try to
             # write it out - it would probably product a MemoryError
