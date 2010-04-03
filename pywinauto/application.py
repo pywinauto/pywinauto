@@ -1076,12 +1076,15 @@ class Application(object):
 
             win.SendMessageTimeout(
                 win32defines.WM_QUERYENDSESSION,
-                timeout = .1,
+                timeout = .5,
                 timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
                     #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
                     #win32defines.SMTO_BLOCK)
 
-            win.Close()
+            try:
+                win.Close()
+            except TimeoutError:
+                pass
             #print `ok_to_kill`, win.Texts()
 
         #print `ok_to_kill`
