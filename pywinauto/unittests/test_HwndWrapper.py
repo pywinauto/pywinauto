@@ -141,7 +141,8 @@ class HwndWrapperTests(unittest.TestCase):
     def testIsEnabled(self):
         self.assertEqual(self.ctrl.IsEnabled(), True)
         self.assertEqual(self.dlg.IsEnabled(), True)
-        self.assertEqual(self.dlg.window_(title = 'Ave', enabled_only = False).IsEnabled(), False)
+        self.assertEqual(self.dlg.ChildWindow(
+            title = 'Ave', enabled_only = False).IsEnabled(), False)
 
     def testCloseClick_bug(self):
         self.dlg.Sta.Click()

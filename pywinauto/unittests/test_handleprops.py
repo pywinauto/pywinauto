@@ -127,7 +127,7 @@ class handlepropsTestCases(unittest.TestCase):
         self.assertEquals(
             False,
             isenabled(
-                self.app.Replace.window_(
+                self.app.Replace.ChildWindow(
                     title_re = "Replace.*",
                     class_name = "Button",
                     enabled_only = False).handle))

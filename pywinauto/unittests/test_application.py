@@ -456,7 +456,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def testWindow(self):
         "test specifying a sub window of an existing specification"
-        sub_spec = self.dlgspec.window_(class_name = "Edit")
+        sub_spec = self.dlgspec.ChildWindow(class_name = "Edit")
 
         self.assertEquals(True, isinstance(sub_spec, WindowSpecification))
         self.assertEquals(sub_spec.Class(), "Edit")

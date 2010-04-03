@@ -29,14 +29,14 @@ Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app.Window_(title = "your title", classname = "your class", ...)
+   dlg = app.ChildWindow(title = "your title", classname = "your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
 in almost exactly the same ways. ::
 
   ctrl = dlg.YourControlTitle
-  ctrl = dlg.Window_(title = "Your control", classname = "Button", ...)
+  ctrl = dlg.ChildWindow(title = "Your control", classname = "Button", ...)
   ctrl = dlg["Your control"]
 
 .. note::
@@ -48,8 +48,8 @@ in almost exactly the same ways. ::
 .. seealso::
 
   :func:`pywinauto.findwindows.find_windows` for the keyword arguments that
-  can be passed to both :func:`Application.window_` and
-  :func:`WindowSpecification.Window_`
+  can be passed to both :func:`Application.Window` and
+  :func:`WindowSpecification.Window`
 
 """
 
@@ -132,15 +132,7 @@ class WindowSpecification(object):
 
         return ctrls[-1]
 
-    def ctrl_(self):
-        "Allow the calling code to get the HwndWrapper object"
-        message = "ctrl_() has been renamed to WrapperObject() please use " \
-            "that method in the future. ctrl_() will be removed at some " \
-            "future time."
-        warnings.warn(message, DeprecationWarning)
-        return self.WrapperObject()
-
-    def Window_(self, **criteria):
+    def ChildWindow(self, **criteria):
         """Add criteria for a control
 
         When this window specification is resolved then this will be used
@@ -155,8 +147,16 @@ class WindowSpecification(object):
         new_item.criteria.append(criteria)
 
         return new_item
+        
+    def Window_(self, **criteria):
+        warnings.warn(
+            "WindowSpecification.Window() WindowSpecification.Window_(), "
+            "WindowSpecification.window() and WindowSpecification.window_() "
+            "are deprecated, please switch to WindowSpecification.ChildWindow()",
+            DeprecationWarning)
+        return self.ChildWindow(**criteria)
     window_ = Window_
-    ChildWindow = Window_
+    Window = Window_
 
     def __getitem__(self, key):
         """Allow access to dialogs/controls through item access
@@ -212,9 +212,9 @@ class WindowSpecification(object):
         sets the appropriate criteria for the control.
         """
 
-        # dir (and possibly other code introspection asks for the following
-        # members, these are deprecated and I am not using them so just
-        # raise an attribute error immediately
+        # dir (and possibly other code introspection asks for 
+        # members like __methods__ and __members__, these are deprecated and I 
+         #am not using them so just raise an attribute error immediately
         if attr.startswith("__") or attr.endswith("__"):
             raise AttributeError(
                 "Application object has no attribute '%s'"% attr)
@@ -790,14 +790,9 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
     return ctrl
 
 
-
-
 #=========================================================================
 class Application(object):
     "Represents an application"
-
-    connect_start_deprecated = "_start and _connect are deprecated " \
-            "please use start_ and connect_"
 
     def __init__(self, datafilename = None):
         "Set the attributes"
@@ -817,25 +812,31 @@ class Application(object):
 
     def __start(*args, **kwargs):
         "Convenience static method that calls start"
+        warnings.warn(
+            "Class/Static methods Application.start(), application.start() "
+            "are deprecated, please switch to instance method connect_. "
+            "Please note that in a future release that start_() will be "
+            "renamed to Start().",
+            DeprecationWarning)
+        warnings.warn(
+            "Class/StaticMethods Start, start deprecated, please switch "
+            "to instance method Start",
+            DeprecationWarning)
         return Application().start_(*args, **kwargs)
     start = staticmethod(__start)
     Start = start
 
     def __connect(*args, **kwargs):
         "Convenience static method that calls connect"
+        warnings.warn(
+            "Class/Static methods Application.Connect(), application.connect() "
+            "are deprecated, please switch to instance method connect_. "
+            "Please note that in a future release that connect_() will be "
+            "renamed to Connect().",
+            DeprecationWarning)
         return Application().connect_(*args, **kwargs)
     connect = staticmethod(__connect)
     Connect = connect
-
-    #def _start(self, *args, **kwargs):
-    #    "start_ used to be named _start"
-    #    warnings.warn(self.connect_start_deprecated, DeprecationWarning)
-    #    return self.start_(*args, **kwargs)
-
-    #def _connect(self, *args, **kwargs):
-    #    "connect_ used to be named _connect"
-    #    warnings.warn(self.connect_start_deprecated, DeprecationWarning)
-    #    return self.connect_(*args, **kwargs)
 
     def start_(self, cmd_line, timeout = None, retry_interval = None):
         "Starts the application giving in cmd_line"
@@ -938,6 +939,7 @@ class Application(object):
         return self
     Connect_ = connect_
 
+    
     def top_window_(self):
         "Return the current top window of the application"
         if not self.process:
@@ -1184,7 +1186,6 @@ def process_from_module(module):
         ctypes.byref(processes),
         ctypes.sizeof(processes),
         ctypes.byref(bytes_returned))
-
 
     modules = []
     # Get the process names
