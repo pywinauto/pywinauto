@@ -377,7 +377,7 @@ class EditTestCases(unittest.TestCase):
         # typekeys types at the current caret position
         # (start when opening a new file)
         added_text = "Here is some more Text"
-        self.ctrl.TypeKeys(added_text, with_spaces = True)
+        self.ctrl.TypeKeys("%{HOME}" + added_text, with_spaces = True)
         expected_text = added_text + self.test_data
 
         self.assertEquals(self.ctrl.TextBlock(), expected_text)
@@ -390,6 +390,7 @@ class EditTestCases(unittest.TestCase):
 
     def testLineCount(self):
         "Test getting the line count of the edit control"
+        self.dlg.Maximize()
         for i in range(0, self.ctrl.LineCount()):
             self.assertEquals(
                 self.ctrl.LineLength(i),
@@ -401,6 +402,7 @@ class EditTestCases(unittest.TestCase):
         #for i in range(0, self.ctrl.LineCount()):
         #    print `self.ctrl.GetLine(i)`
 
+        self.dlg.Maximize()
         for i, line in enumerate(self.test_data.split("\r\n")):
             #print `line`
             #print `self.ctrl.GetLine(i)`
@@ -496,17 +498,19 @@ class DialogTestCases(unittest.TestCase):
 
         props = XMLHelpers.ReadPropertiesFromFile("test_output.xml")
         for i, ctrl in enumerate(props):
+
             for key, ctrl_value in ctrl.items():
                 expected_value = all_props[i][key]
+                
+                if "Image" in expected_value.__class__.__name__:
+                    expected_value = expected_value.tostring()
+                    ctrl_value = ctrl_value.tostring()
+
                 if isinstance(ctrl_value, (list, tuple)):
-                    self.assertEquals(list(ctrl_value), list(expected_value))
+                    ctrl_value = list(ctrl_value)
+                    expected_value = list(expected_value)
 
-                elif "Image" in ctrl_value.__class__.__name__:
-                    self.assertEquals(
-                        ctrl_value.tostring(), expected_value.tostring())
-
-                else:
-                    self.assertEquals(ctrl_value, expected_value)
+                self.assertEquals(ctrl_value, expected_value)
 
         import os
         os.unlink("test_output.xml")
