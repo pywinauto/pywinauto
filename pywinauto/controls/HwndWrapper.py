@@ -43,6 +43,7 @@ from pywinauto import win32defines
 from pywinauto import win32functions
 from pywinauto import win32structures
 from pywinauto.timings import Timings
+from pywinauto import timings
 
 #from pywinauto import findbestmatch
 from pywinauto import handleprops
@@ -756,7 +757,11 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def ClickInput(
-        self, button = "left", coords = (None, None), double = False, wheel_dist = 0):
+        self, 
+        button = "left", 
+        coords = (None, None), 
+        double = False, 
+        wheel_dist = 0):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
@@ -774,7 +779,8 @@ class HwndWrapper(object):
            as that could easily move the mouse off the control before the
            Click has finished.        
         """
-        _perform_click_input(self, button, coords, double, wheel_dist = wheel_dist)
+        _perform_click_input(
+            self, button, coords, double, wheel_dist = wheel_dist)
 
 
 
@@ -791,21 +797,23 @@ class HwndWrapper(object):
 
         _perform_click(self, button, pressed, coords, double)
 
-        start = time.time()
-        timeout = Timings.closeclick_dialog_close_wait
+        def has_closed():
+            return not (
+                win32functions.IsWindow(self) or
+                win32functions.IsWindow(self.Parent()))
+
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
-        while (win32functions.IsWindow(self) or \
-            win32functions.IsWindow(self.Parent())) and \
-            time.time() - start < timeout:
-
-            time.sleep(min(
-                Timings.closeclick_retry,
-                timeout - (time.time() - start) ))
+        timings.WaitUntil(
+            Timings.closeclick_dialog_close_wait,
+            Timings.closeclick_retry,
+            has_closed
+        )
 
         time.sleep(Timings.after_closeclick_wait)
 
         return self
+
 
 
     #-----------------------------------------------------------
@@ -1236,28 +1244,17 @@ class HwndWrapper(object):
         #    window is still a valid handle and
         #    window is still visible
         # any one of these conditions evaluates to false means the window is
-        # closed
-        while (
-            (time.time() - start) < Timings.after_windowclose_timeout and
-            win32functions.IsWindow(self) and
-            self.IsVisible()):
+        # closed or we have timed out
+        def has_closed():
+            return not (win32functions.IsWindow(self) and self.IsVisible())
 
-            time.sleep(min(
-                Timings.after_windowclose_retry,
-                Timings.after_windowclose_timeout - (time.time() - start) ))
-
-
-#        # get a handle we can wait on
-#        process_wait_handle = win32functions.OpenProcess(
-#            win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE ,
-#            False ,
-#            self.ProcessID())
-#
-#        # wait for the window to close
-#        win32functions.WaitForSingleObject(
-#            process_wait_handle,
-#            )
-
+        # Keep waiting until both this control and it's parent
+        # are no longer valid controls
+        timings.WaitUntil(
+            Timings.closeclick_dialog_close_wait,
+            Timings.closeclick_retry,
+            has_closed
+        )
 
     #-----------------------------------------------------------
     def Maximize(self):
