@@ -322,17 +322,20 @@ class WindowSpecification(object):
         # we go from least strict to most strict in case the user
         # has specified conflicting wait conditions
         for criterion in wait_criteria:
+            
+            # default is that it 'exists' and for exists
+            # we must not filter for enabled only or visible only (window
+            # can exist even if invisible or disabled)
+            criterion['enabled_only'] = False
+            criterion['visible_only'] = False
             if 'exists' in waitfor:
-                criterion['enabled_only'] = False
-                criterion['visible_only'] = False
+                pass
 
             if 'visible' in waitfor:
-                criterion['enabled_only'] = False
                 criterion['visible_only'] = True
 
             if 'enabled' in waitfor:
                 criterion['enabled_only'] = True
-                criterion['visible_only'] = False
 
             if 'ready' in waitfor:
                 criterion['visible_only'] = True
@@ -559,7 +562,6 @@ def _get_ctrl(criteria_):
         # resolve the control and return it
         ctrl = controls.WrapHandle(
             findwindows.find_window(**ctrl_criteria))
-
 
     if ctrl:
         return (dialog, ctrl)
