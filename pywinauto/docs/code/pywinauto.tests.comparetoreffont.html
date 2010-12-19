@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.tests.comparetoreffont &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="next" title="pywinauto.tests.leadtrailspaces" href="pywinauto.tests.leadtrailspaces.html" />
+    <link rel="prev" title="pywinauto.tests.comboboxdroppedheight" href="pywinauto.tests.comboboxdroppedheight.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.leadtrailspaces.html" title="pywinauto.tests.leadtrailspaces"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.comboboxdroppedheight.html" title="pywinauto.tests.comboboxdroppedheight"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-tests-comparetoreffont">
+<h1>pywinauto.tests.comparetoreffont<a class="headerlink" href="#pywinauto-tests-comparetoreffont" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.tests.comparetoreffont"></span><p>Compare against reference font test</p>
+<p><strong>What is checked</strong>
+This test checks all the parameters of the font for the control against the
+font for the reference control. If any value is different then this is reported
+as a bug.
+Here is a list of all the possible values that are tested:
+lfFaceName      The name of the font
+lfHeight        The height of the font
+lfWidth         Average width of characters
+lfEscapement    Angle of text
+lfOrientation   Another angle for the text!
+lfWeight        How bold the text is
+lfItalic        If the font is italic
+lfUnderline     If the font is underlined
+lfStrikeOut     If the font is struck out
+lfCharSet       The character set of the font
+lfOutPrecision  The output precision
+lfClipPrecision The clipping precision
+lfQuality       The output quality
+lfPitchAndFamily        The pitch and family</p>
+<p><strong>How is it checked</strong>
+Each property of the font for the control being tested is compared against the
+equivalent property of the reference control font for equality.</p>
+<p><strong>When is a bug reported</strong>
+For each property of the font that is not identical to the reference font a bug
+is reported. So for example if the Font Face has changed and the text is bold
+then (at least) 2 bugs will be reported.</p>
+<p><strong>Bug Extra Information</strong>
+The bug contains the following extra information
+Name    Description
+ValueType       What value is incorrect (see above), String
+Ref     The reference value converted to a string, String
+Loc     The localised value converted to a string, String</p>
+<p><strong>Is Reference dialog needed</strong>
+This test will not run if the reference controls are not available.</p>
+<p><strong>False positive bug reports</strong>
+Running this test for Asian languages will result in LOTS and LOTS of false
+positives, because the font HAS to change for the localised text to display
+properly.</p>
+<p><strong>Test Identifier</strong>
+The identifier for this test/bug is &#8220;CompareToRefFont&#8221;</p>
+<dl class="function">
+<dt id="pywinauto.tests.comparetoreffont.CompareToRefFontTest">
+<tt class="descclassname">pywinauto.tests.comparetoreffont.</tt><tt class="descname">CompareToRefFontTest</tt><big>(</big><em>windows</em><big>)</big><a class="headerlink" href="#pywinauto.tests.comparetoreffont.CompareToRefFontTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compare the font to the font of the reference control</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.tests.comboboxdroppedheight.html"
+                        title="previous chapter">pywinauto.tests.comboboxdroppedheight</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pywinauto.tests.leadtrailspaces.html"
+                        title="next chapter">pywinauto.tests.leadtrailspaces</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.tests.comparetoreffont.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.leadtrailspaces.html" title="pywinauto.tests.leadtrailspaces"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.comboboxdroppedheight.html" title="pywinauto.tests.comboboxdroppedheight"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

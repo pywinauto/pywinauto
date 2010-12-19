@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>What is pywinauto &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="#" />
+    <link rel="next" title="Automating an application" href="getting_started.html" />
+    <link rel="prev" title="Contents" href="contents.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Automating an application"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="contents.html" title="Contents"
+             accesskey="P">previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="what-is-pywinauto">
+<h1>What is pywinauto<a class="headerlink" href="#what-is-pywinauto" title="Permalink to this headline">¶</a></h1>
+<p>(c) Mark Mc Mahon 2006-2009
+Released under the LGPL licence</p>
+<p><a class="reference internal" href="contents.html#contents-root"><em>Full table of contents.</em></a></p>
+<div class="section" id="what-is-it">
+<h2>What is it?<a class="headerlink" href="#what-is-it" title="Permalink to this headline">¶</a></h2>
+<p>pywinauto is a set of python modules to automate the Microsoft Windows GUI.
+At it&#8217;s simplest it allows you to send mouse and keyboard actions to windows
+dialogs and controls.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Download pywinauto from <a class="reference external" href="https://sourceforge.net/project/showfiles.php?group_id=157379">https://sourceforge.net/project/showfiles.php?group_id=157379</a></p>
+</li>
+<li><p class="first">Unzip the pywinauto zip file to a folder.</p>
+</li>
+<li><p class="first">Run <tt class="docutils literal"><span class="pre">python.exe</span> <span class="pre">setup.py</span> <span class="pre">install</span></tt></p>
+</li>
+<li><p class="first">Install the following Python packages</p>
+<blockquote>
+<ul class="simple">
+<li>ctypes       <a class="reference external" href="http://starship.python.net/crew/theller/ctypes/">http://starship.python.net/crew/theller/ctypes/</a> (download from <a class="reference external" href="http://sourceforge.net/project/showfiles.php?group_id=71702">http://sourceforge.net/project/showfiles.php?group_id=71702</a>)</li>
+<li>Sendkeys     <a class="reference external" href="http://www.rutherfurd.net/python/sendkeys/index.html">http://www.rutherfurd.net/python/sendkeys/index.html</a></li>
+<li><em>Optional</em> PIL          <a class="reference external" href="http://www.pythonware.com/products/pil/index.htm">http://www.pythonware.com/products/pil/index.htm</a></li>
+<li><em>Optional</em> elementtree  <a class="reference external" href="http://effbot.org/downloads/">http://effbot.org/downloads/</a></li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<p>To check you have it installed correctly
+Run Python</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pywinauto</span> <span class="kn">import</span> <span class="n">application</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">application</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s">&quot;notepad.exe&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span><span class="o">.</span><span class="n">notepad</span><span class="o">.</span><span class="n">TypeKeys</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%F</span><span class="s">X&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="where-to-start">
+<h2>Where to start<a class="headerlink" href="#where-to-start" title="Permalink to this headline">¶</a></h2>
+<p>Look at the examples provided in test_application.py
+There are examples in there to work with Notepad and MSPaint.</p>
+</div>
+<div class="section" id="how-does-it-work">
+<h2>How does it work<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline">¶</a></h2>
+<p>A lot is done through attribute access (<tt class="docutils literal"><span class="pre">__getattr__</span></tt>) for each class. For example
+when you get the attribute of an Application or Dialog object it looks for a
+dialog or control (respectively).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">myapp</span><span class="o">.</span><span class="n">Notepad</span> <span class="c"># looks for a Window/Dialog of your app that has a title &#39;similar&#39;</span>
+              <span class="c"># to &quot;Notepad&quot;</span>
+
+<span class="n">myapp</span><span class="o">.</span><span class="n">PageSetup</span><span class="o">.</span><span class="n">OK</span> <span class="c"># looks first for a dialog with a title like &quot;PageSetup&quot;</span>
+                   <span class="c"># then it looks for a control on that dialog with a title</span>
+                   <span class="c"># like &quot;OK&quot;</span>
+</pre></div>
+</div>
+<p>This attribute resolution is delayed (currently a hard coded amount of time) until
+it succeeds. So for example if you Select a menu option and then look for the
+resulting dialog e.g.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">Notepad</span><span class="o">.</span><span class="n">MenuSelect</span><span class="p">(</span><span class="s">&quot;File-&gt;SaveAs&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">SaveAs</span><span class="o">.</span><span class="n">ComboBox5</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">SaveAs</span><span class="o">.</span><span class="n">edit1</span><span class="o">.</span><span class="n">SetText</span><span class="p">(</span><span class="s">&quot;Example-utf8.txt&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">SaveAs</span><span class="o">.</span><span class="n">Save</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>At the 2nd line the SaveAs dialog might not be open by the time this line is
+executed. So what happens is that we wait until we have a control to resolve
+before resolving the dialog. At that point if we can&#8217;t find a SaveAs dialog with
+a ComboBox5 control then we wait a very short period of time and try again,
+this is repeated up to a maximum time (currently 1 second!)</p>
+<p>This avoid the user having to use time.sleep or a &#8220;WaitForDialog&#8221; function.</p>
+</div>
+<div class="section" id="some-similar-tools-for-comparison">
+<h2>Some similar tools for comparison<a class="headerlink" href="#some-similar-tools-for-comparison" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Python tools</p>
+<blockquote>
+<ul class="simple">
+<li>Watsup (<a class="reference external" href="http://www.tizmoi.net/watsup/intro.html">http://www.tizmoi.net/watsup/intro.html</a>)</li>
+<li>winGuiAuto (<a class="reference external" href="http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html">http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html</a>)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Other scripting language tools</p>
+<blockquote>
+<ul class="simple">
+<li>Perl Win32::GuiTest  (http://erngui.com/prog/perl/guitest/)</li>
+<li>Ruby GuiTest (<a class="reference external" href="http://raa.ruby-lang.org/list.rhtml?name=win32-guitest">http://raa.ruby-lang.org/list.rhtml?name=win32-guitest</a>)</li>
+<li>others (<a class="reference external" href="http://opensourcetesting.org/">http://opensourcetesting.org/</a>)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Other free tools</p>
+<blockquote>
+<ul class="simple">
+<li>AutoIt (<a class="reference external" href="http://www.autoitscript.com/">http://www.autoitscript.com/</a>)</li>
+<li>See collection at: <a class="reference external" href="http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html">http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html</a></li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Commercial tools</p>
+<blockquote>
+<ul class="simple">
+<li>WinRunner (<a class="reference external" href="http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/">http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/</a>)</li>
+<li>SilkTest (<a class="reference external" href="http://www.segue.com/products/functional-regressional-testing/silktest.asp">http://www.segue.com/products/functional-regressional-testing/silktest.asp</a>)</li>
+<li>Many Others (<a class="reference external" href="http://www.testingfaqs.org/t-gui.html">http://www.testingfaqs.org/t-gui.html</a>)</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="why-write-yet-another-automation-tool-if-there-are-so-many-out-there">
+<h2>Why write yet another automation tool if there are so many out there?<a class="headerlink" href="#why-write-yet-another-automation-tool-if-there-are-so-many-out-there" title="Permalink to this headline">¶</a></h2>
+<p>There are loads of reasons :-)</p>
+<dl class="docutils">
+<dt><strong>Takes a different approach:</strong></dt>
+<dd><p class="first">Most other tools are not object oriented you end  up writing stuff like:</p>
+<div class="highlight-python"><pre>window = findwindow(title = "Untitled - Notepad", class = "Notepad")
+SendKeys(window, "%OF")  # Format -&gt; Font
+fontdialog  = findwindow("title = "Font")
+buttonClick(fontdialog, "OK")</pre>
+</div>
+<p>I was hoping to create something more userfriendly (and pythonic). For example
+the translation of above would be:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">win</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">UntitledNotepad</span>
+<span class="n">win</span><span class="o">.</span><span class="n">MenuSelect</span><span class="p">(</span><span class="s">&quot;Format-&gt;Font&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">Font</span><span class="o">.</span><span class="n">OK</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>Python makes it easy:</strong></dt>
+<dd>Python is a great programming language, but I didn&#8217;t find
+any automation tools that were Pythonic (I only found one
+that was implemented in python) and I didn&#8217;t care for it
+too much.</dd>
+<dt><strong>Localization as a main requirement:</strong></dt>
+<dd><p class="first">I work in the localization industry and GUI
+automation is used extensively as often all
+you need to do is ensure that your UI behaves
+and is correct with respect to the Source
+UI. This is actually an easier job then for
+testing the original source UI.</p>
+<p class="last">But most automation tools are based off of coordinates or text of the
+controls and these can change in the localized software. So my goal (
+though not yet implemented) is to allow scripts to run unchanged
+between original source language (often English) and the translated
+software (Japanese, German, etc).</p>
+</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">What is pywinauto</a><ul>
+<li><a class="reference internal" href="#what-is-it">What is it?</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#where-to-start">Where to start</a></li>
+<li><a class="reference internal" href="#how-does-it-work">How does it work</a></li>
+<li><a class="reference internal" href="#some-similar-tools-for-comparison">Some similar tools for comparison</a></li>
+<li><a class="reference internal" href="#why-write-yet-another-automation-tool-if-there-are-so-many-out-there">Why write yet another automation tool if there are so many out there?</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="contents.html"
+                        title="previous chapter">Contents</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="getting_started.html"
+                        title="next chapter">Automating an application</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Automating an application"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="contents.html" title="Contents"
+             >previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

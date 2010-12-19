@@ -1,0 +1,291 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Dev Notes &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="index.html" />
+    <link rel="next" title="PYWINAUTO TODO’s" href="TODO.html" />
+    <link rel="prev" title="Credits" href="credits.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="TODO.html" title="PYWINAUTO TODO’s"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="credits.html" title="Credits"
+             accesskey="P">previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dev-notes">
+<h1>Dev Notes<a class="headerlink" href="#dev-notes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="file-layout">
+<h2>FILE LAYOUT<a class="headerlink" href="#file-layout" title="Permalink to this headline">¶</a></h2>
+<p># used by just about everything (and considered a block!)
+win32defines.py
+win32functions.py
+win32structures.py</p>
+<p># Find windows and their attributes
+findwindows.py
+handleprops.py</p>
+<p># wrap windows, get extra info for particular controls
+# set the friendly class name
+controlscommon_controls.py
+controlscontrolactions.py
+controlsHwndWrapper.py
+controlswin32_controls.py</p>
+<p># currently depends on the Friendly class name
+# probably needs to be refactored to make it independent of controls!
+# maybe move that stuff to _application_?
+findbestmatch.py  # currently depends on controls!</p>
+<p>controlactions.py</p>
+<p>testsallcontrols.py
+testsasianhotkey.py
+testscomboboxdroppedheight.py
+testscomparetoreffont.py
+testsleadtrailspaces.py
+testsmiscvalues.py
+testsmissalignment.py
+testsmissingextrastring.py
+testsoverlapping.py
+testsrepeatedhotkey.py
+teststranslation.py
+teststruncation.py</p>
+<p>controlproperties.py</p>
+<p>XMLHelpers.py</p>
+<blockquote>
+FindDialog.py
+PyDlgCheckerWrapper.py</blockquote>
+<p>application.py
+test_application.py</p>
+</div>
+<div class="section" id="best-matching">
+<h2>Best matching<a class="headerlink" href="#best-matching" title="Permalink to this headline">¶</a></h2>
+<p>difflib provides this support
+For menu&#8217;s it is simple we match against the text of the menu item.
+For controls the story is more complicated because we want to match
+against the following:</p>
+<blockquote>
+<ul class="simple">
+<li>Control text if it exists</li>
+<li>Friendly Class name</li>
+<li>Control text + Friendly class name (if control text exists)</li>
+<li>(Possibly) closest static + FriendlyClassName</li>
+</ul>
+</blockquote>
+<dl class="docutils">
+<dt>e.g.</dt>
+<dd>FindWhatCombo, ComboBox1,</dd>
+<dt>or</dt>
+<dd>Text, TextRiadio, RadioButton2</dd>
+</dl>
+<ol class="arabic simple">
+<li>the control itself knows what it should be referred to</li>
+<li>Need to disambiguate across all controls in the dialog</li>
+<li>then we need to match</li>
+</ol>
+</div>
+<div class="section" id="attribute-resolution">
+<h2>ATTRIBUTE RESOLUTION<a class="headerlink" href="#attribute-resolution" title="Permalink to this headline">¶</a></h2>
+<p>Thinking again...
+app.dlg.control</p>
+<dl class="docutils">
+<dt>TWO LEVELS</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>application.member (Python resolves)</dt>
+<dd><p class="first last">an attribute of application object</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>application.dialog</dt>
+<dd><p class="first last">a dialog reference</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>THREE LEVELS</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>application.member.attr (Python resolves)</dt>
+<dd><p class="first last">another attribute of the previous member</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>application.dialog.member</dt>
+<dd><p class="first last">a member of the dialog object</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>application.dialog.control</dt>
+<dd><p class="first last">a control on the dialog</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>FOUR LEVELS (leaving out Python resolved)</dt>
+<dd><ul class="first last simple">
+<li>application.dialog.member.member</li>
+<li>application.dialog.control.member</li>
+</ul>
+</dd>
+</dl>
+<p>DELAYED RESOLUTION FOR SUCCESS
+Taking the example</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">dlg</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">action</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If we leave out syntax and programming errors there are still a number of reasons why it could fail.</p>
+<p>dlg might not be found
+control might not be found
+either dlg or control may be disabled</p>
+<p>dialog and control may be found but on the wrong dialog (e.g. in Notepad you can bring up 2 &#8220;Page Setup&#8221; dialogs both with an OK button)</p>
+<p>One solution would just be to add a &#8220;sleep&#8221; before trying to find each new dialog (to ensure that it is there and ready) - but this will mean lots of unnecessary waiting.</p>
+<dl class="docutils">
+<dt>So the solution I have tried is:</dt>
+<dd><ul class="first last simple">
+<li>perform the complete attribute access resolution at the latest possible time</li>
+<li>if it fails then wait and try again</li>
+<li>after a specified timeout fail raising the original exception.</li>
+</ul>
+</dd>
+</dl>
+<p>This means that in the normal case you don&#8217;t have unnecessary waits - and in the failure case - you still get an exception with the error.</p>
+<p>Also waiting to do resolution as late as possible stops errors where an earlier part of the path succeedes - but finds the wrong item.</p>
+<p>So for example if  finds the page setup dialog in Notepad
+# open the Printer setup dialog (which has &#8220;Page Setup&#8221; as title)
+app.PageSetup.Printer.Click()</p>
+<p># if this runs too quickly it actually finds the current page setup dialog
+# before the next dialog opens, but that dialog does not have a Properties
+# button - so an error is raised.
+# because we re-run the resolution from the start we find the new pagesetup dialog.
+app.PageSetup.Properties.Click()</p>
+</div>
+<div class="section" id="writing-to-dialogs">
+<h2>WRITING TO DIALOGS<a class="headerlink" href="#writing-to-dialogs" title="Permalink to this headline">¶</a></h2>
+<p>We need a way of making sure that the dialog is active without having to access a control on it.
+e.g.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">MainWin</span><span class="o">.</span><span class="n">MenuSelect</span><span class="p">(</span><span class="s">&quot;Something That-&gt;Loads a Dialog&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">Dlg</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s">&quot;dlg.xml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or a harder problem:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">PageSetup</span><span class="o">.</span><span class="n">Printer</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">PageSetup</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="s">&quot;pagesetup.xml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this second example it is very hard to be sure that the correct Page Setup dialog is shown.</p>
+<p>The only way to be realy sure is to check for the existance of certain control(s) (ID, Class, text, whatever) - but it would be nice to not have to deal with those :-(</p>
+<p>Another less declarative (more magic?) is to scan the list of available windows/controls and if they haven&#8217;t changed then accept that the correct one is shown.</p>
+<p>When testing and having XML files then we should use those to make sure that we have the correct dialog up (by using Class/ID)</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Dev Notes</a><ul>
+<li><a class="reference internal" href="#file-layout">FILE LAYOUT</a></li>
+<li><a class="reference internal" href="#best-matching">Best matching</a></li>
+<li><a class="reference internal" href="#attribute-resolution">ATTRIBUTE RESOLUTION</a></li>
+<li><a class="reference internal" href="#writing-to-dialogs">WRITING TO DIALOGS</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="credits.html"
+                        title="previous chapter">Credits</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="TODO.html"
+                        title="next chapter">PYWINAUTO TODO&#8217;s</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/dev_notes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="TODO.html" title="PYWINAUTO TODO’s"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="credits.html" title="Credits"
+             >previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

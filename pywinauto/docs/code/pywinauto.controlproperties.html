@@ -1,0 +1,179 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.controlproperties &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="next" title="pywinauto.handleprops" href="pywinauto.handleprops.html" />
+    <link rel="prev" title="pywinauto.tests.truncation" href="pywinauto.tests.truncation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.handleprops.html" title="pywinauto.handleprops"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.truncation.html" title="pywinauto.tests.truncation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-controlproperties">
+<h1>pywinauto.controlproperties<a class="headerlink" href="#pywinauto-controlproperties" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.controlproperties"></span><p>Wrap</p>
+<dl class="class">
+<dt id="pywinauto.controlproperties.ControlProps">
+<em class="property">class </em><tt class="descclassname">pywinauto.controlproperties.</tt><tt class="descname">ControlProps</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.ControlProps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap controls read from a file to resemble hwnd controls</p>
+<dl class="method">
+<dt id="pywinauto.controlproperties.ControlProps.HasExStyle">
+<tt class="descname">HasExStyle</tt><big>(</big><em>exstyle</em><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.ControlProps.HasExStyle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controlproperties.ControlProps.HasStyle">
+<tt class="descname">HasStyle</tt><big>(</big><em>style</em><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.ControlProps.HasStyle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controlproperties.ControlProps.WindowText">
+<tt class="descname">WindowText</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.ControlProps.WindowText" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.controlproperties.GetMenuBlocks">
+<tt class="descclassname">pywinauto.controlproperties.</tt><tt class="descname">GetMenuBlocks</tt><big>(</big><em>ctrls</em><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.GetMenuBlocks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.controlproperties.MenuBlockAsControls">
+<tt class="descclassname">pywinauto.controlproperties.</tt><tt class="descname">MenuBlockAsControls</tt><big>(</big><em>menuItems</em>, <em>parentage=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.MenuBlockAsControls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.controlproperties.MenuItemAsControl">
+<tt class="descclassname">pywinauto.controlproperties.</tt><tt class="descname">MenuItemAsControl</tt><big>(</big><em>menuItem</em><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.MenuItemAsControl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a menu item look like a control for tests</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.controlproperties.SetReferenceControls">
+<tt class="descclassname">pywinauto.controlproperties.</tt><tt class="descname">SetReferenceControls</tt><big>(</big><em>controls</em>, <em>refControls</em><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.SetReferenceControls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the reference controls for the controls passed in</p>
+<dl class="docutils">
+<dt>This does some minor checking as following:</dt>
+<dd><ul class="first last simple">
+<li>test that there are the same number of reference controls as 
+controls - fails with an exception if there are not</li>
+<li>test if all the ID&#8217;s are the same or not</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pywinauto.controlproperties.func_wrapper">
+<em class="property">class </em><tt class="descclassname">pywinauto.controlproperties.</tt><tt class="descname">func_wrapper</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#pywinauto.controlproperties.func_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Little class to allow attribute access to return a callable object</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.tests.truncation.html"
+                        title="previous chapter">pywinauto.tests.truncation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pywinauto.handleprops.html"
+                        title="next chapter">pywinauto.handleprops</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.controlproperties.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.handleprops.html" title="pywinauto.handleprops"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.truncation.html" title="pywinauto.tests.truncation"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

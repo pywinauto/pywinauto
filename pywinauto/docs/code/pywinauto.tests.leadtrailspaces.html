@@ -1,0 +1,182 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.tests.leadtrailspaces &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="next" title="pywinauto.tests.miscvalues" href="pywinauto.tests.miscvalues.html" />
+    <link rel="prev" title="pywinauto.tests.comparetoreffont" href="pywinauto.tests.comparetoreffont.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.miscvalues.html" title="pywinauto.tests.miscvalues"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.comparetoreffont.html" title="pywinauto.tests.comparetoreffont"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-tests-leadtrailspaces">
+<h1>pywinauto.tests.leadtrailspaces<a class="headerlink" href="#pywinauto-tests-leadtrailspaces" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.tests.leadtrailspaces"></span><p>Different Leading and Trailing Spaces Test</p>
+<p><strong>What is checked</strong>
+Checks that the same space characters (&lt;space&gt;, &lt;tab&gt;, &lt;enter&gt;, &lt;vertical tab&gt;)
+are before and after all non space characters in the title of the control when
+compared to the reference control.</p>
+<p><strong>How is it checked</strong>
+Find the 1st non-space character, and the characters of the title up to that
+are the leading spaces.
+Find the last non-space character, and the characters of the title after that
+are the trailing spaces.
+These are then compared to the lead and trail spaces from the reference
+control and if they are not exactly the then a bug is reported.</p>
+<p><strong>When is a bug reported</strong>
+When either the leading or trailing spaces of the control being tested does
+not match the equivalent spaces of the reference control exactly.</p>
+<p><strong>Bug Extra Information</strong>
+The bug contains the following extra information</p>
+<blockquote>
+<ul>
+<li><p class="first"><strong>Lead-Trail</strong>  Whether this bug report is for the leading or
+trailing spaces of the control, String</p>
+<p>This will be either:</p>
+<blockquote>
+<ul class="simple">
+<li>&#8220;Leading&#8221;  bug relating to leading spaces</li>
+<li>&#8220;Trailing&#8221;  bug relating to trailing spaces</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Ref</strong>  The leading or trailings spaces of the reference string
+(depending on Lead-Trail value), String</p>
+</li>
+<li><p class="first"><strong>Loc</strong>  The leading or trailings spaces of the local string (depending on
+Lead-Trail value), String</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>Is Reference dialog needed</strong>
+This test will not run if the reference controls are not available.</p>
+<p><strong>False positive bug reports</strong>
+This is usually not a very important test, so if it generates many false
+positives then we should consider removing it.</p>
+<p><strong>Test Identifier</strong>
+The identifier for this test/bug is &#8220;LeadTrailSpaces&#8221;</p>
+<dl class="function">
+<dt id="pywinauto.tests.leadtrailspaces.GetLeadSpaces">
+<tt class="descclassname">pywinauto.tests.leadtrailspaces.</tt><tt class="descname">GetLeadSpaces</tt><big>(</big><em>title</em><big>)</big><a class="headerlink" href="#pywinauto.tests.leadtrailspaces.GetLeadSpaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the leading spaces of the string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.tests.leadtrailspaces.GetTrailSpaces">
+<tt class="descclassname">pywinauto.tests.leadtrailspaces.</tt><tt class="descname">GetTrailSpaces</tt><big>(</big><em>title</em><big>)</big><a class="headerlink" href="#pywinauto.tests.leadtrailspaces.GetTrailSpaces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the trailing spaces of the string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.tests.leadtrailspaces.LeadTrailSpacesTest">
+<tt class="descclassname">pywinauto.tests.leadtrailspaces.</tt><tt class="descname">LeadTrailSpacesTest</tt><big>(</big><em>windows</em><big>)</big><a class="headerlink" href="#pywinauto.tests.leadtrailspaces.LeadTrailSpacesTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the leading/trailing space bugs for the windows</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.tests.comparetoreffont.html"
+                        title="previous chapter">pywinauto.tests.comparetoreffont</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pywinauto.tests.miscvalues.html"
+                        title="next chapter">pywinauto.tests.miscvalues</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.tests.leadtrailspaces.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.miscvalues.html" title="pywinauto.tests.miscvalues"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.comparetoreffont.html" title="pywinauto.tests.comparetoreffont"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

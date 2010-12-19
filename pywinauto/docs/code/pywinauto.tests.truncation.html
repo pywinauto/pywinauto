@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.tests.truncation &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="next" title="pywinauto.controlproperties" href="pywinauto.controlproperties.html" />
+    <link rel="prev" title="pywinauto.tests.translation" href="pywinauto.tests.translation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.controlproperties.html" title="pywinauto.controlproperties"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.translation.html" title="pywinauto.tests.translation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-tests-truncation">
+<h1>pywinauto.tests.truncation<a class="headerlink" href="#pywinauto-tests-truncation" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.tests.truncation"></span><p>Truncation Test</p>
+<p><strong>What is checked</strong>
+Checks for controls where the text does not fit in the space provided by the
+control.</p>
+<p><strong>How is it checked</strong>
+There is a function in windows (DrawText) that allows us to find the size that
+certain text will need. We use this function with correct fonts and other
+relevant information for the control to be as accurate as possible.</p>
+<p><strong>When is a bug reported</strong>
+When the calculated required size for the text is greater than the size of the
+space available for displaying the text.</p>
+<p><strong>Bug Extra Information</strong>
+The bug contains the following extra information
+Name    Description
+Strings         The list of the truncated strings as explained above
+StringIndices           The list of indices (0 based) that are truncated. This
+will often just be 0 but if there are many strings in the control untranslated
+it will report ALL the strings e.g. 0,2,5,19,23</p>
+<p><strong>Is Reference dialog needed</strong>
+The reference dialog does not need to be available. If it is available then
+for each bug discovered it is checked to see if it is a problem in the
+reference dialog.</p>
+<p><strong>False positive bug reports</strong>
+Certain controls do not display the text that is the title of the control, if
+this is not handled in a standard manner by the software then DLGCheck will
+report that the string is truncated.</p>
+<p><strong>Test Identifier</strong>
+The identifier for this test/bug is &#8220;Truncation&#8221;</p>
+<dl class="function">
+<dt id="pywinauto.tests.truncation.TruncationTest">
+<tt class="descclassname">pywinauto.tests.truncation.</tt><tt class="descname">TruncationTest</tt><big>(</big><em>windows</em><big>)</big><a class="headerlink" href="#pywinauto.tests.truncation.TruncationTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Actually do the test</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.tests.translation.html"
+                        title="previous chapter">pywinauto.tests.translation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pywinauto.controlproperties.html"
+                        title="next chapter">pywinauto.controlproperties</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.tests.truncation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.controlproperties.html" title="pywinauto.controlproperties"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.translation.html" title="pywinauto.tests.translation"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

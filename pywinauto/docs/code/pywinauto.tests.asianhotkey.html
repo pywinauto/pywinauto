@@ -1,0 +1,163 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.tests.asianhotkey &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="next" title="pywinauto.tests.comboboxdroppedheight" href="pywinauto.tests.comboboxdroppedheight.html" />
+    <link rel="prev" title="pywinauto.tests.allcontrols" href="pywinauto.tests.allcontrols.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.comboboxdroppedheight.html" title="pywinauto.tests.comboboxdroppedheight"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.allcontrols.html" title="pywinauto.tests.allcontrols"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-tests-asianhotkey">
+<h1>pywinauto.tests.asianhotkey<a class="headerlink" href="#pywinauto-tests-asianhotkey" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.tests.asianhotkey"></span><p>Asian Hotkey Format Test</p>
+<p><strong>What is checked</strong></p>
+<p>This test checks whether the format for shortcuts/hotkeys follows the
+standards for localised Windows applications. This format is
+{localised text}({uppercase hotkey})
+so for example if the English control is
+&#8220;&amp;Help&#8221;
+the localised control for Asian languages should be
+&#8220;LocHelp(H)&#8221;</p>
+<p><strong>How is it checked</strong></p>
+<p>After checking whether this control displays hotkeys it examines the 1st
+string of the control to make sure that the format is correct.
+If the reference control is available then it also makes sure that the
+hotkey character is the same as the reference.
+Controls with a title of less than 4 characters are ignored. This has been
+done to avoid false positive bug reports for strings like &#8220;&amp;X:&#8221;.</p>
+<p><strong>When is a bug reported</strong></p>
+<p>A bug is reported when a control has a hotkey and it is not in the correct
+format.
+Also if the reference control is available a bug will be reported if the
+hotkey character is not the same as used in the reference</p>
+<p><strong>Bug Extra Information</strong></p>
+<p>This test produces 2 different types of bug:
+BugType: &#8220;AsianHotkeyFormat&#8221;
+There is no extra information associated with this bug type</p>
+<p><strong>BugType: &#8220;AsianHotkeyDiffRef&#8221;</strong></p>
+<p>There is no extra information associated with this bug type</p>
+<p><strong>Is Reference dialog needed</strong></p>
+<p>The reference dialog is not needed.
+If it is unavailable then only bugs of type &#8220;AsianHotkeyFormat&#8221; will be
+reported, bug of type &#8220;AsianHotkeyDiffRef&#8221; will not be found.</p>
+<p><strong>False positive bug reports</strong></p>
+<p>There should be very few false positive bug reports when testing Asian
+software. If a string is very short (eg &#8220;&amp;Y:&#8221;) but is padded with spaces
+then it will get reported.</p>
+<p><strong>Test Identifier</strong></p>
+<p>The identifier for this test/bug is &#8220;AsianHotkeyTests&#8221;</p>
+<dl class="function">
+<dt id="pywinauto.tests.asianhotkey.AsianHotkeyTest">
+<tt class="descclassname">pywinauto.tests.asianhotkey.</tt><tt class="descname">AsianHotkeyTest</tt><big>(</big><em>windows</em><big>)</big><a class="headerlink" href="#pywinauto.tests.asianhotkey.AsianHotkeyTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the repeated hotkey errors</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.tests.allcontrols.html"
+                        title="previous chapter">pywinauto.tests.allcontrols</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pywinauto.tests.comboboxdroppedheight.html"
+                        title="next chapter">pywinauto.tests.comboboxdroppedheight</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.tests.asianhotkey.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.comboboxdroppedheight.html" title="pywinauto.tests.comboboxdroppedheight"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.tests.allcontrols.html" title="pywinauto.tests.allcontrols"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

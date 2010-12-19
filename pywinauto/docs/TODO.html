@@ -1,0 +1,291 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PYWINAUTO TODO’s &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="index.html" />
+    <link rel="next" title="Change Log" href="HISTORY.html" />
+    <link rel="prev" title="Dev Notes" href="dev_notes.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="HISTORY.html" title="Change Log"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dev_notes.html" title="Dev Notes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-todo-s">
+<h1>PYWINAUTO TODO&#8217;s<a class="headerlink" href="#pywinauto-todo-s" title="Permalink to this headline">¶</a></h1>
+<ul>
+<li><p class="first">Make sure to add documentation strings for all undocumented methods/functions</p>
+</li>
+<li><p class="first">Check coverage of the tests and work to increase it.</p>
+</li>
+<li><p class="first">Add tests for SendInput click methods</p>
+</li>
+<li><p class="first">Implement findbestmatch using FuzzyDict.</p>
+</li>
+<li><p class="first">Find a way of doing application data in a better way. Currently if someone
+even adds a call to print_control_identifiers() it will break the matching
+algorithm!</p>
+</li>
+<li><p class="first">Need to move the checking if a control is a Ownerdrawn/bitmap control out
+of __init__ methods and into it&#8217;s own method something like
+IsNormallyRendered() (Why?)</p>
+</li>
+<li><p class="first">Give example how to work with Tray Window</p>
+</li>
+<li><p class="first">Fix ToolbarWrapper.PressButton() which doesn&#8217;t seem to work (found wile working
+on IE example script)</p>
+</li>
+<li><p class="first">Maybe supply an option so that scripts can be run by using:</p>
+<div class="highlight-python"><pre>pywinauto.exe yourscript.py</pre>
+</div>
+<p>This would work by creating a Py2exe wrapper that would import the script
+(and optionally call a particular function?)</p>
+<p>This way pywinauto could be made available to people without python
+installed (whether this is a big requirement or not I don&#8217;t know
+because the automation language is python anyway!.</p>
+</li>
+<li><p class="first">Message traps - how to handle unwanted message boxes popping up?</p>
+<ol class="loweralpha simple">
+<li>Wait for an Exception then handle it there</li>
+<li>set a trap waiting for a specific dialog</li>
+<li>on calls to window specification, if we fail to find our window then we can
+run quickly through the available specified traps to see if any of them apply
+- then if they do we can run the associated actions - then try our original
+dialog again</li>
+</ol>
+</li>
+<li><p class="first">Handle adding reference controls (in that they should be the controls used
+for finding windows)</p>
+</li>
+<li><p class="first">Find the reference name of a variable e.g so that in Dialog._write() we
+can know the variable name that called the _write on (this we don&#8217;t have
+to repeat the XML file name!)</p>
+</li>
+<li><p class="first">If we remove the delay after a button click in controlactions then
+trying to close two dialogs in a row might fail because the first
+dialog hasn&#8217;t closed yet and the 2nd may have similar title and
+same closing button e.g PageSetup.OK.Click(), PageSetup2.OK.Click().
+A possible solution to this might be to keep a cache of windows in the
+application and no two different dialog identifiers (PageSetup and PageSetup2
+in this case) can have the same handle - so returning the handle of PageSetup
+when we call PageSetup2 would fail (and we would do our usual waiting until
+it succeeds or times out).</p>
+</li>
+<li><p class="first">Investigate using any of the following</p>
+<blockquote>
+<ul class="simple">
+<li>BringWindowToTop: probably necessary before image capture</li>
+<li>GetTopWindow: maybe to re-set top window after capture?</li>
+<li>EnumThreadWindows</li>
+<li>GetGUIThreadInfo</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Make it easy to work with context(right click) menu&#8217;s</p>
+</li>
+<li><p class="first">Further support .NET controls and download/create a test .NET application</p>
+</li>
+<li><p class="first">Look at supporting the Sytem Tray (e.g. right click on an icon)</p>
+</li>
+<li><p class="first">supply SystemTray class (singleton probably)</p>
+</li>
+<li><p class="first">Look at clicking and text input - maybe use SendInput</p>
+</li>
+<li><p class="first">Support Up-Down controls and other common controls</p>
+</li>
+<li><p class="first">Find out whether control.item.action() or control.action(item) is better</p>
+</li>
+<li><p class="first">Create a Recorder to visually create tests</p>
+</li>
+</ul>
+<p><strong>LOW PRIORITY</strong></p>
+<ul>
+<li><p class="first">Create a class that makes it easy to deal with a single window  (e.g. no
+application)</p>
+</li>
+<li><p class="first">Allow apps to be started in a different thread so we don&#8217;t lock up</p>
+<ul class="simple">
+<li>this is being done already - the problem is that some messages cannot
+be sent across processes if they have pointers (so we need to send a
+synchronous message which waits for the other process to respond
+before returning)</li>
+<li>But I guess it would be possible to create a thread for sending
+those messages?</li>
+</ul>
+</li>
+<li><p class="first">Liberate the code from HwndWrapper - there is very little this add&#8217;s beyond
+what is available in handleprops. The main reason this is required is for
+the FriendlyClassName. So I need to look to see if this can be moved
+elsewhere.</p>
+<p>Doing this might flatten the heirarchy quite a bit and reduce the
+dependencies on the various packages</p>
+</li>
+<li><p class="first">Need to make Menu items into classes so instead of Dlg.MenuSelect we should
+be doing</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">dlg</span><span class="o">.</span><span class="n">Menu</span><span class="p">(</span><span class="s">&quot;blah-&gt;blah&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">Select</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>or even</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">dlg</span><span class="o">.</span><span class="n">Menu</span><span class="o">.</span><span class="n">Blah</span><span class="o">.</span><span class="n">Blah</span><span class="o">.</span><span class="n">Select</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<blockquote>
+<p>To do this we need to change how menu&#8217;s are retrieved - rather than get all
+menuitems at the start - then we just get the requested level.</p>
+<p>This would also enable things like</p>
+<div class="highlight-python"><pre>dlg.Menu.Blah.Blah.IsChecked()  IsEnabled(), etc</pre>
+</div>
+</blockquote>
+<div class="section" id="closed-in-some-way-or-the-other">
+<h2>CLOSED (in some way or the other)<a class="headerlink" href="#closed-in-some-way-or-the-other" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Allow delay after click to be removed. The main reason that this is needed
+at the moment is because if you close a dialog and then try an action on
+the parent immediately it may not yet be active - so the delay is
+needed to allow it to become active.
+To fix this we may need to add more magic around calling actions on dialogs
+e.g.
+on an attribute access for an ActionDialog do the following:</p>
+<blockquote>
+<ul class="simple">
+<li>Check if it is an Action</li>
+<li>If it is not enabled then wait a little bit</li>
+<li>If it is then wait a little bit and try again</li>
+<li>repeat that until success or timeout</li>
+</ul>
+</blockquote>
+<p>The main thing that needs to be resolved is that you don&#8217;t want two of these
+waits happening at once (so a wait in a function at 1 level, and another wait
+in a function called by the other one - because this would mean there would
+be a VERY long delay while the timeout of the nested function was reached
+the number of times the calling func tried to succeed!)</p>
+</li>
+<li><p class="first">Add referencing by closest static (or surrounding group box?)</p>
+</li>
+<li><p class="first">Need to modularize the methods of the common_controls because at the moment
+they are much too monolithic.</p>
+</li>
+<li><p class="first">Finish example of saving a page from IE</p>
+</li>
+<li><p class="first">Document that I have not been able to figure out how to reliably check
+if a menu item is enabled or not before selecting it. (Probably FIXED NOW!)</p>
+<p>For Example in Media Player if you try and click the View-&gt;Choose Columns
+menu item when it is not enabled it crashes Media Player. Theoretically
+MF_DISABLED and MF_GRAYED should be used - but I found that these are not
+updated (at least for Media Player) until they are dropped down.</p>
+</li>
+<li><p class="first">Implement an opional timing/config module so that all timing can be
+customized</p>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PYWINAUTO TODO&#8217;s</a><ul>
+<li><a class="reference internal" href="#closed-in-some-way-or-the-other">CLOSED (in some way or the other)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dev_notes.html"
+                        title="previous chapter">Dev Notes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="HISTORY.html"
+                        title="next chapter">Change Log</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/TODO.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="HISTORY.html" title="Change Log"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dev_notes.html" title="Dev Notes"
+             >previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

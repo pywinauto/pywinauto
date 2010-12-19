@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Methods available to each different control type &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="index.html" />
+    <link rel="next" title="Credits" href="credits.html" />
+    <link rel="prev" title="How To’s" href="HowTo.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="credits.html" title="Credits"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="HowTo.html" title="How To’s"
+             accesskey="P">previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="methods-available-to-each-different-control-type">
+<h1>Methods available to each different control type<a class="headerlink" href="#methods-available-to-each-different-control-type" title="Permalink to this headline">¶</a></h1>
+<p>Windows has many controls, buttons, lists, etc</p>
+<div class="section" id="all-controls">
+<h2>All Controls<a class="headerlink" href="#all-controls" title="Permalink to this headline">¶</a></h2>
+<p>These functions are aviailable to all controls.</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.CaptureAsImage">CaptureAsImage</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Click">Click</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ClickInput">ClickInput</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Close">Close</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.CloseClick">CloseClick</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.DebugMessage">DebugMessage</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.DoubleClick">DoubleClick</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.DoubleClickInput">DoubleClickInput</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.DragMouse">DragMouse</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.DrawOutline">DrawOutline</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.GetFocus">GetFocus</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.GetShowState">GetShowState</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Maximize">Maximize</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.MenuSelect">MenuSelect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Minimize">Minimize</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.MoveMouse">MoveMouse</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.MoveWindow">MoveWindow</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.NotifyMenuSelect">NotifyMenuSelect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.NotifyParent">NotifyParent</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.PressMouse">PressMouse</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.PressMouseInput">PressMouseInput</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ReleaseMouse">ReleaseMouse</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ReleaseMouseInput">ReleaseMouseInput</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Restore">Restore</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.RightClick">RightClick</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.RightClickInput">RightClickInput</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.RightClickInput">RightClickInput</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.SendMessage">SendMessage</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.SendMessageTimeout">SendMessageTimeout</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.SetFocus">SetFocus</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.SetWindowText">SetWindowText</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.TypeKeys">TypeKeys</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Children">Children</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Class">Class</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ClientRect">ClientRect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ClientRects">ClientRects</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ContextHelpID">ContextHelpID</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ControlID">ControlID</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ExStyle">ExStyle</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Font">Font</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Fonts">Fonts</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.FriendlyClassName">FriendlyClassName</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.GetProperties">GetProperties</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.HasExStyle">HasExStyle</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.HasStyle">HasStyle</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.IsChild">IsChild</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.IsDialog">IsDialog</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.IsEnabled">IsEnabled</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.IsUnicode">IsUnicode</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.IsVisible">IsVisible</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Menu">Menu</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.MenuItem">MenuItem</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.MenuItems">MenuItems</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Owner">Owner</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Parent">Parent</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.PopupWindow">PopupWindow</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.ProcessID">ProcessID</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Rectangle">Rectangle</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Style">Style</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.Texts">Texts</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.TopLevelParent">TopLevelParent</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.UserData">UserData</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.VerifyActionable">VerifyActionable</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.VerifyEnabled">VerifyEnabled</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.VerifyVisible">VerifyVisible</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper.WindowText">WindowText</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="button-checkbox-radiobutton-groupbox">
+<h2>Button, CheckBox, RadioButton, GroupBox<a class="headerlink" href="#button-checkbox-radiobutton-groupbox" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ButtonWrapper.Check">ButtonWrapper.Check</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ButtonWrapper.GetCheckState">ButtonWrapper.GetCheckState</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ButtonWrapper.SetCheckIndeterminate">ButtonWrapper.SetCheckIndeterminate</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ButtonWrapper.UnCheck">ButtonWrapper.UnCheck</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="combobox">
+<h2>ComboBox<a class="headerlink" href="#combobox" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ComboBoxWrapper.DroppedRect">ComboBoxWrapper.DroppedRect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ComboBoxWrapper.ItemCount">ComboBoxWrapper.ItemCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ComboBoxWrapper.ItemData">ComboBoxWrapper.ItemData</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ComboBoxWrapper.ItemTexts">ComboBoxWrapper.ItemTexts</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ComboBoxWrapper.Select">ComboBoxWrapper.Select</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ComboBoxWrapper.SelectedIndex">ComboBoxWrapper.SelectedIndex</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="dialog">
+<h2>Dialog<a class="headerlink" href="#dialog" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.DialogWrapper.ClientAreaRect">DialogWrapper.ClientAreaRect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.DialogWrapper.RunTests">DialogWrapper.RunTests</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.DialogWrapper.WriteToXML">DialogWrapper.WriteToXML</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="edit">
+<h2>Edit<a class="headerlink" href="#edit" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.GetLine">EditWrapper.GetLine</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.LineCount">EditWrapper.LineCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.LineLength">EditWrapper.LineLength</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.Select">EditWrapper.Select</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.SelectionIndices">EditWrapper.SelectionIndices</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.SetEditText">EditWrapper.SetEditText</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.SetWindowText">EditWrapper.SetWindowText</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.TextBlock">EditWrapper.TextBlock</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="header">
+<h2>Header<a class="headerlink" href="#header" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.HeaderWrapper.GetColumnRectangle">HeaderWrapper.GetColumnRectangle</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.HeaderWrapper.GetColumnText">HeaderWrapper.GetColumnText</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.HeaderWrapper.ItemCount">HeaderWrapper.ItemCount</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="listbox">
+<h2>ListBox<a class="headerlink" href="#listbox" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ListBoxWrapper.GetItemFocus">ListBoxWrapper.GetItemFocus</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ListBoxWrapper.ItemCount">ListBoxWrapper.ItemCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ListBoxWrapper.ItemData">ListBoxWrapper.ItemData</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ListBoxWrapper.ItemTexts">ListBoxWrapper.ItemTexts</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ListBoxWrapper.Select">ListBoxWrapper.Select</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ListBoxWrapper.SelectedIndices">ListBoxWrapper.SelectedIndices</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.ListBoxWrapper.SetItemFocus">ListBoxWrapper.SetItemFocus</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="listview">
+<h2>ListView<a class="headerlink" href="#listview" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.Check">ListViewWrapper.Check</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.ColumnCount">ListViewWrapper.ColumnCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.Columns">ListViewWrapper.Columns</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.ColumnWidths">ListViewWrapper.ColumnWidths</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.GetColumn">ListViewWrapper.GetColumn</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.GetHeaderControl">ListViewWrapper.GetHeaderControl</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.GetItem">ListViewWrapper.GetItem</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.GetSelectedCount">ListViewWrapper.GetSelectedCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.IsChecked">ListViewWrapper.IsChecked</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.IsFocused">ListViewWrapper.IsFocused</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.IsSelected">ListViewWrapper.IsSelected</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.ItemCount">ListViewWrapper.ItemCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.Items">ListViewWrapper.Items</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.Select">ListViewWrapper.Select</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.Deselect">ListViewWrapper.Deselect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ListViewWrapper.UnCheck">ListViewWrapper.UnCheck</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="popupmenu">
+<h2>PopupMenu<a class="headerlink" href="#popupmenu" title="Permalink to this headline">¶</a></h2>
+<p>(no extra visible methods)</p>
+</div>
+<div class="section" id="rebar">
+<h2>ReBar<a class="headerlink" href="#rebar" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ReBarWrapper.BandCount">ReBarWrapper.BandCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ReBarWrapper.GetBand">ReBarWrapper.GetBand</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ReBarWrapper.GetToolTipsControl">ReBarWrapper.GetToolTipsControl</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="static">
+<h2>Static<a class="headerlink" href="#static" title="Permalink to this headline">¶</a></h2>
+<p>(no extra visible methods)</p>
+</div>
+<div class="section" id="statusbar">
+<h2>StatusBar<a class="headerlink" href="#statusbar" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.StatusBarWrapper.BorderWidths">StatusBarWrapper.BorderWidths</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.StatusBarWrapper.GetPartRect">StatusBarWrapper.GetPartRect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.StatusBarWrapper.GetPartText">StatusBarWrapper.GetPartText</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.StatusBarWrapper.PartCount">StatusBarWrapper.PartCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.StatusBarWrapper.PartRightEdges">StatusBarWrapper.PartRightEdges</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="tabcontrol">
+<h2>TabControl<a class="headerlink" href="#tabcontrol" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.GetSelectedTab">TabControlWrapper.GetSelectedTab</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.GetTabRect">TabControlWrapper.GetTabRect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.GetTabState">TabControlWrapper.GetTabState</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.GetTabText">TabControlWrapper.GetTabText</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.RowCount">TabControlWrapper.RowCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.Select">TabControlWrapper.Select</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.TabCount">TabControlWrapper.TabCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TabControlWrapper.TabStates">TabControlWrapper.TabStates</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="toolbar">
+<h2>Toolbar<a class="headerlink" href="#toolbar" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolbarWrapper.Button">ToolbarWrapper.Button</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolbarWrapper.ButtonCount">ToolbarWrapper.ButtonCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolbarWrapper.GetButton">ToolbarWrapper.GetButton</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolbarWrapper.GetButtonRect">ToolbarWrapper.GetButtonRect</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolbarWrapper.GetToolTipsControl">ToolbarWrapper.GetToolTipsControl</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolbarWrapper.PressButton">ToolbarWrapper.PressButton</a></li>
+</ul>
+</blockquote>
+<blockquote>
+<p><em>ToolbarButton</em> (returned by <tt class="docutils literal"><span class="pre">Button()</span></tt>)</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.Rectangle">ToolbarButton.Rectangle</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.Style">ToolbarButton.Style</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.ClickInput">ToolbarButton.ClickInput</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.Click">ToolbarButton.Click</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.IsCheckable">ToolbarButton.IsCheckable</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.IsChecked">ToolbarButton.IsChecked</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.IsEnabled">ToolbarButton.IsEnabled</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.IsPressable">ToolbarButton.IsPressable</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.IsPressed">ToolbarButton.IsPressed</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.State">ToolbarButton.State</a></li>
+</ul>
+</blockquote>
+</blockquote>
+</div>
+<div class="section" id="tooltips">
+<h2>ToolTips<a class="headerlink" href="#tooltips" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolTipsWrapper.GetTip">ToolTipsWrapper.GetTip</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolTipsWrapper.GetTipText">ToolTipsWrapper.GetTipText</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.ToolTipsWrapper.ToolCount">ToolTipsWrapper.ToolCount</a></li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="treeview">
+<h2>TreeView<a class="headerlink" href="#treeview" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TreeViewWrapper.EnsureVisible">TreeViewWrapper.EnsureVisible</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TreeViewWrapper.GetItem">TreeViewWrapper.GetItem</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TreeViewWrapper.GetProperties">TreeViewWrapper.GetProperties</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TreeViewWrapper.IsSelected">TreeViewWrapper.IsSelected</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TreeViewWrapper.ItemCount">TreeViewWrapper.ItemCount</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TreeViewWrapper.Root">TreeViewWrapper.Root</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.TreeViewWrapper.Select">TreeViewWrapper.Select</a></li>
+</ul>
+</blockquote>
+<blockquote>
+<p><em>TreeViewElement</em> (returned by <tt class="docutils literal"><span class="pre">GetItem()</span></tt> and <tt class="docutils literal"><span class="pre">Root()</span></tt>)</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Children">TreeViewElement.Children</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Item">TreeViewElement.Item</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Next">TreeViewElement.Next</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Rectangle">TreeViewElement.Rectangle</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.State">TreeViewElement.State</a></li>
+<li><a class="reference external" href="code/pywinauto.controlscommon_controls.html#pywinauto.controls.common_controls._treeview_element.SubElements">TreeViewElement.SubElements</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Text">TreeViewElement.Text</a></li>
+</ul>
+</blockquote>
+</blockquote>
+</div>
+<div class="section" id="updown">
+<h2>UpDown<a class="headerlink" href="#updown" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.UpDownWrapper.GetBase">UpDownWrapper.GetBase</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.UpDownWrapper.GetBuddyControl">UpDownWrapper.GetBuddyControl</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.UpDownWrapper.GetRange">UpDownWrapper.GetRange</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.UpDownWrapper.GetValue">UpDownWrapper.GetValue</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.UpDownWrapper.SetValue">UpDownWrapper.SetValue</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.UpDownWrapper.Increment">UpDownWrapper.Increment</a></li>
+<li><a class="reference external" href="code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls.UpDownWrapper.Decrement">UpDownWrapper.Decrement</a></li>
+</ul>
+</blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Methods available to each different control type</a><ul>
+<li><a class="reference internal" href="#all-controls">All Controls</a></li>
+<li><a class="reference internal" href="#button-checkbox-radiobutton-groupbox">Button, CheckBox, RadioButton, GroupBox</a></li>
+<li><a class="reference internal" href="#combobox">ComboBox</a></li>
+<li><a class="reference internal" href="#dialog">Dialog</a></li>
+<li><a class="reference internal" href="#edit">Edit</a></li>
+<li><a class="reference internal" href="#header">Header</a></li>
+<li><a class="reference internal" href="#listbox">ListBox</a></li>
+<li><a class="reference internal" href="#listview">ListView</a></li>
+<li><a class="reference internal" href="#popupmenu">PopupMenu</a></li>
+<li><a class="reference internal" href="#rebar">ReBar</a></li>
+<li><a class="reference internal" href="#static">Static</a></li>
+<li><a class="reference internal" href="#statusbar">StatusBar</a></li>
+<li><a class="reference internal" href="#tabcontrol">TabControl</a></li>
+<li><a class="reference internal" href="#toolbar">Toolbar</a></li>
+<li><a class="reference internal" href="#tooltips">ToolTips</a></li>
+<li><a class="reference internal" href="#treeview">TreeView</a></li>
+<li><a class="reference internal" href="#updown">UpDown</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="HowTo.html"
+                        title="previous chapter">How To&#8217;s</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="credits.html"
+                        title="next chapter">Credits</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/controls_overview.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="credits.html" title="Credits"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="HowTo.html" title="How To’s"
+             >previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

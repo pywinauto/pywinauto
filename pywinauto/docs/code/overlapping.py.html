@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.tests.overlapping &mdash; pywinauto v0.3.9 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.3.9 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-tests-overlapping">
+<h1>pywinauto.tests.overlapping<a class="headerlink" href="#pywinauto-tests-overlapping" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.tests.overlapping"></span><p>Overlapping Test</p>
+<p><strong>What is checked</strong>
+The overlapping test checks for controls that occupy the same space as some
+other control in the dialog.</p>
+<blockquote>
+<ul class="simple">
+<li>If the reference controls are available check for each pair of controls:<ul>
+<li>If controls are exactly the same size and position in reference then
+make sure that they are also in the localised.</li>
+<li>If a reference control is wholly contained in another make sure that the
+same happens for the controls being tested.</li>
+</ul>
+</li>
+<li>If the reference controls are not available only the following check can
+be done<ul>
+<li>If controls are overlapped in localised report a bug (if reference is
+available it is used just to say if this overlapping happens in reference
+also)</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p><strong>How is it checked</strong>
+Various tests are performed on each pair of controls to see if any of the
+above conditions are met. The most specific tests that can be performed are
+done 1st so that the bugs reported are as specific as possible. I.e. we report
+that 2 controls are not exactly overlapped when they should be rather than jut
+reporting that they are overlapped which contains less information.</p>
+<p><strong>When is a bug reported</strong>
+A bug is reported when:</p>
+<blockquote>
+<ul class="simple">
+<li>controls are overlapped (but not contained wholly, and not exactly
+overlapped)</li>
+<li>reference controls are exactly overlapped but they are not in tested
+dialog</li>
+<li>one reference control is wholly contained in another but not in
+tested dialog</li>
+</ul>
+</blockquote>
+<p><strong>Bug Extra Information</strong>
+This test produces 3 different types of bug:
+BugType: &#8220;Overlapping&#8221;
+Name    Description
+OverlappedRect  &lt;What this info is&gt;, Rectangle</p>
+<p><strong>BugType -  &#8220;NotContainedOverlap&#8221;</strong>
+There is no extra information associated with this bug type</p>
+<p><strong>BugType - &#8220;NotExactOverlap&#8221;</strong>
+There is no extra information associated with this bug type</p>
+<p><strong>Is Reference dialog needed</strong>
+For checking whether controls should be exactly overlapped and whether they
+should be wholly contained the reference controls are necessary. If the
+reference controls are not available then only simple overlapping of controls
+will be checked.</p>
+<p><strong>False positive bug reports</strong>
+If there are controls in the dialog that are not visible or are moved
+dynamically it may cause bugs to be reported that do not need to be logged.
+If necessary filter out bugs with hidden controls.</p>
+<p><strong>Test Identifier</strong>
+The identifier for this test is &#8220;Overlapping&#8221;</p>
+<dl class="class">
+<dt id="pywinauto.tests.overlapping.OptRect">
+<em class="property">class </em><tt class="descclassname">pywinauto.tests.overlapping.</tt><tt class="descname">OptRect</tt><a class="headerlink" href="#pywinauto.tests.overlapping.OptRect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.tests.overlapping.OverlappingTest">
+<tt class="descclassname">pywinauto.tests.overlapping.</tt><tt class="descname">OverlappingTest</tt><big>(</big><em>windows</em><big>)</big><a class="headerlink" href="#pywinauto.tests.overlapping.OverlappingTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the repeated hotkey errors</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/overlapping.py.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

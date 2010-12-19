@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Automating an application &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="index.html" />
+    <link rel="next" title="How To’s" href="HowTo.html" />
+    <link rel="prev" title="What is pywinauto" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="HowTo.html" title="How To’s"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="What is pywinauto"
+             accesskey="P">previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="automating-an-application">
+<h1>Automating an application<a class="headerlink" href="#automating-an-application" title="Permalink to this headline">¶</a></h1>
+<p>Once you have installed pywinauto - how do you get going?</p>
+<div class="section" id="sit-back-and-have-a-look-at-a-little-movie">
+<h2>Sit back and have a look at a little movie<a class="headerlink" href="#sit-back-and-have-a-look-at-a-little-movie" title="Permalink to this headline">¶</a></h2>
+<p>Jeff Winkler has created a nice screencast of using pywinauto, you
+can see it at :</p>
+<blockquote>
+<a class="reference external" href="http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&amp;fromSeriesID=7">http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&amp;fromSeriesID=7</a></blockquote>
+</div>
+<div class="section" id="look-at-the-examples">
+<h2>Look at the examples<a class="headerlink" href="#look-at-the-examples" title="Permalink to this headline">¶</a></h2>
+<p>The following examples are included:
+<strong>Note</strong>: Examples are language dependent - they will only work on the
+language of product that they were programmed for. All examples have
+been programmed for English Software except where highlighted.</p>
+<p><tt class="docutils literal"><span class="pre">mspaint.py</span></tt>         Control MSPaint
+<tt class="docutils literal"><span class="pre">notepad_fast.py</span></tt>    Use fast timing settings to control Notepad
+<tt class="docutils literal"><span class="pre">notepad_slow.py</span></tt>    Use slow timing settings to control Notepad
+<tt class="docutils literal"><span class="pre">notepad_item.py</span></tt>    Use item rather then attribute access to control Notepad.</p>
+<p><tt class="docutils literal"><span class="pre">MiscExamples.py</span></tt>    Show some exceptions and how to get control identifiers.</p>
+<p><tt class="docutils literal"><span class="pre">SaveFromInternetExplorer.py</span></tt> Save a Web Page from Internet Explorer
+<tt class="docutils literal"><span class="pre">SaveFromFirefox.py</span></tt>                  Save a Web Page from Firefox.</p>
+<p><tt class="docutils literal"><span class="pre">get_winrar_info.py</span></tt>    Example of how to do multilingual automation.
+This is not an ideal example (works on French, Czech and German WinRar)</p>
+<p><tt class="docutils literal"><span class="pre">ForteAgentSample.py</span></tt>   Example of dealing with a complex application that
+is quite dynamic and gives different dialogs often when starting.</p>
+<p><tt class="docutils literal"><span class="pre">windowmediaplayer.py</span></tt>  Just another example - deals with check boxes in a
+ListView.</p>
+<p><tt class="docutils literal"><span class="pre">test_sakura.py</span></tt>    Two examples of automating a Japanase product.
+<tt class="docutils literal"><span class="pre">test_sakura2.py</span></tt></p>
+</div>
+<div class="section" id="automate-notepad-at-the-command-line">
+<h2>Automate notepad at the command line<a class="headerlink" href="#automate-notepad-at-the-command-line" title="Permalink to this headline">¶</a></h2>
+<p>Please find below a sample run</p>
+<div class="highlight-python"><pre>      C:\&gt;python
+      Python 2.4.2 (#67, Sep 28 2005, 12:41:11) [MSC v.1310 32 bit (Intel)] on win32
+      Type "help", "copyright", "credits" or "license" for more information.
+(1)   &gt;&gt;&gt; from pywinauto import application
+(2)   &gt;&gt;&gt; app = application.Application()
+(3)   &gt;&gt;&gt; app.Start_("Notepad.exe")
+      &lt;pywinauto.application.Application object at 0x00AE0990&gt;
+(4)   &gt;&gt;&gt; app.Notepad.DrawOutline()
+(5)   &gt;&gt;&gt; app.Notepad.MenuSelect("Edit -&gt; Replace")
+(6)   &gt;&gt;&gt; app.Replace.PrintControlIdentifiers()
+      Control Identifiers:
+      Static - 'Fi&amp;nd what:'   (L1018, T159, R1090, B172)
+              'Fi&amp;nd what:' 'Fi&amp;nd what:Static' 'Static' 'Static0' 'Static1'
+      Edit - ''   (L1093, T155, R1264, B175)
+              'Edit' 'Edit0' 'Edit1' 'Fi&amp;nd what:Edit'
+      Static - 'Re&amp;place with:'   (L1018, T186, R1090, B199)
+              'Re&amp;place with:' 'Re&amp;place with:Static' 'Static2'
+      Edit - ''   (L1093, T183, R1264, B203)
+              'Edit2' 'Re&amp;place with:Edit'
+      Button - 'Match &amp;case'   (L1020, T245, R1109, B265)
+              'CheckBox2' 'Match &amp;case' 'Match &amp;caseCheckBox'
+      Button - '&amp;Find Next'   (L1273, T151, R1348, B174)
+              '&amp;Find Next' '&amp;Find NextButton' 'Button' 'Button0' 'Button1'
+      Button - '&amp;Replace'   (L1273, T178, R1348, B201)
+              '&amp;Replace' '&amp;ReplaceButton' 'Button2'
+      Button - 'Replace &amp;All'   (L1273, T206, R1348, B229)
+              'Button3' 'Replace &amp;All' 'Replace &amp;AllButton'
+      Button - 'Cancel'   (L1273, T233, R1348, B256)
+              'Button4' 'Cancel' 'CancelButton'
+(7)   &gt;&gt;&gt; app.Replace.Cancel.Click()
+(8)   &gt;&gt;&gt; app.Notepad.Edit.TypeKeys("Hi from Python interactive prompt %s" % str(dir()), with_spaces = True)
+      &lt;pywinauto.controls.win32_controls.EditWrapper object at 0x00DDC2D0&gt;
+(9)   &gt;&gt;&gt; app.Notepad.MenuSelect("File -&gt; Exit")
+(10)  &gt;&gt;&gt; app.Notepad.No.Click()
+      &gt;&gt;&gt;</pre>
+</div>
+<ol class="arabic">
+<li><p class="first">Import the pywinauto.application module (usually the only module you need
+to import directly)</p>
+</li>
+<li><p class="first">Create an Application instance. All access to the application is done
+through this object.</p>
+</li>
+<li><p class="first">We have created an Application instance in step 2 but we did not supply
+any information on the Windows application it referred to. By using the
+Start_() method we execute that application and connect it to the
+Application instance app.</p>
+</li>
+<li><p class="first">Draw a green rectangle around the Notepad dialog - so that we know we have
+the correct window.</p>
+</li>
+<li><p class="first">Select the Replace item from the Edit Menu on the Notepad Dialog of the
+application that app is connected to.
+This action will make the Replace dialog appear.</p>
+</li>
+<li><p class="first">Print the identifiers for the controls on the Replace dialog, for
+example the 1st edit control on the Replace dialog can be referred to by
+any of the following identifiers:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">Replace</span><span class="o">.</span><span class="n">Edit</span>
+<span class="n">app</span><span class="o">.</span><span class="n">Replace</span><span class="o">.</span><span class="n">Edit0</span>
+<span class="n">app</span><span class="o">.</span><span class="n">Replace</span><span class="o">.</span><span class="n">Edit1</span>
+<span class="n">app</span><span class="o">.</span><span class="n">FindwhatEdit</span>
+</pre></div>
+</div>
+<p>The last is the one that gives the user reading the script aftewards the
+best idea of what the script does.</p>
+</li>
+<li><p class="first">Close the Replace dialog. (In a script file it is safer to use CloseClick()
+rather than Click() because CloseClick() waits a little longer to give windows
+time to close the dialog.)</p>
+</li>
+<li><p class="first">Let&#8217;s type some text into the Notepad text area. Without the <tt class="docutils literal"><span class="pre">with_spaces</span></tt>
+argument spaces would not be typed. Please see documentation for SendKeys
+for this method as it is a thin wrapper around SendKeys.</p>
+</li>
+<li><p class="first">Ask to exit Notepad</p>
+</li>
+<li><p class="first">We will be asked if we want to save - Click on the &#8220;No&#8221; button.</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="contents.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Automating an application</a><ul>
+<li><a class="reference internal" href="#sit-back-and-have-a-look-at-a-little-movie">Sit back and have a look at a little movie</a></li>
+<li><a class="reference internal" href="#look-at-the-examples">Look at the examples</a></li>
+<li><a class="reference internal" href="#automate-notepad-at-the-command-line">Automate notepad at the command line</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">What is pywinauto</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="HowTo.html"
+                        title="next chapter">How To&#8217;s</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/getting_started.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="HowTo.html" title="How To’s"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="What is pywinauto"
+             >previous</a> |</li>
+        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

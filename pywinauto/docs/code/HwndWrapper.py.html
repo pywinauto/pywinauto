@@ -1,0 +1,747 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.controls.HwndWrapper &mdash; pywinauto v0.3.9 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.3.9 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-controls-hwndwrapper">
+<h1>pywinauto.controls.HwndWrapper<a class="headerlink" href="#pywinauto-controls-hwndwrapper" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.controls.HwndWrapper"></span><p>Basic wrapping of Windows controls</p>
+<dl class="exception">
+<dt id="pywinauto.controls.HwndWrapper.ControlNotEnabled">
+<em class="property">exception </em><tt class="descclassname">pywinauto.controls.HwndWrapper.</tt><tt class="descname">ControlNotEnabled</tt><a class="headerlink" href="#pywinauto.controls.HwndWrapper.ControlNotEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when a control is not enabled</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pywinauto.controls.HwndWrapper.ControlNotVisible">
+<em class="property">exception </em><tt class="descclassname">pywinauto.controls.HwndWrapper.</tt><tt class="descname">ControlNotVisible</tt><a class="headerlink" href="#pywinauto.controls.HwndWrapper.ControlNotVisible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when a control is nto visible</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.controls.HwndWrapper.GetDialogPropsFromHandle">
+<tt class="descclassname">pywinauto.controls.HwndWrapper.</tt><tt class="descname">GetDialogPropsFromHandle</tt><big>(</big><em>hwnd</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.GetDialogPropsFromHandle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the properties of all the controls as a list of dictionaries</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper">
+<em class="property">class </em><tt class="descclassname">pywinauto.controls.HwndWrapper.</tt><tt class="descname">HwndWrapper</tt><big>(</big><em>hwnd</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default wrapper for controls.</p>
+<p>All other wrappers are derived from this.</p>
+<p>This class wraps a lot of functionality of underlying windows API
+features for working with windows.</p>
+<p>Most of the methods apply to every single window type. For example
+you can Click() on any window.</p>
+<p>Most of the methods of this class are simple wrappers around
+API calls and as such they try do the simplest thing possible.</p>
+<p>A HwndWrapper object can be passed directly to a ctypes wrapped
+C function - and it will get converted to a Long with the value of
+it&#8217;s handle (see ctypes, _as_parameter_)</p>
+<p>Initialize the control</p>
+<ul class="simple">
+<li><strong>hwnd</strong> is either a valid window handle or it can be an
+instance or subclass of HwndWrapper.</li>
+</ul>
+<p>If the handle is not valid then an InvalidWindowHandle error
+is raised.</p>
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.CaptureAsImage">
+<tt class="descname">CaptureAsImage</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.CaptureAsImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a PIL image of the control</p>
+<p>See PIL documentation to know what you can do with the resulting
+image</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Children">
+<tt class="descname">Children</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Children" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the children of this control as a list</p>
+<p>It returns a list of HwndWrapper (or subclass) instances, it
+returns an empty list if there are no children.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Class">
+<tt class="descname">Class</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the class name of the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Click">
+<tt class="descname">Click</tt><big>(</big><em>button='left'</em>, <em>pressed=''</em>, <em>coords=(0</em>, <em>0)</em>, <em>double=False</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Click" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a mouse click on the control</p>
+<p>This method sends WM_* messages to the control, to do a more
+&#8216;realistic&#8217; mouse click use ClickInput() which uses SendInput() API
+to perform the click.</p>
+<p>This method does not require that the control be visible on the screen
+(i.e. is can be hidden beneath another window and it will still work.)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ClickInput">
+<tt class="descname">ClickInput</tt><big>(</big><em>button='left'</em>, <em>coords=(None</em>, <em>None)</em>, <em>double=False</em>, <em>wheel_dist=0</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ClickInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Click at the specified coordinates</p>
+<ul class="simple">
+<li><strong>button</strong> The mouse button to click. One of &#8216;left&#8217;, &#8216;right&#8217;,
+&#8216;middle&#8217; or &#8216;x&#8217; (Default: &#8216;left&#8217;)</li>
+<li><strong>coords</strong> The coordinates to click at.(Default: center of control)</li>
+<li><strong>double</strong> Whether to perform a double click or not (Default: False)</li>
+<li><strong>wheel_dist</strong> The distance to move the mouse week (default: 0)</li>
+</ul>
+<dl class="docutils">
+<dt>NOTES: </dt>
+<dd><p class="first">This is different from Click in that it requires the control to
+be visible on the screen but performs a more realistic &#8216;click&#8217;
+simulation.</p>
+<p class="last">This method is also vulnerable if the mouse if moved by the user
+as that could easily move the mouse off the control before the
+Click has finished.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ClientRect">
+<tt class="descname">ClientRect</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ClientRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the client rectangle of window</p>
+<p>The client rectangle is the window rectangle minus any borders that
+are not available to the control for drawing.</p>
+<p>Both top and left are always 0 for this method.</p>
+<p>This method returns a RECT structure, Which has attributes - top,
+left, right, bottom. and has methods width() and height().
+See win32structures.RECT for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ClientRects">
+<tt class="descname">ClientRects</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ClientRects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the client rect for each item in this control</p>
+<p>It is a list of rectangles for the control. It is frequently over-ridden
+to extract all rectangles from a control with multiple items.</p>
+<p>It is always a list with one or more rectangles:</p>
+<blockquote>
+<ul class="simple">
+<li>First elemtent is the client rectangle of the control</li>
+<li>Subsequent elements contain the client rectangle of any items of
+the control (e.g. items in a listbox/combobox, tabs in a
+tabcontrol)</li>
+</ul>
+</blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Close">
+<tt class="descname">Close</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the window</p>
+<p>Code modified from <a class="reference external" href="http://msdn.microsoft.com/msdnmag/issues/02/08/CQA/">http://msdn.microsoft.com/msdnmag/issues/02/08/CQA/</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.CloseClick">
+<tt class="descname">CloseClick</tt><big>(</big><em>button='left'</em>, <em>pressed=''</em>, <em>coords=(0</em>, <em>0)</em>, <em>double=False</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.CloseClick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Peform a click action that should make the window go away</p>
+<p>The only difference from Click is that there are extra delays
+before and after the click action.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ContextHelpID">
+<tt class="descname">ContextHelpID</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ContextHelpID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Context Help ID of the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ControlCount">
+<tt class="descname">ControlCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ControlCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of children of this control</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ControlID">
+<tt class="descname">ControlID</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ControlID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ID of the window</p>
+<p>Only controls have a valid ID - dialogs usually have no ID assigned.</p>
+<p>The ID usually identified the control in the window - but there can
+be duplicate ID&#8217;s for example lables in a dialog may have duplicate
+ID&#8217;s.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.DebugMessage">
+<tt class="descname">DebugMessage</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.DebugMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write some debug text over the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.DoubleClick">
+<tt class="descname">DoubleClick</tt><big>(</big><em>button='left'</em>, <em>pressed=''</em>, <em>coords=(0</em>, <em>0)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.DoubleClick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a double click action</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.DoubleClickInput">
+<tt class="descname">DoubleClickInput</tt><big>(</big><em>button='left'</em>, <em>coords=(None</em>, <em>None)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.DoubleClickInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Double click at the specified coordinates</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.DragMouse">
+<tt class="descname">DragMouse</tt><big>(</big><em>button='left'</em>, <em>pressed=''</em>, <em>press_coords=(0</em>, <em>0)</em>, <em>release_coords=(0</em>, <em>0)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.DragMouse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drag the mouse</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.DrawOutline">
+<tt class="descname">DrawOutline</tt><big>(</big><em>colour='green'</em>, <em>thickness=2</em>, <em>fill=1</em>, <em>rect=None</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.DrawOutline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw an outline around the window</p>
+<ul class="simple">
+<li><strong>colour</strong> can be either an integer or one of &#8216;red&#8217;, &#8216;green&#8217;, &#8216;blue&#8217;
+(default &#8216;green&#8217;)</li>
+<li><strong>thickness</strong> thickness of rectangle (default 2)</li>
+<li><strong>fill</strong> how to fill in the rectangle (default BS_NULL)</li>
+<li><strong>rect</strong> the coordinates of the rectangle to draw (defaults to
+the rectangle of the control.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ExStyle">
+<tt class="descname">ExStyle</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ExStyle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Extended style of window</p>
+<p>Return value is a long.</p>
+<p>Combination of WS_* and specific control specific styles.
+See HwndWrapper.HasStyle() to easily check if the window has a
+particular style.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Font">
+<tt class="descname">Font</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Font" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the font of the window</p>
+<p>The font of the window is used to draw the text of that window.
+It is a structure which has attributes for Font name, height, width
+etc.</p>
+<p>See win32structures.LOGFONTW for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Fonts">
+<tt class="descname">Fonts</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Fonts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the font for each item in this control</p>
+<p>It is a list of fonts for the control. It is frequently over-ridden
+to extract all fonts from a control with multiple items.</p>
+<p>It is always a list with one or more fonts:</p>
+<blockquote>
+<ul class="simple">
+<li>First elemtent is the control font</li>
+<li>Subsequent elements contain the font of any items of
+the control (e.g. items in a listbox/combobox, tabs in a
+tabcontrol)</li>
+</ul>
+</blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.FriendlyClassName">
+<tt class="descname">FriendlyClassName</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.FriendlyClassName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the friendly class name for the control</p>
+<p>This differs from the class of the control in some cases.
+Class() is the actual &#8216;Registered&#8217; window class of the control
+while FriendlyClassName() is hopefully something that will make
+more sense to the user.</p>
+<p>For example Checkboxes are implemented as Buttons - so the class
+of a CheckBox is &#8220;Button&#8221; - but the friendly class is &#8220;CheckBox&#8221;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.GetFocus">
+<tt class="descname">GetFocus</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.GetFocus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the control in the process of this window that has the Focus</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.GetProperties">
+<tt class="descname">GetProperties</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.GetProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the properties of the control as a dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.GetShowState">
+<tt class="descname">GetShowState</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.GetShowState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the show state and Maximized/minimzed/restored state</p>
+<p>Returns a value that is a union of the following</p>
+<ul class="simple">
+<li>SW_HIDE the window is hidden.</li>
+<li>SW_MAXIMIZE the window is maximized</li>
+<li>SW_MINIMIZE the window is minimized</li>
+<li>SW_RESTORE the window is in the &#8216;restored&#8217;
+state (neither minimized or maximized)</li>
+<li>SW_SHOW The window is not hidden</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.HasExStyle">
+<tt class="descname">HasExStyle</tt><big>(</big><em>exstyle</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.HasExStyle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the control has the specified extended sytle</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.HasStyle">
+<tt class="descname">HasStyle</tt><big>(</big><em>style</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.HasStyle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the control has the specified sytle</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.IsChild">
+<tt class="descname">IsChild</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.IsChild" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if this window is a child of &#8216;parent&#8217;.</p>
+<p>A window is a child of another window when it is a direct of the
+other window. A window is a direct descendant of a given
+window if the parent window is the the chain of parent windows
+for the child window.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.IsDialog">
+<tt class="descname">IsDialog</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.IsDialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return true if the control is a top level window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.IsEnabled">
+<tt class="descname">IsEnabled</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.IsEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the window is enabled or not</p>
+<p>Checks that both the Top Level Parent (probably dialog) that
+owns this window and the window itself are both enabled.</p>
+<p>If you want to wait for a control to become enabled (or wait
+for it to become disabled) use <tt class="docutils literal"><span class="pre">Application.Wait('visible')</span></tt> or
+<tt class="docutils literal"><span class="pre">Application.WaitNot('visible')</span></tt>.</p>
+<p>If you want to raise an exception immediately if a window is
+not enabled then you can use the HwndWrapper.VerifyEnabled().
+HwndWrapper.VerifyReady() raises if the window is not both
+visible and enabled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.IsUnicode">
+<tt class="descname">IsUnicode</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.IsUnicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the window is unicode or not</p>
+<p>A window is Unicode if it was registered by the Wide char version
+of RegisterClass(Ex).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.IsVisible">
+<tt class="descname">IsVisible</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.IsVisible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the window is visible or not</p>
+<p>Checks that both the Top Level Parent (probably dialog) that
+owns this window and the window itself are both visible.</p>
+<p>If you want to wait for a control to become visible (or wait
+for it to become hidden) use <tt class="docutils literal"><span class="pre">Application.Wait('visible')</span></tt> or
+<tt class="docutils literal"><span class="pre">Application.WaitNot('visible')</span></tt>.</p>
+<p>If you want to raise an exception immediately if a window is
+not visible then you can use the HwndWrapper.VerifyVisible().
+HwndWrapper.VerifyActionable() raises if the window is not both
+visible and enabled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Maximize">
+<tt class="descname">Maximize</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Maximize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximize the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Menu">
+<tt class="descname">Menu</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Menu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the menu of the control</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.MenuItem">
+<tt class="descname">MenuItem</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.MenuItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the menu item specifed by path</p>
+<p>Path can be a string in the form &#8220;MenuItem-&gt;MenuItem-&gt;MenuItem...&#8221;
+where each MenuItem is the text of an item at that level of the menu.
+E.g.</p>
+<div class="highlight-python"><pre>File-&gt;Export-&gt;ExportAsPNG</pre>
+</div>
+<p>spaces are not important so you could also have written...</p>
+<div class="highlight-python"><pre>File -&gt; Export -&gt; Export As PNG</pre>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.MenuItems">
+<tt class="descname">MenuItems</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.MenuItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the menu items for the dialog</p>
+<p>If there are no menu items then return an empty list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.MenuSelect">
+<tt class="descname">MenuSelect</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.MenuSelect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select the menuitem specifed in path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Minimize">
+<tt class="descname">Minimize</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Minimize the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.MoveMouse">
+<tt class="descname">MoveMouse</tt><big>(</big><em>pressed='left'</em>, <em>coords=(0</em>, <em>0)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.MoveMouse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the mouse</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.MoveWindow">
+<tt class="descname">MoveWindow</tt><big>(</big><em>x=None</em>, <em>y=None</em>, <em>width=None</em>, <em>height=None</em>, <em>repaint=True</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.MoveWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the window to the new coordinates</p>
+<ul class="simple">
+<li><strong>x</strong> Specifies the new left position of the window.
+Defaults to the current left position of the window.</li>
+<li><strong>y</strong> Specifies the new top position of the window.
+Defaults to the current top position of the window.</li>
+<li><strong>width</strong> Specifies the new width of the window. Defaults to the
+current width of the window.</li>
+<li><strong>height</strong> Specifies the new height of the window. Default to the
+current height of the window.</li>
+<li><strong>repaint</strong> Whether the window should be repainted or not.
+Defaults to True</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.NotifyParent">
+<tt class="descname">NotifyParent</tt><big>(</big><em>message</em>, <em>controlID=None</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.NotifyParent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send the notification message to parent of this control</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Owner">
+<tt class="descname">Owner</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Owner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the owner window for the window if it exists</p>
+<p>Returns None if there is no owner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Parent">
+<tt class="descname">Parent</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parent of this control</p>
+<p>Note that the parent of a control is not necesarily a dialog or
+other main window. A group box may be the parent of some radio
+buttons for example.</p>
+<p>To get the main (or top level) window then use
+HwndWrapper.TopLevelParent().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.PopupWindow">
+<tt class="descname">PopupWindow</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.PopupWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return any owned Popups</p>
+<p>Please do not use in production code yet - not tested fully</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.PostMessage">
+<tt class="descname">PostMessage</tt><big>(</big><em>message</em>, <em>wparam=0</em>, <em>lparam=0</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.PostMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post a message to the control message queue and return</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.PressMouse">
+<tt class="descname">PressMouse</tt><big>(</big><em>button='left'</em>, <em>pressed=''</em>, <em>coords=(0</em>, <em>0)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.PressMouse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Press the mouse button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.PressMouseInput">
+<tt class="descname">PressMouseInput</tt><big>(</big><em>button='left'</em>, <em>coords=(None</em>, <em>None)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.PressMouseInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Press a mouse button using SendInput</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ProcessID">
+<tt class="descname">ProcessID</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ProcessID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ID of process that owns this window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Rectangle">
+<tt class="descname">Rectangle</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the rectangle of window</p>
+<p>The rectangle is the rectangle of the control on the screen,
+coordinates are given from the top left of the screen.</p>
+<p>This method returns a RECT structure, Which has attributes - top,
+left, right, bottom. and has methods width() and height().
+See win32structures.RECT for more information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ReleaseMouse">
+<tt class="descname">ReleaseMouse</tt><big>(</big><em>button='left'</em>, <em>pressed=''</em>, <em>coords=(0</em>, <em>0)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ReleaseMouse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the mouse button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.ReleaseMouseInput">
+<tt class="descname">ReleaseMouseInput</tt><big>(</big><em>button='left'</em>, <em>coords=(None</em>, <em>None)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.ReleaseMouseInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the mouse button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Restore">
+<tt class="descname">Restore</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Restore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.RightClick">
+<tt class="descname">RightClick</tt><big>(</big><em>pressed=''</em>, <em>coords=(0</em>, <em>0)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.RightClick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a right click action</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.RightClickInput">
+<tt class="descname">RightClickInput</tt><big>(</big><em>coords=(None</em>, <em>None)</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.RightClickInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Right click at the specified coords</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Scroll">
+<tt class="descname">Scroll</tt><big>(</big><em>direction</em>, <em>amount</em>, <em>count=1</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Scroll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask the control to scroll itself</p>
+<p>direction can be any of &#8220;up&#8221;, &#8220;down&#8221;, &#8220;left&#8221;, &#8220;right&#8221;
+amount can be one of &#8220;line&#8221;, &#8220;page&#8221;, &#8220;end&#8221;
+count (optional) the number of times to scroll</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.SendMessage">
+<tt class="descname">SendMessage</tt><big>(</big><em>message</em>, <em>wparam=0</em>, <em>lparam=0</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.SendMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a message to the control and wait for it to return</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.SendMessageTimeout">
+<tt class="descname">SendMessageTimeout</tt><big>(</big><em>message</em>, <em>wparam=0</em>, <em>lparam=0</em>, <em>timeout=None</em>, <em>timeoutflags=0</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.SendMessageTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a message to the control and wait for it to return or to timeout</p>
+<p>If no timeout is given then a default timeout of .4 of a second will
+be used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.SetApplicationData">
+<tt class="descname">SetApplicationData</tt><big>(</big><em>appdata</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.SetApplicationData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application data is data from a previous run of the software</p>
+<p>It is essential for running scripts written for one spoke language
+on a different spoken langauge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.SetFocus">
+<tt class="descname">SetFocus</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.SetFocus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the focus to this control</p>
+<p>Bring the window to the foreground first if necessary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.SetWindowText">
+<tt class="descname">SetWindowText</tt><big>(</big><em>text</em>, <em>append=False</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.SetWindowText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the text of the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Style">
+<tt class="descname">Style</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Style" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the style of window</p>
+<p>Return value is a long.</p>
+<p>Combination of WS_* and specific control specific styles.
+See HwndWrapper.HasStyle() to easily check if the window has a
+particular style.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.Texts">
+<tt class="descname">Texts</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.Texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the text for each item of this control&#8221;</p>
+<p>It is a list of strings for the control. It is frequently over-ridden
+to extract all strings from a control with multiple items.</p>
+<p>It is always a list with one or more strings:</p>
+<blockquote>
+<ul class="simple">
+<li>First elemtent is the window text of the control</li>
+<li>Subsequent elements contain the text of any items of the
+control (e.g. items in a listbox/combobox, tabs in a tabcontrol)</li>
+</ul>
+</blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.TopLevelParent">
+<tt class="descname">TopLevelParent</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.TopLevelParent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the top level window of this control</p>
+<p>The TopLevel parent is different from the parent in that the Parent
+is the window that owns this window - but it may not be a dialog/main
+window. For example most Comboboxes have an Edit. The ComboBox is the
+parent of the Edit control.</p>
+<p>This will always return a valid window handle (if the control has
+no top level parent then the control itself is returned - as it is
+a top level window already!)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.TypeKeys">
+<tt class="descname">TypeKeys</tt><big>(</big><em>keys</em>, <em>pause=None</em>, <em>with_spaces=False</em>, <em>with_tabs=False</em>, <em>with_newlines=False</em>, <em>turn_off_numlock=True</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.TypeKeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type keys to the window using SendKeys</p>
+<p>This uses the SendKeys python module from
+<a class="reference external" href="http://www.rutherfurd.net/python/sendkeys/">http://www.rutherfurd.net/python/sendkeys/</a> .This is the best place
+to find documentation on what to use for the <tt class="docutils literal"><span class="pre">keys</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.UserData">
+<tt class="descname">UserData</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.UserData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extra data associted with the window</p>
+<p>This value is a long value that has been associated with the window
+and rarely has useful data (or at least data that you know the use
+of).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.VerifyActionable">
+<tt class="descname">VerifyActionable</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.VerifyActionable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify that the control is both visible and enabled</p>
+<p>Raise either ControlNotEnalbed or ControlNotVisible if not
+enabled or visible respectively.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.VerifyEnabled">
+<tt class="descname">VerifyEnabled</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.VerifyEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify that the control is enabled</p>
+<p>Check first if the control&#8217;s parent is enabled (skip if no parent),
+then check if control itself is enabled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.VerifyVisible">
+<tt class="descname">VerifyVisible</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.VerifyVisible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify that the control is visible</p>
+<p>Check first if the control&#8217;s parent is visible. (skip if no parent),
+then check if control itself is visible.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.HwndWrapper.HwndWrapper.WindowText">
+<tt class="descname">WindowText</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.HwndWrapper.WindowText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Window text of the control</p>
+<p>Quite  a few contorls have other text that is visible, for example
+Edit controls usually have an empty string for WindowText but still
+have text displayed in the edit window.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pywinauto.controls.HwndWrapper.InvalidWindowHandle">
+<em class="property">exception </em><tt class="descclassname">pywinauto.controls.HwndWrapper.</tt><tt class="descname">InvalidWindowHandle</tt><big>(</big><em>hwnd</em><big>)</big><a class="headerlink" href="#pywinauto.controls.HwndWrapper.InvalidWindowHandle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an invalid handle is passed to HwndWrapper</p>
+<p>Initialise the RuntimError parent with the mesage</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/HwndWrapper.py.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

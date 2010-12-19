@@ -1,0 +1,176 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.findwindows &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="next" title="pywinauto.timings" href="pywinauto.timings.html" />
+    <link rel="prev" title="pywinauto.findbestmatch" href="pywinauto.findbestmatch.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.timings.html" title="pywinauto.timings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.findbestmatch.html" title="pywinauto.findbestmatch"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-findwindows">
+<h1>pywinauto.findwindows<a class="headerlink" href="#pywinauto-findwindows" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.findwindows"></span><p>Provides functions for iterating and finding windows</p>
+<dl class="exception">
+<dt id="pywinauto.findwindows.WindowAmbiguousError">
+<em class="property">exception </em><tt class="descclassname">pywinauto.findwindows.</tt><tt class="descname">WindowAmbiguousError</tt><a class="headerlink" href="#pywinauto.findwindows.WindowAmbiguousError" title="Permalink to this definition">¶</a></dt>
+<dd><p>There was more then one window that matched</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pywinauto.findwindows.WindowNotFoundError">
+<em class="property">exception </em><tt class="descclassname">pywinauto.findwindows.</tt><tt class="descname">WindowNotFoundError</tt><a class="headerlink" href="#pywinauto.findwindows.WindowNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>No window could be found</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.findwindows.enum_child_windows">
+<tt class="descclassname">pywinauto.findwindows.</tt><tt class="descname">enum_child_windows</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.findwindows.enum_child_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of handles of the child windows of this handle</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.findwindows.enum_windows">
+<tt class="descclassname">pywinauto.findwindows.</tt><tt class="descname">enum_windows</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.findwindows.enum_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of handles of all the top level windows</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.findwindows.find_window">
+<tt class="descclassname">pywinauto.findwindows.</tt><tt class="descname">find_window</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.findwindows.find_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call findwindows and ensure that only one window is returned</p>
+<p>Calls find_windows with exactly the same arguments as it is called with
+so please see find_windows for a description of them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.findwindows.find_windows">
+<tt class="descclassname">pywinauto.findwindows.</tt><tt class="descname">find_windows</tt><big>(</big><em>class_name=None</em>, <em>class_name_re=None</em>, <em>parent=None</em>, <em>process=None</em>, <em>title=None</em>, <em>title_re=None</em>, <em>top_level_only=True</em>, <em>visible_only=True</em>, <em>enabled_only=False</em>, <em>best_match=None</em>, <em>handle=None</em>, <em>ctrl_index=None</em>, <em>predicate_func=None</em>, <em>active_only=False</em>, <em>control_id=None</em><big>)</big><a class="headerlink" href="#pywinauto.findwindows.find_windows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find windows based on criteria passed in</p>
+<p>Possible values are:</p>
+<ul class="simple">
+<li><strong>class_name</strong>  Windows with this window class</li>
+<li><strong>class_name_re</strong>  Windows whose class match this regular expression</li>
+<li><strong>parent</strong>    Windows that are children of this</li>
+<li><strong>process</strong>   Windows running in this process</li>
+<li><strong>title</strong>     Windows with this Text</li>
+<li><strong>title_re</strong>  Windows whose Text match this regular expression</li>
+<li><strong>top_level_only</strong> Top level windows only (default=True)</li>
+<li><strong>visible_only</strong>   Visible windows only (default=True)</li>
+<li><strong>enabled_only</strong>   Enabled windows only (default=True)</li>
+<li><strong>best_match</strong>  Windows with a title similar to this</li>
+<li><strong>handle</strong>      The handle of the window to return</li>
+<li><strong>ctrl_index</strong>  The index of the child window to return</li>
+<li><strong>active_only</strong>  Active windows only (default=False)</li>
+<li><strong>control_id</strong>  Windows with this control id</li>
+</ul>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.findbestmatch.html"
+                        title="previous chapter">pywinauto.findbestmatch</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pywinauto.timings.html"
+                        title="next chapter">pywinauto.timings</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.findwindows.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.timings.html" title="pywinauto.timings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.findbestmatch.html" title="pywinauto.findbestmatch"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

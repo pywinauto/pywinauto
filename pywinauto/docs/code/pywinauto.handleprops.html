@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.handleprops &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="next" title="pywinauto.XMLHelpers" href="pywinauto.XMLHelpers.html" />
+    <link rel="prev" title="pywinauto.controlproperties" href="pywinauto.controlproperties.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.controlproperties.html" title="pywinauto.controlproperties"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-handleprops">
+<h1>pywinauto.handleprops<a class="headerlink" href="#pywinauto-handleprops" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.handleprops"></span><p>Functions to retrieve properties from a window handle</p>
+<p>These are implemented in a procedural way so as to to be
+useful to other modules with the least conceptual overhead</p>
+<dl class="function">
+<dt id="pywinauto.handleprops.children">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">children</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.children" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of handles to the children of this window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.classname">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">classname</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.classname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the class name of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.clientrect">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">clientrect</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.clientrect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the client rectangle of the control</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.contexthelpid">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">contexthelpid</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.contexthelpid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the context help id of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.controlid">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">controlid</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.controlid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ID of the control</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.dumpwindow">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">dumpwindow</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.dumpwindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a window to a set of properties</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.exstyle">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">exstyle</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.exstyle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the extended style of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.font">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">font</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.font" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the font as a LOGFONTW of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.has_exstyle">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">has_exstyle</tt><big>(</big><em>handle</em>, <em>tocheck</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.has_exstyle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the control has extended style tocheck</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.has_style">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">has_style</tt><big>(</big><em>handle</em>, <em>tocheck</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.has_style" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the control has style tocheck</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.is_toplevel_window">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">is_toplevel_window</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.is_toplevel_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the window is a top level window or not</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.isenabled">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">isenabled</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.isenabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the window is enabled</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.isunicode">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">isunicode</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.isunicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Teturn True if the window is a unicode window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.isvisible">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">isvisible</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.isvisible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the window is visible</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.iswindow">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">iswindow</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.iswindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the handle is a window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.parent">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">parent</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the handle of the parent of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.processid">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">processid</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.processid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrun the ID of process that controls this window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.rectangle">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">rectangle</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the rectangle of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.style">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">style</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.style" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the style of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.text">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">text</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the text of the window</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.handleprops.userdata">
+<tt class="descclassname">pywinauto.handleprops.</tt><tt class="descname">userdata</tt><big>(</big><em>handle</em><big>)</big><a class="headerlink" href="#pywinauto.handleprops.userdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value of any userdata associated with the window</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.controlproperties.html"
+                        title="previous chapter">pywinauto.controlproperties</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pywinauto.XMLHelpers.html"
+                        title="next chapter">pywinauto.XMLHelpers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.handleprops.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.controlproperties.html" title="pywinauto.controlproperties"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

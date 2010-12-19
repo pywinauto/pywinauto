@@ -1,0 +1,153 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.fuzzydict &mdash; pywinauto v0.4.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="up" title="Main user modules" href="code.html" />
+    <link rel="prev" title="pywinauto.XMLHelpers" href="pywinauto.XMLHelpers.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-fuzzydict">
+<h1>pywinauto.fuzzydict<a class="headerlink" href="#pywinauto-fuzzydict" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.fuzzydict"></span><p>Match items in a dictionary using fuzzy matching</p>
+<p>Implemented for pywinauto.</p>
+<p>This class uses difflib to match strings.
+This class uses a linear search to find the items as it HAS to iterate over
+every item in the dictionary (otherwise it would not be possible to know which
+is the &#8216;best&#8217; match).</p>
+<p>If the exact item is in the dictionary (no fuzzy matching needed - then it
+doesn&#8217;t do the linear search and speed should be similar to standard Python
+dictionaries.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span> <span class="o">=</span> <span class="n">FuzzyDict</span><span class="p">({</span><span class="s">&quot;hello&quot;</span> <span class="p">:</span> <span class="s">&quot;World&quot;</span><span class="p">,</span> <span class="s">&quot;Hiya&quot;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;Here you are&quot;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;Me again&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;Hi&#39;</span><span class="p">]</span>
+<span class="go">2</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># next one doesn&#39;t match well enough - so a key error is raised</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;There&#39;</span><span class="p">]</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n-Identifier">?</span>
+  File <span class="nb">&quot;pywinautouzzydict.py&quot;</span>, line <span class="m">125</span>, in <span class="n-Identifier">__getitem__</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+<span class="nc">KeyError: &quot;&#39;There&#39;. closest match</span>: <span class="n-Identifier">&#39;hello&#39; with ratio 0.400&quot;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;you are&#39;</span><span class="p">]</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;again&#39;</span><span class="p">]</span>
+<span class="go">[1, 2, 3]</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="pywinauto.fuzzydict.FuzzyDict">
+<em class="property">class </em><tt class="descclassname">pywinauto.fuzzydict.</tt><tt class="descname">FuzzyDict</tt><big>(</big><em>items=None</em>, <em>cutoff=0.59999999999999998</em><big>)</big><a class="headerlink" href="#pywinauto.fuzzydict.FuzzyDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a dictionary that performs fuzzy lookup</p>
+<p>Construct a new FuzzyDict instance</p>
+<p>items is an dictionary to copy items from (optional)
+cutoff is the match ratio below which mathes should not be considered
+cutoff needs to be a float between 0 and 1 (where zero is no match
+and 1 is a perfect match)</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pywinauto.XMLHelpers.html"
+                        title="previous chapter">pywinauto.XMLHelpers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/pywinauto.fuzzydict.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
+             >previous</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>
