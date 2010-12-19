@@ -16,10 +16,16 @@ Contents
    controls_overview
    credits
 
-   code/code
    dev_notes
    TODO
    HISTORY
+
+Source code reference
+=====================================
+.. toctree::
+   :maxdepth: 2
+   
+   code/code
 
 
 Indices and tables
