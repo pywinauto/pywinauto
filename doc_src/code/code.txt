@@ -1,32 +1,65 @@
-Source Code
+
+Main user modules
 ==============================
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
+   
+   pywinauto.application.txt
+   pywinauto.findbestmatch.txt
+   pywinauto.findwindows.txt
+   pywinauto.timings.txt
 
-   allcontrols.py.txt
-   application.py.txt
-   asianhotkey.py.txt
-   changedtext.py.txt
-   clipboard.py.txt
-   comboboxdroppedheight.py.txt
-   common_controls.py.txt
-   comparetoreffont.py.txt
-   findbestmatch.py.txt
-   findwindows.py.txt
-   fuzzydict.py.txt
-   handleprops.py.txt
-   HwndWrapper.py.txt
-   leadtrailspaces.py.txt
-   menuwrapper.py.txt
-   miscvalues.py.txt
-   missalignmen2t.py.txt
-   missalignment.py.txt
-   missingextrastring.py.txt
-   overlapping.py.txt
-   repeatedhotkey.py.txt
-   taskbar.py.txt
-   timings.py.txt
-   translation.py.txt
-   truncation.py.txt
-   win32_controls.py.txt
-   XMLHelpers.py.txt
+Specific functionality
+==============================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.clipboard.txt
+   pywinauto.taskbar.txt
+
+
+Controls Reference
+==============================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.controls.common_controls.txt
+   pywinauto.controls.HwndWrapper.txt
+   pywinauto.controls.menuwrapper.txt
+   pywinauto.controls.win32_controls.txt
+
+Sendkeys
+==============================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.SendKeysCtypes.txt
+
+Pre-supplied tests
+==============================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.tests.allcontrols.txt
+   pywinauto.tests.asianhotkey.txt
+   pywinauto.tests.comboboxdroppedheight.txt
+   pywinauto.tests.comparetoreffont.txt
+   pywinauto.tests.leadtrailspaces.txt
+   pywinauto.tests.miscvalues.txt
+   pywinauto.tests.missalignment.txt
+   pywinauto.tests.missingextrastring.txt
+   pywinauto.tests.overlapping.txt
+   pywinauto.tests.repeatedhotkey.txt
+   pywinauto.tests.translation.txt
+   pywinauto.tests.truncation.txt
+
+Internal modules
+==============================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.controlproperties.txt
+   pywinauto.handleprops.txt
+   pywinauto.XMLHelpers.txt
+   pywinauto.fuzzydict.txt
+

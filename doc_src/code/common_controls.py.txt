@@ -1,6 +1,0 @@
-pywinauto.controls.common_controls
-----------------------------------
- .. automodule:: pywinauto.controls.common_controls
-    :members:
-    :undoc-members:
-

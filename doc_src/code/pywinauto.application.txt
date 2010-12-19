@@ -1,6 +1,5 @@
 pywinauto.application
 ---------------------
-
  .. automodule:: pywinauto.application
     :members: Application
     :undoc-members:

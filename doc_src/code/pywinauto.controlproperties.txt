@@ -1,0 +1,6 @@
+pywinauto.controlproperties
+---------------------------
+ .. automodule:: pywinauto.controlproperties
+    :members:
+    :undoc-members:
+

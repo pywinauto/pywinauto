@@ -1,6 +1,0 @@
-pywinauto.tests.changedtext
----------------------------
- .. automodule:: pywinauto.tests.changedtext
-    :members:
-    :undoc-members:
-
