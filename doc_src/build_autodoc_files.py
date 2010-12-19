@@ -17,7 +17,7 @@ excluded_files = [
     "win32structures.py", 
     "win32functions.py"]
 
-output_folder = "code"
+output_folder = os.path.join(docs_folder, "code")
 
 try:
     os.mkdir(output_folder)
