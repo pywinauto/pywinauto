@@ -1,11 +1,11 @@
 "Build up the sphinx autodoc file for the python code"
 
 import os
+import sys
 
 pywin_folder = os.path.split(__file__)[0]
 pywin_folder = os.path.split(pywin_folder)[0]
 
-import sys
 sys.path.append(pywin_folder)
 pywin_folder = os.path.join(pywin_folder, "pywinauto")
 
