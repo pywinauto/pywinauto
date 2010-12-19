@@ -3,8 +3,8 @@
 import os
 import sys
 
-pywin_folder = os.path.split(__file__)[0]
-pywin_folder = os.path.split(pywin_folder)[0]
+docs_folder = os.path.dirname(__file__)
+pywin_folder = os.path.dirname(docs_folder)
 
 sys.path.append(pywin_folder)
 pywin_folder = os.path.join(pywin_folder, "pywinauto")
