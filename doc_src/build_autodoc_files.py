@@ -34,26 +34,27 @@ for root, dirs, files in os.walk(pywin_folder):
 
     py_files = [f for f in files if f.endswith(".py")]
 
-    for filename in py_files:
+    for py_filename in py_files:
         # skip over py files we don't want to document
-        if filename in excluded_files:
+        if py_filename in excluded_files:
             continue
 
-        # skip files that are already generated
-        doc_source_filename = os.path.join(
-            output_folder, filename + ".txt")
-        if os.path.exists(doc_source_filename):
-            continue
-
-        print filename
-
-        filepath =  os.path.join(root, filename)
+        py_filepath =  os.path.join(root, py_filename)
 
         # find the last instance of 'pywinauto' to make a module name from
         # the path
-        modulename = 'pywinauto' + filepath.rsplit("pywinauto", 1)[1]
+        modulename = 'pywinauto' + py_filepath.rsplit("pywinauto", 1)[1]
         modulename = os.path.splitext(modulename)[0]
         modulename = modulename.replace('\\', '.')
+
+        # the final doc name is the modulename + .txt
+        doc_source_filename = os.path.join(output_folder, modulename + ".txt")
+
+        # skip files that are already generated
+        if os.path.exists(doc_source_filename):
+            continue
+
+        print py_filename
 
         out = open(doc_source_filename, "w")
 
