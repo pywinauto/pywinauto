@@ -48,13 +48,12 @@ for root, dirs, files in os.walk(pywin_folder):
         
         filepath =  os.path.join(root, filename)
                 
-        modulename = filepath.split("\\")
-        modulename = modulename[modulename.index('pywinauto'):]
-
-        # remove extension
-        modulename[-1] = modulename[-1][:-3]
+        # find the last instance of 'pywinauto'
+        modulename = 'pywinauto' + filepath.rsplit("pywinauto", 1)[1]
+        modulename = os.path.splitext(modulename)[0]
+        modulename = modulename.replace('\\', '.')
         
-        modulename = ".".join(modulename)
+
         
         out = open(doc_source_filename, "w")
         
