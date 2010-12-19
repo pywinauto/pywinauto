@@ -34,8 +34,8 @@ for root, dirs, files in os.walk(pywin_folder):
 
     py_files = [f for f in files if f.endswith(".py")]
     
-    # skip over py files we don't want to document
     for filename in py_files:
+        # skip over py files we don't want to document
         if filename in excluded_files:
             continue
         
