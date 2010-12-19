@@ -1,0 +1,5 @@
+glob:*.pyc
+glob:Copy of *
+glob:.buildinfo
+glob:.doctrees
+glob:docs/_sources
