@@ -5,62 +5,70 @@ How To's
 How to sepcify an usable Application instance
 ---------------------------------------------
 An ``Application()`` instance is the point of contact for all work
-with the app you are automating. So the Application instance needs 
-to be connected to a process. There are two ways of doing this::
+with the app you are automating. So the Application instance needs
+to be connected to a process. There are two ways of doing this:
+
+  ::
 
    start_(self, cmd_line, timeout = app_start_timeout):
 
-or ::
+or:
 
-  connect_(self, **kwargs):
-  
-  
-``start_()`` is used when the application is not running and you 
-need to start it. Use it in the following way::
-  
-  app = Application()
-  app.start_(r"c:\path\to\your\application -a -n -y --arguments")
+  ::
+
+    connect_(self, **kwargs):
+
+``start_()`` is used when the application is not running and you
+need to start it. Use it in the following way:
+
+  ::
+
+   app = Application()
+   app.start_(r"c:\path\to\your\application -a -n -y --arguments")
 
 The timeout parameter is optional, it should only be necessary to use
 it if the application takes a long time to start up.
 
-``connect_()`` is used when the application to be automated is already 
+``connect_()`` is used when the application to be automated is already
 running. To specify a an already runing application you need to specify
 one of the following:
 
-:process: the process id of the application, e.g. 
+:process: the process id of the application, e.g.
 
-::
-          
-			  app = Application()
-			  app.connect_(process = 2341)
+  ::
+
+              app = Application()
+              app.connect_(process = 2341)
 
 
-:handle: The windows handle of a window of the application, e.g. 
+:handle: The windows handle of a window of the application, e.g.
 
-::
+  ::
 
-			  app = Application()
-			  app.connect_(handle = 0x010f0c)
+              app = Application()
+              app.connect_(handle = 0x010f0c)
 
 
 :path: The path of the executable of the process (``GetModuleFileNameEx``
-       is used to find the path of each process and compared against
-       the value passed in)  e.g. 
-       
-::
+  is used to find the path of each process and compared against
+  the value passed in)  e.g.
+
+  ::
 
           app = Application()
           app.connect_(path = r"c:\windows\system32\notepad.exe")
 
+
 or any combination of the parameters that specify a window, these get
-passed to the ``findwindows.find_windows()`` function.  e.g. ::
+passed to the ``findwindows.find_windows()`` function.  e.g.
+
+  ::
 
           app = Application()
           app.connect_(title_re = ".*Notepad", class_name = "Notepad")
 
 
-**Note**: I have since added static methods Application.start() and 
+**Note**: I have since added static methods Application.start() and
 Application.connect() these can be used the same as above - except that
 you no longer need to instantiate an Application object first.
 
@@ -77,172 +85,193 @@ Once the application instance knows what application it is connected to
 a dialog to work on needs to be specified.
 
 There are many different ways of doing this. The most common will be
-using item or attribute access to select a dialog based on it's title. e.g ::
-   
+using item or attribute access to select a dialog based on it's title. e.g
+
+  ::
+
    dlg = app.Notepad
 
-or equivalently ::
+or equivalently
+
+  ::
 
    dlg = app['Notepad']
 
+The next easiest method is to ask for the ``top_window_()`` e.g.
 
-The next easiest method is to ask for the ``top_window_()`` e.g. ::
-	
-	dlg = app.top_window_()
-	
+  ::
+
+    dlg = app.top_window_()
+
 This will return the window that has the highest Z-Order of the top-level
 windows of the application.
 
 **Note**: This is currently fairly untested so I am not sure it will
 return the correct window. It will definitely be a top level window of
 the application - it just might not be the one highest in the Z-Order.
-   
+
 If this is not enough control they you can use the same parameters as
-can be passed to ``findwindows.find_windows()`` e.g. ::
+can be passed to ``findwindows.find_windows()`` e.g.
+
+  ::
 
     dlg = app.window_(title_re = "Page Setup", class_name = "#32770")
 
-Finally to have the most control you can use ::
-	
-	dialogs = app.windows_()
-	
+Finally to have the most control you can use
+
+  ::
+
+    dialogs = app.windows_()
+
 this will return a list of all the visible, enabled, top level windows
 of the application. You can then use some of the methods in ``handleprops``
 module select the dialog you want. Once you have the handle you need
-then use ::
-	
-	Application.window_(handle = win)
+then use
+
+  ::
+
+    Application.window_(handle = win)
 
 **Note**: If the title of the dialog is very long - then attribute access
-might be very long to type, in those cases it is usually easier to use::
-    
+might be very long to type, in those cases it is usually easier to use
+
+  ::
+
     app.window_(title_re = ".*Part of Title.*")
 
-	
+
 
 How to specify a control on a dialog
 ------------------------------------
 
-There are a number of ways to specify a control, the simplest are::
- 
- app.dlg.control
- app['dlg']['control']  
- 
- 
-The 2nd is better for non English OS's where you need to pass unicode 
+There are a number of ways to specify a control, the simplest are
+
+  ::
+
+   app.dlg.control
+   app['dlg']['control']
+
+
+The 2nd is better for non English OS's where you need to pass unicode
 strings e.g. app[u'your dlg title'][u'your ctrl title']
 
 The code builds up multiple identifiers for each control from the following:
-  
-  + title
-  + friendly class
-  + title + friendly class
 
-If the control's text is empty (after removing non char characters) text is 
-not used. Instead we look for the closest control above and to the right fo 
-the contol. And append the friendly class. So the list becomes 
+ - title
+ - friendly class
+ - title + friendly class
 
-  + friendly class
-  + closest text + friendly class
-  
+If the control's text is empty (after removing non char characters) text is
+not used. Instead we look for the closest control above and to the right fo
+the contol. And append the friendly class. So the list becomes
+
+ - friendly class
+ - closest text + friendly class
+
 Once a set of identifiers has been created for all controls in the dialog
-we disambiguate them. 
+we disambiguate them.
 
 use the `WindowSpecification.print_control_identifiers()` method
 
-e.g. ::
+e.g. 
+  ::
 
-  app.YourDialog.print_control_identifiers()
+   app.YourDialog.print_control_identifiers()
 
-Sample output::
+Sample output
+  ::
 
-	Button - Paper   (L1075, T394, R1411, B485)
-			'PaperGroupBox' 'Paper' 'GroupBox'
-	Static - Si&ze:   (L1087, T420, R1141, B433)
-			'SizeStatic' 'Static' 'Size'
-	ComboBox -    (L1159, T418, R1399, B439)
-			'ComboBox' 'SizeComboBox'
-	Static - &Source:   (L1087, T454, R1141, B467)
-			'Source' 'Static' 'SourceStatic'
-	ComboBox -    (L1159, T449, R1399, B470)
-			'ComboBox' 'SourceComboBox'
-	Button - Orientation   (L1075, T493, R1171, B584)
-			'GroupBox' 'Orientation' 'OrientationGroupBox'
-	Button - P&ortrait   (L1087, T514, R1165, B534)
-			'Portrait' 'RadioButton' 'PortraitRadioButton'
-	Button - L&andscape   (L1087, T548, R1165, B568)
-			'RadioButton' 'LandscapeRadioButton' 'Landscape'
-	Button - Margins (inches)   (L1183, T493, R1411, B584)
-			'Marginsinches' 'MarginsinchesGroupBox' 'GroupBox'
-	Static - &Left:   (L1195, T519, R1243, B532)
-			'LeftStatic' 'Static' 'Left'
-	Edit -    (L1243, T514, R1285, B534)
-			'Edit' 'LeftEdit'
-	Static - &Right:   (L1309, T519, R1357, B532)
-			'Right' 'Static' 'RightStatic'
-	Edit -    (L1357, T514, R1399, B534)
-			'Edit' 'RightEdit'
-	Static - &Top:   (L1195, T550, R1243, B563)
-			'Top' 'Static' 'TopStatic'
-	Edit -    (L1243, T548, R1285, B568)
-			'Edit' 'TopEdit'
-	Static - &Bottom:   (L1309, T550, R1357, B563)
-			'BottomStatic' 'Static' 'Bottom'
-	Edit -    (L1357, T548, R1399, B568)
-			'Edit' 'BottomEdit'
-	Static - &Header:   (L1075, T600, R1119, B613)
-			'Header' 'Static' 'HeaderStatic'
-	Edit -    (L1147, T599, R1408, B619)
-			'Edit' 'TopEdit'
-	Static - &Footer:   (L1075, T631, R1119, B644)
-			'FooterStatic' 'Static' 'Footer'
-	Edit -    (L1147, T630, R1408, B650)
-			'Edit' 'FooterEdit'
-	Button - OK   (L1348, T664, R1423, B687)
-			'Button' 'OK' 'OKButton'
-	Button - Cancel   (L1429, T664, R1504, B687)
-			'Cancel' 'Button' 'CancelButton'
-	Button - &Printer...   (L1510, T664, R1585, B687)
-			'Button' 'Printer' 'PrinterButton'
-	Button - Preview   (L1423, T394, R1585, B651)
-			'Preview' 'GroupBox' 'PreviewGroupBox'
-	Static -    (L1458, T456, R1549, B586)
-			'PreviewStatic' 'Static'
-	Static -    (L1549, T464, R1557, B594)
-			'PreviewStatic' 'Static'
-	Static -    (L1466, T586, R1557, B594)
-			'Static' 'BottomStatic'  
+    Button - Paper   (L1075, T394, R1411, B485)
+            'PaperGroupBox' 'Paper' 'GroupBox'
+    Static - Si&ze:   (L1087, T420, R1141, B433)
+            'SizeStatic' 'Static' 'Size'
+    ComboBox -    (L1159, T418, R1399, B439)
+            'ComboBox' 'SizeComboBox'
+    Static - &Source:   (L1087, T454, R1141, B467)
+            'Source' 'Static' 'SourceStatic'
+    ComboBox -    (L1159, T449, R1399, B470)
+            'ComboBox' 'SourceComboBox'
+    Button - Orientation   (L1075, T493, R1171, B584)
+            'GroupBox' 'Orientation' 'OrientationGroupBox'
+    Button - P&ortrait   (L1087, T514, R1165, B534)
+            'Portrait' 'RadioButton' 'PortraitRadioButton'
+    Button - L&andscape   (L1087, T548, R1165, B568)
+            'RadioButton' 'LandscapeRadioButton' 'Landscape'
+    Button - Margins (inches)   (L1183, T493, R1411, B584)
+            'Marginsinches' 'MarginsinchesGroupBox' 'GroupBox'
+    Static - &Left:   (L1195, T519, R1243, B532)
+            'LeftStatic' 'Static' 'Left'
+    Edit -    (L1243, T514, R1285, B534)
+            'Edit' 'LeftEdit'
+    Static - &Right:   (L1309, T519, R1357, B532)
+            'Right' 'Static' 'RightStatic'
+    Edit -    (L1357, T514, R1399, B534)
+            'Edit' 'RightEdit'
+    Static - &Top:   (L1195, T550, R1243, B563)
+            'Top' 'Static' 'TopStatic'
+    Edit -    (L1243, T548, R1285, B568)
+            'Edit' 'TopEdit'
+    Static - &Bottom:   (L1309, T550, R1357, B563)
+            'BottomStatic' 'Static' 'Bottom'
+    Edit -    (L1357, T548, R1399, B568)
+            'Edit' 'BottomEdit'
+    Static - &Header:   (L1075, T600, R1119, B613)
+            'Header' 'Static' 'HeaderStatic'
+    Edit -    (L1147, T599, R1408, B619)
+            'Edit' 'TopEdit'
+    Static - &Footer:   (L1075, T631, R1119, B644)
+            'FooterStatic' 'Static' 'Footer'
+    Edit -    (L1147, T630, R1408, B650)
+            'Edit' 'FooterEdit'
+    Button - OK   (L1348, T664, R1423, B687)
+            'Button' 'OK' 'OKButton'
+    Button - Cancel   (L1429, T664, R1504, B687)
+            'Cancel' 'Button' 'CancelButton'
+    Button - &Printer...   (L1510, T664, R1585, B687)
+            'Button' 'Printer' 'PrinterButton'
+    Button - Preview   (L1423, T394, R1585, B651)
+            'Preview' 'GroupBox' 'PreviewGroupBox'
+    Static -    (L1458, T456, R1549, B586)
+            'PreviewStatic' 'Static'
+    Static -    (L1549, T464, R1557, B594)
+            'PreviewStatic' 'Static'
+    Static -    (L1466, T586, R1557, B594)
+            'Static' 'BottomStatic'
 
 This exmple has been taken from test_application.py
-  
+
 **Note** The identifiers printed by this method have been run through
 the process that makes the identifier unique. So if you have 2 edit boxes,
-they will both have "Edit" listed in their identifiers. In reality though 
-the first one can be refered to as "Edit", "Edit0", "Edit1" and the 2nd 
+they will both have "Edit" listed in their identifiers. In reality though
+the first one can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
 should be refered to as "Edit2"
 
-**Note** You do not have to be exact!. Say we take an instance from the 
-example above::
+**Note** You do not have to be exact!. Say we take an instance from the
+example above
 
-	Button - Margins (inches)   (L1183, T493, R1411, B584)
-			'Marginsinches' 'MarginsinchesGroupBox' 'GroupBox'
+  ::
+
+    Button - Margins (inches)   (L1183, T493, R1411, B584)
+            'Marginsinches' 'MarginsinchesGroupBox' 'GroupBox'
 
 Let's say that you don't like any of these
 
   - ``GroupBox`` - too generic, it could be any group box
   - ``Marginsinches`` and ``MarginsinchesGroupBox`` - these just don'
     look right, it would be nicer to leave out the 'inches' part
-    
+
 Well you CAN! The code does a best match on the identifer you use against
 all the available identifiers in the dialog.
 
 For example if you break into the debugger you can see how different
-identifiers can be used::
+identifiers can be used
 
-	(Pdb) print app.PageSetup.Margins.Text()
-	Margins (inches)
-	(Pdb) print app.PageSetup.MarginsGroupBox.Text()
-	Margins (inches) 
+  ::
+
+    (Pdb) print app.PageSetup.Margins.Text()
+    Margins (inches)
+    (Pdb) print app.PageSetup.MarginsGroupBox.Text()
+    Margins (inches)
 
 
 And this will also cater for typos. Though you still have to be careful
@@ -257,17 +286,23 @@ you cannot use attribute access to reference a control so
 you would either have to use item access or make an explicit
 calls to ``window_()``.
 
-So instead of writing::
-  
-  app.dialog_ident.control_ident.Click()
-  
-You would have to write::
-  
-  app['dialog_ident']['control_ident'].Click()
+So instead of writing
 
-Or use ``window_()`` explictly::
+  ::
 
-  app.window_(title_re = "NonAsciiCharacters").window_(title = "MoreNonAsciiCharacters").Click()
+   app.dialog_ident.control_ident.Click()
+
+You would have to write
+
+  ::
+
+    app['dialog_ident']['control_ident'].Click()
+
+Or use ``window_()`` explictly
+
+  ::
+
+    app.window_(title_re = "NonAsciiCharacters").window_(title = "MoreNonAsciiCharacters").Click()
 
 To see an example of this see ``examples\MiscExamples.py.GetInfo()``
 
@@ -275,18 +310,20 @@ To see an example of this see ``examples\MiscExamples.py.GetInfo()``
 
 How to deal with controls that do not respond as expected (e.g. OwnerDraw Controls)
 ------------------------------------------------------------------------------------
-Some controls (especially Ownerdrawn controls) do not respond to events as 
-expected. For example if you look at any HLP file and go to the Index Tab (click 
+Some controls (especially Ownerdrawn controls) do not respond to events as
+expected. For example if you look at any HLP file and go to the Index Tab (click
 'Search' button) you will see a listbox. Running Spy or Winspector on this
 will show you that it is indeed a list box - but it is ownerdrawn. This means
 that the developer has told Windows that they will override how items are displayed
-and do it themselves. And in this case they have made it so that strings cannot be 
+and do it themselves. And in this case they have made it so that strings cannot be
 retrieved :-(.
 
-So what problems does this cause? ::
-  
-  app.HelpTopics.ListBox.Texts()                # 1
-  app.HelpTopics.ListBox.Select("ItemInList")   # 2
+So what problems does this cause? 
+
+  ::
+
+   app.HelpTopics.ListBox.Texts()                # 1
+   app.HelpTopics.ListBox.Select("ItemInList")   # 2
 
 
 1. Will return a list of empty strings, all this means is that pywinauto has not
@@ -295,9 +332,11 @@ So what problems does this cause? ::
 2. This will fail with an IndexError because the Select(string) method of a ListBox
    looks for the item in the Texts to know the index of the item that it should select.
 
-The following workaround will work on this control ::
+The following workaround will work on this control 
 
-  app.HelpTopics.ListBox.Select(1)
+  ::
+
+   app.HelpTopics.ListBox.Select(1)
 
 This will select the 2nd item in the listbox, because it is not a string lookup
 it works correctly.
@@ -306,93 +345,92 @@ Unfortunately not even this will always work. The developer can make it so that 
 control does not respond to standard events like Select. In this case the only way
 you can select items in the listbox is by using the keyboard simulation of TypeKeys().
 
-This allows you to send any keystrokes to a control. So to select the 3rd item you 
-would use::
-  
-  app.Helptopics.ListBox1.TypeKeys("{HOME}{DOWN 2}{ENTER}")
+This allows you to send any keystrokes to a control. So to select the 3rd item you
+would use
 
-  
+  ::
+
+   app.Helptopics.ListBox1.TypeKeys("{HOME}{DOWN 2}{ENTER}")
+
+
 - ``{HOME}`` will make sure that the first item is highlighted.
 - ``{DOWN 2}`` will then move the highlight down 2 items
 - ``{ENTER}`` will select the highlighted item
 
 If your application made extensive use of a similar control type then you could
-make using it easier by deriving a new class from ListBox, that could use extra 
+make using it easier by deriving a new class from ListBox, that could use extra
 knowledge about your particular application. For example in the WinHelp example
-evertime an item is highlighted in the list view, it's text is inserted into the 
-Edit control above the list, and you CAN get the text of the item from there e.g. ::
-  
-  # print the text of the item currently selected in the list box 
-  # (as long as you are not typing into the Edit control!)
-  print app.HelpTopics.Edit.Texts()[1]
+evertime an item is highlighted in the list view, it's text is inserted into the
+Edit control above the list, and you CAN get the text of the item from there e.g. 
+
+  ::
+
+   # print the text of the item currently selected in the list box
+   # (as long as you are not typing into the Edit control!)
+   print app.HelpTopics.Edit.Texts()[1]
 
 
 How to Access the System Tray (aka SysTray, aka 'Notification Area')
 ------------------------------------------------------------------------------------
-Near the clock are icons representing running applications, this area is 
-normally referred to as the "System Tray". There are actually many different 
+Near the clock are icons representing running applications, this area is
+normally referred to as the "System Tray". There are actually many different
 windows/controls in this area. The control that contains the icons is actually
-a toolbar. It is in a Pager control, in within a window with a class TrayNotifyWnd, 
+a toolbar. It is in a Pager control, in within a window with a class TrayNotifyWnd,
 which is in yet another window with a class Shell_TrayWnd and all these windows
-are part of the running Explorer instance. Thankfully you don't need to remeber 
+are part of the running Explorer instance. Thankfully you don't need to remeber
 all that :-).
 
-The things that are important to remember is that you are looking for a 
-window in the "Explorer.exe" application with the class "Shell_TrayWnd" that has 
+The things that are important to remember is that you are looking for a
+window in the "Explorer.exe" application with the class "Shell_TrayWnd" that has
 a Toolbar control with a title "Notification Area".
 
-One way to get this is to do the following::
-  
-  imprt pywinauto.application
-  app = pywinauto.application.Application().connect_(path = "explorer")
-  systray_icons = app.ShellTrayWnd.NotificationAreaToolbar
-  
+One way to get this is to do the following 
+
+  ::
+
+   imprt pywinauto.application
+   app = pywinauto.application.Application().connect_(path = "explorer")
+   systray_icons = app.ShellTrayWnd.NotificationAreaToolbar
+
 The taskbar module provides very preliminary access to the System Tray.
 
-It defines the following variables: 
+It defines the following variables:
 
-:``explorer_app``:  defines an Application() object connected to the running
-                    explorer. You probably don't need to use this your self
-                    very much.
+:explorer_app:  defines an Application() object connected to the running
+                explorer. You probably don't need to use this your self
+                very much.
+:TaskBar:  The handle to the task bar (the bar containing Start Button,
+           the QuickLaunch icons, running tasks, etc
+:StartButton:  "Start me up" :-) I think you might know what this is!
+:QuickLaunch: The Toolbar with the quick launch icons
+:SystemTray: The window that contains the Clock and System Tray Icons
+:Clock: The clock
+:SystemTrayIcons:  The toolbar representing the system tray icons
+:RunningApplications:  The toolbar representing the running applications
 
-:``TaskBar``:  The handle to the task bar (the bar containing Start Button,
-               the QuickLaunch icons, running tasks, etc
-
-:``StartButton``:  "Start me up" :-) I think you might know what this is!
-
-:``QuickLaunch``: The Toolbar with the quick launch icons
-
-:``SystemTray``: The window that contains the Clock and System Tray Icons
-
-:``Clock``:	 The clock
-
-:``SystemTrayIcons``: The toolbar representing the system tray icons
-
-:``RunningApplications``: The toolbar representing the running applications
-
-
-I have also provided 2 functions in the module that can be used to click on 
+I have also provided 2 functions in the module that can be used to click on
 system tray icons:
 
-
-:``ClickSystemTrayIcon(button)``: You can use this to left click a visible icon 
+:``ClickSystemTrayIcon(button)``: You can use this to left click a visible icon
     in the system tray. I had to specifically say
-    visible icon as there may be many invisible 
+    visible icon as there may be many invisible
     icons that obviously cannot be clicked. Button
     can be any integer. If you specify 3 then it will
     find and click the 3rd visible button. (very little
     error checking is performed and this method will
     more then likely be moved/renamed in the futures.
 
-:``RightClickSystemTrayIcon(button)``: Similar to ``ClickSytemTrayIcon`` but performs
-    a right click.
+:``RightClickSystemTrayIcon(button)``: Similar to ``ClickSytemTrayIcon`` but 
+ performs a right click.
 
 
-Often when you click/right click on an icon - you get a popup menu. The thing to 
-remember at this point is that the popup menu is part of the application being 
+Often when you click/right click on an icon - you get a popup menu. The thing to
+remember at this point is that the popup menu is part of the application being
 automated not part of explorer.
 
-e.g.  ::
+e.g.
+
+  ::
 
     # connect to outlook
     outlook = Application().connect_(path = 'outlook.exe')
