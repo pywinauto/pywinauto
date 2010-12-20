@@ -101,7 +101,7 @@ class WindowSpecification(object):
     def __init__(self, search_criteria):
         """Initailize the class
 
-        * **search_criteria** the criteria to match a dialog
+        :param search_criteria: the criteria to match a dialog
         """
 
         # kwargs will contain however to find this window
@@ -245,7 +245,13 @@ class WindowSpecification(object):
 
 
     def Exists(self, timeout = None, retry_interval = None):
-        "Check if the window exists"
+        """Check if the window exists, return True if the control exists
+
+        :param timeout: the maximum amount of time to wait for the
+                    control to exists. Defaults to ``Timings.exists_timeout``
+        :param retry_interval: The control is checked for existance this number
+                    of seconds. ``Defaults to Timings.exists_retry``
+        """
 
         # set the current timings -couldn't set as defaults as they are
         # evaluated at import time - and timings may be changed at any time
@@ -281,27 +287,27 @@ class WindowSpecification(object):
 
         """Wait for the window to be in a particular state
 
-        * **wait_for** The state to wait for the window to be in. It can be any
-          of the following states
+        :param wait_for: The state to wait for the window to be in. It can
+            be any of the following states.
 
-            * 'exists' means that the window is a valid handle
-            * 'visible' means that the window is not hidden
-            * 'enabled' means that the window is not disabled
-            * 'ready' means that the window is visible and enabled
-            * 'active' means that the window is visible and enabled
+             * 'exists' means that the window is a valid handle
+             * 'visible' means that the window is not hidden
+             * 'enabled' means that the window is not disabled
+             * 'ready' means that the window is visible and enabled
+             * 'active' means that the window is visible and enabled
 
-        * **timeout** Raise an error if the window is not in the appropriate
-          state after this number of seconds.
+        :param timeout: Raise an error if the window is not in the appropriate
+            state after this number of seconds.
 
-        * **retry_interval** How long to sleep between each retry
+        :param retry_interval: How long to sleep between each retry
 
         An example to wait until the dialog
         exists, is ready, enabled and visible
+          ::
 
-           self.Dlg.Wait("exists enabled visible ready")
+            self.Dlg.Wait("exists enabled visible ready")
 
         .. seealso::
-
            :func:`WindowSpecification.WaitNot()`
         """
 
@@ -355,23 +361,26 @@ class WindowSpecification(object):
 
         """Wait for the window to not be in a particular state
 
-        * **wait_for** The state to wait for the window to not be in. It can be any
-          of the following states
+        :param wait_for: The state to wait for the window to not be in. It can be any
+            of the following states
 
-            * 'exists' means that the window is a valid handle
-            * 'visible' means that the window is not hidden
-            * 'enabled' means that the window is not disabled
-            * 'ready' means that the window is visible and enabled
-            * 'active' means that the window is visible and enabled
+             * 'exists' means that the window is a valid handle
+             * 'visible' means that the window is not hidden
+             * 'enabled' means that the window is not disabled
+             * 'ready' means that the window is visible and enabled
+             * 'active' means that the window is visible and enabled
 
-        * **timeout** Raise an error if the window is sill in the
-          state after this number of seconds.(Optional)
-        * **wiat_interval** How long to sleep between each retry (Optional)
+        :param timeout: Raise an error if the window is sill in the
+            state after this number of seconds.(Optional)
 
-        e.g. self.Dlg.WaitNot("exists enabled visible ready")
+        :param retry_interval: How long to sleep between each retry
+
+        An example to wait until the dialog is not ready, enabled or visible
+          ::
+
+            self.Dlg.WaitNot("enabled visible ready")
 
         .. seealso::
-
            :func:`WindowSpecification.Wait()`
         """
 
@@ -476,10 +485,10 @@ class WindowSpecification(object):
         If you pass in a control then it just prints the identifiers
         for that control
 
-        If you pass in a dialog then it prints the identiferis for all
-        controls in the dialog
+        If you pass in a dialog then it prints the identifiers for all
+        controls in the dialog.
 
-        :Note: The identifiers printed by this method have not been made
+        .. note:: The identifiers printed by this method have not been made
                unique. So if you have 2 edit boxes, they will both have "Edit"
                listed in their identifiers. In reality though the first one
                can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
@@ -1057,7 +1066,8 @@ class Application(object):
 
         Dialogs may pop up asking to save data - but the application
         will be killed anyway - you will not be able to click the buttons.
-        this should only be used
+        this should only be used when it is OK to kill the process like you 
+        would in task manager.
         """
 
         windows = self.windows_(visible_only = True)
