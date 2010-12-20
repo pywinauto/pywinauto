@@ -23,7 +23,7 @@ Python package for automating GUI manipulation on Windows
 
 """
 __revision__ = "$Revision$"
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 import findwindows
 WindowAmbiguousError = findwindows.WindowAmbiguousError
