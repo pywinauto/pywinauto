@@ -1,20 +1,28 @@
-import unittest
-
-import os.path
 import os
 import sys
-sys.path.append(".")
+import unittest
 
-#from pywinauto.timings import Timings
-#Timings.Fast()
+import coverage
 
-excludes = ['test_sendkeys']
+# needs to be called before importing the modules
+cov = coverage.coverage(branch = True)
+cov.start()
+
+testfolder = os.path.abspath(os.path.dirname(__file__))
+package_root = os.path.abspath(os.path.join(testfolder, r"..\.."))
+sys.path.append(package_root)
+
+import pywinauto
+
+modules_to_test = [pywinauto]
+
 
 def run_tests():
-    testfolder = os.path.abspath(os.path.split(__file__)[0])
+    excludes = ['test_sendkeys']
+
+    suite = unittest.TestSuite()
 
     sys.path.append(testfolder)
-
 
     for root, dirs, files in os.walk(testfolder):
         test_modules = [
@@ -28,12 +36,20 @@ def run_tests():
             #globals().update(__import__(mod, globals(), locals()).__dict__)
             # import it
             imported_mod = __import__(mod, globals(), locals())
-            #print imported_mod.__dict__
-            globals().update(imported_mod.__dict__)
 
+            suite.addTests(
+                unittest.defaultTestLoader.loadTestsFromModule(imported_mod))
+
+    #unittest.main()#testRunner = runner)
 
     #runner = unittest.TextTestRunner(verbosity = 2)
-    unittest.main()#testRunner = runner)
+    unittest.TextTestRunner(verbosity=1).run(suite)
+    cov.stop()
+    #print cov.analysis()
+    print cov.report()
+    cov.html_report(
+        directory = os.path.join(package_root, "Coverage_report"))
+
 
 if __name__ == '__main__':
     run_tests()
