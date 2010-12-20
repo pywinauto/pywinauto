@@ -171,7 +171,7 @@ def IsAboveOrToLeft(ref_control, other_ctrl):
     # skip controls where text win is below ctrl
     if text_r.top >= ctrl_r.bottom:
         return False
-        
+
     # text control top left corner is below control
     # top left corner - so not to the above or left :)
     if text_r.top >= ctrl_r.top and text_r.left >= ctrl_r.left:
@@ -290,7 +290,7 @@ def get_control_names(control, allcontrols):
     else:
         # so find the text of the nearest text visible control
         non_text_names = GetNonTextControlName(control, allcontrols)
-        
+
         # and if one was found - add it
         if non_text_names:
             names.extend(non_text_names)

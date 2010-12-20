@@ -71,22 +71,22 @@ def GetClipboardFormats():
 def GetFormatName(format):
     "Get the string name for a format value"
 
-    # standard formats should not be passed to GetClipboardFormatName    
+    # standard formats should not be passed to GetClipboardFormatName
     if format in _standard_formats:
         return _standard_formats[format]
 
     if not win32functions.OpenClipboard(0):
-        raise WinError()    
+        raise WinError()
 
     max_size = 500
     buffer_ = ctypes.create_unicode_buffer(max_size+1)
 
     ret = win32functions.GetClipboardFormatName(
         format, ctypes.byref(buffer_), max_size)
-    
+
     if not ret:
         raise RuntimeError("test")
-    
+
     win32functions.CloseClipboard()
 
     return buffer_.value
@@ -97,21 +97,21 @@ def GetData(format = win32defines.CF_UNICODETEXT):
     "Return the data from the clipboard in the requested format"
     if format not in GetClipboardFormats():
         raise RuntimeError("That format is not available")
-    
+
     if not win32functions.OpenClipboard(0):
         raise WinError()
 
     handle = win32functions.GetClipboardData(format)
-    
+
     if not handle:
         error = ctypes.WinError()
         win32functions.CloseClipboard()
         raise error
-    
+
     buffer_ = ctypes.c_wchar_p(win32functions.GlobalLock(handle))
-    
+
     data = buffer_.value
-    
+
     win32functions.GlobalUnlock(handle)
 
     win32functions.CloseClipboard()

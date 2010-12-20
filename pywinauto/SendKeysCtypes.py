@@ -304,7 +304,7 @@ class KeyAction(object):
 
     def _get_key_info(self):
         """Return virtual_key, scan_code, and flags for the action
-        
+
         This is one of the methods that will be overridden by sub classes"""
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
@@ -342,7 +342,7 @@ class KeyAction(object):
 
     def _get_down_up_string(self):
         """Return a string that will show whether the string is up or down
-        
+
         return 'down' if the key is a press only
         return 'up' if the key is up only
         return '' if the key is up & down (as default)
@@ -354,7 +354,7 @@ class KeyAction(object):
             elif self.up:
                 down_up = "up"
         return down_up
-    
+
     def key_description(self):
         "Return a description of the key"
         vk, scan, flags = self._get_key_info()
@@ -366,7 +366,7 @@ class KeyAction(object):
                 desc = "VK %d"% vk
         else:
             desc = "%s"% self.key
-        
+
         return desc
 
     def __str__(self):
@@ -387,13 +387,13 @@ class VirtualKeyAction(KeyAction):
 
     def _get_key_info(self):
         "Virtual keys have extended flag set"
-        
-        # copied more or less verbatim from 
+
+        # copied more or less verbatim from
         # http://www.pinvoke.net/default.aspx/user32.sendinput
         if (
-            (self.key >= 33 and self.key <= 46) or 
+            (self.key >= 33 and self.key <= 46) or
             (self.key >= 91 and self.key <= 93) ):
-            flags = KEYEVENTF_EXTENDEDKEY;        
+            flags = KEYEVENTF_EXTENDEDKEY;
         else:
             flags = 0
         # This works for %{F4} - ALT + F4
@@ -409,7 +409,7 @@ class EscapedKeyAction(KeyAction):
     Overrides necessary methods of KeyAction"""
 
     def _get_key_info(self):
-        """EscapedKeyAction doesn't send it as Unicode and the vk and 
+        """EscapedKeyAction doesn't send it as Unicode and the vk and
         scan code are generated differently"""
         vkey_scan = LoByte(VkKeyScan(self.key))
 
@@ -417,7 +417,7 @@ class EscapedKeyAction(KeyAction):
 
     def key_description(self):
         "Return a description of the key"
-        
+
         return "KEsc %s"% self.key
 
 
@@ -583,7 +583,7 @@ def parse_keys(string,
                 c == '\t' and not with_tabs or
                 c == '\n' and not with_newlines):
                 continue
-            
+
             # output nuewline
             if c in ('~', '\n'):
                 keys.append(VirtualKeyAction(CODES["ENTER"]))
@@ -592,10 +592,10 @@ def parse_keys(string,
             # use a VirtualKeyAction
             #if ord(c) in CODE_NAMES:
             #    keys.append(VirtualKeyAction(ord(c)))
-                
+
             elif modifiers:
                 keys.append(EscapedKeyAction(c))
-                
+
             else:
                 keys.append(KeyAction(c))
 
@@ -650,7 +650,7 @@ def main():
         n
         """
     SendKeys(actions, pause = .1)
-    
+
     keys = parse_keys(actions)
     for k in keys:
         print(k)

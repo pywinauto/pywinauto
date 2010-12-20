@@ -9,8 +9,8 @@ Released under the LGPL licence
 
 What is it?
 -----------
-pywinauto is a set of python modules to automate the Microsoft Windows GUI. 
-At it's simplest it allows you to send mouse and keyboard actions to windows 
+pywinauto is a set of python modules to automate the Microsoft Windows GUI.
+At it's simplest it allows you to send mouse and keyboard actions to windows
 dialogs and controls.
 
 
@@ -20,18 +20,18 @@ Installation
 - Unzip the pywinauto zip file to a folder.
 - Run ``python.exe setup.py install``
 - Install the following Python packages
- 
-    - ctypes       http://starship.python.net/crew/theller/ctypes/ (download from http://sourceforge.net/project/showfiles.php?group_id=71702)
-    - Sendkeys     http://www.rutherfurd.net/python/sendkeys/index.html
-    - *Optional* PIL          http://www.pythonware.com/products/pil/index.htm
-    - *Optional* elementtree  http://effbot.org/downloads/
+
+  - ctypes       http://starship.python.net/crew/theller/ctypes/ (download from http://sourceforge.net/project/showfiles.php?group_id=71702)
+  - Sendkeys     http://www.rutherfurd.net/python/sendkeys/index.html
+  - *Optional* PIL          http://www.pythonware.com/products/pil/index.htm
+  - *Optional* elementtree  http://effbot.org/downloads/
 
 To check you have it installed correctly
 Run Python ::
 
   >>> from pywinauto import application
   >>> app = application.Application.start("notepad.exe")
-  >>> app.notepad.TypeKeys("%FX") 
+  >>> app.notepad.TypeKeys("%FX")
 
 
 Where to start
@@ -43,18 +43,18 @@ There are examples in there to work with Notepad and MSPaint.
 How does it work
 ----------------
 A lot is done through attribute access (``__getattr__``) for each class. For example
-when you get the attribute of an Application or Dialog object it looks for a 
+when you get the attribute of an Application or Dialog object it looks for a
 dialog or control (respectively).
 
 ::
 
  myapp.Notepad # looks for a Window/Dialog of your app that has a title 'similar'
                # to "Notepad"
-              
+
  myapp.PageSetup.OK # looks first for a dialog with a title like "PageSetup"
                     # then it looks for a control on that dialog with a title
                     # like "OK"
-                   
+
 This attribute resolution is delayed (currently a hard coded amount of time) until
 it succeeds. So for example if you Select a menu option and then look for the
 resulting dialog e.g. ::
@@ -63,11 +63,11 @@ resulting dialog e.g. ::
   app.SaveAs.ComboBox5.Select("UTF-8")
   app.SaveAs.edit1.SetText("Example-utf8.txt")
   app.SaveAs.Save.Click()
- 
+
 At the 2nd line the SaveAs dialog might not be open by the time this line is
-executed. So what happens is that we wait until we have a control to resolve 
+executed. So what happens is that we wait until we have a control to resolve
 before resolving the dialog. At that point if we can't find a SaveAs dialog with
-a ComboBox5 control then we wait a very short period of time and try again, 
+a ComboBox5 control then we wait a very short period of time and try again,
 this is repeated up to a maximum time (currently 1 second!)
 
 This avoid the user having to use time.sleep or a "WaitForDialog" function.
@@ -77,27 +77,27 @@ Some similar tools for comparison
 ---------------------------------
 * Python tools
 
-    - Watsup (http://www.tizmoi.net/watsup/intro.html)
-    - winGuiAuto (http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html)
+  - Watsup (http://www.tizmoi.net/watsup/intro.html)
+  - winGuiAuto (http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html)
 
 * Other scripting language tools
 
-    - Perl Win32::GuiTest  (http://erngui.com/prog/perl/guitest/)
-    - Ruby GuiTest (http://raa.ruby-lang.org/list.rhtml?name=win32-guitest)
-    - others (http://opensourcetesting.org/)
+  - Perl Win32::GuiTest  (http://erngui.com/prog/perl/guitest/)
+  - Ruby GuiTest (http://raa.ruby-lang.org/list.rhtml?name=win32-guitest)
+  - others (http://opensourcetesting.org/)
 
 * Other free tools
 
-    - AutoIt (http://www.autoitscript.com/)
-    - See collection at: http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html
+  - AutoIt (http://www.autoitscript.com/)
+  - See collection at: http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html
 
 * Commercial tools
 
-    - WinRunner (http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/)
-    - SilkTest (http://www.segue.com/products/functional-regressional-testing/silktest.asp)
-    - Many Others (http://www.testingfaqs.org/t-gui.html)
+  - WinRunner (http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/)
+  - SilkTest (http://www.segue.com/products/functional-regressional-testing/silktest.asp)
+  - Many Others (http://www.testingfaqs.org/t-gui.html)
 
-    
+
 Why write yet another automation tool if there are so many out there?
 ---------------------------------------------------------------------
 There are loads of reasons :-)
@@ -121,7 +121,7 @@ There are loads of reasons :-)
 **Python makes it easy:**
     Python is a great programming language, but I didn't find
     any automation tools that were Pythonic (I only found one
-    that was implemented in python) and I didn't care for it 
+    that was implemented in python) and I didn't care for it
     too much.
 
 
@@ -133,10 +133,9 @@ There are loads of reasons :-)
     UI. This is actually an easier job then for
     testing the original source UI.
 
-    But most automation tools are based off of coordinates or text of the 
+    But most automation tools are based off of coordinates or text of the
     controls and these can change in the localized software. So my goal (
     though not yet implemented) is to allow scripts to run unchanged
     between original source language (often English) and the translated
     software (Japanese, German, etc).
-                                     
-                                     
+

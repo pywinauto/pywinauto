@@ -9,7 +9,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   
+
    index
    getting_started
    HowTo
@@ -24,7 +24,7 @@ Source code reference
 =====================================
 .. toctree::
    :maxdepth: 2
-   
+
    code/code
 
 

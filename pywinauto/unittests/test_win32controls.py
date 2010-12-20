@@ -501,7 +501,7 @@ class DialogTestCases(unittest.TestCase):
 
             for key, ctrl_value in ctrl.items():
                 expected_value = all_props[i][key]
-                
+
                 if "Image" in expected_value.__class__.__name__:
                     expected_value = expected_value.tostring()
                     ctrl_value = ctrl_value.tostring()

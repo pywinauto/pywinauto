@@ -61,48 +61,48 @@ class DummyCtrl():
         self.rect = win32structures.RECT(l, t, r, b)
     def Rectangle(self):
         return self.rect
-        
+
 class TestIsAboveOrToLeft(unittest.TestCase):
     def testSameRect(self):
         "both rectangles are the same so false"
         other = DummyCtrl(10, 20, 200, 40)
         this = DummyCtrl(10, 20, 200, 40)
-        
+
         result = findbestmatch.IsAboveOrToLeft(this, other)
         self.assertEqual(result, False)
 
     def testToLeft(self):
         other = DummyCtrl(10, 20, 200, 40)
         this = DummyCtrl(100, 20, 200, 40)
-        
+
         result = findbestmatch.IsAboveOrToLeft(this, other)
         self.assertEqual(result, True)
 
     def testAbove(self):
         other = DummyCtrl(10, 10, 200, 30)
         this = DummyCtrl(10, 20, 200, 40)
-        
+
         result = findbestmatch.IsAboveOrToLeft(this, other)
         self.assertEqual(result, True)
 
     def testLeftAndTop(self):
         other = DummyCtrl(5, 10, 200, 20)
         this = DummyCtrl(10, 20, 200, 40)
-        
+
         result = findbestmatch.IsAboveOrToLeft(this, other)
         self.assertEqual(result, True)
 
     def testBelow(self):
         other = DummyCtrl(10, 120, 200, 140)
         this = DummyCtrl(10, 20, 20, 40)
-        
+
         result = findbestmatch.IsAboveOrToLeft(this, other)
         self.assertEqual(result, False)
 
     def testToRight(self):
         other = DummyCtrl(110, 20, 120, 40)
         this = DummyCtrl(10, 20, 20, 40)
-        
+
         result = findbestmatch.IsAboveOrToLeft(this, other)
         self.assertEqual(result, False)
 
@@ -110,7 +110,7 @@ class TestIsAboveOrToLeft(unittest.TestCase):
     def testTopLeftInSideControl(self):
         other = DummyCtrl(15, 25, 120, 40)
         this = DummyCtrl(10, 20, 20, 40)
-        
+
         result = findbestmatch.IsAboveOrToLeft(this, other)
         self.assertEqual(result, False)
 

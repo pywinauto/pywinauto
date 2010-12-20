@@ -34,12 +34,12 @@ except ImportError:
 import os.path
 import sys
 
-# We need the path to setup.py to be able to run 
+# We need the path to setup.py to be able to run
 # the setup from a different folder
 def SetupPath(path = ""):
     # get the path to the setup file
     setup_path = os.path.abspath(os.path.split(__file__)[0])
-    
+
     return os.path.join(setup_path, path)
 
 

@@ -147,7 +147,7 @@ class WindowSpecification(object):
         new_item.criteria.append(criteria)
 
         return new_item
-        
+
     def Window_(self, **criteria):
         warnings.warn(
             "WindowSpecification.Window() WindowSpecification.Window_(), "
@@ -212,8 +212,8 @@ class WindowSpecification(object):
         sets the appropriate criteria for the control.
         """
 
-        # dir (and possibly other code introspection asks for 
-        # members like __methods__ and __members__, these are deprecated and I 
+        # dir (and possibly other code introspection asks for
+        # members like __methods__ and __members__, these are deprecated and I
          #am not using them so just raise an attribute error immediately
         if attr.startswith("__") or attr.endswith("__"):
             raise AttributeError(
@@ -328,7 +328,7 @@ class WindowSpecification(object):
         # we go from least strict to most strict in case the user
         # has specified conflicting wait conditions
         for criterion in wait_criteria:
-            
+
             # default is that it 'exists' and for exists
             # we must not filter for enabled only or visible only (window
             # can exist even if invisible or disabled)
@@ -948,7 +948,7 @@ class Application(object):
         return self
     Connect_ = connect_
 
-    
+
     def top_window_(self):
         "Return the current top window of the application"
         if not self.process:

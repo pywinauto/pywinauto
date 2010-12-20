@@ -130,11 +130,11 @@ def _FindTruncations(ctrl):
         # object
         if minRect.right > rect.right or \
             minRect.bottom > rect.bottom:
-            
+
             # append the index and the rectangle to list of bug items
             truncIdxs.append(idx)
             truncStrings.append(text)
-        
+
             #print "%s'\n\tRECT: %s\n\t MIN: %s" %(text, rect, minRect)
 
     return truncIdxs, truncStrings
@@ -154,7 +154,7 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     txtDC = win32functions.CreateDC(u"DISPLAY", None, None, None )
 
     hFontGUI = win32functions.CreateFontIndirect(ctypes.byref(font))
-        
+
 #    # Maybe we could not get the font or we got the system font
 #    if not hFontGUI:
 #
@@ -236,7 +236,7 @@ def _RadioButtonTruncInfo(win):
 
     if win.HasStyle(win32defines.BS_MULTILINE):
         lineFormat = win32defines.DT_WORDBREAK
-    
+
     widthAdj = 19
 
     # don't check image controls for truncation!
@@ -264,7 +264,7 @@ def _CheckBoxTruncInfo(win):
         lineFormat = win32defines.DT_WORDBREAK
 
     widthAdj = 18
-    
+
     # don't check image controls for truncation!
     # we do this by specifying huge adjustments
     # maybe a better/more pythonic way of doing this would be
@@ -277,7 +277,7 @@ def _CheckBoxTruncInfo(win):
 
     newRect = win.ClientRects()[0]
     newRect.right -=  widthAdj
-    
+
     return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
 
 

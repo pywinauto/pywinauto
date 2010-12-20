@@ -77,7 +77,7 @@ try:
 except NameError:
     import sets
     set = sets.Set
-    
+
 from pywinauto.win32defines import SS_NOPREFIX
 
 

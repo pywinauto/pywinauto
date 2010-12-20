@@ -59,7 +59,7 @@ class ControlProps(dict):
             return func_wrapper(self[attr+'s'][0])
 
         return func_wrapper(self[attr])
-    
+
     #def FriendlyClassName(self):
     #    print "sdafafasdfafasdfasdf",
     #    try:
@@ -69,7 +69,7 @@ class ControlProps(dict):
     #        print `e`
     #    return self['FriendlyClassName']
 
-    def WindowText(self):        
+    def WindowText(self):
         return self['Texts'][0]
 
     def HasStyle(self, style):
@@ -109,7 +109,7 @@ def MenuBlockAsControls(menuItems, parentage = []):
             itemPath = "%s->%s" % ("->".join(parentage), item['Text'])
         else:
             itemPath = item['Text']
-        
+
         #append the item to the current menu block
         curBlock.append(itemAsCtrl)
 
@@ -140,7 +140,7 @@ def MenuItemAsControl(menuItem):
     "Make a menu item look like a control for tests"
 
     itemAsCtrl = ControlProps()
-    
+
     itemAsCtrl["Texts"] = [menuItem['Text'], ]
     itemAsCtrl["ControlID"] = menuItem['ID']
     itemAsCtrl["Type"] = menuItem['Type']
@@ -160,14 +160,14 @@ def MenuItemAsControl(menuItem):
     itemAsCtrl["IsVisible"] = 1
 
     return itemAsCtrl
-    
+
 
 #====================================================================
 def SetReferenceControls(controls, refControls):
     """Set the reference controls for the controls passed in
-    
+
     This does some minor checking as following:
-     * test that there are the same number of reference controls as 
+     * test that there are the same number of reference controls as
        controls - fails with an exception if there are not
      * test if all the ID's are the same or not
     """

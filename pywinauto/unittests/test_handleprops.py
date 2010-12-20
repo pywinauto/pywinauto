@@ -67,7 +67,7 @@ class handlepropsTestCases(unittest.TestCase):
         self.assertEquals(0x14cf0000, style(self.dlghandle))
         # will be 0x50300104 if wordwrap is on and 0x50200104 if off
         self.assertTrue(
-            (0x50200104, 0x50300104).__contains__, 
+            (0x50200104, 0x50300104).__contains__,
             style(self.edit_handle),)
 
     def test_exstyle(self):

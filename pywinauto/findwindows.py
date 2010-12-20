@@ -146,7 +146,7 @@ def find_windows(class_name = None,
     if control_id is not None and windows:
         windows = [win for win in windows if
             handleprops.controlid(win) == control_id]
-            
+
     if active_only:
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
@@ -192,17 +192,17 @@ def find_windows(class_name = None,
 
     if best_match is not None and windows:
         wrapped_wins = []
-        
+
         for win in windows:
             try:
                 wrapped_wins.append(controls.WrapHandle(win))
             except controls.InvalidWindowHandle:
-                # skip invalid handles - they have dissapeared 
+                # skip invalid handles - they have dissapeared
                 # since the list of windows was retrieved
                 pass
         windows = findbestmatch.find_best_control_matches(
             best_match, wrapped_wins)
-        
+
         # convert window back to handle
         windows = [win.handle for win in windows]
 

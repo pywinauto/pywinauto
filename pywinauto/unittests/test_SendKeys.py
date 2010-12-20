@@ -139,7 +139,7 @@ class SendKeysTests(unittest.TestCase):
         SendKeys("\t \t \t a~\tb\nc{ENTER}", pause = .1, with_newlines = True)
         received = raw_input()
         self.assertEquals("a", received)
-        
+
         received = raw_input()
         self.assertEquals("b", received)
 

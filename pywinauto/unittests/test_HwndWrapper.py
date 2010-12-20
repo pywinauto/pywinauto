@@ -151,7 +151,7 @@ class HwndWrapperTests(unittest.TestCase):
             self.app.StatisticsBox.CAD.CloseClick()
         except timings.TimeoutError:
             pass
-            
+
         self.app.StatisticsBox.TypeKeys("%{F4}")
 
         #self.assertEquals(self.app.StatisticsBox.Exists(), False)
@@ -416,11 +416,11 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.app.start_("notepad.exe")
 
         # Get the old font
-        self.app.UntitledNotepad.MenuSelect("Format->Font")        
+        self.app.UntitledNotepad.MenuSelect("Format->Font")
 
         self.old_font = self.app.Font.FontComboBox.SelectedIndex()
         self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
-        
+
         # ensure we have the correct settings for this test
         self.app.Font.FontStyleCombo.Select(0)
         self.app.Font.FontComboBox.Select("Lucida Console")
@@ -434,7 +434,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         "Close the application after tests"
 
         # Set the old font again
-        self.app.UntitledNotepad.MenuSelect("Format->Font")        
+        self.app.UntitledNotepad.MenuSelect("Format->Font")
         self.app.Font.FontComboBox.Select(self.old_font)
         self.app.Font.FontStyleCombo.Select(self.old_font_style)
         self.app.Font.OK.Click()
