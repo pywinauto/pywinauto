@@ -302,8 +302,7 @@ class WindowSpecification(object):
         :param retry_interval: How long to sleep between each retry
 
         An example to wait until the dialog
-        exists, is ready, enabled and visible
-          ::
+        exists, is ready, enabled and visible::
 
             self.Dlg.Wait("exists enabled visible ready")
 
@@ -375,8 +374,7 @@ class WindowSpecification(object):
 
         :param retry_interval: How long to sleep between each retry
 
-        An example to wait until the dialog is not ready, enabled or visible
-          ::
+        An example to wait until the dialog is not ready, enabled or visible::
 
             self.Dlg.WaitNot("enabled visible ready")
 
@@ -1066,7 +1064,7 @@ class Application(object):
 
         Dialogs may pop up asking to save data - but the application
         will be killed anyway - you will not be able to click the buttons.
-        this should only be used when it is OK to kill the process like you 
+        this should only be used when it is OK to kill the process like you
         would in task manager.
         """
 
