@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>What is pywinauto &mdash; pywinauto v0.4.0 documentation</title>
+    <title>What is pywinauto &mdash; pywinauto v0.4.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.0 documentation" href="#" />
+    <link rel="top" title="pywinauto v0.4.1 documentation" href="#" />
     <link rel="next" title="Automating an application" href="getting_started.html" />
     <link rel="prev" title="Contents" href="contents.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="contents.html" title="Contents"
              accesskey="P">previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -64,22 +64,16 @@ dialogs and controls.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<ul>
-<li><p class="first">Download pywinauto from <a class="reference external" href="https://sourceforge.net/project/showfiles.php?group_id=157379">https://sourceforge.net/project/showfiles.php?group_id=157379</a></p>
-</li>
-<li><p class="first">Unzip the pywinauto zip file to a folder.</p>
-</li>
-<li><p class="first">Run <tt class="docutils literal"><span class="pre">python.exe</span> <span class="pre">setup.py</span> <span class="pre">install</span></tt></p>
-</li>
-<li><p class="first">Install the following Python packages</p>
-<blockquote>
 <ul class="simple">
-<li>ctypes       <a class="reference external" href="http://starship.python.net/crew/theller/ctypes/">http://starship.python.net/crew/theller/ctypes/</a> (download from <a class="reference external" href="http://sourceforge.net/project/showfiles.php?group_id=71702">http://sourceforge.net/project/showfiles.php?group_id=71702</a>)</li>
-<li>Sendkeys     <a class="reference external" href="http://www.rutherfurd.net/python/sendkeys/index.html">http://www.rutherfurd.net/python/sendkeys/index.html</a></li>
+<li>Download pywinauto from <a class="reference external" href="https://sourceforge.net/project/showfiles.php?group_id=157379">https://sourceforge.net/project/showfiles.php?group_id=157379</a></li>
+<li>Unzip the pywinauto zip file to a folder.</li>
+<li>Run <tt class="docutils literal"><span class="pre">python.exe</span> <span class="pre">setup.py</span> <span class="pre">install</span></tt></li>
+<li>Install the following Python packages<ul>
 <li><em>Optional</em> PIL          <a class="reference external" href="http://www.pythonware.com/products/pil/index.htm">http://www.pythonware.com/products/pil/index.htm</a></li>
 <li><em>Optional</em> elementtree  <a class="reference external" href="http://effbot.org/downloads/">http://effbot.org/downloads/</a></li>
+<li>Releases prior to 0.3.9 require Sendkeys - <a class="reference external" href="http://www.rutherfurd.net/python/sendkeys/index.html">http://www.rutherfurd.net/python/sendkeys/index.html</a></li>
+<li>If you are using Python 2.3 or 2.4 then you will have to install ctypes  <a class="reference external" href="http://starship.python.net/crew/theller/ctypes/">http://starship.python.net/crew/theller/ctypes/</a> (download from <a class="reference external" href="http://sourceforge.net/project/showfiles.php?group_id=71702">http://sourceforge.net/project/showfiles.php?group_id=71702</a>)</li>
 </ul>
-</blockquote>
 </li>
 </ul>
 <p>To check you have it installed correctly
@@ -126,40 +120,28 @@ this is repeated up to a maximum time (currently 1 second!)</p>
 </div>
 <div class="section" id="some-similar-tools-for-comparison">
 <h2>Some similar tools for comparison<a class="headerlink" href="#some-similar-tools-for-comparison" title="Permalink to this headline">¶</a></h2>
-<ul>
-<li><p class="first">Python tools</p>
-<blockquote>
 <ul class="simple">
+<li>Python tools<ul>
 <li>Watsup (<a class="reference external" href="http://www.tizmoi.net/watsup/intro.html">http://www.tizmoi.net/watsup/intro.html</a>)</li>
 <li>winGuiAuto (<a class="reference external" href="http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html">http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html</a>)</li>
 </ul>
-</blockquote>
 </li>
-<li><p class="first">Other scripting language tools</p>
-<blockquote>
-<ul class="simple">
+<li>Other scripting language tools<ul>
 <li>Perl Win32::GuiTest  (http://erngui.com/prog/perl/guitest/)</li>
 <li>Ruby GuiTest (<a class="reference external" href="http://raa.ruby-lang.org/list.rhtml?name=win32-guitest">http://raa.ruby-lang.org/list.rhtml?name=win32-guitest</a>)</li>
 <li>others (<a class="reference external" href="http://opensourcetesting.org/">http://opensourcetesting.org/</a>)</li>
 </ul>
-</blockquote>
 </li>
-<li><p class="first">Other free tools</p>
-<blockquote>
-<ul class="simple">
+<li>Other free tools<ul>
 <li>AutoIt (<a class="reference external" href="http://www.autoitscript.com/">http://www.autoitscript.com/</a>)</li>
 <li>See collection at: <a class="reference external" href="http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html">http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html</a></li>
 </ul>
-</blockquote>
 </li>
-<li><p class="first">Commercial tools</p>
-<blockquote>
-<ul class="simple">
+<li>Commercial tools<ul>
 <li>WinRunner (<a class="reference external" href="http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/">http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/</a>)</li>
 <li>SilkTest (<a class="reference external" href="http://www.segue.com/products/functional-regressional-testing/silktest.asp">http://www.segue.com/products/functional-regressional-testing/silktest.asp</a>)</li>
 <li>Many Others (<a class="reference external" href="http://www.testingfaqs.org/t-gui.html">http://www.testingfaqs.org/t-gui.html</a>)</li>
 </ul>
-</blockquote>
 </li>
 </ul>
 </div>
@@ -266,12 +248,12 @@ software (Japanese, German, etc).</p>
         <li class="right" >
           <a href="contents.html" title="Contents"
              >previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

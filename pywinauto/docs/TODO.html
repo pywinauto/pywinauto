@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>PYWINAUTO TODO’s &mdash; pywinauto v0.4.0 documentation</title>
+    <title>PYWINAUTO TODO’s &mdash; pywinauto v0.4.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.0 documentation" href="index.html" />
+    <link rel="top" title="pywinauto v0.4.1 documentation" href="index.html" />
     <link rel="next" title="Change Log" href="HISTORY.html" />
     <link rel="prev" title="Dev Notes" href="dev_notes.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="dev_notes.html" title="Dev Notes"
              accesskey="P">previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -113,13 +113,13 @@ it succeeds or times out).</p>
 </li>
 <li><p class="first">Investigate using any of the following</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>BringWindowToTop: probably necessary before image capture</li>
 <li>GetTopWindow: maybe to re-set top window after capture?</li>
 <li>EnumThreadWindows</li>
 <li>GetGUIThreadInfo</li>
 </ul>
-</blockquote>
+</div></blockquote>
 </li>
 <li><p class="first">Make it easy to work with context(right click) menu&#8217;s</p>
 </li>
@@ -172,12 +172,12 @@ be doing</p>
 </li>
 </ul>
 <blockquote>
-<p>To do this we need to change how menu&#8217;s are retrieved - rather than get all
+<div><p>To do this we need to change how menu&#8217;s are retrieved - rather than get all
 menuitems at the start - then we just get the requested level.</p>
 <p>This would also enable things like</p>
 <div class="highlight-python"><pre>dlg.Menu.Blah.Blah.IsChecked()  IsEnabled(), etc</pre>
 </div>
-</blockquote>
+</div></blockquote>
 <div class="section" id="closed-in-some-way-or-the-other">
 <h2>CLOSED (in some way or the other)<a class="headerlink" href="#closed-in-some-way-or-the-other" title="Permalink to this headline">¶</a></h2>
 <ul>
@@ -189,13 +189,13 @@ To fix this we may need to add more magic around calling actions on dialogs
 e.g.
 on an attribute access for an ActionDialog do the following:</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>Check if it is an Action</li>
 <li>If it is not enabled then wait a little bit</li>
 <li>If it is then wait a little bit and try again</li>
 <li>repeat that until success or timeout</li>
 </ul>
-</blockquote>
+</div></blockquote>
 <p>The main thing that needs to be resolved is that you don&#8217;t want two of these
 waits happening at once (so a wait in a function at 1 level, and another wait
 in a function called by the other one - because this would mean there would
@@ -280,12 +280,12 @@ customized</p>
         <li class="right" >
           <a href="dev_notes.html" title="Dev Notes"
              >previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

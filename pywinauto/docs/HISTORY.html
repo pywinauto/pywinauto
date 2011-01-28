@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Change Log &mdash; pywinauto v0.4.0 documentation</title>
+    <title>Change Log &mdash; pywinauto v0.4.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.0 documentation" href="index.html" />
+    <link rel="top" title="pywinauto v0.4.1 documentation" href="index.html" />
     <link rel="next" title="Main user modules" href="code/code.html" />
     <link rel="prev" title="PYWINAUTO TODO’s" href="TODO.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              accesskey="P">previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,7 +57,7 @@
 <h2>0.4.0 Various cleanup and bug fixes.<a class="headerlink" href="#various-cleanup-and-bug-fixes" title="Permalink to this headline">¶</a></h2>
 <p>03-April-2010</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>Gracefully Handle dir() calls on Application or WindowSpecification objects
 (which used hang for a while as these classes would search for windows
 matching __members__, __methods__ and __bases__). The code now checks for
@@ -89,13 +89,13 @@ various attributes.</li>
 deprecation messages for the other functions.</li>
 <li>Improved the tests (fixed test failures which were not pywinauto issues)</li>
 </ul>
-</blockquote>
+</div></blockquote>
 </div>
 <div class="section" id="experimental-new-sendkeys-and-various-fixes">
 <h2>0.3.9 Experimental! New Sendkeys, and various fixes<a class="headerlink" href="#experimental-new-sendkeys-and-various-fixes" title="Permalink to this headline">¶</a></h2>
 <p>27-November-2009</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>Major change this release is that Sendkeys is no longer a requirement!
 A replacement that supports Unicode is included with pywinauto. (hopefully
 soon to be released as a standalone module). Please note - this is still
@@ -116,13 +116,13 @@ class names as supported window classes to the appropriate classes).</li>
 for some localization tests)</li>
 <li>Various PyLint and PEP8 fixes made.</li>
 </ul>
-</blockquote>
+</div></blockquote>
 </div>
 <div class="section" id="collecting-improvements-from-last-2-years">
 <h2>0.3.8 Collecting improvements from last 2 years<a class="headerlink" href="#collecting-improvements-from-last-2-years" title="Permalink to this headline">¶</a></h2>
 <p>10-March-2009</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>Fixed toolbar button pressing - This required for
 HwndWrapper.NotifyParent() to be updated (to accept a new
 ID parameter)</li>
@@ -174,7 +174,7 @@ on computer/app settings</li>
 <li>Updated timing settings for unit tests</li>
 <li>Updated the examples to work in dev environment.</li>
 </ul>
-</blockquote>
+</div></blockquote>
 </div>
 <div class="section" id="merge-of-wait-changes-and-various-bug-fixes-improvements">
 <h2>0.3.7 Merge of Wait changes and various bug fixes/improvements<a class="headerlink" href="#merge-of-wait-changes-and-various-bug-fixes-improvements" title="Permalink to this headline">¶</a></h2>
@@ -463,10 +463,10 @@ methods are factory methods in that they will return an initialized Application
 instance. They work exactly the same as start_() and connect() as they are
 implemented in terms of those.</p>
 <blockquote>
-<p>from pywinauto.application import Application
+<div><p>from pywinauto.application import Application
 notepad = Application.start(&#8220;notepad&#8221;)
 same_notepad = Application.connect(path = &#8220;notepad&#8221;)</p>
-</blockquote>
+</div></blockquote>
 </li>
 <li><p class="first">Updated the examples to follow changes to the code - and to make them a little
 more robust.</p>
@@ -740,12 +740,12 @@ you could use:</p>
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              >previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

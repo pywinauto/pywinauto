@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.application &mdash; pywinauto v0.4.0 documentation</title>
+    <title>pywinauto.application &mdash; pywinauto v0.4.1 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="top" title="pywinauto v0.4.1 documentation" href="../index.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.findbestmatch" href="pywinauto.findbestmatch.html" />
     <link rel="prev" title="Main user modules" href="code.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="code.html" title="Main user modules"
              accesskey="P">previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
           <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
@@ -56,10 +56,10 @@
   <div class="section" id="pywinauto-application">
 <h1>pywinauto.application<a class="headerlink" href="#pywinauto-application" title="Permalink to this headline">¶</a></h1>
 <blockquote>
-<span class="target" id="module-pywinauto.application"></span><p>The application module is the main one that users will user first.</p>
+<div><span class="target" id="module-pywinauto.application"></span><p>The application module is the main one that users will user first.</p>
 <p>When starting to automate and application you must initialize an instance
-of the Application class. Then you must <a class="reference internal" href="#pywinauto.application.Application.Start" title="pywinauto.application.Application.Start"><tt class="xref py py-func docutils literal"><span class="pre">Application.Start()</span></tt></a> that
-application or <a class="reference internal" href="#pywinauto.application.Application.Connect" title="pywinauto.application.Application.Connect"><tt class="xref py py-func docutils literal"><span class="pre">Application.Connect()</span></tt></a> to a running instance of that
+of the Application class. Then you must <tt class="xref py py-func docutils literal"><span class="pre">Application.Start()</span></tt> that
+application or <tt class="xref py py-func docutils literal"><span class="pre">Application.Connect()</span></tt> to a running instance of that
 application.</p>
 <p>Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below.</p>
@@ -93,77 +93,22 @@ can be passed to both <tt class="xref py py-func docutils literal"><span class="
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Represents an application</p>
 <p>Set the attributes</p>
-<dl class="staticmethod">
-<dt id="pywinauto.application.Application.Connect">
-<em class="property">static </em><tt class="descname">Connect</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.Connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience static method that calls connect</p>
+<dl class="method">
+<dt id="pywinauto.application.Application.__getattr__">
+<tt class="descname">__getattr__</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.__getattr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the spedified dialog of the application</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pywinauto.application.Application.Connect_">
-<tt class="descname">Connect_</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.Connect_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Connects to an already running process</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pywinauto.application.Application.GetMatchHistoryItem">
-<tt class="descname">GetMatchHistoryItem</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.GetMatchHistoryItem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Should not be used - part of application data implementation</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pywinauto.application.Application.Kill_">
-<tt class="descname">Kill_</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.application.Application.Kill_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try and kill the application</p>
-<p>Dialogs may pop up asking to save data - but the application
-will be killed anyway - you will not be able to click the buttons.
-this should only be used</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pywinauto.application.Application.Start">
-<em class="property">static </em><tt class="descname">Start</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.Start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience static method that calls start</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pywinauto.application.Application.Start_">
-<tt class="descname">Start_</tt><big>(</big><em>cmd_line</em>, <em>timeout=None</em>, <em>retry_interval=None</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.Start_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Starts the application giving in cmd_line</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pywinauto.application.Application.Window_">
-<tt class="descname">Window_</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.Window_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a window of the application</p>
-<p>You can specify the same parameters as findwindows.find_windows.
-It will add the process parameter to ensure that the window is from
-the current process.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pywinauto.application.Application.Windows_">
-<tt class="descname">Windows_</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.Windows_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return list of wrapped windows of the top level windows of
-the application</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pywinauto.application.Application.WriteAppData">
-<tt class="descname">WriteAppData</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.WriteAppData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Should not be used - part of application data implementation</p>
+<dt id="pywinauto.application.Application.__getitem__">
+<tt class="descname">__getitem__</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the specified dialog of the application</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pywinauto.application.Application.active_">
 <tt class="descname">active_</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.application.Application.active_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the active window of the application</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pywinauto.application.Application.connect">
-<em class="property">static </em><tt class="descname">connect</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience static method that calls connect</p>
 </dd></dl>
 
 <dl class="method">
@@ -178,13 +123,8 @@ the application</p>
 <dd><p>Try and kill the application</p>
 <p>Dialogs may pop up asking to save data - but the application
 will be killed anyway - you will not be able to click the buttons.
-this should only be used</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pywinauto.application.Application.start">
-<em class="property">static </em><tt class="descname">start</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pywinauto.application.Application.start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convenience static method that calls start</p>
+this should only be used when it is OK to kill the process like you
+would in task manager.</p>
 </dd></dl>
 
 <dl class="method">
@@ -224,9 +164,14 @@ the application</p>
 <p>Windows are resolved when used.
 You can also wait for existance or non existance of a window</p>
 <p>Initailize the class</p>
-<ul class="simple">
-<li><strong>search_criteria</strong> the criteria to match a dialog</li>
-</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>search_criteria</strong> &#8211; the criteria to match a dialog</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="pywinauto.application.WindowSpecification.__getitem__">
 <tt class="descname">__getitem__</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#pywinauto.application.WindowSpecification.__getitem__" title="Permalink to this definition">¶</a></dt>
@@ -263,7 +208,21 @@ to match against a control.</p>
 <dl class="method">
 <dt id="pywinauto.application.WindowSpecification.Exists">
 <tt class="descname">Exists</tt><big>(</big><em>timeout=None</em>, <em>retry_interval=None</em><big>)</big><a class="headerlink" href="#pywinauto.application.WindowSpecification.Exists" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if the window exists</p>
+<dd><p>Check if the window exists, return True if the control exists</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>timeout</strong> &#8211; the maximum amount of time to wait for the
+control to exists. Defaults to <tt class="docutils literal"><span class="pre">Timings.exists_timeout</span></tt></li>
+<li><strong>retry_interval</strong> &#8211; The control is checked for existance this number
+of seconds. <tt class="docutils literal"><span class="pre">Defaults</span> <span class="pre">to</span> <span class="pre">Timings.exists_retry</span></tt></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -272,49 +231,52 @@ to match against a control.</p>
 <dd><p>Prints the &#8216;identifiers&#8217;</p>
 <p>If you pass in a control then it just prints the identifiers
 for that control</p>
-<p>If you pass in a dialog then it prints the identiferis for all
-controls in the dialog</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Note :</th><td class="field-body">The identifiers printed by this method have not been made
+<p>If you pass in a dialog then it prints the identifiers for all
+controls in the dialog.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The identifiers printed by this method have not been made
 unique. So if you have 2 edit boxes, they will both have &#8220;Edit&#8221;
 listed in their identifiers. In reality though the first one
 can be refered to as &#8220;Edit&#8221;, &#8220;Edit0&#8221;, &#8220;Edit1&#8221; and the 2nd
-should be refered to as &#8220;Edit2&#8221;.</td>
-</tr>
-</tbody>
-</table>
+should be refered to as &#8220;Edit2&#8221;.</p>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="pywinauto.application.WindowSpecification.Wait">
 <tt class="descname">Wait</tt><big>(</big><em>wait_for</em>, <em>timeout=None</em>, <em>retry_interval=None</em><big>)</big><a class="headerlink" href="#pywinauto.application.WindowSpecification.Wait" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wait for the window to be in a particular state</p>
-<ul>
-<li><p class="first"><strong>wait_for</strong> The state to wait for the window to be in. It can be any
-of the following states</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wait_for</strong> &#8211; <p>The state to wait for the window to be in. It can
+be any of the following states.</p>
 <blockquote>
-<ul class="simple">
+<div><ul>
 <li>&#8216;exists&#8217; means that the window is a valid handle</li>
 <li>&#8216;visible&#8217; means that the window is not hidden</li>
 <li>&#8216;enabled&#8217; means that the window is not disabled</li>
 <li>&#8216;ready&#8217; means that the window is visible and enabled</li>
 <li>&#8216;active&#8217; means that the window is visible and enabled</li>
 </ul>
-</blockquote>
+</div></blockquote>
 </li>
-<li><p class="first"><strong>timeout</strong> Raise an error if the window is not in the appropriate
-state after this number of seconds.</p>
-</li>
-<li><p class="first"><strong>retry_interval</strong> How long to sleep between each retry</p>
-</li>
+<li><strong>timeout</strong> &#8211; Raise an error if the window is not in the appropriate
+state after this number of seconds.</li>
+<li><strong>retry_interval</strong> &#8211; How long to sleep between each retry</li>
 </ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>An example to wait until the dialog
-exists, is ready, enabled and visible</p>
-<blockquote>
-self.Dlg.Wait(&#8220;exists enabled visible ready&#8221;)</blockquote>
+exists, is ready, enabled and visible:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">Dlg</span><span class="o">.</span><span class="n">Wait</span><span class="p">(</span><span class="s">&quot;exists enabled visible ready&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="#pywinauto.application.WindowSpecification.WaitNot" title="pywinauto.application.WindowSpecification.WaitNot"><tt class="xref py py-func docutils literal"><span class="pre">WindowSpecification.WaitNot()</span></tt></a></p>
@@ -325,26 +287,35 @@ self.Dlg.Wait(&#8220;exists enabled visible ready&#8221;)</blockquote>
 <dt id="pywinauto.application.WindowSpecification.WaitNot">
 <tt class="descname">WaitNot</tt><big>(</big><em>wait_for_not</em>, <em>timeout=None</em>, <em>retry_interval=None</em><big>)</big><a class="headerlink" href="#pywinauto.application.WindowSpecification.WaitNot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wait for the window to not be in a particular state</p>
-<ul>
-<li><p class="first"><strong>wait_for</strong> The state to wait for the window to not be in. It can be any
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wait_for</strong> &#8211; <p>The state to wait for the window to not be in. It can be any
 of the following states</p>
 <blockquote>
-<ul class="simple">
+<div><ul>
 <li>&#8216;exists&#8217; means that the window is a valid handle</li>
 <li>&#8216;visible&#8217; means that the window is not hidden</li>
 <li>&#8216;enabled&#8217; means that the window is not disabled</li>
 <li>&#8216;ready&#8217; means that the window is visible and enabled</li>
 <li>&#8216;active&#8217; means that the window is visible and enabled</li>
 </ul>
-</blockquote>
+</div></blockquote>
 </li>
-<li><p class="first"><strong>timeout</strong> Raise an error if the window is sill in the
-state after this number of seconds.(Optional)</p>
-</li>
-<li><p class="first"><strong>wiat_interval</strong> How long to sleep between each retry (Optional)</p>
-</li>
+<li><strong>timeout</strong> &#8211; Raise an error if the window is sill in the
+state after this number of seconds.(Optional)</li>
+<li><strong>retry_interval</strong> &#8211; How long to sleep between each retry</li>
 </ul>
-<p>e.g. self.Dlg.WaitNot(&#8220;exists enabled visible ready&#8221;)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>An example to wait until the dialog is not ready, enabled or visible:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">Dlg</span><span class="o">.</span><span class="n">WaitNot</span><span class="p">(</span><span class="s">&quot;enabled visible ready&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="#pywinauto.application.WindowSpecification.Wait" title="pywinauto.application.WindowSpecification.Wait"><tt class="xref py py-func docutils literal"><span class="pre">WindowSpecification.Wait()</span></tt></a></p>
@@ -355,28 +326,6 @@ state after this number of seconds.(Optional)</p>
 <dt id="pywinauto.application.WindowSpecification.WrapperObject">
 <tt class="descname">WrapperObject</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.application.WindowSpecification.WrapperObject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allow the calling code to get the HwndWrapper object</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pywinauto.application.WindowSpecification.print_control_identifiers">
-<tt class="descname">print_control_identifiers</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.application.WindowSpecification.print_control_identifiers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints the &#8216;identifiers&#8217;</p>
-<p>If you pass in a control then it just prints the identifiers
-for that control</p>
-<p>If you pass in a dialog then it prints the identiferis for all
-controls in the dialog</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field"><th class="field-name">Note :</th><td class="field-body">The identifiers printed by this method have not been made
-unique. So if you have 2 edit boxes, they will both have &#8220;Edit&#8221;
-listed in their identifiers. In reality though the first one
-can be refered to as &#8220;Edit&#8221;, &#8220;Edit0&#8221;, &#8220;Edit1&#8221; and the 2nd
-should be refered to as &#8220;Edit2&#8221;.</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </dd></dl>
@@ -393,10 +342,8 @@ should be refered to as &#8220;Edit2&#8221;.</td>
 <dd><p>Return the string module name of this process</p>
 </dd></dl>
 
-</blockquote>
 <div class="section" id="exceptions">
 <h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
-<blockquote>
 <dl class="class">
 <dt id="pywinauto.application.AppNotConnected">
 <em class="property">class </em><tt class="descclassname">pywinauto.application.</tt><tt class="descname">AppNotConnected</tt><a class="headerlink" href="#pywinauto.application.AppNotConnected" title="Permalink to this definition">¶</a></dt>
@@ -421,8 +368,8 @@ should be refered to as &#8220;Edit2&#8221;.</td>
 <dd><p>Could not find that process</p>
 </dd></dl>
 
-</blockquote>
 </div>
+</div></blockquote>
 </div>
 
 
@@ -431,14 +378,6 @@ should be refered to as &#8220;Edit2&#8221;.</td>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../contents.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">pywinauto.application</a><ul>
-<li><a class="reference internal" href="#exceptions">Exceptions</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
   <p class="topless"><a href="code.html"
                         title="previous chapter">Main user modules</a></p>
@@ -482,13 +421,13 @@ should be refered to as &#8220;Edit2&#8221;.</td>
         <li class="right" >
           <a href="code.html" title="Main user modules"
              >previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
           <li><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

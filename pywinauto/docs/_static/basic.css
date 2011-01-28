@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- basic theme.
  *
- * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -413,7 +413,7 @@ dl.glossary dt {
 }
 
 .footnote:target  {
-    background-color: #ffa
+    background-color: #ffa;
 }
 
 .line-block {
@@ -444,6 +444,7 @@ dl.glossary dt {
 
 pre {
     overflow: auto;
+    overflow-y: hidden;  /* fixes display issues on Chrome browsers */
 }
 
 td.linenos pre {

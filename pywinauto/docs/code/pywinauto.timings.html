@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.timings &mdash; pywinauto v0.4.0 documentation</title>
+    <title>pywinauto.timings &mdash; pywinauto v0.4.1 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.0 documentation" href="../index.html" />
+    <link rel="top" title="pywinauto v0.4.1 documentation" href="../index.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.clipboard" href="pywinauto.clipboard.html" />
     <link rel="prev" title="pywinauto.findwindows" href="pywinauto.findwindows.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="pywinauto.findwindows.html" title="pywinauto.findwindows"
              accesskey="P">previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
           <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
@@ -56,7 +56,7 @@
   <div class="section" id="pywinauto-timings">
 <h1>pywinauto.timings<a class="headerlink" href="#pywinauto-timings" title="Permalink to this headline">¶</a></h1>
 <blockquote>
-<span class="target" id="module-pywinauto.timings"></span><p>Timing settings for all of pywinauto</p>
+<div><span class="target" id="module-pywinauto.timings"></span><p>Timing settings for all of pywinauto</p>
 <dl class="docutils">
 <dt>This module has one object that should be used for all timing adjustments</dt>
 <dd>timings.Timings</dd>
@@ -144,7 +144,7 @@ retries = default retries * 3</p>
 <dt id="pywinauto.timings.WaitUntil">
 <tt class="descclassname">pywinauto.timings.</tt><tt class="descname">WaitUntil</tt><big>(</big><em>timeout</em>, <em>retry_interval</em>, <em>func</em>, <em>value=True</em>, <em>op=&lt;built-in function eq&gt;</em>, <em>*args</em><big>)</big><a class="headerlink" href="#pywinauto.timings.WaitUntil" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt>Wait until <tt class="docutils literal"><span class="pre">op(function(*args),</span> <span class="pre">value)</span></tt> is True or until timeout </dt>
+<dt>Wait until <tt class="docutils literal"><span class="pre">op(function(*args),</span> <span class="pre">value)</span></tt> is True or until timeout</dt>
 <dd>expires</dd>
 </dl>
 <ul class="simple">
@@ -155,11 +155,11 @@ retries = default retries * 3</p>
 <li><strong>op</strong> the comparison function (defaults to equality)     * <strong>args</strong> optional arguments to be passed to func when called</li>
 </ul>
 <p>Returns the return value of the function
-If the operation times out then the return value of the the function 
+If the operation times out then the return value of the the function
 is in the &#8216;function_value&#8217; attribute of the raised exception.</p>
 <p>e.g.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
-   <span class="c"># wait a maximum of 10.5 seconds for the </span>
+   <span class="c"># wait a maximum of 10.5 seconds for the</span>
    <span class="c"># the objects ItemCount() method to return 10</span>
    <span class="c"># in increments of .5 of a second</span>
    <span class="n">WaitUntil</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ItemCount</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
@@ -173,7 +173,7 @@ is in the &#8216;function_value&#8217; attribute of the raised exception.</p>
 <dt id="pywinauto.timings.WaitUntilPasses">
 <tt class="descclassname">pywinauto.timings.</tt><tt class="descname">WaitUntilPasses</tt><big>(</big><em>timeout</em>, <em>retry_interval</em>, <em>func</em>, <em>exceptions=&lt;type 'exceptions.Exception'&gt;</em>, <em>*args</em><big>)</big><a class="headerlink" href="#pywinauto.timings.WaitUntilPasses" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt>Wait until <tt class="docutils literal"><span class="pre">func(*args)</span></tt> does not raise one of the exceptions in </dt>
+<dt>Wait until <tt class="docutils literal"><span class="pre">func(*args)</span></tt> does not raise one of the exceptions in</dt>
 <dd>exceptions</dd>
 </dl>
 <ul class="simple">
@@ -188,7 +188,7 @@ If the operation times out then the original exception raised is in
 the &#8216;original_exception&#8217; attribute of the raised exception.</p>
 <p>e.g.</p>
 <div class="highlight-python"><pre>try:
-   # wait a maximum of 10.5 seconds for the 
+   # wait a maximum of 10.5 seconds for the
    # window to be found in increments of .5 of a second.
    # P.int a message and re-raise the original exception if never found.
    WaitUntilPasses(10.5, .5, self.Exists, (WindowNotFoundError))
@@ -198,7 +198,7 @@ except TimeoutError, e:
 </div>
 </dd></dl>
 
-</blockquote>
+</div></blockquote>
 </div>
 
 
@@ -250,13 +250,13 @@ except TimeoutError, e:
         <li class="right" >
           <a href="pywinauto.findwindows.html" title="pywinauto.findwindows"
              >previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
           <li><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

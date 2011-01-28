@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Automating an application &mdash; pywinauto v0.4.0 documentation</title>
+    <title>Automating an application &mdash; pywinauto v0.4.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.0 documentation" href="index.html" />
+    <link rel="top" title="pywinauto v0.4.1 documentation" href="index.html" />
     <link rel="next" title="How To’s" href="HowTo.html" />
     <link rel="prev" title="What is pywinauto" href="index.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="index.html" title="What is pywinauto"
              accesskey="P">previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -59,7 +59,7 @@
 <p>Jeff Winkler has created a nice screencast of using pywinauto, you
 can see it at :</p>
 <blockquote>
-<a class="reference external" href="http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&amp;fromSeriesID=7">http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&amp;fromSeriesID=7</a></blockquote>
+<div><a class="reference external" href="http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&amp;fromSeriesID=7">http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&amp;fromSeriesID=7</a></div></blockquote>
 </div>
 <div class="section" id="look-at-the-examples">
 <h2>Look at the examples<a class="headerlink" href="#look-at-the-examples" title="Permalink to this headline">¶</a></h2>
@@ -67,21 +67,22 @@ can see it at :</p>
 <strong>Note</strong>: Examples are language dependent - they will only work on the
 language of product that they were programmed for. All examples have
 been programmed for English Software except where highlighted.</p>
-<p><tt class="docutils literal"><span class="pre">mspaint.py</span></tt>         Control MSPaint
-<tt class="docutils literal"><span class="pre">notepad_fast.py</span></tt>    Use fast timing settings to control Notepad
-<tt class="docutils literal"><span class="pre">notepad_slow.py</span></tt>    Use slow timing settings to control Notepad
-<tt class="docutils literal"><span class="pre">notepad_item.py</span></tt>    Use item rather then attribute access to control Notepad.</p>
-<p><tt class="docutils literal"><span class="pre">MiscExamples.py</span></tt>    Show some exceptions and how to get control identifiers.</p>
-<p><tt class="docutils literal"><span class="pre">SaveFromInternetExplorer.py</span></tt> Save a Web Page from Internet Explorer
-<tt class="docutils literal"><span class="pre">SaveFromFirefox.py</span></tt>                  Save a Web Page from Firefox.</p>
-<p><tt class="docutils literal"><span class="pre">get_winrar_info.py</span></tt>    Example of how to do multilingual automation.
-This is not an ideal example (works on French, Czech and German WinRar)</p>
-<p><tt class="docutils literal"><span class="pre">ForteAgentSample.py</span></tt>   Example of dealing with a complex application that
-is quite dynamic and gives different dialogs often when starting.</p>
-<p><tt class="docutils literal"><span class="pre">windowmediaplayer.py</span></tt>  Just another example - deals with check boxes in a
-ListView.</p>
-<p><tt class="docutils literal"><span class="pre">test_sakura.py</span></tt>    Two examples of automating a Japanase product.
-<tt class="docutils literal"><span class="pre">test_sakura2.py</span></tt></p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">mspaint.py</span></tt>         Control MSPaint</li>
+<li><tt class="docutils literal"><span class="pre">notepad_fast.py</span></tt>    Use fast timing settings to control Notepad</li>
+<li><tt class="docutils literal"><span class="pre">notepad_slow.py</span></tt>    Use slow timing settings to control Notepad</li>
+<li><tt class="docutils literal"><span class="pre">notepad_item.py</span></tt>    Use item rather then attribute access to control Notepad.</li>
+<li><tt class="docutils literal"><span class="pre">MiscExamples.py</span></tt>    Show some exceptions and how to get control identifiers.</li>
+<li><tt class="docutils literal"><span class="pre">SaveFromInternetExplorer.py</span></tt>       Save a Web Page from Internet Explorer -</li>
+<li><tt class="docutils literal"><span class="pre">SaveFromFirefox.py</span></tt>                        Save a Web Page from Firefox.</li>
+<li><tt class="docutils literal"><span class="pre">get_winrar_info.py</span></tt>    Example of how to do multilingual automation.
+This is not an ideal example (works on French, Czech and German WinRar)</li>
+<li><tt class="docutils literal"><span class="pre">ForteAgentSample.py</span></tt>   Example of dealing with a complex application that
+is quite dynamic and gives different dialogs often when starting.</li>
+<li><tt class="docutils literal"><span class="pre">windowmediaplayer.py</span></tt>  Just another example - deals with check boxes in a
+ListView.</li>
+<li><tt class="docutils literal"><span class="pre">test_sakura.py</span></tt>, <tt class="docutils literal"><span class="pre">test_sakura2.py</span></tt>    Two examples of automating a Japanase product.</li>
+</ul>
 </div>
 <div class="section" id="automate-notepad-at-the-command-line">
 <h2>Automate notepad at the command line<a class="headerlink" href="#automate-notepad-at-the-command-line" title="Permalink to this headline">¶</a></h2>
@@ -228,12 +229,12 @@ for this method as it is a thin wrapper around SendKeys.</p>
         <li class="right" >
           <a href="index.html" title="What is pywinauto"
              >previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.0 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>
