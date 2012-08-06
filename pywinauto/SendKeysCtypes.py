@@ -560,7 +560,8 @@ def parse_keys(string,
 
         # Escape or named key
         elif c == "{":
-            end_pos = string.find("}", index)
+            # We start searching from index + 1 to account for the case {}}
+            end_pos = string.find("}", index + 1)
             if end_pos == -1:
                 raise KeySequenceError('`}` not found')
 

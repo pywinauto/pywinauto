@@ -171,7 +171,11 @@ class SendKeysTests(unittest.TestCase):
 
         self.assertEquals(matched, len(extended_chars))
 
-
+    def testCharsThatMustBeEscaped(self):
+        "Make sure that escaping characters works"
+        SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}{ENTER}")
+        received = raw_input()
+        self.assertEquals("%^+(){}~", received)
 
 
 #====================================================================
