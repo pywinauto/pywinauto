@@ -702,6 +702,11 @@ class HwndWrapper(object):
             return self.handle == other
 
     #-----------------------------------------------------------
+    def __ne__(self, other):
+        "Returns False if the handles of both controls are not the same"
+        return not self == other
+
+    #-----------------------------------------------------------
     def VerifyActionable(self):
         """Verify that the control is both visible and enabled
 
