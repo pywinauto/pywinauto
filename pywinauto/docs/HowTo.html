@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>How To’s &mdash; pywinauto v0.4.1 documentation</title>
+    <title>How To’s &mdash; pywinauto 0.4.2 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.4.1',
+        VERSION:     '0.4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.1 documentation" href="index.html" />
+    <link rel="top" title="pywinauto 0.4.2 documentation" href="index.html" />
     <link rel="next" title="Methods available to each different control type" href="controls_overview.html" />
     <link rel="prev" title="Automating an application" href="getting_started.html" /> 
   </head>
@@ -42,7 +45,7 @@
         <li class="right" >
           <a href="getting_started.html" title="Automating an application"
              accesskey="P">previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -84,21 +87,21 @@ one of the following:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">process:</th><td class="field-body"><p class="first">the process id of the application, e.g.</p>
+<tr class="field-odd field"><th class="field-name">process:</th><td class="field-body"><p class="first">the process id of the application, e.g.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
 <span class="n">app</span><span class="o">.</span><span class="n">connect_</span><span class="p">(</span><span class="n">process</span> <span class="o">=</span> <span class="mi">2341</span><span class="p">)</span>
 </pre></div>
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">handle:</th><td class="field-body"><p class="first">The windows handle of a window of the application, e.g.</p>
+<tr class="field-even field"><th class="field-name">handle:</th><td class="field-body"><p class="first">The windows handle of a window of the application, e.g.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
 <span class="n">app</span><span class="o">.</span><span class="n">connect_</span><span class="p">(</span><span class="n">handle</span> <span class="o">=</span> <span class="mh">0x010f0c</span><span class="p">)</span>
 </pre></div>
 </div>
 </td>
 </tr>
-<tr class="field"><th class="field-name">path:</th><td class="field-body"><p class="first">The path of the executable of the process (<tt class="docutils literal"><span class="pre">GetModuleFileNameEx</span></tt>
+<tr class="field-odd field"><th class="field-name">path:</th><td class="field-body"><p class="first">The path of the executable of the process (<tt class="docutils literal"><span class="pre">GetModuleFileNameEx</span></tt>
 is used to find the path of each process and compared against
 the value passed in)  e.g.</p>
 <div class="last highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
@@ -427,26 +430,26 @@ systray_icons = app.ShellTrayWnd.NotificationAreaToolbar</pre>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">explorer_app:</th><td class="field-body">defines an Application() object connected to the running
+<tr class="field-odd field"><th class="field-name">explorer_app:</th><td class="field-body">defines an Application() object connected to the running
 explorer. You probably don&#8217;t need to use this your self
 very much.</td>
 </tr>
-<tr class="field"><th class="field-name">TaskBar:</th><td class="field-body">The handle to the task bar (the bar containing Start Button,
+<tr class="field-even field"><th class="field-name">TaskBar:</th><td class="field-body">The handle to the task bar (the bar containing Start Button,
 the QuickLaunch icons, running tasks, etc</td>
 </tr>
-<tr class="field"><th class="field-name">StartButton:</th><td class="field-body">&#8220;Start me up&#8221; :-) I think you might know what this is!</td>
+<tr class="field-odd field"><th class="field-name">StartButton:</th><td class="field-body">&#8220;Start me up&#8221; :-) I think you might know what this is!</td>
 </tr>
-<tr class="field"><th class="field-name">QuickLaunch:</th><td class="field-body">The Toolbar with the quick launch icons</td>
+<tr class="field-even field"><th class="field-name">QuickLaunch:</th><td class="field-body">The Toolbar with the quick launch icons</td>
 </tr>
-<tr class="field"><th class="field-name">SystemTray:</th><td class="field-body">The window that contains the Clock and System Tray Icons</td>
+<tr class="field-odd field"><th class="field-name">SystemTray:</th><td class="field-body">The window that contains the Clock and System Tray Icons</td>
 </tr>
-<tr class="field"><th class="field-name">Clock:</th><td class="field-body">The clock</td>
+<tr class="field-even field"><th class="field-name">Clock:</th><td class="field-body">The clock</td>
 </tr>
-<tr class="field"><th class="field-name" colspan="2">SystemTrayIcons:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">The toolbar representing the system tray icons</td>
+<tr class="field-odd field"><th class="field-name" colspan="2">SystemTrayIcons:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The toolbar representing the system tray icons</td>
 </tr>
-<tr class="field"><th class="field-name" colspan="2">RunningApplications:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">The toolbar representing the running applications</td>
+<tr class="field-even field"><th class="field-name" colspan="2">RunningApplications:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">The toolbar representing the running applications</td>
 </tr>
 </tbody>
 </table>
@@ -456,8 +459,8 @@ system tray icons:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">ClickSystemTrayIcon(button)</span></tt>:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">You can use this to left click a visible icon
+<tr class="field-odd field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">ClickSystemTrayIcon(button)</span></tt>:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">You can use this to left click a visible icon
 in the system tray. I had to specifically say
 visible icon as there may be many invisible
 icons that obviously cannot be clicked. Button
@@ -466,8 +469,8 @@ find and click the 3rd visible button. (very little
 error checking is performed and this method will
 more then likely be moved/renamed in the futures.</td>
 </tr>
-<tr class="field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">RightClickSystemTrayIcon(button)</span></tt>:</th></tr>
-<tr><td>&nbsp;</td><td class="field-body">Similar to <tt class="docutils literal"><span class="pre">ClickSytemTrayIcon</span></tt> but
+<tr class="field-even field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">RightClickSystemTrayIcon(button)</span></tt>:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">Similar to <tt class="docutils literal"><span class="pre">ClickSytemTrayIcon</span></tt> but
 performs a right click.</td>
 </tr>
 </tbody>
@@ -524,7 +527,7 @@ automated not part of explorer.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -553,12 +556,12 @@ automated not part of explorer.</p>
         <li class="right" >
           <a href="getting_started.html" title="Automating an application"
              >previous</a> |</li>
-        <li><a href="contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li> 
+        <li><a href="contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

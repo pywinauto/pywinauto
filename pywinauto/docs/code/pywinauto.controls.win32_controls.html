@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.controls.win32_controls &mdash; pywinauto v0.4.1 documentation</title>
+    <title>pywinauto.controls.win32_controls &mdash; pywinauto 0.4.2 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.4.1',
+        VERSION:     '0.4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.1 documentation" href="../index.html" />
+    <link rel="top" title="pywinauto 0.4.2 documentation" href="../index.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.SendKeysCtypes" href="pywinauto.SendKeysCtypes.html" />
     <link rel="prev" title="pywinauto.controls.menuwrapper" href="pywinauto.controls.menuwrapper.html" /> 
@@ -43,7 +46,7 @@
         <li class="right" >
           <a href="pywinauto.controls.menuwrapper.html" title="pywinauto.controls.menuwrapper"
              accesskey="P">previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
           <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
@@ -124,6 +127,21 @@ BST_INDETERMINATE = 2</p>
 <dd><p>Uncheck a checkbox</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ButtonWrapper.can_be_label">
+<tt class="descname">can_be_label</tt><em class="property"> = True</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ButtonWrapper.can_be_label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ButtonWrapper.friendlyclassname">
+<tt class="descname">friendlyclassname</tt><em class="property"> = 'Button'</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ButtonWrapper.friendlyclassname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ButtonWrapper.windowclasses">
+<tt class="descname">windowclasses</tt><em class="property"> = ['Button', 'WindowsForms\\d*\\.BUTTON\\..*', 'TButton', 'ThunderCommandButton', 'ThunderOptionButton', 'ThunderCheckBox']</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ButtonWrapper.windowclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -182,6 +200,21 @@ or it can be the string that you want to select</p>
 <dd><p>Return the text of the items in the combobox</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ComboBoxWrapper.friendlyclassname">
+<tt class="descname">friendlyclassname</tt><em class="property"> = 'ComboBox'</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ComboBoxWrapper.friendlyclassname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ComboBoxWrapper.has_title">
+<tt class="descname">has_title</tt><em class="property"> = False</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ComboBoxWrapper.has_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ComboBoxWrapper.windowclasses">
+<tt class="descname">windowclasses</tt><em class="property"> = ['ComboBox', 'WindowsForms\\d*\\.COMBOBOX\\..*', 'TComboBox']</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ComboBoxWrapper.windowclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -214,6 +247,16 @@ menus.</p>
 <tt class="descname">WriteToXML</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pywinauto.controls.win32_controls.DialogWrapper.WriteToXML" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the dialog an XML file (requires elementtree)</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.DialogWrapper.can_be_label">
+<tt class="descname">can_be_label</tt><em class="property"> = True</em><a class="headerlink" href="#pywinauto.controls.win32_controls.DialogWrapper.can_be_label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.DialogWrapper.friendlyclassname">
+<tt class="descname">friendlyclassname</tt><em class="property"> = 'Dialog'</em><a class="headerlink" href="#pywinauto.controls.win32_controls.DialogWrapper.friendlyclassname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -286,6 +329,21 @@ the contents of the edit control.</p>
 <dd><p>Get the text of the edit control</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.EditWrapper.friendlyclassname">
+<tt class="descname">friendlyclassname</tt><em class="property"> = 'Edit'</em><a class="headerlink" href="#pywinauto.controls.win32_controls.EditWrapper.friendlyclassname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.EditWrapper.has_title">
+<tt class="descname">has_title</tt><em class="property"> = False</em><a class="headerlink" href="#pywinauto.controls.win32_controls.EditWrapper.has_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.EditWrapper.windowclasses">
+<tt class="descname">windowclasses</tt><em class="property"> = ['Edit', 'TEdit', 'TMemo', 'WindowsForms\\d*\\.EDIT\\..*', 'ThunderTextBox', 'ThunderRT6TextBox']</em><a class="headerlink" href="#pywinauto.controls.win32_controls.EditWrapper.windowclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -344,6 +402,21 @@ or it can be the string that you want to select</p>
 <dd><p>Return the texts of the control</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ListBoxWrapper.friendlyclassname">
+<tt class="descname">friendlyclassname</tt><em class="property"> = 'ListBox'</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ListBoxWrapper.friendlyclassname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ListBoxWrapper.has_title">
+<tt class="descname">has_title</tt><em class="property"> = False</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ListBoxWrapper.has_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.ListBoxWrapper.windowclasses">
+<tt class="descname">windowclasses</tt><em class="property"> = ['ListBox', 'WindowsForms\\d*\\.LISTBOX\\..*', 'ThunderListBox', 'ThunderFileListBox', 'TListBox']</em><a class="headerlink" href="#pywinauto.controls.win32_controls.ListBoxWrapper.windowclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -364,6 +437,21 @@ is raised.</p>
 <dd><p>Return whether it is a dialog</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.PopupMenuWrapper.friendlyclassname">
+<tt class="descname">friendlyclassname</tt><em class="property"> = 'PopupMenu'</em><a class="headerlink" href="#pywinauto.controls.win32_controls.PopupMenuWrapper.friendlyclassname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.PopupMenuWrapper.has_title">
+<tt class="descname">has_title</tt><em class="property"> = False</em><a class="headerlink" href="#pywinauto.controls.win32_controls.PopupMenuWrapper.has_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.PopupMenuWrapper.windowclasses">
+<tt class="descname">windowclasses</tt><em class="property"> = ['#32768']</em><a class="headerlink" href="#pywinauto.controls.win32_controls.PopupMenuWrapper.windowclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -372,6 +460,21 @@ is raised.</p>
 <dd><p>Bases: <a class="reference internal" href="pywinauto.controls.HwndWrapper.html#pywinauto.controls.HwndWrapper.HwndWrapper" title="pywinauto.controls.HwndWrapper.HwndWrapper"><tt class="xref py py-class docutils literal"><span class="pre">pywinauto.controls.HwndWrapper.HwndWrapper</span></tt></a></p>
 <p>Wrap a windows Static control</p>
 <p>Initialize the control</p>
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.StaticWrapper.can_be_label">
+<tt class="descname">can_be_label</tt><em class="property"> = True</em><a class="headerlink" href="#pywinauto.controls.win32_controls.StaticWrapper.can_be_label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.StaticWrapper.friendlyclassname">
+<tt class="descname">friendlyclassname</tt><em class="property"> = 'Static'</em><a class="headerlink" href="#pywinauto.controls.win32_controls.StaticWrapper.friendlyclassname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pywinauto.controls.win32_controls.StaticWrapper.windowclasses">
+<tt class="descname">windowclasses</tt><em class="property"> = ['Static', 'WindowsForms\\d*\\.STATIC\\..*', 'TPanel']</em><a class="headerlink" href="#pywinauto.controls.win32_controls.StaticWrapper.windowclasses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div></blockquote>
@@ -397,7 +500,7 @@ is raised.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -426,13 +529,13 @@ is raised.</p>
         <li class="right" >
           <a href="pywinauto.controls.menuwrapper.html" title="pywinauto.controls.menuwrapper"
              >previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
           <li><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

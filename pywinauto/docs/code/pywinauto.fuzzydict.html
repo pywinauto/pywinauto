@@ -3,17 +3,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.fuzzydict &mdash; pywinauto v0.4.1 documentation</title>
+    <title>pywinauto.fuzzydict &mdash; pywinauto 0.4.2 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.4.1',
+        VERSION:     '0.4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto v0.4.1 documentation" href="../index.html" />
+    <link rel="top" title="pywinauto 0.4.2 documentation" href="../index.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="prev" title="pywinauto.XMLHelpers" href="pywinauto.XMLHelpers.html" /> 
   </head>
@@ -39,7 +42,7 @@
         <li class="right" >
           <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
              accesskey="P">previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
           <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
@@ -73,9 +76,10 @@ dictionaries.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;There&#39;</span><span class="p">]</span>
 <span class="gt">Traceback (most recent call last):</span>
   File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">?</span>
-  File <span class="nb">&quot;pywinautouzzydict.py&quot;</span>, line <span class="m">125</span>, in <span class="n">__getitem__</span>
-    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-<span class="gr">KeyError: &quot;&#39;There&#39;. closest match</span>: <span class="n">&#39;hello&#39; with ratio 0.400&quot;</span>
+  File <span class="nb">&quot;pywinauto</span>
+<span class="nb">uzzydict.py&quot;</span>, line <span class="m">125</span>, in <span class="n">__getitem__</span>
+<span class="go">    raise KeyError(</span>
+<span class="go">KeyError: &quot;&#39;There&#39;. closest match: &#39;hello&#39; with ratio 0.400&quot;</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;you are&#39;</span><span class="p">]</span>
 <span class="go">3</span>
@@ -86,7 +90,7 @@ dictionaries.</p>
 </div>
 <dl class="class">
 <dt id="pywinauto.fuzzydict.FuzzyDict">
-<em class="property">class </em><tt class="descclassname">pywinauto.fuzzydict.</tt><tt class="descname">FuzzyDict</tt><big>(</big><em>items=None</em>, <em>cutoff=0.59999999999999998</em><big>)</big><a class="headerlink" href="#pywinauto.fuzzydict.FuzzyDict" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pywinauto.fuzzydict.</tt><tt class="descname">FuzzyDict</tt><big>(</big><em>items=None</em>, <em>cutoff=0.6</em><big>)</big><a class="headerlink" href="#pywinauto.fuzzydict.FuzzyDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a dictionary that performs fuzzy lookup</p>
 <p>Construct a new FuzzyDict instance</p>
 <p>items is an dictionary to copy items from (optional)
@@ -115,7 +119,7 @@ and 1 is a perfect match)</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -141,13 +145,13 @@ and 1 is a perfect match)</p>
         <li class="right" >
           <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
              >previous</a> |</li>
-        <li><a href="../contents.html">pywinauto v0.4.1 documentation</a> &raquo;</li>
+        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
           <li><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
