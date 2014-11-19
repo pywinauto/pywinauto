@@ -52,6 +52,7 @@ in almost exactly the same ways. ::
   :func:`WindowSpecification.Window`
 
 """
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
@@ -63,15 +64,16 @@ import pickle
 
 import ctypes
 
-import win32structures
-import win32functions
-import win32defines
-import controls
-import findbestmatch
-import findwindows
-import handleprops
+from . import win32structures
+from . import win32functions
+from . import win32defines
+from . import controls
+from . import findbestmatch
+from . import findwindows
+from . import handleprops
 
-from timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+from .actionlogger import ActionLogger
+from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
 
 
 class AppStartError(Exception):
@@ -106,6 +108,7 @@ class WindowSpecification(object):
 
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
+        self.actions = ActionLogger()
 
 
     def __call__(self, *args, **kwargs):
@@ -351,6 +354,7 @@ class WindowSpecification(object):
 
         ctrls = _resolve_control(wait_criteria, timeout, retry_interval)
 
+        self.actions.log('Window "' + ctrls[-1].WindowText() + '" appeared to be ' + str(wait_for))
         return ctrls[-1]
 
     def WaitNot(self,
@@ -440,7 +444,11 @@ class WindowSpecification(object):
 
         try:
             wait_val = WaitUntil(timeout, retry_interval, WindowIsNotXXX)
-        except TimeoutError, e:
+#            if self.criteria[-1].has_key('best_match'):
+#                self.actions.log('Window "' + str(self.criteria[-1]['best_match']) + '" became not ' + str(wait_for_not))
+#            elif self.criteria[-1].has_key('title'):
+#                self.actions.log('Window "' + str(self.criteria[-1]['title']) + '" became not ' + str(wait_for_not))
+        except TimeoutError as e:
             raise RuntimeError(
                 "Timed out while waiting for window (%s - '%s') "
                 "to not be in '%s' state"% (
@@ -517,20 +525,20 @@ class WindowSpecification(object):
         for name, ctrl in name_control_map.items():
             control_name_map.setdefault(ctrl, []).append(name)
 
-        print "Control Identifiers:"
+        print("Control Identifiers:")
         for ctrl in ctrls_to_print:
 
-            print "%s - '%s'   %s"% (
+            print("%s - '%s'   %s"% (
                 ctrl.Class(),
                 ctrl.WindowText().encode("unicode-escape"),
-                str(ctrl.Rectangle()))
+                str(ctrl.Rectangle())))
 
-            print "\t",
+            print("\t"),
             names = control_name_map[ctrl]
             names.sort()
             for name in names:
-                print "'%s'" % name.encode("unicode_escape"),
-            print
+                print("'%s'" % name.encode("unicode_escape")),
+            print()
 
 
 #        for ctrl in ctrls_to_print:
@@ -564,7 +572,8 @@ def _get_ctrl(criteria_):
         # that are required for child controls
         ctrl_criteria = criteria[1]
         ctrl_criteria["top_level_only"] = False
-        ctrl_criteria["parent"] = dialog.handle
+        if not "parent" in ctrl_criteria:
+            ctrl_criteria["parent"] = dialog.handle
 
         # resolve the control and return it
         ctrl = controls.WrapHandle(
@@ -598,7 +607,7 @@ def _resolve_from_appdata(
     # completely language dependent
     for unloc_attrib in ['title_re', 'title', 'best_match']:
         for c in criteria:
-            if c.has_key(unloc_attrib):
+            if unloc_attrib in c.keys():
                 del c[unloc_attrib]
 
 
@@ -690,8 +699,8 @@ def _resolve_from_appdata(
                 try:
                     ctrl = controls.WrapHandle(ctrl_hwnds[0])
                 except IndexError:
-                    print "-+-+=_" * 20
-                    print found_criteria
+                    print("-+-+=_" * 20)
+                    print(found_criteria)
                     raise
 
                 break
@@ -769,7 +778,7 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
 
          2nd element is the search criteria for a control of the dialog
 
-    * **timeout** -  maximum length of time to try to find the controls (default 0)
+    * **timeout** -  maximum length of time to try to find the controls (default 5)
     * **retry_interval** - how long to wait between each retry (default .2)
     """
 
@@ -791,7 +800,7 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
             controls.InvalidWindowHandle),
             criteria)
 
-    except TimeoutError, e:
+    except TimeoutError as e:
         raise e.original_exception
 
     return ctrl
@@ -845,7 +854,7 @@ class Application(object):
     connect = staticmethod(__connect)
     Connect = connect
 
-    def start_(self, cmd_line, timeout = None, retry_interval = None):
+    def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console=False):
         "Starts the application giving in cmd_line"
 
         if timeout is None:
@@ -860,16 +869,22 @@ class Application(object):
 
         # we need to wrap the command line as it can be modified
         # by the function
-        command_line = ctypes.c_wchar_p(unicode(cmd_line))
+        try:
+            command_line = ctypes.c_wchar_p(unicode(cmd_line)) # Python 2.x
+        except NameError:
+            command_line = ctypes.c_wchar_p(cmd_line) # Python 3.x
 
         # Actually create the process
+        dwCreationFlags = win32structures.DWORD(0)
+        if create_new_console:
+            dwCreationFlags = win32structures.DWORD(win32defines.CREATE_NEW_CONSOLE)
         ret = win32functions.CreateProcess(
             0, 					# module name
             command_line,		# command line
             0, 					# Process handle not inheritable.
             0, 					# Thread handle not inheritable.
             0, 					# Set handle inheritance to FALSE.
-            0, 					# No creation flags.
+            dwCreationFlags, 	# Creation flags.
             0, 					# Use parent's environment block.
             0,  				# Use parent's starting directory.
             ctypes.byref(start_info),# Pointer to STARTUPINFO structure.
@@ -1230,7 +1245,7 @@ def process_from_module(module):
 #    while not app and waited <= timeout:
 #        try:
 #            app = Application.connect(best_match = dlg)
-#        except Exception, e:
+#        except Exception as e:
 #            time.sleep(1)
 #            waited += 1
 #

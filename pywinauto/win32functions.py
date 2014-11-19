@@ -18,6 +18,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 "Defines Windows(tm) functions"
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
@@ -48,6 +49,8 @@ Rectangle           =   ctypes.windll.gdi32.Rectangle
 SelectObject        =   ctypes.windll.gdi32.SelectObject
 GetStockObject      =   ctypes.windll.gdi32.GetStockObject
 GetSystemMetrics    =   ctypes.windll.user32.GetSystemMetrics
+GetSystemMetrics.restype = ctypes.c_int
+GetSystemMetrics.argtypes = (ctypes.c_int, )
 GetTextMetrics      =   ctypes.windll.gdi32.GetTextMetricsW
 
 
@@ -100,12 +103,15 @@ IsWindow 			=	ctypes.windll.user32.IsWindow
 IsWindowUnicode		=	ctypes.windll.user32.IsWindowUnicode
 IsWindowVisible		=	ctypes.windll.user32.IsWindowVisible
 IsWindowEnabled		=	ctypes.windll.user32.IsWindowEnabled
+ClientToScreen      =   ctypes.windll.user32.ClientToScreen
+ScreenToClient      =   ctypes.windll.user32.ScreenToClient
 
 GetCurrentThreadId  =   ctypes.windll.Kernel32.GetCurrentThreadId
 GetWindowThreadProcessId =  ctypes.windll.user32.GetWindowThreadProcessId
 GetGUIThreadInfo    =   ctypes.windll.user32.GetGUIThreadInfo
 AttachThreadInput   =   ctypes.windll.user32.AttachThreadInput
-GetWindowThreadProcessId    =   ctypes.windll.user32.GetWindowThreadProcessId
+#GetWindowThreadProcessId    =   ctypes.windll.user32.GetWindowThreadProcessId
+GetLastError = ctypes.windll.kernel32.GetLastError
 
 OpenProcess			=	ctypes.windll.kernel32.OpenProcess
 CloseHandle         =   ctypes.windll.kernel32.CloseHandle
@@ -134,7 +140,12 @@ GetForegroundWindow	=	ctypes.windll.user32.GetForegroundWindow
 SetWindowLong		=	ctypes.windll.user32.SetWindowLongW
 SystemParametersInfo =	ctypes.windll.user32.SystemParametersInfoW
 VirtualAllocEx		=	ctypes.windll.kernel32.VirtualAllocEx
+VirtualAllocEx.restype = ctypes.c_void_p
 VirtualFreeEx		=	ctypes.windll.kernel32.VirtualFreeEx
+DebugBreakProcess	=	ctypes.windll.kernel32.DebugBreakProcess
+
+VirtualAlloc		=	ctypes.windll.kernel32.VirtualAlloc
+VirtualFree			=	ctypes.windll.kernel32.VirtualFree
 WriteProcessMemory	=	ctypes.windll.kernel32.WriteProcessMemory
 GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
 GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
@@ -153,7 +164,6 @@ GetACP				=	ctypes.windll.kernel32.GetACP
 WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
 WaitForInputIdle	= ctypes.windll.user32.WaitForInputIdle
 
-OpenProcess				=	ctypes.windll.kernel32.OpenProcess
 GetModuleFileNameEx		=	ctypes.windll.psapi.GetModuleFileNameExW
 
 GetClipboardData = ctypes.windll.user32.GetClipboardData
@@ -208,7 +218,7 @@ def LoWord(value):
 #====================================================================
 def WaitGuiThreadIdle(handle, timeout = 1):
     "Wait until the thread of the specified handle is ready"
-    import win32defines
+    from . import win32defines
 
     process_id = ctypes.c_int()
     GetWindowThreadProcessId(handle, ctypes.byref(process_id))

@@ -23,38 +23,50 @@
 These are implemented in a procedural way so as to to be
 useful to other modules with the least conceptual overhead
 """
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
 import ctypes
 
-import win32functions
-import win32defines
-import win32structures
-
-import findwindows # for children
+from . import win32functions
+from . import win32defines
+from . import win32structures
 
 
 #=========================================================================
 def text(handle):
     "Return the text of the window"
 
-    length = ctypes.c_long()
-    win32functions.SendMessageTimeout(
-        handle,
-        win32defines.WM_GETTEXTLENGTH,
-        0,
-        0,
-        win32defines.SMTO_ABORTIFHUNG,
-        100,  # .1 of a second
-        ctypes.byref(length))
-
-    length = length.value
-
+#    length = ctypes.c_long()
+#    win32functions.SendMessageTimeout(
+#        handle,
+#        win32defines.WM_GETTEXTLENGTH,
+#        0,
+#        0,
+#        win32defines.SMTO_ABORTIFHUNG,
+#        100,  # .1 of a second
+#        ctypes.byref(length))
+#    length = length.value
+    
+    class_name = classname(handle)
+    if class_name == 'IME':
+        return 'Default IME'
+    if class_name == 'MSCTFIME UI':
+        return 'M'
+    length = win32functions.SendMessage(handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
+    '''
+    # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
+    c_length = win32structures.DWORD(0)
+    result = win32functions.SendMessageTimeout(handle, win32defines.WM_GETTEXTLENGTH, 0, 0, win32defines.SMTO_ABORTIFHUNG, 500, ctypes.byref(c_length))
+    if result == 0:
+        print('WARNING! Cannot retrieve text length for handle = ' + str(handle))
+        return ''
+    else:
+        length = c_length.value
+    '''
     textval = ''
-    # In some rare cases, the length returned by WM_GETTEXTLENGTH is <0.
-    # Guard against this by checking it is >0 (==0 is not of interest):
-    if length > 0:
+    if length:
         length += 1
 
         buffer_ = ctypes.create_unicode_buffer(length)
@@ -216,8 +228,11 @@ def font(handle):
 
 #=========================================================================
 def processid(handle):
-    "Retrun the ID of process that controls this window"
-    process_id = ctypes.c_int()
+    "Return the ID of process that controls this window"
+    if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
+        process_id = ctypes.c_ulonglong()
+    else:
+        process_id = ctypes.c_ulong()
     win32functions.GetWindowThreadProcessId(handle, ctypes.byref(process_id))
 
     return process_id.value
@@ -225,8 +240,33 @@ def processid(handle):
 #=========================================================================
 def children(handle):
     "Return a list of handles to the children of this window"
-    return findwindows.enum_child_windows(handle)
 
+    # this will be filled in the callback function
+    child_windows = []
+
+    # callback function for EnumChildWindows
+    def EnumChildProc(hwnd, lparam):
+        "Called for each child - adds child hwnd to list"
+
+        # append it to our list
+        child_windows.append(hwnd)
+
+        # return true to keep going
+        return True
+
+    # define the child proc type
+    enum_child_proc = ctypes.WINFUNCTYPE(
+        ctypes.c_int, 			# return type
+        win32structures.HWND, 	# the window handle
+        win32structures.LPARAM)	# extra information
+
+    # update the proc to the correct type
+    proc = enum_child_proc(EnumChildProc)
+
+    # loop over all the children (callback called for each)
+    win32functions.EnumChildWindows(handle, proc, 0)
+
+    return child_windows
 
 #=========================================================================
 def has_style(handle, tocheck):

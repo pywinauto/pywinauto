@@ -457,7 +457,7 @@ def ReadPropertiesFromFile(filename):
 
 
     # it is an old XML so let's fix it up a little
-    if not parsed.attrib.has_key("_version_"):
+    if not ("_version_" in parsed.attrib.keys()):
 
         # find each of the control elements
         for ctrl_prop in props:

@@ -100,7 +100,9 @@ controls also.
 
 try:
     import ctypes
-    import SendKeys
+    import win32gui
+    import win32gui_struct
+    import win32api
 except ImportError, e:
     print "The following module has to be installed before running pywinauto..."
     print "\t", str(e).replace("No module named ", "")

@@ -64,7 +64,7 @@ class ControlProps(dict):
     #    print "sdafafasdfafasdfasdf",
     #    try:
     #        print "---", self['FriendlyClassName']
-    #    except Exception, e:
+    #    except Exception as e:
     #        print "fffffffffffffffffffff"
     #        print `e`
     #    return self['FriendlyClassName']
@@ -83,7 +83,7 @@ class ControlProps(dict):
 def GetMenuBlocks(ctrls):
     allMenuBlocks = []
     for ctrl in ctrls:
-        if ctrl.has_key('MenuItems'):
+        if 'MenuItems' in ctrl.keys():
             # we need to get all the separate menu blocks!
             menuBlocks = MenuBlockAsControls(ctrl.MenuItems())
             allMenuBlocks.extend(menuBlocks)
@@ -114,7 +114,7 @@ def MenuBlockAsControls(menuItems, parentage = []):
         curBlock.append(itemAsCtrl)
 
         # If the item has a sub menu
-        if item.has_key('MenuItems'):
+        if 'MenuItems' in item.keys():
 
             # add the current item the path
             parentage.append(item['Text'])
@@ -232,7 +232,7 @@ def SetReferenceControls(controls, refControls):
 #            # try to get the first element of the possible list item
 #            try:
 #                return self[key + "s"][0]
-#            except TypeError, e:
+#            except TypeError as e:
 #                pass
 #
 #        if key in self:

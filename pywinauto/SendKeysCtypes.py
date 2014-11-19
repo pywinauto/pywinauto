@@ -8,6 +8,7 @@ is useful!
 """
 import time
 import ctypes
+import win32api
 
 __all__ = ['KeySequenceError', 'SendKeys']
 
@@ -25,11 +26,16 @@ DWORD = ctypes.c_ulong
 LONG = ctypes.c_long
 WORD = ctypes.c_ushort
 
+def is_x64():
+    return ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
 class MOUSEINPUT(ctypes.Structure):
     "Needed for complete definition of INPUT structure - not used"
-    _pack_ = 2
+    if is_x64(): # x64 platform
+        _pack_ = 4
+    else:
+        _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
         ('dx', LONG),
@@ -37,31 +43,43 @@ class MOUSEINPUT(ctypes.Structure):
         ('mouseData', DWORD),
         ('dwFlags', DWORD),
         ('time', DWORD),
-        ('dwExtraInfo', DWORD),
+        ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)),
     ]
-assert ctypes.sizeof(MOUSEINPUT) == 24, ctypes.sizeof(MOUSEINPUT)
-assert ctypes.alignment(MOUSEINPUT) == 2, ctypes.alignment(MOUSEINPUT)
+assert ctypes.sizeof(MOUSEINPUT) == 24 or ctypes.sizeof(MOUSEINPUT) == 28, ctypes.sizeof(MOUSEINPUT)
+if is_x64():
+    assert ctypes.alignment(MOUSEINPUT) == 4, ctypes.alignment(MOUSEINPUT)
+else:
+    assert ctypes.alignment(MOUSEINPUT) == 2, ctypes.alignment(MOUSEINPUT)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
 class KEYBDINPUT(ctypes.Structure):
     "A particular keyboard event"
-    _pack_ = 2
+    if is_x64():
+        _pack_ = 4
+    else:
+        _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
         ('wVk', WORD),
         ('wScan', WORD),
         ('dwFlags', DWORD),
         ('time', DWORD),
-        ('dwExtraInfo', DWORD),
+        ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)), #DWORD),
     ]
-assert ctypes.sizeof(KEYBDINPUT) == 16, ctypes.sizeof(KEYBDINPUT)
-assert ctypes.alignment(KEYBDINPUT) == 2, ctypes.alignment(KEYBDINPUT)
+assert ctypes.sizeof(KEYBDINPUT) == 16 or ctypes.sizeof(KEYBDINPUT) == 20, ctypes.sizeof(KEYBDINPUT)
+if is_x64():
+    assert ctypes.alignment(KEYBDINPUT) == 4, ctypes.alignment(KEYBDINPUT)
+else:
+    assert ctypes.alignment(KEYBDINPUT) == 2, ctypes.alignment(KEYBDINPUT)
 
 
 class HARDWAREINPUT(ctypes.Structure):
     "Needed for complete definition of INPUT structure - not used"
-    _pack_ = 2
+    if is_x64():
+        _pack_ = 4
+    else:
+        _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4300
         ('uMsg', DWORD),
@@ -69,7 +87,10 @@ class HARDWAREINPUT(ctypes.Structure):
         ('wParamH', WORD),
     ]
 assert ctypes.sizeof(HARDWAREINPUT) == 8, ctypes.sizeof(HARDWAREINPUT)
-assert ctypes.alignment(HARDWAREINPUT) == 2, ctypes.alignment(HARDWAREINPUT)
+if is_x64():
+    assert ctypes.alignment(HARDWAREINPUT) == 4, ctypes.alignment(HARDWAREINPUT)
+else:
+    assert ctypes.alignment(HARDWAREINPUT) == 2, ctypes.alignment(HARDWAREINPUT)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
@@ -81,24 +102,34 @@ class UNION_INPUT_STRUCTS(ctypes.Union):
         ('ki', KEYBDINPUT),
         ('hi', HARDWAREINPUT),
     ]
-assert ctypes.sizeof(UNION_INPUT_STRUCTS) == 24, \
+assert ctypes.sizeof(UNION_INPUT_STRUCTS) == 24 or ctypes.sizeof(UNION_INPUT_STRUCTS) == 28, \
     ctypes.sizeof(UNION_INPUT_STRUCTS)
-assert ctypes.alignment(UNION_INPUT_STRUCTS) == 2, \
-    ctypes.alignment(UNION_INPUT_STRUCTS)
+if is_x64():
+    assert ctypes.alignment(UNION_INPUT_STRUCTS) == 4, \
+        ctypes.alignment(UNION_INPUT_STRUCTS)
+else:
+    assert ctypes.alignment(UNION_INPUT_STRUCTS) == 2, \
+        ctypes.alignment(UNION_INPUT_STRUCTS)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
 class INPUT(ctypes.Structure):
     "See: http://msdn.microsoft.com/en-us/library/ms646270%28VS.85%29.aspx"
-    _pack_ = 2
+    if is_x64():
+        _pack_ = 4
+    else:
+        _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
         ('type', DWORD),
         # Unnamed field renamed to '_'
         ('_', UNION_INPUT_STRUCTS),
     ]
-assert ctypes.sizeof(INPUT) == 28, ctypes.sizeof(INPUT)
-assert ctypes.alignment(INPUT) == 2, ctypes.alignment(INPUT)
+assert ctypes.sizeof(INPUT) == 28 or ctypes.sizeof(INPUT) == 32, ctypes.sizeof(INPUT)
+if is_x64():
+    assert ctypes.alignment(INPUT) == 4, ctypes.alignment(INPUT)
+else:
+    assert ctypes.alignment(INPUT) == 2, ctypes.alignment(INPUT)
 
 
 INPUT_KEYBOARD = 1
@@ -304,7 +335,7 @@ class KeyAction(object):
 
     def _get_key_info(self):
         """Return virtual_key, scan_code, and flags for the action
-
+        
         This is one of the methods that will be overridden by sub classes"""
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
@@ -335,14 +366,18 @@ class KeyAction(object):
     def Run(self):
         "Execute the action"
         inputs = self.GetInput()
-        return SendInput(
-            len(inputs),
-            ctypes.byref(inputs),
-            ctypes.sizeof(INPUT))
+        #return SendInput(
+        #    len(inputs),
+        #    ctypes.byref(inputs),
+        #    ctypes.sizeof(INPUT))
+        
+        # vvryabov: it works more stable than SendInput
+        for inp in inputs:
+            win32api.keybd_event(inp._.ki.wVk, inp._.ki.wScan, inp._.ki.dwFlags)
 
     def _get_down_up_string(self):
         """Return a string that will show whether the string is up or down
-
+        
         return 'down' if the key is a press only
         return 'up' if the key is up only
         return '' if the key is up & down (as default)
@@ -354,7 +389,7 @@ class KeyAction(object):
             elif self.up:
                 down_up = "up"
         return down_up
-
+    
     def key_description(self):
         "Return a description of the key"
         vk, scan, flags = self._get_key_info()
@@ -366,7 +401,7 @@ class KeyAction(object):
                 desc = "VK %d"% vk
         else:
             desc = "%s"% self.key
-
+        
         return desc
 
     def __str__(self):
@@ -388,10 +423,10 @@ class VirtualKeyAction(KeyAction):
     def _get_key_info(self):
         "Virtual keys have extended flag set"
 
-        # copied more or less verbatim from
+        # copied more or less verbatim from 
         # http://www.pinvoke.net/default.aspx/user32.sendinput
         if (
-            (self.key >= 33 and self.key <= 46) or
+            (self.key >= 33 and self.key <= 46) or 
             (self.key >= 91 and self.key <= 93) ):
             flags = KEYEVENTF_EXTENDEDKEY;
         else:
@@ -409,7 +444,7 @@ class EscapedKeyAction(KeyAction):
     Overrides necessary methods of KeyAction"""
 
     def _get_key_info(self):
-        """EscapedKeyAction doesn't send it as Unicode and the vk and
+        """EscapedKeyAction doesn't send it as Unicode and the vk and 
         scan code are generated differently"""
         vkey_scan = LoByte(VkKeyScan(self.key))
 
@@ -417,7 +452,7 @@ class EscapedKeyAction(KeyAction):
 
     def key_description(self):
         "Return a description of the key"
-
+        
         return "KEsc %s"% self.key
 
 
@@ -560,8 +595,7 @@ def parse_keys(string,
 
         # Escape or named key
         elif c == "{":
-            # We start searching from index + 1 to account for the case {}}
-            end_pos = string.find("}", index + 1)
+            end_pos = string.find("}", index+1)
             if end_pos == -1:
                 raise KeySequenceError('`}` not found')
 
@@ -584,8 +618,8 @@ def parse_keys(string,
                 c == '\t' and not with_tabs or
                 c == '\n' and not with_newlines):
                 continue
-
-            # output nuewline
+            
+            # output newline
             if c in ('~', '\n'):
                 keys.append(VirtualKeyAction(CODES["ENTER"]))
 
@@ -593,10 +627,10 @@ def parse_keys(string,
             # use a VirtualKeyAction
             #if ord(c) in CODE_NAMES:
             #    keys.append(VirtualKeyAction(ord(c)))
-
+                
             elif modifiers:
                 keys.append(EscapedKeyAction(c))
-
+                
             else:
                 keys.append(KeyAction(c))
 
@@ -651,7 +685,7 @@ def main():
         n
         """
     SendKeys(actions, pause = .1)
-
+    
     keys = parse_keys(actions)
     for k in keys:
         print(k)

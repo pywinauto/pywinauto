@@ -27,6 +27,7 @@ import ctypes
 import win32functions
 import win32defines
 
+from ctypes.wintypes import WinError
 #from ctypes.wintypes import *
 
 

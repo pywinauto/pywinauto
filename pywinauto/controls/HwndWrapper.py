@@ -19,42 +19,53 @@
 #    Boston, MA 02111-1307 USA
 
 "Basic wrapping of Windows controls"
+from __future__ import unicode_literals
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
 # pylint:  disable-msg=W0611
 
+import sys
 import time
 import re
 import ctypes
+import win32api
+import win32gui
+import pywintypes
+import traceback, inspect
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
-from pywinauto import SendKeysCtypes as SendKeys
+
+from .. import SendKeysCtypes as SendKeys
+from .. import win32functions
+from ..actionlogger import ActionLogger
+from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
-    import ImageGrab
+    from PIL import ImageGrab
 except ImportError:
     ImageGrab = None
 
-from pywinauto import win32defines
-from pywinauto import win32functions
-from pywinauto import win32structures
-from pywinauto.timings import Timings
-from pywinauto import timings
+from .. import win32defines
+from .. import win32functions
+from .. import win32structures
+from ..timings import Timings
+from .. import timings
 
-#from pywinauto import findbestmatch
-from pywinauto import handleprops
+#from .. import findbestmatch
+from .. import handleprops
 
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
-from menuwrapper import Menu #, MenuItemNotEnabled
+from .menuwrapper import Menu #, MenuItemNotEnabled
 
 
 
-        
+
 #====================================================================
 class ControlNotEnabled(RuntimeError):
     "Raised when a control is not enabled"
@@ -77,57 +88,103 @@ class InvalidWindowHandle(RuntimeError):
 
 
 # metaclass that will know about
-class _MetaWrapper(type):
-    "Metaclass for Wrapper objects"
-    re_wrappers = {}
-    str_wrappers = {}
 
-    def __init__(cls, name, bases, attrs):
-        # register the class names, both the regular expression
-        # or the classes directly
+if sys.version[0] == '3':
+    class _MetaWrapper(type):
+        "Metaclass for Wrapper objects"
+        re_wrappers = {}
+        str_wrappers = {}
 
-        #print "metaclass __init__", cls
-        type.__init__(cls, name, bases, attrs)
+        def __init__(cls, name, bases, attrs):
+            # register the class names, both the regular expression
+            # or the classes directly
 
-        for win_class in cls.windowclasses:
-            _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
-            _MetaWrapper.str_wrappers[win_class] = cls
+            #print "metaclass __init__", cls
+            type.__init__(cls, name, bases, attrs)
 
-    def FindWrapper(handle):
-        """Find the correct wrapper for this handle"""
-        class_name = handleprops.classname(handle)
+            for win_class in cls.windowclasses:
+                _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
+                _MetaWrapper.str_wrappers[win_class] = cls
 
-
-        try:
-            return _MetaWrapper.str_wrappers[class_name]
-        except KeyError:
-            wrapper_match = None
-
-            for regex, wrapper in _MetaWrapper.re_wrappers.items():
-                if regex.match(class_name):
-                    wrapper_match = wrapper
-                    _MetaWrapper.str_wrappers[class_name] = wrapper
-
-                    break
-
-        # if it is a dialog then override the wrapper we found
-        # and make it a DialogWrapper
-        if handleprops.is_toplevel_window(handle):
-            import win32_controls
-            wrapper_match = win32_controls.DialogWrapper
-
-        if wrapper_match is None:
-            wrapper_match = HwndWrapper
-        return wrapper_match
+        @staticmethod
+        def FindWrapper(handle):
+            """Find the correct wrapper for this handle"""
+            class_name = handleprops.classname(handle)
 
 
-        #if handle in meta.wrappers:
-        #    return meta.wrappers[handle]
-    FindWrapper = staticmethod(FindWrapper)
+            try:
+                return _MetaWrapper.str_wrappers[class_name]
+            except KeyError:
+                wrapper_match = None
+
+                for regex, wrapper in _MetaWrapper.re_wrappers.items():
+                    if regex.match(class_name):
+                        wrapper_match = wrapper
+                        _MetaWrapper.str_wrappers[class_name] = wrapper
+
+                        return wrapper
+
+            # if it is a dialog then override the wrapper we found
+            # and make it a DialogWrapper
+            if handleprops.is_toplevel_window(handle):
+                from . import win32_controls
+                wrapper_match = win32_controls.DialogWrapper
+
+            if wrapper_match is None:
+                wrapper_match = HwndWrapper
+            return wrapper_match
+
+else:
+    class _MetaWrapper(type):
+        "Metaclass for Wrapper objects"
+        re_wrappers = {}
+        str_wrappers = {}
+
+        def __init__(cls, name, bases, attrs):
+            # register the class names, both the regular expression
+            # or the classes directly
+
+            #print "metaclass __init__", cls
+            type.__init__(cls, name, bases, attrs)
+
+            for win_class in cls.windowclasses:
+                _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
+                _MetaWrapper.str_wrappers[win_class] = cls
+
+        def FindWrapper(handle):
+            """Find the correct wrapper for this handle"""
+            class_name = handleprops.classname(handle)
+
+
+            try:
+                return _MetaWrapper.str_wrappers[class_name]
+            except KeyError:
+                wrapper_match = None
+
+                for regex, wrapper in _MetaWrapper.re_wrappers.items():
+                    if regex.match(class_name):
+                        wrapper_match = wrapper
+                        _MetaWrapper.str_wrappers[class_name] = wrapper
+
+                        return wrapper
+
+            # if it is a dialog then override the wrapper we found
+            # and make it a DialogWrapper
+            if handleprops.is_toplevel_window(handle):
+                from . import win32_controls
+                wrapper_match = win32_controls.DialogWrapper
+
+            if wrapper_match is None:
+                wrapper_match = HwndWrapper
+            return wrapper_match
+
+            #if handle in meta.wrappers:
+            #    return meta.wrappers[handle]
+        FindWrapper = staticmethod(FindWrapper)
 
 
 #====================================================================
-class HwndWrapper(object):
+class HwndWrapper(object): #, metaclass=_MetaWrapper
     """Default wrapper for controls.
 
     All other wrappers are derived from this.
@@ -226,7 +283,8 @@ class HwndWrapper(object):
             'IsEnabled',
             'MenuItems',
             'ControlCount',
-            ]
+            ];
+        self.actions = ActionLogger()
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
@@ -247,7 +305,7 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def Class(self):
         """Return the class name of the window"""
-        if not self._cache.has_key("class"):
+        if not ("class" in self._cache.keys()):
             self._cache['class'] = handleprops.classname(self)
         return self._cache['class']
 
@@ -389,6 +447,11 @@ class HwndWrapper(object):
         return handleprops.clientrect(self)
 
     #-----------------------------------------------------------
+    def ClientToScreen(self, client_point):
+        """Maps point from client to screen coordinates"""
+        win32functions.ClientToScreen(self, ctypes.byref(client_point))
+
+    #-----------------------------------------------------------
     def Font(self):
         """Return the font of the window
 
@@ -419,7 +482,7 @@ class HwndWrapper(object):
     def IsDialog(self):
         "Return true if the control is a top level window"
 
-        if not self._cache.has_key("isdialog"):
+        if not ("isdialog" in self._cache.keys()):
             self._cache['isdialog'] = handleprops.is_toplevel_window(self)
 
         return self._cache['isdialog']
@@ -436,7 +499,7 @@ class HwndWrapper(object):
         HwndWrapper.TopLevelParent().
         """
 
-        if not self._cache.has_key("parent"):
+        if not ("parent" in self._cache.keys()):
 
             parent_hwnd = handleprops.parent(self)
 
@@ -463,7 +526,7 @@ class HwndWrapper(object):
         a top level window already!)
         """
 
-        if not self._cache.has_key("top_level_parent"):
+        if not ("top_level_parent" in self._cache.keys()):
 
             parent = self.Parent()
 
@@ -565,9 +628,30 @@ class HwndWrapper(object):
         return win32functions.IsChild(parent, self.handle) != 0
 
     #-----------------------------------------------------------
+    def SendCommand(self, commandID):
+        return self.SendMessage(win32defines.WM_COMMAND, commandID)
+        
+    def PostCommand(self, commandID):
+        return self.PostMessage(win32defines.WM_COMMAND, commandID)
+
+        #-----------------------------------------------------------
     def SendMessage(self, message, wparam = 0 , lparam = 0):
         "Send a message to the control and wait for it to return"
-        return win32functions.SendMessage(self, message, wparam, lparam)
+        #return win32functions.SendMessage(self, message, wparam, lparam)
+        wParamAddress = wparam
+        if hasattr(wparam, 'memAddress'):
+            wParamAddress = wparam.memAddress
+        lParamAddress = lparam
+        if hasattr(lparam, 'memAddress'):
+            lParamAddress = lparam.memAddress
+        
+        CArgObject = type(ctypes.byref(ctypes.c_int(0)))
+        if isinstance(wparam, CArgObject):
+            wParamAddress = ctypes.addressof(wparam._obj)
+        if isinstance(lparam, CArgObject):
+            lParamAddress = ctypes.addressof(lparam._obj)
+        
+        return win32gui.SendMessage(self.handle, message, wParamAddress, lParamAddress)
 
         #result = ctypes.c_long()
         #ret = win32functions.SendMessageTimeout(self, message, wparam, lparam,
@@ -593,13 +677,29 @@ class HwndWrapper(object):
         if timeout is None:
             timeout = Timings.sendmessagetimeout_timeout
 
-        result = ctypes.c_long()
-        win32functions.SendMessageTimeout(self,
-            message, wparam, lparam,
-            timeoutflags, int(timeout * 1000),
-            ctypes.byref(result))
+        #result = ctypes.c_long()
+        #win32functions.SendMessageTimeout(self,
+        #    message, wparam, lparam,
+        #    timeoutflags, int(timeout * 1000),
+        #    ctypes.byref(result))
+        result = -1
+        try:
+            (ret, result) = win32gui.SendMessageTimeout(pywintypes.HANDLE(self.handle), message, wparam, lparam, timeoutflags, int(timeout * 1000))
+            #print '(ret, result) = ', (ret, result)
+        except Exception as exc:
+            '''
+            print('____________________________________________________________')
+            print('self.handle =', pywintypes.HANDLE(self.handle), ', message =', message,
+                  ', wparam =', wparam, ', lparam =', lparam, ', timeout =', timeout)
+            print('Exception: ', exc)
+            print(traceback.format_exc())
+            print('Caller stack:')
+            for frame in inspect.stack():
+                print(frame[1:])
+            '''
+            result = exc[0]
 
-        return result.value
+        return result #result.value
 
 
     #-----------------------------------------------------------
@@ -663,27 +763,33 @@ class HwndWrapper(object):
         return props
 
     #-----------------------------------------------------------
-    def CaptureAsImage(self):
+    def CaptureAsImage(self, rect = None):
         """Return a PIL image of the control
 
         See PIL documentation to know what you can do with the resulting
         image"""
         
-        if not (self.Rectangle().width() and self.Rectangle().height()):
+        rectangle = self.Rectangle()
+        if not (rectangle.width() and rectangle.height()):
             return None
 
         # PIL is optional so check first
         if not ImageGrab:
             print("PIL does not seem to be installed. "
                 "PIL is required for CaptureAsImage")
+            self.actions.log("PIL does not seem to be installed. "
+                "PIL is required for CaptureAsImage")
             return None
 
         # get the control rectangle in a way that PIL likes it
-        box = (
-            self.Rectangle().left,
-            self.Rectangle().top,
-            self.Rectangle().right,
-            self.Rectangle().bottom)
+        if rect:
+            box = (rect.left, rect.top, rect.right, rect.bottom)
+        else:
+            box = (
+                rectangle.left,
+                rectangle.top,
+                rectangle.right,
+                rectangle.bottom)
 
         # grab the image and get raw data as a string
         return ImageGrab.grab(box)
@@ -700,11 +806,6 @@ class HwndWrapper(object):
             return self.handle == other.handle
         else:
             return self.handle == other
-
-    #-----------------------------------------------------------
-    def __ne__(self, other):
-        "Returns False if the handles of both controls are not the same"
-        return not self == other
 
     #-----------------------------------------------------------
     def VerifyActionable(self):
@@ -740,12 +841,13 @@ class HwndWrapper(object):
 
         # check if the control and it's parent are visible
         if not self.IsVisible():
+            print(self.WindowText())
             raise ControlNotVisible()
 
 
     #-----------------------------------------------------------
     def Click(
-        self, button = "left", pressed = "", coords = (0, 0), double = False):
+        self, button = "left", pressed = "", coords = (0, 0), double = False, timeout=0.5):
         """Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
@@ -756,6 +858,8 @@ class HwndWrapper(object):
         (i.e. is can be hidden beneath another window and it will still work.)
         """
 
+        if timeout:
+            time.sleep(timeout)
         _perform_click(self, button, pressed, coords, double)
         return self
 
@@ -766,14 +870,17 @@ class HwndWrapper(object):
         button = "left", 
         coords = (None, None), 
         double = False, 
-        wheel_dist = 0):
+        wheel_dist = 0,
+        use_log = True,
+        pressed = "",
+        absolute = False):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
           'middle' or 'x' (Default: 'left')
         * **coords** The coordinates to click at.(Default: center of control)
         * **double** Whether to perform a double click or not (Default: False)
-        * **wheel_dist** The distance to move the mouse week (default: 0)
+        * **wheel_dist** The distance to move the mouse wheel (default: 0)
 
         NOTES: 
            This is different from Click in that it requires the control to
@@ -784,9 +891,9 @@ class HwndWrapper(object):
            as that could easily move the mouse off the control before the
            Click has finished.        
         """
+        time.sleep(0.5)
         _perform_click_input(
-            self, button, coords, double, wheel_dist = wheel_dist)
-
+            self, button, coords, double, wheel_dist = wheel_dist, use_log = use_log, pressed = pressed, absolute = absolute)
 
 
     #-----------------------------------------------------------
@@ -819,7 +926,30 @@ class HwndWrapper(object):
 
         return self
 
+    #-----------------------------------------------------------
+    def CloseAltF4(self):
+        """Close the window by pressing Alt+F4 keys."""
 
+        time.sleep(Timings.before_closeclick_wait)
+
+        self.TypeKeys('%{F4}')
+
+        def has_closed():
+            return not (
+                win32functions.IsWindow(self) or
+                win32functions.IsWindow(self.Parent()))
+
+        # Keep waiting until both this control and it's parent
+        # are no longer valid controls
+        timings.WaitUntil(
+            Timings.closeclick_dialog_close_wait,
+            Timings.closeclick_retry,
+            has_closed
+        )
+
+        time.sleep(Timings.after_closeclick_wait)
+
+        return self
 
     #-----------------------------------------------------------
     def DoubleClick(
@@ -850,7 +980,7 @@ class HwndWrapper(object):
 
 
     #-----------------------------------------------------------
-    def PressMouse(self, button = "left", pressed = "", coords = (0, 0)):
+    def PressMouse(self, button = "left", coords = (0, 0), pressed = ""):
         "Press the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
 
@@ -858,45 +988,76 @@ class HwndWrapper(object):
         return self
 
     #-----------------------------------------------------------
-    def PressMouseInput(self, button = "left", coords = (None, None)):
+    def PressMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
         "Press a mouse button using SendInput"
-        _perform_click_input(self, button, coords, button_up = False)
+        _perform_click_input(self, button, coords, button_up=False, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
 
 
     #-----------------------------------------------------------
-    def ReleaseMouse(self, button = "left", pressed = "", coords = (0, 0)):
+    def ReleaseMouse(self, button = "left", coords = (0, 0), pressed = ""):
         "Release the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
-        _perform_click(self, button, pressed, coords, button_down = False)
+        _perform_click(self, button, pressed, coords, button_down=False)
         return self
 
     #-----------------------------------------------------------
-    def ReleaseMouseInput(self, button = "left", coords = (None, None)):
+    def ReleaseMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
         "Release the mouse button"
-        _perform_click_input(self, button, coords, button_down = False)
+        _perform_click_input(self, button, coords, button_down=False, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
 
     #-----------------------------------------------------------
-    def MoveMouse(self, pressed = "left", coords = (0, 0)):
+    def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
         "Move the mouse"
-
-        flags, click_point = _calc_flags_and_coords(pressed, coords)
-        self.SendMessageTimeout(win32defines.WM_MOUSEMOVE, flags, click_point)
+        
+        if not absolute:
+            self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
+        _perform_click_input(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
+        
         win32functions.WaitGuiThreadIdle(self)
 
         return self
 
     #-----------------------------------------------------------
-    def DragMouse(self,
-        button = "left",
-        pressed = "",
+    def DragMouse(self, button = "left",
         press_coords = (0, 0),
-        release_coords = (0, 0)):
+        release_coords = (0, 0),
+        pressed = ""):
         "Drag the mouse"
 
-        self.PressMouse(button, pressed, press_coords)
-        self.MoveMouse(pressed, press_coords)
-        self.ReleaseMouse(button, pressed, release_coords)
+        self.PressMouse(button, press_coords, pressed)
+        self.MoveMouse(press_coords, pressed)
+        self.ReleaseMouse(button, release_coords, pressed)
 
+        return self
+
+    #-----------------------------------------------------------
+    def DragMouseInput(self,
+        press_coords,
+        release_coords,
+        button = "left",
+        pressed = "",
+        absolute = False):
+        "Drag the mouse"
+        
+        if isinstance(press_coords, win32structures.POINT):
+            press_coords = (press_coords.x, press_coords.y)
+
+        if isinstance(release_coords, win32structures.POINT):
+            release_coords = (release_coords.x, release_coords.y)
+
+        self.PressMouseInput(button, press_coords, pressed, absolute=absolute)
+        time.sleep(0.5)
+        self.MoveMouse(release_coords, pressed="", absolute=absolute) # "left"
+        self.ReleaseMouseInput(button, release_coords, pressed, absolute=absolute)
+
+    #-----------------------------------------------------------
+    def MouseWheelInput(self,
+        coords = (None, None),
+        wheel_dist = 1,
+        pressed = ""):
+        "Do mouse wheel"
+
+        _perform_click_input(self, button='wheel', coords=coords, wheel_dist = 120 * wheel_dist, pressed=pressed)
         return self
 
 
@@ -913,6 +1074,7 @@ class HwndWrapper(object):
         self.PostMessage(win32defines.WM_SETTEXT, 0, text)
         win32functions.WaitGuiThreadIdle(self)
 
+        self.actions.log('Set text to the ' + self.FriendlyClassName() + ': ' + str(text))
         return self
 
     #-----------------------------------------------------------
@@ -923,7 +1085,8 @@ class HwndWrapper(object):
         with_spaces = False,
         with_tabs = False,
         with_newlines = False,
-        turn_off_numlock = True):
+        turn_off_numlock = True,
+        set_foreground=True):
         """Type keys to the window using SendKeys
 
         This uses the SendKeys python module from
@@ -936,19 +1099,16 @@ class HwndWrapper(object):
         if pause is None:
             pause = Timings.after_sendkeys_key_wait
 
-        self.SetFocus()
+        if set_foreground:
+            self.SetFocus()
 
         # attach the Python process with the process that self is in
         win32functions.AttachThreadInput(
             win32functions.GetCurrentThreadId(), self.ProcessID(), 1)
 
-        # make sure that the control is in the foreground
-        win32functions.SetForegroundWindow(self)
-        #win32functions.SetActiveWindow(self)
-
         # Play the keys to the active window
         SendKeys.SendKeys(
-            keys,
+            keys + '\n',
             pause, with_spaces,
             with_tabs,
             with_newlines,
@@ -959,6 +1119,7 @@ class HwndWrapper(object):
             win32functions.GetCurrentThreadId(), self.ProcessID(), 0)
 
         win32functions.WaitGuiThreadIdle(self)
+        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + str(keys))
         return self
 
     #-----------------------------------------------------------
@@ -967,7 +1128,7 @@ class HwndWrapper(object):
 
         # don't draw if dialog is not visible
 
-        dc = win32functions.CreateDC(u"DISPLAY", None, None, None )
+        dc = win32functions.CreateDC("DISPLAY", None, None, None )
 
         if not dc:
             raise ctypes.WinError()
@@ -1037,7 +1198,7 @@ class HwndWrapper(object):
         brush_handle = win32functions.CreateBrushIndirect(ctypes.byref(brush))
 
         # get the Device Context
-        dc = win32functions.CreateDC(u"DISPLAY", None, None, None )
+        dc = win32functions.CreateDC("DISPLAY", None, None, None )
 
         # push our objects into it
         win32functions.SelectObject(dc, brush_handle)
@@ -1087,18 +1248,24 @@ class HwndWrapper(object):
     #-----------------------------------------------------------
     def _menu_handle(self):
         "Simple Overridable method to get the menu handle"
-        return win32functions.GetMenu(self)
+        #return win32functions.GetMenu(self) # vvryabov: it doesn't work in 64-bit Python for x64 applications
+        hMenu = win32gui.GetMenu(self.handle)
+        is_main_menu = True
+        if not hMenu:
+            hMenu = self.SendMessage(self.handle, win32defines.MN_GETHMENU);
+            is_main_menu = False
+        return (hMenu, is_main_menu) #win32gui.GetMenu(self.handle)
 
     #-----------------------------------------------------------
     def Menu(self):
         "Return the menu of the control"
-        menu_hwnd = self._menu_handle()
-        if menu_hwnd: # and win32functions.IsMenu(menu_hwnd):
-            return Menu(self, menu_hwnd)
+        hMenu, is_main_menu = self._menu_handle()
+        if hMenu: # and win32functions.IsMenu(menu_hwnd):
+            return Menu(self, hMenu, is_main_menu=is_main_menu)
         return None
 
     #-----------------------------------------------------------
-    def MenuItem(self, path):
+    def MenuItem(self, path, exact = False):
         """Return the menu item specifed by path
 
         Path can be a string in the form "MenuItem->MenuItem->MenuItem..."
@@ -1119,7 +1286,7 @@ class HwndWrapper(object):
 
         menu = self.Menu()
         if menu:
-            return self.Menu().GetMenuPath(path, appdata = menu_appdata)[-1]
+            return self.Menu().GetMenuPath(path, appdata = menu_appdata, exact=exact)[-1]
 
         raise RuntimeError("There is no menu.")
 
@@ -1164,12 +1331,12 @@ class HwndWrapper(object):
 
 
     #-----------------------------------------------------------
-    def MenuSelect(self, path, ):
+    def MenuSelect(self, path, exact = False, ):
         "Select the menuitem specifed in path"
 
         self.VerifyActionable()
 
-        self.MenuItem(path).Select()
+        self.MenuItem(path, exact=exact).Select()
 
 
     #-----------------------------------------------------------
@@ -1233,12 +1400,13 @@ class HwndWrapper(object):
 
 
     #-----------------------------------------------------------
-    def Close(self):
+    def Close(self, wait_time = 0):
         """Close the window
 
         Code modified from http://msdn.microsoft.com/msdnmag/issues/02/08/CQA/
 
         """
+        window_text = self.WindowText()
 
         # tell the window it must close
         self.PostMessage(win32defines.WM_CLOSE)
@@ -1253,23 +1421,30 @@ class HwndWrapper(object):
         def has_closed():
             return not (win32functions.IsWindow(self) and self.IsVisible())
 
+        if wait_time==0:
+            wait_time = Timings.closeclick_dialog_close_wait
+
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
         timings.WaitUntil(
-            Timings.closeclick_dialog_close_wait,
+            wait_time,
             Timings.closeclick_retry,
             has_closed
         )
+
+        self.actions.log('Closed window "' + window_text + '"')
 
     #-----------------------------------------------------------
     def Maximize(self):
         """Maximize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MAXIMIZE)
+        self.actions.log('Maximized window "' + self.WindowText() + '"')
 
     #-----------------------------------------------------------
     def Minimize(self):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
+        self.actions.log('Minimized window "' + self.WindowText() + '"')
 
     #-----------------------------------------------------------
     def Restore(self):
@@ -1280,6 +1455,7 @@ class HwndWrapper(object):
         # after the first ShowWindow, and Restored after the 2nd
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
+        self.actions.log('Restored window "' + self.WindowText() + '"')
 
 
     #-----------------------------------------------------------
@@ -1420,10 +1596,21 @@ class HwndWrapper(object):
         # Scroll as often as we have been asked to
         while count > 0:
             self.SendMessage(message, scroll_type)
+            time.sleep(1.0)
             count -= 1
 
         return self
 
+
+    #-----------------------------------------------------------
+    def GetToolbar(self):
+        """Get the first child toolbar if it exists"""
+
+        for child in self.Children():
+            if child.__class__.__name__ == 'ToolbarWrapper':
+                return child
+
+        return None
 
 #
 #def MouseLeftClick():
@@ -1471,7 +1658,12 @@ def _perform_click_input(
     button_down = True,
     button_up = True,
     absolute = False,
-    wheel_dist = 0):
+    wheel_dist = 0,
+    use_log = True,
+    pressed = "",
+    key_down = True,
+    key_up = True,
+    ):
     """Peform a click action using SendInput
 
     All the *ClickInput() and *MouseInput() methods use this function.
@@ -1489,7 +1681,7 @@ def _perform_click_input(
     if win32functions.GetSystemMetrics(win32defines.SM_SWAPBUTTON):
         if button.lower() == 'left':
             button = 'right'
-        else:
+        elif button.lower() == 'right':
             button = 'left'
 
     events = []
@@ -1508,6 +1700,9 @@ def _perform_click_input(
             events.append(win32defines.MOUSEEVENTF_MIDDLEDOWN)
         if button_up:
             events.append(win32defines.MOUSEEVENTF_MIDDLEUP)
+    elif button.lower() == 'move':
+        events.append(win32defines.MOUSEEVENTF_MOVE)
+        events.append(win32defines.MOUSEEVENTF_ABSOLUTE)
     elif button.lower() == 'x':
         if button_down:
             events.append(win32defines.MOUSEEVENTF_XDOWN)
@@ -1526,15 +1721,16 @@ def _perform_click_input(
 
     if ctrl == None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
-    else:
+    elif ctrl.IsDialog():
         ctrl.SetFocus()
+    ctrl_text = ctrl.WindowText()
 
     if isinstance(coords, win32structures.RECT):
         coords = (coords.left, coords.top)
 
 #    # allow points objects to be passed as the coords
-#    if isinstance(coords, win32structures.POINT):
-#        coords = [coords.x, coords.y]
+    if isinstance(coords, win32structures.POINT):
+        coords = [coords.x, coords.y]
 #    else:
     coords = list(coords)
 
@@ -1545,8 +1741,12 @@ def _perform_click_input(
         coords[1] = ctrl.Rectangle().height() / 2
 
     if not absolute:
-        coords[0] = coords[0] + ctrl.Rectangle().left
-        coords[1] = coords[1] + ctrl.Rectangle().top
+        screen_coords = win32structures.POINT()
+        screen_coords.x = coords[0]
+        screen_coords.y = coords[1]
+        ctrl.ClientToScreen(screen_coords)
+        coords[0] = screen_coords.x
+        coords[1] = screen_coords.y
 
     # set the cursor position
     win32functions.SetCursorPos(coords[0], coords[1])
@@ -1555,20 +1755,58 @@ def _perform_click_input(
     inp_struct = win32structures.INPUT()
     inp_struct.type = win32defines.INPUT_MOUSE
 
+    keyboard_keys = pressed.lower().split()
+    if ('control' in keyboard_keys) and key_down:
+        #SendKeys.SendKeys('{VK_CONTROL down}')
+        SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, up = False).Run()
+    if ('shift' in keyboard_keys) and key_down:
+        SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
+
+
+    inp_struct._.mi.dwFlags = 0
     for event in events:
-        inp_struct._.mi.dwFlags = event
-        if button.lower() == 'wheel':
-            inp_struct._.mi.mouseData = wheel_dist
-        else:
-            inp_struct._.mi.mouseData = 0
+        inp_struct._.mi.dwFlags |= event
 
-        win32functions.SendInput(
-            1,
-            ctypes.pointer(inp_struct),
-            ctypes.sizeof(inp_struct))
+    dwData = 0
+    if button.lower() == 'wheel':
+        dwData = wheel_dist
+        inp_struct._.mi.mouseData = wheel_dist
+    else:
+        inp_struct._.mi.mouseData = 0
 
-        time.sleep(Timings.after_clickinput_wait)
+    if button.lower() == 'move':
+        #win32functions.SendInput(     # vvryabov: SendInput() should be called sequentially in a loop [for event in events]
+        #    win32structures.UINT(1),
+        #    ctypes.pointer(inp_struct),
+        #    ctypes.c_int(ctypes.sizeof(inp_struct)))
+        X_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
+        Y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
+        X_coord = int(float(coords[0]) * (65535. / float(X_res - 1)))
+        Y_coord = int(float(coords[1]) * (65535. / float(Y_res - 1)))
+        win32api.mouse_event(inp_struct._.mi.dwFlags, X_coord, Y_coord, dwData)
+    else:
+        for event in events:
+            inp_struct._.mi.dwFlags = event
+            win32api.mouse_event(inp_struct._.mi.dwFlags, coords[0], coords[1], dwData)
+            time.sleep(Timings.after_clickinput_wait)
 
+    time.sleep(Timings.after_clickinput_wait)
+
+    if ('control' in keyboard_keys) and key_up:
+        #SendKeys.SendKeys('^')
+        SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, down = False).Run()
+    if ('shift' in keyboard_keys) and key_up:
+        SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, down = False).Run()
+
+    if use_log:
+        message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+                  '" by ' + str(button) + ' button mouse click (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+        if double:
+            message = 'Double-c' + message[1:]
+        if button.lower() == 'move':
+            message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+                  '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+        ActionLogger().log(message)
 
 
 
@@ -1585,6 +1823,7 @@ def _perform_click(
     "Low level method for performing click operations"
 
     ctrl.VerifyActionable()
+    ctrl_text = ctrl.WindowText()
 
     if isinstance(coords, win32structures.RECT):
         coords = (coords.left, coords.top)
@@ -1655,6 +1894,13 @@ def _perform_click(
 
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)
+
+    message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+              '" by ' + str(button) + ' button event (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+    if double:
+        message = 'Double-c' + message[1:]
+    ActionLogger().log(message)
+
 
 
 _mouse_flags = {
