@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.controls.menuwrapper &mdash; pywinauto v0.3.9 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.3.9 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-controls-menuwrapper">
+<h1>pywinauto.controls.menuwrapper<a class="headerlink" href="#pywinauto-controls-menuwrapper" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.controls.menuwrapper"></span><p>Wrapper around Menu&#8217;s and Menu items</p>
+<p>These wrappers allow you to work easily with menu items.
+You can select or click on items and check if they are
+checked or unchecked.</p>
+<dl class="class">
+<dt id="pywinauto.controls.menuwrapper.Menu">
+<em class="property">class </em><tt class="descclassname">pywinauto.controls.menuwrapper.</tt><tt class="descname">Menu</tt><big>(</big><em>owner_ctrl</em>, <em>menuhandle</em>, <em>is_main_menu=True</em>, <em>owner_item=None</em><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.Menu" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple wrapper around a menu handle</p>
+<p>A menu supports methods for querying the menu
+and getting it&#8217;s menu items.</p>
+<p>Initialize the class.</p>
+<ul class="simple">
+<li><strong>owner_ctrl</strong> is the Control that owns this menu</li>
+<li><strong>menuhandle</strong> is the menu handle of the menu</li>
+<li><strong>is_main_menu</strong> we have to track whether it is the main menu
+or a popup menu</li>
+<li><strong>owner_item</strong> The item that contains this menu - this will be
+None for the main menu, it will be a MenuItem instance for a
+submenu.</li>
+</ul>
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.Menu.GetMenuPath">
+<tt class="descname">GetMenuPath</tt><big>(</big><em>path</em>, <em>path_items=None</em>, <em>appdata=None</em><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.Menu.GetMenuPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Walk the items in this menu to find the item specified by path</p>
+<p>The path is specified by a list of items separated by &#8216;-&gt;&#8217; each Item
+can be either a string (can include spaces) e.g. &#8220;Save As&#8221; or the zero
+based index of the item to return prefaced by # e.g. #1.</p>
+<dl class="docutils">
+<dt>These can be mixed as necessary. For Example:</dt>
+<dd>&#8220;#0 -&gt; Save As&#8221;, 
+&#8220;Tools -&gt; #0 -&gt; Configure&#8221;</dd>
+</dl>
+<p>Text matching is done using a &#8216;best match&#8217; fuzzy algorithm, so you don&#8217;t
+have to add all puntuation, elipses, etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.Menu.GetProperties">
+<tt class="descname">GetProperties</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.Menu.GetProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the properties for the menu as a list of dictionaries</p>
+<p>This method is actually recursive. It calls GetProperties() for each
+of the items. If the item has a sub menu it will call this
+GetProperties to get the sub menu items.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.Menu.Item">
+<tt class="descname">Item</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.Menu.Item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a specific menu item</p>
+<ul class="simple">
+<li><strong>index</strong> is the 0 based index of the menu item you want</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.Menu.ItemCount">
+<tt class="descname">ItemCount</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.Menu.ItemCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the count of items in this menu</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.Menu.Items">
+<tt class="descname">Items</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.Menu.Items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all the items in this menu</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pywinauto.controls.menuwrapper.MenuItem">
+<em class="property">class </em><tt class="descclassname">pywinauto.controls.menuwrapper.</tt><tt class="descname">MenuItem</tt><big>(</big><em>ctrl</em>, <em>menu</em>, <em>index</em>, <em>on_main_menu=False</em><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap a menu item</p>
+<p>Initalize the menu item</p>
+<ul class="simple">
+<li><strong>ctrl</strong>      The dialog or control that owns this menu</li>
+<li><strong>menu</strong>      The menu that this item is on</li>
+<li><strong>index</strong>     The Index of this menuitem on the menu</li>
+<li><strong>on_main_menu</strong>      True if the item is on the main menu</li>
+</ul>
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.Click">
+<tt class="descname">Click</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.Click" title="Permalink to this definition">¶</a></dt>
+<dd><p>Click on the menu item</p>
+<p>If the menu is open this it will click with the mouse on the item.
+If the menu is not open each of it&#8217;s parent&#8217;s will be opened
+until the item is visible.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.FriendlyClassName">
+<tt class="descname">FriendlyClassName</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.FriendlyClassName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.GetProperties">
+<tt class="descname">GetProperties</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.GetProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the properties for the item as a dict</p>
+<p>If this item opens a sub menu then call Menu.GetProperties()
+to return the list of items in the sub menu. This is avialable
+under the &#8216;MenuItems&#8217; key</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.ID">
+<tt class="descname">ID</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ID of this menu item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.Index">
+<tt class="descname">Index</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.Index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the index of this menu item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.IsChecked">
+<tt class="descname">IsChecked</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.IsChecked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the item is checked.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.IsEnabled">
+<tt class="descname">IsEnabled</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.IsEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the item is enabled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.Rectangle">
+<tt class="descname">Rectangle</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.Rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the rectangle of the menu item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.Select">
+<tt class="descname">Select</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.Select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select the menu item</p>
+<p>This will send a message to the parent window that the
+item was picked</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.State">
+<tt class="descname">State</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.State" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of this menu item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.SubMenu">
+<tt class="descname">SubMenu</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.SubMenu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the SubMenu or None if no submenu</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.Text">
+<tt class="descname">Text</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.Text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of this menu item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.menuwrapper.MenuItem.Type">
+<tt class="descname">Type</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItem.Type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Type of this menu item</p>
+<p>Main types are MF_STRING, MF_BITMAP, MF_SEPARATOR.</p>
+<p>See <a class="reference external" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menustructures/menuiteminfo.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menustructures/menuiteminfo.asp</a>
+for further information.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pywinauto.controls.menuwrapper.MenuItemNotEnabled">
+<em class="property">exception </em><tt class="descclassname">pywinauto.controls.menuwrapper.</tt><tt class="descname">MenuItemNotEnabled</tt><a class="headerlink" href="#pywinauto.controls.menuwrapper.MenuItemNotEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when a menuitem is not enabled</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/menuwrapper.py.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

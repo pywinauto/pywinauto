@@ -1,0 +1,179 @@
+++++++++++++++++++++
+Dev Notes
+++++++++++++++++++++
+
+===========
+FILE LAYOUT
+===========
+
+# used by just about everything (and considered a block!)
+win32defines.py
+win32functions.py
+win32structures.py
+
+# Find windows and their attributes
+findwindows.py
+handleprops.py
+
+# wrap windows, get extra info for particular controls
+# set the friendly class name
+controls\common_controls.py
+controls\controlactions.py
+controls\HwndWrapper.py
+controls\win32_controls.py
+
+# currently depends on the Friendly class name 
+# probably needs to be refactored to make it independent of controls!
+# maybe move that stuff to _application_?
+findbestmatch.py  # currently depends on controls!
+
+
+controlactions.py
+
+tests\allcontrols.py
+tests\asianhotkey.py
+tests\comboboxdroppedheight.py
+tests\comparetoreffont.py
+tests\leadtrailspaces.py
+tests\miscvalues.py
+tests\missalignment.py
+tests\missingextrastring.py
+tests\overlapping.py
+tests\repeatedhotkey.py
+tests\translation.py
+tests\truncation.py
+
+
+controlproperties.py
+
+XMLHelpers.py
+
+	FindDialog.py
+	PyDlgCheckerWrapper.py
+
+application.py
+test_application.py
+
+
+====================
+Best matching
+====================
+difflib provides this support
+For menu's it is simple we match against the text of the menu item.
+For controls the story is more complicated because we want to match
+against the following:
+
+   - Control text if it exists
+   - Friendly Class name 
+   - Control text + Friendly class name (if control text exists)
+   - (Possibly) closest static + FriendlyClassName
+   
+e.g.
+	FindWhatCombo, ComboBox1,
+or
+ 	Text, TextRiadio, RadioButton2
+
+1) the control itself knows what it should be referred to
+2) Need to disambiguate across all controls in the dialog
+3) then we need to match
+	
+
+
+====================
+ATTRIBUTE RESOLUTION
+====================
+Thinking again...
+app.dlg.control
+
+
+
+
+TWO LEVELS 
+ * application.member (Python resolves)
+ 	an attribute of application object
+ * application.dialog
+ 	a dialog reference
+
+THREE LEVELS
+ * application.member.attr (Python resolves)
+ 	another attribute of the previous member
+ * application.dialog.member
+ 	a member of the dialog object
+ * application.dialog.control
+	a control on the dialog
+
+FOUR LEVELS (leaving out Python resolved)
+ * application.dialog.member.member
+ * application.dialog.control.member
+ 
+ 
+DELAYED RESOLUTION FOR SUCCESS
+Taking the example ::
+
+	app.dlg.control.action()
+
+If we leave out syntax and programming errors there are still a number of reasons why it could fail.
+
+dlg might not be found
+control might not be found
+either dlg or control may be disabled
+
+dialog and control may be found but on the wrong dialog (e.g. in Notepad you can bring up 2 "Page Setup" dialogs both with an OK button)
+
+One solution would just be to add a "sleep" before trying to find each new dialog (to ensure that it is there and ready) - but this will mean lots of unnecessary waiting.
+
+So the solution I have tried is:
+ - perform the complete attribute access resolution at the latest possible time
+ - if it fails then wait and try again
+ - after a specified timeout fail raising the original exception.
+ 
+This means that in the normal case you don't have unnecessary waits - and in the failure case - you still get an exception with the error.
+
+Also waiting to do resolution as late as possible stops errors where an earlier part of the path succeedes - but finds the wrong item.
+
+So for example if  finds the page setup dialog in Notepad
+# open the Printer setup dialog (which has "Page Setup" as title)
+app.PageSetup.Printer.Click()
+
+# if this runs too quickly it actually finds the current page setup dialog
+# before the next dialog opens, but that dialog does not have a Properties
+# button - so an error is raised.
+# because we re-run the resolution from the start we find the new pagesetup dialog.
+app.PageSetup.Properties.Click()
+
+
+
+==================
+WRITING TO DIALOGS
+==================
+We need a way of making sure that the dialog is active without having to access a control on it.
+e.g. ::
+
+  app.MainWin.MenuSelect("Something That->Loads a Dialog")
+  app.Dlg._write("dlg.xml")
+
+or a harder problem::
+
+	app.PageSetup.Printer.Click()
+	app.PageSetup._write("pagesetup.xml") 
+
+In this second example it is very hard to be sure that the correct Page Setup dialog is shown.
+
+The only way to be realy sure is to check for the existance of certain control(s) (ID, Class, text, whatever) - but it would be nice to not have to deal with those :-(
+
+Another less declarative (more magic?) is to scan the list of available windows/controls and if they haven't changed then accept that the correct one is shown.
+
+When testing and having XML files then we should use those to make sure that we have the correct dialog up (by using Class/ID)
+
+
+
+
+
+
+
+
+
+
+  
+
+

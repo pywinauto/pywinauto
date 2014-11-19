@@ -1,0 +1,144 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.tests.missingextrastring &mdash; pywinauto v0.3.9 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.3.9 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-tests-missingextrastring">
+<h1>pywinauto.tests.missingextrastring<a class="headerlink" href="#pywinauto-tests-missingextrastring" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.tests.missingextrastring"></span><p>Different number of special character sequences Test</p>
+<p><strong>What is checked</strong>
+This test checks to make sure that certain special character sequences
+appear the in the localised if they appear in the reference title strings.
+These strings usually mean something to the user but the software internally
+does not care if they exist or not. The list that is currently checked is:
+&#8220;&gt;&gt;&#8221;, &#8220;&gt;&#8221;, &#8220;&lt;&lt;&#8221;, &#8220;&lt;&#8221;, &#8221;:&#8221;(colon), &#8221;...&#8221;, &#8220;&amp;&amp;&#8221;, &#8220;&amp;&#8221;, &#8220;&#8221;</p>
+<p><strong>How is it checked</strong>
+For each of the string to check for we make sure that if it appears in the
+reference that it also appears in the localised title.</p>
+<dl class="docutils">
+<dt><strong>When is a bug reported</strong></dt>
+<dd><ul class="first last simple">
+<li>If the reference has one of the text strings but the localised does
+not a bug is reported.</li>
+<li>If the localised has one of the text strings but the reference does
+not a bug is reported.</li>
+</ul>
+</dd>
+</dl>
+<p>Bug Extra Information
+The bug contains the following extra information</p>
+<p><strong>MissingOrExtra</strong>      Whether the characters are missing or extra from the
+controls being check as compared to the reference, (String with
+following possible values)</p>
+<blockquote>
+<ul class="simple">
+<li>&#8220;MissingCharacters&#8221;  The characters are in the reference but not in
+the localised.</li>
+<li>&#8220;ExtraCharacters&#8221;    The characters are not in the reference but are in
+the localised.</li>
+</ul>
+</blockquote>
+<p><strong>MissingOrExtraText</strong>  What character string is missing or added, String</p>
+<p><strong>Is Reference dialog needed</strong>
+This test will not run if the reference controls are not available.</p>
+<p><strong>False positive bug reports</strong>
+Currently this test is at a beta stage filtering of the results is probably
+necessary at the moment.</p>
+<p><strong>Test Identifier</strong>
+The identifier for this test/bug is &#8220;MissingExtraString&#8221;</p>
+<dl class="function">
+<dt id="pywinauto.tests.missingextrastring.MissingExtraStringTest">
+<tt class="descclassname">pywinauto.tests.missingextrastring.</tt><tt class="descname">MissingExtraStringTest</tt><big>(</big><em>windows</em><big>)</big><a class="headerlink" href="#pywinauto.tests.missingextrastring.MissingExtraStringTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the errors from running the test</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/missingextrastring.py.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

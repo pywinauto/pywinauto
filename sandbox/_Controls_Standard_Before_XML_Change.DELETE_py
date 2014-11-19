@@ -1,0 +1,753 @@
+# pylint:  disable-msg=W0611
+"Handles Static, Button, Edit, ListBox, ComboBox, ComboLBox"
+from ctypes import *
+from ctypes.wintypes import *
+
+from APIFuncs import *
+from APIDefines import *
+from APIStructures import *
+
+from XMLHelpers import *
+
+__revision__ = "0.0.0.1"
+
+
+from InfoManager import WindowClassRegistry
+
+
+#====================================================================
+def GetMenuItems(menuHandle):#, indent = ""):
+	items = []
+	
+	# check that it is a menu
+	if IsMenu(menuHandle):
+		
+		itemCount = GetMenuItemCount(menuHandle)
+		
+		# for each menu item 
+		for i in range(0, itemCount):
+		
+			itemProp = {}
+		
+			# get the information on the menu Item
+			menuInfo  = MENUITEMINFOW()
+			menuInfo.cbSize = sizeof (menuInfo)
+			menuInfo.fMask = \
+				MIIM_CHECKMARKS | \
+				MIIM_ID | \
+				MIIM_STATE | \
+				MIIM_SUBMENU | \
+				MIIM_TYPE
+				#MIIM_FTYPE | \
+				#MIIM_STRING
+				#MIIM_DATA | \
+				
+			
+			ret = GetMenuItemInfo (menuHandle, i, True, byref(menuInfo))
+			if not ret:
+				raise WinError()
+				
+			itemProp['State'] = menuInfo.fState
+			itemProp['Type'] = menuInfo.fType
+			itemProp['ID'] = menuInfo.wID
+			
+			
+			# if there is text
+			if menuInfo.cch:
+				# allocate a buffer
+				bufferSize = menuInfo.cch+1
+				text = (c_wchar * bufferSize)()
+				
+				# update the structure and get the text info
+				menuInfo.dwTypeData = addressof(text)
+				menuInfo.cch = bufferSize
+				GetMenuItemInfo (menuHandle, i, True, byref(menuInfo))
+				itemProp['Text'] = text.value
+			else:
+				itemProp['Text'] = ""
+			
+			
+			# if it's a sub menu then get it's items
+			if menuInfo.hSubMenu:
+				#indent += "  "
+				subMenuItems = GetMenuItems(menuInfo.hSubMenu)#, indent)
+				itemProp['MenuItems'] = subMenuItems
+				#indent = indent[1:-2]
+				
+			items.append(itemProp)
+	
+
+	return items
+				
+			
+
+		
+		
+
+#====================================================================
+def DefaultWindowHwndReader(hwnd, dialogRect):
+	
+	props = {}
+	
+	# get the className
+	props['Class'] = GetClass(hwnd)
+
+	# set up the friendlyclass defaulting
+	# to the class Name
+	props['FriendlyClassName'] = props['Class']
+
+	# get the title
+	bufferSize = SendMessage (hwnd, WM_GETTEXTLENGTH, 0, 0)
+	if bufferSize:
+		bufferSize += 1
+		title = (c_wchar * bufferSize)()
+		SendMessage (hwnd, WM_GETTEXT, bufferSize, title)
+
+		props['Titles'] = [title.value, ]
+	else:
+		props['Titles'] = ['', ]
+
+
+	props['Style'] = GetWindowLong (hwnd, GWL_STYLE)
+	props['ExStyle'] = GetWindowLong (hwnd, GWL_EXSTYLE)
+	props['ControlID'] = GetWindowLong (hwnd, GWL_ID)
+	props['UserData'] = GetWindowLong (hwnd, GWL_USERDATA)	
+	props['ContextHelpID'] = GetWindowContextHelpId (hwnd)	
+
+
+	# set the font
+	fontHandle = SendMessage (hwnd, WM_GETFONT, 0, 0)
+
+	# if the fondUsed is 0 then the control is using the system font
+	if not fontHandle:
+		fontHandle = GetStockObject(SYSTEM_FONT);
+
+	# Get the Logfont structure of the font of the control
+	font = LOGFONTW()
+	ret = GetObject(fontHandle, sizeof(font), byref(font))
+
+	# The function could not get the font - this is probably because
+	# the control does not have associated Font/Text
+	# So we should make sure the elements of the font are zeroed.
+	if not ret:
+		font = LOGFONTW()
+	
+	props['Fonts'] = [font,]
+
+	# get the client rectangle
+	clientRect = RECT()
+	GetClientRect(hwnd, byref(clientRect))
+	props['ClientRect'] = clientRect
+
+	# get the full rectangle		
+	rect = RECT()
+	GetWindowRect(hwnd, byref(rect))
+	
+	if dialogRect:
+		# offset it's rect depending on it's parents
+		rect.left -= dialogRect.left
+		rect.top -= dialogRect.top
+		rect.right -= dialogRect.left
+		rect.bottom -= dialogRect.top
+	
+		#props['DialogRect'] = dialogRect
+
+	props['Rectangles'] = [rect,]
+
+	props['IsVisible'] =  IsWindowVisible(hwnd)
+	props['IsUnicode'] =  IsWindowUnicode(hwnd)	
+
+	return props
+
+
+#====================================================================
+def GetChildWindows(dialog, dlgRect = None):
+
+	# this will be filled in the callback function
+	childWindows = []
+	
+	# callback function for EnumChildWindows
+	def enumChildProc(hWnd, LPARAM):
+		win = Window(hWnd, dlgRect)
+		
+		# construct an instance of the appropriate type
+		win = WindowClassRegistry().GetClass(win.Class)(hWnd, dlgRect)
+				
+		# append it to our list
+		childWindows.append(win)
+		
+		# return true to keep going
+		return True
+
+
+	# define the child proc type
+	EnumChildProc = WINFUNCTYPE(c_int, HWND, LPARAM)	
+	proc = EnumChildProc(enumChildProc)
+	
+	# loop over all the children (callback called for each)
+	EnumChildWindows(dialog, proc, 0)
+	
+	return childWindows
+
+
+
+#====================================================================
+def RemoveNonCurrentTabControls(dialog, childWindows):
+	
+	# find out if there is a tab control and get it if there is one
+	tab = None
+	for child in childWindows:
+		if child.Class == "SysTabControl32":
+			tab = child
+			break
+	
+
+	# make a copy of childWindows
+	firstTabChildren = list(childWindows)
+	if tab:		
+		
+		# get the parent of the tab control
+		tabParent = GetParent(tab.handle)
+		
+		# find the control with that hwnd
+		tabParent = [c for c in childWindows if \
+			c.handle == tabParent][0]
+
+		# get the index of the parent
+		parentIdx = childWindows.index(tabParent) + 1
+		
+		passedFirstTab = False
+		for child in childWindows[parentIdx:]:
+			
+			# if the current control is a dialog
+			if child.Class == "#32770":
+			
+				# if this is the first tab
+				if not passedFirstTab :
+					# then just skip it
+					passedFirstTab = True
+				else:
+					# Ok so this is NOT the first tab
+					# remove the dialog control itself
+					firstTabChildren.remove(child)
+					
+					# then remove all the children of that dialog
+					for x in GetChildWindows(child.handle):
+						firstTabChildren.remove(x)
+						
+	return firstTabChildren
+			
+			
+
+
+
+
+#====================================================================
+def GetClass(hwnd):
+	# get the className
+	className = (c_wchar * 257)()
+	GetClassName (hwnd, byref(className), 256)
+	return className.value
+
+
+#====================================================================
+def GetTitle(hwnd):
+	# get the title
+	bufferSize = SendMessage (hwnd, WM_GETTEXTLENGTH, 0, 0)	
+	title = (c_wchar * bufferSize)()
+	
+	if bufferSize:
+		bufferSize += 1
+		SendMessage (hwnd, WM_GETTEXT, bufferSize, title)
+	
+
+	return title.value
+
+		
+
+#====================================================================
+class Window(object):
+	#----------------------------------------------------------------
+	def __init__(self, hwndOrXML, dlgRect = None):
+
+		self.ref = None
+		
+		if isinstance(hwndOrXML, (int, long)):
+			self.handle = hwndOrXML
+			self.properties = DefaultWindowHwndReader(hwndOrXML, dlgRect)
+			
+			# this is only for use when we are running based on the dialog
+			# itself - no reason to write it to the XML file so don't 
+			# add it to the properties
+			self.actualRect = RECT()
+			GetWindowRect(hwndOrXML, byref(self.actualRect))
+			
+			self.properties["MenuItems"] = GetMenuItems(GetMenu(hwndOrXML))
+			#print self.properties["MenuItems"] 
+			
+			#self.GetContextMenu()
+			
+		else:
+			self.properties = {}
+			self.properties['ClientRect'] = XMLToRect(hwndOrXML.find("CLIENTRECT"))
+			self.properties['Rectangles'] = []
+			rectangles = hwndOrXML.find("RECTANGLES")
+			for rect in rectangles:
+				self.properties['Rectangles'].append(XMLToRect(rect))
+
+			self.properties['Fonts'] = []
+			fonts = hwndOrXML.find("FONTS")
+			for font in fonts:
+				self.properties['Fonts'].append(XMLToFont(font))
+			
+			self.properties['Titles'] = XMLToTitles(hwndOrXML.find("TITLES"))
+
+
+			self.properties["MenuItems"] = XMLToMenuItems(hwndOrXML.find("MENUITEMS"))
+			#print self.properties["MenuItems"] 
+
+
+			# get all the attributes
+			for propName in hwndOrXML.attrib:
+
+				val = hwndOrXML.attrib[propName]
+
+				if propName.endswith("_LONG"):
+					val = long(val)
+					propName = propName[:-5]
+				else:
+					val = unicode(val)
+				
+				self.properties[propName] = val
+				
+			
+								
+		
+		
+	#----------------------------------------------------------------
+	def __getattr__(self, name):
+		if name in self.properties:
+			return self.properties[name]
+		else:
+			raise AttributeError("'%s' has no attribute '%s'"% \
+				(self.__class__.__name__, name))
+	
+	#----------------------------------------------------------------
+	def GetTitle(self):
+		return self.Titles[0]
+	Title = property(GetTitle) 
+	
+	#----------------------------------------------------------------
+	def GetRectangle(self):
+		return self.Rectangles[0]
+	Rectangle = property(GetRectangle) 
+
+	#----------------------------------------------------------------
+	def GetFont(self):
+		return self.Fonts[0]
+
+	#----------------------------------------------------------------
+	def SetFont(self, font):
+		self.Fonts[0] = font
+
+	Font = property(GetFont, SetFont) 
+
+	#----------------------------------------------------------------
+	def Parent(self):
+		# do a preliminary construction to a Window
+		parent = Window(GetParent(self.handle))
+		
+		# reconstruct it to the correct type
+		return  WindowClassRegistry().GetClass(parent.Class)(parent.handle)
+		
+		
+	#----------------------------------------------------------------
+	def Style(self, flag = None):
+		style = self.properties['Style']
+		if flag:
+			return style & flag == flag
+		else:
+			return style
+		
+	#----------------------------------------------------------------
+	def ExStyle(self, flag = None):
+		exstyle = self.properties['ExStyle']
+		if flag:
+			return exstyle & flag == flag
+		else:
+			return exstyle
+		
+
+	#----------------------------------------------------------------
+	def GetContextMenu(self):
+		rect = self.Rectangle
+
+		# set the position of the context menu to be 2 pixels in from 
+		# the control edge
+		pos = c_long ((rect.top+ 2 << 16) | (rect.left + 2))
+
+		# get the top window before trying to bring up a context menu
+		oldTopWin = FindWindow(0, 0)
+		
+		# send the message but time-out after 10 mili seconds
+		res = DWORD()
+		SendMessageTimeout (
+			self.handle, 
+			WM_CONTEXTMENU, 
+			self.handle, 
+			pos, 
+			0, 		
+			100, 	# time out in miliseconds
+			byref(res)) # result
+		
+		# get the top window
+		popMenuWin = FindWindow(0, 0)
+		
+		# if no context menu has opened try right clicking the control
+#		if oldTopWin == popMenuWin:
+#			SendMessageTimeout (
+#				self.handle, 
+#				WM_RBUTTONDOWN, 
+#				0,
+#				pos,
+#				0, 		
+#				100, 	# time out in miliseconds
+#				byref(res)) # result
+#
+#			SendMessageTimeout (
+#				self.handle, 
+#				WM_RBUTTONUP, 
+#				2,
+#				pos, 
+#				0, 		
+#				100, 	# time out in miliseconds
+#				byref(res)) # result
+#
+#			# wait another .1 of a second to allow it to display
+#			import time
+#			time.sleep(.1)
+#	
+#			# get the top window
+#			popMenuWin = FindWindow(0, 0)
+
+
+		# if we still haven't opened a popup menu
+		if oldTopWin == popMenuWin:
+			return
+
+
+		# get the MenuBar info from the PopupWindow which will
+		# give you the Menu Handle for the menu itself
+		mbi = MENUBARINFO()
+		mbi.cbSize = sizeof(MENUBARINFO)
+		ret = GetMenuBarInfo(popMenuWin, OBJID_CLIENT, 0, byref(mbi))
+		
+		if ret:
+			#print ret, mbi.rcBar.left, mbi.hMenu
+			GetMenuItems(mbi.hMenu)
+			self.properties["ContextMenu"] = GetMenuItems(mbi.hMenu)
+			
+
+		# make sure the popup goes away!
+		SendMessage (self.handle, WM_CANCELMODE, 0, 0)
+		SendMessage (popMenuWin, WM_CANCELMODE, 0, 0)
+
+		# if it's still open - then close it.
+		if IsWindowVisible(popMenuWin):
+			SendMessage (popMenuWin, WM_CLOSE, 0, 0)
+			#SendMessage (popMenuWin, WM_DESTROY, 0, 0)
+			#SendMessage (popMenuWin, WM_NCDESTROY , 0, 0)
+		
+
+	#----------------------------------------------------------------
+	def __cmp__(self, other):
+		return cmp(self.handle, other.handle)
+		
+	#----------------------------------------------------------------
+	def __hash__(self):
+		return hash(self.handle)
+
+	#----------------------------------------------------------------
+#	def __str__(self):
+#		return "%8d %-15s\t'%s'" % (self.handle, 
+#			"'%s'"% self.riendlyClassName, 
+#			self.Title)	
+
+
+
+
+#====================================================================
+class DialogWindow(Window):
+	#----------------------------------------------------------------
+	def __init__(self, hwndOrXML):
+		
+		self.children = []	
+		
+		if isinstance(hwndOrXML, (int, long)):
+			# read the properties for the dialog itself
+			# Get the dialog Rectangle first - to get the control offset
+			
+			if not IsWindow(hwndOrXML):
+				raise "The window handle passed is not valid"
+
+
+			rect = RECT()
+			GetWindowRect(hwndOrXML, byref(rect))
+			
+			Window.__init__(self, hwndOrXML, rect)
+			
+			# Get the font of the dialog - dialog fonts are different from 
+			# normal fonts in that the fonts "MS Shell Dlg", "MS Shell Dlg 2"
+			# and "System" actally map to the default system font - which is 
+			# Windows 2000/XP is usually Tahoma
+
+			font = self.Font
+			if "MS Shell Dlg" in font.lfFaceName or font.lfFaceName == "System":
+				# these are not usually the fonts actaully used in for 
+				# title bars so we need to get the default title bar font
+
+				# get the title font based on the system metrics rather 
+				# than the font of the control itself
+				SPI_GETNONCLIENTMETRICS = 41
+				ncms = NONCLIENTMETRICSW()
+				ncms.cbSize = sizeof(ncms)
+				SystemParametersInfo(
+					SPI_GETNONCLIENTMETRICS, 
+					sizeof(ncms), 
+					byref(ncms),
+					0)
+
+				# with either of the following 2 flags set the font of the 
+				# dialog isthe small one (but there is normally no difference!
+				if self.Style(WS_EX_TOOLWINDOW) or self.Style(WS_EX_PALETTEWINDOW):
+					self.properties['Fonts'][0] = ncms.lfSmCaptionFont
+				else:
+					self.properties['Fonts'][0] = ncms.lfCaptionFont
+	
+			self.properties['FriendlyClassName'] = "Dialog"
+			
+			self.children = GetChildWindows(self.handle, rect)
+			self.children.insert(0, self)
+			self.children = RemoveNonCurrentTabControls(self.handle, self.children)
+					
+		else:
+			dialogElemReached = False
+			for ctrl in hwndOrXML.findall("CONTROL"):
+			
+				# if this is the first time through the dialog
+				if not dialogElemReached:
+					# initialise the Dialog itself
+					Window.__init__(self, ctrl)
+					dialogElemReached = True
+				
+				# otherwise contruct each control normally
+				else:
+					# get the class for the control with that window class
+					Klass = WindowClassRegistry().GetClass(ctrl.attrib["Class"])
+					
+					# construct the object and append it
+					self.children.append(Klass(ctrl, self.Rectangle))
+			self.children.insert(0, self)
+				
+
+	#----------------------------------------------------------------
+	def AllControls(self):
+		return self.children
+		
+
+
+	#----------------------------------------------------------------
+	def AddReference(self, ref):
+		
+		
+		#print "x"*20, ref.AllControls()
+		if len(self.AllControls()) != len(ref.AllControls()):
+			print len(self.AllControls()), len(ref.AllControls())
+			raise "Numbers of controls on ref. dialog does not match Loc. dialog"	
+			
+		
+		allIDsMatched = True
+		allClassesMatched = True
+		for idx, ctrl in enumerate(self.AllControls()):
+			refCtrl = ref.AllControls()[idx]
+			ctrl.ref = refCtrl
+			
+			if ctrl.ControlID != refCtrl.ControlID:
+				allIDsMatched = False
+
+			if ctrl.Class != refCtrl.Class:
+				allClassesMatched = False
+			
+		toRet = 1
+		
+		allIDsSameFlag = 2
+		allClassesSameFlag = 4
+		
+		if allIDsMatched:
+			toRet += allIDsSameFlag
+		
+		if allClassesMatched:
+			toRet += allClassesSameFlag
+		
+		return toRet
+				
+	#----------------------------------------------------------------
+	def MenuBlocks(self):
+		allMenuBlocks = []
+		for win in self.children:
+			if win.MenuItems:
+				# we need to get all the separate menu blocks!
+				menuBlocks = GetMenuItemsAsCtrlBocks(win.MenuItems)
+				allMenuBlocks.extend(menuBlocks)
+		
+		return allMenuBlocks
+		
+		
+				
+		
+class DummyCtrl(dict):
+	def __getattr__(self, name):
+		if name not in self:
+			if name + "s" in self:
+				return self[name + "s"][0]
+		return self[name]
+
+#====================================================================
+def GetMenuItemsAsCtrlBocks(menuItems):
+	blocks = []
+	
+	curBlock = []
+	for item in menuItems:
+		# do a bit of conversion first :-)
+		itemAsCtrl = DummyCtrl()
+
+		itemAsCtrl["Titles"] = [item['Text'], ]
+		itemAsCtrl["ControlID"] = item['ID']
+		itemAsCtrl["Type"] = item['Type']
+		itemAsCtrl["State"] = item['State']
+
+		itemAsCtrl["Class"] = "MenuItem"
+		itemAsCtrl["FriendlyClassName"] = "MenuItem"
+
+
+		itemAsCtrl["Rectangles"] = [RECT(), ]
+		itemAsCtrl["Fonts"] = [LOGFONTW(), ]
+		itemAsCtrl["ClientRect"] = RECT()
+		itemAsCtrl["ContextHelpID"] = 0
+		itemAsCtrl["UserData"]  = 0
+		itemAsCtrl["Style"] = 0
+		itemAsCtrl["ExStyle"] = 0
+		itemAsCtrl["IsVisible"] = 1
+		itemAsCtrl.ref = 0
+
+		curBlock.append(itemAsCtrl)
+		
+		if item.has_key('MenuItems'):
+			blocks.extend(GetMenuItemsAsCtrlBocks(item['MenuItems']))
+	
+	blocks.append(curBlock)
+	
+	return blocks
+	
+
+
+
+#====================================================================
+class ListBox(Window):
+	GetCount = LB_GETCOUNT
+	GetItemTextLen = LB_GETTEXTLEN
+	GetItemText = LB_GETTEXT
+
+	#----------------------------------------------------------------
+	def __init__(self, hwndOrXML, dlgRect):
+		Window.__init__(self, hwndOrXML, dlgRect)
+
+		if isinstance(hwndOrXML, (int, long)):
+			self.__GetItems()
+			
+	#----------------------------------------------------------------
+	def __GetItems(self):
+		# find out how many text items are in the combobox		
+		numItems = SendMessage(self.handle, self.GetCount, 0, 0)
+		
+		# get the text for each item in the combobox
+		for i in range(0, numItems):
+			textLen = SendMessage (self.handle, self.GetItemTextLen, i, 0)
+			text = create_unicode_buffer(textLen+1)
+			SendMessage (self.handle, self.GetItemText, i, byref(text))
+			
+			self.Titles.append(text.value)
+			
+
+
+#====================================================================
+class ComboBox(ListBox):
+	GetCount = CB_GETCOUNT
+	GetItemTextLen = CB_GETLBTEXTLEN
+	GetItemText = CB_GETLBTEXT
+
+	#----------------------------------------------------------------
+	def __init__(self, hwndOrXML, dlgRect):
+		ListBox.__init__(self, hwndOrXML, dlgRect)
+		
+		if isinstance(hwndOrXML, (int, long)):
+			droppedRect = RECT()
+
+			SendMessage(
+				self.handle, 
+				CB_GETDROPPEDCONTROLRECT, 
+				0, 
+				byref(droppedRect))
+
+
+			self.properties['DroppedRect'] = droppedRect
+		
+		else:
+			
+			# get the dropped Rect form 
+			droppedRect = XMLToRect(hwndOrXML.find("DROPPEDRECT"))
+			self.properties['DroppedRect'] = droppedRect
+
+		
+
+#====================================================================
+class Button(Window):
+	#----------------------------------------------------------------
+	def __init__(self, hwndOrXML, dlgRect):
+		Window.__init__(self, hwndOrXML, dlgRect)
+		
+		if isinstance(hwndOrXML, (int, long)):
+			#state = SendMessage(self.handle, BM_GETSTATE, 0, 0)
+
+			style = self.Style()
+			# get the least significant bit
+			styleLSB = style & 0xF
+
+			if styleLSB == BS_3STATE or styleLSB == BS_AUTO3STATE or \
+				styleLSB == BS_AUTOCHECKBOX or \
+				styleLSB == BS_CHECKBOX:
+				self.properties['FriendlyClassName'] = "CheckBox"
+			elif styleLSB == BS_RADIOBUTTON or styleLSB == BS_AUTORADIOBUTTON:
+				self.properties['FriendlyClassName'] = "RadioButton"
+			elif styleLSB ==  BS_GROUPBOX:
+				self.properties['FriendlyClassName'] = "GroupBox"
+
+			if style & BS_PUSHLIKE:
+				self.properties['FriendlyClassName'] = "Button";
+
+
+
+#====================================================================
+# todo - replace importing controlTypes with the registeredClasses functionality
+WindowClassRegistry().defaultClass = Window
+#WindowClassRegistry().AddClass("#32770", DialogWindow)
+
+WindowClassRegistry().AddClass("ComboBox", ComboBox)
+WindowClassRegistry().AddClass("WindowsForms\d*\.COMBOBOX\..*", ComboBox)
+
+WindowClassRegistry().AddClass("ListBox", ListBox)
+WindowClassRegistry().AddClass("WindowsForms\d*\.LISTBOX\..*", ListBox)
+
+WindowClassRegistry().AddClass("Button", Button)
+WindowClassRegistry().AddClass("WindowsForms\d*\.BUTTON\..*", Button)
+

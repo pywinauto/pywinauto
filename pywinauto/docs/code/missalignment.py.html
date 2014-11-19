@@ -1,0 +1,134 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pywinauto.tests.missalignment &mdash; pywinauto v0.3.9 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="pywinauto v0.3.9 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pywinauto-tests-missalignment">
+<h1>pywinauto.tests.missalignment<a class="headerlink" href="#pywinauto-tests-missalignment" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<span class="target" id="module-pywinauto.tests.missalignment"></span><p>Missalignment Test</p>
+<p><strong>What is checked</strong>
+This test checks that if a set of controls were aligned on a particular axis
+in the reference dialog  that they are all aligned on the same axis.</p>
+<p><strong>How is it checked</strong>
+A list of all the reference controls that are aligned is created (ie more than
+one control with the same Top, Left, Bottom or Right coordinates). These
+controls are then analysed in the localised dialog to make sure that they are
+all aligned on the same axis.</p>
+<p><strong>When is a bug reported</strong>
+A bug is reported when any of the controls that were aligned in the reference
+dialog are no longer aligned in the localised control.</p>
+<p><strong>Bug Extra Information</strong>
+The bug contains the following extra information
+Name    Description
+AlignmentType   This is either LEFT, TOP, RIGHT or BOTTOM. It tells you how
+the controls were aligned in the reference dialog. String
+AlignmentRect   Gives the smallest rectangle that surrounds ALL the controls
+concerned in the bug, Rectangle</p>
+<p><strong>Is Reference dialog needed</strong>
+This test cannot be performed without the reference control. It is required
+to see which controls should be aligned.</p>
+<p><strong>False positive bug reports</strong>
+It is quite possible that this test reports false positives:
+1.      Where the controls only just happen to be aligned in the reference dialog
+(by coincidence)
+2.      Where the control does not have a clear boundary (for example static
+labels or checkboxes)  they may be miss-aligned but it is not noticeable that
+they are not.</p>
+<p><strong>Test Identifier</strong>
+The identifier for this test/bug is &#8220;Missalignment&#8221;</p>
+<dl class="function">
+<dt id="pywinauto.tests.missalignment.MissalignmentTest">
+<tt class="descclassname">pywinauto.tests.missalignment.</tt><tt class="descname">MissalignmentTest</tt><big>(</big><em>windows</em><big>)</big><a class="headerlink" href="#pywinauto.tests.missalignment.MissalignmentTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the test on the windows passed in</p>
+</dd></dl>
+
+</blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/code/missalignment.py.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../contents.html">pywinauto v0.3.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Mark Mc Mahon.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

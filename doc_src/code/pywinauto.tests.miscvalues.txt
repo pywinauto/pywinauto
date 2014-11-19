@@ -1,0 +1,6 @@
+pywinauto.tests.miscvalues
+--------------------------
+ .. automodule:: pywinauto.tests.miscvalues
+    :members:
+    :undoc-members:
+

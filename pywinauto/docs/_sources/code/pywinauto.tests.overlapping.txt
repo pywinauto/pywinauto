@@ -1,0 +1,6 @@
+pywinauto.tests.overlapping
+---------------------------
+ .. automodule:: pywinauto.tests.overlapping
+    :members:
+    :undoc-members:
+

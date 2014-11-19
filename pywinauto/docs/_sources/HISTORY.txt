@@ -1,0 +1,686 @@
+==========
+Change Log
+==========
+
+0.4.0 Various cleanup and bug fixes.
+------------------------------------------------------------------
+03-April-2010
+
+ * Gracefully Handle dir() calls on Application or WindowSpecification objects
+   (which used hang for a while as these classes would search for windows
+   matching __members__, __methods__ and __bases__). The code now checks for
+   any attribute that starts with '__' and ends with '__' and raises
+   AttributeError immediately. Thanks to Sebastian Haase for raising this.
+
+ * Removed the reference to an Application object in WindowSpecification.
+   It was not used in the class and made the class harder to use.
+   WindowSpecification is now more useful as a utility class.
+
+ * Add imports of application.WindowSpecification and application.Application
+   to pywinauto.__init__.py so that these classes can be used more easily
+   (without having to directly import pywinauto.application). Thanks again to
+   Sebastian Haase.
+
+ * Added a function to empty the clipboard (thanks to Tocer on Sourceforge)
+
+ * Use 'SendMessageTimeout' to get the text of a window. (SendMessage will hang
+   if the application is not processing messages)
+
+ * Fixed references to PIL.ImageGrab. PIL add's it's module directly to the 
+   module path, so it should just be referenced by ImageGrab and not 
+   PIL.ImageGrab.
+
+ * Use AttachThreadInput + PostMessage rather than SendMessageTimeout to send
+   mouse clicks.
+ 
+ * Fix how timeout retry times are calculated in timings.WaitUntil() and 
+   timings.Wait
+ 
+ * Fixed some issues with application.Kill_() method, highlighted due to the 
+   changes in the HwndWrapper.Close() method.
+   
+ * Fix writing images to XML. It was broken with updates to PIL that I had not
+   followed. Changed the method of knowing if it is an image by checking for
+   various attributes.
+ 
+ * Renamed WindowSpecification.(Ww)indow() to ChildWindow() and added 
+   deprecation messages for the other functions.
+ 
+ * Improved the tests (fixed test failures which were not pywinauto issues)
+
+
+0.3.9 Experimental! New Sendkeys, and various fixes
+------------------------------------------------------------------
+27-November-2009
+
+ * Major change this release is that Sendkeys is no longer a requirement!
+   A replacement that supports Unicode is included with pywinauto. (hopefully
+   soon to be released as a standalone module). Please note - this is still
+   quite untested so this release should be treated with some care..
+
+ * Made sure that default for WindowSpecification.Window_() was to look
+   for non top level windows. The defaults in find_windows() had been
+   changed previously and it now needed to be explicitly overridden.
+
+ * Fixed a missing reference to 'win32defines' when referencing WAIT_TIMEOUT
+   another typo of false (changed to False)
+
+ * Removed the restriction to only get the active windows for the process,
+   now it will be possible to get the active windows, even if a process is
+   not specified.
+   From http://msdn.microsoft.com/en-us/library/ms633506%28VS.85%29.aspx
+   it gets the active window for the foreground thread.
+
+ * Hopefully improved Delphi TreeView and ListView handling (added window
+   class names as supported window classes to the appropriate classes).
+
+ * Added support for running UI tests with reference controls. (requried
+   for some localization tests)
+
+ * Various PyLint and PEP8 fixes made.
+
+
+0.3.8 Collecting improvements from last 2 years
+------------------------------------------------------------------
+10-March-2009
+
+ * Fixed toolbar button pressing - This required for
+   HwndWrapper.NotifyParent() to be updated (to accept a new
+   ID parameter)
+
+ * Fixed a bug wherea listview without a column control would
+   make pywinauto fail to capture the dialog.
+
+ * Converted documenation from Pudge generated to Sphinx Generated
+
+ * Added some baic support for Pager and Progress controls
+   (no tests yet)
+
+ * Added some more VB 'edit' window classes
+
+ * Added some more VB 'listbox' window classes
+
+ * Added some more VB 'button' window classes
+
+ * Ensured that return value from ComboBoxWrapper.SelectedIndices
+   is always a tuple (there was a bug where it would sometimes be
+   a ctypes array)
+
+ * Changed default for finding windows to find disabled windows
+   as well as enabled ones (previous was to find enabled windows only)
+   (note this may impact scripts that relied on the previous
+   setting i.e. in cases where two dialogs have the same title!)
+
+ * Much better handling of InvalidWindowHandle during automation
+   runs. This could be raised when a closing window is still available
+   when the automation was called, but is gone half way through
+   whatever function was called.
+
+ * Made clicking more robust by adding a tiny wait between each
+   SendMessageTimeout in _perform_click().
+
+ * Added attributes ``can_be_label`` and ``has_title`` to ``HwndWrapper``
+   and subclasses to specify whether a control can act as a label for
+   other controls, and whether the title should be used for identifying
+   the control. If you have created your own HwndWrapper subclasses you
+   may need to override the defaults.
+
+ * Added a ``control_id`` parameter to find_windows which allows
+   finding windows based off of their control id's
+
+ * Added a FriendlyClassName method to MenuItem
+
+ * Split up the functions for button truncation data
+
+ * Commented out code to get a new font if the font could not
+   be recovered
+
+ * Moved code to get the control font from Truncation test to
+   handleprops
+
+ * Added a function to get the string representation of the
+   bug. (need to refactor PrintBugs at some point).
+
+ * Fixed a variable name (from fname -> font_attrib as fname
+   was not a defined variable!)
+
+ * Forced some return values from MissingExtraString test
+   to be Unicode
+
+ * Fixed the MiscValues test (converted to Unicode and
+   removed some extraneous characters)
+
+ * Updated the path for all unittests
+
+ * Made two unit tests sligthly more robust and less dependent
+   on computer/app settings
+
+ * Updated timing settings for unit tests
+
+ * Updated the examples to work in dev environment.
+
+
+0.3.7 Merge of Wait changes and various bug fixes/improvements
+------------------------------------------------------------------
+10-April-2007
+
+* Added Timings.WaitUntil() and Timings.WaitUntilPasses() which
+  handle the various wait until something in the code. Also
+  refactored existing waits to use these two methods.
+
+* Fixed a major Handle leak in RemoteMemorBlock class (which is
+  used extensively for 'Common' controls. I was using OpenHandle
+  to open the process handle, but was not calling CloseHandle()
+  for each corresponding OpenHandle().
+
+* Added an active_() method to Application class to return the
+  active window of the application.
+
+* Added an 'active' option to WindowSpecification.Wait() and
+  WaitNot().
+
+* Some cleanup of the clipboard module. GetFormatName()
+  was improved and GetData() made a little more robust.
+
+* Added an option to findwindows.find_windows() to find only
+  active windows (e.g. active_only = True). Default is False.
+
+* Fixed a bug in the timings.Timings class - timing values are
+  Now accessed through the class (Timings) and not through the
+  intance (self).
+
+* Updated ElementTree import in XMLHelpers so that it would work
+  on Python 2.5 (where elementtree is a standard module) as well
+  as other versions where ElementTree is a separate module.
+
+* Enhanced Item selection for ListViews, TreeViews - it is now
+  possible to pass strings and they will be searched for. More
+  documentation is required though.
+
+* Greatly enhanced Toolbar button clicking, selection, etc.
+  Though more documentation is required.
+
+* Added option to ClickInput() to allow mouse wheel movements
+  to be made.
+
+* menuwrapper.Menu.GetProperties() now returns a dict like all other
+  GetProperties() methods. This dict for now only has one key
+  'MenuItems' which contains the list of menuitems (which had been
+  the previous return value).
+
+
+0.3.6b Changes not documented in 0.3.6 history
+------------------------------------------------------------------
+31-July-2006
+
+* Fixed a bug in how findbestmatch.FindBestMatches was working.
+  It would match against text when it should not!
+
+* Updated how timings.Timings.Slow() worked, if any time setting
+  was less then .2 after 'slowing' then set it to .2
+
+
+
+0.3.6 Scrolling and Treview Item Clicking added
+------------------------------------------------------------------
+28-July-2006
+
+* Added parameter to ``_treeview_item.Rectangle()`` to have an option
+  to get the Text rectangle of the item. And defaulted to this.
+
+* Added ``_treeview_item.Click()`` method to make it easy to click
+  on tree view items.
+
+* Fixed a bug in ``TreeView.GetItem()`` that was expanding items
+  when it shouldn't.
+
+* Added ``HwndWrapper.Scroll()`` method to allow scrolling. This
+  is a very minimal implementation - and if the scrollbars are
+  implemented as separate controls (rather then a property of a
+  control - this will probably not work for you!). It works for
+  Notepad and Paint - that is all I have tried so far.
+
+* Added a call to ``HwndWrapper.SetFocus()`` in
+  ``_perform_click_input()`` so that calls to
+  ``HwndWrapper.ClickInput()`` will make sure to click on the
+  correct window.
+
+
+0.3.5 Moved to Metaclass control wrapping
+------------------------------------------------------------------
+24-May-2006
+
+* Moved to a metaclass implementation of control finding. This
+  removes some cyclic importing that had to be worked around and
+  other then metaclass magic makes the code a bit simpler.
+
+* Some of the sample files would not run - so I updated them
+  so they would (Thanks to Stefaan Himpe for pointing this out)
+
+* Disabled saving application data (it was still being saved in
+  Application.RecordMatch() even if the rest of the application
+  data code is disabled. This was causing what appeared to be a
+  memory leak where pywinauto would keep grabbing more and more
+  memory (especially for controls that contain a lot of
+  information). Thanks to Frank Martinez for leading me to this).
+
+* Added ListViewWrapper.GetItemRect() to enable retrieving the
+  rectangle for a particular item in the listview.
+
+* Removed references to _ctrl() method within pywinauto as it
+  was raising a DeprecationWarning internally even if the user
+  was not using it.
+
+
+0.3.4 Fixed issue with latest ctypes, speed gains, other changes
+------------------------------------------------------------------
+25-Apr-2006
+
+* The latest version of ctypes (0.9.9.6) removed the code generator
+  I was using some generated code in win32functions.py (stdcall). I
+  was not using those functions so I just commented them out.
+
+* Started the process of renaming methods of the ``Application`` and
+  ``WindowSpecification`` classes. I will be converting names to
+  ``UppercaseNames_()``. The trailing ``_`` is to disambiguate the
+  method names from potential Window titles.
+
+* Updated how print_control_identifiers works so that it now always
+  prints the disambiguated control name. (even for single controls)
+
+* Added __hash__ to HwndWrapper so that controls could be dictionary
+  keys.
+
+* Caching various information at various points. For example I cache
+  how well two pieces of text match. For short scripts this has
+  little impact - but for larger script it could well have a major
+  impact.
+  Also caching information for controls that cannot change
+  e.g. TopLeveParent, Parent, etc
+
+
+0.3.3 Added some methods, and fixed some small bugs
+------------------------------------------------------------------
+19-Apr-2006
+
+* Added a wait for the control to be active and configurable
+  sleeps after 'modifying' actions (e.g. Select, Deselect, etc)
+
+* Fixed Timings.Slow() and Timings.Fast() - they could in certain
+  circumstances do the opposite! If you had already set a timing
+  slower or faster then they would set it then they would blindly
+  ignore that and set their own times. I added functionality that
+  they will take either the slowest or fastest of the new/current
+  setting rather then blindly setting to the new value.
+
+* Fixed some hidden bugs with HwndWrapper.CloseClick()
+
+* Fixed a bug in setup.py that would raise an error when no
+  argument was specified
+
+* Added an argument to HwndWrapper.SendMessageTimeout so that
+  the wait options could be passed in.
+
+* Added HwndWrapper.Close(), Maximize(), Minimize(), Restore()
+  and GetShowState().
+
+* Commented out all deprecated methods (will be removed completely
+  in some future release).
+
+* Added Application.kill_() method - which closes all windows and
+  kills the application. If the application is asking if you want
+  to save your changes - you will not be able to click yes or no
+  and the application will be killed anyway!.
+
+
+0.3.2 Fixed setup.py and some typos
+------------------------------------------------------------------
+31-Mar-2006
+
+* Fixed the spelling of Stefaan Himpe's name
+
+* Fixed setup.py which was working for creating a distribution but
+  not for installing it (again thanks to Stefaan for pointing it out!)
+
+
+0.3.1 Performance tune-ups
+------------------------------------------------------------------
+30-Mar-2006
+
+* Change calculation of distance in findbestmatch.GetNonTextControlName()
+  so that it does not need to square or get the square root to
+  find the real distance - as we only need to compare values - not have
+  the actual distance. (Thanks to Stefaan Himpe)
+
+* Compiled regular expression patterns before doing the match to
+  avoid compiling the regular expression for window that is being
+  tested (Thanks to Stefaan Himpe)
+
+* Made it easier to add your own control tests by adding a file
+  extra_tests.py which needs to export a ModifyRegisteredTests() method.
+  Also cleaned up the code a little.
+
+* Updated notepad_fast.py to make it easier to profile (adde a method)
+
+* Changed WrapHandle to use a cache for classes it has matched - this is
+  to avoid having to match against all classes constantly.
+
+* Changed default timeout in SendMessageTimeout to .001 seconds from .4
+  seconds this results in a significant speedup. Will need to make this
+  value modifiable via the timing module/routine.
+
+* WaitNot was raising an error if the control was not found - it should
+  have returned (i.e. success - control is not in any particular state
+  because it does not exist!).
+
+* Added ListViewWrapper.Deselect() per Chistophe Keller's suggestion.
+  While I was at it I added a check on the item value passed in and added
+  a call to WaitGuiIdle(self) so that the control has a chance to process
+  the message.
+
+* Changed doc templates and moved dependencies into pywinauto
+  subversion to ensure that all files were availabe at www.openqa.org and
+  that they are not broken when viewed there.
+
+* Moved all timing information into the timings.Timings class. There are
+  some simple methods for changing the timings.
+
+
+0.3.0 Added Application data - now useful for localization testing
+------------------------------------------------------------------
+20-Mar-2006
+
+* Added automatic Application data collection which can be used when
+  running the same test on a different spoken language version. Support
+  is still preliminary and is expected to change. Please treat as early
+  Alpha.
+
+  If you have a different language version of Windows then you can try
+  this out by running the notepad_fast.py example with the langauge
+  argument e.g. ::
+
+	examples\notepad_fast.py language
+
+  This will load the application data from the supplied file
+  notepad_fast.pkl and use it for finding the right menu items and
+  controls to select.
+
+* Test implementation to make it easier to start using an application.
+  Previously you needed to write code like ::
+
+	app = Application().connect_(title = 'Find')
+	app.Find.Close.Click()
+	app.NotePad.MenuSelect("File->Exit")
+
+  1st change was to implement static methods ``start()`` and
+  ``connect()``. These methods return a new Application instance
+  so the above code becomes::
+
+	app = Application.connect(title = 'Find')
+	app.Find.Close.Click()
+	app.NotePad.MenuSelect("File->Exit")
+
+  I also wanted to make it easier to start working with a simple
+  application - that may or may not have only one dialog. To make this
+  situation easier I made ``window_()`` not throw if the application has not
+  been ``start()ed`` or ``connect()ed`` first. This leads to simpler code
+  like::
+
+	app = Application()
+	app.Find.Close.Click()
+	app.NotePad.MenuSelect("File->Exit")
+
+  What happens here is that when you execute any of Application.window_(),
+  Application.__getattr__() or Application.__getitem__() when the
+  application hasn't been connected or started. It looks for the window
+  that best matches your specification and connects the application to
+  that process.
+
+  This is extra functionality - existing connect_() and
+  start_() methods still exist
+
+* Fixed HwndWrapper.SetFocus() so that it would work even if the window
+  was not in the foreground. (it now makes the window foreground as well
+  as giving it focus). This overcomes a restriction in Windows where
+  you can only change the foreground window if you own the foreground
+  window.
+
+* Changed some 2.4'isms that an anonymous commenter left on my blog :-)
+  with these changes pywinauto should run on Python 2.3 (though I haven't
+  done extensive testing).
+
+* Commented out controls.common_controls.TabControlWrapper.GetTabState()
+  and TabStates() as these did not seem to be returning valid values anyway.
+
+* Fixed documentation issues were parts of the documentation were not
+  getting generated to the HTML files.
+
+* Fixed issue where MenuSelect would sometimes not work as expected.
+  Some Menu actions require that the window that owns the menu be active.
+  Added a call to SetFocus() before selecting a menu item to ensure that
+  the window was active.
+
+* Fixed Bug 1452832 where clipboard was not closed in clipboard.GetData()
+
+* Added more unit tests now up to 248 from 207
+
+
+0.2.5 More refactoring, more tests
+------------------------------------------------
+07-Mar-2006
+
+* Added wrapper classes for Menus and MenuItems this enabled cleaner
+  interaction with Menu's. It also gives more functionality - you can now
+  programmatically Click() on menus, and query if a menu item is checked
+  or not.
+
+* Added application.WindowSpecification.Wait() and WaitNot() methods.
+  These methods allow you to wait for a control to exist, be visible,
+  be enabled, be ready (both enabled and visible!) or to wait for the
+  control to not be in any of these states. WaitReady(),
+  WaitNotEnabled(), WaitNotVisible() now use these methods. I was able to also
+  add the missing methods WaitNotReady(), WaitEnabled(), WaitVisible(),
+  WaitExists(), WaitnotExists(). Please use Wait() and WaitNot() as I have
+  Deprecated these Wait* methods.
+
+* Slightly modified timeout waits for control resolution so that a timed
+  function more accurately follows the timeout value specified.
+
+* Added application.Application.start() and connect() static methods. These
+  methods are factory methods in that they will return an initialized Application
+  instance. They work exactly the same as start_() and connect() as they are
+  implemented in terms of those.
+
+	from pywinauto.application import Application
+	notepad = Application.start("notepad")
+	same_notepad = Application.connect(path = "notepad")
+
+* Updated the examples to follow changes to the code - and to make them a little
+  more robust.
+
+* Added a new Controls Overview document page which lists all the actions on
+  all controls.
+
+* Added more unit tests now up to 207 from 134 (added 68 tests)
+
+
+
+0.2.1 Small Release number - big changes
+------------------------------------------------
+17-Feb-2006
+
+* Quick release to get many changes out there - but this release has
+  been less tested then I would like for a .3 release.
+
+* Allow access to non text controls using the closest Text control.
+  This closest text control will normally be the static/label associated
+  with the control. For example in Notepad, Format->Font dialog, the 1st
+  combobox can be refered to as "FontComboBox" rather than "ComboBox1"
+
+* Added a new control wrapper - ``PopupMenuWrapper`` for context menu's
+  You can now work easily with context menu's
+  e.g. ::
+
+	 app.Notepad.Edit.RightClick()
+	 # need to use MenuClick rather then MenuSelect
+	 app.PopupMenu.MenuClick("Select All")
+	 app.Notepad.Edit.RightClick()
+	 app.PopupMenu.MenuClick("Copy")
+
+  I could think of merging the ``RightClick()`` and ``MenuSelect()`` into one method
+  ``ContextMenuSelect()`` if that makes sense to most people.
+
+* Added Support for Up-Down controls
+
+* Not all top level windows now have a FriendlyClassName of "Dialog".
+  I changed this because it made it hard to get windows of a particular
+  class. For example the main Notepad window has a class name of "Notepad".
+
+  This was primarily implemented due to work I did getting the System Tray.
+
+* Renamed ``StatusBarWrapper.PartWidths()`` to ``PartRightEdges()`` as this
+  is more correct for what it returns.
+
+* Changed HwndWrapper.Text() and SetText() to WindowText() and
+  SetWindowText() respectively to try and make it clearer that it is
+  the text returned by GetWindowText and not the text that is visible
+  on the control. This change also suggested that EditWrapper.SetText()
+  be changed to SetEditText() (though this is not a hard requirement
+  EditWrapper.SetText() still exists - but may be deprecated.
+
+* Added ClickInput, DoubleClickInput, RightClickInput, PressMouseInput
+  ReleaseMouseInput to HwndWrapper - these use SendInput rather then
+  WM_LBUTTONDOWN, WM_RBUTTONUP, etc used by Click, DoubleClick etc.
+
+  I also added a MenuClick method that allows you to click on menu
+  items. This means you can now 'physically' drop menus down.
+
+* Some further working with tooltips that need to be cleaned up.
+
+* Fixed a bug where coordinates passed to any of the Click operations had
+  the X and Y coordinates swapped.
+
+* Added new MenuItem and Menu classes that are to the most part hidden
+  but you can get a menu item by doing ::
+
+	app.Notepad.MenuItem("View")
+	app.Notepad.MenuItem("View->Status Bar")
+
+  MenuItems have various actions so for example you can use
+  ``MenuItem.IsChecked()`` to check if the menu item is checked.
+  Among other methods there are ``Click()`` and ``Enabled()``.
+
+* Modified the 'best match' algorithm for finding controls.
+  It now searches a couple of times, and tries to find the best
+  fit for the text passed to it. The idea here is to make it more
+  "Select what I want - not that other thing that looks a bit like
+  what I want!". It is possible this change could mean you need to
+  use new identifiers in scripts - but in general very little modification
+  should be necessary.
+
+  There was also a change to the algorithm that looked for the closest
+  text control. It missed some obvious controls in the previous
+  implementation. It also had a bug for controls above the control
+  rather than to the left.
+
+* Added a new example scripts SaveFromInternetExplorer.py and
+  SaveFromFirefox.py which show automating downloading of a page
+  from either of these browsers.
+
+* Added yet more unit tests, there are now a total of 134 tests.
+
+
+0.2.0 Significant refactoring
+------------------------------------------------
+06-Feb-2006
+
+* Changed how windows are searched for (from application)
+  This chage should not be a significant change for users
+
+* Started adding unit tests (and the have already uncovered bugs
+  that been fixed). They also point to areas of missing functionality
+  that will be addded with future updates
+
+* Changed from property access to Control attributes to function access
+  If your code was accessing properties of controls then this might be a
+  significant change! The main reasons for doing this were due to the
+  inheritability of properties (or lack there-of!) and the additional
+  scafolding that was required to define them all.
+
+* Updated the ``DialogWrapper.MenuSelect()`` method to notify the parent
+  that it needs to initialize the menu's before it retrieves the items
+
+* Added functionality to associate 'non-text' controls with the 'text'
+  control closest to them. This allows controls to be referenced by::
+
+	app.dlg.<Nearby_text><Window_class>
+
+  e.g. to reference the "Footer" edit control in the Page Setup dialog
+  you could use::
+
+	app.PageSetup.FooterEdit
+
+* Added a MoveWindow method to HwndWrapper
+
+* Did some more cleanup (fixing pylint warnings) but still not finished
+
+* Added some better support for .NET controls (not to be considered final)
+
+
+
+
+0.1.3 Many changes, few visible
+------------------------------------------------
+15-Jan-2006
+
+* Wrote doc strings for all modules, classes and functions
+* Ran pychecker and pylint and fixed some errors/warning
+* changed ::
+
+	  _connect, _start, _window, _control, _write
+
+  respectively to ::
+
+	  connect_, start_, window_, connect_, write_
+
+  If you forget to change ``_window``, ``_connect`` and ``_start`` then you will probably get the following error. ::
+
+	 TypeError: '_DynamicAttributes' object is not callable
+
+* pywinauto is now a package name - you need to import it or its modules
+* Changes to the code to deal with pywinauto package name
+* Fixed searching for windows if a Parent is passed in
+* Added Index to retrieved MenuItem dictionary
+* Added a check to ensure that a windows Handle is a valid window
+* Refactored some of the methods in common_controls
+* Refactored how FriendlyClassName is discovered (and still not really happy!
+
+
+
+0.1.2 Add Readme and rollup various changes
+------------------------------------------------
+15-Jan-2006
+
+* Updated Readme (original readme was incorrect)
+* Added clipboard module
+* Fixed DrawOutline part of tests.__init__.print_bugs
+* Added a NotifyParent to HwndWrapper
+* Make sure that HwndWrapper.ref is initialized to None
+* Refactored some methods of ComboBox and ListBox
+* Updated Combo/ListBox selection methods
+* Removed hardcoded paths from test_application.py
+* Added section to save the document as UTF-8 in MinimalNotepadTest
+* Fixed EscapeSpecials and UnEscapeSpecials in XMLHelpers
+* Made sure that overly large bitmaps do not break XML writing
+
+
+0.1.1 Minor bug fix release
+------------------------------------------------
+12-Jan-2006
+
+* Fixed some minor bugs discovered after release
+
+0.1.0 Initial Release
+------------------------------------------------
+6-Jan-2006
+
