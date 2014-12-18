@@ -139,7 +139,6 @@ def __init_tests():
         test_module = __import__(test_name.lower(), globals(), locals(), level=1)
 
         # class name is the test name + "Test"
-        print(test_module, dir(test_module))
         test_class = getattr(test_module, test_name + "Test")
 
         _registered[test_name] = test_class
