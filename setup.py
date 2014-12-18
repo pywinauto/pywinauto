@@ -23,6 +23,7 @@
 
 # to build files:
 # setup.py py2exe
+from __future__ import print_function
 
 try:
     from ez_setup import use_setuptools
@@ -103,6 +104,6 @@ try:
     import win32gui
     import win32gui_struct
     import win32api
-except ImportError, e:
-    print "The following module has to be installed before running pywinauto..."
-    print "\t", str(e).replace("No module named ", "")
+except ImportError as e:
+    print("The following module has to be installed before running pywinauto...")
+    print("\t" + str(e).replace("No module named ", ""))

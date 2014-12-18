@@ -19,6 +19,8 @@
 #    Boston, MA 02111-1307 USA
 
 "Package of tests that can be run on controls or lists of controls"
+from __future__ import print_function
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
@@ -84,30 +86,30 @@ def write_bugs(bugs, filename = "BugsOutput.txt"):
 def print_bugs(bugs):
     "Print the bugs"
     for (ctrls, info, bug_type, is_in_ref) in bugs:
-        print "BugType:", bug_type, is_in_ref,
+        print("BugType:", bug_type, is_in_ref)
 
         for i in info:
-            print unicode(i).encode('utf-8'), unicode(info[i]).encode('utf-8'),
-        print
+            print(unicode(i).encode('utf-8'), unicode(info[i]).encode('utf-8'))
+        print()
 
 
         for i, ctrl in enumerate(ctrls):
-            print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
+            print('\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
                 ctrl.WindowText().encode('utf-8'),
                 ctrl.FriendlyClassName().encode('utf-8'),
                 ctrl.Rectangle().left,
                 ctrl.Rectangle().top,
                 ctrl.Rectangle().right,
                 ctrl.Rectangle().bottom,
-                ctrl.IsVisible(),)
+                ctrl.IsVisible(),))
 
             try:
                 ctrl.DrawOutline()
             except (AttributeError, KeyError):
-                #print e
+                #print(e)
                 pass
 
-        print
+        print()
 
 
 # we need to register the modules
@@ -134,9 +136,10 @@ def __init_tests():
 
     for test_name in standard_test_names:
 
-        test_module = __import__(test_name.lower(), globals(), locals())
+        test_module = __import__(test_name.lower(), globals(), locals(), level=1)
 
         # class name is the test name + "Test"
+        print(test_module, dir(test_module))
         test_class = getattr(test_module, test_name + "Test")
 
         _registered[test_name] = test_class

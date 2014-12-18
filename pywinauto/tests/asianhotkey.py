@@ -72,6 +72,7 @@ then it will get reported.
 
 The identifier for this test/bug is "AsianHotkeyTests"
 """
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
@@ -81,7 +82,7 @@ testname = "AsianHotkeyFormat"
 
 import re
 
-from repeatedhotkey import ImplementsHotkey, GetHotkey
+from .repeatedhotkey import ImplementsHotkey, GetHotkey
 
 
 #-----------------------------------------------------------------------------
