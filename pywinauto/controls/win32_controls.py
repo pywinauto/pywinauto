@@ -30,6 +30,7 @@ import win32gui
 
 from . import HwndWrapper
 
+from .. import six
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures
@@ -299,7 +300,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
                 # convert it to a positive index
                 ident = (self.ItemCount() + ident)
 
-        elif isinstance(ident, basestring):
+        elif isinstance(ident, six.string_types):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
             ident = self.ItemTexts().index(ident)
@@ -450,7 +451,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             if ident < 0:
                 ident = (self.ItemCount() + ident)
 
-        elif isinstance(ident, basestring):
+        elif isinstance(ident, six.string_types):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
             ident = self.ItemTexts().index(ident) #-1
@@ -703,7 +704,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             self.Select()
 
         # replace the selection with
-        #text = ctypes.c_wchar_p(unicode(text))
+        #text = ctypes.c_wchar_p(six.text_type(text))
         self.SendMessage(win32defines.EM_REPLACESEL, True, text)
 
         #win32functions.WaitGuiThreadIdle(self)
@@ -723,7 +724,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         self.VerifyActionable()
 
         # if we have been asked to select a string
-        if isinstance(start, basestring):
+        if isinstance(start, six.string_types):
             string_to_select = start
             #
             start = self.TextBlock().index(string_to_select)

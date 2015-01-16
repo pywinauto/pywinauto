@@ -26,7 +26,9 @@ __revision__ = "$Revision$"
 import time
 import ctypes
 import re
+import sys
 
+from .. import six
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures
@@ -216,7 +218,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         list of item titles.
         """
         index = item
-        if isinstance(item, basestring):
+        if isinstance(item, six.string_types):
             index = (self.Texts().index(item) - 1) / self.ColumnCount()
 
         return index
@@ -749,7 +751,7 @@ class _treeview_element(object):
         #print child_spec
 
 
-        if isinstance(child_spec, basestring):
+        if isinstance(child_spec, six.string_types):
 
             texts = [c.Text() for c in self.Children()]
             if exact:
@@ -929,7 +931,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             return None
 
         # Ensure the path is absolute
-        if isinstance(path, basestring):
+        if isinstance(path, six.string_types):
             if not path.startswith("\\"):
                 raise RuntimeError(
                     "Only absolute paths allowed - "
@@ -983,7 +985,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             try:
                 current_elem = current_elem.GetChild(child_spec, exact)
             except IndexError:
-                if isinstance(child_spec, basestring):
+                if isinstance(child_spec, six.string_types):
                     raise IndexError("Item '%s' does not have a child '%s'"%
                         (current_elem.Text(), child_spec))
                 else:
@@ -1565,7 +1567,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
         # if it's a string then find the index of
         # the tab with that text
-        if isinstance(tab, basestring):
+        if isinstance(tab, six.string_types):
             # find the string in the tab control
             best_text = findbestmatch.find_best_match(
                 tab, self.Texts(), self.Texts())
@@ -1749,7 +1751,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     def Button(self, button_identifier, exact = True):
         "Return the button at index button_index"
         
-        if isinstance(button_identifier, basestring):
+        if isinstance(button_identifier, six.string_types):
             texts = self.Texts()[1:]
             self.actions.log('Toolbar buttons: ' + str(texts))
             # one of these will be returned for the matching text
@@ -1975,7 +1977,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         "Find where the button is and click it"
 
         '''texts = self.Texts()
-        if isinstance(button_identifier, basestring):
+        if isinstance(button_identifier, six.string_types):
 
             # one of these will be returned for the matching
             # text
