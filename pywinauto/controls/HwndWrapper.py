@@ -21,6 +21,7 @@
 "Basic wrapping of Windows controls"
 from __future__ import unicode_literals
 from __future__ import absolute_import
+from __future__ import print_function
 
 __revision__ = "$Revision$"
 
@@ -50,6 +51,7 @@ try:
 except ImportError:
     ImageGrab = None
 
+from .. import six
 from .. import win32defines
 from .. import win32functions
 from .. import win32structures
@@ -88,103 +90,56 @@ class InvalidWindowHandle(RuntimeError):
 
 
 # metaclass that will know about
+class _MetaWrapper(type):
+    "Metaclass for Wrapper objects"
+    re_wrappers = {}
+    str_wrappers = {}
 
-if sys.version[0] == '3':
-    class _MetaWrapper(type):
-        "Metaclass for Wrapper objects"
-        re_wrappers = {}
-        str_wrappers = {}
+    def __init__(cls, name, bases, attrs):
+        # register the class names, both the regular expression
+        # or the classes directly
 
-        def __init__(cls, name, bases, attrs):
-            # register the class names, both the regular expression
-            # or the classes directly
+        #print("metaclass __init__", cls)
+        type.__init__(cls, name, bases, attrs)
 
-            #print "metaclass __init__", cls
-            type.__init__(cls, name, bases, attrs)
+        for win_class in cls.windowclasses:
+            _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
+            _MetaWrapper.str_wrappers[win_class] = cls
 
-            for win_class in cls.windowclasses:
-                _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
-                _MetaWrapper.str_wrappers[win_class] = cls
+    @staticmethod
+    def FindWrapper(handle):
+        """Find the correct wrapper for this handle"""
+        class_name = handleprops.classname(handle)
 
-        @staticmethod
-        def FindWrapper(handle):
-            """Find the correct wrapper for this handle"""
-            class_name = handleprops.classname(handle)
+        try:
+            return _MetaWrapper.str_wrappers[class_name]
+        except KeyError:
+            wrapper_match = None
 
+            for regex, wrapper in _MetaWrapper.re_wrappers.items():
+                if regex.match(class_name):
+                    wrapper_match = wrapper
+                    _MetaWrapper.str_wrappers[class_name] = wrapper
 
-            try:
-                return _MetaWrapper.str_wrappers[class_name]
-            except KeyError:
-                wrapper_match = None
+                    return wrapper
 
-                for regex, wrapper in _MetaWrapper.re_wrappers.items():
-                    if regex.match(class_name):
-                        wrapper_match = wrapper
-                        _MetaWrapper.str_wrappers[class_name] = wrapper
+        # if it is a dialog then override the wrapper we found
+        # and make it a DialogWrapper
+        if handleprops.is_toplevel_window(handle):
+            from . import win32_controls
+            wrapper_match = win32_controls.DialogWrapper
 
-                        return wrapper
+        if wrapper_match is None:
+            wrapper_match = HwndWrapper
+        return wrapper_match
 
-            # if it is a dialog then override the wrapper we found
-            # and make it a DialogWrapper
-            if handleprops.is_toplevel_window(handle):
-                from . import win32_controls
-                wrapper_match = win32_controls.DialogWrapper
-
-            if wrapper_match is None:
-                wrapper_match = HwndWrapper
-            return wrapper_match
-
-else:
-    class _MetaWrapper(type):
-        "Metaclass for Wrapper objects"
-        re_wrappers = {}
-        str_wrappers = {}
-
-        def __init__(cls, name, bases, attrs):
-            # register the class names, both the regular expression
-            # or the classes directly
-
-            #print "metaclass __init__", cls
-            type.__init__(cls, name, bases, attrs)
-
-            for win_class in cls.windowclasses:
-                _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
-                _MetaWrapper.str_wrappers[win_class] = cls
-
-        def FindWrapper(handle):
-            """Find the correct wrapper for this handle"""
-            class_name = handleprops.classname(handle)
-
-
-            try:
-                return _MetaWrapper.str_wrappers[class_name]
-            except KeyError:
-                wrapper_match = None
-
-                for regex, wrapper in _MetaWrapper.re_wrappers.items():
-                    if regex.match(class_name):
-                        wrapper_match = wrapper
-                        _MetaWrapper.str_wrappers[class_name] = wrapper
-
-                        return wrapper
-
-            # if it is a dialog then override the wrapper we found
-            # and make it a DialogWrapper
-            if handleprops.is_toplevel_window(handle):
-                from . import win32_controls
-                wrapper_match = win32_controls.DialogWrapper
-
-            if wrapper_match is None:
-                wrapper_match = HwndWrapper
-            return wrapper_match
-
-            #if handle in meta.wrappers:
-            #    return meta.wrappers[handle]
-        FindWrapper = staticmethod(FindWrapper)
+        #if handle in meta.wrappers:
+        #    return meta.wrappers[handle]
 
 
 #====================================================================
-class HwndWrapper(object): #, metaclass=_MetaWrapper
+@six.add_metaclass(_MetaWrapper)
+class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     """Default wrapper for controls.
 
     All other wrappers are derived from this.
@@ -201,8 +156,6 @@ class HwndWrapper(object): #, metaclass=_MetaWrapper
     A HwndWrapper object can be passed directly to a ctypes wrapped
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_)"""
-
-    __metaclass__ = _MetaWrapper
 
     friendlyclassname = None
     windowclasses = []
@@ -1070,7 +1023,7 @@ class HwndWrapper(object): #, metaclass=_MetaWrapper
         if append:
             text = self.WindowText() + text
 
-        text = ctypes.c_wchar_p(unicode(text))
+        text = ctypes.c_wchar_p(six.text_type(text))
         self.PostMessage(win32defines.WM_SETTEXT, 0, text)
         win32functions.WaitGuiThreadIdle(self)
 
@@ -1136,10 +1089,10 @@ class HwndWrapper(object): #, metaclass=_MetaWrapper
         rect = self.Rectangle
 
         #ret = win32functions.TextOut(
-        #    dc, rect.left, rect.top, unicode(text), len(text))
+        #    dc, rect.left, rect.top, six.text_type(text), len(text))
         ret = win32functions.DrawText(
             dc,
-            unicode(text),
+            six.text_type(text),
             len(text),
             ctypes.byref(rect),
             win32defines.DT_SINGLELINE)
