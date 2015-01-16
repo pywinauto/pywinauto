@@ -24,6 +24,8 @@ from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
+from .. import six
+
 
 def run_tests(controls, tests_to_run = None, test_visible_only = True):
     "Run the tests"
@@ -57,8 +59,8 @@ def get_bug_as_string(bug):
     header = ["BugType:", str(bug_type), str(is_in_ref)]
 
     for i in info:
-        header.append(unicode(i))
-        header.append(unicode(info[i]))
+        header.append(six.text_type(i))
+        header.append(six.text_type(info[i]))
     
     lines = []
     lines.append(" ".join(header))
@@ -89,7 +91,7 @@ def print_bugs(bugs):
         print("BugType:", bug_type, is_in_ref)
 
         for i in info:
-            print(unicode(i).encode('utf-8'), unicode(info[i]).encode('utf-8'))
+            print(six.text_type(i).encode('utf-8'), six.text_type(info[i]).encode('utf-8'))
         print()
 
 

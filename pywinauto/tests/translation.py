@@ -72,6 +72,7 @@ __revision__ = "$Revision$"
 testname = "Translation"
 
 import re
+from pywinauto import six
 
 #-----------------------------------------------------------------------------
 def TranslationTest(windows):
@@ -86,7 +87,7 @@ def TranslationTest(windows):
         untranTitles, untranIndices = _GetUntranslations(win)
 
         if untranTitles:
-            indicesAsString = ",".join([unicode(idx) for idx in untranIndices])
+            indicesAsString = ",".join([six.text_type(idx) for idx in untranIndices])
 
             bugs.append((
                 [win,],
