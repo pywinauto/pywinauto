@@ -31,6 +31,7 @@ import pdb
 import os
 
 sys.path.append(".")
+from pywinauto import six
 from pywinauto.controls import common_controls
 from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
@@ -755,7 +756,7 @@ class ToolbarTestCases(unittest.TestCase):
     def testTexts(self):
         "Make sure the texts are set correctly"
         for txt in self.ctrl.Texts():
-            self.assertEquals (isinstance(txt, basestring), True)
+            self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testGetProperties(self):
         "Test getting the properties for the toolbar control"
@@ -839,7 +840,7 @@ class RebarTestCases(unittest.TestCase):
     def testTexts(self):
         "Make sure the texts are set correctly"
         for txt in self.ctrl.Texts():
-            self.assertEquals (isinstance(txt, basestring), True)
+            self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testBandCount(self):
         self.assertEquals(self.ctrl.BandCount(), 2)

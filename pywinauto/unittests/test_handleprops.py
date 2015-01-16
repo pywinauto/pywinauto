@@ -28,6 +28,7 @@ import sys
 sys.path.append(".")
 from pywinauto.handleprops import *
 from pywinauto.application import Application
+from pywinauto import six
 
 
 class handlepropsTestCases(unittest.TestCase):
@@ -166,10 +167,10 @@ class handlepropsTestCases(unittest.TestCase):
     def test_font(self):
         "Make sure the friendly class is set correctly"
         dlgfont = font(self.dlghandle)
-        self.assertEquals(True, isinstance(dlgfont.lfFaceName, basestring))
+        self.assertEquals(True, isinstance(dlgfont.lfFaceName, six.string_types))
 
         editfont = font(self.edit_handle)
-        self.assertEquals(True, isinstance(editfont.lfFaceName, basestring))
+        self.assertEquals(True, isinstance(editfont.lfFaceName, six.string_types))
 
 
     def test_processid(self):
