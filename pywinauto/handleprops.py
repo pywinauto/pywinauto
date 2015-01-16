@@ -365,7 +365,7 @@ def is_toplevel_window(handle):
 #        # OK we found it
 #        if re.match(cls_name, classname(handle)):
 #            # If it is a string then just return it
-#            if isinstance(f_cls_name, basestring):
+#            if isinstance(f_cls_name, six.string_types):
 #                return f_cls_name
 #            # otherwise it is a function so call it
 #            else:

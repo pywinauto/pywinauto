@@ -64,6 +64,7 @@ import pickle
 
 import ctypes
 
+from . import six
 from . import win32structures
 from . import win32functions
 from . import win32defines
@@ -71,6 +72,8 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 from . import handleprops
+
+import win32process, win32api, pywintypes, win32con
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
@@ -869,10 +872,7 @@ class Application(object):
 
         # we need to wrap the command line as it can be modified
         # by the function
-        try:
-            command_line = ctypes.c_wchar_p(unicode(cmd_line)) # Python 2.x
-        except NameError:
-            command_line = ctypes.c_wchar_p(cmd_line) # Python 3.x
+        command_line = ctypes.c_wchar_p(six.text_type(cmd_line))
 
         # Actually create the process
         dwCreationFlags = win32structures.DWORD(0)
@@ -1174,8 +1174,11 @@ class Application(object):
 def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
     # Set instance variable _module if not already set
-    process_handle = win32functions.OpenProcess(
-        0x400 | 0x010, 0, process_id) # read and query info
+    #process_handle = win32api.OpenProcess(win32con.PROCESS_DUP_HANDLE | win32con.PROCESS_QUERY_INFORMATION, 0, process_id) # read and query info
+    process_handle = win32api.OpenProcess(0x400 | 0x010, 0, process_id) # read and query info
+
+    #process_handle = win32functions.OpenProcess(
+    #    0x400 | 0x010, 0, process_id) # read and query info
 
     if not process_handle:
         message = "Process with ID '%d' could not be opened" % process_id
@@ -1189,12 +1192,14 @@ def process_module(process_id):
     process_handle = AssertValidProcess(process_id)
 
     # get module name from process handle
-    filename = (ctypes.c_wchar * 2000)()
-    win32functions.GetModuleFileNameEx(
-        process_handle, 0, ctypes.byref(filename), 2000)
+    #filename = (ctypes.c_wchar * 2000)()
+    #win32functions.GetModuleFileNameEx(
+    #    process_handle, 0, ctypes.byref(filename), 2000)
 
+    filename = win32process.GetModuleFileNameEx(process_handle, 0)
+    #print('filename = ', filename)
     # return the process value
-    return filename.value
+    return filename
 
 #=========================================================================
 def process_from_module(module):
@@ -1204,19 +1209,32 @@ def process_from_module(module):
     processes = (ctypes.c_int * 2000)()
     bytes_returned = ctypes.c_int()
 
+    modules = []
     # collect all the running processes
+    
+    pids = win32process.EnumProcesses()
+    for pid in pids:
+        if pid != 0: # skip system process (0x00000000)
+            try:
+                modules.append((pid, process_module(pid)))
+            except pywintypes.error as exc:
+                pass #print(exc)
+            except ProcessNotFoundError as exc:
+                pass #print(exc)
+    '''
     ctypes.windll.psapi.EnumProcesses(
         ctypes.byref(processes),
         ctypes.sizeof(processes),
         ctypes.byref(bytes_returned))
 
-    modules = []
     # Get the process names
-    for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
+    for i in range(0, int(bytes_returned.value / ctypes.sizeof(ctypes.c_int))):
         try:
-            modules.append((processes[i], process_module(processes[i])))
+            if processes[i]:
+                modules.append((processes[i], process_module(processes[i])))
         except ProcessNotFoundError:
             pass
+    '''
 
     # check for a module with a matching name in reverse order
     # as we are most likely to want to connect to the last

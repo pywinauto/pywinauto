@@ -24,8 +24,8 @@ from __future__ import absolute_import
 __revision__ = "$Revision$"
 
 from .win32defines import LF_FACESIZE, NMTTDISPINFOW_V1_SIZE, HDITEMW_V1_SIZE
+from . import six
 
-import sys
 import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
@@ -187,7 +187,7 @@ class RECT(Structure):
         else:
             #if not isinstance(otherRect_or_left, (int, long)):
             #    print type(self), type(otherRect_or_left), otherRect_or_left
-            if sys.version[0] == '3':
+            if six.PY3:
                 self.left = otherRect_or_left
                 self.right = right
                 self.top = top

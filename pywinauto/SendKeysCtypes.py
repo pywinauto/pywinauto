@@ -6,9 +6,13 @@ The tips and tricks at http://www.pinvoke.net/default.aspx/user32.sendinput
 is useful!
 
 """
+from __future__ import absolute_import
+
 import time
 import ctypes
 import win32api
+
+from . import six
 
 __all__ = ['KeySequenceError', 'SendKeys']
 
@@ -328,8 +332,8 @@ class KeyAction(object):
 
     def __init__(self, key, down = True, up = True):
         self.key = key
-        if isinstance(self.key, basestring):
-            self.key = unicode(key)
+        if isinstance(self.key, six.string_types):
+            self.key = six.text_type(key)
         self.down = down
         self.up = up
 

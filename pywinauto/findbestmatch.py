@@ -24,11 +24,11 @@ from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
-import sys
 import re
 import difflib
 import traceback
 
+from . import six
 from . import fuzzydict
 #import ctypes
 #import ldistance
@@ -94,7 +94,7 @@ def _get_match_ratios(texts, match_against):
             ratio_calc.set_seq2(text)
 
             # try using the levenshtein distance instead
-            #lev_dist = levenshtein_distance(unicode(match_against), unicode(text))
+            #lev_dist = levenshtein_distance(six.text_type(match_against), six.text_type(text))
             #ratio = 1 - lev_dist / 10.0
             #ratios[text] = ratio
 
@@ -432,7 +432,7 @@ class UniqueDict(dict):
                 _cache[(text, search_text)] = ratio
 
             # try using the levenshtein distance instead
-            #lev_dist = levenshtein_distance(unicode(search_text), unicode(text))
+            #lev_dist = levenshtein_distance(six.text_type(search_text), six.text_type(text))
             #ratio = 1 - lev_dist / 10.0
             #ratios[text_] = ratio
             #print "%5s" %("%0.2f"% ratio), search_text, `text`
@@ -499,10 +499,7 @@ def find_best_control_matches(search_text, controls):
 #        for name in ctrl_names:
 #            name_control_map[name] = ctrl
 
-    if sys.version[0] == '3':
-        search_text = search_text
-    else:
-        search_text = unicode(search_text)
+    search_text = six.text_type(search_text)
 
     best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
 

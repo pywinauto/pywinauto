@@ -28,6 +28,7 @@ __revision__ = "$Revision$"
 import re
 import ctypes
 
+from . import six
 from . import win32functions
 from . import win32structures
 from . import handleprops
@@ -69,7 +70,7 @@ def find_window(**kwargs):
         exception =  WindowAmbiguousError(
             "There are %d windows that match the criteria %s"% (
             len(windows),
-            unicode(kwargs),
+            six.text_type(kwargs),
             )
         )
 

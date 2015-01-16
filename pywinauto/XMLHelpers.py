@@ -46,6 +46,7 @@ import controls
 
 # reported that they are not used - but in fact they are
 # through a search of globals()
+import six
 from win32structures import LOGFONTW, RECT
 
 class XMLParsingError(RuntimeError):
@@ -86,7 +87,7 @@ def _SetNodeProps(element, name, value):
 
             if isinstance(item_val, (int, long)):
                 prop_name += "_LONG"
-                item_val = unicode(item_val)
+                item_val = six.text_type(item_val)
 
             struct_elem.set(prop_name, _EscapeSpecials(item_val))
 
@@ -171,7 +172,7 @@ def _EscapeSpecials(string):
     "Ensure that some characters are escaped before writing to XML"
 
     # ensure it is unicode
-    string = unicode(string)
+    string = six.text_type(string)
 
     # escape backslashs
     string = string.replace('\\', r'\\')
@@ -194,7 +195,7 @@ def _UnEscapeSpecials(string):
     # convert doubled backslashes to a single backslash
     string = string.replace(r'\\', '\\')
 
-    return unicode(string)
+    return six.text_type(string)
 
 
 
@@ -236,9 +237,9 @@ def _XMLToStruct(element, struct_type = None):
             prop_name = prop_name[:-5]
 
         # if the value is a string
-        elif isinstance(val, basestring):
+        elif isinstance(val, six.string_types):
             # make sure it if Unicode
-            val = unicode(val)
+            val = six.text_type(val)
 
         # now we can have all upper case attribute name
         # but structure name will not be upper case
@@ -270,7 +271,7 @@ def _OLD_XMLToTitles(element):
         val = val.replace('\\x12', '\x12')
         val = val.replace('\\\\', '\\')
 
-        titles.append(unicode(val))
+        titles.append(six.text_type(val))
 
     return titles
 
