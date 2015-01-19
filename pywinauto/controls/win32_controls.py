@@ -608,7 +608,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def LineCount(self):
         "Return how many lines there are in the Edit"
-        return  self.SendMessage(win32defines.EM_GETLINECOUNT)-1
+        return  self.SendMessage(win32defines.EM_GETLINECOUNT)
 
     #-----------------------------------------------------------
     def LineLength(self, line_index):
@@ -635,7 +635,10 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         self.SendMessage(
             win32defines.EM_GETLINE, line_index, ctypes.byref(text))
 
-        return text.value
+        if six.PY3:
+            return text.value
+        else:
+            return text.value.encode('unicode-internal')[:-1]
 
     #-----------------------------------------------------------
     def Texts(self):
@@ -643,7 +646,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         texts = [self.WindowText(), ]
 
-        for i in range(0, self.LineCount()+1):
+        for i in range(self.LineCount()):
             texts.append(self.GetLine(i))
 
         return texts

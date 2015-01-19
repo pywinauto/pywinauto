@@ -96,11 +96,13 @@ def gettext(app):
 
 def typetext(app, text):
     app.UntitledNotepad.Edit.SetEditText(text)
+    time.sleep(0.2)
 
 
 def copytext(app):
     app.UntitledNotepad.MenuSelect("Edit -> Select All")
     app.UntitledNotepad.MenuSelect("Edit -> Copy")
+    time.sleep(0.3)
 
 def pastetext(app):
     app.UntitledNotepad.MenuItem("Edit -> Paste").Click()
