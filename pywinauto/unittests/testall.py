@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import unittest
@@ -45,8 +46,8 @@ def run_tests():
     #runner = unittest.TextTestRunner(verbosity = 2)
     unittest.TextTestRunner(verbosity=1).run(suite)
     cov.stop()
-    #print cov.analysis()
-    print cov.report()
+    #print(cov.analysis())
+    print(cov.report())
     cov.html_report(
         directory = os.path.join(package_root, "Coverage_report"))
 

@@ -26,6 +26,7 @@ import sys
 sys.path.append(".")
 
 from pywinauto.XMLHelpers import *
+from pywinauto import six
 
 import unittest
 
@@ -63,7 +64,7 @@ class XMLHelperTestCases(unittest.TestCase):
 
         test_string = []
         for i in range(0, 50000):
-            test_string.append(unichr(i))
+            test_string.append(six.unichr(i))
 
         test_string = "".join(test_string)
 

@@ -18,6 +18,8 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
+from __future__ import print_function
+
 "Tests for classes in controls\common_controls.py"
 
 __revision__ = "$Revision: 234 $"
@@ -159,7 +161,7 @@ class ListViewTestCases(unittest.TestCase):
 
         # TODO: add more checking of column values
         #for col in cols:
-        #    print col
+        #    print(col)
 
 
     def testGetSelectionCount(self):
@@ -200,19 +202,19 @@ class ListViewTestCases(unittest.TestCase):
     def _testFocused(self):
         "Test checking the focus of some ListView items"
 
-        print "Select something quick!!"
+        print("Select something quick!!")
         import time
         time.sleep(3)
         #self.ctrl.Select(1)
 
-        print self.ctrl.IsFocused(0)
-        print self.ctrl.IsFocused(1)
-        print self.ctrl.IsFocused(2)
-        print self.ctrl.IsFocused(3)
-        print self.ctrl.IsFocused(4)
-        print self.ctrl.IsFocused(5)
+        print(self.ctrl.IsFocused(0))
+        print(self.ctrl.IsFocused(1))
+        print(self.ctrl.IsFocused(2))
+        print(self.ctrl.IsFocused(3))
+        print(self.ctrl.IsFocused(4))
+        print(self.ctrl.IsFocused(5))
         #for col in cols:
-        #    print col
+        #    print(col)
 
 
     def testSelect(self):
@@ -686,12 +688,12 @@ class TabControlTestCases(unittest.TestCase):
 #        # use CloseClick to allow the control time to respond to the message
 #        self.dlg.Send.CloseClick()
 #        time.sleep(2)
-#        print "==\n",self.ctrl.TabStates()
+#        print("==\n",self.ctrl.TabStates())
 #
 #        self.assertEquals (self.ctrl.GetTabState(1), 1)
 #
 #    def testTabStates(self):
-#        print self.ctrl.TabStates()
+#        print(self.ctrl.TabStates())
 #        raise "tabstates hiay"
 
 
@@ -793,7 +795,7 @@ class ToolbarTestCases(unittest.TestCase):
 
         self.ctrl.PressButton(0)
 
-        #print self.ctrl.Texts()
+        #print(self.ctrl.Texts())
         self.assertRaises(
             findbestmatch.MatchError,
             self.ctrl.PressButton,

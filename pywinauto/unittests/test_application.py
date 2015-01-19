@@ -117,7 +117,7 @@ class ApplicationTestCases(unittest.TestCase):
         app_name = r"I am not * and Application!/\.exe"
         try:
             app.start_(app_name)
-        except AppStartError, e:
+        except AppStartError as e:
             self.assertEquals(app_name in str(e), True)
 
 
@@ -388,10 +388,10 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.Edit.TypeKeys("hello")
 
-        app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.UntitledNotepad.MenuSelect("File->Print...")
 
-        app.PageSetup.Printer.Click()
-        app.PageSetup.Network.Click()
+        app.Print.FindPrinter.Click()
+        #app.FindPrinters.Stop.Click()
 
         app.kill_()
 

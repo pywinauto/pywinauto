@@ -18,6 +18,8 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
+from __future__ import print_function
+
 "Tests for findwindows.py"
 
 __revision__ = "$Revision: 234 $"
@@ -38,8 +40,8 @@ def _unittests():
         visible_only = False)
 
     for win in windows:
-        print "==" * 20
-        print handleprops.dumpwindow(win)
+        print("==" * 20)
+        print(handleprops.dumpwindow(win))
 
 #class ApplicationTestCases(unittest.TestCase):
 #    "Unit tests for the ListViewWrapper class"
