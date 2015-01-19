@@ -73,7 +73,7 @@ from . import findbestmatch
 from . import findwindows
 from . import handleprops
 
-import win32process, win32api, pywintypes, win32con
+import win32process, win32api, pywintypes, win32con, win32event
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
@@ -865,52 +865,48 @@ class Application(object):
         if retry_interval is None:
             retry_interval = Timings.app_start_retry
 
-        start_info = win32structures.STARTUPINFOW()
-        start_info.sb = ctypes.sizeof(start_info)
-
-        proc_info = win32structures.PROCESS_INFORMATION()
+        start_info = win32process.STARTUPINFO()
 
         # we need to wrap the command line as it can be modified
         # by the function
-        command_line = ctypes.c_wchar_p(six.text_type(cmd_line))
+        command_line = cmd_line
 
         # Actually create the process
-        dwCreationFlags = win32structures.DWORD(0)
+        dwCreationFlags = 0
         if create_new_console:
-            dwCreationFlags = win32structures.DWORD(win32defines.CREATE_NEW_CONSOLE)
-        ret = win32functions.CreateProcess(
-            0, 					# module name
-            command_line,		# command line
-            0, 					# Process handle not inheritable.
-            0, 					# Thread handle not inheritable.
-            0, 					# Set handle inheritance to FALSE.
-            dwCreationFlags, 	# Creation flags.
-            0, 					# Use parent's environment block.
-            0,  				# Use parent's starting directory.
-            ctypes.byref(start_info),# Pointer to STARTUPINFO structure.
-            ctypes.byref(proc_info)) # Pointer to PROCESS_INFORMATION structure
-
-        # if it failed for some reason
-        if not ret:
+            dwCreationFlags = win32con.CREATE_NEW_CONSOLE
+        try:
+            (hProcess, hThread, dwProcessId, dwThreadId) = win32process.CreateProcess(
+                None, 					# module name
+                command_line,			# command line
+                None, 					# Process handle not inheritable.
+                None, 					# Thread handle not inheritable.
+                0, 						# Set handle inheritance to FALSE.
+                dwCreationFlags, 		# Creation flags.
+                None, 					# Use parent's environment block.
+                None, 					# Use parent's starting directory.
+                start_info)				# STARTUPINFO structure.
+        except Exception as exc:
+            # if it failed for some reason
             message = ('Could not create the process "%s"\n'
                 'Error returned by CreateProcess: %s')% (
-                    cmd_line, ctypes.WinError())
+                    cmd_line, str(exc))
             raise AppStartError(message)
 
-        self.process = proc_info.dwProcessId
+        self.process = dwProcessId
 
 
         def AppIdle():
             "Return true when the application is ready to start"
-            result = win32functions.WaitForInputIdle(
-                proc_info.hProcess, int(timeout * 1000))
+            result = win32event.WaitForInputIdle(
+                hProcess, int(timeout * 1000))
 
             # wait completed successfully
             if result == 0:
                 return True
 
             # the wait returned because it timed out
-            if result == win32defines.WAIT_TIMEOUT:
+            if result == win32con.WAIT_TIMEOUT:
                 return False
 
             return bool(self.windows_())
@@ -1131,25 +1127,29 @@ class Application(object):
         # so we have either closed the windows - or the app is hung
 
         # get a handle we can wait on
-        process_wait_handle = win32functions.OpenProcess(
+        process_wait_handle = win32api.OpenProcess(
             win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE ,
-            False,
+            0,
             self.process)
 
         killed = True
         if process_wait_handle:
 
             # wait for the window to close
-            win32functions.WaitForSingleObject(
+            win32event.WaitForSingleObject(
                 process_wait_handle,
-                Timings.after_windowclose_timeout * 1000)
+                int(Timings.after_windowclose_timeout * 1000))
 
             #if forcekill:
-            win32functions.TerminateProcess(process_wait_handle, 0)
+            try:
+                win32api.TerminateProcess(process_wait_handle, 0)
+            except pywintypes.error as exc:
+                print('Warning: ' + str(exc))
+            #win32functions.TerminateProcess(process_wait_handle, 0)
             #else:
             #    killed = False
 
-        win32functions.CloseHandle(process_wait_handle)
+        win32api.CloseHandle(process_wait_handle)
 
         return killed
 
@@ -1175,7 +1175,10 @@ def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
     # Set instance variable _module if not already set
     #process_handle = win32api.OpenProcess(win32con.PROCESS_DUP_HANDLE | win32con.PROCESS_QUERY_INFORMATION, 0, process_id) # read and query info
-    process_handle = win32api.OpenProcess(0x400 | 0x010, 0, process_id) # read and query info
+    try:
+        process_handle = win32api.OpenProcess(0x400 | 0x010, 0, process_id) # read and query info
+    except pywintypes.error as exc:
+        raise ProcessNotFoundError(str(exc) + ', pid = ' + str(process_id))
 
     #process_handle = win32functions.OpenProcess(
     #    0x400 | 0x010, 0, process_id) # read and query info

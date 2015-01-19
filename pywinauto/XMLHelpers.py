@@ -20,6 +20,7 @@
 
 """Module containing operations for reading and writing dialogs as XML
 """
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
@@ -42,12 +43,12 @@ except ImportError:
 import ctypes
 import re
 import PIL.Image
-import controls
+from . import controls
 
 # reported that they are not used - but in fact they are
 # through a search of globals()
-import six
-from win32structures import LOGFONTW, RECT
+from . import six
+from .win32structures import LOGFONTW, RECT
 
 class XMLParsingError(RuntimeError):
     "Wrap parsing Exceptions"
@@ -179,7 +180,7 @@ def _EscapeSpecials(string):
 
     # escape non printable characters (chars below 30)
     for i in range(0, 32):
-        string = string.replace(unichr(i), "\\%02d"%i)
+        string = string.replace(six.unichr(i), "\\%02d"%i)
 
     return string
 
@@ -190,7 +191,7 @@ def _UnEscapeSpecials(string):
 
     # Unescape all the escape characters
     for i in range(0, 32):
-        string = string.replace("\\%02d"%i, unichr(i))
+        string = string.replace("\\%02d"%i, six.unichr(i))
 
     # convert doubled backslashes to a single backslash
     string = string.replace(r'\\', '\\')
