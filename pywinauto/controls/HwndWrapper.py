@@ -650,7 +650,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             for frame in inspect.stack():
                 print(frame[1:])
             '''
-            result = exc[0]
+            result = str(exc)
 
         return result #result.value
 
@@ -1702,7 +1702,10 @@ def _perform_click_input(
         coords[1] = screen_coords.y
 
     # set the cursor position
-    win32functions.SetCursorPos(coords[0], coords[1])
+    if six.PY3:
+        win32api.SetCursorPos(coords[0], coords[1])
+    else:
+        win32api.SetCursorPos((coords[0], coords[1]))
     time.sleep(Timings.after_setcursorpos_wait)
 
     inp_struct = win32structures.INPUT()

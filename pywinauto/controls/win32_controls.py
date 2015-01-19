@@ -629,7 +629,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         text_len = self.LineLength(line_index)
         # create a buffer and set the length at the start of the buffer
         text = ctypes.create_unicode_buffer(text_len+3)
-        text[0] = unichr(text_len)
+        text[0] = six.unichr(text_len)
 
         # retrieve the line itself
         self.SendMessage(
