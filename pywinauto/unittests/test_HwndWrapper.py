@@ -18,6 +18,8 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
+from __future__ import print_function
+
 "Tests for HwndWrapper"
 
 import time
@@ -43,7 +45,7 @@ except ImportError:
     import sys
 
     pywinauto_imp = "\\".join(__file__.split('\\')[:-3])
-    print "sdfdsf", pywinauto_imp
+    print("sdfdsf", pywinauto_imp)
     sys.path.append(pywinauto_imp)
     from pywinauto.controls.HwndWrapper import *
 
