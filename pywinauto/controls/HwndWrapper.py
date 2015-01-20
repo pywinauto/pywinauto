@@ -1702,10 +1702,7 @@ def _perform_click_input(
         coords[1] = screen_coords.y
 
     # set the cursor position
-    if six.PY3:
-        win32api.SetCursorPos(coords[0], coords[1])
-    else:
-        win32api.SetCursorPos((coords[0], coords[1]))
+    win32api.SetCursorPos((coords[0], coords[1]))
     time.sleep(Timings.after_setcursorpos_wait)
 
     inp_struct = win32structures.INPUT()

@@ -1127,10 +1127,13 @@ class Application(object):
         # so we have either closed the windows - or the app is hung
 
         # get a handle we can wait on
-        process_wait_handle = win32api.OpenProcess(
-            win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE ,
-            0,
-            self.process)
+        try:
+            process_wait_handle = win32api.OpenProcess(
+                win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
+                0,
+                self.process)
+        except pywintypes.error as exc:
+            return True # already killed
 
         killed = True
         if process_wait_handle:
@@ -1144,7 +1147,7 @@ class Application(object):
             try:
                 win32api.TerminateProcess(process_wait_handle, 0)
             except pywintypes.error as exc:
-                print('Warning: ' + str(exc))
+                pass #print('Warning: ' + str(exc))
             #win32functions.TerminateProcess(process_wait_handle, 0)
             #else:
             #    killed = False

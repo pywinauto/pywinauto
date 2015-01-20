@@ -50,12 +50,12 @@ class ClipboardTestCases(unittest.TestCase):
         # close the application
         #self.dlg.SendMessage(win32defines.WM_CLOSE)
         self.app1.UntitledNotepad.MenuSelect('File -> Exit')
-        if self.app1.Notepad["Do&n't Save"].Exists():
-            self.app1.Notepad["Do&n't Save"].Click()
+        if self.app1.UntitledNotepad["Do&n't Save"].Exists():
+            self.app1.UntitledNotepad["Do&n't Save"].Click()
 
         self.app2.UntitledNotepad.MenuSelect('File -> Exit')
-        if self.app2.Notepad["Do&n't Save"].Exists():
-            self.app2.Notepad["Do&n't Save"].Click()
+        if self.app2.UntitledNotepad["Do&n't Save"].Exists():
+            self.app2.UntitledNotepad["Do&n't Save"].Click()
 
 
     def testGetClipBoardFormats(self):

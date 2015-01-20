@@ -164,8 +164,8 @@ class ComboBoxTestCases(unittest.TestCase):
         # close the application
         self.app.UntitledNotepad.MenuSelect("File->Exit")
 
-        if self.app.Notepad.No.Exists():
-            self.app.Notepad.No.Click()
+        if self.app.UntitledNotepad["Do&n't Save"].Exists():
+            self.app.UntitledNotepad["Do&n't Save"].Click()
 
     def testGetProperties(self):
         "Test getting the properties for the combobox control"
@@ -363,8 +363,8 @@ class EditTestCases(unittest.TestCase):
         # close the application
         self.dlg.MenuSelect("File->Exit")
 
-        if self.app.Notepad.No.Exists():
-            self.app.Notepad.No.Click()
+        if self.app.UntitledNotepad["Do&n't Save"].Exists():
+            self.app.UntitledNotepad["Do&n't Save"].Click()
 
     def testSetText(self):
         "Test setting the text of the edit control"

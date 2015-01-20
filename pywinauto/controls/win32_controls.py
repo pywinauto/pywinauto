@@ -20,6 +20,7 @@
 
 "Wraps various standard windows controls"
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 __revision__ = "$Revision$"
 
@@ -287,7 +288,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
         "Get the index for the item with this 'ident'"
-        if isinstance(ident, (int, long)):
+        if isinstance(ident, six.integer_types):
 
             if ident >= self.ItemCount():
                 raise IndexError(
@@ -439,7 +440,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
         "Return the index of the item 'ident'"
-        if isinstance(ident, (int, long)):
+        if isinstance(ident, six.integer_types):
 
             if ident >= self.ItemCount():
                 raise IndexError(
@@ -713,7 +714,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
 
-        self.actions.log('Set text to the edit box: ' + str(text))
+        self.actions.log('Set text to the edit box: ' + six.text_type(text))
 
         # return this control so that actions can be chained.
         return self
