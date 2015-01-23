@@ -86,7 +86,7 @@ def _SetNodeProps(element, name, value):
             prop_name = prop_name[0]
             item_val = getattr(value, prop_name)
 
-            if isinstance(item_val, (int, long)):
+            if isinstance(item_val, six.integer_types):
                 prop_name += "_LONG"
                 item_val = six.text_type(item_val)
 
@@ -133,9 +133,9 @@ def _SetNodeProps(element, name, value):
 
     else:
         if isinstance(value, bool):
-            value = long(value)
+            value = six.integer_types[-1](value)
 
-        if isinstance(value, (int, long)):
+        if isinstance(value, six.integer_types):
             name += "_LONG"
 
         element.set(name, _EscapeSpecials(value))
@@ -234,7 +234,7 @@ def _XMLToStruct(element, struct_type = None):
         # if the value ends with "_long"
         if prop_name.endswith("_LONG"):
             # get an long attribute out of the value
-            val = long(val)
+            val = six.integer_types[-1](val)
             prop_name = prop_name[:-5]
 
         # if the value is a string
@@ -339,7 +339,7 @@ def _GetAttributes(element):
 
         # if it is 'Long' element convert it to an long
         if attrib_name.endswith("_LONG"):
-            val = long(val)
+            val = six.integer_types[-1](val)
             attrib_name = attrib_name[:-5]
 
         else:
