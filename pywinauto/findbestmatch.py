@@ -311,7 +311,7 @@ def get_control_names(control, allcontrols):
             for text in control.Texts()[1:]:
                 names.append(control.FriendlyClassName() + text)
         except:
-            ActionLogger().log('Warning! Cannot get control.Texts()') #\nTraceback:\n' + traceback.format_exc())
+            pass #ActionLogger().log('Warning! Cannot get control.Texts()') #\nTraceback:\n' + traceback.format_exc())
 
         # so find the text of the nearest text visible control
         non_text_names = GetNonTextControlName(control, allcontrols)

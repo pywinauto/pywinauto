@@ -289,6 +289,9 @@ class LVCOLUMNW(Structure):
         ('iSubItem', c_int),
         ('iImage', c_int),
         ('iOrder', c_int),
+        ('cxMin', c_int),
+        ('cxDefault', c_int),
+        ('cxIdeal', c_int),
     ]
 
 
@@ -306,12 +309,19 @@ class LVITEMW(Structure):
         ('iImage', c_int),
         ('lParam', LPARAM),
         ('iIndent', c_int),
+        #if (_WIN32_WINNT >= 0x0501)
+        ('iGroupId', c_int),
+        ('cColumns', UINT),
+        ('puColumns', UINT),
+        #if (_WIN32_WINNT >= 0x0600)
+        ('piColFmt', c_int),
+        ('iGroup', c_int),
     ]
 if is_x64():
-    assert sizeof(LVITEMW) == 44, sizeof(LVITEMW)
+    assert sizeof(LVITEMW) == 64, sizeof(LVITEMW)
     assert alignment(LVITEMW) == 1, alignment(LVITEMW)
 else:
-    assert sizeof(LVITEMW) == 40, sizeof(LVITEMW)
+    assert sizeof(LVITEMW) == 60, sizeof(LVITEMW)
     assert alignment(LVITEMW) == 1, alignment(LVITEMW)
 
 

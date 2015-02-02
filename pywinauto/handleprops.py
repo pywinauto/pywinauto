@@ -129,7 +129,7 @@ def isvisible(handle):
 
 #=========================================================================
 def isunicode(handle):
-    "Teturn True if the window is a unicode window"
+    "Return True if the window is a Unicode window"
     return bool(win32functions.IsWindowUnicode(handle))
 
 #=========================================================================

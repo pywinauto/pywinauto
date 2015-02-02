@@ -41,6 +41,8 @@ from pywinauto.controls import WrapHandle
 #from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import findbestmatch
 from pywinauto.SendKeysCtypes import is_x64
+from pywinauto.RemoteMemoryBlock import AccessDenied
+from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 
 
 controlspy_folder = os.path.join(
@@ -51,10 +53,10 @@ if is_x64():
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
     def test__init__fail(self):
-        self.assertRaises(AccessDenied, common_controls._RemoteMemoryBlock, 0)
+        self.assertRaises(AccessDenied, RemoteMemoryBlock, 0)
 
     def test__init__fail(self):
-        self.assertRaises(AccessDenied, common_controls._RemoteMemoryBlock, 0)
+        self.assertRaises(AccessDenied, RemoteMemoryBlock, 0)
 
 
 class ListViewTestCases(unittest.TestCase):
@@ -67,7 +69,9 @@ class ListViewTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder, "List View.exe"))
+        app_path = os.path.join(controlspy_folder, "List View.exe")
+        app.start_(app_path)
+        #print('app_path: ' + app_path)
 
         self.texts = [
             ("Mercury", '57,910,000', '4,880', '3.30e23'),
