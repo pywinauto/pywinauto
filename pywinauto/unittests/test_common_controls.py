@@ -908,7 +908,7 @@ class ToolTipsTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.app.kill_()
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"

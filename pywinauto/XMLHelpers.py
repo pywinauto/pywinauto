@@ -42,7 +42,11 @@ except ImportError:
 
 import ctypes
 import re
-import PIL.Image
+try:
+    import PIL.Image
+    PIL_imported = True
+except ImportError:
+    PIL_imported = False
 from . import controls
 
 # reported that they are not used - but in fact they are
@@ -92,7 +96,7 @@ def _SetNodeProps(element, name, value):
 
             struct_elem.set(prop_name, _EscapeSpecials(item_val))
 
-    elif hasattr(value, 'tostring') and hasattr(value, 'size'):
+    elif hasattr(value, 'tobytes') and hasattr(value, 'size'):
         try:
             # if the image is too big then don't try to
             # write it out - it would probably product a MemoryError
@@ -100,7 +104,7 @@ def _SetNodeProps(element, name, value):
             if value.size[0] * value.size[1] > (5000*5000):
                 raise MemoryError
 
-            image_data = value.tostring().encode("bz2").encode("base64")
+            image_data = value.tobytes().encode("bz2").encode("base64")
             _SetNodeProps(
                 element,
                 name + "_IMG",
@@ -413,7 +417,9 @@ def _ReadXMLStructure(control_element):
             img = _GetAttributes(elem)
             data = img['data'].decode('base64').decode('bz2')
 
-            propval = PIL.Image.fromstring(
+            if PIL_imported is False:
+                raise RuntimeError('PIL is not installed!')
+            propval = PIL.Image.frombytes(
                 img['mode'],
                 (img['size_x'], img['size_y']),
                 data)

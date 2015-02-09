@@ -37,6 +37,7 @@ from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import win32structures, win32defines
 from pywinauto.findwindows import WindowNotFoundError
+from pywinauto.SendKeysCtypes import is_x64
 
 
 __revision__ = "$Revision: 234 $"
@@ -65,7 +66,10 @@ class HwndWrapperTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        self.app.start_("calc.exe")
+        if is_x64():
+            self.app.start_(r"C:\Windows\System32\calc.exe")
+        else:
+            self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
 
         self.dlg = self.app.Calculator
         self.dlg.MenuSelect('View->Scientific\tAlt+2')

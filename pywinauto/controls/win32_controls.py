@@ -37,6 +37,7 @@ from .. import win32defines
 from .. import win32structures
 #from .. import findbestmatch
 from .. import controlproperties
+from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 from .. import tests
 from ..timings import Timings
@@ -708,8 +709,19 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             self.Select()
 
         # replace the selection with
-        #text = ctypes.c_wchar_p(six.text_type(text))
-        self.SendMessage(win32defines.EM_REPLACESEL, True, text)
+        #buffer = ctypes.c_wchar_p(six.text_type(text))
+        buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
+        '''
+        remote_mem = RemoteMemoryBlock(self)
+        _setTextExStruct = win32structures.SETTEXTEX()
+        _setTextExStruct.flags = win32defines.ST_SELECTION #| win32defines.ST_UNICODE
+        _setTextExStruct.codepage = win32defines.CP_WINUNICODE
+        
+        remote_mem.Write(_setTextExStruct)
+        
+        self.SendMessage(win32defines.EM_SETTEXTEX, remote_mem, ctypes.byref(buffer))
+        '''
+        self.SendMessage(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)

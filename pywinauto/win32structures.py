@@ -276,6 +276,13 @@ RECT.__reduce__ = _reduce
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
 
+class SETTEXTEX(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('flags', DWORD),
+        ('codepage', UINT),
+    ]
+assert sizeof(SETTEXTEX) == 8, sizeof(SETTEXTEX)
 
 class LVCOLUMNW(Structure):
     _pack_ = 1
@@ -682,18 +689,32 @@ else:
     assert alignment(TBBUTTONINFOW) == 4, alignment(TBBUTTONINFOW)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
-class TBBUTTON(Structure):
-    #_pack_ = 1
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
-        ('iBitmap', c_int),
-        ('idCommand', c_int),
-        ('fsState', BYTE),
-        ('fsStyle', BYTE),
-        ('bReserved', BYTE * 2),
-        ('dwData', DWORD_PTR),
-        ('iString', INT_PTR),
-    ]
+if is_x64():
+    class TBBUTTON(Structure):
+        #_pack_ = 1
+        _fields_ = [
+            # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+            ('iBitmap', c_int),
+            ('idCommand', c_int),
+            ('fsState', BYTE),
+            ('fsStyle', BYTE),
+            ('bReserved', BYTE * 6),
+            ('dwData', DWORD_PTR),
+            ('iString', INT_PTR),
+        ]
+else:
+    class TBBUTTON(Structure):
+        #_pack_ = 1
+        _fields_ = [
+            # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+            ('iBitmap', c_int),
+            ('idCommand', c_int),
+            ('fsState', BYTE),
+            ('fsStyle', BYTE),
+            ('bReserved', BYTE * 2),
+            ('dwData', DWORD_PTR),
+            ('iString', INT_PTR),
+        ]
 if is_x64():
     assert sizeof(TBBUTTON) == 32, sizeof(TBBUTTON)
     assert alignment(TBBUTTON) == 8, alignment(TBBUTTON)
