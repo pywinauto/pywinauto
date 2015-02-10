@@ -45,7 +45,8 @@ class handlepropsTestCases(unittest.TestCase):
         "Close the application after tests"
         # close the application
         #self.dlg.SendMessage(win32defines.WM_CLOSE)
-        self.app.UntitledNotepad.MenuSelect("File->Exit")
+        #self.app.UntitledNotepad.MenuSelect("File->Exit")
+        self.app.kill_()
 
     def test_text(self):
         "Make sure the text method returns correct result"

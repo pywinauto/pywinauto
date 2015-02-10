@@ -2228,7 +2228,7 @@ class ToolTip(object):
         tipinfo = win32structures.TOOLINFOW()
         tipinfo.cbSize = ctypes.sizeof(tipinfo)
         tipinfo.lpszText = remote_mem.Address() + \
-            ctypes.sizeof(tipinfo) +1
+            ctypes.sizeof(tipinfo) + 1
 
         remote_mem.Write(tipinfo)
 
@@ -2237,8 +2237,8 @@ class ToolTip(object):
             self.index,
             remote_mem)
 
-        if not ret:
-            raise ctypes.WinError()
+        #if not ret:
+        #    raise ctypes.WinError()
 
         remote_mem.Read(tipinfo)
 
@@ -2246,7 +2246,7 @@ class ToolTip(object):
 
         # now get the text
         self.info.lpszText = remote_mem.Address() + \
-            ctypes.sizeof(self.info) +1
+            ctypes.sizeof(self.info) + 1
 
         remote_mem.Write(self.info)
 

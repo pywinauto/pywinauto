@@ -551,7 +551,8 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        self.dlg.TypeKeys("%{F4}")
+        #self.dlg.TypeKeys("%{F4}")
+        self.app.kill_()
 
 
     def test_GetDialogPropsFromHandle(self):

@@ -414,7 +414,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        self.app.UntitledNotepad.MenuSelect("File->Exit")
+        #self.app.UntitledNotepad.MenuSelect("File->Exit")
+        self.app.kill_()
 
 
     def test__init__(self):
