@@ -8,9 +8,8 @@ Dependency: pyWin32 package only ([build 219](http://sourceforge.net/projects/py
 ActiveState Python 2.x already contains pyWin32 by default.
 
 
-Unit tests (Win7 x64):
 
-| Platform | pass rate |
-|-------------------|-----------------|
-| Python 2.6 32-bit | 86,5% (225/260) |
-| Python 2.6 64-bit | 75,7% (197/260) |
+| Platform | unit tests pass rate |
+|-----------------------------|-----------------|
+| Win7 x64, Python 2.6 32-bit | 86,5% (225/260) |
+| Win7 x64, Python 2.6 64-bit | 75,7% (197/260) |
