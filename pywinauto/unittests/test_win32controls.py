@@ -174,6 +174,7 @@ class ComboBoxTestCases(unittest.TestCase):
 
         if self.app.UntitledNotepad["Do&n't Save"].Exists():
             self.app.UntitledNotepad["Do&n't Save"].Click()
+        self.app.kill_()
 
     def testGetProperties(self):
         "Test getting the properties for the combobox control"
@@ -344,7 +345,8 @@ class EditTestCases(unittest.TestCase):
 
         test_file = os.path.join(path, "test.txt")
 
-        self.test_data = codecs.open(test_file, mode="rb", encoding='utf-8').read()
+        with codecs.open(test_file, mode="rb", encoding='utf-8') as f:
+            self.test_data = f.read()
         # remove the BOM if it exists
         self.test_data = self.test_data.replace(repr("\xef\xbb\xbf"), "")
         self.test_data = self.test_data.encode('utf-8', 'ignore') # XXX: decode raises UnicodeEncodeError even if 'ignore' is used!
@@ -379,6 +381,7 @@ class EditTestCases(unittest.TestCase):
 
         if self.app.UntitledNotepad["Do&n't Save"].Exists():
             self.app.UntitledNotepad["Do&n't Save"].Click()
+        self.app.kill_()
 
     def testSetText(self):
         "Test setting the text of the edit control"

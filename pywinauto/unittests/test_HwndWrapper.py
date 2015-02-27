@@ -456,7 +456,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
             self.dlg.Close()
             if self.dlg["Do&n't Save"].Exists():
                 self.dlg["Do&n't Save"].Click()
-        except timings.TimeoutError:
+        except: # timings.TimeoutError:
             self.app.kill_()
 
     #def testText(self):
@@ -466,11 +466,11 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
     def testClick(self):
         self.ctrl.Click(coords = (50, 10))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (5,5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testClickInput(self):
         self.ctrl.ClickInput(coords = (50, 10))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (5,5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testDoubleClick(self):
         self.ctrl.DoubleClick(coords = (60, 30))

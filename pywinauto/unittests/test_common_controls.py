@@ -432,9 +432,9 @@ class HeaderTestCases(unittest.TestCase):
 
         self.texts = [u'Distance', u'Diameter', u'Mass']
         self.item_rects = [
-            RECT(0, 0, 90, 21),
-            RECT(90, 0, 180, 21),
-            RECT(180, 0, 260, 21)]
+            RECT(0, 0, 90, 26),
+            RECT(90, 0, 180, 26),
+            RECT(180, 0, 260, 26)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
         self.ctrl = app.MicrosoftControlSpy.Header.WrapperObject()
@@ -508,7 +508,7 @@ class StatusBarTestCases(unittest.TestCase):
         self.part_rects = [
             RECT(0, 2, 65, 20),
             RECT(67, 2, 90, 20),
-            RECT(92, 2, 264, 20)]
+            RECT(92, 2, 357, 20)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
         self.ctrl = app.MicrosoftControlSpy.StatusBar.WrapperObject()
