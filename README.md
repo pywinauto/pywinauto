@@ -8,13 +8,16 @@ This pywinauto branch (0.5.x) supports 64-bit and 32-bit Python from 2.6 to 3.4.
 
 ActiveState Python 2.x already contains pyWin32 by default.
 
+### Setup
+
+Just unpack and run **python setup.py install**
 
 ### Testing status
 
 | Platform | unit tests pass rate |
 |-----------------------------|-----------------|
-| Win7 x64, Python 2.6 32-bit | 86,5% (225/260) |
-| Win7 x64, Python 2.6 64-bit | 75,7% (197/260) |
+| Win7 x64, Python 2.6 32-bit | 87,7% (228/260) |
+| Win7 x64, Python 2.6 64-bit | 83,1% (216/260) |
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
