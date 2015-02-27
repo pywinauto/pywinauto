@@ -435,17 +435,20 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
 
         if to_select:
-            lvitem.state = win32defines.LVIS_SELECTED
+            lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_SELECTED)
-
+        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+        
         remote_mem = RemoteMemoryBlock(self)
-        remote_mem.Write(lvitem)
+        remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
 
-        self.SendMessageTimeout(
+        retval = self.SendMessage(
             win32defines.LVM_SETITEMSTATE, item, remote_mem)
+        if retval != win32defines.TRUE:
+            raise ctypes.WinError()#('retval = ' + str(retval))
+        del remote_mem
 
-        # now we need to notify the parent that the state has chnaged
+        # now we need to notify the parent that the state has changed
         nmlv = win32structures.NMLISTVIEW()
         nmlv.hdr.hwndFrom = self.handle
         nmlv.hdr.idFrom = self.ControlID()
@@ -458,17 +461,21 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         nmlv.uChanged = win32defines.LVIS_SELECTED
         nmlv.ptAction = win32structures.POINT()
 
-        remote_mem.Write(nmlv)
+        new_remote_mem = RemoteMemoryBlock(self)
+        new_remote_mem.Write(nmlv, size=ctypes.sizeof(nmlv))
 
-        self.Parent().SendMessageTimeout(
+        retval = self.Parent().SendMessage(
             win32defines.WM_NOTIFY,
             self.ControlID(),
-            remote_mem)
-
-        del remote_mem
+            new_remote_mem)
+        if retval != win32defines.TRUE:
+            print('retval = ' + str(retval))
+            raise ctypes.WinError()
+        del new_remote_mem
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_listviewselect_wait)
+
 
     #-----------------------------------------------------------
     def Select(self, item):
@@ -1750,7 +1757,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.TB_BUTTONCOUNT)
 
     #----------------------------------------------------------------
-    def Button(self, button_identifier, exact = True):
+    def Button(self, button_identifier, exact = True, by_tooltip=False):
         "Return the button at index button_index"
         
         if isinstance(button_identifier, six.string_types):
@@ -1760,22 +1767,22 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             indices = [i for i in range(0, len(texts[1:]))]
 
             # find which index best matches that text
-            searchByTooltip = False
-            try:
-                if exact:
+            if exact:
+                try:
                     button_index = texts.index(button_identifier)
-                else:
-                    button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
-            except findbestmatch.MatchError as exc:
-                searchByTooltip = True
-            except ValueError as exc:
-                searchByTooltip = True
+                except ValueError:
+                    raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
+            else:
+                button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
             
-            if searchByTooltip:
+            if by_tooltip:
                 texts = self.TipTexts()
                 self.actions.log('Toolbar tooltips: ' + str(texts))
                 if exact:
-                    button_index = texts.index(button_identifier)
+                    try:
+                        button_index = texts.index(button_identifier)
+                    except ValueError:
+                        raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
                 else:
                     button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
         else:
@@ -2007,8 +2014,9 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         if button.IsEnabled():
             button.ClickInput()
         else:
-            self.actions.log('WARNING! Toolbar button is disabled!!! But trying to click it any way!')
-            button.ClickInput()
+            raise RuntimeError('Toolbar button "' + str(button_identifier) + '" is disabled! Cannot click it.')
+            #self.actions.log('WARNING! Toolbar button is disabled!!! But trying to click it any way!')
+            #button.ClickInput()
         self.actions.logSectionEnd()
 
     #----------------------------------------------------------------

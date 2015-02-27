@@ -311,17 +311,18 @@ class LVITEMW(Structure):
         ('iSubItem', c_int),
         ('state', UINT),
         ('stateMask', UINT),
-        ('pszText', c_long), #LPWSTR),
+        ('pszText', c_long), #LPTSTR), #c_long), #LPWSTR),
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('lParam', LPARAM),
-        ('iIndent', c_int),
-        #if (_WIN32_WINNT >= 0x0501)
-        ('iGroupId', c_int),
+        
+        ('iIndent', c_int), #if (_WIN32_IE >= 0x0300)
+        
+        ('iGroupId', c_int), #if (_WIN32_WINNT >= 0x0501)
         ('cColumns', UINT),
         ('puColumns', UINT),
-        #if (_WIN32_WINNT >= 0x0600)
-        ('piColFmt', c_int),
+        
+        ('piColFmt', c_int), #if (_WIN32_WINNT >= 0x0600)
         ('iGroup', c_int),
     ]
 if is_x64():
