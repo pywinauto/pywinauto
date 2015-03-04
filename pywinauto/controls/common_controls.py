@@ -219,7 +219,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         """
         index = item
         if isinstance(item, six.string_types):
-            index = (self.Texts().index(item) - 1) / self.ColumnCount()
+            index = int((self.Texts().index(item) - 1) / self.ColumnCount())
 
         return index
 
