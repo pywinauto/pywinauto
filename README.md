@@ -18,6 +18,10 @@ Just unpack and run **python setup.py install**
 |-----------------------------|-----------------|
 | Win7 x64, Python 2.6 32-bit | 87,7% (228/260) |
 | Win7 x64, Python 2.6 64-bit | 83,1% (216/260) |
+|-----------------------------|-----------------|
+| Win7 x64, Python 3.4 32-bit | 85%   (221/260) |
+| Win7 x64, Python 3.4 64-bit | 80,4% (209/260) |
+|-----------------------------|-----------------|
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL

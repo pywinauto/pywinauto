@@ -225,12 +225,14 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
     for i in range(0, num_items):
         text_len = wrapper.SendMessage (item_len_msg, i, 0)
 
-        #text = ctypes.create_unicode_buffer(text_len + 1)
-        text = ctypes.create_string_buffer(text_len + 1)
+        if six.PY3:
+            text = ctypes.create_unicode_buffer(text_len + 1)
+        else:
+            text = ctypes.create_string_buffer(text_len + 1)
 
-        wrapper.SendMessage(item_get_msg, i, text) #ctypes.byref(text))
+        wrapper.SendMessage(item_get_msg, i, ctypes.byref(text))
 
-        texts.append(text.value)
+        texts.append(text.value) #ctypes.wstring_at(ctypes.addressof(text))
 
     return texts
 
@@ -635,7 +637,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         # retrieve the line itself
         self.SendMessage(
-            win32defines.EM_GETLINE, line_index, ctypes.byref(text))
+            win32defines.EM_GETLINE, line_index, text) # ctypes.byref(text))
 
         if six.PY3:
             return text.value
@@ -658,9 +660,11 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "Get the text of the edit control"
 
         length = self.SendMessage(win32defines.WM_GETTEXTLENGTH)
-        #text = ctypes.create_unicode_buffer(length + 1)
-        text = ctypes.create_string_buffer(length + 1)
-        self.SendMessage(win32defines.WM_GETTEXT, length+1, text) #ctypes.byref(text))
+        if six.PY3:
+            text = ctypes.create_unicode_buffer(length + 1)
+        else:
+            text = ctypes.create_string_buffer(length + 1)
+        self.SendMessage(win32defines.WM_GETTEXT, length + 1, text) #ctypes.byref(text))
 
         #text = text.value.replace("\r\n", "\n")
         return text.value
