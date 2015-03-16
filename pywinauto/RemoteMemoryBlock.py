@@ -5,7 +5,7 @@ import ctypes, win32api, win32gui, win32con, pywintypes, win32process, sys, insp
 from . import win32functions
 from . import win32defines
 from . import win32structures
-from . import SendKeysCtypes as SendKeys
+from . import sysinfo
 
 class AccessDenied(RuntimeError):
     "Raised when we cannot allocate memory in the control's process"
@@ -25,7 +25,7 @@ class RemoteMemoryBlock(object):
 
         self._as_parameter_ = self.memAddress
 
-        if SendKeys.is_x64():
+        if sysinfo.is_x64_Python():
             process_id = ctypes.c_ulonglong()
         else:
             process_id = ctypes.c_ulong()

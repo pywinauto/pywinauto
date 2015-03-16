@@ -232,7 +232,7 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
         if six.PY3:
             texts.append(text.value.replace('\u200e', ''))
         else:
-            texts.append(text.value.encode('unicode-internal')) #ctypes.wstring_at(ctypes.addressof(text)))
+            texts.append(text.value.encode('unicode-internal')) #text.value.encode('unicode-internal')) #ctypes.wstring_at(ctypes.addressof(text)))
 
     return texts
 

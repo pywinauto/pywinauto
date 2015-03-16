@@ -37,7 +37,7 @@ from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import win32structures, win32defines
 from pywinauto.findwindows import WindowNotFoundError
-from pywinauto.SendKeysCtypes import is_x64
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 
 __revision__ = "$Revision: 234 $"
@@ -66,7 +66,7 @@ class HwndWrapperTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        if is_x64():
+        if is_x64_Python() or not is_x64_OS():
             self.app.start_(r"C:\Windows\System32\calc.exe")
         else:
             self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
@@ -496,7 +496,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.MenuSelect("Edit->Paste")
 
         app2.UntitledNotepad.MenuSelect("File->Exit")
-        app2.Notepad.No.Click()
+        app2.Notepad["Don't save"].Click()
 
         self.assertEquals(self.dlg.Edit.TextBlock(), text*3)
 

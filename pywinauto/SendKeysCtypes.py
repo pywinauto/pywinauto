@@ -13,6 +13,7 @@ import ctypes
 import win32api
 
 from . import six
+from . import sysinfo
 
 __all__ = ['KeySequenceError', 'SendKeys']
 
@@ -30,13 +31,10 @@ DWORD = ctypes.c_ulong
 LONG = ctypes.c_long
 WORD = ctypes.c_ushort
 
-def is_x64():
-    return ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8
-
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
 class MOUSEINPUT(ctypes.Structure):
     "Needed for complete definition of INPUT structure - not used"
-    if is_x64(): # x64 platform
+    if sysinfo.is_x64_Python(): # x64 platform
         _pack_ = 4
     else:
         _pack_ = 2
@@ -50,7 +48,7 @@ class MOUSEINPUT(ctypes.Structure):
         ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)),
     ]
 assert ctypes.sizeof(MOUSEINPUT) == 24 or ctypes.sizeof(MOUSEINPUT) == 28, ctypes.sizeof(MOUSEINPUT)
-if is_x64():
+if sysinfo.is_x64_Python():
     assert ctypes.alignment(MOUSEINPUT) == 4, ctypes.alignment(MOUSEINPUT)
 else:
     assert ctypes.alignment(MOUSEINPUT) == 2, ctypes.alignment(MOUSEINPUT)
@@ -59,7 +57,7 @@ else:
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
 class KEYBDINPUT(ctypes.Structure):
     "A particular keyboard event"
-    if is_x64():
+    if sysinfo.is_x64_Python():
         _pack_ = 4
     else:
         _pack_ = 2
@@ -72,7 +70,7 @@ class KEYBDINPUT(ctypes.Structure):
         ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)), #DWORD),
     ]
 assert ctypes.sizeof(KEYBDINPUT) == 16 or ctypes.sizeof(KEYBDINPUT) == 20, ctypes.sizeof(KEYBDINPUT)
-if is_x64():
+if sysinfo.is_x64_Python():
     assert ctypes.alignment(KEYBDINPUT) == 4, ctypes.alignment(KEYBDINPUT)
 else:
     assert ctypes.alignment(KEYBDINPUT) == 2, ctypes.alignment(KEYBDINPUT)
@@ -80,7 +78,7 @@ else:
 
 class HARDWAREINPUT(ctypes.Structure):
     "Needed for complete definition of INPUT structure - not used"
-    if is_x64():
+    if sysinfo.is_x64_Python():
         _pack_ = 4
     else:
         _pack_ = 2
@@ -91,7 +89,7 @@ class HARDWAREINPUT(ctypes.Structure):
         ('wParamH', WORD),
     ]
 assert ctypes.sizeof(HARDWAREINPUT) == 8, ctypes.sizeof(HARDWAREINPUT)
-if is_x64():
+if sysinfo.is_x64_Python():
     assert ctypes.alignment(HARDWAREINPUT) == 4, ctypes.alignment(HARDWAREINPUT)
 else:
     assert ctypes.alignment(HARDWAREINPUT) == 2, ctypes.alignment(HARDWAREINPUT)
@@ -108,7 +106,7 @@ class UNION_INPUT_STRUCTS(ctypes.Union):
     ]
 assert ctypes.sizeof(UNION_INPUT_STRUCTS) == 24 or ctypes.sizeof(UNION_INPUT_STRUCTS) == 28, \
     ctypes.sizeof(UNION_INPUT_STRUCTS)
-if is_x64():
+if sysinfo.is_x64_Python():
     assert ctypes.alignment(UNION_INPUT_STRUCTS) == 4, \
         ctypes.alignment(UNION_INPUT_STRUCTS)
 else:
@@ -119,7 +117,7 @@ else:
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
 class INPUT(ctypes.Structure):
     "See: http://msdn.microsoft.com/en-us/library/ms646270%28VS.85%29.aspx"
-    if is_x64():
+    if sysinfo.is_x64_Python():
         _pack_ = 4
     else:
         _pack_ = 2
@@ -130,7 +128,7 @@ class INPUT(ctypes.Structure):
         ('_', UNION_INPUT_STRUCTS),
     ]
 assert ctypes.sizeof(INPUT) == 28 or ctypes.sizeof(INPUT) == 32, ctypes.sizeof(INPUT)
-if is_x64():
+if sysinfo.is_x64_Python():
     assert ctypes.alignment(INPUT) == 4, ctypes.alignment(INPUT)
 else:
     assert ctypes.alignment(INPUT) == 2, ctypes.alignment(INPUT)

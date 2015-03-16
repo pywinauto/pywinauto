@@ -25,15 +25,13 @@ __revision__ = "$Revision$"
 
 from .win32defines import LF_FACESIZE, NMTTDISPINFOW_V1_SIZE, HDITEMW_V1_SIZE
 from . import six
+from . import sysinfo
 
 import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, c_wchar_p, \
     POINTER, sizeof, alignment, Union, c_ulonglong, c_longlong, c_size_t
-
-def is_x64():
-    return sizeof(c_size_t) == 8
 
 class Structure(ctypes.Structure):
     "Override the Structure class from ctypes to add printing and comparison"
@@ -131,7 +129,7 @@ COLORREF = DWORD
 LPBYTE = POINTER(BYTE)
 LPWSTR = c_size_t #POINTER(WCHAR)
 DWORD_PTR = UINT_PTR = ULONG_PTR = c_size_t
-if is_x64():
+if sysinfo.is_x64_Python():
     INT_PTR = LONG_PTR = c_longlong
 else:
     INT_PTR = LONG_PTR = c_long
@@ -325,7 +323,7 @@ class LVITEMW(Structure):
         ('piColFmt', c_int), #if (_WIN32_WINNT >= 0x0600)
         ('iGroup', c_int),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(LVITEMW) == 64, sizeof(LVITEMW)
     assert alignment(LVITEMW) == 1, alignment(LVITEMW)
 else:
@@ -348,7 +346,7 @@ class TVITEMW(Structure):
         ('cChildren', c_int),
         ('lParam', LPARAM),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(TVITEMW) == 56, sizeof(TVITEMW)
     assert alignment(TVITEMW) == 8, alignment(TVITEMW)
 else:
@@ -364,7 +362,7 @@ class NMHDR(Structure):
         ('idFrom', UINT_PTR),
         ('code', UINT),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(NMHDR) == 24, sizeof(NMHDR)
     assert alignment(NMHDR) == 8, alignment(NMHDR)
 else:
@@ -499,7 +497,7 @@ class MENUITEMINFOW(Structure):
         ('cch', UINT),
         ('hbmpItem', HBITMAP),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(MENUITEMINFOW) == 80, sizeof(MENUITEMINFOW)
     assert alignment(MENUITEMINFOW) == 8, alignment(MENUITEMINFOW)
 else:
@@ -527,7 +525,7 @@ class MSG(Structure):
         ('time', DWORD),
         ('pt', POINT),
 ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(MSG) == 48, sizeof(MSG)
     assert alignment(MSG) == 8, alignment(MSG)
 else:
@@ -549,7 +547,7 @@ class TOOLINFOW(Structure):
         ('lParam', LPARAM),
         ('lpReserved', LPVOID)
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(TOOLINFOW) == 72, sizeof(TOOLINFOW)
     assert alignment(TOOLINFOW) == 8, alignment(TOOLINFOW)
 else:
@@ -569,7 +567,7 @@ class NMTTDISPINFOW(Structure):
         ('uFlags', UINT),
         ('lParam', LPARAM),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     sizeof(NMTTDISPINFOW) == 212, sizeof(NMTTDISPINFOW)
 else:
     assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
@@ -592,7 +590,7 @@ class HDITEMW(Structure):
         ('pvFilter', LPVOID),
         ('state', UINT)
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(HDITEMW) == 72, sizeof(HDITEMW)
     assert alignment(HDITEMW) == 8, alignment(HDITEMW)
 else:
@@ -615,7 +613,7 @@ class COMBOBOXEXITEMW(Structure):
         ('iIndent', c_int),
         ('lParam', LPARAM),
 ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(COMBOBOXEXITEMW) == 56, sizeof(COMBOBOXEXITEMW)
     assert alignment(COMBOBOXEXITEMW) == 8, alignment(COMBOBOXEXITEMW)
 else:
@@ -635,7 +633,7 @@ class TCITEMHEADERW(Structure):
         ('cchTextMax', c_int),
         ('iImage', c_int),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(TCITEMHEADERW) == 32, sizeof(TCITEMHEADERW)
     assert alignment(TCITEMHEADERW) == 8, alignment(TCITEMHEADERW)
 else:
@@ -644,7 +642,7 @@ else:
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4804
 class TCITEMW(Structure):
-    #if is_x64():
+    #if sysinfo.is_x64_Python():
     #    _pack_ = 8
     #else:
     #    _pack_ = 1
@@ -658,7 +656,7 @@ class TCITEMW(Structure):
         ('iImage', c_int),
         ('lParam', LPARAM),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(TCITEMW) == 40, sizeof(TCITEMW)
     assert alignment(TCITEMW) == 8, alignment(TCITEMW)
 else:
@@ -682,7 +680,7 @@ class TBBUTTONINFOW(Structure):
         ('pszText', LPWSTR),
         ('cchText', c_int),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(TBBUTTONINFOW) == 48, sizeof(TBBUTTONINFOW)
     assert alignment(TBBUTTONINFOW) == 8, alignment(TBBUTTONINFOW)
 else:
@@ -690,7 +688,7 @@ else:
     assert alignment(TBBUTTONINFOW) == 4, alignment(TBBUTTONINFOW)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
-if is_x64():
+if sysinfo.is_x64_Python():
     class TBBUTTON(Structure):
         #_pack_ = 1
         _fields_ = [
@@ -716,7 +714,7 @@ else:
             ('dwData', DWORD_PTR),
             ('iString', INT_PTR),
         ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(TBBUTTON) == 32, sizeof(TBBUTTON)
     assert alignment(TBBUTTON) == 8, alignment(TBBUTTON)
 else:
@@ -752,7 +750,7 @@ class REBARBANDINFOW(Structure):
         #('rcChevronLocation', RECT), # the rect is in client co-ord wrt hwndChild
         #('uChevronState', UINT)
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(REBARBANDINFOW) == 112, sizeof(REBARBANDINFOW) #128
     assert alignment(REBARBANDINFOW) == 8, alignment(REBARBANDINFOW)
 else:
@@ -824,7 +822,7 @@ class NMLISTVIEW(Structure):
         ('ptAction', POINT),
         ('lParam', LPARAM),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(NMLISTVIEW) == 64, sizeof(NMLISTVIEW)
     assert alignment(NMLISTVIEW) == 8, alignment(NMLISTVIEW)
 else:
@@ -843,7 +841,7 @@ class NMMOUSE(Structure):
         ('pt', POINT),
         ('dwHitInfo', LPARAM),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(NMMOUSE) == 56, sizeof(NMMOUSE)
     assert alignment(NMMOUSE) == 8, alignment(NMMOUSE)
 else:
@@ -927,7 +925,7 @@ class NMUPDOWN(Structure):
         ('iPos', c_int),
         ('iDelta', c_int),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(NMUPDOWN) == 32, sizeof(NMUPDOWN)
     assert alignment(NMUPDOWN) == 1, alignment(NMUPDOWN)
 else:
@@ -951,7 +949,7 @@ class GUITHREADINFO(Structure):
         ('hwndCaret', HWND),
         ('rcCaret', RECT),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(GUITHREADINFO) == 72, sizeof(GUITHREADINFO)
     assert alignment(GUITHREADINFO) == 2, alignment(GUITHREADINFO)
 else:
@@ -973,7 +971,7 @@ class MENUINFO(Structure):
         ('dwContextHelpID', DWORD),
         ('dwMenuData', ULONG_PTR),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(MENUINFO) == 40, sizeof(MENUINFO)
     assert alignment(MENUINFO) == 8, alignment(MENUINFO)
 else:
@@ -996,7 +994,7 @@ class NMTTDISPINFOW(Structure):
         ('uFlags', UINT),
         ('lParam', LPARAM),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(NMTTDISPINFOW) == 216, sizeof(NMTTDISPINFOW)
     assert alignment(NMTTDISPINFOW) == 8, alignment(NMTTDISPINFOW)
 else:
@@ -1028,7 +1026,7 @@ class TVHITTESTINFO(Structure):
         ('flags', UINT),
         ('hItem', HTREEITEM),
     ]
-if is_x64():
+if sysinfo.is_x64_Python():
     assert sizeof(TVHITTESTINFO) == 24, sizeof(TVHITTESTINFO)
     assert alignment(TVHITTESTINFO) == 8, alignment(TVHITTESTINFO)
 else:

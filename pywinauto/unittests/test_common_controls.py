@@ -40,14 +40,14 @@ from pywinauto.win32structures import RECT
 from pywinauto.controls import WrapHandle
 #from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import findbestmatch
-from pywinauto.SendKeysCtypes import is_x64
+from pywinauto.sysinfo import is_x64_Python
 from pywinauto.RemoteMemoryBlock import AccessDenied
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 
 
 controlspy_folder = os.path.join(
    os.path.dirname(__file__), "..\..\controlspy0998")
-if is_x64():
+if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
 
 

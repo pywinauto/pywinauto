@@ -16,8 +16,8 @@ Just unpack and run **python setup.py install**
 
 | Platform | unit tests pass rate |
 |-----------------------------|-----------------|
-| Win7 x64, Python 2.6 32-bit | 87,7% (228/260) |
-| Win7 x64, Python 2.6 64-bit | 83,1% (216/260) |
+| Win7 x64, Python 2.6 32-bit | 88,8% (231/260) |
+| Win7 x64, Python 2.6 64-bit | 84,6% (220/260) |
 | Win7 x64, Python 3.4 32-bit | 85%   (221/260) |
 | Win7 x64, Python 3.4 64-bit | 80,4% (209/260) |
 

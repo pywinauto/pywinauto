@@ -30,7 +30,7 @@ import codecs
 sys.path.append(".")
 from pywinauto.controls.win32_controls import *
 from pywinauto import XMLHelpers, six
-from pywinauto.SendKeysCtypes import is_x64
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 import unittest
 
@@ -55,7 +55,7 @@ class ButtonTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        if is_x64():
+        if is_x64_Python() or not is_x64_OS():
             self.app.start_(r"C:\Windows\System32\calc.exe")
         else:
             self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
@@ -258,7 +258,7 @@ class ListBoxTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        if is_x64():
+        if is_x64_Python() or not is_x64_OS():
             self.app.start_(r"c:\Program Files\Windows NT\Accessories\wordpad.exe")
         else:
             self.app.start_(r"C:\Program Files (x86)\Windows NT\Accessories\wordpad.exe")
@@ -465,7 +465,7 @@ class DialogTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        if is_x64():
+        if is_x64_Python() or not is_x64_OS():
             self.app.start_(r"C:\Windows\System32\calc.exe")
         else:
             self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
