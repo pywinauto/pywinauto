@@ -225,14 +225,18 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
     for i in range(0, num_items):
         text_len = wrapper.SendMessage (item_len_msg, i, 0)
 
-        text = ctypes.create_unicode_buffer(text_len + 1)
+        if six.PY3:
+            text = ctypes.create_unicode_buffer(text_len + 1)
+        else:
+            text = ctypes.create_string_buffer(text_len + 1)
 
         wrapper.SendMessage(item_get_msg, i, ctypes.byref(text))
 
         if six.PY3:
             texts.append(text.value.replace('\u200e', ''))
         else:
-            texts.append(text.value.encode('unicode-internal')) #text.value.encode('unicode-internal')) #ctypes.wstring_at(ctypes.addressof(text)))
+            import locale
+            texts.append(text.value.decode(locale.getpreferredencoding(), 'ignore').replace('?', ''))
 
     return texts
 
