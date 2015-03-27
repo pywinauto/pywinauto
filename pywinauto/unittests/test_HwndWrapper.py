@@ -457,6 +457,8 @@ class HwndWrapperMouseTests(unittest.TestCase):
             if self.dlg["Do&n't Save"].Exists():
                 self.dlg["Do&n't Save"].Click()
         except: # timings.TimeoutError:
+            pass
+        finally:
             self.app.kill_()
 
     #def testText(self):

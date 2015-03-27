@@ -16,12 +16,13 @@ class RemoteMemoryBlock(object):
     "Class that enables reading and writing memory in a different process"
     #----------------------------------------------------------------
     def __init__(self, handle, size = 4096): #4096): #16384):
-        "Allocatte the memory"
+        "Allocate the memory"
         self.memAddress = 0
         self.size = size
+        self.process = 0
         
         if handle == 0xffffffff80000000:
-                raise Exception('Incorrect handle: ' + str(handle))
+            raise Exception('Incorrect handle: ' + str(handle))
 
         self._as_parameter_ = self.memAddress
 
@@ -118,7 +119,7 @@ class RemoteMemoryBlock(object):
             self.memAddress = 0
             #self._CloseHandle()
         else:
-            print('Error: Cannot call VirtualFreeEx!!!')
+            print('WARNING: Cannot call VirtualFreeEx! process_id == 0.')
 
 
     #----------------------------------------------------------------

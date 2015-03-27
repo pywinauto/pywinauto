@@ -40,6 +40,7 @@ from pywinauto import application
 from pywinauto.application import *
 from pywinauto import findwindows
 from pywinauto.timings import Timings
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 Timings.Fast()
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
@@ -58,6 +59,10 @@ class ApplicationTestCases(unittest.TestCase):
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
+        if is_x64_Python() or not is_x64_OS():
+            self.notepad_subpath = r"system32\notepad.exe"
+        else:
+            self.notepad_subpath = r"SysWOW64\notepad.exe"
 
     def tearDown(self):
         "Close the application after tests"
@@ -88,7 +93,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
 
-        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
+        notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
         self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
 
         app.UntitledNotepad.MenuSelect("File->Exit")
@@ -162,11 +167,14 @@ class ApplicationTestCases(unittest.TestCase):
         app1.start_("notepad.exe")
 
         app_conn = Application()
-        app_conn.connect_(path = r"system32\notepad.exe")
+        app_conn.connect_(path = self.notepad_subpath)
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn = Application()
-        app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
+        if is_x64_Python() or not is_x64_OS():
+            app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
+        else:
+            app_conn.connect_(path = r"c:\windows\syswow64\notepad.exe")
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
