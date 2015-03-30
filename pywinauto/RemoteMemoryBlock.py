@@ -36,7 +36,7 @@ class RemoteMemoryBlock(object):
             raise AccessDenied(
                 str(ctypes.WinError()) + " Cannot get process ID from handle.")
 
-        # XXX: it doesn't work in some cases (for example, in WVLWrapper)
+        # XXX: it doesn't work in some cases
         #py_handle = pywintypes.HANDLE(handle.handle)
         #(tid, pid) = win32process.GetWindowThreadProcessId(py_handle)
         #self.process = win32api.OpenProcess(win32con.PROCESS_VM_OPERATION | win32con.PROCESS_VM_READ | win32con.PROCESS_VM_WRITE, 0, pid)

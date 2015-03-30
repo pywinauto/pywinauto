@@ -28,6 +28,7 @@ import time
 
 import ctypes
 import win32gui
+import locale
 
 from . import HwndWrapper
 
@@ -671,9 +672,9 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         #text = text.value.replace("\r\n", "\n")
         if six.PY3:
-            return text.value.replace('\u200e', '')
+            return text.value.replace('\u200e', '').encode(locale.getpreferredencoding())
         else:
-            return text.value.encode('unicode-internal') #ctypes.wstring_at(ctypes.addressof(text))
+            return text.value.encode('unicode-internal').replace(b'\x00', b'')
 
     #-----------------------------------------------------------
     def SelectionIndices(self):
@@ -720,7 +721,17 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         # replace the selection with
         #buffer = ctypes.c_wchar_p(six.text_type(text))
-        buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
+        
+        if isinstance(text, six.text_type):
+            if six.PY3:
+                buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
+            else:
+                buffer = ctypes.create_string_buffer(text.encode(locale.getpreferredencoding(), 'ignore'), size=len(text) + 1)
+        else:
+            if six.PY3:
+                buffer = ctypes.create_unicode_buffer(text.decode(locale.getpreferredencoding()), size=len(text) + 1)
+            else:
+                buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
         #buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
         '''
         remote_mem = RemoteMemoryBlock(self)
@@ -737,11 +748,13 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
 
-        import locale
         if isinstance(text, six.text_type):
-            self.actions.log('Set text to the edit box: ' + text.encode(locale.getpreferredencoding(), 'ignore'))
+            if six.PY3:
+                self.actions.log('Set text to the edit box: ' + text)
+            else:
+                self.actions.log('Set text to the edit box: ' + text.encode(locale.getpreferredencoding(), 'ignore'))
         elif isinstance(text, six.binary_type):
-            self.actions.log('Set text to the edit box: ' + text.decode(locale.getpreferredencoding()))
+            self.actions.log(b'Set text to the edit box: ' + text)
 
         # return this control so that actions can be chained.
         return self
