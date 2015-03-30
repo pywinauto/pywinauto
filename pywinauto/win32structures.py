@@ -262,8 +262,8 @@ class RECT(Structure):
     def mid_point(self):
         "Return a POINT structure representing the mid point"
         pt = POINT()
-        pt.x = int(self.left + self.width()/2)
-        pt.y = int(self.top + self.height()/2)
+        pt.x = self.left + int(float(self.width())/2.)
+        pt.y = self.top + int(float(self.height())/2.)
         return pt
 
     #def __hash__(self):

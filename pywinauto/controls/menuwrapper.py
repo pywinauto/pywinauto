@@ -235,8 +235,8 @@ class MenuItem(object):
 
         rect = self.Rectangle()
 
-        x_pt = (rect.left + rect.right) /2
-        y_pt = (rect.top + rect.bottom) /2
+        x_pt = int(float(rect.left + rect.right) / 2.)
+        y_pt = int(float(rect.top + rect.bottom) / 2.)
 
         from .HwndWrapper import _perform_click_input #, delay_after_menuselect
 

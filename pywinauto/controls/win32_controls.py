@@ -721,6 +721,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         # replace the selection with
         #buffer = ctypes.c_wchar_p(six.text_type(text))
         buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
+        #buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
         '''
         remote_mem = RemoteMemoryBlock(self)
         _setTextExStruct = win32structures.SETTEXTEX()
@@ -736,7 +737,11 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
 
-        self.actions.log('Set text to the edit box: ' + six.text_type(text))
+        import locale
+        if isinstance(text, six.text_type):
+            self.actions.log('Set text to the edit box: ' + text.encode(locale.getpreferredencoding(), 'ignore'))
+        elif isinstance(text, six.binary_type):
+            self.actions.log('Set text to the edit box: ' + text.decode(locale.getpreferredencoding()))
 
         # return this control so that actions can be chained.
         return self
