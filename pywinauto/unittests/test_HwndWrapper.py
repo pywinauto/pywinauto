@@ -30,6 +30,7 @@ import pdb
 import warnings
 
 import ctypes
+import locale
 
 import sys
 sys.path.append(".")
@@ -512,7 +513,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         app2.UntitledNotepad.MenuSelect("File->Exit")
         app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
 
-        self.assertEquals(self.dlg.Edit.TextBlock(), text*3)
+        self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text*3)
 
 
 #

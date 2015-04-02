@@ -25,8 +25,8 @@ __revision__ = "$Revision: 234 $"
 
 # pylint:  disable-msg=W0212,F0401,R0904
 
-import sys
-import codecs
+import os, sys
+import codecs, locale
 sys.path.append(".")
 from pywinauto.controls.win32_controls import *
 from pywinauto import XMLHelpers, six
@@ -201,7 +201,7 @@ class ComboBoxTestCases(unittest.TestCase):
         self.assertEquals(rect.left, 0)
         self.assertEquals(rect.top, 0)
         self.assertEquals(rect.right, self.ctrl.ClientRect().right)
-        self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() - 3)
+        self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() + 77)
 
     def testSelectedIndex(self):
         "That the control returns the correct index for the selected item"
@@ -247,6 +247,12 @@ class ComboBoxTestCases(unittest.TestCase):
 #        pass
 #
 
+MFC_tutorial_folder = os.path.join(
+   os.path.dirname(__file__), "..\..\MFC_tutorial")
+if is_x64_Python():
+    MFC_tutorial_folder = os.path.join(MFC_tutorial_folder, 'x64')
+
+
 class ListBoxTestCases(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
 
@@ -258,15 +264,21 @@ class ListBoxTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start_(r"c:\Program Files\Windows NT\Accessories\wordpad.exe")
-        else:
-            self.app.start_(r"C:\Program Files (x86)\Windows NT\Accessories\wordpad.exe")
-        #self.app.DocumentWordPad.MenuSelect("Insert->Date and time...")
-        self.app.DocumentWordPad.UIRibbonDockTop.ClickInput(coords=(580, 60))
-        #pdb.set_trace()
+        app_path = os.path.join(MFC_tutorial_folder, "MFC_Tutorial9.exe")
+        self.app.start_(app_path)
 
-        self.dlg = self.app.DateAndTime
+        self.dlg = self.app.MFC_Tutorial9
+        self.dlg.TypeYourTextEdit.TypeKeys('qqq')
+        self.dlg.Add.Click()
+        
+        self.dlg.TypeYourTextEdit.Select()
+        self.dlg.TypeYourTextEdit.TypeKeys('123')
+        self.dlg.Add.Click()
+        
+        self.dlg.TypeYourTextEdit.Select()
+        self.dlg.TypeYourTextEdit.TypeKeys('third item', with_spaces=True)
+        self.dlg.Add.Click()
+        
         self.ctrl = self.dlg.ListBox.WrapperObject()
 
     def tearDown(self):
@@ -293,7 +305,7 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testItemCount(self):
         "test that the count of items is correct"
-        self.assertEquals(self.ctrl.ItemCount(), 8)
+        self.assertEquals(self.ctrl.ItemCount(), 3)
 
     def testItemData(self):
         "For the moment - just test that it does not raise"
@@ -302,7 +314,7 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testSelectedIndices(self):
         "test that the selected indices are correct"
-        self.assertEquals(self.ctrl.SelectedIndices(), (0, ))
+        self.assertEquals(self.ctrl.SelectedIndices(), (-1,))
         self.ctrl.Select(2)
         self.assertEquals(self.ctrl.SelectedIndices(), (2, ))
 
@@ -310,8 +322,8 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testSelect(self):
         "Test selecting an item"
-        self.ctrl.Select(5)
-        self.assertEquals(self.ctrl.SelectedIndices(), (5, ))
+        self.ctrl.Select(1)
+        self.assertEquals(self.ctrl.SelectedIndices(), (1, ))
 
         # get the text of the 2nd item (3rd item in list
         # because of empty WindowText)
@@ -325,8 +337,8 @@ class ListBoxTestCases(unittest.TestCase):
         self.ctrl.SetItemFocus(0)
         self.assertEquals(self.ctrl.GetItemFocus(), 0)
 
-        self.ctrl.SetItemFocus(5)
-        self.assertEquals(self.ctrl.GetItemFocus(), 5)
+        self.ctrl.SetItemFocus(2)
+        self.assertEquals(self.ctrl.GetItemFocus(), 2)
 
 
 class EditTestCases(unittest.TestCase):
@@ -349,9 +361,9 @@ class EditTestCases(unittest.TestCase):
             self.test_data = f.read()
         # remove the BOM if it exists
         self.test_data = self.test_data.replace(repr("\xef\xbb\xbf"), "")
-        self.test_data = self.test_data.encode('utf-8', 'ignore') # XXX: decode raises UnicodeEncodeError even if 'ignore' is used!
+        #self.test_data = self.test_data.encode('utf-8', 'ignore') # XXX: decode raises UnicodeEncodeError even if 'ignore' is used!
         print('self.test_data:')
-        print(self.test_data)
+        print(self.test_data.encode('utf-8', 'ignore'))
 
         app.start_("Notepad.exe " + test_file)
 
@@ -445,7 +457,7 @@ class EditTestCases(unittest.TestCase):
         self.ctrl.Select(18, 7)
         self.assertEquals((7, 18), self.ctrl.SelectionIndices())
 
-        txt = "\xc7a-va? Et"
+        txt = b"\xc7a-va? Et".decode('utf-8', 'ignore')
         self.test_data.index(txt)
 
         self.ctrl.Select(txt)

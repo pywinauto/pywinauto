@@ -641,13 +641,9 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         text[0] = six.unichr(text_len)
 
         # retrieve the line itself
-        self.SendMessage(
-            win32defines.EM_GETLINE, line_index, text) # ctypes.byref(text))
+        win32functions.SendMessage(self, win32defines.EM_GETLINE, line_index, ctypes.byref(text))
 
-        if six.PY3:
-            return text.value
-        else:
-            return text.value.encode('unicode-internal')[:-1]
+        return text.value
 
     #-----------------------------------------------------------
     def Texts(self):
@@ -668,13 +664,9 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         text = ctypes.create_unicode_buffer(length + 1)
 
-        self.SendMessage(win32defines.WM_GETTEXT, length + 1, text) #ctypes.byref(text))
+        win32functions.SendMessage(self, win32defines.WM_GETTEXT, length + 1, ctypes.byref(text))
 
-        #text = text.value.replace("\r\n", "\n")
-        if six.PY3:
-            return text.value.replace('\u200e', '').encode(locale.getpreferredencoding())
-        else:
-            return text.value.encode('unicode-internal').replace(b'\x00', b'')
+        return text.value
 
     #-----------------------------------------------------------
     def SelectionIndices(self):
@@ -768,10 +760,17 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         self.VerifyActionable()
 
         # if we have been asked to select a string
-        if isinstance(start, six.string_types):
+        if isinstance(start, six.text_type):
             string_to_select = start
             #
             start = self.TextBlock().index(string_to_select)
+
+            if end is None:
+                end = start + len(string_to_select)
+        elif isinstance(start, six.binary_type):
+            string_to_select = start
+            #
+            start = self.TextBlock().index(string_to_select.decode('utf-8'))
 
             if end is None:
                 end = start + len(string_to_select)

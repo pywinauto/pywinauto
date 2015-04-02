@@ -21,6 +21,8 @@
 """Module containing operations for reading and writing dialogs as XML
 """
 from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 __revision__ = "$Revision$"
 
@@ -42,6 +44,7 @@ except ImportError:
 
 import ctypes
 import re
+import codecs
 try:
     import PIL.Image
     PIL_imported = True
@@ -104,7 +107,8 @@ def _SetNodeProps(element, name, value):
             if value.size[0] * value.size[1] > (5000*5000):
                 raise MemoryError
 
-            image_data = value.tobytes().encode("bz2").encode("base64")
+            print('type(value) = ' + str(type(value)))
+            image_data = codecs.encode(codecs.encode(value.tobytes(), "bz2"), "base64")
             _SetNodeProps(
                 element,
                 name + "_IMG",
@@ -415,7 +419,7 @@ def _ReadXMLStructure(control_element):
 
             # get image Attribs
             img = _GetAttributes(elem)
-            data = img['data'].decode('base64').decode('bz2')
+            data = codecs.decode(codecs.decode(img['data'].encode('utf-8'), 'base64'), 'bz2')
 
             if PIL_imported is False:
                 raise RuntimeError('PIL is not installed!')

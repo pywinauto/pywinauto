@@ -16,10 +16,10 @@ Just unpack and run **python setup.py install**
 
 | Platform | unit tests pass rate |
 |-----------------------------|-----------------|
-| Win7 x64, Python 2.6 32-bit | 90,8% (236/260) |
-| Win7 x64, Python 2.6 64-bit | 85,8% (223/260) |
-| Win7 x64, Python 3.4 32-bit | 90,4% (235/260) |
-| Win7 x64, Python 3.4 64-bit | 83,8% (218/260) |
+| Win7 x64, Python 2.6 32-bit | 93,8% (244/260) |
+| Win7 x64, Python 2.6 64-bit | 89,2% (232/260) |
+| Win7 x64, Python 3.4 32-bit | 93,1% (242/260) |
+| Win7 x64, Python 3.4 64-bit | 88,8% (231/260) |
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
