@@ -2,27 +2,47 @@
 try:
     from logger import logger
     foundLogger = True
-except:
+except ImportError:
+    import logging
+    logging.basicConfig(
+            format='%(asctime)s %(levelname)s: %(message)s',
+            level=logging.INFO)
     foundLogger = False
 
 
 
-class ActionLogger:
+class CustomLogger:
 
     def __init__(self, logFilePath = None):
-        if foundLogger:
-            self.logger = logger.Logger()
+        self.logger = logger.Logger()
 
-    def log(self, msg):
-        if foundLogger:
+    def log(self, *args):
+        for msg in args:
             self.logger.message(msg)
-        else:
-            print(msg)
 
     def logSectionStart(self, msg):
-        if foundLogger:
-            self.logger.sectionStart(msg)
+        self.logger.sectionStart(msg)
 
     def logSectionEnd(self):
-        if foundLogger:
-            self.logger.sectionEnd()
+        self.logger.sectionEnd()
+
+
+class StandartLogger:
+
+    def __init__(self, logFilePath = None):
+        self.logFilePath = logFilePath
+        self.logger = logging.getLogger(__package__)
+
+    def log(self, *args):
+        self.logger.info(*args)
+
+    def logSectionStart(self, msg):
+        pass
+
+    def logSectionEnd(self):
+        pass
+
+if foundLogger:
+    ActionLogger = CustomLogger
+else:
+    ActionLogger = StandartLogger
