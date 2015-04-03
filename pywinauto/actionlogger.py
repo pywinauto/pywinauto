@@ -27,7 +27,7 @@ class CustomLogger:
         self.logger.sectionEnd()
 
 
-class StandartLogger:
+class StandardLogger:
 
     def __init__(self, logFilePath = None):
         self.logFilePath = logFilePath
@@ -45,4 +45,4 @@ class StandartLogger:
 if foundLogger:
     ActionLogger = CustomLogger
 else:
-    ActionLogger = StandartLogger
+    ActionLogger = StandardLogger
