@@ -107,7 +107,7 @@ def _SetNodeProps(element, name, value):
             if value.size[0] * value.size[1] > (5000*5000):
                 raise MemoryError
 
-            print('type(value) = ' + str(type(value)))
+            #print('type(value) = ' + str(type(value)))
             image_data = codecs.encode(codecs.encode(value.tobytes(), "bz2"), "base64")
             _SetNodeProps(
                 element,
