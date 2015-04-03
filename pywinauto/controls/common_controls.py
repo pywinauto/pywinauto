@@ -461,16 +461,16 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         nmlv.uChanged = win32defines.LVIS_SELECTED
         nmlv.ptAction = win32structures.POINT()
 
-        new_remote_mem = RemoteMemoryBlock(self)
+        new_remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmlv))
         new_remote_mem.Write(nmlv, size=ctypes.sizeof(nmlv))
 
         retval = self.Parent().SendMessage(
             win32defines.WM_NOTIFY,
             self.ControlID(),
             new_remote_mem)
-        if retval != win32defines.TRUE:
-            print('retval = ' + str(retval))
-            raise ctypes.WinError()
+        #if retval != win32defines.TRUE:
+        #    print('retval = ' + str(retval))
+        #    raise ctypes.WinError()
         del new_remote_mem
 
         win32functions.WaitGuiThreadIdle(self)
