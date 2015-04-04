@@ -108,7 +108,7 @@ def _SetNodeProps(element, name, value):
                 raise MemoryError
 
             #print('type(value) = ' + str(type(value)))
-            image_data = codecs.encode(codecs.encode(value.tobytes(), "bz2"), "base64")
+            image_data = codecs.encode(codecs.encode(value.tobytes(), "bz2"), "base64").decode('utf-8')
             _SetNodeProps(
                 element,
                 name + "_IMG",
