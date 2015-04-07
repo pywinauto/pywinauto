@@ -614,16 +614,16 @@ class TabControlTestCases(unittest.TestCase):
             "Earth", "Venus", "Mercury", "Sun"]
 
         self.rects = [
-            RECT(2,2,80,21),
-            RECT(80,2,174,21),
-            RECT(174,2,261,21),
-            RECT(2,21,91,40),
-            RECT(91,21,180,40),
-            RECT(180,21,261,40),
-            RECT(2,40,64,59),
-            RECT(64,40,131,59),
-            RECT(131,40,206,59),
-            RECT(206,40,261,59),
+            RECT(2,2,63,21),
+            RECT(63,2,141,21),
+            RECT(141,2,212,21),
+            RECT(212,2,280,21),
+            RECT(280,2,348,21),
+            RECT(2,21,68,40),
+            RECT(68,21,135,40),
+            RECT(135,21,207,40),
+            RECT(207,21,287,40),
+            RECT(287,21,348,40),
         ]
 
         self.app = app
@@ -665,7 +665,7 @@ class TabControlTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testRowCount(self):
-        self.assertEquals(3, self.ctrl.RowCount())
+        self.assertEquals(2, self.ctrl.RowCount())
 
     def testGetSelectedTab(self):
         self.assertEquals(6, self.ctrl.GetSelectedTab())

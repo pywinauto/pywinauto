@@ -67,11 +67,11 @@ The Following are the individual timing settings that can be adjusted:
 * after_listviewselect_wait   (default .01)
 * after_listviewcheck_wait  default(.001)
 
-* after_treeviewselect_wait  default(.001)
+* after_treeviewselect_wait  default(.1)
 
 * after_toobarpressbutton_wait  default(.01)
 
-* after_updownchange_wait  default(.01)
+* after_updownchange_wait  default(.1)
 
 * after_movewindow_wait  default(0)
 * after_buttoncheck_wait  default(0)
@@ -131,11 +131,11 @@ class TimeConfig(object):
         'after_listviewselect_wait': .01,
         'after_listviewcheck_wait': .001,
 
-        'after_treeviewselect_wait': .001,
+        'after_treeviewselect_wait': .1,
 
         'after_toobarpressbutton_wait': .01,
 
-        'after_updownchange_wait': .01,
+        'after_updownchange_wait': .15,
 
         'after_movewindow_wait': 0,
         'after_buttoncheck_wait': 0,

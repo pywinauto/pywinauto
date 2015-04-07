@@ -1013,10 +1013,15 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     def Select(self, path):
         "Select the treeview item"
         elem = self.GetItem(path)
-        self.SendMessageTimeout(
+        elem.Expand()
+        result = ctypes.c_long()
+        win32functions.SendMessageTimeout(self,
             win32defines.TVM_SELECTITEM, # message
             win32defines.TVGN_CARET,     # how to select
-            elem)                 # item to select
+            elem.elem,                   # item to select
+            win32defines.SMTO_NORMAL,
+            int(Timings.after_treeviewselect_wait * 1000),
+            ctypes.byref(result))
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_treeviewselect_wait)
@@ -1031,6 +1036,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     def EnsureVisible(self, path):
         "Make sure that the TreeView item is visible"
         elem = self.GetItem(path)
+        elem.Expand()
         self.SendMessageTimeout(
             win32defines.TVM_ENSUREVISIBLE, # message
             win32defines.TVGN_CARET,     # how to select
@@ -2336,7 +2342,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def GetValue(self):
         "Get the current value of the UpDown control"
-        pos = self.SendMessage(win32defines.UDM_GETPOS)
+        pos = win32functions.SendMessage(self, win32defines.UDM_GETPOS, win32structures.LPARAM(0), win32structures.WPARAM(0))
         return win32functions.LoWord(pos)
 
     #----------------------------------------------------------------
@@ -2365,8 +2371,12 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def SetValue(self, new_pos):
         "Set the value of the of the UpDown control to some integer value"
-        self.SendMessageTimeout(
-            win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos))
+        result = ctypes.c_long()
+        win32functions.SendMessageTimeout(self,
+            win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
+            win32defines.SMTO_NORMAL,
+            int(Timings.after_updownchange_wait * 1000),
+            ctypes.byref(result))
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_updownchange_wait)

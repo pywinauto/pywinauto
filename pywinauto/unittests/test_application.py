@@ -398,8 +398,8 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Print...")
 
-        app.Print.FindPrinter.Click()
-        #app.FindPrinters.Stop.Click()
+        #app.Print.FindPrinter.Click() # vvryabov: (Win7 x64) "Find Printers" dialog is from splwow64.exe process
+        #app.FindPrinters.Stop.Click() #           so cannot handle it in 32-bit Python
 
         app.kill_()
 
