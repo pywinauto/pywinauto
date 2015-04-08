@@ -620,7 +620,7 @@ class _treeview_element(object):
             if not found:
                 raise Exception("Area ('%s') not found for this tree view item"% where)
 
-        self.tree_ctrl.ClickInput(
+        self.tree_ctrl.Click(
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
@@ -629,6 +629,60 @@ class _treeview_element(object):
         # if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
         #self.tree_ctrl.
+
+    #----------------------------------------------------------------
+    def ClickInput(self, button = "left", double = False, where = "text", pressed = ""):
+        """Click on the treeview item
+
+        where can be any one of "text", "icon", "button", "check"
+        defaults to "text"
+        """
+
+        # find the text rectangle for the item,
+        point_to_click = self.Rectangle().mid_point()
+
+        if where.lower() != "text":
+            remote_mem = RemoteMemoryBlock(self.tree_ctrl)
+
+            point_to_click.x = self.Rectangle().left
+
+            found = False
+            while not found and point_to_click.x >= 0:
+
+                hittest = win32structures.TVHITTESTINFO()
+                hittest.pt = point_to_click
+                hittest.hItem = self.elem
+
+                remote_mem.Write(hittest)
+
+                self.tree_ctrl.SendMessage(win32defines.TVM_HITTEST, 0, remote_mem)
+                remote_mem.Read(hittest)
+
+                if where.lower() == 'button' and \
+                    hittest.flags == win32defines.TVHT_ONITEMBUTTON:
+                    found = True
+                    break
+
+                if where.lower() == 'icon' and \
+                    hittest.flags == win32defines.TVHT_ONITEMICON:
+                    found = True
+                    break
+
+                if where.lower() == 'check' and \
+                    hittest.flags == win32defines.TVHT_ONITEMSTATEICON:
+                    found = True
+                    break
+                    
+                point_to_click.x -= 1
+
+            if not found:
+                raise Exception("Area ('%s') not found for this tree view item"% where)
+
+        self.tree_ctrl.ClickInput(
+            button,
+            coords = (point_to_click.x, point_to_click.y),
+            double = double,
+            pressed = pressed)
 
     #----------------------------------------------------------------
     def StartDragging(self, button='left', pressed=''):
@@ -1013,7 +1067,6 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     def Select(self, path):
         "Select the treeview item"
         elem = self.GetItem(path)
-        elem.Expand()
         result = ctypes.c_long()
         win32functions.SendMessageTimeout(self,
             win32defines.TVM_SELECTITEM, # message
@@ -1036,7 +1089,6 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     def EnsureVisible(self, path):
         "Make sure that the TreeView item is visible"
         elem = self.GetItem(path)
-        elem.Expand()
         self.SendMessageTimeout(
             win32defines.TVM_ENSUREVISIBLE, # message
             win32defines.TVGN_CARET,     # how to select
@@ -2167,7 +2219,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
         remote_mem = RemoteMemoryBlock(self)
 
-        band_info = win32structures.REBARBANDINFOW() #BandWrapper()
+        band_info = BandWrapper()
 
         band_info.cbSize = ctypes.sizeof(band_info)
         band_info.fMask = \
@@ -2371,15 +2423,18 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def SetValue(self, new_pos):
         "Set the value of the of the UpDown control to some integer value"
-        result = ctypes.c_long()
-        win32functions.SendMessageTimeout(self,
-            win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
-            win32defines.SMTO_NORMAL,
-            int(Timings.after_updownchange_wait * 1000),
-            ctypes.byref(result))
-
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(Timings.after_updownchange_wait)
+        for _ in range(3):
+            result = ctypes.c_long()
+            win32functions.SendMessageTimeout(self,
+                win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
+                win32defines.SMTO_NORMAL,
+                int(Timings.after_updownchange_wait * 1000),
+                ctypes.byref(result))
+            win32functions.WaitGuiThreadIdle(self)
+            time.sleep(Timings.after_updownchange_wait)
+            if self.GetValue() == new_pos:
+                break
+            # make one more attempt elsewhere
 
     #----------------------------------------------------------------
     def Increment(self):

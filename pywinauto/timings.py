@@ -135,7 +135,7 @@ class TimeConfig(object):
 
         'after_toobarpressbutton_wait': .01,
 
-        'after_updownchange_wait': .15,
+        'after_updownchange_wait': .1,
 
         'after_movewindow_wait': 0,
         'after_buttoncheck_wait': 0,
