@@ -624,14 +624,15 @@ class _treeview_element(object):
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
-            pressed = pressed)
+            pressed = pressed,
+            absolute = absolute)
 
         # if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
         #self.tree_ctrl.
 
     #----------------------------------------------------------------
-    def ClickInput(self, button = "left", double = False, where = "text", pressed = ""):
+    def ClickInput(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
         """Click on the treeview item
 
         where can be any one of "text", "icon", "button", "check"
@@ -682,6 +683,7 @@ class _treeview_element(object):
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
+            wheel_dist = wheel_dist,
             pressed = pressed)
 
     #----------------------------------------------------------------
@@ -1782,15 +1784,16 @@ class _toolbar_button(object):
         return self.State() & win32defines.TBSTATE_ENABLED
 
     #----------------------------------------------------------------
-    def Click(self):
-        "Left click on the Toolbar button"
-        self.toolbar_ctrl.Click(button='left', coords = self.Rectangle())
+    def Click(self, button = "left", pressed = ""):
+        "Click on the Toolbar button"
+        self.toolbar_ctrl.Click(button=button, coords = self.Rectangle(), pressed=pressed)
         time.sleep(Timings.after_toobarpressbutton_wait)
 
     #----------------------------------------------------------------
-    def ClickInput(self, double = False):
-        "Left click on the Toolbar button"
-        self.toolbar_ctrl.ClickInput(button='left', coords = self.Rectangle().mid_point(), double=double)
+    def ClickInput(self, button = "left", double = False, wheel_dist = 0, pressed = ""):
+        "Click on the Toolbar button"
+        self.toolbar_ctrl.ClickInput(button=button, coords = self.Rectangle().mid_point(),
+                                     double=double, wheel_dist=wheel_dist, pressed=pressed)
         time.sleep(Timings.after_toobarpressbutton_wait)
 
 #====================================================================

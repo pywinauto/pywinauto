@@ -800,7 +800,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def Click(
-        self, button = "left", pressed = "", coords = (0, 0), double = False, timeout=0.5):
+        self, button = "left", pressed = "", coords = (0, 0), double = False, timeout=0.5, absolute = False):
         """Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
@@ -813,7 +813,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
         if timeout:
             time.sleep(timeout)
-        _perform_click(self, button, pressed, coords, double)
+        _perform_click(self, button, pressed, coords, double, absolute=absolute)
         return self
 
 
@@ -1679,7 +1679,7 @@ def _perform_click_input(
     ctrl_text = ctrl.WindowText()
 
     if isinstance(coords, win32structures.RECT):
-        coords = (coords.left, coords.top)
+        coords = [coords.left, coords.top]
 
 #    # allow points objects to be passed as the coords
     if isinstance(coords, win32structures.POINT):
@@ -1772,14 +1772,29 @@ def _perform_click(
         coords = (0, 0),
         double = False,
         button_down = True,
-        button_up = True):
+        button_up = True,
+        absolute = False,
+        ):
     "Low level method for performing click operations"
 
     ctrl.VerifyActionable()
     ctrl_text = ctrl.WindowText()
 
     if isinstance(coords, win32structures.RECT):
-        coords = (coords.left, coords.top)
+        coords = [coords.left, coords.top]
+    # allow points objects to be passed as the coords
+    if isinstance(coords, win32structures.POINT):
+        coords = [coords.x, coords.y]
+    #else:
+    coords = list(coords)
+
+    if not absolute:
+        screen_coords = win32structures.POINT()
+        screen_coords.x = coords[0]
+        screen_coords.y = coords[1]
+        ctrl.ClientToScreen(screen_coords)
+        coords[0] = screen_coords.x
+        coords[1] = screen_coords.y
 
     # figure out the messages for click/press
     msgs  = []
@@ -1832,7 +1847,7 @@ def _perform_click(
 
     # send each message
     for msg in msgs:
-        ctrl.PostMessage(msg, flags, click_point)
+        win32functions.PostMessage(ctrl, msg, win32structures.WPARAM(flags), win32structures.LPARAM(click_point))
         #ctrl.PostMessage(msg, flags, click_point)
         #flags = 0
 
