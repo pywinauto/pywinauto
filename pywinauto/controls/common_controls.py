@@ -573,7 +573,7 @@ class _treeview_element(object):
 
 
     #----------------------------------------------------------------
-    def Click(self, button = "left", double = False, where = "text", pressed = ""):
+    def Click(self, button = "left", double = False, where = "text", pressed = "", absolute = False):
         """Click on the treeview item
 
         where can be any one of "text", "icon", "button", "check"
