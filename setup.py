@@ -65,7 +65,7 @@ setup(name='pywinauto',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
-    url = "http://sourceforge.net/projects/pywinauto",
+    url = "https://code.google.com/p/pywinauto/",
     author = 'Mark Mc Mahon',
     author_email = 'mark.m.mcmahon@gmail.com',
     long_description = """
