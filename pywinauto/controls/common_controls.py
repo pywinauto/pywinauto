@@ -573,7 +573,7 @@ class _treeview_element(object):
 
 
     #----------------------------------------------------------------
-    def Click(self, button = "left", double = False, where = "text", pressed = "", absolute = False):
+    def Click(self, button = "left", double = False, where = "text", pressed = ""):
         """Click on the treeview item
 
         where can be any one of "text", "icon", "button", "check"
@@ -624,8 +624,7 @@ class _treeview_element(object):
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
-            pressed = pressed,
-            absolute = absolute)
+            pressed = pressed)
 
         # if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
