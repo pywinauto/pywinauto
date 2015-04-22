@@ -10,7 +10,9 @@ ActiveState Python 2.x already contains pyWin32 by default.
 
 ### Setup
 
-Just unpack and run **python setup.py install**
+* Install pyWin32 extensions above (no need for Active Python except 3.4 64-bit)
+* Download [master branch as ZIP](https://github.com/vasily-v-ryabov/pywinauto-64/archive/master.zip)
+* Just unpack and run **python.exe setup.py install**
 
 ### Testing status
 

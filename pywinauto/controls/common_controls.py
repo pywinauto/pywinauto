@@ -2045,27 +2045,10 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     def PressButton(self, button_identifier, exact = True):
         "Find where the button is and click it"
 
-        '''texts = self.Texts()
-        if isinstance(button_identifier, six.string_types):
-
-            # one of these will be returned for the matching
-            # text
-            indices = [i for i in range(0, len(texts[1:]))]
-
-            # find which index best matches that text
-            button_index = findbestmatch.find_best_match(
-                button_identifier, texts[1:], indices)
-            self.actions.log('Pressing toolbar button by text "' + str(button_identifier) + '" (found = "' + str(texts[1:][button_index]) + '")')
-
-        else:
-            button_index = button_identifier
-            self.actions.log('Pressing toolbar button number ' + str(button_index) + ' ("' + str(texts[1:][button_index]) + '")')
-
-        button_info = self.GetButton(button_index)'''
         msg = 'Clicking "' + self.WindowText() + '" toolbar button "' + str(button_identifier) + '"'
         self.actions.logSectionStart(msg)
         self.actions.log(msg)
-        button = self.Button(button_identifier, exact=exact) #button_info.idCommand) #button_index)
+        button = self.Button(button_identifier, exact=exact)
 
         # transliterated from
         # http://source.winehq.org/source/dlls/comctl32/toolbar.c
@@ -2075,8 +2058,6 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             button.ClickInput()
         else:
             raise RuntimeError('Toolbar button "' + str(button_identifier) + '" is disabled! Cannot click it.')
-            #self.actions.log('WARNING! Toolbar button is disabled!!! But trying to click it any way!')
-            #button.ClickInput()
         self.actions.logSectionEnd()
 
     #----------------------------------------------------------------
