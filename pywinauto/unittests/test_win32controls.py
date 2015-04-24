@@ -550,12 +550,15 @@ class DialogTestCases(unittest.TestCase):
 
     def testClientAreaRect(self):
         """Validate that the client area rect is the right size
-        (comparing against the full rectangle)"""
+        (comparing against the full rectangle)
+        Notice that we run an approximate comparison as the actual
+        area size depends on Windows OS and a current desktop theme"""
         clientarea = self.calc.ClientAreaRect()
-        self.assertEquals(self.calc.Rectangle().left + 3, clientarea.left)
-        self.assertEquals(self.calc.Rectangle().top + 43, clientarea.top)
-        self.assertEquals(self.calc.Rectangle().right - 3, clientarea.right)
-        self.assertEquals(self.calc.Rectangle().bottom - 3, clientarea.bottom)
+        rectangle = self.calc.Rectangle()
+        self.failIf((clientarea.left - rectangle.left) > 10)
+        self.failIf((clientarea.top - rectangle.top) > 60)
+        self.failIf((rectangle.right - clientarea.right) > 10)
+        self.failIf((rectangle.bottom - clientarea.bottom) > 10)
 
 
 class PopupMenuTestCases(unittest.TestCase):
