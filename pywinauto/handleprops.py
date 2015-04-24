@@ -66,7 +66,9 @@ def text(handle):
         length = c_length.value
     '''
     textval = ''
-    if length:
+    # In some rare cases, the length returned by WM_GETTEXTLENGTH is <0.
+    # Guard against this by checking it is >0 (==0 is not of interest):
+    if length > 0:
         length += 1
 
         buffer_ = ctypes.create_unicode_buffer(length)
