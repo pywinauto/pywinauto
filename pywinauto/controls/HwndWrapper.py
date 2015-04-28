@@ -1788,7 +1788,7 @@ def _perform_click(
     #else:
     coords = list(coords)
 
-    if not absolute:
+    if absolute:
         screen_coords = win32structures.POINT()
         screen_coords.x = coords[0]
         screen_coords.y = coords[1]

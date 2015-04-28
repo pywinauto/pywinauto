@@ -417,7 +417,38 @@ class TreeViewTestCases(unittest.TestCase):
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
-
+    def testItemsClick(self):
+        "Test clicking of items and sub-items in the treeview control"
+        planets_item_path = (0, 0)
+        mercury_diam_item_path = (0, 0, 1)
+        mars_dist_item_path = (0, 3, 0)
+        
+        itm = self.ctrl.GetItem(planets_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
+        
+        itm = self.ctrl.GetItem(mars_dist_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(mars_dist_item_path))
+        
+        itm = self.ctrl.GetItem(mercury_diam_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(mercury_diam_item_path))
+        self.assertEquals(False, self.ctrl.IsSelected(mars_dist_item_path))
+        
+        itm = self.ctrl.GetItem(planets_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
+        self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
+        
 class HeaderTestCases(unittest.TestCase):
     "Unit tests for the Header class"
 

@@ -70,28 +70,28 @@ class ButtonTestCases(unittest.TestCase):
 
     def testGetProperties(self):
         "Test getting the properties for the button control"
-        props = self.calc._6.GetProperties()
+        props = self.calc.Degrees.GetProperties()
 
         self.assertEquals(
-            "Button", props['FriendlyClassName'])
+            "RadioButton", props['FriendlyClassName'])
 
         self.assertEquals(
-            self.calc._6.Texts(), ['6'])
+            self.calc.Degrees.Texts(), ['Degrees'])
 
         self.assertEquals(
-            self.calc._6.Texts(), props['Texts'])
+            self.calc.Degrees.Texts(), props['Texts'])
 
         for prop_name in props:
             self.assertEquals(
-                getattr(self.calc._6, prop_name)(), props[prop_name])
+                getattr(self.calc.Degrees, prop_name)(), props[prop_name])
 
     def test_set_if_needs_image(self):
         "test whether an image needs to be saved with the properties"
-        self.assertEquals(self.calc._8._NeedsImageProp, False)
+        self.assertEquals(self.calc.Button5._NeedsImageProp, False)
 
     def testFriendlyClass(self):
         "Test the FriendlyClassName method"
-        self.assertEquals(self.calc._8.FriendlyClassName(), "Button")
+        self.assertEquals(self.calc.Button9.FriendlyClassName(), "Button")
         self.assertEquals(self.calc.Degree.FriendlyClassName(), "RadioButton")
         #self.assertEquals(self.calc.Hex.FriendlyClassName(), "CheckBox")
 
@@ -128,12 +128,12 @@ class ButtonTestCases(unittest.TestCase):
 
     def testClick(self):
         "Test clicking on buttons"
-        self.calc._6.Click()
-        self.calc._5.Click()
-        self.calc['+'].Click()
-        self.calc._4.Click()
-        self.calc._3.Click()
-        self.calc['='].Click()
+        self.calc.Button15.Click()  # "6"
+        self.calc.Button10.Click()  # "5"
+        self.calc.Button23.Click()  # "+"
+        self.calc.Button4.Click()   # "4"
+        self.calc.Button16.Click()  # "3"
+        self.calc.Button28.Click()  # "="
         self.assertEquals(self.calc.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "108")
 
     def testIsSelected(self):
