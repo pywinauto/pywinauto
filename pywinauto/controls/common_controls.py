@@ -624,7 +624,8 @@ class _treeview_element(object):
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
-            pressed = pressed)
+            pressed = pressed,
+			absolute = True)
 
         # if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
