@@ -18,10 +18,10 @@ ActiveState Python 2.x already contains pyWin32 by default.
 
 | Platform: Win7 x64 (1920x1080) | unit tests pass rate |
 |-----------------------------|-----------------|
-| Python 2.6 32-bit | 97,3% (253/260) |
-| Python 2.6 64-bit | 93,1% (242/260) |
-| Python 3.4 32-bit | 97,7% (254/260) |
-| Python 3.4 64-bit | 92,7% (241/260) |
+| Python 2.6 32-bit | 97,7% (255/261) |
+| Python 2.6 64-bit | 92,7% (242/261) |
+| Python 3.4 32-bit | 97,3% (254/261) |
+| Python 3.4 64-bit | 92,3% (241/261) |
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
