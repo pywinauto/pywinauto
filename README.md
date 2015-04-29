@@ -16,7 +16,7 @@ ActiveState Python 2.x already contains pyWin32 by default.
 
 ### Testing status
 
-* [Unit tests pass rate for <master> branch](https://github.com/vasily-v-ryabov/pywinauto-64/wiki/Unit-testing-status)
+* [Unit tests pass rate for master branch](https://github.com/vasily-v-ryabov/pywinauto-64/wiki/Unit-testing-status)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
