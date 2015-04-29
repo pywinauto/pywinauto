@@ -624,8 +624,8 @@ class _treeview_element(object):
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
-            pressed = pressed,
-			absolute = True)
+            pressed = pressed) #,
+            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1, but it doesn't work for 32-bit ControlSpyV6.exe
 
         # if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
