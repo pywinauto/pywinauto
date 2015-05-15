@@ -46,7 +46,7 @@ from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 
 
 controlspy_folder = os.path.join(
-   os.path.dirname(__file__), "..\..\controlspy0998")
+   os.path.dirname(__file__), r"..\..\apps\controlspy0998")
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
 

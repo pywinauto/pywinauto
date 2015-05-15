@@ -248,7 +248,7 @@ class ComboBoxTestCases(unittest.TestCase):
 #
 
 MFC_tutorial_folder = os.path.join(
-   os.path.dirname(__file__), "..\..\MFC_tutorial")
+   os.path.dirname(__file__), r"..\..\apps\MFC_tutorial")
 if is_x64_Python():
     MFC_tutorial_folder = os.path.join(MFC_tutorial_folder, 'x64')
 
