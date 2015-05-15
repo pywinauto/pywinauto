@@ -1,12 +1,11 @@
 pywinauto-64
 ============
 
-pywinauto (c) Mark Mc Mahon, 2006 - 2013
-pywinauto-64 (c) 2014 - 2015
+pywinauto (c) Mark Mc Mahon and Co., 2006 - 2015
 
 pywinauto is a set of python modules to automate the Microsoft Windows GUI. 
 At it's simplest it allows you to send mouse and keyboard actions to windows 
-dialogs and controls.
+dialogs and controls, but it also supports more complex actions.
 
 ### Supported Pythons
 * Python 2.6, 2.7, 3.4
