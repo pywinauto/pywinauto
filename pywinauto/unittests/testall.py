@@ -32,6 +32,7 @@ def run_tests():
                 file.endswith('.py')]
 
         test_modules = [mod for mod in test_modules if mod.lower() not in excludes]
+
         for mod in test_modules:
 
             #globals().update(__import__(mod, globals(), locals()).__dict__)

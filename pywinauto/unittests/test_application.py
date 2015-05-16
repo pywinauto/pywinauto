@@ -230,7 +230,7 @@ class ApplicationTestCases(unittest.TestCase):
             app_conn.connect_(title = "Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
             wins = findwindows.find_windows(title = "Untitled - Notepad")
-            app_conn.connect_(handle = wins[0])
+            app_conn.connect_(handle = wins[0].handle)
 
         self.assertEqual(app1.process, app_conn.process)
 
