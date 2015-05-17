@@ -5,7 +5,7 @@ class ElementInfo(object):
 
     @property
     def handle(self):
-        pass
+        return self._handle
 
     @handle.setter
     def handle(self, handle):
@@ -14,7 +14,7 @@ class ElementInfo(object):
 
     @property
     def windowText(self):
-        pass
+        return self._windowText
 
     @windowText.setter
     def windowText(self, windowText):
@@ -22,11 +22,11 @@ class ElementInfo(object):
 
     @property
     def controlId(self):
-        pass
+        return self._controlId
 
     @property
     def processId(self):
-        pass
+        self._processId
 
     def children(self):
         pass
