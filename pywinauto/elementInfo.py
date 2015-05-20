@@ -26,8 +26,36 @@ class ElementInfo(object):
 
     @property
     def processId(self):
-        self._processId
+        return self._processId
+    
+    @property
+    def className(self):
+        return self._className
 
+    @property
+    def enabled(self):
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, enabled):
+        self._enabled = enabled
+        
+    @property
+    def visible(self):
+        return self._visible
+
+    @visible.setter
+    def visible(self, visible):
+        self._visible = visible
+       
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        self._parent = parent
+    
     def children(self):
         pass
 
@@ -40,7 +68,11 @@ class NativeElementInfo(ElementInfo):
         self._windowText = handleprops.text(handle)
         self._controlId = handleprops.controlid(handle)
         self._processId = handleprops.processid(handle)
-
+        self._className = handleprops.classname(handle)
+        self._enabled = handleprops.isenabled(handle)
+        self._visible = handleprops.isvisible(handle)
+        self._parent  = handleprops.parent(handle)
+        
     def children(self):
         child_handles = handleprops.children(self.handle)
         return [NativeElementInfo(ch) for ch in child_handles]
