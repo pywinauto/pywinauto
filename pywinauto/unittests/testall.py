@@ -25,6 +25,8 @@ def run_tests():
 
     sys.path.append(testfolder)
 
+    
+
     for root, dirs, files in os.walk(testfolder):
         test_modules = [
             file.replace('.py', '') for file in files if
@@ -32,6 +34,8 @@ def run_tests():
                 file.endswith('.py')]
 
         test_modules = [mod for mod in test_modules if mod.lower() not in excludes]
+
+        print(test_modules)
 
         for mod in test_modules:
 

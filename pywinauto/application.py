@@ -240,7 +240,6 @@ class WindowSpecification(object):
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
             if len(self.criteria) == 1 and hasattr(DialogWrapper, attr):
-
                 ctrls = _resolve_control(self.criteria)
 
                 return getattr(ctrls[-1], attr)
@@ -566,7 +565,7 @@ def _get_ctrl(criteria_):
 
     # find the dialog
     dialog = controls.WrapHandle(
-        findwindows.find_window(**criteria[0]))
+        findwindows.find_window(**criteria[0]).handle)
 
     ctrl = None
     # if there is only criteria for a dialog then return it
@@ -946,8 +945,8 @@ class Application(object):
             connected = True
 
         elif kwargs:
-            window = findwindows.find_window(**kwargs)
-            self.process = window.processId
+            window = findwindows.find_window(**kwargs).handle
+            self.process = handleprops.processid(window)
             connected = True
 
         if not connected:
