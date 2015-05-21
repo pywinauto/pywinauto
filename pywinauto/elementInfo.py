@@ -34,6 +34,7 @@ class ElementInfo(object):
 
     @property
     def enabled(self):
+        self._enabled = handleprops.isenabled(self._handle)
         return self._enabled
 
     @enabled.setter
@@ -42,6 +43,7 @@ class ElementInfo(object):
         
     @property
     def visible(self):
+        self._visible = handleprops.isvisible(self._handle)
         return self._visible
 
     @visible.setter
