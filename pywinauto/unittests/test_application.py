@@ -49,6 +49,12 @@ Timings.Fast()
 # so make sure that we wait for it.
 Timings.window_find_timeout = 10
 
+def _notepad_exe():
+    if is_x64_Python() or not is_x64_OS():
+        return r"C:\Windows\System32\notepad.exe"
+    else:
+        return r"C:\Windows\SysWOW64\notepad.exe"
+
 
 class ApplicationTestCases(unittest.TestCase):
     "Unit tests for the application.Application class"
@@ -88,7 +94,7 @@ class ApplicationTestCases(unittest.TestCase):
         "test start_() works correctly"
         app = Application()
         self.assertEqual(app.process, None)
-        app.start_("notepad.exe")
+        app.start_(_notepad_exe())
         self.assertNotEqual(app.process, None)
 
         self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
@@ -164,7 +170,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_path(self):
         "Test that connect_() works with a path"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
 
         app_conn = Application()
         app_conn.connect_(path = self.notepad_subpath)
@@ -197,7 +203,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_process(self):
         "Test that connect_() works with a process"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
 
         app_conn = Application()
         app_conn.connect_(process = app1.process)
@@ -209,7 +215,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_handle(self):
         "Test that connect_() works with a handle"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
         handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
@@ -222,7 +228,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_windowspec(self):
         "Test that connect_() works with a windowspec"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
         handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
@@ -266,7 +272,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testTopWindow(self):
         "Test that top_window_() works correctly"
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
 
@@ -303,7 +309,7 @@ class ApplicationTestCases(unittest.TestCase):
         "Test that window_() works correctly"
 
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         title = app.window_(title = "Untitled - Notepad")
         title_re = app.window_(title_re = "Untitled[ -]+Notepad")
@@ -326,7 +332,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testGetitem(self):
         "Test that __getitem__() works correctly"
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         try:
             app['blahblah']
@@ -358,7 +364,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testGetattr(self):
         "Test that __getattr__() works correctly"
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         #prev_timeout = application.window_find_timeout
         #application.window_find_timeout = .1
@@ -392,7 +398,7 @@ class ApplicationTestCases(unittest.TestCase):
         "test killing the application"
 
         app = Application()
-        app.start('notepad.exe')
+        app.start(_notepad_exe())
 
         app.UntitledNotepad.Edit.TypeKeys("hello")
 

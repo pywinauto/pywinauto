@@ -54,9 +54,10 @@ def text(handle):
         return 'Default IME'
     if class_name == 'MSCTFIME UI':
         return 'M'
-    length = win32functions.SendMessage(handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
-    '''
+    #length = win32functions.SendMessage(handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
+    
     # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
+    # WM_GETTEXTLENGTH may hang even for notepad.exe main window!
     c_length = win32structures.DWORD(0)
     result = win32functions.SendMessageTimeout(handle, win32defines.WM_GETTEXTLENGTH, 0, 0, win32defines.SMTO_ABORTIFHUNG, 500, ctypes.byref(c_length))
     if result == 0:
@@ -64,7 +65,7 @@ def text(handle):
         return ''
     else:
         length = c_length.value
-    '''
+    
     textval = ''
     # In some rare cases, the length returned by WM_GETTEXTLENGTH is <0.
     # Guard against this by checking it is >0 (==0 is not of interest):
