@@ -240,7 +240,6 @@ class WindowSpecification(object):
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
             if len(self.criteria) == 1 and hasattr(DialogWrapper, attr):
-
                 ctrls = _resolve_control(self.criteria)
 
                 return getattr(ctrls[-1], attr)
@@ -566,7 +565,7 @@ def _get_ctrl(criteria_):
 
     # find the dialog
     dialog = controls.WrapHandle(
-        findwindows.find_window(**criteria[0]))
+        findwindows.find_window(**criteria[0]).handle)
 
     ctrl = None
     # if there is only criteria for a dialog then return it
@@ -580,7 +579,7 @@ def _get_ctrl(criteria_):
 
         # resolve the control and return it
         ctrl = controls.WrapHandle(
-            findwindows.find_window(**ctrl_criteria))
+            findwindows.find_window(**ctrl_criteria).handle)
 
     if ctrl:
         return (dialog, ctrl)
@@ -642,17 +641,17 @@ def _resolve_from_appdata(
     dialog_criterion['class_name'] = matched_control[1]['Class']
 
     # find all the windows in the process
-    process_hwnds = findwindows.find_windows(**dialog_criterion)
+    process_elems = findwindows.find_windows(**dialog_criterion)
 
     dialog = None
     ctrl = None
-    if len(process_hwnds) >= 1:
+    if len(process_elems) >= 1:
 
-        similar_child_count = [h for h in process_hwnds
+        similar_child_count = [e for e in process_elems
             if matched_control[1]['ControlCount'] -2 <=
-                    len(handleprops.children(h)) and
+                    len(e.children()) and
                 matched_control[1]['ControlCount'] +2 >=
-                    len(handleprops.children(h))]
+                    len(e.children())]
 
         if len(similar_child_count) == 0:
             #print "None Similar child count!!???"
@@ -660,13 +659,13 @@ def _resolve_from_appdata(
             #    len(handleprops.children(h))
             pass
         else:
-            process_hwnds = similar_child_count
+            process_elems = similar_child_count
 
-        for h in process_hwnds:
+        for e in process_elems:
             #print controls.WrapHandle(h).GetProperties()
             #print "======", h, h, h
 
-            dialog = controls.WrapHandle(h)
+            dialog = controls.WrapHandle(e.handle)
 
             # if a control was specified also
             if len(criteria_) > 1:
@@ -688,19 +687,19 @@ def _resolve_from_appdata(
                 ctrl_criterion['top_level_only'] = False
                 #ctrl_criterion['predicate_func'] = has_same_id
                 #print "CTRLCTRJL", ctrl_criterion
-                ctrl_hwnds = findwindows.find_windows(**ctrl_criterion)
+                ctrl_elems = findwindows.find_windows(**ctrl_criterion)
 
-                if len(ctrl_hwnds) > 1:
+                if len(ctrl_elems) > 1:
                     same_ids = \
-                        [hwnd for hwnd in ctrl_hwnds
-                            if handleprops.controlid(hwnd) == \
+                        [elem for elem in ctrl_elems
+                            if elem.controlId == \
                                 matched_control[2]['ControlID']]
 
                     if len(same_ids) >= 1:
-                        ctrl_hwnds = same_ids
+                        ctrl_elems = same_ids
 
                 try:
-                    ctrl = controls.WrapHandle(ctrl_hwnds[0])
+                    ctrl = controls.WrapHandle(ctrl_elems[0].handle)
                 except IndexError:
                     print("-+-+=_" * 20)
                     print(found_criteria)
@@ -946,8 +945,8 @@ class Application(object):
             connected = True
 
         elif kwargs:
-            handle = findwindows.find_window(**kwargs)
-            self.process = handleprops.processid(handle)
+            window = findwindows.find_window(**kwargs).handle
+            self.process = handleprops.processid(window)
             connected = True
 
         if not connected:
@@ -972,7 +971,7 @@ class Application(object):
             raise RuntimeError("No windows for that process could be found")
 
         criteria = {}
-        criteria['handle'] = windows[0]
+        criteria['handle'] = windows[0].handle
 
         return WindowSpecification(criteria)
 
@@ -991,7 +990,7 @@ class Application(object):
             raise RuntimeError("No Windows of that application are active")
 
         criteria = {}
-        criteria['handle'] = windows[0]
+        criteria['handle'] = windows[0].handle
 
         return WindowSpecification(criteria)
 
@@ -1015,7 +1014,7 @@ class Application(object):
 
         windows = findwindows.find_windows(**kwargs)
 
-        return [controls.WrapHandle(win) for win in windows]
+        return [controls.WrapHandle(win.handle) for win in windows]
 
     Windows_ = windows_
 
