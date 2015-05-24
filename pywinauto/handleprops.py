@@ -141,6 +141,23 @@ def isenabled(handle):
     return bool(win32functions.IsWindowEnabled(handle))
 
 #=========================================================================
+def is64bitprocess(process_id):
+    """Return True if the specified process is a 64-bit process on x64
+       and False if it is only a 32-bit process running under Wow64.
+       Always return False for x86"""
+
+    from pywinauto.sysinfo import is_x64_OS
+    is32 = True
+    if is_x64_OS():
+        import win32process, win32api
+        phndl = win32api.OpenProcess(0x400, 0, process_id)
+        if phndl:
+          is32 = win32process.IsWow64Process(phndl)
+          #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
+        
+    return (not is32)
+
+#=========================================================================
 def clientrect(handle):
     "Return the client rectangle of the control"
     client_rect = win32structures.RECT()
