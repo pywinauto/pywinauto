@@ -41,7 +41,7 @@ def _unittests():
 
     for win in windows:
         print("==" * 20)
-        print(handleprops.dumpwindow(win))
+        print(win.dumpWindow())
 
 #class ApplicationTestCases(unittest.TestCase):
 #    "Unit tests for the ListViewWrapper class"

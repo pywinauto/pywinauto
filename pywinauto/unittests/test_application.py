@@ -65,6 +65,7 @@ class ApplicationTestCases(unittest.TestCase):
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
+
         if is_x64_Python() or not is_x64_OS():
             self.notepad_subpath = r"system32\notepad.exe"
         else:
@@ -121,7 +122,6 @@ class ApplicationTestCases(unittest.TestCase):
 
     def testStart_bug01(self):
         "On SourceForge forum AppStartError forgot to include %s for application name"
-
         app = Application()
         self.assertEqual(app.process, None)
         application.app_start_timeout = 1
@@ -236,7 +236,7 @@ class ApplicationTestCases(unittest.TestCase):
             app_conn.connect_(title = "Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
             wins = findwindows.find_windows(title = "Untitled - Notepad")
-            app_conn.connect_(handle = wins[0])
+            app_conn.connect_(handle = wins[0].handle)
 
         self.assertEqual(app1.process, app_conn.process)
 
@@ -307,7 +307,6 @@ class ApplicationTestCases(unittest.TestCase):
 
     def testWindow(self):
         "Test that window_() works correctly"
-
         app = Application()
         app.start_(_notepad_exe())
 
