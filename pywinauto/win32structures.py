@@ -282,14 +282,16 @@ class SETTEXTEX(Structure):
     ]
 assert sizeof(SETTEXTEX) == 8, sizeof(SETTEXTEX)
 
+# Main layout for LVCOLUMN on x86 and x64 archs
 class LVCOLUMNW(Structure):
-    _pack_ = 1
+    # _pack_ is not specified, we rely on a default alignment:
+    # 8 bytes in x64 system and 4 bytes in x86
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2982
         ('mask', UINT),
         ('fmt', c_int),
         ('cx', c_int),
-        ('pszText', c_long), #LPWSTR),
+        ('pszText', c_void_p), #LPWSTR),
         ('cchTextMax', c_int),
         ('iSubItem', c_int),
         ('iImage', c_int),
@@ -299,9 +301,29 @@ class LVCOLUMNW(Structure):
         ('cxIdeal', c_int),
     ]
 
+# this is a special layout for a 32-bit process running on x64
+class LVCOLUMNW32(Structure):
+    # _pack_ is not specified, we rely on a default alignment:
+    # 8 bytes in x64 system and 4 bytes in x86
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2982
+        ('mask', UINT),
+        ('fmt', c_int),
+        ('cx', c_int),
+        ('pszText', UINT), # keep 4-byte size address
+        ('cchTextMax', c_int),
+        ('iSubItem', c_int),
+        ('iImage', c_int),
+        ('iOrder', c_int),
+        ('cxMin', c_int),
+        ('cxDefault', c_int),
+        ('cxIdeal', c_int),
+    ]
 
+# Main layout for LVITEM, naturally fits for x86 and x64 archs
 class LVITEMW(Structure):
-    _pack_ = 1
+    # _pack_ is not specified, we rely on a default alignment:
+    # 8 bytes on x64 system and 4 bytes on x86
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2679
         ('mask', UINT),
@@ -309,7 +331,7 @@ class LVITEMW(Structure):
         ('iSubItem', c_int),
         ('state', UINT),
         ('stateMask', UINT),
-        ('pszText', c_long), #LPTSTR), #c_long), #LPWSTR),
+        ('pszText', c_void_p), #LPTSTR), #c_long), #LPWSTR),
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('lParam', LPARAM),
@@ -318,17 +340,45 @@ class LVITEMW(Structure):
         
         ('iGroupId', c_int), #if (_WIN32_WINNT >= 0x0501)
         ('cColumns', UINT),
-        ('puColumns', UINT),
+        ('puColumns', POINTER(UINT)),
         
-        ('piColFmt', c_int), #if (_WIN32_WINNT >= 0x0600)
+        ('piColFmt', POINTER(c_int)), #if (_WIN32_WINNT >= 0x0600)
         ('iGroup', c_int),
     ]
+
 if sysinfo.is_x64_Python():
-    assert sizeof(LVITEMW) == 64, sizeof(LVITEMW)
-    assert alignment(LVITEMW) == 1, alignment(LVITEMW)
+    assert sizeof(LVITEMW) == 88, sizeof(LVITEMW)
+    assert alignment(LVITEMW) == 8, alignment(LVITEMW)
 else:
     assert sizeof(LVITEMW) == 60, sizeof(LVITEMW)
-    assert alignment(LVITEMW) == 1, alignment(LVITEMW)
+    assert alignment(LVITEMW) == 4, alignment(LVITEMW)
+
+# this is a special layout for a 32-bit process running on x64
+class LVITEMW32(Structure):
+    _pack_  = 4
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2679
+        ('mask', UINT),
+        ('iItem', c_int),
+        ('iSubItem', c_int),
+        ('state', UINT),
+        ('stateMask', UINT),
+        ('pszText', UINT), # keep 4-byte size
+        ('cchTextMax', c_int),
+        ('iImage', c_int),
+        ('lParam', LPARAM),
+        
+        ('iIndent', c_int), #if (_WIN32_IE >= 0x0300)
+        
+        ('iGroupId', c_int), #if (_WIN32_WINNT >= 0x0501)
+        ('cColumns', UINT),
+        ('puColumns', UINT), # keep 4-byte size
+        
+        ('piColFmt', c_int), #if (_WIN32_WINNT >= 0x0600), but keep 4-byte size
+        ('iGroup', c_int),
+    ]
+
+assert alignment(LVITEMW32) == 4, alignment(LVITEMW32)
 
 
 class TVITEMW(Structure):
