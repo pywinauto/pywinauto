@@ -203,6 +203,9 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         # make it so that ctypes conversion happens correctly
         self._as_parameter_ = self.handle
 
+        # TODO: 32 or 64 bits process running on x64
+        #self.is64bitprocess = handleprops.is64bitprocess(self.ProcessID())
+
         #win32functions.WaitGuiThreadIdle(self)
 
         # specify whether we need to grab an image of ourselves
