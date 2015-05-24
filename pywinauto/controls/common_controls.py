@@ -85,12 +85,14 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             self.LVITEM         = win32structures.LVITEMW
             self.LVM_GETITEM    = win32defines.LVM_GETITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNW
+            self.text_decode    = lambda v: v
         else:
             self.create_buffer = ctypes.create_string_buffer
             self.LVCOLUMN       = win32structures.LVCOLUMNW
             self.LVITEM         = win32structures.LVITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
             self.LVM_GETITEM    = win32defines.LVM_GETITEMA            
+            self.text_decode    = lambda v: v.decode('utf-8')
 
     #-----------------------------------------------------------
     def ColumnCount(self):
@@ -152,11 +154,11 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         if retval:
             col = remote_mem.Read(col)
 
-            text = self.create_buffer(1999)
+            text = self.create_buffer(2000)
             remote_mem.Read(text, col.pszText)
 
             col_props['order'] = col.iOrder
-            col_props['text'] = text.value.decode('utf-8')
+            col_props['text'] = self.text_decode(text.value)
             col_props['format'] = col.fmt
             col_props['width'] = col.cx
             col_props['image'] = col.iImage
@@ -264,7 +266,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # Fill in the requested item
         retval = self.SendMessage(
             self.LVM_GETITEM,
-            item_index,
+            0, # MSDN: wParam for LVM_GETITEM must be zero
             remote_mem)
 
         # if it succeeded
@@ -277,7 +279,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             remote_mem.Read(char_data, item.pszText)
 
             # and add it to the titles
-            item_data['text'] = char_data.value.decode('utf-8')
+            item_data['text'] = self.text_decode(char_data.value)
             item_data['state'] = item.state
             item_data['image'] = item.iImage
             item_data['indent'] = item.iIndent
