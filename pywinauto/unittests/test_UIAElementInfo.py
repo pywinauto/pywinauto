@@ -52,8 +52,5 @@ class UIAElementInfoTests(unittest.TestCase):
     def testChildren(self):
         self.assertEqual(len(self.ctrl.children), 3)
 
-    def testWindowText(self):
-        print(self.ctrl.windowText)
-
 if __name__ == "__main__":
     unittest.main()
