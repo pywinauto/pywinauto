@@ -19,23 +19,29 @@
 #    Boston, MA 02111-1307 USA
 
 "Wraps various standard windows controls"
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 __revision__ = "$Revision$"
 
 import time
 
 import ctypes
+import win32gui
+import locale
 
-import HwndWrapper
+from . import HwndWrapper
 
-from pywinauto import win32functions
-from pywinauto import win32defines
-from pywinauto import win32structures
-#from pywinauto import findbestmatch
-from pywinauto import controlproperties
+from .. import six
+from .. import win32functions
+from .. import win32defines
+from .. import win32structures
+#from .. import findbestmatch
+from .. import controlproperties
+from ..RemoteMemoryBlock import RemoteMemoryBlock
 
-from pywinauto import tests
-from pywinauto.timings import Timings
+from .. import tests
+from ..timings import Timings
 
 #====================================================================
 class ButtonWrapper(HwndWrapper.HwndWrapper):
@@ -195,11 +201,17 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     #    win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_button_click_wait)
 
+    #-----------------------------------------------------------
+    def CheckByClick(self):
+        "Click the Button control"
+        if self.GetCheckState() != win32defines.BST_CHECKED:
+            self.ClickInput()
 
-    #def IsSelected (self):
-    #    (for radio buttons)
-
-
+    #-----------------------------------------------------------
+    def UncheckByClick(self):
+        "Click the Button control"
+        if self.GetCheckState() != win32defines.BST_UNCHECKED:
+            self.ClickInput()
 
 #====================================================================
 def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
@@ -214,11 +226,18 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
     for i in range(0, num_items):
         text_len = wrapper.SendMessage (item_len_msg, i, 0)
 
-        text = ctypes.create_unicode_buffer(text_len + 1)
+        if six.PY3:
+            text = ctypes.create_unicode_buffer(text_len + 1)
+        else:
+            text = ctypes.create_string_buffer(text_len + 1)
 
         wrapper.SendMessage(item_get_msg, i, ctypes.byref(text))
 
-        texts.append(text.value)
+        if six.PY3:
+            texts.append(text.value.replace('\u200e', ''))
+        else:
+            import locale
+            texts.append(text.value.decode(locale.getpreferredencoding(), 'ignore').replace('?', ''))
 
     return texts
 
@@ -270,9 +289,14 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.CB_GETCURSEL)
 
     #-----------------------------------------------------------
+    def SelectedText(self):
+        "Return the selected text"
+        return self.ItemTexts()[self.SelectedIndex()]
+
+    #-----------------------------------------------------------
     def _get_item_index(self, ident):
         "Get the index for the item with this 'ident'"
-        if isinstance(ident, (int, long)):
+        if isinstance(ident, six.integer_types):
 
             if ident >= self.ItemCount():
                 raise IndexError(
@@ -285,7 +309,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
                 # convert it to a positive index
                 ident = (self.ItemCount() + ident)
 
-        elif isinstance(ident, basestring):
+        elif isinstance(ident, six.string_types):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
             ident = self.ItemTexts().index(ident)
@@ -337,7 +361,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         index = self._get_item_index(item)
 
         # change the selected item
-        self.SendMessageTimeout(win32defines.CB_SETCURSEL, index)
+        self.SendMessageTimeout(win32defines.CB_SETCURSEL, index, timeout=0.05)
 
         # Notify the parent that we are finished selecting
         self.NotifyParent(win32defines.CBN_SELENDOK)
@@ -393,13 +417,21 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             "SelectedIndices"])
 
     #-----------------------------------------------------------
+    def IsSingleSelection(self):
+        """Check whether the listbox has single selection mode."""
+        num_selected = self.SendMessage(win32defines.LB_GETSELCOUNT)
+
+        # if we got LB_ERR then it is a single selection list box
+        return (num_selected == win32defines.LB_ERR)
+
+    #-----------------------------------------------------------
     def SelectedIndices(self):
         "The currently selected indices of the listbox"
         num_selected = self.SendMessage(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
         if num_selected == win32defines.LB_ERR:
-            items = (self.SendMessage(win32defines.LB_GETCURSEL), )
+            items = tuple([self.SendMessage(win32defines.LB_GETCURSEL)])
 
         # otherwise it is a multiselection list box
         else:
@@ -416,7 +448,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
         "Return the index of the item 'ident'"
-        if isinstance(ident, (int, long)):
+        if isinstance(ident, six.integer_types):
 
             if ident >= self.ItemCount():
                 raise IndexError(
@@ -428,7 +460,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             if ident < 0:
                 ident = (self.ItemCount() + ident)
 
-        elif isinstance(ident, basestring):
+        elif isinstance(ident, six.string_types):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
             ident = self.ItemTexts().index(ident) #-1
@@ -458,6 +490,16 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             win32defines.LB_GETTEXT)
 
     #-----------------------------------------------------------
+    def ItemRect(self, item):
+        "Return the rect of the item "
+        index = self._get_item_index(item)
+        rect = win32structures.RECT()
+        res = self.SendMessage(win32defines.LB_GETITEMRECT, index, ctypes.byref(rect))
+        if res == win32defines.LB_ERR:
+            raise RuntimeError("LB_GETITEMRECT failed")
+        return rect
+
+    #-----------------------------------------------------------
     def Texts(self):
         "Return the texts of the control"
         texts = [self.WindowText()]
@@ -476,20 +518,38 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 #        return props
 
     #-----------------------------------------------------------
-    def Select(self, item):
+    def Select(self, item, select=True):
         """Select the ListBox item
 
         item can be either a 0 based index of the item to select
         or it can be the string that you want to select
         """
+
+        if self.IsSingleSelection() and (isinstance(item, list) or isinstance(item, tuple)) and len(item) > 1:
+            raise Exception('Cannot set multiple selection for single-selection listbox!')
+
+        if isinstance(item, list) or isinstance(item, tuple):
+            for i in item:
+                if i is not None:
+                    self.Select(i, select)
+            return self
+
         self.VerifyActionable()
 
         # Make sure we have an index  so if passed in a
         # string then find which item it is
         index = self._get_item_index(item)
 
-        # change the selected item
-        self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
+        if self.IsSingleSelection():
+            # change the selected item
+            self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
+        else:
+            if select:
+                # add the item to selection
+                self.SendMessageTimeout(win32defines.LB_SETSEL, win32defines.TRUE, index)
+            else:
+                # remove the item from selection
+                self.SendMessageTimeout(win32defines.LB_SETSEL, win32defines.FALSE, index)
 
         # Notify the parent that we have changed
         self.NotifyParent(win32defines.LBN_SELCHANGE)
@@ -557,7 +617,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def LineCount(self):
         "Return how many lines there are in the Edit"
-        return  self.SendMessage(win32defines.EM_GETLINECOUNT)-1
+        return  self.SendMessage(win32defines.EM_GETLINECOUNT)
 
     #-----------------------------------------------------------
     def LineLength(self, line_index):
@@ -578,11 +638,10 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         text_len = self.LineLength(line_index)
         # create a buffer and set the length at the start of the buffer
         text = ctypes.create_unicode_buffer(text_len+3)
-        text[0] = unichr(text_len)
+        text[0] = six.unichr(text_len)
 
         # retrieve the line itself
-        self.SendMessage(
-            win32defines.EM_GETLINE, line_index, ctypes.byref(text))
+        win32functions.SendMessage(self, win32defines.EM_GETLINE, line_index, ctypes.byref(text))
 
         return text.value
 
@@ -592,7 +651,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         texts = [self.WindowText(), ]
 
-        for i in range(0, self.LineCount()+1):
+        for i in range(self.LineCount()):
             texts.append(self.GetLine(i))
 
         return texts
@@ -602,10 +661,11 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "Get the text of the edit control"
 
         length = self.SendMessage(win32defines.WM_GETTEXTLENGTH)
-        text = ctypes.create_unicode_buffer(length + 1)
-        self.SendMessage(win32defines.WM_GETTEXT, length+1, ctypes.byref(text))
 
-        #text = text.value.replace("\r\n", "\n")
+        text = ctypes.create_unicode_buffer(length + 1)
+
+        win32functions.SendMessage(self, win32defines.WM_GETTEXT, length + 1, ctypes.byref(text))
+
         return text.value
 
     #-----------------------------------------------------------
@@ -652,12 +712,41 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             self.Select()
 
         # replace the selection with
-        text = ctypes.c_wchar_p(unicode(text))
-        self.SendMessageTimeout(win32defines.EM_REPLACESEL, True, text)
+        #buffer = ctypes.c_wchar_p(six.text_type(text))
+        
+        if isinstance(text, six.text_type):
+            if six.PY3:
+                buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
+            else:
+                buffer = ctypes.create_string_buffer(text.encode(locale.getpreferredencoding(), 'ignore'), size=len(text) + 1)
+        else:
+            if six.PY3:
+                buffer = ctypes.create_unicode_buffer(text.decode(locale.getpreferredencoding()), size=len(text) + 1)
+            else:
+                buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
+        #buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
+        '''
+        remote_mem = RemoteMemoryBlock(self)
+        _setTextExStruct = win32structures.SETTEXTEX()
+        _setTextExStruct.flags = win32defines.ST_SELECTION #| win32defines.ST_UNICODE
+        _setTextExStruct.codepage = win32defines.CP_WINUNICODE
+        
+        remote_mem.Write(_setTextExStruct)
+        
+        self.SendMessage(win32defines.EM_SETTEXTEX, remote_mem, ctypes.byref(buffer))
+        '''
+        self.SendMessage(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
 
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(Timings.after_editsetedittext_wait)
+        #win32functions.WaitGuiThreadIdle(self)
+        #time.sleep(Timings.after_editsetedittext_wait)
 
+        if isinstance(text, six.text_type):
+            if six.PY3:
+                self.actions.log('Set text to the edit box: ' + text)
+            else:
+                self.actions.log('Set text to the edit box: ' + text.encode(locale.getpreferredencoding(), 'ignore'))
+        elif isinstance(text, six.binary_type):
+            self.actions.log(b'Set text to the edit box: ' + text)
 
         # return this control so that actions can be chained.
         return self
@@ -671,10 +760,17 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         self.VerifyActionable()
 
         # if we have been asked to select a string
-        if isinstance(start, basestring):
+        if isinstance(start, six.text_type):
             string_to_select = start
             #
             start = self.TextBlock().index(string_to_select)
+
+            if end is None:
+                end = start + len(string_to_select)
+        elif isinstance(start, six.binary_type):
+            string_to_select = start
+            #
+            start = self.TextBlock().index(string_to_select.decode('utf-8'))
 
             if end is None:
                 end = start + len(string_to_select)
@@ -682,7 +778,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         if end is None:
             end = -1
 
-        self.SendMessageTimeout(win32defines.EM_SETSEL, start, end)
+        self.SendMessage(win32defines.EM_SETSEL, start, end)
 
         # give the control a chance to catch up before continuing
         win32functions.WaitGuiThreadIdle(self)
@@ -752,7 +848,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         controls = [self] + self.Children()
         
         # add the reference controls
-        if ref_controls is not None:                        
+        if ref_controls is not None:
             matched_flags = controlproperties.SetReferenceControls(
                 controls, ref_controls)
             
@@ -772,7 +868,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         controls = [self] + self.Children()
         props = [ctrl.GetProperties() for ctrl in controls]
 
-        from pywinauto import XMLHelpers
+        from .. import XMLHelpers
         XMLHelpers.WriteDialogToFile(filename, props)
 
     #-----------------------------------------------------------
@@ -830,18 +926,11 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def _menu_handle(self):
-        "Get the menu handle for the popup menu menu"
-        mbi = win32structures.MENUBARINFO()
-        mbi.cbSize = ctypes.sizeof(mbi)
-        ret = win32functions.GetMenuBarInfo(
-            self,
-            win32defines.OBJID_CLIENT,
-            0,
-            ctypes.byref(mbi))
+        '''Get the menu handle for the popup menu'''
+        hMenu = win32gui.SendMessage(self.handle, win32defines.MN_GETHMENU)
 
-        if not ret:
+        if not hMenu:
             raise ctypes.WinError()
 
-        return mbi.hMenu
-
+        return (hMenu, False) # (hMenu, is_main_menu)
 

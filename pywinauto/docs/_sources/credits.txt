@@ -1,0 +1,6 @@
+Credits
+-------
+Stefaan Himpe - Lots of speed and stability improvements early on
+Jeff Winkler - Early encouragement, creation of screencasts
+Dalius Dobravolskas - Help on the forums and prompted major improvements on the wait* functionality
+Daisuke Yamashita - Bugs/suggestions for 2.5 that MenuWrapper.GetProperties() returns a list rather then a dict.

@@ -50,12 +50,14 @@ class ClipboardTestCases(unittest.TestCase):
         # close the application
         #self.dlg.SendMessage(win32defines.WM_CLOSE)
         self.app1.UntitledNotepad.MenuSelect('File -> Exit')
-        if self.app1.Notepad.No.Exists():
-            self.app1.Notepad.No.Click()
+        if self.app1.Notepad["Do&n't Save"].Exists():
+            self.app1.Notepad["Do&n't Save"].Click()
+        self.app1.kill_()
 
         self.app2.UntitledNotepad.MenuSelect('File -> Exit')
-        if self.app2.Notepad.No.Exists():
-            self.app2.Notepad.No.Click()
+        if self.app2.Notepad["Do&n't Save"].Exists():
+            self.app2.Notepad["Do&n't Save"].Click()
+        self.app2.kill_()
 
 
     def testGetClipBoardFormats(self):
@@ -68,7 +70,7 @@ class ClipboardTestCases(unittest.TestCase):
 
         self.assertEquals(
             [GetFormatName(f) for f in GetClipboardFormats()],
-            ['CF_UNICODETEXT', 'CF_LOCALE', 'CF_SCREENFONTS', 'CF_OEMTEXT']
+            ['CF_UNICODETEXT', 'CF_LOCALE', 'CF_TEXT', 'CF_OEMTEXT']
         )
 
     def testBug1452832(self):
@@ -76,7 +78,7 @@ class ClipboardTestCases(unittest.TestCase):
 
         Where GetData was not closing the clipboard. FIXED.
         """
-        self.app1.UntitledNotepad.MenuSelect("Edit -> Select All")
+        self.app1.UntitledNotepad.MenuSelect("Edit->Select All Ctrl+A")
         typetext(self.app1, "some text")
         copytext(self.app1)
 
@@ -96,11 +98,13 @@ def gettext(app):
 
 def typetext(app, text):
     app.UntitledNotepad.Edit.SetEditText(text)
+    time.sleep(0.2)
 
 
 def copytext(app):
     app.UntitledNotepad.MenuSelect("Edit -> Select All")
     app.UntitledNotepad.MenuSelect("Edit -> Copy")
+    time.sleep(0.3)
 
 def pastetext(app):
     app.UntitledNotepad.MenuItem("Edit -> Paste").Click()

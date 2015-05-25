@@ -19,15 +19,18 @@
 #    Boston, MA 02111-1307 USA
 
 "Tests various standard windows controls"
+from __future__ import unicode_literals
 
 __revision__ = "$Revision: 234 $"
 
 # pylint:  disable-msg=W0212,F0401,R0904
 
-import sys
+import os, sys
+import codecs, locale
 sys.path.append(".")
 from pywinauto.controls.win32_controls import *
-from pywinauto import XMLHelpers
+from pywinauto import XMLHelpers, six
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 import unittest
 
@@ -37,7 +40,8 @@ import pprint
 
 from pywinauto.timings import Timings
 Timings.Fast()
-Timings.window_find_timeout = 5
+Timings.window_find_timeout = 3
+Timings.closeclick_dialog_close_wait = .5
 
 
 class ButtonTestCases(unittest.TestCase):
@@ -51,67 +55,71 @@ class ButtonTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        self.app.start_("calc.exe")
-        self.calc = self.app.SciCalc
+        if is_x64_Python() or not is_x64_OS():
+            self.app.start_(r"C:\Windows\System32\calc.exe")
+        else:
+            self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
+        self.calc = self.app.Calculator
         self.calc.MenuSelect("View->Scientific")
 
     def tearDown(self):
         "Close the application after tests"
 
-        self.calc.TypeKeys("%{F4}")
+        self.app.kill_()
+        #self.calc.TypeKeys("%{F4}")
 
     def testGetProperties(self):
         "Test getting the properties for the button control"
-        props = self.calc._6.GetProperties()
+        props = self.calc.Degrees.GetProperties()
 
         self.assertEquals(
-            "Button", props['FriendlyClassName'])
+            "RadioButton", props['FriendlyClassName'])
 
         self.assertEquals(
-            self.calc._6.Texts(), ['6'])
+            self.calc.Degrees.Texts(), ['Degrees'])
 
         self.assertEquals(
-            self.calc._6.Texts(), props['Texts'])
+            self.calc.Degrees.Texts(), props['Texts'])
 
         for prop_name in props:
             self.assertEquals(
-                getattr(self.calc._6, prop_name)(), props[prop_name])
+                getattr(self.calc.Degrees, prop_name)(), props[prop_name])
 
     def test_set_if_needs_image(self):
         "test whether an image needs to be saved with the properties"
-        self.assertEquals(self.calc._8._NeedsImageProp, False)
+        self.assertEquals(self.calc.Button5._NeedsImageProp, False)
 
     def testFriendlyClass(self):
         "Test the FriendlyClassName method"
-        self.assertEquals(self.calc._8.FriendlyClassName(), "Button")
-        self.assertEquals(self.calc.Dec.FriendlyClassName(), "RadioButton")
-        self.assertEquals(self.calc.Hyp.FriendlyClassName(), "CheckBox")
+        self.assertEquals(self.calc.Button9.FriendlyClassName(), "Button")
+        self.assertEquals(self.calc.Degree.FriendlyClassName(), "RadioButton")
+        #self.assertEquals(self.calc.Hex.FriendlyClassName(), "CheckBox")
 
-        children = self.calc.Children()
-        no_text_buttons = [
-            c for c in children
-                if not c.WindowText() and c.Class() == "Button"]
+        #children = self.calc.Children()
+        #no_text_buttons = [
+        #    c for c in children
+        #        if not c.WindowText() and c.Class() == "Button"]
 
-        first_group = no_text_buttons[0]
+        #first_group = no_text_buttons[0]
 
-        self.assertEquals(first_group.FriendlyClassName(), "GroupBox")
+        #self.assertEquals(first_group.FriendlyClassName(), "GroupBox")
 
     def testCheckUncheck(self):
         "Test unchecking a control"
 
-        self.calc.Inv.Check()
-        self.assertEquals(self.calc.Inv.GetCheckState(), 1)
-        self.calc.Inv.UnCheck()
-        self.assertEquals(self.calc.Inv.GetCheckState(), 0)
+        self.calc.Grads.Check()
+        self.assertEquals(self.calc.Grads.GetCheckState(), 1)
+        self.calc.Grads.UnCheck()
+        self.assertEquals(self.calc.Grads.GetCheckState(), 0)
 
     def testGetCheckState_unchecked(self):
         "unchecked"
-        self.assertEquals(self.calc.Inv.GetCheckState(), 0)
+        self.assertEquals(self.calc.Grads.GetCheckState(), 0)
 
     def testGetCheckState_checked(self):
         "checked"
-        self.calc.Inv.Check()
-        self.assertEquals(self.calc.Inv.GetCheckState(), 1)
+        self.calc.Grads.Check()
+        self.assertEquals(self.calc.Grads.GetCheckState(), 1)
 
 #    def testGetCheckState_indeterminate(self):
 #        "indeterminate"
@@ -120,23 +128,23 @@ class ButtonTestCases(unittest.TestCase):
 
     def testClick(self):
         "Test clicking on buttons"
-        self.calc._6.Click()
-        self.calc._5.Click()
-        self.calc['+'].Click()
-        self.calc._4.Click()
-        self.calc._3.Click()
-        self.calc['='].Click()
-        self.assertEquals(self.calc.Edit.Texts()[1], "108. ")
+        self.calc.Button15.Click()  # "6"
+        self.calc.Button10.Click()  # "5"
+        self.calc.Button23.Click()  # "+"
+        self.calc.Button4.Click()   # "4"
+        self.calc.Button16.Click()  # "3"
+        self.calc.Button28.Click()  # "="
+        self.assertEquals(self.calc.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "108")
 
     def testIsSelected(self):
         "Test whether the control is selected or not"
         # Todo - I need to find an application where a button can be
         # selected - I don't see one in Calc at least :)
-        self.assertEquals(self.calc.Hex.GetCheckState(), 0)
+        self.assertEquals(self.calc.Radians.GetCheckState(), 0)
 
-        self.calc.Hex.Click()
+        self.calc.Radians.Click()
 
-        self.assertEquals(self.calc.Hex.GetCheckState(), 1)
+        self.assertEquals(self.calc.Radians.GetCheckState(), 1)
 
 
 class ComboBoxTestCases(unittest.TestCase):
@@ -154,7 +162,7 @@ class ComboBoxTestCases(unittest.TestCase):
 
         self.app.UntitledNotepad.MenuSelect("Format->Font")
 
-        self.ctrl = self.app.Font.ComboBox2.WrapperObject()
+        self.ctrl = self.app.Font.ScriptComboBox.WrapperObject()
 
     def tearDown(self):
         "Close the application after tests"
@@ -164,8 +172,9 @@ class ComboBoxTestCases(unittest.TestCase):
         # close the application
         self.app.UntitledNotepad.MenuSelect("File->Exit")
 
-        if self.app.Notepad.No.Exists():
-            self.app.Notepad.No.Click()
+        if self.app.UntitledNotepad["Do&n't Save"].Exists():
+            self.app.UntitledNotepad["Do&n't Save"].Click()
+        self.app.kill_()
 
     def testGetProperties(self):
         "Test getting the properties for the combobox control"
@@ -183,7 +192,7 @@ class ComboBoxTestCases(unittest.TestCase):
 
     def testItemCount(self):
         "Test that ItemCount returns the correct number of items"
-        self.assertEquals(self.ctrl.ItemCount(), 4)
+        self.assertEquals(self.ctrl.ItemCount(), 5)
 
     def testDroppedRect(self):
         "Test that the dropped rect is correct"
@@ -192,18 +201,18 @@ class ComboBoxTestCases(unittest.TestCase):
         self.assertEquals(rect.left, 0)
         self.assertEquals(rect.top, 0)
         self.assertEquals(rect.right, self.ctrl.ClientRect().right)
-        self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() - 3)
+        self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() + 77)
 
     def testSelectedIndex(self):
         "That the control returns the correct index for the selected item"
         self.ctrl.Select(2)
         self.assertEquals(self.ctrl.SelectedIndex(), 2)
-        self.assertEquals(self.ctrl.Texts()[3], self.app.Font.Edit2.Texts()[1])
+        #self.assertEquals(self.ctrl.Texts()[3], self.app.Font.Edit2.Texts()[1])
 
     def testSelect_negative(self):
         "Test that the Select method correctly handles negative indices"
         self.ctrl.Select(-1)
-        self.assertEquals(self.ctrl.SelectedIndex(), 3)
+        self.assertEquals(self.ctrl.SelectedIndex(), 4)
 
     def testSelect_toohigh(self):
         "Test that the Select correctly raises if the item is too high"
@@ -213,8 +222,8 @@ class ComboBoxTestCases(unittest.TestCase):
         "Test that we can select based on a string"
         self.ctrl.Select(0)
         self.assertEquals(self.ctrl.SelectedIndex(), 0)
-        self.ctrl.Select("Italic")
-        self.assertEquals(self.ctrl.SelectedIndex(), 1)
+        self.ctrl.Select("Central European")
+        self.assertEquals(self.ctrl.SelectedIndex(), 4)
 
         # now do it with a typo
         self.assertRaises(ValueError, self.ctrl.Select, "Bold Italc")
@@ -230,13 +239,19 @@ class ComboBoxTestCases(unittest.TestCase):
         "Test that it doesn't raise"
         self.ctrl.ItemData(0)
         self.ctrl.ItemData(1)
-        self.ctrl.ItemData("Italic")
+        self.ctrl.ItemData("Central European")
         self.ctrl.ItemData(self.ctrl.ItemCount() - 1)
 
 #
 #    def testTexts(self):
 #        pass
 #
+
+MFC_tutorial_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_tutorial")
+if is_x64_Python():
+    MFC_tutorial_folder = os.path.join(MFC_tutorial_folder, 'x64')
+
 
 class ListBoxTestCases(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
@@ -249,20 +264,30 @@ class ListBoxTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        self.app.start_(r"c:\Program Files\Windows NT\Accessories\wordpad.exe")
-        self.app.DocumentWordPad.MenuSelect("Insert->Date and time...")
-        #pdb.set_trace()
+        app_path = os.path.join(MFC_tutorial_folder, "MFC_Tutorial9.exe")
+        self.app.start_(app_path)
 
-        self.dlg = self.app.DateAndTime
+        self.dlg = self.app.MFC_Tutorial9
+        self.dlg.TypeYourTextEdit.TypeKeys('qqq')
+        self.dlg.Add.Click()
+        
+        self.dlg.TypeYourTextEdit.Select()
+        self.dlg.TypeYourTextEdit.TypeKeys('123')
+        self.dlg.Add.Click()
+        
+        self.dlg.TypeYourTextEdit.Select()
+        self.dlg.TypeYourTextEdit.TypeKeys('third item', with_spaces=True)
+        self.dlg.Add.Click()
+        
         self.ctrl = self.dlg.ListBox.WrapperObject()
 
     def tearDown(self):
         "Close the application after tests"
 
-        self.dlg.Cancel.Click()
+        #self.dlg.Cancel.Click()
 
         # close the application
-        self.app.DocumentWordPad.MenuSelect("File->Exit")
+        self.app.kill_()
 
     def testGetProperties(self):
         "Test getting the properties for the listbox control"
@@ -280,7 +305,7 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testItemCount(self):
         "test that the count of items is correct"
-        self.assertEquals(self.ctrl.ItemCount(), 14)
+        self.assertEquals(self.ctrl.ItemCount(), 3)
 
     def testItemData(self):
         "For the moment - just test that it does not raise"
@@ -289,7 +314,7 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testSelectedIndices(self):
         "test that the selected indices are correct"
-        self.assertEquals(self.ctrl.SelectedIndices(), (0, ))
+        self.assertEquals(self.ctrl.SelectedIndices(), (-1,))
         self.ctrl.Select(2)
         self.assertEquals(self.ctrl.SelectedIndices(), (2, ))
 
@@ -297,8 +322,8 @@ class ListBoxTestCases(unittest.TestCase):
 
     def testSelect(self):
         "Test selecting an item"
-        self.ctrl.Select(5)
-        self.assertEquals(self.ctrl.SelectedIndices(), (5, ))
+        self.ctrl.Select(1)
+        self.assertEquals(self.ctrl.SelectedIndices(), (1, ))
 
         # get the text of the 2nd item (3rd item in list
         # because of empty WindowText)
@@ -312,8 +337,8 @@ class ListBoxTestCases(unittest.TestCase):
         self.ctrl.SetItemFocus(0)
         self.assertEquals(self.ctrl.GetItemFocus(), 0)
 
-        self.ctrl.SetItemFocus(5)
-        self.assertEquals(self.ctrl.GetItemFocus(), 5)
+        self.ctrl.SetItemFocus(2)
+        self.assertEquals(self.ctrl.GetItemFocus(), 2)
 
 
 class EditTestCases(unittest.TestCase):
@@ -332,10 +357,13 @@ class EditTestCases(unittest.TestCase):
 
         test_file = os.path.join(path, "test.txt")
 
-        self.test_data = open(test_file, "rb").read()
+        with codecs.open(test_file, mode="rb", encoding='utf-8') as f:
+            self.test_data = f.read()
         # remove the BOM if it exists
-        self.test_data = self.test_data.replace("\xef\xbb\xbf", "")
-        self.test_data = self.test_data.decode('utf-8')
+        self.test_data = self.test_data.replace(repr("\xef\xbb\xbf"), "")
+        #self.test_data = self.test_data.encode('utf-8', 'ignore') # XXX: decode raises UnicodeEncodeError even if 'ignore' is used!
+        print('self.test_data:')
+        print(self.test_data.encode('utf-8', 'ignore'))
 
         app.start_("Notepad.exe " + test_file)
 
@@ -363,8 +391,9 @@ class EditTestCases(unittest.TestCase):
         # close the application
         self.dlg.MenuSelect("File->Exit")
 
-        if self.app.Notepad.No.Exists():
-            self.app.Notepad.No.Click()
+        if self.app.UntitledNotepad["Do&n't Save"].Exists():
+            self.app.UntitledNotepad["Do&n't Save"].Click()
+        self.app.kill_()
 
     def testSetText(self):
         "Test setting the text of the edit control"
@@ -428,7 +457,7 @@ class EditTestCases(unittest.TestCase):
         self.ctrl.Select(18, 7)
         self.assertEquals((7, 18), self.ctrl.SelectionIndices())
 
-        txt = u"\xc7a-va? Et"
+        txt = b"\xc7a-va? Et".decode('utf-8', 'ignore')
         self.test_data.index(txt)
 
         self.ctrl.Select(txt)
@@ -448,22 +477,26 @@ class DialogTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        self.app.start_("calc.exe")
-        self.calc = self.app.SciCalc
+        if is_x64_Python() or not is_x64_OS():
+            self.app.start_(r"C:\Windows\System32\calc.exe")
+        else:
+            self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
+        self.calc = self.app.CalcFrame
 
         # write out the XML so that we can read it in later
         self.app.Calculator.WriteToXML("ref_controls.xml")
 
     def tearDown(self):
         "Close the application after tests"
-        self.calc.TypeKeys("%{F4}")
+        self.app.kill_()
+        #self.calc.TypeKeys("%{F4}")
 
     def testGetProperties(self):
         "Test getting the properties for the dialog box"
         props = self.calc.GetProperties()
 
         self.assertEquals(
-            "SciCalc", props['FriendlyClassName'])
+            "CalcFrame", props['FriendlyClassName'])
 
         self.assertEquals(self.calc.Texts(), props['Texts'])
 
@@ -503,8 +536,8 @@ class DialogTestCases(unittest.TestCase):
                 expected_value = all_props[i][key]
 
                 if "Image" in expected_value.__class__.__name__:
-                    expected_value = expected_value.tostring()
-                    ctrl_value = ctrl_value.tostring()
+                    expected_value = expected_value.tobytes()
+                    ctrl_value = ctrl_value.tobytes()
 
                 if isinstance(ctrl_value, (list, tuple)):
                     ctrl_value = list(ctrl_value)
@@ -517,12 +550,15 @@ class DialogTestCases(unittest.TestCase):
 
     def testClientAreaRect(self):
         """Validate that the client area rect is the right size
-        (comparing against the full rectangle)"""
+        (comparing against the full rectangle)
+        Notice that we run an approximate comparison as the actual
+        area size depends on Windows OS and a current desktop theme"""
         clientarea = self.calc.ClientAreaRect()
-        self.assertEquals(self.calc.Rectangle().left + 3, clientarea.left)
-        self.assertEquals(self.calc.Rectangle().top + 41, clientarea.top)
-        self.assertEquals(self.calc.Rectangle().right - 3, clientarea.right)
-        self.assertEquals(self.calc.Rectangle().bottom - 3, clientarea.bottom)
+        rectangle = self.calc.Rectangle()
+        self.failIf((clientarea.left - rectangle.left) > 10)
+        self.failIf((clientarea.top - rectangle.top) > 60)
+        self.failIf((rectangle.right - clientarea.right) > 10)
+        self.failIf((rectangle.bottom - clientarea.bottom) > 10)
 
 
 class PopupMenuTestCases(unittest.TestCase):
@@ -543,7 +579,7 @@ class PopupMenuTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         self.popup.TypeKeys("{ESC}")
-        self.app.Notepad.TypeKeys("%{F4}")
+        self.app.kill_() #.Notepad.TypeKeys("%{F4}")
 
     def testGetProperties(self):
         "Test getting the properties for the PopupMenu"

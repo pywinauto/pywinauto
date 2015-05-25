@@ -52,6 +52,7 @@ in almost exactly the same ways. ::
   :func:`WindowSpecification.Window`
 
 """
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
@@ -63,15 +64,19 @@ import pickle
 
 import ctypes
 
-import win32structures
-import win32functions
-import win32defines
-import controls
-import findbestmatch
-import findwindows
-import handleprops
+from . import six
+from . import win32structures
+from . import win32functions
+from . import win32defines
+from . import controls
+from . import findbestmatch
+from . import findwindows
+from . import handleprops
 
-from timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+import win32process, win32api, pywintypes, win32con, win32event
+
+from .actionlogger import ActionLogger
+from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
 
 
 class AppStartError(Exception):
@@ -106,6 +111,7 @@ class WindowSpecification(object):
 
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
+        self.actions = ActionLogger()
 
 
     def __call__(self, *args, **kwargs):
@@ -351,6 +357,7 @@ class WindowSpecification(object):
 
         ctrls = _resolve_control(wait_criteria, timeout, retry_interval)
 
+        self.actions.log('Window "' + ctrls[-1].WindowText() + '" appeared to be ' + str(wait_for))
         return ctrls[-1]
 
     def WaitNot(self,
@@ -440,7 +447,11 @@ class WindowSpecification(object):
 
         try:
             wait_val = WaitUntil(timeout, retry_interval, WindowIsNotXXX)
-        except TimeoutError, e:
+#            if self.criteria[-1].has_key('best_match'):
+#                self.actions.log('Window "' + str(self.criteria[-1]['best_match']) + '" became not ' + str(wait_for_not))
+#            elif self.criteria[-1].has_key('title'):
+#                self.actions.log('Window "' + str(self.criteria[-1]['title']) + '" became not ' + str(wait_for_not))
+        except TimeoutError as e:
             raise RuntimeError(
                 "Timed out while waiting for window (%s - '%s') "
                 "to not be in '%s' state"% (
@@ -517,20 +528,20 @@ class WindowSpecification(object):
         for name, ctrl in name_control_map.items():
             control_name_map.setdefault(ctrl, []).append(name)
 
-        print "Control Identifiers:"
+        print("Control Identifiers:")
         for ctrl in ctrls_to_print:
 
-            print "%s - '%s'   %s"% (
+            print("%s - '%s'   %s"% (
                 ctrl.Class(),
                 ctrl.WindowText().encode("unicode-escape"),
-                str(ctrl.Rectangle()))
+                str(ctrl.Rectangle())))
 
-            print "\t",
+            print("\t"),
             names = control_name_map[ctrl]
             names.sort()
             for name in names:
-                print "'%s'" % name.encode("unicode_escape"),
-            print
+                print("'%s'" % name.encode("unicode_escape")),
+            print()
 
 
 #        for ctrl in ctrls_to_print:
@@ -564,7 +575,8 @@ def _get_ctrl(criteria_):
         # that are required for child controls
         ctrl_criteria = criteria[1]
         ctrl_criteria["top_level_only"] = False
-        ctrl_criteria["parent"] = dialog.handle
+        if not "parent" in ctrl_criteria:
+            ctrl_criteria["parent"] = dialog.handle
 
         # resolve the control and return it
         ctrl = controls.WrapHandle(
@@ -598,7 +610,7 @@ def _resolve_from_appdata(
     # completely language dependent
     for unloc_attrib in ['title_re', 'title', 'best_match']:
         for c in criteria:
-            if c.has_key(unloc_attrib):
+            if unloc_attrib in c.keys():
                 del c[unloc_attrib]
 
 
@@ -690,8 +702,8 @@ def _resolve_from_appdata(
                 try:
                     ctrl = controls.WrapHandle(ctrl_hwnds[0])
                 except IndexError:
-                    print "-+-+=_" * 20
-                    print found_criteria
+                    print("-+-+=_" * 20)
+                    print(found_criteria)
                     raise
 
                 break
@@ -769,7 +781,7 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
 
          2nd element is the search criteria for a control of the dialog
 
-    * **timeout** -  maximum length of time to try to find the controls (default 0)
+    * **timeout** -  maximum length of time to try to find the controls (default 5)
     * **retry_interval** - how long to wait between each retry (default .2)
     """
 
@@ -791,7 +803,7 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
             controls.InvalidWindowHandle),
             criteria)
 
-    except TimeoutError, e:
+    except TimeoutError as e:
         raise e.original_exception
 
     return ctrl
@@ -845,7 +857,7 @@ class Application(object):
     connect = staticmethod(__connect)
     Connect = connect
 
-    def start_(self, cmd_line, timeout = None, retry_interval = None):
+    def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console=False):
         "Starts the application giving in cmd_line"
 
         if timeout is None:
@@ -853,49 +865,48 @@ class Application(object):
         if retry_interval is None:
             retry_interval = Timings.app_start_retry
 
-        start_info = win32structures.STARTUPINFOW()
-        start_info.sb = ctypes.sizeof(start_info)
-
-        proc_info = win32structures.PROCESS_INFORMATION()
+        start_info = win32process.STARTUPINFO()
 
         # we need to wrap the command line as it can be modified
         # by the function
-        command_line = ctypes.c_wchar_p(unicode(cmd_line))
+        command_line = cmd_line
 
         # Actually create the process
-        ret = win32functions.CreateProcess(
-            0, 					# module name
-            command_line,		# command line
-            0, 					# Process handle not inheritable.
-            0, 					# Thread handle not inheritable.
-            0, 					# Set handle inheritance to FALSE.
-            0, 					# No creation flags.
-            0, 					# Use parent's environment block.
-            0,  				# Use parent's starting directory.
-            ctypes.byref(start_info),# Pointer to STARTUPINFO structure.
-            ctypes.byref(proc_info)) # Pointer to PROCESS_INFORMATION structure
-
-        # if it failed for some reason
-        if not ret:
+        dwCreationFlags = 0
+        if create_new_console:
+            dwCreationFlags = win32con.CREATE_NEW_CONSOLE
+        try:
+            (hProcess, hThread, dwProcessId, dwThreadId) = win32process.CreateProcess(
+                None, 					# module name
+                command_line,			# command line
+                None, 					# Process handle not inheritable.
+                None, 					# Thread handle not inheritable.
+                0, 						# Set handle inheritance to FALSE.
+                dwCreationFlags, 		# Creation flags.
+                None, 					# Use parent's environment block.
+                None, 					# Use parent's starting directory.
+                start_info)				# STARTUPINFO structure.
+        except Exception as exc:
+            # if it failed for some reason
             message = ('Could not create the process "%s"\n'
                 'Error returned by CreateProcess: %s')% (
-                    cmd_line, ctypes.WinError())
+                    cmd_line, str(exc))
             raise AppStartError(message)
 
-        self.process = proc_info.dwProcessId
+        self.process = dwProcessId
 
 
         def AppIdle():
             "Return true when the application is ready to start"
-            result = win32functions.WaitForInputIdle(
-                proc_info.hProcess, int(timeout * 1000))
+            result = win32event.WaitForInputIdle(
+                hProcess, int(timeout * 1000))
 
             # wait completed successfully
             if result == 0:
                 return True
 
             # the wait returned because it timed out
-            if result == win32defines.WAIT_TIMEOUT:
+            if result == win32con.WAIT_TIMEOUT:
                 return False
 
             return bool(self.windows_())
@@ -1116,25 +1127,32 @@ class Application(object):
         # so we have either closed the windows - or the app is hung
 
         # get a handle we can wait on
-        process_wait_handle = win32functions.OpenProcess(
-            win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE ,
-            False,
-            self.process)
+        try:
+            process_wait_handle = win32api.OpenProcess(
+                win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
+                0,
+                self.process)
+        except pywintypes.error as exc:
+            return True # already killed
 
         killed = True
         if process_wait_handle:
 
             # wait for the window to close
-            win32functions.WaitForSingleObject(
+            win32event.WaitForSingleObject(
                 process_wait_handle,
-                Timings.after_windowclose_timeout * 1000)
+                int(Timings.after_windowclose_timeout * 1000))
 
             #if forcekill:
-            win32functions.TerminateProcess(process_wait_handle, 0)
+            try:
+                win32api.TerminateProcess(process_wait_handle, 0)
+            except pywintypes.error as exc:
+                pass #print('Warning: ' + str(exc))
+            #win32functions.TerminateProcess(process_wait_handle, 0)
             #else:
             #    killed = False
 
-        win32functions.CloseHandle(process_wait_handle)
+        win32api.CloseHandle(process_wait_handle)
 
         return killed
 
@@ -1159,8 +1177,14 @@ class Application(object):
 def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
     # Set instance variable _module if not already set
-    process_handle = win32functions.OpenProcess(
-        0x400 | 0x010, 0, process_id) # read and query info
+    #process_handle = win32api.OpenProcess(win32con.PROCESS_DUP_HANDLE | win32con.PROCESS_QUERY_INFORMATION, 0, process_id) # read and query info
+    try:
+        process_handle = win32api.OpenProcess(0x400 | 0x010, 0, process_id) # read and query info
+    except pywintypes.error as exc:
+        raise ProcessNotFoundError(str(exc) + ', pid = ' + str(process_id))
+
+    #process_handle = win32functions.OpenProcess(
+    #    0x400 | 0x010, 0, process_id) # read and query info
 
     if not process_handle:
         message = "Process with ID '%d' could not be opened" % process_id
@@ -1174,12 +1198,14 @@ def process_module(process_id):
     process_handle = AssertValidProcess(process_id)
 
     # get module name from process handle
-    filename = (ctypes.c_wchar * 2000)()
-    win32functions.GetModuleFileNameEx(
-        process_handle, 0, ctypes.byref(filename), 2000)
+    #filename = (ctypes.c_wchar * 2000)()
+    #win32functions.GetModuleFileNameEx(
+    #    process_handle, 0, ctypes.byref(filename), 2000)
 
+    filename = win32process.GetModuleFileNameEx(process_handle, 0)
+    #print('filename = ', filename)
     # return the process value
-    return filename.value
+    return filename
 
 #=========================================================================
 def process_from_module(module):
@@ -1189,19 +1215,32 @@ def process_from_module(module):
     processes = (ctypes.c_int * 2000)()
     bytes_returned = ctypes.c_int()
 
+    modules = []
     # collect all the running processes
+    
+    pids = win32process.EnumProcesses()
+    for pid in pids:
+        if pid != 0: # skip system process (0x00000000)
+            try:
+                modules.append((pid, process_module(pid)))
+            except pywintypes.error as exc:
+                pass #print(exc)
+            except ProcessNotFoundError as exc:
+                pass #print(exc)
+    '''
     ctypes.windll.psapi.EnumProcesses(
         ctypes.byref(processes),
         ctypes.sizeof(processes),
         ctypes.byref(bytes_returned))
 
-    modules = []
     # Get the process names
-    for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
+    for i in range(0, int(bytes_returned.value / ctypes.sizeof(ctypes.c_int))):
         try:
-            modules.append((processes[i], process_module(processes[i])))
+            if processes[i]:
+                modules.append((processes[i], process_module(processes[i])))
         except ProcessNotFoundError:
             pass
+    '''
 
     # check for a module with a matching name in reverse order
     # as we are most likely to want to connect to the last
@@ -1230,7 +1269,7 @@ def process_from_module(module):
 #    while not app and waited <= timeout:
 #        try:
 #            app = Application.connect(best_match = dlg)
-#        except Exception, e:
+#        except Exception as e:
 #            time.sleep(1)
 #            waited += 1
 #

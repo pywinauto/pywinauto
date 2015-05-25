@@ -1,0 +1,6 @@
+pywinauto.tests.truncation
+--------------------------
+ .. automodule:: pywinauto.tests.truncation
+    :members:
+    :undoc-members:
+

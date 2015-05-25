@@ -21,20 +21,21 @@
 """Provides functions for iterating and finding windows
 
 """
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
 import re
-
 import ctypes
 
-import win32functions
-import win32structures
-import handleprops
+from . import six
+from . import win32functions
+from . import win32structures
+from . import handleprops
 
-import findbestmatch
+from . import findbestmatch
 
-import controls
+from . import controls
 
 
 # todo: we should filter out invalid windows before returning
@@ -69,7 +70,7 @@ def find_window(**kwargs):
         exception =  WindowAmbiguousError(
             "There are %d windows that match the criteria %s"% (
             len(windows),
-            unicode(kwargs),
+            six.text_type(kwargs),
             )
         )
 
@@ -136,7 +137,7 @@ def find_windows(class_name = None,
             parent = win32functions.GetDesktopWindow()
 
         # look for all children of that parent
-        windows = enum_child_windows(parent)
+        windows = handleprops.children(parent)
 
         # if the ctrl_index has been specified then just return
         # that control
@@ -235,36 +236,4 @@ def enum_windows():
 
     # return the collected wrapped windows
     return windows
-
-
-#=========================================================================
-def enum_child_windows(handle):
-    "Return a list of handles of the child windows of this handle"
-
-    # this will be filled in the callback function
-    child_windows = []
-
-    # callback function for EnumChildWindows
-    def EnumChildProc(hwnd, lparam):
-        "Called for each child - adds child hwnd to list"
-
-        # append it to our list
-        child_windows.append(hwnd)
-
-        # return true to keep going
-        return True
-
-    # define the child proc type
-    enum_child_proc = ctypes.WINFUNCTYPE(
-        ctypes.c_int, 			# return type
-        win32structures.HWND, 	# the window handle
-        win32structures.LPARAM)	# extra information
-
-    # update the proc to the correct type
-    proc = enum_child_proc(EnumChildProc)
-
-    # loop over all the children (callback called for each)
-    win32functions.EnumChildWindows(handle, proc, 0)
-
-    return child_windows
 

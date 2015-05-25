@@ -22,14 +22,16 @@
 Python package for automating GUI manipulation on Windows
 
 """
-__revision__ = "$Revision$"
-__version__ = "0.4.2"
+from __future__ import absolute_import
 
-import findwindows
+__revision__ = "$Revision$"
+__version__ = "0.5.0"
+
+from . import findwindows
 WindowAmbiguousError = findwindows.WindowAmbiguousError
 WindowNotFoundError = findwindows.WindowNotFoundError
 
-import findbestmatch
+from . import findbestmatch
 MatchError = findbestmatch.MatchError
 
-from application import Application, WindowSpecification
+from .application import Application, WindowSpecification

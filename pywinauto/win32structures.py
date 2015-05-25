@@ -19,17 +19,19 @@
 #    Boston, MA 02111-1307 USA
 
 "Definition of Windows structures"
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
-from win32defines import LF_FACESIZE, NMTTDISPINFOW_V1_SIZE, HDITEMW_V1_SIZE
+from .win32defines import LF_FACESIZE, NMTTDISPINFOW_V1_SIZE, HDITEMW_V1_SIZE
+from . import six
+from . import sysinfo
 
 import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, c_wchar_p, \
-    POINTER, sizeof, alignment, Union
-
+    POINTER, sizeof, alignment, Union, c_ulonglong, c_longlong, c_size_t
 
 class Structure(ctypes.Structure):
     "Override the Structure class from ctypes to add printing and comparison"
@@ -92,7 +94,7 @@ class Structure(ctypes.Structure):
 #        name = f[0]
 #        if name in exceptList:
 #            continue
-#        print "%20s "% name, getattr(struct, name)
+#        print("%20s "% name, getattr(struct, name))
 
 
 # allow ctypes structures to be pickled
@@ -117,26 +119,30 @@ DWORD = c_ulong
 HANDLE = c_void_p
 HBITMAP = c_long
 LONG = c_long
-LPARAM = LONG
 LPVOID = c_void_p
 PVOID = c_void_p
 UINT = c_uint
 WCHAR = c_wchar
 WORD = c_ushort
-WPARAM = UINT
-
 
 COLORREF = DWORD
-HBITMAP = LONG
-HINSTANCE = LONG
-HMENU = LONG
-HBRUSH = LONG
-HTREEITEM = LONG
-HWND = LONG
-LPARAM = LONG
 LPBYTE = POINTER(BYTE)
-LPWSTR = c_long# POINTER(WCHAR)
+LPWSTR = c_size_t #POINTER(WCHAR)
+DWORD_PTR = UINT_PTR = ULONG_PTR = c_size_t
+if sysinfo.is_x64_Python():
+    INT_PTR = LONG_PTR = c_longlong
+else:
+    INT_PTR = LONG_PTR = c_long
 
+HBITMAP = LONG_PTR #LONG
+HINSTANCE = LONG_PTR #LONG
+HMENU = LONG_PTR #LONG
+HBRUSH = LONG_PTR #LONG
+HTREEITEM = LONG_PTR #LONG
+HWND = LONG_PTR #LONG
+
+LPARAM = LONG_PTR
+WPARAM = UINT_PTR
 
 
 class POINT(Structure):
@@ -179,10 +185,16 @@ class RECT(Structure):
         else:
             #if not isinstance(otherRect_or_left, (int, long)):
             #    print type(self), type(otherRect_or_left), otherRect_or_left
-            self.left = long(otherRect_or_left)
-            self.right = long(right)
-            self.top = long(top)
-            self.bottom = long(bottom)
+            if six.PY3:
+                self.left = otherRect_or_left
+                self.right = right
+                self.top = top
+                self.bottom = bottom
+            else:
+                self.left = long(otherRect_or_left)
+                self.right = long(right)
+                self.top = long(top)
+                self.bottom = long(bottom)
 
 
 #    #----------------------------------------------------------------
@@ -250,8 +262,8 @@ class RECT(Structure):
     def mid_point(self):
         "Return a POINT structure representing the mid point"
         pt = POINT()
-        pt.x = int(self.left + self.width()/2)
-        pt.y = int(self.top + self.height()/2)
+        pt.x = self.left + int(float(self.width())/2.)
+        pt.y = self.top + int(float(self.height())/2.)
         return pt
 
     #def __hash__(self):
@@ -262,24 +274,56 @@ RECT.__reduce__ = _reduce
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
 
-
-class LVCOLUMNW(Structure):
+class SETTEXTEX(Structure):
     _pack_ = 1
+    _fields_ = [
+        ('flags', DWORD),
+        ('codepage', UINT),
+    ]
+assert sizeof(SETTEXTEX) == 8, sizeof(SETTEXTEX)
+
+# Main layout for LVCOLUMN on x86 and x64 archs
+class LVCOLUMNW(Structure):
+    # _pack_ is not specified, we rely on a default alignment:
+    # 8 bytes in x64 system and 4 bytes in x86
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2982
         ('mask', UINT),
         ('fmt', c_int),
         ('cx', c_int),
-        ('pszText', c_long), #LPWSTR),
+        ('pszText', c_void_p), #LPWSTR),
         ('cchTextMax', c_int),
         ('iSubItem', c_int),
         ('iImage', c_int),
         ('iOrder', c_int),
+        ('cxMin', c_int),
+        ('cxDefault', c_int),
+        ('cxIdeal', c_int),
     ]
 
+# this is a special layout for a 32-bit process running on x64
+class LVCOLUMNW32(Structure):
+    # _pack_ is not specified, we rely on a default alignment:
+    # 8 bytes in x64 system and 4 bytes in x86
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2982
+        ('mask', UINT),
+        ('fmt', c_int),
+        ('cx', c_int),
+        ('pszText', UINT), # keep 4-byte size address
+        ('cchTextMax', c_int),
+        ('iSubItem', c_int),
+        ('iImage', c_int),
+        ('iOrder', c_int),
+        ('cxMin', c_int),
+        ('cxDefault', c_int),
+        ('cxIdeal', c_int),
+    ]
 
+# Main layout for LVITEM, naturally fits for x86 and x64 archs
 class LVITEMW(Structure):
-    _pack_ = 1
+    # _pack_ is not specified, we rely on a default alignment:
+    # 8 bytes on x64 system and 4 bytes on x86
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2679
         ('mask', UINT),
@@ -287,33 +331,77 @@ class LVITEMW(Structure):
         ('iSubItem', c_int),
         ('state', UINT),
         ('stateMask', UINT),
-        ('pszText', c_long), #LPWSTR),
+        ('pszText', c_void_p), #LPTSTR), #c_long), #LPWSTR),
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('lParam', LPARAM),
-        ('iIndent', c_int),
+        
+        ('iIndent', c_int), #if (_WIN32_IE >= 0x0300)
+        
+        ('iGroupId', c_int), #if (_WIN32_WINNT >= 0x0501)
+        ('cColumns', UINT),
+        ('puColumns', POINTER(UINT)),
+        
+        ('piColFmt', POINTER(c_int)), #if (_WIN32_WINNT >= 0x0600)
+        ('iGroup', c_int),
     ]
-assert sizeof(LVITEMW) == 40, sizeof(LVITEMW)
-assert alignment(LVITEMW) == 1, alignment(LVITEMW)
+
+if sysinfo.is_x64_Python():
+    assert sizeof(LVITEMW) == 88, sizeof(LVITEMW)
+    assert alignment(LVITEMW) == 8, alignment(LVITEMW)
+else:
+    assert sizeof(LVITEMW) == 60, sizeof(LVITEMW)
+    assert alignment(LVITEMW) == 4, alignment(LVITEMW)
+
+# this is a special layout for a 32-bit process running on x64
+class LVITEMW32(Structure):
+    _pack_  = 4
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2679
+        ('mask', UINT),
+        ('iItem', c_int),
+        ('iSubItem', c_int),
+        ('state', UINT),
+        ('stateMask', UINT),
+        ('pszText', UINT), # keep 4-byte size
+        ('cchTextMax', c_int),
+        ('iImage', c_int),
+        ('lParam', LPARAM),
+        
+        ('iIndent', c_int), #if (_WIN32_IE >= 0x0300)
+        
+        ('iGroupId', c_int), #if (_WIN32_WINNT >= 0x0501)
+        ('cColumns', UINT),
+        ('puColumns', UINT), # keep 4-byte size
+        
+        ('piColFmt', c_int), #if (_WIN32_WINNT >= 0x0600), but keep 4-byte size
+        ('iGroup', c_int),
+    ]
+
+assert alignment(LVITEMW32) == 4, alignment(LVITEMW32)
 
 
 class TVITEMW(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
         ('mask', UINT),
         ('hItem', HTREEITEM),
         ('state', UINT),
         ('stateMask', UINT),
-        ('pszText', c_long), #LPWSTR),
+        ('pszText', LPWSTR), #, c_long),
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('iSelectedImage', c_int),
         ('cChildren', c_int),
         ('lParam', LPARAM),
     ]
-assert sizeof(TVITEMW) == 40, sizeof(TVITEMW)
-assert alignment(TVITEMW) == 1, alignment(TVITEMW)
+if sysinfo.is_x64_Python():
+    assert sizeof(TVITEMW) == 56, sizeof(TVITEMW)
+    assert alignment(TVITEMW) == 8, alignment(TVITEMW)
+else:
+    assert sizeof(TVITEMW) == 40, sizeof(TVITEMW)
+    assert alignment(TVITEMW) == 4, alignment(TVITEMW)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
@@ -321,11 +409,15 @@ class NMHDR(Structure):
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
         ('hwndFrom', HWND),
-        ('idFrom', UINT),
+        ('idFrom', UINT_PTR),
         ('code', UINT),
     ]
-assert sizeof(NMHDR) == 12, sizeof(NMHDR)
-assert alignment(NMHDR) == 4, alignment(NMHDR)
+if sysinfo.is_x64_Python():
+    assert sizeof(NMHDR) == 24, sizeof(NMHDR)
+    assert alignment(NMHDR) == 8, alignment(NMHDR)
+else:
+    assert sizeof(NMHDR) == 12, sizeof(NMHDR)
+    assert alignment(NMHDR) == 4, alignment(NMHDR)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4275
@@ -336,7 +428,7 @@ class NMTVDISPINFOW(Structure):
         ('hdr', NMHDR),
         ('item', TVITEMW),
     ]
-assert sizeof(NMTVDISPINFOW) == 52, sizeof(NMTVDISPINFOW)
+#assert sizeof(NMTVDISPINFOW) == 52, sizeof(NMTVDISPINFOW)
 assert alignment(NMTVDISPINFOW) == 1, alignment(NMTVDISPINFOW)
 
 
@@ -440,7 +532,6 @@ assert alignment(LOGBRUSH) == 4, alignment(LOGBRUSH)
 
 # C:/PROGRA~1/MIAF9D~1/VC98/Include/winuser.h 5147
 class MENUITEMINFOW(Structure):
-    _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MIAF9D~1/VC98/Include/winuser.h 5147
         ('cbSize', UINT),
@@ -451,12 +542,17 @@ class MENUITEMINFOW(Structure):
         ('hSubMenu', HMENU),
         ('hbmpChecked', HBITMAP),
         ('hbmpUnchecked', HBITMAP),
-        ('dwItemData', DWORD),
-        ('dwTypeData', c_wchar_p), #LPWSTR),
+        ('dwItemData', ULONG_PTR), #DWORD),
+        ('dwTypeData', LPWSTR),
         ('cch', UINT),
+        ('hbmpItem', HBITMAP),
     ]
-assert sizeof(MENUITEMINFOW) == 44, sizeof(MENUITEMINFOW)
-assert alignment(MENUITEMINFOW) == 2, alignment(MENUITEMINFOW)
+if sysinfo.is_x64_Python():
+    assert sizeof(MENUITEMINFOW) == 80, sizeof(MENUITEMINFOW)
+    assert alignment(MENUITEMINFOW) == 8, alignment(MENUITEMINFOW)
+else:
+    assert sizeof(MENUITEMINFOW) == 48, sizeof(MENUITEMINFOW)
+    assert alignment(MENUITEMINFOW) == 4, alignment(MENUITEMINFOW)
 
 class MENUBARINFO(Structure):
     _fields_ = [
@@ -479,27 +575,34 @@ class MSG(Structure):
         ('time', DWORD),
         ('pt', POINT),
 ]
-
-assert sizeof(MSG) == 28, sizeof(MSG)
-assert alignment(MSG) == 4, alignment(MSG)
+if sysinfo.is_x64_Python():
+    assert sizeof(MSG) == 48, sizeof(MSG)
+    assert alignment(MSG) == 8, alignment(MSG)
+else:
+    assert sizeof(MSG) == 28, sizeof(MSG)
+    assert alignment(MSG) == 4, alignment(MSG)
 
 
 # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 1865
 class TOOLINFOW(Structure):
-    _pack_ = 1
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 1865
         ('cbSize', UINT),
         ('uFlags', UINT),
         ('hwnd', HWND),
-        ('uId', UINT),
+        ('uId', UINT_PTR),
         ('rect', RECT),
         ('hinst', HINSTANCE),
-        ('lpszText', c_long),#LPWSTR),
+        ('lpszText', LPWSTR), #c_long),
         ('lParam', LPARAM),
+        ('lpReserved', LPVOID)
     ]
-assert sizeof(TOOLINFOW) == 44, sizeof(TOOLINFOW)
-assert alignment(TOOLINFOW) == 1, alignment(TOOLINFOW)
+if sysinfo.is_x64_Python():
+    assert sizeof(TOOLINFOW) == 72, sizeof(TOOLINFOW)
+    assert alignment(TOOLINFOW) == 8, alignment(TOOLINFOW)
+else:
+    assert sizeof(TOOLINFOW) == 48, sizeof(TOOLINFOW)
+    assert alignment(TOOLINFOW) == 4, alignment(TOOLINFOW)
 
 
 # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2068
@@ -514,37 +617,45 @@ class NMTTDISPINFOW(Structure):
         ('uFlags', UINT),
         ('lParam', LPARAM),
     ]
-
-assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
-assert alignment(NMTTDISPINFOW) == 1, alignment(NMTTDISPINFOW)
+if sysinfo.is_x64_Python():
+    sizeof(NMTTDISPINFOW) == 212, sizeof(NMTTDISPINFOW)
+else:
+    assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
+    assert alignment(NMTTDISPINFOW) == 1, alignment(NMTTDISPINFOW)
 
 
 class HDITEMW(Structure):
-    _pack_ = 1
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 617
         ('mask', UINT),
         ('cxy', c_int),
-        ('pszText', c_long),#LPWSTR),
+        ('pszText', LPWSTR), #c_long),
         ('hbm', HBITMAP),
         ('cchTextMax', c_int),
         ('fmt', c_int),
         ('lParam', LPARAM),
         ('iImage', c_int),
         ('iOrder', c_int),
+        ('type', UINT),
+        ('pvFilter', LPVOID),
+        ('state', UINT)
     ]
-assert sizeof(HDITEMW) == 36, sizeof(HDITEMW)
-assert alignment(HDITEMW) == 1, alignment(HDITEMW)
+if sysinfo.is_x64_Python():
+    assert sizeof(HDITEMW) == 72, sizeof(HDITEMW)
+    assert alignment(HDITEMW) == 8, alignment(HDITEMW)
+else:
+    assert sizeof(HDITEMW) == 48, sizeof(HDITEMW)
+    assert alignment(HDITEMW) == 4, alignment(HDITEMW)
 
 
 # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 4456
 class COMBOBOXEXITEMW(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 4456
         ('mask', UINT),
-        ('iItem', c_int),
-        ('pszText', c_long),#LPWSTR),
+        ('iItem', INT_PTR),
+        ('pszText', LPWSTR), #c_long),
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('iSelectedImage', c_int),
@@ -552,13 +663,17 @@ class COMBOBOXEXITEMW(Structure):
         ('iIndent', c_int),
         ('lParam', LPARAM),
 ]
-assert sizeof(COMBOBOXEXITEMW) == 36, sizeof(COMBOBOXEXITEMW)
-assert alignment(COMBOBOXEXITEMW) == 1, alignment(COMBOBOXEXITEMW)
+if sysinfo.is_x64_Python():
+    assert sizeof(COMBOBOXEXITEMW) == 56, sizeof(COMBOBOXEXITEMW)
+    assert alignment(COMBOBOXEXITEMW) == 8, alignment(COMBOBOXEXITEMW)
+else:
+    assert sizeof(COMBOBOXEXITEMW) == 36, sizeof(COMBOBOXEXITEMW)
+    assert alignment(COMBOBOXEXITEMW) == 4, alignment(COMBOBOXEXITEMW)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4757
 class TCITEMHEADERW(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4757
         ('mask', UINT),
@@ -568,31 +683,40 @@ class TCITEMHEADERW(Structure):
         ('cchTextMax', c_int),
         ('iImage', c_int),
     ]
-
-assert sizeof(TCITEMHEADERW) == 24, sizeof(TCITEMHEADERW)
-assert alignment(TCITEMHEADERW) == 1, alignment(TCITEMHEADERW)
+if sysinfo.is_x64_Python():
+    assert sizeof(TCITEMHEADERW) == 32, sizeof(TCITEMHEADERW)
+    assert alignment(TCITEMHEADERW) == 8, alignment(TCITEMHEADERW)
+else:
+    assert sizeof(TCITEMHEADERW) == 24, sizeof(TCITEMHEADERW)
+    assert alignment(TCITEMHEADERW) == 4, alignment(TCITEMHEADERW)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4804
 class TCITEMW(Structure):
-    _pack_ = 1
+    #if sysinfo.is_x64_Python():
+    #    _pack_ = 8
+    #else:
+    #    _pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4804
         ('mask', UINT),
         ('dwState', DWORD),
         ('dwStateMask', DWORD),
-        ('pszText', c_long), #LPWSTR),
+        ('pszText', LPWSTR), #c_long), #LPWSTR),
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('lParam', LPARAM),
     ]
-assert sizeof(TCITEMW) == 28, sizeof(TCITEMW)
-assert alignment(TCITEMW) == 1, alignment(TCITEMW)
+if sysinfo.is_x64_Python():
+    assert sizeof(TCITEMW) == 40, sizeof(TCITEMW)
+    assert alignment(TCITEMW) == 8, alignment(TCITEMW)
+else:
+    assert sizeof(TCITEMW) == 28, sizeof(TCITEMW)
+    assert alignment(TCITEMW) == 4, alignment(TCITEMW)
 
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 1308
 class TBBUTTONINFOW(Structure):
-    _pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 1308
         ('cbSize', UINT),
@@ -602,33 +726,55 @@ class TBBUTTONINFOW(Structure):
         ('fsState', BYTE),
         ('fsStyle', BYTE),
         ('cx', WORD),
-        ('lParam', DWORD),
+        ('lParam', POINTER(DWORD)),
         ('pszText', LPWSTR),
         ('cchText', c_int),
     ]
-assert sizeof(TBBUTTONINFOW) == 32, sizeof(TBBUTTONINFOW)
-assert alignment(TBBUTTONINFOW) == 1, alignment(TBBUTTONINFOW)
+if sysinfo.is_x64_Python():
+    assert sizeof(TBBUTTONINFOW) == 48, sizeof(TBBUTTONINFOW)
+    assert alignment(TBBUTTONINFOW) == 8, alignment(TBBUTTONINFOW)
+else:
+    assert sizeof(TBBUTTONINFOW) == 32, sizeof(TBBUTTONINFOW)
+    assert alignment(TBBUTTONINFOW) == 4, alignment(TBBUTTONINFOW)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
-class TBBUTTON(Structure):
-    _pack_ = 1
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
-        ('iBitmap', c_int),
-        ('idCommand', c_int),
-        ('fsState', BYTE),
-        ('fsStyle', BYTE),
-        ('bReserved', BYTE * 2),
-        ('dwData', DWORD),
-        ('iString', c_int),
-    ]
-assert sizeof(TBBUTTON) == 20, sizeof(TBBUTTON)
-assert alignment(TBBUTTON) == 1, alignment(TBBUTTON)
+if sysinfo.is_x64_Python():
+    class TBBUTTON(Structure):
+        #_pack_ = 1
+        _fields_ = [
+            # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+            ('iBitmap', c_int),
+            ('idCommand', c_int),
+            ('fsState', BYTE),
+            ('fsStyle', BYTE),
+            ('bReserved', BYTE * 6),
+            ('dwData', DWORD_PTR),
+            ('iString', INT_PTR),
+        ]
+else:
+    class TBBUTTON(Structure):
+        #_pack_ = 1
+        _fields_ = [
+            # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+            ('iBitmap', c_int),
+            ('idCommand', c_int),
+            ('fsState', BYTE),
+            ('fsStyle', BYTE),
+            ('bReserved', BYTE * 2),
+            ('dwData', DWORD_PTR),
+            ('iString', INT_PTR),
+        ]
+if sysinfo.is_x64_Python():
+    assert sizeof(TBBUTTON) == 32, sizeof(TBBUTTON)
+    assert alignment(TBBUTTON) == 8, alignment(TBBUTTON)
+else:
+    assert sizeof(TBBUTTON) == 20, sizeof(TBBUTTON)
+    assert alignment(TBBUTTON) == 4, alignment(TBBUTTON)
 
 
 
 class REBARBANDINFOW(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 1636
         ('cbSize', UINT),
@@ -651,9 +797,15 @@ class REBARBANDINFOW(Structure):
         ('cxIdeal', UINT),
         ('lParam', LPARAM),
         ('cxHeader', UINT),
+        #('rcChevronLocation', RECT), # the rect is in client co-ord wrt hwndChild
+        #('uChevronState', UINT)
     ]
-assert sizeof(REBARBANDINFOW) == 80, sizeof(REBARBANDINFOW)
-assert alignment(REBARBANDINFOW) == 1, alignment(REBARBANDINFOW)
+if sysinfo.is_x64_Python():
+    assert sizeof(REBARBANDINFOW) == 112, sizeof(REBARBANDINFOW) #128
+    assert alignment(REBARBANDINFOW) == 8, alignment(REBARBANDINFOW)
+else:
+    assert sizeof(REBARBANDINFOW) == 80, sizeof(REBARBANDINFOW) #100
+    assert alignment(REBARBANDINFOW) == 4, alignment(REBARBANDINFOW)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winbase.h 223
@@ -664,8 +816,8 @@ class SECURITY_ATTRIBUTES(Structure):
         ('lpSecurityDescriptor', LPVOID),
         ('bInheritHandle', BOOL),
     ]
-assert sizeof(SECURITY_ATTRIBUTES) == 12, sizeof(SECURITY_ATTRIBUTES)
-assert alignment(SECURITY_ATTRIBUTES) == 4, alignment(SECURITY_ATTRIBUTES)
+assert sizeof(SECURITY_ATTRIBUTES) == 12 or sizeof(SECURITY_ATTRIBUTES) == 24, sizeof(SECURITY_ATTRIBUTES)
+assert alignment(SECURITY_ATTRIBUTES) == 4 or alignment(SECURITY_ATTRIBUTES) == 8, alignment(SECURITY_ATTRIBUTES)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winbase.h 3794
 class STARTUPINFOW(Structure):
@@ -690,8 +842,8 @@ class STARTUPINFOW(Structure):
         ('hStdOutput', HANDLE),
         ('hStdError', HANDLE),
     ]
-assert sizeof(STARTUPINFOW) == 68, sizeof(STARTUPINFOW)
-assert alignment(STARTUPINFOW) == 4, alignment(STARTUPINFOW)
+assert sizeof(STARTUPINFOW) == 68 or sizeof(STARTUPINFOW) == 104, sizeof(STARTUPINFOW)
+assert alignment(STARTUPINFOW) == 4 or alignment(STARTUPINFOW) == 8, alignment(STARTUPINFOW)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winbase.h 229
 class PROCESS_INFORMATION(Structure):
@@ -702,13 +854,13 @@ class PROCESS_INFORMATION(Structure):
         ('dwProcessId', DWORD),
         ('dwThreadId', DWORD),
     ]
-assert sizeof(PROCESS_INFORMATION) == 16, sizeof(PROCESS_INFORMATION)
-assert alignment(PROCESS_INFORMATION) == 4, alignment(PROCESS_INFORMATION)
+assert sizeof(PROCESS_INFORMATION) == 16 or sizeof(PROCESS_INFORMATION) == 24, sizeof(PROCESS_INFORMATION)
+assert alignment(PROCESS_INFORMATION) == 4 or alignment(PROCESS_INFORMATION) == 8, alignment(PROCESS_INFORMATION)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 3417
 class NMLISTVIEW(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 3417
         ('hdr', NMHDR),
@@ -720,23 +872,31 @@ class NMLISTVIEW(Structure):
         ('ptAction', POINT),
         ('lParam', LPARAM),
     ]
-assert sizeof(NMLISTVIEW) == 44, sizeof(NMLISTVIEW)
-assert alignment(NMLISTVIEW) == 1, alignment(NMLISTVIEW)
+if sysinfo.is_x64_Python():
+    assert sizeof(NMLISTVIEW) == 64, sizeof(NMLISTVIEW)
+    assert alignment(NMLISTVIEW) == 8, alignment(NMLISTVIEW)
+else:
+    assert sizeof(NMLISTVIEW) == 44, sizeof(NMLISTVIEW)
+    assert alignment(NMLISTVIEW) == 4, alignment(NMLISTVIEW)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 235
 class NMMOUSE(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 235
         ('hdr', NMHDR),
-        ('dwItemSpec', DWORD),
-        ('dwItemData', DWORD),
+        ('dwItemSpec', DWORD_PTR),
+        ('dwItemData', DWORD_PTR),
         ('pt', POINT),
-        ('dwHitInfo', DWORD),
+        ('dwHitInfo', LPARAM),
     ]
-assert sizeof(NMMOUSE) == 32, sizeof(NMMOUSE)
-assert alignment(NMMOUSE) == 1, alignment(NMMOUSE)
+if sysinfo.is_x64_Python():
+    assert sizeof(NMMOUSE) == 56, sizeof(NMMOUSE)
+    assert alignment(NMMOUSE) == 8, alignment(NMMOUSE)
+else:
+    assert sizeof(NMMOUSE) == 32, sizeof(NMMOUSE)
+    assert alignment(NMMOUSE) == 4, alignment(NMMOUSE)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
@@ -815,8 +975,12 @@ class NMUPDOWN(Structure):
         ('iPos', c_int),
         ('iDelta', c_int),
     ]
-assert sizeof(NMUPDOWN) == 20, sizeof(NMUPDOWN)
-assert alignment(NMUPDOWN) == 1, alignment(NMUPDOWN)
+if sysinfo.is_x64_Python():
+    assert sizeof(NMUPDOWN) == 32, sizeof(NMUPDOWN)
+    assert alignment(NMUPDOWN) == 1, alignment(NMUPDOWN)
+else:
+    assert sizeof(NMUPDOWN) == 20, sizeof(NMUPDOWN)
+    assert alignment(NMUPDOWN) == 1, alignment(NMUPDOWN)
 
 
 
@@ -835,14 +999,18 @@ class GUITHREADINFO(Structure):
         ('hwndCaret', HWND),
         ('rcCaret', RECT),
     ]
-assert sizeof(GUITHREADINFO) == 48, sizeof(GUITHREADINFO)
-assert alignment(GUITHREADINFO) == 2, alignment(GUITHREADINFO)
+if sysinfo.is_x64_Python():
+    assert sizeof(GUITHREADINFO) == 72, sizeof(GUITHREADINFO)
+    assert alignment(GUITHREADINFO) == 2, alignment(GUITHREADINFO)
+else:
+    assert sizeof(GUITHREADINFO) == 48, sizeof(GUITHREADINFO)
+    assert alignment(GUITHREADINFO) == 2, alignment(GUITHREADINFO)
 
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
 class MENUINFO(Structure):
-    _pack_ = 2
+    #_pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
         ('cbSize', DWORD),
@@ -851,10 +1019,14 @@ class MENUINFO(Structure):
         ('cyMax', UINT),
         ('hbrBack', HBRUSH),
         ('dwContextHelpID', DWORD),
-        ('dwMenuData', DWORD),
+        ('dwMenuData', ULONG_PTR),
     ]
-assert sizeof(MENUINFO) == 28, sizeof(MENUINFO)
-assert alignment(MENUINFO) == 2, alignment(MENUINFO)
+if sysinfo.is_x64_Python():
+    assert sizeof(MENUINFO) == 40, sizeof(MENUINFO)
+    assert alignment(MENUINFO) == 8, alignment(MENUINFO)
+else:
+    assert sizeof(MENUINFO) == 28, sizeof(MENUINFO)
+    assert alignment(MENUINFO) == 4, alignment(MENUINFO)
 
 
 
@@ -862,7 +1034,7 @@ NMTTDISPINFOW_V1_SIZE = 184 # Variable c_uint
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
 class NMTTDISPINFOW(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
         ('hdr', NMHDR),
@@ -872,8 +1044,12 @@ class NMTTDISPINFOW(Structure):
         ('uFlags', UINT),
         ('lParam', LPARAM),
     ]
-assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
-assert alignment(NMTTDISPINFOW) == 1, alignment(NMTTDISPINFOW)
+if sysinfo.is_x64_Python():
+    assert sizeof(NMTTDISPINFOW) == 216, sizeof(NMTTDISPINFOW)
+    assert alignment(NMTTDISPINFOW) == 8, alignment(NMTTDISPINFOW)
+else:
+    assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
+    assert alignment(NMTTDISPINFOW) == 4, alignment(NMTTDISPINFOW)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2208
@@ -893,14 +1069,66 @@ assert alignment(WINDOWPLACEMENT) == 4, alignment(WINDOWPLACEMENT)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4052
 class TVHITTESTINFO(Structure):
-    _pack_ = 1
+    #_pack_ = 1
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4052
         ('pt', POINT),
         ('flags', UINT),
         ('hItem', HTREEITEM),
     ]
-assert sizeof(TVHITTESTINFO) == 16, sizeof(TVHITTESTINFO)
-assert alignment(TVHITTESTINFO) == 1, alignment(TVHITTESTINFO)
+if sysinfo.is_x64_Python():
+    assert sizeof(TVHITTESTINFO) == 24, sizeof(TVHITTESTINFO)
+    assert alignment(TVHITTESTINFO) == 8, alignment(TVHITTESTINFO)
+else:
+    assert sizeof(TVHITTESTINFO) == 16, sizeof(TVHITTESTINFO)
+    assert alignment(TVHITTESTINFO) == 4, alignment(TVHITTESTINFO)
 
+
+class LOGFONTA(Structure):
+    _fields_ = [
+        ('lfHeight', LONG),
+        ('lfHeight', LONG),
+        ('lfHeight', LONG),
+        ('lfHeight', LONG),
+        ('lfHeight', LONG),
+        ('lfHeight', LONG),
+        ('lfHeight', LONG),
+        ('lfHeight', LONG),
+        ('lfHeight', LONG)
+        ]
+
+
+class GV_ITEM(Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('row', c_int),
+        ('col', c_int),
+        ('mask', UINT),
+        ('state', UINT),
+        ('nFormat', UINT)
+    ]
+#assert sizeof(LVITEMW) == 40, sizeof(LVITEMW)
+#assert alignment(LVITEMW) == 1, alignment(LVITEMW)
+
+class SYSTEMTIME(Structure):
+    "Wrap the SYSTEMTIME structure"
+    _fields_ = [
+        ('wYear', WORD),
+        ('wMonth', WORD),
+        ('wDayOfWeek', WORD),
+        ('wDay', WORD),
+        ('wHour', WORD),
+        ('wMinute', WORD),
+        ('wSecond', WORD),
+        ('wMilliseconds', WORD),
+    ]
+    
+    def __repr__(self):
+        return '<wYear=' + str(self.wYear) + ', wMonth=' + str(self.wMonth) + ', wDayOfWeek=' + str(self.wDayOfWeek) + ', wDay=' + str(self.wDay) + ', wHour=' + str(self.wHour) + ', wMinute=' + str(self.wMinute) + \
+               ', wSecond=' + str(self.wSecond) + ', wMilliseconds=' + str(self.wMilliseconds) + '>'
+    
+    def __str__(self):
+        return self.__repr__()
+
+assert sizeof(SYSTEMTIME) == 16, sizeof(SYSTEMTIME)
 

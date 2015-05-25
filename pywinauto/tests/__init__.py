@@ -19,8 +19,12 @@
 #    Boston, MA 02111-1307 USA
 
 "Package of tests that can be run on controls or lists of controls"
+from __future__ import print_function
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
+
+from .. import six
 
 
 def run_tests(controls, tests_to_run = None, test_visible_only = True):
@@ -51,16 +55,16 @@ def run_tests(controls, tests_to_run = None, test_visible_only = True):
 
 def get_bug_as_string(bug):
     ctrls, info, bug_type, is_in_ref = bug
-
+    
     header = ["BugType:", str(bug_type), str(is_in_ref)]
 
     for i in info:
-        header.append(unicode(i))
-        header.append(unicode(info[i]))
-
+        header.append(six.text_type(i))
+        header.append(six.text_type(info[i]))
+    
     lines = []
     lines.append(" ".join(header))
-
+    
     for i, ctrl in enumerate(ctrls):
         lines.append(u'\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
             ctrl.WindowText(),
@@ -70,7 +74,7 @@ def get_bug_as_string(bug):
             ctrl.Rectangle().right,
             ctrl.Rectangle().bottom,
             ctrl.IsVisible(),))
-
+    
     return u"\n".join(lines)
 
 
@@ -78,36 +82,36 @@ def write_bugs(bugs, filename = "BugsOutput.txt"):
     f = open(filename, "w")
     for b in bugs:
         f.write(get_bug_as_string(b).encode('utf-8') + "\n")
-
+        
     f.close()
 
 def print_bugs(bugs):
     "Print the bugs"
     for (ctrls, info, bug_type, is_in_ref) in bugs:
-        print "BugType:", bug_type, is_in_ref,
+        print("BugType:", bug_type, is_in_ref)
 
         for i in info:
-            print unicode(i).encode('utf-8'), unicode(info[i]).encode('utf-8'),
-        print
+            print(six.text_type(i).encode('utf-8'), six.text_type(info[i]).encode('utf-8'))
+        print()
 
 
         for i, ctrl in enumerate(ctrls):
-            print '\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
+            print('\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
                 ctrl.WindowText().encode('utf-8'),
                 ctrl.FriendlyClassName().encode('utf-8'),
                 ctrl.Rectangle().left,
                 ctrl.Rectangle().top,
                 ctrl.Rectangle().right,
                 ctrl.Rectangle().bottom,
-                ctrl.IsVisible(),)
+                ctrl.IsVisible(),))
 
             try:
                 ctrl.DrawOutline()
             except (AttributeError, KeyError):
-                #print e
+                #print(e)
                 pass
 
-        print
+        print()
 
 
 # we need to register the modules
@@ -134,7 +138,7 @@ def __init_tests():
 
     for test_name in standard_test_names:
 
-        test_module = __import__(test_name.lower(), globals(), locals())
+        test_module = __import__(test_name.lower(), globals(), locals(), level=1)
 
         # class name is the test name + "Test"
         test_class = getattr(test_module, test_name + "Test")

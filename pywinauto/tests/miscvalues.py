@@ -58,6 +58,7 @@ The identifier for this test/bug is "MiscValues"
 """
 __revision__ = "$Revision$"
 
+from pywinauto import six
 testname = "MiscValues"
 
 def MiscValuesTest(windows):
@@ -95,8 +96,8 @@ def MiscValuesTest(windows):
                 [win, ],
                 {
                     "ValueType": diff,
-                    "Ref": unicode(vals[1]),
-                    "Loc": unicode(vals[0]),
+                    "Ref": six.text_type(vals[1]),
+                    "Loc": six.text_type(vals[0]),
                 },
                 testname,
                 0,)

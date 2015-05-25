@@ -35,9 +35,9 @@ app = application.Application().start_(
     r"c:\program files\internet explorer\iexplore.exe %s"% web_addresss)
 
 # some pages are slow to open - so wait some seconds
-time.sleep(4)
+time.sleep(10)
 
-ie =  app.window_(title_re = ".*Microsoft Internet Explorer.*")
+ie =  app.window_(title_re = ".*Windows Internet Explorer.*")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
 print "No Menu's in IE:", ie.MenuItems()
@@ -45,7 +45,7 @@ print "They are implemented as a toolbar:", ie.Toolbar3.Texts()
 
 ie.TypeKeys("%FA")
 #ie.Toolbar3.PressButton("File")
-app.SaveWebPage.FileNameEdit.SetEditText(os.path.join(r"c:\.temp",outputfilename))
+app.SaveWebPage.Edit.SetEditText(os.path.join(r"c:\.temp",outputfilename))
 
 
 app.SaveWebPage.Save.CloseClick()

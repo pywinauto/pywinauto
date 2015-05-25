@@ -19,18 +19,22 @@
 #    Boston, MA 02111-1307 USA
 
 "Module to find the closest match of a string in a list"
+from __future__ import unicode_literals
+from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
 import re
 import difflib
+import traceback
 
-import fuzzydict
+from . import six
+from . import fuzzydict
 #import ctypes
 #import ldistance
 #levenshtein_distance = ctypes.cdll.levenshtein.levenshtein_distance
 #levenshtein_distance = ldistance.distance
-
+from .actionlogger import ActionLogger
 
 # need to use sets.Set for python 2.3 compatability
 # but 2.6 raises a deprecation warning about sets module
@@ -90,7 +94,7 @@ def _get_match_ratios(texts, match_against):
             ratio_calc.set_seq2(text)
 
             # try using the levenshtein distance instead
-            #lev_dist = levenshtein_distance(unicode(match_against), unicode(text))
+            #lev_dist = levenshtein_distance(six.text_type(match_against), six.text_type(text))
             #ratio = 1 - lev_dist / 10.0
             #ratios[text] = ratio
 
@@ -121,13 +125,13 @@ def find_best_match(search_text, item_texts, items, limit_ratio = .5):
       If the best match matches lower then this then it is not
       considered a match and a MatchError is raised, (default = .5)
     """
-    search_text = _cut_at_tab(search_text)
+    search_text = _cut_at_eol(_cut_at_tab(search_text))
 
     text_item_map = UniqueDict()
     # Clean each item, make it unique and map to
     # to the item index
     for text, item in zip(item_texts, items):
-        text_item_map[_cut_at_tab(text)] = item
+        text_item_map[_cut_at_eol(_cut_at_tab(text))] = item
 
     ratios, best_ratio, best_text = \
         _get_match_ratios(text_item_map.keys(), search_text)
@@ -142,14 +146,21 @@ def find_best_match(search_text, item_texts, items, limit_ratio = .5):
 
 
 #====================================================================
-_after_tab = re.compile(ur"\t.*", re.UNICODE)
-_non_word_chars = re.compile(ur"\W", re.UNICODE)
+_after_tab = re.compile(r"\t.*", re.UNICODE)
+_after_eol = re.compile(r"\n.*", re.UNICODE)
+_non_word_chars = re.compile(r"\W", re.UNICODE)
 
 def _cut_at_tab(text):
     "Clean out non characters from the string and return it"
 
     # remove anything after the first tab
     return  _after_tab.sub("", text)
+
+def _cut_at_eol(text):
+    "Clean out non characters from the string and return it"
+
+    # remove anything after the first EOL
+    return  _after_eol.sub("", text)
 
 def _clean_non_chars(text):
     "Remove non word characters"
@@ -255,10 +266,20 @@ def GetNonTextControlName(ctrl, controls):
         distance2 = abs(text_r.right - ctrl_r.left) + abs(text_r.top - ctrl_r.top)
 
         distance = min(distance, distance2)
+        
+        # UpDown control should use Static text only because edit box text is often useless
+        if ctrl.FriendlyClassName() == "UpDown":
+            if text_ctrl.FriendlyClassName() == "Static": # vvryabov's TODO: use search in all text controls for all non-text ones (like Dijkstra algorithm vs Floyd one)
+                if distance < closest:
+                    closest = distance
+                    best_name = text_ctrl.WindowText() + ctrl.FriendlyClassName()
 
         # if this distance was closer then the last one
-        if distance < closest:
+        elif distance < closest:
             closest = distance
+            #if text_ctrl.WindowText() == '':
+            #    best_name = ctrl.FriendlyClassName() + ' '.join(text_ctrl.Texts()[1:2])
+            #else:
             best_name = text_ctrl.WindowText() + ctrl.FriendlyClassName()
 
     names.append(best_name)
@@ -285,7 +306,19 @@ def get_control_names(control, allcontrols):
     if cleaned and control.has_title:
         names.append(cleaned)
         names.append(cleaned + control.FriendlyClassName())
+    elif control.has_title and control.FriendlyClassName() != 'TreeView':
+        try:
+            for text in control.Texts()[1:]:
+                names.append(control.FriendlyClassName() + text)
+        except:
+            pass #ActionLogger().log('Warning! Cannot get control.Texts()') #\nTraceback:\n' + traceback.format_exc())
 
+        # so find the text of the nearest text visible control
+        non_text_names = GetNonTextControlName(control, allcontrols)
+
+        # and if one was found - add it
+        if non_text_names:
+            names.extend(non_text_names)
     # it didn't have visible text
     else:
         # so find the text of the nearest text visible control
@@ -399,7 +432,7 @@ class UniqueDict(dict):
                 _cache[(text, search_text)] = ratio
 
             # try using the levenshtein distance instead
-            #lev_dist = levenshtein_distance(unicode(search_text), unicode(text))
+            #lev_dist = levenshtein_distance(six.text_type(search_text), six.text_type(text))
             #ratio = 1 - lev_dist / 10.0
             #ratios[text_] = ratio
             #print "%5s" %("%0.2f"% ratio), search_text, `text`
@@ -466,7 +499,7 @@ def find_best_control_matches(search_text, controls):
 #        for name in ctrl_names:
 #            name_control_map[name] = ctrl
 
-    search_text = unicode(search_text)
+    search_text = six.text_type(search_text)
 
     best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
 

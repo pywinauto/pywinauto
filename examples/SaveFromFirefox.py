@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 try:
     from pywinauto import application
@@ -16,7 +17,7 @@ import os.path
 from pywinauto import WindowAmbiguousError
 
 if len(sys.argv) < 2:
-    print "please specify a web address to download"
+    print("please specify a web address to download")
     sys.exit()
 
 web_addresss = sys.argv[1]
@@ -38,10 +39,10 @@ outputfilename = os.path.abspath(outputfilename)
 
 # start IE with a start URL of what was passed in
 app = application.Application().start_(
-    r"c:\program files\Mozilla Firefox\Firefox.exe %s"% web_addresss)
+    r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe %s"% web_addresss)
 
 # some pages are slow to open - so wait some seconds
-time.sleep(4)
+time.sleep(5)
 
 # mozilla is one of thos applications that use existing windows
 # if they exist (at least on my machine!)
@@ -56,12 +57,12 @@ else:
     mozilla = app.window_(title_re = ".*Mozilla Firefox")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
-print "No Menu's in FireFox:", mozilla.MenuItems()
+print("No Menu's in FireFox:", mozilla.MenuItems())
 
 # File -> Save As
 mozilla.TypeKeys("%FA")
 #ie.Toolbar3.PressButton("File")
-app.SaveAs.FileNameEdit.SetEditText(outputfilename)
+app.SaveAs.Edit.SetEditText(outputfilename)
 
 app.SaveAs.Save.CloseClick()
 
@@ -69,12 +70,12 @@ try:
     # if asked to overwrite say yes
     if app.SaveAs.Yes.Exists():
         app.SaveAs.Yes.CloseClick()
-except WindowAmbiguousError, e:
+except WindowAmbiguousError as e:
     for w in e.windows:
         w = HwndWrapper(w)
-        print w.WindowText(), w.Class()
+        print(w.WindowText(), w.Class())
 
-print "saved:", outputfilename
+print("saved:", outputfilename)
 
 # File close tab or close
 #(Firefox makes it easy for us having the same shortcut for both!

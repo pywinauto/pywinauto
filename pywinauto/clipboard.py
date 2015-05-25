@@ -23,20 +23,21 @@
 __revision__ = "$Revision$"
 
 import ctypes
+import win32clipboard
 
-import win32functions
-import win32defines
-
-#from ctypes.wintypes import *
+try:
+    from ctypes.wintypes import WinError
+except:
+    from ctypes import WinError
 
 
 #====================================================================
 def _get_standard_formats():
-    "Get the known formats by looking in win32defines"
+    "Get the known formats by looking in win32clipboard"
     formats = {}
-    for define_name in win32defines.__dict__.keys():
+    for define_name in win32clipboard.__dict__.keys():
         if define_name.startswith("CF_"):
-            formats[getattr(win32defines, define_name)] = define_name
+            formats[getattr(win32clipboard, define_name)] = define_name
     return formats
 
 # get all the formats names keyed on the value
@@ -46,14 +47,13 @@ _standard_formats = _get_standard_formats()
 #====================================================================
 def GetClipboardFormats():
     "Get a list of the formats currently in the clipboard"
-    if not win32functions.OpenClipboard(0):
-        raise WinError()
-
+    win32clipboard.OpenClipboard()
+    
     available_formats = []
     format = 0
     while True:
         # retrieve the next format
-        format = win32functions.EnumClipboardFormats(format)
+        format = win32clipboard.EnumClipboardFormats(format)
 
         # stop enumerating because all formats have been
         # retrieved
@@ -62,7 +62,7 @@ def GetClipboardFormats():
 
         available_formats.append(format)
 
-    win32functions.CloseClipboard()
+    win32clipboard.CloseClipboard()
 
     return available_formats
 
@@ -75,61 +75,36 @@ def GetFormatName(format):
     if format in _standard_formats:
         return _standard_formats[format]
 
-    if not win32functions.OpenClipboard(0):
-        raise WinError()
+    win32clipboard.OpenClipboard()
+    format_name = win32clipboard.GetClipboardFormatName(format)
+    win32clipboard.CloseClipboard()
 
-    max_size = 500
-    buffer_ = ctypes.create_unicode_buffer(max_size+1)
-
-    ret = win32functions.GetClipboardFormatName(
-        format, ctypes.byref(buffer_), max_size)
-
-    if not ret:
-        raise RuntimeError("test")
-
-    win32functions.CloseClipboard()
-
-    return buffer_.value
+    return format_name
 
 
 #====================================================================
-def GetData(format = win32defines.CF_UNICODETEXT):
+def GetData(format = win32clipboard.CF_UNICODETEXT):
     "Return the data from the clipboard in the requested format"
     if format not in GetClipboardFormats():
         raise RuntimeError("That format is not available")
 
-    if not win32functions.OpenClipboard(0):
-        raise WinError()
-
-    handle = win32functions.GetClipboardData(format)
-
-    if not handle:
-        error = ctypes.WinError()
-        win32functions.CloseClipboard()
-        raise error
-
-    buffer_ = ctypes.c_wchar_p(win32functions.GlobalLock(handle))
-
-    data = buffer_.value
-
-    win32functions.GlobalUnlock(handle)
-
-    win32functions.CloseClipboard()
+    win32clipboard.OpenClipboard()
+    data = win32clipboard.GetClipboardData(format)
+    win32clipboard.CloseClipboard()
 
     return data
 
 
 #====================================================================
 def EmptyClipboard():
-    if not win32functions.OpenClipboard(0):
-        raise RuntimeError("Couldn't open clipboard")
-    win32functions.EmptyClipboard()
-    win32functions.CloseClipboard()
+    win32clipboard.OpenClipboard()
+    win32clipboard.EmptyClipboard()
+    win32clipboard.CloseClipboard()
 
 
 #====================================================================
 # Todo: Implement setting clipboard data
-#def SetData(data, formats = [win32defines.CF_UNICODETEXT, ]):
+#def SetData(data, formats = [win32clipboard.CF_UNICODETEXT, ]):
 #    pass
 
 

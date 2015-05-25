@@ -64,6 +64,7 @@ testname = "Truncation"
 
 import ctypes
 
+from pywinauto import six
 from pywinauto import win32defines
 from pywinauto import win32functions
 from pywinauto.win32structures import RECT
@@ -94,9 +95,9 @@ def TruncationTest(windows):
                 if refTruncIdxs:
                     isInRef = 1
 
-            truncIdxs = ",".join([unicode(index) for index in truncIdxs])
+            truncIdxs = ",".join([six.text_type(index) for index in truncIdxs])
             truncStrings = '"%s"' % ",".join(
-                [unicode(string) for string in truncStrings])
+                [six.text_type(string) for string in truncStrings])
             truncations.append((
                 [win,],
                 {
@@ -182,7 +183,7 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     # Now write the text to our DC with our font to get the
     # rectangle that the text needs to fit in
     win32functions.DrawText (txtDC, # The DC
-        unicode(text),		# The Title of the control
+        six.text_type(text),		# The Title of the control
         -1,			# -1 because sTitle is NULL terminated
         ctypes.byref(modifiedRect),	# The Rectangle to be calculated to
         #truncCtrlData.drawTextFormat |

@@ -40,6 +40,7 @@ from pywinauto import application
 from pywinauto.application import *
 from pywinauto import findwindows
 from pywinauto.timings import Timings
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 Timings.Fast()
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
@@ -47,6 +48,12 @@ Timings.Fast()
 # page setup dialog takes a long time to load
 # so make sure that we wait for it.
 Timings.window_find_timeout = 10
+
+def _notepad_exe():
+    if is_x64_Python() or not is_x64_OS():
+        return r"C:\Windows\System32\notepad.exe"
+    else:
+        return r"C:\Windows\SysWOW64\notepad.exe"
 
 
 class ApplicationTestCases(unittest.TestCase):
@@ -58,6 +65,10 @@ class ApplicationTestCases(unittest.TestCase):
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
+        if is_x64_Python() or not is_x64_OS():
+            self.notepad_subpath = r"system32\notepad.exe"
+        else:
+            self.notepad_subpath = r"SysWOW64\notepad.exe"
 
     def tearDown(self):
         "Close the application after tests"
@@ -83,12 +94,12 @@ class ApplicationTestCases(unittest.TestCase):
         "test start_() works correctly"
         app = Application()
         self.assertEqual(app.process, None)
-        app.start_("notepad.exe")
+        app.start_(_notepad_exe())
         self.assertNotEqual(app.process, None)
 
         self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
 
-        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
+        notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
         self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
 
         app.UntitledNotepad.MenuSelect("File->Exit")
@@ -117,7 +128,7 @@ class ApplicationTestCases(unittest.TestCase):
         app_name = r"I am not * and Application!/\.exe"
         try:
             app.start_(app_name)
-        except AppStartError, e:
+        except AppStartError as e:
             self.assertEquals(app_name in str(e), True)
 
 
@@ -159,14 +170,17 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_path(self):
         "Test that connect_() works with a path"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
 
         app_conn = Application()
-        app_conn.connect_(path = r"system32\notepad.exe")
+        app_conn.connect_(path = self.notepad_subpath)
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn = Application()
-        app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
+        if is_x64_Python() or not is_x64_OS():
+            app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
+        else:
+            app_conn.connect_(path = r"c:\windows\syswow64\notepad.exe")
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
@@ -189,7 +203,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_process(self):
         "Test that connect_() works with a process"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
 
         app_conn = Application()
         app_conn.connect_(process = app1.process)
@@ -201,7 +215,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_handle(self):
         "Test that connect_() works with a handle"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
         handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
@@ -214,7 +228,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_windowspec(self):
         "Test that connect_() works with a windowspec"
         app1 = Application()
-        app1.start_("notepad.exe")
+        app1.start_(_notepad_exe())
         handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
@@ -258,7 +272,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testTopWindow(self):
         "Test that top_window_() works correctly"
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
 
@@ -295,7 +309,7 @@ class ApplicationTestCases(unittest.TestCase):
         "Test that window_() works correctly"
 
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         title = app.window_(title = "Untitled - Notepad")
         title_re = app.window_(title_re = "Untitled[ -]+Notepad")
@@ -318,7 +332,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testGetitem(self):
         "Test that __getitem__() works correctly"
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         try:
             app['blahblah']
@@ -350,7 +364,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testGetattr(self):
         "Test that __getattr__() works correctly"
         app = Application()
-        app.start_('notepad.exe')
+        app.start_(_notepad_exe())
 
         #prev_timeout = application.window_find_timeout
         #application.window_find_timeout = .1
@@ -384,14 +398,14 @@ class ApplicationTestCases(unittest.TestCase):
         "test killing the application"
 
         app = Application()
-        app.start('notepad.exe')
+        app.start(_notepad_exe())
 
         app.UntitledNotepad.Edit.TypeKeys("hello")
 
-        app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.UntitledNotepad.MenuSelect("File->Print...")
 
-        app.PageSetup.Printer.Click()
-        app.PageSetup.Network.Click()
+        #app.Print.FindPrinter.Click() # vvryabov: (Win7 x64) "Find Printers" dialog is from splwow64.exe process
+        #app.FindPrinters.Stop.Click() #           so cannot handle it in 32-bit Python
 
         app.kill_()
 
@@ -414,7 +428,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        self.app.UntitledNotepad.MenuSelect("File->Exit")
+        #self.app.UntitledNotepad.MenuSelect("File->Exit")
+        self.app.kill_()
 
 
     def test__init__(self):

@@ -20,6 +20,9 @@
 
 """Module containing operations for reading and writing dialogs as XML
 """
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import unicode_literals
 
 __revision__ = "$Revision$"
 
@@ -41,12 +44,18 @@ except ImportError:
 
 import ctypes
 import re
-import PIL.Image
-import controls
+import codecs
+try:
+    import PIL.Image
+    PIL_imported = True
+except ImportError:
+    PIL_imported = False
+from . import controls
 
 # reported that they are not used - but in fact they are
 # through a search of globals()
-from win32structures import LOGFONTW, RECT
+from . import six
+from .win32structures import LOGFONTW, RECT
 
 class XMLParsingError(RuntimeError):
     "Wrap parsing Exceptions"
@@ -84,13 +93,13 @@ def _SetNodeProps(element, name, value):
             prop_name = prop_name[0]
             item_val = getattr(value, prop_name)
 
-            if isinstance(item_val, (int, long)):
+            if isinstance(item_val, six.integer_types):
                 prop_name += "_LONG"
-                item_val = unicode(item_val)
+                item_val = six.text_type(item_val)
 
             struct_elem.set(prop_name, _EscapeSpecials(item_val))
 
-    elif hasattr(value, 'tostring') and hasattr(value, 'size'):
+    elif hasattr(value, 'tobytes') and hasattr(value, 'size'):
         try:
             # if the image is too big then don't try to
             # write it out - it would probably product a MemoryError
@@ -98,7 +107,8 @@ def _SetNodeProps(element, name, value):
             if value.size[0] * value.size[1] > (5000*5000):
                 raise MemoryError
 
-            image_data = value.tostring().encode("bz2").encode("base64")
+            #print('type(value) = ' + str(type(value)))
+            image_data = codecs.encode(codecs.encode(value.tobytes(), "bz2"), "base64").decode('utf-8')
             _SetNodeProps(
                 element,
                 name + "_IMG",
@@ -131,9 +141,9 @@ def _SetNodeProps(element, name, value):
 
     else:
         if isinstance(value, bool):
-            value = long(value)
+            value = six.integer_types[-1](value)
 
-        if isinstance(value, (int, long)):
+        if isinstance(value, six.integer_types):
             name += "_LONG"
 
         element.set(name, _EscapeSpecials(value))
@@ -171,14 +181,14 @@ def _EscapeSpecials(string):
     "Ensure that some characters are escaped before writing to XML"
 
     # ensure it is unicode
-    string = unicode(string)
+    string = six.text_type(string)
 
     # escape backslashs
     string = string.replace('\\', r'\\')
 
     # escape non printable characters (chars below 30)
     for i in range(0, 32):
-        string = string.replace(unichr(i), "\\%02d"%i)
+        string = string.replace(six.unichr(i), "\\%02d"%i)
 
     return string
 
@@ -189,12 +199,12 @@ def _UnEscapeSpecials(string):
 
     # Unescape all the escape characters
     for i in range(0, 32):
-        string = string.replace("\\%02d"%i, unichr(i))
+        string = string.replace("\\%02d"%i, six.unichr(i))
 
     # convert doubled backslashes to a single backslash
     string = string.replace(r'\\', '\\')
 
-    return unicode(string)
+    return six.text_type(string)
 
 
 
@@ -232,13 +242,13 @@ def _XMLToStruct(element, struct_type = None):
         # if the value ends with "_long"
         if prop_name.endswith("_LONG"):
             # get an long attribute out of the value
-            val = long(val)
+            val = six.integer_types[-1](val)
             prop_name = prop_name[:-5]
 
         # if the value is a string
-        elif isinstance(val, basestring):
+        elif isinstance(val, six.string_types):
             # make sure it if Unicode
-            val = unicode(val)
+            val = six.text_type(val)
 
         # now we can have all upper case attribute name
         # but structure name will not be upper case
@@ -270,7 +280,7 @@ def _OLD_XMLToTitles(element):
         val = val.replace('\\x12', '\x12')
         val = val.replace('\\\\', '\\')
 
-        titles.append(unicode(val))
+        titles.append(six.text_type(val))
 
     return titles
 
@@ -337,7 +347,7 @@ def _GetAttributes(element):
 
         # if it is 'Long' element convert it to an long
         if attrib_name.endswith("_LONG"):
-            val = long(val)
+            val = six.integer_types[-1](val)
             attrib_name = attrib_name[:-5]
 
         else:
@@ -409,9 +419,11 @@ def _ReadXMLStructure(control_element):
 
             # get image Attribs
             img = _GetAttributes(elem)
-            data = img['data'].decode('base64').decode('bz2')
+            data = codecs.decode(codecs.decode(img['data'].encode('utf-8'), 'base64'), 'bz2')
 
-            propval = PIL.Image.fromstring(
+            if PIL_imported is False:
+                raise RuntimeError('PIL is not installed!')
+            propval = PIL.Image.frombytes(
                 img['mode'],
                 (img['size_x'], img['size_y']),
                 data)
@@ -457,7 +469,7 @@ def ReadPropertiesFromFile(filename):
 
 
     # it is an old XML so let's fix it up a little
-    if not parsed.attrib.has_key("_version_"):
+    if not ("_version_" in parsed.attrib.keys()):
 
         # find each of the control elements
         for ctrl_prop in props:

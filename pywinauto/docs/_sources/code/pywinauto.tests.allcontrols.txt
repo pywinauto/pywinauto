@@ -1,0 +1,6 @@
+pywinauto.tests.allcontrols
+---------------------------
+ .. automodule:: pywinauto.tests.allcontrols
+    :members:
+    :undoc-members:
+

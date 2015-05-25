@@ -73,6 +73,7 @@ __revision__ = "$Revision$"
 
 testname = "CompareToRefFont"
 
+from pywinauto import six
 from pywinauto import win32structures
 _font_attribs = [field[0] for field in win32structures.LOGFONTW._fields_]
 
@@ -100,8 +101,8 @@ def CompareToRefFontTest(windows):
                     [win, ],
                     {
                         "ValueType": font_attrib,
-                        "Ref": unicode(ref_value),
-                        "Loc": unicode(loc_value),
+                        "Ref": six.text_type(ref_value),
+                        "Loc": six.text_type(loc_value),
                     },
                     testname,
                     0,)

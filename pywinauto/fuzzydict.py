@@ -33,6 +33,7 @@ KeyError: "'There'. closest match: 'hello' with ratio 0.400"
 [1, 2, 3]
 >>>
 """
+from __future__ import unicode_literals
 
 __revision__ = "$Rev$"
 
@@ -141,7 +142,7 @@ if __name__ == '__main__':
         "Perform some tests"
         test_dict = {
             'Hiya'  : 1,
-            u'hiy\xe4' : 2,
+            'hiy\xe4' : 2,
             'test3' : 3,
             1: 324}
 
@@ -169,9 +170,9 @@ if __name__ == '__main__':
 
             self.assertEquals(True, fd.__contains__('hiya'))
 
-            self.assertEquals(True, fd.__contains__(u'test3'))
+            self.assertEquals(True, fd.__contains__('test3'))
 
-            self.assertEquals(True, fd.__contains__(u'hiy\xe4'))
+            self.assertEquals(True, fd.__contains__('hiy\xe4'))
 
             self.assertEquals(False, fd.__contains__('FuzzyWuzzy'))
 

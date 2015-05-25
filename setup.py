@@ -23,6 +23,7 @@
 
 # to build files:
 # setup.py py2exe
+from __future__ import print_function
 
 try:
     from ez_setup import use_setuptools
@@ -64,7 +65,7 @@ setup(name='pywinauto',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
-    url = "http://sourceforge.net/projects/pywinauto",
+    url = "https://code.google.com/p/pywinauto/",
     author = 'Mark Mc Mahon',
     author_email = 'mark.m.mcmahon@gmail.com',
     long_description = """
@@ -100,7 +101,9 @@ controls also.
 
 try:
     import ctypes
-    import SendKeys
-except ImportError, e:
-    print "The following module has to be installed before running pywinauto..."
-    print "\t", str(e).replace("No module named ", "")
+    import win32gui
+    import win32gui_struct
+    import win32api
+except ImportError as e:
+    print("The following module has to be installed before running pywinauto...")
+    print("\t" + str(e).replace("No module named ", ""))
