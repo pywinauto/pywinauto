@@ -1,9 +1,8 @@
 from pywinauto.application import Application
-
-from pywinauto.handleprops import *
+from pywinauto.handleprops import processid 
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
-from pywinauto.UIAElementInfo import *
+from pywinauto.UIAElementInfo import UIAElementInfo
 
 import unittest
 

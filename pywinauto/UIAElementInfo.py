@@ -1,7 +1,7 @@
 import comtypes
 import comtypes.client
 
-from . import handleprops
+from pywinauto.handleprops import text, dumpwindow
 from pywinauto.elementInfo import ElementInfo
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
@@ -110,10 +110,10 @@ class UIAElementInfo(ElementInfo):
 
     def dumpWindow(self):
         "Dump a window to a set of properties"
-        return handleprops.dumpwindow(self.handle)
+        return dumpwindow(self.handle)
 
     def _getTextFromHandle(self, handle):
-        return handleprops.text(self.handle)
+        return text(self.handle)
 
     def _getTextFromElementViaTextPattern(self, element):
         supportedPatterns = _iuia.PollForPotentialSupportedPatterns(element)[0]
