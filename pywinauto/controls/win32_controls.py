@@ -838,7 +838,8 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Dialog"
     #windowclasses = ["#32770", ]
-    controltypes = []
+    controltypes = [
+	    UIA_WindowControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -933,7 +934,8 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "PopupMenu"
     windowclasses = ["#32768", ]
-    controltypes = []
+    controltypes = [
+	    UIA_MenuControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------

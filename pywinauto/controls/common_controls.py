@@ -69,6 +69,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         r"WindowsForms\d*\.SysListView32\..*", 
         "TSysListView",
         "ListView20WndClass"]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_ListControlTypeId
     controltypes = []
 
     #----------------------------------------------------------------
@@ -2192,6 +2194,8 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "ReBar"
     windowclasses = ["ReBarWindow32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
     controltypes = []
 
     #----------------------------------------------------------------
@@ -2499,6 +2503,8 @@ class AnimationWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Animation"
     windowclasses = ["SysAnimate32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
     controltypes = []
 
 
@@ -2508,6 +2514,8 @@ class ComboBoxExWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "ComboBoxEx"
     windowclasses = ["ComboBoxEx32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
     controltypes = []
     has_title = False
 
@@ -2518,6 +2526,8 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "DateTimePicker"
     windowclasses = ["SysDateTimePick32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
     controltypes = []
     has_title = False
 
@@ -2578,6 +2588,8 @@ class HotkeyWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Hotkey"
     windowclasses = ["msctls_hotkey32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
     controltypes = []
     has_title = False
 
@@ -2588,6 +2600,8 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "IPAddress"
     windowclasses = ["SysIPAddress32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
     controltypes = []
     has_title = False
 
@@ -2609,6 +2623,8 @@ class PagerWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Pager"
     windowclasses = ["SysPager", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
     controltypes = []
 
     def GetPosition(self):
