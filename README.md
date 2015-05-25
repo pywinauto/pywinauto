@@ -1,13 +1,13 @@
-pywinauto-64
+pywinauto
 ============
 
-pywinauto (c) Mark Mc Mahon and Co., 2006 - 2015
+pywinauto (c) Mark Mc Mahon, 2006 - 2015
 
-pywinauto is coming back! Set of python modules to automate the Microsoft Windows GUI 
+pywinauto is coming back! Newer version adds 64-bit support and works on Python 3.x.
+
+This set of python modules to automate the Microsoft Windows GUI 
 allows you to send mouse and keyboard actions to windows dialogs and controls, 
 but it also supports more complex actions.
-
-Newer version adds 64-bit support and works on Python 3.x.
 
 ### Roadmap
 * pywinauto 0.5.0 is planned until end of June, 2015.
@@ -36,7 +36,7 @@ Newer version adds 64-bit support and works on Python 3.x.
 ### Setup
 
 * Install pyWin32 extensions above (no need for Active Python)
-* Download [master branch as ZIP](https://github.com/vasily-v-ryabov/pywinauto-64/archive/master.zip)
+* Download [master branch as ZIP](https://github.com/pywinauto/pywinauto/archive/master.zip)
 * Just unpack and run **python.exe setup.py install**
 
 ### Testing status
