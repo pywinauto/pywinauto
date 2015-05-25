@@ -43,6 +43,8 @@ from ..RemoteMemoryBlock import RemoteMemoryBlock
 from .. import tests
 from ..timings import Timings
 
+from .. import UIAElementInfo
+
 #====================================================================
 class ButtonWrapper(HwndWrapper.HwndWrapper):
     "Wrap a windows Button control"
@@ -55,6 +57,10 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         "ThunderCommandButton",
         "ThunderOptionButton",
         "ThunderCheckBox"]
+    controltypes = [
+        UIA_ButtonControlTypeId,
+        UIA_CheckBoxControlTypeId,
+        UIA_RadioButtonControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -251,6 +257,8 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "ComboBox",
         "WindowsForms\d*\.COMBOBOX\..*",
         "TComboBox"]
+    controltypes = [
+        UIA_ComboBoxControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -406,6 +414,8 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "ThunderListBox",
         "ThunderFileListBox",
         "TListBox",]
+    controltypes = [
+        UIA_ListControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -604,6 +614,8 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "ThunderTextBox",
         "ThunderRT6TextBox",
         ]
+    controltypes = [
+        UIA_EditControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -798,6 +810,9 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         "Static",
         r"WindowsForms\d*\.STATIC\..*",
         "TPanel"]
+    controltypes = [
+        UIA_ImageControlTypeId,
+        UIA_TextControlTypeId]
     can_be_label = True
 
     def __init__(self, hwnd):
@@ -823,6 +838,8 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Dialog"
     #windowclasses = ["#32770", ]
+    controltypes = [
+	    UIA_WindowControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -917,6 +934,8 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "PopupMenu"
     windowclasses = ["#32768", ]
+    controltypes = [
+	    UIA_MenuControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------

@@ -94,6 +94,7 @@ class _MetaWrapper(type):
     "Metaclass for Wrapper objects"
     re_wrappers = {}
     str_wrappers = {}
+    control_types = {}
 
     def __init__(cls, name, bases, attrs):
         # register the class names, both the regular expression
@@ -105,6 +106,8 @@ class _MetaWrapper(type):
         for win_class in cls.windowclasses:
             _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
             _MetaWrapper.str_wrappers[win_class] = cls
+        for control_type in cls.controltypes:
+            _MetaWrapper.control_types[control_type] = cls
 
     @staticmethod
     def FindWrapper(handle):
@@ -136,6 +139,17 @@ class _MetaWrapper(type):
         #if handle in meta.wrappers:
         #    return meta.wrappers[handle]
 
+    @staticmethod
+    def FindWrapperUIA(elementinfo):
+        """Find the wrapper for this elementinfo"""
+        wrapper = FindWrapper(elementinfo.handle)
+
+        if wrapper == HwndWrapper:
+            try:
+                return _MetaWrapper.control_types[elementinfo.controlType]
+            except KeyError:
+                return HwndWrapper
+
 
 #====================================================================
 @six.add_metaclass(_MetaWrapper)
@@ -159,6 +173,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     friendlyclassname = None
     windowclasses = []
+    controltypes = []
     handle = None
     can_be_label = False
     has_title = True
