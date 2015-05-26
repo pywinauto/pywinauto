@@ -39,16 +39,19 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+Coverage_report/*
 
 # Translations
 *.mo
 *.pot
+ref_controls.xml
 
 # Django stuff:
 *.log
 
 # Sphinx documentation
 docs/_build/
+docs/_sources/
 
 # PyBuilder
 target/
