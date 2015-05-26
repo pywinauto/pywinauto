@@ -38,6 +38,8 @@ from . import HwndWrapper
 
 from ..timings import Timings
 
+from .. import UIAElementInfo
+
 
 # Todo: I should return iterators from things like Items() and Texts()
 #       to save building full lists all the time
@@ -67,6 +69,9 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         r"WindowsForms\d*\.SysListView32\..*", 
         "TSysListView",
         "ListView20WndClass"]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_ListControlTypeId
+    controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -85,14 +90,12 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             self.LVITEM         = win32structures.LVITEMW
             self.LVM_GETITEM    = win32defines.LVM_GETITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNW
-            self.text_decode    = lambda v: v
         else:
             self.create_buffer = ctypes.create_string_buffer
             self.LVCOLUMN       = win32structures.LVCOLUMNW
             self.LVITEM         = win32structures.LVITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
             self.LVM_GETITEM    = win32defines.LVM_GETITEMA            
-            self.text_decode    = lambda v: v.decode('utf-8')
 
     #-----------------------------------------------------------
     def ColumnCount(self):
@@ -154,11 +157,11 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         if retval:
             col = remote_mem.Read(col)
 
-            text = self.create_buffer(2000)
+            text = self.create_buffer(1999)
             remote_mem.Read(text, col.pszText)
 
             col_props['order'] = col.iOrder
-            col_props['text'] = self.text_decode(text.value)
+            col_props['text'] = text.value
             col_props['format'] = col.fmt
             col_props['width'] = col.cx
             col_props['image'] = col.iImage
@@ -266,7 +269,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         # Fill in the requested item
         retval = self.SendMessage(
             self.LVM_GETITEM,
-            0, # MSDN: wParam for LVM_GETITEM must be zero
+            item_index,
             remote_mem)
 
         # if it succeeded
@@ -279,7 +282,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             remote_mem.Read(char_data, item.pszText)
 
             # and add it to the titles
-            item_data['text'] = self.text_decode(char_data.value)
+            item_data['text'] = char_data.value
             item_data['state'] = item.state
             item_data['image'] = item.iImage
             item_data['indent'] = item.iIndent
@@ -916,6 +919,8 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "TreeView"
     windowclasses = [
         "SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*", "TTreeView", "TreeList.TreeListCtrl"]
+    controltypes = [
+        UIA_TreeControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1188,6 +1193,8 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Header"
     windowclasses = ["SysHeader32", "msvb_lib_header"]
+    controltypes = [
+        UIA_HeaderControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1324,6 +1331,8 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         "msctls_statusbar32",
         "HSStatusBar",
         r"WindowsForms\d*\.msctls_statusbar32\..*"]
+    controltypes = [
+        UIA_StatusBarControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1487,6 +1496,8 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "SysTabControl32",
         r"WindowsForms\d*\.SysTabControl32\..*"]
+    controltypes = [
+        UIA_TabControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1806,6 +1817,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "ToolbarWindow32",
         r"WindowsForms\d*\.ToolbarWindow32\..*"]
+    controltypes = [
+        UIA_ToolBarControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2181,6 +2194,9 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "ReBar"
     windowclasses = ["ReBarWindow32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
+    controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2324,6 +2340,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "ToolTips"
     windowclasses = ["tooltips_class32",
                      ".*ToolTip", ]
+    controltypes = [
+        UIA_ToolTipControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2370,6 +2388,8 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "UpDown"
     windowclasses = ["msctls_updown32", "msctls_updown", ]
+    controltypes = [
+        UIA_SpinnerControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2451,6 +2471,8 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
+    controltypes = [
+        UIA_SliderControlTypeId]
 
 #
 #    #----------------------------------------------------------------
@@ -2481,6 +2503,9 @@ class AnimationWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Animation"
     windowclasses = ["SysAnimate32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
+    controltypes = []
 
 
 #====================================================================
@@ -2489,6 +2514,9 @@ class ComboBoxExWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "ComboBoxEx"
     windowclasses = ["ComboBoxEx32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
+    controltypes = []
     has_title = False
 
 
@@ -2498,6 +2526,9 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "DateTimePicker"
     windowclasses = ["SysDateTimePick32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
+    controltypes = []
     has_title = False
 
     #----------------------------------------------------------------
@@ -2557,6 +2588,9 @@ class HotkeyWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Hotkey"
     windowclasses = ["msctls_hotkey32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
+    controltypes = []
     has_title = False
 
 
@@ -2566,6 +2600,9 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "IPAddress"
     windowclasses = ["SysIPAddress32", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
+    controltypes = []
     has_title = False
 
 
@@ -2575,6 +2612,8 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
+    controltypes = [
+        UIA_CalendarControlTypeId]
     has_title = False
 
 
@@ -2584,6 +2623,9 @@ class PagerWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Pager"
     windowclasses = ["SysPager", ]
+    #controltypes is empty to make wrapper search result unique
+    #possible control types: UIA_PaneControlTypeId
+    controltypes = []
 
     def GetPosition(self):
         "Return the current position of the pager"
@@ -2600,6 +2642,8 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 
     friendlyclassname = "Progress"
     windowclasses = ["msctls_progress", "msctls_progress32", ]
+    controltypes = [
+        UIA_ProgressBarControlTypeId]
     has_title = False
 
 

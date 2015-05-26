@@ -32,7 +32,7 @@ warnings.warn("The taskbar module is still very experimental", FutureWarning)
 
 def TaskBarHandle():
     "Return the first window that has a class name 'Shell_TrayWnd'"
-    return findwindows.find_windows(class_name = "Shell_TrayWnd")[0]
+    return findwindows.find_windows(class_name = "Shell_TrayWnd")[0].handle
 
 
 def _get_visible_button_index(reqd_button):
