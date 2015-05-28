@@ -1,0 +1,64 @@
+# Based on https://github.com/ogrisel/python-appveyor-demo
+# and https://github.com/jjhelmus/appveyor-build-conda-pyart
+#
+# Hint: before committing any changes in the yaml file verify it in 
+# the yaml online parser: http://yaml-online-parser.appspot.com/
+#
+
+# fetch repository as a zip archive
+shallow_clone: true                 # default is "false"
+
+environment:
+
+  matrix:
+    - PYTHON: "C:\\Python27_32"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "32"
+      CONDA_PY: "27"
+
+    - PYTHON: "C:\\Python34_32"
+      PYTHON_VERSION: "3.4"
+      PYTHON_ARCH: "32"
+      CONDA_PY: "34"
+
+    - PYTHON: "C:\\Python27_64"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "27"
+
+    - PYTHON: "C:\\Python34_64"
+      PYTHON_VERSION: "3.4"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "34"
+os:
+  - unstable # Unstable worker image with logged in user, desktop and interactive build agent
+
+install:
+  # Some listings for debug only
+  #- ECHO "Filesystem root:"
+  #- ps: "ls \"C:/\""
+  #- ECHO "Notepad location "
+  #- ps: "ls C:\\Windows\\System32\\notepad.exe"
+
+  # install the appropriate Miniconda (Py2/Py3, 32/64 bit),
+  # as well as pywin32, pillow and coverage
+  - "powershell ./install.ps1"
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+build: false  # Not a C# project, build stuff at the test step instead.
+
+test_script:
+  # Build the compiled extension and run the project tests
+  - "python pywinauto\\unittests\\testall.py"
+
+after_test:
+  # After tests list files in coverage report (just for debug)
+  #- ps: "ls Coverage_report"
+
+artifacts:
+  # Archive the generated coverage report in the ci.appveyor.com build report.
+  - path: Coverage_report
+
+#on_success:
+#  - TODO: 
+#
