@@ -25,23 +25,21 @@ but it also supports more complex actions.
  - [x] `set_foreground` flag in `TypeKeys` method for typing into in-place controls
  - [x] `create_new_console` flag in `Application.start_` method
 
+### Setup
+* Install [pyWin32 extensions](http://sourceforge.net/projects/pywin32/files/pywin32/) (no need for Active Python)
+* Download [master branch as ZIP](https://github.com/pywinauto/pywinauto/archive/master.zip)
+* Just unpack and run `python setup.py install`
+
 ### Supported controls
 * Native Windows controls (full support through Win32 API)
 * .NET Windows Forms (partial support through Win32 API, some basic controls only)
 
-
 ### Dependencies
 * pyWin32 package ([build 219](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20219/) is recommended). This is NOT required for ActivePython (except 3.4 64-bit).
 
-### Setup
-
-* Install pyWin32 extensions above (no need for Active Python)
-* Download [master branch as ZIP](https://github.com/pywinauto/pywinauto/archive/master.zip)
-* Just unpack and run **python.exe setup.py install**
-
 ### Testing status
 
-* [Unit tests pass rate for master branch](https://github.com/vasily-v-ryabov/pywinauto-64/wiki/Unit-testing-status)
+* [Unit tests pass rate for master branch](https://github.com/pywinauto/pywinauto/wiki/Unit-testing-status)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL

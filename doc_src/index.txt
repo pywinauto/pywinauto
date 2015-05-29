@@ -2,6 +2,7 @@
 What is pywinauto
 ====================
 (c) Mark Mc Mahon 2006-2015
+
 Released under the LGPL v2.1 licence
 
 

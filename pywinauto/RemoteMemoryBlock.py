@@ -1,6 +1,26 @@
+# GUI Application automation and testing library
+# Copyright (C) 2006 Mark Mc Mahon
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1
+# of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the
+#    Free Software Foundation, Inc.,
+#    59 Temple Place,
+#    Suite 330,
+#    Boston, MA 02111-1307 USA
+
 from __future__ import absolute_import
 
-import ctypes, win32api, win32gui, win32con, pywintypes, win32process, sys, inspect, traceback
+import ctypes, win32api, sys, inspect, traceback
 
 from . import win32functions
 from . import win32defines
@@ -35,12 +55,6 @@ class RemoteMemoryBlock(object):
         if not process_id.value:
             raise AccessDenied(
                 str(ctypes.WinError()) + " Cannot get process ID from handle.")
-
-        # XXX: it doesn't work in some cases
-        #py_handle = pywintypes.HANDLE(handle.handle)
-        #(tid, pid) = win32process.GetWindowThreadProcessId(py_handle)
-        #self.process = win32api.OpenProcess(win32con.PROCESS_VM_OPERATION | win32con.PROCESS_VM_READ | win32con.PROCESS_VM_WRITE, 0, pid)
-        #print 'self.process.handle = ', self.process.handle
 
         self.process = win32functions.OpenProcess(
                 win32defines.PROCESS_VM_OPERATION |
@@ -113,7 +127,6 @@ class RemoteMemoryBlock(object):
                 last_error = win32api.GetLastError()
                 print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
                 sys.stdout.flush()
-                #win32gui.MessageBox(0, '2) VirtualFreeEx returned zero for address ' + str(hex(self.memAddress)), 'VirtualFreeEx failed!', win32con.MB_OK)
                 #self._CloseHandle()
                 raise ctypes.WinError()
             self.memAddress = 0
