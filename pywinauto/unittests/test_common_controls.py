@@ -446,16 +446,22 @@ class HeaderTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder, "Header.exe"))
+        app.start_(os.path.join(mfc_samples_folder, "RowList.exe"))
 
-        self.texts = [u'Distance', u'Diameter', u'Mass']
+        self.texts = [u'Color', u'Red', u'Green', u'Blue', u'Hue', u'Sat', u'Lum', u'Type']
         self.item_rects = [
-            RECT(0, 0, 90, 26),
-            RECT(90, 0, 180, 26),
-            RECT(180, 0, 260, 26)]
+            RECT (  0, 0, 150, 19), 
+            RECT (150, 0, 200, 19), 
+            RECT (200, 0, 250, 19), 
+            RECT (250, 0, 300, 19), 
+            RECT (300, 0, 400, 19), 
+            RECT (400, 0, 450, 19), 
+            RECT (450, 0, 500, 19), 
+            RECT (500, 0, 650, 19)]
+           
         self.app = app
-        self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.Header.WrapperObject()
+        self.dlg = app.RowListSampleApplication #top_window_()
+        self.ctrl = app.RowListSampleApplication.Header.WrapperObject()
 
 
     def tearDown(self):
@@ -485,7 +491,7 @@ class HeaderTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemCount(self):
-        self.assertEquals(3, self.ctrl.ItemCount())
+        self.assertEquals(8, self.ctrl.ItemCount())
 
     def testGetColumnRectangle(self):
         for i in range(0, 3):
@@ -770,7 +776,7 @@ class ToolbarTestCases(unittest.TestCase):
 
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
-        # The second control goew with Toolbar2
+        # The second control goes as Toolbar2
         self.ctrl = app.CommonControlsSample.Toolbar.WrapperObject() 
         self.ctrl2 = app.CommonControlsSample.Toolbar2.WrapperObject()
 
@@ -814,7 +820,7 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testButtonCount(self):
         "Test the button count method of the toolbar"
-        # TODO: for some reason the first toolbar returns button count = 12
+        # TODO: for a some reason the first toolbar returns button count = 12
         # The same as in the second toolbar, even though their handles are different.
         # Maybe the test app itself has to be fixed too.
         #self.assertEquals(self.ctrl.ButtonCount(), 9)
