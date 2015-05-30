@@ -2220,8 +2220,9 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
             win32defines.RBBIM_TEXT
 
         # set the pointer for the text
-        band_info.pszText = ctypes.c_long(remote_mem.Address() + ctypes.sizeof(band_info))
-        band_info.cchText = 2000
+        band_info.lpText = win32structures.LPWSTR(
+            remote_mem.Address() + ctypes.sizeof(band_info))
+        band_info.cch = 2000
 
         # write the structure
         remote_mem.Write(band_info)
@@ -2236,7 +2237,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Read(band_info)
 
         # read the text
-        band_info.text = ctypes.create_unicode_buffer(1999)
+        band_info.text = ctypes.create_unicode_buffer(2000)
         remote_mem.Read(band_info.text, remote_mem.Address() + ctypes.sizeof(band_info))
 
         band_info.text = band_info.text.value

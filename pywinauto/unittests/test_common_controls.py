@@ -866,16 +866,23 @@ class RebarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Start the application set some data and ensure the application
-        is in the state we want it."""
+        is in the state we want it.
+
+        The app title can be tricky. If no document is opened the title is just: "RebarTest"
+        However if an document is created/opened in the child frame
+        the title is appended with a document name: "RebarTest - RebarTest1"
+        A findbestmatch proc does well here with guessing the title 
+        even though the app is started with a short title "RebarTest".
+        """
 
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder, "rebar.exe"))
+        app.start_(os.path.join(mfc_samples_folder, "RebarTest.exe"))
 
         self.app = app
-        self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.Rebar.WrapperObject()
+        self.dlg = app.RebarTest_RebarTest
+        self.ctrl = app.RebarTest_RebarTest.Rebar.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -910,9 +917,10 @@ class RebarTestCases(unittest.TestCase):
         band = self.ctrl.GetBand(0)
 
 
-        self.assertEquals(band.hwndChild, self.dlg.ToolBar.handle)
+        self.assertEquals(band.hwndChild, self.dlg.MenuBar.handle)
 
-        #self.assertEquals(band.text, "blah")
+        self.assertEquals(self.ctrl.GetBand(1).text, u"Tools band:")
+        self.assertEquals(self.ctrl.GetBand(0).text, u"Menus band:")
 
     def testGetToolTipsControl(self):
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)

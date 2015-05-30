@@ -797,14 +797,16 @@ class REBARBANDINFOW(Structure):
         ('cxIdeal', UINT),
         ('lParam', LPARAM),
         ('cxHeader', UINT),
-        #('rcChevronLocation', RECT), # the rect is in client co-ord wrt hwndChild
-        #('uChevronState', UINT)
+        # The fields below added for _WIN32_WINNT >= 0x0600 (Vista, Win7, ...)
+        # It means that sizeof(REBARBANDINFOW) is wrong for WinXP
+        ('rcChevronLocation', RECT), # the rect is in client co-ord wrt hwndChild
+        ('uChevronState', UINT)
     ]
 if sysinfo.is_x64_Python():
-    assert sizeof(REBARBANDINFOW) == 112, sizeof(REBARBANDINFOW) #128
+    assert sizeof(REBARBANDINFOW) == 128, sizeof(REBARBANDINFOW) #128
     assert alignment(REBARBANDINFOW) == 8, alignment(REBARBANDINFOW)
 else:
-    assert sizeof(REBARBANDINFOW) == 80, sizeof(REBARBANDINFOW) #100
+    assert sizeof(REBARBANDINFOW) == 100, sizeof(REBARBANDINFOW) #100
     assert alignment(REBARBANDINFOW) == 4, alignment(REBARBANDINFOW)
 
 
