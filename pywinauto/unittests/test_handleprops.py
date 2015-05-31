@@ -30,7 +30,7 @@ sys.path.append(".")
 from pywinauto.handleprops import *
 from pywinauto.application import Application
 from pywinauto import six
-from pywinauto.sysinfo import is_x64_OS
+from pywinauto.sysinfo import is_x64_OS, is_x64_Python
 
 
 class handlepropsTestCases(unittest.TestCase):
@@ -228,19 +228,20 @@ class handlepropsTestCases(unittest.TestCase):
         if is_x64_OS():
             # Test a 32-bit app running on x64
             expected_is64bit = False
-            exe32bit = os.path.join(os.path.dirname(__file__),
-                          r"..\..\apps\MFC_samples\RowList.exe")
-            app = Application().start_(exe32bit)
-            pid = app.RowListSampleApplication.ProcessID()
-            res_is64bit = is64bitprocess(pid)
-            try:
-              self.assertEquals(expected_is64bit, res_is64bit)
-            finally:
-              # make sure to close an additional app we have opened
-              app.kill_()
+            if is_x64_Python():
+                exe32bit = os.path.join(os.path.dirname(__file__),
+                              r"..\..\apps\MFC_samples\RowList.exe")
+                app = Application().start_(exe32bit)
+                pid = app.RowListSampleApplication.ProcessID()
+                res_is64bit = is64bitprocess(pid)
+                try:
+                    self.assertEquals(expected_is64bit, res_is64bit)
+                finally:
+                    # make sure to close an additional app we have opened
+                    app.kill_()
 
-            # setup expected for a 64-bit app on x64
-            expected_is64bit = True
+                # setup expected for a 64-bit app on x64
+                expected_is64bit = True
         else:
             # setup expected for a 32-bit app on x86
             expected_is64bit = False

@@ -831,8 +831,21 @@ class ToolbarTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.GetButton, 29)
 
     def testGetButtonRect(self):
-        self.assertEquals(self.ctrl.GetButtonRect(0), RECT(0, 0, 40, 38))
-        self.assertEquals(self.ctrl2.GetButtonRect(0), RECT(0, 0, 70, 38))
+        rect_ctrl = self.ctrl.GetButtonRect(0)
+        self.assertEquals((rect_ctrl.left, rect_ctrl.top), (0, 0))
+        self.failIf((rect_ctrl.right - rect_ctrl.left) > 40)
+        self.failIf((rect_ctrl.right - rect_ctrl.left) < 36)
+        self.failIf((rect_ctrl.bottom - rect_ctrl.top) > 38)
+        self.failIf((rect_ctrl.bottom - rect_ctrl.top) < 36)
+        #self.assertEquals(rect_ctrl, RECT(0, 0, 40, 38))
+        
+        rect_ctrl2 = self.ctrl2.GetButtonRect(0)
+        self.assertEquals((rect_ctrl2.left, rect_ctrl2.top), (0, 0))
+        self.failIf((rect_ctrl2.right - rect_ctrl2.left) > 70)
+        self.failIf((rect_ctrl2.right - rect_ctrl2.left) < 64)
+        self.failIf((rect_ctrl2.bottom - rect_ctrl2.top) > 38)
+        self.failIf((rect_ctrl2.bottom - rect_ctrl2.top) < 36)
+        #self.assertEquals(rect_ctrl2, RECT(0, 0, 70, 38))
 
     def testGetToolTipsControls(self):
         tips = self.ctrl.GetToolTipsControl()
