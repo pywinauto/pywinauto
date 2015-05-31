@@ -1047,7 +1047,7 @@ class Application(object):
         return self.window_(best_match = key)
 
     def __getattr__(self, key):
-        "Find the spedified dialog of the application"
+        "Find the specified dialog of the application"
 
         # dir (and possibly other code introspection asks for the following
         # members, these are deprecated and I am not using them so just

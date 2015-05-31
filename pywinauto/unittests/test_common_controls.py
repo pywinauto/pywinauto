@@ -933,23 +933,28 @@ class ToolTipsTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        self.texts = [u'Tooltip Tool 0', u'Tooltip Tool 1', u'Tooltip Tool 2']
+        self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder, "Tooltip.exe"))
+        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+        #app.start_(os.path.join(controlspy_folder, "Tooltip.exe"))
 
         self.app = app
-        self.dlg = app.MicrosoftControlSpy
+        self.dlg = app.Common_Controls_Sample
+        
+        self.dlg.TabControl.Select(u'CToolBarCtrl')
 
+        '''
         tips = app.windows_(
             visible_only = False,
             enabled_only = False,
             top_level_only = False,
             class_name = "tooltips_class32")
+        '''
 
-        self.ctrl = WrapHandle(tips[1])
+        self.ctrl = self.dlg.Toolbar.GetToolTipsControl() #WrapHandle(tips[1])
         #self.ctrl = HwndWrapper(tips[1])
 
 
@@ -993,7 +998,7 @@ class ToolTipsTestCases(unittest.TestCase):
         self.assertEquals(tip.text, self.texts[1])
 
     def testToolCount(self):
-        self.assertEquals(3, self.ctrl.ToolCount())
+        self.assertEquals(10, self.ctrl.ToolCount())
 
     def testGetTipText(self):
         self.assertEquals(self.texts[1], self.ctrl.GetTipText(1))
