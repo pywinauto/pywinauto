@@ -1193,6 +1193,44 @@ def AssertValidProcess(process_id):
     return process_handle
 
 #=========================================================================
+# Thanks to Yonggang Luo for pyWin32-independent implementation
+# https://code.google.com/r/luoyonggang-pywinauto/source/detail?r=6cb5b624db465720e19e7a3265bb7585bbc09452
+#
+def process_get_modules(name = None):
+    # set up the variable to pass to EnumProcesses
+    processes = (ctypes.c_int * 2000)()
+    bytes_returned = ctypes.c_int()
+
+    modules = []
+    # collect all the running processes
+    
+    pids = win32process.EnumProcesses()
+    for pid in pids:
+        if pid != 0: # skip system process (0x00000000)
+            try:
+                modules.append((pid, process_module(pid)))
+            except pywintypes.error as exc:
+                pass #print(exc)
+            except ProcessNotFoundError as exc:
+                pass #print(exc)
+    return modules
+    '''
+    implementation without pyWin32 extensions
+    ctypes.windll.psapi.EnumProcesses(
+        ctypes.byref(processes),
+        ctypes.sizeof(processes),
+        ctypes.byref(bytes_returned))
+
+    # Get the process names
+    for i in range(0, int(bytes_returned.value / ctypes.sizeof(ctypes.c_int))):
+        try:
+            if processes[i]:
+                modules.append((processes[i], process_module(processes[i])))
+        except ProcessNotFoundError:
+            pass
+    '''
+
+#=========================================================================
 def process_module(process_id):
     "Return the string module name of this process"
     process_handle = AssertValidProcess(process_id)
@@ -1211,36 +1249,7 @@ def process_module(process_id):
 def process_from_module(module):
     "Return the running process with path module"
 
-    # set up the variable to pass to EnumProcesses
-    processes = (ctypes.c_int * 2000)()
-    bytes_returned = ctypes.c_int()
-
-    modules = []
-    # collect all the running processes
-    
-    pids = win32process.EnumProcesses()
-    for pid in pids:
-        if pid != 0: # skip system process (0x00000000)
-            try:
-                modules.append((pid, process_module(pid)))
-            except pywintypes.error as exc:
-                pass #print(exc)
-            except ProcessNotFoundError as exc:
-                pass #print(exc)
-    '''
-    ctypes.windll.psapi.EnumProcesses(
-        ctypes.byref(processes),
-        ctypes.sizeof(processes),
-        ctypes.byref(bytes_returned))
-
-    # Get the process names
-    for i in range(0, int(bytes_returned.value / ctypes.sizeof(ctypes.c_int))):
-        try:
-            if processes[i]:
-                modules.append((processes[i], process_module(processes[i])))
-        except ProcessNotFoundError:
-            pass
-    '''
+    modules = process_get_modules()
 
     # check for a module with a matching name in reverse order
     # as we are most likely to want to connect to the last

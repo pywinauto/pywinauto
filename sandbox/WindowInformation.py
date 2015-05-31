@@ -1,4 +1,5 @@
 import time
+import sys
 from pywinauto.controls import HwndWrapper
 #from pywinauto.application import PrintControlIdentifiers
 from pywinauto import win32functions, win32structures
@@ -11,14 +12,19 @@ import ctypes
 
 
 lastwindow = 0
+lastpt = win32structures.POINT(0 , 0)
 while True:
     pt = win32structures.POINT()
     win32functions.GetCursorPos(ctypes.byref(pt))
 
     # if the mouse is over the same window -
     # then don't bother printing it again
-    if lastwindow == win32functions.WindowFromPoint(pt):
+    #if lastwindow == win32functions.WindowFromPoint(pt):
+        #continue
+
+    if pt == lastpt:
         continue
+    lastpt = pt
 
     wrapped_win = HwndWrapper.HwndWrapper(win32functions.WindowFromPoint(pt))
 
@@ -27,18 +33,18 @@ while True:
 
     parent =  wrapped_win.Parent()
     if parent:
-        print "In Window '%s' - '%s'" % (
-            parent.FriendlyClassName(), parent.WindowText().encode())#'mbcs', 'replace', "?"))
+        s = u"In Window '%s' - '%s'" % (parent.FriendlyClassName(), parent.WindowText())
+        print(s)
+        print pt.x, pt.y, win32functions.WindowFromPoint(pt)
 
     parent2 =  wrapped_win.TopLevelParent()
+    #print(sys.getfilesystemencoding())
+    #print(sys.getdefaultencoding())
     if parent2:
-        print "In Window '%s' - '%s'" % (
-            parent2.FriendlyClassName(), parent2.WindowText().encode())#'mbcs', 'replace'))
+        s = u"In Window '%s' - '%s'" % (parent2.FriendlyClassName(), parent2.WindowText())
+        print(s)
+        print pt.x, pt.y, win32functions.WindowFromPoint(pt)
 
-
-    print
-
-    #print pt.x, pt.y, win32functions.WindowFromPoint(pt)
 
 
     lastwindow = win32functions.WindowFromPoint(pt)
