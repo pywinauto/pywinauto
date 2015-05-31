@@ -495,9 +495,10 @@ class HeaderTestCases(unittest.TestCase):
 
     def testGetColumnRectangle(self):
         for i in range(0, 3):
-            self.assertEquals(
-                self.item_rects[i],
-                self.ctrl.GetColumnRectangle(i))
+            self.assertEquals(self.item_rects[i].left, self.ctrl.GetColumnRectangle(i).left)
+            self.assertEquals(self.item_rects[i].right, self.ctrl.GetColumnRectangle(i).right)
+            self.assertEquals(self.item_rects[i].top, self.ctrl.GetColumnRectangle(i).top)
+            self.failIf(abs(self.item_rects[i].bottom - self.ctrl.GetColumnRectangle(i).bottom) > 2)
 
     def testClientRects(self):
         test_rects = self.item_rects
