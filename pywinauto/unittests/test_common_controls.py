@@ -504,9 +504,13 @@ class HeaderTestCases(unittest.TestCase):
         test_rects = self.item_rects
         test_rects.insert(0, self.ctrl.ClientRect())
 
-        self.assertEquals(
-            test_rects,
-            self.ctrl.ClientRects())
+        client_rects = self.ctrl.ClientRects()
+        self.assertEquals(len(test_rects), len(client_rects))
+        for i in range(len(test_rects)):
+            self.assertEquals(test_rects[i].left, client_rects[i].left)
+            self.assertEquals(test_rects[i].right, client_rects[i].right)
+            self.assertEquals(test_rects[i].top, client_rects[i].top)
+            self.failIf(abs(test_rects[i].bottom - client_rects[i].bottom) > 2) # may be equal to 17 or 19
 
     def testGetColumnText(self):
         for i in range(0, 3):
