@@ -2324,7 +2324,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     # mask this class as it is not ready for prime time yet!
     friendlyclassname = "ToolTips"
     windowclasses = ["tooltips_class32",
-                     ".*ToolTip", ]
+                     ".*ToolTip",
+                     "#32774", "MS_WINNOTE", "VBBubble", ]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
