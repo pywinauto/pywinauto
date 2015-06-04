@@ -42,18 +42,18 @@ install:
 
   # install the appropriate Miniconda (Py2/Py3, 32/64 bit),
   # as well as pywin32, pillow and coverage
-  - "powershell ./install.ps1"
+  - "powershell ./ci/install.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
 build: false  # Not a C# project, build stuff at the test step instead.
 
 test_script:
   # Build the compiled extension and run the project tests
-  - "python pywinauto\\unittests\\testall.py"
+  - "powershell ./ci/runTestsuite.ps1"
+
 
 after_test:
-  # After tests list files in coverage report (just for debug)
-  #- ps: "ls Coverage_report"
+  # Nothing goes here
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.

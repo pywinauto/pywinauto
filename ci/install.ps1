@@ -93,7 +93,7 @@ function main () {
 
     InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
     UpdateConda $env:PYTHON
-    InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage"
+    InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage nose"
 }
 
 main
