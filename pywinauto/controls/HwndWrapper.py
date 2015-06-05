@@ -944,37 +944,49 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         "Press the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
 
-        _perform_click(self, button, pressed, coords, button_up = False)
+        _perform_click(self, button, pressed, coords, button_down=True, button_up=False)
         return self
 
     #-----------------------------------------------------------
     def PressMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
         "Press a mouse button using SendInput"
-        _perform_click_input(self, button, coords, button_up=False, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
+        _perform_click_input(self, button, coords, button_down=True, button_up=False, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
 
 
     #-----------------------------------------------------------
     def ReleaseMouse(self, button = "left", coords = (0, 0), pressed = ""):
         "Release the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
-        _perform_click(self, button, pressed, coords, button_down=False)
+        _perform_click(self, button, pressed, coords, button_down=False, button_up=True)
         return self
 
     #-----------------------------------------------------------
     def ReleaseMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
         "Release the mouse button"
-        _perform_click_input(self, button, coords, button_down=False, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
+        _perform_click_input(self, button, coords, button_down=False, button_up=True, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
 
     #-----------------------------------------------------------
     def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
+        "Move the mouse by WM_MOUSEMOVE"
+        
+        if not absolute:
+            self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
+        
+        _perform_click(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
+        
+        win32functions.WaitGuiThreadIdle(self)
+        return self
+
+    #-----------------------------------------------------------
+    def MoveMouseInput(self, coords = (0, 0), pressed = "", absolute = False):
         "Move the mouse"
         
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
+        
         _perform_click_input(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
         
         win32functions.WaitGuiThreadIdle(self)
-
         return self
 
     #-----------------------------------------------------------
@@ -984,17 +996,29 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         pressed = ""):
         "Drag the mouse"
 
-        self.PressMouse(button, press_coords, pressed)
-        self.MoveMouse(press_coords, pressed)
-        self.ReleaseMouse(button, release_coords, pressed)
+        if isinstance(press_coords, win32structures.POINT):
+            press_coords = (press_coords.x, press_coords.y)
+
+        if isinstance(release_coords, win32structures.POINT):
+            release_coords = (release_coords.x, release_coords.y)
+        
+        _pressed = pressed
+        if not _pressed:
+            _pressed = "left"
+        
+        self.PressMouse(button, press_coords, pressed=pressed)
+        for i in range(5):
+            self.MoveMouse((press_coords[0]+i,press_coords[1]), pressed=_pressed)
+        self.MoveMouse(release_coords, pressed=_pressed)
+        time.sleep(0.3)
+        self.ReleaseMouse(button, release_coords, pressed=pressed)
 
         return self
 
     #-----------------------------------------------------------
-    def DragMouseInput(self,
-        press_coords,
-        release_coords,
-        button = "left",
+    def DragMouseInput(self, button = "left",
+        press_coords = (0, 0),
+        release_coords = (0, 0),
         pressed = "",
         absolute = False):
         "Drag the mouse"
@@ -1006,8 +1030,10 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             release_coords = (release_coords.x, release_coords.y)
 
         self.PressMouseInput(button, press_coords, pressed, absolute=absolute)
-        time.sleep(0.5)
-        self.MoveMouse(release_coords, pressed="", absolute=absolute) # "left"
+        for i in range(5):
+            self.MoveMouseInput((press_coords[0]+i,press_coords[1]), pressed=pressed, absolute=absolute) # "left"
+        self.MoveMouseInput(release_coords, pressed=pressed, absolute=absolute) # "left"
+        time.sleep(0.3)
         self.ReleaseMouseInput(button, release_coords, pressed, absolute=absolute)
 
     #-----------------------------------------------------------
@@ -1561,7 +1587,6 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
         return self
 
-
     #-----------------------------------------------------------
     def GetToolbar(self):
         """Get the first child toolbar if it exists"""
@@ -1571,42 +1596,6 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
                 return child
 
         return None
-
-#
-#def MouseLeftClick():
-#    pass
-#def MouseRightClick():
-#    pass
-#def MouseDoubleClick():
-#    pass
-#def MouseDown():
-#    pass
-#def MouseUp():
-#    pass
-#def MoveMouse():
-#    pass
-#def DragMouse():
-#    pass
-#
-#def LeftClick(x, y):
-#    win32defines.MOUSEEVENTF_LEFTDOWN
-#    win32defines.MOUSEEVENTF_LEFTUP
-#
-#    # set the cursor position
-#    win32functions.SetCursorPos(x, y)
-#    time.sleep(Timings.after_setcursorpos_wait)
-#
-#    inp_struct = win32structures.INPUT()
-#    inp_struct.type = win32defines.INPUT_MOUSE
-#    for event in (win32defines.MOUSEEVENTF_LEFTDOWN, win32defines.MOUSEEVENTF_LEFTUP):
-#        inp_struct._.mi.dwFlags = event
-#        win32functions.SendInput(
-#            1,
-#            ctypes.pointer(inp_struct),
-#            ctypes.sizeof(inp_struct))
-#
-#        time.sleep(Timings.after_clickinput_wait)
-
 
 
 #====================================================================
@@ -1806,44 +1795,46 @@ def _perform_click(
     # figure out the messages for click/press
     msgs  = []
     if not double:
-        if button.lower() == "left":
+        if button.lower() == 'left':
             if button_down:
                 msgs.append(win32defines.WM_LBUTTONDOWN)
             if button_up:
                 msgs.append(win32defines.WM_LBUTTONUP)
-
-        elif button.lower() == "middle":
+        elif button.lower() == 'middle':
             if button_down:
                 msgs.append(win32defines.WM_MBUTTONDOWN)
             if button_up:
                 msgs.append(win32defines.WM_MBUTTONUP)
-
-        elif button.lower() == "right":
+        elif button.lower() == 'right':
             if button_down:
                 msgs.append(win32defines.WM_RBUTTONDOWN)
             if button_up:
                 msgs.append(win32defines.WM_RBUTTONUP)
+        elif button.lower() == 'move':
+            msgs.append(win32defines.WM_MOUSEMOVE)
 
     # figure out the messages for double clicking
     else:
-        if button.lower() == "left":
+        if button.lower() == 'left':
             msgs = (
                 win32defines.WM_LBUTTONDOWN,
                 win32defines.WM_LBUTTONUP,
                 win32defines.WM_LBUTTONDBLCLK,
                 win32defines.WM_LBUTTONUP)
-        elif button.lower() == "middle":
+        elif button.lower() == 'middle':
             msgs = (
                 win32defines.WM_MBUTTONDOWN,
                 win32defines.WM_MBUTTONUP,
                 win32defines.WM_MBUTTONDBLCLK,
                 win32defines.WM_MBUTTONUP)
-        elif button.lower() == "right":
+        elif button.lower() == 'right':
             msgs = (
                 win32defines.WM_RBUTTONDOWN,
                 win32defines.WM_RBUTTONUP,
                 win32defines.WM_RBUTTONDBLCLK,
                 win32defines.WM_RBUTTONUP)
+        elif button.lower() == 'move':
+            msgs.append(win32defines.WM_MOUSEMOVE)
 
     # figure out the flags and pack coordinates
     flags, click_point = _calc_flags_and_coords(pressed, coords)
@@ -1874,6 +1865,9 @@ def _perform_click(
               '" by ' + str(button) + ' button event (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
     if double:
         message = 'Double-c' + message[1:]
+    if button.lower() == 'move':
+        message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+              '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ') by WM_MOUSEMOVE'
     ActionLogger().log(message)
 
 

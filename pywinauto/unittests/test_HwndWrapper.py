@@ -32,7 +32,7 @@ import warnings
 import ctypes
 import locale
 
-import sys
+import sys, os
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper
@@ -56,6 +56,10 @@ except ImportError:
 
 import unittest
 
+mfc_samples_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
 
 class HwndWrapperTests(unittest.TestCase):
@@ -514,6 +518,43 @@ class HwndWrapperMouseTests(unittest.TestCase):
         app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
 
         self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text*3)
+
+
+class DragAndDropTests(unittest.TestCase):
+    "Unit tests for mouse actions like drag-n-drop"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application()
+        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        self.dlg = self.app.Common_Controls_Sample
+        self.ctrl = self.dlg.TreeView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.app.kill_()
+
+    '''
+    def testDragMouse(self):
+        "DragMouse works! But CmnCtrl1.exe crashes in infinite recursion."
+        birds = self.ctrl.GetItem(r'\Birds')
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.ctrl.DragMouse("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
+    '''
+
+    def testDragMouseInput(self):
+        "DragMouseInput works like a charm :)"
+        birds = self.ctrl.GetItem(r'\Birds')
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.ctrl.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 
 
 #

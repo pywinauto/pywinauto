@@ -700,9 +700,8 @@ class _treeview_element(object):
         #self.tree_ctrl.SetFocus()
         self.tree_ctrl.PressMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
         time.sleep(0.3)
-        self.tree_ctrl.MoveMouse(coords = (rect.left, rect.top), pressed=pressed)
-        
-        
+        for i in range(5):
+            self.tree_ctrl.MoveMouseInput(coords = (rect.left + i, rect.top), pressed=pressed)
 
     #----------------------------------------------------------------
     def Drop(self, button='left', pressed=''):
@@ -712,11 +711,10 @@ class _treeview_element(object):
         # find the text rectangle for the item
         point_to_click = self.Rectangle().mid_point()
         
-        time.sleep(0.3)
-        self.tree_ctrl.MoveMouse(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
-        time.sleep(0.3)
+        self.tree_ctrl.MoveMouseInput(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
+        time.sleep(0.1)
         self.tree_ctrl.ReleaseMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     #----------------------------------------------------------------
     def Collapse(self):
@@ -2000,7 +1998,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #        #print x, y
 #
 #
-#        self.MoveMouse(coords = (x, y))
+#        self.MoveMouseInput(coords = (x, y))
 #        self.SendMessage(
 #            win32defines.WM_MOUSEACTIVATE,
 #            self.Parent().Parent().Parent(),
