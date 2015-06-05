@@ -178,8 +178,8 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(rect.bottom, None)
         self.assertNotEqual(rect.right, None)
 
-        self.assertEqual(rect.height(), 310)
-        self.assertEqual(rect.width(), 413)
+        self.failIf(abs(rect.height() - 323) > 2)
+        self.failIf(abs(rect.width() - 423) > 2)
 
     def testClientRect(self):
         rect = self.dlg.Rectangle()
@@ -256,7 +256,7 @@ class HwndWrapperTests(unittest.TestCase):
         vk = self.dlg.SendMessage(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Inv.SendMessage(win32defines.WM_GETDLGCODE)
+        code = self.dlg.Degrees.SendMessage(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
 
@@ -265,12 +265,12 @@ class HwndWrapperTests(unittest.TestCase):
         vk = self.dlg.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Inv.SendMessageTimeout(win32defines.WM_GETDLGCODE)
+        code = self.dlg.Degrees.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
     def testPostMessage(self):
         self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
-        self.assertNotEquals(0, self.dlg.Inv.PostMessage(win32defines.WM_PAINT))
+        self.assertNotEquals(0, self.dlg.Degrees.PostMessage(win32defines.WM_PAINT))
 
 #    def testNotifyMenuSelect(self):
 #        "Call NotifyMenuSelect to ensure it does not raise"
@@ -396,10 +396,10 @@ class HwndWrapperTests(unittest.TestCase):
 
         self.dlg.TypeKeys("1234567")
         self.dlg.MenuSelect("Edit->Copy\tCtrl+C")
-        self.dlg.CE.Click()
+        self.dlg.Button8.Click()  # 'Button8' is a class name of the 'CE' button
         self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "0")
         self.dlg.MenuSelect("Edit->Paste\tCtrl+V")
-        self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "1 234 567")
+        self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "1,234,567")
 
     def testClose(self):
         "Test the Close() method of windows"
