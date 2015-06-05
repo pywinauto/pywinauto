@@ -3,7 +3,7 @@
 How To's
 ========
 
-How to sepcify an usable Application instance
+How to specify an usable Application instance
 ---------------------------------------------
 An ``Application()`` instance is the point of contact for all work
 with the app you are automating. So the Application instance needs
@@ -80,7 +80,7 @@ need to either sleep or program a wait loop to wait until the application
 has fully started.
 
 
-How to sepcify a dialog of the application
+How to specify a dialog of the application
 ------------------------------------------
 Once the application instance knows what application it is connected to
 a dialog to work on needs to be specified.
@@ -239,7 +239,7 @@ Sample output
     Static -    (L1466, T586, R1557, B594)
             'Static' 'BottomStatic'
 
-This exmple has been taken from test_application.py
+This example has been taken from test_application.py
 
 **Note** The identifiers printed by this method have been run through
 the process that makes the identifier unique. So if you have 2 edit boxes,
@@ -449,7 +449,7 @@ e.g.
 How To's
 ========
 
-How to sepcify an usable Application instance
+How to specify an usable Application instance
 ---------------------------------------------
 An ``Application()`` instance is the point of contact for all work
 with the app you are automating. So the Application instance needs
@@ -526,7 +526,7 @@ need to either sleep or program a wait loop to wait until the application
 has fully started.
 
 
-How to sepcify a dialog of the application
+How to specify a dialog of the application
 ------------------------------------------
 Once the application instance knows what application it is connected to
 a dialog to work on needs to be specified.
@@ -685,7 +685,7 @@ Sample output
     Static -    (L1466, T586, R1557, B594)
             'Static' 'BottomStatic'
 
-This exmple has been taken from test_application.py
+This example has been taken from test_application.py
 
 **Note** The identifiers printed by this method have been run through
 the process that makes the identifier unique. So if you have 2 edit boxes,
