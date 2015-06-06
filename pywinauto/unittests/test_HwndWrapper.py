@@ -31,6 +31,7 @@ import warnings
 
 import ctypes
 import locale
+import re
 
 import sys
 sys.path.append(".")
@@ -102,7 +103,8 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testWindowText(self):
         "Test getting the window Text of the dialog"
-        self.assertEquals(self.ctrl.WindowText(), '\uf013') #"Backspace")
+        self.assertEquals(
+            HwndWrapper(self.dlg.Degrees.handle).WindowText(), u'Degrees')
 
     def testStyle(self):
 
@@ -153,8 +155,7 @@ class HwndWrapperTests(unittest.TestCase):
     def testIsEnabled(self):
         self.assertEqual(self.ctrl.IsEnabled(), True)
         self.assertEqual(self.dlg.IsEnabled(), True)
-        self.assertEqual(self.dlg.ChildWindow(
-            title = '%', enabled_only = False).IsEnabled(), False)
+        self.assertEqual(self.dlg.Button26.IsEnabled(), False); # Button26 = '%'
 
     def testCloseClick_bug(self):
         self.dlg.MenuSelect('Help->About Calculator')
@@ -231,7 +232,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testTexts(self):
         self.assertEqual(self.dlg.Texts(), ['Calculator'])
-        self.assertEqual(self.ctrl.Texts(), ['\uf013']) #u'Backspace'])
+        self.assertEqual(HwndWrapper(self.dlg.Degrees.handle).Texts(), [u'Degrees'])
         self.assertEqual(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts(), ['0'])
 
     def testClientRects(self):
@@ -323,7 +324,7 @@ class HwndWrapperTests(unittest.TestCase):
     def testMoveWindow(self):
         "Test moving the window"
 
-        dlgClientRect = self.dlg.Rectangle() #.ClientAreaRect()
+        dlgClientRect = self.ctrl.Parent().Rectangle() # use the parent as a reference
 
         prev_rect = self.ctrl.Rectangle() - dlgClientRect
 
@@ -398,8 +399,18 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.MenuSelect("Edit->Copy\tCtrl+C")
         self.dlg.Button8.Click()  # 'Button8' is a class name of the 'CE' button
         self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "0")
+        
+        # get a pasted text 
         self.dlg.MenuSelect("Edit->Paste\tCtrl+V")
-        self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "1,234,567")
+        cur_str = self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0]
+
+        # use a regular expression to match the typed string 
+        # because on machines with different locales
+        # the digit groups can have different spacers. For example:
+        # "1,234,567" or "1 234 567" and so on.        
+        exp_pattern = u"1.234.567"
+        res = re.match(exp_pattern, cur_str)
+        self.assertNotEqual(res, None)
 
     def testClose(self):
         "Test the Close() method of windows"
