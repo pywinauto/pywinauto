@@ -535,9 +535,9 @@ class StatusBarTestCases(unittest.TestCase):
 
         self.texts = ["Long text", "", "Status Bar"]
         self.part_rects = [
-            RECT(0, 2, 65, 20),
-            RECT(67, 2, 90, 20),
-            RECT(92, 2, 357, 20)]
+            RECT(0, 2, 65, 22),
+            RECT(67, 2, 90, 22),
+            RECT(92, 2, 261, 22)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
         self.ctrl = app.MicrosoftControlSpy.StatusBar.WrapperObject()
