@@ -560,7 +560,7 @@ class DragAndDropTests(unittest.TestCase):
     '''
 
     def testDragMouseInput(self):
-        "DragMouseInput works like a charm :)"
+        "test for DragMouseInput"
         birds = self.ctrl.GetItem(r'\Birds')
         dogs = self.ctrl.GetItem(r'\Dogs')
         self.ctrl.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())

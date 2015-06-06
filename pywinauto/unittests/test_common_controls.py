@@ -604,13 +604,25 @@ class StatusBarTestCases(unittest.TestCase):
         "Make sure the part rectangles are retrieved correctly"
 
         for i in range(0, self.ctrl.PartCount()):
-            self.assertEquals (self.ctrl.GetPartRect(i), self.part_rects[i])
+            part_rect = self.ctrl.GetPartRect(i)
+            self.assertEquals (part_rect.left, self.part_rects[i].left)
+            if i != self.ctrl.PartCount() - 1:
+                self.assertEquals (part_rect.right, self.part_rects[i].right)
+            self.assertEquals (part_rect.top, self.part_rects[i].top)
+            self.failIf (abs(part_rect.bottom - self.part_rects[i].bottom) > 2)
 
         self.assertRaises(IndexError, self.ctrl.GetPartRect, 99)
 
     def testClientRects(self):
         self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
-        self.assertEquals(self.part_rects, self.ctrl.ClientRects()[1:])
+        client_rects = self.ctrl.ClientRects()[1:]
+        for i in range(len(client_rects)):
+            client_rect = client_rects[i]
+            self.assertEquals (self.part_rects[i].left, client_rect.left)
+            if i != len(client_rects) - 1:
+                self.assertEquals (self.part_rects[i].right, client_rect.right)
+            self.assertEquals (self.part_rects[i].top, client_rect.top)
+            self.failIf (abs(self.part_rects[i].bottom - client_rect.bottom) > 2)
 
     def testGetPartText(self):
         self.assertRaises(IndexError, self.ctrl.GetPartText, 99)
