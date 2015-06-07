@@ -164,7 +164,7 @@ class HwndWrapperTests(unittest.TestCase):
     def testCloseClick_bug(self):
         self.dlg.MenuSelect('Help->About Calculator')
         self.app.AboutCalculator.CloseButton.CloseClick()
-        Timings.closeclick_dialog_close_wait = .5
+        Timings.closeclick_dialog_close_wait = .7
         try:
             self.app.AboutCalculator.CloseClick()
         except timings.TimeoutError:
@@ -495,11 +495,11 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
     def testClick(self):
-        self.ctrl.Click(coords = (50, 10))
+        self.ctrl.Click(coords = (56, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testClickInput(self):
-        self.ctrl.ClickInput(coords = (50, 10))
+        self.ctrl.ClickInput(coords = (56, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testDoubleClick(self):
