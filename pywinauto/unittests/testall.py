@@ -5,13 +5,13 @@ import unittest
 
 import coverage
 
-# needs to be called before importing the modules
-cov = coverage.coverage(branch = True)
-cov.start()
-
 testfolder = os.path.abspath(os.path.dirname(__file__))
 package_root = os.path.abspath(os.path.join(testfolder, r"..\.."))
 sys.path.append(package_root)
+
+# needs to be called before importing the modules
+cov = coverage.coverage(branch = True, omit = os.path.join(package_root, 'pywinauto', '*tests', '*.py'))
+cov.start()
 
 import pywinauto
 
@@ -49,7 +49,8 @@ def run_tests():
     #print(cov.analysis())
     print(cov.report())
     cov.html_report(
-        directory = os.path.join(package_root, "Coverage_report"))
+        directory = os.path.join(package_root, "Coverage_report"),
+        omit = os.path.join(package_root, 'pywinauto', '*tests', '*.py'))
 
 
 if __name__ == '__main__':
