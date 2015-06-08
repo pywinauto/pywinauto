@@ -1128,10 +1128,11 @@ class UpDownTestCases(unittest.TestCase):
     def testGetBase(self):
         "Test getting the base of the up-down control"
         self.assertEquals (self.ctrl.GetBase(), 10)
-        self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
+        #self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
 
         # use CloseClick to allow the control time to respond to the message
-        self.dlg.Send.ClickInput()
+        #self.dlg.Send.ClickInput()
+        self.ctrl.SetBase(16)
 
         self.assertEquals (self.ctrl.GetBase(), 16)
 

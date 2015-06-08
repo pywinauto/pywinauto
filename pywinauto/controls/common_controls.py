@@ -2389,6 +2389,11 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
         return self.SendMessage(win32defines.UDM_GETBASE)
 
     #----------------------------------------------------------------
+    def SetBase(self, base_value):
+        "Get the base the UpDown control (either 10 or 16)"
+        return self.SendMessage(win32defines.UDM_SETBASE, base_value)
+
+    #----------------------------------------------------------------
     def GetRange(self):
         "Return the lower, upper range of the up down control"
         updown_range = self.SendMessage(win32defines.UDM_GETRANGE)
