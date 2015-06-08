@@ -31,6 +31,7 @@ import time
 import pprint
 import pdb
 import os
+import win32api
 
 sys.path.append(".")
 from pywinauto import six
@@ -643,6 +644,7 @@ class TabControlTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
         from pywinauto.application import Application
@@ -654,18 +656,32 @@ class TabControlTestCases(unittest.TestCase):
             "Saturn", "Jupiter", "Mars",
             "Earth", "Venus", "Mercury", "Sun"]
 
-        self.rects = [
-            RECT(2,2,80,21),
-            RECT(80,2,174,21),
-            RECT(174,2,261,21),
-            RECT(2,21,91,40),
-            RECT(91,21,180,40),
-            RECT(180,21,261,40),
-            RECT(2,40,64,59),
-            RECT(64,40,131,59),
-            RECT(131,40,206,59),
-            RECT(206,40,261,59),
-        ]
+        if self.screen_w > 1700:
+            self.rects = [
+                RECT(2,2,63,21),
+                RECT(63,2,141,21),
+                RECT(141,2,212,21),
+                RECT(212,2,280,21),
+                RECT(280,2,348,21),
+                RECT(2,21,68,40),
+                RECT(68,21,135,40),
+                RECT(135,21,207,40),
+                RECT(207,21,287,40),
+                RECT(287,21,348,40),
+            ]
+        else:
+            self.rects = [
+                RECT(2,2,80,21),
+                RECT(80,2,174,21),
+                RECT(174,2,261,21),
+                RECT(2,21,91,40),
+                RECT(91,21,180,40),
+                RECT(180,21,261,40),
+                RECT(2,40,64,59),
+                RECT(64,40,131,59),
+                RECT(131,40,206,59),
+                RECT(206,40,261,59),
+            ]
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
@@ -706,7 +722,10 @@ class TabControlTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testRowCount(self):
-        self.assertEquals(3, self.ctrl.RowCount())
+        if self.screen_w > 1700:
+            self.assertEquals(2, self.ctrl.RowCount())
+        else:
+            self.assertEquals(3, self.ctrl.RowCount())
 
     def testGetSelectedTab(self):
         self.assertEquals(6, self.ctrl.GetSelectedTab())
@@ -1112,7 +1131,7 @@ class UpDownTestCases(unittest.TestCase):
         self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
 
         # use CloseClick to allow the control time to respond to the message
-        self.dlg.Send.Click()
+        self.dlg.Send.ClickInput()
 
         self.assertEquals (self.ctrl.GetBase(), 16)
 

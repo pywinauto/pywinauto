@@ -32,6 +32,7 @@ import warnings
 import ctypes
 import locale
 import re
+import win32api
 
 import sys, os
 sys.path.append(".")
@@ -183,8 +184,12 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(rect.bottom, None)
         self.assertNotEqual(rect.right, None)
 
-        self.failIf(abs(rect.height() - 323) > 2)
-        self.failIf(abs(rect.width() - 423) > 2)
+        if abs(rect.height() - 323) > 2:
+            if rect.height() != 310:
+                self.assertEqual(rect.height(), 323)
+        if abs(rect.width() - 423) > 2:
+            if rect.width() != 413:
+                self.assertEqual(rect.width(), 423)
 
     def testClientRect(self):
         rect = self.dlg.Rectangle()
@@ -445,6 +450,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
         self.app = Application()
@@ -495,11 +501,17 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
     def testClick(self):
-        self.ctrl.Click(coords = (56, 10))
+        if self.screen_w > 1700:
+            self.ctrl.Click(coords = (50, 10))
+        else:
+            self.ctrl.Click(coords = (56, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testClickInput(self):
-        self.ctrl.ClickInput(coords = (56, 10))
+        if self.screen_w > 1700:
+            self.ctrl.ClickInput(coords = (50, 10))
+        else:
+            self.ctrl.ClickInput(coords = (56, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testDoubleClick(self):
