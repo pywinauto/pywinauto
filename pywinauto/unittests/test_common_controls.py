@@ -647,29 +647,23 @@ class TabControlTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder, "Tab.exe"))
+        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.texts = [
-            "Pluto", "Neptune", "Uranus",
-            "Saturn", "Jupiter", "Mars",
-            "Earth", "Venus", "Mercury", "Sun"]
+            u"CTreeCtrl", u"CAnimateCtrl", u"CToolBarCtrl", 
+            u"CDateTimeCtrl", u"CMonthCalCtrl"]
 
         self.rects = [
-            RECT(2,2,80,21),
-            RECT(80,2,174,21),
-            RECT(174,2,261,21),
-            RECT(2,21,91,40),
-            RECT(91,21,180,40),
-            RECT(180,21,261,40),
-            RECT(2,40,64,59),
-            RECT(64,40,131,59),
-            RECT(131,40,206,59),
-            RECT(206,40,261,59),
+            RECT(2,   2, 58,  20), 
+            RECT(58,  2, 130, 20), 
+            RECT(130, 2, 201, 20), 
+            RECT(201, 2, 281, 20), 
+            RECT(281, 2, 360, 20)
         ]
 
         self.app = app
-        self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.TabControl.WrapperObject()
+        self.dlg = app.CommonControlsSample
+        self.ctrl = app.CommonControlsSample.TabControl.WrapperObject() 
 
         #self.dlg.MenuSelect("Styles")
 
@@ -706,18 +700,40 @@ class TabControlTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testRowCount(self):
-        self.assertEquals(3, self.ctrl.RowCount())
+        self.assertEquals(1, self.ctrl.RowCount())
+
+        dlgClientRect = self.ctrl.Parent().Rectangle() # use the parent as a reference
+        prev_rect = self.ctrl.Rectangle() - dlgClientRect
+
+        # squeeze the tab control to force two rows
+        new_rect = win32structures.RECT(prev_rect)
+        new_rect.right = int(new_rect.width() / 2) 
+
+        self.ctrl.MoveWindow(
+            new_rect.left,
+            new_rect.top,
+            new_rect.width(),
+            new_rect.height(),
+            )
+        time.sleep(0.1)
+
+        # verify two tab rows
+        self.assertEquals(2, self.ctrl.RowCount())
+
+        # restore back the original size of the control
+        self.ctrl.MoveWindow(prev_rect)
+        self.assertEquals(1, self.ctrl.RowCount())
 
     def testGetSelectedTab(self):
-        self.assertEquals(6, self.ctrl.GetSelectedTab())
-        self.ctrl.Select(0)
         self.assertEquals(0, self.ctrl.GetSelectedTab())
-        self.ctrl.Select("Jupiter")
+        self.ctrl.Select(1)
+        self.assertEquals(1, self.ctrl.GetSelectedTab())
+        self.ctrl.Select(u"CMonthCalCtrl")
         self.assertEquals(4, self.ctrl.GetSelectedTab())
 
     def testTabCount(self):
         "Make sure the number of parts is retrieved correctly"
-        self.assertEquals (self.ctrl.TabCount(), 10)
+        self.assertEquals (self.ctrl.TabCount(), 5)
 
     def testGetTabRect(self):
         "Make sure the part rectangles are retrieved correctly"
@@ -756,12 +772,12 @@ class TabControlTestCases(unittest.TestCase):
         self.assertEquals(self.rects, self.ctrl.ClientRects()[1:])
 
     def testSelect(self):
-        self.assertEquals(6, self.ctrl.GetSelectedTab())
+        self.assertEquals(0, self.ctrl.GetSelectedTab())
 
         self.ctrl.Select(1)
         self.assertEquals(1, self.ctrl.GetSelectedTab())
-        self.ctrl.Select("Mercury")
-        self.assertEquals(8, self.ctrl.GetSelectedTab())
+        self.ctrl.Select(u"CToolBarCtrl")
+        self.assertEquals(2, self.ctrl.GetSelectedTab())
 
         self.assertRaises(IndexError, self.ctrl.Select, 99)
 
