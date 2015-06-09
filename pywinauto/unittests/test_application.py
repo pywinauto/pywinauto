@@ -542,7 +542,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def testWait(self):
         "test the functionality and timing of the wait method"
 
-        allowable_error = .02
+        allowable_error = .03
 
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))

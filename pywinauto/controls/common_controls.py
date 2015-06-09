@@ -703,9 +703,8 @@ class _treeview_element(object):
         #self.tree_ctrl.SetFocus()
         self.tree_ctrl.PressMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
         time.sleep(0.3)
-        self.tree_ctrl.MoveMouse(coords = (rect.left, rect.top), pressed=pressed)
-        
-        
+        for i in range(5):
+            self.tree_ctrl.MoveMouseInput(coords = (rect.left + i, rect.top), pressed=pressed)
 
     #----------------------------------------------------------------
     def Drop(self, button='left', pressed=''):
@@ -715,11 +714,10 @@ class _treeview_element(object):
         # find the text rectangle for the item
         point_to_click = self.Rectangle().mid_point()
         
-        time.sleep(0.3)
-        self.tree_ctrl.MoveMouse(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
-        time.sleep(0.3)
+        self.tree_ctrl.MoveMouseInput(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
+        time.sleep(0.1)
         self.tree_ctrl.ReleaseMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     #----------------------------------------------------------------
     def Collapse(self):
@@ -2013,7 +2011,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #        #print x, y
 #
 #
-#        self.MoveMouse(coords = (x, y))
+#        self.MoveMouseInput(coords = (x, y))
 #        self.SendMessage(
 #            win32defines.WM_MOUSEACTIVATE,
 #            self.Parent().Parent().Parent(),
@@ -2236,8 +2234,9 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
             win32defines.RBBIM_TEXT
 
         # set the pointer for the text
-        band_info.pszText = ctypes.c_long(remote_mem.Address() + ctypes.sizeof(band_info))
-        band_info.cchText = 2000
+        band_info.lpText = win32structures.LPWSTR(
+            remote_mem.Address() + ctypes.sizeof(band_info))
+        band_info.cch = 2000
 
         # write the structure
         remote_mem.Write(band_info)
@@ -2252,7 +2251,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Read(band_info)
 
         # read the text
-        band_info.text = ctypes.create_unicode_buffer(1999)
+        band_info.text = ctypes.create_unicode_buffer(2000)
         remote_mem.Read(band_info.text, remote_mem.Address() + ctypes.sizeof(band_info))
 
         band_info.text = band_info.text.value
@@ -2339,9 +2338,14 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     # mask this class as it is not ready for prime time yet!
     friendlyclassname = "ToolTips"
     windowclasses = ["tooltips_class32",
+<<<<<<< HEAD
                      ".*ToolTip", ]
     controltypes = [
         UIA_ToolTipControlTypeId]
+=======
+                     ".*ToolTip",
+                     "#32774", "MS_WINNOTE", "VBBubble", ]
+>>>>>>> master
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2407,6 +2411,11 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     def GetBase(self):
         "Get the base the UpDown control (either 10 or 16)"
         return self.SendMessage(win32defines.UDM_GETBASE)
+
+    #----------------------------------------------------------------
+    def SetBase(self, base_value):
+        "Get the base the UpDown control (either 10 or 16)"
+        return self.SendMessage(win32defines.UDM_SETBASE, base_value)
 
     #----------------------------------------------------------------
     def GetRange(self):

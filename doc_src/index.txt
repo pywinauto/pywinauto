@@ -1,8 +1,9 @@
 ====================
 What is pywinauto
 ====================
-(c) Mark Mc Mahon 2006-2009
-Released under the LGPL licence
+(c) Mark Mc Mahon 2006-2015
+
+Released under the LGPL v2.1 licence
 
 
 :ref:`Full table of contents. <contents-root>`
@@ -16,13 +17,15 @@ dialogs and controls.
 
 Installation
 ------------
-- Download pywinauto from https://sourceforge.net/project/showfiles.php?group_id=157379
+- Download pywinauto from https://github.com/pywinauto/pywinauto/archive/master.zip
 - Unzip the pywinauto zip file to a folder.
 - Run ``python.exe setup.py install``
 - Install the following Python packages
 
-  - *Optional* PIL          http://www.pythonware.com/products/pil/index.htm
-  - *Optional* elementtree  http://effbot.org/downloads/
+  - *Required* (*optional* for ActivePython)  pyWin32                    http://sourceforge.net/projects/pywin32/files/pywin32/Build%20219/
+
+  - *Optional* Pillow (fork of PIL)          https://pypi.python.org/pypi/Pillow/2.7.0
+  - *Optional* elementtree (ships with Py 2.5+)  http://effbot.org/downloads/
   - Releases prior to 0.3.9 require Sendkeys - http://www.rutherfurd.net/python/sendkeys/index.html
   - If you are using Python 2.3 or 2.4 then you will have to install ctypes  http://starship.python.net/crew/theller/ctypes/ (download from http://sourceforge.net/project/showfiles.php?group_id=71702)
 
@@ -89,7 +92,7 @@ Some similar tools for comparison
 * Other free tools
 
   - AutoIt (http://www.autoitscript.com/)
-  - See collection at: http://tejasconsulting.com/open-testware/feature/gui-test-driver-survey.html
+  - See collection at: https://github.com/atinfo/awesome-test-automation
 
 * Commercial tools
 

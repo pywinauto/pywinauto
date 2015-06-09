@@ -87,8 +87,8 @@ num_slants = 20
 
 # draw the axes
 canvas.PressMouse(coords = (size, size * num_slants))
-canvas.MoveMouse(coords = (size*num_slants, size*num_slants))
-canvas.MoveMouse(coords = (size * num_slants, size))
+canvas.MoveMouseInput(coords = (size*num_slants, size*num_slants))
+canvas.MoveMouseInput(coords = (size * num_slants, size))
 canvas.ReleaseMouse()
 
 # now draw the lines
@@ -98,7 +98,7 @@ for i in range(1, num_slants):
 
     endcoords = (size * (num_slants - i), size * num_slants)
     canvas.PressMouse(coords = (size * num_slants, i * size)) # start
-    canvas.MoveMouse(coords = endcoords) # x and y axes
+    canvas.MoveMouseInput(coords = endcoords) # x and y axes
     canvas.ReleaseMouse(coords = endcoords)
 
 # may fail if PIL is not installed

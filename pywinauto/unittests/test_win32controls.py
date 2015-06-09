@@ -43,6 +43,11 @@ Timings.Fast()
 Timings.window_find_timeout = 3
 Timings.closeclick_dialog_close_wait = .5
 
+mfc_samples_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
 
 class ButtonTestCases(unittest.TestCase):
     "Unit tests for the ComboBoxWrapper class"
@@ -158,22 +163,14 @@ class ComboBoxTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        self.app.start_("Notepad.exe")
+        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
 
-        self.app.UntitledNotepad.MenuSelect("Format->Font")
+        self.app.Common_Controls_Sample.TabControl.Select("CSpinButtonCtrl")
 
-        self.ctrl = self.app.Font.ScriptComboBox.WrapperObject()
+        self.ctrl = self.app.Common_Controls_Sample.AlignmentComboBox.WrapperObject()
 
     def tearDown(self):
         "Close the application after tests"
-
-        self.app.Font.Cancel.CloseClick()
-
-        # close the application
-        self.app.UntitledNotepad.MenuSelect("File->Exit")
-
-        if self.app.UntitledNotepad["Do&n't Save"].Exists():
-            self.app.UntitledNotepad["Do&n't Save"].Click()
         self.app.kill_()
 
     def testGetProperties(self):
@@ -192,7 +189,7 @@ class ComboBoxTestCases(unittest.TestCase):
 
     def testItemCount(self):
         "Test that ItemCount returns the correct number of items"
-        self.assertEquals(self.ctrl.ItemCount(), 5)
+        self.assertEquals(self.ctrl.ItemCount(), 3)
 
     def testDroppedRect(self):
         "Test that the dropped rect is correct"
@@ -201,18 +198,18 @@ class ComboBoxTestCases(unittest.TestCase):
         self.assertEquals(rect.left, 0)
         self.assertEquals(rect.top, 0)
         self.assertEquals(rect.right, self.ctrl.ClientRect().right)
-        self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() + 77)
+        self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() + 48)
 
     def testSelectedIndex(self):
         "That the control returns the correct index for the selected item"
-        self.ctrl.Select(2)
-        self.assertEquals(self.ctrl.SelectedIndex(), 2)
+        self.ctrl.Select(1)
+        self.assertEquals(self.ctrl.SelectedIndex(), 1)
         #self.assertEquals(self.ctrl.Texts()[3], self.app.Font.Edit2.Texts()[1])
 
     def testSelect_negative(self):
         "Test that the Select method correctly handles negative indices"
         self.ctrl.Select(-1)
-        self.assertEquals(self.ctrl.SelectedIndex(), 4)
+        self.assertEquals(self.ctrl.SelectedIndex(), 2)
 
     def testSelect_toohigh(self):
         "Test that the Select correctly raises if the item is too high"
@@ -222,24 +219,24 @@ class ComboBoxTestCases(unittest.TestCase):
         "Test that we can select based on a string"
         self.ctrl.Select(0)
         self.assertEquals(self.ctrl.SelectedIndex(), 0)
-        self.ctrl.Select("Central European")
-        self.assertEquals(self.ctrl.SelectedIndex(), 4)
+        self.ctrl.Select("Left (UDS_ALIGNLEFT)")
+        self.assertEquals(self.ctrl.SelectedIndex(), 1)
 
         # now do it with a typo
-        self.assertRaises(ValueError, self.ctrl.Select, "Bold Italc")
+        self.assertRaises(ValueError, self.ctrl.Select, "Right (UDS_ALIGNRIGT)")
 
     def testSelect_simpleCombo(self):
         "Test selection for a simple combo"
-        self.app.Font.ScriptComboBox.Select(0)
-        self.assertEquals(self.app.Font.ScriptComboBox.SelectedIndex(), 0)
-        self.app.Font.ScriptComboBox.Select(2)
-        self.assertEquals(self.app.Font.ScriptComboBox.SelectedIndex(), 2)
+        self.app.Common_Controls_Sample.OrientationComboBox.Select(0)
+        self.assertEquals(self.app.Common_Controls_Sample.OrientationComboBox.SelectedIndex(), 0)
+        self.app.Common_Controls_Sample.OrientationComboBox.Select(1)
+        self.assertEquals(self.app.Common_Controls_Sample.OrientationComboBox.SelectedIndex(), 1)
 
     def testItemData(self):
         "Test that it doesn't raise"
         self.ctrl.ItemData(0)
         self.ctrl.ItemData(1)
-        self.ctrl.ItemData("Central European")
+        self.ctrl.ItemData("Right (UDS_ALIGNRIGHT)")
         self.ctrl.ItemData(self.ctrl.ItemCount() - 1)
 
 #

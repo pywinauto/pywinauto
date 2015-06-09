@@ -31,8 +31,10 @@ import warnings
 
 import ctypes
 import locale
+import re
+import win32api
 
-import sys
+import sys, os
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper
@@ -56,6 +58,10 @@ except ImportError:
 
 import unittest
 
+mfc_samples_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
 
 class HwndWrapperTests(unittest.TestCase):
@@ -102,7 +108,8 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testWindowText(self):
         "Test getting the window Text of the dialog"
-        self.assertEquals(self.ctrl.WindowText(), '\uf013') #"Backspace")
+        self.assertEquals(
+            HwndWrapper(self.dlg.Degrees.handle).WindowText(), u'Degrees')
 
     def testStyle(self):
 
@@ -153,13 +160,12 @@ class HwndWrapperTests(unittest.TestCase):
     def testIsEnabled(self):
         self.assertEqual(self.ctrl.IsEnabled(), True)
         self.assertEqual(self.dlg.IsEnabled(), True)
-        self.assertEqual(self.dlg.ChildWindow(
-            title = '%', enabled_only = False).IsEnabled(), False)
+        self.assertEqual(self.dlg.Button26.IsEnabled(), False); # Button26 = '%'
 
     def testCloseClick_bug(self):
         self.dlg.MenuSelect('Help->About Calculator')
         self.app.AboutCalculator.CloseButton.CloseClick()
-        Timings.closeclick_dialog_close_wait = .5
+        Timings.closeclick_dialog_close_wait = .7
         try:
             self.app.AboutCalculator.CloseClick()
         except timings.TimeoutError:
@@ -178,8 +184,12 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(rect.bottom, None)
         self.assertNotEqual(rect.right, None)
 
-        self.assertEqual(rect.height(), 310)
-        self.assertEqual(rect.width(), 413)
+        if abs(rect.height() - 323) > 2:
+            if rect.height() != 310:
+                self.assertEqual(rect.height(), 323)
+        if abs(rect.width() - 423) > 2:
+            if rect.width() != 413:
+                self.assertEqual(rect.width(), 423)
 
     def testClientRect(self):
         rect = self.dlg.Rectangle()
@@ -231,7 +241,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testTexts(self):
         self.assertEqual(self.dlg.Texts(), ['Calculator'])
-        self.assertEqual(self.ctrl.Texts(), ['\uf013']) #u'Backspace'])
+        self.assertEqual(HwndWrapper(self.dlg.Degrees.handle).Texts(), [u'Degrees'])
         self.assertEqual(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts(), ['0'])
 
     def testClientRects(self):
@@ -256,7 +266,7 @@ class HwndWrapperTests(unittest.TestCase):
         vk = self.dlg.SendMessage(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Inv.SendMessage(win32defines.WM_GETDLGCODE)
+        code = self.dlg.Degrees.SendMessage(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
 
@@ -265,12 +275,12 @@ class HwndWrapperTests(unittest.TestCase):
         vk = self.dlg.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Inv.SendMessageTimeout(win32defines.WM_GETDLGCODE)
+        code = self.dlg.Degrees.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
     def testPostMessage(self):
         self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
-        self.assertNotEquals(0, self.dlg.Inv.PostMessage(win32defines.WM_PAINT))
+        self.assertNotEquals(0, self.dlg.Degrees.PostMessage(win32defines.WM_PAINT))
 
 #    def testNotifyMenuSelect(self):
 #        "Call NotifyMenuSelect to ensure it does not raise"
@@ -323,7 +333,7 @@ class HwndWrapperTests(unittest.TestCase):
     def testMoveWindow(self):
         "Test moving the window"
 
-        dlgClientRect = self.dlg.Rectangle() #.ClientAreaRect()
+        dlgClientRect = self.ctrl.Parent().Rectangle() # use the parent as a reference
 
         prev_rect = self.ctrl.Rectangle() - dlgClientRect
 
@@ -396,10 +406,20 @@ class HwndWrapperTests(unittest.TestCase):
 
         self.dlg.TypeKeys("1234567")
         self.dlg.MenuSelect("Edit->Copy\tCtrl+C")
-        self.dlg.CE.Click()
+        self.dlg.Button8.Click()  # 'Button8' is a class name of the 'CE' button
         self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "0")
+        
+        # get a pasted text 
         self.dlg.MenuSelect("Edit->Paste\tCtrl+V")
-        self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "1 234 567")
+        cur_str = self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0]
+
+        # use a regular expression to match the typed string 
+        # because on machines with different locales
+        # the digit groups can have different spacers. For example:
+        # "1,234,567" or "1 234 567" and so on.        
+        exp_pattern = u"1.234.567"
+        res = re.match(exp_pattern, cur_str)
+        self.assertNotEqual(res, None)
 
     def testClose(self):
         "Test the Close() method of windows"
@@ -430,6 +450,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
         self.app = Application()
@@ -480,11 +501,17 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
     def testClick(self):
-        self.ctrl.Click(coords = (50, 10))
+        if self.screen_w > 1700:
+            self.ctrl.Click(coords = (50, 10))
+        else:
+            self.ctrl.Click(coords = (56, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testClickInput(self):
-        self.ctrl.ClickInput(coords = (50, 10))
+        if self.screen_w > 1700:
+            self.ctrl.ClickInput(coords = (50, 10))
+        else:
+            self.ctrl.ClickInput(coords = (56, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testDoubleClick(self):
@@ -514,6 +541,43 @@ class HwndWrapperMouseTests(unittest.TestCase):
         app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
 
         self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text*3)
+
+
+class DragAndDropTests(unittest.TestCase):
+    "Unit tests for mouse actions like drag-n-drop"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application()
+        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        self.dlg = self.app.Common_Controls_Sample
+        self.ctrl = self.dlg.TreeView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.app.kill_()
+
+    '''
+    def testDragMouse(self):
+        "DragMouse works! But CmnCtrl1.exe crashes in infinite recursion."
+        birds = self.ctrl.GetItem(r'\Birds')
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.ctrl.DragMouse("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
+    '''
+
+    def testDragMouseInput(self):
+        "test for DragMouseInput"
+        birds = self.ctrl.GetItem(r'\Birds')
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.ctrl.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
+        dogs = self.ctrl.GetItem(r'\Dogs')
+        self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 
 
 #
