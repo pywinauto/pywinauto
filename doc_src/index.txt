@@ -80,14 +80,15 @@ Some similar tools for comparison
 ---------------------------------
 * Python tools
 
-  - Watsup (http://www.tizmoi.net/watsup/intro.html)
+  - PyAutoGui (https://github.com/asweigart/pyautogui)
+  - AXUI (https://github.com/xcgspring/AXUI)
   - winGuiAuto (http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html)
 
 * Other scripting language tools
 
-  - Perl Win32::GuiTest  (http://erngui.com/prog/perl/guitest/)
-  - Ruby GuiTest (http://raa.ruby-lang.org/list.rhtml?name=win32-guitest)
-  - others (http://opensourcetesting.org/)
+  - Perl Win32::GuiTest  (http://winguitest.sourceforge.net/)
+  - Ruby Win32-Autogui (https://github.com/robertwahler/win32-autogui)
+  - others (http://www.opensourcetesting.org/functional.php)
 
 * Other free tools
 

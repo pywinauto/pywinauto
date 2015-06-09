@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 pywinauto 
 (c) Mark Mc Mahon 2006 
 Released under the LGPL licence
@@ -172,5 +171,4 @@ Some similar tools for comparison
     - WinRunner
     - SilkTest
     - Visual Test
->>>>>>> pywinauto64master
     - Many Others
