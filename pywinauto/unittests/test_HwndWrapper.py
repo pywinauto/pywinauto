@@ -32,7 +32,6 @@ import warnings
 import ctypes
 import locale
 import re
-import win32api
 
 import sys, os
 sys.path.append(".")
@@ -452,7 +451,6 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
         self.app = Application()
@@ -504,17 +502,11 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
     def testClick(self):
-        if self.screen_w > 1700:
-            self.ctrl.Click(coords = (50, 10))
-        else:
-            self.ctrl.Click(coords = (56, 10))
+        self.ctrl.Click(coords = (52, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testClickInput(self):
-        if self.screen_w > 1700:
-            self.ctrl.ClickInput(coords = (50, 10))
-        else:
-            self.ctrl.ClickInput(coords = (56, 10))
+        self.ctrl.ClickInput(coords = (52, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testDoubleClick(self):
