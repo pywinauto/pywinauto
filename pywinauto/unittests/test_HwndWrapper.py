@@ -164,6 +164,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testCloseClick_bug(self):
         self.dlg.MenuSelect('Help->About Calculator')
+        self.app.AboutCalculator.Wait("visible", 10)
         self.app.AboutCalculator.CloseButton.CloseClick()
         Timings.closeclick_dialog_close_wait = .7
         try:
@@ -427,6 +428,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.MenuSelect('Help->About Calculator')
         
         # make sure it is open and visible
+        self.app.AboutCalculator.Wait("visible", 10)
         self.assertTrue(self.app.Window_(title='About Calculator').IsVisible(), True)
 
         # close it
@@ -461,6 +463,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
         # Get the old font
         self.app.UntitledNotepad.MenuSelect("Format->Font")
+        self.app.Font.Wait("visible", 20)
 
         self.old_font = self.app.Font.FontComboBox.SelectedIndex()
         self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
