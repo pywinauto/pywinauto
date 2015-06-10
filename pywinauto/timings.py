@@ -92,7 +92,7 @@ __revision__ = "$Revision: 453 $"
 
 #=========================================================================
 class TimeConfig(object):
-    "Central storage and minipulation of timing values"
+    "Central storage and manipulation of timing values"
     __default_timing = {
         'window_find_timeout' : 5,
         'window_find_retry' : .09,
@@ -144,6 +144,9 @@ class TimeConfig(object):
         'after_listboxfocuschange_wait': 0,
         'after_editsetedittext_wait': 0,
         'after_editselect_wait': 0.01,
+        'drag_n_drop_move_mouse_wait': 0.1,
+        'before_drop_wait': 0.3,
+        'after_drag_n_drop_wait': 0.1,
     }
 
 

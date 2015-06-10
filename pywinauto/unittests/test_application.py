@@ -543,7 +543,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def testWait(self):
         "test the functionality and timing of the wait method"
 
-        allowable_error = .06
+        allowable_error = .09
 
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))
@@ -582,7 +582,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         * raises and error when criteria not met
         * timing is close to the timeout value"""
-        allowable_error = .05
+        allowable_error = .11
 
         start = time.time()
         self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
