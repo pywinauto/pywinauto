@@ -1009,10 +1009,11 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         self.PressMouse(button, press_coords, pressed=pressed)
         for i in range(5):
             self.MoveMouse((press_coords[0]+i,press_coords[1]), pressed=_pressed)
+            time.sleep(Timings.drag_n_drop_move_mouse_wait)
         self.MoveMouse(release_coords, pressed=_pressed)
-        time.sleep(0.3)
+        time.sleep(Timings.before_drop_wait)
         self.ReleaseMouse(button, release_coords, pressed=pressed)
-
+        time.sleep(Timings.after_drag_n_drop_wait)
         return self
 
     #-----------------------------------------------------------
@@ -1037,6 +1038,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         time.sleep(Timings.before_drop_wait)
         self.ReleaseMouseInput(button, release_coords, pressed, absolute=absolute)
         time.sleep(Timings.after_drag_n_drop_wait)
+        return self
 
     #-----------------------------------------------------------
     def MouseWheelInput(self,
