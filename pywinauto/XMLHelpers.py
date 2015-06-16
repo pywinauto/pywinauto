@@ -45,6 +45,7 @@ except ImportError:
 import ctypes
 import re
 import codecs
+import bz2
 try:
     import PIL.Image
     PIL_imported = True
@@ -108,7 +109,7 @@ def _SetNodeProps(element, name, value):
                 raise MemoryError
 
             #print('type(value) = ' + str(type(value)))
-            image_data = codecs.encode(codecs.encode(value.tobytes(), "bz2"), "base64").decode('utf-8')
+            image_data = codecs.encode(bz2.compress(value.tobytes()), "base64").decode('utf-8')
             _SetNodeProps(
                 element,
                 name + "_IMG",
@@ -419,7 +420,7 @@ def _ReadXMLStructure(control_element):
 
             # get image Attribs
             img = _GetAttributes(elem)
-            data = codecs.decode(codecs.decode(img['data'].encode('utf-8'), 'base64'), 'bz2')
+            data = bz2.decompress(codecs.decode(img['data'].encode('utf-8'), 'base64'))
 
             if PIL_imported is False:
                 raise RuntimeError('PIL is not installed!')
