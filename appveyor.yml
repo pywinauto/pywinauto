@@ -11,25 +11,29 @@ shallow_clone: true                 # default is "false"
 environment:
 
   matrix:
-    - PYTHON: "C:\\Python27_32"
+    - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
-      CONDA_PY: "27"
 
-    - PYTHON: "C:\\Python34_32"
-      PYTHON_VERSION: "3.4"
-      PYTHON_ARCH: "32"
-      CONDA_PY: "34"
-
-    - PYTHON: "C:\\Python27_64"
+    - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
-      CONDA_PY: "27"
 
-    - PYTHON: "C:\\Python34_64"
+    - PYTHON: "C:\\Python33"
+      PYTHON_VERSION: "3.3"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python33-x64"
+      PYTHON_VERSION: "3.3"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python34-x64"
       PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "64"
-      CONDA_PY: "34"
 os:
   - unstable # Unstable worker image with logged in user, desktop and interactive build agent
 
@@ -42,8 +46,14 @@ install:
 
   # install the appropriate Miniconda (Py2/Py3, 32/64 bit),
   # as well as pywin32, pillow and coverage
-  - "powershell ./ci/install.ps1"
+  #- "powershell ./ci/install.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Install the build dependencies of the project. If some dependencies contain
+  # compiled extensions and are not provided as pre-built wheel packages,
+  # pip will build them from source using the MSVC compiler matching the
+  # target Python version and architecture
+  - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
 
 build: false  # Not a C# project, build stuff at the test step instead.
 
@@ -58,6 +68,10 @@ after_test:
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
   - path: Coverage_report
+  #- path: dragging_start.jpg
+  #- path: dragging_move.jpg
+  #- path: dragging_move_final.jpg
+  #- path: dragging_drop.jpg
 
 #on_success:
 #  - TODO: 

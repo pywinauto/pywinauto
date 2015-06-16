@@ -1,0 +1,4 @@
+nose
+pypiwin32
+Pillow
+coverage
