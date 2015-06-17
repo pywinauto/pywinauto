@@ -231,7 +231,7 @@ class handlepropsTestCases(unittest.TestCase):
             if is_x64_Python():
                 exe32bit = os.path.join(os.path.dirname(__file__),
                               r"..\..\apps\MFC_samples\RowList.exe")
-                app = Application().start_(exe32bit)
+                app = Application().start_(exe32bit, timeout=20)
                 pid = app.RowListSampleApplication.ProcessID()
                 res_is64bit = is64bitprocess(pid)
                 try:
