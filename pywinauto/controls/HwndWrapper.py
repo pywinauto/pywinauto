@@ -1041,7 +1041,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         return self
 
     #-----------------------------------------------------------
-    def MouseWheelInput(self,
+    def WheelMouseInput(self,
         coords = (None, None),
         wheel_dist = 1,
         pressed = ""):
