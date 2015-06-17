@@ -460,8 +460,8 @@ class HwndWrapperMouseTests(unittest.TestCase):
             self.app.start_(r"C:\Windows\SysWOW64\notepad.exe")
 
         # Get the old font
-        self.app.UntitledNotepad.MenuSelect("Format->Font")
-        self.app.Font.Wait("visible", 20)
+        self.app.UntitledNotepad.MenuSelect("Format->Font...")
+        self.app.Font.Wait("visible", 30)
 
         self.old_font = self.app.Font.FontComboBox.SelectedIndex()
         self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
@@ -570,6 +570,8 @@ class DragAndDropTests(unittest.TestCase):
         "test for DragMouseInput"
         birds = self.ctrl.GetItem(r'\Birds')
         dogs = self.ctrl.GetItem(r'\Dogs')
+        birds.ClickInput()
+        time.sleep(5) # enough pause to prevent double click detection
         self.ctrl.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
         dogs = self.ctrl.GetItem(r'\Dogs')
         self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
