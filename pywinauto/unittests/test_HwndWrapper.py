@@ -427,7 +427,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.MenuSelect('Help->About Calculator')
         
         # make sure it is open and visible
-        self.app.AboutCalculator.Wait("visible", 10)
+        self.app.AboutCalculator.Wait("visible", 20)
         self.assertTrue(self.app.Window_(title='About Calculator').IsVisible(), True)
 
         # close it
