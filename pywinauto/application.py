@@ -857,7 +857,7 @@ class Application(object):
     connect = staticmethod(__connect)
     Connect = connect
 
-    def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console=False):
+    def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console = False, wait_for_idle = True):
         "Starts the application giving in cmd_line"
 
         if timeout is None:
@@ -911,11 +911,12 @@ class Application(object):
 
             return bool(self.windows_())
 
-        # Wait until the application is ready after starting it
-        try:
-            WaitUntil(timeout, retry_interval, AppIdle)
-        except TimeoutError:
-            pass
+        if wait_for_idle:
+            # Wait until the application is ready after starting it
+            try:
+                WaitUntil(timeout, retry_interval, AppIdle)
+            except TimeoutError:
+                pass
 
         return self
 
