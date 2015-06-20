@@ -62,11 +62,8 @@ import os.path
 import warnings
 import pickle
 
-import ctypes
 
-from . import six
-from . import win32structures
-from . import win32functions
+#from . import win32functions
 from . import win32defines
 from . import controls
 from . import findbestmatch
@@ -703,7 +700,7 @@ def _resolve_from_appdata(
                     ctrl = controls.WrapHandle(ctrl_hwnds[0])
                 except IndexError:
                     print("-+-+=_" * 20)
-                    print(found_criteria)
+                    #print(found_criteria)
                     raise
 
                 break
@@ -785,7 +782,7 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
     * **retry_interval** - how long to wait between each retry (default .2)
     """
 
-    start = time.time()
+    #start = time.time()
 
     if timeout is None:
         timeout = Timings.window_find_timeout
@@ -1198,9 +1195,6 @@ def AssertValidProcess(process_id):
 # https://code.google.com/r/luoyonggang-pywinauto/source/detail?r=6cb5b624db465720e19e7a3265bb7585bbc09452
 #
 def process_get_modules(name = None):
-    # set up the variable to pass to EnumProcesses
-    processes = (ctypes.c_int * 2000)()
-    bytes_returned = ctypes.c_int()
 
     modules = []
     # collect all the running processes
@@ -1217,6 +1211,9 @@ def process_get_modules(name = None):
     return modules
     '''
     implementation without pyWin32 extensions
+    # set up the variable to pass to EnumProcesses
+    processes = (ctypes.c_int * 2000)()
+    bytes_returned = ctypes.c_int()
     ctypes.windll.psapi.EnumProcesses(
         ctypes.byref(processes),
         ctypes.sizeof(processes),
