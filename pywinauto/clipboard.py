@@ -22,13 +22,7 @@
 
 __revision__ = "$Revision$"
 
-import ctypes
 import win32clipboard
-
-try:
-    from ctypes.wintypes import WinError
-except:
-    from ctypes import WinError
 
 
 #====================================================================
@@ -109,5 +103,5 @@ def EmptyClipboard():
 
 
 #====================================================================
-if __name__ == "__main__":
-    _unittests()
+#if __name__ == "__main__":
+#    _unittests()
