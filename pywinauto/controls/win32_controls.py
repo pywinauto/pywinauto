@@ -40,7 +40,6 @@ from .. import win32structures
 from .. import controlproperties
 from ..RemoteMemoryBlock import RemoteMemoryBlock
 
-from .. import tests
 from ..timings import Timings
 
 #====================================================================
@@ -843,6 +842,9 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def RunTests(self, tests_to_run = None, ref_controls = None):
         "Run the tests on dialog"
+
+        # the tests package is imported only when running unittests
+        from .. import tests
 
         # get all the controls
         controls = [self] + self.Children()
