@@ -447,7 +447,7 @@ class HeaderTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, "RowList.exe"))
+        app.start_(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
 
         self.texts = [u'Color', u'Red', u'Green', u'Blue', u'Hue', u'Sat', u'Lum', u'Type']
         self.item_rects = [
