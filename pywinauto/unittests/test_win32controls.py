@@ -362,7 +362,7 @@ class EditTestCases(unittest.TestCase):
         print('self.test_data:')
         print(self.test_data.encode('utf-8', 'ignore'))
 
-        app.start_("Notepad.exe " + test_file)
+        app.start_("Notepad.exe " + test_file, timeout=20)
 
         self.app = app
         self.dlg = app.UntitledNotepad
