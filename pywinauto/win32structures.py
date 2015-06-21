@@ -23,7 +23,7 @@ from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
-from .win32defines import LF_FACESIZE, HDITEMW_V1_SIZE
+from .win32defines import LF_FACESIZE
 from . import six
 from . import sysinfo
 

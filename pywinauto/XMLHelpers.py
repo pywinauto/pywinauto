@@ -44,7 +44,6 @@ except ImportError:
 
 import ctypes
 import re
-import codecs
 import bz2, base64
 try:
     import PIL.Image

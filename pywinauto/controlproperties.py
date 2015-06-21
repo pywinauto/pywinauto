@@ -22,11 +22,6 @@
 
 __revision__ = "$Rev: 439 $"
 
-try:
-    import pywinauto
-except ImportError:
-    import sys
-    sys.path.append("..")
 
 from pywinauto.win32structures import RECT, LOGFONTW
 
