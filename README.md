@@ -24,12 +24,13 @@ but it also supports more complex actions.
  - [x] Clicks can be performed with pressed Ctrl or Shift
  - [x] Drag-n-drop and scrolling methods (DragMouse, DragMouseInput, MouseWheelInput)
  - [x] Improved menu support: handling OWNERDRAW menu items; access by command_id (like `$23453`)
+ - [x] Resolved issues with py2exe and cx_freeze
  - [x] `RemoteMemoryBlock` can now detect memory corruption by checking guard signature
  - [ ] Upgraded `taskbar` module
  - [x] `sysinfo` module for checking 32-bit or 64-bit OS and Python
  - [x] `set_foreground` flag in `TypeKeys` method for typing into in-place controls
- - [x] `create_new_console` flag in `Application.start_` method
-
+ - [x] flags `create_new_console` and `wait_for_idle` in `Application.start` method
+ 
 ### Supported controls
 * Native Windows controls (full support through Win32 API)
 * .NET Windows Forms (partial support through Win32 API, some basic controls only)
