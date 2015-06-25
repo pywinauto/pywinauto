@@ -71,7 +71,9 @@ def run_tests():
     print(cov.report())
     cov.html_report(
         directory = os.path.join(package_root, "Coverage_report"),
-        omit = os.path.join(package_root, 'pywinauto', '*tests', '*.py'))
+        omit = [os.path.join(package_root, 'pywinauto', '*tests', '*.py'),
+                os.path.join(package_root, 'pywinauto', 'six.py'), ]
+        )
 
 
 if __name__ == '__main__':

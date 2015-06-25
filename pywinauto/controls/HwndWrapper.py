@@ -894,22 +894,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         """Close the window by pressing Alt+F4 keys."""
 
         time.sleep(Timings.before_closeclick_wait)
-
         self.TypeKeys('%{F4}')
-
-        def has_closed():
-            return not (
-                win32functions.IsWindow(self) or
-                win32functions.IsWindow(self.Parent()))
-
-        # Keep waiting until both this control and it's parent
-        # are no longer valid controls
-        timings.WaitUntil(
-            Timings.closeclick_dialog_close_wait,
-            Timings.closeclick_retry,
-            has_closed
-        )
-
         time.sleep(Timings.after_closeclick_wait)
 
         return self

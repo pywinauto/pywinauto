@@ -177,6 +177,10 @@ class HwndWrapperTests(unittest.TestCase):
 
         #self.assertEquals(self.app.StatisticsBox.Exists(), False)
 
+    def testCloseAltF4(self):
+        self.dlg.MenuSelect('Help->About Calculator')
+        self.app.AboutCalculator.Wait("visible", 10)
+        self.assertNotEqual(self.app.AboutCalculator.CloseAltF4().IsVisible(), True)
 
     def testRectangle(self):
         "Test getting the rectangle of the dialog"
@@ -539,6 +543,41 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
         self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text*3)
 
+#    def testRightClick(self):
+#        pass
+
+    def testRightClickInput(self):
+        self.dlg.Edit.RightClickInput()
+        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].Click()
+        self.dlg.Edit.TypeKeys('{DEL}')
+        self.assertEquals(self.dlg.Edit.TextBlock(), '')
+
+#
+#    def testPressMouse(self):
+#        pass
+#
+#    def testReleaseMouse(self):
+#        pass
+#
+#    def testMoveMouse(self):
+#        pass
+#
+#    def testDragMouse(self):
+#        pass
+#
+#    def testSetWindowText(self):
+#        pass
+#
+#    def testTypeKeys(self):
+#        pass
+#
+#    def testDebugMessage(self):
+#        pass
+#
+#    def testDrawOutline(self):
+#        pass
+#
+
 
 class DragAndDropTests(unittest.TestCase):
     "Unit tests for mouse actions like drag-n-drop"
@@ -577,36 +616,6 @@ class DragAndDropTests(unittest.TestCase):
         self.ctrl.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
         dogs = self.ctrl.GetItem(r'\Dogs')
         self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
-
-
-#
-#    def testRightClick(self):
-#        pass
-#
-#    def testPressMouse(self):
-#        pass
-#
-#    def testReleaseMouse(self):
-#        pass
-#
-#    def testMoveMouse(self):
-#        pass
-#
-#    def testDragMouse(self):
-#        pass
-#
-#    def testSetWindowText(self):
-#        pass
-#
-#    def testTypeKeys(self):
-#        pass
-#
-#    def testDebugMessage(self):
-#        pass
-#
-#    def testDrawOutline(self):
-#        pass
-#
 
 
 
