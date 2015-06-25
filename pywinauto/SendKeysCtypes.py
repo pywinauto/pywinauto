@@ -745,6 +745,6 @@ def main(): #pragma: no cover
             time.sleep(.1)
         print()
 
-if __name__ == "__main__":
+if __name__ == "__main__": #pragma: no cover
 
-    main()
+    main() #pragma: no cover

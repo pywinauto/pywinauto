@@ -10,43 +10,42 @@ to be connected to a process. There are two ways of doing this:
 
   ::
 
-   start_(self, cmd_line, timeout = app_start_timeout):
+    start(self, cmd_line, timeout = app_start_timeout) # static method:
+    start_(self, cmd_line, timeout = app_start_timeout) # instance method:
 
 or:
 
   ::
 
-    connect_(self, **kwargs):
+    connect(self, **kwargs) # static method:
+    connect_(self, **kwargs) # instance method:
 
-``start_()`` is used when the application is not running and you
+``start()`` is used when the application is not running and you
 need to start it. Use it in the following way:
 
   ::
 
-   app = Application()
-   app.start_(r"c:\path\to\your\application -a -n -y --arguments")
+   app = Application.start(r"c:\path\to\your\application -a -n -y --arguments")
 
 The timeout parameter is optional, it should only be necessary to use
 it if the application takes a long time to start up.
 
-``connect_()`` is used when the application to be automated is already
-running. To specify a an already runing application you need to specify
+``connect()`` is used when the application to be automated is already
+running. To specify an already running application you need to specify
 one of the following:
 
 :process: the process id of the application, e.g.
 
   ::
 
-              app = Application()
-              app.connect_(process = 2341)
+              app = Application.connect(process = 2341)
 
 
 :handle: The windows handle of a window of the application, e.g.
 
   ::
 
-              app = Application()
-              app.connect_(handle = 0x010f0c)
+              app = Application.connect(handle = 0x010f0c)
 
 
 :path: The path of the executable of the process (``GetModuleFileNameEx``
@@ -55,8 +54,7 @@ one of the following:
 
   ::
 
-          app = Application()
-          app.connect_(path = r"c:\windows\system32\notepad.exe")
+          app = Application.connect(path = r"c:\windows\system32\notepad.exe")
 
 
 or any combination of the parameters that specify a window, these get
@@ -64,8 +62,7 @@ passed to the ``findwindows.find_windows()`` function.  e.g.
 
   ::
 
-          app = Application()
-          app.connect_(title_re = ".*Notepad", class_name = "Notepad")
+          app = Application.connect(title_re = ".*Notepad", class_name = "Notepad")
 
 
 **Note**: I have since added static methods Application.start() and
@@ -171,12 +168,12 @@ the contol. And append the friendly class. So the list becomes
 Once a set of identifiers has been created for all controls in the dialog
 we disambiguate them.
 
-use the `WindowSpecification.print_control_identifiers()` method
+use the `WindowSpecification.PrintControlIdentifiers()` method
 
 e.g. 
   ::
 
-   app.YourDialog.print_control_identifiers()
+   app.YourDialog.PrintControlIdentifiers()
 
 Sample output
   ::
@@ -433,10 +430,10 @@ e.g.
   ::
 
     # connect to outlook
-    outlook = Application().connect_(path = 'outlook.exe')
+    outlook = Application.connect(path = 'outlook.exe')
 
     # click on Outlook's icon
-    taskbar.ClickSystemTrayIcon(2)
+    taskbar.ClickSystemTrayIcon("Microsoft Outlook")
 
     # Select an item in the popup menu
     outlook.PopupMenu.MenuClick("Cancel Server Request")
