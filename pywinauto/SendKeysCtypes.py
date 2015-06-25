@@ -693,7 +693,7 @@ def SendKeys(keys,
         time.sleep(pause)
 
 
-def main():
+def main(): #pragma: no cover
     "Send some test strings"
 
     actions = """

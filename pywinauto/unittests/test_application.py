@@ -529,11 +529,11 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # try ones that should be found immediately
         start = time.time()
         self.assertEquals(True, self.dlgspec.Exists())
-        self.assertEquals(True, time.time() - start < .15)
+        self.assertEquals(True, time.time() - start < .2)
 
         start = time.time()
         self.assertEquals(True, self.ctrlspec.Exists())
-        self.assertEquals(True, time.time() - start < .15)
+        self.assertEquals(True, time.time() - start < .2)
 
         # try one that should not be found
         start = time.time()
