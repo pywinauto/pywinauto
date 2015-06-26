@@ -63,15 +63,12 @@ test_script:
 
 
 after_test:
-  # Nothing goes here
+  # Generate coverage report on codecov.io (token is not required for AppVeyor)
+  - codecov
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
   - path: Coverage_report
-  #- path: dragging_start.jpg
-  #- path: dragging_move.jpg
-  #- path: dragging_move_final.jpg
-  #- path: dragging_drop.jpg
 
 #on_success:
 #  - TODO: 
