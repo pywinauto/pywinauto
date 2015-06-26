@@ -1,9 +1,9 @@
 ====================
 What is pywinauto
 ====================
-(c) Mark Mc Mahon 2006-2015
+&copy; Mark Mc Mahon (maintainance by Intel Corporation since 2015)
 
-Released under the LGPL v2.1 licence
+Released under the LGPL v2.1 or later
 
 
 :ref:`Full table of contents. <contents-root>`
@@ -17,23 +17,23 @@ dialogs and controls.
 
 Installation
 ------------
+- Install the following Python packages
+  - *Required* pyWin32                    http://sourceforge.net/projects/pywin32/files/pywin32/Build%20219/
+  - *Optional* Pillow (fork of PIL)          https://pypi.python.org/pypi/Pillow/2.7.0
 - Download pywinauto from https://github.com/pywinauto/pywinauto/archive/master.zip
 - Unzip the pywinauto zip file to a folder.
 - Run ``python.exe setup.py install``
-- Install the following Python packages
 
-  - *Required* (*optional* for ActivePython)  pyWin32                    http://sourceforge.net/projects/pywin32/files/pywin32/Build%20219/
+Installation in silent mode
+------------
+- Just run ``pip install pywinauto``
 
-  - *Optional* Pillow (fork of PIL)          https://pypi.python.org/pypi/Pillow/2.7.0
-  - *Optional* elementtree (ships with Py 2.5+)  http://effbot.org/downloads/
-  - Releases prior to 0.3.9 require Sendkeys - http://www.rutherfurd.net/python/sendkeys/index.html
-  - If you are using Python 2.3 or 2.4 then you will have to install ctypes  http://starship.python.net/crew/theller/ctypes/ (download from http://sourceforge.net/project/showfiles.php?group_id=71702)
 
 To check you have it installed correctly
 Run Python ::
 
-  >>> from pywinauto import application
-  >>> app = application.Application.start("notepad.exe")
+  >>> from pywinauto.application import Application
+  >>> app = Application.start("notepad.exe")
   >>> app.notepad.TypeKeys("%FX")
 
 
@@ -41,6 +41,8 @@ Where to start
 --------------
 Look at the examples provided in test_application.py
 There are examples in there to work with Notepad and MSPaint.
+
+Code examples can also be found here: https://gist.github.com/vasily-v-ryabov
 
 
 How does it work
