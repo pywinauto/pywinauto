@@ -32,8 +32,8 @@ import os
 import os.path
 import unittest
 import time
-import pprint
-import pdb
+#import pprint
+#import pdb
 import warnings
 
 import sys
@@ -231,7 +231,7 @@ class ApplicationTestCases(unittest.TestCase):
         "Test that connect_() works with a windowspec"
         app1 = Application()
         app1.start_(_notepad_exe())
-        handle = app1.UntitledNotepad.handle
+        #unused var: handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
         try:

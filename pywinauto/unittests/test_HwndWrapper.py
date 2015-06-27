@@ -27,11 +27,11 @@ from __future__ import unicode_literals
 "Tests for HwndWrapper"
 
 import time
-import pprint
-import pdb
-import warnings
+#import pprint
+#import pdb
+#import warnings
 
-import ctypes
+#import ctypes
 import locale
 import re
 
@@ -653,7 +653,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 
         props_from_dialog = GetDialogPropsFromHandle(self.dlg)
 
-        props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
+        #unused var: props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
 
         self.assertEquals(props_from_handle, props_from_dialog)
 

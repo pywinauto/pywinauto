@@ -28,17 +28,17 @@ __revision__ = "$Revision: 234 $"
 # pylint:  disable-msg=W0212,F0401,R0904
 
 import os, sys
-import codecs, locale
+import codecs #, locale
 sys.path.append(".")
 from pywinauto.controls.win32_controls import *
-from pywinauto import XMLHelpers, six
+from pywinauto import XMLHelpers #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 import unittest
 
 # following imports are not required for the tests
 # but are useful for debugging
-import pprint
+#import pprint
 
 from pywinauto.timings import Timings
 Timings.Fast()
