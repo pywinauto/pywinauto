@@ -40,7 +40,7 @@ from .. import win32functions
 from .. import win32defines
 from .. import findbestmatch
 from ..RemoteMemoryBlock import RemoteMemoryBlock
-from .. import SendKeysCtypes as SendKeys
+#from .. import SendKeysCtypes as SendKeys
 from ..timings import Timings
 
 class MenuItemInfo:

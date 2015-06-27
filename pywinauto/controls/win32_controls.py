@@ -40,7 +40,6 @@ from .. import win32defines
 from .. import win32structures
 #from .. import findbestmatch
 from .. import controlproperties
-from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 from ..timings import Timings
 
@@ -727,6 +726,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
                 buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
         #buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
         '''
+        from ..RemoteMemoryBlock import RemoteMemoryBlock
         remote_mem = RemoteMemoryBlock(self)
         _setTextExStruct = win32structures.SETTEXTEX()
         _setTextExStruct.flags = win32defines.ST_SELECTION #| win32defines.ST_UNICODE
