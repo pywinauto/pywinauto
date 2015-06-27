@@ -64,7 +64,7 @@ test_script:
 
 after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
-  #- codecov
+  - codecov
   # bug report: https://github.com/codecov/support/issues/44
 
 artifacts:
