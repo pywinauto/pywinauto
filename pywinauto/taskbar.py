@@ -96,7 +96,7 @@ ShowDesktop = TaskBar.TrayShowDesktopButtonWClass
 
 # these are the icons - what people normally think of
 # as the system tray
-SystemTrayIcons = TaskBar.Toolbar
+SystemTrayIcons = TaskBar.NotificationAreaToolbar
 
 # the toolbar with the running applications
 RunningApplications = TaskBar.MSTaskListWClass
