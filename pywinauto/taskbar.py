@@ -1,5 +1,6 @@
 # GUI Application automation and testing library
 # Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 Zoya Maslova (Nizhny Novgorod State University)
 # Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -37,16 +38,24 @@ def TaskBarHandle():
 
 
 def _get_visible_button_index(reqd_button):
-    "Get the nth visible icon"
-    cur_button = -1
-    for i in range(0, SystemTrayIcons.ButtonCount()):
-        if not SystemTrayIcons.GetButton(i).fsState & \
-            win32defines.TBSTATE_HIDDEN:
+    return SystemTrayIcons.Button(reqd_button).index
 
-            cur_button += 1
+def _click_hidden_tray_icon(reqd_button, is_left_click = True):
+    #ShowHiddenIconsButton.ClickInput()
+    popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
+    try:
+        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        button_index = popup_toolbar.Button(reqd_button).index
+    except:
+        ShowHiddenIconsButton.ClickInput() # may fail from PythonWin when script takes long time
+        popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
+        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        button_index = popup_toolbar.Button(reqd_button).index
 
-        if cur_button == reqd_button:
-            return i
+    if is_left_click:
+        popup_toolbar.Button(button_index).ClickInput()
+    else:
+        popup_toolbar.Button(button_index).ClickInput(button='right')
 
 def ClickSystemTrayIcon(button):
     "Click on a visible tray icon given by button"
@@ -56,10 +65,15 @@ def ClickSystemTrayIcon(button):
 
 def RightClickSystemTrayIcon(button):
     "Right click on a visible tray icon given by button"
-    button = _get_visible_button_index(button)
-    r = SystemTrayIcons.GetButtonRect(button)
-    SystemTrayIcons.RightClickInput(coords = (r.left+2, r.top+2))
+    SystemTrayIcons.Button(button).ClickInput(button='right')
 
+def ClickHiddenSystemTrayIcon(button):
+    "Click on a hidden tray icon given by button"
+    _click_hidden_tray_icon(button, is_left_click = True)
+
+def RightClickHiddenSystemTrayIcon(button):
+    "Right click on a hidden tray icon given by button"
+    _click_hidden_tray_icon(button, is_left_click = False)
 
 
 # windows explorer owns all these windows so get that app
@@ -71,20 +85,27 @@ TaskBar = explorer_app.window_(handle = TaskBarHandle())
 # The Start button
 StartButton = TaskBar.Start
 
-# the Quick Launch toolbar
-QuickLaunch = TaskBar.QuickLaunch
-
 # the system tray - contains various windows
 SystemTray = TaskBar.TrayNotifyWnd
 
 # the clock is in the system tray
 Clock = TaskBar.TrayClockWClass
 
+# the show desktop button
+ShowDesktop = TaskBar.TrayShowDesktopButtonWClass
+
 # these are the icons - what people normally think of
 # as the system tray
-SystemTrayIcons = TaskBar.NoficationArea
+SystemTrayIcons = TaskBar.Toolbar
 
 # the toolbar with the running applications
-RunningApplications = TaskBar.RunningApplicationsToolbar
+RunningApplications = TaskBar.MSTaskListWClass
 
+# the language bar
+try:
+    LangPanel = TaskBar.CiceroUIWndFrame.Wait('visible', 0.1) # Win7
+except:
+    LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 
+# the hidden tray icons button (TODO: think how to optimize)
+ShowHiddenIconsButton = [ch for ch in TaskBar.Children() if ch.FriendlyClassName() == 'Button'][-1] #TaskBar.Button #added

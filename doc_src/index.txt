@@ -1,7 +1,7 @@
 ====================
 What is pywinauto
 ====================
-&copy; Mark Mc Mahon (maintainance by Intel Corporation since 2015)
+© Mark Mc Mahon (maintainance by Intel Corporation since 2015)
 
 Released under the LGPL v2.1 or later
 
@@ -18,8 +18,11 @@ dialogs and controls.
 Installation
 ------------
 - Install the following Python packages
+
   - *Required* pyWin32                    http://sourceforge.net/projects/pywin32/files/pywin32/Build%20219/
+
   - *Optional* Pillow (fork of PIL)          https://pypi.python.org/pypi/Pillow/2.7.0
+  
 - Download pywinauto from https://github.com/pywinauto/pywinauto/archive/master.zip
 - Unzip the pywinauto zip file to a folder.
 - Run ``python.exe setup.py install``
