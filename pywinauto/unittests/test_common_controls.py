@@ -27,20 +27,20 @@ from __future__ import print_function
 __revision__ = "$Revision: 234 $"
 
 import sys
-import ctypes
+#import ctypes
 import unittest
 import time
-import pprint
-import pdb
+#import pprint
+#import pdb
 import os
 import win32api
 
 sys.path.append(".")
 from pywinauto import six
-from pywinauto.controls import common_controls
+#from pywinauto.controls import common_controls
 from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
-from pywinauto.controls import WrapHandle
+#from pywinauto.controls import WrapHandle
 #from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
@@ -58,9 +58,6 @@ if is_x64_Python():
 
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
-    def test__init__fail(self):
-        self.assertRaises(AccessDenied, RemoteMemoryBlock, 0)
-
     def test__init__fail(self):
         self.assertRaises(AccessDenied, RemoteMemoryBlock, 0)
 
@@ -1026,10 +1023,6 @@ class ToolTipsTestCases(unittest.TestCase):
         "Make sure the friendly class is set correctly"
         self.assertEquals (self.ctrl.FriendlyClassName(), "ToolTips")
 
-    def testTexts(self):
-        "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
-
     def testGetProperties(self):
         "Test getting the properties for the tooltips control"
         props  = self.ctrl.GetProperties()
@@ -1055,6 +1048,7 @@ class ToolTipsTestCases(unittest.TestCase):
         self.assertEquals(self.texts[1], self.ctrl.GetTipText(1))
 
     def testTexts(self):
+        "Make sure the texts are set correctly"
         self.assertEquals(self.ctrl.Texts()[0], '')
         self.assertEquals(self.ctrl.Texts()[1:], self.texts)
 

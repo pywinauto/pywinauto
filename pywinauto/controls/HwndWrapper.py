@@ -30,7 +30,7 @@ __revision__ = "$Revision$"
 
 # pylint:  disable-msg=W0611
 
-import sys
+#import sys
 import time
 import re
 import ctypes
@@ -46,7 +46,7 @@ import traceback, inspect
 from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
-from ..RemoteMemoryBlock import RemoteMemoryBlock
+#from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -56,7 +56,6 @@ except ImportError:
 
 from .. import six
 from .. import win32defines
-from .. import win32functions
 from .. import win32structures
 from ..timings import Timings
 from .. import timings
@@ -1389,7 +1388,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         # tell the window it must close
         self.PostMessage(win32defines.WM_CLOSE)
 
-        start = time.time()
+        #unused var: start = time.time()
         # Keeps trying while
         #    we have not timed out and
         #    window is still a valid handle and

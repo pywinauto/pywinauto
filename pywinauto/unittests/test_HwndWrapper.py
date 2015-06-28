@@ -27,11 +27,11 @@ from __future__ import unicode_literals
 "Tests for HwndWrapper"
 
 import time
-import pprint
-import pdb
-import warnings
+#import pprint
+#import pdb
+#import warnings
 
-import ctypes
+#import ctypes
 import locale
 import re
 
@@ -273,7 +273,9 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(0, vk)
 
         code = self.dlg.Degrees.SendMessage(win32defines.WM_GETDLGCODE)
-        self.assertEqual(0, vk)
+        # The expected return code is: "Button" = 0x2000 and "Radio" = 0x40
+        expected = 0x2000 + 0x40
+        self.assertEqual(expected, code)
 
 
     def testSendMessageTimeout(self):
@@ -282,7 +284,9 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(0, vk)
 
         code = self.dlg.Degrees.SendMessageTimeout(win32defines.WM_GETDLGCODE)
-        self.assertEqual(0, vk)
+        # The expected return code is: "Button" = 0x2000 and "Radio" = 0x40
+        expected = 0x2000 + 0x40
+        self.assertEqual(expected, code)
 
     def testPostMessage(self):
         self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
@@ -653,7 +657,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 
         props_from_dialog = GetDialogPropsFromHandle(self.dlg)
 
-        props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
+        #unused var: props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
 
         self.assertEquals(props_from_handle, props_from_dialog)
 

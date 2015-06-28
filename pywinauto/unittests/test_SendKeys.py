@@ -49,7 +49,7 @@ from pywinauto import six
 #from SendKeys import *
 import os
 import unittest
-from msvcrt import getch
+#from msvcrt import getch
 
 # Fix Python 2.x.
 if six.PY2:
@@ -71,7 +71,7 @@ class SendKeysTests(unittest.TestCase):
     def __run_NormalCharacters_with_options(self, **args):
         "Make sure that sending any character in range "
 
-        missed = []
+        #unused var: missed = []
         for i in range(32, 127):
 
             # skip characters that must be escaped

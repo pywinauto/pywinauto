@@ -28,7 +28,7 @@ import sys
 sys.path.append(".")
 from pywinauto.win32functions import *
 
-import struct
+#import struct
 
 
 class Win32FunctionsTestCases(unittest.TestCase):
