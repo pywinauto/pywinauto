@@ -1,6 +1,5 @@
 pywinauto
 ============
-
 pywinauto (c) Mark Mc Mahon, 2006 - 2015
 
 pywinauto is coming back! Newer version adds 64-bit support and works on Python 3.x.
@@ -43,6 +42,7 @@ but it also supports more complex actions.
 
 ### AppVeyor testing status
 * [![Build status](https://ci.appveyor.com/api/projects/status/ykk30v7vcvkmpnoq/branch/master?svg=true)](https://ci.appveyor.com/project/vasily-v-ryabov/pywinauto/branch/master)
+* [![codecov.io](http://codecov.io/github/pywinauto/pywinauto/coverage.svg?branch=master)](http://codecov.io/github/pywinauto/pywinauto?branch=master)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
