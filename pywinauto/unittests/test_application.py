@@ -529,11 +529,11 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # try ones that should be found immediately
         start = time.time()
         self.assertEquals(True, self.dlgspec.Exists())
-        self.assertEquals(True, time.time() - start < .2)
+        self.assertEquals(True, time.time() - start < .3)
 
         start = time.time()
         self.assertEquals(True, self.ctrlspec.Exists())
-        self.assertEquals(True, time.time() - start < .2)
+        self.assertEquals(True, time.time() - start < .3)
 
         # try one that should not be found
         start = time.time()
@@ -545,7 +545,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def testWait(self):
         "test the functionality and timing of the wait method"
 
-        allowable_error = .09
+        allowable_error = .3
 
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))

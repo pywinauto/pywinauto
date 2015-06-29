@@ -10,11 +10,10 @@ but it also supports more complex actions.
 
 ### Setup
 * Install [pyWin32 extensions](http://sourceforge.net/projects/pywin32/files/pywin32/) (no need for Active Python)
-* Download [master branch as ZIP](https://github.com/pywinauto/pywinauto/archive/master.zip)
+* Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.0/pywinauto-0.5.0.zip)
 * Just unpack and run `python setup.py install`
 
-### Roadmap
-* pywinauto 0.5.0 is planned until end of June, 2015.
+### Release notes (pywinauto 0.5.0)
  - [x] 64-bit Python and 64-bit apps support (but 32-bit Python is recommended for 32-bit apps)
  - [x] Python 2.x/3.x compatibility
  - [!] Added pyWin32 dependency (silent install by pip for 2.7 and 3.1+)
