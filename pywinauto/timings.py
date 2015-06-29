@@ -32,7 +32,7 @@ timings.Timings.Slow()
 
 The Following are the individual timing settings that can be adjusted:
 
-* window_find_timeout	(default 3)
+* window_find_timeout	(default 5)
 * window_find_retry (default .09)
 
 * app_start_timeout (default 10)

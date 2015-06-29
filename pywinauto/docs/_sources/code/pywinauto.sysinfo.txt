@@ -1,0 +1,6 @@
+pywinauto.sysinfo
+-----------------
+ .. automodule:: pywinauto.sysinfo
+    :members:
+    :undoc-members:
+

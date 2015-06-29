@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.timings &mdash; pywinauto 0.4.2 documentation</title>
+    <title>pywinauto.timings &mdash; pywinauto 0.5.0 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.4.2',
+        VERSION:     '0.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,13 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.4.2 documentation" href="../index.html" />
+    <link rel="top" title="pywinauto 0.5.0 documentation" href="../contents.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.clipboard" href="pywinauto.clipboard.html" />
     <link rel="prev" title="pywinauto.findwindows" href="pywinauto.findwindows.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -46,15 +44,15 @@
         <li class="right" >
           <a href="pywinauto.findwindows.html" title="pywinauto.findwindows"
              accesskey="P">previous</a> |</li>
-        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
-          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="pywinauto-timings">
 <h1>pywinauto.timings<a class="headerlink" href="#pywinauto-timings" title="Permalink to this headline">¶</a></h1>
@@ -70,7 +68,7 @@ timings.Timings.Defaults()
 timings.Timings.Slow()</p>
 <p>The Following are the individual timing settings that can be adjusted:</p>
 <ul class="simple">
-<li>window_find_timeout   (default 3)</li>
+<li>window_find_timeout   (default 5)</li>
 <li>window_find_retry (default .09)</li>
 <li>app_start_timeout (default 10)</li>
 <li>app_start_retry   (default .90)</li>
@@ -90,12 +88,12 @@ timings.Timings.Slow()</p>
 <li>after_setfocus_wait   (default .06)</li>
 <li>after_setcursorpos_wait   (default .01)</li>
 <li>sendmessagetimeout_timeout   (default .001)</li>
-<li>after_tabselect_wait   (default .01)</li>
+<li>after_tabselect_wait   (default .05)</li>
 <li>after_listviewselect_wait   (default .01)</li>
 <li>after_listviewcheck_wait  default(.001)</li>
-<li>after_treeviewselect_wait  default(.001)</li>
+<li>after_treeviewselect_wait  default(.1)</li>
 <li>after_toobarpressbutton_wait  default(.01)</li>
-<li>after_updownchange_wait  default(.001)</li>
+<li>after_updownchange_wait  default(.1)</li>
 <li>after_movewindow_wait  default(0)</li>
 <li>after_buttoncheck_wait  default(0)</li>
 <li>after_comboselect_wait  default(0)</li>
@@ -106,17 +104,17 @@ timings.Timings.Slow()</p>
 </ul>
 <dl class="class">
 <dt id="pywinauto.timings.TimeConfig">
-<em class="property">class </em><tt class="descclassname">pywinauto.timings.</tt><tt class="descname">TimeConfig</tt><a class="headerlink" href="#pywinauto.timings.TimeConfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Central storage and minipulation of timing values</p>
+<em class="property">class </em><code class="descclassname">pywinauto.timings.</code><code class="descname">TimeConfig</code><a class="headerlink" href="#pywinauto.timings.TimeConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Central storage and manipulation of timing values</p>
 <dl class="method">
 <dt id="pywinauto.timings.TimeConfig.Defaults">
-<tt class="descname">Defaults</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.timings.TimeConfig.Defaults" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Defaults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.timings.TimeConfig.Defaults" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all timings to the default time</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pywinauto.timings.TimeConfig.Fast">
-<tt class="descname">Fast</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.timings.TimeConfig.Fast" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Fast</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.timings.TimeConfig.Fast" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set fast timing values</p>
 <p>Currently this changes the timing in the following ways:
 timeouts = 1 second
@@ -127,7 +125,7 @@ retries = .001 seconds (minimum!)</p>
 
 <dl class="method">
 <dt id="pywinauto.timings.TimeConfig.Slow">
-<tt class="descname">Slow</tt><big>(</big><big>)</big><a class="headerlink" href="#pywinauto.timings.TimeConfig.Slow" title="Permalink to this definition">¶</a></dt>
+<code class="descname">Slow</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.timings.TimeConfig.Slow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set slow timing values</p>
 <p>Currently this changes the timing in the following ways:
 timeouts = default timeouts * 10
@@ -140,14 +138,16 @@ retries = default retries * 3</p>
 
 <dl class="exception">
 <dt id="pywinauto.timings.TimeoutError">
-<em class="property">exception </em><tt class="descclassname">pywinauto.timings.</tt><tt class="descname">TimeoutError</tt><a class="headerlink" href="#pywinauto.timings.TimeoutError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">pywinauto.timings.</code><code class="descname">TimeoutError</code><a class="headerlink" href="#pywinauto.timings.TimeoutError" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="pywinauto.timings.WaitUntil">
-<tt class="descclassname">pywinauto.timings.</tt><tt class="descname">WaitUntil</tt><big>(</big><em>timeout</em>, <em>retry_interval</em>, <em>func</em>, <em>value=True</em>, <em>op=&lt;built-in function eq&gt;</em>, <em>*args</em><big>)</big><a class="headerlink" href="#pywinauto.timings.WaitUntil" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wait until <tt class="docutils literal"><span class="pre">op(function(*args),</span> <span class="pre">value)</span></tt> is True or until timeout
-expires</p>
+<code class="descclassname">pywinauto.timings.</code><code class="descname">WaitUntil</code><span class="sig-paren">(</span><em>timeout</em>, <em>retry_interval</em>, <em>func</em>, <em>value=True</em>, <em>op=&lt;built-in function eq&gt;</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.timings.WaitUntil" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Wait until <code class="docutils literal"><span class="pre">op(function(*args),</span> <span class="pre">value)</span></code> is True or until timeout </dt>
+<dd>expires</dd>
+</dl>
 <ul class="simple">
 <li><strong>timeout</strong>  how long the function will try the function</li>
 <li><strong>retry_interval</strong>  how long to wait between retries</li>
@@ -156,25 +156,27 @@ expires</p>
 <li><strong>op</strong> the comparison function (defaults to equality)     * <strong>args</strong> optional arguments to be passed to func when called</li>
 </ul>
 <p>Returns the return value of the function
-If the operation times out then the return value of the the function
+If the operation times out then the return value of the the function 
 is in the &#8216;function_value&#8217; attribute of the raised exception.</p>
 <p>e.g.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
-   <span class="c"># wait a maximum of 10.5 seconds for the</span>
+   <span class="c"># wait a maximum of 10.5 seconds for the </span>
    <span class="c"># the objects ItemCount() method to return 10</span>
    <span class="c"># in increments of .5 of a second</span>
    <span class="n">WaitUntil</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ItemCount</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="k">except</span> <span class="n">TimeoutError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
-   <span class="k">print</span> <span class="s">&quot;timed out&quot;</span>
+<span class="k">except</span> <span class="n">TimeoutError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+   <span class="k">print</span><span class="p">(</span><span class="s">&quot;timed out&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="function">
 <dt id="pywinauto.timings.WaitUntilPasses">
-<tt class="descclassname">pywinauto.timings.</tt><tt class="descname">WaitUntilPasses</tt><big>(</big><em>timeout</em>, <em>retry_interval</em>, <em>func</em>, <em>exceptions=&lt;type 'exceptions.Exception'&gt;</em>, <em>*args</em><big>)</big><a class="headerlink" href="#pywinauto.timings.WaitUntilPasses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wait until <tt class="docutils literal"><span class="pre">func(*args)</span></tt> does not raise one of the exceptions in
-exceptions</p>
+<code class="descclassname">pywinauto.timings.</code><code class="descname">WaitUntilPasses</code><span class="sig-paren">(</span><em>timeout</em>, <em>retry_interval</em>, <em>func</em>, <em>exceptions=&lt;type 'exceptions.Exception'&gt;</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.timings.WaitUntilPasses" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Wait until <code class="docutils literal"><span class="pre">func(*args)</span></code> does not raise one of the exceptions in </dt>
+<dd>exceptions</dd>
+</dl>
 <ul class="simple">
 <li><strong>timeout</strong>  how long the function will try the function</li>
 <li><strong>retry_interval</strong>  how long to wait between retries</li>
@@ -186,14 +188,15 @@ exceptions</p>
 If the operation times out then the original exception raised is in
 the &#8216;original_exception&#8217; attribute of the raised exception.</p>
 <p>e.g.</p>
-<div class="highlight-python"><pre>try:
-   # wait a maximum of 10.5 seconds for the
+<div class="highlight-python"><div class="highlight"><pre>try:
+   # wait a maximum of 10.5 seconds for the 
    # window to be found in increments of .5 of a second.
    # P.int a message and re-raise the original exception if never found.
    WaitUntilPasses(10.5, .5, self.Exists, (WindowNotFoundError))
-except TimeoutError, e:
-   print "timed out"
-   raise e.</pre>
+except TimeoutError as e:
+   print(&quot;timed out&quot;)
+   raise e.
+</pre></div>
 </div>
 </dd></dl>
 
@@ -204,7 +207,7 @@ except TimeoutError, e:
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="pywinauto.findwindows.html"
@@ -212,12 +215,14 @@ except TimeoutError, e:
   <h4>Next topic</h4>
   <p class="topless"><a href="pywinauto.clipboard.html"
                         title="next chapter">pywinauto.clipboard</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/code/pywinauto.timings.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/code/pywinauto.timings.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -234,7 +239,7 @@ except TimeoutError, e:
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -249,13 +254,13 @@ except TimeoutError, e:
         <li class="right" >
           <a href="pywinauto.findwindows.html" title="pywinauto.findwindows"
              >previous</a> |</li>
-        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
-          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Mark Mc Mahon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

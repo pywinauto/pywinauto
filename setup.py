@@ -75,8 +75,6 @@ At it's simplest it allows you to send mouse and keyboard
 actions to windows dialogs and controls, but It has support for more complex
 controls also.
 """,
-    maintainer='Vasily Ryabov',
-    maintainer_email='pywinauto-users@lists.sourceforge.net',
     platforms=['win32'],
 
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],

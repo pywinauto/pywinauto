@@ -15,9 +15,9 @@ but it also supports more complex actions.
 
 ### Roadmap
 * pywinauto 0.5.0 is planned until end of June, 2015.
- - [x] 64-bit Python is supported
+ - [x] 64-bit Python and 64-bit apps is supported (but 32-bit Python is recommended for 32-bit apps)
  - [x] Python 2.x/3.x compatibility
- - [!] Added pyWin32 dependency
+ - [!] Added pyWin32 dependency (silent install by pip for 2.7 and 3.1+)
  - [x] Improvements for Toolbar, TreeView, UpDown and DateTimePicker wrappers
  - [x] Improved `best_match` algorithm allows names like `ToolbarFile`
  - [x] Clicks can be performed with pressed Ctrl or Shift
@@ -25,7 +25,7 @@ but it also supports more complex actions.
  - [x] Improved menu support: handling OWNERDRAW menu items; access by command_id (like `$23453`)
  - [x] Resolved issues with py2exe and cx_freeze
  - [x] `RemoteMemoryBlock` can now detect memory corruption by checking guard signature
- - [ ] Upgraded `taskbar` module
+ - [x] Upgraded `taskbar` module
  - [x] `sysinfo` module for checking 32-bit or 64-bit OS and Python
  - [x] `set_foreground` flag in `TypeKeys` method for typing into in-place controls
  - [x] flags `create_new_console` and `wait_for_idle` in `Application.start` method

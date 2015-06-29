@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>How To’s &mdash; pywinauto 0.4.2 documentation</title>
+    <title>How To’s &mdash; pywinauto 0.5.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '0.4.2',
+        URL_ROOT:    './',
+        VERSION:     '0.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,12 +23,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.4.2 documentation" href="index.html" />
+    <link rel="top" title="pywinauto 0.5.0 documentation" href="contents.html" />
     <link rel="next" title="Methods available to each different control type" href="controls_overview.html" />
     <link rel="prev" title="Automating an application" href="getting_started.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,67 +43,67 @@
         <li class="right" >
           <a href="getting_started.html" title="Automating an application"
              accesskey="P">previous</a> |</li>
-        <li><a href="contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="how-to-s">
 <h1>How To&#8217;s<a class="headerlink" href="#how-to-s" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="how-to-sepcify-an-usable-application-instance">
-<h2>How to sepcify an usable Application instance<a class="headerlink" href="#how-to-sepcify-an-usable-application-instance" title="Permalink to this headline">¶</a></h2>
-<p>An <tt class="docutils literal"><span class="pre">Application()</span></tt> instance is the point of contact for all work
+<div class="section" id="how-to-specify-an-usable-application-instance">
+<h2>How to specify an usable Application instance<a class="headerlink" href="#how-to-specify-an-usable-application-instance" title="Permalink to this headline">¶</a></h2>
+<p>An <code class="docutils literal"><span class="pre">Application()</span></code> instance is the point of contact for all work
 with the app you are automating. So the Application instance needs
 to be connected to a process. There are two ways of doing this:</p>
 <blockquote>
-<div><div class="highlight-python"><pre>start_(self, cmd_line, timeout = app_start_timeout):</pre>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_line</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="n">app_start_timeout</span><span class="p">)</span> <span class="c"># static method:</span>
+<span class="n">start_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd_line</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="n">app_start_timeout</span><span class="p">)</span> <span class="c"># instance method:</span>
+</pre></div>
 </div>
 </div></blockquote>
 <p>or:</p>
 <blockquote>
-<div><div class="highlight-python"><pre>connect_(self, **kwargs):</pre>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="c"># static method:</span>
+<span class="n">connect_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="c"># instance method:</span>
+</pre></div>
 </div>
 </div></blockquote>
-<p><tt class="docutils literal"><span class="pre">start_()</span></tt> is used when the application is not running and you
+<p><code class="docutils literal"><span class="pre">start()</span></code> is used when the application is not running and you
 need to start it. Use it in the following way:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">start_</span><span class="p">(</span><span class="s">r&quot;c:\path\to\your\application -a -n -y --arguments&quot;</span><span class="p">)</span>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="s">r&quot;c:\path\to\your\application -a -n -y --arguments&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div></blockquote>
 <p>The timeout parameter is optional, it should only be necessary to use
 it if the application takes a long time to start up.</p>
-<p><tt class="docutils literal"><span class="pre">connect_()</span></tt> is used when the application to be automated is already
-running. To specify a an already runing application you need to specify
+<p><code class="docutils literal"><span class="pre">connect()</span></code> is used when the application to be automated is already
+running. To specify an already running application you need to specify
 one of the following:</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">process:</th><td class="field-body"><p class="first">the process id of the application, e.g.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">connect_</span><span class="p">(</span><span class="n">process</span> <span class="o">=</span> <span class="mi">2341</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">process</span> <span class="o">=</span> <span class="mi">2341</span><span class="p">)</span>
 </pre></div>
 </div>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">handle:</th><td class="field-body"><p class="first">The windows handle of a window of the application, e.g.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">connect_</span><span class="p">(</span><span class="n">handle</span> <span class="o">=</span> <span class="mh">0x010f0c</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">handle</span> <span class="o">=</span> <span class="mh">0x010f0c</span><span class="p">)</span>
 </pre></div>
 </div>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">path:</th><td class="field-body"><p class="first">The path of the executable of the process (<tt class="docutils literal"><span class="pre">GetModuleFileNameEx</span></tt>
+<tr class="field-odd field"><th class="field-name">path:</th><td class="field-body"><p class="first">The path of the executable of the process (<code class="docutils literal"><span class="pre">GetModuleFileNameEx</span></code>
 is used to find the path of each process and compared against
 the value passed in)  e.g.</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">connect_</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">r&quot;c:\windows\system32\notepad.exe&quot;</span><span class="p">)</span>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">r&quot;c:\windows\system32\notepad.exe&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </td>
@@ -113,10 +111,9 @@ the value passed in)  e.g.</p>
 </tbody>
 </table>
 <p>or any combination of the parameters that specify a window, these get
-passed to the <tt class="docutils literal"><span class="pre">findwindows.find_windows()</span></tt> function.  e.g.</p>
+passed to the <code class="docutils literal"><span class="pre">findwindows.find_windows()</span></code> function.  e.g.</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">connect_</span><span class="p">(</span><span class="n">title_re</span> <span class="o">=</span> <span class="s">&quot;.*Notepad&quot;</span><span class="p">,</span> <span class="n">class_name</span> <span class="o">=</span> <span class="s">&quot;Notepad&quot;</span><span class="p">)</span>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">title_re</span> <span class="o">=</span> <span class="s">&quot;.*Notepad&quot;</span><span class="p">,</span> <span class="n">class_name</span> <span class="o">=</span> <span class="s">&quot;Notepad&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -129,8 +126,8 @@ after start*(). So if you start the application outside of pywinauto you
 need to either sleep or program a wait loop to wait until the application
 has fully started.</p>
 </div>
-<div class="section" id="how-to-sepcify-a-dialog-of-the-application">
-<h2>How to sepcify a dialog of the application<a class="headerlink" href="#how-to-sepcify-a-dialog-of-the-application" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="how-to-specify-a-dialog-of-the-application">
+<h2>How to specify a dialog of the application<a class="headerlink" href="#how-to-specify-a-dialog-of-the-application" title="Permalink to this headline">¶</a></h2>
 <p>Once the application instance knows what application it is connected to
 a dialog to work on needs to be specified.</p>
 <p>There are many different ways of doing this. The most common will be
@@ -146,7 +143,7 @@ using item or attribute access to select a dialog based on it&#8217;s title. e.g
 </pre></div>
 </div>
 </div></blockquote>
-<p>The next easiest method is to ask for the <tt class="docutils literal"><span class="pre">top_window_()</span></tt> e.g.</p>
+<p>The next easiest method is to ask for the <code class="docutils literal"><span class="pre">top_window_()</span></code> e.g.</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span class="n">dlg</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">top_window_</span><span class="p">()</span>
 </pre></div>
@@ -158,7 +155,7 @@ windows of the application.</p>
 return the correct window. It will definitely be a top level window of
 the application - it just might not be the one highest in the Z-Order.</p>
 <p>If this is not enough control they you can use the same parameters as
-can be passed to <tt class="docutils literal"><span class="pre">findwindows.find_windows()</span></tt> e.g.</p>
+can be passed to <code class="docutils literal"><span class="pre">findwindows.find_windows()</span></code> e.g.</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span class="n">dlg</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">window_</span><span class="p">(</span><span class="n">title_re</span> <span class="o">=</span> <span class="s">&quot;Page Setup&quot;</span><span class="p">,</span> <span class="n">class_name</span> <span class="o">=</span> <span class="s">&quot;#32770&quot;</span><span class="p">)</span>
 </pre></div>
@@ -171,7 +168,7 @@ can be passed to <tt class="docutils literal"><span class="pre">findwindows.find
 </div>
 </div></blockquote>
 <p>this will return a list of all the visible, enabled, top level windows
-of the application. You can then use some of the methods in <tt class="docutils literal"><span class="pre">handleprops</span></tt>
+of the application. You can then use some of the methods in <code class="docutils literal"><span class="pre">handleprops</span></code>
 module select the dialog you want. Once you have the handle you need
 then use</p>
 <blockquote>
@@ -217,74 +214,75 @@ the contol. And append the friendly class. So the list becomes</p>
 </div></blockquote>
 <p>Once a set of identifiers has been created for all controls in the dialog
 we disambiguate them.</p>
-<p>use the <cite>WindowSpecification.print_control_identifiers()</cite> method</p>
+<p>use the <cite>WindowSpecification.PrintControlIdentifiers()</cite> method</p>
 <dl class="docutils">
 <dt>e.g.</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">YourDialog</span><span class="o">.</span><span class="n">print_control_identifiers</span><span class="p">()</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">YourDialog</span><span class="o">.</span><span class="n">PrintControlIdentifiers</span><span class="p">()</span>
 </pre></div>
 </div>
 </dd>
 <dt>Sample output</dt>
-<dd><div class="first last highlight-python"><pre>Button - Paper   (L1075, T394, R1411, B485)
-        'PaperGroupBox' 'Paper' 'GroupBox'
+<dd><div class="first last highlight-python"><div class="highlight"><pre>Button - Paper   (L1075, T394, R1411, B485)
+        &#39;PaperGroupBox&#39; &#39;Paper&#39; &#39;GroupBox&#39;
 Static - Si&amp;ze:   (L1087, T420, R1141, B433)
-        'SizeStatic' 'Static' 'Size'
+        &#39;SizeStatic&#39; &#39;Static&#39; &#39;Size&#39;
 ComboBox -    (L1159, T418, R1399, B439)
-        'ComboBox' 'SizeComboBox'
+        &#39;ComboBox&#39; &#39;SizeComboBox&#39;
 Static - &amp;Source:   (L1087, T454, R1141, B467)
-        'Source' 'Static' 'SourceStatic'
+        &#39;Source&#39; &#39;Static&#39; &#39;SourceStatic&#39;
 ComboBox -    (L1159, T449, R1399, B470)
-        'ComboBox' 'SourceComboBox'
+        &#39;ComboBox&#39; &#39;SourceComboBox&#39;
 Button - Orientation   (L1075, T493, R1171, B584)
-        'GroupBox' 'Orientation' 'OrientationGroupBox'
+        &#39;GroupBox&#39; &#39;Orientation&#39; &#39;OrientationGroupBox&#39;
 Button - P&amp;ortrait   (L1087, T514, R1165, B534)
-        'Portrait' 'RadioButton' 'PortraitRadioButton'
+        &#39;Portrait&#39; &#39;RadioButton&#39; &#39;PortraitRadioButton&#39;
 Button - L&amp;andscape   (L1087, T548, R1165, B568)
-        'RadioButton' 'LandscapeRadioButton' 'Landscape'
+        &#39;RadioButton&#39; &#39;LandscapeRadioButton&#39; &#39;Landscape&#39;
 Button - Margins (inches)   (L1183, T493, R1411, B584)
-        'Marginsinches' 'MarginsinchesGroupBox' 'GroupBox'
+        &#39;Marginsinches&#39; &#39;MarginsinchesGroupBox&#39; &#39;GroupBox&#39;
 Static - &amp;Left:   (L1195, T519, R1243, B532)
-        'LeftStatic' 'Static' 'Left'
+        &#39;LeftStatic&#39; &#39;Static&#39; &#39;Left&#39;
 Edit -    (L1243, T514, R1285, B534)
-        'Edit' 'LeftEdit'
+        &#39;Edit&#39; &#39;LeftEdit&#39;
 Static - &amp;Right:   (L1309, T519, R1357, B532)
-        'Right' 'Static' 'RightStatic'
+        &#39;Right&#39; &#39;Static&#39; &#39;RightStatic&#39;
 Edit -    (L1357, T514, R1399, B534)
-        'Edit' 'RightEdit'
+        &#39;Edit&#39; &#39;RightEdit&#39;
 Static - &amp;Top:   (L1195, T550, R1243, B563)
-        'Top' 'Static' 'TopStatic'
+        &#39;Top&#39; &#39;Static&#39; &#39;TopStatic&#39;
 Edit -    (L1243, T548, R1285, B568)
-        'Edit' 'TopEdit'
+        &#39;Edit&#39; &#39;TopEdit&#39;
 Static - &amp;Bottom:   (L1309, T550, R1357, B563)
-        'BottomStatic' 'Static' 'Bottom'
+        &#39;BottomStatic&#39; &#39;Static&#39; &#39;Bottom&#39;
 Edit -    (L1357, T548, R1399, B568)
-        'Edit' 'BottomEdit'
+        &#39;Edit&#39; &#39;BottomEdit&#39;
 Static - &amp;Header:   (L1075, T600, R1119, B613)
-        'Header' 'Static' 'HeaderStatic'
+        &#39;Header&#39; &#39;Static&#39; &#39;HeaderStatic&#39;
 Edit -    (L1147, T599, R1408, B619)
-        'Edit' 'TopEdit'
+        &#39;Edit&#39; &#39;TopEdit&#39;
 Static - &amp;Footer:   (L1075, T631, R1119, B644)
-        'FooterStatic' 'Static' 'Footer'
+        &#39;FooterStatic&#39; &#39;Static&#39; &#39;Footer&#39;
 Edit -    (L1147, T630, R1408, B650)
-        'Edit' 'FooterEdit'
+        &#39;Edit&#39; &#39;FooterEdit&#39;
 Button - OK   (L1348, T664, R1423, B687)
-        'Button' 'OK' 'OKButton'
+        &#39;Button&#39; &#39;OK&#39; &#39;OKButton&#39;
 Button - Cancel   (L1429, T664, R1504, B687)
-        'Cancel' 'Button' 'CancelButton'
+        &#39;Cancel&#39; &#39;Button&#39; &#39;CancelButton&#39;
 Button - &amp;Printer...   (L1510, T664, R1585, B687)
-        'Button' 'Printer' 'PrinterButton'
+        &#39;Button&#39; &#39;Printer&#39; &#39;PrinterButton&#39;
 Button - Preview   (L1423, T394, R1585, B651)
-        'Preview' 'GroupBox' 'PreviewGroupBox'
+        &#39;Preview&#39; &#39;GroupBox&#39; &#39;PreviewGroupBox&#39;
 Static -    (L1458, T456, R1549, B586)
-        'PreviewStatic' 'Static'
+        &#39;PreviewStatic&#39; &#39;Static&#39;
 Static -    (L1549, T464, R1557, B594)
-        'PreviewStatic' 'Static'
+        &#39;PreviewStatic&#39; &#39;Static&#39;
 Static -    (L1466, T586, R1557, B594)
-        'Static' 'BottomStatic'</pre>
+        &#39;Static&#39; &#39;BottomStatic&#39;
+</pre></div>
 </div>
 </dd>
 </dl>
-<p>This exmple has been taken from test_application.py</p>
+<p>This example has been taken from test_application.py</p>
 <p><strong>Note</strong> The identifiers printed by this method have been run through
 the process that makes the identifier unique. So if you have 2 edit boxes,
 they will both have &#8220;Edit&#8221; listed in their identifiers. In reality though
@@ -293,15 +291,16 @@ should be refered to as &#8220;Edit2&#8221;</p>
 <p><strong>Note</strong> You do not have to be exact!. Say we take an instance from the
 example above</p>
 <blockquote>
-<div><div class="highlight-python"><pre>Button - Margins (inches)   (L1183, T493, R1411, B584)
-        'Marginsinches' 'MarginsinchesGroupBox' 'GroupBox'</pre>
+<div><div class="highlight-python"><div class="highlight"><pre>Button - Margins (inches)   (L1183, T493, R1411, B584)
+        &#39;Marginsinches&#39; &#39;MarginsinchesGroupBox&#39; &#39;GroupBox&#39;
+</pre></div>
 </div>
 </div></blockquote>
 <p>Let&#8217;s say that you don&#8217;t like any of these</p>
 <blockquote>
 <div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">GroupBox</span></tt> - too generic, it could be any group box</li>
-<li><tt class="docutils literal"><span class="pre">Marginsinches</span></tt> and <tt class="docutils literal"><span class="pre">MarginsinchesGroupBox</span></tt> - these just don&#8217;
+<li><code class="docutils literal"><span class="pre">GroupBox</span></code> - too generic, it could be any group box</li>
+<li><code class="docutils literal"><span class="pre">Marginsinches</span></code> and <code class="docutils literal"><span class="pre">MarginsinchesGroupBox</span></code> - these just don&#8217;
 look right, it would be nicer to leave out the &#8216;inches&#8217; part</li>
 </ul>
 </div></blockquote>
@@ -310,10 +309,11 @@ all the available identifiers in the dialog.</p>
 <p>For example if you break into the debugger you can see how different
 identifiers can be used</p>
 <blockquote>
-<div><div class="highlight-python"><pre>(Pdb) print app.PageSetup.Margins.Text()
+<div><div class="highlight-python"><div class="highlight"><pre>(Pdb) print app.PageSetup.Margins.Text()
 Margins (inches)
 (Pdb) print app.PageSetup.MarginsGroupBox.Text()
-Margins (inches)</pre>
+Margins (inches)
+</pre></div>
 </div>
 </div></blockquote>
 <p>And this will also cater for typos. Though you still have to be careful
@@ -326,7 +326,7 @@ thinking of.</p>
 <p>Because Python does not support unicode identifiers in code
 you cannot use attribute access to reference a control so
 you would either have to use item access or make an explicit
-calls to <tt class="docutils literal"><span class="pre">window_()</span></tt>.</p>
+calls to <code class="docutils literal"><span class="pre">window_()</span></code>.</p>
 <p>So instead of writing</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">dialog_ident</span><span class="o">.</span><span class="n">control_ident</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
@@ -339,13 +339,13 @@ calls to <tt class="docutils literal"><span class="pre">window_()</span></tt>.</
 </pre></div>
 </div>
 </div></blockquote>
-<p>Or use <tt class="docutils literal"><span class="pre">window_()</span></tt> explictly</p>
+<p>Or use <code class="docutils literal"><span class="pre">window_()</span></code> explictly</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">window_</span><span class="p">(</span><span class="n">title_re</span> <span class="o">=</span> <span class="s">&quot;NonAsciiCharacters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">window_</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s">&quot;MoreNonAsciiCharacters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
 </pre></div>
 </div>
 </div></blockquote>
-<p>To see an example of this see <tt class="docutils literal"><span class="pre">examples\MiscExamples.py.GetInfo()</span></tt></p>
+<p>To see an example of this see <code class="docutils literal"><span class="pre">examples\MiscExamples.py.GetInfo()</span></code></p>
 </div>
 <div class="section" id="how-to-deal-with-controls-that-do-not-respond-as-expected-e-g-ownerdraw-controls">
 <h2>How to deal with controls that do not respond as expected (e.g. OwnerDraw Controls)<a class="headerlink" href="#how-to-deal-with-controls-that-do-not-respond-as-expected-e-g-ownerdraw-controls" title="Permalink to this headline">¶</a></h2>
@@ -388,9 +388,9 @@ would use</p>
 </div>
 </div></blockquote>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">{HOME}</span></tt> will make sure that the first item is highlighted.</li>
-<li><tt class="docutils literal"><span class="pre">{DOWN</span> <span class="pre">2}</span></tt> will then move the highlight down 2 items</li>
-<li><tt class="docutils literal"><span class="pre">{ENTER}</span></tt> will select the highlighted item</li>
+<li><code class="docutils literal"><span class="pre">{HOME}</span></code> will make sure that the first item is highlighted.</li>
+<li><code class="docutils literal"><span class="pre">{DOWN</span> <span class="pre">2}</span></code> will then move the highlight down 2 items</li>
+<li><code class="docutils literal"><span class="pre">{ENTER}</span></code> will select the highlighted item</li>
 </ul>
 <p>If your application made extensive use of a similar control type then you could
 make using it easier by deriving a new class from ListBox, that could use extra
@@ -419,9 +419,10 @@ window in the &#8220;Explorer.exe&#8221; application with the class &#8220;Shell
 a Toolbar control with a title &#8220;Notification Area&#8221;.</p>
 <p>One way to get this is to do the following</p>
 <blockquote>
-<div><div class="highlight-python"><pre>imprt pywinauto.application
-app = pywinauto.application.Application().connect_(path = "explorer")
-systray_icons = app.ShellTrayWnd.NotificationAreaToolbar</pre>
+<div><div class="highlight-python"><div class="highlight"><pre>imprt pywinauto.application
+app = pywinauto.application.Application().connect_(path = &quot;explorer&quot;)
+systray_icons = app.ShellTrayWnd.NotificationAreaToolbar
+</pre></div>
 </div>
 </div></blockquote>
 <p>The taskbar module provides very preliminary access to the System Tray.</p>
@@ -459,7 +460,7 @@ system tray icons:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">ClickSystemTrayIcon(button)</span></tt>:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">ClickSystemTrayIcon(button)</span></code>:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body">You can use this to left click a visible icon
 in the system tray. I had to specifically say
 visible icon as there may be many invisible
@@ -469,8 +470,8 @@ find and click the 3rd visible button. (very little
 error checking is performed and this method will
 more then likely be moved/renamed in the futures.</td>
 </tr>
-<tr class="field-even field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">RightClickSystemTrayIcon(button)</span></tt>:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body">Similar to <tt class="docutils literal"><span class="pre">ClickSytemTrayIcon</span></tt> but
+<tr class="field-even field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">RightClickSystemTrayIcon(button)</span></code>:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">Similar to <code class="docutils literal"><span class="pre">ClickSytemTrayIcon</span></code> but
 performs a right click.</td>
 </tr>
 </tbody>
@@ -481,13 +482,13 @@ automated not part of explorer.</p>
 <p>e.g.</p>
 <blockquote>
 <div><div class="highlight-python"><div class="highlight"><pre><span class="c"># connect to outlook</span>
-<span class="n">outlook</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span><span class="o">.</span><span class="n">connect_</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">&#39;outlook.exe&#39;</span><span class="p">)</span>
+<span class="n">outlook</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="s">&#39;outlook.exe&#39;</span><span class="p">)</span>
 
 <span class="c"># click on Outlook&#39;s icon</span>
-<span class="n">taskbar</span><span class="o">.</span><span class="n">ClickSystemTrayIcon</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">taskbar</span><span class="o">.</span><span class="n">ClickSystemTrayIcon</span><span class="p">(</span><span class="s">&quot;Microsoft Outlook&quot;</span><span class="p">)</span>
 
 <span class="c"># Select an item in the popup menu</span>
-<span class="n">outlook</span><span class="o">.</span><span class="n">PopupMenu</span><span class="o">.</span><span class="n">MenuClick</span><span class="p">(</span><span class="s">&quot;Cancel Server Request&quot;</span><span class="p">)</span>
+<span class="n">outlook</span><span class="o">.</span><span class="n">PopupMenu</span><span class="o">.</span><span class="n">Menu</span><span class="p">()</span><span class="o">.</span><span class="n">GetMenuPath</span><span class="p">(</span><span class="s">&quot;Cancel Server Request&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -498,13 +499,13 @@ automated not part of explorer.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="contents.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">How To&#8217;s</a><ul>
-<li><a class="reference internal" href="#how-to-sepcify-an-usable-application-instance">How to sepcify an usable Application instance</a></li>
-<li><a class="reference internal" href="#how-to-sepcify-a-dialog-of-the-application">How to sepcify a dialog of the application</a></li>
+<li><a class="reference internal" href="#how-to-specify-an-usable-application-instance">How to specify an usable Application instance</a></li>
+<li><a class="reference internal" href="#how-to-specify-a-dialog-of-the-application">How to specify a dialog of the application</a></li>
 <li><a class="reference internal" href="#how-to-specify-a-control-on-a-dialog">How to specify a control on a dialog</a></li>
 <li><a class="reference internal" href="#how-to-use-pywinauto-with-application-languages-other-than-english">How to use pywinauto with application languages other than English</a></li>
 <li><a class="reference internal" href="#how-to-deal-with-controls-that-do-not-respond-as-expected-e-g-ownerdraw-controls">How to deal with controls that do not respond as expected (e.g. OwnerDraw Controls)</a></li>
@@ -519,12 +520,14 @@ automated not part of explorer.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="controls_overview.html"
                         title="next chapter">Methods available to each different control type</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/HowTo.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/HowTo.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -541,7 +544,7 @@ automated not part of explorer.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -556,12 +559,12 @@ automated not part of explorer.</p>
         <li class="right" >
           <a href="getting_started.html" title="Automating an application"
              >previous</a> |</li>
-        <li><a href="contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Mark Mc Mahon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

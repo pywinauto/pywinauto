@@ -436,5 +436,5 @@ e.g.
     taskbar.ClickSystemTrayIcon("Microsoft Outlook")
 
     # Select an item in the popup menu
-    outlook.PopupMenu.MenuClick("Cancel Server Request")
+    outlook.PopupMenu.Menu().GetMenuPath("Cancel Server Request")[0].Click()
 

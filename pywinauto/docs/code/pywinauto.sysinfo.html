@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.tests.comboboxdroppedheight &mdash; pywinauto 0.5.0 documentation</title>
+    <title>pywinauto.sysinfo &mdash; pywinauto 0.5.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="pywinauto 0.5.0 documentation" href="../contents.html" />
     <link rel="up" title="Main user modules" href="code.html" />
-    <link rel="next" title="pywinauto.tests.comparetoreffont" href="pywinauto.tests.comparetoreffont.html" />
-    <link rel="prev" title="pywinauto.tests.asianhotkey" href="pywinauto.tests.asianhotkey.html" /> 
+    <link rel="next" title="pywinauto.RemoteMemoryBlock" href="pywinauto.RemoteMemoryBlock.html" />
+    <link rel="prev" title="pywinauto.actionlogger" href="pywinauto.actionlogger.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -39,10 +39,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pywinauto.tests.comparetoreffont.html" title="pywinauto.tests.comparetoreffont"
+          <a href="pywinauto.RemoteMemoryBlock.html" title="pywinauto.RemoteMemoryBlock"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pywinauto.tests.asianhotkey.html" title="pywinauto.tests.asianhotkey"
+          <a href="pywinauto.actionlogger.html" title="pywinauto.actionlogger"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
@@ -54,34 +54,28 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pywinauto-tests-comboboxdroppedheight">
-<h1>pywinauto.tests.comboboxdroppedheight<a class="headerlink" href="#pywinauto-tests-comboboxdroppedheight" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pywinauto-sysinfo">
+<h1>pywinauto.sysinfo<a class="headerlink" href="#pywinauto-sysinfo" title="Permalink to this headline">¶</a></h1>
 <blockquote>
-<div><span class="target" id="module-pywinauto.tests.comboboxdroppedheight"></span><p>ComboBox dropped height Test</p>
-<p><strong>What is checked</strong>
-It is ensured that the height of the list displayed when the combobox is
-dropped down is not less than the height of the reference.</p>
-<p><strong>How is it checked</strong>
-The value for the dropped rectangle can be retrieved from windows. The height
-of this rectangle is calculated and compared against the reference height.</p>
-<p><strong>When is a bug reported</strong>
-If the height of the dropped rectangle for the combobox being checked is less
-than the height of the reference one then a bug is reported.</p>
-<p><strong>Bug Extra Information</strong>
-There is no extra information associated with this bug type</p>
-<p><strong>Is Reference dialog needed</strong>
-The reference dialog is necessary for this test.</p>
-<p><strong>False positive bug reports</strong>
-No false bugs should be reported. If the font of the localised control has a
-smaller height than the reference then it is possible that the dropped
-rectangle could be of a different size.</p>
-<p><strong>Test Identifier</strong>
-The identifier for this test/bug is &#8220;ComboBoxDroppedHeight&#8221;</p>
+<div><span class="target" id="module-pywinauto.sysinfo"></span><dl class="function">
+<dt id="pywinauto.sysinfo.OS_architecture">
+<code class="descclassname">pywinauto.sysinfo.</code><code class="descname">OS_architecture</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.sysinfo.OS_architecture" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
-<dt id="pywinauto.tests.comboboxdroppedheight.ComboBoxDroppedHeightTest">
-<code class="descclassname">pywinauto.tests.comboboxdroppedheight.</code><code class="descname">ComboBoxDroppedHeightTest</code><span class="sig-paren">(</span><em>windows</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.tests.comboboxdroppedheight.ComboBoxDroppedHeightTest" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if each combobox height is the same as the reference</p>
-</dd></dl>
+<dt id="pywinauto.sysinfo.PythonBitness">
+<code class="descclassname">pywinauto.sysinfo.</code><code class="descname">PythonBitness</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.sysinfo.PythonBitness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.sysinfo.is_x64_OS">
+<code class="descclassname">pywinauto.sysinfo.</code><code class="descname">is_x64_OS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.sysinfo.is_x64_OS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pywinauto.sysinfo.is_x64_Python">
+<code class="descclassname">pywinauto.sysinfo.</code><code class="descname">is_x64_Python</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.sysinfo.is_x64_Python" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div></blockquote>
 </div>
@@ -93,15 +87,15 @@ The identifier for this test/bug is &#8220;ComboBoxDroppedHeight&#8221;</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="pywinauto.tests.asianhotkey.html"
-                        title="previous chapter">pywinauto.tests.asianhotkey</a></p>
+  <p class="topless"><a href="pywinauto.actionlogger.html"
+                        title="previous chapter">pywinauto.actionlogger</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="pywinauto.tests.comparetoreffont.html"
-                        title="next chapter">pywinauto.tests.comparetoreffont</a></p>
+  <p class="topless"><a href="pywinauto.RemoteMemoryBlock.html"
+                        title="next chapter">pywinauto.RemoteMemoryBlock</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/code/pywinauto.tests.comboboxdroppedheight.txt"
+      <li><a href="../_sources/code/pywinauto.sysinfo.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -132,10 +126,10 @@ The identifier for this test/bug is &#8220;ComboBoxDroppedHeight&#8221;</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pywinauto.tests.comparetoreffont.html" title="pywinauto.tests.comparetoreffont"
+          <a href="pywinauto.RemoteMemoryBlock.html" title="pywinauto.RemoteMemoryBlock"
              >next</a> |</li>
         <li class="right" >
-          <a href="pywinauto.tests.asianhotkey.html" title="pywinauto.tests.asianhotkey"
+          <a href="pywinauto.actionlogger.html" title="pywinauto.actionlogger"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" >Main user modules</a> &raquo;</li> 
