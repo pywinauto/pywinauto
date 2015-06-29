@@ -37,10 +37,7 @@ def TaskBarHandle():
     return findwindows.find_windows(class_name = "Shell_TrayWnd")[0]
 
 
-def _get_visible_button_index(reqd_button):
-    return SystemTrayIcons.Button(reqd_button).index
-
-def _click_hidden_tray_icon(reqd_button, is_left_click = True):
+def _click_hidden_tray_icon(reqd_button, exact = True, by_tooltip = False, mouse_button = 'left'):
     #ShowHiddenIconsButton.ClickInput()
     popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
     try:
@@ -57,23 +54,21 @@ def _click_hidden_tray_icon(reqd_button, is_left_click = True):
     else:
         popup_toolbar.Button(button_index).ClickInput(button='right')
 
-def ClickSystemTrayIcon(button):
+def ClickSystemTrayIcon(button, exact = True, by_tooltip = False):
     "Click on a visible tray icon given by button"
-    button = _get_visible_button_index(button)
-    r = SystemTrayIcons.GetButtonRect(button)
-    SystemTrayIcons.ClickInput(coords = (r.left+2, r.top+2))
+    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput()
 
-def RightClickSystemTrayIcon(button):
+def RightClickSystemTrayIcon(button, exact = True, by_tooltip = False):
     "Right click on a visible tray icon given by button"
-    SystemTrayIcons.Button(button).ClickInput(button='right')
+    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput(button='right')
 
-def ClickHiddenSystemTrayIcon(button):
+def ClickHiddenSystemTrayIcon(button, exact = True, by_tooltip = False):
     "Click on a hidden tray icon given by button"
-    _click_hidden_tray_icon(button, is_left_click = True)
+    _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip)
 
-def RightClickHiddenSystemTrayIcon(button):
+def RightClickHiddenSystemTrayIcon(button, exact = True, by_tooltip=False):
     "Right click on a hidden tray icon given by button"
-    _click_hidden_tray_icon(button, is_left_click = False)
+    _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip, mouse_button='right')
 
 
 # windows explorer owns all these windows so get that app
@@ -83,7 +78,10 @@ explorer_app = application.Application().connect_(handle = TaskBarHandle())
 TaskBar = explorer_app.window_(handle = TaskBarHandle())
 
 # The Start button
-StartButton = TaskBar.Start
+try:
+    StartButton = explorer_app.Window_(title='Start', class_name='Button').Wait('exists', 0.1) # Win7
+except:
+    StartButton = TaskBar.Start # Win8.1
 
 # the system tray - contains various windows
 SystemTray = TaskBar.TrayNotifyWnd
@@ -103,7 +101,7 @@ RunningApplications = TaskBar.MSTaskListWClass
 
 # the language bar
 try:
-    LangPanel = TaskBar.CiceroUIWndFrame.Wait('visible', 0.1) # Win7
+    LangPanel = TaskBar.CiceroUIWndFrame.Wait('exists', 0.1) # Win7
 except:
     LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 
