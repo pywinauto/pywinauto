@@ -53,6 +53,11 @@ def SetupPath(path = ""):
 # add it to the system path
 sys.path.append(SetupPath())
 
+try:
+    import win32api
+    requirements = []
+except ImportError:
+    requirements = ["pypiwin32"]
 
 # make sure the documentation is in the correct place for building
 # todo: see how to build the website
@@ -97,22 +102,5 @@ controls also.
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: User Interfaces',
         ],
-    install_requires=["pypiwin32"],
+    install_requires=requirements,
     )
-
-# todo: see how to build the website later
-#if "sdist" in sys.argv:
-#    if not os.path.exists(SetupPath("website")):
-#        shutil.move(SetupPath("documentation"), SetupPath("website"))
-
-# final check
-try:
-    import ctypes
-    import win32gui
-    import win32gui_struct
-    import win32api
-    import pywinauto
-except ImportError as e:
-    print("The following module has to be installed before running pywinauto...")
-    print("\t" + str(e).replace("No module named ", ""))
-    raise Exception('installation failed: ' + str(e))
