@@ -54,19 +54,19 @@ def _click_hidden_tray_icon(reqd_button, exact = True, by_tooltip = False, mouse
     else:
         popup_toolbar.Button(button_index).ClickInput(button='right')
 
-def ClickSystemTrayIcon(button, exact = True, by_tooltip = False):
+def ClickSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a visible tray icon given by button"
-    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput()
+    SystemTrayIcons.Button(button, double=double, exact=exact, by_tooltip=by_tooltip).ClickInput()
 
-def RightClickSystemTrayIcon(button, exact = True, by_tooltip = False):
+def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
     "Right click on a visible tray icon given by button"
     SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput(button='right')
 
-def ClickHiddenSystemTrayIcon(button, exact = True, by_tooltip = False):
+def ClickHiddenSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a hidden tray icon given by button"
-    _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip)
+    _click_hidden_tray_icon(button, double=double, exact=exact, by_tooltip=by_tooltip)
 
-def RightClickHiddenSystemTrayIcon(button, exact = True, by_tooltip=False):
+def RightClickHiddenSystemTrayIcon(button, exact = False, by_tooltip=False):
     "Right click on a hidden tray icon given by button"
     _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip, mouse_button='right')
 
