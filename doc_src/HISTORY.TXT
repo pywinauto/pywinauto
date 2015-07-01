@@ -2,6 +2,38 @@
 Change Log
 ==========
 
+0.5.0 64-bit Py2/Py3 compatibility.
+------------------------------------------------------------------
+30-June-2015
+
+ * 64-bit Python and 64-bit apps support (but 32-bit Python is recommended for 32-bit apps)
+
+ * Python 2.x/3.x compatibility
+
+ * Added pyWin32 dependency (silent install by pip for 2.7 and 3.1+)
+
+ * Improvements for Toolbar, TreeView, UpDown and DateTimePicker wrappers
+
+ * Improved `best_match` algorithm allows names like `ToolbarFile`
+
+ * Clicks can be performed with pressed Ctrl or Shift
+
+ * Drag-n-drop and scrolling methods (DragMouse, DragMouseInput, MouseWheelInput)
+
+ * Improved menu support: handling OWNERDRAW menu items; access by command_id (like `$23453`)
+
+ * Resolved issues with py2exe and cx_freeze
+
+ * `RemoteMemoryBlock` can now detect memory corruption by checking guard signature
+
+ * Upgraded `taskbar` module
+
+ * `sysinfo` module for checking 32-bit or 64-bit OS and Python
+
+ * `set_foreground` flag in `TypeKeys` method for typing into in-place controls
+
+ * flags `create_new_console` and `wait_for_idle` in `Application.start` method
+
 0.4.0 Various cleanup and bug fixes.
 ------------------------------------------------------------------
 03-April-2010
