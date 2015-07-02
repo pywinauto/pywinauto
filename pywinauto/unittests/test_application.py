@@ -584,7 +584,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         * raises and error when criteria not met
         * timing is close to the timeout value"""
-        allowable_error = .11
+        allowable_error = .16
 
         start = time.time()
         self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
