@@ -5,36 +5,6 @@
 $MINICONDA_URL = "http://repo.continuum.io/miniconda/"
 
 
-function DownloadFile ($filename, $url) {
-    $basedir = $pwd.Path + "\"
-    $filepath = $basedir + $filename
-    if (Test-Path $filename) {
-        Write-Host "Reusing" $filepath
-        return $filepath
-    }
-
-    $webclient = New-Object System.Net.WebClient
-    # Download and retry up to 3 times in case of network transient errors.
-    Write-Host "Downloading" $filename "from" $url
-    $retry_attempts = 2
-    for($i=0; $i -lt $retry_attempts; $i++){
-        try {
-            $webclient.DownloadFile $url $filepath
-            break
-        }
-        Catch [Exception]{
-            Start-Sleep 1
-        }
-   }
-   if (Test-Path $filepath) {
-       Write-Host "File saved at" $filepath
-   } else {
-       # Retry once to get the error message if any at the last try
-       $webclient.DownloadFile $url $filepath
-   }
-   return $filepath
-}
-
 function DownloadMiniconda ($python_version, $platform_suffix) {
     $webclient = New-Object System.Net.WebClient
     if ($python_version -match "3.4") {
@@ -56,7 +26,7 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
     $retry_attempts = 2
     for($i=0; $i -lt $retry_attempts; $i++){
         try {
-            $webclient.DownloadFile $url $filepath
+            $webclient.DownloadFile($url, $filepath)
             break
         }
         Catch [Exception]{
@@ -67,11 +37,10 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
        Write-Host "File saved at" $filepath
    } else {
        # Retry once to get the error message if any at the last try
-       $webclient.DownloadFile $url $filepath
+       $webclient.DownloadFile($url, $filepath)
    }
    return $filepath
 }
-
 
 function InstallMiniconda ($python_version, $architecture, $python_home) {
     Write-Host "Installing Python" $python_version "for" $architecture "bit architecture to" $python_home
@@ -99,7 +68,6 @@ function InstallMiniconda ($python_version, $architecture, $python_home) {
         Exit 1
     }
 }
-
 
 function InstallCondaPackages ($python_home, $spec) {
     $conda_path = $python_home + "\Scripts\conda.exe"
