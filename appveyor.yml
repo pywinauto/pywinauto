@@ -24,12 +24,17 @@ environment:
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
       UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python33"
       PYTHON_VERSION: "3.3"
       PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
+      UIA_SUPPORT: "YES"
 
     - PYTHON: "C:\\Python33-x64"
       PYTHON_VERSION: "3.3"
@@ -44,7 +49,7 @@ environment:
     - PYTHON: "C:\\Python34-x64"
       PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "64"
-      UIA_SUPPORT: "NO"
+      UIA_SUPPORT: "YES"
 os:
   - unstable # Unstable worker image with logged in user, desktop and interactive build agent
 
