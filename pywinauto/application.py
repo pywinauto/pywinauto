@@ -1,5 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2011 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -62,11 +64,8 @@ import os.path
 import warnings
 import pickle
 
-import ctypes
 
-from . import six
-from . import win32structures
-from . import win32functions
+#from . import win32functions
 from . import win32defines
 from . import controls
 from . import findbestmatch
@@ -702,7 +701,7 @@ def _resolve_from_appdata(
                     ctrl = controls.WrapHandle(ctrl_elems[0].handle)
                 except IndexError:
                     print("-+-+=_" * 20)
-                    print(found_criteria)
+                    #print(found_criteria)
                     raise
 
                 break
@@ -784,7 +783,7 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
     * **retry_interval** - how long to wait between each retry (default .2)
     """
 
-    start = time.time()
+    #start = time.time()
 
     if timeout is None:
         timeout = Timings.window_find_timeout
@@ -856,7 +855,7 @@ class Application(object):
     connect = staticmethod(__connect)
     Connect = connect
 
-    def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console=False):
+    def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console = False, wait_for_idle = True):
         "Starts the application giving in cmd_line"
 
         if timeout is None:
@@ -910,11 +909,12 @@ class Application(object):
 
             return bool(self.windows_())
 
-        # Wait until the application is ready after starting it
-        try:
-            WaitUntil(timeout, retry_interval, AppIdle)
-        except TimeoutError:
-            pass
+        if wait_for_idle:
+            # Wait until the application is ready after starting it
+            try:
+                WaitUntil(timeout, retry_interval, AppIdle)
+            except TimeoutError:
+                pass
 
         return self
 
@@ -1196,9 +1196,6 @@ def AssertValidProcess(process_id):
 # https://code.google.com/r/luoyonggang-pywinauto/source/detail?r=6cb5b624db465720e19e7a3265bb7585bbc09452
 #
 def process_get_modules(name = None):
-    # set up the variable to pass to EnumProcesses
-    processes = (ctypes.c_int * 2000)()
-    bytes_returned = ctypes.c_int()
 
     modules = []
     # collect all the running processes
@@ -1215,6 +1212,9 @@ def process_get_modules(name = None):
     return modules
     '''
     implementation without pyWin32 extensions
+    # set up the variable to pass to EnumProcesses
+    processes = (ctypes.c_int * 2000)()
+    bytes_returned = ctypes.c_int()
     ctypes.windll.psapi.EnumProcesses(
         ctypes.byref(processes),
         ctypes.sizeof(processes),

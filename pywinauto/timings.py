@@ -1,5 +1,6 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -31,7 +32,7 @@ timings.Timings.Slow()
 
 The Following are the individual timing settings that can be adjusted:
 
-* window_find_timeout	(default 3)
+* window_find_timeout	(default 5)
 * window_find_retry (default .09)
 
 * app_start_timeout (default 10)
@@ -92,7 +93,7 @@ __revision__ = "$Revision: 453 $"
 
 #=========================================================================
 class TimeConfig(object):
-    "Central storage and minipulation of timing values"
+    "Central storage and manipulation of timing values"
     __default_timing = {
         'window_find_timeout' : 5,
         'window_find_retry' : .09,
@@ -144,6 +145,9 @@ class TimeConfig(object):
         'after_listboxfocuschange_wait': 0,
         'after_editsetedittext_wait': 0,
         'after_editselect_wait': 0.01,
+        'drag_n_drop_move_mouse_wait': 0.1,
+        'before_drop_wait': 0.3,
+        'after_drag_n_drop_wait': 0.1,
     }
 
 

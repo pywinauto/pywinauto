@@ -1,6 +1,9 @@
 # -*- coding: latin-1 -*-
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2012 Michael Herrmann
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -46,7 +49,7 @@ from pywinauto import six
 #from SendKeys import *
 import os
 import unittest
-from msvcrt import getch
+#from msvcrt import getch
 
 # Fix Python 2.x.
 if six.PY2:
@@ -68,7 +71,7 @@ class SendKeysTests(unittest.TestCase):
     def __run_NormalCharacters_with_options(self, **args):
         "Make sure that sending any character in range "
 
-        missed = []
+        #unused var: missed = []
         for i in range(32, 127):
 
             # skip characters that must be escaped

@@ -1,4 +1,6 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -23,7 +25,7 @@ from __future__ import absolute_import
 
 __revision__ = "$Revision$"
 
-from .win32defines import LF_FACESIZE, NMTTDISPINFOW_V1_SIZE, HDITEMW_V1_SIZE
+from .win32defines import LF_FACESIZE
 from . import six
 from . import sysinfo
 
@@ -1031,8 +1033,6 @@ else:
     assert alignment(MENUINFO) == 4, alignment(MENUINFO)
 
 
-
-NMTTDISPINFOW_V1_SIZE = 184 # Variable c_uint
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
 class NMTTDISPINFOW(Structure):

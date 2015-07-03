@@ -1,5 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -26,15 +28,12 @@ __revision__ = "$Revision$"
 
 import re
 import difflib
-import traceback
 
 from . import six
-from . import fuzzydict
 #import ctypes
 #import ldistance
 #levenshtein_distance = ctypes.cdll.levenshtein.levenshtein_distance
 #levenshtein_distance = ldistance.distance
-from .actionlogger import ActionLogger
 
 # need to use sets.Set for python 2.3 compatability
 # but 2.6 raises a deprecation warning about sets module
@@ -311,6 +310,8 @@ def get_control_names(control, allcontrols):
             for text in control.Texts()[1:]:
                 names.append(control.FriendlyClassName() + text)
         except:
+            #import traceback
+            #from .actionlogger import ActionLogger
             pass #ActionLogger().log('Warning! Cannot get control.Texts()') #\nTraceback:\n' + traceback.format_exc())
 
         # so find the text of the nearest text visible control

@@ -1,5 +1,6 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2007 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -23,14 +24,14 @@
 import sys
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.controls.HwndWrapper import HwndWrapper
-from pywinauto import win32structures, win32defines
-from pywinauto.controls import menuwrapper
+#from pywinauto.controls.HwndWrapper import HwndWrapper
+#from pywinauto import win32structures, win32defines
+#from pywinauto.controls import menuwrapper
 
-import time
-import pprint
-import pdb
-import ctypes
+#import time
+#import pprint
+#import pdb
+#import ctypes
 
 __revision__ = "$Revision: 234 $"
 

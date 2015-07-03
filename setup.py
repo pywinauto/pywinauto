@@ -1,5 +1,6 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -26,10 +27,15 @@
 from __future__ import print_function
 
 try:
-    from ez_setup import use_setuptools
-    use_setuptools()
+    try:
+        from ez_setup import use_setuptools
+        use_setuptools()
+    except ImportError:
+        print('No ez_setup.py. Using plain setuptools...')
     from setuptools import setup
 except ImportError:
+    # TODO: no distutils, no hardcore! :)
+    print('Using distutils.core for setup...')
     from distutils.core import setup
 
 import os.path
@@ -47,10 +53,11 @@ def SetupPath(path = ""):
 # add it to the system path
 sys.path.append(SetupPath())
 
-# now it should be safe to import pywinauto
-import pywinauto
-
-
+try:
+    import win32api
+    requirements = []
+except ImportError:
+    requirements = ["pypiwin32"]
 
 # make sure the documentation is in the correct place for building
 # todo: see how to build the website
@@ -61,11 +68,11 @@ import pywinauto
 
 
 setup(name='pywinauto',
-    version = pywinauto.__version__,
+    version = '0.5.0',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
-    url = "https://code.google.com/p/pywinauto/",
+    url = "http://pywinauto.github.io/",
     author = 'Mark Mc Mahon',
     author_email = 'mark.m.mcmahon@gmail.com',
     long_description = """
@@ -73,12 +80,9 @@ At it's simplest it allows you to send mouse and keyboard
 actions to windows dialogs and controls, but It has support for more complex
 controls also.
 """,
+    platforms=['win32'],
 
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
-
-    #data_files=[
-    #	('examples', ['examples/notepad_fast.pkl', ]),
-    #],
 
     license = "LGPL",
     classifiers=[
@@ -86,24 +90,17 @@ controls also.
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: '
-            'GNU Library or Lesser General Public License (LGPL)',
+            'GNU Lesser General Public License v2 or later (LGPLv2+)',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Testing',
+        'Topic :: Software Development :: User Interfaces',
         ],
+    install_requires=requirements,
     )
-
-# todo: see how to build the website later
-#if "sdist" in sys.argv:
-#    if not os.path.exists(SetupPath("website")):
-#        shutil.move(SetupPath("documentation"), SetupPath("website"))
-
-
-try:
-    import ctypes
-    import win32gui
-    import win32gui_struct
-    import win32api
-except ImportError as e:
-    print("The following module has to be installed before running pywinauto...")
-    print("\t" + str(e).replace("No module named ", ""))

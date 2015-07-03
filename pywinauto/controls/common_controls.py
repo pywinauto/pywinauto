@@ -1,5 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -25,8 +27,6 @@ __revision__ = "$Revision$"
 
 import time
 import ctypes
-import re
-import sys
 
 from .. import sysinfo
 from .. import six
@@ -1022,7 +1022,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         else:
             roots = self.Roots()
             texts = [r.Text() for r in roots]
-            indices = range(0, len(texts))
+            #not used var: indices = range(0, len(texts))
             if exact:
                 if path[0] in texts:
                     current_elem = roots[texts.index(path[0])]
@@ -2566,16 +2566,16 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
         if res != win32defines.GDT_VALID:
             raise Exception('Failed to get time from Date Time Picker (result = ' + str(res) + ')')
         
-        year = system_time.wYear
-        month = system_time.wMonth
-        day_of_week = system_time.wDayOfWeek
-        day = system_time.wDay
-        hour = system_time.wHour
-        minute = system_time.wMinute
-        second = system_time.wSecond
-        milliseconds = system_time.wMilliseconds
-        
-        return system_time #(year, month, day_of_week, day, hour, minute, second, milliseconds)
+        #year = system_time.wYear
+        #month = system_time.wMonth
+        #day_of_week = system_time.wDayOfWeek
+        #day = system_time.wDay
+        #hour = system_time.wHour
+        #minute = system_time.wMinute
+        #second = system_time.wSecond
+        #milliseconds = system_time.wMilliseconds
+        #return (year, month, day_of_week, day, hour, minute, second, milliseconds)
+        return system_time 
 
     #----------------------------------------------------------------
     def SetTime(self, year, month, day_of_week, day, hour, minute, second, milliseconds):

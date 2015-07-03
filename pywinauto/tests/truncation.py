@@ -1,5 +1,6 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -246,7 +247,7 @@ def _RadioButtonTruncInfo(win):
     # to set some special lineFormat (None or something?)
     if win.HasStyle(win32defines.BS_BITMAP) or \
         win.HasStyle(win32defines.BS_ICON):
-        heightAdj = -9000
+        #unused var: heightAdj = -9000
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
@@ -272,7 +273,7 @@ def _CheckBoxTruncInfo(win):
     # to set some special lineFormat (None or something?)
     if win.HasStyle(win32defines.BS_BITMAP) or \
         win.HasStyle(win32defines.BS_ICON):
-        heightAdj = -9000
+        #unused var: heightAdj = -9000
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 

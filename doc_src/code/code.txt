@@ -35,6 +35,13 @@ Sendkeys
    
    pywinauto.SendKeysCtypes.txt
 
+Included 3rd party modules
+==============================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.six.txt
+
 Pre-supplied tests
 ==============================
 .. toctree::
@@ -62,4 +69,7 @@ Internal modules
    pywinauto.handleprops.txt
    pywinauto.XMLHelpers.txt
    pywinauto.fuzzydict.txt
+   pywinauto.actionlogger.txt
+   pywinauto.sysinfo.txt
+   pywinauto.RemoteMemoryBlock.txt
 

@@ -1,5 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -44,7 +46,7 @@ except ImportError:
 
 import ctypes
 import re
-import codecs
+import bz2, base64
 try:
     import PIL.Image
     PIL_imported = True
@@ -108,7 +110,7 @@ def _SetNodeProps(element, name, value):
                 raise MemoryError
 
             #print('type(value) = ' + str(type(value)))
-            image_data = codecs.encode(codecs.encode(value.tobytes(), "bz2"), "base64").decode('utf-8')
+            image_data = base64.encodestring(bz2.compress(value.tobytes())).decode('utf-8')
             _SetNodeProps(
                 element,
                 name + "_IMG",
@@ -419,7 +421,7 @@ def _ReadXMLStructure(control_element):
 
             # get image Attribs
             img = _GetAttributes(elem)
-            data = codecs.decode(codecs.decode(img['data'].encode('utf-8'), 'base64'), 'bz2')
+            data = bz2.decompress(base64.decodestring(img['data'].encode('utf-8')))
 
             if PIL_imported is False:
                 raise RuntimeError('PIL is not installed!')

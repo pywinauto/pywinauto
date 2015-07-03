@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.findbestmatch &mdash; pywinauto 0.4.2 documentation</title>
+    <title>pywinauto.findbestmatch &mdash; pywinauto 0.5.0 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.4.2',
+        VERSION:     '0.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,13 +23,13 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.4.2 documentation" href="../index.html" />
+    <link rel="top" title="pywinauto 0.5.0 documentation" href="../contents.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.findwindows" href="pywinauto.findwindows.html" />
     <link rel="prev" title="pywinauto.application" href="pywinauto.application.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -46,15 +44,15 @@
         <li class="right" >
           <a href="pywinauto.application.html" title="pywinauto.application"
              accesskey="P">previous</a> |</li>
-        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
-          <li><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="pywinauto-findbestmatch">
 <h1>pywinauto.findbestmatch<a class="headerlink" href="#pywinauto-findbestmatch" title="Permalink to this headline">¶</a></h1>
@@ -62,31 +60,31 @@
 <div><span class="target" id="module-pywinauto.findbestmatch"></span><p>Module to find the closest match of a string in a list</p>
 <dl class="function">
 <dt id="pywinauto.findbestmatch.GetNonTextControlName">
-<tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">GetNonTextControlName</tt><big>(</big><em>ctrl</em>, <em>controls</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.GetNonTextControlName" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">GetNonTextControlName</code><span class="sig-paren">(</span><em>ctrl</em>, <em>controls</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.GetNonTextControlName" title="Permalink to this definition">¶</a></dt>
 <dd><p>return the name for this control by finding the closest
 text control above and to its left</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pywinauto.findbestmatch.IsAboveOrToLeft">
-<tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">IsAboveOrToLeft</tt><big>(</big><em>ref_control</em>, <em>other_ctrl</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.IsAboveOrToLeft" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">IsAboveOrToLeft</code><span class="sig-paren">(</span><em>ref_control</em>, <em>other_ctrl</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.IsAboveOrToLeft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return true if the other_ctrl is above or to the left of ref_control</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pywinauto.findbestmatch.MatchError">
-<em class="property">exception </em><tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">MatchError</tt><big>(</big><em>items=None</em>, <em>tofind=''</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.MatchError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">MatchError</code><span class="sig-paren">(</span><em>items=None</em>, <em>tofind=u''</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.MatchError" title="Permalink to this definition">¶</a></dt>
 <dd><p>A suitable match could not be found</p>
 <p>Init the parent with the message</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pywinauto.findbestmatch.UniqueDict">
-<em class="property">class </em><tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">UniqueDict</tt><a class="headerlink" href="#pywinauto.findbestmatch.UniqueDict" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">UniqueDict</code><a class="headerlink" href="#pywinauto.findbestmatch.UniqueDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>A dictionary subclass that handles making it&#8217;s keys unique</p>
 <dl class="method">
 <dt id="pywinauto.findbestmatch.UniqueDict.FindBestMatches">
-<tt class="descname">FindBestMatches</tt><big>(</big><em>search_text</em>, <em>clean=False</em>, <em>ignore_case=False</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.UniqueDict.FindBestMatches" title="Permalink to this definition">¶</a></dt>
+<code class="descname">FindBestMatches</code><span class="sig-paren">(</span><em>search_text</em>, <em>clean=False</em>, <em>ignore_case=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.UniqueDict.FindBestMatches" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the best matches for search_text in the items</p>
 <ul class="simple">
 <li><strong>search_text</strong> the text to look for</li>
@@ -99,7 +97,7 @@ text control above and to its left</p>
 
 <dl class="function">
 <dt id="pywinauto.findbestmatch.build_unique_dict">
-<tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">build_unique_dict</tt><big>(</big><em>controls</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.build_unique_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">build_unique_dict</code><span class="sig-paren">(</span><em>controls</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.build_unique_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build the disambiguated list of controls</p>
 <p>Separated out to a different function so that we can get
 the control identifiers for printing.</p>
@@ -107,7 +105,7 @@ the control identifiers for printing.</p>
 
 <dl class="function">
 <dt id="pywinauto.findbestmatch.find_best_control_matches">
-<tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">find_best_control_matches</tt><big>(</big><em>search_text</em>, <em>controls</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.find_best_control_matches" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">find_best_control_matches</code><span class="sig-paren">(</span><em>search_text</em>, <em>controls</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.find_best_control_matches" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the control that is the the best match to search_text</p>
 <p>This is slightly differnt from find_best_match in that it builds
 up the list of text items to search through using information
@@ -120,7 +118,7 @@ then it will just add &#8220;ListView&#8221;.</p>
 
 <dl class="function">
 <dt id="pywinauto.findbestmatch.find_best_match">
-<tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">find_best_match</tt><big>(</big><em>search_text</em>, <em>item_texts</em>, <em>items</em>, <em>limit_ratio=0.5</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.find_best_match" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">find_best_match</code><span class="sig-paren">(</span><em>search_text</em>, <em>item_texts</em>, <em>items</em>, <em>limit_ratio=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.find_best_match" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item that best matches the search_text</p>
 <ul class="simple">
 <li><strong>search_text</strong> The text to search for</li>
@@ -135,7 +133,7 @@ considered a match and a MatchError is raised, (default = .5)</li>
 
 <dl class="function">
 <dt id="pywinauto.findbestmatch.get_control_names">
-<tt class="descclassname">pywinauto.findbestmatch.</tt><tt class="descname">get_control_names</tt><big>(</big><em>control</em>, <em>allcontrols</em><big>)</big><a class="headerlink" href="#pywinauto.findbestmatch.get_control_names" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pywinauto.findbestmatch.</code><code class="descname">get_control_names</code><span class="sig-paren">(</span><em>control</em>, <em>allcontrols</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.findbestmatch.get_control_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of names for this control</p>
 </dd></dl>
 
@@ -146,7 +144,7 @@ considered a match and a MatchError is raised, (default = .5)</li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="pywinauto.application.html"
@@ -154,12 +152,14 @@ considered a match and a MatchError is raised, (default = .5)</li>
   <h4>Next topic</h4>
   <p class="topless"><a href="pywinauto.findwindows.html"
                         title="next chapter">pywinauto.findwindows</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/code/pywinauto.findbestmatch.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/code/pywinauto.findbestmatch.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -176,7 +176,7 @@ considered a match and a MatchError is raised, (default = .5)</li>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -191,13 +191,13 @@ considered a match and a MatchError is raised, (default = .5)</li>
         <li class="right" >
           <a href="pywinauto.application.html" title="pywinauto.application"
              >previous</a> |</li>
-        <li><a href="../contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li>
-          <li><a href="code.html" >Main user modules</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Mark Mc Mahon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

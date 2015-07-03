@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -8,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Change Log &mdash; pywinauto 0.4.2 documentation</title>
+    <title>Change Log &mdash; pywinauto 0.5.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '0.4.2',
+        URL_ROOT:    './',
+        VERSION:     '0.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,12 +23,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.4.2 documentation" href="index.html" />
+    <link rel="top" title="pywinauto 0.5.0 documentation" href="contents.html" />
     <link rel="next" title="Main user modules" href="code/code.html" />
     <link rel="prev" title="PYWINAUTO TODO’s" href="TODO.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +43,14 @@
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              accesskey="P">previous</a> |</li>
-        <li><a href="contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="change-log">
 <h1>Change Log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
@@ -150,12 +148,12 @@ when the automation was called, but is gone half way through
 whatever function was called.</li>
 <li>Made clicking more robust by adding a tiny wait between each
 SendMessageTimeout in _perform_click().</li>
-<li>Added attributes <tt class="docutils literal"><span class="pre">can_be_label</span></tt> and <tt class="docutils literal"><span class="pre">has_title</span></tt> to <tt class="docutils literal"><span class="pre">HwndWrapper</span></tt>
+<li>Added attributes <code class="docutils literal"><span class="pre">can_be_label</span></code> and <code class="docutils literal"><span class="pre">has_title</span></code> to <code class="docutils literal"><span class="pre">HwndWrapper</span></code>
 and subclasses to specify whether a control can act as a label for
 other controls, and whether the title should be used for identifying
 the control. If you have created your own HwndWrapper subclasses you
 may need to override the defaults.</li>
-<li>Added a <tt class="docutils literal"><span class="pre">control_id</span></tt> parameter to find_windows which allows
+<li>Added a <code class="docutils literal"><span class="pre">control_id</span></code> parameter to find_windows which allows
 finding windows based off of their control id&#8217;s</li>
 <li>Added a FriendlyClassName method to MenuItem</li>
 <li>Split up the functions for button truncation data</li>
@@ -231,20 +229,20 @@ was less then .2 after &#8216;slowing&#8217; then set it to .2</li>
 <h2>0.3.6 Scrolling and Treview Item Clicking added<a class="headerlink" href="#scrolling-and-treview-item-clicking-added" title="Permalink to this headline">¶</a></h2>
 <p>28-July-2006</p>
 <ul class="simple">
-<li>Added parameter to <tt class="docutils literal"><span class="pre">_treeview_item.Rectangle()</span></tt> to have an option
+<li>Added parameter to <code class="docutils literal"><span class="pre">_treeview_item.Rectangle()</span></code> to have an option
 to get the Text rectangle of the item. And defaulted to this.</li>
-<li>Added <tt class="docutils literal"><span class="pre">_treeview_item.Click()</span></tt> method to make it easy to click
+<li>Added <code class="docutils literal"><span class="pre">_treeview_item.Click()</span></code> method to make it easy to click
 on tree view items.</li>
-<li>Fixed a bug in <tt class="docutils literal"><span class="pre">TreeView.GetItem()</span></tt> that was expanding items
+<li>Fixed a bug in <code class="docutils literal"><span class="pre">TreeView.GetItem()</span></code> that was expanding items
 when it shouldn&#8217;t.</li>
-<li>Added <tt class="docutils literal"><span class="pre">HwndWrapper.Scroll()</span></tt> method to allow scrolling. This
+<li>Added <code class="docutils literal"><span class="pre">HwndWrapper.Scroll()</span></code> method to allow scrolling. This
 is a very minimal implementation - and if the scrollbars are
 implemented as separate controls (rather then a property of a
 control - this will probably not work for you!). It works for
 Notepad and Paint - that is all I have tried so far.</li>
-<li>Added a call to <tt class="docutils literal"><span class="pre">HwndWrapper.SetFocus()</span></tt> in
-<tt class="docutils literal"><span class="pre">_perform_click_input()</span></tt> so that calls to
-<tt class="docutils literal"><span class="pre">HwndWrapper.ClickInput()</span></tt> will make sure to click on the
+<li>Added a call to <code class="docutils literal"><span class="pre">HwndWrapper.SetFocus()</span></code> in
+<code class="docutils literal"><span class="pre">_perform_click_input()</span></code> so that calls to
+<code class="docutils literal"><span class="pre">HwndWrapper.ClickInput()</span></code> will make sure to click on the
 correct window.</li>
 </ul>
 </div>
@@ -277,9 +275,9 @@ was not using it.</li>
 <li>The latest version of ctypes (0.9.9.6) removed the code generator
 I was using some generated code in win32functions.py (stdcall). I
 was not using those functions so I just commented them out.</li>
-<li>Started the process of renaming methods of the <tt class="docutils literal"><span class="pre">Application</span></tt> and
-<tt class="docutils literal"><span class="pre">WindowSpecification</span></tt> classes. I will be converting names to
-<tt class="docutils literal"><span class="pre">UppercaseNames_()</span></tt>. The trailing <tt class="docutils literal"><span class="pre">_</span></tt> is to disambiguate the
+<li>Started the process of renaming methods of the <code class="docutils literal"><span class="pre">Application</span></code> and
+<code class="docutils literal"><span class="pre">WindowSpecification</span></code> classes. I will be converting names to
+<code class="docutils literal"><span class="pre">UppercaseNames_()</span></code>. The trailing <code class="docutils literal"><span class="pre">_</span></code> is to disambiguate the
 method names from potential Window titles.</li>
 <li>Updated how print_control_identifiers works so that it now always
 prints the disambiguated control name. (even for single controls)</li>
@@ -374,7 +372,8 @@ Alpha.</p>
 <p>If you have a different language version of Windows then you can try
 this out by running the notepad_fast.py example with the langauge
 argument e.g.</p>
-<div class="highlight-python"><pre>examples\notepad_fast.py language</pre>
+<div class="highlight-python"><div class="highlight"><pre>examples\notepad_fast.py language
+</pre></div>
 </div>
 <p>This will load the application data from the supplied file
 notepad_fast.pkl and use it for finding the right menu items and
@@ -387,8 +386,8 @@ Previously you needed to write code like</p>
 <span class="n">app</span><span class="o">.</span><span class="n">NotePad</span><span class="o">.</span><span class="n">MenuSelect</span><span class="p">(</span><span class="s">&quot;File-&gt;Exit&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>1st change was to implement static methods <tt class="docutils literal"><span class="pre">start()</span></tt> and
-<tt class="docutils literal"><span class="pre">connect()</span></tt>. These methods return a new Application instance
+<p>1st change was to implement static methods <code class="docutils literal"><span class="pre">start()</span></code> and
+<code class="docutils literal"><span class="pre">connect()</span></code>. These methods return a new Application instance
 so the above code becomes:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Find&#39;</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">Find</span><span class="o">.</span><span class="n">Close</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
@@ -397,8 +396,8 @@ so the above code becomes:</p>
 </div>
 <p>I also wanted to make it easier to start working with a simple
 application - that may or may not have only one dialog. To make this
-situation easier I made <tt class="docutils literal"><span class="pre">window_()</span></tt> not throw if the application has not
-been <tt class="docutils literal"><span class="pre">start()ed</span></tt> or <tt class="docutils literal"><span class="pre">connect()ed</span></tt> first. This leads to simpler code
+situation easier I made <code class="docutils literal"><span class="pre">window_()</span></code> not throw if the application has not
+been <code class="docutils literal"><span class="pre">start()ed</span></code> or <code class="docutils literal"><span class="pre">connect()ed</span></code> first. This leads to simpler code
 like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
 <span class="n">app</span><span class="o">.</span><span class="n">Find</span><span class="o">.</span><span class="n">Close</span><span class="o">.</span><span class="n">Click</span><span class="p">()</span>
@@ -493,7 +492,7 @@ This closest text control will normally be the static/label associated
 with the control. For example in Notepad, Format-&gt;Font dialog, the 1st
 combobox can be refered to as &#8220;FontComboBox&#8221; rather than &#8220;ComboBox1&#8221;</p>
 </li>
-<li><p class="first">Added a new control wrapper - <tt class="docutils literal"><span class="pre">PopupMenuWrapper</span></tt> for context menu&#8217;s
+<li><p class="first">Added a new control wrapper - <code class="docutils literal"><span class="pre">PopupMenuWrapper</span></code> for context menu&#8217;s
 You can now work easily with context menu&#8217;s
 e.g.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">app</span><span class="o">.</span><span class="n">Notepad</span><span class="o">.</span><span class="n">Edit</span><span class="o">.</span><span class="n">RightClick</span><span class="p">()</span>
@@ -503,8 +502,8 @@ e.g.</p>
 <span class="n">app</span><span class="o">.</span><span class="n">PopupMenu</span><span class="o">.</span><span class="n">MenuClick</span><span class="p">(</span><span class="s">&quot;Copy&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>I could think of merging the <tt class="docutils literal"><span class="pre">RightClick()</span></tt> and <tt class="docutils literal"><span class="pre">MenuSelect()</span></tt> into one method
-<tt class="docutils literal"><span class="pre">ContextMenuSelect()</span></tt> if that makes sense to most people.</p>
+<p>I could think of merging the <code class="docutils literal"><span class="pre">RightClick()</span></code> and <code class="docutils literal"><span class="pre">MenuSelect()</span></code> into one method
+<code class="docutils literal"><span class="pre">ContextMenuSelect()</span></code> if that makes sense to most people.</p>
 </li>
 <li><p class="first">Added Support for Up-Down controls</p>
 </li>
@@ -513,7 +512,7 @@ I changed this because it made it hard to get windows of a particular
 class. For example the main Notepad window has a class name of &#8220;Notepad&#8221;.</p>
 <p>This was primarily implemented due to work I did getting the System Tray.</p>
 </li>
-<li><p class="first">Renamed <tt class="docutils literal"><span class="pre">StatusBarWrapper.PartWidths()</span></tt> to <tt class="docutils literal"><span class="pre">PartRightEdges()</span></tt> as this
+<li><p class="first">Renamed <code class="docutils literal"><span class="pre">StatusBarWrapper.PartWidths()</span></code> to <code class="docutils literal"><span class="pre">PartRightEdges()</span></code> as this
 is more correct for what it returns.</p>
 </li>
 <li><p class="first">Changed HwndWrapper.Text() and SetText() to WindowText() and
@@ -541,8 +540,8 @@ but you can get a menu item by doing</p>
 </pre></div>
 </div>
 <p>MenuItems have various actions so for example you can use
-<tt class="docutils literal"><span class="pre">MenuItem.IsChecked()</span></tt> to check if the menu item is checked.
-Among other methods there are <tt class="docutils literal"><span class="pre">Click()</span></tt> and <tt class="docutils literal"><span class="pre">Enabled()</span></tt>.</p>
+<code class="docutils literal"><span class="pre">MenuItem.IsChecked()</span></code> to check if the menu item is checked.
+Among other methods there are <code class="docutils literal"><span class="pre">Click()</span></code> and <code class="docutils literal"><span class="pre">Enabled()</span></code>.</p>
 </li>
 <li><p class="first">Modified the &#8216;best match&#8217; algorithm for finding controls.
 It now searches a couple of times, and tries to find the best
@@ -581,12 +580,13 @@ significant change! The main reasons for doing this were due to the
 inheritability of properties (or lack there-of!) and the additional
 scafolding that was required to define them all.</p>
 </li>
-<li><p class="first">Updated the <tt class="docutils literal"><span class="pre">DialogWrapper.MenuSelect()</span></tt> method to notify the parent
+<li><p class="first">Updated the <code class="docutils literal"><span class="pre">DialogWrapper.MenuSelect()</span></code> method to notify the parent
 that it needs to initialize the menu&#8217;s before it retrieves the items</p>
 </li>
 <li><p class="first">Added functionality to associate &#8216;non-text&#8217; controls with the &#8216;text&#8217;
 control closest to them. This allows controls to be referenced by:</p>
-<div class="highlight-python"><pre>app.dlg.&lt;Nearby_text&gt;&lt;Window_class&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>app.dlg.&lt;Nearby_text&gt;&lt;Window_class&gt;
+</pre></div>
 </div>
 <p>e.g. to reference the &#8220;Footer&#8221; edit control in the Page Setup dialog
 you could use:</p>
@@ -618,8 +618,9 @@ you could use:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">connect_</span><span class="p">,</span> <span class="n">start_</span><span class="p">,</span> <span class="n">window_</span><span class="p">,</span> <span class="n">connect_</span><span class="p">,</span> <span class="n">write_</span>
 </pre></div>
 </div>
-<p>If you forget to change <tt class="docutils literal"><span class="pre">_window</span></tt>, <tt class="docutils literal"><span class="pre">_connect</span></tt> and <tt class="docutils literal"><span class="pre">_start</span></tt> then you will probably get the following error.</p>
-<div class="highlight-python"><pre>TypeError: '_DynamicAttributes' object is not callable</pre>
+<p>If you forget to change <code class="docutils literal"><span class="pre">_window</span></code>, <code class="docutils literal"><span class="pre">_connect</span></code> and <code class="docutils literal"><span class="pre">_start</span></code> then you will probably get the following error.</p>
+<div class="highlight-python"><div class="highlight"><pre>TypeError: &#39;_DynamicAttributes&#39; object is not callable
+</pre></div>
 </div>
 </li>
 <li><p class="first">pywinauto is now a package name - you need to import it or its modules</p>
@@ -672,7 +673,7 @@ you could use:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="contents.html">Table Of Contents</a></h3>
   <ul>
@@ -706,12 +707,14 @@ you could use:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="code/code.html"
                         title="next chapter">Main user modules</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/HISTORY.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/HISTORY.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -728,7 +731,7 @@ you could use:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -743,12 +746,12 @@ you could use:</p>
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              >previous</a> |</li>
-        <li><a href="contents.html">pywinauto 0.4.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2010, Mark Mc Mahon.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Mark Mc Mahon.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

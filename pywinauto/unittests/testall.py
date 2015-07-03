@@ -1,3 +1,24 @@
+# GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2010 Mark Mc Mahon
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1
+# of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the
+#    Free Software Foundation, Inc.,
+#    59 Temple Place,
+#    Suite 330,
+#    Boston, MA 02111-1307 USA
+
 from __future__ import print_function
 import os
 import sys
@@ -14,6 +35,10 @@ cov = coverage.coverage(branch = True, omit = os.path.join(package_root, 'pywina
 cov.start()
 
 import pywinauto
+
+# increase timings for AppVeyor
+pywinauto.timings.Timings.app_start_timeout = 20
+pywinauto.timings.Timings.window_find_timeout = 40
 
 modules_to_test = [pywinauto]
 
@@ -50,7 +75,9 @@ def run_tests():
     print(cov.report())
     cov.html_report(
         directory = os.path.join(package_root, "Coverage_report"),
-        omit = os.path.join(package_root, 'pywinauto', '*tests', '*.py'))
+        omit = [os.path.join(package_root, 'pywinauto', '*tests', '*.py'),
+                os.path.join(package_root, 'pywinauto', 'six.py'), ]
+        )
 
 
 if __name__ == '__main__':

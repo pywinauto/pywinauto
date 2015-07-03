@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2007 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -28,7 +28,7 @@ import sys
 sys.path.append(".")
 from pywinauto.win32functions import *
 
-import struct
+#import struct
 
 
 class Win32FunctionsTestCases(unittest.TestCase):

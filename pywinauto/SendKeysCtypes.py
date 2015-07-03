@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2012 Michael Herrmann
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -691,7 +693,7 @@ def SendKeys(keys,
         time.sleep(pause)
 
 
-def main():
+def main(): #pragma: no cover
     "Send some test strings"
 
     actions = """
@@ -743,6 +745,6 @@ def main():
             time.sleep(.1)
         print()
 
-if __name__ == "__main__":
+if __name__ == "__main__": #pragma: no cover
 
-    main()
+    main() #pragma: no cover

@@ -1,6 +1,8 @@
 # encoding: utf-8
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -25,14 +27,13 @@ from __future__ import unicode_literals
 "Tests for HwndWrapper"
 
 import time
-import pprint
-import pdb
-import warnings
+#import pprint
+#import pdb
+#import warnings
 
-import ctypes
+#import ctypes
 import locale
 import re
-import win32api
 
 import sys, os
 sys.path.append(".")
@@ -164,6 +165,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testCloseClick_bug(self):
         self.dlg.MenuSelect('Help->About Calculator')
+        self.app.AboutCalculator.Wait("visible", 10)
         self.app.AboutCalculator.CloseButton.CloseClick()
         Timings.closeclick_dialog_close_wait = .7
         try:
@@ -175,6 +177,10 @@ class HwndWrapperTests(unittest.TestCase):
 
         #self.assertEquals(self.app.StatisticsBox.Exists(), False)
 
+    def testCloseAltF4(self):
+        self.dlg.MenuSelect('Help->About Calculator')
+        self.app.AboutCalculator.Wait("visible", 10)
+        self.assertNotEqual(self.app.AboutCalculator.CloseAltF4().IsVisible(), True)
 
     def testRectangle(self):
         "Test getting the rectangle of the dialog"
@@ -267,7 +273,9 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(0, vk)
 
         code = self.dlg.Degrees.SendMessage(win32defines.WM_GETDLGCODE)
-        self.assertEqual(0, vk)
+        # The expected return code is: "Button" = 0x2000 and "Radio" = 0x40
+        expected = 0x2000 + 0x40
+        self.assertEqual(expected, code)
 
 
     def testSendMessageTimeout(self):
@@ -276,7 +284,9 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(0, vk)
 
         code = self.dlg.Degrees.SendMessageTimeout(win32defines.WM_GETDLGCODE)
-        self.assertEqual(0, vk)
+        # The expected return code is: "Button" = 0x2000 and "Radio" = 0x40
+        expected = 0x2000 + 0x40
+        self.assertEqual(expected, code)
 
     def testPostMessage(self):
         self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
@@ -427,6 +437,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.MenuSelect('Help->About Calculator')
         
         # make sure it is open and visible
+        self.app.AboutCalculator.Wait("visible", 20)
         self.assertTrue(self.app.Window_(title='About Calculator').IsVisible(), True)
 
         # close it
@@ -450,7 +461,6 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
         self.app = Application()
@@ -460,7 +470,9 @@ class HwndWrapperMouseTests(unittest.TestCase):
             self.app.start_(r"C:\Windows\SysWOW64\notepad.exe")
 
         # Get the old font
-        self.app.UntitledNotepad.MenuSelect("Format->Font")
+        self.app.UntitledNotepad.Wait('ready', 50)
+        self.app.UntitledNotepad.MenuSelect("Format->Font...")
+        self.app.Font.Wait("visible", 50)
 
         self.old_font = self.app.Font.FontComboBox.SelectedIndex()
         self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
@@ -501,17 +513,11 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
     def testClick(self):
-        if self.screen_w > 1700:
-            self.ctrl.Click(coords = (50, 10))
-        else:
-            self.ctrl.Click(coords = (56, 10))
+        self.ctrl.Click(coords = (52, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testClickInput(self):
-        if self.screen_w > 1700:
-            self.ctrl.ClickInput(coords = (50, 10))
-        else:
-            self.ctrl.ClickInput(coords = (56, 10))
+        self.ctrl.ClickInput(coords = (52, 10))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
 
     def testDoubleClick(self):
@@ -541,6 +547,41 @@ class HwndWrapperMouseTests(unittest.TestCase):
         app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
 
         self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text*3)
+
+#    def testRightClick(self):
+#        pass
+
+    def testRightClickInput(self):
+        self.dlg.Edit.RightClickInput()
+        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].Click()
+        self.dlg.Edit.TypeKeys('{DEL}')
+        self.assertEquals(self.dlg.Edit.TextBlock(), '')
+
+#
+#    def testPressMouse(self):
+#        pass
+#
+#    def testReleaseMouse(self):
+#        pass
+#
+#    def testMoveMouse(self):
+#        pass
+#
+#    def testDragMouse(self):
+#        pass
+#
+#    def testSetWindowText(self):
+#        pass
+#
+#    def testTypeKeys(self):
+#        pass
+#
+#    def testDebugMessage(self):
+#        pass
+#
+#    def testDrawOutline(self):
+#        pass
+#
 
 
 class DragAndDropTests(unittest.TestCase):
@@ -575,39 +616,11 @@ class DragAndDropTests(unittest.TestCase):
         "test for DragMouseInput"
         birds = self.ctrl.GetItem(r'\Birds')
         dogs = self.ctrl.GetItem(r'\Dogs')
+        birds.ClickInput()
+        time.sleep(5) # enough pause to prevent double click detection
         self.ctrl.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
         dogs = self.ctrl.GetItem(r'\Dogs')
         self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
-
-
-#
-#    def testRightClick(self):
-#        pass
-#
-#    def testPressMouse(self):
-#        pass
-#
-#    def testReleaseMouse(self):
-#        pass
-#
-#    def testMoveMouse(self):
-#        pass
-#
-#    def testDragMouse(self):
-#        pass
-#
-#    def testSetWindowText(self):
-#        pass
-#
-#    def testTypeKeys(self):
-#        pass
-#
-#    def testDebugMessage(self):
-#        pass
-#
-#    def testDrawOutline(self):
-#        pass
-#
 
 
 
@@ -645,7 +658,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 
         props_from_dialog = GetDialogPropsFromHandle(self.dlg)
 
-        props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
+        #unused var: props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
 
         self.assertEquals(props_from_handle, props_from_dialog)
 

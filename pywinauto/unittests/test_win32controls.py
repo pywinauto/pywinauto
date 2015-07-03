@@ -1,5 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -26,17 +28,17 @@ __revision__ = "$Revision: 234 $"
 # pylint:  disable-msg=W0212,F0401,R0904
 
 import os, sys
-import codecs, locale
+import codecs #, locale
 sys.path.append(".")
 from pywinauto.controls.win32_controls import *
-from pywinauto import XMLHelpers, six
+from pywinauto import XMLHelpers #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 import unittest
 
 # following imports are not required for the tests
 # but are useful for debugging
-import pprint
+#import pprint
 
 from pywinauto.timings import Timings
 Timings.Fast()
@@ -362,7 +364,7 @@ class EditTestCases(unittest.TestCase):
         print('self.test_data:')
         print(self.test_data.encode('utf-8', 'ignore'))
 
-        app.start_("Notepad.exe " + test_file)
+        app.start_("Notepad.exe " + test_file, timeout=20)
 
         self.app = app
         self.dlg = app.UntitledNotepad

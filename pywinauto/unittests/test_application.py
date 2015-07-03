@@ -1,5 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -30,8 +32,8 @@ import os
 import os.path
 import unittest
 import time
-import pprint
-import pdb
+#import pprint
+#import pdb
 import warnings
 
 import sys
@@ -45,9 +47,9 @@ from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 Timings.Fast()
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
 
-# page setup dialog takes a long time to load
+# About dialog may take some time to load
 # so make sure that we wait for it.
-Timings.window_find_timeout = 10
+Timings.window_find_timeout = 5
 
 def _notepad_exe():
     if is_x64_Python() or not is_x64_OS():
@@ -229,7 +231,7 @@ class ApplicationTestCases(unittest.TestCase):
         "Test that connect_() works with a windowspec"
         app1 = Application()
         app1.start_(_notepad_exe())
-        handle = app1.UntitledNotepad.handle
+        #unused var: handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
         try:
@@ -276,11 +278,11 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
 
-        app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.UntitledNotepad.MenuSelect("Help->About Notepad")
 
-        self.assertEqual(app.PageSetup.handle, app.top_window_().handle)
+        self.assertEqual(app.AboutNotepad.handle, app.top_window_().handle)
 
-        app.PageSetup.Cancel.Click()
+        app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
 
@@ -295,14 +297,14 @@ class ApplicationTestCases(unittest.TestCase):
         notepad_handle = app.UntitledNotepad.handle
         self.assertEquals(app.windows_(visible_only = True), [notepad_handle])
 
-        app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.UntitledNotepad.MenuSelect("Help->About Notepad")
 
-        pagesetup_handle = app.PageSetup.handle
+        aboutnotepad_handle = app.AboutNotepad.handle
         self.assertEquals(
             app.windows_(visible_only = True, enabled_only = False),
-            [pagesetup_handle, notepad_handle])
+            [aboutnotepad_handle, notepad_handle])
 
-        app.PageSetup.Cancel.Click()
+        app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
     def testWindow(self):
@@ -349,13 +351,13 @@ class ApplicationTestCases(unittest.TestCase):
             app[u'Unt\xeftledNotepad'].handle,
             app.window_(title = "Untitled - Notepad").handle)
 
-        app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.UntitledNotepad.MenuSelect("Help->About Notepad")
 
         self.assertEqual(
-            app['PageSetup'].handle,
-            app.window_(title = "Page Setup").handle)
+            app['AboutNotepad'].handle,
+            app.window_(title = "About Notepad").handle)
 
-        app.PageSetup.Cancel.Click()
+        app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
         #application.window_find_timeout = prev_timeout
@@ -375,7 +377,7 @@ class ApplicationTestCases(unittest.TestCase):
             app.UntitledNotepad.handle,
             app.window_(title = "Untitled - Notepad").handle)
 
-        app.UntitledNotepad.MenuSelect("File->Page Setup")
+        app.UntitledNotepad.MenuSelect("Help->About Notepad")
 
         # I think it's OK that this no longer raises a matcherror
         # just because the window is not enabled - doesn't mean you
@@ -384,10 +386,10 @@ class ApplicationTestCases(unittest.TestCase):
         #    app.Notepad.__getattr__, 'handle')
 
         self.assertEqual(
-            app.PageSetup.handle,
-            app.window_(title = "Page Setup").handle)
+            app.AboutNotepad.handle,
+            app.window_(title = "About Notepad").handle)
 
-        app.PageSetup.Cancel.Click()
+        app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
         #application.window_find_timeout = prev_timeout
@@ -526,11 +528,11 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # try ones that should be found immediately
         start = time.time()
         self.assertEquals(True, self.dlgspec.Exists())
-        self.assertEquals(True, time.time() - start < .1)
+        self.assertEquals(True, time.time() - start < .3)
 
         start = time.time()
         self.assertEquals(True, self.ctrlspec.Exists())
-        self.assertEquals(True, time.time() - start < .1)
+        self.assertEquals(True, time.time() - start < .3)
 
         # try one that should not be found
         start = time.time()
@@ -542,7 +544,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def testWait(self):
         "test the functionality and timing of the wait method"
 
-        allowable_error = .03
+        allowable_error = .3
 
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))
@@ -581,7 +583,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         * raises and error when criteria not met
         * timing is close to the timeout value"""
-        allowable_error = .05
+        allowable_error = .16
 
         start = time.time()
         self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)

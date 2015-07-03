@@ -1,4 +1,5 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -86,7 +87,7 @@ The identifier for this test is "Overlapping"
 testname = "Overlapping"
 __revision__ = "$Revision$"
 
-from pywinauto import win32structures
+#from pywinauto import win32structures
 
 #====================================================================
 def OverlappingTest(windows):

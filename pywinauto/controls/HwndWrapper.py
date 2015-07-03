@@ -1,5 +1,8 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2015 airelil
+# Copyright (C) 2013 Michael Herrmann
+# Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -27,7 +30,7 @@ __revision__ = "$Revision$"
 
 # pylint:  disable-msg=W0611
 
-import sys
+#import sys
 import time
 import re
 import ctypes
@@ -43,7 +46,7 @@ import traceback, inspect
 from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
-from ..RemoteMemoryBlock import RemoteMemoryBlock
+#from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -53,7 +56,6 @@ except ImportError:
 
 from .. import six
 from .. import win32defines
-from .. import win32functions
 from .. import win32structures
 from ..timings import Timings
 from .. import timings
@@ -906,22 +908,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         """Close the window by pressing Alt+F4 keys."""
 
         time.sleep(Timings.before_closeclick_wait)
-
         self.TypeKeys('%{F4}')
-
-        def has_closed():
-            return not (
-                win32functions.IsWindow(self) or
-                win32functions.IsWindow(self.Parent()))
-
-        # Keep waiting until both this control and it's parent
-        # are no longer valid controls
-        timings.WaitUntil(
-            Timings.closeclick_dialog_close_wait,
-            Timings.closeclick_retry,
-            has_closed
-        )
-
         time.sleep(Timings.after_closeclick_wait)
 
         return self
@@ -1024,10 +1011,11 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         self.PressMouse(button, press_coords, pressed=pressed)
         for i in range(5):
             self.MoveMouse((press_coords[0]+i,press_coords[1]), pressed=_pressed)
+            time.sleep(Timings.drag_n_drop_move_mouse_wait)
         self.MoveMouse(release_coords, pressed=_pressed)
-        time.sleep(0.3)
+        time.sleep(Timings.before_drop_wait)
         self.ReleaseMouse(button, release_coords, pressed=pressed)
-
+        time.sleep(Timings.after_drag_n_drop_wait)
         return self
 
     #-----------------------------------------------------------
@@ -1047,12 +1035,15 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         self.PressMouseInput(button, press_coords, pressed, absolute=absolute)
         for i in range(5):
             self.MoveMouseInput((press_coords[0]+i,press_coords[1]), pressed=pressed, absolute=absolute) # "left"
+            time.sleep(Timings.drag_n_drop_move_mouse_wait)
         self.MoveMouseInput(release_coords, pressed=pressed, absolute=absolute) # "left"
-        time.sleep(0.3)
+        time.sleep(Timings.before_drop_wait)
         self.ReleaseMouseInput(button, release_coords, pressed, absolute=absolute)
+        time.sleep(Timings.after_drag_n_drop_wait)
+        return self
 
     #-----------------------------------------------------------
-    def MouseWheelInput(self,
+    def WheelMouseInput(self,
         coords = (None, None),
         wheel_dist = 1,
         pressed = ""):
@@ -1412,7 +1403,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         # tell the window it must close
         self.PostMessage(win32defines.WM_CLOSE)
 
-        start = time.time()
+        #unused var: start = time.time()
         # Keeps trying while
         #    we have not timed out and
         #    window is still a valid handle and

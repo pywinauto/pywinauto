@@ -1,5 +1,6 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2015 Intel Corporation
+# Copyright (C) 2009 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -39,7 +40,7 @@ from .. import win32functions
 from .. import win32defines
 from .. import findbestmatch
 from ..RemoteMemoryBlock import RemoteMemoryBlock
-from .. import SendKeysCtypes as SendKeys
+#from .. import SendKeysCtypes as SendKeys
 from ..timings import Timings
 
 class MenuItemInfo:
