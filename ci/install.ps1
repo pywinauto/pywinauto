@@ -5,6 +5,36 @@
 $MINICONDA_URL = "http://repo.continuum.io/miniconda/"
 
 
+function DownloadFile ($filename, $url) {
+    $basedir = $pwd.Path + "\"
+    $filepath = $basedir + $filename
+    if (Test-Path $filename) {
+        Write-Host "Reusing" $filepath
+        return $filepath
+    }
+
+    $webclient = New-Object System.Net.WebClient
+    # Download and retry up to 3 times in case of network transient errors.
+    Write-Host "Downloading" $filename "from" $url
+    $retry_attempts = 2
+    for($i=0; $i -lt $retry_attempts; $i++){
+        try {
+            $webclient.DownloadFile $url $filepath
+            break
+        }
+        Catch [Exception]{
+            Start-Sleep 1
+        }
+   }
+   if (Test-Path $filepath) {
+       Write-Host "File saved at" $filepath
+   } else {
+       # Retry once to get the error message if any at the last try
+       $webclient.DownloadFile $url $filepath
+   }
+   return $filepath
+}
+
 function DownloadMiniconda ($python_version, $platform_suffix) {
     $webclient = New-Object System.Net.WebClient
     if ($python_version -match "3.4") {
@@ -86,14 +116,22 @@ function UpdateConda ($python_home) {
     Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
 }
 
+function InstallComtypes ($python_home) {
+    $pip_path = $python_home + "\Scripts\pip.exe"
+    $args = "install comtypes"
+    Start-Process -FilePath "$pip_path" -ArgumentList $args -Wait -Passthru
+}
 
 function main () {
     $CurrentResolution = Get-DisplayResolution
     Write-Host "Current resolution: " $CurrentResolution
 
-    InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
-    UpdateConda $env:PYTHON
-    InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage nose"
+    if ($env:UIA_SUPPORT -eq "YES") {
+        InstallComtypes $env:PYTHON
+    }
+    #InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
+    #UpdateConda $env:PYTHON
+    #InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage nose"
 }
 
 main

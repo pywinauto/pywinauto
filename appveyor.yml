@@ -14,26 +14,37 @@ environment:
     - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
+      UIA_SUPPORT: "YES"
+
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
+      UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python33"
       PYTHON_VERSION: "3.3"
       PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python33-x64"
       PYTHON_VERSION: "3.3"
       PYTHON_ARCH: "64"
+      UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python34"
       PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python34-x64"
       PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "64"
+      UIA_SUPPORT: "NO"
 os:
   - unstable # Unstable worker image with logged in user, desktop and interactive build agent
 
@@ -46,7 +57,7 @@ install:
 
   # install the appropriate Miniconda (Py2/Py3, 32/64 bit),
   # as well as pywin32, pillow and coverage
-  #- "powershell ./ci/install.ps1"
+  - "powershell ./ci/install.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
   # Install the build dependencies of the project. If some dependencies contain
