@@ -56,7 +56,7 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
     $retry_attempts = 2
     for($i=0; $i -lt $retry_attempts; $i++){
         try {
-            $webclient.DownloadFile($url, $filepath)
+            $webclient.DownloadFile $url $filepath
             break
         }
         Catch [Exception]{
@@ -67,7 +67,7 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
        Write-Host "File saved at" $filepath
    } else {
        # Retry once to get the error message if any at the last try
-       $webclient.DownloadFile($url, $filepath)
+       $webclient.DownloadFile $url $filepath
    }
    return $filepath
 }
