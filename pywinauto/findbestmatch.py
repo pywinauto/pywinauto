@@ -199,6 +199,7 @@ def GetNonTextControlName(ctrl, controls):
     names = []
 
     ctrl_index = controls.index(ctrl)
+    ctrl_friendly_class_name =  ctrl.FriendlyClassName()
 
     if ctrl_index != 0:
         prev_ctrl = controls[ctrl_index-1]
@@ -209,7 +210,7 @@ def GetNonTextControlName(ctrl, controls):
 
             names.append(
                 prev_ctrl.WindowText() +
-                    ctrl.FriendlyClassName())
+                    ctrl_friendly_class_name)
 
     # get the visible text controls so that we can get
     # the closest text if the control has no text
@@ -234,7 +235,7 @@ def GetNonTextControlName(ctrl, controls):
             continue
 
         # calculate the distance between the controls
-        # at first I just calculated the distance from the top let
+        # at first I just calculated the distance from the top left
         # corner of one control to the top left corner of the other control
         # but this was not best, so as a text control should either be above
         # or to the left of the control I get the distance between
@@ -267,19 +268,19 @@ def GetNonTextControlName(ctrl, controls):
         distance = min(distance, distance2)
         
         # UpDown control should use Static text only because edit box text is often useless
-        if ctrl.FriendlyClassName() == "UpDown":
+        if ctrl_friendly_class_name == "UpDown":
             if text_ctrl.FriendlyClassName() == "Static": # vvryabov's TODO: use search in all text controls for all non-text ones (like Dijkstra algorithm vs Floyd one)
                 if distance < closest:
                     closest = distance
-                    best_name = text_ctrl.WindowText() + ctrl.FriendlyClassName()
+                    best_name = text_ctrl.WindowText() + ctrl_friendly_class_name
 
         # if this distance was closer then the last one
         elif distance < closest:
             closest = distance
             #if text_ctrl.WindowText() == '':
-            #    best_name = ctrl.FriendlyClassName() + ' '.join(text_ctrl.Texts()[1:2])
+            #    best_name = ctrl_friendly_class_name + ' '.join(text_ctrl.Texts()[1:2])
             #else:
-            best_name = text_ctrl.WindowText() + ctrl.FriendlyClassName()
+            best_name = text_ctrl.WindowText() + ctrl_friendly_class_name
 
     names.append(best_name)
 
@@ -296,7 +297,8 @@ def get_control_names(control, allcontrols):
     #    control = control.ref
 
     # Add the control based on it's friendly class name
-    names.append(control.FriendlyClassName())
+    friendly_class_name = control.FriendlyClassName()
+    names.append(friendly_class_name)
 
     # if it has some character text then add it base on that
     # and based on that with friendly class name appended
@@ -304,11 +306,11 @@ def get_control_names(control, allcontrols):
     # Todo - I don't like the hardcoded classnames here!
     if cleaned and control.has_title:
         names.append(cleaned)
-        names.append(cleaned + control.FriendlyClassName())
-    elif control.has_title and control.FriendlyClassName() != 'TreeView':
+        names.append(cleaned + friendly_class_name)
+    elif control.has_title and friendly_class_name != 'TreeView':
         try:
             for text in control.Texts()[1:]:
-                names.append(control.FriendlyClassName() + text)
+                names.append(friendly_class_name + text)
         except:
             #import traceback
             #from .actionlogger import ActionLogger
