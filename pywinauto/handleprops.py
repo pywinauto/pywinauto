@@ -35,6 +35,10 @@ from . import win32functions
 from . import win32defines
 from . import win32structures
 
+if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
+    g_alloc_pid = lambda:ctypes.c_ulonglong()
+else:
+    g_alloc_pid = lambda:ctypes.c_ulong()
 
 #=========================================================================
 def text(handle):
@@ -251,10 +255,7 @@ def font(handle):
 #=========================================================================
 def processid(handle):
     "Return the ID of process that controls this window"
-    if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
-        process_id = ctypes.c_ulonglong()
-    else:
-        process_id = ctypes.c_ulong()
+    process_id = g_alloc_pid()
     win32functions.GetWindowThreadProcessId(handle, ctypes.byref(process_id))
 
     return process_id.value
