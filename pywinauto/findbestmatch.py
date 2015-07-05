@@ -192,7 +192,7 @@ def IsAboveOrToLeft(ref_control, other_ctrl):
 
 #====================================================================
 distance_cuttoff = 999
-def GetNonTextControlName(ctrl, controls):
+def GetNonTextControlName(ctrl, controls, text_ctrls):
     """return the name for this control by finding the closest
     text control above and to its left"""
 
@@ -211,11 +211,6 @@ def GetNonTextControlName(ctrl, controls):
             names.append(
                 prev_ctrl.WindowText() +
                     ctrl_friendly_class_name)
-
-    # get the visible text controls so that we can get
-    # the closest text if the control has no text
-    text_ctrls = [ctrl_ for ctrl_ in controls
-        if ctrl_.IsVisible() and ctrl_.WindowText() and ctrl_.can_be_label]
 
     best_name = ''
     closest = distance_cuttoff
@@ -288,7 +283,7 @@ def GetNonTextControlName(ctrl, controls):
 
 
 #====================================================================
-def get_control_names(control, allcontrols):
+def get_control_names(control, allcontrols, textcontrols):
     "Returns a list of names for this control"
     names = []
 
@@ -317,7 +312,7 @@ def get_control_names(control, allcontrols):
             pass #ActionLogger().log('Warning! Cannot get control.Texts()') #\nTraceback:\n' + traceback.format_exc())
 
         # so find the text of the nearest text visible control
-        non_text_names = GetNonTextControlName(control, allcontrols)
+        non_text_names = GetNonTextControlName(control, allcontrols, textcontrols)
 
         # and if one was found - add it
         if non_text_names:
@@ -325,7 +320,7 @@ def get_control_names(control, allcontrols):
     # it didn't have visible text
     else:
         # so find the text of the nearest text visible control
-        non_text_names = GetNonTextControlName(control, allcontrols)
+        non_text_names = GetNonTextControlName(control, allcontrols, textcontrols)
 
         # and if one was found - add it
         if non_text_names:
@@ -464,11 +459,15 @@ def build_unique_dict(controls):
     """
     name_control_map = UniqueDict()
 
+    # get the visible text controls so that we can get
+    # the closest text if the control has no text
+    text_ctrls = [ctrl_ for ctrl_ in controls
+        if ctrl_.IsVisible() and ctrl_.WindowText() and ctrl_.can_be_label]
 
     # collect all the possible names for all controls
     # and build a list of them
     for ctrl in controls:
-        ctrl_names = get_control_names(ctrl, controls)
+        ctrl_names = get_control_names(ctrl, controls, text_ctrls)
 
         # for each of the names
         for name in ctrl_names:
