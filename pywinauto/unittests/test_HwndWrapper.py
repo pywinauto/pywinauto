@@ -470,13 +470,9 @@ class HwndWrapperMouseTests(unittest.TestCase):
             self.app.start_(r"C:\Windows\SysWOW64\notepad.exe")
 
         # Get the old font
-        self.app.UntitledNotepad.Wait('ready')
+        self.app.UntitledNotepad.Wait('ready', 50)
         self.app.UntitledNotepad.MenuSelect("Format->Font...")
-        try:
-            self.app.Font.Wait("visible")
-        except: # 2nd attempt to make it more stable
-            self.app.UntitledNotepad.MenuSelect("Format->Font...")
-            self.app.Font.Wait("visible")
+        self.app.Font.Wait("visible", 50)
 
         self.old_font = self.app.Font.FontComboBox.SelectedIndex()
         self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
