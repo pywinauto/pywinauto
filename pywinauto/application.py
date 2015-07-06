@@ -863,12 +863,7 @@ class Application(object):
         # try to parse executable name and check it has correct bitness
         if '.exe' in cmd_line:
             exe_name = cmd_line.split('.exe')[0] + '.exe'
-            if os.path.isabs(cmd_line) and os.path.isfile(cmd_line):
-                if handleprops.is64bitbinary(cmd_line) and not is_x64_Python():
-                    warnings.simplefilter('always', UserWarning) # warn for every 32-bit binary
-                    warnings.warn(
-                        "Running 64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
-                        UserWarning)
+            _warn_incorrect_binary_bitness(exe_name)
 
         if timeout is None:
             timeout = Timings.app_start_timeout
@@ -1274,9 +1269,20 @@ def process_module(process_id):
     return filename
 
 #=========================================================================
+def _warn_incorrect_binary_bitness(exe_name):
+    "warn if executable has correct bitness"
+    if os.path.isabs(exe_name) and os.path.isfile(exe_name):
+        if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
+            warnings.simplefilter('always', UserWarning) # warn for every 32-bit binary
+            warnings.warn(
+                "Running 64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
+                UserWarning, stacklevel=2)
+
+#=========================================================================
 def process_from_module(module):
     "Return the running process with path module"
 
+    _warn_incorrect_binary_bitness(module)
     modules = process_get_modules()
 
     # check for a module with a matching name in reverse order
