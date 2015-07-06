@@ -70,14 +70,14 @@ class ApplicationWarningTestCases(unittest.TestCase):
         if is_x64_Python():
             sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
         else:
-            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
-            sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+            sample_exe = os.path.join(mfc_samples_folder, 'x64', "CmnCtrl1.exe")
         
+        warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             app = Application.start(sample_exe)
             app.kill_()
-            assert len(w) == 1
+            assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
             assert "64-bit" in str(w[-1].message)
 
