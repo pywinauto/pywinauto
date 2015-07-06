@@ -164,6 +164,12 @@ def is64bitprocess(process_id):
     return (not is32)
 
 #=========================================================================
+def is64bitbinary(filename):
+    import win32file
+    type = win32file.GetBinaryType(filename)
+    return type != win32file.SCS_32BIT_BINARY
+
+#=========================================================================
 def clientrect(handle):
     "Return the client rectangle of the control"
     client_rect = win32structures.RECT()

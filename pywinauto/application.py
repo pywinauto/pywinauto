@@ -76,6 +76,7 @@ import win32process, win32api, pywintypes, win32con, win32event
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+from .sysinfo import is_x64_Python
 
 
 class AppStartError(Exception):
@@ -859,6 +860,15 @@ class Application(object):
     def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console = False, wait_for_idle = True):
         "Starts the application giving in cmd_line"
 
+        # try to parse executable name and check it has correct bitness
+        if '.exe' in cmd_line:
+            exe_name = cmd_line.split('.exe')[0] + '.exe'
+            if os.path.isabs(cmd_line) and os.path.isfile(cmd_line):
+                if handleprops.is64bitbinary(cmd_line) and not is_x64_Python():
+                    warnings.warn(
+                        "Running 64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
+                        UserWarning)
+
         if timeout is None:
             timeout = Timings.app_start_timeout
         if retry_interval is None:
@@ -894,6 +904,15 @@ class Application(object):
 
         self.process = dwProcessId
 
+        if self.is64bit() != is_x64_Python():
+            if is_x64_Python():
+                warnings.warn(
+                    "32-bit application should be automated using 32-bit Python (you use 64-bit Python)",
+                    UserWarning)
+            else:
+                warnings.warn(
+                    "64-bit application should be automated using 64-bit Python (you use 32-bit Python)",
+                    UserWarning)
 
         def AppIdle():
             "Return true when the application is ready to start"
@@ -957,6 +976,12 @@ class Application(object):
         return self
     Connect_ = connect_
 
+    def is64bit(self):
+        "Return True if running process is 64-bit"
+        if not self.process:
+            raise AppNotConnected("Please use start_ or connect_ before "
+                "trying anything else")
+        return handleprops.is64bitprocess(self.process)
 
     def top_window_(self):
         "Return the current top window of the application"
