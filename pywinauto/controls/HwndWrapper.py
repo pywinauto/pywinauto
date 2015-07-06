@@ -1243,7 +1243,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def MenuItem(self, path, exact = False):
-        """Return the menu item specifed by path
+        """Return the menu item specified by path
 
         Path can be a string in the form "MenuItem->MenuItem->MenuItem..."
         where each MenuItem is the text of an item at that level of the menu.
@@ -1309,7 +1309,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def MenuSelect(self, path, exact = False, ):
-        "Select the menuitem specifed in path"
+        "Select the menuitem specified in path"
 
         self.VerifyActionable()
 

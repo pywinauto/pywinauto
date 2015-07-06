@@ -54,7 +54,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         "TButton",
         "ThunderCommandButton",
         "ThunderOptionButton",
-        "ThunderCheckBox"]
+        "ThunderCheckBox",
+        "TCheckBox"]
     can_be_label = True
 
     #-----------------------------------------------------------
