@@ -1202,7 +1202,7 @@ def AssertValidProcess(process_id):
     # Set instance variable _module if not already set
     #process_handle = win32api.OpenProcess(win32con.PROCESS_DUP_HANDLE | win32con.PROCESS_QUERY_INFORMATION, 0, process_id) # read and query info
     try:
-        process_handle = win32api.OpenProcess(0x400 | 0x010, 0, process_id) # read and query info
+        process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id) # read and query info
     except pywintypes.error as exc:
         raise ProcessNotFoundError(str(exc) + ', pid = ' + str(process_id))
 
@@ -1275,7 +1275,7 @@ def _warn_incorrect_binary_bitness(exe_name):
         if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
             warnings.simplefilter('always', UserWarning) # warn for every 32-bit binary
             warnings.warn(
-                "Running 64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
+                "64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
                 UserWarning, stacklevel=2)
 
 #=========================================================================

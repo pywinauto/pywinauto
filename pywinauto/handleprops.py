@@ -155,8 +155,8 @@ def is64bitprocess(process_id):
     from pywinauto.sysinfo import is_x64_OS
     is32 = True
     if is_x64_OS():
-        import win32process, win32api
-        phndl = win32api.OpenProcess(0x400, 0, process_id)
+        import win32process, win32api, win32con
+        phndl = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
         if phndl:
           is32 = win32process.IsWow64Process(phndl)
           #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))

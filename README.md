@@ -13,7 +13,12 @@ but it also supports more complex actions.
 * Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.0/pywinauto-0.5.0.zip)
 * Just unpack and run `python setup.py install`
 
-### Release notes (pywinauto 0.5.0)
+### Planning pywinauto 0.5.1 (2015 July, 14)
+ - [x] Resolved pip issues
+ - [x] Warnings about mismatched Python/application bitness
+ - [x] Added "TCheckBox" class name to ButtonWrapper detection list
+
+### pywinauto 0.5.0 release notes (2015 June, 30)
  - [x] 64-bit Python and 64-bit apps support (but 32-bit Python is recommended for 32-bit apps)
  - [x] Python 2.x/3.x compatibility
  - [!] Added pyWin32 dependency (silent install by pip for 2.7 and 3.1+)
@@ -39,9 +44,10 @@ but it also supports more complex actions.
 ### Testing status
 * [Unit tests pass rate for master branch](https://github.com/pywinauto/pywinauto/wiki/Unit-testing-status)
 
-### AppVeyor testing status
+### Continuous Integration
 * [![Build status](https://ci.appveyor.com/api/projects/status/ykk30v7vcvkmpnoq/branch/master?svg=true)](https://ci.appveyor.com/project/vasily-v-ryabov/pywinauto/branch/master)
 * [![codecov.io](http://codecov.io/github/pywinauto/pywinauto/coverage.svg?branch=master)](http://codecov.io/github/pywinauto/pywinauto?branch=master)
+* [![Code Issues](http://www.quantifiedcode.com/api/v1/project/6d66337b96ed4cb1b01574ec3d39f9e7/badge.svg)](http://www.quantifiedcode.com/app/project/6d66337b96ed4cb1b01574ec3d39f9e7)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
