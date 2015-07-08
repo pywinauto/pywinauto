@@ -1110,7 +1110,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         if not dc:
             raise ctypes.WinError()
 
-        rect = self.Rectangle
+        rect = self.Rectangle()
 
         #ret = win32functions.TextOut(
         #    dc, rect.left, rect.top, six.text_type(text), len(text))
