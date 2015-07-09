@@ -1301,7 +1301,10 @@ def _warn_incorrect_binary_bitness(exe_name):
 def process_from_module(module):
     "Return the running process with path module"
 
-    _warn_incorrect_binary_bitness(module)
+    # normalize . or .. relative parts of absolute path
+    module_path = os.path.normpath(module)
+
+    _warn_incorrect_binary_bitness(module_path)
     try:
         modules = _process_get_modules_wmi()
     except:
@@ -1314,7 +1317,7 @@ def process_from_module(module):
     for process, name in modules:
         if name is None:
             continue
-        if module.lower() in name.lower():
+        if module_path.lower() in name.lower():
             return process
 
 #    # check if any of the running process has this module

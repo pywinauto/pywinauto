@@ -93,7 +93,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app2 = Application.connect(self.sample_exe)
+            app2 = Application.connect(path=self.sample_exe)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)

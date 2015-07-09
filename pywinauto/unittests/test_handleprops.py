@@ -125,7 +125,8 @@ class handlepropsTestCases(unittest.TestCase):
         self.assertEquals(True, isenabled(self.dlghandle))
         self.assertEquals(True, isenabled(self.edit_handle))
 
-        self.app.UntitledNotepad.MenuSelect("Format->Font")
+        self.app.UntitledNotepad.MenuSelect("Format->Font...")
+        self.app.Font.Wait('ready')
         self.assertEquals(False, isenabled(self.dlghandle))
         self.app.Font.Cancel.CloseClick()
 
