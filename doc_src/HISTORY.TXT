@@ -2,6 +2,19 @@
 Change Log
 ==========
 
+0.5.1 Several fixes, more tests.
+------------------------------------------------------------------
+14-July-2015
+
+ * Resolve pip issues
+
+ * Warn user about mismatched Python/application bitness (64-bit Python
+   should be used for 64-bit application and 32-bit Python is for 32-bit app)
+
+ * Add "TCheckBox" class name to ButtonWrapper detection list
+
+ * Fix ``DebugMessage`` method
+
 0.5.0 64-bit Py2/Py3 compatibility.
 ------------------------------------------------------------------
 30-June-2015

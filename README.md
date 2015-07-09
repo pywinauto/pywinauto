@@ -14,9 +14,10 @@ but it also supports more complex actions.
 * Just unpack and run `python setup.py install`
 
 ### Planning pywinauto 0.5.1 (2015 July, 14)
- - [x] Resolved pip issues
+ - [x] Resolve pip issues
  - [x] Warnings about mismatched Python/application bitness
- - [x] Added "TCheckBox" class name to ButtonWrapper detection list
+ - [x] Add "TCheckBox" class name to ButtonWrapper detection list
+ - [x] Fix `DebugMessage` method
 
 ### pywinauto 0.5.0 release notes (2015 June, 30)
  - [x] 64-bit Python and 64-bit apps support (but 32-bit Python is recommended for 32-bit apps)

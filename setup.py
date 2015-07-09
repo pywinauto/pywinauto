@@ -34,7 +34,6 @@ try:
         print('No ez_setup.py. Using plain setuptools...')
     from setuptools import setup
 except ImportError:
-    # TODO: no distutils, no hardcore! :)
     print('Using distutils.core for setup...')
     from distutils.core import setup
 
