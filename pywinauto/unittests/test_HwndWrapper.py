@@ -463,45 +463,18 @@ class HwndWrapperMouseTests(unittest.TestCase):
         is in the state we want it."""
 
         # start the application
-        self.app = Application()
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start_(r"C:\Windows\System32\notepad.exe")
-        else:
-            self.app.start_(r"C:\Windows\SysWOW64\notepad.exe")
+        self.app = Application.start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
-        # Get the old font
-        self.app.UntitledNotepad.Wait('ready', 50)
-        self.app.UntitledNotepad.MenuSelect("Format->Font...")
-        self.app.Font.Wait("visible", 50)
-
-        self.old_font = self.app.Font.FontComboBox.SelectedIndex()
-        self.old_font_style = self.app.Font.FontStyleCombo.SelectedIndex()
-
-        # ensure we have the correct settings for this test
-        self.app.Font.FontStyleCombo.Select(0)
-        self.app.Font.FontComboBox.Select("Lucida Console")
-        self.app.Font.OK.Click()
-
-        self.dlg = self.app.Window_(title='Untitled - Notepad', class_name='Notepad')
-        self.ctrl = HwndWrapper(self.dlg.Edit.handle)
-        self.dlg.edit.SetEditText("Here is some text\r\n and some more")
+        self.dlg = self.app.Common_Controls_Sample
+        self.dlg.TabControl.Select('CButton (Command Link)')
+        self.ctrl = HwndWrapper(self.dlg.NoteEdit.handle)
 
     def tearDown(self):
         "Close the application after tests"
 
-        # Set the old font again
-        self.app.UntitledNotepad.MenuSelect("Format->Font")
-        self.app.Font.FontComboBox.Select(self.old_font)
-        self.app.Font.FontStyleCombo.Select(self.old_font_style)
-        self.app.Font.OK.Click()
-        self.app.Font.WaitNot('visible')
-
         # close the application
         try:
             self.dlg.Close(0.5)
-            if self.app.Notepad["Do&n't Save"].Exists():
-                self.app.Notepad["Do&n't Save"].Click()
-                self.app.Notepad["Do&n't Save"].WaitNot('visible')
         except: # timings.TimeoutError:
             pass
         finally:
@@ -513,20 +486,84 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
     def testClick(self):
-        self.ctrl.Click(coords = (52, 10))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
+        self.ctrl.Click(coords = (50, 5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (9,9))
 
     def testClickInput(self):
-        self.ctrl.ClickInput(coords = (52, 10))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (6,6))
+        self.ctrl.ClickInput(coords = (50, 5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (9,9))
 
     def testDoubleClick(self):
-        self.ctrl.DoubleClick(coords = (60, 30))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (24,29))
+        self.ctrl.DoubleClick(coords = (50, 5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (8,13))
 
     def testDoubleClickInput(self):
-        self.ctrl.DoubleClickInput(coords = (60, 30))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (24,29))
+        self.ctrl.DoubleClickInput(coords = (80, 5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (13,18))
+
+#    def testRightClick(self):
+#        pass
+
+    def testRightClickInput(self):
+        self.dlg.Edit.ClickInput(coords=(0,0))
+        self.dlg.Edit.RightClickInput()
+        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].Click()
+        self.dlg.Edit.TypeKeys('{DEL}')
+        self.assertEquals(self.dlg.Edit.TextBlock(), '')
+
+    def testPressMoveRelease(self):
+        self.dlg.NoteEdit.PressMouse(coords=(0, 5))
+        self.dlg.NoteEdit.MoveMouse(coords=(65, 5))
+        self.dlg.NoteEdit.ReleaseMouse(coords=(65, 5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,12))
+
+#    def testDragMouse(self):
+#        pass
+#
+#    def testSetWindowText(self):
+#        pass
+#
+#    def testTypeKeys(self):
+#        pass
+#
+#    def testDebugMessage(self):
+#        pass
+#
+#    def testDrawOutline(self):
+#        pass
+#
+
+class NotepadRegressionTests(unittest.TestCase):
+    "Regression unit tests for Notepad"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application()
+        if is_x64_Python() or not is_x64_OS():
+            self.app.start_(r"C:\Windows\System32\notepad.exe")
+        else:
+            self.app.start_(r"C:\Windows\SysWOW64\notepad.exe")
+
+        self.dlg = self.app.Window_(title='Untitled - Notepad', class_name='Notepad')
+        self.ctrl = HwndWrapper(self.dlg.Edit.handle)
+        self.dlg.edit.SetEditText("Here is some text\r\n and some more")
+
+    def tearDown(self):
+        "Close the application after tests"
+
+        # close the application
+        try:
+            self.dlg.Close(0.5)
+            if self.app.Notepad["Do&n't Save"].Exists():
+                self.app.Notepad["Do&n't Save"].Click()
+                self.app.Notepad["Do&n't Save"].WaitNot('visible')
+        except: # timings.TimeoutError:
+            pass
+        finally:
+            self.app.kill_()
 
     def testMenuSelectNotepad_bug(self):
         "In notepad - MenuSelect Edit->Paste did not work"
@@ -547,41 +584,6 @@ class HwndWrapperMouseTests(unittest.TestCase):
         app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
 
         self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text*3)
-
-#    def testRightClick(self):
-#        pass
-
-    def testRightClickInput(self):
-        self.dlg.Edit.RightClickInput()
-        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].Click()
-        self.dlg.Edit.TypeKeys('{DEL}')
-        self.assertEquals(self.dlg.Edit.TextBlock(), '')
-
-#
-#    def testPressMouse(self):
-#        pass
-#
-#    def testReleaseMouse(self):
-#        pass
-#
-#    def testMoveMouse(self):
-#        pass
-#
-#    def testDragMouse(self):
-#        pass
-#
-#    def testSetWindowText(self):
-#        pass
-#
-#    def testTypeKeys(self):
-#        pass
-#
-#    def testDebugMessage(self):
-#        pass
-#
-#    def testDrawOutline(self):
-#        pass
-#
 
 
 class DragAndDropTests(unittest.TestCase):
