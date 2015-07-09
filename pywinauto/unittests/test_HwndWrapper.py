@@ -64,6 +64,12 @@ mfc_samples_folder = os.path.join(
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
+def _notepad_exe():
+    if is_x64_Python() or not is_x64_OS():
+        return r"C:\Windows\System32\notepad.exe"
+    else:
+        return r"C:\Windows\SysWOW64\notepad.exe"
+
 
 class HwndWrapperTests(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
@@ -542,14 +548,14 @@ class NotepadRegressionTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start_(r"C:\Windows\System32\notepad.exe")
-        else:
-            self.app.start_(r"C:\Windows\SysWOW64\notepad.exe")
+        self.app.start_(_notepad_exe())
 
         self.dlg = self.app.Window_(title='Untitled - Notepad', class_name='Notepad')
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
         self.dlg.edit.SetEditText("Here is some text\r\n and some more")
+
+        self.app2 = Application.start(_notepad_exe())
+
 
     def tearDown(self):
         "Close the application after tests"
@@ -564,24 +570,24 @@ class NotepadRegressionTests(unittest.TestCase):
             pass
         finally:
             self.app.kill_()
+        self.app2.kill_()
 
     def testMenuSelectNotepad_bug(self):
         "In notepad - MenuSelect Edit->Paste did not work"
 
         text = b'Here are some unicode characters \xef\xfc\r\n'
-        app2 = Application.start("notepad")
-        app2.UntitledNotepad.Edit.SetEditText(text)
+        self.app2.UntitledNotepad.Edit.SetEditText(text)
 
-        app2.UntitledNotepad.MenuSelect("Edit->Select All")
-        app2.UntitledNotepad.MenuSelect("Edit->Copy")
+        self.app2.UntitledNotepad.MenuSelect("Edit->Select All")
+        self.app2.UntitledNotepad.MenuSelect("Edit->Copy")
 
         self.dlg.MenuSelect("Edit->Select All")
         self.dlg.MenuSelect("Edit->Paste")
         self.dlg.MenuSelect("Edit->Paste")
         self.dlg.MenuSelect("Edit->Paste")
 
-        app2.UntitledNotepad.MenuSelect("File->Exit")
-        app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
+        self.app2.UntitledNotepad.MenuSelect("File->Exit")
+        self.app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
 
         self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text*3)
 
