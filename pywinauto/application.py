@@ -900,17 +900,7 @@ class Application(object):
 
         self.process = dwProcessId
 
-        if self.is64bit() != is_x64_Python():
-            if is_x64_Python():
-                warnings.simplefilter('always', UserWarning) # warn each time
-                warnings.warn(
-                    "32-bit application should be automated using 32-bit Python (you use 64-bit Python)",
-                    UserWarning)
-            else:
-                warnings.simplefilter('always', UserWarning) # warn each time
-                warnings.warn(
-                    "64-bit application should be automated using 64-bit Python (you use 32-bit Python)",
-                    UserWarning)
+        self.__warn_incorrect_bitness()
 
         def AppIdle():
             "Return true when the application is ready to start"
@@ -937,6 +927,20 @@ class Application(object):
         return self
 
     Start_ = start_
+
+    def __warn_incorrect_bitness(self):
+        if self.is64bit() != is_x64_Python():
+            if is_x64_Python():
+                warnings.simplefilter('always', UserWarning) # warn each time
+                warnings.warn(
+                    "32-bit application should be automated using 32-bit Python (you use 64-bit Python)",
+                    UserWarning)
+            else:
+                warnings.simplefilter('always', UserWarning) # warn each time
+                warnings.warn(
+                    "64-bit application should be automated using 64-bit Python (you use 32-bit Python)",
+                    UserWarning)
+
 
     def connect_(self, **kwargs):
         "Connects to an already running process"
@@ -970,6 +974,8 @@ class Application(object):
         if not connected:
             raise RuntimeError(
                 "You must specify one of process, handle or path")
+
+        self.__warn_incorrect_bitness()
 
         return self
     Connect_ = connect_
@@ -1254,6 +1260,19 @@ def process_get_modules(name = None):
     '''
 
 #=========================================================================
+def _process_get_modules_wmi(name = None):
+    "Return the list of processes as tuples (pid, exe_path)"
+    from win32com.client import GetObject
+    _wmi = GetObject('winmgmts:')
+    
+    modules = []
+    # collect all the running processes
+    processes = _wmi.ExecQuery('Select * from win32_process')
+    for p in processes:
+        modules.append((p.ProcessId, p.ExecutablePath)) # p.Name
+    return modules
+
+#=========================================================================
 def process_module(process_id):
     "Return the string module name of this process"
     process_handle = AssertValidProcess(process_id)
@@ -1283,13 +1302,18 @@ def process_from_module(module):
     "Return the running process with path module"
 
     _warn_incorrect_binary_bitness(module)
-    modules = process_get_modules()
+    try:
+        modules = _process_get_modules_wmi()
+    except:
+        modules = process_get_modules()
 
     # check for a module with a matching name in reverse order
     # as we are most likely to want to connect to the last
     # run instance
     modules.reverse()
     for process, name in modules:
+        if name is None:
+            continue
         if module.lower() in name.lower():
             return process
 

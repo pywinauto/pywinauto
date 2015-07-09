@@ -61,21 +61,39 @@ def _notepad_exe():
 class ApplicationWarningTestCases(unittest.TestCase):
     "Unit tests for warnings in the application.Application class"
 
-    def testWarning3264(self):
+    def setUp(self):
+        """Set some data and ensure the application
+        is in the state we want it."""
+        mfc_samples_folder = os.path.join(os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            self.sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+        else:
+            self.sample_exe = os.path.join(mfc_samples_folder, 'x64', "CmnCtrl1.exe")
+
+    def testStartWarning3264(self):
         if not is_x64_OS():
             self.defaultTestResult()
             return
         
-        mfc_samples_folder = os.path.join(os.path.dirname(__file__), r"..\..\apps\MFC_samples")
-        if is_x64_Python():
-            sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
-        else:
-            sample_exe = os.path.join(mfc_samples_folder, 'x64', "CmnCtrl1.exe")
-        
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app = Application.start(sample_exe)
+            app = Application.start(self.sample_exe)
+            app.kill_()
+            assert len(w) >= 1
+            assert issubclass(w[-1].category, UserWarning)
+            assert "64-bit" in str(w[-1].message)
+
+    def testConnectWarning3264(self):
+        if not is_x64_OS():
+            self.defaultTestResult()
+            return
+        
+        app = Application.start(self.sample_exe)
+        warnings.filterwarnings('always', category=UserWarning, append=True)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            app2 = Application.connect(self.sample_exe)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
