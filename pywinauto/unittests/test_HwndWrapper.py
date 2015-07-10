@@ -185,8 +185,11 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testCloseAltF4(self):
         self.dlg.MenuSelect('Help->About Calculator')
-        self.app.AboutCalculator.Wait("visible", 10)
-        self.assertNotEqual(self.app.AboutCalculator.CloseAltF4().IsVisible(), True)
+        AboutCalculator = self.app.Window_(title='About Calculator', class_name='#32770')
+        AboutCalculator.Wait("visible", 10)
+        AboutWrapper = AboutCalculator.CloseAltF4()
+        AboutCalculator.WaitNot('visible')
+        self.assertNotEqual(AboutWrapper.IsVisible(), True)
 
     def testRectangle(self):
         "Test getting the rectangle of the dialog"
@@ -511,8 +514,8 @@ class HwndWrapperMouseTests(unittest.TestCase):
 #        pass
 
     def testRightClickInput(self):
-        self.dlg.Edit.ClickInput(coords=(0,0))
-        self.dlg.Edit.RightClickInput()
+        self.dlg.Edit.TypeKeys('{HOME}')
+        self.dlg.Edit.Wait('enabled').RightClickInput()
         self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].Click()
         self.dlg.Edit.TypeKeys('{DEL}')
         self.assertEquals(self.dlg.Edit.TextBlock(), '')
