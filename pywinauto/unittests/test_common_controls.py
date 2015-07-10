@@ -811,7 +811,7 @@ class ToolbarTestCases(unittest.TestCase):
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
         # The second control goes as Toolbar2
-        self.ctrl = app.CommonControlsSample.Toolbar.WrapperObject() 
+        self.ctrl = app.CommonControlsSample.Toolbar.WrapperObject()
         self.ctrl2 = app.CommonControlsSample.Toolbar2.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
@@ -906,6 +906,25 @@ class ToolbarTestCases(unittest.TestCase):
         # todo more tests for pressbutton
         self.ctrl.PressButton(u"Open")
 
+    def testCheckButton(self):
+        self.ctrl2.CheckButton('Erase', True)
+        self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), True)
+        
+        self.ctrl2.CheckButton('Pencil', True)
+        self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), False)
+        
+        self.ctrl2.CheckButton('Erase', False)
+        self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), False)
+        
+        # try to check separator
+        self.assertRaises(RuntimeError, self.ctrl.CheckButton, 3, True)
+
+    def testIsCheckable(self):
+        self.assertNotEqual(self.ctrl2.Button('Erase').IsCheckable(), 0)
+        self.assertEquals(self.ctrl.Button('New').IsCheckable(), 0)
+
+    def testIsPressable(self):
+        self.assertEquals(self.ctrl.Button('New').IsPressable(), 0)
 
 
 class RebarTestCases(unittest.TestCase):
