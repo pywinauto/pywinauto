@@ -50,6 +50,10 @@ but it also supports more complex actions.
 * [![codecov.io](http://codecov.io/github/pywinauto/pywinauto/coverage.svg?branch=master)](http://codecov.io/github/pywinauto/pywinauto?branch=master)
 * [![Code Issues](http://www.quantifiedcode.com/api/v1/project/6d66337b96ed4cb1b01574ec3d39f9e7/badge.svg)](http://www.quantifiedcode.com/app/project/6d66337b96ed4cb1b01574ec3d39f9e7)
 
+### Downloads statistics
+* PyPI: [![Daily downloads](https://img.shields.io/pypi/dd/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Weekly downloads](https://img.shields.io/pypi/dw/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Monthly downloads](https://img.shields.io/pypi/dm/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto)
+* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/latest/pywinauto-0.5.0.zip.svg)](https://github.com/pywinauto/pywinauto/releases/tag/0.5.0)
+
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
 * [coverage](https://pypi.python.org/pypi/coverage)
