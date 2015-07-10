@@ -186,8 +186,8 @@ class HwndWrapperTests(unittest.TestCase):
     def testCloseAltF4(self):
         self.dlg.MenuSelect('Help->About Calculator')
         AboutCalculator = self.app.Window_(title='About Calculator', class_name='#32770')
-        AboutCalculator.Wait("visible", 10)
-        AboutWrapper = AboutCalculator.CloseAltF4()
+        AboutWrapper = AboutCalculator.Wait("enabled")
+        AboutCalculator.CloseAltF4()
         AboutCalculator.WaitNot('visible')
         self.assertNotEqual(AboutWrapper.IsVisible(), True)
 
@@ -526,9 +526,14 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.NoteEdit.ReleaseMouse(coords=(65, 5))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,12))
 
-#    def testDragMouse(self):
-#        pass
-#
+    def testDragMouse(self):
+        self.dlg.NoteEdit.DragMouse(press_coords=(0, 5), release_coords=(65, 5))
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,12))
+        
+        # continue selection with pressed Shift key
+        self.dlg.NoteEdit.DragMouse(press_coords=(65, 5), release_coords=(90, 5), pressed='shift')
+        self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,17))
+
 #    def testSetWindowText(self):
 #        pass
 #
@@ -584,6 +589,7 @@ class NotepadRegressionTests(unittest.TestCase):
         self.app2.UntitledNotepad.MenuSelect("Edit->Select All")
         self.app2.UntitledNotepad.MenuSelect("Edit->Copy")
 
+        Timings.after_menu_wait = .7
         self.dlg.MenuSelect("Edit->Select All")
         self.dlg.MenuSelect("Edit->Paste")
         self.dlg.MenuSelect("Edit->Paste")
@@ -634,9 +640,6 @@ class DragAndDropTests(unittest.TestCase):
         self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 
 
-
-
-
 class GetDialogPropsFromHandleTest(unittest.TestCase):
     "Unit tests for mouse actions of the HwndWrapper class"
 
@@ -672,36 +675,6 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
         #unused var: props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
 
         self.assertEquals(props_from_handle, props_from_dialog)
-
-
-
-
-##====================================================================
-#def _unittests():
-#    "do some basic testing"
-#    from pywinauto.findwindows import find_windows
-#    import sys
-#
-#    if len(sys.argv) < 2:
-#        handle = win32functions.GetDesktopWindow()
-#    else:
-#        try:
-#            handle = int(eval(sys.argv[1]))
-#
-#        except ValueError:
-#
-#            handle = find_windows(
-#                title_re = "^" + sys.argv[1],
-#                class_name = "#32770",
-#                visible_only = False)
-#
-#            if not handle:
-#                print "dialog not found"
-#                sys.exit()
-#
-#    props = GetDialogPropsFromHandle(handle)
-#    print len(props)
-#    #pprint(GetDialogPropsFromHandle(handle))
 
 
 if __name__ == "__main__":

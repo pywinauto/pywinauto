@@ -52,7 +52,7 @@ but it also supports more complex actions.
 
 ### Downloads statistics
 * PyPI: [![Daily downloads](https://img.shields.io/pypi/dd/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Weekly downloads](https://img.shields.io/pypi/dw/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Monthly downloads](https://img.shields.io/pypi/dm/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto)
-* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/latest/pywinauto-0.5.0.zip.svg)](https://github.com/pywinauto/pywinauto/releases/tag/0.5.0)
+* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/latest/pywinauto-0.5.0.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.0/pywinauto-0.5.0.zip)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
