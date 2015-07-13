@@ -18,6 +18,8 @@ but it also supports more complex actions.
  - [x] Warnings about mismatched Python/application bitness
  - [x] Add "TCheckBox" class name to ButtonWrapper detection list
  - [x] Fix `DebugMessage` method
+ - [x] Disable logging (actionlogger.py) by default, provide shortcuts: ``actionlogger.enable()`` and ``actionlogger.disable()``.
+       For those who are familiar with standard ``logging`` module there's method ``actionlogger.set_level(level)``.
 
 ### pywinauto 0.5.0 release notes (2015 June, 30)
  - [x] 64-bit Python and 64-bit apps support (but 32-bit Python is recommended for 32-bit apps)

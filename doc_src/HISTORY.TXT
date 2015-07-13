@@ -15,6 +15,11 @@ Change Log
 
  * Fix ``DebugMessage`` method
 
+ * Disable logging (actionlogger.py) by default, provide shortcuts: 
+   ``actionlogger.enable()`` and ``actionlogger.disable()``. For those who are 
+   familiar with standard ``logging`` module there's method 
+   ``actionlogger.set_level(level)``
+
 0.5.0 64-bit Py2/Py3 compatibility.
 ------------------------------------------------------------------
 30-June-2015
@@ -27,25 +32,25 @@ Change Log
 
  * Improvements for Toolbar, TreeView, UpDown and DateTimePicker wrappers
 
- * Improved `best_match` algorithm allows names like `ToolbarFile`
+ * Improved ``best_match`` algorithm allows names like ``ToolbarFile``
 
  * Clicks can be performed with pressed Ctrl or Shift
 
  * Drag-n-drop and scrolling methods (DragMouse, DragMouseInput, MouseWheelInput)
 
- * Improved menu support: handling OWNERDRAW menu items; access by command_id (like `$23453`)
+ * Improved menu support: handling OWNERDRAW menu items; access by command_id (like ``$23453``)
 
  * Resolved issues with py2exe and cx_freeze
 
- * `RemoteMemoryBlock` can now detect memory corruption by checking guard signature
+ * ``RemoteMemoryBlock`` can now detect memory corruption by checking guard signature
 
- * Upgraded `taskbar` module
+ * Upgraded ``taskbar`` module
 
- * `sysinfo` module for checking 32-bit or 64-bit OS and Python
+ * ``sysinfo`` module for checking 32-bit or 64-bit OS and Python
 
- * `set_foreground` flag in `TypeKeys` method for typing into in-place controls
+ * ``set_foreground`` flag in ``TypeKeys`` method for typing into in-place controls
 
- * flags `create_new_console` and `wait_for_idle` in `Application.start` method
+ * flags ``create_new_console`` and ``wait_for_idle`` in ``Application.start`` method
 
 0.4.0 Various cleanup and bug fixes.
 ------------------------------------------------------------------
