@@ -23,13 +23,31 @@ try:
     from logger import logger
     foundLogger = True
 except ImportError:
-    import logging
-    logging.basicConfig(
-            format='%(asctime)s %(levelname)s: %(message)s',
-            level=logging.INFO)
     foundLogger = False
 
+import logging
+logging.basicConfig(
+        format='%(asctime)s %(levelname)s: %(message)s',
+        level=logging.INFO)
 
+def set_level(level):
+    """Set pywinauto logging level for default logger.
+    Use logging.WARNING (30) or higher to disable pywinauto logging."""
+    logger = logging.getLogger(__package__)
+    logger.level = level
+
+def reset_level():
+    "Reset pywinauto logging level to default one (logging.NOTSET)"
+    logger = logging.getLogger(__package__)
+    logger.level = logging.NOTSET
+
+def disable():
+    "Disable logging pywinauto actions"
+    set_level(logging.WARNING)
+
+def enable():
+    "Enable logging pywinauto actions"
+    reset_level()
 
 class CustomLogger:
 
@@ -66,3 +84,5 @@ if foundLogger:
     ActionLogger = CustomLogger
 else:
     ActionLogger = StandardLogger
+
+disable() # disable standard logging by default
