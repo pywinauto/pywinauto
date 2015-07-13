@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Change Log &mdash; pywinauto 0.5.0 documentation</title>
+    <title>Change Log &mdash; pywinauto 0.5.1 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5.0',
+        VERSION:     '0.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.5.0 documentation" href="contents.html" />
+    <link rel="top" title="pywinauto 0.5.1 documentation" href="contents.html" />
     <link rel="next" title="Main user modules" href="code/code.html" />
     <link rel="prev" title="PYWINAUTO TODO’s" href="TODO.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,6 +54,45 @@
             
   <div class="section" id="change-log">
 <h1>Change Log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="several-fixes-more-tests">
+<h2>0.5.1 Several fixes, more tests.<a class="headerlink" href="#several-fixes-more-tests" title="Permalink to this headline">¶</a></h2>
+<p>14-July-2015</p>
+<blockquote>
+<div><ul class="simple">
+<li>Resolve pip issues</li>
+<li>Warn user about mismatched Python/application bitness (64-bit Python
+should be used for 64-bit application and 32-bit Python is for 32-bit app)</li>
+<li>Add &#8220;TCheckBox&#8221; class name to ButtonWrapper detection list</li>
+<li>Fix <code class="docutils literal"><span class="pre">DebugMessage</span></code> method</li>
+<li>Disable logging (actionlogger.py) by default, provide shortcuts:
+<code class="docutils literal"><span class="pre">actionlogger.enable()</span></code> and <code class="docutils literal"><span class="pre">actionlogger.disable()</span></code>. For those who are
+familiar with standard <code class="docutils literal"><span class="pre">logging</span></code> module there&#8217;s method
+<code class="docutils literal"><span class="pre">actionlogger.set_level(level)</span></code></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bit-py2-py3-compatibility">
+<h2>0.5.0 64-bit Py2/Py3 compatibility.<a class="headerlink" href="#bit-py2-py3-compatibility" title="Permalink to this headline">¶</a></h2>
+<p>30-June-2015</p>
+<blockquote>
+<div><ul class="simple">
+<li>64-bit Python and 64-bit apps support (but 32-bit Python is recommended for 32-bit apps)</li>
+<li>Python 2.x/3.x compatibility</li>
+<li>Added pyWin32 dependency (silent install by pip for 2.7 and 3.1+)</li>
+<li>Improvements for Toolbar, TreeView, UpDown and DateTimePicker wrappers</li>
+<li>Improved <code class="docutils literal"><span class="pre">best_match</span></code> algorithm allows names like <code class="docutils literal"><span class="pre">ToolbarFile</span></code></li>
+<li>Clicks can be performed with pressed Ctrl or Shift</li>
+<li>Drag-n-drop and scrolling methods (DragMouse, DragMouseInput, MouseWheelInput)</li>
+<li>Improved menu support: handling OWNERDRAW menu items; access by command_id (like <code class="docutils literal"><span class="pre">$23453</span></code>)</li>
+<li>Resolved issues with py2exe and cx_freeze</li>
+<li><code class="docutils literal"><span class="pre">RemoteMemoryBlock</span></code> can now detect memory corruption by checking guard signature</li>
+<li>Upgraded <code class="docutils literal"><span class="pre">taskbar</span></code> module</li>
+<li><code class="docutils literal"><span class="pre">sysinfo</span></code> module for checking 32-bit or 64-bit OS and Python</li>
+<li><code class="docutils literal"><span class="pre">set_foreground</span></code> flag in <code class="docutils literal"><span class="pre">TypeKeys</span></code> method for typing into in-place controls</li>
+<li>flags <code class="docutils literal"><span class="pre">create_new_console</span></code> and <code class="docutils literal"><span class="pre">wait_for_idle</span></code> in <code class="docutils literal"><span class="pre">Application.start</span></code> method</li>
+</ul>
+</div></blockquote>
+</div>
 <div class="section" id="various-cleanup-and-bug-fixes">
 <h2>0.4.0 Various cleanup and bug fixes.<a class="headerlink" href="#various-cleanup-and-bug-fixes" title="Permalink to this headline">¶</a></h2>
 <p>03-April-2010</p>
@@ -678,6 +717,8 @@ you could use:</p>
   <h3><a href="contents.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change Log</a><ul>
+<li><a class="reference internal" href="#several-fixes-more-tests">0.5.1 Several fixes, more tests.</a></li>
+<li><a class="reference internal" href="#bit-py2-py3-compatibility">0.5.0 64-bit Py2/Py3 compatibility.</a></li>
 <li><a class="reference internal" href="#various-cleanup-and-bug-fixes">0.4.0 Various cleanup and bug fixes.</a></li>
 <li><a class="reference internal" href="#experimental-new-sendkeys-and-various-fixes">0.3.9 Experimental! New Sendkeys, and various fixes</a></li>
 <li><a class="reference internal" href="#collecting-improvements-from-last-2-years">0.3.8 Collecting improvements from last 2 years</a></li>
@@ -746,7 +787,7 @@ you could use:</p>
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
