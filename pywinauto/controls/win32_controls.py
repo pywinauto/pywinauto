@@ -58,7 +58,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         "TButton",
         "ThunderCommandButton",
         "ThunderOptionButton",
-        "ThunderCheckBox"]
+        "ThunderCheckBox",
+        "TCheckBox"]
     if sysinfo.UIA_support:
         controltypes = [
             UIAElementInfo._UIA_dll.UIA_ButtonControlTypeId,

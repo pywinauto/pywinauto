@@ -34,7 +34,6 @@ try:
         print('No ez_setup.py. Using plain setuptools...')
     from setuptools import setup
 except ImportError:
-    # TODO: no distutils, no hardcore! :)
     print('Using distutils.core for setup...')
     from distutils.core import setup
 
@@ -68,7 +67,7 @@ except ImportError:
 
 
 setup(name='pywinauto',
-    version = '0.5.0',
+    version = '0.5.1',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",

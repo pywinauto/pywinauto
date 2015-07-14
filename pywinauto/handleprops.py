@@ -35,6 +35,10 @@ from . import win32functions
 from . import win32defines
 from . import win32structures
 
+if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
+    g_alloc_pid = lambda:ctypes.c_ulonglong()
+else:
+    g_alloc_pid = lambda:ctypes.c_ulong()
 
 #=========================================================================
 def text(handle):
@@ -114,7 +118,7 @@ def controlid(handle):
 
 #=========================================================================
 def userdata(handle):
-    "Return the value of any userdata associated with the window"
+    "Return the value of any user data associated with the window"
     return win32functions.GetWindowLong (handle, win32defines.GWL_USERDATA)
 
 #=========================================================================
@@ -151,13 +155,19 @@ def is64bitprocess(process_id):
     from pywinauto.sysinfo import is_x64_OS
     is32 = True
     if is_x64_OS():
-        import win32process, win32api
-        phndl = win32api.OpenProcess(0x400, 0, process_id)
+        import win32process, win32api, win32con
+        phndl = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
         if phndl:
           is32 = win32process.IsWow64Process(phndl)
           #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
         
     return (not is32)
+
+#=========================================================================
+def is64bitbinary(filename):
+    import win32file
+    type = win32file.GetBinaryType(filename)
+    return type != win32file.SCS_32BIT_BINARY
 
 #=========================================================================
 def clientrect(handle):
@@ -251,10 +261,7 @@ def font(handle):
 #=========================================================================
 def processid(handle):
     "Return the ID of process that controls this window"
-    if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
-        process_id = ctypes.c_ulonglong()
-    else:
-        process_id = ctypes.c_ulong()
+    process_id = g_alloc_pid()
     win32functions.GetWindowThreadProcessId(handle, ctypes.byref(process_id))
 
     return process_id.value
@@ -302,7 +309,6 @@ def has_exstyle(handle, tocheck):
     hwnd_exstyle = exstyle(handle)
     return tocheck & hwnd_exstyle == tocheck
 
-
 #=========================================================================
 def is_toplevel_window(handle):
     "Return whether the window is a top level window or not"
@@ -317,88 +323,6 @@ def is_toplevel_window(handle):
         return True
     else:
         return False
-
-
-#=========================================================================
-#def get_button_friendlyclassname(handle):
-#    "Return the friendly class name of a button control"
-#
-#    # get the least significant bit
-#    style_lsb = style(handle) & 0xF
-#
-#    # default to "Button"
-#    f_classname = "Button"
-#
-#    if style_lsb == win32defines.BS_3STATE or \
-#        style_lsb == win32defines.BS_AUTO3STATE or \
-#        style_lsb == win32defines.BS_AUTOCHECKBOX or \
-#        style_lsb == win32defines.BS_CHECKBOX:
-#        f_classname = "CheckBox"
-#
-#    elif style_lsb == win32defines.BS_RADIOBUTTON or \
-#        style_lsb == win32defines.BS_AUTORADIOBUTTON:
-#        f_classname = "RadioButton"
-#
-#    elif style_lsb == win32defines.BS_GROUPBOX:
-#        f_classname = "GroupBox"
-#
-#    if style(handle) & win32defines.BS_PUSHLIKE:
-#        f_classname = "Button"
-#
-#    return f_classname
-
-
-#def friendlyclassname(handle):
-#    """Return the friendly class name of the window
-#
-#    The friendly class name might be subjective, but it
-#    tries to be what a normal user would call a window
-#    rather then the windows class name for the window.
-#    """
-#
-#    import warnings
-#    warnings.warn("handleprops.friendlyclassname() is deprecated. Please use"
-#        "FriendlyClassMethod() of HwndWrapper",
-#        DeprecationWarning)
-#
-#    # if it's a dialog then return that
-#    if is_toplevel_window(handle) and classname(handle) == "#32770":
-#        return "Dialog"
-#
-#    # otherwise ask the wrapper class for the friendly class name
-#    class_name = classname(handle)
-#
-#    from controls import wraphandle
-#    info = wraphandle._find_wrapper(class_name)
-#
-#    if info:
-#       return info.friendlyclassname
-#
-#    else:
-#        return class_name
-
-
-
-#
-#
-#    # Check if the class name is in the known classes
-#    for cls_name, f_cls_name in _class_names.items():
-#
-#        # OK we found it
-#        if re.match(cls_name, classname(handle)):
-#            # If it is a string then just return it
-#            if isinstance(f_cls_name, six.string_types):
-#                return f_cls_name
-#            # otherwise it is a function so call it
-#            else:
-#                return f_cls_name(handle)
-#
-#    # unknown class - just return it's classname
-#    return classname(handle)
-
-
-
-
 
 #=========================================================================
 def dumpwindow(handle):
@@ -427,4 +351,3 @@ def dumpwindow(handle):
         props[func.__name__] = func(handle)
 
     return props
-

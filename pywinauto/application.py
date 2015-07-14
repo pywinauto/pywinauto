@@ -76,6 +76,7 @@ import win32process, win32api, pywintypes, win32con, win32event
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+from .sysinfo import is_x64_Python
 
 
 class AppStartError(Exception):
@@ -858,6 +859,11 @@ class Application(object):
     def start_(self, cmd_line, timeout = None, retry_interval = None, create_new_console = False, wait_for_idle = True):
         "Starts the application giving in cmd_line"
 
+        # try to parse executable name and check it has correct bitness
+        if '.exe' in cmd_line:
+            exe_name = cmd_line.split('.exe')[0] + '.exe'
+            _warn_incorrect_binary_bitness(exe_name)
+
         if timeout is None:
             timeout = Timings.app_start_timeout
         if retry_interval is None:
@@ -893,6 +899,7 @@ class Application(object):
 
         self.process = dwProcessId
 
+        self.__warn_incorrect_bitness()
 
         def AppIdle():
             "Return true when the application is ready to start"
@@ -919,6 +926,20 @@ class Application(object):
         return self
 
     Start_ = start_
+
+    def __warn_incorrect_bitness(self):
+        if self.is64bit() != is_x64_Python():
+            if is_x64_Python():
+                warnings.simplefilter('always', UserWarning) # warn each time
+                warnings.warn(
+                    "32-bit application should be automated using 32-bit Python (you use 64-bit Python)",
+                    UserWarning)
+            else:
+                warnings.simplefilter('always', UserWarning) # warn each time
+                warnings.warn(
+                    "64-bit application should be automated using 64-bit Python (you use 32-bit Python)",
+                    UserWarning)
+
 
     def connect_(self, **kwargs):
         "Connects to an already running process"
@@ -953,9 +974,17 @@ class Application(object):
             raise RuntimeError(
                 "You must specify one of process, handle or path")
 
+        self.__warn_incorrect_bitness()
+
         return self
     Connect_ = connect_
 
+    def is64bit(self):
+        "Return True if running process is 64-bit"
+        if not self.process:
+            raise AppNotConnected("Please use start_ or connect_ before "
+                "trying anything else")
+        return handleprops.is64bitprocess(self.process)
 
     def top_window_(self):
         "Return the current top window of the application"
@@ -1178,7 +1207,7 @@ def AssertValidProcess(process_id):
     # Set instance variable _module if not already set
     #process_handle = win32api.OpenProcess(win32con.PROCESS_DUP_HANDLE | win32con.PROCESS_QUERY_INFORMATION, 0, process_id) # read and query info
     try:
-        process_handle = win32api.OpenProcess(0x400 | 0x010, 0, process_id) # read and query info
+        process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id) # read and query info
     except pywintypes.error as exc:
         raise ProcessNotFoundError(str(exc) + ', pid = ' + str(process_id))
 
@@ -1230,6 +1259,19 @@ def process_get_modules(name = None):
     '''
 
 #=========================================================================
+def _process_get_modules_wmi(name = None):
+    "Return the list of processes as tuples (pid, exe_path)"
+    from win32com.client import GetObject
+    _wmi = GetObject('winmgmts:')
+    
+    modules = []
+    # collect all the running processes
+    processes = _wmi.ExecQuery('Select * from win32_process')
+    for p in processes:
+        modules.append((p.ProcessId, p.ExecutablePath)) # p.Name
+    return modules
+
+#=========================================================================
 def process_module(process_id):
     "Return the string module name of this process"
     process_handle = AssertValidProcess(process_id)
@@ -1245,17 +1287,36 @@ def process_module(process_id):
     return filename
 
 #=========================================================================
+def _warn_incorrect_binary_bitness(exe_name):
+    "warn if executable has correct bitness"
+    if os.path.isabs(exe_name) and os.path.isfile(exe_name):
+        if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
+            warnings.simplefilter('always', UserWarning) # warn for every 32-bit binary
+            warnings.warn(
+                "64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
+                UserWarning, stacklevel=2)
+
+#=========================================================================
 def process_from_module(module):
     "Return the running process with path module"
 
-    modules = process_get_modules()
+    # normalize . or .. relative parts of absolute path
+    module_path = os.path.normpath(module)
+
+    _warn_incorrect_binary_bitness(module_path)
+    try:
+        modules = _process_get_modules_wmi()
+    except:
+        modules = process_get_modules()
 
     # check for a module with a matching name in reverse order
     # as we are most likely to want to connect to the last
     # run instance
     modules.reverse()
     for process, name in modules:
-        if module.lower() in name.lower():
+        if name is None:
+            continue
+        if module_path.lower() in name.lower():
             return process
 
 #    # check if any of the running process has this module

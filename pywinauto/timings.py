@@ -44,7 +44,7 @@ The Following are the individual timing settings that can be adjusted:
 * after_click_wait  (default .09)
 * after_clickinput_wait (default .01)
 
-* after_menu_wait   (default .05)
+* after_menu_wait   (default .1)
 
 * after_sendkeys_key_wait   (default .01)
 
@@ -107,7 +107,7 @@ class TimeConfig(object):
         'after_click_wait' : .09,
         'after_clickinput_wait' : .05,
 
-        'after_menu_wait' : .05,
+        'after_menu_wait' : .1,
 
         'after_sendkeys_key_wait' : .01,
 

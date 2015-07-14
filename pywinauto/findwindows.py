@@ -165,35 +165,39 @@ def find_windows(class_name = None,
         else:
             windows = []
 
-    if class_name is not None and windows:
+    # early stop
+    if len(windows) == 0:
+        return windows
+
+    if class_name is not None:
         windows = [win for win in windows
             if class_name == handleprops.classname(win)]
 
-    if class_name_re is not None and windows:
+    if class_name_re is not None:
         class_name_regex = re.compile(class_name_re)
         windows = [win for win in windows
             if class_name_regex.match(handleprops.classname(win))]
 
-    if process is not None and windows:
+    if process is not None:
         windows = [win for win in windows
             if handleprops.processid(win) == process]
 
-    if title is not None and windows:
+    if title is not None:
         windows = [win for win in windows
             if title == handleprops.text(win)]
 
-    elif title_re is not None and windows:
+    elif title_re is not None:
         title_regex = re.compile(title_re)
         windows = [win for win in windows
             if title_regex.match(handleprops.text(win))]
 
-    if visible_only and windows:
+    if visible_only:
         windows = [win for win in windows if handleprops.isvisible(win)]
 
-    if enabled_only and windows:
+    if enabled_only:
         windows = [win for win in windows if handleprops.isenabled(win)]
 
-    if best_match is not None and windows:
+    if best_match is not None:
         wrapped_wins = []
 
         for win in windows:
@@ -209,7 +213,7 @@ def find_windows(class_name = None,
         # convert window back to handle
         windows = [win.handle for win in windows]
 
-    if predicate_func is not None and windows:
+    if predicate_func is not None:
         windows = [win for win in windows if predicate_func(win)]
 
     return [NativeElementInfo(handle) for handle in windows]

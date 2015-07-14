@@ -39,6 +39,7 @@ class ClipboardTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        EmptyClipboard()
         self.app1 = Application.start("notepad.exe")
         self.app2 = Application.start("notepad.exe")
 
@@ -68,6 +69,8 @@ class ClipboardTestCases(unittest.TestCase):
         self.assertEquals(GetClipboardFormats(), [13, 16, 1, 7])
 
     def testGetFormatName(self):
+        typetext(self.app1, "here we are")
+        copytext(self.app1)
 
         self.assertEquals(
             [GetFormatName(f) for f in GetClipboardFormats()],
@@ -98,16 +101,21 @@ def gettext(app):
     return app.UntitledNotepad.Edit.Texts()[1]
 
 def typetext(app, text):
+    app.UntitledNotepad.Edit.Wait('enabled')
     app.UntitledNotepad.Edit.SetEditText(text)
-    time.sleep(0.2)
+    time.sleep(0.3)
 
 
 def copytext(app):
+    app.UntitledNotepad.Wait('enabled')
     app.UntitledNotepad.MenuSelect("Edit -> Select All")
+    time.sleep(0.5)
+    app.UntitledNotepad.Wait('enabled')
     app.UntitledNotepad.MenuSelect("Edit -> Copy")
-    time.sleep(0.3)
+    time.sleep(0.5)
 
 def pastetext(app):
+    app.UntitledNotepad.Wait('enabled')
     app.UntitledNotepad.MenuItem("Edit -> Paste").Click()
 
 if __name__ == "__main__":
