@@ -1,4 +1,5 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -19,18 +20,20 @@
 #    Boston, MA 02111-1307 USA
 
 "Run some automations to test things"
+from __future__ import unicode_literals
+from __future__ import print_function
 
-__revision__ = "$Revision: 214 $"
+__revision__ = "$Revision$"
 
+import sys
+import os.path
 import time
 
 try:
     from pywinauto import application
 except ImportError:
-    import os.path
     pywinauto_path = os.path.abspath(__file__)
     pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
-    import sys
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
@@ -43,11 +46,11 @@ from pywinauto.timings import Timings
 
 def RunNotepad():
     "Run notepad and do some small stuff with it"
-    print "Run with option 'language' e.g. notepad_fast.py language to use"
-    print "application data. This should work on any language Windows/Notepad"
-    print
-    print "Trying fast timing settings - it's  possible these won't work"
-    print "if pywinauto tries to access a window that is not accessible yet"
+    print("Run with option 'language' e.g. notepad_fast.py language to use")
+    print("application data. This should work on any language Windows/Notepad")
+    print()
+    print("Trying fast timing settings - it's  possible these won't work")
+    print("if pywinauto tries to access a window that is not accessible yet")
 
     # use fast timings - but allow to wait for windows a long time
     Timings.Fast()
@@ -61,8 +64,8 @@ def RunNotepad():
 
     scriptdir = os.path.split(os.path.abspath(__file__))[0]
     if run_with_appdata:
-        print "\nRunning this script so it will load application data and run"
-        print "against any lanuguage version of Notepad/Windows"
+        print("\nRunning this script so it will load application data and run")
+        print("against any lanuguage version of Notepad/Windows")
 
         # make sure that the app data gets read from the same folder as 
         # the script
@@ -74,10 +77,10 @@ def RunNotepad():
     ## for distribution we don't want to connect to anybodies application
     ## because we may mess up something they are working on!
     #try:
-    #    app.connect_(path = ur"c:\windows\system32\notepad.exe")
+    #    app.connect_(path = r"c:\windows\system32\notepad.exe")
     #except application.ProcessNotFoundError:
-    #    app.start_(ur"c:\windows\system32\notepad.exe")
-    app.start_(ur"notepad.exe")
+    #    app.start_(r"c:\windows\system32\notepad.exe")
+    app.start_(r"notepad.exe")
 
     app.Notepad.MenuSelect("File->PageSetup")
 
@@ -263,7 +266,7 @@ def RunNotepad():
 
 
 
-    print "That took %.3f to run"% (time.time() - start)
+    print("That took %.3f to run"% (time.time() - start))
 
 if __name__ == "__main__":
     RunNotepad()

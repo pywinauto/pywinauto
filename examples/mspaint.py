@@ -20,8 +20,10 @@
 #    Boston, MA 02111-1307 USA
 
 "Run some automations to test things"
+from __future__ import unicode_literals
+from __future__ import print_function
 
-__revision__ = "$Revision: 214 $"
+__revision__ = "$Revision$"
 
 import time
 
@@ -53,7 +55,7 @@ app = application.Application()
 #except application.ProcessNotFoundError:
 #    app.start_(ur"c:\windows\system32\mspaint.exe")
 
-app.start_(ur"mspaint.exe")
+app.start_(r"mspaint.exe")
 
 pwin = app.window_(title_re = ".* - Paint")
 
@@ -72,11 +74,11 @@ try:
     # get the reference to the Canvas window
     canvas = pwin.Afx100000008
     canvas.WrapperObject()
-except WindowAmbiguousError, e:
-    print e, e.windows
+except WindowAmbiguousError as e:
+    print(e, e.windows)
     for w in e.windows:
         w = WrapHandle(w)
-        print w.WindowText(), w.Class()
+        print(w.WindowText(), w.Class())
     import sys
     sys.exit()
 
@@ -93,8 +95,8 @@ canvas.MoveMouseInput(coords = (size * num_slants, size))
 canvas.ReleaseMouse()
 
 # now draw the lines
-print "*** if you move your mouse over Paint as it is drawing ***"
-print "*** these lines then it will mess up the drawing!      ***\n"
+print("*** if you move your mouse over Paint as it is drawing ***")
+print("*** these lines then it will mess up the drawing!      ***\n")
 for i in range(1, num_slants):
 
     endcoords = (size * (num_slants - i), size * num_slants)
@@ -106,7 +108,7 @@ for i in range(1, num_slants):
 image = canvas.CaptureAsImage()
 if image:
     image.save(r"Application_Paint_test.png")
-    print "Saved image as: Application_Paint_test.png"
+    print("Saved image as: Application_Paint_test.png")
 
 # set it back to  original width and height
 pwin.MenuSelect("Image->Attributes")
