@@ -959,6 +959,7 @@ assert alignment(UNION_INPUT_STRUCTS) == 2, alignment(UNION_INPUT_STRUCTS)
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
 class INPUT(Structure):
     _pack_ = 2
+    _anonymous_ = ("_",)
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
         ('type', DWORD),

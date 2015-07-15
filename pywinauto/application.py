@@ -1226,20 +1226,6 @@ def AssertValidProcess(process_id):
 # https://code.google.com/r/luoyonggang-pywinauto/source/detail?r=6cb5b624db465720e19e7a3265bb7585bbc09452
 #
 def process_get_modules(name = None):
-
-    modules = []
-    # collect all the running processes
-    
-    pids = win32process.EnumProcesses()
-    for pid in pids:
-        if pid != 0: # skip system process (0x00000000)
-            try:
-                modules.append((pid, process_module(pid)))
-            except pywintypes.error as exc:
-                pass #print(exc)
-            except ProcessNotFoundError as exc:
-                pass #print(exc)
-    return modules
     '''
     implementation without pyWin32 extensions
     # set up the variable to pass to EnumProcesses
@@ -1258,6 +1244,19 @@ def process_get_modules(name = None):
         except ProcessNotFoundError:
             pass
     '''
+    modules = []
+    # collect all the running processes
+    
+    pids = win32process.EnumProcesses()
+    for pid in pids:
+        if pid != 0: # skip system process (0x00000000)
+            try:
+                modules.append((pid, process_module(pid)))
+            except pywintypes.error as exc:
+                pass #print(exc)
+            except ProcessNotFoundError as exc:
+                pass #print(exc)
+    return modules
 
 #=========================================================================
 def _process_get_modules_wmi(name = None):

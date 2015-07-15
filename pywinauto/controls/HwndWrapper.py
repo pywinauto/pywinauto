@@ -1703,16 +1703,16 @@ def _perform_click_input(
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
 
 
-    inp_struct._.mi.dwFlags = 0
+    inp_struct.mi.dwFlags = 0
     for event in events:
-        inp_struct._.mi.dwFlags |= event
+        inp_struct.mi.dwFlags |= event
 
     dwData = 0
     if button.lower() == 'wheel':
         dwData = wheel_dist
-        inp_struct._.mi.mouseData = wheel_dist
+        inp_struct.mi.mouseData = wheel_dist
     else:
-        inp_struct._.mi.mouseData = 0
+        inp_struct.mi.mouseData = 0
 
     if button.lower() == 'move':
         #win32functions.SendInput(     # vvryabov: SendInput() should be called sequentially in a loop [for event in events]
@@ -1723,11 +1723,11 @@ def _perform_click_input(
         Y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
         X_coord = int(float(coords[0]) * (65535. / float(X_res - 1)))
         Y_coord = int(float(coords[1]) * (65535. / float(Y_res - 1)))
-        win32api.mouse_event(inp_struct._.mi.dwFlags, X_coord, Y_coord, dwData)
+        win32api.mouse_event(inp_struct.mi.dwFlags, X_coord, Y_coord, dwData)
     else:
         for event in events:
-            inp_struct._.mi.dwFlags = event
-            win32api.mouse_event(inp_struct._.mi.dwFlags, coords[0], coords[1], dwData)
+            inp_struct.mi.dwFlags = event
+            win32api.mouse_event(inp_struct.mi.dwFlags, coords[0], coords[1], dwData)
             time.sleep(Timings.after_clickinput_wait)
 
     time.sleep(Timings.after_clickinput_wait)

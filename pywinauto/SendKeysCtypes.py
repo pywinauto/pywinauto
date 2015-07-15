@@ -143,6 +143,7 @@ class INPUT(ctypes.Structure):
         _pack_ = 4
     else:
         _pack_ = 2
+    _anonymous_ = ("_",)
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
         ('type', DWORD),
@@ -377,13 +378,13 @@ class KeyAction(object):
         for inp in inputs:
             inp.type = INPUT_KEYBOARD
 
-            inp._.ki.wVk = vk
-            inp._.ki.wScan = scan
-            inp._.ki.dwFlags |= flags
+            inp.ki.wVk = vk
+            inp.ki.wScan = scan
+            inp.ki.dwFlags |= flags
 
         # if we are releasing - then let it up
         if self.up:
-            inputs[-1]._.ki.dwFlags |= KEYEVENTF_KEYUP
+            inputs[-1].ki.dwFlags |= KEYEVENTF_KEYUP
 
         return inputs
 
@@ -397,7 +398,7 @@ class KeyAction(object):
         
         # vvryabov: it works more stable than SendInput
         for inp in inputs:
-            win32api.keybd_event(inp._.ki.wVk, inp._.ki.wScan, inp._.ki.dwFlags)
+            win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
 
     def _get_down_up_string(self):
         """Return a string that will show whether the string is up or down

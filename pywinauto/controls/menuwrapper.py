@@ -158,8 +158,6 @@ class MenuItem(object):
 
     def Text(self):
         "Return the state of this menu item"
-
-        return self._read_item().text
         '''
         info = self._read_item()
         # if there is text
@@ -184,6 +182,7 @@ class MenuItem(object):
 
         return text
         '''
+        return self._read_item().text
 
     def SubMenu(self):
         "Return the SubMenu or None if no submenu"
