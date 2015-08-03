@@ -203,8 +203,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         # if it succeeded
         if not retval:
-        	del remote_mem
-        	raise RuntimeError("Did not succeed in getting rectangle")
+            del remote_mem
+            raise RuntimeError("Did not succeed in getting rectangle")
 
         rect = remote_mem.Read(rect)
 
@@ -507,15 +507,15 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
 
     # commented out as we can get these strings from the header
-    #					col = remote_mem.Read(col)
+    #                    col = remote_mem.Read(col)
     #
     #                   charData = ctypes.create_unicode_buffer(2000)
     #
-    #					ret = remote_mem.Read(charData, col.pszText)
+    #                    ret = remote_mem.Read(charData, col.pszText)
     #
-    #					self.Titles.append(charData.value)
-    #				else:
-    #					break
+    #                    self.Titles.append(charData.value)
+    #                else:
+    #                    break
 
 
 
@@ -1658,9 +1658,6 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
 
 
-
-
-
 #====================================================================
 class _toolbar_button(object):
     "Wrapper around Toolbar button (TBBUTTONINFO) items"
@@ -2153,16 +2150,16 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #                    ExStyle = extendedStyle
 #                )
 #            )
-#    #		if button.fsStyle & TBSTYLE_DROPDOWN == TBSTYLE_DROPDOWN and \
-#    #			(extendedStyle & TBSTYLE_EX_DRAWDDARROWS) != \
+#    #        if button.fsStyle & TBSTYLE_DROPDOWN == TBSTYLE_DROPDOWN and \
+#    #            (extendedStyle & TBSTYLE_EX_DRAWDDARROWS) != \
 #    #                TBSTYLE_EX_DRAWDDARROWS:
-#    #			props['Buttons'][-1]["DROPDOWNMENU"] = 1
+#    #            props['Buttons'][-1]["DROPDOWNMENU"] = 1
 #    #
-#    #			self.SendMessage(WM_COMMAND, button.idCommand)
+#    #            self.SendMessage(WM_COMMAND, button.idCommand)
 #    #
-#    #			print "Pressing", text.value
-#    #			handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 1)
-#    #			handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 0)
+#    #            print "Pressing", text.value
+#    #            handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 1)
+#    #            handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 0)
 #
 #            self._extra_texts.append(text.value)
 #
@@ -2459,20 +2456,20 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
 
 #
 #    #----------------------------------------------------------------
-#	def GetNumTicks(self):
-#		return self.SendMessage(win32defines.TBM_GETNUMTICS)
+#    def GetNumTicks(self):
+#        return self.SendMessage(win32defines.TBM_GETNUMTICS)
 #
 #    #----------------------------------------------------------------
-#	def GetPos(self):
-#		return self.SendMessage(win32defines.TBM_GETPOS)
+#    def GetPos(self):
+#        return self.SendMessage(win32defines.TBM_GETPOS)
 #
 #    #----------------------------------------------------------------
-#	def GetRangeMax(self):
-#		return self.SendMessage(win32defines.TBM_GETRANGEMAX)
+#    def GetRangeMax(self):
+#        return self.SendMessage(win32defines.TBM_GETRANGEMAX)
 #
 #    #----------------------------------------------------------------
-#	def GetRangeMin(self):
-#		return self.SendMessage(win32defines.TBM_GETRANGEMIN)
+#    def GetRangeMin(self):
+#        return self.SendMessage(win32defines.TBM_GETRANGEMIN)
 #
 #    #----------------------------------------------------------------
 #    def GetToolTipsControl(self):
@@ -2646,80 +2643,80 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 ##
 ###====================================================================
 ##class ComboBoxEx(Controls_Standard.ComboBox):
-##	#----------------------------------------------------------------
-##	def __init__(self, hwndOrXML):
-#		Window.__init__(self, hwndOrXML)
+##    #----------------------------------------------------------------
+##    def __init__(self, hwndOrXML):
+#        Window.__init__(self, hwndOrXML)
 ##
-#		if isinstance(hwndOrXML, (int, long)):
-##			comboCntrl = SendMessage(
-##				hwndOrXML,
-##				CBEM_GETCOMBOCONTROL,
-##				0,
-##				0)
+#        if isinstance(hwndOrXML, (int, long)):
+##            comboCntrl = SendMessage(
+##                hwndOrXML,
+##                CBEM_GETCOMBOCONTROL,
+##                0,
+##                0)
 ##
-##			print "--"*20, comboCntrl
-##			Controls_Standard.ComboBox.__init__(self, comboCntrl)
-##			print self.DroppedRect
+##            print "--"*20, comboCntrl
+##            Controls_Standard.ComboBox.__init__(self, comboCntrl)
+##            print self.DroppedRect
 ##
 ##
 ##
-##			droppedRect = win32structures.RECT()
+##            droppedRect = win32structures.RECT()
 ##
-##			SendMessage(
-##				self,
-##				CB_GETDROPPEDCONTROLRECT,
-##				0,
-##				ctypes.byref(droppedRect))
+##            SendMessage(
+##                self,
+##                CB_GETDROPPEDCONTROLRECT,
+##                0,
+##                ctypes.byref(droppedRect))
 ##
-##			props['DroppedRect'] = droppedRect
+##            props['DroppedRect'] = droppedRect
 #
 #
 #
 #
 #
 #
-#			# find out how many text items are in the combobox
-#			numItems = SendMessage(
-#				self,
-#				CB_GETCOUNT,
-#				0,
-#				0)
+#            # find out how many text items are in the combobox
+#            numItems = SendMessage(
+#                self,
+#                CB_GETCOUNT,
+#                0,
+#                0)
 #
-#			print "*"*20, numItems
-##			remote_mem = RemoteMemoryBlock(self)
+#            print "*"*20, numItems
+##            remote_mem = RemoteMemoryBlock(self)
 ##
 ##
-##			# get the text for each item in the combobox
-##			while True:
-##				item = COMBOBOXEXITEMW()
+##            # get the text for each item in the combobox
+##            while True:
+##                item = COMBOBOXEXITEMW()
 ##
-##				item.mask = CBEIF_TEXT
-##				item.cchTextMax = 4000
-##				item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 1
+##                item.mask = CBEIF_TEXT
+##                item.cchTextMax = 4000
+##                item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 1
 ##
-##				remote_mem.Write(item)
+##                remote_mem.Write(item)
 ##
-##				retval = SendMessage (
-##					self,
-##					CBEM_GETITEMW,
-##					0,
-##					remote_mem
-##					)
+##                retval = SendMessage (
+##                    self,
+##                    CBEM_GETITEMW,
+##                    0,
+##                    remote_mem
+##                    )
 ##
-##				if retval:
-##					item = remote_mem.Read(item)
+##                if retval:
+##                    item = remote_mem.Read(item)
 ##
-##					# Read the remote text string
+##                    # Read the remote text string
 ##                  charData = ctypes.create_unicode_buffer(4000)
-##					remote_mem.Read(charData, item.pszText)
-##					self.Titles.append(charData.value)
-##				else:
-##					break
+##                    remote_mem.Read(charData, item.pszText)
+##                    self.Titles.append(charData.value)
+##                else:
+##                    break
 ##
 #
-#		else:
+#        else:
 #
-#			# get the dropped Rect form
-#			droppedRect = XMLToRect(hwndOrXML.find("DROPPEDRECT"))
-#			props['DroppedRect'] = droppedRect
+#            # get the dropped Rect form
+#            droppedRect = XMLToRect(hwndOrXML.find("DROPPEDRECT"))
+#            props['DroppedRect'] = droppedRect
 

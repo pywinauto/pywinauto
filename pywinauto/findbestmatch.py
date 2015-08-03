@@ -75,7 +75,7 @@ def _get_match_ratios(texts, match_against):
     best_ratio = 0
     best_text = ''
 
-    global cache
+    global _cache
 
     for text in texts:
 

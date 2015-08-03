@@ -237,7 +237,6 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
         if six.PY3:
             texts.append(text.value.replace('\u200e', ''))
         else:
-            import locale
             texts.append(text.value.decode(locale.getpreferredencoding(), 'ignore').replace('?', ''))
 
     return texts

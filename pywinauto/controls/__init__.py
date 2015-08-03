@@ -19,9 +19,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Controls package"
-
-__revision__ = "$Revision$"
+"""Controls package"""
 
 from .HwndWrapper import GetDialogPropsFromHandle
 from .HwndWrapper import InvalidWindowHandle
@@ -30,40 +28,5 @@ from .HwndWrapper import HwndWrapper as WrapHandle
 
 # import the control classes - this will register the classes they
 # contain
-from .. import six
 from . import common_controls
 from . import win32_controls
-
-#
-##====================================================================
-#def _unittests():
-#    "Run some tests on the controls"
-#    from pywinauto import win32functions
-#
-#    "do some basic testing"
-#    from pywinauto.findwindows import find_windows
-#    import sys
-#
-#    if len(sys.argv) < 2:
-#        handle = win32functions.GetDesktopWindow()
-#    else:
-#        try:
-#            handle = int(eval(sys.argv[1]))
-#
-#        except ValueError:
-#
-#            handle = find_windows(
-#                title_re = "^" + sys.argv[1], class_name = "#32770", )
-#                #visible_only = False)
-#
-#            if not handle:
-#                print "dialog not found"
-#                sys.exit()
-#
-#
-#    props = GetDialogPropsFromHandle(handle)
-#    print len(props)
-#    #pprint(GetDialogPropsFromHandle(handle))
-#
-#if __name__ == "__main__":
-#    _unittests()

@@ -21,8 +21,6 @@
 
 """Module containing tests for XMLHelpers Module"""
 
-__revision__ = "$Revision: 236 $"
-
 import sys
 sys.path.append(".")
 

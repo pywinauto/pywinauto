@@ -19,7 +19,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Some automation of Windows Media player"
+"""Some automation of Windows Media player"""
 from __future__ import unicode_literals
 from __future__ import print_function
 
@@ -33,7 +33,6 @@ except ImportError:
     import os.path
     pywinauto_path = os.path.abspath(__file__)
     pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
-    import sys
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
