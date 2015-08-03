@@ -877,7 +877,7 @@ def add_actions(to_obj):
             to_obj.__class__, action_name, _standard_action_funcs[action_name])
 
     # check if there are actions specific to this type of control
-    if _class_specific_actions.has_key(to_obj.FriendlyClassName):
+    if to_obj.FriendlyClassName in _class_specific_actions.keys():
 
         # apply these actions to the class
         actions = _class_specific_actions[to_obj.FriendlyClassName]

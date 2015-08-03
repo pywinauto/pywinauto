@@ -18,13 +18,11 @@
 #    59 Temple Place,
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
-"Defines Windows(tm) functions"
+"""Defines Windows(tm) functions"""
 from __future__ import absolute_import
 
-__revision__ = "$Revision$"
-
 import ctypes
-from ctypes import *
+from ctypes import c_uint, c_short
 
 import sys
 if sys.platform == "cygwin":

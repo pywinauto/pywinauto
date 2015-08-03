@@ -89,8 +89,10 @@ def GetMenuBlocks(ctrls):
 
 
 #====================================================================
-def MenuBlockAsControls(menuItems, parentage = []):
+def MenuBlockAsControls(menuItems, parentage = None):
 
+    if parentage is None:
+        parentage = []
     blocks = []
 
     curBlock = []
