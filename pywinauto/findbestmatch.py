@@ -35,14 +35,6 @@ from . import six
 #levenshtein_distance = ctypes.cdll.levenshtein.levenshtein_distance
 #levenshtein_distance = ldistance.distance
 
-# need to use sets.Set for python 2.3 compatability
-# but 2.6 raises a deprecation warning about sets module
-try:
-    set
-except NameError:
-    import sets
-    set = sets.Set
-
 find_best_control_match_cutoff = .6
 
 #====================================================================

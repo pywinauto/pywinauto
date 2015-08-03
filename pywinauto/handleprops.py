@@ -166,8 +166,8 @@ def is64bitprocess(process_id):
 #=========================================================================
 def is64bitbinary(filename):
     import win32file
-    type = win32file.GetBinaryType(filename)
-    return type != win32file.SCS_32BIT_BINARY
+    binary_type = win32file.GetBinaryType(filename)
+    return binary_type != win32file.SCS_32BIT_BINARY
 
 #=========================================================================
 def clientrect(handle):

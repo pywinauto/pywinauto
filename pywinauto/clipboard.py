@@ -46,17 +46,17 @@ def GetClipboardFormats():
     win32clipboard.OpenClipboard()
     
     available_formats = []
-    format = 0
+    current_format = 0
     while True:
         # retrieve the next format
-        format = win32clipboard.EnumClipboardFormats(format)
+        current_format = win32clipboard.EnumClipboardFormats(current_format)
 
         # stop enumerating because all formats have been
         # retrieved
-        if not format:
+        if not current_format:
             break
 
-        available_formats.append(format)
+        available_formats.append(current_format)
 
     win32clipboard.CloseClipboard()
 
@@ -64,15 +64,15 @@ def GetClipboardFormats():
 
 
 #====================================================================
-def GetFormatName(format):
+def GetFormatName(format_id):
     "Get the string name for a format value"
 
     # standard formats should not be passed to GetClipboardFormatName
-    if format in _standard_formats:
-        return _standard_formats[format]
+    if format_id in _standard_formats:
+        return _standard_formats[format_id]
 
     win32clipboard.OpenClipboard()
-    format_name = win32clipboard.GetClipboardFormatName(format)
+    format_name = win32clipboard.GetClipboardFormatName(format_id)
     win32clipboard.CloseClipboard()
 
     return format_name
