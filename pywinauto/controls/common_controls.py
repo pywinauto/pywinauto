@@ -1648,7 +1648,19 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
                 self.TabCount(),
                 tab))
 
-        self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)
+        if self.HasStyle(win32defines.TCS_BUTTONS):
+            # workaround for TCS_BUTTONS case
+            self.Click(coords=self.GetTabRect(tab))
+
+            # TCM_SETCURFOCUS changes focus, but doesn't select the tab
+            # TCM_SETCURSEL selects the tab, but tab content is not re-drawn
+            # (TODO: need to find a solution without WM_CLICK)
+
+            #self.SendMessage(win32defines.TCM_SETCURSEL, tab)
+            #self.Notify(win32defines.TCN_SELCHANGING)
+            #self.Notify(win32defines.TCN_SELCHANGE)
+        else:
+            self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_tabselect_wait)

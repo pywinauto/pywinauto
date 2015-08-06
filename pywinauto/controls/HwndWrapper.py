@@ -46,7 +46,7 @@ import traceback, inspect
 from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
-#from ..RemoteMemoryBlock import RemoteMemoryBlock
+from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -588,11 +588,38 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     #-----------------------------------------------------------
     def SendCommand(self, commandID):
         return self.SendMessage(win32defines.WM_COMMAND, commandID)
-        
+
+    #-----------------------------------------------------------
     def PostCommand(self, commandID):
         return self.PostMessage(win32defines.WM_COMMAND, commandID)
 
-        #-----------------------------------------------------------
+    #-----------------------------------------------------------
+    '''
+    def Notify(self, code):
+        "Send a notification to the parent (not tested yet)"
+
+        # now we need to notify the parent that the state has changed
+        nmhdr = win32structures.NMHDR()
+        nmhdr.hwndFrom = self.handle
+        nmhdr.idFrom = self.ControlID()
+        nmhdr.code = code
+
+        remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
+        remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
+
+        retval = self.Parent().SendMessage(
+            win32defines.WM_NOTIFY,
+            self.ControlID(),
+            remote_mem)
+        #if retval != win32defines.TRUE:
+        #    print('retval = ' + str(retval))
+        #    raise ctypes.WinError()
+        del remote_mem
+
+        return retval
+    '''
+
+    #-----------------------------------------------------------
     def SendMessage(self, message, wparam = 0 , lparam = 0):
         "Send a message to the control and wait for it to return"
         #return win32functions.SendMessage(self, message, wparam, lparam)
