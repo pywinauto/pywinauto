@@ -586,10 +586,10 @@ class NotepadRegressionTests(unittest.TestCase):
         text = b'Here are some unicode characters \xef\xfc\r\n'
         self.app2.UntitledNotepad.Edit.SetEditText(text)
 
+        Timings.after_menu_wait = .7
         self.app2.UntitledNotepad.MenuSelect("Edit->Select All")
         self.app2.UntitledNotepad.MenuSelect("Edit->Copy")
 
-        Timings.after_menu_wait = .7
         self.dlg.MenuSelect("Edit->Select All")
         self.dlg.MenuSelect("Edit->Paste")
         self.dlg.MenuSelect("Edit->Paste")

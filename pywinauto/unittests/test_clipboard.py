@@ -109,10 +109,10 @@ def typetext(app, text):
 def copytext(app):
     app.UntitledNotepad.Wait('enabled')
     app.UntitledNotepad.MenuSelect("Edit -> Select All")
-    time.sleep(0.5)
+    time.sleep(0.7)
     app.UntitledNotepad.Wait('enabled')
     app.UntitledNotepad.MenuSelect("Edit -> Copy")
-    time.sleep(0.5)
+    time.sleep(1.0)
 
 def pastetext(app):
     app.UntitledNotepad.Wait('enabled')

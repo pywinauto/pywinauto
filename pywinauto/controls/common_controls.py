@@ -1656,8 +1656,8 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
             # TCM_SETCURSEL selects the tab, but tab content is not re-drawn
             # (TODO: need to find a solution without WM_CLICK)
 
-            #self.SendMessage(win32defines.TCM_SETCURSEL, tab)
             #self.Notify(win32defines.TCN_SELCHANGING)
+            #self.SendMessage(win32defines.TCM_SETCURSEL, tab)
             #self.Notify(win32defines.TCN_SELCHANGE)
         else:
             self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)

@@ -609,7 +609,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
         retval = self.Parent().SendMessage(
             win32defines.WM_NOTIFY,
-            self.ControlID(),
+            self.handle,
             remote_mem)
         #if retval != win32defines.TRUE:
         #    print('retval = ' + str(retval))
@@ -618,6 +618,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
         return retval
     '''
+
 
     #-----------------------------------------------------------
     def SendMessage(self, message, wparam = 0 , lparam = 0):
