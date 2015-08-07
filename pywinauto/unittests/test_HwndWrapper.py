@@ -42,6 +42,7 @@ from pywinauto.controls.HwndWrapper import HwndWrapper
 from pywinauto import win32structures, win32defines
 from pywinauto.findwindows import WindowNotFoundError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 
 
 __revision__ = "$Revision: 234 $"
@@ -675,6 +676,34 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
         #unused var: props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
 
         self.assertEquals(props_from_handle, props_from_dialog)
+
+
+class RemoteMemoryBlockTests(unittest.TestCase):
+    "Unit tests for RemoteMemoryBlock"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application()
+        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        self.dlg = self.app.Common_Controls_Sample
+        self.ctrl = self.dlg.TreeView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.app.kill_()
+
+    def testGuardSignatureCorruption(self):
+        mem = RemoteMemoryBlock(self.ctrl, 16)
+        buf = ctypes.create_string_buffer(24)
+        
+        self.assertRaises(Exception, mem.Write, buf)
+        
+        mem.size = 24 # test hack
+        self.assertRaises(Exception, mem.Write, buf)
 
 
 if __name__ == "__main__":
