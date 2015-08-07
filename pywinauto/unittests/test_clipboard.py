@@ -102,25 +102,26 @@ def gettext(app):
 
 def typetext(app, text):
     app.UntitledNotepad.Edit.Wait('enabled')
+    app.UntitledNotepad.Edit.Select()
     app.UntitledNotepad.Edit.SetEditText(text)
-    time.sleep(0.3)
+    app.UntitledNotepad.Edit.Select()
+    time.sleep(0.1)
 
 
 def copytext(app):
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuSelect("Edit -> Select All")
-    time.sleep(0.7)
+    # press Ctrl+A to select all
+    app.UntitledNotepad.Edit.TypeKeys('^a', set_foreground=False)
+    time.sleep(0.1)
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuSelect("Edit -> Copy")
-    time.sleep(1.0)
+    app.UntitledNotepad.MenuSelect("Edit->Copy")
+    time.sleep(0.1)
 
 def pastetext(app):
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Paste").Click()
+    app.UntitledNotepad.MenuItem("Edit->Paste").Click()
 
 if __name__ == "__main__":
-    #_unittests()
-
     unittest.main()
 
 
