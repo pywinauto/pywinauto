@@ -20,6 +20,7 @@
 #    Boston, MA 02111-1307 USA
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 import ctypes, win32api, sys, inspect, traceback
 
@@ -27,6 +28,7 @@ from . import win32functions
 from . import win32defines
 from . import win32structures
 from . import sysinfo
+from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):
     "Raised when we cannot allocate memory in the control's process"
@@ -224,26 +226,27 @@ class RemoteMemoryBlock(object):
             if ret == 0:
                 last_error = win32api.GetLastError()
                 if last_error != win32defines.ERROR_PARTIAL_COPY:
-                    print('\nError: Read: WARNING! self.memAddress =', self.memAddress, ' data address =', ctypes.byref(data))
-                    print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
-                    print('lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize)
-                    print('Caller stack:')
+                    print('\nError: Read: WARNING! self.memAddress =', self.memAddress, ' data address =', ctypes.byref(data), file=sys.stderr)
+                    print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip(), file=sys.stderr)
+                    print('lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize, file=sys.stderr)
+                    print('Caller stack:', file=sys.stderr)
                     for frame in inspect.stack():
-                        print(frame[1:])
-                    print()
-                    sys.stdout.flush()
+                        print(frame[1:], file=sys.stderr)
+                    print(file=sys.stderr)
+                    sys.stderr.flush()
                     raise ctypes.WinError()
                 else:
-                    print('Error: ERROR_PARTIAL_COPY')
-                    print('\nRead: WARNING! self.memAddress =', self.memAddress, ' data address =', ctypes.byref(data))
-                    print('lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize)
-                    print('Caller stack:')
+                    print('Error: ERROR_PARTIAL_COPY', file=sys.stderr)
+                    print('\nRead: WARNING! self.memAddress =', self.memAddress, ' data address =', ctypes.byref(data), file=sys.stderr)
+                    print('lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize, file=sys.stderr)
+                    print('Caller stack:', file=sys.stderr)
                     for frame in inspect.stack():
-                        print('\t\t', frame[1:])
-                    print()
-                    sys.stdout.flush()
+                        print('\t\t', frame[1:], file=sys.stderr)
+                    print(file=sys.stderr)
+                    sys.stderr.flush()
+                    raise ctypes.WinError()
             else:
-                print('Read OK: 2nd attempt!')
+                ActionLogger().log('Warning! Read OK: 2nd attempt!')
         #else:
         #    print 'Read OK: lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize
         
