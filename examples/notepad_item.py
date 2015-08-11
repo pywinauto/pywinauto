@@ -23,14 +23,11 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-__revision__ = "$Revision$"
-
 import time
 
 from pywinauto import application
-from pywinauto import tests
-from pywinauto.findbestmatch import MatchError
-from pywinauto import findwindows
+#from pywinauto import tests
+#from pywinauto.findbestmatch import MatchError
 
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)

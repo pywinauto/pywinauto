@@ -23,8 +23,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-__revision__ = "$Revision$"
-
 import os.path
 import sys
 import time
@@ -39,7 +37,6 @@ except ImportError:
 
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
-from pywinauto import findwindows
 from pywinauto.timings import Timings
 
 print("Setting timings to slow settings, may be necessary for")

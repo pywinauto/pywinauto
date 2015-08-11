@@ -28,12 +28,9 @@ You can change the following to affect waits after various actions
 
 """
 
-__revision__ = "$Revision$"
-
-
 import time
 
-import ctypes	 # write_debug_text action
+import ctypes    # write_debug_text action
 import SendKeys  # typekeys action
 
 import win32defines

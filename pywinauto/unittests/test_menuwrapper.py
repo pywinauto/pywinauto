@@ -19,7 +19,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Tests for HwndWrapper"
+"""Tests for Menu"""
 
 import sys
 sys.path.append(".")
@@ -27,24 +27,6 @@ from pywinauto.application import Application
 #from pywinauto.controls.HwndWrapper import HwndWrapper
 #from pywinauto import win32structures, win32defines
 #from pywinauto.controls import menuwrapper
-
-#import time
-#import pprint
-#import pdb
-#import ctypes
-
-__revision__ = "$Revision: 234 $"
-
-#try:
-#    from pywinauto.controls.pywinauto import *
-#except ImportError:
-#    # allow it to be imported in a dev environment
-#    import sys
-#
-#    pywinauto_imp = "\\".join(__file__.split('\\')[:-3])
-#    print "sdfdsf", pywinauto_imp
-#    sys.path.append(pywinauto_imp)
-#    from pywinauto.controls.HwndWrapper import *
 
 import unittest
 

@@ -26,7 +26,7 @@ import time
 
 from pywinauto import application
 
-from pywinauto import tests
+#from pywinauto import tests
 
 
 def SakuraTest():

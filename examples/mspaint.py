@@ -23,10 +23,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-__revision__ = "$Revision$"
-
-import time
-
 try:
     from pywinauto import application
 except ImportError:
@@ -37,9 +33,8 @@ except ImportError:
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
-from pywinauto import tests
-from pywinauto.findbestmatch import MatchError
-from pywinauto import findwindows
+#from pywinauto import tests
+#from pywinauto.findbestmatch import MatchError
 from pywinauto import WindowAmbiguousError
 from pywinauto.controls import WrapHandle
 

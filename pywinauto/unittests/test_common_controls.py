@@ -202,7 +202,6 @@ class ListViewTestCases(unittest.TestCase):
         "Test checking the focus of some ListView items"
 
         print("Select something quick!!")
-        import time
         time.sleep(3)
         #self.ctrl.Select(1)
 
