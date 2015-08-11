@@ -86,7 +86,7 @@ pprint (app.FreeAgent.MenuItems()[1])
 try:
     app.FreeAgent.MenuSelect("File->Print")
     app.Print.Cancel.Click()
-except:
+except Exception:
     print "Print Menu was probably disabled"
 
 # quit Agent

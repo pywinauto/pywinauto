@@ -38,7 +38,6 @@ except ImportError:
     from pywinauto import application
 
 import pywinauto
-from pywinauto import application
 from pywinauto import tests
 #from pywinauto.findbestmatch import MatchError
 

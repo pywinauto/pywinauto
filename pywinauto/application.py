@@ -446,7 +446,7 @@ class WindowSpecification(object):
             return True
 
         try:
-            wait_val = WaitUntil(timeout, retry_interval, WindowIsNotXXX)
+            WaitUntil(timeout, retry_interval, WindowIsNotXXX)
 #            if self.criteria[-1].has_key('best_match'):
 #                self.actions.log('Window "' + str(self.criteria[-1]['best_match']) + '" became not ' + str(wait_for_not))
 #            elif self.criteria[-1].has_key('title'):
@@ -1225,7 +1225,7 @@ def AssertValidProcess(process_id):
 # Thanks to Yonggang Luo for pyWin32-independent implementation
 # https://code.google.com/r/luoyonggang-pywinauto/source/detail?r=6cb5b624db465720e19e7a3265bb7585bbc09452
 #
-def process_get_modules(name = None):
+def process_get_modules():
     '''
     implementation without pyWin32 extensions
     # set up the variable to pass to EnumProcesses
@@ -1245,21 +1245,21 @@ def process_get_modules(name = None):
             pass
     '''
     modules = []
-    # collect all the running processes
     
+    # collect all the running processes
     pids = win32process.EnumProcesses()
     for pid in pids:
         if pid != 0: # skip system process (0x00000000)
             try:
                 modules.append((pid, process_module(pid)))
-            except pywintypes.error as exc:
-                pass #print(exc)
-            except ProcessNotFoundError as exc:
-                pass #print(exc)
+            except pywintypes.error:
+                pass
+            except ProcessNotFoundError:
+                pass
     return modules
 
 #=========================================================================
-def _process_get_modules_wmi(name = None):
+def _process_get_modules_wmi():
     "Return the list of processes as tuples (pid, exe_path)"
     from win32com.client import GetObject
     _wmi = GetObject('winmgmts:')
@@ -1306,7 +1306,7 @@ def process_from_module(module):
     _warn_incorrect_binary_bitness(module_path)
     try:
         modules = _process_get_modules_wmi()
-    except:
+    except Exception:
         modules = process_get_modules()
 
     # check for a module with a matching name in reverse order

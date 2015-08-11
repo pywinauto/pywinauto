@@ -158,7 +158,7 @@ def _unittests():
         num_found = len(MissingExtraStringTest([ctrl]))
         try:
             assert num_found == num_bugs
-        except:
+        except Exception:
             #print num_found, num_bugs, loc, ref
             pass
 

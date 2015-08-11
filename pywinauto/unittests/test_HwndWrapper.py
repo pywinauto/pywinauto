@@ -485,7 +485,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         # close the application
         try:
             self.dlg.Close(0.5)
-        except: # timings.TimeoutError:
+        except Exception: # timings.TimeoutError:
             pass
         finally:
             self.app.kill_()
@@ -575,7 +575,7 @@ class NotepadRegressionTests(unittest.TestCase):
             if self.app.Notepad["Do&n't Save"].Exists():
                 self.app.Notepad["Do&n't Save"].Click()
                 self.app.Notepad["Do&n't Save"].WaitNot('visible')
-        except: # timings.TimeoutError:
+        except Exception: # timings.TimeoutError:
             pass
         finally:
             self.app.kill_()

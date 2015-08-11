@@ -298,7 +298,7 @@ def get_control_names(control, allcontrols, textcontrols):
         try:
             for text in control.Texts()[1:]:
                 names.append(friendly_class_name + text)
-        except:
+        except Exception:
             #import traceback
             #from .actionlogger import ActionLogger
             pass #ActionLogger().log('Warning! Cannot get control.Texts()') #\nTraceback:\n' + traceback.format_exc())

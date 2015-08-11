@@ -23,8 +23,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import time
-
 try:
     from pywinauto import application
 except ImportError:
@@ -36,7 +34,7 @@ except ImportError:
     from pywinauto import application
 
 #from pywinauto import tests
-from pywinauto.findbestmatch import MatchError
+#from pywinauto.findbestmatch import MatchError
 from pywinauto.timings import Timings
 
 Timings.window_find_timeout = 10

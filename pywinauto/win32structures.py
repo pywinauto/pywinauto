@@ -82,7 +82,7 @@ class Structure(ctypes.Structure):
                         break
                 return are_equal
 
-            except:
+            except Exception:
                 return False
 
         return False

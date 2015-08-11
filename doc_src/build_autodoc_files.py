@@ -1,4 +1,4 @@
-"Build up the sphinx autodoc file for the python code"
+"""Build up the sphinx autodoc file for the python code"""
 from __future__ import print_function
 
 import os

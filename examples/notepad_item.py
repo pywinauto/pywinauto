@@ -19,7 +19,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Run some automations to test things"
+"""Run some automations to test things"""
 from __future__ import unicode_literals
 from __future__ import print_function
 
@@ -31,8 +31,6 @@ from pywinauto import application
 
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
-
-"Run a quick test on Notepad"
 
 app = application.Application()
 app.start_(r"notepad.exe")

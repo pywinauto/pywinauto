@@ -371,7 +371,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         try:
             app['blahblah']
-        except:
+        except Exception:
             pass
 
 
