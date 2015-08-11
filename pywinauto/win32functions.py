@@ -22,11 +22,11 @@
 from __future__ import absolute_import
 
 import ctypes
-from ctypes import c_uint, c_short
+from ctypes import c_uint, c_short, c_long
 
 import sys
 if sys.platform == "cygwin":
-    windll = cdll
+    windll = ctypes.cdll
     HRESULT = c_long
 
 
