@@ -183,7 +183,7 @@ class _listview_item(object):
         * ``"all"``  Returns the bounding rectangle of the entire item, including the icon and label.
         * ``"icon"``  Returns the bounding rectangle of the icon or small icon.
         * ``"text"``  Returns the bounding rectangle of the item text.
-        * ``"no_column"``  Returns the union of the "icon" and "text" rectangles, but excludes columns in report view.
+        * ``"select"``  Returns the union of the "icon" and "text" rectangles, but excludes columns in report view.
         """
         # set up a memory block in the remote application
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
@@ -195,7 +195,7 @@ class _listview_item(object):
             rect.left = win32defines.LVIR_ICON
         elif area.lower() == "text":
             rect.left = win32defines.LVIR_LABEL
-        elif area.lower() == "check":
+        elif area.lower() == "select":
             rect.left = win32defines.LVIR_SELECTBOUNDS
         else:
             raise ValueError('Incorrect rectangle area of the list view item: "' + str(area) + '"')
@@ -224,9 +224,10 @@ class _listview_item(object):
     def Click(self, button = "left", double = False, where = "text", pressed = ""):
         """Click on the list view item
 
-        where can be any one of "all", "icon", "text", "check"
+        where can be any one of "all", "icon", "text", "select"
         defaults to "text"
         """
+        # TODO: need to use LVHITTESTINFO to be able to click on item check box
 
         # find the text rectangle for the item,
         point_to_click = self.Rectangle(area=where.lower()).mid_point()
@@ -235,14 +236,13 @@ class _listview_item(object):
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
-            pressed = pressed) #,
-            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1, but it doesn't work for 32-bit ControlSpyV6.exe
+            pressed = pressed)
 
     #----------------------------------------------------------------
     def ClickInput(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
         """Click on the list view item
 
-        where can be any one of "all", "icon", "text", "check"
+        where can be any one of "all", "icon", "text", "select"
         defaults to "text"
         """
 

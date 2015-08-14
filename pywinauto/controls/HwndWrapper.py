@@ -594,30 +594,28 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         return self.PostMessage(win32defines.WM_COMMAND, commandID)
 
     #-----------------------------------------------------------
-    '''
-    def Notify(self, code):
-        "Send a notification to the parent (not tested yet)"
+    #def Notify(self, code):
+    #    "Send a notification to the parent (not tested yet)"
 
-        # now we need to notify the parent that the state has changed
-        nmhdr = win32structures.NMHDR()
-        nmhdr.hwndFrom = self.handle
-        nmhdr.idFrom = self.ControlID()
-        nmhdr.code = code
+    #    # now we need to notify the parent that the state has changed
+    #    nmhdr = win32structures.NMHDR()
+    #    nmhdr.hwndFrom = self.handle
+    #    nmhdr.idFrom = self.ControlID()
+    #    nmhdr.code = code
 
-        remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
-        remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
+    #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
+    #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
-        retval = self.Parent().SendMessage(
-            win32defines.WM_NOTIFY,
-            self.handle,
-            remote_mem)
-        #if retval != win32defines.TRUE:
-        #    print('retval = ' + str(retval))
-        #    raise ctypes.WinError()
-        del remote_mem
+    #    retval = self.Parent().SendMessage(
+    #        win32defines.WM_NOTIFY,
+    #        self.handle,
+    #        remote_mem)
+    #    #if retval != win32defines.TRUE:
+    #    #    print('retval = ' + str(retval))
+    #    #    raise ctypes.WinError()
+    #    del remote_mem
 
         return retval
-    '''
 
 
     #-----------------------------------------------------------

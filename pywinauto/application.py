@@ -1210,15 +1210,10 @@ class Application(object):
 #=========================================================================
 def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
-    # Set instance variable _module if not already set
-    #process_handle = win32api.OpenProcess(win32con.PROCESS_DUP_HANDLE | win32con.PROCESS_QUERY_INFORMATION, 0, process_id) # read and query info
     try:
-        process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id) # read and query info
+        process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
     except pywintypes.error as exc:
         raise ProcessNotFoundError(str(exc) + ', pid = ' + str(process_id))
-
-    #process_handle = win32functions.OpenProcess(
-    #    0x400 | 0x010, 0, process_id) # read and query info
 
     if not process_handle:
         message = "Process with ID '%d' could not be opened" % process_id
@@ -1227,28 +1222,7 @@ def AssertValidProcess(process_id):
     return process_handle
 
 #=========================================================================
-# Thanks to Yonggang Luo for pyWin32-independent implementation
-# https://code.google.com/r/luoyonggang-pywinauto/source/detail?r=6cb5b624db465720e19e7a3265bb7585bbc09452
-#
 def process_get_modules():
-    '''
-    implementation without pyWin32 extensions
-    # set up the variable to pass to EnumProcesses
-    processes = (ctypes.c_int * 2000)()
-    bytes_returned = ctypes.c_int()
-    ctypes.windll.psapi.EnumProcesses(
-        ctypes.byref(processes),
-        ctypes.sizeof(processes),
-        ctypes.byref(bytes_returned))
-
-    # Get the process names
-    for i in range(0, int(bytes_returned.value / ctypes.sizeof(ctypes.c_int))):
-        try:
-            if processes[i]:
-                modules.append((processes[i], process_module(processes[i])))
-        except ProcessNotFoundError:
-            pass
-    '''
     modules = []
     
     # collect all the running processes
@@ -1281,19 +1255,11 @@ def process_module(process_id):
     "Return the string module name of this process"
     process_handle = AssertValidProcess(process_id)
 
-    # get module name from process handle
-    #filename = (ctypes.c_wchar * 2000)()
-    #win32functions.GetModuleFileNameEx(
-    #    process_handle, 0, ctypes.byref(filename), 2000)
-
-    filename = win32process.GetModuleFileNameEx(process_handle, 0)
-    #print('filename = ', filename)
-    # return the process value
-    return filename
+    return win32process.GetModuleFileNameEx(process_handle, 0)
 
 #=========================================================================
 def _warn_incorrect_binary_bitness(exe_name):
-    "warn if executable has correct bitness"
+    "warn if executable is of incorrect bitness"
     if os.path.isabs(exe_name) and os.path.isfile(exe_name):
         if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
             warnings.simplefilter('always', UserWarning) # warn for every 32-bit binary
@@ -1324,29 +1290,5 @@ def process_from_module(module):
         if module_path.lower() in name.lower():
             return process
 
-#    # check if any of the running process has this module
-#    for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
-#        try:
-#            p_module = process_module(processes[i]).lower()
-#            if module.lower() in p_module:
-#                return processes[i]
-#
-
     message = "Could not find any process with a module of '%s'" % module
     raise ProcessNotFoundError(message)
-
-#
-#def WaitForDialog(dlg):
-#    waited = 0
-#    timeout = 10
-#    app = None
-#    while not app and waited <= timeout:
-#        try:
-#            app = Application.connect(best_match = dlg)
-#        except Exception as e:
-#            time.sleep(1)
-#            waited += 1
-#
-#    if app is None:
-#        raise RuntimeError("Window not found: '%s'"%dlg)
-#    return app, app[dlg]

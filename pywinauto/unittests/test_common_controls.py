@@ -305,6 +305,45 @@ class ListViewTestCases(unittest.TestCase):
         
         yellow.UnCheck()
         self.assertEquals(yellow.IsChecked(), False)
+        self.assertEquals(self.ctrl.IsChecked('Yellow'), False) # TODO: deprecated method
+
+
+    def testItemClickInput(self):
+        "Test clicking item rectangles"
+        
+        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        
+        self.ctrl.GetItem('Magenta').ClickInput(where='select')
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
+        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
+        self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
+        
+        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
+        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
+        self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+
+    def testItemMethods(self):
+        "Test short item methods like Text(), State() etc"
+        self.assertEquals(self.ctrl.GetItem('Green').Text(), 'Green')
+        self.assertEquals(self.ctrl.GetItem('Green').Image(), 2)
+        self.assertEquals(self.ctrl.GetItem('Green').Indent(), 0)
+
+    def testEnsureVisible(self):
+        self.dlg.MoveWindow(width=300)
+        
+        # Gray is not selected by click because it's not visible
+        self.ctrl.GetItem('Gray').Click()
+        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
+        self.dlg.SetFocus() # just in case
+        
+        self.ctrl.GetItem('Gray').EnsureVisible()
+        self.ctrl.GetItem('Gray').Click()
+        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), True)
 
 #
 #    def testSubItems(self):
