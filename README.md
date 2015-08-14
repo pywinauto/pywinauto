@@ -28,11 +28,11 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 ### Continuous Integration / Coverage / Code Issues
 * [![Build status](https://ci.appveyor.com/api/projects/status/ykk30v7vcvkmpnoq/branch/master?svg=true)](https://ci.appveyor.com/project/vasily-v-ryabov/pywinauto/branch/master)
 * [![codecov.io](http://codecov.io/github/pywinauto/pywinauto/coverage.svg?branch=master)](http://codecov.io/github/pywinauto/pywinauto?branch=master)
-* [![Code Issues](http://www.quantifiedcode.com/api/v1/project/9d5d994af16f46a28961f01dfc63091d/badge.svg)](http://www.quantifiedcode.com/app/project/9d5d994af16f46a28961f01dfc63091d)
+* [![Code Issues](http://www.quantifiedcode.com/api/v1/project/9d5d994af16f46a28961f01dfc63091d/badge.svg)](https://www.quantifiedcode.com/app/project/gh:pywinauto:pywinauto)
 
 ### Downloads statistics
 * PyPI: [![Daily downloads](https://img.shields.io/pypi/dd/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Weekly downloads](https://img.shields.io/pypi/dw/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Monthly downloads](https://img.shields.io/pypi/dm/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto)
-* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.0/pywinauto-0.5.0.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.0/pywinauto-0.5.0.zip) [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.1/pywinauto-0.5.1.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.1/pywinauto-0.5.1.zip)
+* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.1/pywinauto-0.5.1.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.1/pywinauto-0.5.1.zip)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL

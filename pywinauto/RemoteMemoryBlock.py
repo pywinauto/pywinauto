@@ -135,7 +135,7 @@ class RemoteMemoryBlock(object):
             self.memAddress = 0
             #self._CloseHandle()
         else:
-            print('\nWARNING: Cannot call VirtualFreeEx! process_id == 0.')
+            pass #print('\nWARNING: Cannot call VirtualFreeEx! process_id == 0.')
 
 
     #----------------------------------------------------------------
