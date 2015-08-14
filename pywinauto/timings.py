@@ -32,14 +32,17 @@ timings.Timings.Slow()
 
 The Following are the individual timing settings that can be adjusted:
 
-* window_find_timeout	(default 5)
+* window_find_timeout (default 5)
 * window_find_retry (default .09)
 
 * app_start_timeout (default 10)
 * app_start_retry   (default .90)
 
-* exists_timeout    (default .5)
-* exists_retry  (default .3)
+* cpu_usage_interval (default .5)
+* cpu_usage_wait_timeout (default 20)
+
+* exists_timeout  (default .5)
+* exists_retry   (default .3)
 
 * after_click_wait  (default .09)
 * after_clickinput_wait (default .01)
@@ -95,11 +98,14 @@ __revision__ = "$Revision: 453 $"
 class TimeConfig(object):
     "Central storage and manipulation of timing values"
     __default_timing = {
-        'window_find_timeout' : 5,
+        'window_find_timeout' : 5.,
         'window_find_retry' : .09,
 
-        'app_start_timeout' : 10,
+        'app_start_timeout' : 10.,
         'app_start_retry' : .90,
+
+        'cpu_usage_interval' : .5,
+        'cpu_usage_wait_timeout' : 20.,
 
         'exists_timeout' : .5,
         'exists_retry' : .3,

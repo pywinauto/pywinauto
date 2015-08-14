@@ -72,7 +72,7 @@ from . import findbestmatch
 from . import findwindows
 from . import handleprops
 
-import win32process, win32api, pywintypes, win32con, win32event
+import win32process, win32api, pywintypes, win32con, win32event, multiprocessing
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
@@ -987,6 +987,48 @@ class Application(object):
                 "trying anything else")
         return handleprops.is64bitprocess(self.process)
 
+    def CPUUsage(self, interval = None):
+        "Return CPU usage percentage during specified number of seconds"
+        
+        WIN32_PROCESS_TIMES_TICKS_PER_SECOND = 1e7
+        
+        if interval is None:
+            interval = Timings.cpu_usage_interval
+        
+        if not self.process:
+            raise RuntimeError('Application instance is not connected to any process!')
+        hProcess = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
+        
+        times_dict = win32process.GetProcessTimes(hProcess)
+        UserTime_start, KernelTime_start = times_dict['UserTime'], times_dict['KernelTime']
+        
+        time.sleep(interval)
+        
+        times_dict = win32process.GetProcessTimes(hProcess)
+        UserTime_end, KernelTime_end = times_dict['UserTime'], times_dict['KernelTime']
+        
+        total_time = (UserTime_end - UserTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND + \
+                     (KernelTime_end - KernelTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND
+        
+        win32api.CloseHandle(hProcess)
+        return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
+
+    def WaitCPUUsageLower(self, threshold = 2.5, timeout = None, usage_interval = None):
+        "Wait until process CPU usage percentage is less than specified threshold"
+        
+        if usage_interval is None:
+            usage_interval = Timings.cpu_usage_interval
+        if timeout is None:
+            timeout = Timings.cpu_usage_wait_timeout
+        
+        start_time = time.time()
+        
+        while self.CPUUsage(usage_interval) > threshold:
+            if time.time() - start_time > timeout:
+                raise RuntimeError('Waiting CPU load <= ' + str(threshold) + '% timed out!')
+        
+        return self
+
     def top_window_(self):
         "Return the current top window of the application"
         if not self.process:
@@ -1109,20 +1151,8 @@ class Application(object):
         """
 
         windows = self.windows_(visible_only = True)
-        #ok_to_kill = True
 
         for win in windows:
-
-            #t = threading.Thread(target = OKToClose, args = (win) )
-
-            #t.start()
-
-            #time.sleep(.2)
-            #win.Close()
-
-            #while t.isAlive() and not forcekill:
-            #    time.sleep(.5)
-
 
             win.SendMessageTimeout(
                 win32defines.WM_QUERYENDSESSION,
@@ -1135,21 +1165,10 @@ class Application(object):
                 win.Close()
             except TimeoutError:
                 pass
-            #print `ok_to_kill`, win.Texts()
-
-        #print `ok_to_kill`
-#        if ok_to_kill:
-#            for win in windows:
-#                print "\tclosing:", win.Texts()
-#                self.windows_()[0].Close()
-#        elif not forcekill:
-#            return False
 
         # window has let us know that it doesn't want to die - so we abort
         # this means that the app is not hung - but knows it doesn't want
         # to close yet - e.g. it is asking the user if they want to save
-        #if not forcekill:
-        #    return False
 
         #print "supposedly closed all windows!"
 
@@ -1161,7 +1180,7 @@ class Application(object):
                 win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
                 0,
                 self.process)
-        except pywintypes.error as exc:
+        except pywintypes.error:
             return True # already killed
 
         killed = True
@@ -1172,10 +1191,9 @@ class Application(object):
                 process_wait_handle,
                 int(Timings.after_windowclose_timeout * 1000))
 
-            #if forcekill:
             try:
                 win32api.TerminateProcess(process_wait_handle, 0)
-            except pywintypes.error as exc:
+            except pywintypes.error:
                 pass #print('Warning: ' + str(exc))
             #win32functions.TerminateProcess(process_wait_handle, 0)
             #else:
@@ -1186,19 +1204,6 @@ class Application(object):
         return killed
 
     kill_ = Kill_
-
-#
-#
-#def OKToClose(window):
-#    return_val = bool(window.SendMessageTimeout(
-#        win32defines.WM_QUERYENDSESSION,
-#        timeout = 1000,
-#        timeoutflags = win32defines.SMTO_ABORTIFHUNG))# |
-#
-#    print "2343242343242"  * 100
-#
-#    return return_val
-
 
 
 
