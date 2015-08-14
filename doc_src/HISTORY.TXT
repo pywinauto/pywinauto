@@ -2,9 +2,22 @@
 Change Log
 ==========
 
+0.5.2 Improve ListView, new methods CPUUsage and WaitCPUUsageLower.
+------------------------------------------------------------------
+20-August-2015
+
+ * New Application methods: ``CPUUsage`` and ``WaitCPUUsageLower``.
+   ``CPUUsage`` returns CPU usage as a percent (float number), ``WaitCPUUsageLower``
+   waits until connected process CPU usage is lower than specified value (2.5% by default).
+
+ * Fix ``TreeViewWrapper.Select`` (setting focus is required before sending TVM_SELECTITEM).
+
+ * New class ``_listview_item`` is analogue of ``_treeview_element``.
+   ``ListViewWrapper`` methods ``Check/UnCheck`` are fixed.
+
 0.5.1 Several fixes, more tests.
 ------------------------------------------------------------------
-14-July-2015
+13-July-2015
 
  * Resolve pip issues
 

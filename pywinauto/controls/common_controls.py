@@ -27,6 +27,7 @@ __revision__ = "$Revision$"
 
 import time
 import ctypes
+import warnings
 
 from .. import six
 from .. import win32functions
@@ -46,6 +47,382 @@ from ..timings import Timings
 #       ListView.Select(xxx)
 #       Or at least most of the functions should call GetItem to get the
 #       Item they want to work with.
+
+class _listview_item(object):
+    "Wrapper around ListView items"
+    #----------------------------------------------------------------
+    def __init__(self, lv_ctrl, item_index, subitem_index = 0):
+        "Initialize the item"
+        self.listview_ctrl = lv_ctrl
+        
+        # ensure the item_index is an integer or
+        # convert it to one
+        self.item_index = self.listview_ctrl._as_item_index(item_index)
+        self.subitem_index = subitem_index
+        #self._as_parameter_ = self.item_index
+
+    #----------------------------------------------------------------
+    def _readitem(self):
+        "Read the listview item"
+        
+        item_data = {}
+
+        # set up a memory block in the remote application
+        remote_mem = RemoteMemoryBlock(self.listview_ctrl)
+
+        # set up the item structure to get the text
+        item = self.listview_ctrl.LVITEM()
+        item.mask = \
+            win32defines.LVIF_TEXT | \
+            win32defines.LVIF_IMAGE | \
+            win32defines.LVIF_INDENT | \
+            win32defines.LVIF_STATE
+
+        item.iItem = self.item_index
+        item.iSubItem = self.subitem_index
+        item.stateMask = win32structures.UINT(-1)
+
+        item.cchTextMax = 2000
+        item.pszText = remote_mem.Address() + \
+            ctypes.sizeof(item) + 1
+
+        # Write the local LVITEM structure to the remote memory block
+        remote_mem.Write(item)
+
+        # Fill in the requested item
+        retval = self.listview_ctrl.SendMessage(
+            self.listview_ctrl.LVM_GETITEM,
+            0, # MSDN: wParam for LVM_GETITEM must be zero
+            remote_mem)
+
+        text = ''
+        # if it succeeded
+        if retval:
+
+            remote_mem.Read(item)
+
+            # Read the remote text string
+            char_data = self.listview_ctrl.create_buffer(2000)
+            remote_mem.Read(char_data, item.pszText)
+
+            text = self.listview_ctrl.text_decode(char_data.value)
+
+        else:
+            raise RuntimeError(
+                "We should never get to this part of ListView.GetItem(), retval = " + str(retval) +
+                ', GetLastError() = ' + str(ctypes.GetLastError()) +
+                ', item_index = ' + str(self.item_index) + ', subitem_index = ' + str(self.subitem_index))
+
+        del remote_mem
+
+        return item, text #item_data
+
+    #----------------------------------------------------------------
+    def __getitem__(self, key):
+        "Return property name"
+        warnings.warn('ListView item properties "text", "state", "image" and "indent" are deprecated! ' +
+                      'Use methods Text(), State(), Image() and Indent().', DeprecationWarning)
+        
+        item, text = self._readitem()
+        if key == 'text':
+            return text
+        if key == 'state':
+            return item.state
+        if key == 'image':
+            return item.iImage
+        if key == 'indent':
+            return item.iIndent
+        
+        raise KeyError('Incorrect property: "' + str(key) + '", can be "text", "state", "image" or "indent".')
+
+    #----------------------------------------------------------------
+    def Text(self):
+        "Return the text of the item"
+        return self._readitem()[1]
+
+    #----------------------------------------------------------------
+    def Item(self):
+        "Return the item itself (LVITEM instance)"
+        return self._readitem()[0]
+
+    #----------------------------------------------------------------
+    def ItemData(self):
+        "Return the item data (dictionary)"
+        item_data = {}
+        
+        item, text = self._readitem()
+        # and add it to the titles
+        item_data['text'] = text
+        item_data['state'] = item.state
+        item_data['image'] = item.iImage
+        item_data['indent'] = item.iIndent
+        
+        return item_data
+
+    #----------------------------------------------------------------
+    def State(self):
+        "Return the state of the item"
+        return self.Item().state
+
+    #----------------------------------------------------------------
+    def Image(self):
+        "Return the image index of the item"
+        return self.Item().iImage
+
+    #----------------------------------------------------------------
+    def Indent(self):
+        "Return the indent of the item"
+        return self.Item().iIndent
+
+    #----------------------------------------------------------------
+    def Rectangle(self, area = "all"):
+        """Return the rectangle of the item.
+
+        Possible ``area`` values:
+
+        * ``"all"``  Returns the bounding rectangle of the entire item, including the icon and label.
+        * ``"icon"``  Returns the bounding rectangle of the icon or small icon.
+        * ``"text"``  Returns the bounding rectangle of the item text.
+        * ``"no_column"``  Returns the union of the "icon" and "text" rectangles, but excludes columns in report view.
+        """
+        # set up a memory block in the remote application
+        remote_mem = RemoteMemoryBlock(self.listview_ctrl)
+        rect = win32structures.RECT()
+
+        if area.lower() == "all" or not area:
+            rect.left = win32defines.LVIR_BOUNDS
+        elif area.lower() == "icon":
+            rect.left = win32defines.LVIR_ICON
+        elif area.lower() == "text":
+            rect.left = win32defines.LVIR_LABEL
+        elif area.lower() == "check":
+            rect.left = win32defines.LVIR_SELECTBOUNDS
+        else:
+            raise ValueError('Incorrect rectangle area of the list view item: "' + str(area) + '"')
+
+        # Write the local RECT structure to the remote memory block
+        remote_mem.Write(rect)
+
+        # Fill in the requested item
+        retval = self.listview_ctrl.SendMessage(
+            win32defines.LVM_GETITEMRECT,
+            self.item_index,
+            remote_mem)
+
+        # if it succeeded
+        if not retval:
+            del remote_mem
+            raise RuntimeError("Did not succeed in getting rectangle")
+
+        rect = remote_mem.Read(rect)
+
+        del remote_mem
+
+        return rect
+
+    #----------------------------------------------------------------
+    def Click(self, button = "left", double = False, where = "text", pressed = ""):
+        """Click on the list view item
+
+        where can be any one of "all", "icon", "text", "check"
+        defaults to "text"
+        """
+
+        # find the text rectangle for the item,
+        point_to_click = self.Rectangle(area=where.lower()).mid_point()
+
+        self.listview_ctrl.Click(
+            button,
+            coords = (point_to_click.x, point_to_click.y),
+            double = double,
+            pressed = pressed) #,
+            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1, but it doesn't work for 32-bit ControlSpyV6.exe
+
+    #----------------------------------------------------------------
+    def ClickInput(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
+        """Click on the list view item
+
+        where can be any one of "all", "icon", "text", "check"
+        defaults to "text"
+        """
+
+        # find the text rectangle for the item,
+        point_to_click = self.Rectangle(area=where.lower()).mid_point()
+
+        self.listview_ctrl.ClickInput(
+            button,
+            coords = (point_to_click.x, point_to_click.y),
+            double = double,
+            wheel_dist = wheel_dist,
+            pressed = pressed)
+
+    #----------------------------------------------------------------
+    def EnsureVisible(self):
+        "Make sure that the ListView item is visible"
+        if self.State() & win32defines.LVS_NOSCROLL:
+            return False # scroll is disabled
+        ret = self.listview_ctrl.SendMessage(
+            win32defines.LVM_ENSUREVISIBLE,
+            self.item_index,
+            win32defines.FALSE)
+        if ret != win32defines.TRUE:
+            raise Exception('Fail to make the list view item visible ' +
+                            '(item_index = ' + str(self.item_index) + ')')
+
+    #-----------------------------------------------------------
+    def UnCheck(self):
+        "Uncheck the ListView item"
+
+        def INDEXTOSTATEIMAGEMASK(i):
+            return i << 12
+
+        self.listview_ctrl.VerifyActionable()
+
+        lvitem = self.listview_ctrl.LVITEM()
+
+        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
+        lvitem.state = win32structures.UINT(INDEXTOSTATEIMAGEMASK(1)) #win32structures.UINT(0x1000)
+        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+
+        remote_mem = RemoteMemoryBlock(self.listview_ctrl)
+        remote_mem.Write(lvitem)
+
+        retval = self.listview_ctrl.SendMessage(
+            win32defines.LVM_SETITEMSTATE, self.item_index, remote_mem)
+
+        if retval != win32defines.TRUE:
+            raise ctypes.WinError()
+
+        del remote_mem
+
+    #-----------------------------------------------------------
+    def Check(self):
+        "Check the ListView item"
+
+        def INDEXTOSTATEIMAGEMASK(i):
+            return i << 12
+
+        self.listview_ctrl.VerifyActionable()
+
+        lvitem = self.listview_ctrl.LVITEM()
+
+        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
+        lvitem.state = win32structures.UINT(INDEXTOSTATEIMAGEMASK(2)) #win32structures.UINT(0x2000)
+        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+
+        remote_mem = RemoteMemoryBlock(self.listview_ctrl)
+        remote_mem.Write(lvitem)
+
+        retval = self.listview_ctrl.SendMessage(
+            win32defines.LVM_SETITEMSTATE, self.item_index, remote_mem)
+
+        if retval != win32defines.TRUE:
+            raise ctypes.WinError()
+
+        del remote_mem
+
+    #-----------------------------------------------------------
+    def IsChecked(self):
+        "Return whether the ListView item is checked or not"
+
+        state = self.listview_ctrl.SendMessage(
+            win32defines.LVM_GETITEMSTATE,
+            self.item_index,
+            win32defines.LVIS_STATEIMAGEMASK)
+
+        return state & 0x2000 == 0x2000
+
+    #-----------------------------------------------------------
+    def IsSelected(self):
+        "Return True if the item is selected"
+
+        return win32defines.LVIS_SELECTED == self.listview_ctrl.SendMessage(
+            win32defines.LVM_GETITEMSTATE, self.item_index, win32defines.LVIS_SELECTED)
+
+    #-----------------------------------------------------------
+    def IsFocused(self):
+        "Return True if the item has the focus"
+
+        return win32defines.LVIS_FOCUSED == self.listview_ctrl.SendMessage(
+            win32defines.LVM_GETITEMSTATE, self.item_index, win32defines.LVIS_FOCUSED)
+
+    #-----------------------------------------------------------
+    def _modify_selection(self, to_select):
+        """Change the selection of the item
+
+        to_select should be True to select the item and false
+        to deselect the item
+        """
+
+        self.listview_ctrl.VerifyActionable()
+
+        if self.item_index >= self.listview_ctrl.ItemCount():
+            raise IndexError("There are only %d items in the list view not %d"%
+                (self.listview_ctrl.ItemCount(), self.item_index + 1))
+
+        # first we need to change the state of the item
+        lvitem = self.listview_ctrl.LVITEM()
+        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
+
+        if to_select:
+            lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+
+        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+        
+        remote_mem = RemoteMemoryBlock(self.listview_ctrl)
+        remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
+
+        retval = self.listview_ctrl.SendMessage(
+            win32defines.LVM_SETITEMSTATE, self.item_index, remote_mem)
+        if retval != win32defines.TRUE:
+            raise ctypes.WinError()#('retval = ' + str(retval))
+        del remote_mem
+
+        # now we need to notify the parent that the state has changed
+        nmlv = win32structures.NMLISTVIEW()
+        nmlv.hdr.hwndFrom = self.listview_ctrl.handle
+        nmlv.hdr.idFrom = self.listview_ctrl.ControlID()
+        nmlv.hdr.code = win32defines.LVN_ITEMCHANGING
+
+        nmlv.iItem = self.item_index
+        #nmlv.iSubItem = 0
+        nmlv.uNewState = win32defines.LVIS_SELECTED
+        #nmlv.uOldState = 0
+        nmlv.uChanged = win32defines.LVIS_SELECTED
+        nmlv.ptAction = win32structures.POINT()
+
+        new_remote_mem = RemoteMemoryBlock(self.listview_ctrl, size=ctypes.sizeof(nmlv))
+        new_remote_mem.Write(nmlv, size=ctypes.sizeof(nmlv))
+
+        retval = self.listview_ctrl.Parent().SendMessage(
+            win32defines.WM_NOTIFY,
+            self.listview_ctrl.ControlID(),
+            new_remote_mem)
+        #if retval != win32defines.TRUE:
+        #    print('retval = ' + str(retval))
+        #    raise ctypes.WinError()
+        del new_remote_mem
+
+        win32functions.WaitGuiThreadIdle(self.listview_ctrl)
+        time.sleep(Timings.after_listviewselect_wait)
+
+
+    #-----------------------------------------------------------
+    def Select(self):
+        """Mark the item as selected
+
+        The ListView control must be enabled and visible before an
+        Item can be selected otherwise an exception is raised"""
+        self._modify_selection(True)
+
+    #-----------------------------------------------------------
+    def Deselect(self):
+        """Mark the item as not selected
+
+        The ListView control must be enabled and visible before an
+        Item can be selected otherwise an exception is raised"""
+        self._modify_selection(False)
+
 
 
 #====================================================================
@@ -186,31 +563,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def GetItemRect(self, item_index):
         "Return the bounding rectangle of the list view item"
-        # set up a memory block in the remote application
-        remote_mem = RemoteMemoryBlock(self)
-        rect = win32structures.RECT()
-
-        rect.left = win32defines.LVIR_SELECTBOUNDS
-
-        # Write the local RECT structure to the remote memory block
-        remote_mem.Write(rect)
-
-        # Fill in the requested item
-        retval = self.SendMessage(
-            win32defines.LVM_GETITEMRECT,
-            item_index,
-            remote_mem)
-
-        # if it succeeded
-        if not retval:
-            del remote_mem
-            raise RuntimeError("Did not succeed in getting rectangle")
-
-        rect = remote_mem.Read(rect)
-
-        del remote_mem
-
-        return rect
+        warnings.warn("Use GetItem(item).Rectangle() instead", DeprecationWarning)
+        return self.GetItem(item_index).Rectangle()
 
     #-----------------------------------------------------------
     def _as_item_index(self, item):
@@ -235,64 +589,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
           Defaults to 0.
         """
 
-        item_data = {}
-
-        # ensure the item_index is an integer or
-        # convert it to one
-        item_index = self._as_item_index(item_index)
-
-        # set up a memory block in the remote application
-        remote_mem = RemoteMemoryBlock(self)
-
-        # set up the item structure to get the text
-        item = self.LVITEM()
-        item.mask = \
-            win32defines.LVIF_TEXT | \
-            win32defines.LVIF_IMAGE | \
-            win32defines.LVIF_INDENT | \
-            win32defines.LVIF_STATE
-
-        item.iItem = item_index
-        item.iSubItem = subitem_index
-        item.stateMask = win32structures.UINT(-1)
-
-        item.cchTextMax = 2000
-        item.pszText = remote_mem.Address() + \
-            ctypes.sizeof(item) + 1
-
-        # Write the local LVITEM structure to the remote memory block
-        remote_mem.Write(item)
-
-        # Fill in the requested item
-        retval = self.SendMessage(
-            self.LVM_GETITEM,
-            0, # MSDN: wParam for LVM_GETITEM must be zero
-            remote_mem)
-
-        # if it succeeded
-        if retval:
-
-            remote_mem.Read(item)
-
-            # Read the remote text string
-            char_data = self.create_buffer(2000)
-            remote_mem.Read(char_data, item.pszText)
-
-            # and add it to the titles
-            item_data['text'] = self.text_decode(char_data.value)
-            item_data['state'] = item.state
-            item_data['image'] = item.iImage
-            item_data['indent'] = item.iIndent
-
-        else:
-            raise RuntimeError(
-                "We should never get to this part of ListView.GetItem(), retval = " + str(retval) +
-                ', GetLastError() = ' + str(ctypes.GetLastError()) +
-                ', item_index = ' + str(item_index) + ', subitem_index = ' + str(subitem_index))
-
-        del remote_mem
-
-        return item_data
+        return _listview_item(self, item_index, subitem_index)
 
     #-----------------------------------------------------------
     def Items(self):
@@ -311,7 +608,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             for subitem_index in range(0, colcount):
 
                 # get the item
-                items.append(self.GetItem(item_index, subitem_index))
+                #yield self.GetItem(item_index, subitem_index) # return iterator
+                items.append(self.GetItem(item_index, subitem_index).ItemData())
 
         return items
 
@@ -326,158 +624,36 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     def UnCheck(self, item):
         "Uncheck the ListView item"
 
-        self.VerifyActionable()
-
-        # ensure the item is an integer or
-        # convert it to one
-        item = self._as_item_index(item)
-
-        lvitem = self.LVITEM()
-
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(0x1000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
-
-        remote_mem = RemoteMemoryBlock(self)
-        remote_mem.Write(lvitem)
-
-        self.SendMessageTimeout(
-            win32defines.LVM_SETITEMSTATE, item, remote_mem)
-
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(Timings.after_listviewcheck_wait)
-
-        del remote_mem
+        warnings.warn("Use GetItem(item).UnCheck() instead", DeprecationWarning)
+        return self.GetItem(item).UnCheck()
 
     #-----------------------------------------------------------
     def Check(self, item):
         "Check the ListView item"
 
-        self.VerifyActionable()
-
-        # ensure the item is an integer or
-        # convert it to one
-        item = self._as_item_index(item)
-
-        lvitem = self.LVITEM()
-
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(0x2000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
-
-        remote_mem = RemoteMemoryBlock(self)
-        remote_mem.Write(lvitem)
-
-        self.SendMessageTimeout(
-            win32defines.LVM_SETITEMSTATE, item, remote_mem)
-
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(Timings.after_listviewcheck_wait)
-
-        del remote_mem
+        warnings.warn("Use GetItem(item).Check() instead", DeprecationWarning)
+        return self.GetItem(item).Check()
 
     #-----------------------------------------------------------
     def IsChecked(self, item):
         "Return whether the ListView item is checked or not"
 
-        # ensure the item is an integer or
-        # convert it to one
-        item = self._as_item_index(item)
-
-        state = self.SendMessage(
-            win32defines.LVM_GETITEMSTATE,
-            item,
-            win32defines.LVIS_STATEIMAGEMASK)
-
-        return state & 0x2000 == 0x2000
+        warnings.warn("Use GetItem(item).IsChecked() instead", DeprecationWarning)
+        return self.GetItem(item).IsChecked()
 
     #-----------------------------------------------------------
     def IsSelected(self, item):
         "Return True if the item is selected"
 
-        # ensure the item is an integer or
-        # convert it to one
-        item = self._as_item_index(item)
-
-        return win32defines.LVIS_SELECTED == self.SendMessage(
-            win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_SELECTED)
+        warnings.warn("Use GetItem(item).IsSelected() instead", DeprecationWarning)
+        return self.GetItem(item).IsSelected()
 
     #-----------------------------------------------------------
     def IsFocused(self, item):
         "Return True if the item has the focus"
 
-        # ensure the item is an integer or
-        # convert it to one
-        item = self._as_item_index(item)
-
-        return win32defines.LVIS_FOCUSED == self.SendMessage(
-            win32defines.LVM_GETITEMSTATE, item, win32defines.LVIS_FOCUSED)
-
-    #-----------------------------------------------------------
-    def _modify_selection(self, item, to_select):
-        """Change the selection of the item
-
-        item is the item you want to change
-        to_select should be True to select the item and false
-        to deselect the item
-        """
-
-        self.VerifyActionable()
-
-        # ensure the item is an integer or
-        # convert it to one
-        item = self._as_item_index(item)
-
-        if item >= self.ItemCount():
-            raise IndexError("There are only %d items in the list view not %d"%
-                (self.ItemCount(), item + 1))
-
-        # first we need to change the state of the item
-        lvitem = self.LVITEM()
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-
-        if to_select:
-            lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
-
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
-        
-        remote_mem = RemoteMemoryBlock(self)
-        remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
-
-        retval = self.SendMessage(
-            win32defines.LVM_SETITEMSTATE, item, remote_mem)
-        if retval != win32defines.TRUE:
-            raise ctypes.WinError()#('retval = ' + str(retval))
-        del remote_mem
-
-        # now we need to notify the parent that the state has changed
-        nmlv = win32structures.NMLISTVIEW()
-        nmlv.hdr.hwndFrom = self.handle
-        nmlv.hdr.idFrom = self.ControlID()
-        nmlv.hdr.code = win32defines.LVN_ITEMCHANGING
-
-        nmlv.iItem = item
-        #nmlv.iSubItem = 0
-        nmlv.uNewState = win32defines.LVIS_SELECTED
-        #nmlv.uOldState = 0
-        nmlv.uChanged = win32defines.LVIS_SELECTED
-        nmlv.ptAction = win32structures.POINT()
-
-        new_remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmlv))
-        new_remote_mem.Write(nmlv, size=ctypes.sizeof(nmlv))
-
-        retval = self.Parent().SendMessage(
-            win32defines.WM_NOTIFY,
-            self.ControlID(),
-            new_remote_mem)
-        #if retval != win32defines.TRUE:
-        #    print('retval = ' + str(retval))
-        #    raise ctypes.WinError()
-        del new_remote_mem
-
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(Timings.after_listviewselect_wait)
-
+        warnings.warn("Use GetItem(item).IsFocused() instead", DeprecationWarning)
+        return self.GetItem(item).IsFocused()
 
     #-----------------------------------------------------------
     def Select(self, item):
@@ -485,7 +661,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         The ListView control must be enabled and visible before an
         Item can be selected otherwise an exception is raised"""
-        self._modify_selection(item, True)
+        warnings.warn("Use GetItem(item).Select() instead", DeprecationWarning)
+        return self.GetItem(item).Select()
 
     #-----------------------------------------------------------
     def Deselect(self, item):
@@ -493,7 +670,8 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         The ListView control must be enabled and visible before an
         Item can be selected otherwise an exception is raised"""
-        self._modify_selection(item, False)
+        warnings.warn("Use GetItem(item).Deselect() instead", DeprecationWarning)
+        return self.GetItem(item).Deselect()
 
     # Naming is not clear - so create an alias.
     #UnSelect = Deselect
@@ -504,18 +682,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         return self.SendMessage(win32defines.LVM_GETSELECTEDCOUNT)
 
-
-
-    # commented out as we can get these strings from the header
-    #                    col = remote_mem.Read(col)
-    #
-    #                   charData = ctypes.create_unicode_buffer(2000)
-    #
-    #                    ret = remote_mem.Read(charData, col.pszText)
-    #
-    #                    self.Titles.append(charData.value)
-    #                else:
-    #                    break
 
 
 
@@ -738,7 +904,6 @@ class _treeview_element(object):
         "Return the direct children of this control"
         if self.Item().cChildren not in (0, 1):
             print("##### not dealing with that TVN_GETDISPINFO stuff yet")
-            pass
 
         ## No children
         #if self.__item.cChildren == 0:
@@ -1068,18 +1233,26 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def Select(self, path):
         "Select the treeview item"
+
+        # http://stackoverflow.com/questions/14111333/treeview-set-default-select-item-and-highlight-blue-this-item
+        # non-focused TreeView can ignore TVM_SELECTITEM
+        self.SetFocus()
+
         elem = self.GetItem(path)
-        result = ctypes.c_long()
-        win32functions.SendMessageTimeout(self,
+        #result = ctypes.c_long()
+        retval = self.SendMessage(
             win32defines.TVM_SELECTITEM, # message
             win32defines.TVGN_CARET,     # how to select
-            elem.elem,                   # item to select
-            win32defines.SMTO_NORMAL,
-            int(Timings.after_treeviewselect_wait * 1000),
-            ctypes.byref(result))
+            elem.elem)                   # item to select
+            #win32defines.SMTO_NORMAL,
+            #int(Timings.after_treeviewselect_wait * 1000),
+            #ctypes.byref(result))
 
-        win32functions.WaitGuiThreadIdle(self)
-        time.sleep(Timings.after_treeviewselect_wait)
+        if retval != win32defines.TRUE:
+            raise ctypes.WinError()
+
+        #win32functions.WaitGuiThreadIdle(self)
+        #time.sleep(Timings.after_treeviewselect_wait)
 
     #-----------------------------------------------------------
     def IsSelected(self, path):
@@ -1100,15 +1273,14 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def PrintItems(self):
+        "Print all items with line indents"
         
         self.text = self.WindowText() + "\n"
 
-        "Print all items with line indents"
         def PrintOneLevel(item,ident):
             self.text += " " * ident + item.Text() + "\n"
             for child in item.Children():
                 PrintOneLevel(child,ident+1)
-        pass
 
         for root in self.Roots():
             PrintOneLevel(root,0)

@@ -263,7 +263,7 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(
             self.ctrl.Texts(), props['Texts'])
 
-        for prop_name in props:
+        for prop_name in props.keys():
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
         self.assertEquals(props['ColumnCount'], 8)
@@ -278,6 +278,33 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetColumn(2)['text'], u"Green")
         self.assertEquals(self.ctrl.GetColumn(3)['text'], u"Blue")
 
+
+    def testItemRectangles(self):
+        "Test getting item rectangles"
+        
+        self.ctrl.GetItem('Green').Click(where='text')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        
+        self.ctrl.GetItem('Magenta').Click(where='icon')
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
+        
+        self.ctrl.GetItem('Green').Click(where='all')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+
+
+    def testItemCheck(self):
+        "Test checking/unchecking item"
+        if not self.dlg.Toolbar.Button(6).IsChecked():
+            self.dlg.Toolbar.Button(6).Click()
+        
+        yellow = self.ctrl.GetItem('Yellow')
+        yellow.Check()
+        self.assertEquals(yellow.IsChecked(), True)
+        
+        yellow.UnCheck()
+        self.assertEquals(yellow.IsChecked(), False)
 
 #
 #    def testSubItems(self):
