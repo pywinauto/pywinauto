@@ -283,7 +283,12 @@ class ListViewTestCases(unittest.TestCase):
         "Test getting item rectangles"
         
         yellow_rect = self.ctrl.GetItemRect('Yellow')
-        self.assertEquals(yellow_rect, RECT(13, 0, 61, 53))
+        gold_rect = RECT(13, 0, 61, 53)
+        self.assertEquals(yellow_rect.left, gold_rect.left)
+        self.assertEquals(yellow_rect.top, gold_rect.top)
+        self.assertEquals(yellow_rect.right, gold_rect.right)
+        if yellow_rect.bottom < 53 or yellow_rect.bottom > 55:
+            self.assertEquals(yellow_rect.bottom, gold_rect.bottom)
         
         self.ctrl.GetItem('Green').Click(where='text')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
@@ -509,7 +514,37 @@ class TreeViewTestCases(unittest.TestCase):
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
         self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
-        
+
+'''
+class TreeViewAdditionalTestCases(unittest.TestCase):
+    "More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        self.app = Application.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+
+        self.dlg = self.app.CommonControlsSample #top_window_()
+        self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.dlg.Close()
+        self.app.kill_()
+
+    def testCheckBoxes(self):
+        "Make sure the friendly class is set correctly"
+        self.dlg.TVS_CHECKBOXES.Check()
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Click(where='check')
+        self.assertEquals (birds, "TreeView")
+'''
+
+
+
 class HeaderTestCases(unittest.TestCase):
     "Unit tests for the Header class"
 
