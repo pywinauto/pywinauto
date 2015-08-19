@@ -43,6 +43,7 @@ from pywinauto import win32structures, win32defines
 from pywinauto.findwindows import WindowNotFoundError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
+from pywinauto import clipboard
 
 
 __revision__ = "$Revision: 234 $"
@@ -585,12 +586,20 @@ class NotepadRegressionTests(unittest.TestCase):
         "In notepad - MenuSelect Edit->Paste did not work"
 
         text = b'Here are some unicode characters \xef\xfc\r\n'
+        self.app2.UntitledNotepad.Edit.Wait('enabled')
+        time.sleep(0.3)
         self.app2.UntitledNotepad.Edit.SetEditText(text)
+        time.sleep(0.3)
+        self.assertEquals(self.app2.UntitledNotepad.Edit.TextBlock().encode(locale.getpreferredencoding()), text)
 
         Timings.after_menu_wait = .7
         self.app2.UntitledNotepad.MenuSelect("Edit->Select All")
+        time.sleep(0.3)
         self.app2.UntitledNotepad.MenuSelect("Edit->Copy")
+        time.sleep(0.3)
+        self.assertEquals(clipboard.GetData().encode(locale.getpreferredencoding()), text)
 
+        self.dlg.SetFocus()
         self.dlg.MenuSelect("Edit->Select All")
         self.dlg.MenuSelect("Edit->Paste")
         self.dlg.MenuSelect("Edit->Paste")

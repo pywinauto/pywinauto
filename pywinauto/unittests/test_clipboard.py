@@ -21,13 +21,11 @@
 
 "Tests for clipboard.py"
 
-__revision__ = "$Revision: 234 $"
-
 import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.clipboard import *
+from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard
 from pywinauto.application import Application
 from pywinauto.win32structures import RECT
 
@@ -50,7 +48,6 @@ class ClipboardTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        #self.dlg.SendMessage(win32defines.WM_CLOSE)
         self.app1.UntitledNotepad.MenuSelect('File -> Exit')
         if self.app1.Notepad["Do&n't Save"].Exists():
             self.app1.Notepad["Do&n't Save"].Click()
@@ -108,10 +105,10 @@ def typetext(app, text):
 
 def copytext(app):
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuSelect("Edit -> Select All")
+    app.UntitledNotepad.MenuItem("Edit -> Select All").Click()
     time.sleep(0.7)
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuSelect("Edit -> Copy")
+    app.UntitledNotepad.MenuItem("Edit -> Copy").Click()
     time.sleep(1.0)
 
 def pastetext(app):
@@ -119,8 +116,6 @@ def pastetext(app):
     app.UntitledNotepad.MenuItem("Edit -> Paste").Click()
 
 if __name__ == "__main__":
-    #_unittests()
-
     unittest.main()
 
 

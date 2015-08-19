@@ -56,6 +56,15 @@ class MenuItemInfo:
         self.hbmpItem = 0
 
 
+class MenuInfo:
+    def __init__(self):
+        self.dwStyle = 0
+        self.cyMax = 0
+        self.hbrBack = 0
+        self.dwContextHelpID = 0
+        self.dwMenuData = 0
+
+
 class MenuItemNotEnabled(RuntimeError):
     "Raised when a menuitem is not enabled"
     pass
@@ -219,7 +228,7 @@ class MenuItem(object):
 
         """
 
-        self.ctrl.VerifyEnabled()
+        self.ctrl.VerifyActionable()
 
         rect = self.Rectangle()
 
@@ -247,9 +256,6 @@ class MenuItem(object):
 
         win32functions.WaitGuiThreadIdle(self.ctrl)
 
-        #import time
-        #time.sleep(delay_after_menuselect)
-
 
     def Select(self):
         """Select the menu item
@@ -276,7 +282,7 @@ class MenuItem(object):
         # notify the control that a menu item was selected
         self.ctrl.SetFocus()
         self.ctrl.SendMessageTimeout(
-            win32defines.WM_COMMAND, command_id, timeout=0.1)
+            self.menu.COMMAND, command_id, timeout=1.0)
             #win32functions.MakeLong(0, command_id))
 
         #self.ctrl.NotifyMenuSelect(self.ID())
@@ -379,6 +385,16 @@ class Menu(object):
 
         if self.is_main_menu:
             self.ctrl.SendMessageTimeout(win32defines.WM_INITMENU, self.handle)
+        
+        menu_info = MenuInfo()
+        buf = win32gui_struct.EmptyMENUINFO()
+        win32gui.GetMenuInfo(self.handle, buf)
+        menu_info.dwStyle, menu_info.cyMax, menu_info.hbrBack, menu_info.dwContextHelpID, menu_info.dwMenuData = win32gui_struct.UnpackMENUINFO(buf)
+        
+        if menu_info.dwStyle & win32defines.MNS_NOTIFYBYPOS:
+            self.COMMAND = win32defines.WM_MENUCOMMAND
+        else:
+            self.COMMAND = win32defines.WM_COMMAND
 
     def ItemCount(self):
         "Return the count of items in this menu"
