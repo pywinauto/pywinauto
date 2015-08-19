@@ -282,6 +282,9 @@ class ListViewTestCases(unittest.TestCase):
     def testItemRectangles(self):
         "Test getting item rectangles"
         
+        yellow_rect = self.ctrl.GetItemRect('Yellow')
+        self.assertEquals(yellow_rect, RECT(13, 0, 61, 53))
+        
         self.ctrl.GetItem('Green').Click(where='text')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
         
@@ -305,7 +308,13 @@ class ListViewTestCases(unittest.TestCase):
         
         yellow.UnCheck()
         self.assertEquals(yellow.IsChecked(), False)
-        self.assertEquals(self.ctrl.IsChecked('Yellow'), False) # TODO: deprecated method
+
+        # test legacy deprecated methods (TODO: remove later)
+        self.ctrl.Check('Yellow')
+        self.assertEquals(self.ctrl.IsChecked('Yellow'), True)
+        
+        self.ctrl.UnCheck('Yellow')
+        self.assertEquals(self.ctrl.IsChecked('Yellow'), False)
 
 
     def testItemClickInput(self):
