@@ -615,7 +615,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     #    #    raise ctypes.WinError()
     #    del remote_mem
 
-        return retval
+    #    return retval
 
 
     #-----------------------------------------------------------
