@@ -24,8 +24,6 @@ from __future__ import print_function
 
 "Tests for classes in controls\common_controls.py"
 
-__revision__ = "$Revision: 234 $"
-
 import sys
 #import ctypes
 import unittest
@@ -37,11 +35,8 @@ import win32api
 
 sys.path.append(".")
 from pywinauto import six
-#from pywinauto.controls import common_controls
-from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
-#from pywinauto.controls import WrapHandle
-#from pywinauto.controls.HwndWrapper import HwndWrapper
+from pywinauto import win32defines
 from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.RemoteMemoryBlock import AccessDenied
@@ -515,7 +510,7 @@ class TreeViewTestCases(unittest.TestCase):
         self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
         self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
 
-'''
+
 class TreeViewAdditionalTestCases(unittest.TestCase):
     "More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"
 
@@ -537,11 +532,13 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
     def testCheckBoxes(self):
         "Make sure the friendly class is set correctly"
-        self.dlg.TVS_CHECKBOXES.Check()
+        self.dlg.TVS_CHECKBOXES.ClickInput()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
-        self.assertEquals (birds, "TreeView")
-'''
+        self.assertEquals (birds.IsChecked(), True)
+        birds.ClickInput(where='check')
+        self.assertEquals (birds.IsChecked(), False)
+
 
 
 
@@ -816,7 +813,7 @@ class TabControlTestCases(unittest.TestCase):
         prev_rect = self.ctrl.Rectangle() - dlgClientRect
 
         # squeeze the tab control to force two rows
-        new_rect = win32structures.RECT(prev_rect)
+        new_rect = RECT(prev_rect)
         new_rect.right = int(new_rect.width() / 2) 
 
         self.ctrl.MoveWindow(

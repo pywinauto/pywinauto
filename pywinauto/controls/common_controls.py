@@ -709,6 +709,17 @@ class _treeview_element(object):
         "Return the state of the item"
         return self.Item().state
 
+    #-----------------------------------------------------------
+    def IsChecked(self):
+        "Return whether the TreeView item is checked or not"
+
+        state = self.tree_ctrl.SendMessage(
+            win32defines.TVM_GETITEMSTATE,
+            self.elem,
+            win32defines.TVIS_STATEIMAGEMASK)
+
+        return state & 0x2000 == 0x2000
+
     #----------------------------------------------------------------
     def Rectangle(self, text_area_rect = True):
         """Return the rectangle of the item
