@@ -85,8 +85,11 @@ def GetData(format_id = win32clipboard.CF_UNICODETEXT):
         raise RuntimeError("That format is not available")
 
     win32clipboard.OpenClipboard()
-    data = win32clipboard.GetClipboardData(format_id)
-    win32clipboard.CloseClipboard()
+    try:
+        data = win32clipboard.GetClipboardData(format_id)
+    finally:
+        win32clipboard.CloseClipboard()
+
 
     return data
 
