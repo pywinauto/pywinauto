@@ -29,7 +29,8 @@ import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.findwindows import *
+from pywinauto.findwindows import find_windows, find_window
+from pywinauto.findwindows import WindowNotFoundError, WindowAmbiguousError
 
 
 #=========================================================================

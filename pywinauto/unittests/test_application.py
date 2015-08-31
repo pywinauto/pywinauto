@@ -39,8 +39,9 @@ import warnings
 import sys
 sys.path.append(".")
 from pywinauto import application
-from pywinauto.application import *
-from pywinauto import findwindows
+from pywinauto.application import Application, WindowSpecification, process_module
+from pywinauto.application import ProcessNotFoundError, AppStartError, AppNotConnected
+from pywinauto import findwindows, findbestmatch
 from pywinauto.timings import Timings
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 

@@ -1066,16 +1066,6 @@ class _treeview_element(object):
 
             text = char_data.value
         else:
-            remote_mem.Read(item)
-
-            #self.__item = item
-            # Read the remote text string
-            char_data = ctypes.create_unicode_buffer(2000)
-            remote_mem.Read(char_data, item.pszText)
-
-            text = char_data.value
-            #print 'text = ', text
-        
             # seems that this may not always be correct
             raise ctypes.WinError()
 
