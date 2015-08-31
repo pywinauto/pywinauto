@@ -419,7 +419,7 @@ class TreeViewTestCases(unittest.TestCase):
 
 
     def testGetItem(self):
-        "Test the ItemCount method"
+        "Test the GetItem method"
 
         self.assertRaises(RuntimeError, self.ctrl.GetItem, "test\here\please")
 
@@ -429,7 +429,7 @@ class TreeViewTestCases(unittest.TestCase):
             self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
 
         self.assertEquals(
-            self.ctrl.GetItem(r"\The Planets\Venus\4.869").Text(), self.texts[1][3] + " kg")
+            self.ctrl.GetItem(r"\The Planets\Venus\4.869e24 kg", exact=True).Text(), self.texts[1][3] + " kg")
 
         self.assertEquals(
             self.ctrl.GetItem(
@@ -438,7 +438,7 @@ class TreeViewTestCases(unittest.TestCase):
 
 
     def testItemText(self):
-        "Test the ItemCount method"
+        "Test the TreeView item Text() method"
 
         self.assertEquals(self.ctrl.Root().Text(), self.root_text)
 
@@ -539,6 +539,30 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.ClickInput(where='check')
         self.assertEquals (birds.IsChecked(), False)
 
+    def testPrintItems(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        items_str = self.ctrl.PrintItems()
+        self.assertEquals(items_str, "Treeview1\nBirds\n Eagle\n Hummingbird\n Pigeon\n" +
+                                     "Dogs\n Dalmatian\n German Shepherd\n Great Dane\n" +
+                                     "Fish\n Salmon\n Snapper\n Sole\n")
+
+    def testIsSelected(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        eagle = self.ctrl.GetItem(r'\Birds\Eagle')
+        eagle.Select()
+        #self.ctrl.Select(r'\Birds\Eagle')
+        
+        self.assertEquals(eagle.IsSelected(), True)
+
+    def testExpandCollapse(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        self.assertEquals(birds.IsExpanded(), True)
+        
+        birds.Collapse()
+        self.assertEquals(birds.IsExpanded(), False)
 
 
 

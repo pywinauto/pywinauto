@@ -1024,9 +1024,30 @@ class _treeview_element(object):
             self.elem)
 
     #----------------------------------------------------------------
+    def Select(self):
+        "Select the TreeView item"
+
+        # http://stackoverflow.com/questions/14111333/treeview-set-default-select-item-and-highlight-blue-this-item
+        # non-focused TreeView can ignore TVM_SELECTITEM
+        self.tree_ctrl.SetFocus()
+
+        retval = self.tree_ctrl.SendMessage(
+            win32defines.TVM_SELECTITEM, # message
+            win32defines.TVGN_CARET,     # how to select
+            self.elem)                   # item to select
+
+        if retval != win32defines.TRUE:
+            raise ctypes.WinError()
+
+    #----------------------------------------------------------------
     def IsSelected(self):
         "Indicate that the TreeView item is selected or not"
-        return (self.State() & 1) != 0
+        return win32defines.TVIS_SELECTED == (win32defines.TVIS_SELECTED & self.State())
+
+    #----------------------------------------------------------------
+    def IsExpanded(self):
+        "Indicate that the TreeView item is selected or not"
+        return win32defines.TVIS_EXPANDED == (win32defines.TVIS_EXPANDED & self.State())
 
     #----------------------------------------------------------------
     def _readitem(self):
