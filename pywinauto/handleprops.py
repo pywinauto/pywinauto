@@ -37,9 +37,9 @@ from . import win32structures
 from .actionlogger import ActionLogger
 
 if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
-    g_alloc_pid = lambda:ctypes.c_ulonglong()
+    def g_alloc_pid(): return ctypes.c_ulonglong()
 else:
-    g_alloc_pid = lambda:ctypes.c_ulong()
+    def g_alloc_pid(): return ctypes.c_ulong()
 
 #=========================================================================
 def text(handle):
