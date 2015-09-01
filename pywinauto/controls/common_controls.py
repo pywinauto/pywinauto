@@ -266,8 +266,8 @@ class _listview_item(object):
             self.item_index,
             win32defines.FALSE)
         if ret != win32defines.TRUE:
-            raise Exception('Fail to make the list view item visible ' +
-                            '(item_index = ' + str(self.item_index) + ')')
+            raise RuntimeError('Fail to make the list view item visible ' +
+                               '(item_index = ' + str(self.item_index) + ')')
 
     #-----------------------------------------------------------
     def UnCheck(self):
@@ -797,7 +797,7 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise Exception("Area ('%s') not found for this tree view item"% where)
+                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
 
         self.tree_ctrl.Click(
             button,
@@ -856,7 +856,7 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise Exception("Area ('%s') not found for this tree view item"% where)
+                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
 
         self.tree_ctrl.ClickInput(
             button,
@@ -882,7 +882,7 @@ class _treeview_element(object):
 
     #----------------------------------------------------------------
     def Drop(self, button='left', pressed=''):
-        "Start dragging the item"
+        "Drop at the item"
         
         #self.EnsureVisible()
         # find the text rectangle for the item
@@ -2721,7 +2721,7 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
         
         if res != win32defines.GDT_VALID:
-            raise Exception('Failed to get time from Date Time Picker (result = ' + str(res) + ')')
+            raise RuntimeError('Failed to get time from Date Time Picker (result = ' + str(res) + ')')
         
         #year = system_time.wYear
         #month = system_time.wMonth
@@ -2756,7 +2756,7 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
         
         if res == 0:
-            raise Exception('Failed to set time in Date Time Picker')
+            raise RuntimeError('Failed to set time in Date Time Picker')
 
 
 #====================================================================
