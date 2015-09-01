@@ -179,7 +179,7 @@ GetClipboardFormatName = ctypes.windll.user32.GetClipboardFormatNameW
 try:
     IsProcessDPIAware = ctypes.windll.user32.IsProcessDPIAware
     SetProcessDPIAware = ctypes.windll.user32.SetProcessDPIAware
-except:
+except AttributeError:
     IsProcessDPIAware = None
     SetProcessDPIAware = None
 
@@ -200,7 +200,7 @@ try:
         "Process_System_DPI_Aware"      : 1,
         "Process_Per_Monitor_DPI_Aware" : 2
         }
-except:
+except (OSError, AttributeError):
     SetProcessDpiAwareness = None
     GetProcessDpiAwareness = None
     Process_DPI_Awareness = None
