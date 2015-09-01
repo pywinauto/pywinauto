@@ -22,6 +22,8 @@
 from __future__ import absolute_import
 
 import ctypes
+from pywinauto import win32defines
+from pywinauto.actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
 
 import sys
@@ -173,6 +175,45 @@ CountClipboardFormats  = ctypes.windll.user32.CountClipboardFormats
 EnumClipboardFormats   = ctypes.windll.user32.EnumClipboardFormats
 GetClipboardFormatName = ctypes.windll.user32.GetClipboardFormatNameW
 
+# DPIAware API funcs are not available on WinXP
+try:
+    IsProcessDPIAware = ctypes.windll.user32.IsProcessDPIAware
+    SetProcessDPIAware = ctypes.windll.user32.SetProcessDPIAware
+except:
+    IsProcessDPIAware = None
+    SetProcessDPIAware = None
+
+# DpiAwareness API funcs are available only from win 8.1 and greater
+# Supported types of DPI awareness described here:
+# https://msdn.microsoft.com/en-us/library/windows/desktop/dn280512(v=vs.85).aspx
+# typedef enum _Process_DPI_Awareness { 
+#   Process_DPI_Unaware            = 0,
+#   Process_System_DPI_Aware       = 1,
+#   Process_Per_Monitor_DPI_Aware  = 2
+# } Process_DPI_Awareness;
+try:
+    shcore = ctypes.windll.LoadLibrary(u"Shcore.dll")
+    SetProcessDpiAwareness = shcore.SetProcessDpiAwareness
+    GetProcessDpiAwareness = shcore.GetProcessDpiAwareness
+    Process_DPI_Awareness = {
+        "Process_DPI_Unaware"           : 0,
+        "Process_System_DPI_Aware"      : 1,
+        "Process_Per_Monitor_DPI_Aware" : 2
+        }
+except:
+    SetProcessDpiAwareness = None
+    GetProcessDpiAwareness = None
+    Process_DPI_Awareness = None
+
+# Setup DPI awareness for the python process if any is supported
+if SetProcessDpiAwareness:
+    ActionLogger().log("Call SetProcessDpiAwareness")
+    SetProcessDpiAwareness(
+            Process_DPI_Awareness["Process_Per_Monitor_DPI_Aware"])
+elif SetProcessDPIAware:
+    ActionLogger().log("Call SetProcessDPIAware")
+    SetProcessDPIAware()
+
 GetQueueStatus = ctypes.windll.user32.GetQueueStatus
 
 LoadString = ctypes.windll.user32.LoadStringW
@@ -234,3 +275,34 @@ def WaitGuiThreadIdle(handle, timeout = 1):
     CloseHandle(hprocess)
 
     return ret
+
+def GetDpiAwarenessByPid(pid):
+    "Get DPI awareness properties of a process specified by ID"
+        
+    dpi_awareness = -1
+    hProcess = None
+    if GetProcessDpiAwareness and pid:
+        try:
+            hProcess = OpenProcess(
+                    win32defines.PROCESS_QUERY_INFORMATION, 
+                    0, 
+                    pid)
+        except pywintypes.error:
+            # process doesn't exist, exit with a default return value
+            return dpi_awareness
+
+        try:
+            dpi_awareness = ctypes.c_int()
+            hRes = GetProcessDpiAwareness(
+                    hProcess, 
+                    ctypes.byref(dpi_awareness))
+            CloseHandle(hProcess)
+            if hRes == 0:
+                return dpi_awareness.value
+        finally:
+            if hProcess:
+                CloseHandle(hProcess)
+
+    # GetProcessDpiAwareness is not supported or pid is not specified,
+    # return a default value
+    return dpi_awareness
