@@ -597,7 +597,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertRaises(IndexError, birds.GetChild, 'Pigeon')
         self.assertRaises(IndexError, self.ctrl.GetItem, r'\Birds\Pigeon')
         self.assertRaises(IndexError, self.ctrl.GetItem, [0, 2])
-        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread')
+        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread', exact=True)
         
         new_pigeon = self.ctrl.GetItem(r'\Birds\Eagle\Pigeon')
         self.assertEquals(len(birds.Children()), 2)
