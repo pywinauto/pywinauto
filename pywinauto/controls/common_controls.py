@@ -2130,7 +2130,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         for i in range(0, self.ButtonCount()):
             btn_text = self.GetButton(i).text
             lines = btn_text.split('\n')
-            if len(lines) > 0:
+            if lines:
                 texts.append(lines[0])
             else:
                 texts.append(btn_text)
@@ -2463,7 +2463,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         for i in range(0, self.BandCount()):
             band = self.GetBand(i)
             lines = band.text.split('\n')
-            if len(lines) > 0:
+            if lines:
                 texts.append(lines[0])
             else:
                 texts.append(band.text)

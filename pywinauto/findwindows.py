@@ -165,7 +165,7 @@ def find_windows(class_name = None,
             windows = []
 
     # early stop
-    if len(windows) == 0:
+    if not windows:
         return windows
 
     if class_name is not None:
