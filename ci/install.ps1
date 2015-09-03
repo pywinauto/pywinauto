@@ -106,7 +106,6 @@ function main () {
         Write-Host "PYTHON_VERSION=" $env:PYTHON_VERSION
         Write-Host "PYTHON_ARCH=" $env:PYTHON_ARCH
     }        
-    return
 
     InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
     UpdateConda $env:PYTHON
