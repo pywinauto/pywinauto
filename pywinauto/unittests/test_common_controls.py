@@ -1096,7 +1096,7 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testButtonByTooltip(self):
         self.assertEquals(self.ctrl.Button('New', by_tooltip=True).info.text, 'New')
-        self.assertEquals(self.ctrl.Button('About', by_tooltip=True).info.text, 'About')
+        self.assertEquals(self.ctrl.Button('About', exact=False, by_tooltip=True).info.text, 'About')
 
 
 class RebarTestCases(unittest.TestCase):

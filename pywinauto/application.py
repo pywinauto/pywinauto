@@ -646,7 +646,7 @@ def _resolve_from_appdata(
 
     dialog = None
     ctrl = None
-    if len(process_hwnds) >= 1:
+    if process_hwnds:
 
         similar_child_count = [h for h in process_hwnds
             if matched_control[1]['ControlCount'] -2 <=

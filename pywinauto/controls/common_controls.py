@@ -2148,7 +2148,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             # usually iString == -1 for separator
             
             # other cases if any
-            if btn_tooltip_index >= self.GetToolTipsControl().ToolCount() or btn_tooltip_index < -1:
+            if not (-1 <= btn_tooltip_index < self.GetToolTipsControl().ToolCount()):
                 btn_tooltip_index = i
             
             btn_text = self.GetToolTipsControl().GetTipText(btn_tooltip_index + 1)
