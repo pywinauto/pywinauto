@@ -979,8 +979,8 @@ class ToolbarTestCases(unittest.TestCase):
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
         # The second control goes as Toolbar2
-        self.ctrl = app.CommonControlsSample.Toolbar.WrapperObject()
-        self.ctrl2 = app.CommonControlsSample.Toolbar2.WrapperObject()
+        self.ctrl = app.CommonControlsSample.ToolbarNew.WrapperObject()
+        self.ctrl2 = app.CommonControlsSample.ToolbarErase.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -1093,6 +1093,10 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testIsPressable(self):
         self.assertEquals(self.ctrl.Button('New').IsPressable(), 0)
+
+    def testButtonByTooltip(self):
+        self.assertEquals(self.ctrl.Button('New', by_tooltip=True).info.text, 'New')
+        self.assertEquals(self.ctrl.Button('About', by_tooltip=True).info.text, 'About')
 
 
 class RebarTestCases(unittest.TestCase):
