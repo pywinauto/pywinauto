@@ -351,7 +351,7 @@ class ApplicationTestCases(unittest.TestCase):
             installed_programs = ProgramsAndFeatures.FolderView.Texts()[1:]
             self.assertEqual('Python' in ','.join(installed_programs), True)
         finally:
-            NewWindow.Close(2.0)
+            NewWindow.CloseAltF4()
 
     def testWindows(self):
         "Test that windows_() works correctly"

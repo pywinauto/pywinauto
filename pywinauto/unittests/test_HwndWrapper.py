@@ -536,13 +536,14 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.NoteEdit.DragMouse(press_coords=(65, 5), release_coords=(90, 5), pressed='shift')
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,17))
 
+    def testDebugMessage(self):
+        self.dlg.NoteEdit.DebugMessage('Test message')
+        # TODO: add screenshots comparison
+
 #    def testSetWindowText(self):
 #        pass
 #
 #    def testTypeKeys(self):
-#        pass
-#
-#    def testDebugMessage(self):
 #        pass
 #
 #    def testDrawOutline(self):
