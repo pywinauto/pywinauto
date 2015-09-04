@@ -187,7 +187,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testCloseAltF4(self):
         self.dlg.MenuSelect('Help->About Calculator')
-        AboutCalculator = self.app.Window_(title='About Calculator', class_name='#32770')
+        AboutCalculator = self.app.Window_(title='About Calculator', active_only=True, class_name='#32770')
         AboutWrapper = AboutCalculator.Wait("enabled")
         AboutCalculator.CloseAltF4()
         AboutCalculator.WaitNot('visible')
