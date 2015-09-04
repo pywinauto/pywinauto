@@ -336,22 +336,22 @@ class ApplicationTestCases(unittest.TestCase):
         app.UntitledNotepad.WaitNot('exists')
         self.assertRaises(RuntimeError, app.active_)
 
-    def testWaitCPUUsageLower(self):
-        if is_x64_Python() != is_x64_OS():
-            return None
-        
-        Application.start(r'explorer.exe')
-        explorer = Application.connect(path='explorer.exe')
-        NewWindow = explorer.Window_(top_level_only=True, active_only=True, class_name='CabinetWClass')
-        try:
-            NewWindow.AddressBandRoot.ClickInput()
-            NewWindow.TypeKeys(r'Control Panel\Programs\Programs and Features{ENTER}', with_spaces=True, set_foreground=False)
-            ProgramsAndFeatures = explorer.Window_(top_level_only=True, active_only=True, title='Programs and Features', class_name='CabinetWClass')
-            explorer.WaitCPUUsageLower(threshold=10, timeout=60)
-            installed_programs = ProgramsAndFeatures.FolderView.Texts()[1:]
-            self.assertEqual('Python' in ','.join(installed_programs), True)
-        finally:
-            NewWindow.CloseAltF4()
+    #def testWaitCPUUsageLower(self):
+    #    if is_x64_Python() != is_x64_OS():
+    #        return None
+    #    
+    #    Application.start(r'explorer.exe')
+    #    explorer = Application.connect(path='explorer.exe')
+    #    NewWindow = explorer.Window_(top_level_only=True, active_only=True, class_name='CabinetWClass')
+    #    try:
+    #        NewWindow.AddressBandRoot.ClickInput()
+    #        NewWindow.TypeKeys(r'Control Panel\Programs\Programs and Features{ENTER}', with_spaces=True, set_foreground=False)
+    #        ProgramsAndFeatures = explorer.Window_(top_level_only=True, active_only=True, title='Programs and Features', class_name='CabinetWClass')
+    #        explorer.WaitCPUUsageLower(threshold=10, timeout=60)
+    #        installed_programs = ProgramsAndFeatures.FolderView.Texts()[1:]
+    #        self.assertEqual('Python' in ','.join(installed_programs), True)
+    #    finally:
+    #        NewWindow.CloseAltF4()
 
     def testWindows(self):
         "Test that windows_() works correctly"
