@@ -109,7 +109,7 @@ def find_windows(class_name = None,
     * **title_re**  Windows whose Text match this regular expression
     * **top_level_only** Top level windows only (default=True)
     * **visible_only**   Visible windows only (default=True)
-    * **enabled_only**   Enabled windows only (default=True)
+    * **enabled_only**   Enabled windows only (default=False)
     * **best_match**  Windows with a title similar to this
     * **handle**      The handle of the window to return
     * **ctrl_index**  The index of the child window to return
