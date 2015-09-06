@@ -407,7 +407,18 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     #-----------------------------------------------------------
     def ClientToScreen(self, client_point):
         """Maps point from client to screen coordinates"""
-        win32functions.ClientToScreen(self, ctypes.byref(client_point))
+        point = win32structures.POINT()
+        if isinstance(client_point, win32structures.POINT):
+            point.x = client_point.x
+            point.y = client_point.y
+        else:
+            point.x = client_point[0]
+            point.y = client_point[1]
+        win32functions.ClientToScreen(self, ctypes.byref(point))
+        
+        # return tuple in any case because
+        # coords param is always expected to be tuple
+        return point.x, point.y
 
     #-----------------------------------------------------------
     def Font(self):
@@ -1707,12 +1718,7 @@ def _perform_click_input(
         coords[1] = int(ctrl.Rectangle().height() / 2)
 
     if not absolute:
-        screen_coords = win32structures.POINT()
-        screen_coords.x = coords[0]
-        screen_coords.y = coords[1]
-        ctrl.ClientToScreen(screen_coords)
-        coords[0] = screen_coords.x
-        coords[1] = screen_coords.y
+        coords = ctrl.ClientToScreen(coords)
 
     # set the cursor position
     win32api.SetCursorPos((coords[0], coords[1]))
@@ -1802,12 +1808,7 @@ def _perform_click(
     coords = list(coords)
 
     if absolute:
-        screen_coords = win32structures.POINT()
-        screen_coords.x = coords[0]
-        screen_coords.y = coords[1]
-        ctrl.ClientToScreen(screen_coords)
-        coords[0] = screen_coords.x
-        coords[1] = screen_coords.y
+        coords = ctrl.ClientToScreen(coords)
 
     # figure out the messages for click/press
     msgs  = []

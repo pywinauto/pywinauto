@@ -38,7 +38,7 @@ from pywinauto import six
 from pywinauto.sysinfo import is_x64_OS, is_x64_Python
 
 
-class handlepropsTestCases(unittest.TestCase):
+class HandlepropsTestCases(unittest.TestCase):
     "Unit tests for the handleprops module"
 
     def setUp(self):

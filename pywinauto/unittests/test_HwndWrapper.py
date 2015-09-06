@@ -187,7 +187,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testCloseAltF4(self):
         self.dlg.MenuSelect('Help->About Calculator')
-        AboutCalculator = self.app.Window_(title='About Calculator', class_name='#32770')
+        AboutCalculator = self.app.Window_(title='About Calculator', active_only=True, class_name='#32770')
         AboutWrapper = AboutCalculator.Wait("enabled")
         AboutCalculator.CloseAltF4()
         AboutCalculator.WaitNot('visible')
@@ -536,13 +536,14 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.NoteEdit.DragMouse(press_coords=(65, 5), release_coords=(90, 5), pressed='shift')
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,17))
 
+    def testDebugMessage(self):
+        self.dlg.NoteEdit.DebugMessage('Test message')
+        # TODO: add screenshots comparison
+
 #    def testSetWindowText(self):
 #        pass
 #
 #    def testTypeKeys(self):
-#        pass
-#
-#    def testDebugMessage(self):
 #        pass
 #
 #    def testDrawOutline(self):

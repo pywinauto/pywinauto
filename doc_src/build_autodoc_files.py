@@ -57,23 +57,21 @@ for root, dirs, files in os.walk(pywin_folder):
 
         print(py_filename)
 
-        out = open(doc_source_filename, "w")
-
-        out.write(modulename + "\n")
-        out.write("-" * len(modulename) + "\n")
-        out.write(" .. automodule:: %s\n"% modulename)
-        out.write("    :members:\n")
-        out.write("    :undoc-members:\n\n")
-        #out.write("    :inherited-members:\n")
-        #out.write(" .. autoattribute:: %s\n"% modulename)
-        out.close()
+        with open(doc_source_filename, "w") as out:
+            out.write(modulename + "\n")
+            out.write("-" * len(modulename) + "\n")
+            out.write(" .. automodule:: %s\n"% modulename)
+            out.write("    :members:\n")
+            out.write("    :undoc-members:\n\n")
+            #out.write("    :inherited-members:\n")
+            #out.write(" .. autoattribute:: %s\n"% modulename)
 
         module_docs.append(doc_source_filename)
 
 
-# This section needs to be updated - I should idealy parse the
+# This section needs to be updated - I should ideally parse the
 # existing file to see if any new docs have been added, if not then
-# I should just leave the file alone rathre than re-create.
+# I should just leave the file alone rather than re-create.
 #
 #c = open(os.path.join(output_folder, "code.txt"), "w")
 #c.write("Source Code\n")

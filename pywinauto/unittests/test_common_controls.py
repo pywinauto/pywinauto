@@ -552,8 +552,6 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.Expand()
         eagle = self.ctrl.GetItem(r'\Birds\Eagle')
         eagle.Select()
-        #self.ctrl.Select(r'\Birds\Eagle')
-        
         self.assertEquals(eagle.IsSelected(), True)
 
     def testExpandCollapse(self):
@@ -564,6 +562,46 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.Collapse()
         self.assertEquals(birds.IsExpanded(), False)
 
+    def testCheckBoxes(self):
+        "Make sure correct area is clicked"
+        self.dlg.TVS_HASBUTTONS.ClickInput()
+        self.dlg.TVS_HASLINES.ClickInput()
+        self.dlg.TVS_LINESATROOT.ClickInput()
+        birds = self.ctrl.GetItem(r'\Birds')
+        
+        birds.Click(where='button')
+        self.assertEquals(birds.IsExpanded(), True)
+        birds.Click(double=True, where='icon')
+        self.assertEquals(birds.IsExpanded(), False)
+        
+        birds.ClickInput(where='button')
+        self.assertEquals(birds.IsExpanded(), True)
+        birds.ClickInput(double=True, where='icon')
+        self.assertEquals(birds.IsExpanded(), False)
+
+    def testIncorrectAreas(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        self.assertRaises(RuntimeError, birds.Click, where='radiob')
+        self.assertRaises(RuntimeError, birds.ClickInput, where='radiob')
+
+    def testStartDraggingAndDrop(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        
+        pigeon = self.ctrl.GetItem(r'\Birds\Pigeon')
+        pigeon.StartDragging()
+        
+        eagle = self.ctrl.GetItem(r'\Birds\Eagle')
+        eagle.Drop()
+        
+        self.assertRaises(IndexError, birds.GetChild, 'Pigeon')
+        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Birds\Pigeon')
+        self.assertRaises(IndexError, self.ctrl.GetItem, [0, 2])
+        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread', exact=True)
+        
+        new_pigeon = self.ctrl.GetItem(r'\Birds\Eagle\Pigeon')
+        self.assertEquals(len(birds.Children()), 2)
+        self.assertEquals(new_pigeon.Children(), [])
 
 
 class HeaderTestCases(unittest.TestCase):
@@ -941,8 +979,8 @@ class ToolbarTestCases(unittest.TestCase):
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
         # The second control goes as Toolbar2
-        self.ctrl = app.CommonControlsSample.Toolbar.WrapperObject()
-        self.ctrl2 = app.CommonControlsSample.Toolbar2.WrapperObject()
+        self.ctrl = app.CommonControlsSample.ToolbarNew.WrapperObject()
+        self.ctrl2 = app.CommonControlsSample.ToolbarErase.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -1055,6 +1093,10 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testIsPressable(self):
         self.assertEquals(self.ctrl.Button('New').IsPressable(), 0)
+
+    def testButtonByTooltip(self):
+        self.assertEquals(self.ctrl.Button('New', by_tooltip=True).info.text, 'New')
+        self.assertEquals(self.ctrl.Button('About', exact=False, by_tooltip=True).info.text, 'About')
 
 
 class RebarTestCases(unittest.TestCase):

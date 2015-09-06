@@ -291,21 +291,21 @@ class WindowSpecification(object):
             timeout = None,
             retry_interval = None):
 
-        """Wait for the window to be in a particular state
+        """Wait for the window to be in a particular state/states.
 
         :param wait_for: The state to wait for the window to be in. It can
-            be any of the following states.
+            be any of the following states, also you may combine the states by space key.
 
              * 'exists' means that the window is a valid handle
              * 'visible' means that the window is not hidden
              * 'enabled' means that the window is not disabled
              * 'ready' means that the window is visible and enabled
-             * 'active' means that the window is visible and enabled
+             * 'active' means that the window is active
 
-        :param timeout: Raise an error if the window is not in the appropriate
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is not in the appropriate
             state after this number of seconds.
 
-        :param retry_interval: How long to sleep between each retry
+        :param retry_interval: How long to sleep between each retry. Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
         An example to wait until the dialog
         exists, is ready, enabled and visible::
@@ -314,6 +314,8 @@ class WindowSpecification(object):
 
         .. seealso::
            :func:`WindowSpecification.WaitNot()`
+
+           :func:`pywinauto.timings.TimeoutError`
         """
 
         # set the current timings -couldn't set as defaults as they are
@@ -365,21 +367,21 @@ class WindowSpecification(object):
             timeout = None,
             retry_interval = None):
 
-        """Wait for the window to not be in a particular state
+        """Wait for the window to not be in a particular state/states.
 
-        :param wait_for: The state to wait for the window to not be in. It can be any
-            of the following states
+        :param wait_for_not: The state to wait for the window to not be in. It can be any
+            of the following states, also you may combine the states by space key.
 
              * 'exists' means that the window is a valid handle
              * 'visible' means that the window is not hidden
              * 'enabled' means that the window is not disabled
              * 'ready' means that the window is visible and enabled
-             * 'active' means that the window is visible and enabled
+             * 'active' means that the window is active
 
-        :param timeout: Raise an error if the window is sill in the
-            state after this number of seconds.(Optional)
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is sill in the
+            state after this number of seconds.
 
-        :param retry_interval: How long to sleep between each retry
+        :param retry_interval: How long to sleep between each retry. Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
         An example to wait until the dialog is not ready, enabled or visible::
 
@@ -387,6 +389,8 @@ class WindowSpecification(object):
 
         .. seealso::
            :func:`WindowSpecification.Wait()`
+
+           :func:`pywinauto.timings.TimeoutError`
         """
 
         # set the current timings -couldn't set as defaults as they are
@@ -646,7 +650,7 @@ def _resolve_from_appdata(
 
     dialog = None
     ctrl = None
-    if len(process_hwnds) >= 1:
+    if process_hwnds:
 
         similar_child_count = [h for h in process_hwnds
             if matched_control[1]['ControlCount'] -2 <=
@@ -654,13 +658,11 @@ def _resolve_from_appdata(
                 matched_control[1]['ControlCount'] +2 >=
                     len(handleprops.children(h))]
 
-        if len(similar_child_count) == 0:
-            #print "None Similar child count!!???"
-            #print matched_control[1]['ControlCount'], \
-            #    len(handleprops.children(h))
-            pass
-        else:
+        if similar_child_count:
             process_hwnds = similar_child_count
+        #else:
+        #    print("None Similar child count!!???")
+        #    print(matched_control[1]['ControlCount'], len(handleprops.children(h)))
 
         for h in process_hwnds:
             #print controls.WrapHandle(h).GetProperties()
@@ -824,9 +826,8 @@ class Application(object):
         # load the match history if a file was specifed
         # and it exists
         if datafilename and os.path.exists(datafilename):
-            datafile = open(datafilename, "rb")
-            self.match_history = pickle.load(datafile)
-            datafile.close()
+            with open(datafilename, "rb") as datafile:
+                self.match_history = pickle.load(datafile)
             self.use_history = True
 
     def __start(*args, **kwargs):
@@ -1132,9 +1133,8 @@ class Application(object):
 
     def WriteAppData(self, filename):
         "Should not be used - part of application data implementation"
-        f = open(filename, "wb")
-        pickle.dump(self.match_history, f)
-        f.close()
+        with open(filename, "wb") as f:
+            pickle.dump(self.match_history, f)
 
     def GetMatchHistoryItem(self, index):
         "Should not be used - part of application data implementation"

@@ -13,13 +13,20 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 * Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.1/pywinauto-0.5.1.zip)
 * Just unpack and run `python setup.py install`
 
+### Documentation
+* [Introduction](http://pywinauto.github.io/docs/)
+* [Table of contents](http://pywinauto.github.io/docs/contents.html)
+* [Change Log / History](http://pywinauto.github.io/docs/HISTORY.html)
+* [HowTo's](http://pywinauto.github.io/docs/HowTo.html)
+* [Code examples (gists) on gist.github.com](https://gist.github.com/vasily-v-ryabov)
+
 ### pywinauto 0.5.1 release notes (2015 July, 13)
  - [x] Resolve pip issues
  - [x] Warnings about mismatched Python/application bitness
  - [x] Add "TCheckBox" class name to ButtonWrapper detection list
  - [x] Fix `DebugMessage` method
- - [x] Disable logging (actionlogger.py) by default, provide shortcuts: ``actionlogger.enable()`` and ``actionlogger.disable()``.
-       For those who are familiar with standard ``logging`` module there's method ``actionlogger.set_level(level)``.
+ - [x] Disable logging (actionlogger.py) by default, provide shortcuts: `actionlogger.enable()` and `actionlogger.disable()`.
+       For those who are familiar with standard `logging` module there's method `actionlogger.set_level(level)`.
 
 ### Supported controls
 * Native Windows controls (full support through Win32 API)

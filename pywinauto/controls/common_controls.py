@@ -22,8 +22,7 @@
 
 "Classes that wrap the Windows Common controls"
 from __future__ import absolute_import
-
-__revision__ = "$Revision$"
+from __future__ import print_function
 
 import time
 import ctypes
@@ -266,8 +265,8 @@ class _listview_item(object):
             self.item_index,
             win32defines.FALSE)
         if ret != win32defines.TRUE:
-            raise Exception('Fail to make the list view item visible ' +
-                            '(item_index = ' + str(self.item_index) + ')')
+            raise RuntimeError('Fail to make the list view item visible ' +
+                               '(item_index = ' + str(self.item_index) + ')')
 
     #-----------------------------------------------------------
     def UnCheck(self):
@@ -797,7 +796,7 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise Exception("Area ('%s') not found for this tree view item"% where)
+                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
 
         self.tree_ctrl.Click(
             button,
@@ -856,7 +855,7 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise Exception("Area ('%s') not found for this tree view item"% where)
+                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
 
         self.tree_ctrl.ClickInput(
             button,
@@ -882,7 +881,7 @@ class _treeview_element(object):
 
     #----------------------------------------------------------------
     def Drop(self, button='left', pressed=''):
-        "Start dragging the item"
+        "Drop at the item"
         
         #self.EnsureVisible()
         # find the text rectangle for the item
@@ -2028,50 +2027,36 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             texts = self.Texts()[1:]
             self.actions.log('Toolbar buttons: ' + str(texts))
             # one of these will be returned for the matching text
-            indices = [i for i in range(0, len(texts[1:]))]
+            indices = [i for i in range(0, len(texts))]
 
-            # find which index best matches that text
+            if by_tooltip:
+                texts = self.TipTexts()
+                self.actions.log('Toolbar tooltips: ' + str(texts))
+            
             if exact:
                 try:
                     button_index = texts.index(button_identifier)
                 except ValueError:
                     raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
             else:
+                # find which index best matches that text
                 button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
-            
-            if by_tooltip:
-                texts = self.TipTexts()
-                self.actions.log('Toolbar tooltips: ' + str(texts))
-                if exact:
-                    try:
-                        button_index = texts.index(button_identifier)
-                    except ValueError:
-                        raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
-                else:
-                    button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
         else:
             button_index = button_identifier
         
         return _toolbar_button(button_index, self)
 
     #----------------------------------------------------------------
-    def GetButton(self, button_index):
-        "Return information on the Toolbar button"
-
-#        import warnings
-#        warning_msg = "HwndWrapper.NotifyMenuSelect() is deprecated - " \
-#            "equivalent functionality is being moved to the MenuWrapper class."
-#        warnings.warn(warning_msg, DeprecationWarning)
-
+    def GetButtonStruct(self, button_index):
+        "Return TBBUTTON structure on the Toolbar button"
+        
         if button_index >= self.ButtonCount():
             raise IndexError(
                 "0 to %d are acceptiple for button_index"%
                 self.ButtonCount())
 
         remote_mem = RemoteMemoryBlock(self)
-
         button = win32structures.TBBUTTON()
-
         remote_mem.Write(button)
 
         ret = self.SendMessage(
@@ -2083,6 +2068,15 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
                 "GetButton failed for button index %d"% button_index)
 
         remote_mem.Read(button)
+        del remote_mem
+
+        return button
+
+    #----------------------------------------------------------------
+    def GetButton(self, button_index):
+        "Return information on the Toolbar button"
+
+        button = self.GetButtonStruct(button_index)
 
         button_info = win32structures.TBBUTTONINFOW()
         button_info.cbSize = ctypes.sizeof(button_info)
@@ -2097,6 +2091,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             #win32defines.TBIF_IMAGELABEL | \
 
         button_info.cchText = 2000
+
+        remote_mem = RemoteMemoryBlock(self)
 
         # set the text address to after the structures
         button_info.pszText = remote_mem.Address() + \
@@ -2134,7 +2130,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         for i in range(0, self.ButtonCount()):
             btn_text = self.GetButton(i).text
             lines = btn_text.split('\n')
-            if len(lines) > 0:
+            if lines:
                 texts.append(lines[0])
             else:
                 texts.append(btn_text)
@@ -2146,12 +2142,17 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         "Return the tip texts of the Toolbar (without window text)"
         texts = []
         for i in range(0, self.ButtonCount()):
-            btn_text = self.GetButton(i).text
-            lines = btn_text.split('\n')
-            if len(lines) > 1:
-                texts.append(lines[1])
-            else:
-                texts.append('')
+            
+            # it works for MFC
+            btn_tooltip_index = self.GetButtonStruct(i).iString
+            # usually iString == -1 for separator
+            
+            # other cases if any
+            if not (-1 <= btn_tooltip_index < self.GetToolTipsControl().ToolCount()):
+                btn_tooltip_index = i
+            
+            btn_text = self.GetToolTipsControl().GetTipText(btn_tooltip_index + 1)
+            texts.append(btn_text)
 
         return texts
 
@@ -2462,7 +2463,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         for i in range(0, self.BandCount()):
             band = self.GetBand(i)
             lines = band.text.split('\n')
-            if len(lines) > 0:
+            if lines:
                 texts.append(lines[0])
             else:
                 texts.append(band.text)
@@ -2481,6 +2482,7 @@ class ToolTip(object):
         remote_mem = RemoteMemoryBlock(self.ctrl)
         tipinfo = win32structures.TOOLINFOW()
         tipinfo.cbSize = ctypes.sizeof(tipinfo)
+        #tipinfo.uId = self.index
         tipinfo.lpszText = remote_mem.Address() + \
             ctypes.sizeof(tipinfo) + 1
 
@@ -2505,9 +2507,14 @@ class ToolTip(object):
         remote_mem.Write(self.info)
 
         self.ctrl.SendMessage(
-            win32defines.TTM_GETTEXTW, 0, remote_mem)
+            win32defines.TTM_GETTEXTW, 160, remote_mem)
 
-        text = ctypes.create_unicode_buffer(2000)
+        # There is no way to determine the required buffer size.
+        # However, tool text, as returned at the lpszText member of the TOOLINFO structure,
+        # has a maximum length of 80 TCHARs, including the terminating NULL.
+        # If the text exceeds this length, it is truncated.
+        # https://msdn.microsoft.com/en-us/library/windows/desktop/bb760375(v=vs.85).aspx
+        text = ctypes.create_unicode_buffer(80)
 
         remote_mem.Read(text, self.info.lpszText)
 
@@ -2721,7 +2728,7 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
         
         if res != win32defines.GDT_VALID:
-            raise Exception('Failed to get time from Date Time Picker (result = ' + str(res) + ')')
+            raise RuntimeError('Failed to get time from Date Time Picker (result = ' + str(res) + ')')
         
         #year = system_time.wYear
         #month = system_time.wMonth
@@ -2756,7 +2763,7 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
         
         if res == 0:
-            raise Exception('Failed to set time in Date Time Picker')
+            raise RuntimeError('Failed to set time in Date Time Picker')
 
 
 #====================================================================

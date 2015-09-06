@@ -20,11 +20,10 @@ import re
 sys.path.append("..")
 sys.path.append(".")
 
+with open(os.path.join(os.path.dirname(__file__), '..', 'pywinauto', '__init__.py')) as f:
+    init_data = f.read()
+
 ver_re = re.compile(r'''__version__\s*\=\s*(['"])(.*)\1''')
-f = open(os.path.join(
-    os.path.dirname(__file__), '..', 'pywinauto', '__init__.py'))
-init_data = f.read()
-f.close()
 found = ver_re.search(init_data)
 if not found:
     raise RuntimeError(

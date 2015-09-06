@@ -309,6 +309,8 @@ class ApplicationTestCases(unittest.TestCase):
     def testTopWindow(self):
         "Test that top_window_() works correctly"
         app = Application()
+        self.assertRaises(AppNotConnected, app.top_window_)
+        
         app.start_(_notepad_exe())
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
@@ -319,6 +321,37 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.WaitNot('exists')
+        self.assertRaises(RuntimeError, app.top_window_)
+
+    def testActiveWindow(self):
+        "Test that active_() works correctly"
+        app = Application()
+        self.assertRaises(AppNotConnected, app.active_)
+        self.assertRaises(AppNotConnected, app.is64bit)
+        app.start_(_notepad_exe())
+        app.UntitledNotepad.Wait('ready')
+        self.assertEqual(app.active_().handle, app.UntitledNotepad.handle)
+        app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.WaitNot('exists')
+        self.assertRaises(RuntimeError, app.active_)
+
+    #def testWaitCPUUsageLower(self):
+    #    if is_x64_Python() != is_x64_OS():
+    #        return None
+    #    
+    #    Application.start(r'explorer.exe')
+    #    explorer = Application.connect(path='explorer.exe')
+    #    NewWindow = explorer.Window_(top_level_only=True, active_only=True, class_name='CabinetWClass')
+    #    try:
+    #        NewWindow.AddressBandRoot.ClickInput()
+    #        NewWindow.TypeKeys(r'Control Panel\Programs\Programs and Features{ENTER}', with_spaces=True, set_foreground=False)
+    #        ProgramsAndFeatures = explorer.Window_(top_level_only=True, active_only=True, title='Programs and Features', class_name='CabinetWClass')
+    #        explorer.WaitCPUUsageLower(threshold=10, timeout=60)
+    #        installed_programs = ProgramsAndFeatures.FolderView.Texts()[1:]
+    #        self.assertEqual('Python' in ','.join(installed_programs), True)
+    #    finally:
+    #        NewWindow.CloseAltF4()
 
     def testWindows(self):
         "Test that windows_() works correctly"
@@ -505,9 +538,11 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def testWindow(self):
         "test specifying a sub window of an existing specification"
         sub_spec = self.dlgspec.ChildWindow(class_name = "Edit")
+        sub_spec_legacy = self.dlgspec.Window_(class_name = "Edit")
 
         self.assertEquals(True, isinstance(sub_spec, WindowSpecification))
         self.assertEquals(sub_spec.Class(), "Edit")
+        self.assertEquals(sub_spec_legacy.Class(), "Edit")
 
 
 
