@@ -36,6 +36,7 @@ import win32api
 
 from . import six
 from . import sysinfo
+from . import win32structures
 
 __all__ = ['KeySequenceError', 'SendKeys']
 
@@ -48,113 +49,6 @@ SendInput = ctypes.windll.user32.SendInput
 VkKeyScan = ctypes.windll.user32.VkKeyScanW
 VkKeyScan.restype = ctypes.c_short
 VkKeyScan.argtypes = [ctypes.c_wchar]
-
-DWORD = ctypes.c_ulong
-LONG = ctypes.c_long
-WORD = ctypes.c_ushort
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
-class MOUSEINPUT(ctypes.Structure):
-    "Needed for complete definition of INPUT structure - not used"
-    if sysinfo.is_x64_Python(): # x64 platform
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
-        ('dx', LONG),
-        ('dy', LONG),
-        ('mouseData', DWORD),
-        ('dwFlags', DWORD),
-        ('time', DWORD),
-        ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)),
-    ]
-assert ctypes.sizeof(MOUSEINPUT) == 24 or ctypes.sizeof(MOUSEINPUT) == 28, ctypes.sizeof(MOUSEINPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(MOUSEINPUT) == 4, ctypes.alignment(MOUSEINPUT)
-else:
-    assert ctypes.alignment(MOUSEINPUT) == 2, ctypes.alignment(MOUSEINPUT)
-
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
-class KEYBDINPUT(ctypes.Structure):
-    "A particular keyboard event"
-    if sysinfo.is_x64_Python():
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
-        ('wVk', WORD),
-        ('wScan', WORD),
-        ('dwFlags', DWORD),
-        ('time', DWORD),
-        ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)), #DWORD),
-    ]
-assert ctypes.sizeof(KEYBDINPUT) == 16 or ctypes.sizeof(KEYBDINPUT) == 20, ctypes.sizeof(KEYBDINPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(KEYBDINPUT) == 4, ctypes.alignment(KEYBDINPUT)
-else:
-    assert ctypes.alignment(KEYBDINPUT) == 2, ctypes.alignment(KEYBDINPUT)
-
-
-class HARDWAREINPUT(ctypes.Structure):
-    "Needed for complete definition of INPUT structure - not used"
-    if sysinfo.is_x64_Python():
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4300
-        ('uMsg', DWORD),
-        ('wParamL', WORD),
-        ('wParamH', WORD),
-    ]
-assert ctypes.sizeof(HARDWAREINPUT) == 8, ctypes.sizeof(HARDWAREINPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(HARDWAREINPUT) == 4, ctypes.alignment(HARDWAREINPUT)
-else:
-    assert ctypes.alignment(HARDWAREINPUT) == 2, ctypes.alignment(HARDWAREINPUT)
-
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
-class UNION_INPUT_STRUCTS(ctypes.Union):
-    "The C Union type representing a single Event of any type"
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
-        ('mi', MOUSEINPUT),
-        ('ki', KEYBDINPUT),
-        ('hi', HARDWAREINPUT),
-    ]
-assert ctypes.sizeof(UNION_INPUT_STRUCTS) == 24 or ctypes.sizeof(UNION_INPUT_STRUCTS) == 28, \
-    ctypes.sizeof(UNION_INPUT_STRUCTS)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(UNION_INPUT_STRUCTS) == 4, \
-        ctypes.alignment(UNION_INPUT_STRUCTS)
-else:
-    assert ctypes.alignment(UNION_INPUT_STRUCTS) == 2, \
-        ctypes.alignment(UNION_INPUT_STRUCTS)
-
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
-class INPUT(ctypes.Structure):
-    "See: http://msdn.microsoft.com/en-us/library/ms646270%28VS.85%29.aspx"
-    if sysinfo.is_x64_Python():
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _anonymous_ = ("_",)
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
-        ('type', DWORD),
-        # Unnamed field renamed to '_'
-        ('_', UNION_INPUT_STRUCTS),
-    ]
-assert ctypes.sizeof(INPUT) == 28 or ctypes.sizeof(INPUT) == 32, ctypes.sizeof(INPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(INPUT) == 4, ctypes.alignment(INPUT)
-else:
-    assert ctypes.alignment(INPUT) == 2, ctypes.alignment(INPUT)
 
 
 INPUT_KEYBOARD = 1
@@ -371,7 +265,7 @@ class KeyAction(object):
         if self.up and self.down:
             actions = 2
 
-        inputs = (INPUT * actions)()
+        inputs = (win32structures.INPUT * actions)()
 
         vk, scan, flags = self._get_key_info()
 
