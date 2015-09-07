@@ -325,17 +325,8 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def ContextHelpID(self):
-        """
-        Return the Context Help ID of the window
-        """
+        "Return the Context Help ID of the window"
         return handleprops.contexthelpid(self)
-
-    #-----------------------------------------------------------
-    def IsActive(self):
-        """
-        Whether the window is active or not
-        """
-        return self.TopLevelParent() == self.GetActive()
 
     #-----------------------------------------------------------
     def IsUnicode(self):
@@ -1504,26 +1495,6 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             raise ctypes.WinError()
 
         return wp.showCmd
-
-    #-----------------------------------------------------------
-    def GetActive(self):
-        """
-        Return a handle to the active window within the process
-        """
-        gui_info = win32structures.GUITHREADINFO()
-        gui_info.cbSize = ctypes.sizeof(gui_info)
-        ret = win32functions.GetGUIThreadInfo(
-            win32functions.GetWindowThreadProcessId(self, 0),
-            ctypes.byref(gui_info))
-
-        if not ret:
-            raise ctypes.WinError()
-
-        hwndActive = gui_info.hwndActive
-        if hwndActive:
-            return HwndWrapper(hwndActive)
-        else:
-            return None
 
     #-----------------------------------------------------------
     def GetFocus(self):
