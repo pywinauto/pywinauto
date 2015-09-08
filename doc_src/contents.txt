@@ -13,8 +13,8 @@ Contents
    index
    getting_started
    HowTo
-   controls_overview
    tools_overview
+   controls_overview
    credits
 
    dev_notes
