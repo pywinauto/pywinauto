@@ -22,7 +22,7 @@
 
 """The application module is the main one that users will user first.
 
-When starting to automate and application you must initialize an instance
+When starting to automate an application you must initialize an instance
 of the Application class. Then you must :func:`Application.Start` that
 application or :func:`Application.Connect()` to a running instance of that
 application.
@@ -45,7 +45,7 @@ in almost exactly the same ways. ::
 
    For attribute access of controls and dialogs you do not have to
    have the title of the control exactly, it does a best match of the
-   avialable dialogs or controls.
+   available dialogs or controls.
 
 .. seealso::
 
@@ -55,8 +55,6 @@ in almost exactly the same ways. ::
 
 """
 from __future__ import absolute_import
-
-__revision__ = "$Revision$"
 
 import time
 import os.path

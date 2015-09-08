@@ -13,7 +13,7 @@ Contents
    index
    getting_started
    HowTo
-   tools_overview
+   wait_long_operations
    controls_overview
    credits
 

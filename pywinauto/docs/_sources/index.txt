@@ -1,7 +1,7 @@
 ====================
 What is pywinauto
 ====================
-(project is maintained by Intel Corporation since 2015)
+(0.5.x releases are maintained by Intel Corporation, 2015)
 
 © Mark Mc Mahon
 

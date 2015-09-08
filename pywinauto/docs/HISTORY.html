@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Change Log &mdash; pywinauto 0.5.1 documentation</title>
+    <title>Change Log &mdash; pywinauto 0.5.2 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.5.1',
+        VERSION:     '0.5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.5.1 documentation" href="contents.html" />
+    <link rel="top" title="pywinauto 0.5.2 documentation" href="contents.html" />
     <link rel="next" title="Main user modules" href="code/code.html" />
     <link rel="prev" title="PYWINAUTO TODO’s" href="TODO.html" /> 
   </head>
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,9 +54,31 @@
             
   <div class="section" id="change-log">
 <h1>Change Log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="improve-listview-new-methods-for-cpu-usage-dpi-awareness">
+<h2>0.5.2 Improve ListView, new methods for CPU usage, DPI awareness<a class="headerlink" href="#improve-listview-new-methods-for-cpu-usage-dpi-awareness" title="Permalink to this headline">¶</a></h2>
+<p>07-September-2015</p>
+<blockquote>
+<div><ul class="simple">
+<li>New Application methods: <code class="docutils literal"><span class="pre">CPUUsage</span></code> returns CPU usage as a percent (float number),
+<code class="docutils literal"><span class="pre">WaitCPUUsageLower</span></code> waits until connected process CPU usage is lower than
+specified value (2.5% by default).</li>
+<li>New class <code class="docutils literal"><span class="pre">_listview_item</span></code> is very similar to <code class="docutils literal"><span class="pre">_treeview_element</span></code>.</li>
+<li>Add DPI awareness API support (Win8+). It allows correct work when all fonts
+are scaled at 125%, 150% etc (globally or per monitor).</li>
+<li>&#8220;Tools overview&#8221; section in docs.</li>
+<li>Fix number of bugs:
+- <code class="docutils literal"><span class="pre">TreeViewWrapper.Select</span></code> doesn&#8217;t work when the control is not in focus.
+- <code class="docutils literal"><span class="pre">TabControlWrapper.Select</span></code> doesn&#8217;t work in case of TCS_BUTTONS style set.
+- <code class="docutils literal"><span class="pre">ListViewWrapper</span></code> methods <code class="docutils literal"><span class="pre">Check/UnCheck</span></code> are fixed.
+- Toolbar button: incorrect access by tooltip text.
+- Warning &#8220;Cannot retrieve text length for handle&#8221; uses print() instead of actionlogger.
+- <code class="docutils literal"><span class="pre">ClientToScreen</span></code> method doesn&#8217;t return a value (modifying mutable argument is not a good practice).</li>
+</ul>
+</div></blockquote>
+</div>
 <div class="section" id="several-fixes-more-tests">
-<h2>0.5.1 Several fixes, more tests.<a class="headerlink" href="#several-fixes-more-tests" title="Permalink to this headline">¶</a></h2>
-<p>14-July-2015</p>
+<h2>0.5.1 Several fixes, more tests<a class="headerlink" href="#several-fixes-more-tests" title="Permalink to this headline">¶</a></h2>
+<p>13-July-2015</p>
 <blockquote>
 <div><ul class="simple">
 <li>Resolve pip issues</li>
@@ -72,7 +94,7 @@ familiar with standard <code class="docutils literal"><span class="pre">logging<
 </div></blockquote>
 </div>
 <div class="section" id="bit-py2-py3-compatibility">
-<h2>0.5.0 64-bit Py2/Py3 compatibility.<a class="headerlink" href="#bit-py2-py3-compatibility" title="Permalink to this headline">¶</a></h2>
+<h2>0.5.0 64-bit Py2/Py3 compatibility<a class="headerlink" href="#bit-py2-py3-compatibility" title="Permalink to this headline">¶</a></h2>
 <p>30-June-2015</p>
 <blockquote>
 <div><ul class="simple">
@@ -94,7 +116,7 @@ familiar with standard <code class="docutils literal"><span class="pre">logging<
 </div></blockquote>
 </div>
 <div class="section" id="various-cleanup-and-bug-fixes">
-<h2>0.4.0 Various cleanup and bug fixes.<a class="headerlink" href="#various-cleanup-and-bug-fixes" title="Permalink to this headline">¶</a></h2>
+<h2>0.4.0 Various cleanup and bug fixes<a class="headerlink" href="#various-cleanup-and-bug-fixes" title="Permalink to this headline">¶</a></h2>
 <p>03-April-2010</p>
 <blockquote>
 <div><ul class="simple">
@@ -717,9 +739,10 @@ you could use:</p>
   <h3><a href="contents.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Change Log</a><ul>
-<li><a class="reference internal" href="#several-fixes-more-tests">0.5.1 Several fixes, more tests.</a></li>
-<li><a class="reference internal" href="#bit-py2-py3-compatibility">0.5.0 64-bit Py2/Py3 compatibility.</a></li>
-<li><a class="reference internal" href="#various-cleanup-and-bug-fixes">0.4.0 Various cleanup and bug fixes.</a></li>
+<li><a class="reference internal" href="#improve-listview-new-methods-for-cpu-usage-dpi-awareness">0.5.2 Improve ListView, new methods for CPU usage, DPI awareness</a></li>
+<li><a class="reference internal" href="#several-fixes-more-tests">0.5.1 Several fixes, more tests</a></li>
+<li><a class="reference internal" href="#bit-py2-py3-compatibility">0.5.0 64-bit Py2/Py3 compatibility</a></li>
+<li><a class="reference internal" href="#various-cleanup-and-bug-fixes">0.4.0 Various cleanup and bug fixes</a></li>
 <li><a class="reference internal" href="#experimental-new-sendkeys-and-various-fixes">0.3.9 Experimental! New Sendkeys, and various fixes</a></li>
 <li><a class="reference internal" href="#collecting-improvements-from-last-2-years">0.3.8 Collecting improvements from last 2 years</a></li>
 <li><a class="reference internal" href="#merge-of-wait-changes-and-various-bug-fixes-improvements">0.3.7 Merge of Wait changes and various bug fixes/improvements</a></li>
@@ -787,7 +810,7 @@ you could use:</p>
         <li class="right" >
           <a href="TODO.html" title="PYWINAUTO TODO’s"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

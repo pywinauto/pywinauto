@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.controls.common_controls &mdash; pywinauto 0.5.1 documentation</title>
+    <title>pywinauto.controls.common_controls &mdash; pywinauto 0.5.2 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.5.1',
+        VERSION:     '0.5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.5.1 documentation" href="../contents.html" />
+    <link rel="top" title="pywinauto 0.5.2 documentation" href="../contents.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.controls.HwndWrapper" href="pywinauto.controls.HwndWrapper.html" />
     <link rel="prev" title="pywinauto.taskbar" href="pywinauto.taskbar.html" /> 
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="pywinauto.taskbar.html" title="pywinauto.taskbar"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
@@ -632,6 +632,12 @@ Inter - The width between parts of the status bar</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pywinauto.controls.common_controls.ToolbarWrapper.GetButtonStruct">
+<code class="descname">GetButtonStruct</code><span class="sig-paren">(</span><em>button_index</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls.ToolbarWrapper.GetButtonStruct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return TBBUTTON structure on the Toolbar button</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pywinauto.controls.common_controls.ToolbarWrapper.GetToolTipsControl">
 <code class="descname">GetToolTipsControl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls.ToolbarWrapper.GetToolTipsControl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the tooltip control associated with this control</p>
@@ -720,6 +726,12 @@ to select.</li>
 <dt id="pywinauto.controls.common_controls.TreeViewWrapper.ItemCount">
 <code class="descname">ItemCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls.TreeViewWrapper.ItemCount" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the count of the items in the treeview</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.common_controls.TreeViewWrapper.PrintItems">
+<code class="descname">PrintItems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls.TreeViewWrapper.PrintItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print all items with line indents</p>
 </dd></dl>
 
 <dl class="method">
@@ -834,7 +846,7 @@ defaults to &#8220;text&#8221;</p>
 <dl class="method">
 <dt id="pywinauto.controls.common_controls._treeview_element.Drop">
 <code class="descname">Drop</code><span class="sig-paren">(</span><em>button='left'</em>, <em>pressed=''</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls._treeview_element.Drop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start dragging the item</p>
+<dd><p>Drop at the item</p>
 </dd></dl>
 
 <dl class="method">
@@ -856,6 +868,18 @@ defaults to &#8220;text&#8221;</p>
 <p>Accepts either a string or an index.
 If a string is passed then it returns the child item
 with the best match for the string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.common_controls._treeview_element.IsChecked">
+<code class="descname">IsChecked</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls._treeview_element.IsChecked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the TreeView item is checked or not</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.common_controls._treeview_element.IsExpanded">
+<code class="descname">IsExpanded</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls._treeview_element.IsExpanded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate that the TreeView item is selected or not</p>
 </dd></dl>
 
 <dl class="method">
@@ -884,6 +908,12 @@ with the best match for the string.</p>
 the rectangle for the whole item (usually left is equal to 0).
 Defaults to True - which returns just the rectangle of the
 text of the item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.controls.common_controls._treeview_element.Select">
+<code class="descname">Select</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.controls.common_controls._treeview_element.Select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select the TreeView item</p>
 </dd></dl>
 
 <dl class="method">
@@ -1033,7 +1063,7 @@ text of the item</p>
         <li class="right" >
           <a href="pywinauto.taskbar.html" title="pywinauto.taskbar"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>

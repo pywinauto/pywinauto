@@ -1,0 +1,70 @@
+============================================================
+Waiting for Long Operations
+============================================================
+
+GUI application behaviour is often unstable and your script needs 
+waiting until new window appears or existing window is closed/hidden. 
+pywinauto can wait for dialog initialization implicitly (with default 
+timeout). There are few methods/functions that could help you make 
+your code easier and more reliable.
+
+Application methods
+------------
+
+  * WaitCPUUsageLower_ (new in pywinauto 0.5.2)
+
+This method is useful for multi-threaded interfaces that allow lazy 
+initialization in another thread while GUI is responsive and all controls 
+already exist and ready to use. So waiting for specific window existence/state 
+is useless. In such case CPU usage for the whole process indicates that task 
+calculation is not finished yet.
+
+Example: ::
+
+    app.WaitCPUUsageLower(threshold=5) # wait until CPU usage is lower than 5%
+
+
+WindowSpecification methods
+------------
+These methods are available to all controls.
+
+  * Wait_
+  * WaitNot_
+
+There is an example containing long waits: `install script for 7zip 9.20 x64
+<https://gist.github.com/vasily-v-ryabov/7a04717af4584cbb840f>`_.
+
+``WindowSpecification`` object doesn't necessarily relate to existing window/control.
+It's just a description namely a couple of criteria to search the window. Method ``Wait`` (if exception is not raised) 
+can guarantee that target control exists or even visible, enabled and/or active.
+
+Functions in ``timings`` module
+------------
+There are also low-level methods useful for any Python code.
+
+  * WaitUntil_
+  * WaitUntilPasses_
+
+
+.. _Wait: code/pywinauto.application.html?highlight=Wait#pywinauto.application.WindowSpecification.Wait
+.. _WaitNot: code/pywinauto.application.html?highlight=WaitNot#pywinauto.application.WindowSpecification.WaitNot
+.. _WaitCPUUsageLower: code/pywinauto.application.html?highlight=WaitCPUUsageLower#pywinauto.application.Application.WaitCPUUsageLower
+.. _WaitUntil: code/pywinauto.timings.html?highlight=WaitUntil#pywinauto.timings.WaitUntil
+.. _WaitUntilPasses: code/pywinauto.timings.html?highlight=WaitUntilPasses#pywinauto.timings.WaitUntilPasses
+
+
+Identify controls
+------------
+The methods to help you find the needed control.
+
+  * PrintControlIdentifiers_
+  * DrawOutline_
+
+
+.. _PrintControlIdentifiers: code/pywinauto.application.html?highlight=print#pywinauto.application.WindowSpecification.PrintControlIdentifiers
+.. _DrawOutline: code/pywinauto.controls.HwndWrapper.html?highlight=draw#pywinauto.controls.HwndWrapper.HwndWrapper.DrawOutline
+
+
+How To`s
+==================
+* :doc:`HowTo`
