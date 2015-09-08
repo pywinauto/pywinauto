@@ -24,12 +24,17 @@ __revision__ = "$Revision$"
 
 import unittest
 
-import sys, time
+import sys, time, os
 sys.path.append(".")
 from pywinauto import taskbar
 from pywinauto.application import Application, ProcessNotFoundError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto import win32defines
 
+mfc_samples_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
 def _notepad_exe():
     if is_x64_Python() or not is_x64_OS():
@@ -44,11 +49,16 @@ class TaskbarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        pass
+        app = Application()
+        app.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        self.app = app
+        self.dlg = app.TrayMenu #top_window_()
+        self.dlg.Wait('ready')
 
 
     def tearDown(self):
         "Close the application after tests"
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
         try:
             notepad = Application.connect(path=_notepad_exe())
             notepad.kill_()
@@ -84,13 +94,19 @@ class TaskbarTestCases(unittest.TestCase):
         ClockWindow.WaitNot('visible')
     '''
 
-    '''
-    def testClickIconsTaskManager(self):
+    def testClickIcons(self):
+        "Test minimizing a sample app to tray and restoring"
         apps_area = taskbar.RunningApplications.Rectangle()
+        
+        self.dlg.Minimize()
+        self.dlg.WaitNot('active')
+        taskbar.ClickHiddenSystemTrayIcon('MFCTrayDemo', double=True)
+        self.dlg.Wait('active')
+
+
+    '''
         taskbar.RunningApplications.RightClickInput(coords=(apps_area.width()-100, apps_area.height()-5))
         taskbar.explorer_app.PopupMenu.Menu().GetMenuPath('Start Task Manager')[0].Click()
-        
-        # TODO: need an application running in System Tray (we cannot access Task Manager without elevation)
         task_mgr = Application.connect(path='taskmgr.exe')
         task_manager_window = task_mgr.Window_(title='Windows Task Manager')
         task_manager_window.Wait('ready')
