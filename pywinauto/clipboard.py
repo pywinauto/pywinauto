@@ -20,9 +20,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Some clipboard wrapping functions - more to be added later"
-
-__revision__ = "$Revision$"
+'''Some clipboard wrapping functions - more to be added later'''
 
 import win32clipboard
 
@@ -105,8 +103,3 @@ def EmptyClipboard():
 # Todo: Implement setting clipboard data
 #def SetData(data, formats = [win32clipboard.CF_UNICODETEXT, ]):
 #    pass
-
-
-#====================================================================
-#if __name__ == "__main__":
-#    _unittests()

@@ -6,7 +6,7 @@ pywinauto.application
     .. autoclass:: pywinauto.application.Application
         :undoc-members:
         :show-inheritance:
-        :members: __getattr__, __getitem__, active_, connect_, kill_, start_, top_window_, window_, windows_    
+        :members: __getattr__, __getitem__, active_, connect_, kill_, start_, top_window_, window_, windows_, is64bit, CPUUsage, WaitCPUUsageLower 
 
     .. autoclass:: pywinauto.application.WindowSpecification
         :members: ChildWindow, Exists, PrintControlIdentifiers, Wait, WaitNot, WrapperObject
