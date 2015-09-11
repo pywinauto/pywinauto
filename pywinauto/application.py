@@ -289,9 +289,10 @@ class WindowSpecification(object):
             controls.InvalidWindowHandle):
             return False
 
-    def __parse_wait_args(self, wait_conditions, timeout, retry_interval):
+    @classmethod
+    def __parse_wait_args(cls, wait_conditions, timeout, retry_interval):
         """
-        Both methods Wait & WaitNot have the same args handling and it not trivial, move it here
+        Both methods Wait & WaitNot have the same args handling and they are not trivial, move it here.
         """
 
         # set the current timings -couldn't set as defaults as they are
@@ -304,24 +305,44 @@ class WindowSpecification(object):
         # allow for case mixups - just to make it easier to use
         wait_for = wait_conditions.lower()
 
-        # get checking methods from the map by waitfor string
-        check_names = []
+        # get checking methods from the map by wait_conditions string
+        # To avoid needless checks - use a set to filter duplicates
+        unique_check_names = set()
         wait_criteria_names = wait_for.split()
         for criteria_name in wait_criteria_names:
             try:
-                check_methods = self.WAIT_CRITERIA_MAP[criteria_name]
+                check_methods = cls.WAIT_CRITERIA_MAP[criteria_name]
             except KeyError:
                 # Invalid check name in the wait_for
-                continue
+                raise SyntaxError('Unexpected criteria - %s' % criteria_name)
             else:
-                # one check_name may be mapped to multiply check methods, so here `extend` not just `update`
-                check_names.extend(check_methods)
+                unique_check_names.update(check_methods)
 
-        # To avoid needless checks clear out duplicates
-        unique_check_names = set(check_names)
-        #unique_check_names = set(['IsEnabled', 'IsActive', 'IsVisible', 'Exists'])
-
+        # unique_check_names = set(['IsEnabled', 'IsActive', 'IsVisible', 'Exists'])
         return unique_check_names, timeout, retry_interval
+
+    def __check_all_conditions(self, check_names, all_pass):
+        """
+        Checks for all conditions
+        If any check's result != True return !pass_value immediately, do not matter others check results.
+        pass_value will bee returned when all checks passed and all of them equal True.
+        """
+        for check_name in check_names:
+            try:
+                # Hidden _resolve_control call, handle the exceptions.
+                check = getattr(self, check_name)
+            except (findwindows.WindowNotFoundError,
+                    findbestmatch.MatchError,
+                    controls.InvalidWindowHandle):
+                # The control is not exist.
+                return not all_pass
+            else:
+                if not check():
+                    # At least one check not passed.
+                    return not all_pass
+        else:
+            # All the checks have been done.
+            return all_pass
 
     def Wait(self, wait_for, timeout=None, retry_interval=None):
         """Wait for the window to be in a particular state/states.
@@ -350,41 +371,12 @@ class WindowSpecification(object):
 
            :func:`pywinauto.timings.TimeoutError`
         """
-        def __check_all_conditions():
-            """
-            Checks for all conditions (in checks_set)
-            If any check != True return False immediately, do not matter others check results.
-            True will bee returned when all checks passed and all of them equal True.
-            """
-            for check_name in check_method_names:
-                try:
-                    # Here hid _resolve_control call
-                    check = getattr(self, check_name)
-                except (findwindows.WindowNotFoundError,
-                        findbestmatch.MatchError,
-                        controls.InvalidWindowHandle):
-                    # The control is not exist, assume this as - not exists, not visible, not enabled, not active
-                    return False
-                else:
-                    result = check()
-                    if not result:
-                        # One check is not passed
-                        return False
-            else:
-                # All the checks were done
-                return True
 
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, __check_all_conditions)
+        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names, True))
 
-        # The return object is not documented and not useful, leave it for a backward compatibility
-        try:
-            wrapped_object = self.WrapperObject()
-        except (findwindows.WindowNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle):
-            # The control is not exist
-            return None
+        # Return the wrapped control
+        wrapped_object = self.WrapperObject()
         return wrapped_object
 
     def WaitNot(self, wait_for_not, timeout=None, retry_interval=None):
@@ -413,42 +405,11 @@ class WindowSpecification(object):
 
            :func:`pywinauto.timings.TimeoutError`
         """
-        def __check_all_conditions():
-            """
-            Checks for all conditions (in check_methods)
-            If any check != True return True immediately, do not matter others check results.
-            False will bee returned when all checks passed and all of them equal True.
-            """
-            for check_name in check_method_names:
-                try:
-                    # Here hid _resolve_control call
-                    check = getattr(self, check_name)
-                except (findwindows.WindowNotFoundError,
-                        findbestmatch.MatchError,
-                        controls.InvalidWindowHandle):
-                    # The control is not exist, assume this as - not exists, not visible, not enabled, not active
-                    return True
-                else:
-                    result = check()
-                    if not result:
-                        # One check is not passed
-                        return True
-            else:
-                # All the checks were done
-                return False
 
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, __check_all_conditions)
-
-        # The return object is not documented and not useful, leave it for a backward compatibility
-        try:
-            wrapped_object = self.WrapperObject()
-        except (findwindows.WindowNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle):
-            # The control is not exist
-            return None
-        return wrapped_object
+        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names, False))
+        # None return value, since we are waiting for a `negative` state of the control.
+        # Expect that you will have nothing to do with the window closed, disabled, etc.
 
     def _ctrl_identifiers(self):
 
