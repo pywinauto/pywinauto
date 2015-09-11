@@ -321,11 +321,11 @@ class WindowSpecification(object):
         # unique_check_names = set(['IsEnabled', 'IsActive', 'IsVisible', 'Exists'])
         return unique_check_names, timeout, retry_interval
 
-    def __check_all_conditions(self, check_names, all_pass):
+    def __check_all_conditions(self, check_names):
         """
         Checks for all conditions
-        If any check's result != True return !pass_value immediately, do not matter others check results.
-        pass_value will bee returned when all checks passed and all of them equal True.
+        If any check's result != True return False immediately, do not matter others check results.
+        True will be returned when all checks passed and all of them equal True.
         """
         for check_name in check_names:
             try:
@@ -334,15 +334,15 @@ class WindowSpecification(object):
             except (findwindows.WindowNotFoundError,
                     findbestmatch.MatchError,
                     controls.InvalidWindowHandle):
-                # The control is not exist.
-                return not all_pass
+                # The control does not exist.
+                return False
             else:
                 if not check():
                     # At least one check not passed.
-                    return not all_pass
+                    return False
         else:
             # All the checks have been done.
-            return all_pass
+            return True
 
     def Wait(self, wait_for, timeout=None, retry_interval=None):
         """Wait for the window to be in a particular state/states.
@@ -373,11 +373,10 @@ class WindowSpecification(object):
         """
 
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names, True))
+        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
 
         # Return the wrapped control
-        wrapped_object = self.WrapperObject()
-        return wrapped_object
+        return self.WrapperObject()
 
     def WaitNot(self, wait_for_not, timeout=None, retry_interval=None):
         """Wait for the window to not be in a particular state/states.
@@ -407,7 +406,7 @@ class WindowSpecification(object):
         """
 
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names, False))
+        WaitUntil(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
