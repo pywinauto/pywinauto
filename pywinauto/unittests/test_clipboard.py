@@ -19,7 +19,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Tests for clipboard.py"
+'''Tests for clipboard.py'''
 
 import unittest
 
@@ -117,5 +117,3 @@ def pastetext(app):
 
 if __name__ == "__main__":
     unittest.main()
-
-

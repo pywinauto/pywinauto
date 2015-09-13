@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.application &mdash; pywinauto 0.5.1 documentation</title>
+    <title>pywinauto.application &mdash; pywinauto 0.5.2 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.5.1',
+        VERSION:     '0.5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.5.1 documentation" href="../contents.html" />
+    <link rel="top" title="pywinauto 0.5.2 documentation" href="../contents.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.findbestmatch" href="pywinauto.findbestmatch.html" />
     <link rel="prev" title="Main user modules" href="code.html" /> 
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="code.html" title="Main user modules"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
@@ -58,7 +58,7 @@
 <h1>pywinauto.application<a class="headerlink" href="#pywinauto-application" title="Permalink to this headline">¶</a></h1>
 <blockquote>
 <div><span class="target" id="module-pywinauto.application"></span><p>The application module is the main one that users will user first.</p>
-<p>When starting to automate and application you must initialize an instance
+<p>When starting to automate an application you must initialize an instance
 of the Application class. Then you must <code class="xref py py-func docutils literal"><span class="pre">Application.Start()</span></code> that
 application or <code class="xref py py-func docutils literal"><span class="pre">Application.Connect()</span></code> to a running instance of that
 application.</p>
@@ -80,7 +80,7 @@ in almost exactly the same ways.</p>
 <p class="first admonition-title">Note</p>
 <p class="last">For attribute access of controls and dialogs you do not have to
 have the title of the control exactly, it does a best match of the
-avialable dialogs or controls.</p>
+available dialogs or controls.</p>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
@@ -94,6 +94,18 @@ can be passed to both <code class="xref py py-func docutils literal"><span class
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Represents an application</p>
 <p>Set the attributes</p>
+<dl class="method">
+<dt id="pywinauto.application.Application.CPUUsage">
+<code class="descname">CPUUsage</code><span class="sig-paren">(</span><em>interval=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.application.Application.CPUUsage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return CPU usage percentage during specified number of seconds</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.application.Application.WaitCPUUsageLower">
+<code class="descname">WaitCPUUsageLower</code><span class="sig-paren">(</span><em>threshold=2.5</em>, <em>timeout=None</em>, <em>usage_interval=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.application.Application.WaitCPUUsageLower" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until process CPU usage percentage is less than specified threshold</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pywinauto.application.Application.__getattr__">
 <code class="descname">__getattr__</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.application.Application.__getattr__" title="Permalink to this definition">¶</a></dt>
@@ -116,6 +128,12 @@ can be passed to both <code class="xref py py-func docutils literal"><span class
 <dt id="pywinauto.application.Application.connect_">
 <code class="descname">connect_</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.application.Application.connect_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connects to an already running process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pywinauto.application.Application.is64bit">
+<code class="descname">is64bit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.application.Application.is64bit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if running process is 64-bit</p>
 </dd></dl>
 
 <dl class="method">
@@ -248,27 +266,27 @@ should be refered to as &#8220;Edit2&#8221;.</p>
 <dl class="method">
 <dt id="pywinauto.application.WindowSpecification.Wait">
 <code class="descname">Wait</code><span class="sig-paren">(</span><em>wait_for</em>, <em>timeout=None</em>, <em>retry_interval=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.application.WindowSpecification.Wait" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wait for the window to be in a particular state</p>
+<dd><p>Wait for the window to be in a particular state/states.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>wait_for</strong> &#8211; <p>The state to wait for the window to be in. It can
-be any of the following states.</p>
+be any of the following states, also you may combine the states by space key.</p>
 <blockquote>
 <div><ul>
 <li>&#8216;exists&#8217; means that the window is a valid handle</li>
 <li>&#8216;visible&#8217; means that the window is not hidden</li>
 <li>&#8216;enabled&#8217; means that the window is not disabled</li>
 <li>&#8216;ready&#8217; means that the window is visible and enabled</li>
-<li>&#8216;active&#8217; means that the window is visible and enabled</li>
+<li>&#8216;active&#8217; means that the window is active</li>
 </ul>
 </div></blockquote>
 </li>
-<li><strong>timeout</strong> &#8211; Raise an error if the window is not in the appropriate
+<li><strong>timeout</strong> &#8211; Raise an <a class="reference internal" href="pywinauto.timings.html#pywinauto.timings.TimeoutError" title="pywinauto.timings.TimeoutError"><code class="xref py py-func docutils literal"><span class="pre">pywinauto.timings.TimeoutError()</span></code></a> if the window is not in the appropriate
 state after this number of seconds.</li>
-<li><strong>retry_interval</strong> &#8211; How long to sleep between each retry</li>
+<li><strong>retry_interval</strong> &#8211; How long to sleep between each retry. Default: <code class="xref py py-attr docutils literal"><span class="pre">pywinauto.timings.Timings.window_find_retry</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -281,34 +299,35 @@ exists, is ready, enabled and visible:</p>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="#pywinauto.application.WindowSpecification.WaitNot" title="pywinauto.application.WindowSpecification.WaitNot"><code class="xref py py-func docutils literal"><span class="pre">WindowSpecification.WaitNot()</span></code></a></p>
+<p><a class="reference internal" href="#pywinauto.application.WindowSpecification.WaitNot" title="pywinauto.application.WindowSpecification.WaitNot"><code class="xref py py-func docutils literal"><span class="pre">WindowSpecification.WaitNot()</span></code></a></p>
+<p class="last"><a class="reference internal" href="pywinauto.timings.html#pywinauto.timings.TimeoutError" title="pywinauto.timings.TimeoutError"><code class="xref py py-func docutils literal"><span class="pre">pywinauto.timings.TimeoutError()</span></code></a></p>
 </div>
 </dd></dl>
 
 <dl class="method">
 <dt id="pywinauto.application.WindowSpecification.WaitNot">
 <code class="descname">WaitNot</code><span class="sig-paren">(</span><em>wait_for_not</em>, <em>timeout=None</em>, <em>retry_interval=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.application.WindowSpecification.WaitNot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wait for the window to not be in a particular state</p>
+<dd><p>Wait for the window to not be in a particular state/states.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>wait_for</strong> &#8211; <p>The state to wait for the window to not be in. It can be any
-of the following states</p>
+<li><strong>wait_for_not</strong> &#8211; <p>The state to wait for the window to not be in. It can be any
+of the following states, also you may combine the states by space key.</p>
 <blockquote>
 <div><ul>
 <li>&#8216;exists&#8217; means that the window is a valid handle</li>
 <li>&#8216;visible&#8217; means that the window is not hidden</li>
 <li>&#8216;enabled&#8217; means that the window is not disabled</li>
 <li>&#8216;ready&#8217; means that the window is visible and enabled</li>
-<li>&#8216;active&#8217; means that the window is visible and enabled</li>
+<li>&#8216;active&#8217; means that the window is active</li>
 </ul>
 </div></blockquote>
 </li>
-<li><strong>timeout</strong> &#8211; Raise an error if the window is sill in the
-state after this number of seconds.(Optional)</li>
-<li><strong>retry_interval</strong> &#8211; How long to sleep between each retry</li>
+<li><strong>timeout</strong> &#8211; Raise an <a class="reference internal" href="pywinauto.timings.html#pywinauto.timings.TimeoutError" title="pywinauto.timings.TimeoutError"><code class="xref py py-func docutils literal"><span class="pre">pywinauto.timings.TimeoutError()</span></code></a> if the window is sill in the
+state after this number of seconds.</li>
+<li><strong>retry_interval</strong> &#8211; How long to sleep between each retry. Default: <code class="xref py py-attr docutils literal"><span class="pre">pywinauto.timings.Timings.window_find_retry</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -320,7 +339,8 @@ state after this number of seconds.(Optional)</li>
 </div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="#pywinauto.application.WindowSpecification.Wait" title="pywinauto.application.WindowSpecification.Wait"><code class="xref py py-func docutils literal"><span class="pre">WindowSpecification.Wait()</span></code></a></p>
+<p><a class="reference internal" href="#pywinauto.application.WindowSpecification.Wait" title="pywinauto.application.WindowSpecification.Wait"><code class="xref py py-func docutils literal"><span class="pre">WindowSpecification.Wait()</span></code></a></p>
+<p class="last"><a class="reference internal" href="pywinauto.timings.html#pywinauto.timings.TimeoutError" title="pywinauto.timings.TimeoutError"><code class="xref py py-func docutils literal"><span class="pre">pywinauto.timings.TimeoutError()</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -425,7 +445,7 @@ state after this number of seconds.(Optional)</li>
         <li class="right" >
           <a href="code.html" title="Main user modules"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>

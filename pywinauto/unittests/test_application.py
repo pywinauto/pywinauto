@@ -42,7 +42,7 @@ from pywinauto import application
 from pywinauto.application import Application, WindowSpecification, process_module
 from pywinauto.application import ProcessNotFoundError, AppStartError, AppNotConnected
 from pywinauto import findwindows, findbestmatch
-from pywinauto.timings import Timings
+from pywinauto.timings import Timings, TimeoutError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 Timings.Fast()
@@ -607,9 +607,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
         timedif =  time.time() - start
         self.assertEquals(True, .49 > timedif < .6)
 
-
     def testWait(self):
-        "test the functionality and timing of the wait method"
+        """
+        test the functionality and timing of the wait method.
+        """
 
         allowable_error = .3
 
@@ -643,7 +644,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
-
+        self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
 
     def testWaitNot(self):
         """Test that wait not fails for all the following
@@ -653,35 +654,36 @@ class WindowSpecificationTestCases(unittest.TestCase):
         allowable_error = .16
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
         taken = time.time() - start
         if .1 < (taken)  > .1 + allowable_error:
             self.assertEqual(.12, taken)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "  ready", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "  ready", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, " exiSTS", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " exiSTS", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, " VISIBLE ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " VISIBLE ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, " ready enabled", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " ready enabled", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "visible exists ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "visible exists ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "exists ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "exists ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
+        self.assertRaises(SyntaxError, self.dlgspec.WaitNot, "Invalid_criteria")
 
 #    def testWaitReady(self):
 #        "Make sure the friendly class is set correctly"

@@ -10,7 +10,7 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 
 ### Setup
 * Install [pyWin32 extensions](http://sourceforge.net/projects/pywin32/files/pywin32/) (no need for Active Python)
-* Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.1/pywinauto-0.5.1.zip)
+* Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.2/pywinauto-0.5.2.zip)
 * Just unpack and run `python setup.py install`
 
 ### Documentation
@@ -20,13 +20,14 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 * [HowTo's](http://pywinauto.github.io/docs/HowTo.html)
 * [Code examples (gists) on gist.github.com](https://gist.github.com/vasily-v-ryabov)
 
-### pywinauto 0.5.1 release notes (2015 July, 13)
- - [x] Resolve pip issues
- - [x] Warnings about mismatched Python/application bitness
- - [x] Add "TCheckBox" class name to ButtonWrapper detection list
- - [x] Fix `DebugMessage` method
- - [x] Disable logging (actionlogger.py) by default, provide shortcuts: `actionlogger.enable()` and `actionlogger.disable()`.
-       For those who are familiar with standard `logging` module there's method `actionlogger.set_level(level)`.
+### pywinauto 0.5.2 release notes (2015 September, 8)
+ - [x] `ListViewWrapper` interface is aligned with `TreeViewWrapper`. `GetItem()` returns a `_listview_item` object that looks like `_treeview_element` now.
+ - [x] Add DPI awareness API support (Win8+). It allows correct work when all fonts (globally or per monitor) are scaled at 125%, 150% etc.
+ - [x] Add new `Application` methods: `CPUUsage` and `WaitCPUUsageLower`.
+ - [x] Fix `TreeViewWrapper.Select` method when tree view is not in focus.
+ - [x] Fix `TabControlWrapper.Select` method in case of TCS_BUTTONS style set.
+ - [x] Fix `ListViewWrapper` methods: `Check` and `UnCheck`.
+ - [x] Fix toolbar button access by tooltip text.
 
 ### Supported controls
 * Native Windows controls (full support through Win32 API)
@@ -39,7 +40,7 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 
 ### Downloads statistics
 * PyPI: [![Daily downloads](https://img.shields.io/pypi/dd/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Weekly downloads](https://img.shields.io/pypi/dw/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Monthly downloads](https://img.shields.io/pypi/dm/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto)
-* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.1/pywinauto-0.5.1.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.1/pywinauto-0.5.1.zip)
+* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.2/pywinauto-0.5.2.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.2/pywinauto-0.5.2.zip)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL

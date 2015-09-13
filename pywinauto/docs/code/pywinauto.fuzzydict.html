@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pywinauto.fuzzydict &mdash; pywinauto 0.5.1 documentation</title>
+    <title>pywinauto.fuzzydict &mdash; pywinauto 0.5.2 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.5.1',
+        VERSION:     '0.5.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="pywinauto 0.5.1 documentation" href="../contents.html" />
+    <link rel="top" title="pywinauto 0.5.2 documentation" href="../contents.html" />
     <link rel="up" title="Main user modules" href="code.html" />
     <link rel="next" title="pywinauto.actionlogger" href="pywinauto.actionlogger.html" />
     <link rel="prev" title="pywinauto.XMLHelpers" href="pywinauto.XMLHelpers.html" /> 
@@ -44,7 +44,7 @@
         <li class="right" >
           <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" accesskey="U">Main user modules</a> &raquo;</li> 
       </ul>
     </div>  
@@ -78,10 +78,9 @@ dictionaries.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;There&#39;</span><span class="p">]</span>
 <span class="gt">Traceback (most recent call last):</span>
   File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">?</span>
-  File <span class="nb">&quot;pywinauto</span>
-<span class="nb">uzzydict.py&quot;</span>, line <span class="m">125</span>, in <span class="n">__getitem__</span>
-<span class="go">    raise KeyError(</span>
-<span class="go">KeyError: &quot;&#39;There&#39;. closest match: &#39;hello&#39; with ratio 0.400&quot;</span>
+  File <span class="nb">&quot;pywinautouzzydict.py&quot;</span>, line <span class="m">125</span>, in <span class="n">__getitem__</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+<span class="gr">KeyError</span>: <span class="n">&quot;&#39;There&#39;. closest match: &#39;hello&#39; with ratio 0.400&quot;</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fuzzywuzzy</span><span class="p">[</span><span class="s">&#39;you are&#39;</span><span class="p">]</span>
 <span class="go">3</span>
@@ -92,7 +91,7 @@ dictionaries.</p>
 </div>
 <dl class="class">
 <dt id="pywinauto.fuzzydict.FuzzyDict">
-<em class="property">class </em><code class="descclassname">pywinauto.fuzzydict.</code><code class="descname">FuzzyDict</code><span class="sig-paren">(</span><em>items=None</em>, <em>cutoff=0.6</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.fuzzydict.FuzzyDict" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pywinauto.fuzzydict.</code><code class="descname">FuzzyDict</code><span class="sig-paren">(</span><em>items=None</em>, <em>cutoff=0.59999999999999998</em><span class="sig-paren">)</span><a class="headerlink" href="#pywinauto.fuzzydict.FuzzyDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a dictionary that performs fuzzy lookup</p>
 <p>Construct a new FuzzyDict instance</p>
 <p>items is an dictionary to copy items from (optional)
@@ -155,7 +154,7 @@ and 1 is a perfect match)</p>
         <li class="right" >
           <a href="pywinauto.XMLHelpers.html" title="pywinauto.XMLHelpers"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.1 documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../contents.html">pywinauto 0.5.2 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="code.html" >Main user modules</a> &raquo;</li> 
       </ul>
     </div>
