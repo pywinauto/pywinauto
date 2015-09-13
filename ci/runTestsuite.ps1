@@ -18,6 +18,7 @@ function upload($file) {
     {
         Write-Host $_.Exception
     }
+    Write-Host "Uploading: " $file
 
     $wc = New-Object 'System.Net.WebClient'
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", $file)
@@ -38,8 +39,14 @@ function run {
 
     xslt_transform $input $stylesheet $output
 
+    # upload all screen shots in JPEG format
+    $files = Get-ChildItem -Filter *.jpg
+    for ($i=0; $i -lt $files.Count; $i++) {
+        Push-AppveyorArtifact $files[$i].Name
+    }
+
     upload $output
-    
+
     # return exit code of testsuite
     if ( -not $success) {
         throw "testsuite not successful"
