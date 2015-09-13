@@ -101,6 +101,13 @@ class WindowSpecification(object):
     You can also wait for existance or non existance of a window
     """
 
+    WAIT_CRITERIA_MAP = {'exists': ('Exists',),
+                         'visible': ('IsVisible',),
+                         'enabled': ('IsEnabled',),
+                         'ready': ('IsVisible', 'IsEnabled',),
+                         'active': ('IsActive',),
+                         }
+
     def __init__(self, search_criteria):
         """Initailize the class
 
@@ -110,7 +117,6 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
-
 
     def __call__(self, *args, **kwargs):
         "No __call__ so return a usefull error"
@@ -283,12 +289,62 @@ class WindowSpecification(object):
             controls.InvalidWindowHandle):
             return False
 
+    @classmethod
+    def __parse_wait_args(cls, wait_conditions, timeout, retry_interval):
+        """
+        Both methods Wait & WaitNot have the same args handling and they are not trivial, move it here.
+        """
 
-    def Wait(self,
-            wait_for,
-            timeout = None,
-            retry_interval = None):
+        # set the current timings -couldn't set as defaults as they are
+        # evaluated at import time - and timings may be changed at any time
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
 
+        # allow for case mixups - just to make it easier to use
+        wait_for = wait_conditions.lower()
+
+        # get checking methods from the map by wait_conditions string
+        # To avoid needless checks - use a set to filter duplicates
+        unique_check_names = set()
+        wait_criteria_names = wait_for.split()
+        for criteria_name in wait_criteria_names:
+            try:
+                check_methods = cls.WAIT_CRITERIA_MAP[criteria_name]
+            except KeyError:
+                # Invalid check name in the wait_for
+                raise SyntaxError('Unexpected criteria - %s' % criteria_name)
+            else:
+                unique_check_names.update(check_methods)
+
+        # unique_check_names = set(['IsEnabled', 'IsActive', 'IsVisible', 'Exists'])
+        return unique_check_names, timeout, retry_interval
+
+    def __check_all_conditions(self, check_names):
+        """
+        Checks for all conditions
+        If any check's result != True return False immediately, do not matter others check results.
+        True will be returned when all checks passed and all of them equal True.
+        """
+        for check_name in check_names:
+            try:
+                # Hidden _resolve_control call, handle the exceptions.
+                check = getattr(self, check_name)
+            except (findwindows.WindowNotFoundError,
+                    findbestmatch.MatchError,
+                    controls.InvalidWindowHandle):
+                # The control does not exist.
+                return False
+            else:
+                if not check():
+                    # At least one check not passed.
+                    return False
+        else:
+            # All the checks have been done.
+            return True
+
+    def Wait(self, wait_for, timeout=None, retry_interval=None):
         """Wait for the window to be in a particular state/states.
 
         :param wait_for: The state to wait for the window to be in. It can
@@ -316,55 +372,13 @@ class WindowSpecification(object):
            :func:`pywinauto.timings.TimeoutError`
         """
 
-        # set the current timings -couldn't set as defaults as they are
-        # evaluated at import time - and timings may be changed at any time
-        if timeout is None:
-            timeout = Timings.exists_timeout
-        if retry_interval is None:
-            retry_interval = Timings.window_find_retry
+        check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
+        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
 
-        # allow for case mixups - just to make it easier to use
-        waitfor = wait_for.lower()
+        # Return the wrapped control
+        return self.WrapperObject()
 
-        # make a copy of the criteria that we can modify
-        wait_criteria = self.criteria[:]
-
-        # update the criteria based on what has been requested
-        # we go from least strict to most strict in case the user
-        # has specified conflicting wait conditions
-        for criterion in wait_criteria:
-
-            # default is that it 'exists' and for exists
-            # we must not filter for enabled only or visible only (window
-            # can exist even if invisible or disabled)
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
-            if 'exists' in waitfor:
-                pass
-
-            if 'visible' in waitfor:
-                criterion['visible_only'] = True
-
-            if 'enabled' in waitfor:
-                criterion['enabled_only'] = True
-
-            if 'ready' in waitfor:
-                criterion['visible_only'] = True
-                criterion['enabled_only'] = True
-
-            if 'active' in waitfor:
-                criterion['active_only'] = True
-
-        ctrls = _resolve_control(wait_criteria, timeout, retry_interval)
-
-        self.actions.log('Window "' + ctrls[-1].WindowText() + '" appeared to be ' + str(wait_for))
-        return ctrls[-1]
-
-    def WaitNot(self,
-            wait_for_not,
-            timeout = None,
-            retry_interval = None):
-
+    def WaitNot(self, wait_for_not, timeout=None, retry_interval=None):
         """Wait for the window to not be in a particular state/states.
 
         :param wait_for_not: The state to wait for the window to not be in. It can be any
@@ -391,77 +405,10 @@ class WindowSpecification(object):
            :func:`pywinauto.timings.TimeoutError`
         """
 
-        # set the current timings -couldn't set as defaults as they are
-        # evaluated at import time - and timings may be changed at any time
-        if timeout is None:
-            timeout = Timings.window_find_timeout
-        if retry_interval is None:
-            retry_interval = Timings.window_find_retry
-
-        ## remember the start time so we can do an accurate wait for the timeout
-        #start = time.time()
-
-        waitnot_criteria = self.criteria[:]
-        for criterion in waitnot_criteria:
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
-
-        wait_for_not = wait_for_not.lower()
-
-
-        def WindowIsNotXXX():
-            """Local function that returns False if the window is not
-            Visible, etc. Otherwise returns the best matching control"""
-
-            # first check if the window doesn't exist, because if it doesn't
-            # exist, it definitely can't be visible, active enabled or ready
-            try:
-                ctrls = _resolve_control(waitnot_criteria, 0, .01)
-                # if we get here - then the window exists and we need to
-                # do the other checks below
-
-            except (
-                findwindows.WindowNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle):
-                # Window doesn't exist
-                return True
-
-            if 'exists' in wait_for_not:
-                # well if we got here then the control must have
-                # existed so we are not ready to stop checking
-                # because we didn't want the control to exist!
-                return ctrls
-
-            if 'ready' in wait_for_not:
-                if ctrls[-1].IsVisible() and ctrls[-1].IsEnabled():
-                    return ctrls
-
-            if 'enabled' in wait_for_not:
-                if ctrls[-1].IsEnabled():
-                    return ctrls
-
-            if 'visible' in wait_for_not:
-                if ctrls[-1].IsVisible():
-                    return ctrls
-
-            return True
-
-        try:
-            WaitUntil(timeout, retry_interval, WindowIsNotXXX)
-#            if self.criteria[-1].has_key('best_match'):
-#                self.actions.log('Window "' + str(self.criteria[-1]['best_match']) + '" became not ' + str(wait_for_not))
-#            elif self.criteria[-1].has_key('title'):
-#                self.actions.log('Window "' + str(self.criteria[-1]['title']) + '" became not ' + str(wait_for_not))
-        except TimeoutError as e:
-            raise RuntimeError(
-                "Timed out while waiting for window (%s - '%s') "
-                "to not be in '%s' state"% (
-                    e.function_value[-1].Class(),
-                    e.function_value[-1].WindowText(),
-                    "', '".join( wait_for_not.split() ) )
-                )
-
+        check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for_not, timeout, retry_interval)
+        WaitUntil(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
+        # None return value, since we are waiting for a `negative` state of the control.
+        # Expect that you will have nothing to do with the window closed, disabled, etc.
 
     def _ctrl_identifiers(self):
 
