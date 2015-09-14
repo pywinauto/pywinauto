@@ -27,6 +27,7 @@ from __future__ import print_function
 import time
 import ctypes
 import warnings
+import locale
 
 from .. import six
 from .. import win32functions
@@ -468,7 +469,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             self.LVITEM         = win32structures.LVITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
             self.LVM_GETITEM    = win32defines.LVM_GETITEMA            
-            self.text_decode    = lambda v: v.decode('utf-8')
+            self.text_decode    = lambda v: v.decode(locale.getpreferredencoding())
 
     #-----------------------------------------------------------
     def ColumnCount(self):
