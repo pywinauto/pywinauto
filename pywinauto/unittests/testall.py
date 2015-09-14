@@ -46,7 +46,7 @@ modules_to_test = [pywinauto]
 
 
 def run_tests():
-    excludes = ['test_sendkeys']
+    excludes = [] #'test_sendkeys']
 
     suite = unittest.TestSuite()
 
