@@ -100,9 +100,9 @@ class MenuItem(object):
         win32gui.GetMenuItemInfo(self.menu.handle, self.index, True, buf)
         item_info.fType, item_info.fState, item_info.wID, item_info.hSubMenu, item_info.hbmpChecked, \
         item_info.hbmpUnchecked, item_info.dwItemData, item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
-        if six.PY3:
-            item_info.text = item_info.text.encode(locale.getpreferredencoding())
-        
+        if six.PY2:
+            item_info.text = item_info.text.decode(locale.getpreferredencoding())
+
         # OWNERDRAW case try to get string from BCMenu
         if item_info.fType & 256 and not item_info.text:
             mem = RemoteMemoryBlock(self.ctrl)
@@ -169,7 +169,7 @@ class MenuItem(object):
 
     def Text(self):
         "Return the text of this menu item"
-        return self._read_item().text.decode(locale.getpreferredencoding())
+        return self._read_item().text
 
     def SubMenu(self):
         "Return the SubMenu or None if no submenu"
