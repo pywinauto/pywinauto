@@ -876,7 +876,6 @@ class _treeview_element(object):
         
         #self.tree_ctrl.SetFocus()
         self.tree_ctrl.PressMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
-        time.sleep(0.3)
         for i in range(5):
             self.tree_ctrl.MoveMouseInput(coords = (rect.left + i, rect.top), pressed=pressed)
 
@@ -889,9 +888,10 @@ class _treeview_element(object):
         point_to_click = self.Rectangle().mid_point()
         
         self.tree_ctrl.MoveMouseInput(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
-        time.sleep(0.1)
+        time.sleep(Timings.drag_n_drop_move_mouse_wait)
+        
         self.tree_ctrl.ReleaseMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
-        time.sleep(0.3)
+        time.sleep(Timings.after_drag_n_drop_wait)
 
     #----------------------------------------------------------------
     def Collapse(self):
@@ -2277,25 +2277,21 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         else:
             self.actions.log('Pressing up toolbar button "' + str(button_identifier) + '"')
 
-        # if the button is enabled
-        if not button.IsEnabled():
-            time.sleep(1)
-
+        # TODO: add waiting for a button state
         if not button.IsEnabled():
             self.actions.log('Toolbar button is not enabled!')
             raise RuntimeError("Toolbar button is not enabled!")
 
         if button.IsChecked() != make_checked:
             button.ClickInput()
-            '''
+
             # wait while button has changed check state
-            i = 0
-            while button.IsChecked() != make_checked:
-                time.sleep(0.5)
-                i += 1
-                if i > 10:
-                    raise RuntimeError("Cannot wait button check state!")
-            '''
+            #i = 0
+            #while button.IsChecked() != make_checked:
+            #    time.sleep(0.5)
+            #    i += 1
+            #    if i > 10:
+            #        raise RuntimeError("Cannot wait button check state!")
         self.actions.logSectionEnd()
 
 
