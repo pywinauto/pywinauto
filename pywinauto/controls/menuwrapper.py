@@ -100,6 +100,8 @@ class MenuItem(object):
         win32gui.GetMenuItemInfo(self.menu.handle, self.index, True, buf)
         item_info.fType, item_info.fState, item_info.wID, item_info.hSubMenu, item_info.hbmpChecked, \
         item_info.hbmpUnchecked, item_info.dwItemData, item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
+        if six.PY3:
+            item_info.text = item_info.text.encode(locale.getpreferredencoding())
         
         # OWNERDRAW case try to get string from BCMenu
         if item_info.fType & 256 and not item_info.text:
@@ -287,7 +289,10 @@ class MenuItem(object):
 
     def __repr__(self):
         "Return a representation of the object as a string"
-        return "<MenuItem " + self.Text().encode(locale.getpreferredencoding()) + ">"
+        if six.PY3:
+            return "<MenuItem " + self.Text() + ">"
+        else:
+            return "<MenuItem " + self.Text().encode(locale.getpreferredencoding()) + ">"
 
 
 
