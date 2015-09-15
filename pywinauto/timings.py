@@ -152,8 +152,10 @@ class TimeConfig(object):
         'after_editsetedittext_wait': 0,
         'after_editselect_wait': 0.01,
         'drag_n_drop_move_mouse_wait': 0.1,
-        'before_drop_wait': 0.3,
+        'before_drag_wait': 0.5,
+        'before_drop_wait': 0.1,
         'after_drag_n_drop_wait': 0.1,
+        'scroll_step_wait': 0.1,
     }
 
 
