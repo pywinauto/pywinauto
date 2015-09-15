@@ -26,19 +26,20 @@ You can select or click on items and check if they are
 checked or unchecked.
 """
 from __future__ import absolute_import
-
-__revision__ = "$Revision$"
+from __future__ import unicode_literals
 
 import ctypes
 import ctypes.wintypes
 import time
 import win32gui
 import win32gui_struct
+import locale
 
 from .. import win32structures
 from .. import win32functions
 from .. import win32defines
 from .. import findbestmatch
+from .. import six
 from ..RemoteMemoryBlock import RemoteMemoryBlock
 #from .. import SendKeysCtypes as SendKeys
 from ..timings import Timings
@@ -66,7 +67,7 @@ class MenuInfo:
 
 
 class MenuItemNotEnabled(RuntimeError):
-    "Raised when a menuitem is not enabled"
+    "Raised when a menu item is not enabled"
     pass
 
 
@@ -74,11 +75,11 @@ class MenuItem(object):
     """Wrap a menu item"""
 
     def __init__(self, ctrl, menu, index, on_main_menu = False):
-        """Initalize the menu item
+        """Initialize the menu item
 
         * **ctrl**	The dialog or control that owns this menu
         * **menu**	The menu that this item is on
-        * **index**	The Index of this menuitem on the menu
+        * **index**	The Index of this menu item on the menu
         * **on_main_menu**	True if the item is on the main menu
 
         """
@@ -101,7 +102,7 @@ class MenuItem(object):
         item_info.hbmpUnchecked, item_info.dwItemData, item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
         
         # OWNERDRAW case try to get string from BCMenu
-        if item_info.fType & 256:
+        if item_info.fType & 256 and not item_info.text:
             mem = RemoteMemoryBlock(self.ctrl)
             address = item_info.dwItemData
             s = win32structures.LPWSTR()
@@ -112,14 +113,13 @@ class MenuItem(object):
             item_info.text = s.value
             del mem
 
-        return item_info #menu_info
+        return item_info
 
     def FriendlyClassName(self):
         return "MenuItem"
 
     def __print__(self, ctrl, menu, index):
-        pass
-        #print 'Menu ' + str(ctrl) + '; ' + str(menu) + '; ' + str(index);
+        print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
 
     def Rectangle(self):
         "Get the rectangle of the menu item"
@@ -166,32 +166,8 @@ class MenuItem(object):
         return self._read_item().fType
 
     def Text(self):
-        "Return the state of this menu item"
-        '''
-        info = self._read_item()
-        # if there is text
-        if info.cch:
-            # allocate a buffer
-            buffer_size = info.cch+1
-            text = ctypes.create_unicode_buffer(buffer_size)
-
-            # update the structure and get the text info
-            info.dwTypeData = ctypes.addressof(text)
-            info.cch = buffer_size
-
-            win32functions.GetMenuItemInfo (
-                self.menu,
-                self.index,
-                True,
-                ctypes.byref(info))
-
-            text = text.value
-        else:
-            text = ''
-
-        return text
-        '''
-        return self._read_item().text
+        "Return the text of this menu item"
+        return self._read_item().text.decode(locale.getpreferredencoding())
 
     def SubMenu(self):
         "Return the SubMenu or None if no submenu"
@@ -311,7 +287,7 @@ class MenuItem(object):
 
     def __repr__(self):
         "Return a representation of the object as a string"
-        return "<MenuItem %s>" % self.Text()
+        return "<MenuItem " + self.Text().encode(locale.getpreferredencoding()) + ">"
 
 
 
