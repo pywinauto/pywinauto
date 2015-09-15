@@ -644,7 +644,9 @@ class DragAndDropTests(unittest.TestCase):
         "test for DragMouseInput"
         birds = self.ctrl.GetItem(r'\Birds')
         dogs = self.ctrl.GetItem(r'\Dogs')
-        birds.Select()
+        #birds.Select()
+        birds.ClickInput()
+        time.sleep(5) # enough pause to prevent double click detection
         self.ctrl.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
         dogs = self.ctrl.GetItem(r'\Dogs')
         self.assertEquals([child.Text() for child in dogs.Children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
