@@ -26,8 +26,6 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 from __future__ import print_function
 
-__revision__ = "$Revision$"
-
 # pylint:  disable-msg=W0611
 
 #import sys
@@ -38,6 +36,7 @@ import win32api
 import win32gui
 import pywintypes
 import traceback, inspect
+import locale
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
@@ -895,11 +894,10 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
            be visible on the screen but performs a more realistic 'click'
            simulation.
 
-           This method is also vulnerable if the mouse if moved by the user
+           This method is also vulnerable if the mouse is moved by the user
            as that could easily move the mouse off the control before the
-           Click has finished.        
+           Click has finished.
         """
-        time.sleep(0.5)
         _perform_click_input(
             self, button, coords, double, wheel_dist = wheel_dist, use_log = use_log, pressed = pressed, absolute = absolute)
 
@@ -907,7 +905,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     #-----------------------------------------------------------
     def CloseClick(
         self, button = "left", pressed = "", coords = (0, 0), double = False):
-        """Peform a click action that should make the window go away
+        """Perform a click action that should make the window go away
 
         The only difference from Click is that there are extra delays
         before and after the click action.
@@ -1064,6 +1062,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             release_coords = (release_coords.x, release_coords.y)
 
         self.PressMouseInput(button, press_coords, pressed, absolute=absolute)
+        time.sleep(Timings.before_drag_wait)
         for i in range(5):
             self.MoveMouseInput((press_coords[0]+i,press_coords[1]), pressed=pressed, absolute=absolute) # "left"
             time.sleep(Timings.drag_n_drop_move_mouse_wait)
@@ -1129,6 +1128,14 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         win32functions.AttachThreadInput(
             win32functions.GetCurrentThreadId(), self.ProcessID(), 1)
 
+        if isinstance(keys, six.text_type):
+            aligned_keys = keys.encode(locale.getpreferredencoding(), 'ignore')
+        elif isinstance(keys, six.binary_type):
+            aligned_keys = keys
+        else:
+            # convert a non-string input
+            aligned_keys = six.binary_type(keys)
+
         # Play the keys to the active window
         SendKeys.SendKeys(
             keys + '\n',
@@ -1142,7 +1149,10 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             win32functions.GetCurrentThreadId(), self.ProcessID(), 0)
 
         win32functions.WaitGuiThreadIdle(self)
-        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + str(keys))
+        if isinstance(aligned_keys, six.text_type):
+            self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
+        else:
+            self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys.decode(locale.getpreferredencoding()))
         return self
 
     #-----------------------------------------------------------
@@ -1590,7 +1600,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         """Application data is data from a previous run of the software
 
         It is essential for running scripts written for one spoke language
-        on a different spoken langauge
+        on a different spoken language
         """
         self.appdata = appdata
 
@@ -1618,12 +1628,12 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         }
 
     #-----------------------------------------------------------
-    def Scroll(self, direction, amount, count = 1):
+    def Scroll(self, direction, amount, count = 1, retry_interval = None):
         """Ask the control to scroll itself
 
-        direction can be any of "up", "down", "left", "right"
-        amount can be one of "line", "page", "end"
-        count (optional) the number of times to scroll
+        **direction** can be any of "up", "down", "left", "right"
+        **amount** can be one of "line", "page", "end"
+        **count** (optional) the number of times to scroll
         """
 
         # check which message we want to send
@@ -1637,9 +1647,11 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             HwndWrapper._scroll_types[direction.lower()][amount.lower()]
 
         # Scroll as often as we have been asked to
+        if retry_interval is None:
+            retry_interval = Timings.scroll_step_wait
         while count > 0:
             self.SendMessage(message, scroll_type)
-            time.sleep(1.0)
+            time.sleep(retry_interval)
             count -= 1
 
         return self

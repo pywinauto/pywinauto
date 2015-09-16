@@ -29,10 +29,12 @@ is useful!
 
 """
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import time
 import ctypes
 import win32api
+import locale
 
 from . import six
 from . import sysinfo
@@ -46,6 +48,9 @@ DEBUG = 0
 
 MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
 SendInput = ctypes.windll.user32.SendInput
+SendInput.restype = win32structures.UINT
+SendInput.argtypes = [win32structures.UINT, ctypes.c_void_p, ctypes.c_int]
+
 VkKeyScan = ctypes.windll.user32.VkKeyScanW
 VkKeyScan.restype = ctypes.c_short
 VkKeyScan.argtypes = [ctypes.c_wchar]
@@ -256,6 +261,7 @@ class KeyAction(object):
         """Return virtual_key, scan_code, and flags for the action
         
         This is one of the methods that will be overridden by sub classes"""
+        #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
     def GetInput(self):
@@ -288,7 +294,7 @@ class KeyAction(object):
         #return SendInput(
         #    len(inputs),
         #    ctypes.byref(inputs),
-        #    ctypes.sizeof(INPUT))
+        #    ctypes.sizeof(win32structures.INPUT))
         
         # vvryabov: it works more stable than SendInput
         for inp in inputs:
@@ -389,44 +395,6 @@ class PauseAction(KeyAction):
         return "<PAUSE %1.2f>"% (self.how_long)
     __repr__ = __str__
 
-    #def GetInput(self):
-    #    print `self.key`
-    #    keys = KeyAction.GetInput(self)
-    #
-    #    shift_state = HiByte(VkKeyScan(self.key))
-    #
-    #    shift_down = shift_state & 0x100  # 1st bit
-    #    ctrl_down =  shift_state & 0x80   # 2nd bit
-    #    alt_down =  shift_state & 0x40    # 3rd bit
-    #
-    #    print bin(shift_state), shift_down, ctrl_down, alt_down
-    #
-    #    print keys
-    #    keys = [k for k in keys]
-    #
-    #    modifiers = []
-    #    if shift_down:
-    #        keys[0:0] = VirtualKeyAction(VK_SHIFT, up = False).GetInput()
-    #        keys.append(VirtualKeyAction(VK_SHIFT, down = False).GetInput())
-    #    if ctrl_down:
-    #        keys[0:0] = VirtualKeyAction(VK_CONTROL, up = False).GetInput()
-    #        keys.append(VirtualKeyAction(VK_CONTROL, down = False).GetInput())
-    #    if alt_down:
-    #        keys[0:0] = VirtualKeyAction(VK_ALT, up = False).GetInput()
-    #        keys.append(VirtualKeyAction(VK_ALT, down = False).GetInput())
-    #
-    #    print keys
-    #    new_keys = (INPUT * len(keys)) ()
-    #
-    #    for i, k in enumerate(keys):
-    #        if hasattr(k, 'type'):
-    #            new_keys[i] = k
-    #        else:
-    #            for sub_key in k:
-    #                new_keys[i] = sub_key
-    #
-    #    return new_keys
-    #
 
 def handle_code(code):
     "Handle a key or sequence of keys in braces"

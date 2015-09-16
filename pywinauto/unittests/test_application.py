@@ -26,8 +26,6 @@
 
 "Tests for application.py"
 
-__revision__ = "$Revision: 234 $"
-
 import os
 import os.path
 import unittest
@@ -39,10 +37,11 @@ import warnings
 import sys
 sys.path.append(".")
 from pywinauto import application
+from pywinauto.controls import HwndWrapper
 from pywinauto.application import Application, WindowSpecification, process_module
 from pywinauto.application import ProcessNotFoundError, AppStartError, AppNotConnected
 from pywinauto import findwindows, findbestmatch
-from pywinauto.timings import Timings, TimeoutError
+from pywinauto.timings import Timings, TimeoutError, WaitUntil
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 Timings.Fast()
@@ -175,7 +174,6 @@ class ApplicationTestCases(unittest.TestCase):
 
 #    def testset_timing(self):
 #        "Test that set_timing sets the timing correctly"
-#        from pywinauto.controls import HwndWrapper
 #        prev_timing = (
 #            application.window_find_timeout,
 #            application.window_retry_interval,
@@ -336,22 +334,32 @@ class ApplicationTestCases(unittest.TestCase):
         app.UntitledNotepad.WaitNot('exists')
         self.assertRaises(RuntimeError, app.active_)
 
-    #def testWaitCPUUsageLower(self):
-    #    if is_x64_Python() != is_x64_OS():
-    #        return None
-    #    
-    #    Application.start(r'explorer.exe')
-    #    explorer = Application.connect(path='explorer.exe')
-    #    NewWindow = explorer.Window_(top_level_only=True, active_only=True, class_name='CabinetWClass')
-    #    try:
-    #        NewWindow.AddressBandRoot.ClickInput()
-    #        NewWindow.TypeKeys(r'Control Panel\Programs\Programs and Features{ENTER}', with_spaces=True, set_foreground=False)
-    #        ProgramsAndFeatures = explorer.Window_(top_level_only=True, active_only=True, title='Programs and Features', class_name='CabinetWClass')
-    #        explorer.WaitCPUUsageLower(threshold=10, timeout=60)
-    #        installed_programs = ProgramsAndFeatures.FolderView.Texts()[1:]
-    #        self.assertEqual('Python' in ','.join(installed_programs), True)
-    #    finally:
-    #        NewWindow.CloseAltF4()
+    def testWaitCPUUsageLower(self):
+        if is_x64_Python() != is_x64_OS():
+            return None
+        
+        app = Application().Start(r'explorer.exe')
+        WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, class_name='CabinetWClass')) > 0)
+        handle = findwindows.find_windows(active_only=True, class_name='CabinetWClass')[-1]
+        window = WindowSpecification({'handle': handle, })
+        explorer = Application().Connect(process=window.ProcessID())
+        
+        try:
+            window.AddressBandRoot.ClickInput()
+            window.Edit.SetEditText(r'Control Panel\Programs\Programs and Features')
+            window.TypeKeys(r'{ENTER 2}', set_foreground=False)
+            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title='Programs and Features', class_name='CabinetWClass')) > 0)
+            explorer.WaitCPUUsageLower(threshold=2.5, timeout=40)
+            installed_programs = window.FolderView.Texts()[1:]
+            programs_list = ','.join(installed_programs)
+            if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
+                HwndWrapper.ImageGrab.grab().save(r'explorer_screenshot.jpg')
+            HwndWrapper.ActionLogger().log('\ninstalled_programs:\n')
+            for prog in installed_programs:
+                HwndWrapper.ActionLogger().log(prog)
+            self.assertEqual(('Microsoft' in programs_list) or ('Python' in programs_list), True)
+        finally:
+            window.Close(2.0)
 
     def testWindows(self):
         "Test that windows_() works correctly"
@@ -527,7 +535,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def testWrapperObject(self):
         "Test that we can get a control "
-        from pywinauto.controls import HwndWrapper
         self.assertEquals(True, isinstance(self.dlgspec, WindowSpecification))
 
         self.assertEquals(

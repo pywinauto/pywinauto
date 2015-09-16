@@ -716,14 +716,26 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         
         if isinstance(text, six.text_type):
             if six.PY3:
-                buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
+                aligned_text = text
             else:
-                buffer = ctypes.create_string_buffer(text.encode(locale.getpreferredencoding(), 'ignore'), size=len(text) + 1)
-        else:
+                aligned_text = text.encode(locale.getpreferredencoding(), 'ignore')
+        elif isinstance(text, six.binary_type):
             if six.PY3:
-                buffer = ctypes.create_unicode_buffer(text.decode(locale.getpreferredencoding()), size=len(text) + 1)
+                aligned_text = text.decode(locale.getpreferredencoding())
             else:
-                buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
+                aligned_text = text
+        else:
+            # convert a non-string input
+            if six.PY3:
+                aligned_text = six.text_type(text)
+            else:
+                aligned_text = six.binary_type(text)
+        
+        if isinstance(aligned_text, six.text_type):
+            buffer = ctypes.create_unicode_buffer(aligned_text, size=len(aligned_text) + 1)
+        else:
+            buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
+        
         #buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
         '''
         from ..RemoteMemoryBlock import RemoteMemoryBlock
@@ -741,13 +753,10 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
 
-        if isinstance(text, six.text_type):
-            if six.PY3:
-                self.actions.log('Set text to the edit box: ' + text)
-            else:
-                self.actions.log('Set text to the edit box: ' + text.encode(locale.getpreferredencoding(), 'ignore'))
-        elif isinstance(text, six.binary_type):
-            self.actions.log(b'Set text to the edit box: ' + text)
+        if isinstance(aligned_text, six.text_type):
+            self.actions.log('Set text to the edit box: ' + aligned_text)
+        else:
+            self.actions.log(b'Set text to the edit box: ' + aligned_text)
 
         # return this control so that actions can be chained.
         return self
