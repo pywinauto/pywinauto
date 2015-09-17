@@ -26,10 +26,11 @@ import unittest
 
 import sys, time, os
 sys.path.append(".")
-from pywinauto import taskbar
-from pywinauto.application import Application, ProcessNotFoundError
+from pywinauto import taskbar, findwindows
+from pywinauto.application import Application, ProcessNotFoundError, WindowSpecification
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto import win32defines
+from pywinauto.timings import WaitUntil
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -55,15 +56,13 @@ def _toggle_notification_area_icons(show_all=True):
 
     app = Application()
     starter = app.start_(r'explorer.exe')
-    starter.WaitCPUUsageLower(threshold=4)
-    explorer = app.connect_(path='explorer.exe')
+    WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, class_name='CabinetWClass')) > 0)
+    handle = findwindows.find_windows(active_only=True, class_name='CabinetWClass')[-1]
+    NewWindow = WindowSpecification({'handle': handle, })
+    explorer = Application().Connect(process=NewWindow.ProcessID())
     cur_state = None
     
     # Go to "Control Panel -> Notification Area Icons"
-    NewWindow = explorer.Window_(top_level_only=True, 
-            active_only=True, class_name='CabinetWClass')
-
-
     try:
         NewWindow.AddressBandRoot.ClickInput()
         NewWindow.TypeKeys(r'control /name Microsoft.NotificationAreaIcons{ENTER}', 
