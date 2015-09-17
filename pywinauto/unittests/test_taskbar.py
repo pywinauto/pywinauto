@@ -42,6 +42,48 @@ def _notepad_exe():
     else:
         return r"C:\Windows\SysWOW64\notepad.exe"
 
+def _toggle_notification_area_icons(show_all=True):
+    """
+    A helper function to change 'Show All Icons' settings.
+    On a succesful execution the function returns an original
+    state of 'Show All Icons' checkbox.
+
+    The helper works only for an "English" version of Windows,
+    on non-english versions of Windows the 'Notification Area Icons'
+    window should be accessed with a localized title"
+    """
+
+    app = Application()
+    starter = app.start_(r'explorer.exe')
+    starter.WaitCPUUsageLower(threshold=4)
+    explorer = app.connect_(path='explorer.exe')
+    cur_state = None
+    
+    # Go to "Control Panel -> Notification Area Icons"
+    NewWindow = explorer.Window_(top_level_only=True, 
+            active_only=True, class_name='CabinetWClass')
+
+
+    try:
+        NewWindow.AddressBandRoot.ClickInput()
+        NewWindow.TypeKeys(r'control /name Microsoft.NotificationAreaIcons{ENTER}', 
+                with_spaces=True, set_foreground=False)
+        explorer.WaitCPUUsageLower(threshold=4)
+        NotificationAreaIcons = explorer.Window_(title="Notification Area Icons", 
+                class_name="CabinetWClass")
+
+        cur_state = NotificationAreaIcons.CheckBox.GetCheckState()
+
+        # toggle the checkbox if it differs
+        if bool(cur_state) != show_all:
+            NotificationAreaIcons.CheckBox.ClickInput()
+        NotificationAreaIcons.Ok.ClickInput()
+    
+        explorer.WaitCPUUsageLower(threshold=4)
+    finally:
+        NewWindow.Close()
+
+    return cur_state
 
 class TaskbarTestCases(unittest.TestCase):
     "Unit tests for the taskbar"
@@ -94,30 +136,73 @@ class TaskbarTestCases(unittest.TestCase):
         ClockWindow.WaitNot('visible')
     '''
 
-    def testClickIcons(self):
-        "Test minimizing a sample app to tray and restoring"
-        apps_area = taskbar.RunningApplications.Rectangle()
+    def testClickVisibleIcon(self):
+        """
+        Test minimizing a sample app to the visible area of the tray 
+        and restoring the app back
+        """
+        
+        # Make sure that the hidden icons area is disabled
+        orig_hid_state = _toggle_notification_area_icons(show_all=True)
         
         self.dlg.Minimize()
         self.dlg.WaitNot('active')
+
+        # click in the visible area
+        taskbar.ClickSystemTrayIcon('MFCTrayDemo', double=True)
+        self.dlg.Wait('active')
+
+        # Restore Notification Area settings
+        _toggle_notification_area_icons(show_all=orig_hid_state)
+    
+    def testClickHiddenIcon(self):
+        """
+        Test minimizing a sample app into the hidden area of the tray
+        and restoring the app back
+        """
+        
+        # Make sure that the hidden icons area is enabled
+        orig_hid_state = _toggle_notification_area_icons(show_all=False)
+        
+        self.dlg.Minimize()
+        self.dlg.WaitNot('active')
+
+        # Run one more sample app to make sure one of the icons moves into the hidden area
+        app = Application()
+        app.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        dlg = app.TrayMenu
+        dlg.Wait('ready')
+        self.dlg.Minimize()
+        self.dlg.WaitNot('active')
+
+        # Click in the hidden area
         taskbar.ClickHiddenSystemTrayIcon('MFCTrayDemo', double=True)
         self.dlg.Wait('active')
 
+        # Restore Notification Area settings
+        _toggle_notification_area_icons(show_all=orig_hid_state)
 
-    '''
-        taskbar.RunningApplications.RightClickInput(coords=(apps_area.width()-100, apps_area.height()-5))
-        taskbar.explorer_app.PopupMenu.Menu().GetMenuPath('Start Task Manager')[0].Click()
-        task_mgr = Application.connect(path='taskmgr.exe')
-        task_manager_window = task_mgr.Window_(title='Windows Task Manager')
-        task_manager_window.Wait('ready')
-        task_manager_window.Minimize()
-        task_manager_window.WaitNot('visible')
+        dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testClickCustomizeButton(self):
+        "Test click on show hidden icons button"
         
-        taskbar.ClickSystemTrayIcon('CPU Usage: %', double=True)
-        task_manager_window.Wait('ready')
-        task_manager_window.Minimize()
-        task_manager_window.WaitNot('visible')
-    '''
+        # Make sure that the hidden icons area is enabled
+        orig_hid_state = _toggle_notification_area_icons(show_all=False)
+
+        # Test click on "Show Hidden Icons" button
+        taskbar.ShowHiddenIconsButton.ClickInput()
+        popup_dlg = taskbar.explorer_app.Window_(class_name='NotifyIconOverflowWindow')
+        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        popup_dlg.SysLink.ClickInput()
+        nai = taskbar.explorer_app.Window_(title="Notification Area Icons", class_name="CabinetWClass")
+        origAlwaysShow = nai.CheckBox.GetCheckState()
+        if not origAlwaysShow:
+            nai.CheckBox.ClickInput()
+        nai.OK.Click()
+
+        # Restore Notification Area settings
+        _toggle_notification_area_icons(show_all=orig_hid_state)
 
 
 if __name__ == "__main__":
