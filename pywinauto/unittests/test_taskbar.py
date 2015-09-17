@@ -146,6 +146,7 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.WaitNot('active')
 
         # click in the visible area
+        taskbar.SystemTrayIcons.Wait("ready", 30)
         taskbar.ClickSystemTrayIcon('MFCTrayDemo', double=True)
         self.dlg.Wait('active')
 
