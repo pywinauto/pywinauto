@@ -175,6 +175,8 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.WaitNot('active')
 
         # Click in the hidden area
+        from PIL import ImageGrab
+        ImageGrab.grab().save("testTopWindow_%s.jpg"%(self.id()),"JPEG")
         taskbar.ClickHiddenSystemTrayIcon('MFCTrayDemo', double=True)
         self.dlg.Wait('active')
 
@@ -192,7 +194,12 @@ class TaskbarTestCases(unittest.TestCase):
         # Test click on "Show Hidden Icons" button
         taskbar.ShowHiddenIconsButton.ClickInput()
         popup_dlg = taskbar.explorer_app.Window_(class_name='NotifyIconOverflowWindow')
-        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        from pywinauto.timings import TimeoutError
+        try:
+            popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('ready')
+        except(TimeoutError):
+            from PIL import ImageGrab
+            ImageGrab.grab().save("testTopWindow_%s.jpg"%(self.id()),"JPEG")
         popup_dlg.SysLink.ClickInput()
         nai = taskbar.explorer_app.Window_(title="Notification Area Icons",
                 class_name="CabinetWClass")
