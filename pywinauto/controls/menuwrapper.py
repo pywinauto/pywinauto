@@ -71,6 +71,22 @@ class MenuItemNotEnabled(RuntimeError):
     pass
 
 
+class MenuInaccessible(RuntimeError):
+    """
+    Raised when a menu has handle but inaccessible
+    """
+    pass
+
+
+def raise_if_inaccessible(method):
+    def check(instance, *args, **kwargs):
+            if instance.inaccessible:
+                raise MenuInaccessible
+            else:
+                return method(instance, *args, **kwargs)
+    return check
+
+
 class MenuItem(object):
     """Wrap a menu item"""
 
@@ -281,9 +297,14 @@ class MenuItem(object):
         props['ID'] = self.ID()
         props['Text'] = self.Text()
 
-        submenu =  self.SubMenu()
+        submenu = self.SubMenu()
         if submenu:
-            props['MenuItems'] = submenu.GetProperties()
+            if not submenu.inaccessible:
+                props['MenuItems'] = submenu.GetProperties()
+            else:
+                # Submenu is attached to the item but not accessible,
+                # so just mark that it exists without any additional information.
+                props['MenuItems'] = []
 
         return props
 
@@ -363,24 +384,31 @@ class Menu(object):
         self.owner_item = owner_item
 
         self._as_parameter_ = self.handle
+        self.inaccessible = False
 
         if self.is_main_menu:
             self.ctrl.SendMessageTimeout(win32defines.WM_INITMENU, self.handle)
         
         menu_info = MenuInfo()
         buf = win32gui_struct.EmptyMENUINFO()
-        win32gui.GetMenuInfo(self.handle, buf)
-        menu_info.dwStyle, menu_info.cyMax, menu_info.hbrBack, menu_info.dwContextHelpID, menu_info.dwMenuData = win32gui_struct.UnpackMENUINFO(buf)
-        
-        if menu_info.dwStyle & win32defines.MNS_NOTIFYBYPOS:
-            self.COMMAND = win32defines.WM_MENUCOMMAND
+        try:
+            win32gui.GetMenuInfo(self.handle, buf)
+        except win32gui.error:
+            self.inaccessible = True
         else:
-            self.COMMAND = win32defines.WM_COMMAND
+            menu_info.dwStyle, menu_info.cyMax, menu_info.hbrBack, menu_info.dwContextHelpID, menu_info.dwMenuData = win32gui_struct.UnpackMENUINFO(buf)
 
+            if menu_info.dwStyle & win32defines.MNS_NOTIFYBYPOS:
+                self.COMMAND = win32defines.WM_MENUCOMMAND
+            else:
+                self.COMMAND = win32defines.WM_COMMAND
+
+    @raise_if_inaccessible
     def ItemCount(self):
         "Return the count of items in this menu"
         return win32gui.GetMenuItemCount(self.handle)
 
+    @raise_if_inaccessible
     def Item(self, index):
         """Return a specific menu item
 
@@ -388,6 +416,7 @@ class Menu(object):
         """
         return MenuItem(self.ctrl, self, index, self.is_main_menu)
 
+    @raise_if_inaccessible
     def Items(self):
         "Return a list of all the items in this menu"
         items = []
@@ -396,6 +425,7 @@ class Menu(object):
 
         return items
 
+    @raise_if_inaccessible
     def GetProperties(self):
         """Return the properties for the menu as a list of dictionaries
 
@@ -410,7 +440,7 @@ class Menu(object):
 
         return {'MenuItems': item_props}
 
-
+    @raise_if_inaccessible
     def GetMenuPath(self, path, path_items = None, appdata = None, exact=False):
         """Walk the items in this menu to find the item specified by path
         
@@ -480,7 +510,6 @@ class Menu(object):
                     exact=exact)
 
         return path_items
-
 
     def __repr__(self):
         "Return a simple representation of the menu"
