@@ -206,10 +206,12 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
-        app = Application()
-        app.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg = app.TrayMenu
-        dlg.Wait('ready')
+        app2 = Application()
+        app2.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        dlg2 = app2.TrayMenu
+        dlg2.Wait('visible')
+        dlg2.Minimize()
+        dlg2.WaitNot('active')
         self.dlg.Minimize()
         self.dlg.WaitNot('active')
 
@@ -223,7 +225,7 @@ class TaskbarTestCases(unittest.TestCase):
                 debug_img="%s_02.jpg" % (self.id())
                 )
 
-        dlg.SendMessage(win32defines.WM_CLOSE)
+        dlg2.SendMessage(win32defines.WM_CLOSE)
 
     def testClickCustomizeButton(self):
         "Test click on show hidden icons button"
@@ -234,16 +236,27 @@ class TaskbarTestCases(unittest.TestCase):
                 debug_img="%s_01.jpg" % (self.id())
                 )
 
+        # Run one more instance of the sample app
+        # hopefully one of the icons moves into the hidden area
+        app2 = Application()
+        app2.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        dlg2 = app2.TrayMenu
+        dlg2.Wait('visible')
+        dlg2.Minimize()
+        dlg2.WaitNot('active')
+        self.dlg.Minimize()
+        self.dlg.WaitNot('active')
+
         # Test click on "Show Hidden Icons" button
         taskbar.ShowHiddenIconsButton.ClickInput()
-        dlg = taskbar.explorer_app.Window_(
+        niow_dlg = taskbar.explorer_app.Window_(
                 class_name='NotifyIconOverflowWindow')
         from pywinauto.timings import TimeoutError
         try:
-            dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=30)
+            niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=30)
         except(TimeoutError):
             ImageGrab.grab().save("TimeoutError_%s.jpg" % (self.id()), "JPEG")
-        dlg.SysLink.ClickInput()
+        niow_dlg.SysLink.ClickInput()
         nai = taskbar.explorer_app.Window_(
                 title="Notification Area Icons",
                 class_name="CabinetWClass"
@@ -259,6 +272,7 @@ class TaskbarTestCases(unittest.TestCase):
                 debug_img="%s_02.jpg" % (self.id())
                 )
 
+        dlg2.SendMessage(win32defines.WM_CLOSE)
 
 if __name__ == "__main__":
     unittest.main()
