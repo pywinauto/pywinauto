@@ -67,10 +67,9 @@ def _toggle_notification_area_icons(show_all=True):
         NewWindow.AddressBandRoot.ClickInput()
         NewWindow.TypeKeys(r'control /name Microsoft.NotificationAreaIcons{ENTER}', 
                 with_spaces=True, set_foreground=False)
-        explorer.WaitCPUUsageLower(threshold=4)
+        explorer.WaitCPUUsageLower(threshold=5, timeout=40)
         NotificationAreaIcons = explorer.Window_(title="Notification Area Icons", 
                 class_name="CabinetWClass")
-
         cur_state = NotificationAreaIcons.CheckBox.GetCheckState()
 
         # toggle the checkbox if it differs
@@ -78,7 +77,6 @@ def _toggle_notification_area_icons(show_all=True):
             NotificationAreaIcons.CheckBox.ClickInput()
         NotificationAreaIcons.Ok.ClickInput()
     
-        explorer.WaitCPUUsageLower(threshold=4)
     finally:
         NewWindow.Close()
 
@@ -137,7 +135,7 @@ class TaskbarTestCases(unittest.TestCase):
 
     def testClickVisibleIcon(self):
         """
-        Test minimizing a sample app to the visible area of the tray 
+        Test minimizing a sample app into the visible area of the tray 
         and restoring the app back
         """
         
@@ -166,7 +164,8 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.Minimize()
         self.dlg.WaitNot('active')
 
-        # Run one more sample app to make sure one of the icons moves into the hidden area
+        # Run one more instance of the sample app
+        # hopefully one of the icons moves into the hidden area
         app = Application()
         app.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         dlg = app.TrayMenu
@@ -194,7 +193,8 @@ class TaskbarTestCases(unittest.TestCase):
         popup_dlg = taskbar.explorer_app.Window_(class_name='NotifyIconOverflowWindow')
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
         popup_dlg.SysLink.ClickInput()
-        nai = taskbar.explorer_app.Window_(title="Notification Area Icons", class_name="CabinetWClass")
+        nai = taskbar.explorer_app.Window_(title="Notification Area Icons",
+                class_name="CabinetWClass")
         origAlwaysShow = nai.CheckBox.GetCheckState()
         if not origAlwaysShow:
             nai.CheckBox.ClickInput()
