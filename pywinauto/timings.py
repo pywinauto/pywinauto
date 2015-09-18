@@ -65,7 +65,7 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_setcursorpos_wait   (default .01)
 
-* sendmessagetimeout_timeout   (default .001)
+* sendmessagetimeout_timeout   (default .01)
 
 * after_tabselect_wait   (default .05)
 * after_listviewselect_wait   (default .01)
@@ -131,7 +131,7 @@ class TimeConfig(object):
 
         'after_setcursorpos_wait' : .01,
 
-        'sendmessagetimeout_timeout' : .001,
+        'sendmessagetimeout_timeout' : .01,
 
         'after_tabselect_wait': .05,
 

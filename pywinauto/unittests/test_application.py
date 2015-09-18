@@ -379,7 +379,7 @@ class ApplicationTestCases(unittest.TestCase):
             app.windows_(visible_only = True, enabled_only = False),
             [aboutnotepad_handle, notepad_handle])
 
-        app.AboutNotepad.Ok.Click()
+        app.AboutNotepad.OK.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
     def testWindow(self):

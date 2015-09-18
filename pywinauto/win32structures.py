@@ -905,7 +905,10 @@ else:
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
 class MOUSEINPUT(Structure):
-    _pack_ = 2
+    if sysinfo.is_x64_Python():
+        _pack_ = 8
+    else:
+        _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
         ('dx', LONG),
@@ -913,28 +916,42 @@ class MOUSEINPUT(Structure):
         ('mouseData', DWORD),
         ('dwFlags', DWORD),
         ('time', DWORD),
-        ('dwExtraInfo', DWORD),
+        ('dwExtraInfo', ULONG_PTR),
     ]
-assert sizeof(MOUSEINPUT) == 24, sizeof(MOUSEINPUT)
-assert alignment(MOUSEINPUT) == 2, alignment(MOUSEINPUT)
+if sysinfo.is_x64_Python():
+    assert sizeof(MOUSEINPUT) == 32, sizeof(MOUSEINPUT)
+    assert alignment(MOUSEINPUT) == 8, alignment(MOUSEINPUT)
+else:
+    assert sizeof(MOUSEINPUT) == 24, sizeof(MOUSEINPUT)
+    assert alignment(MOUSEINPUT) == 2, alignment(MOUSEINPUT)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
 class KEYBDINPUT(Structure):
-    _pack_ = 2
+    if sysinfo.is_x64_Python():
+        _pack_ = 8
+    else:
+        _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
         ('wVk', WORD),
         ('wScan', WORD),
         ('dwFlags', DWORD),
         ('time', DWORD),
-        ('dwExtraInfo', DWORD),
+        ('dwExtraInfo', ULONG_PTR),
     ]
-assert sizeof(KEYBDINPUT) == 16, sizeof(KEYBDINPUT)
-assert alignment(KEYBDINPUT) == 2, alignment(KEYBDINPUT)
+if sysinfo.is_x64_Python():
+    assert sizeof(KEYBDINPUT) == 24, sizeof(KEYBDINPUT)
+    assert alignment(KEYBDINPUT) == 8, alignment(KEYBDINPUT)
+else:
+    assert sizeof(KEYBDINPUT) == 16, sizeof(KEYBDINPUT)
+    assert alignment(KEYBDINPUT) == 2, alignment(KEYBDINPUT)
 
 
 class HARDWAREINPUT(Structure):
-    _pack_ = 2
+    if sysinfo.is_x64_Python():
+        _pack_ = 8
+    else:
+        _pack_ = 2
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4300
         ('uMsg', DWORD),
@@ -942,7 +959,10 @@ class HARDWAREINPUT(Structure):
         ('wParamH', WORD),
     ]
 assert sizeof(HARDWAREINPUT) == 8, sizeof(HARDWAREINPUT)
-assert alignment(HARDWAREINPUT) == 2, alignment(HARDWAREINPUT)
+if sysinfo.is_x64_Python():
+    assert alignment(HARDWAREINPUT) == 4, alignment(HARDWAREINPUT)
+else:
+    assert alignment(HARDWAREINPUT) == 2, alignment(HARDWAREINPUT)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
@@ -953,21 +973,32 @@ class UNION_INPUT_STRUCTS(Union):
         ('ki', KEYBDINPUT),
         ('hi', HARDWAREINPUT),
     ]
-assert sizeof(UNION_INPUT_STRUCTS) == 24, sizeof(UNION_INPUT_STRUCTS)
-assert alignment(UNION_INPUT_STRUCTS) == 2, alignment(UNION_INPUT_STRUCTS)
+if sysinfo.is_x64_Python():
+    assert sizeof(UNION_INPUT_STRUCTS) == 32, sizeof(UNION_INPUT_STRUCTS)
+    assert alignment(UNION_INPUT_STRUCTS) == 8, alignment(UNION_INPUT_STRUCTS)
+else:
+    assert sizeof(UNION_INPUT_STRUCTS) == 24, sizeof(UNION_INPUT_STRUCTS)
+    assert alignment(UNION_INPUT_STRUCTS) == 2, alignment(UNION_INPUT_STRUCTS)
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
 class INPUT(Structure):
-    _pack_ = 2
+    if sysinfo.is_x64_Python():
+        _pack_ = 8
+    else:
+        _pack_ = 2
     _anonymous_ = ("_",)
     _fields_ = [
         # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
-        ('type', DWORD),
+        ('type', c_int),
         # Unnamed field renamed to '_'
         ('_', UNION_INPUT_STRUCTS),
     ]
-assert sizeof(INPUT) == 28, sizeof(INPUT)
-assert alignment(INPUT) == 2, alignment(INPUT)
+if sysinfo.is_x64_Python():
+    assert sizeof(INPUT) == 40, sizeof(INPUT)
+    assert alignment(INPUT) == 8, alignment(INPUT)
+else:
+    assert sizeof(INPUT) == 28, sizeof(INPUT)
+    assert alignment(INPUT) == 2, alignment(INPUT)
 
 
 
@@ -1069,6 +1100,24 @@ class WINDOWPLACEMENT(Structure):
 assert sizeof(WINDOWPLACEMENT) == 44, sizeof(WINDOWPLACEMENT)
 assert alignment(WINDOWPLACEMENT) == 4, alignment(WINDOWPLACEMENT)
 
+# TODO: use it for clicking on "check" icon etc.
+#class LVHITTESTINFO(Structure):
+#    #_pack_ = 1
+#    _fields_ = [
+#        # https://msdn.microsoft.com/en-us/library/windows/desktop/bb774754(v=vs.85).aspx
+#        ('pt', POINT),
+#        ('flags', UINT),
+#        ('iItem', c_int),
+#        ('iSubItem', c_int),
+#        ('iGroup', c_int),
+#    ]
+#if sysinfo.is_x64_Python():
+#    assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
+#    assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
+#else:
+#    assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
+#    assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
+
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4052
 class TVHITTESTINFO(Structure):
@@ -1134,4 +1183,3 @@ class SYSTEMTIME(Structure):
         return self.__repr__()
 
 assert sizeof(SYSTEMTIME) == 16, sizeof(SYSTEMTIME)
-
