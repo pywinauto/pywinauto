@@ -51,6 +51,10 @@ def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, b
 
 def ClickSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a visible tray icon given by button"
+    from PIL import ImageGrab
+    from datetime import datetime
+    ImageGrab.grab().save("ClickSystemTrayIcon_%s.jpg" % 
+            (datetime.strftime(datetime.now(), format="%H_%m_%S")), "JPEG")
     SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput(double=double)
 
 def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
@@ -59,6 +63,10 @@ def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
 
 def ClickHiddenSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a hidden tray icon given by button"
+    from PIL import ImageGrab
+    from datetime import datetime
+    ImageGrab.grab().save("ClickHiddenSystemTrayIcon%s.jpg" % 
+            (datetime.strftime(datetime.now(), format="%H_%m_%S")), "JPEG")
     _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip, double=double)
 
 def RightClickHiddenSystemTrayIcon(button, exact = False, by_tooltip=False):

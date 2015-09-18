@@ -143,7 +143,9 @@ class TaskbarTestCases(unittest.TestCase):
         start_menu = taskbar.explorer_app.Window_(class_name='DV2ControlHost')
         start_menu.SearchEditBoxWrapperClass.ClickInput()
         start_menu.SearchEditBoxWrapperClass.TypeKeys(
-           _notepad_exe() + '{ENTER}', with_spaces=True, set_foreground=False)
+           _notepad_exe() + '{ENTER}', 
+           with_spaces=True, set_foreground=False
+           )
 
         time.sleep(5)
         notepad = Application.connect(path=_notepad_exe())
