@@ -75,28 +75,28 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     WaitUntil(30, 0.5, _cabinetwclass_exist)
     handle = findwindows.find_windows(active_only=True,
                                       class_name=class_name)[-1]
-    NewWindow = WindowSpecification({'handle': handle, })
-    explorer = Application().Connect(process=NewWindow.ProcessID())
+    window = WindowSpecification({'handle': handle, })
+    explorer = Application().Connect(process=window.ProcessID())
     cur_state = None
 
     try:
         # Go to "Control Panel -> Notification Area Icons"
-        NewWindow.AddressBandRoot.ClickInput()
-        NewWindow.TypeKeys(
+        window.AddressBandRoot.ClickInput()
+        window.TypeKeys(
                     r'control /name Microsoft.NotificationAreaIcons{ENTER}',
-                    with_spaces=True, set_foreground=False)
+                    with_spaces=True,
+                    set_foreground=False)
         explorer.WaitCPUUsageLower(threshold=5, timeout=40)
 
         # Get the new opened applet
-        NotificationAreaIcons = explorer.Window_(
-                                    title="Notification Area Icons",
-                                    class_name=class_name)
-        cur_state = NotificationAreaIcons.CheckBox.GetCheckState()
+        notif_area = explorer.Window_(title="Notification Area Icons",
+                                      class_name=class_name)
+        cur_state = notif_area.CheckBox.GetCheckState()
 
         # toggle the checkbox if it differs and close the applet
         if bool(cur_state) != show_all:
-            NotificationAreaIcons.CheckBox.ClickInput()
-        NotificationAreaIcons.Ok.ClickInput()
+            notif_area.CheckBox.ClickInput()
+        notif_area.Ok.ClickInput()
         explorer.WaitCPUUsageLower(threshold=5, timeout=40)
 
     except exceptions as e:
@@ -107,7 +107,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
     finally:
         # close the explorer window
-        NewWindow.Close()
+        window.Close()
 
     return cur_state
 
@@ -143,7 +143,7 @@ class TaskbarTestCases(unittest.TestCase):
         start_menu = taskbar.explorer_app.Window_(class_name='DV2ControlHost')
         start_menu.SearchEditBoxWrapperClass.ClickInput()
         start_menu.SearchEditBoxWrapperClass.TypeKeys(
-           _notepad_exe() + '{ENTER}', 
+           _notepad_exe() + '{ENTER}',
            with_spaces=True, set_foreground=False
            )
 
@@ -183,13 +183,11 @@ class TaskbarTestCases(unittest.TestCase):
         # click in the visible area
         taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=40)
         taskbar.ClickSystemTrayIcon('MFCTrayDemo', double=True)
-        self.dlg.Wait('active')
+        self.dlg.Wait('active', timeout=40)
 
         # Restore Notification Area settings
-        _toggle_notification_area_icons(
-                show_all=orig_hid_state,
-                debug_img="%s_02.jpg" % (self.id())
-                )
+        _toggle_notification_area_icons(show_all=orig_hid_state,
+                                        debug_img="%s_02.jpg" % (self.id()))
 
     def testClickHiddenIcon(self):
         """
@@ -221,10 +219,8 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.Wait('visible', timeout=30)
 
         # Restore Notification Area settings
-        _toggle_notification_area_icons(
-                show_all=orig_hid_state,
-                debug_img="%s_02.jpg" % (self.id())
-                )
+        _toggle_notification_area_icons(show_all=orig_hid_state,
+                                        debug_img="%s_02.jpg" % (self.id()))
 
         dlg2.SendMessage(win32defines.WM_CLOSE)
 
@@ -264,11 +260,9 @@ class TaskbarTestCases(unittest.TestCase):
         nai.OK.Click()
 
         # Restore Notification Area settings
-        _toggle_notification_area_icons(
-                show_all=orig_hid_state,
-                debug_img="%s_02.jpg" % (self.id())
-                )
-        
+        _toggle_notification_area_icons(show_all=orig_hid_state,
+                                        debug_img="%s_02.jpg" % (self.id()))
+
         # close the second sample app
         dlg2.SendMessage(win32defines.WM_CLOSE)
 
