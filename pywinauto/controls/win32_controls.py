@@ -768,6 +768,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     def Select(self, start = 0, end = None):
         "Set the edit selection of the edit control"
         self.VerifyActionable()
+        win32functions.SetFocus(self)
 
         # if we have been asked to select a string
         if isinstance(start, six.text_type):
