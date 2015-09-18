@@ -22,7 +22,7 @@
 from __future__ import absolute_import
 
 import ctypes
-from pywinauto import win32defines
+from pywinauto import win32defines, win32structures
 from pywinauto.actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
 
@@ -111,6 +111,8 @@ GetCurrentThreadId  =   ctypes.windll.Kernel32.GetCurrentThreadId
 GetWindowThreadProcessId =  ctypes.windll.user32.GetWindowThreadProcessId
 GetGUIThreadInfo    =   ctypes.windll.user32.GetGUIThreadInfo
 AttachThreadInput   =   ctypes.windll.user32.AttachThreadInput
+AttachThreadInput.restype = win32structures.BOOL
+AttachThreadInput.argtypes = [win32structures.DWORD, win32structures.DWORD, win32structures.BOOL]
 #GetWindowThreadProcessId    =   ctypes.windll.user32.GetWindowThreadProcessId
 GetLastError = ctypes.windll.kernel32.GetLastError
 
@@ -269,7 +271,7 @@ def WaitGuiThreadIdle(handle, timeout = 1):
         0,
         process_id.value)
 
-    # wait timout number of seconds
+    # wait for the timeout number of seconds
     ret = WaitForInputIdle(hprocess, timeout * 1000)
 
     CloseHandle(hprocess)

@@ -35,7 +35,6 @@ import ctypes
 import win32api
 import win32gui
 import pywintypes
-import traceback, inspect
 import locale
 
 # the wrappers may be used in an environment that does not need
@@ -690,16 +689,15 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             (ret, result) = win32gui.SendMessageTimeout(pywintypes.HANDLE(self.handle), message, wparam, lparam, timeoutflags, int(timeout * 1000))
             #print '(ret, result) = ', (ret, result)
         except Exception as exc:
-            '''
-            print('____________________________________________________________')
-            print('self.handle =', pywintypes.HANDLE(self.handle), ', message =', message,
-                  ', wparam =', wparam, ', lparam =', lparam, ', timeout =', timeout)
-            print('Exception: ', exc)
-            print(traceback.format_exc())
-            print('Caller stack:')
-            for frame in inspect.stack():
-                print(frame[1:])
-            '''
+            #import traceback, inspect
+            #print('____________________________________________________________')
+            #print('self.handle =', pywintypes.HANDLE(self.handle), ', message =', message,
+            #      ', wparam =', wparam, ', lparam =', lparam, ', timeout =', timeout)
+            #print('Exception: ', exc)
+            #print(traceback.format_exc())
+            #print('Caller stack:')
+            #for frame in inspect.stack():
+            #    print(frame[1:])
             result = str(exc)
 
         return result #result.value
@@ -854,16 +852,17 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def Click(
-        self, button = "left", pressed = "", coords = (0, 0), double = False, timeout=0.5, absolute = False):
+        self, button = "left", pressed = "", coords = (0, 0), double = False, timeout = None, absolute = False):
         """Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
-        'realistic' mouse click use ClickInput() which uses SendInput() API
+        'realistic' mouse click use ClickInput() which uses mouse_event() API
         to perform the click.
 
         This method does not require that the control be visible on the screen
-        (i.e. is can be hidden beneath another window and it will still work.)
+        (i.e. it can be hidden beneath another window and it will still work.)
         """
+        self.VerifyActionable()
 
         if timeout:
             time.sleep(timeout)
@@ -1123,10 +1122,13 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
         if set_foreground:
             self.SetFocus()
+            #self.TopLevelParent().SetFocus()
+            #win32functions.SetFocus(self)
 
         # attach the Python process with the process that self is in
-        win32functions.AttachThreadInput(
-            win32functions.GetCurrentThreadId(), self.ProcessID(), 1)
+        window_thread_id = win32functions.GetWindowThreadProcessId(self, 0)
+        win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
+        # TODO: check return value of AttachThreadInput properly
 
         if isinstance(keys, six.text_type):
             aligned_keys = keys.encode(locale.getpreferredencoding(), 'ignore')
@@ -1145,8 +1147,8 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             turn_off_numlock)
 
         # detach the python process from the window's process
-        win32functions.AttachThreadInput(
-            win32functions.GetCurrentThreadId(), self.ProcessID(), 0)
+        win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
+        # TODO: check return value of AttachThreadInput properly
 
         win32functions.WaitGuiThreadIdle(self)
         if isinstance(aligned_keys, six.text_type):
@@ -1573,14 +1575,14 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             # if a different thread owns the active window
             if cur_fore_thread != control_thread:
                 # Attach the two threads and set the foreground window
-                win32functions.AttachThreadInput(
-                    cur_fore_thread, control_thread, True)
+                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.TRUE)
+                # TODO: check return value of AttachThreadInput properly
 
                 win32functions.SetForegroundWindow(self)
 
                 # detach the thread again
-                win32functions.AttachThreadInput(
-                    cur_fore_thread, control_thread, False)
+                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.FALSE)
+                # TODO: check return value of AttachThreadInput properly
 
             else:   # same threads - just set the foreground window
                 win32functions.SetForegroundWindow(self)
@@ -1899,8 +1901,9 @@ def _perform_click(
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
 
-    win32functions.AttachThreadInput(
-        win32functions.GetCurrentThreadId(), ctrl.ProcessID(), 1)
+    #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
+    #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
+    # TODO: check return value of AttachThreadInput properly
 
     # send each message
     for msg in msgs:
@@ -1913,9 +1916,9 @@ def _perform_click(
         # wait until the thread can accept another message
         win32functions.WaitGuiThreadIdle(ctrl)
 
-    # dettach the Python process with the process that self is in
-    win32functions.AttachThreadInput(
-        win32functions.GetCurrentThreadId(), ctrl.ProcessID(), 0)
+    # detach the Python process with the process that self is in
+    #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.FALSE)
+    # TODO: check return value of AttachThreadInput properly
 
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)
