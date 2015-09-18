@@ -179,7 +179,7 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.WaitNot('active')
 
         # click in the visible area
-        taskbar.SystemTrayIcons.Wait("ready", 30)
+        taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=40)
         taskbar.ClickSystemTrayIcon('MFCTrayDemo', double=True)
         self.dlg.Wait('active')
 
@@ -212,10 +212,9 @@ class TaskbarTestCases(unittest.TestCase):
         dlg2.Wait('visible')
         dlg2.Minimize()
         dlg2.WaitNot('active')
-        self.dlg.Minimize()
-        self.dlg.WaitNot('active')
 
         # Click in the hidden area
+        taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=40)
         taskbar.ClickHiddenSystemTrayIcon('MFCTrayDemo', double=True)
         self.dlg.Wait('visible', timeout=30)
 
@@ -228,7 +227,7 @@ class TaskbarTestCases(unittest.TestCase):
         dlg2.SendMessage(win32defines.WM_CLOSE)
 
     def testClickCustomizeButton(self):
-        "Test click on show hidden icons button"
+        "Test click on the 'show hidden icons' button"
 
         # Make sure that the hidden icons area is enabled
         orig_hid_state = _toggle_notification_area_icons(
@@ -251,11 +250,7 @@ class TaskbarTestCases(unittest.TestCase):
         taskbar.ShowHiddenIconsButton.ClickInput()
         niow_dlg = taskbar.explorer_app.Window_(
                 class_name='NotifyIconOverflowWindow')
-        from pywinauto.timings import TimeoutError
-        try:
-            niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=30)
-        except(TimeoutError):
-            ImageGrab.grab().save("TimeoutError_%s.jpg" % (self.id()), "JPEG")
+        niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=30)
         niow_dlg.SysLink.ClickInput()
         nai = taskbar.explorer_app.Window_(
                 title="Notification Area Icons",
@@ -271,7 +266,8 @@ class TaskbarTestCases(unittest.TestCase):
                 show_all=orig_hid_state,
                 debug_img="%s_02.jpg" % (self.id())
                 )
-
+        
+        # close the second sample app
         dlg2.SendMessage(win32defines.WM_CLOSE)
 
 if __name__ == "__main__":
