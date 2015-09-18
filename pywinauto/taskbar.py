@@ -39,12 +39,13 @@ def TaskBarHandle():
 def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, by_tooltip = False, double = False):
     popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
     try:
-        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('ready')
         button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
     except Exception:
         ShowHiddenIconsButton.ClickInput() # may fail from PythonWin when script takes long time
         popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
-        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('ready')
+        explorer_app.WaitCPUUsageLower(threshold=5, timeout=40)
         button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
 
     popup_toolbar.Button(button_index).ClickInput(button=mouse_button, double=double)
