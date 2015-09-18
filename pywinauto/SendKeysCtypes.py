@@ -46,6 +46,7 @@ __all__ = ['KeySequenceError', 'SendKeys']
 
 DEBUG = 0
 
+GetMessageExtraInfo = ctypes.windll.user32.GetMessageExtraInfo
 MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
 SendInput = ctypes.windll.user32.SendInput
 SendInput.restype = win32structures.UINT
@@ -281,6 +282,10 @@ class KeyAction(object):
             inp.ki.wVk = vk
             inp.ki.wScan = scan
             inp.ki.dwFlags |= flags
+            
+            # it seems to return 0 every time but it's required by MSDN specification
+            # so call it just in case
+            inp.ki.dwExtraInfo = GetMessageExtraInfo()
 
         # if we are releasing - then let it up
         if self.up:
@@ -291,14 +296,13 @@ class KeyAction(object):
     def Run(self):
         "Execute the action"
         inputs = self.GetInput()
-        #return SendInput(
-        #    len(inputs),
-        #    ctypes.byref(inputs),
-        #    ctypes.sizeof(win32structures.INPUT))
-        
-        # vvryabov: it works more stable than SendInput
-        for inp in inputs:
-            win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
+
+        # SendInput() supports all Unicode symbols
+        num_inserted_events = SendInput(len(inputs), ctypes.byref(inputs),
+                                        ctypes.sizeof(win32structures.INPUT))
+        if num_inserted_events != len(inputs):
+            raise RuntimeError('SendInput() inserted only ' + str(num_inserted_events) +
+                               ' out of ' + str(len(inputs)) + ' keyboard events')
 
     def _get_down_up_string(self):
         """Return a string that will show whether the string is up or down
@@ -362,6 +366,13 @@ class VirtualKeyAction(KeyAction):
         # this works for Tic Tac Toe i.e. +{RIGHT} SHIFT + RIGHT
         return self.key, MapVirtualKey(self.key, 0), flags
 
+    def Run(self):
+        "Execute the action"
+
+        # it works more stable for virtual keys than SendInput
+        for inp in self.GetInput():
+            win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
+
 
 class EscapedKeyAction(KeyAction):
     """Represents an escaped key action e.g. F9 DOWN, etc
@@ -379,6 +390,13 @@ class EscapedKeyAction(KeyAction):
         "Return a description of the key"
         
         return "KEsc %s"% self.key
+
+    def Run(self):
+        "Execute the action"
+
+        # it works more stable for virtual keys than SendInput
+        for inp in self.GetInput():
+            win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
 
 
 class PauseAction(KeyAction):
