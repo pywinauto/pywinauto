@@ -155,15 +155,16 @@ class TaskbarTestCases(unittest.TestCase):
     def testSystemTray(self):
         taskbar.SystemTray.Wait('visible')  # just make sure it's found
 
-    '''
-    def testClock(self): # TODO: make it stable on AppVeyor
+    def testClock(self):
+        "Test opening/closing of a system clock applet"
+        self.dlg.Minimize()
+        self.dlg.WaitNot('active')
         taskbar.Clock.ClickInput()
         ClockWindow = taskbar.explorer_app.Window_(
                                class_name='ClockFlyoutWindow')
-        ClockWindow.Wait('visible')
+        ClockWindow.Wait('visible', timeout=40)
         taskbar.Clock.ClickInput()
-        ClockWindow.WaitNot('visible')
-    '''
+        ClockWindow.WaitNot('visible', timeout=40)
 
     def testClickVisibleIcon(self):
         """
