@@ -37,19 +37,13 @@ from pywinauto.sysinfo import is_x64_Python, \
                               is_x64_OS
 from pywinauto import win32defines
 from pywinauto.timings import WaitUntil
-from pywinauto.actionlogger import ActionLogger
+import pywinauto.actionlogger
 
+#pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
-
-
-def _notepad_exe():
-    if is_x64_Python() or not is_x64_OS():
-        return r"C:\Windows\System32\notepad.exe"
-    else:
-        return r"C:\Windows\SysWOW64\notepad.exe"
 
 
 def _toggle_notification_area_icons(show_all=True, debug_img=None):
@@ -102,7 +96,8 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     except exceptions as e:
         if debug_img:
             ImageGrab.grab().save("%s.jpg" % (debug_img), "JPEG")
-        ActionLogger().log("RuntimeError in _toggle_notification_area_icons")
+        l = pywinauto.actionlogger.ActionLogger()
+        l.log("RuntimeError in _toggle_notification_area_icons")
         raise e
 
     finally:
@@ -127,11 +122,13 @@ class TaskbarTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         self.dlg.SendMessage(win32defines.WM_CLOSE)
-        try:
-            notepad = Application.connect(path=_notepad_exe())
-            notepad.kill_()
-        except ProcessNotFoundError:
-            pass  # notepad already closed
+
+        # cleanup additional unclosed sampleapps
+        l = pywinauto.actionlogger.ActionLogger()
+        hndls = findwindows.find_windows(title="TrayMenu")
+        for h in hndls:
+            l.log("Cleanup unclosed sample app, handle: 0x%x" % (h))
+            Application().windows_(handle=h).Close()
 
     def testTaskbar(self):
         taskbar.TaskBar.Wait('visible')  # just make sure it's found
@@ -140,16 +137,18 @@ class TaskbarTestCases(unittest.TestCase):
     def testStartButton(self): # TODO: fix it for AppVeyor
         taskbar.StartButton.ClickInput()
 
+        sample_app_exe = os.path.join(mfc_samples_folder, u"TrayMenu.exe")
         start_menu = taskbar.explorer_app.Window_(class_name='DV2ControlHost')
         start_menu.SearchEditBoxWrapperClass.ClickInput()
         start_menu.SearchEditBoxWrapperClass.TypeKeys(
-           _notepad_exe() + '{ENTER}',
+           sample_app_exe() + '{ENTER}',
            with_spaces=True, set_foreground=False
            )
 
         time.sleep(5)
-        notepad = Application.connect(path=_notepad_exe())
-        notepad.kill_()
+        app = Application.connect(path=sample_app_exe())
+        dlg = app.TrayMenu  # top_window_()
+        Wait('ready')
     '''
 
     def testSystemTray(self):
@@ -157,13 +156,20 @@ class TaskbarTestCases(unittest.TestCase):
 
     def testClock(self):
         "Test opening/closing of a system clock applet"
+
+        # Just hide a sample app, as we don't use it in this test
         self.dlg.Minimize()
         self.dlg.WaitNot('active')
+
+        # Launch Clock applet
         taskbar.Clock.ClickInput()
         ClockWindow = taskbar.explorer_app.Window_(
                                class_name='ClockFlyoutWindow')
         ClockWindow.Wait('visible', timeout=40)
-        taskbar.Clock.ClickInput()
+
+        # Close the applet with Esc, we don't click again on it because
+        # the second click sometimes doesn't hide a clock but just relaunch it
+        taskbar.Clock.TypeKeys("{ESC}")
         ClockWindow.WaitNot('visible', timeout=40)
 
     def testClickVisibleIcon(self):
@@ -240,6 +246,10 @@ class TaskbarTestCases(unittest.TestCase):
     def testClickCustomizeButton(self):
         "Test click on the 'show hidden icons' button"
 
+        # Minimize to tray
+        self.dlg.Minimize()
+        self.dlg.WaitNot('active')
+
         # Make sure that the hidden icons area is enabled
         orig_hid_state = _toggle_notification_area_icons(
                 show_all=False,
@@ -254,8 +264,6 @@ class TaskbarTestCases(unittest.TestCase):
         dlg2.Wait('visible')
         dlg2.Minimize()
         dlg2.WaitNot('active')
-        self.dlg.Minimize()
-        self.dlg.WaitNot('active')
 
         # Test click on "Show Hidden Icons" button
         taskbar.ShowHiddenIconsButton.ClickInput()
