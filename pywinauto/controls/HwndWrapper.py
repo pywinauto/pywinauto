@@ -1129,16 +1129,16 @@ class HwndWrapper(object):
         # TODO: check return value of AttachThreadInput properly
 
         if isinstance(keys, six.text_type):
-            aligned_keys = keys.encode(locale.getpreferredencoding(), 'ignore')
-        elif isinstance(keys, six.binary_type):
             aligned_keys = keys
+        elif isinstance(keys, six.binary_type):
+            aligned_keys = keys.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            aligned_keys = six.binary_type(keys)
+            aligned_keys = six.text_type(keys)
 
         # Play the keys to the active window
         SendKeys.SendKeys(
-            keys + '\n',
+            aligned_keys + '\n',
             pause, with_spaces,
             with_tabs,
             with_newlines,
@@ -1149,10 +1149,7 @@ class HwndWrapper(object):
         # TODO: check return value of AttachThreadInput properly
 
         win32functions.WaitGuiThreadIdle(self)
-        if isinstance(aligned_keys, six.text_type):
-            self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
-        else:
-            self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys.decode(locale.getpreferredencoding()))
+        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
         return self
 
     #-----------------------------------------------------------
