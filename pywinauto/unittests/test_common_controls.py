@@ -1257,6 +1257,10 @@ class ToolTipsTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.Common_Controls_Sample
+
+        # Make sure the mouse doesn't hover over tested controls
+        # so it won't generate an unexpected tooltip
+        self.dlg.MoveMouseInput(coords=(-100,-100), absolute=True)
         
         self.dlg.TabControl.Select(u'CToolBarCtrl')
 
