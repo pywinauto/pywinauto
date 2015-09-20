@@ -28,7 +28,7 @@ import sys
 #import ctypes
 import unittest
 import time
-#import pprint
+from datetime import datetime
 #import pdb
 import os
 import win32api
@@ -1163,6 +1163,81 @@ class RebarTestCases(unittest.TestCase):
 
     def testGetToolTipsControl(self):
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
+
+
+class DatetimeTestCases(unittest.TestCase):
+    "Unit tests for the UpDownWrapper class"
+
+    def setUp(self):
+        """
+        Start the application and get 'Date Time Picker' control.
+        """
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+
+        self.app = app
+        self.dlg = app.CommonControlsSample
+        self.dlg.Wait('ready', 20)
+        tab = app.CommonControlsSample.TabControl.WrapperObject()
+        tab.Select(3)
+        self.ctrl = self.dlg.DateTimePicker
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEqual(self.ctrl.FriendlyClassName(), "DateTimePicker")
+
+    def testGetTime(self):
+        "Test reading a date from a 'Date Time Picker' control"
+
+        # No check for seconds and milliseconds as it can slip
+        # These values are verified in the next 'testSetTime'
+        test_date_time = self.ctrl.GetTime()
+        date_time_now = datetime.now()
+        self.assertEqual(test_date_time.wYear, date_time_now.year)
+        self.assertEqual(test_date_time.wMonth, date_time_now.month)
+        self.assertEqual(test_date_time.wDay, date_time_now.day)
+        self.assertEqual(test_date_time.wHour, date_time_now.hour)
+        self.assertEqual(test_date_time.wMinute, date_time_now.minute)
+
+    def testSetTime(self):
+        "Test setting a date to a 'Date Time Picker' control"
+        year = 2025
+        month = 9
+        day_of_week = 5
+        day = 19
+        hour = 1
+        minute = 2
+        second = 3
+        milliseconds = 781
+        self.ctrl.SetTime(
+                year=year, 
+                month=month, 
+                day_of_week=day_of_week, 
+                day=day, 
+                hour=hour, 
+                minute=minute, 
+                second=second, 
+                milliseconds=milliseconds
+                )
+
+        # Retrive back the values we set
+        test_date_time = self.ctrl.GetTime()
+        self.assertEqual(test_date_time.wYear, year)
+        self.assertEqual(test_date_time.wMonth, month)
+        self.assertEqual(test_date_time.wDay, day)
+        self.assertEqual(test_date_time.wDayOfWeek, day_of_week)
+        self.assertEqual(test_date_time.wHour, hour)
+        self.assertEqual(test_date_time.wMinute, minute)
+        self.assertEqual(test_date_time.wSecond, second)
+        self.assertEqual(test_date_time.wMilliseconds, milliseconds)
 
 
 class ToolTipsTestCases(unittest.TestCase):
