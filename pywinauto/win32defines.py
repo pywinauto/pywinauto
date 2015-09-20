@@ -9128,6 +9128,7 @@ STG_E_INVALIDHANDLE = -2147287034 # Variable c_long
 USER_MARSHAL_FC_DOUBLE = 12 # Variable c_int
 C1_CNTRL = 32 # Variable c_int
 GW_HWNDNEXT = 2 # Variable c_int
+GW_ENABLEDPOPUP = 6
 THAI_CHARSET = 222 # Variable c_int
 THREAD_SET_THREAD_TOKEN = 128 # Variable c_int
 MCI_ANIM_PUT_DESTINATION = 262144 # Variable c_long

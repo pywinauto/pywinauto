@@ -41,6 +41,7 @@ from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.RemoteMemoryBlock import AccessDenied
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
+from pywinauto.actionlogger import ActionLogger
 
 
 controlspy_folder = os.path.join(
@@ -1315,6 +1316,7 @@ class ToolTipsTestCases(unittest.TestCase):
 
     def testTexts(self):
         "Make sure the texts are set correctly"
+        ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.Texts()))
         self.assertEquals(self.ctrl.Texts()[0], '')
         self.assertEquals(self.ctrl.Texts()[1:], self.texts)
 

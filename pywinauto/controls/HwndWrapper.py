@@ -139,7 +139,7 @@ class _MetaWrapper(type):
 
 #====================================================================
 @six.add_metaclass(_MetaWrapper)
-class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
+class HwndWrapper(object):
     """Default wrapper for controls.
 
     All other wrappers are derived from this.
@@ -852,7 +852,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def Click(
-        self, button = "left", pressed = "", coords = (0, 0), double = False, timeout = None, absolute = False):
+        self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
         """Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
@@ -864,8 +864,6 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         """
         self.VerifyActionable()
 
-        if timeout:
-            time.sleep(timeout)
         _perform_click(self, button, pressed, coords, double, absolute=absolute)
         return self
 
@@ -1253,11 +1251,16 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def PopupWindow(self):
-        """Return any owned Popups
+        """Return owned enabled Popup window wrapper if shown.
 
+        If there is no enabled popups at that time, it returns **self**.
+        See MSDN reference:
+        https://msdn.microsoft.com/en-us/library/windows/desktop/ms633515.aspx
+        
         Please do not use in production code yet - not tested fully
         """
-        popup = win32functions.GetWindow(self, win32defines.GW_HWNDNEXT)
+        # it seems GW_ENABLEDPOPUP should be used, but it doesn't work
+        popup = win32functions.GetWindow(self, win32defines.GW_HWNDNEXT) # GW_ENABLEDPOPUP
 
         return popup
 

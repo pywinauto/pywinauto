@@ -226,11 +226,11 @@ class RemoteMemoryBlock(object):
                 last_error = win32api.GetLastError()
                 import inspect
                 if last_error != win32defines.ERROR_PARTIAL_COPY:
-                    ActionLogger().log('Read: WARNING! self.memAddress =' + hex(self.memAddress) + ' data address =' + hex(ctypes.byref(data)))
+                    ActionLogger().log('Read: WARNING! self.memAddress =' + hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
                     ActionLogger().log('LastError = ' + str(last_error) + ': ' + win32api.FormatMessage(last_error).rstrip())
                 else:
                     ActionLogger().log('Error: ERROR_PARTIAL_COPY')
-                    ActionLogger().log('\nRead: WARNING! self.memAddress =' + hex(self.memAddress) + ' data address =' + hex(ctypes.byref(data)))
+                    ActionLogger().log('\nRead: WARNING! self.memAddress =' + hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
                 
                 ActionLogger().log('lpNumberOfBytesRead =' + str(lpNumberOfBytesRead) + ' nSize =' + str(nSize))
                 raise ctypes.WinError()
