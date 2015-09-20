@@ -62,7 +62,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     class_name = 'CabinetWClass'
 
     def _cabinetwclass_exist():
-        "Verify if at least one 'CabinetWClass' window is created"
+        "Verify if at least one active 'CabinetWClass' window is created"
         l = findwindows.find_windows(active_only=True, class_name=class_name)
         return (len(l) > 0)
 

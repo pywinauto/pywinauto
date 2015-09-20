@@ -1166,7 +1166,7 @@ class RebarTestCases(unittest.TestCase):
 
 
 class DatetimeTestCases(unittest.TestCase):
-    "Unit tests for the UpDownWrapper class"
+    "Unit tests for the DateTimePicker class"
 
     def setUp(self):
         """
