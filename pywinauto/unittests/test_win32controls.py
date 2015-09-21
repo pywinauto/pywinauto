@@ -26,9 +26,8 @@ from __future__ import unicode_literals
 # pylint:  disable-msg=W0212,F0401,R0904
 
 import os, sys
-import codecs, locale
+import codecs
 sys.path.append(".")
-#from pywinauto.controls.win32_controls import *
 from pywinauto import XMLHelpers #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
