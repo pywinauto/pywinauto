@@ -111,8 +111,8 @@ class OwnerDrawnMenuTests(unittest.TestCase):
         self.app.kill_()
 
     def testCorrectText(self):
-        self.assertEquals(u'&New                \tCtrl+N', self.dlg.Menu().GetMenuPath('&File->#0')[-1].Text())
-        self.assertEquals(u'&Open...          \tCtrl+O', self.dlg.Menu().GetMenuPath('&File->#1')[-1].Text())
+        self.assertEquals(u'&New', self.dlg.Menu().GetMenuPath('&File->#0')[-1].Text()[:4])
+        self.assertEquals(u'&Open...', self.dlg.Menu().GetMenuPath('&File->#1')[-1].Text()[:8])
 
 
 
