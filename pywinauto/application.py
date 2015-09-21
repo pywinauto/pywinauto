@@ -70,7 +70,7 @@ from . import findbestmatch
 from . import findwindows
 from . import handleprops
 
-import win32process, win32api, pywintypes, win32con, win32event, multiprocessing
+import win32process, win32api, win32gui, win32con, win32event, multiprocessing
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
@@ -1125,7 +1125,7 @@ class Application(object):
                 win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
                 0,
                 self.process)
-        except pywintypes.error:
+        except win32gui.error:
             return True # already killed
 
         killed = True
@@ -1138,7 +1138,7 @@ class Application(object):
 
             try:
                 win32api.TerminateProcess(process_wait_handle, 0)
-            except pywintypes.error:
+            except win32gui.error:
                 pass #print('Warning: ' + str(exc))
             #win32functions.TerminateProcess(process_wait_handle, 0)
             #else:
@@ -1157,7 +1157,7 @@ def AssertValidProcess(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
     try:
         process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
-    except pywintypes.error as exc:
+    except win32gui.error as exc:
         raise ProcessNotFoundError(str(exc) + ', pid = ' + str(process_id))
 
     if not process_handle:
@@ -1176,7 +1176,7 @@ def process_get_modules():
         if pid != 0: # skip system process (0x00000000)
             try:
                 modules.append((pid, process_module(pid)))
-            except pywintypes.error:
+            except win32gui.error:
                 pass
             except ProcessNotFoundError:
                 pass

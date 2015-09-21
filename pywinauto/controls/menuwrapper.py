@@ -131,8 +131,11 @@ class MenuItem(object):
             mem.Read(s, address)
             address = s
             s = ctypes.create_unicode_buffer(100)
-            mem.Read(s, address)
-            item_info.text = s.value
+            try:
+                mem.Read(s, address)
+                item_info.text = s.value
+            except ctypes.WinError:
+                item_info.text = '!! non-supported owner drawn item !!' # TODO: look into Tkinter case
             del mem
 
         return item_info

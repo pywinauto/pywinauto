@@ -34,7 +34,7 @@ import re
 import ctypes
 import win32api
 import win32gui
-import pywintypes
+import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
 import locale
 
 # the wrappers may be used in an environment that does not need
