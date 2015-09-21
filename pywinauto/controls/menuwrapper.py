@@ -462,7 +462,7 @@ class Menu(object):
             "Tools -> #0 -> Configure"
         
         Text matching is done using a 'best match' fuzzy algorithm, so you don't
-        have to add all puntuation, elipses, etc.
+        have to add all punctuation, ellipses, etc.
         """
 
         if path_items is None:
