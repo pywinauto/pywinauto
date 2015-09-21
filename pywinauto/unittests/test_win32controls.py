@@ -23,16 +23,15 @@
 "Tests various standard windows controls"
 from __future__ import unicode_literals
 
-__revision__ = "$Revision: 234 $"
-
 # pylint:  disable-msg=W0212,F0401,R0904
 
 import os, sys
-import codecs #, locale
+import codecs, locale
 sys.path.append(".")
-from pywinauto.controls.win32_controls import *
+#from pywinauto.controls.win32_controls import *
 from pywinauto import XMLHelpers #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto.application import Application
 
 import unittest
 
@@ -162,7 +161,6 @@ class ComboBoxTestCases(unittest.TestCase):
         is in the state we want it."""
 
         # start the application
-        from pywinauto.application import Application
         self.app = Application()
 
         self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
@@ -341,7 +339,7 @@ class ListBoxTestCases(unittest.TestCase):
 
 
 class EditTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+    "Unit tests for the EditWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -463,6 +461,53 @@ class EditTestCases(unittest.TestCase):
         start = self.test_data.index(txt)
         end = start + len(txt)
         self.assertEquals((start, end), self.ctrl.SelectionIndices())
+
+
+class UnicodeEditTestCases(unittest.TestCase):
+    "Unit tests for the EditWrapper class using Unicode strings"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        self.dlg = self.app.Common_Controls_Sample
+        self.dlg.TabControl.Select("CAnimateCtrl")
+
+        self.ctrl = self.dlg.AnimationFileEdit.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.app.kill_()
+
+    def testSetEditTextWithUnicode(self):
+        "Test setting Unicode text by the SetEditText method of the edit control"
+        self.ctrl.Select()
+        self.ctrl.SetEditText(579)
+        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "579")
+
+        self.ctrl.SetEditText(333, pos_start=1, pos_end=2)
+        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "53339")
+
+        self.ctrl.Select()
+        self.ctrl.SetEditText(u'\u0421\u043f\u0430\u0441\u0438\u0431\u043e!') # u'Spasibo!' in Russian symbols
+        self.assertEquals(self.ctrl.TextBlock(), u'\u0421\u043f\u0430\u0441\u0438\u0431\u043e!')
+
+        self.ctrl.Select(start=b'\xd1\xef\xe0\xf1') # u'Spas'
+        self.assertEquals(self.ctrl.SelectionIndices(), (0, 4))
+        self.ctrl.SetEditText(u'', pos_start=u'\u0421\u043f\u0430\u0441')
+        #self.ctrl.SetEditText(u'\u0438\u0431\u043e!')
+        self.assertEquals(self.ctrl.TextBlock(), u'\u0438\u0431\u043e!') # u'ibo!'
+
+        self.ctrl.Select()
+        self.ctrl.SetEditText(u'', pos_start=3)
+        self.assertEquals(self.ctrl.TextBlock(), u'\u0438\u0431\u043e') # u'ibo'
+
+        self.ctrl.Select()
+        self.ctrl.SetEditText(u'\u043d\u0435\u0447\u0442', pos_end=2) # u'necht'
+        self.assertEquals(self.ctrl.TextBlock(), u'\u043d\u0435\u0447\u0442\u043e') # u'nechto'
 
 
 class DialogTestCases(unittest.TestCase):

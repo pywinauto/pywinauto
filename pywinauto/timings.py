@@ -83,7 +83,7 @@ The Following are the individual timing settings that can be adjusted:
 * after_listboxselect_wait  default(0)
 * after_listboxfocuschange_wait  default(0)
 * after_editsetedittext_wait  default(0)
-* after_editselect_wait  default(0)
+* after_editselect_wait  default(.02)
 
 """
 
@@ -150,7 +150,7 @@ class TimeConfig(object):
         'after_listboxselect_wait': 0,
         'after_listboxfocuschange_wait': 0,
         'after_editsetedittext_wait': 0,
-        'after_editselect_wait': 0.01,
+        'after_editselect_wait': 0.02,
         'drag_n_drop_move_mouse_wait': 0.1,
         'before_drag_wait': 0.2,
         'before_drop_wait': 0.1,

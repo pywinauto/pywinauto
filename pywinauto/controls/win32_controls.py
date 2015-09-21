@@ -702,7 +702,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             start, end = self.SelectionIndices()
             if pos_start is None:
                 pos_start = start
-            if pos_end is None:
+            if pos_end is None and not isinstance(start, six.string_types):
                 pos_end = end
 
             # set the selection if either start or end has
@@ -718,7 +718,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             if six.PY3:
                 aligned_text = text
             else:
-                aligned_text = text.encode(locale.getpreferredencoding(), 'ignore')
+                aligned_text = text.encode(locale.getpreferredencoding())
         elif isinstance(text, six.binary_type):
             if six.PY3:
                 aligned_text = text.decode(locale.getpreferredencoding())
@@ -736,18 +736,6 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         else:
             buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
         
-        #buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
-        '''
-        from ..RemoteMemoryBlock import RemoteMemoryBlock
-        remote_mem = RemoteMemoryBlock(self)
-        _setTextExStruct = win32structures.SETTEXTEX()
-        _setTextExStruct.flags = win32defines.ST_SELECTION #| win32defines.ST_UNICODE
-        _setTextExStruct.codepage = win32defines.CP_WINUNICODE
-        
-        remote_mem.Write(_setTextExStruct)
-        
-        self.SendMessage(win32defines.EM_SETTEXTEX, remote_mem, ctypes.byref(buffer))
-        '''
         self.SendMessage(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
 
         #win32functions.WaitGuiThreadIdle(self)
@@ -773,15 +761,13 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         # if we have been asked to select a string
         if isinstance(start, six.text_type):
             string_to_select = start
-            #
             start = self.TextBlock().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
         elif isinstance(start, six.binary_type):
-            string_to_select = start
-            #
-            start = self.TextBlock().index(string_to_select.decode('utf-8'))
+            string_to_select = start.decode(locale.getpreferredencoding())
+            start = self.TextBlock().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
