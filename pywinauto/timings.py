@@ -45,7 +45,7 @@ The Following are the individual timing settings that can be adjusted:
 * exists_retry   (default .3)
 
 * after_click_wait  (default .09)
-* after_clickinput_wait (default .01)
+* after_clickinput_wait (default .05)
 
 * after_menu_wait   (default .1)
 
@@ -68,6 +68,7 @@ The Following are the individual timing settings that can be adjusted:
 * sendmessagetimeout_timeout   (default .01)
 
 * after_tabselect_wait   (default .05)
+
 * after_listviewselect_wait   (default .01)
 * after_listviewcheck_wait  default(.001)
 
@@ -79,19 +80,22 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_movewindow_wait  default(0)
 * after_buttoncheck_wait  default(0)
-* after_comboselect_wait  default(0)
+* after_comboboxselect_wait  default(.001)
 * after_listboxselect_wait  default(0)
 * after_listboxfocuschange_wait  default(0)
 * after_editsetedittext_wait  default(0)
 * after_editselect_wait  default(.02)
 
+* drag_n_drop_move_mouse_wait  default(.1)
+* before_drag_wait  default(.2)
+* before_drop_wait  default(.1)
+* after_drag_n_drop_wait  default(.1)
+* scroll_step_wait  default(.1)
+
 """
 
 import time
 import operator
-
-
-__revision__ = "$Revision: 453 $"
 
 
 #=========================================================================
