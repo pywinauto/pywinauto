@@ -1,9 +1,11 @@
-'''
+"""
+Uninstall script for 7zip 9.20 (64-bit)
+
 Requirements:
   - Win7 or Win8.1 x64, 64-bit Python
   - pywinauto 0.5.2+
   - UAC is fully disabled
-'''
+"""
 from __future__ import print_function
 import pywinauto
 

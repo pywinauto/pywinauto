@@ -44,7 +44,6 @@ import locale
 from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
-from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -621,6 +620,7 @@ class HwndWrapper(object):
     #    nmhdr.idFrom = self.ControlID()
     #    nmhdr.code = code
 
+    #    from ..RemoteMemoryBlock import RemoteMemoryBlock
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 

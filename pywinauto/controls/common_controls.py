@@ -63,9 +63,7 @@ class _listview_item(object):
 
     #----------------------------------------------------------------
     def _readitem(self):
-        "Read the listview item"
-        
-        item_data = {}
+        "Read the list view item"
 
         # set up a memory block in the remote application
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
@@ -115,7 +113,7 @@ class _listview_item(object):
 
         del remote_mem
 
-        return item, text #item_data
+        return item, text
 
     #----------------------------------------------------------------
     def __getitem__(self, key):
@@ -1945,13 +1943,13 @@ class _toolbar_button(object):
 #        self.Check(check = False)
 
     #----------------------------------------------------------------
-    def Style(self, AND = -1):
+    def Style(self):
         "Return the style of the button"
         return self.toolbar_ctrl.SendMessage(
             win32defines.TB_GETSTYLE, self.info.idCommand)
 
     #----------------------------------------------------------------
-    def State(self, AND = -1):
+    def State(self):
         "Return the state of the button"
         return self.toolbar_ctrl.SendMessage(
             win32defines.TB_GETSTATE, self.info.idCommand)
@@ -2485,13 +2483,10 @@ class ToolTip(object):
 
         remote_mem.Write(tipinfo)
 
-        ret = self.ctrl.SendMessage(
+        self.ctrl.SendMessage(
             win32defines.TTM_ENUMTOOLSW,
             self.index,
             remote_mem)
-
-        #if not ret:
-        #    raise ctypes.WinError()
 
         remote_mem.Read(tipinfo)
 

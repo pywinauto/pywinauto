@@ -1,8 +1,10 @@
-'''
+"""
+Example for drag-n-drop (DragMouseInput works, DragMouse crashes because of the bug in test app)
+
 Requirements: Python 2.7 or 3.4, pyWin32, pywinauto 0.5.0+
  download the repo: https://github.com/pywinauto/pywinauto
  place the script to the repo root folder
-'''
+"""
 import sys, os
 
 os.chdir(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0]))) # running at repo root folder
