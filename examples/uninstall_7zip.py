@@ -1,7 +1,9 @@
-# Requirements:
-#  - Win7 or Win8.1 x64, 64-bit Python
-#  - pywinauto 0.5.2+
-#  - UAC is fully disabled
+'''
+Requirements:
+  - Win7 or Win8.1 x64, 64-bit Python
+  - pywinauto 0.5.2+
+  - UAC is fully disabled
+'''
 from __future__ import print_function
 import pywinauto
 
@@ -12,10 +14,12 @@ explorer = pywinauto.Application().Connect(path='explorer.exe')
 NewWindow = explorer.Window_(top_level_only=True, active_only=True, class_name='CabinetWClass')
 try:
     NewWindow.AddressBandRoot.ClickInput()
-    NewWindow.TypeKeys(r'Control Panel\Programs\Programs and Features{ENTER}', with_spaces=True, set_foreground=False)
-    ProgramsAndFeatures = explorer.Window_(top_level_only=True, active_only=True, title='Programs and Features', class_name='CabinetWClass')
+    NewWindow.TypeKeys(r'Control Panel\Programs\Programs and Features{ENTER}',
+                       with_spaces=True, set_foreground=False)
+    ProgramsAndFeatures = explorer.Window_(top_level_only=True, active_only=True,
+                                           title='Programs and Features', class_name='CabinetWClass')
 
-    # wait while list of programs is loading
+    # wait while the list of programs is loading
     explorer.WaitCPUUsageLower(threshold=5)
 
     item_7z = ProgramsAndFeatures.FolderView.GetItem('7-Zip 9.20 (x64 edition)')

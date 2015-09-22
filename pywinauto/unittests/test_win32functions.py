@@ -25,7 +25,7 @@ import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.win32functions import *
+from pywinauto.win32functions import MakeLong, HiWord, LoWord
 
 
 class Win32FunctionsTestCases(unittest.TestCase):

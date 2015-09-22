@@ -1,8 +1,10 @@
-# Requirements:
-#  - Win7 or Win8.1 x64, 64-bit Python
-#  - pywinauto 0.5.2+
-#  - 7z920-x64.msi is in the same folder as the script
-#  - UAC is fully disabled
+'''
+Requirements:
+  - Win7 or Win8.1 x64, 64-bit Python
+  - pywinauto 0.5.2+
+  - 7z920-x64.msi is in the same folder as the script
+  - UAC is fully disabled
+'''
 from __future__ import print_function
 import sys, os
 os.chdir(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0])))

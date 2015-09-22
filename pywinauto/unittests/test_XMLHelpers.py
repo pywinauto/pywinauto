@@ -24,7 +24,7 @@
 import sys
 sys.path.append(".")
 
-from pywinauto.XMLHelpers import *
+from pywinauto.XMLHelpers import WriteDialogToFile, ReadPropertiesFromFile, LOGFONTW, RECT
 from pywinauto import six
 
 import unittest
