@@ -224,7 +224,6 @@ class RemoteMemoryBlock(object):
                 ctypes.byref(lpNumberOfBytesRead))
             if ret == 0:
                 last_error = win32api.GetLastError()
-                import inspect
                 if last_error != win32defines.ERROR_PARTIAL_COPY:
                     ActionLogger().log('Read: WARNING! self.memAddress =' + hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
                     ActionLogger().log('LastError = ' + str(last_error) + ': ' + win32api.FormatMessage(last_error).rstrip())

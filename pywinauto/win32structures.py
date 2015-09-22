@@ -32,7 +32,7 @@ from . import sysinfo
 import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
-    c_ubyte, c_ushort, c_wchar_p, \
+    c_ubyte, c_ushort, \
     POINTER, sizeof, alignment, Union, c_ulonglong, c_longlong, c_size_t
 
 class Structure(ctypes.Structure):
@@ -607,25 +607,6 @@ else:
     assert alignment(TOOLINFOW) == 4, alignment(TOOLINFOW)
 
 
-# C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2068
-class NMTTDISPINFOW(Structure):
-    _pack_ = 1
-    _fields_ = [
-        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2068
-        ('hdr', NMHDR),
-        ('lpszText', LPWSTR),
-        ('szText', WCHAR * 80),
-        ('hinst', HINSTANCE),
-        ('uFlags', UINT),
-        ('lParam', LPARAM),
-    ]
-if sysinfo.is_x64_Python():
-    sizeof(NMTTDISPINFOW) == 212, sizeof(NMTTDISPINFOW)
-else:
-    assert sizeof(NMTTDISPINFOW) == 188, sizeof(NMTTDISPINFOW)
-    assert alignment(NMTTDISPINFOW) == 1, alignment(NMTTDISPINFOW)
-
-
 class HDITEMW(Structure):
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 617
@@ -1066,10 +1047,12 @@ else:
 
 
 
+# C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2068
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
 class NMTTDISPINFOW(Structure):
     #_pack_ = 1
     _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2068
         # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 2066
         ('hdr', NMHDR),
         ('lpszText', LPWSTR),

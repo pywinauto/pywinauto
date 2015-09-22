@@ -34,10 +34,8 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32api
-import locale
 
 from . import six
-from . import sysinfo
 from . import win32structures
 
 __all__ = ['KeySequenceError', 'SendKeys']

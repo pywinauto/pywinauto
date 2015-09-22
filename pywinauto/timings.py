@@ -346,7 +346,6 @@ def WaitUntilPasses(
     """
     
     start = time.time()
-    waited = 0
 
     # keep trying until the timeout is passed
     while True:

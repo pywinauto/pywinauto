@@ -711,9 +711,6 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         else:
             self.Select()
 
-        # replace the selection with
-        #buffer = ctypes.c_wchar_p(six.text_type(text))
-        
         if isinstance(text, six.text_type):
             if six.PY3:
                 aligned_text = text
@@ -735,7 +732,8 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             buffer = ctypes.create_unicode_buffer(aligned_text, size=len(aligned_text) + 1)
         else:
             buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
-        
+
+        # replace the selection with
         self.SendMessage(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
 
         #win32functions.WaitGuiThreadIdle(self)
