@@ -105,15 +105,15 @@ def typetext(app, text):
 
 def copytext(app):
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Select All").Click()
+    app.UntitledNotepad.MenuItem("Edit -> Select All").ClickInput()
     time.sleep(0.7)
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Copy").Click()
+    app.UntitledNotepad.MenuItem("Edit -> Copy").ClickInput()
     time.sleep(1.0)
 
 def pastetext(app):
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Paste").Click()
+    app.UntitledNotepad.MenuItem("Edit -> Paste").ClickInput()
 
 if __name__ == "__main__":
     unittest.main()

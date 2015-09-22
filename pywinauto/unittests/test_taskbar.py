@@ -93,7 +93,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
         notif_area.Ok.ClickInput()
         explorer.WaitCPUUsageLower(threshold=5, timeout=40)
 
-    except exceptions as e:
+    except Exception as e:
         if debug_img:
             ImageGrab.grab().save("%s.jpg" % (debug_img), "JPEG")
         l = pywinauto.actionlogger.ActionLogger()

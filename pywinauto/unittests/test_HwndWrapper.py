@@ -507,7 +507,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def testRightClickInput(self):
         self.dlg.Edit.TypeKeys('{HOME}')
         self.dlg.Edit.Wait('enabled').RightClickInput()
-        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].Click()
+        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].ClickInput()
         self.dlg.Edit.TypeKeys('{DEL}')
         self.assertEquals(self.dlg.Edit.TextBlock(), '')
 

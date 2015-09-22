@@ -894,7 +894,7 @@ class Application(object):
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
-            AssertValidProcess(self.process)
+            assert_valid_process(self.process)
             connected = True
 
         elif 'handle' in kwargs:
@@ -1153,7 +1153,7 @@ class Application(object):
 
 
 #=========================================================================
-def AssertValidProcess(process_id):
+def assert_valid_process(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
     try:
         process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
@@ -1165,6 +1165,8 @@ def AssertValidProcess(process_id):
         raise ProcessNotFoundError(message)
 
     return process_handle
+
+AssertValidProcess = assert_valid_process # just in case
 
 #=========================================================================
 def process_get_modules():
@@ -1198,7 +1200,7 @@ def _process_get_modules_wmi():
 #=========================================================================
 def process_module(process_id):
     "Return the string module name of this process"
-    process_handle = AssertValidProcess(process_id)
+    process_handle = assert_valid_process(process_id)
 
     return win32process.GetModuleFileNameEx(process_handle, 0)
 

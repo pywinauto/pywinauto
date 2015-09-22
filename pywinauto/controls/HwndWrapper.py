@@ -1739,7 +1739,7 @@ def _perform_click_input(
         events *= 2
 
 
-    if ctrl == None:
+    if ctrl is None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     elif ctrl.IsDialog():
         ctrl.SetFocus()
@@ -1772,10 +1772,11 @@ def _perform_click_input(
 
     keyboard_keys = pressed.lower().split()
     if ('control' in keyboard_keys) and key_down:
-        #SendKeys.SendKeys('{VK_CONTROL down}')
         SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, up = False).Run()
     if ('shift' in keyboard_keys) and key_down:
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
+    if ('alt' in keyboard_keys) and key_down:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up = False).Run()
 
 
     inp_struct.mi.dwFlags = 0
@@ -1808,10 +1809,11 @@ def _perform_click_input(
     time.sleep(Timings.after_clickinput_wait)
 
     if ('control' in keyboard_keys) and key_up:
-        #SendKeys.SendKeys('^')
         SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, down = False).Run()
     if ('shift' in keyboard_keys) and key_up:
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, down = False).Run()
+    if ('alt' in keyboard_keys) and key_up:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, down = False).Run()
 
     if use_log:
         message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
@@ -1839,6 +1841,8 @@ def _perform_click(
         ):
     "Low level method for performing click operations"
 
+    if ctrl is None:
+        ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     ctrl.VerifyActionable()
     ctrl_text = ctrl.WindowText()
 
