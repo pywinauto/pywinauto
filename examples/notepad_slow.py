@@ -226,7 +226,7 @@ def RunNotepad():
     # If file exists - it asks you if you want to overwrite
     try:
         app.SaveAs.Yes.Wait('exists').CloseClick()
-    except pywinauto.MatchError:
+    except MatchError:
         pass
 
     # exit notepad

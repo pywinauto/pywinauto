@@ -69,7 +69,7 @@ def text(handle):
     result = win32functions.SendMessageTimeout(handle, win32defines.WM_GETTEXTLENGTH, 0, 0, win32defines.SMTO_ABORTIFHUNG, 500, ctypes.byref(c_length))
     if result == 0:
         ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
-        return ''
+        return None
     else:
         length = c_length.value
     

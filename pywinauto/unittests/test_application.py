@@ -271,7 +271,11 @@ class ApplicationTestCases(unittest.TestCase):
         try:
             app_conn.connect_(title = "Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
-            wins = findwindows.find_windows(title = "Untitled - Notepad")
+            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
+            app_conn.connect_(handle = wins[0])
+        except findwindows.WindowNotFoundError:
+            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title = "Untitled - Notepad")) > 0)
+            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
             app_conn.connect_(handle = wins[0])
 
         self.assertEqual(app1.process, app_conn.process)

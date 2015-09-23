@@ -39,17 +39,12 @@ u"\x01"
 >>>
 """
 
-__revision__ = "$Revision: 236 $"
-
-
 import sys
 sys.path.append(".")
-from pywinauto.SendKeysCtypes import *
+from pywinauto.SendKeysCtypes import SendKeys
 from pywinauto import six
-#from SendKeys import *
 import os
 import unittest
-#from msvcrt import getch
 
 # Fix Python 2.x.
 if six.PY2:

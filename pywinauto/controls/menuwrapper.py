@@ -41,7 +41,6 @@ from .. import win32defines
 from .. import findbestmatch
 from .. import six
 from ..RemoteMemoryBlock import RemoteMemoryBlock
-#from .. import SendKeysCtypes as SendKeys
 from ..timings import Timings
 
 class MenuItemInfo:
@@ -131,8 +130,11 @@ class MenuItem(object):
             mem.Read(s, address)
             address = s
             s = ctypes.create_unicode_buffer(100)
-            mem.Read(s, address)
-            item_info.text = s.value
+            try:
+                mem.Read(s, address)
+                item_info.text = s.value
+            except Exception:
+                item_info.text = '!! non-supported owner drawn item !!' # TODO: look into Tkinter case
             del mem
 
         return item_info
@@ -140,8 +142,8 @@ class MenuItem(object):
     def FriendlyClassName(self):
         return "MenuItem"
 
-    def __print__(self, ctrl, menu, index):
-        print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
+    #def __print__(self, ctrl, menu, index):
+    #    print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
 
     def Rectangle(self):
         "Get the rectangle of the menu item"
@@ -156,7 +158,7 @@ class MenuItem(object):
         hMenu = ctypes.wintypes.HMENU(self.menu.handle)
 
         #(rect.left.value, rect.top.value, rect.right.value, rect.bottom.value) = win32gui.GetMenuItemRect(ctrl.handle, self.menu.handle, self.index)
-        self.__print__(ctrl, hMenu, self.index)
+        #self.__print__(ctrl, hMenu, self.index)
         
         win32functions.GetMenuItemRect(
             ctrl,
@@ -216,11 +218,10 @@ class MenuItem(object):
         "Return True if the item is checked."
         return bool(self.State() & win32defines.MF_CHECKED)
 
+    def ClickInput(self):
+        """Click on the menu item in a more realistic way
 
-    def Click(self):
-        """Click on the menu item
-
-        If the menu is open this it will click with the mouse on the item.
+        If the menu is open it will click with the mouse event on the item.
         If the menu is not open each of it's parent's will be opened
         until the item is visible.
 
@@ -238,14 +239,14 @@ class MenuItem(object):
         # until we find an item we CAN click on
         if rect == (0, 0, 0, 0):
             if self.menu.owner_item:
-                self.menu.owner_item.Click()
+                self.menu.owner_item.ClickInput()
 
         rect = self.Rectangle()
 
         x_pt = int(float(rect.left + rect.right) / 2.)
         y_pt = int(float(rect.top + rect.bottom) / 2.)
 
-        from .HwndWrapper import _perform_click_input #, delay_after_menuselect
+        from .HwndWrapper import _perform_click_input
 
         _perform_click_input(
             None,
@@ -253,7 +254,7 @@ class MenuItem(object):
             absolute = True)
 
         win32functions.WaitGuiThreadIdle(self.ctrl)
-
+        time.sleep(Timings.after_menu_wait)
 
     def Select(self):
         """Select the menu item
@@ -266,14 +267,12 @@ class MenuItem(object):
             raise MenuItemNotEnabled(
                 "MenuItem '%s' is disabled"% self.Text())
 
-        #from .HwndWrapper import delay_after_menuselect
-
         #if self.State() & win32defines.MF_BYPOSITION:
         #    print self.Text(), "BYPOSITION"
         #    self.ctrl.NotifyMenuSelect(self.Index(), True)
         #else:
 
-        # seems like SetFoucs might be messing with getting the
+        # seems like SetFocus might be messing with getting the
         # id for Popup menu items - so I calling it before SetFocus
         command_id = self.ID()
 
@@ -281,11 +280,12 @@ class MenuItem(object):
         self.ctrl.SetFocus()
         self.ctrl.SendMessageTimeout(
             self.menu.COMMAND, command_id, timeout=1.0)
-            #win32functions.MakeLong(0, command_id))
 
-        #self.ctrl.NotifyMenuSelect(self.ID())
         win32functions.WaitGuiThreadIdle(self.ctrl)
         time.sleep(Timings.after_menu_wait)
+
+    # _perform_click() doesn't work for MenuItem, so let's call Select() method
+    Click = Select
 
     def GetProperties(self):
         """Return the properties for the item as a dict
@@ -459,7 +459,7 @@ class Menu(object):
             "Tools -> #0 -> Configure"
         
         Text matching is done using a 'best match' fuzzy algorithm, so you don't
-        have to add all puntuation, elipses, etc.
+        have to add all punctuation, ellipses, etc.
         """
 
         if path_items is None:

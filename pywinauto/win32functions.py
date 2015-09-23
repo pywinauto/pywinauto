@@ -284,12 +284,11 @@ def GetDpiAwarenessByPid(pid):
     dpi_awareness = -1
     hProcess = None
     if GetProcessDpiAwareness and pid:
-        try:
-            hProcess = OpenProcess(
+        hProcess = OpenProcess(
                     win32defines.PROCESS_QUERY_INFORMATION, 
                     0, 
                     pid)
-        except pywintypes.error:
+        if not hProcess:
             # process doesn't exist, exit with a default return value
             return dpi_awareness
 

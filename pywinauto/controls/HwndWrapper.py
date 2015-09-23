@@ -34,7 +34,7 @@ import re
 import ctypes
 import win32api
 import win32gui
-import pywintypes
+import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
 import locale
 
 # the wrappers may be used in an environment that does not need
@@ -44,7 +44,6 @@ import locale
 from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
-from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -621,6 +620,7 @@ class HwndWrapper(object):
     #    nmhdr.idFrom = self.ControlID()
     #    nmhdr.code = code
 
+    #    from ..RemoteMemoryBlock import RemoteMemoryBlock
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
@@ -1129,16 +1129,16 @@ class HwndWrapper(object):
         # TODO: check return value of AttachThreadInput properly
 
         if isinstance(keys, six.text_type):
-            aligned_keys = keys.encode(locale.getpreferredencoding(), 'ignore')
-        elif isinstance(keys, six.binary_type):
             aligned_keys = keys
+        elif isinstance(keys, six.binary_type):
+            aligned_keys = keys.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            aligned_keys = six.binary_type(keys)
+            aligned_keys = six.text_type(keys)
 
         # Play the keys to the active window
         SendKeys.SendKeys(
-            keys + '\n',
+            aligned_keys + '\n',
             pause, with_spaces,
             with_tabs,
             with_newlines,
@@ -1149,10 +1149,7 @@ class HwndWrapper(object):
         # TODO: check return value of AttachThreadInput properly
 
         win32functions.WaitGuiThreadIdle(self)
-        if isinstance(aligned_keys, six.text_type):
-            self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
-        else:
-            self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys.decode(locale.getpreferredencoding()))
+        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
         return self
 
     #-----------------------------------------------------------
@@ -1742,7 +1739,7 @@ def _perform_click_input(
         events *= 2
 
 
-    if ctrl == None:
+    if ctrl is None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     elif ctrl.IsDialog():
         ctrl.SetFocus()
@@ -1775,10 +1772,11 @@ def _perform_click_input(
 
     keyboard_keys = pressed.lower().split()
     if ('control' in keyboard_keys) and key_down:
-        #SendKeys.SendKeys('{VK_CONTROL down}')
         SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, up = False).Run()
     if ('shift' in keyboard_keys) and key_down:
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
+    if ('alt' in keyboard_keys) and key_down:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up = False).Run()
 
 
     inp_struct.mi.dwFlags = 0
@@ -1811,10 +1809,11 @@ def _perform_click_input(
     time.sleep(Timings.after_clickinput_wait)
 
     if ('control' in keyboard_keys) and key_up:
-        #SendKeys.SendKeys('^')
         SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, down = False).Run()
     if ('shift' in keyboard_keys) and key_up:
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, down = False).Run()
+    if ('alt' in keyboard_keys) and key_up:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, down = False).Run()
 
     if use_log:
         message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
@@ -1842,6 +1841,8 @@ def _perform_click(
         ):
     "Low level method for performing click operations"
 
+    if ctrl is None:
+        ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     ctrl.VerifyActionable()
     ctrl_text = ctrl.WindowText()
 

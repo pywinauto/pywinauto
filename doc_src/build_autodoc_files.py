@@ -22,7 +22,7 @@ output_folder = os.path.join(docs_folder, "code")
 
 try:
     os.mkdir(output_folder)
-except WindowsError:
+except Exception:
     pass
 
 module_docs = []

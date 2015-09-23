@@ -31,35 +31,24 @@ import time
 #import pdb
 #import warnings
 
-#import ctypes
+import ctypes
 import locale
 import re
 
 import sys, os
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.controls.HwndWrapper import HwndWrapper
+from pywinauto.controls.HwndWrapper import HwndWrapper, \
+                InvalidWindowHandle, GetDialogPropsFromHandle
 from pywinauto import win32structures, win32defines
 from pywinauto.findwindows import WindowNotFoundError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
+from pywinauto.timings import Timings, TimeoutError
 from pywinauto import clipboard
 
-
-__revision__ = "$Revision: 234 $"
-
-try:
-    from pywinauto.controls.HwndWrapper import *
-except ImportError:
-    # allow it to be imported in a dev environment
-    import sys
-
-    pywinauto_imp = "\\".join(__file__.split('\\')[:-3])
-    print("sdfdsf", pywinauto_imp)
-    sys.path.append(pywinauto_imp)
-    from pywinauto.controls.HwndWrapper import *
-
 import unittest
+
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -178,7 +167,7 @@ class HwndWrapperTests(unittest.TestCase):
         Timings.closeclick_dialog_close_wait = .7
         try:
             self.app.AboutCalculator.CloseClick()
-        except timings.TimeoutError:
+        except TimeoutError:
             pass
 
         self.app.AboutCalculator.Close()
@@ -486,7 +475,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         # close the application
         try:
             self.dlg.Close(0.5)
-        except Exception: # timings.TimeoutError:
+        except Exception: # TimeoutError:
             pass
         finally:
             self.app.kill_()
@@ -518,7 +507,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def testRightClickInput(self):
         self.dlg.Edit.TypeKeys('{HOME}')
         self.dlg.Edit.Wait('enabled').RightClickInput()
-        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].Click()
+        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].ClickInput()
         self.dlg.Edit.TypeKeys('{DEL}')
         self.assertEquals(self.dlg.Edit.TextBlock(), '')
 
@@ -577,7 +566,7 @@ class NotepadRegressionTests(unittest.TestCase):
             if self.app.Notepad["Do&n't Save"].Exists():
                 self.app.Notepad["Do&n't Save"].Click()
                 self.app.Notepad["Do&n't Save"].WaitNot('visible')
-        except Exception: # timings.TimeoutError:
+        except Exception: # TimeoutError:
             pass
         finally:
             self.app.kill_()
