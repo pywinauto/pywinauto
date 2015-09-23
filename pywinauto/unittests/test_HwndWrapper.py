@@ -251,7 +251,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts(), ['0'])
 
     def testFoundIndex(self):
-        "test access of a control by found_index"
+        "test an access to a control by found_index"
 
         # The edit box with '0' can be accessed directly by control_index = 5
         # or by a search combination: class_name='Static', found_index=3
@@ -265,6 +265,21 @@ class HwndWrapperTests(unittest.TestCase):
         ctl = self.dlg.ChildWindow(class_name='Static', found_index=3333)
         with self.assertRaises(WindowAmbiguousError):
             ctl.DrawOutline()
+
+    def testSearchWithPredicateFunc(self):
+        "test an access to a control by filtering with a predicate function"
+
+        def is_radians(h):
+            res = False
+            hwwrp = HwndWrapper(h)
+            if hwwrp.FriendlyClassName() == u'RadioButton':
+                if hwwrp.Texts() == [u'Radians']:
+                    res = True
+            return res
+
+        ctl = self.dlg.ChildWindow(predicate_func=is_radians)
+        self.assertEqual(ctl.Texts(), [u'Radians'])
+        ctl.DrawOutline('red')  # visualize
 
     def testClientRects(self):
         self.assertEqual(self.ctrl.ClientRects()[0], self.ctrl.ClientRect())
