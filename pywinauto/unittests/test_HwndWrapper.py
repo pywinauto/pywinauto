@@ -41,7 +41,7 @@ from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper, \
                 InvalidWindowHandle, GetDialogPropsFromHandle
 from pywinauto import win32structures, win32defines
-from pywinauto.findwindows import WindowNotFoundError
+from pywinauto.findwindows import WindowNotFoundError, WindowAmbiguousError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
@@ -249,6 +249,22 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(self.dlg.Texts(), ['Calculator'])
         self.assertEqual(HwndWrapper(self.dlg.Degrees.handle).Texts(), [u'Degrees'])
         self.assertEqual(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts(), ['0'])
+
+    def testFoundIndex(self):
+        "test access of a control by found_index"
+
+        # The edit box with '0' can be accessed directly by control_index = 5
+        # or by a search combination: class_name='Static', found_index=3
+        ctl = self.dlg.ChildWindow(ctrl_index=5)
+        self.assertEqual(ctl.Texts(), [u'0'])
+        ctl = self.dlg.ChildWindow(class_name='Static', found_index=3)
+        self.assertEqual(ctl.Texts(), [u'0'])
+        ctl.DrawOutline('blue')  # visualize
+        
+        # test an out-of-range access
+        ctl = self.dlg.ChildWindow(class_name='Static', found_index=3333)
+        with self.assertRaises(WindowAmbiguousError):
+            ctl.DrawOutline()
 
     def testClientRects(self):
         self.assertEqual(self.ctrl.ClientRects()[0], self.ctrl.ClientRect())
