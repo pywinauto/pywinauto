@@ -250,6 +250,30 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(HwndWrapper(self.dlg.Degrees.handle).Texts(), [u'Degrees'])
         self.assertEqual(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts(), ['0'])
 
+    def testFoundIndex(self):
+        "test access of a control by found_index"
+
+        # The edit box with '0' can be accessed directly by control_index = 5
+        # or by a search combination: class_name='Static', found_index=3
+        ctl = self.dlg.ChildWindow(ctrl_index=5)
+        self.assertEqual(ctl.Texts(), [u'0'])
+        ctl = self.dlg.ChildWindow(class_name='Static', found_index=3)
+        self.assertEqual(ctl.Texts(), [u'0'])
+        ctl.DrawOutline('blue')  # visualize
+        
+        # Test an out-of-range access
+        # Notice:
+        # A ChildWindow call only creates a WindowSpecification object.
+        # The exception is raised later when we try to find the window.
+        # For this reason we can't use an assertRaises statement here because
+        # the exception is raised before actual call to DrawOutline
+        ctl = self.dlg.ChildWindow(class_name='Static', found_index=3333)
+        try:
+            ctl.DrawOutline()
+        except(WindowNotFoundError):
+            # exception is raised as expected, just pass on
+            pass  
+
     def testClientRects(self):
         self.assertEqual(self.ctrl.ClientRects()[0], self.ctrl.ClientRect())
         self.assertEqual(self.dlg.ClientRects()[0], self.dlg.ClientRect())

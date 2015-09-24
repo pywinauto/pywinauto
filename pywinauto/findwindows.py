@@ -33,9 +33,7 @@ from . import six
 from . import win32functions
 from . import win32structures
 from . import handleprops
-
 from . import findbestmatch
-
 from . import controls
 
 
@@ -93,6 +91,7 @@ def find_windows(class_name = None,
                 best_match = None,
                 handle = None,
                 ctrl_index = None,
+                found_index = None,
                 predicate_func = None,
                 active_only = False,
                 control_id = None,
@@ -113,7 +112,8 @@ def find_windows(class_name = None,
     * **best_match**  Windows with a title similar to this
     * **handle**      The handle of the window to return
     * **ctrl_index**  The index of the child window to return
-    * **active_only**  Active windows only (default=False)
+    * **found_index** The index of the filtered out child window to return
+    * **active_only** Active windows only (default=False)
     * **control_id**  Windows with this control id
    """
 
@@ -214,6 +214,16 @@ def find_windows(class_name = None,
 
     if predicate_func is not None:
         windows = [win for win in windows if predicate_func(win)]
+
+    # found_index is the last criterion to filter results
+    if found_index is not None:
+        if found_index < len(windows):
+            windows = windows[found_index:found_index+1]
+        else:
+            raise WindowNotFoundError(
+                "found_index is specified as %d, but %d window/s found" % 
+                (found_index, len(windows)) 
+                )
 
     return windows
 
