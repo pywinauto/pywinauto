@@ -34,6 +34,7 @@ import re
 import ctypes
 import win32api
 import win32gui
+import win32con
 import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
 import locale
 
@@ -1244,6 +1245,16 @@ class HwndWrapper(object):
 
         # delete the Display context that we created
         win32functions.DeleteDC(dc)
+
+
+    #-----------------------------------------------------------
+    def SetTransparency(self, alpha = 120):
+        "Set the window transparency from 0 to 255 by alpha attribute"
+        if not (0 <= alpha <= 255):
+            raise ValueError('alpha should be in [0, 255] interval!')
+        # TODO: implement SetExStyle method
+        win32gui.SetWindowLong(self.handle, win32defines.GWL_EXSTYLE, self.ExStyle() | win32con.WS_EX_LAYERED)
+        win32gui.SetLayeredWindowAttributes(self.handle, win32api.RGB(0,0,0), alpha, win32con.LWA_ALPHA)
 
 
     #-----------------------------------------------------------

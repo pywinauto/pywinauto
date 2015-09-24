@@ -268,11 +268,7 @@ class HwndWrapperTests(unittest.TestCase):
         # For this reason we can't use an assertRaises statement here because
         # the exception is raised before actual call to DrawOutline
         ctl = self.dlg.ChildWindow(class_name='Static', found_index=3333)
-        try:
-            ctl.DrawOutline()
-        except(WindowNotFoundError):
-            # exception is raised as expected, just pass on
-            pass  
+        self.assertRaises(WindowNotFoundError, ctl.WrapperObject)
 
     def testClientRects(self):
         self.assertEqual(self.ctrl.ClientRects()[0], self.ctrl.ClientRect())
@@ -553,15 +549,20 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.NoteEdit.DebugMessage('Test message')
         # TODO: add screenshots comparison
 
+    #def testDrawOutline(self):
+    #    # TODO: add screenshots comparison
+    #    self.dlg.DrawOutline()
+
 #    def testSetWindowText(self):
 #        pass
 #
 #    def testTypeKeys(self):
 #        pass
-#
-#    def testDrawOutline(self):
-#        pass
-#
+
+    def testSetTransparency(self):
+        self.dlg.SetTransparency()
+        self.assertRaises(ValueError, self.dlg.SetTransparency, 256)
+
 
 class NotepadRegressionTests(unittest.TestCase):
     "Regression unit tests for Notepad"
