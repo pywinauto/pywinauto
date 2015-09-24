@@ -35,7 +35,6 @@ from . import win32structures
 from . import handleprops
 from . import findbestmatch
 from . import controls
-from .actionlogger import ActionLogger
 
 
 # todo: we should filter out invalid windows before returning
@@ -221,8 +220,10 @@ def find_windows(class_name = None,
         if found_index < len(windows):
             windows = windows[found_index:found_index+1]
         else:
-            l = ActionLogger()
-            l.log("Warning, specified found_index=%d is too big" % (found_index))
+            raise WindowNotFoundError(
+                "found_index is specified as %d, but %d window/s found" % 
+                (found_index, len(windows)) 
+                )
 
     return windows
 

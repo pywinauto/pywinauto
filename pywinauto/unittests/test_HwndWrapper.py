@@ -41,7 +41,7 @@ from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper, \
                 InvalidWindowHandle, GetDialogPropsFromHandle
 from pywinauto import win32structures, win32defines
-from pywinauto.findwindows import WindowNotFoundError, WindowAmbiguousError
+from pywinauto.findwindows import WindowNotFoundError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
@@ -261,10 +261,14 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(ctl.Texts(), [u'0'])
         ctl.DrawOutline('blue')  # visualize
         
-        # test an out-of-range access
+        # Test an out-of-range access
+        # Notice:
+        # A ChildWindow call only creates a WindowSpecification object.
+        # The exception is raised later when we try to find the window.
+        # For this reason we can't use an assertRaises statement here because
+        # the exception is raised before actual call to DrawOutline
         ctl = self.dlg.ChildWindow(class_name='Static', found_index=3333)
-        with self.assertRaises(WindowAmbiguousError):
-            ctl.DrawOutline()
+        self.assertRaises(WindowNotFoundError, ctl.WrapperObject)
 
     def testSearchWithPredicateFunc(self):
         "test an access to a control by filtering with a predicate function"
@@ -560,15 +564,20 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.NoteEdit.DebugMessage('Test message')
         # TODO: add screenshots comparison
 
+    #def testDrawOutline(self):
+    #    # TODO: add screenshots comparison
+    #    self.dlg.DrawOutline()
+
 #    def testSetWindowText(self):
 #        pass
 #
 #    def testTypeKeys(self):
 #        pass
-#
-#    def testDrawOutline(self):
-#        pass
-#
+
+    def testSetTransparency(self):
+        self.dlg.SetTransparency()
+        self.assertRaises(ValueError, self.dlg.SetTransparency, 256)
+
 
 class NotepadRegressionTests(unittest.TestCase):
     "Regression unit tests for Notepad"
