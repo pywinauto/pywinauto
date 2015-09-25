@@ -10,7 +10,7 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 
 ### Setup
 * Install [pyWin32 extensions](http://sourceforge.net/projects/pywin32/files/pywin32/) (no need for Active Python)
-* Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.2/pywinauto-0.5.2.zip)
+* Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.3/pywinauto-0.5.3.zip)
 * Just unpack and run `python setup.py install`
 
 ### Documentation
@@ -43,7 +43,7 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 
 ### Downloads statistics
 * PyPI: [![Daily downloads](https://img.shields.io/pypi/dd/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Weekly downloads](https://img.shields.io/pypi/dw/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Monthly downloads](https://img.shields.io/pypi/dm/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto)
-* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.2/pywinauto-0.5.2.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.2/pywinauto-0.5.2.zip)
+* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.3/pywinauto-0.5.3.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.3/pywinauto-0.5.3.zip)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
