@@ -2,6 +2,28 @@
 Change Log
 ==========
 
+0.5.3 Better Unicode support for SetEditText/TypeKeys and menu items
+------------------------------------------------------------------
+25-September-2015
+ * Better backward compatibility with pywinauto 0.4.2:
+
+   - support Unicode symbols in the ``TypeKeys`` method again;
+
+   - allow ``SetEditText/TypeKeys`` methods to take non-string arguments;
+
+   - fix taking Unicode parameters in ``SetEditText/TypeKeys``.
+
+ * Fix bug in ``Wait("active")``, raise a SyntaxError when waiting for an incorrect state.
+
+ * Re-consider some timings, update docs for the default values etc.
+
+ * Fix several issues with an owner-drawn menu.
+
+ * ``MenuItem`` method ``Click`` is renamed to ``ClickInput`` while ``Click = Select`` now.
+
+ * New ``SetTransparency`` method can make a window transparent in a specified degree.
+
+
 0.5.2 Improve ListView, new methods for CPU usage, DPI awareness
 ------------------------------------------------------------------
 07-September-2015
@@ -18,11 +40,17 @@ Change Log
  * "Tools overview" section in docs.
 
  * Fix number of bugs:
+
    - ``TreeViewWrapper.Select`` doesn't work when the control is not in focus.
+
    - ``TabControlWrapper.Select`` doesn't work in case of TCS_BUTTONS style set.
+
    - ``ListViewWrapper`` methods ``Check/UnCheck`` are fixed.
+
    - Toolbar button: incorrect access by a tooltip text.
+
    - Warning "Cannot retrieve text length for handle" uses print() instead of actionlogger.
+
    - ``ClientToScreen`` method doesn't return a value (modifying mutable argument is not good practice).
 
 

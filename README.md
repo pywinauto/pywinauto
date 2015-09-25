@@ -20,14 +20,16 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 * [HowTo's](http://pywinauto.github.io/docs/HowTo.html)
 * [Code examples (gists) on gist.github.com](https://gist.github.com/vasily-v-ryabov)
 
-### pywinauto 0.5.2 release notes (2015 September, 8)
- - [x] `ListViewWrapper` interface is aligned with `TreeViewWrapper`. `GetItem()` returns a `_listview_item` object that looks like `_treeview_element` now.
- - [x] Add DPI awareness API support (Win8+). It allows correct work when all fonts (globally or per monitor) are scaled at 125%, 150% etc.
- - [x] Add new `Application` methods: `CPUUsage` and `WaitCPUUsageLower`.
- - [x] Fix `TreeViewWrapper.Select` method when tree view is not in focus.
- - [x] Fix `TabControlWrapper.Select` method in case of TCS_BUTTONS style set.
- - [x] Fix `ListViewWrapper` methods: `Check` and `UnCheck`.
- - [x] Fix toolbar button access by tooltip text.
+### pywinauto 0.5.3 release notes (2015 September, 25)
+ * Better backward compatibility with pywinauto 0.4.2:
+   - support Unicode symbols in the `TypeKeys` method again;
+   - allow `SetEditText/TypeKeys` methods to take non-string arguments;
+   - fix taking Unicode parameters in `SetEditText/TypeKeys`.
+ * Fix bug in `Wait("active")`, raise a SyntaxError when waiting for an incorrect state.
+ * Re-consider some timings, update docs for the default values etc.
+ * Fix several issues with an owner-drawn menu.
+ * `MenuItem` method `Click` is renamed to `ClickInput` while `Click = Select` now.
+ * New `SetTransparency` method can make a window transparent in a specified degree.
 
 ### Supported controls
 * Native Windows controls (full support through Win32 API)
