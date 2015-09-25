@@ -536,7 +536,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, wspec)
 
 
-
     def testWrapperObject(self):
         "Test that we can get a control "
         self.assertEquals(True, isinstance(self.dlgspec, WindowSpecification))
@@ -556,7 +555,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEquals(sub_spec_legacy.Class(), "Edit")
 
 
-
     def test__getitem__(self):
         "test item access of a windowspec"
 
@@ -568,7 +566,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEquals(self.dlgspec['Edit'].Class(), "Edit")
 
         self.assertRaises(AttributeError, self.ctrlspec.__getitem__, 'edit')
-
 
 
     def testGetAttr(self):
@@ -586,8 +583,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEquals(
             "Notepad",
             self.dlgspec.Class())
-
-
 
 
     def testExists(self):
@@ -806,6 +801,12 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()
+
+    def test_find_windows_re(self):
+        "Test for bug #90: A crash in 'find_windows' when called with 'title_re' argument"
+        self.dlgspec.Wait('visible')
+        windows = findwindows.find_windows(title_re="Untitled - Notepad")
+        self.assertTrue(len(windows) >= 1)
 
 
 if __name__ == "__main__":

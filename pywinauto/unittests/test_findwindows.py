@@ -23,8 +23,6 @@ from __future__ import print_function
 
 "Tests for findwindows.py"
 
-__revision__ = "$Revision: 234 $"
-
 import unittest
 
 import sys
@@ -77,8 +75,4 @@ def _unittests():
 
 
 if __name__ == "__main__":
-    #_unittests()
-
     unittest.main()
-
-

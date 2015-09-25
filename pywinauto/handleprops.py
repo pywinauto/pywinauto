@@ -27,8 +27,6 @@ useful to other modules with the least conceptual overhead
 """
 from __future__ import absolute_import
 
-__revision__ = "$Revision$"
-
 import ctypes
 
 from . import win32functions

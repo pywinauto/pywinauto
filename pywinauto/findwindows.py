@@ -23,8 +23,7 @@
 
 """
 from __future__ import absolute_import
-
-__revision__ = "$Revision$"
+from __future__ import unicode_literals
 
 import re
 import ctypes
@@ -188,7 +187,7 @@ def find_windows(class_name = None,
     elif title_re is not None:
         title_regex = re.compile(title_re)
         windows = [win for win in windows
-            if title_regex.match(handleprops.text(win))]
+            if handleprops.text(win) is not None and title_regex.match(handleprops.text(win))]
 
     if visible_only:
         windows = [win for win in windows if handleprops.isvisible(win)]
