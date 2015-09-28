@@ -446,12 +446,12 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def HasStyle(self, style):
-        "Return True if the control has the specified sytle"
+        "Return True if the control has the specified style"
         return handleprops.has_style(self, style)
 
     #-----------------------------------------------------------
     def HasExStyle(self, exstyle):
-        "Return True if the control has the specified extended sytle"
+        "Return True if the control has the specified extended style"
         return handleprops.has_exstyle(self, exstyle)
 
     #-----------------------------------------------------------

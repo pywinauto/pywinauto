@@ -13,6 +13,13 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 * Download [latest pywinauto release](https://github.com/pywinauto/pywinauto/releases/download/0.5.3/pywinauto-0.5.3.zip)
 * Just unpack and run `python setup.py install`
 
+or
+
+* run `pip install pywinauto` (pypiwin32 will be installed automatically)
+
+### Optional packages
+* Install [Pillow](https://pypi.python.org/pypi/Pillow) (PIL fork) to be able to call `CaptureAsImage()` method.
+
 ### Documentation
 * [Introduction](http://pywinauto.github.io/docs/)
 * [Table of contents](http://pywinauto.github.io/docs/contents.html)
@@ -46,5 +53,7 @@ Recommended usage: 64-bit Python is for 64-bit applications; 32-bit Python is fo
 * GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.3/pywinauto-0.5.3.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.3/pywinauto-0.5.3.zip)
 
 #### Packages required for running unit tests
-* [Pillow](https://pypi.python.org/pypi/Pillow/2.7.0) or PIL
+* [Pillow](https://pypi.python.org/pypi/Pillow) or PIL
 * [coverage](https://pypi.python.org/pypi/coverage)
+
+(Python 3.5 may require VC++ 2015 re-distributable package)
