@@ -65,28 +65,21 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         #self._set_if_needs_image()
 
+    @property
+    def _NeedsImageProp(self):
 
-    def _set_if_needs_image(self, value):
-        "Does nothing see _get_if_needs_image"
-        pass
-    #-----------------------------------------------------------
-    def _get_if_needs_image(self):
-        "Set the _NeedsImageProp attribute if it is an image button"
+        """_NeedsImageProp=True if it is an image button"""
 
         # optimization call Style once and work with that rather than
         # calling HasStyle a number of times
         style = self.Style()
 
-        if self.IsVisible() and (\
-            style & win32defines.BS_BITMAP == style or \
-            style & win32defines.BS_ICON == style or \
-            style & win32defines.BS_OWNERDRAW == style):
-
-            #self._NeedsImageProp = True
+        if self.IsVisible() and (style & win32defines.BS_BITMAP or
+                                 style & win32defines.BS_ICON or
+                                 style & win32defines.BS_OWNERDRAW):
             return True
         else:
             return False
-    _NeedsImageProp = property(_get_if_needs_image, _set_if_needs_image)
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
@@ -796,18 +789,25 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
     can_be_label = True
 
     def __init__(self, hwnd):
-        "Initialize the control"
+
+        """Initialize the control"""
+
         super(StaticWrapper, self).__init__(hwnd)
 
+    @property
+    def _NeedsImageProp(self):
+
+        """_NeedsImageProp=True if it is an image static"""
+
         # if the control is visible - and it shows an image
-        if self.IsVisible() and (
-            self.HasStyle(win32defines.SS_ICON) or \
-            self.HasStyle(win32defines.SS_BITMAP) or \
-            self.HasStyle(win32defines.SS_CENTERIMAGE) or \
-            self.HasStyle(win32defines.SS_OWNERDRAW)):
+        if self.IsVisible() and (self.HasStyle(win32defines.SS_ICON) or
+                                 self.HasStyle(win32defines.SS_BITMAP) or
+                                 self.HasStyle(win32defines.SS_CENTERIMAGE) or
+                                 self.HasStyle(win32defines.SS_OWNERDRAW)):
 
-            self._NeedsImageProp = True
-
+            return True
+        else:
+            return False
 
 #====================================================================
 # the main reason for this is just to make sure that

@@ -163,6 +163,10 @@ class HwndWrapper(object):
     can_be_label = False
     has_title = True
 
+    # specify whether we need to grab an image of ourselves
+    # when asked for properties
+    _NeedsImageProp = False
+
     #-----------------------------------------------------------
     def __new__(cls, handle):
         # only use the meta class to find the wrapper for HwndWrapper
@@ -207,10 +211,6 @@ class HwndWrapper(object):
         #self.is64bitprocess = handleprops.is64bitprocess(self.ProcessID())
 
         #win32functions.WaitGuiThreadIdle(self)
-
-        # specify whether we need to grab an image of ourselves
-        # when asked for properties
-        self._NeedsImageProp = False
 
         # default to not having a reference control added
         self.ref = None
