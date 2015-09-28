@@ -54,7 +54,8 @@ if is_x64_Python():
 
 
 class ButtonTestCases(unittest.TestCase):
-    "Unit tests for the ComboBoxWrapper class"
+
+    """Unit tests for the ButtonWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -161,7 +162,7 @@ class ButtonTestCases(unittest.TestCase):
 
 class ButtonOwnerdrawTestCases(unittest.TestCase):
 
-    """Unit tests for the ComboBoxWrapper(ownerdraw button)"""
+    """Unit tests for the ButtonWrapper(ownerdraw button)"""
 
     def setUp(self):
 
@@ -276,7 +277,8 @@ class ComboBoxTestCases(unittest.TestCase):
 
 
 class ListBoxTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the ListBoxWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -364,7 +366,8 @@ class ListBoxTestCases(unittest.TestCase):
 
 
 class EditTestCases(unittest.TestCase):
-    "Unit tests for the EditWrapper class"
+
+    """Unit tests for the EditWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -489,7 +492,8 @@ class EditTestCases(unittest.TestCase):
 
 
 class UnicodeEditTestCases(unittest.TestCase):
-    "Unit tests for the EditWrapper class using Unicode strings"
+
+    """Unit tests for the EditWrapper class using Unicode strings"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -536,7 +540,8 @@ class UnicodeEditTestCases(unittest.TestCase):
 
 
 class DialogTestCases(unittest.TestCase):
-    "Unit tests for the DialogWrapper class"
+
+    """Unit tests for the DialogWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -631,7 +636,8 @@ class DialogTestCases(unittest.TestCase):
 
 
 class PopupMenuTestCases(unittest.TestCase):
-    "Unit tests for the DialogWrapper class"
+
+    """Unit tests for the PopupMenuWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
