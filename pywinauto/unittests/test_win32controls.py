@@ -292,6 +292,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.app.start_(app_path)
 
         self.dlg = self.app.MFC_Tutorial9
+        self.dlg.Wait('ready', timeout=20)
         self.dlg.TypeYourTextEdit.TypeKeys('qqq')
         self.dlg.Add.Click()
         
@@ -314,7 +315,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.app.kill_()
 
     def testGetProperties(self):
-        "Test getting the properties for the listbox control"
+        "Test getting the properties for the list box control"
         props = self.ctrl.GetProperties()
 
         self.assertEquals(
