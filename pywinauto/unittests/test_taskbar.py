@@ -27,7 +27,6 @@ import sys
 import time
 import os
 sys.path.append(".")
-from PIL import ImageGrab
 from pywinauto import taskbar, \
                       findwindows
 from pywinauto.application import Application, \
@@ -95,6 +94,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
     except Exception as e:
         if debug_img:
+            from PIL import ImageGrab
             ImageGrab.grab().save("%s.jpg" % (debug_img), "JPEG")
         l = pywinauto.actionlogger.ActionLogger()
         l.log("RuntimeError in _toggle_notification_area_icons")

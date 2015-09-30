@@ -43,7 +43,7 @@ or
 * .NET Windows Forms (partial support through Win32 API, some basic controls only)
 
 ### Continuous Integration / Coverage / Code Issues
-* [![Build status](https://ci.appveyor.com/api/projects/status/ykk30v7vcvkmpnoq?svg=true)](https://ci.appveyor.com/project/pywinauto/pywinauto)
+* [![Build status](https://ci.appveyor.com/api/projects/status/github/pywinauto/pywinauto?svg=true&passingText=unit%20tests%20-%20OK&passingText=unit%20tests%20-%20running&failingText=unit%20tests%20-%20fail)](https://ci.appveyor.com/project/pywinauto/pywinauto)
 * [![codecov.io](http://codecov.io/github/pywinauto/pywinauto/coverage.svg?branch=master)](http://codecov.io/github/pywinauto/pywinauto?branch=master)
 * [![Code Issues](http://www.quantifiedcode.com/api/v1/project/9d5d994af16f46a28961f01dfc63091d/badge.svg)](https://www.quantifiedcode.com/app/project/gh:pywinauto:pywinauto)
 * [![Code Health](https://landscape.io/github/pywinauto/pywinauto/master/landscape.svg?style=flat)](https://landscape.io/github/pywinauto/pywinauto/master)

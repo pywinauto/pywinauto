@@ -197,13 +197,25 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def CheckByClick(self):
-        "Click the Button control"
+        "Check the CheckBox control by Click() method"
+        if self.GetCheckState() != win32defines.BST_CHECKED:
+            self.Click()
+
+    #-----------------------------------------------------------
+    def UncheckByClick(self):
+        "Uncheck the CheckBox control by Click() method"
+        if self.GetCheckState() != win32defines.BST_UNCHECKED:
+            self.Click()
+
+    #-----------------------------------------------------------
+    def CheckByClickInput(self):
+        "Check the CheckBox control by ClickInput() method"
         if self.GetCheckState() != win32defines.BST_CHECKED:
             self.ClickInput()
 
     #-----------------------------------------------------------
-    def UncheckByClick(self):
-        "Click the Button control"
+    def UncheckByClickInput(self):
+        "Uncheck the CheckBox control by ClickInput() method"
         if self.GetCheckState() != win32defines.BST_UNCHECKED:
             self.ClickInput()
 

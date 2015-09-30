@@ -28,7 +28,7 @@ from __future__ import unicode_literals
 import os, sys
 import codecs
 sys.path.append(".")
-from pywinauto import XMLHelpers #, six
+from pywinauto import XMLHelpers, win32defines #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
 
@@ -100,7 +100,9 @@ class ButtonTestCases(unittest.TestCase):
         """test whether an image needs to be saved with the properties"""
 
         self.assertEquals(self.calc.Button5._NeedsImageProp, False)
-        self.assertNotIn('Image', self.calc.Button5.GetProperties())
+        self.assertEquals('Image' in self.calc.Button5.GetProperties(), False)
+        #self.assertNotIn('Image', self.calc.Button5.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
 
     def testFriendlyClass(self):
         "Test the FriendlyClassName method"
@@ -160,6 +162,45 @@ class ButtonTestCases(unittest.TestCase):
         self.assertEquals(self.calc.Radians.GetCheckState(), 1)
 
 
+class CheckBoxTests(unittest.TestCase):
+    "Unit tests for the CheckBox specific methods of the ButtonWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application()
+        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        self.dlg = self.app.Common_Controls_Sample
+        self.tree = self.dlg.TreeView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.app.kill_()
+
+    def testCheckUncheckByClick(self):
+        "test for CheckByClick and UncheckByClick"
+        self.dlg.TVS_HASLINES.CheckByClick()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
+        
+        self.dlg.TVS_HASLINES.UncheckByClick()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
+
+    def testCheckUncheckByClickInput(self):
+        "test for CheckByClickInput and UncheckByClickInput"
+        self.dlg.TVS_HASLINES.CheckByClickInput()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
+        
+        self.dlg.TVS_HASLINES.UncheckByClickInput()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
+
+
 class ButtonOwnerdrawTestCases(unittest.TestCase):
 
     """Unit tests for the ButtonWrapper(ownerdraw button)"""
@@ -185,7 +226,9 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
 
         active_window = self.app.active_()
         self.assertEquals(active_window.Button2._NeedsImageProp, True)
-        self.assertIn('Image', active_window.Button2.GetProperties())
+        self.assertEquals('Image' in active_window.Button2.GetProperties(), True)
+        #self.assertIn('Image', active_window.Button2.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
 
 
 class ComboBoxTestCases(unittest.TestCase):
@@ -705,7 +748,9 @@ class StaticTestCases(unittest.TestCase):
 
         active_window = self.app.active_()
         self.assertEquals(active_window.Static2._NeedsImageProp, False)
-        self.assertNotIn('Image', active_window.Static2.GetProperties())
+        self.assertEquals('Image' in active_window.Static2.GetProperties(), False)
+        #self.assertNotIn('Image', active_window.Static2.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
 
     def test_NeedsImageProp_ownerdraw(self):
 
@@ -713,7 +758,9 @@ class StaticTestCases(unittest.TestCase):
 
         active_window = self.app.active_()
         self.assertEquals(active_window.Static._NeedsImageProp, True)
-        self.assertIn('Image', active_window.Static.GetProperties())
+        self.assertEquals('Image' in active_window.Static.GetProperties(), True)
+        #self.assertIn('Image', active_window.Static.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
 
 
 if __name__ == "__main__":
