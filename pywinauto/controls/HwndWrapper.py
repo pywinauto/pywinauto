@@ -1827,12 +1827,14 @@ def _perform_click_input(
         SendKeys.VirtualKeyAction(SendKeys.VK_MENU, down = False).Run()
 
     if use_log:
-        message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + str(ctrl_text) + \
+        if ctrl_text is None:
+            ctrl_text = six.text_type(ctrl_text)
+        message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
                   '" by ' + str(button) + ' button mouse click (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
         if double:
             message = 'Double-c' + message[1:]
         if button.lower() == 'move':
-            message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + str(ctrl_text) + \
+            message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
                   '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
         ActionLogger().log(message)
 

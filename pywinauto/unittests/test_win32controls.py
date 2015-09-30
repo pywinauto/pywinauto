@@ -186,9 +186,15 @@ class CheckBoxTests(unittest.TestCase):
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
         
+        self.dlg.TVS_HASLINES.CheckByClick() # make sure it doesn't uncheck the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        
         self.dlg.TVS_HASLINES.UncheckByClick()
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
+        
+        self.dlg.TVS_HASLINES.UncheckByClick() # make sure it doesn't check the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
 
     def testCheckUncheckByClickInput(self):
         "test for CheckByClickInput and UncheckByClickInput"
@@ -196,9 +202,21 @@ class CheckBoxTests(unittest.TestCase):
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
         
+        self.dlg.TVS_HASLINES.CheckByClickInput() # make sure it doesn't uncheck the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        
         self.dlg.TVS_HASLINES.UncheckByClickInput()
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
+        
+        self.dlg.TVS_HASLINES.UncheckByClickInput() # make sure it doesn't check the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
+
+    def testSetCheckIndeterminate(self):
+        "test for SetCheckIndeterminate"
+        self.dlg.TVS_HASLINES.SetCheckIndeterminate()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        # TODO: find an application with the check box that supports indeterminate state (gray-checked)
 
 
 class ButtonOwnerdrawTestCases(unittest.TestCase):
@@ -300,6 +318,7 @@ class ComboBoxTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.SelectedIndex(), 0)
         self.ctrl.Select("Left (UDS_ALIGNLEFT)")
         self.assertEquals(self.ctrl.SelectedIndex(), 1)
+        self.assertEquals(self.ctrl.SelectedText(), "Left (UDS_ALIGNLEFT)")
 
         # now do it with a typo
         self.assertRaises(ValueError, self.ctrl.Select, "Right (UDS_ALIGNRIGT)")
