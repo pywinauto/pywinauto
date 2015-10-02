@@ -697,6 +697,14 @@ class DialogTestCases(unittest.TestCase):
         self.failIf((rectangle.right - clientarea.right) > 10)
         self.failIf((rectangle.bottom - clientarea.bottom) > 10)
 
+    def testHideFromTaskbar(self):
+        "Test that a dialog can be hidden from the Windows taskbar"
+        self.assertEquals(self.calc.IsInTaskbar(), True)
+        self.calc.HideFromTaskbar()
+        self.assertEquals(self.calc.IsInTaskbar(), False)
+        self.calc.ShowInTaskbar()
+        self.assertEquals(self.calc.IsInTaskbar(), True)
+
 
 class PopupMenuTestCases(unittest.TestCase):
 
