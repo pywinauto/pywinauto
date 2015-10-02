@@ -1089,15 +1089,15 @@ class ToolbarTestCases(unittest.TestCase):
         self.assertRaises(RuntimeError, self.ctrl.CheckButton, 3, True)
 
     def testIsCheckable(self):
-        self.assertNotEqual(self.ctrl2.Button('Erase').IsCheckable(), 0)
-        self.assertEquals(self.ctrl.Button('New').IsCheckable(), 0)
+        self.assertNotEqual(self.ctrl2.Button('Erase').IsCheckable(), False)
+        self.assertEquals(self.ctrl.Button('New').IsCheckable(), False)
 
     def testIsPressable(self):
-        self.assertEquals(self.ctrl.Button('New').IsPressable(), 0)
+        self.assertEquals(self.ctrl.Button('New').IsPressable(), True)
 
     def testButtonByTooltip(self):
-        self.assertEquals(self.ctrl.Button('New', by_tooltip=True).info.text, 'New')
-        self.assertEquals(self.ctrl.Button('About', exact=False, by_tooltip=True).info.text, 'About')
+        self.assertEquals(self.ctrl.Button('New', by_tooltip=True).Text(), 'New')
+        self.assertEquals(self.ctrl.Button('About', exact=False, by_tooltip=True).Text(), 'About')
 
 
 class RebarTestCases(unittest.TestCase):
