@@ -419,6 +419,12 @@ class Menu(object):
 
         * **index** is the 0 based index of the menu item you want
         """
+        if isinstance(index, six.string_types):
+            if self.ctrl.appdata is not None:
+                menu_appdata = self.ctrl.appdata['MenuItems']
+            else:
+                menu_appdata = None
+            self.GetMenuPath(index, appdata = menu_appdata, exact=exact)[-1]
         return MenuItem(self.ctrl, self, index, self.is_main_menu)
 
     @ensure_accessible
