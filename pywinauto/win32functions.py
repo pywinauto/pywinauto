@@ -141,9 +141,12 @@ SetFocus			=	ctypes.windll.user32.SetFocus
 SetForegroundWindow	=	ctypes.windll.user32.SetForegroundWindow
 GetForegroundWindow	=	ctypes.windll.user32.GetForegroundWindow
 SetWindowLong		=	ctypes.windll.user32.SetWindowLongW
-SetWindowLongPtr    =   ctypes.windll.user32.SetWindowLongPtrW
-SetWindowLongPtr.argtypes = [win32structures.HWND, ctypes.c_int, win32structures.LONG_PTR]
-SetWindowLongPtr.restype = win32structures.LONG_PTR
+try:
+    SetWindowLongPtr    =   ctypes.windll.user32.SetWindowLongPtrW
+    SetWindowLongPtr.argtypes = [win32structures.HWND, ctypes.c_int, win32structures.LONG_PTR]
+    SetWindowLongPtr.restype = win32structures.LONG_PTR
+except AttributeError:
+    SetWindowLongPtr = SetWindowLong
 SystemParametersInfo =	ctypes.windll.user32.SystemParametersInfoW
 VirtualAllocEx		=	ctypes.windll.kernel32.VirtualAllocEx
 VirtualAllocEx.restype = ctypes.c_void_p
