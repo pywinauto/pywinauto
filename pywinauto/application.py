@@ -20,7 +20,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"""The application module is the main one that users will user first.
+"""The application module is the main one that users will use first.
 
 When starting to automate an application you must initialize an instance
 of the Application class. Then you must :func:`Application.Start` that
