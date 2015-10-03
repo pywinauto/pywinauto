@@ -2,7 +2,7 @@
 Methods available to each different control type
 ============================================================
 
-Windows has many controls, buttons, lists, etc
+Windows have many controls, buttons, lists, etc
 
 
 All Controls
