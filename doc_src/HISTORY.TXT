@@ -3,7 +3,7 @@ Change Log
 ==========
 
 0.5.3 Better Unicode support for SetEditText/TypeKeys and menu items
-------------------------------------------------------------------
+--------------------------------------------------------------------
 25-September-2015
  * Better backward compatibility with pywinauto 0.4.2:
 
