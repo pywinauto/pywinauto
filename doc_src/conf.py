@@ -210,3 +210,19 @@ latex_documents = [
 
 # parameter to autodoc to make it take the doc from the __init__ methods also
 autoclass_content = 'both'
+
+# This value contains a list of modules to be mocked up. 
+# This is useful when some external dependencies are not met at build time 
+# and break the building process.
+autodoc_mock_imports = [
+        'win32api',
+        'win32con',
+        'win32process', 
+        'win32gui',
+        'win32event',
+        'win32com',
+        'win32com.Client',
+        'multiprocessing',
+        'pywintypes',
+        ]
+
