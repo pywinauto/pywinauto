@@ -148,6 +148,7 @@ WPARAM = UINT_PTR
 
 
 class POINT(Structure):
+    _pack_ = 4
     _fields_ = [
         # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 307
         ('x', LONG),
