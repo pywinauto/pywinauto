@@ -226,6 +226,6 @@ autodoc_mock_imports = [
         'pywintypes',
         'win32structures',
         'win32defines',
-        "win32functions.py",
+        "win32functions",
         ]
 
