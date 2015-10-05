@@ -1,12 +1,7 @@
 pywinauto.controls.common_controls
 ----------------------------------
+
  .. automodule:: pywinauto.controls.common_controls
     :members:
+    :undoc-members:
     :show-inheritance:
-
- .. autoclass:: pywinauto.controls.common_controls._treeview_element
-    :members:
-
- .. autoclass:: pywinauto.controls.common_controls._toolbar_button
-    :members:
-

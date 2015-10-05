@@ -50,7 +50,7 @@ in almost exactly the same ways. ::
 .. seealso::
 
   :func:`pywinauto.findwindows.find_windows` for the keyword arguments that
-  can be passed to both :func:`Application.Window` and
+  can be passed to both: :func:`Application.Window_` and
   :func:`WindowSpecification.Window`
 
 """
@@ -98,7 +98,11 @@ class WindowSpecification(object):
     """A specificiation for finding a window or control
 
     Windows are resolved when used.
-    You can also wait for existance or non existance of a window
+    You can also wait for existance or non existance of a window 
+ 
+    .. implicitly document some private functions
+    .. automethod:: __getattr__
+    .. automethod:: __getitem__
     """
 
     WAIT_CRITERIA_MAP = {'exists': ('Exists',),
@@ -758,7 +762,13 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
 
 #=========================================================================
 class Application(object):
-    "Represents an application"
+    """
+    Represents an application
+ 
+    .. implicitly document some private functions
+    .. automethod:: __getattr__
+    .. automethod:: __getitem__
+    """
 
     def __init__(self, datafilename = None):
         "Set the attributes"
