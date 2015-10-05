@@ -1478,19 +1478,19 @@ class HwndWrapper(object):
             has_closed
         )
 
-        self.actions.log('Closed window "' + window_text + '"')
+        self.actions.log('Closed window "{0}"'.format(window_text))
 
     #-----------------------------------------------------------
     def Maximize(self):
         """Maximize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MAXIMIZE)
-        self.actions.log('Maximized window "' + self.WindowText() + '"')
+        self.actions.log('Maximized window "{0}"'.format(self.WindowText()))
 
     #-----------------------------------------------------------
     def Minimize(self):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
-        self.actions.log('Minimized window "' + self.WindowText() + '"')
+        self.actions.log('Minimized window "{0}"'.format(self.WindowText()))
 
     #-----------------------------------------------------------
     def Restore(self):
@@ -1501,7 +1501,7 @@ class HwndWrapper(object):
         # after the first ShowWindow, and Restored after the 2nd
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
-        self.actions.log('Restored window "' + self.WindowText() + '"')
+        self.actions.log('Restored window "{0}"'.format(self.WindowText()))
 
 
     #-----------------------------------------------------------
