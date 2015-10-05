@@ -30,7 +30,7 @@ Installation
 - Run ``python.exe setup.py install``
 
 Installation in silent mode
-------------
+---------------------------
 (Python 2.7, 3.1, 3.2, 3.3, 3.4, 3.5)
 
 - Just run ``pip install pywinauto``

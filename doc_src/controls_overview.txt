@@ -2,7 +2,7 @@
 Methods available to each different control type
 ============================================================
 
-Windows has many controls, buttons, lists, etc
+Windows have many controls, buttons, lists, etc
 
 
 All Controls
@@ -426,7 +426,7 @@ TreeView
 .. _TreeViewElement.Next: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Next
 .. _TreeViewElement.Rectangle: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Rectangle
 .. _TreeViewElement.State: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.State
-.. _TreeViewElement.SubElements: code/pywinauto.controlscommon_controls.html#pywinauto.controls.common_controls._treeview_element.SubElements
+.. _TreeViewElement.SubElements: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.SubElements
 .. _TreeViewElement.Text: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._treeview_element.Text
 
 

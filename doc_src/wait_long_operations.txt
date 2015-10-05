@@ -9,7 +9,7 @@ timeout). There are few methods/functions that could help you to make
 your code easier and more reliable.
 
 Application methods
-------------
+-------------------
 
   * WaitCPUUsageLower_ (new in pywinauto 0.5.2)
 
@@ -25,7 +25,8 @@ Example: ::
 
 
 WindowSpecification methods
-------------
+---------------------------
+
 These methods are available to all controls.
 
   * Wait_
@@ -39,7 +40,8 @@ It's just a description namely a couple of criteria to search the window. The ``
 can guarantee that the target control exists or even visible, enabled and/or active.
 
 Functions in ``timings`` module
-------------
+-------------------------------
+
 There are also low-level methods useful for any Python code.
 
   * WaitUntil_
@@ -54,7 +56,8 @@ There are also low-level methods useful for any Python code.
 
 
 Identify controls
-------------
+-----------------
+
 The methods to help you to find a needed control.
 
   * PrintControlIdentifiers_

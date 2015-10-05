@@ -19,8 +19,24 @@
 #    59 Temple Place,
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
+"""
+Classes that wrap the Windows Common controls
 
-"Classes that wrap the Windows Common controls"
+.. implicitly document some private classes
+.. autoclass:: _toolbar_button
+   :members:
+   :show-inheritance:
+
+.. autoclass:: _treeview_element
+   :members:
+   :show-inheritance:
+
+.. autoclass:: _listview_item
+   :members:
+   :show-inheritance:
+"""
+
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -1869,7 +1885,9 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 class _toolbar_button(object):
-    "Wrapper around Toolbar button (TBBUTTONINFO) items"
+    """
+    Wrapper around Toolbar button (TBBUTTONINFO) items
+    """
     #----------------------------------------------------------------
     def __init__(self, index_, tb_handle):
         "Initialize the item"
