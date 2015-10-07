@@ -27,18 +27,17 @@ useful to other modules with the least conceptual overhead
 """
 from __future__ import absolute_import
 
-__revision__ = "$Revision$"
-
 import ctypes
 
 from . import win32functions
 from . import win32defines
 from . import win32structures
+from .actionlogger import ActionLogger
 
 if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
-    g_alloc_pid = lambda:ctypes.c_ulonglong()
+    def g_alloc_pid(): return ctypes.c_ulonglong()
 else:
-    g_alloc_pid = lambda:ctypes.c_ulong()
+    def g_alloc_pid(): return ctypes.c_ulong()
 
 #=========================================================================
 def text(handle):
@@ -67,8 +66,8 @@ def text(handle):
     c_length = win32structures.DWORD(0)
     result = win32functions.SendMessageTimeout(handle, win32defines.WM_GETTEXTLENGTH, 0, 0, win32defines.SMTO_ABORTIFHUNG, 500, ctypes.byref(c_length))
     if result == 0:
-        print('WARNING! Cannot retrieve text length for handle = ' + str(handle))
-        return ''
+        ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
+        return None
     else:
         length = c_length.value
     
@@ -166,8 +165,8 @@ def is64bitprocess(process_id):
 #=========================================================================
 def is64bitbinary(filename):
     import win32file
-    type = win32file.GetBinaryType(filename)
-    return type != win32file.SCS_32BIT_BINARY
+    binary_type = win32file.GetBinaryType(filename)
+    return binary_type != win32file.SCS_32BIT_BINARY
 
 #=========================================================================
 def clientrect(handle):

@@ -26,8 +26,6 @@
 
 "Tests for application.py"
 
-__revision__ = "$Revision: 234 $"
-
 import os
 import os.path
 import unittest
@@ -39,9 +37,11 @@ import warnings
 import sys
 sys.path.append(".")
 from pywinauto import application
-from pywinauto.application import *
-from pywinauto import findwindows
-from pywinauto.timings import Timings
+from pywinauto.controls import HwndWrapper
+from pywinauto.application import Application, WindowSpecification, process_module
+from pywinauto.application import ProcessNotFoundError, AppStartError, AppNotConnected
+from pywinauto import findwindows, findbestmatch
+from pywinauto.timings import Timings, TimeoutError, WaitUntil
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 
 Timings.Fast()
@@ -174,7 +174,6 @@ class ApplicationTestCases(unittest.TestCase):
 
 #    def testset_timing(self):
 #        "Test that set_timing sets the timing correctly"
-#        from pywinauto.controls import HwndWrapper
 #        prev_timing = (
 #            application.window_find_timeout,
 #            application.window_retry_interval,
@@ -272,8 +271,12 @@ class ApplicationTestCases(unittest.TestCase):
         try:
             app_conn.connect_(title = "Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
-            wins = findwindows.find_windows(title = "Untitled - Notepad")
-            app_conn.connect_(handle = wins[0].handle)
+            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
+            app_conn.connect_(handle = wins[0])
+        except findwindows.WindowNotFoundError:
+            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title = "Untitled - Notepad")) > 0)
+            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
+            app_conn.connect_(handle = wins[0])
 
         self.assertEqual(app1.process, app_conn.process)
 
@@ -308,6 +311,8 @@ class ApplicationTestCases(unittest.TestCase):
     def testTopWindow(self):
         "Test that top_window_() works correctly"
         app = Application()
+        self.assertRaises(AppNotConnected, app.top_window_)
+        
         app.start_(_notepad_exe())
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
@@ -318,6 +323,47 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.WaitNot('exists')
+        self.assertRaises(RuntimeError, app.top_window_)
+
+    def testActiveWindow(self):
+        "Test that active_() works correctly"
+        app = Application()
+        self.assertRaises(AppNotConnected, app.active_)
+        self.assertRaises(AppNotConnected, app.is64bit)
+        app.start_(_notepad_exe())
+        app.UntitledNotepad.Wait('ready')
+        self.assertEqual(app.active_().handle, app.UntitledNotepad.handle)
+        app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.WaitNot('exists')
+        self.assertRaises(RuntimeError, app.active_)
+
+    def testWaitCPUUsageLower(self):
+        if is_x64_Python() != is_x64_OS():
+            return None
+        
+        app = Application().Start(r'explorer.exe')
+        WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, class_name='CabinetWClass')) > 0)
+        handle = findwindows.find_windows(active_only=True, class_name='CabinetWClass')[-1]
+        window = WindowSpecification({'handle': handle, })
+        explorer = Application().Connect(process=window.ProcessID())
+        
+        try:
+            window.AddressBandRoot.ClickInput()
+            window.Edit.SetEditText(r'Control Panel\Programs\Programs and Features')
+            window.TypeKeys(r'{ENTER 2}', set_foreground=False)
+            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title='Programs and Features', class_name='CabinetWClass')) > 0)
+            explorer.WaitCPUUsageLower(threshold=2.5, timeout=40)
+            installed_programs = window.FolderView.Texts()[1:]
+            programs_list = ','.join(installed_programs)
+            if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
+                HwndWrapper.ImageGrab.grab().save(r'explorer_screenshot.jpg')
+            HwndWrapper.ActionLogger().log('\ninstalled_programs:\n')
+            for prog in installed_programs:
+                HwndWrapper.ActionLogger().log(prog)
+            self.assertEqual(('Microsoft' in programs_list) or ('Python' in programs_list), True)
+        finally:
+            window.Close(2.0)
 
     def testWindows(self):
         "Test that windows_() works correctly"
@@ -337,7 +383,7 @@ class ApplicationTestCases(unittest.TestCase):
             app.windows_(visible_only = True, enabled_only = False),
             [aboutnotepad_handle, notepad_handle])
 
-        app.AboutNotepad.Ok.Click()
+        app.AboutNotepad.OK.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
     def testWindow(self):
@@ -370,7 +416,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         try:
             app['blahblah']
-        except:
+        except Exception:
             pass
 
 
@@ -489,10 +535,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, wspec)
 
 
-
     def testWrapperObject(self):
         "Test that we can get a control "
-        from pywinauto.controls import HwndWrapper
         self.assertEquals(True, isinstance(self.dlgspec, WindowSpecification))
 
         self.assertEquals(
@@ -503,10 +547,11 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def testWindow(self):
         "test specifying a sub window of an existing specification"
         sub_spec = self.dlgspec.ChildWindow(class_name = "Edit")
+        sub_spec_legacy = self.dlgspec.Window_(class_name = "Edit")
 
         self.assertEquals(True, isinstance(sub_spec, WindowSpecification))
         self.assertEquals(sub_spec.Class(), "Edit")
-
+        self.assertEquals(sub_spec_legacy.Class(), "Edit")
 
 
     def test__getitem__(self):
@@ -520,7 +565,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEquals(self.dlgspec['Edit'].Class(), "Edit")
 
         self.assertRaises(AttributeError, self.ctrlspec.__getitem__, 'edit')
-
 
 
     def testGetAttr(self):
@@ -538,8 +582,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEquals(
             "Notepad",
             self.dlgspec.Class())
-
-
 
 
     def testExists(self):
@@ -570,9 +612,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
         timedif =  time.time() - start
         self.assertEquals(True, .49 > timedif < .6)
 
-
     def testWait(self):
-        "test the functionality and timing of the wait method"
+        """
+        test the functionality and timing of the wait method.
+        """
 
         allowable_error = .3
 
@@ -606,7 +649,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
-
+        self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
 
     def testWaitNot(self):
         """Test that wait not fails for all the following
@@ -616,35 +659,36 @@ class WindowSpecificationTestCases(unittest.TestCase):
         allowable_error = .16
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
         taken = time.time() - start
         if .1 < (taken)  > .1 + allowable_error:
             self.assertEqual(.12, taken)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "  ready", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "  ready", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, " exiSTS", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " exiSTS", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, " VISIBLE ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " VISIBLE ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, " ready enabled", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " ready enabled", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "visible exists ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "visible exists ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         start = time.time()
-        self.assertRaises(RuntimeError, self.dlgspec.WaitNot, "exists ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "exists ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
+        self.assertRaises(SyntaxError, self.dlgspec.WaitNot, "Invalid_criteria")
 
 #    def testWaitReady(self):
 #        "Make sure the friendly class is set correctly"
@@ -756,6 +800,12 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()
+
+    def test_find_windows_re(self):
+        "Test for bug #90: A crash in 'find_windows' when called with 'title_re' argument"
+        self.dlgspec.Wait('visible')
+        windows = findwindows.find_windows(title_re="Untitled - Notepad")
+        self.assertTrue(len(windows) >= 1)
 
 
 if __name__ == "__main__":

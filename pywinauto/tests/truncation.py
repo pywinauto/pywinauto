@@ -543,7 +543,6 @@ _TruncInfo = {
     "CheckBox" : _CheckBoxTruncInfo,
     "GroupBox" : _GroupBoxTruncInfo,
     "RadioButton" : _RadioButtonTruncInfo,
-    "Button" : _ButtonTruncInfo,
     "Edit": _EditTruncInfo,
     "Static" : _StaticTruncInfo,
 

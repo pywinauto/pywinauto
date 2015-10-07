@@ -26,8 +26,6 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 from __future__ import print_function
 
-__revision__ = "$Revision$"
-
 # pylint:  disable-msg=W0611
 
 #import sys
@@ -36,8 +34,9 @@ import re
 import ctypes
 import win32api
 import win32gui
-import pywintypes
-import traceback, inspect
+import win32con
+import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
+import locale
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
@@ -46,7 +45,6 @@ import traceback, inspect
 from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
-#from ..RemoteMemoryBlock import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -155,7 +153,7 @@ class _MetaWrapper(type):
 
 #====================================================================
 @six.add_metaclass(_MetaWrapper)
-class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
+class HwndWrapper(object):
     """Default wrapper for controls.
 
     All other wrappers are derived from this.
@@ -179,6 +177,10 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     handle = None
     can_be_label = False
     has_title = True
+
+    # specify whether we need to grab an image of ourselves
+    # when asked for properties
+    _NeedsImageProp = False
 
     #-----------------------------------------------------------
     def __new__(cls, handle):
@@ -224,10 +226,6 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         #self.is64bitprocess = handleprops.is64bitprocess(self.ProcessID())
 
         #win32functions.WaitGuiThreadIdle(self)
-
-        # specify whether we need to grab an image of ourselves
-        # when asked for properties
-        self._NeedsImageProp = False
 
         # default to not having a reference control added
         self.ref = None
@@ -340,8 +338,17 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def ContextHelpID(self):
-        "Return the Context Help ID of the window"
+        """
+        Return the Context Help ID of the window
+        """
         return handleprops.contexthelpid(self)
+
+    #-----------------------------------------------------------
+    def IsActive(self):
+        """
+        Whether the window is active or not
+        """
+        return self.TopLevelParent() == self.GetActive()
 
     #-----------------------------------------------------------
     def IsUnicode(self):
@@ -422,7 +429,18 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     #-----------------------------------------------------------
     def ClientToScreen(self, client_point):
         """Maps point from client to screen coordinates"""
-        win32functions.ClientToScreen(self, ctypes.byref(client_point))
+        point = win32structures.POINT()
+        if isinstance(client_point, win32structures.POINT):
+            point.x = client_point.x
+            point.y = client_point.y
+        else:
+            point.x = client_point[0]
+            point.y = client_point[1]
+        win32functions.ClientToScreen(self, ctypes.byref(point))
+        
+        # return tuple in any case because
+        # coords param is always expected to be tuple
+        return point.x, point.y
 
     #-----------------------------------------------------------
     def Font(self):
@@ -443,12 +461,12 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def HasStyle(self, style):
-        "Return True if the control has the specified sytle"
+        "Return True if the control has the specified style"
         return handleprops.has_style(self, style)
 
     #-----------------------------------------------------------
     def HasExStyle(self, exstyle):
-        "Return True if the control has the specified extended sytle"
+        "Return True if the control has the specified extended style"
         return handleprops.has_exstyle(self, exstyle)
 
     #-----------------------------------------------------------
@@ -603,11 +621,38 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     #-----------------------------------------------------------
     def SendCommand(self, commandID):
         return self.SendMessage(win32defines.WM_COMMAND, commandID)
-        
+
+    #-----------------------------------------------------------
     def PostCommand(self, commandID):
         return self.PostMessage(win32defines.WM_COMMAND, commandID)
 
-        #-----------------------------------------------------------
+    #-----------------------------------------------------------
+    #def Notify(self, code):
+    #    "Send a notification to the parent (not tested yet)"
+
+    #    # now we need to notify the parent that the state has changed
+    #    nmhdr = win32structures.NMHDR()
+    #    nmhdr.hwndFrom = self.handle
+    #    nmhdr.idFrom = self.ControlID()
+    #    nmhdr.code = code
+
+    #    from ..RemoteMemoryBlock import RemoteMemoryBlock
+    #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
+    #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
+
+    #    retval = self.Parent().SendMessage(
+    #        win32defines.WM_NOTIFY,
+    #        self.handle,
+    #        remote_mem)
+    #    #if retval != win32defines.TRUE:
+    #    #    print('retval = ' + str(retval))
+    #    #    raise ctypes.WinError()
+    #    del remote_mem
+
+    #    return retval
+
+
+    #-----------------------------------------------------------
     def SendMessage(self, message, wparam = 0 , lparam = 0):
         "Send a message to the control and wait for it to return"
         #return win32functions.SendMessage(self, message, wparam, lparam)
@@ -660,16 +705,15 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             (ret, result) = win32gui.SendMessageTimeout(pywintypes.HANDLE(self.handle), message, wparam, lparam, timeoutflags, int(timeout * 1000))
             #print '(ret, result) = ', (ret, result)
         except Exception as exc:
-            '''
-            print('____________________________________________________________')
-            print('self.handle =', pywintypes.HANDLE(self.handle), ', message =', message,
-                  ', wparam =', wparam, ', lparam =', lparam, ', timeout =', timeout)
-            print('Exception: ', exc)
-            print(traceback.format_exc())
-            print('Caller stack:')
-            for frame in inspect.stack():
-                print(frame[1:])
-            '''
+            #import traceback, inspect
+            #print('____________________________________________________________')
+            #print('self.handle =', pywintypes.HANDLE(self.handle), ', message =', message,
+            #      ', wparam =', wparam, ', lparam =', lparam, ', timeout =', timeout)
+            #print('Exception: ', exc)
+            #print(traceback.format_exc())
+            #print('Caller stack:')
+            #for frame in inspect.stack():
+            #    print(frame[1:])
             result = str(exc)
 
         return result #result.value
@@ -824,19 +868,18 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
     #-----------------------------------------------------------
     def Click(
-        self, button = "left", pressed = "", coords = (0, 0), double = False, timeout=0.5, absolute = False):
+        self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
         """Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
-        'realistic' mouse click use ClickInput() which uses SendInput() API
+        'realistic' mouse click use ClickInput() which uses mouse_event() API
         to perform the click.
 
         This method does not require that the control be visible on the screen
-        (i.e. is can be hidden beneath another window and it will still work.)
+        (i.e. it can be hidden beneath another window and it will still work.)
         """
+        self.VerifyActionable()
 
-        if timeout:
-            time.sleep(timeout)
         _perform_click(self, button, pressed, coords, double, absolute=absolute)
         return self
 
@@ -864,11 +907,10 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
            be visible on the screen but performs a more realistic 'click'
            simulation.
 
-           This method is also vulnerable if the mouse if moved by the user
+           This method is also vulnerable if the mouse is moved by the user
            as that could easily move the mouse off the control before the
-           Click has finished.        
+           Click has finished.
         """
-        time.sleep(0.5)
         _perform_click_input(
             self, button, coords, double, wheel_dist = wheel_dist, use_log = use_log, pressed = pressed, absolute = absolute)
 
@@ -876,7 +918,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
     #-----------------------------------------------------------
     def CloseClick(
         self, button = "left", pressed = "", coords = (0, 0), double = False):
-        """Peform a click action that should make the window go away
+        """Perform a click action that should make the window go away
 
         The only difference from Click is that there are extra delays
         before and after the click action.
@@ -1033,6 +1075,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             release_coords = (release_coords.x, release_coords.y)
 
         self.PressMouseInput(button, press_coords, pressed, absolute=absolute)
+        time.sleep(Timings.before_drag_wait)
         for i in range(5):
             self.MoveMouseInput((press_coords[0]+i,press_coords[1]), pressed=pressed, absolute=absolute) # "left"
             time.sleep(Timings.drag_n_drop_move_mouse_wait)
@@ -1093,25 +1136,36 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
         if set_foreground:
             self.SetFocus()
+            #self.TopLevelParent().SetFocus()
+            #win32functions.SetFocus(self)
 
         # attach the Python process with the process that self is in
-        win32functions.AttachThreadInput(
-            win32functions.GetCurrentThreadId(), self.ProcessID(), 1)
+        window_thread_id = win32functions.GetWindowThreadProcessId(self, 0)
+        win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
+        # TODO: check return value of AttachThreadInput properly
+
+        if isinstance(keys, six.text_type):
+            aligned_keys = keys
+        elif isinstance(keys, six.binary_type):
+            aligned_keys = keys.decode(locale.getpreferredencoding())
+        else:
+            # convert a non-string input
+            aligned_keys = six.text_type(keys)
 
         # Play the keys to the active window
         SendKeys.SendKeys(
-            keys + '\n',
+            aligned_keys + '\n',
             pause, with_spaces,
             with_tabs,
             with_newlines,
             turn_off_numlock)
 
         # detach the python process from the window's process
-        win32functions.AttachThreadInput(
-            win32functions.GetCurrentThreadId(), self.ProcessID(), 0)
+        win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
+        # TODO: check return value of AttachThreadInput properly
 
         win32functions.WaitGuiThreadIdle(self)
-        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + str(keys))
+        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
         return self
 
     #-----------------------------------------------------------
@@ -1209,12 +1263,27 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
 
 
     #-----------------------------------------------------------
-    def PopupWindow(self):
-        """Return any owned Popups
+    def SetTransparency(self, alpha = 120):
+        "Set the window transparency from 0 to 255 by alpha attribute"
+        if not (0 <= alpha <= 255):
+            raise ValueError('alpha should be in [0, 255] interval!')
+        # TODO: implement SetExStyle method
+        win32gui.SetWindowLong(self.handle, win32defines.GWL_EXSTYLE, self.ExStyle() | win32con.WS_EX_LAYERED)
+        win32gui.SetLayeredWindowAttributes(self.handle, win32api.RGB(0,0,0), alpha, win32con.LWA_ALPHA)
 
+
+    #-----------------------------------------------------------
+    def PopupWindow(self):
+        """Return owned enabled Popup window wrapper if shown.
+
+        If there is no enabled popups at that time, it returns **self**.
+        See MSDN reference:
+        https://msdn.microsoft.com/en-us/library/windows/desktop/ms633515.aspx
+        
         Please do not use in production code yet - not tested fully
         """
-        popup = win32functions.GetWindow(self, win32defines.GW_HWNDNEXT)
+        # it seems GW_ENABLEDPOPUP should be used, but it doesn't work
+        popup = win32functions.GetWindow(self, win32defines.GW_HWNDNEXT) # GW_ENABLEDPOPUP
 
         return popup
 
@@ -1424,19 +1493,19 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             has_closed
         )
 
-        self.actions.log('Closed window "' + window_text + '"')
+        self.actions.log('Closed window "{0}"'.format(window_text))
 
     #-----------------------------------------------------------
     def Maximize(self):
         """Maximize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MAXIMIZE)
-        self.actions.log('Maximized window "' + self.WindowText() + '"')
+        self.actions.log('Maximized window "{0}"'.format(self.WindowText()))
 
     #-----------------------------------------------------------
     def Minimize(self):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
-        self.actions.log('Minimized window "' + self.WindowText() + '"')
+        self.actions.log('Minimized window "{0}"'.format(self.WindowText()))
 
     #-----------------------------------------------------------
     def Restore(self):
@@ -1447,7 +1516,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         # after the first ShowWindow, and Restored after the 2nd
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
-        self.actions.log('Restored window "' + self.WindowText() + '"')
+        self.actions.log('Restored window "{0}"'.format(self.WindowText()))
 
 
     #-----------------------------------------------------------
@@ -1473,6 +1542,26 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             raise ctypes.WinError()
 
         return wp.showCmd
+
+    #-----------------------------------------------------------
+    def GetActive(self):
+        """
+        Return a handle to the active window within the process
+        """
+        gui_info = win32structures.GUITHREADINFO()
+        gui_info.cbSize = ctypes.sizeof(gui_info)
+        ret = win32functions.GetGUIThreadInfo(
+            win32functions.GetWindowThreadProcessId(self, 0),
+            ctypes.byref(gui_info))
+
+        if not ret:
+            raise ctypes.WinError()
+
+        hwndActive = gui_info.hwndActive
+        if hwndActive:
+            return HwndWrapper(hwndActive)
+        else:
+            return None
 
     #-----------------------------------------------------------
     def GetFocus(self):
@@ -1512,14 +1601,14 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             # if a different thread owns the active window
             if cur_fore_thread != control_thread:
                 # Attach the two threads and set the foreground window
-                win32functions.AttachThreadInput(
-                    cur_fore_thread, control_thread, True)
+                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.TRUE)
+                # TODO: check return value of AttachThreadInput properly
 
                 win32functions.SetForegroundWindow(self)
 
                 # detach the thread again
-                win32functions.AttachThreadInput(
-                    cur_fore_thread, control_thread, False)
+                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.FALSE)
+                # TODO: check return value of AttachThreadInput properly
 
             else:   # same threads - just set the foreground window
                 win32functions.SetForegroundWindow(self)
@@ -1539,7 +1628,7 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         """Application data is data from a previous run of the software
 
         It is essential for running scripts written for one spoke language
-        on a different spoken langauge
+        on a different spoken language
         """
         self.appdata = appdata
 
@@ -1567,12 +1656,12 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
         }
 
     #-----------------------------------------------------------
-    def Scroll(self, direction, amount, count = 1):
+    def Scroll(self, direction, amount, count = 1, retry_interval = None):
         """Ask the control to scroll itself
 
-        direction can be any of "up", "down", "left", "right"
-        amount can be one of "line", "page", "end"
-        count (optional) the number of times to scroll
+        **direction** can be any of "up", "down", "left", "right"
+        **amount** can be one of "line", "page", "end"
+        **count** (optional) the number of times to scroll
         """
 
         # check which message we want to send
@@ -1586,9 +1675,11 @@ class HwndWrapper(object): # six.with_metaclass(_MetaWrapper, object)
             HwndWrapper._scroll_types[direction.lower()][amount.lower()]
 
         # Scroll as often as we have been asked to
+        if retry_interval is None:
+            retry_interval = Timings.scroll_step_wait
         while count > 0:
             self.SendMessage(message, scroll_type)
-            time.sleep(1.0)
+            time.sleep(retry_interval)
             count -= 1
 
         return self
@@ -1674,7 +1765,7 @@ def _perform_click_input(
         events *= 2
 
 
-    if ctrl == None:
+    if ctrl is None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     elif ctrl.IsDialog():
         ctrl.SetFocus()
@@ -1696,12 +1787,7 @@ def _perform_click_input(
         coords[1] = int(ctrl.Rectangle().height() / 2)
 
     if not absolute:
-        screen_coords = win32structures.POINT()
-        screen_coords.x = coords[0]
-        screen_coords.y = coords[1]
-        ctrl.ClientToScreen(screen_coords)
-        coords[0] = screen_coords.x
-        coords[1] = screen_coords.y
+        coords = ctrl.ClientToScreen(coords)
 
     # set the cursor position
     win32api.SetCursorPos((coords[0], coords[1]))
@@ -1712,22 +1798,23 @@ def _perform_click_input(
 
     keyboard_keys = pressed.lower().split()
     if ('control' in keyboard_keys) and key_down:
-        #SendKeys.SendKeys('{VK_CONTROL down}')
         SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, up = False).Run()
     if ('shift' in keyboard_keys) and key_down:
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
+    if ('alt' in keyboard_keys) and key_down:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up = False).Run()
 
 
-    inp_struct._.mi.dwFlags = 0
+    inp_struct.mi.dwFlags = 0
     for event in events:
-        inp_struct._.mi.dwFlags |= event
+        inp_struct.mi.dwFlags |= event
 
     dwData = 0
     if button.lower() == 'wheel':
         dwData = wheel_dist
-        inp_struct._.mi.mouseData = wheel_dist
+        inp_struct.mi.mouseData = wheel_dist
     else:
-        inp_struct._.mi.mouseData = 0
+        inp_struct.mi.mouseData = 0
 
     if button.lower() == 'move':
         #win32functions.SendInput(     # vvryabov: SendInput() should be called sequentially in a loop [for event in events]
@@ -1738,22 +1825,25 @@ def _perform_click_input(
         Y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
         X_coord = int(float(coords[0]) * (65535. / float(X_res - 1)))
         Y_coord = int(float(coords[1]) * (65535. / float(Y_res - 1)))
-        win32api.mouse_event(inp_struct._.mi.dwFlags, X_coord, Y_coord, dwData)
+        win32api.mouse_event(inp_struct.mi.dwFlags, X_coord, Y_coord, dwData)
     else:
         for event in events:
-            inp_struct._.mi.dwFlags = event
-            win32api.mouse_event(inp_struct._.mi.dwFlags, coords[0], coords[1], dwData)
+            inp_struct.mi.dwFlags = event
+            win32api.mouse_event(inp_struct.mi.dwFlags, coords[0], coords[1], dwData)
             time.sleep(Timings.after_clickinput_wait)
 
     time.sleep(Timings.after_clickinput_wait)
 
     if ('control' in keyboard_keys) and key_up:
-        #SendKeys.SendKeys('^')
         SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, down = False).Run()
     if ('shift' in keyboard_keys) and key_up:
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, down = False).Run()
+    if ('alt' in keyboard_keys) and key_up:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, down = False).Run()
 
     if use_log:
+        if ctrl_text is None:
+            ctrl_text = six.text_type(ctrl_text)
         message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
                   '" by ' + str(button) + ' button mouse click (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
         if double:
@@ -1779,6 +1869,8 @@ def _perform_click(
         ):
     "Low level method for performing click operations"
 
+    if ctrl is None:
+        ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     ctrl.VerifyActionable()
     ctrl_text = ctrl.WindowText()
 
@@ -1791,12 +1883,7 @@ def _perform_click(
     coords = list(coords)
 
     if absolute:
-        screen_coords = win32structures.POINT()
-        screen_coords.x = coords[0]
-        screen_coords.y = coords[1]
-        ctrl.ClientToScreen(screen_coords)
-        coords[0] = screen_coords.x
-        coords[1] = screen_coords.y
+        coords = ctrl.ClientToScreen(coords)
 
     # figure out the messages for click/press
     msgs  = []
@@ -1846,8 +1933,9 @@ def _perform_click(
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
 
-    win32functions.AttachThreadInput(
-        win32functions.GetCurrentThreadId(), ctrl.ProcessID(), 1)
+    #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
+    #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
+    # TODO: check return value of AttachThreadInput properly
 
     # send each message
     for msg in msgs:
@@ -1860,9 +1948,9 @@ def _perform_click(
         # wait until the thread can accept another message
         win32functions.WaitGuiThreadIdle(ctrl)
 
-    # dettach the Python process with the process that self is in
-    win32functions.AttachThreadInput(
-        win32functions.GetCurrentThreadId(), ctrl.ProcessID(), 0)
+    # detach the Python process with the process that self is in
+    #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.FALSE)
+    # TODO: check return value of AttachThreadInput properly
 
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)

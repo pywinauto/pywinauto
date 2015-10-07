@@ -18,17 +18,17 @@
 #    59 Temple Place,
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
-"Defines Windows(tm) functions"
+"""Defines Windows(tm) functions"""
 from __future__ import absolute_import
 
-__revision__ = "$Revision$"
-
 import ctypes
-from ctypes import *
+from pywinauto import win32defines, win32structures
+from pywinauto.actionlogger import ActionLogger
+from ctypes import c_uint, c_short, c_long
 
 import sys
 if sys.platform == "cygwin":
-    windll = cdll
+    windll = ctypes.cdll
     HRESULT = c_long
 
 
@@ -111,6 +111,8 @@ GetCurrentThreadId  =   ctypes.windll.Kernel32.GetCurrentThreadId
 GetWindowThreadProcessId =  ctypes.windll.user32.GetWindowThreadProcessId
 GetGUIThreadInfo    =   ctypes.windll.user32.GetGUIThreadInfo
 AttachThreadInput   =   ctypes.windll.user32.AttachThreadInput
+AttachThreadInput.restype = win32structures.BOOL
+AttachThreadInput.argtypes = [win32structures.DWORD, win32structures.DWORD, win32structures.BOOL]
 #GetWindowThreadProcessId    =   ctypes.windll.user32.GetWindowThreadProcessId
 GetLastError = ctypes.windll.kernel32.GetLastError
 
@@ -139,6 +141,12 @@ SetFocus			=	ctypes.windll.user32.SetFocus
 SetForegroundWindow	=	ctypes.windll.user32.SetForegroundWindow
 GetForegroundWindow	=	ctypes.windll.user32.GetForegroundWindow
 SetWindowLong		=	ctypes.windll.user32.SetWindowLongW
+try:
+    SetWindowLongPtr    =   ctypes.windll.user32.SetWindowLongPtrW
+    SetWindowLongPtr.argtypes = [win32structures.HWND, ctypes.c_int, win32structures.LONG_PTR]
+    SetWindowLongPtr.restype = win32structures.LONG_PTR
+except AttributeError:
+    SetWindowLongPtr = SetWindowLong
 SystemParametersInfo =	ctypes.windll.user32.SystemParametersInfoW
 VirtualAllocEx		=	ctypes.windll.kernel32.VirtualAllocEx
 VirtualAllocEx.restype = ctypes.c_void_p
@@ -174,6 +182,45 @@ CloseClipboard   = ctypes.windll.user32.CloseClipboard
 CountClipboardFormats  = ctypes.windll.user32.CountClipboardFormats
 EnumClipboardFormats   = ctypes.windll.user32.EnumClipboardFormats
 GetClipboardFormatName = ctypes.windll.user32.GetClipboardFormatNameW
+
+# DPIAware API funcs are not available on WinXP
+try:
+    IsProcessDPIAware = ctypes.windll.user32.IsProcessDPIAware
+    SetProcessDPIAware = ctypes.windll.user32.SetProcessDPIAware
+except AttributeError:
+    IsProcessDPIAware = None
+    SetProcessDPIAware = None
+
+# DpiAwareness API funcs are available only from win 8.1 and greater
+# Supported types of DPI awareness described here:
+# https://msdn.microsoft.com/en-us/library/windows/desktop/dn280512(v=vs.85).aspx
+# typedef enum _Process_DPI_Awareness { 
+#   Process_DPI_Unaware            = 0,
+#   Process_System_DPI_Aware       = 1,
+#   Process_Per_Monitor_DPI_Aware  = 2
+# } Process_DPI_Awareness;
+try:
+    shcore = ctypes.windll.LoadLibrary(u"Shcore.dll")
+    SetProcessDpiAwareness = shcore.SetProcessDpiAwareness
+    GetProcessDpiAwareness = shcore.GetProcessDpiAwareness
+    Process_DPI_Awareness = {
+        "Process_DPI_Unaware"           : 0,
+        "Process_System_DPI_Aware"      : 1,
+        "Process_Per_Monitor_DPI_Aware" : 2
+        }
+except (OSError, AttributeError):
+    SetProcessDpiAwareness = None
+    GetProcessDpiAwareness = None
+    Process_DPI_Awareness = None
+
+# Setup DPI awareness for the python process if any is supported
+if SetProcessDpiAwareness:
+    ActionLogger().log("Call SetProcessDpiAwareness")
+    SetProcessDpiAwareness(
+            Process_DPI_Awareness["Process_Per_Monitor_DPI_Aware"])
+elif SetProcessDPIAware:
+    ActionLogger().log("Call SetProcessDPIAware")
+    SetProcessDPIAware()
 
 GetQueueStatus = ctypes.windll.user32.GetQueueStatus
 
@@ -230,9 +277,39 @@ def WaitGuiThreadIdle(handle, timeout = 1):
         0,
         process_id.value)
 
-    # wait timout number of seconds
+    # wait for the timeout number of seconds
     ret = WaitForInputIdle(hprocess, timeout * 1000)
 
     CloseHandle(hprocess)
 
     return ret
+
+def GetDpiAwarenessByPid(pid):
+    "Get DPI awareness properties of a process specified by ID"
+        
+    dpi_awareness = -1
+    hProcess = None
+    if GetProcessDpiAwareness and pid:
+        hProcess = OpenProcess(
+                    win32defines.PROCESS_QUERY_INFORMATION, 
+                    0, 
+                    pid)
+        if not hProcess:
+            # process doesn't exist, exit with a default return value
+            return dpi_awareness
+
+        try:
+            dpi_awareness = ctypes.c_int()
+            hRes = GetProcessDpiAwareness(
+                    hProcess, 
+                    ctypes.byref(dpi_awareness))
+            CloseHandle(hProcess)
+            if hRes == 0:
+                return dpi_awareness.value
+        finally:
+            if hProcess:
+                CloseHandle(hProcess)
+
+    # GetProcessDpiAwareness is not supported or pid is not specified,
+    # return a default value
+    return dpi_awareness

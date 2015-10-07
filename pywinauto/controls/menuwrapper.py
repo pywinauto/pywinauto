@@ -26,21 +26,21 @@ You can select or click on items and check if they are
 checked or unchecked.
 """
 from __future__ import absolute_import
-
-__revision__ = "$Revision$"
+from __future__ import unicode_literals
 
 import ctypes
 import ctypes.wintypes
 import time
 import win32gui
 import win32gui_struct
+import locale
 
 from .. import win32structures
 from .. import win32functions
 from .. import win32defines
 from .. import findbestmatch
+from .. import six
 from ..RemoteMemoryBlock import RemoteMemoryBlock
-#from .. import SendKeysCtypes as SendKeys
 from ..timings import Timings
 
 class MenuItemInfo:
@@ -56,20 +56,49 @@ class MenuItemInfo:
         self.hbmpItem = 0
 
 
+class MenuInfo:
+    def __init__(self):
+        self.dwStyle = 0
+        self.cyMax = 0
+        self.hbrBack = 0
+        self.dwContextHelpID = 0
+        self.dwMenuData = 0
+
+
 class MenuItemNotEnabled(RuntimeError):
-    "Raised when a menuitem is not enabled"
+    "Raised when a menu item is not enabled"
     pass
 
 
+class MenuInaccessible(RuntimeError):
+
+    """Raised when a menu has handle but inaccessible."""
+    pass
+
+
+def ensure_accessible(method):
+    """Decorator for Menu instance methods"""
+
+    def check(instance, *args, **kwargs):
+        """Check if the instance is accessible"""
+
+        if not instance.accessible:
+            raise MenuInaccessible
+        else:
+            return method(instance, *args, **kwargs)
+    return check
+
+
 class MenuItem(object):
+
     """Wrap a menu item"""
 
     def __init__(self, ctrl, menu, index, on_main_menu = False):
-        """Initalize the menu item
+        """Initialize the menu item
 
         * **ctrl**	The dialog or control that owns this menu
         * **menu**	The menu that this item is on
-        * **index**	The Index of this menuitem on the menu
+        * **index**	The Index of this menu item on the menu
         * **on_main_menu**	True if the item is on the main menu
 
         """
@@ -90,27 +119,31 @@ class MenuItem(object):
         win32gui.GetMenuItemInfo(self.menu.handle, self.index, True, buf)
         item_info.fType, item_info.fState, item_info.wID, item_info.hSubMenu, item_info.hbmpChecked, \
         item_info.hbmpUnchecked, item_info.dwItemData, item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
-        
+        if six.PY2:
+            item_info.text = item_info.text.decode(locale.getpreferredencoding())
+
         # OWNERDRAW case try to get string from BCMenu
-        if item_info.fType & 256:
+        if item_info.fType & 256 and not item_info.text:
             mem = RemoteMemoryBlock(self.ctrl)
             address = item_info.dwItemData
             s = win32structures.LPWSTR()
             mem.Read(s, address)
             address = s
             s = ctypes.create_unicode_buffer(100)
-            mem.Read(s, address)
-            item_info.text = s.value
+            try:
+                mem.Read(s, address)
+                item_info.text = s.value
+            except Exception:
+                item_info.text = '!! non-supported owner drawn item !!' # TODO: look into Tkinter case
             del mem
 
-        return item_info #menu_info
+        return item_info
 
     def FriendlyClassName(self):
         return "MenuItem"
 
-    def __print__(self, ctrl, menu, index):
-        pass
-        #print 'Menu ' + str(ctrl) + '; ' + str(menu) + '; ' + str(index);
+    #def __print__(self, ctrl, menu, index):
+    #    print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
 
     def Rectangle(self):
         "Get the rectangle of the menu item"
@@ -125,7 +158,7 @@ class MenuItem(object):
         hMenu = ctypes.wintypes.HMENU(self.menu.handle)
 
         #(rect.left.value, rect.top.value, rect.right.value, rect.bottom.value) = win32gui.GetMenuItemRect(ctrl.handle, self.menu.handle, self.index)
-        self.__print__(ctrl, hMenu, self.index)
+        #self.__print__(ctrl, hMenu, self.index)
         
         win32functions.GetMenuItemRect(
             ctrl,
@@ -157,33 +190,8 @@ class MenuItem(object):
         return self._read_item().fType
 
     def Text(self):
-        "Return the state of this menu item"
-
+        "Return the text of this menu item"
         return self._read_item().text
-        '''
-        info = self._read_item()
-        # if there is text
-        if info.cch:
-            # allocate a buffer
-            buffer_size = info.cch+1
-            text = ctypes.create_unicode_buffer(buffer_size)
-
-            # update the structure and get the text info
-            info.dwTypeData = ctypes.addressof(text)
-            info.cch = buffer_size
-
-            win32functions.GetMenuItemInfo (
-                self.menu,
-                self.index,
-                True,
-                ctypes.byref(info))
-
-            text = text.value
-        else:
-            text = ''
-
-        return text
-        '''
 
     def SubMenu(self):
         "Return the SubMenu or None if no submenu"
@@ -210,17 +218,16 @@ class MenuItem(object):
         "Return True if the item is checked."
         return bool(self.State() & win32defines.MF_CHECKED)
 
+    def ClickInput(self):
+        """Click on the menu item in a more realistic way
 
-    def Click(self):
-        """Click on the menu item
-
-        If the menu is open this it will click with the mouse on the item.
+        If the menu is open it will click with the mouse event on the item.
         If the menu is not open each of it's parent's will be opened
         until the item is visible.
 
         """
 
-        self.ctrl.VerifyEnabled()
+        self.ctrl.VerifyActionable()
 
         rect = self.Rectangle()
 
@@ -232,14 +239,14 @@ class MenuItem(object):
         # until we find an item we CAN click on
         if rect == (0, 0, 0, 0):
             if self.menu.owner_item:
-                self.menu.owner_item.Click()
+                self.menu.owner_item.ClickInput()
 
         rect = self.Rectangle()
 
         x_pt = int(float(rect.left + rect.right) / 2.)
         y_pt = int(float(rect.top + rect.bottom) / 2.)
 
-        from .HwndWrapper import _perform_click_input #, delay_after_menuselect
+        from .HwndWrapper import _perform_click_input
 
         _perform_click_input(
             None,
@@ -247,10 +254,7 @@ class MenuItem(object):
             absolute = True)
 
         win32functions.WaitGuiThreadIdle(self.ctrl)
-
-        #import time
-        #time.sleep(delay_after_menuselect)
-
+        time.sleep(Timings.after_menu_wait)
 
     def Select(self):
         """Select the menu item
@@ -263,26 +267,25 @@ class MenuItem(object):
             raise MenuItemNotEnabled(
                 "MenuItem '%s' is disabled"% self.Text())
 
-        #from .HwndWrapper import delay_after_menuselect
-
         #if self.State() & win32defines.MF_BYPOSITION:
         #    print self.Text(), "BYPOSITION"
         #    self.ctrl.NotifyMenuSelect(self.Index(), True)
         #else:
 
-        # seems like SetFoucs might be messing with getting the
+        # seems like SetFocus might be messing with getting the
         # id for Popup menu items - so I calling it before SetFocus
         command_id = self.ID()
 
         # notify the control that a menu item was selected
         self.ctrl.SetFocus()
         self.ctrl.SendMessageTimeout(
-            win32defines.WM_COMMAND, command_id, timeout=0.1)
-            #win32functions.MakeLong(0, command_id))
+            self.menu.COMMAND, command_id, timeout=1.0)
 
-        #self.ctrl.NotifyMenuSelect(self.ID())
         win32functions.WaitGuiThreadIdle(self.ctrl)
         time.sleep(Timings.after_menu_wait)
+
+    # _perform_click() doesn't work for MenuItem, so let's call Select() method
+    Click = Select
 
     def GetProperties(self):
         """Return the properties for the item as a dict
@@ -298,15 +301,23 @@ class MenuItem(object):
         props['ID'] = self.ID()
         props['Text'] = self.Text()
 
-        submenu =  self.SubMenu()
+        submenu = self.SubMenu()
         if submenu:
-            props['MenuItems'] = submenu.GetProperties()
+            if submenu.accessible:
+                props['MenuItems'] = submenu.GetProperties()
+            else:
+                # Submenu is attached to the item but not accessible,
+                # so just mark that it exists without any additional information.
+                props['MenuItems'] = []
 
         return props
 
     def __repr__(self):
         "Return a representation of the object as a string"
-        return "<MenuItem %s>" % self.Text()
+        if six.PY3:
+            return "<MenuItem " + self.Text() + ">"
+        else:
+            return "<MenuItem " + self.Text().encode(locale.getpreferredencoding()) + ">"
 
 
 
@@ -377,21 +388,46 @@ class Menu(object):
         self.owner_item = owner_item
 
         self._as_parameter_ = self.handle
+        self.accessible = True
 
         if self.is_main_menu:
             self.ctrl.SendMessageTimeout(win32defines.WM_INITMENU, self.handle)
+        
+        menu_info = MenuInfo()
+        buf = win32gui_struct.EmptyMENUINFO()
+        try:
+            win32gui.GetMenuInfo(self.handle, buf)
+        except win32gui.error:
+            self.accessible = False
+        else:
+            menu_info.dwStyle, menu_info.cyMax, menu_info.hbrBack, menu_info.dwContextHelpID,\
+            menu_info.dwMenuData = win32gui_struct.UnpackMENUINFO(buf)
 
+            if menu_info.dwStyle & win32defines.MNS_NOTIFYBYPOS:
+                self.COMMAND = win32defines.WM_MENUCOMMAND
+            else:
+                self.COMMAND = win32defines.WM_COMMAND
+
+    @ensure_accessible
     def ItemCount(self):
         "Return the count of items in this menu"
         return win32gui.GetMenuItemCount(self.handle)
 
+    @ensure_accessible
     def Item(self, index):
         """Return a specific menu item
 
         * **index** is the 0 based index of the menu item you want
         """
+        if isinstance(index, six.string_types):
+            if self.ctrl.appdata is not None:
+                menu_appdata = self.ctrl.appdata['MenuItems']
+            else:
+                menu_appdata = None
+            self.GetMenuPath(index, appdata = menu_appdata, exact=exact)[-1]
         return MenuItem(self.ctrl, self, index, self.is_main_menu)
 
+    @ensure_accessible
     def Items(self):
         "Return a list of all the items in this menu"
         items = []
@@ -400,6 +436,7 @@ class Menu(object):
 
         return items
 
+    @ensure_accessible
     def GetProperties(self):
         """Return the properties for the menu as a list of dictionaries
 
@@ -414,7 +451,7 @@ class Menu(object):
 
         return {'MenuItems': item_props}
 
-
+    @ensure_accessible
     def GetMenuPath(self, path, path_items = None, appdata = None, exact=False):
         """Walk the items in this menu to find the item specified by path
         
@@ -428,7 +465,7 @@ class Menu(object):
             "Tools -> #0 -> Configure"
         
         Text matching is done using a 'best match' fuzzy algorithm, so you don't
-        have to add all puntuation, elipses, etc.
+        have to add all punctuation, ellipses, etc.
         """
 
         if path_items is None:
@@ -484,7 +521,6 @@ class Menu(object):
                     exact=exact)
 
         return path_items
-
 
     def __repr__(self):
         "Return a simple representation of the menu"

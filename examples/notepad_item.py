@@ -1,4 +1,5 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -18,24 +19,19 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Run some automations to test things"
-
-__revision__ = "$Revision: 214 $"
-
-import time
+"""Run some automations to test things"""
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from pywinauto import application
-from pywinauto import tests
-from pywinauto.findbestmatch import MatchError
-from pywinauto import findwindows
+#from pywinauto import tests
+#from pywinauto.findbestmatch import MatchError
 
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 
-"Run a quick test on Notepad"
-
 app = application.Application()
-app.start_(ur"notepad.exe")
+app.start_(r"notepad.exe")
 
 app['Notepad'].Wait('ready')
 
@@ -91,7 +87,7 @@ app['PageSetup2']['OK'].CloseClick()
 app['PageSetup']['Ok'].CloseClick()
 
 # type some text
-app['Notepad']['Edit'].SetEditText(u"I am typing s\xe4me text to Notepad"
+app['Notepad']['Edit'].SetEditText("I am typing s\xe4me text to Notepad"
     "\r\n\r\nAnd then I am going to quit")
 
 # exit notepad

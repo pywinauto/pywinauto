@@ -31,6 +31,8 @@ except ImportError:
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
+from pywinauto.controls.HwndWrapper import HwndWrapper
+
 import sys
 import time
 import os.path

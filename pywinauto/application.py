@@ -20,9 +20,9 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"""The application module is the main one that users will user first.
+"""The application module is the main one that users will use first.
 
-When starting to automate and application you must initialize an instance
+When starting to automate an application you must initialize an instance
 of the Application class. Then you must :func:`Application.Start` that
 application or :func:`Application.Connect()` to a running instance of that
 application.
@@ -45,18 +45,16 @@ in almost exactly the same ways. ::
 
    For attribute access of controls and dialogs you do not have to
    have the title of the control exactly, it does a best match of the
-   avialable dialogs or controls.
+   available dialogs or controls.
 
 .. seealso::
 
   :func:`pywinauto.findwindows.find_windows` for the keyword arguments that
-  can be passed to both :func:`Application.Window` and
+  can be passed to both: :func:`Application.Window_` and
   :func:`WindowSpecification.Window`
 
 """
 from __future__ import absolute_import
-
-__revision__ = "$Revision$"
 
 import time
 import os.path
@@ -72,7 +70,7 @@ from . import findbestmatch
 from . import findwindows
 from . import handleprops
 
-import win32process, win32api, pywintypes, win32con, win32event
+import win32process, win32api, win32gui, win32con, win32event, multiprocessing
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
@@ -100,8 +98,19 @@ class WindowSpecification(object):
     """A specificiation for finding a window or control
 
     Windows are resolved when used.
-    You can also wait for existance or non existance of a window
+    You can also wait for existance or non existance of a window 
+ 
+    .. implicitly document some private functions
+    .. automethod:: __getattr__
+    .. automethod:: __getitem__
     """
+
+    WAIT_CRITERIA_MAP = {'exists': ('Exists',),
+                         'visible': ('IsVisible',),
+                         'enabled': ('IsEnabled',),
+                         'ready': ('IsVisible', 'IsEnabled',),
+                         'active': ('IsActive',),
+                         }
 
     def __init__(self, search_criteria):
         """Initailize the class
@@ -112,7 +121,6 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
-
 
     def __call__(self, *args, **kwargs):
         "No __call__ so return a usefull error"
@@ -284,108 +292,10 @@ class WindowSpecification(object):
             controls.InvalidWindowHandle):
             return False
 
-
-    def Wait(self,
-            wait_for,
-            timeout = None,
-            retry_interval = None):
-
-        """Wait for the window to be in a particular state
-
-        :param wait_for: The state to wait for the window to be in. It can
-            be any of the following states.
-
-             * 'exists' means that the window is a valid handle
-             * 'visible' means that the window is not hidden
-             * 'enabled' means that the window is not disabled
-             * 'ready' means that the window is visible and enabled
-             * 'active' means that the window is visible and enabled
-
-        :param timeout: Raise an error if the window is not in the appropriate
-            state after this number of seconds.
-
-        :param retry_interval: How long to sleep between each retry
-
-        An example to wait until the dialog
-        exists, is ready, enabled and visible::
-
-            self.Dlg.Wait("exists enabled visible ready")
-
-        .. seealso::
-           :func:`WindowSpecification.WaitNot()`
+    @classmethod
+    def __parse_wait_args(cls, wait_conditions, timeout, retry_interval):
         """
-
-        # set the current timings -couldn't set as defaults as they are
-        # evaluated at import time - and timings may be changed at any time
-        if timeout is None:
-            timeout = Timings.exists_timeout
-        if retry_interval is None:
-            retry_interval = Timings.window_find_retry
-
-        # allow for case mixups - just to make it easier to use
-        waitfor = wait_for.lower()
-
-        # make a copy of the criteria that we can modify
-        wait_criteria = self.criteria[:]
-
-        # update the criteria based on what has been requested
-        # we go from least strict to most strict in case the user
-        # has specified conflicting wait conditions
-        for criterion in wait_criteria:
-
-            # default is that it 'exists' and for exists
-            # we must not filter for enabled only or visible only (window
-            # can exist even if invisible or disabled)
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
-            if 'exists' in waitfor:
-                pass
-
-            if 'visible' in waitfor:
-                criterion['visible_only'] = True
-
-            if 'enabled' in waitfor:
-                criterion['enabled_only'] = True
-
-            if 'ready' in waitfor:
-                criterion['visible_only'] = True
-                criterion['enabled_only'] = True
-
-            if 'active' in waitfor:
-                criterion['active_only'] = True
-
-        ctrls = _resolve_control(wait_criteria, timeout, retry_interval)
-
-        self.actions.log('Window "' + ctrls[-1].WindowText() + '" appeared to be ' + str(wait_for))
-        return ctrls[-1]
-
-    def WaitNot(self,
-            wait_for_not,
-            timeout = None,
-            retry_interval = None):
-
-        """Wait for the window to not be in a particular state
-
-        :param wait_for: The state to wait for the window to not be in. It can be any
-            of the following states
-
-             * 'exists' means that the window is a valid handle
-             * 'visible' means that the window is not hidden
-             * 'enabled' means that the window is not disabled
-             * 'ready' means that the window is visible and enabled
-             * 'active' means that the window is visible and enabled
-
-        :param timeout: Raise an error if the window is sill in the
-            state after this number of seconds.(Optional)
-
-        :param retry_interval: How long to sleep between each retry
-
-        An example to wait until the dialog is not ready, enabled or visible::
-
-            self.Dlg.WaitNot("enabled visible ready")
-
-        .. seealso::
-           :func:`WindowSpecification.Wait()`
+        Both methods Wait & WaitNot have the same args handling and they are not trivial, move it here.
         """
 
         # set the current timings -couldn't set as defaults as they are
@@ -395,70 +305,113 @@ class WindowSpecification(object):
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
 
-        ## remember the start time so we can do an accurate wait for the timeout
-        #start = time.time()
+        # allow for case mixups - just to make it easier to use
+        wait_for = wait_conditions.lower()
 
-        waitnot_criteria = self.criteria[:]
-        for criterion in waitnot_criteria:
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
-
-        wait_for_not = wait_for_not.lower()
-
-
-        def WindowIsNotXXX():
-            """Local function that returns False if the window is not
-            Visible, etc. Otherwise returns the best matching control"""
-
-            # first check if the window doesn't exist, because if it doesn't
-            # exist, it definitely can't be visible, active enabled or ready
+        # get checking methods from the map by wait_conditions string
+        # To avoid needless checks - use a set to filter duplicates
+        unique_check_names = set()
+        wait_criteria_names = wait_for.split()
+        for criteria_name in wait_criteria_names:
             try:
-                ctrls = _resolve_control(waitnot_criteria, 0, .01)
-                # if we get here - then the window exists and we need to
-                # do the other checks below
+                check_methods = cls.WAIT_CRITERIA_MAP[criteria_name]
+            except KeyError:
+                # Invalid check name in the wait_for
+                raise SyntaxError('Unexpected criteria - %s' % criteria_name)
+            else:
+                unique_check_names.update(check_methods)
 
-            except (
-                findwindows.WindowNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle):
-                # Window doesn't exist
-                return True
+        # unique_check_names = set(['IsEnabled', 'IsActive', 'IsVisible', 'Exists'])
+        return unique_check_names, timeout, retry_interval
 
-            if 'exists' in wait_for_not:
-                # well if we got here then the control must have
-                # existed so we are not ready to stop checking
-                # because we didn't want the control to exist!
-                return ctrls
-
-            if 'ready' in wait_for_not:
-                if ctrls[-1].IsVisible() and ctrls[-1].IsEnabled():
-                    return ctrls
-
-            if 'enabled' in wait_for_not:
-                if ctrls[-1].IsEnabled():
-                    return ctrls
-
-            if 'visible' in wait_for_not:
-                if ctrls[-1].IsVisible():
-                    return ctrls
-
+    def __check_all_conditions(self, check_names):
+        """
+        Checks for all conditions
+        If any check's result != True return False immediately, do not matter others check results.
+        True will be returned when all checks passed and all of them equal True.
+        """
+        for check_name in check_names:
+            try:
+                # Hidden _resolve_control call, handle the exceptions.
+                check = getattr(self, check_name)
+            except (findwindows.WindowNotFoundError,
+                    findbestmatch.MatchError,
+                    controls.InvalidWindowHandle):
+                # The control does not exist.
+                return False
+            else:
+                if not check():
+                    # At least one check not passed.
+                    return False
+        else:
+            # All the checks have been done.
             return True
 
-        try:
-            wait_val = WaitUntil(timeout, retry_interval, WindowIsNotXXX)
-#            if self.criteria[-1].has_key('best_match'):
-#                self.actions.log('Window "' + str(self.criteria[-1]['best_match']) + '" became not ' + str(wait_for_not))
-#            elif self.criteria[-1].has_key('title'):
-#                self.actions.log('Window "' + str(self.criteria[-1]['title']) + '" became not ' + str(wait_for_not))
-        except TimeoutError as e:
-            raise RuntimeError(
-                "Timed out while waiting for window (%s - '%s') "
-                "to not be in '%s' state"% (
-                    e.function_value[-1].Class(),
-                    e.function_value[-1].WindowText(),
-                    "', '".join( wait_for_not.split() ) )
-                )
+    def Wait(self, wait_for, timeout=None, retry_interval=None):
+        """Wait for the window to be in a particular state/states.
 
+        :param wait_for: The state to wait for the window to be in. It can
+            be any of the following states, also you may combine the states by space key.
+
+             * 'exists' means that the window is a valid handle
+             * 'visible' means that the window is not hidden
+             * 'enabled' means that the window is not disabled
+             * 'ready' means that the window is visible and enabled
+             * 'active' means that the window is active
+
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is not in the appropriate
+            state after this number of seconds.
+
+        :param retry_interval: How long to sleep between each retry. Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+
+        An example to wait until the dialog
+        exists, is ready, enabled and visible::
+
+            self.Dlg.Wait("exists enabled visible ready")
+
+        .. seealso::
+           :func:`WindowSpecification.WaitNot()`
+
+           :func:`pywinauto.timings.TimeoutError`
+        """
+
+        check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
+        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
+
+        # Return the wrapped control
+        return self.WrapperObject()
+
+    def WaitNot(self, wait_for_not, timeout=None, retry_interval=None):
+        """Wait for the window to not be in a particular state/states.
+
+        :param wait_for_not: The state to wait for the window to not be in. It can be any
+            of the following states, also you may combine the states by space key.
+
+             * 'exists' means that the window is a valid handle
+             * 'visible' means that the window is not hidden
+             * 'enabled' means that the window is not disabled
+             * 'ready' means that the window is visible and enabled
+             * 'active' means that the window is active
+
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is sill in the
+            state after this number of seconds.
+
+        :param retry_interval: How long to sleep between each retry. Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+
+        An example to wait until the dialog is not ready, enabled or visible::
+
+            self.Dlg.WaitNot("enabled visible ready")
+
+        .. seealso::
+           :func:`WindowSpecification.Wait()`
+
+           :func:`pywinauto.timings.TimeoutError`
+        """
+
+        check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for_not, timeout, retry_interval)
+        WaitUntil(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
+        # None return value, since we are waiting for a `negative` state of the control.
+        # Expect that you will have nothing to do with the window closed, disabled, etc.
 
     def _ctrl_identifiers(self):
 
@@ -645,21 +598,19 @@ def _resolve_from_appdata(
 
     dialog = None
     ctrl = None
-    if len(process_elems) >= 1:
 
+    if process_elems:
         similar_child_count = [e for e in process_elems
             if matched_control[1]['ControlCount'] -2 <=
                     len(e.children()) and
                 matched_control[1]['ControlCount'] +2 >=
                     len(e.children())]
 
-        if len(similar_child_count) == 0:
-            #print "None Similar child count!!???"
-            #print matched_control[1]['ControlCount'], \
-            #    len(handleprops.children(h))
-            pass
-        else:
-            process_elems = similar_child_count
+        if similar_child_count:
+            process_hwnds = similar_child_count
+        #else:
+        #    print("None Similar child count!!???")
+        #    print(matched_control[1]['ControlCount'], len(handleprops.children(h)))
 
         for e in process_elems:
             #print controls.WrapHandle(h).GetProperties()
@@ -810,7 +761,13 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
 
 #=========================================================================
 class Application(object):
-    "Represents an application"
+    """
+    Represents an application
+ 
+    .. implicitly document some private functions
+    .. automethod:: __getattr__
+    .. automethod:: __getitem__
+    """
 
     def __init__(self, datafilename = None):
         "Set the attributes"
@@ -823,9 +780,8 @@ class Application(object):
         # load the match history if a file was specifed
         # and it exists
         if datafilename and os.path.exists(datafilename):
-            datafile = open(datafilename, "rb")
-            self.match_history = pickle.load(datafile)
-            datafile.close()
+            with open(datafilename, "rb") as datafile:
+                self.match_history = pickle.load(datafile)
             self.use_history = True
 
     def __start(*args, **kwargs):
@@ -947,7 +903,7 @@ class Application(object):
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
-            AssertValidProcess(self.process)
+            assert_valid_process(self.process)
             connected = True
 
         elif 'handle' in kwargs:
@@ -985,6 +941,48 @@ class Application(object):
             raise AppNotConnected("Please use start_ or connect_ before "
                 "trying anything else")
         return handleprops.is64bitprocess(self.process)
+
+    def CPUUsage(self, interval = None):
+        "Return CPU usage percentage during specified number of seconds"
+        
+        WIN32_PROCESS_TIMES_TICKS_PER_SECOND = 1e7
+        
+        if interval is None:
+            interval = Timings.cpu_usage_interval
+        
+        if not self.process:
+            raise RuntimeError('Application instance is not connected to any process!')
+        hProcess = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
+        
+        times_dict = win32process.GetProcessTimes(hProcess)
+        UserTime_start, KernelTime_start = times_dict['UserTime'], times_dict['KernelTime']
+        
+        time.sleep(interval)
+        
+        times_dict = win32process.GetProcessTimes(hProcess)
+        UserTime_end, KernelTime_end = times_dict['UserTime'], times_dict['KernelTime']
+        
+        total_time = (UserTime_end - UserTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND + \
+                     (KernelTime_end - KernelTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND
+        
+        win32api.CloseHandle(hProcess)
+        return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
+
+    def WaitCPUUsageLower(self, threshold = 2.5, timeout = None, usage_interval = None):
+        "Wait until process CPU usage percentage is less than specified threshold"
+        
+        if usage_interval is None:
+            usage_interval = Timings.cpu_usage_interval
+        if timeout is None:
+            timeout = Timings.cpu_usage_wait_timeout
+        
+        start_time = time.time()
+        
+        while self.CPUUsage(usage_interval) > threshold:
+            if time.time() - start_time > timeout:
+                raise RuntimeError('Waiting CPU load <= ' + str(threshold) + '% timed out!')
+        
+        return self
 
     def top_window_(self):
         "Return the current top window of the application"
@@ -1089,9 +1087,8 @@ class Application(object):
 
     def WriteAppData(self, filename):
         "Should not be used - part of application data implementation"
-        f = open(filename, "wb")
-        pickle.dump(self.match_history, f)
-        f.close()
+        with open(filename, "wb") as f:
+            pickle.dump(self.match_history, f)
 
     def GetMatchHistoryItem(self, index):
         "Should not be used - part of application data implementation"
@@ -1108,20 +1105,8 @@ class Application(object):
         """
 
         windows = self.windows_(visible_only = True)
-        #ok_to_kill = True
 
         for win in windows:
-
-            #t = threading.Thread(target = OKToClose, args = (win) )
-
-            #t.start()
-
-            #time.sleep(.2)
-            #win.Close()
-
-            #while t.isAlive() and not forcekill:
-            #    time.sleep(.5)
-
 
             win.SendMessageTimeout(
                 win32defines.WM_QUERYENDSESSION,
@@ -1134,21 +1119,10 @@ class Application(object):
                 win.Close()
             except TimeoutError:
                 pass
-            #print `ok_to_kill`, win.Texts()
-
-        #print `ok_to_kill`
-#        if ok_to_kill:
-#            for win in windows:
-#                print "\tclosing:", win.Texts()
-#                self.windows_()[0].Close()
-#        elif not forcekill:
-#            return False
 
         # window has let us know that it doesn't want to die - so we abort
         # this means that the app is not hung - but knows it doesn't want
         # to close yet - e.g. it is asking the user if they want to save
-        #if not forcekill:
-        #    return False
 
         #print "supposedly closed all windows!"
 
@@ -1160,7 +1134,7 @@ class Application(object):
                 win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
                 0,
                 self.process)
-        except pywintypes.error as exc:
+        except win32gui.error:
             return True # already killed
 
         killed = True
@@ -1171,10 +1145,9 @@ class Application(object):
                 process_wait_handle,
                 int(Timings.after_windowclose_timeout * 1000))
 
-            #if forcekill:
             try:
                 win32api.TerminateProcess(process_wait_handle, 0)
-            except pywintypes.error as exc:
+            except win32gui.error:
                 pass #print('Warning: ' + str(exc))
             #win32functions.TerminateProcess(process_wait_handle, 0)
             #else:
@@ -1186,33 +1159,15 @@ class Application(object):
 
     kill_ = Kill_
 
-#
-#
-#def OKToClose(window):
-#    return_val = bool(window.SendMessageTimeout(
-#        win32defines.WM_QUERYENDSESSION,
-#        timeout = 1000,
-#        timeoutflags = win32defines.SMTO_ABORTIFHUNG))# |
-#
-#    print "2343242343242"  * 100
-#
-#    return return_val
-
-
 
 
 #=========================================================================
-def AssertValidProcess(process_id):
+def assert_valid_process(process_id):
     "Raise ProcessNotFound error if process_id is not a valid process id"
-    # Set instance variable _module if not already set
-    #process_handle = win32api.OpenProcess(win32con.PROCESS_DUP_HANDLE | win32con.PROCESS_QUERY_INFORMATION, 0, process_id) # read and query info
     try:
-        process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id) # read and query info
-    except pywintypes.error as exc:
+        process_handle = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
+    except win32gui.error as exc:
         raise ProcessNotFoundError(str(exc) + ', pid = ' + str(process_id))
-
-    #process_handle = win32functions.OpenProcess(
-    #    0x400 | 0x010, 0, process_id) # read and query info
 
     if not process_handle:
         message = "Process with ID '%d' could not be opened" % process_id
@@ -1220,46 +1175,26 @@ def AssertValidProcess(process_id):
 
     return process_handle
 
-#=========================================================================
-# Thanks to Yonggang Luo for pyWin32-independent implementation
-# https://code.google.com/r/luoyonggang-pywinauto/source/detail?r=6cb5b624db465720e19e7a3265bb7585bbc09452
-#
-def process_get_modules(name = None):
+AssertValidProcess = assert_valid_process # just in case
 
+#=========================================================================
+def process_get_modules():
     modules = []
-    # collect all the running processes
     
+    # collect all the running processes
     pids = win32process.EnumProcesses()
     for pid in pids:
         if pid != 0: # skip system process (0x00000000)
             try:
                 modules.append((pid, process_module(pid)))
-            except pywintypes.error as exc:
-                pass #print(exc)
-            except ProcessNotFoundError as exc:
-                pass #print(exc)
+            except win32gui.error:
+                pass
+            except ProcessNotFoundError:
+                pass
     return modules
-    '''
-    implementation without pyWin32 extensions
-    # set up the variable to pass to EnumProcesses
-    processes = (ctypes.c_int * 2000)()
-    bytes_returned = ctypes.c_int()
-    ctypes.windll.psapi.EnumProcesses(
-        ctypes.byref(processes),
-        ctypes.sizeof(processes),
-        ctypes.byref(bytes_returned))
-
-    # Get the process names
-    for i in range(0, int(bytes_returned.value / ctypes.sizeof(ctypes.c_int))):
-        try:
-            if processes[i]:
-                modules.append((processes[i], process_module(processes[i])))
-        except ProcessNotFoundError:
-            pass
-    '''
 
 #=========================================================================
-def _process_get_modules_wmi(name = None):
+def _process_get_modules_wmi():
     "Return the list of processes as tuples (pid, exe_path)"
     from win32com.client import GetObject
     _wmi = GetObject('winmgmts:')
@@ -1274,21 +1209,13 @@ def _process_get_modules_wmi(name = None):
 #=========================================================================
 def process_module(process_id):
     "Return the string module name of this process"
-    process_handle = AssertValidProcess(process_id)
+    process_handle = assert_valid_process(process_id)
 
-    # get module name from process handle
-    #filename = (ctypes.c_wchar * 2000)()
-    #win32functions.GetModuleFileNameEx(
-    #    process_handle, 0, ctypes.byref(filename), 2000)
-
-    filename = win32process.GetModuleFileNameEx(process_handle, 0)
-    #print('filename = ', filename)
-    # return the process value
-    return filename
+    return win32process.GetModuleFileNameEx(process_handle, 0)
 
 #=========================================================================
 def _warn_incorrect_binary_bitness(exe_name):
-    "warn if executable has correct bitness"
+    "warn if executable is of incorrect bitness"
     if os.path.isabs(exe_name) and os.path.isfile(exe_name):
         if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
             warnings.simplefilter('always', UserWarning) # warn for every 32-bit binary
@@ -1306,7 +1233,7 @@ def process_from_module(module):
     _warn_incorrect_binary_bitness(module_path)
     try:
         modules = _process_get_modules_wmi()
-    except:
+    except Exception:
         modules = process_get_modules()
 
     # check for a module with a matching name in reverse order
@@ -1319,29 +1246,5 @@ def process_from_module(module):
         if module_path.lower() in name.lower():
             return process
 
-#    # check if any of the running process has this module
-#    for i in range(0, bytes_returned.value / ctypes.sizeof(ctypes.c_int)):
-#        try:
-#            p_module = process_module(processes[i]).lower()
-#            if module.lower() in p_module:
-#                return processes[i]
-#
-
     message = "Could not find any process with a module of '%s'" % module
     raise ProcessNotFoundError(message)
-
-#
-#def WaitForDialog(dlg):
-#    waited = 0
-#    timeout = 10
-#    app = None
-#    while not app and waited <= timeout:
-#        try:
-#            app = Application.connect(best_match = dlg)
-#        except Exception as e:
-#            time.sleep(1)
-#            waited += 1
-#
-#    if app is None:
-#        raise RuntimeError("Window not found: '%s'"%dlg)
-#    return app, app[dlg]

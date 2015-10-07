@@ -23,16 +23,14 @@
 "Tests various standard windows controls"
 from __future__ import unicode_literals
 
-__revision__ = "$Revision: 234 $"
-
 # pylint:  disable-msg=W0212,F0401,R0904
 
 import os, sys
-import codecs #, locale
+import codecs
 sys.path.append(".")
-from pywinauto.controls.win32_controls import *
-from pywinauto import XMLHelpers #, six
+from pywinauto import XMLHelpers, win32defines #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto.application import Application
 
 import unittest
 
@@ -46,13 +44,18 @@ Timings.window_find_timeout = 3
 Timings.closeclick_dialog_close_wait = .5
 
 mfc_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+MFC_tutorial_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\MFC_tutorial")
+
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+    MFC_tutorial_folder = os.path.join(MFC_tutorial_folder, 'x64')
 
 
 class ButtonTestCases(unittest.TestCase):
-    "Unit tests for the ComboBoxWrapper class"
+
+    """Unit tests for the ButtonWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -92,9 +95,14 @@ class ButtonTestCases(unittest.TestCase):
             self.assertEquals(
                 getattr(self.calc.Degrees, prop_name)(), props[prop_name])
 
-    def test_set_if_needs_image(self):
-        "test whether an image needs to be saved with the properties"
+    def test_NeedsImageProp(self):
+
+        """test whether an image needs to be saved with the properties"""
+
         self.assertEquals(self.calc.Button5._NeedsImageProp, False)
+        self.assertEquals('Image' in self.calc.Button5.GetProperties(), False)
+        #self.assertNotIn('Image', self.calc.Button5.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
 
     def testFriendlyClass(self):
         "Test the FriendlyClassName method"
@@ -154,15 +162,102 @@ class ButtonTestCases(unittest.TestCase):
         self.assertEquals(self.calc.Radians.GetCheckState(), 1)
 
 
-class ComboBoxTestCases(unittest.TestCase):
-    "Unit tests for the ComboBoxWrapper class"
+class CheckBoxTests(unittest.TestCase):
+    "Unit tests for the CheckBox specific methods of the ButtonWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
         # start the application
-        from pywinauto.application import Application
+        self.app = Application()
+        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        self.dlg = self.app.Common_Controls_Sample
+        self.tree = self.dlg.TreeView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.app.kill_()
+
+    def testCheckUncheckByClick(self):
+        "test for CheckByClick and UncheckByClick"
+        self.dlg.TVS_HASLINES.CheckByClick()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
+        
+        self.dlg.TVS_HASLINES.CheckByClick() # make sure it doesn't uncheck the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        
+        self.dlg.TVS_HASLINES.UncheckByClick()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
+        
+        self.dlg.TVS_HASLINES.UncheckByClick() # make sure it doesn't check the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
+
+    def testCheckUncheckByClickInput(self):
+        "test for CheckByClickInput and UncheckByClickInput"
+        self.dlg.TVS_HASLINES.CheckByClickInput()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
+        
+        self.dlg.TVS_HASLINES.CheckByClickInput() # make sure it doesn't uncheck the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        
+        self.dlg.TVS_HASLINES.UncheckByClickInput()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
+        self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
+        
+        self.dlg.TVS_HASLINES.UncheckByClickInput() # make sure it doesn't check the box unexpectedly
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
+
+    def testSetCheckIndeterminate(self):
+        "test for SetCheckIndeterminate"
+        self.dlg.TVS_HASLINES.SetCheckIndeterminate()
+        self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
+        # TODO: find an application with the check box that supports indeterminate state (gray-checked)
+
+
+class ButtonOwnerdrawTestCases(unittest.TestCase):
+
+    """Unit tests for the ButtonWrapper(ownerdraw button)"""
+
+    def setUp(self):
+
+        """Start the sample application. Open a tab with ownerdraw button."""
+
+        # start the application
+        self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        # open the needed tab
+        self.app.active_().TabControl.Select(1)
+
+    def tearDown(self):
+
+        """Close the application after tests"""
+
+        self.app.kill_()
+
+    def test_NeedsImageProp(self):
+
+        """test whether an image needs to be saved with the properties"""
+
+        active_window = self.app.active_()
+        self.assertEquals(active_window.Button2._NeedsImageProp, True)
+        self.assertEquals('Image' in active_window.Button2.GetProperties(), True)
+        #self.assertIn('Image', active_window.Button2.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
+
+
+class ComboBoxTestCases(unittest.TestCase):
+
+    """Unit tests for the ComboBoxWrapper class"""
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
         self.app = Application()
 
         self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
@@ -223,6 +318,7 @@ class ComboBoxTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.SelectedIndex(), 0)
         self.ctrl.Select("Left (UDS_ALIGNLEFT)")
         self.assertEquals(self.ctrl.SelectedIndex(), 1)
+        self.assertEquals(self.ctrl.SelectedText(), "Left (UDS_ALIGNLEFT)")
 
         # now do it with a typo
         self.assertRaises(ValueError, self.ctrl.Select, "Right (UDS_ALIGNRIGT)")
@@ -241,19 +337,10 @@ class ComboBoxTestCases(unittest.TestCase):
         self.ctrl.ItemData("Right (UDS_ALIGNRIGHT)")
         self.ctrl.ItemData(self.ctrl.ItemCount() - 1)
 
-#
-#    def testTexts(self):
-#        pass
-#
-
-MFC_tutorial_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_tutorial")
-if is_x64_Python():
-    MFC_tutorial_folder = os.path.join(MFC_tutorial_folder, 'x64')
-
 
 class ListBoxTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the ListBoxWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -267,6 +354,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.app.start_(app_path)
 
         self.dlg = self.app.MFC_Tutorial9
+        self.dlg.Wait('ready', timeout=20)
         self.dlg.TypeYourTextEdit.TypeKeys('qqq')
         self.dlg.Add.Click()
         
@@ -289,7 +377,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.app.kill_()
 
     def testGetProperties(self):
-        "Test getting the properties for the listbox control"
+        "Test getting the properties for the list box control"
         props = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -341,7 +429,8 @@ class ListBoxTestCases(unittest.TestCase):
 
 
 class EditTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the EditWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -465,8 +554,57 @@ class EditTestCases(unittest.TestCase):
         self.assertEquals((start, end), self.ctrl.SelectionIndices())
 
 
+class UnicodeEditTestCases(unittest.TestCase):
+
+    """Unit tests for the EditWrapper class using Unicode strings"""
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        self.dlg = self.app.Common_Controls_Sample
+        self.dlg.TabControl.Select("CAnimateCtrl")
+
+        self.ctrl = self.dlg.AnimationFileEdit.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.app.kill_()
+
+    def testSetEditTextWithUnicode(self):
+        "Test setting Unicode text by the SetEditText method of the edit control"
+        self.ctrl.Select()
+        self.ctrl.SetEditText(579)
+        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "579")
+
+        self.ctrl.SetEditText(333, pos_start=1, pos_end=2)
+        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "53339")
+
+        #self.ctrl.Select()
+        #self.ctrl.SetEditText(u'\u0421\u043f\u0430\u0441\u0438\u0431\u043e!') # u'Spasibo!' in Russian symbols
+        #self.assertEquals(self.ctrl.TextBlock(), u'\u0421\u043f\u0430\u0441\u0438\u0431\u043e!')
+
+        #self.ctrl.Select(start=b'\xd1\xef\xe0\xf1') # u'Spas'
+        #self.assertEquals(self.ctrl.SelectionIndices(), (0, 4))
+        #self.ctrl.SetEditText(u'', pos_start=u'\u0421\u043f\u0430\u0441')
+        ##self.ctrl.SetEditText(u'\u0438\u0431\u043e!')
+        #self.assertEquals(self.ctrl.TextBlock(), u'\u0438\u0431\u043e!') # u'ibo!'
+
+        #self.ctrl.Select()
+        #self.ctrl.SetEditText(u'', pos_start=3)
+        #self.assertEquals(self.ctrl.TextBlock(), u'\u0438\u0431\u043e') # u'ibo'
+
+        #self.ctrl.Select()
+        #self.ctrl.SetEditText(u'\u043d\u0435\u0447\u0442', pos_end=2) # u'necht'
+        #self.assertEquals(self.ctrl.TextBlock(), u'\u043d\u0435\u0447\u0442\u043e') # u'nechto'
+
+
 class DialogTestCases(unittest.TestCase):
-    "Unit tests for the DialogWrapper class"
+
+    """Unit tests for the DialogWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -559,9 +697,18 @@ class DialogTestCases(unittest.TestCase):
         self.failIf((rectangle.right - clientarea.right) > 10)
         self.failIf((rectangle.bottom - clientarea.bottom) > 10)
 
+    def testHideFromTaskbar(self):
+        "Test that a dialog can be hidden from the Windows taskbar"
+        self.assertEquals(self.calc.IsInTaskbar(), True)
+        self.calc.HideFromTaskbar()
+        self.assertEquals(self.calc.IsInTaskbar(), False)
+        self.calc.ShowInTaskbar()
+        self.assertEquals(self.calc.IsInTaskbar(), True)
+
 
 class PopupMenuTestCases(unittest.TestCase):
-    "Unit tests for the DialogWrapper class"
+
+    """Unit tests for the PopupMenuWrapper class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -601,6 +748,46 @@ class PopupMenuTestCases(unittest.TestCase):
         "Ensure that the menu handle is returned"
         handle = self.popup._menu_handle()
         self.assertNotEquals(0, handle)
+
+
+class StaticTestCases(unittest.TestCase):
+
+    """Unit tests for the StaticWrapper class"""
+
+    def setUp(self):
+
+        """Start the sample application. Open a tab with ownerdraw button."""
+
+        # start the application
+        self.app = Application().Start(os.path.join(mfc_samples_folder, u"RebarTest.exe"))
+        # open the Help dailog
+        self.app.active_().TypeKeys('%h{ENTER}')
+
+    def tearDown(self):
+
+        """Close the application after tests"""
+
+        self.app.kill_()
+
+    def test_NeedsImageProp(self):
+
+        """test a regular static has no the image property"""
+
+        active_window = self.app.active_()
+        self.assertEquals(active_window.Static2._NeedsImageProp, False)
+        self.assertEquals('Image' in active_window.Static2.GetProperties(), False)
+        #self.assertNotIn('Image', active_window.Static2.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
+
+    def test_NeedsImageProp_ownerdraw(self):
+
+        """test whether an image needs to be saved with the properties"""
+
+        active_window = self.app.active_()
+        self.assertEquals(active_window.Static._NeedsImageProp, True)
+        self.assertEquals('Image' in active_window.Static.GetProperties(), True)
+        #self.assertIn('Image', active_window.Static.GetProperties())
+        # assertIn and assertNotIn are not supported in Python 2.6
 
 
 if __name__ == "__main__":

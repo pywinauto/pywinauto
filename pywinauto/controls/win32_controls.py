@@ -74,28 +74,21 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         #self._set_if_needs_image()
 
+    @property
+    def _NeedsImageProp(self):
 
-    def _set_if_needs_image(self, value):
-        "Does nothing see _get_if_needs_image"
-        pass
-    #-----------------------------------------------------------
-    def _get_if_needs_image(self):
-        "Set the _NeedsImageProp attribute if it is an image button"
+        """_NeedsImageProp=True if it is an image button"""
 
         # optimization call Style once and work with that rather than
         # calling HasStyle a number of times
         style = self.Style()
 
-        if self.IsVisible() and (\
-            style & win32defines.BS_BITMAP == style or \
-            style & win32defines.BS_ICON == style or \
-            style & win32defines.BS_OWNERDRAW == style):
-
-            #self._NeedsImageProp = True
+        if self.IsVisible() and (style & win32defines.BS_BITMAP or
+                                 style & win32defines.BS_ICON or
+                                 style & win32defines.BS_OWNERDRAW):
             return True
         else:
             return False
-    _NeedsImageProp = property(_get_if_needs_image, _set_if_needs_image)
 
     #-----------------------------------------------------------
     def FriendlyClassName(self):
@@ -213,13 +206,25 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def CheckByClick(self):
-        "Click the Button control"
+        "Check the CheckBox control by Click() method"
+        if self.GetCheckState() != win32defines.BST_CHECKED:
+            self.Click()
+
+    #-----------------------------------------------------------
+    def UncheckByClick(self):
+        "Uncheck the CheckBox control by Click() method"
+        if self.GetCheckState() != win32defines.BST_UNCHECKED:
+            self.Click()
+
+    #-----------------------------------------------------------
+    def CheckByClickInput(self):
+        "Check the CheckBox control by ClickInput() method"
         if self.GetCheckState() != win32defines.BST_CHECKED:
             self.ClickInput()
 
     #-----------------------------------------------------------
-    def UncheckByClick(self):
-        "Click the Button control"
+    def UncheckByClickInput(self):
+        "Uncheck the CheckBox control by ClickInput() method"
         if self.GetCheckState() != win32defines.BST_UNCHECKED:
             self.ClickInput()
 
@@ -246,7 +251,6 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
         if six.PY3:
             texts.append(text.value.replace('\u200e', ''))
         else:
-            import locale
             texts.append(text.value.decode(locale.getpreferredencoding(), 'ignore').replace('?', ''))
 
     return texts
@@ -721,7 +725,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             start, end = self.SelectionIndices()
             if pos_start is None:
                 pos_start = start
-            if pos_end is None:
+            if pos_end is None and not isinstance(start, six.string_types):
                 pos_end = end
 
             # set the selection if either start or end has
@@ -730,43 +734,38 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         else:
             self.Select()
 
-        # replace the selection with
-        #buffer = ctypes.c_wchar_p(six.text_type(text))
-        
         if isinstance(text, six.text_type):
             if six.PY3:
-                buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
+                aligned_text = text
             else:
-                buffer = ctypes.create_string_buffer(text.encode(locale.getpreferredencoding(), 'ignore'), size=len(text) + 1)
-        else:
+                aligned_text = text.encode(locale.getpreferredencoding())
+        elif isinstance(text, six.binary_type):
             if six.PY3:
-                buffer = ctypes.create_unicode_buffer(text.decode(locale.getpreferredencoding()), size=len(text) + 1)
+                aligned_text = text.decode(locale.getpreferredencoding())
             else:
-                buffer = ctypes.create_string_buffer(text, size=len(text) + 1)
-        #buffer = ctypes.create_unicode_buffer(text, size=len(text) + 1)
-        '''
-        from ..RemoteMemoryBlock import RemoteMemoryBlock
-        remote_mem = RemoteMemoryBlock(self)
-        _setTextExStruct = win32structures.SETTEXTEX()
-        _setTextExStruct.flags = win32defines.ST_SELECTION #| win32defines.ST_UNICODE
-        _setTextExStruct.codepage = win32defines.CP_WINUNICODE
+                aligned_text = text
+        else:
+            # convert a non-string input
+            if six.PY3:
+                aligned_text = six.text_type(text)
+            else:
+                aligned_text = six.binary_type(text)
         
-        remote_mem.Write(_setTextExStruct)
-        
-        self.SendMessage(win32defines.EM_SETTEXTEX, remote_mem, ctypes.byref(buffer))
-        '''
+        if isinstance(aligned_text, six.text_type):
+            buffer = ctypes.create_unicode_buffer(aligned_text, size=len(aligned_text) + 1)
+        else:
+            buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
+
+        # replace the selection with
         self.SendMessage(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
 
-        if isinstance(text, six.text_type):
-            if six.PY3:
-                self.actions.log('Set text to the edit box: ' + text)
-            else:
-                self.actions.log('Set text to the edit box: ' + text.encode(locale.getpreferredencoding(), 'ignore'))
-        elif isinstance(text, six.binary_type):
-            self.actions.log(b'Set text to the edit box: ' + text)
+        if isinstance(aligned_text, six.text_type):
+            self.actions.log('Set text to the edit box: ' + aligned_text)
+        else:
+            self.actions.log(b'Set text to the edit box: ' + aligned_text)
 
         # return this control so that actions can be chained.
         return self
@@ -778,19 +777,18 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     def Select(self, start = 0, end = None):
         "Set the edit selection of the edit control"
         self.VerifyActionable()
+        win32functions.SetFocus(self)
 
         # if we have been asked to select a string
         if isinstance(start, six.text_type):
             string_to_select = start
-            #
             start = self.TextBlock().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
         elif isinstance(start, six.binary_type):
-            string_to_select = start
-            #
-            start = self.TextBlock().index(string_to_select.decode('utf-8'))
+            string_to_select = start.decode(locale.getpreferredencoding())
+            start = self.TextBlock().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
@@ -825,18 +823,25 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
     can_be_label = True
 
     def __init__(self, hwnd):
-        "Initialize the control"
+
+        """Initialize the control"""
+
         super(StaticWrapper, self).__init__(hwnd)
 
+    @property
+    def _NeedsImageProp(self):
+
+        """_NeedsImageProp=True if it is an image static"""
+
         # if the control is visible - and it shows an image
-        if self.IsVisible() and (
-            self.HasStyle(win32defines.SS_ICON) or \
-            self.HasStyle(win32defines.SS_BITMAP) or \
-            self.HasStyle(win32defines.SS_CENTERIMAGE) or \
-            self.HasStyle(win32defines.SS_OWNERDRAW)):
+        if self.IsVisible() and (self.HasStyle(win32defines.SS_ICON) or
+                                 self.HasStyle(win32defines.SS_BITMAP) or
+                                 self.HasStyle(win32defines.SS_CENTERIMAGE) or
+                                 self.HasStyle(win32defines.SS_OWNERDRAW)):
 
-            self._NeedsImageProp = True
-
+            return True
+        else:
+            return False
 
 #====================================================================
 # the main reason for this is just to make sure that
@@ -912,6 +917,31 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         rect = win32structures.RECT(self.Rectangle())
         self.SendMessage(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
+
+    #-----------------------------------------------------------
+    def HideFromTaskbar(self):
+        "Hide the dialog from the Windows taskbar"
+        win32functions.ShowWindow(self, win32defines.SW_HIDE)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.ExStyle() | win32defines.WS_EX_TOOLWINDOW)
+        win32functions.ShowWindow(self, win32defines.SW_SHOW)
+
+    #-----------------------------------------------------------
+    def ShowInTaskbar(self):
+        "Show the dialog in the Windows taskbar"
+        win32functions.ShowWindow(self, win32defines.SW_HIDE)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.ExStyle() | win32defines.WS_EX_APPWINDOW)
+        win32functions.ShowWindow(self, win32defines.SW_SHOW)
+
+    #-----------------------------------------------------------
+    def IsInTaskbar(self):
+        "Check whether the dialog is shown in the Windows taskbar"
+
+        # Thanks to David Heffernan for the idea: 
+        # http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
+        # A window is represented in the taskbar if:
+        # It is not owned and does not have the WS_EX_TOOLWINDOW extended style, or
+        # It has the WS_EX_APPWINDOW extended style.
+        return self.HasExStyle(win32defines.WS_EX_APPWINDOW) or (self.Owner() is None and not self.HasExStyle(win32defines.WS_EX_TOOLWINDOW))
 
 #    #-----------------------------------------------------------
 #    def ReadControlsFromXML(self, filename):

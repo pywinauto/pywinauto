@@ -80,6 +80,7 @@ test_script:
 
 after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
+  - coverage xml
   - codecov
 
 artifacts:

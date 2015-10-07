@@ -23,8 +23,7 @@
 
 """
 from __future__ import absolute_import
-
-__revision__ = "$Revision$"
+from __future__ import unicode_literals
 
 import re
 import ctypes
@@ -33,14 +32,12 @@ from . import six
 from . import win32functions
 from . import win32structures
 from . import handleprops
+from . import findbestmatch
+from . import controls
 from .elementInfo import NativeElementInfo
 
-from . import findbestmatch
 
-from . import controls
-
-
-# todo: we should filter out invalid windows before returning
+# TODO: we should filter out invalid windows before returning
 
 #=========================================================================
 class WindowNotFoundError(Exception):
@@ -94,6 +91,7 @@ def find_windows(class_name = None,
                 best_match = None,
                 handle = None,
                 ctrl_index = None,
+                found_index = None,
                 predicate_func = None,
                 active_only = False,
                 control_id = None,
@@ -110,11 +108,12 @@ def find_windows(class_name = None,
     * **title_re**  Windows whose Text match this regular expression
     * **top_level_only** Top level windows only (default=True)
     * **visible_only**   Visible windows only (default=True)
-    * **enabled_only**   Enabled windows only (default=True)
+    * **enabled_only**   Enabled windows only (default=False)
     * **best_match**  Windows with a title similar to this
     * **handle**      The handle of the window to return
     * **ctrl_index**  The index of the child window to return
-    * **active_only**  Active windows only (default=False)
+    * **found_index** The index of the filtered out child window to return
+    * **active_only** Active windows only (default=False)
     * **control_id**  Windows with this control id
    """
 
@@ -166,7 +165,7 @@ def find_windows(class_name = None,
             windows = []
 
     # early stop
-    if len(windows) == 0:
+    if not windows:
         return windows
 
     if class_name is not None:
@@ -189,7 +188,7 @@ def find_windows(class_name = None,
     elif title_re is not None:
         title_regex = re.compile(title_re)
         windows = [win for win in windows
-            if title_regex.match(handleprops.text(win))]
+            if handleprops.text(win) is not None and title_regex.match(handleprops.text(win))]
 
     if visible_only:
         windows = [win for win in windows if handleprops.isvisible(win)]
@@ -215,6 +214,16 @@ def find_windows(class_name = None,
 
     if predicate_func is not None:
         windows = [win for win in windows if predicate_func(win)]
+
+    # found_index is the last criterion to filter results
+    if found_index is not None:
+        if found_index < len(windows):
+            windows = windows[found_index:found_index+1]
+        else:
+            raise WindowNotFoundError(
+                "found_index is specified as %d, but %d window/s found" % 
+                (found_index, len(windows)) 
+                )
 
     return [NativeElementInfo(handle) for handle in windows]
 

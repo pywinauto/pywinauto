@@ -35,14 +35,6 @@ from . import six
 #levenshtein_distance = ctypes.cdll.levenshtein.levenshtein_distance
 #levenshtein_distance = ldistance.distance
 
-# need to use sets.Set for python 2.3 compatability
-# but 2.6 raises a deprecation warning about sets module
-try:
-    set
-except NameError:
-    import sets
-    set = sets.Set
-
 find_best_control_match_cutoff = .6
 
 #====================================================================
@@ -75,7 +67,7 @@ def _get_match_ratios(texts, match_against):
     best_ratio = 0
     best_text = ''
 
-    global cache
+    global _cache
 
     for text in texts:
 
@@ -306,7 +298,7 @@ def get_control_names(control, allcontrols, textcontrols):
         try:
             for text in control.Texts()[1:]:
                 names.append(friendly_class_name + text)
-        except:
+        except Exception:
             #import traceback
             #from .actionlogger import ActionLogger
             pass #ActionLogger().log('Warning! Cannot get control.Texts()') #\nTraceback:\n' + traceback.format_exc())

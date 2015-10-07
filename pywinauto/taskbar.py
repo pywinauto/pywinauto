@@ -26,7 +26,6 @@ This module will likely change significantly in the future!"""
 
 import warnings
 
-from pywinauto import win32defines
 from pywinauto import findwindows
 from pywinauto import application
 
@@ -37,26 +36,22 @@ def TaskBarHandle():
     return findwindows.find_windows(class_name = "Shell_TrayWnd")[0].handle
 
 
-def _click_hidden_tray_icon(reqd_button, exact = True, by_tooltip = False, mouse_button = 'left'):
-    #ShowHiddenIconsButton.ClickInput()
+def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, by_tooltip = False, double = False):
     popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
     try:
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
-        button_index = popup_toolbar.Button(reqd_button).index
-    except:
+        button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
+    except Exception:
         ShowHiddenIconsButton.ClickInput() # may fail from PythonWin when script takes long time
         popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
-        button_index = popup_toolbar.Button(reqd_button).index
+        button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
 
-    if is_left_click:
-        popup_toolbar.Button(button_index).ClickInput()
-    else:
-        popup_toolbar.Button(button_index).ClickInput(button='right')
+    popup_toolbar.Button(button_index).ClickInput(button=mouse_button, double=double)
 
 def ClickSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a visible tray icon given by button"
-    SystemTrayIcons.Button(button, double=double, exact=exact, by_tooltip=by_tooltip).ClickInput()
+    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput(double=double)
 
 def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
     "Right click on a visible tray icon given by button"
@@ -64,11 +59,11 @@ def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
 
 def ClickHiddenSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a hidden tray icon given by button"
-    _click_hidden_tray_icon(button, double=double, exact=exact, by_tooltip=by_tooltip)
+    _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip, double=double)
 
 def RightClickHiddenSystemTrayIcon(button, exact = False, by_tooltip=False):
     "Right click on a hidden tray icon given by button"
-    _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip, mouse_button='right')
+    _click_hidden_tray_icon(button, mouse_button='right', exact=exact, by_tooltip=by_tooltip)
 
 
 # windows explorer owns all these windows so get that app
@@ -80,7 +75,7 @@ TaskBar = explorer_app.window_(handle = TaskBarHandle())
 # The Start button
 try:
     StartButton = explorer_app.Window_(title='Start', class_name='Button').Wait('exists', 0.1) # Win7
-except:
+except Exception:
     StartButton = TaskBar.Start # Win8.1
 
 # the system tray - contains various windows
@@ -102,7 +97,7 @@ RunningApplications = TaskBar.MSTaskListWClass
 # the language bar
 try:
     LangPanel = TaskBar.CiceroUIWndFrame.Wait('exists', 0.1) # Win7
-except:
+except Exception:
     LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 
 # the hidden tray icons button (TODO: think how to optimize)

@@ -91,8 +91,24 @@ function InstallComtypes ($python_home) {
 }
 
 function main () {
-    $CurrentResolution = Get-DisplayResolution
-    Write-Host "Current resolution: " $CurrentResolution
+    try {
+        $CurrentResolution = Get-DisplayResolution
+        Write-Host "Current resolution: " $CurrentResolution
+    }
+    Catch [Exception]{
+        Write-Host "Can't print current resolution. Get-DisplayResolution cmd is not available"
+    }
+
+    # fallback for running the script locally
+    if ( !(Test-Path variable:global:PYTHON_VERSION) ) {
+        Write-Host "No PYTHON vars, setup default values"
+        $env:PYTHON="C:\\Python34-x64"
+        $env:PYTHON_VERSION="3.4"
+        $env:PYTHON_ARCH="64"     
+        Write-Host "PYTHON=" $env:PYTHON
+        Write-Host "PYTHON_VERSION=" $env:PYTHON_VERSION
+        Write-Host "PYTHON_ARCH=" $env:PYTHON_ARCH
+    }        
 
     if ($env:UIA_SUPPORT -eq "YES") {
         InstallComtypes $env:PYTHON

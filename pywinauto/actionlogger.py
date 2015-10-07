@@ -49,10 +49,10 @@ def enable():
     "Enable logging pywinauto actions"
     reset_level()
 
-class CustomLogger:
+class CustomLogger(object):
 
     def __init__(self, logFilePath = None):
-        self.logger = logger.Logger()
+        self.logger = logger.Logger(logFilePath)
 
     def log(self, *args):
         for msg in args:
@@ -65,7 +65,7 @@ class CustomLogger:
         self.logger.sectionEnd()
 
 
-class StandardLogger:
+class StandardLogger(object):
 
     def __init__(self, logFilePath = None):
         self.logFilePath = logFilePath

@@ -2,9 +2,61 @@
 Change Log
 ==========
 
-0.5.1 Several fixes, more tests.
+0.5.3 Better Unicode support for SetEditText/TypeKeys and menu items
+--------------------------------------------------------------------
+25-September-2015
+ * Better backward compatibility with pywinauto 0.4.2:
+
+   - support Unicode symbols in the ``TypeKeys`` method again;
+
+   - allow ``SetEditText/TypeKeys`` methods to take non-string arguments;
+
+   - fix taking Unicode parameters in ``SetEditText/TypeKeys``.
+
+ * Fix bug in ``Wait("active")``, raise a SyntaxError when waiting for an incorrect state.
+
+ * Re-consider some timings, update docs for the default values etc.
+
+ * Fix several issues with an owner-drawn menu.
+
+ * ``MenuItem`` method ``Click`` is renamed to ``ClickInput`` while ``Click = Select`` now.
+
+ * New ``SetTransparency`` method can make a window transparent in a specified degree.
+
+
+0.5.2 Improve ListView, new methods for CPU usage, DPI awareness
 ------------------------------------------------------------------
-14-July-2015
+07-September-2015
+
+ * New Application methods: ``CPUUsage`` returns CPU usage as a percent (float number),
+   ``WaitCPUUsageLower`` waits until the connected process' CPU usage is lower than
+   a specified value (2.5% by default).
+
+ * A new class ``_listview_item``. It is very similar to ``_treeview_element``.
+
+ * Add DPI awareness API support (Win8+). It allows correct work when all fonts
+   are scaled at 125%, 150% etc (globally or per monitor).
+
+ * "Tools overview" section in docs.
+
+ * Fix number of bugs:
+
+   - ``TreeViewWrapper.Select`` doesn't work when the control is not in focus.
+
+   - ``TabControlWrapper.Select`` doesn't work in case of TCS_BUTTONS style set.
+
+   - ``ListViewWrapper`` methods ``Check/UnCheck`` are fixed.
+
+   - Toolbar button: incorrect access by a tooltip text.
+
+   - Warning "Cannot retrieve text length for handle" uses print() instead of actionlogger.
+
+   - ``ClientToScreen`` method doesn't return a value (modifying mutable argument is not good practice).
+
+
+0.5.1 Several fixes, more tests
+------------------------------------------------------------------
+13-July-2015
 
  * Resolve pip issues
 
@@ -20,7 +72,8 @@ Change Log
    familiar with standard ``logging`` module there's method 
    ``actionlogger.set_level(level)``
 
-0.5.0 64-bit Py2/Py3 compatibility.
+
+0.5.0 64-bit Py2/Py3 compatibility
 ------------------------------------------------------------------
 30-June-2015
 
@@ -52,7 +105,8 @@ Change Log
 
  * flags ``create_new_console`` and ``wait_for_idle`` in ``Application.start`` method
 
-0.4.0 Various cleanup and bug fixes.
+
+0.4.0 Various cleanup and bug fixes
 ------------------------------------------------------------------
 03-April-2010
 

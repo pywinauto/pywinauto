@@ -1,4 +1,5 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2010 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -68,15 +69,6 @@ The identifier for this test/bug is "RepeatedHotkey"
 """
 
 testname = "RepeatedHotkey"
-__revision__ = "$Revision$"
-
-# need to use sets.Set for python 2.3 compatability
-# but 2.6 raises a deprecation warning about sets module
-try:
-    set
-except NameError:
-    import sets
-    set = sets.Set
 
 from pywinauto.win32defines import SS_NOPREFIX
 
@@ -245,4 +237,3 @@ def ImplementsHotkey(win):
 
 
 RepeatedHotkeyTest.TestsMenus = True
-

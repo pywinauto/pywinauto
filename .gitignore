@@ -55,3 +55,4 @@ docs/_sources/
 
 # PyBuilder
 target/
+/.idea

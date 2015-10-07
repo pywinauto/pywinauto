@@ -24,28 +24,24 @@ from __future__ import print_function
 
 "Tests for classes in controls\common_controls.py"
 
-__revision__ = "$Revision: 234 $"
-
 import sys
 #import ctypes
 import unittest
 import time
-#import pprint
+from datetime import datetime
 #import pdb
 import os
 import win32api
 
 sys.path.append(".")
 from pywinauto import six
-#from pywinauto.controls import common_controls
-from pywinauto.controls.common_controls import *
 from pywinauto.win32structures import RECT
-#from pywinauto.controls import WrapHandle
-#from pywinauto.controls.HwndWrapper import HwndWrapper
+from pywinauto import win32defines
 from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.RemoteMemoryBlock import AccessDenied
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
+from pywinauto.actionlogger import ActionLogger
 
 
 controlspy_folder = os.path.join(
@@ -202,7 +198,6 @@ class ListViewTestCases(unittest.TestCase):
         "Test checking the focus of some ListView items"
 
         print("Select something quick!!")
-        import time
         time.sleep(3)
         #self.ctrl.Select(1)
 
@@ -264,7 +259,7 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(
             self.ctrl.Texts(), props['Texts'])
 
-        for prop_name in props:
+        for prop_name in props.keys():
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
         self.assertEquals(props['ColumnCount'], 8)
@@ -279,6 +274,86 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetColumn(2)['text'], u"Green")
         self.assertEquals(self.ctrl.GetColumn(3)['text'], u"Blue")
 
+
+    def testItemRectangles(self):
+        "Test getting item rectangles"
+        
+        yellow_rect = self.ctrl.GetItemRect('Yellow')
+        gold_rect = RECT(13, 0, 61, 53)
+        self.assertEquals(yellow_rect.left, gold_rect.left)
+        self.assertEquals(yellow_rect.top, gold_rect.top)
+        self.assertEquals(yellow_rect.right, gold_rect.right)
+        if yellow_rect.bottom < 53 or yellow_rect.bottom > 55:
+            self.assertEquals(yellow_rect.bottom, gold_rect.bottom)
+        
+        self.ctrl.GetItem('Green').Click(where='text')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        
+        self.ctrl.GetItem('Magenta').Click(where='icon')
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
+        
+        self.ctrl.GetItem('Green').Click(where='all')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+
+
+    def testItemCheck(self):
+        "Test checking/unchecking item"
+        if not self.dlg.Toolbar.Button(6).IsChecked():
+            self.dlg.Toolbar.Button(6).Click()
+        
+        yellow = self.ctrl.GetItem('Yellow')
+        yellow.Check()
+        self.assertEquals(yellow.IsChecked(), True)
+        
+        yellow.UnCheck()
+        self.assertEquals(yellow.IsChecked(), False)
+
+        # test legacy deprecated methods (TODO: remove later)
+        self.ctrl.Check('Yellow')
+        self.assertEquals(self.ctrl.IsChecked('Yellow'), True)
+        
+        self.ctrl.UnCheck('Yellow')
+        self.assertEquals(self.ctrl.IsChecked('Yellow'), False)
+
+
+    def testItemClickInput(self):
+        "Test clicking item rectangles"
+        
+        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        
+        self.ctrl.GetItem('Magenta').ClickInput(where='select')
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
+        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
+        self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
+        
+        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
+        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
+        self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+
+    def testItemMethods(self):
+        "Test short item methods like Text(), State() etc"
+        self.assertEquals(self.ctrl.GetItem('Green').Text(), 'Green')
+        self.assertEquals(self.ctrl.GetItem('Green').Image(), 2)
+        self.assertEquals(self.ctrl.GetItem('Green').Indent(), 0)
+
+    def testEnsureVisible(self):
+        self.dlg.MoveWindow(width=300)
+        
+        # Gray is not selected by click because it's not visible
+        self.ctrl.GetItem('Gray').Click()
+        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
+        self.dlg.SetFocus() # just in case
+        
+        self.ctrl.GetItem('Gray').EnsureVisible()
+        self.ctrl.GetItem('Gray').Click()
+        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), True)
 
 #
 #    def testSubItems(self):
@@ -345,7 +420,7 @@ class TreeViewTestCases(unittest.TestCase):
 
 
     def testGetItem(self):
-        "Test the ItemCount method"
+        "Test the GetItem method"
 
         self.assertRaises(RuntimeError, self.ctrl.GetItem, "test\here\please")
 
@@ -355,7 +430,7 @@ class TreeViewTestCases(unittest.TestCase):
             self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
 
         self.assertEquals(
-            self.ctrl.GetItem(r"\The Planets\Venus\4.869").Text(), self.texts[1][3] + " kg")
+            self.ctrl.GetItem(r"\The Planets\Venus\4.869e24 kg", exact=True).Text(), self.texts[1][3] + " kg")
 
         self.assertEquals(
             self.ctrl.GetItem(
@@ -364,7 +439,7 @@ class TreeViewTestCases(unittest.TestCase):
 
 
     def testItemText(self):
-        "Test the ItemCount method"
+        "Test the TreeView item Text() method"
 
         self.assertEquals(self.ctrl.Root().Text(), self.root_text)
 
@@ -435,7 +510,101 @@ class TreeViewTestCases(unittest.TestCase):
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
         self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
+
+
+class TreeViewAdditionalTestCases(unittest.TestCase):
+    "More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        from pywinauto.application import Application
+        self.app = Application.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+
+        self.dlg = self.app.CommonControlsSample #top_window_()
+        self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.dlg.Close()
+        self.app.kill_()
+
+    def testCheckBoxes(self):
+        "Make sure the friendly class is set correctly"
+        self.dlg.TVS_CHECKBOXES.ClickInput()
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Click(where='check')
+        self.assertEquals (birds.IsChecked(), True)
+        birds.ClickInput(where='check')
+        self.assertEquals (birds.IsChecked(), False)
+
+    def testPrintItems(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        items_str = self.ctrl.PrintItems()
+        self.assertEquals(items_str, "Treeview1\nBirds\n Eagle\n Hummingbird\n Pigeon\n" +
+                                     "Dogs\n Dalmatian\n German Shepherd\n Great Dane\n" +
+                                     "Fish\n Salmon\n Snapper\n Sole\n")
+
+    def testIsSelected(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        eagle = self.ctrl.GetItem(r'\Birds\Eagle')
+        eagle.Select()
+        self.assertEquals(eagle.IsSelected(), True)
+
+    def testExpandCollapse(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        self.assertEquals(birds.IsExpanded(), True)
         
+        birds.Collapse()
+        self.assertEquals(birds.IsExpanded(), False)
+
+    def testCheckBoxes(self):
+        "Make sure correct area is clicked"
+        self.dlg.TVS_HASBUTTONS.ClickInput()
+        self.dlg.TVS_HASLINES.ClickInput()
+        self.dlg.TVS_LINESATROOT.ClickInput()
+        birds = self.ctrl.GetItem(r'\Birds')
+        
+        birds.Click(where='button')
+        self.assertEquals(birds.IsExpanded(), True)
+        birds.Click(double=True, where='icon')
+        self.assertEquals(birds.IsExpanded(), False)
+        
+        birds.ClickInput(where='button')
+        self.assertEquals(birds.IsExpanded(), True)
+        birds.ClickInput(double=True, where='icon')
+        self.assertEquals(birds.IsExpanded(), False)
+
+    def testIncorrectAreas(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        self.assertRaises(RuntimeError, birds.Click, where='radiob')
+        self.assertRaises(RuntimeError, birds.ClickInput, where='radiob')
+
+    def testStartDraggingAndDrop(self):
+        birds = self.ctrl.GetItem(r'\Birds')
+        birds.Expand()
+        
+        pigeon = self.ctrl.GetItem(r'\Birds\Pigeon')
+        pigeon.StartDragging()
+        
+        eagle = self.ctrl.GetItem(r'\Birds\Eagle')
+        eagle.Drop()
+        
+        self.assertRaises(IndexError, birds.GetChild, 'Pigeon')
+        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Birds\Pigeon')
+        self.assertRaises(IndexError, self.ctrl.GetItem, [0, 2])
+        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread', exact=True)
+        
+        new_pigeon = self.ctrl.GetItem(r'\Birds\Eagle\Pigeon')
+        self.assertEquals(len(birds.Children()), 2)
+        self.assertEquals(new_pigeon.Children(), [])
+
+
 class HeaderTestCases(unittest.TestCase):
     "Unit tests for the Header class"
 
@@ -707,7 +876,7 @@ class TabControlTestCases(unittest.TestCase):
         prev_rect = self.ctrl.Rectangle() - dlgClientRect
 
         # squeeze the tab control to force two rows
-        new_rect = win32structures.RECT(prev_rect)
+        new_rect = RECT(prev_rect)
         new_rect.right = int(new_rect.width() / 2) 
 
         self.ctrl.MoveWindow(
@@ -811,8 +980,8 @@ class ToolbarTestCases(unittest.TestCase):
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
         # The second control goes as Toolbar2
-        self.ctrl = app.CommonControlsSample.Toolbar.WrapperObject()
-        self.ctrl2 = app.CommonControlsSample.Toolbar2.WrapperObject()
+        self.ctrl = app.CommonControlsSample.ToolbarNew.WrapperObject()
+        self.ctrl2 = app.CommonControlsSample.ToolbarErase.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -920,11 +1089,15 @@ class ToolbarTestCases(unittest.TestCase):
         self.assertRaises(RuntimeError, self.ctrl.CheckButton, 3, True)
 
     def testIsCheckable(self):
-        self.assertNotEqual(self.ctrl2.Button('Erase').IsCheckable(), 0)
-        self.assertEquals(self.ctrl.Button('New').IsCheckable(), 0)
+        self.assertNotEqual(self.ctrl2.Button('Erase').IsCheckable(), False)
+        self.assertEquals(self.ctrl.Button('New').IsCheckable(), False)
 
     def testIsPressable(self):
-        self.assertEquals(self.ctrl.Button('New').IsPressable(), 0)
+        self.assertEquals(self.ctrl.Button('New').IsPressable(), True)
+
+    def testButtonByTooltip(self):
+        self.assertEquals(self.ctrl.Button('New', by_tooltip=True).Text(), 'New')
+        self.assertEquals(self.ctrl.Button('About', exact=False, by_tooltip=True).Text(), 'About')
 
 
 class RebarTestCases(unittest.TestCase):
@@ -993,6 +1166,81 @@ class RebarTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
 
 
+class DatetimeTestCases(unittest.TestCase):
+    "Unit tests for the DateTimePicker class"
+
+    def setUp(self):
+        """
+        Start the application and get 'Date Time Picker' control.
+        """
+
+        # start the application
+        from pywinauto.application import Application
+        app = Application()
+        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+
+        self.app = app
+        self.dlg = app.CommonControlsSample
+        self.dlg.Wait('ready', 20)
+        tab = app.CommonControlsSample.TabControl.WrapperObject()
+        tab.Select(3)
+        self.ctrl = self.dlg.DateTimePicker
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testFriendlyClass(self):
+        "Make sure the friendly class is set correctly"
+        self.assertEqual(self.ctrl.FriendlyClassName(), "DateTimePicker")
+
+    def testGetTime(self):
+        "Test reading a date from a 'Date Time Picker' control"
+
+        # No check for seconds and milliseconds as it can slip
+        # These values are verified in the next 'testSetTime'
+        test_date_time = self.ctrl.GetTime()
+        date_time_now = datetime.now()
+        self.assertEqual(test_date_time.wYear, date_time_now.year)
+        self.assertEqual(test_date_time.wMonth, date_time_now.month)
+        self.assertEqual(test_date_time.wDay, date_time_now.day)
+        self.assertEqual(test_date_time.wHour, date_time_now.hour)
+        self.assertEqual(test_date_time.wMinute, date_time_now.minute)
+
+    def testSetTime(self):
+        "Test setting a date to a 'Date Time Picker' control"
+        year = 2025
+        month = 9
+        day_of_week = 5
+        day = 19
+        hour = 1
+        minute = 2
+        second = 3
+        milliseconds = 781
+        self.ctrl.SetTime(
+                year=year, 
+                month=month, 
+                day_of_week=day_of_week, 
+                day=day, 
+                hour=hour, 
+                minute=minute, 
+                second=second, 
+                milliseconds=milliseconds
+                )
+
+        # Retrive back the values we set
+        test_date_time = self.ctrl.GetTime()
+        self.assertEqual(test_date_time.wYear, year)
+        self.assertEqual(test_date_time.wMonth, month)
+        self.assertEqual(test_date_time.wDay, day)
+        self.assertEqual(test_date_time.wDayOfWeek, day_of_week)
+        self.assertEqual(test_date_time.wHour, hour)
+        self.assertEqual(test_date_time.wMinute, minute)
+        self.assertEqual(test_date_time.wSecond, second)
+        self.assertEqual(test_date_time.wMilliseconds, milliseconds)
+
+
 class ToolTipsTestCases(unittest.TestCase):
     "Unit tests for the tooltips class"
 
@@ -1010,6 +1258,10 @@ class ToolTipsTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.Common_Controls_Sample
+
+        # Make sure the mouse doesn't hover over tested controls
+        # so it won't generate an unexpected tooltip
+        self.dlg.MoveMouseInput(coords=(-100,-100), absolute=True)
         
         self.dlg.TabControl.Select(u'CToolBarCtrl')
 
@@ -1068,6 +1320,8 @@ class ToolTipsTestCases(unittest.TestCase):
 
     def testTexts(self):
         "Make sure the texts are set correctly"
+        self.dlg.MoveMouseInput(coords=(0, 0)) # just to make sure a tooltip is not shown
+        ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.Texts()))
         self.assertEquals(self.ctrl.Texts()[0], '')
         self.assertEquals(self.ctrl.Texts()[1:], self.texts)
 

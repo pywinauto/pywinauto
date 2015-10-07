@@ -1,5 +1,6 @@
 ﻿# -*- coding: UTF-8 -*-
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or 
@@ -18,19 +19,21 @@
 #    59 Temple Place,
 #    Suite 330, 
 #    Boston, MA 02111-1307 USA 
+from __future__ import unicode_literals
+from __future__ import print_function
 
 import time
 
 from pywinauto import application
 
-from pywinauto import tests
+#from pywinauto import tests
 
 
 def SakuraTest():
 
 	app = application.Application()
-	app.start_(ur"\Program Files\sakura\sakura.exe")
-	
+	app.start_(r"C:\Program Files\sakura\sakura.exe")
+
 	mainwin = app[u'無題sakura']
 
 	# menu's from this application are not recovered well
@@ -46,20 +49,19 @@ def SakuraTest():
 	app[u'共通設定'][u"フリーカーソル"].Click()
 
 	dlg.MSDOS.Click()
-	
+
 	dlg.Cancel.Click()
 
 	# quit the application
 	mainwin.TypeKeys("%FX")
-		
 
-	
+
 def Main():
 	start = time.time()
-	
-	SakuraTest()	
-	
-	print "Total time taken:", time.time() - start
+
+	SakuraTest()
+
+	print("Total time taken:", time.time() - start)
 
 if __name__ == "__main__":
 	Main()

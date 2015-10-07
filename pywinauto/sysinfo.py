@@ -19,6 +19,7 @@
 #    Boston, MA 02111-1307 USA
 
 import os, sys
+import platform
 import ctypes
 
 try:

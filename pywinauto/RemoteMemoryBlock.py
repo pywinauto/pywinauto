@@ -20,13 +20,15 @@
 #    Boston, MA 02111-1307 USA
 
 from __future__ import absolute_import
+from __future__ import print_function
 
-import ctypes, win32api, sys, inspect, traceback
+import ctypes, win32api, sys
 
 from . import win32functions
 from . import win32defines
 from . import win32structures
 from . import sysinfo
+from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):
     "Raised when we cannot allocate memory in the control's process"
@@ -97,10 +99,10 @@ class RemoteMemoryBlock(object):
             win32structures.ULONG_PTR(4),
             win32structures.ULONG_PTR(0));
         if ret == 0:
-            print('================== Error: Failed to write guard signature: address = ', self.memAddress, ', size = ', self.size)
+            ActionLogger().log('================== Error: Failed to write guard signature: address = ' +
+                               hex(self.memAddress) + ', size = ' + str(self.size))
             last_error = win32api.GetLastError()
-            print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
-            sys.stdout.flush()
+            ActionLogger().log('LastError = ' + str(last_error) + ': ' + win32api.FormatMessage(last_error).rstrip())
 
 
     #----------------------------------------------------------------
@@ -110,8 +112,8 @@ class RemoteMemoryBlock(object):
         #win32api.CloseHandle(self.process)
 
         if ret == 0:
+            ActionLogger().log('Warning: cannot close process handle!')
             #raise ctypes.WinError()
-            print('Error: cannot close process handle!')
 
     #----------------------------------------------------------------
     def CleanUp(self):
@@ -133,7 +135,7 @@ class RemoteMemoryBlock(object):
             self.memAddress = 0
             #self._CloseHandle()
         else:
-            print('\nWARNING: Cannot call VirtualFreeEx! process_id == 0.')
+            pass #ActionLogger().log('\nWARNING: Cannot call VirtualFreeEx! process_id == 0.')
 
 
     #----------------------------------------------------------------
@@ -176,11 +178,10 @@ class RemoteMemoryBlock(object):
             win32structures.ULONG_PTR(0));
 
         if ret == 0:
-            print('Error: Write failed: address = ', address)
+            ActionLogger().log('Error: Write failed: address = ', address)
             last_error = win32api.GetLastError()
-            print('Error: LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
-            sys.stdout.flush()
-            #raise ctypes.WinError()
+            ActionLogger().log('Error: LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
+            raise ctypes.WinError()
         self.CheckGuardSignature()
 
     #----------------------------------------------------------------
@@ -224,26 +225,16 @@ class RemoteMemoryBlock(object):
             if ret == 0:
                 last_error = win32api.GetLastError()
                 if last_error != win32defines.ERROR_PARTIAL_COPY:
-                    print('\nError: Read: WARNING! self.memAddress =', self.memAddress, ' data address =', ctypes.byref(data))
-                    print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
-                    print('lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize)
-                    print('Caller stack:')
-                    for frame in inspect.stack():
-                        print(frame[1:])
-                    print()
-                    sys.stdout.flush()
-                    raise ctypes.WinError()
+                    ActionLogger().log('Read: WARNING! self.memAddress =' + hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
+                    ActionLogger().log('LastError = ' + str(last_error) + ': ' + win32api.FormatMessage(last_error).rstrip())
                 else:
-                    print('Error: ERROR_PARTIAL_COPY')
-                    print('\nRead: WARNING! self.memAddress =', self.memAddress, ' data address =', ctypes.byref(data))
-                    print('lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize)
-                    print('Caller stack:')
-                    for frame in inspect.stack():
-                        print('\t\t', frame[1:])
-                    print()
-                    sys.stdout.flush()
+                    ActionLogger().log('Error: ERROR_PARTIAL_COPY')
+                    ActionLogger().log('\nRead: WARNING! self.memAddress =' + hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
+                
+                ActionLogger().log('lpNumberOfBytesRead =' + str(lpNumberOfBytesRead) + ' nSize =' + str(nSize))
+                raise ctypes.WinError()
             else:
-                print('Read OK: 2nd attempt!')
+                ActionLogger().log('Warning! Read OK: 2nd attempt!')
         #else:
         #    print 'Read OK: lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize
         
@@ -252,7 +243,7 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def CheckGuardSignature(self):
-        # read guard signature at the end of memory block
+        "read guard signature at the end of memory block"
         signature = win32structures.LONG(0)
         lpNumberOfBytesRead = ctypes.c_size_t(0)
         ret = win32functions.ReadProcessMemory(
@@ -262,13 +253,9 @@ class RemoteMemoryBlock(object):
             win32structures.ULONG_PTR(4),
             ctypes.byref(lpNumberOfBytesRead));
         if ret == 0:
-            print('Error: Failed to read guard signature: address = ', self.memAddress, ', size = ', self.size, ', lpNumberOfBytesRead = ', lpNumberOfBytesRead)
-            sys.stdout.flush()
-            #last_error = win32api.GetLastError()
-            #print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
+            ActionLogger().log('Error: Failed to read guard signature: address = ' + hex(self.memAddress) +
+                               ', size = ' + str(self.size) + ', lpNumberOfBytesRead = ' + str(lpNumberOfBytesRead))
             raise ctypes.WinError()
         else:
             if hex(signature.value) != '0x66666666':
                 raise Exception('----------------------------------------   Error: read incorrect guard signature = ' + hex(signature.value))
-
-

@@ -32,17 +32,20 @@ timings.Timings.Slow()
 
 The Following are the individual timing settings that can be adjusted:
 
-* window_find_timeout	(default 5)
+* window_find_timeout (default 5)
 * window_find_retry (default .09)
 
 * app_start_timeout (default 10)
 * app_start_retry   (default .90)
 
-* exists_timeout    (default .5)
-* exists_retry  (default .3)
+* cpu_usage_interval (default .5)
+* cpu_usage_wait_timeout (default 20)
+
+* exists_timeout  (default .5)
+* exists_retry   (default .3)
 
 * after_click_wait  (default .09)
-* after_clickinput_wait (default .01)
+* after_clickinput_wait (default .05)
 
 * after_menu_wait   (default .1)
 
@@ -62,9 +65,10 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_setcursorpos_wait   (default .01)
 
-* sendmessagetimeout_timeout   (default .001)
+* sendmessagetimeout_timeout   (default .01)
 
 * after_tabselect_wait   (default .05)
+
 * after_listviewselect_wait   (default .01)
 * after_listviewcheck_wait  default(.001)
 
@@ -76,11 +80,17 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_movewindow_wait  default(0)
 * after_buttoncheck_wait  default(0)
-* after_comboselect_wait  default(0)
+* after_comboboxselect_wait  default(.001)
 * after_listboxselect_wait  default(0)
 * after_listboxfocuschange_wait  default(0)
 * after_editsetedittext_wait  default(0)
-* after_editselect_wait  default(0)
+* after_editselect_wait  default(.02)
+
+* drag_n_drop_move_mouse_wait  default(.1)
+* before_drag_wait  default(.2)
+* before_drop_wait  default(.1)
+* after_drag_n_drop_wait  default(.1)
+* scroll_step_wait  default(.1)
 
 """
 
@@ -88,18 +98,18 @@ import time
 import operator
 
 
-__revision__ = "$Revision: 453 $"
-
-
 #=========================================================================
 class TimeConfig(object):
     "Central storage and manipulation of timing values"
     __default_timing = {
-        'window_find_timeout' : 5,
+        'window_find_timeout' : 5.,
         'window_find_retry' : .09,
 
-        'app_start_timeout' : 10,
+        'app_start_timeout' : 10.,
         'app_start_retry' : .90,
+
+        'cpu_usage_interval' : .5,
+        'cpu_usage_wait_timeout' : 20.,
 
         'exists_timeout' : .5,
         'exists_retry' : .3,
@@ -125,7 +135,7 @@ class TimeConfig(object):
 
         'after_setcursorpos_wait' : .01,
 
-        'sendmessagetimeout_timeout' : .001,
+        'sendmessagetimeout_timeout' : .01,
 
         'after_tabselect_wait': .05,
 
@@ -144,10 +154,12 @@ class TimeConfig(object):
         'after_listboxselect_wait': 0,
         'after_listboxfocuschange_wait': 0,
         'after_editsetedittext_wait': 0,
-        'after_editselect_wait': 0.01,
+        'after_editselect_wait': 0.02,
         'drag_n_drop_move_mouse_wait': 0.1,
-        'before_drop_wait': 0.3,
+        'before_drag_wait': 0.2,
+        'before_drop_wait': 0.1,
         'after_drag_n_drop_wait': 0.1,
+        'scroll_step_wait': 0.1,
     }
 
 
@@ -334,7 +346,6 @@ def WaitUntilPasses(
     """
     
     start = time.time()
-    waited = 0
 
     # keep trying until the timeout is passed
     while True:

@@ -1,4 +1,5 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -19,28 +20,27 @@
 #    Boston, MA 02111-1307 USA
 
 "Run some automations to test things"
+from __future__ import unicode_literals
+from __future__ import print_function
 
-__revision__ = "$Revision: 214 $"
-
+import os.path
+import sys
 import time
 
 try:
     from pywinauto import application
 except ImportError:
-    import os.path
     pywinauto_path = os.path.abspath(__file__)
     pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
-    import sys
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
 from pywinauto import tests
 from pywinauto.findbestmatch import MatchError
-from pywinauto import findwindows
 from pywinauto.timings import Timings
 
-print "Setting timings to slow settings, may be necessary for"
-print "slow applications or slow machines."
+print("Setting timings to slow settings, may be necessary for")
+print("slow applications or slow machines.")
 Timings.Slow()
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
@@ -54,10 +54,10 @@ def RunNotepad():
     ## for distribution we don't want to connect to anybodies application
     ## because we may mess up something they are working on!
     #try:
-    #    app.connect_(path = ur"c:\windows\system32\notepad.exe")
+    #    app.connect_(path = r"c:\windows\system32\notepad.exe")
     #except application.ProcessNotFoundError:
-    #    app.start_(ur"c:\windows\system32\notepad.exe")
-    app.start_(ur"notepad.exe")
+    #    app.start_(r"c:\windows\system32\notepad.exe")
+    app.start_(r"notepad.exe")
 
     app.Notepad.MenuSelect("File->PageSetup")
 
@@ -176,7 +176,7 @@ def RunNotepad():
     app.PageSetupDlg.Ok.CloseClick()
 
     # type some text - note that extended characters ARE allowed
-    app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
+    app.Notepad.Edit.SetEditText("I am typing s\xe4me text to Notepad\r\n\r\n"
         "And then I am going to quit")
 
     app.Notepad.Edit.RightClick()
@@ -199,7 +199,7 @@ def RunNotepad():
 
     # the following shows that Sendtext does not accept
     # accented characters - but does allow 'control' characters
-    app.Notepad.Edit.TypeKeys(u"{END}{ENTER}SendText d\xf6\xe9s  "
+    app.Notepad.Edit.TypeKeys("{END}{ENTER}SendText d\xf6\xe9s  "
         u"s\xfcpp\xf4rt \xe0cce\xf1ted characters!!!", with_spaces = True)
 
     # Try and save
@@ -226,7 +226,7 @@ def RunNotepad():
     # If file exists - it asks you if you want to overwrite
     try:
         app.SaveAs.Yes.Wait('exists').CloseClick()
-    except pywinauto.MatchError:
+    except MatchError:
         pass
 
     # exit notepad
@@ -237,7 +237,7 @@ def RunNotepad():
 
 
 
-    print "That took %.3f to run"% (time.time() - start)
+    print("That took %.3f to run"% (time.time() - start))
 
 if __name__ == "__main__":
     RunNotepad()

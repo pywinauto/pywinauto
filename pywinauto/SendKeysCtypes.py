@@ -29,13 +29,14 @@ is useful!
 
 """
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import time
 import ctypes
 import win32api
 
 from . import six
-from . import sysinfo
+from . import win32structures
 
 __all__ = ['KeySequenceError', 'SendKeys']
 
@@ -43,117 +44,15 @@ __all__ = ['KeySequenceError', 'SendKeys']
 
 DEBUG = 0
 
+GetMessageExtraInfo = ctypes.windll.user32.GetMessageExtraInfo
 MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
 SendInput = ctypes.windll.user32.SendInput
+SendInput.restype = win32structures.UINT
+SendInput.argtypes = [win32structures.UINT, ctypes.c_void_p, ctypes.c_int]
+
 VkKeyScan = ctypes.windll.user32.VkKeyScanW
 VkKeyScan.restype = ctypes.c_short
 VkKeyScan.argtypes = [ctypes.c_wchar]
-
-DWORD = ctypes.c_ulong
-LONG = ctypes.c_long
-WORD = ctypes.c_ushort
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
-class MOUSEINPUT(ctypes.Structure):
-    "Needed for complete definition of INPUT structure - not used"
-    if sysinfo.is_x64_Python(): # x64 platform
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4283
-        ('dx', LONG),
-        ('dy', LONG),
-        ('mouseData', DWORD),
-        ('dwFlags', DWORD),
-        ('time', DWORD),
-        ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)),
-    ]
-assert ctypes.sizeof(MOUSEINPUT) == 24 or ctypes.sizeof(MOUSEINPUT) == 28, ctypes.sizeof(MOUSEINPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(MOUSEINPUT) == 4, ctypes.alignment(MOUSEINPUT)
-else:
-    assert ctypes.alignment(MOUSEINPUT) == 2, ctypes.alignment(MOUSEINPUT)
-
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
-class KEYBDINPUT(ctypes.Structure):
-    "A particular keyboard event"
-    if sysinfo.is_x64_Python():
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4292
-        ('wVk', WORD),
-        ('wScan', WORD),
-        ('dwFlags', DWORD),
-        ('time', DWORD),
-        ('dwExtraInfo', ctypes.POINTER(ctypes.c_ulong)), #DWORD),
-    ]
-assert ctypes.sizeof(KEYBDINPUT) == 16 or ctypes.sizeof(KEYBDINPUT) == 20, ctypes.sizeof(KEYBDINPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(KEYBDINPUT) == 4, ctypes.alignment(KEYBDINPUT)
-else:
-    assert ctypes.alignment(KEYBDINPUT) == 2, ctypes.alignment(KEYBDINPUT)
-
-
-class HARDWAREINPUT(ctypes.Structure):
-    "Needed for complete definition of INPUT structure - not used"
-    if sysinfo.is_x64_Python():
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4300
-        ('uMsg', DWORD),
-        ('wParamL', WORD),
-        ('wParamH', WORD),
-    ]
-assert ctypes.sizeof(HARDWAREINPUT) == 8, ctypes.sizeof(HARDWAREINPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(HARDWAREINPUT) == 4, ctypes.alignment(HARDWAREINPUT)
-else:
-    assert ctypes.alignment(HARDWAREINPUT) == 2, ctypes.alignment(HARDWAREINPUT)
-
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
-class UNION_INPUT_STRUCTS(ctypes.Union):
-    "The C Union type representing a single Event of any type"
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4314
-        ('mi', MOUSEINPUT),
-        ('ki', KEYBDINPUT),
-        ('hi', HARDWAREINPUT),
-    ]
-assert ctypes.sizeof(UNION_INPUT_STRUCTS) == 24 or ctypes.sizeof(UNION_INPUT_STRUCTS) == 28, \
-    ctypes.sizeof(UNION_INPUT_STRUCTS)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(UNION_INPUT_STRUCTS) == 4, \
-        ctypes.alignment(UNION_INPUT_STRUCTS)
-else:
-    assert ctypes.alignment(UNION_INPUT_STRUCTS) == 2, \
-        ctypes.alignment(UNION_INPUT_STRUCTS)
-
-
-# C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
-class INPUT(ctypes.Structure):
-    "See: http://msdn.microsoft.com/en-us/library/ms646270%28VS.85%29.aspx"
-    if sysinfo.is_x64_Python():
-        _pack_ = 4
-    else:
-        _pack_ = 2
-    _fields_ = [
-        # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4310
-        ('type', DWORD),
-        # Unnamed field renamed to '_'
-        ('_', UNION_INPUT_STRUCTS),
-    ]
-assert ctypes.sizeof(INPUT) == 28 or ctypes.sizeof(INPUT) == 32, ctypes.sizeof(INPUT)
-if sysinfo.is_x64_Python():
-    assert ctypes.alignment(INPUT) == 4, ctypes.alignment(INPUT)
-else:
-    assert ctypes.alignment(INPUT) == 2, ctypes.alignment(INPUT)
 
 
 INPUT_KEYBOARD = 1
@@ -361,6 +260,7 @@ class KeyAction(object):
         """Return virtual_key, scan_code, and flags for the action
         
         This is one of the methods that will be overridden by sub classes"""
+        #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
     def GetInput(self):
@@ -370,34 +270,37 @@ class KeyAction(object):
         if self.up and self.down:
             actions = 2
 
-        inputs = (INPUT * actions)()
+        inputs = (win32structures.INPUT * actions)()
 
         vk, scan, flags = self._get_key_info()
 
         for inp in inputs:
             inp.type = INPUT_KEYBOARD
 
-            inp._.ki.wVk = vk
-            inp._.ki.wScan = scan
-            inp._.ki.dwFlags |= flags
+            inp.ki.wVk = vk
+            inp.ki.wScan = scan
+            inp.ki.dwFlags |= flags
+            
+            # it seems to return 0 every time but it's required by MSDN specification
+            # so call it just in case
+            inp.ki.dwExtraInfo = GetMessageExtraInfo()
 
         # if we are releasing - then let it up
         if self.up:
-            inputs[-1]._.ki.dwFlags |= KEYEVENTF_KEYUP
+            inputs[-1].ki.dwFlags |= KEYEVENTF_KEYUP
 
         return inputs
 
     def Run(self):
         "Execute the action"
         inputs = self.GetInput()
-        #return SendInput(
-        #    len(inputs),
-        #    ctypes.byref(inputs),
-        #    ctypes.sizeof(INPUT))
-        
-        # vvryabov: it works more stable than SendInput
-        for inp in inputs:
-            win32api.keybd_event(inp._.ki.wVk, inp._.ki.wScan, inp._.ki.dwFlags)
+
+        # SendInput() supports all Unicode symbols
+        num_inserted_events = SendInput(len(inputs), ctypes.byref(inputs),
+                                        ctypes.sizeof(win32structures.INPUT))
+        if num_inserted_events != len(inputs):
+            raise RuntimeError('SendInput() inserted only ' + str(num_inserted_events) +
+                               ' out of ' + str(len(inputs)) + ' keyboard events')
 
     def _get_down_up_string(self):
         """Return a string that will show whether the string is up or down
@@ -461,6 +364,13 @@ class VirtualKeyAction(KeyAction):
         # this works for Tic Tac Toe i.e. +{RIGHT} SHIFT + RIGHT
         return self.key, MapVirtualKey(self.key, 0), flags
 
+    def Run(self):
+        "Execute the action"
+
+        # it works more stable for virtual keys than SendInput
+        for inp in self.GetInput():
+            win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
+
 
 class EscapedKeyAction(KeyAction):
     """Represents an escaped key action e.g. F9 DOWN, etc
@@ -479,6 +389,13 @@ class EscapedKeyAction(KeyAction):
         
         return "KEsc %s"% self.key
 
+    def Run(self):
+        "Execute the action"
+
+        # it works more stable for virtual keys than SendInput
+        for inp in self.GetInput():
+            win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
+
 
 class PauseAction(KeyAction):
     "Represents a pause action"
@@ -494,44 +411,6 @@ class PauseAction(KeyAction):
         return "<PAUSE %1.2f>"% (self.how_long)
     __repr__ = __str__
 
-    #def GetInput(self):
-    #    print `self.key`
-    #    keys = KeyAction.GetInput(self)
-    #
-    #    shift_state = HiByte(VkKeyScan(self.key))
-    #
-    #    shift_down = shift_state & 0x100  # 1st bit
-    #    ctrl_down =  shift_state & 0x80   # 2nd bit
-    #    alt_down =  shift_state & 0x40    # 3rd bit
-    #
-    #    print bin(shift_state), shift_down, ctrl_down, alt_down
-    #
-    #    print keys
-    #    keys = [k for k in keys]
-    #
-    #    modifiers = []
-    #    if shift_down:
-    #        keys[0:0] = VirtualKeyAction(VK_SHIFT, up = False).GetInput()
-    #        keys.append(VirtualKeyAction(VK_SHIFT, down = False).GetInput())
-    #    if ctrl_down:
-    #        keys[0:0] = VirtualKeyAction(VK_CONTROL, up = False).GetInput()
-    #        keys.append(VirtualKeyAction(VK_CONTROL, down = False).GetInput())
-    #    if alt_down:
-    #        keys[0:0] = VirtualKeyAction(VK_ALT, up = False).GetInput()
-    #        keys.append(VirtualKeyAction(VK_ALT, down = False).GetInput())
-    #
-    #    print keys
-    #    new_keys = (INPUT * len(keys)) ()
-    #
-    #    for i, k in enumerate(keys):
-    #        if hasattr(k, 'type'):
-    #            new_keys[i] = k
-    #        else:
-    #            for sub_key in k:
-    #                new_keys[i] = sub_key
-    #
-    #    return new_keys
-    #
 
 def handle_code(code):
     "Handle a key or sequence of keys in braces"

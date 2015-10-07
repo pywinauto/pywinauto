@@ -1,4 +1,5 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -19,10 +20,8 @@
 #    Boston, MA 02111-1307 USA
 
 "Run some automations to test things"
-
-__revision__ = "$Revision: 214 $"
-
-import time
+from __future__ import unicode_literals
+from __future__ import print_function
 
 try:
     from pywinauto import application
@@ -34,9 +33,8 @@ except ImportError:
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
-from pywinauto import tests
-from pywinauto.findbestmatch import MatchError
-from pywinauto import findwindows
+#from pywinauto import tests
+#from pywinauto.findbestmatch import MatchError
 from pywinauto.timings import Timings
 
 Timings.window_find_timeout = 10
@@ -47,7 +45,7 @@ def TestExceptions():
     # test that trying to connect_ to a non existent app fails
     try:
         app = application.Application()
-        app.connect_(path = ur"No process with this please")
+        app.connect_(path = r"No process with this please")
         assert False
     except application.ProcessNotFoundError:
         pass
@@ -55,7 +53,7 @@ def TestExceptions():
     # test that trying to connect_ to a non existent app fails
     try:
         app = application.Application()
-        app.start_(cmd_line = ur"No process with this please")
+        app.start_(cmd_line = r"No process with this please")
         assert False
     except application.AppStartError:
         pass
@@ -74,20 +72,20 @@ def TestExceptions():
 def GetInfo():
     app = application.Application()
 
-    app.start_(ur"notepad.exe")
+    app.start_(r"notepad.exe")
 
     app.Notepad.MenuSelect("File->PageSetup")
 
-    print "==" * 20
-    print "Windows of this application:", app.windows_()
+    print("==" * 20)
+    print("Windows of this application:", app.windows_())
 
-    print "The list of identifiers for the Page Setup dialog in Notepad"
-    print "==" * 20
+    print("The list of identifiers for the Page Setup dialog in Notepad")
+    print("==" * 20)
     app.PageSetup.print_control_identifiers()
-    print "==" * 20
-    print "The list of identifiers for the 2nd Edit control in the dialog"
+    print("==" * 20)
+    print("The list of identifiers for the 2nd Edit control in the dialog")
     app.PageSetup.Edit2.print_control_identifiers()
-    print "==" * 20
+    print("==" * 20)
 
     app.PageSetup.OK.CloseClick()
     app.Notepad.MenuSelect("File->Exit")

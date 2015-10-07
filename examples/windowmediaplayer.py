@@ -1,4 +1,5 @@
 # GUI Application automation and testing library
+# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2006 Mark Mc Mahon
 #
 # This library is free software; you can redistribute it and/or
@@ -18,10 +19,9 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Some automation of Windows Media player"
-
-__revision__ = "$Revision$"
-
+"""Some automation of Windows Media player"""
+from __future__ import unicode_literals
+from __future__ import print_function
 
 #import os
 import time
@@ -33,7 +33,6 @@ except ImportError:
     import os.path
     pywinauto_path = os.path.abspath(__file__)
     pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]
-    import sys
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
@@ -44,10 +43,10 @@ def WindowsMedia():
 
     try:
         app.start_(   # connect_(path =
-            ur"C:\Program Files\Windows Media Player\wmplayer.exe")
+            r"C:\Program Files\Windows Media Player\wmplayer.exe")
     except application.ProcessNotFoundError:
-        print "You must first start Windows Media "\
-            "Player before running this script"
+        print("You must first start Windows Media "\
+            "Player before running this script")
         sys.exit()
 
     app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
@@ -57,17 +56,17 @@ def WindowsMedia():
     #    print ctrl.Class()
 
 
-    print "Is it checked already:", app.ChooseColumsn.ListView.IsChecked(1)
+    print("Is it checked already:", app.ChooseColumsn.ListView.IsChecked(1))
 
     # Check an Item in the listview
     app.ChooseColumns.ListView.Check(1)
     time.sleep(.5)
-    print "Shold be checked now:", app.ChooseColumsn.ListView.IsChecked(1)
+    print("Shold be checked now:", app.ChooseColumsn.ListView.IsChecked(1))
 
     # Uncheck it
     app.ChooseColumns.ListView.UnCheck(1)
     time.sleep(.5)
-    print "Should not be checked now:", app.ChooseColumsn.ListView.IsChecked(1)
+    print("Should not be checked now:", app.ChooseColumsn.ListView.IsChecked(1))
 
     # Check it again
     app.ChooseColumns.ListView.Check(1)
@@ -83,7 +82,7 @@ def Main():
 
     WindowsMedia()
 
-    print "Total time taken:", time.time() - start
+    print("Total time taken:", time.time() - start)
 
 if __name__ == "__main__":
     Main()

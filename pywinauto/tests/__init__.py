@@ -80,11 +80,10 @@ def get_bug_as_string(bug):
 
 
 def write_bugs(bugs, filename = "BugsOutput.txt"):
-    f = open(filename, "w")
-    for b in bugs:
-        f.write(get_bug_as_string(b).encode('utf-8') + "\n")
-        
-    f.close()
+    with open(filename, "w") as f:
+        for b in bugs:
+            f.write(get_bug_as_string(b).encode('utf-8') + "\n")
+
 
 def print_bugs(bugs):
     "Print the bugs"
