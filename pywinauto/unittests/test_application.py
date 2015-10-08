@@ -344,7 +344,7 @@ class ApplicationTestCases(unittest.TestCase):
         
         app = Application().Start(r'explorer.exe')
         WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, class_name='CabinetWClass')) > 0)
-        handle = findwindows.find_windows(active_only=True, class_name='CabinetWClass')[-1]
+        handle = findwindows.find_windows(active_only=True, class_name='CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, })
         explorer = Application().Connect(process=window.ProcessID())
         
