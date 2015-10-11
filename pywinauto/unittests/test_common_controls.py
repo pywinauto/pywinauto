@@ -336,6 +336,19 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
         self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+		
+		# Test click on checkboxes
+        self.dlg.Toolbar.Button(6).Click() # switch on states
+        
+        self.ctrl.GetItem('Red').ClickInput(where='check')
+        self.assertEquals(self.ctrl.GetItem('Red').IsChecked(), True)
+        
+        self.ctrl.GetItem('Cyan').ClickInput(where='check')
+        self.assertEquals(self.ctrl.GetItem('Cyan').IsChecked(), True)
+        self.assertEquals(self.ctrl.GetItem('Red').IsChecked(), False)
+        
+        self.dlg.Toolbar.Button(6).Click() # switch off states
+
 
     def testItemMethods(self):
         "Test short item methods like Text(), State() etc"
