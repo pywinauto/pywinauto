@@ -64,11 +64,19 @@ class ApplicationWarningTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application
         is in the state we want it."""
-        mfc_samples_folder = os.path.join(os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        mfc_samples_folder = os.path.join(os.path.dirname(__file__),
+                                          r"..\..\apps\MFC_samples")
         if is_x64_Python():
-            self.sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+            self.sample_exe = os.path.join(mfc_samples_folder,
+                                           "x64",
+                                           "CmnCtrl1.exe")
+            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
+                                                            "CmnCtrl1.exe")
         else:
-            self.sample_exe = os.path.join(mfc_samples_folder, 'x64', "CmnCtrl1.exe")
+            self.sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
+                                                            "x64",
+                                                            "CmnCtrl1.exe")
 
     def testStartWarning3264(self):
         if not is_x64_OS():
@@ -78,7 +86,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app = Application().start(self.sample_exe)
+            app = Application().start(self.sample_exe_inverted_bitness)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
@@ -89,15 +97,46 @@ class ApplicationWarningTestCases(unittest.TestCase):
             self.defaultTestResult()
             return
         
-        app = Application().start(self.sample_exe)
+        app = Application().start(self.sample_exe_inverted_bitness)
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app2 = Application().connect(path=self.sample_exe)
+            app2 = Application().connect(path=self.sample_exe_inverted_bitness)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
             assert "64-bit" in str(w[-1].message)
+
+    def testDepricatedConnectWarning(self):
+        warn_text = "connect_()/Connect_() methods are deprecated,"
+        depricated_connect_methods = ('connect_', 'connect_')
+        # warnings.filterwarnings('always', category=PendingDeprecationWarning,
+        #                         append=True)
+        with warnings.catch_warnings(record=True) as warns:
+            app = Application().start(self.sample_exe)
+            for depricated_method in depricated_connect_methods:
+                app2 = getattr(Application(),
+                               depricated_method)(path=self.sample_exe)
+            app.kill_()
+
+        self.assertEquals(len(depricated_connect_methods), len(warns))
+        self.assertEquals(warns[-1].category, PendingDeprecationWarning)
+        self.assertEquals(warn_text in str(warns[-1].message), True)
+
+    def testDepricatedStartWarning(self):
+        warn_text = "start_()/Start_() methods are deprecated,"
+        depricated_start_methods = ('start_', 'Start_')
+        # warnings.filterwarnings('always', category=PendingDeprecationWarning,
+        #                         append=True)
+        with warnings.catch_warnings(record=True) as warns:
+            for depricated_method in depricated_start_methods:
+                app = getattr(Application(),
+                              depricated_method)(self.sample_exe)
+                app.kill_()
+
+        self.assertEquals(len(depricated_start_methods), len(warns))
+        self.assertEquals(warns[-1].category, PendingDeprecationWarning)
+        self.assertEquals(warn_text in str(warns[-1].message), True)
 
 
 class ApplicationTestCases(unittest.TestCase):
