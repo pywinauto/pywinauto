@@ -1187,7 +1187,7 @@ def process_get_modules():
     for pid in pids:
         if pid != 0: # skip system process (0x00000000)
             try:
-                modules.append((pid, process_module(pid)))
+                modules.append((pid, process_module(pid), None))
             except win32gui.error:
                 pass
             except ProcessNotFoundError:
