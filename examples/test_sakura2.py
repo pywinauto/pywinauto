@@ -32,7 +32,7 @@ from pywinauto import application
 def SakuraTest():
 
 	app = application.Application()
-	app.start_(r"C:\Program Files\sakura\sakura.exe")
+	app.start(r"C:\Program Files\sakura\sakura.exe")
 
 	mainwin = app[u'無題sakura']
 

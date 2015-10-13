@@ -46,7 +46,7 @@ class MenuWrapperTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        self.app.start_("Notepad.exe")
+        self.app.start("Notepad.exe")
 
         self.dlg = self.app.Notepad
 
