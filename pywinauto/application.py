@@ -1204,7 +1204,7 @@ def _process_get_modules_wmi():
     # collect all the running processes
     processes = _wmi.ExecQuery('Select * from win32_process')
     for p in processes:
-        modules.append((p.ProcessId, p.ExecutablePath)) # p.Name
+        modules.append((p.ProcessId, p.ExecutablePath, p.CommandLine)) # p.Name
     return modules
 
 #=========================================================================
@@ -1241,7 +1241,7 @@ def process_from_module(module):
     # as we are most likely to want to connect to the last
     # run instance
     modules.reverse()
-    for process, name in modules:
+    for process, name, cmdline in modules:
         if name is None:
             continue
         if module_path.lower() in name.lower():
