@@ -107,34 +107,34 @@ class ApplicationWarningTestCases(unittest.TestCase):
             assert issubclass(w[-1].category, UserWarning)
             assert "64-bit" in str(w[-1].message)
 
-    def testDepricatedConnectWarning(self):
+    def testDeprecatedConnectWarning(self):
         warn_text = "connect_()/Connect_() methods are deprecated,"
-        depricated_connect_methods = ('connect_', 'connect_')
+        deprecated_connect_methods = ('connect_', 'Connect_')
         # warnings.filterwarnings('always', category=PendingDeprecationWarning,
         #                         append=True)
         with warnings.catch_warnings(record=True) as warns:
             app = Application().start(self.sample_exe)
-            for depricated_method in depricated_connect_methods:
+            for deprecated_method in deprecated_connect_methods:
                 app2 = getattr(Application(),
-                               depricated_method)(path=self.sample_exe)
+                               deprecated_method)(path=self.sample_exe)
             app.kill_()
 
-        self.assertEquals(len(depricated_connect_methods), len(warns))
+        self.assertEquals(len(deprecated_connect_methods), len(warns))
         self.assertEquals(warns[-1].category, PendingDeprecationWarning)
         self.assertEquals(warn_text in str(warns[-1].message), True)
 
-    def testDepricatedStartWarning(self):
+    def testDeprecatedStartWarning(self):
         warn_text = "start_()/Start_() methods are deprecated,"
-        depricated_start_methods = ('start_', 'Start_')
+        deprecated_start_methods = ('start_', 'Start_')
         # warnings.filterwarnings('always', category=PendingDeprecationWarning,
         #                         append=True)
         with warnings.catch_warnings(record=True) as warns:
-            for depricated_method in depricated_start_methods:
+            for deprecated_method in deprecated_start_methods:
                 app = getattr(Application(),
-                              depricated_method)(self.sample_exe)
+                              deprecated_method)(self.sample_exe)
                 app.kill_()
 
-        self.assertEquals(len(depricated_start_methods), len(warns))
+        self.assertEquals(len(deprecated_start_methods), len(warns))
         self.assertEquals(warns[-1].category, PendingDeprecationWarning)
         self.assertEquals(warn_text in str(warns[-1].message), True)
 
