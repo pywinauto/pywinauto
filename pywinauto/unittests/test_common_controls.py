@@ -68,7 +68,7 @@ class ListViewTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
 
         self.texts = [
             (u"Yellow",  u"255", u"255", u"0",   u"40",  u"240", u"120", u"Neutral"),
@@ -378,7 +378,7 @@ class TreeViewTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder, "Tree View.exe"))
+        app.start(os.path.join(controlspy_folder, "Tree View.exe"))
 
         self.root_text = "The Planets"
         self.texts = [
@@ -521,7 +521,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
         # start the application
         from pywinauto.application import Application
-        self.app = Application.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+        self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.dlg = self.app.CommonControlsSample #top_window_()
         self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
@@ -615,7 +615,7 @@ class HeaderTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
+        app.start(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
 
         self.texts = [u'Color', u'Red', u'Green', u'Blue', u'Hue', u'Sat', u'Lum', u'Type']
         self.item_rects = [
@@ -700,7 +700,7 @@ class StatusBarTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder, "Status bar.exe"))
+        app.start(os.path.join(controlspy_folder, "Status bar.exe"))
 
         self.texts = ["Long text", "", "Status Bar"]
         self.part_rects = [
@@ -817,7 +817,7 @@ class TabControlTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+        app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.texts = [
             u"CTreeCtrl", u"CAnimateCtrl", u"CToolBarCtrl", 
@@ -966,7 +966,7 @@ class ToolbarTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+        app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.app = app
         self.dlg = app.CommonControlsSample
@@ -1117,7 +1117,7 @@ class RebarTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, "RebarTest.exe"))
+        app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
 
         self.app = app
         self.dlg = app.RebarTest_RebarTest
@@ -1177,7 +1177,7 @@ class DatetimeTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+        app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.app = app
         self.dlg = app.CommonControlsSample
@@ -1253,7 +1253,7 @@ class ToolTipsTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+        app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
         #app.start_(os.path.join(controlspy_folder, "Tooltip.exe"))
 
         self.app = app
@@ -1337,7 +1337,7 @@ class UpDownTestCases(unittest.TestCase):
         # start the application
         from pywinauto.application import Application
         app = Application()
-        app.start_(os.path.join(controlspy_folder,  "Up-Down.exe"))
+        app.start(os.path.join(controlspy_folder,  "Up-Down.exe"))
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy

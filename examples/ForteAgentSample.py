@@ -13,7 +13,7 @@ from pprint import pprint
 from pywinauto.application import Application
 
 # start the application and wait for the Agent Dialog to be ready
-app = Application().start_(r"c:\program files\agent\agent.exe")
+app = Application().start(r"c:\program files\agent\agent.exe")
 
 while not app.Windows_():
     time.sleep(.5)

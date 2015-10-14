@@ -79,7 +79,7 @@ def RunNotepad():
     #    app.connect_(path = r"c:\windows\system32\notepad.exe")
     #except application.ProcessNotFoundError:
     #    app.start_(r"c:\windows\system32\notepad.exe")
-    app.start_(r"notepad.exe")
+    app.start(r"notepad.exe")
 
     app.Notepad.MenuSelect("File->PageSetup")
 

@@ -15,7 +15,8 @@ mfc_samples_folder = os.path.join(
 if pywinauto.sysinfo.is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
-app = pywinauto.Application.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+app = pywinauto.Application().start(os.path.join(mfc_samples_folder,
+                                                 u"CmnCtrl1.exe"))
 
 tree = app.Common_Controls_Sample.TreeView.WrapperObject()
 

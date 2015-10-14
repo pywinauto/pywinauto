@@ -45,7 +45,7 @@ def TestExceptions():
     # test that trying to connect_ to a non existent app fails
     try:
         app = application.Application()
-        app.connect_(path = r"No process with this please")
+        app.connect(path=r"No process with this please")
         assert False
     except application.ProcessNotFoundError:
         pass
@@ -53,7 +53,7 @@ def TestExceptions():
     # test that trying to connect_ to a non existent app fails
     try:
         app = application.Application()
-        app.start_(cmd_line = r"No process with this please")
+        app.start(cmd_line = r"No process with this please")
         assert False
     except application.AppStartError:
         pass
@@ -72,7 +72,7 @@ def TestExceptions():
 def GetInfo():
     app = application.Application()
 
-    app.start_(r"notepad.exe")
+    app.start(r"notepad.exe")
 
     app.Notepad.MenuSelect("File->PageSetup")
 
