@@ -292,9 +292,8 @@ class _listview_item(object):
             elif hittest.flags == win32defines.LVHT_ONITEM:
                 """
                 Full Row Details
-
-                experimental !!!
                 """
+                warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
                 point_to_click.x = self.Rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item
                 hittest = win32structures.LVHITTESTINFO()
@@ -308,7 +307,7 @@ class _listview_item(object):
                 if hittest.flags == win32defines.LVHT_ONITEM:
                     checkbox_found = True
             else:
-                raise RuntimeError("Unexpected error. Please report to programmer.")
+                raise RuntimeError("Unexpected hit test flags value " + str(hittest.flags) + " trying to find checkbox")
 
             # Click on the found checkbox
             if checkbox_found:
@@ -379,9 +378,8 @@ class _listview_item(object):
             elif hittest.flags == win32defines.LVHT_ONITEM:
                 """
                 Full Row Details
-
-                experimental !!!
                 """
+                warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
                 point_to_click.x = self.Rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item
                 hittest = win32structures.LVHITTESTINFO()
@@ -395,7 +393,7 @@ class _listview_item(object):
                 if hittest.flags == win32defines.LVHT_ONITEM:
                     checkbox_found = True
             else:
-                raise RuntimeError("Unexpected error. Please report to programmer.")
+                raise RuntimeError("Unexpected hit test flags value " + str(hittest.flags) + " trying to find checkbox")
 
             # Click on the found checkbox
             if checkbox_found:
