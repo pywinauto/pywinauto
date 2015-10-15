@@ -318,8 +318,52 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.IsChecked('Yellow'), False)
 
 
+    def testItemClick(self):
+        "Test clicking item rectangles by Click() method"
+
+        self.ctrl.GetItem('Green').Click(where='select')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+
+        self.ctrl.GetItem('Magenta').Click(where='select')
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
+        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
+        self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
+
+        self.ctrl.GetItem('Green').Click(where='select')
+        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
+        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
+        self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
+        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+
+		# Test click on checkboxes
+        if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
+            self.dlg.Toolbar.Button(6).Click()
+
+        for i in range(1, 6):
+            self.dlg.Toolbar.Button(i - 1).Click()
+
+            self.ctrl.GetItem(i).Click(where='check') # check item
+            time.sleep(0.5)
+            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+            self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
+
+            self.ctrl.GetItem(i).Click(where='check') # uncheck item
+            time.sleep(0.5)
+            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
+
+            self.ctrl.GetItem(i).Click(where='check') # recheck item
+            time.sleep(0.5)
+            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+
+        self.dlg.Toolbar.Button(6).Click() # switch off states
+
+        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).Click, where="check")
+
+
     def testItemClickInput(self):
-        "Test clicking item rectangles"
+        "Test clicking item rectangles by ClickInput() method"
         
         self.ctrl.GetItem('Green').ClickInput(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
@@ -336,6 +380,31 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
         self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+
+		# Test click on checkboxes
+        if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
+            self.dlg.Toolbar.Button(6).Click()
+
+        for i in range(1, 6):
+            self.dlg.Toolbar.Button(i - 1).Click()
+
+            self.ctrl.GetItem(i).ClickInput(where='check') # check item
+            time.sleep(0.5)
+            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+            self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
+
+            self.ctrl.GetItem(i).ClickInput(where='check') # uncheck item
+            time.sleep(0.5)
+            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
+
+            self.ctrl.GetItem(i).ClickInput(where='check') # recheck item
+            time.sleep(0.5)
+            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+
+        self.dlg.Toolbar.Button(6).Click() # switch off states
+
+        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).ClickInput, where="check")
+
 
     def testItemMethods(self):
         "Test short item methods like Text(), State() etc"

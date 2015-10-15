@@ -238,37 +238,173 @@ class _listview_item(object):
     def Click(self, button = "left", double = False, where = "text", pressed = ""):
         """Click on the list view item
 
-        where can be any one of "all", "icon", "text", "select"
+        where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
-        # TODO: need to use LVHITTESTINFO to be able to click on item check box
 
-        # find the text rectangle for the item,
-        point_to_click = self.Rectangle(area=where.lower()).mid_point()
+        if where.lower() != "check":
+            point_to_click = self.Rectangle(area=where.lower()).mid_point()
+            self.listview_ctrl.Click(
+                button,
+                coords = (point_to_click.x, point_to_click.y),
+                double = double,
+                pressed = pressed)
+        else:
+            """
+            Click on checkbox
+            """
+            point_to_click = self.Rectangle(area="icon").mid_point()
+            point_to_click.y = self.Rectangle(area="icon").bottom - 3
+            # Check ListView display mode
+            # (to be able to process 'Full Row Details' mode separately
+            remote_mem = RemoteMemoryBlock(self.listview_ctrl)
+            hittest = win32structures.LVHITTESTINFO()
+            hittest.pt = point_to_click
+            # Actually, there is no need to set hittest.iItem, because
+            # SendMessage followed by remote_mem.Read always refreshes it
+            #hittest.iItem = self.item_index
+            hittest.iSubItem = self.subitem_index
+            remote_mem.Write(hittest)
+            self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+            remote_mem.Read(hittest)
 
-        self.listview_ctrl.Click(
-            button,
-            coords = (point_to_click.x, point_to_click.y),
-            double = double,
-            pressed = pressed)
+            # Hittest flag
+            checkbox_found = False
+            if hittest.flags == win32defines.LVHT_ONITEMICON:
+                """
+                Large Icons, Small Icons, List, Details
+                """
+                while not checkbox_found and point_to_click.x > 0:
+                    point_to_click.x -= 1
+
+                    hittest = win32structures.LVHITTESTINFO()
+                    hittest.pt = point_to_click
+                    #hittest.iItem = self.item_index
+                    hittest.iSubItem = self.subitem_index
+                    remote_mem.Write(hittest)
+                    self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                    remote_mem.Read(hittest)
+
+                    if hittest.flags == win32defines.LVHT_ONITEMSTATEICON:
+                        checkbox_found = True
+                        break
+
+            elif hittest.flags == win32defines.LVHT_ONITEM:
+                """
+                Full Row Details
+                """
+                warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
+                point_to_click.x = self.Rectangle(area="icon").left - 8
+                # Check if point_to_click is still on item
+                hittest = win32structures.LVHITTESTINFO()
+                hittest.pt = point_to_click
+                #hittest.iItem = self.item_index
+                hittest.iSubItem = self.subitem_index
+                remote_mem.Write(hittest)
+                self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                remote_mem.Read(hittest)
+
+                if hittest.flags == win32defines.LVHT_ONITEM:
+                    checkbox_found = True
+            else:
+                raise RuntimeError("Unexpected hit test flags value " + str(hittest.flags) + " trying to find checkbox")
+
+            # Click on the found checkbox
+            if checkbox_found:
+                self.listview_ctrl.Click(
+                    button,
+                    coords = (point_to_click.x, point_to_click.y),
+                    double = double,
+                    pressed = pressed)
+            else:
+                raise RuntimeError("Area ('check') not found for this list view item")
 
     #----------------------------------------------------------------
     def ClickInput(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
         """Click on the list view item
 
-        where can be any one of "all", "icon", "text", "select"
+        where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
 
-        # find the text rectangle for the item,
-        point_to_click = self.Rectangle(area=where.lower()).mid_point()
+        if where.lower() != "check":
+            point_to_click = self.Rectangle(area=where.lower()).mid_point()
+            self.listview_ctrl.ClickInput(
+                button,
+                coords = (point_to_click.x, point_to_click.y),
+                double = double,
+                wheel_dist = wheel_dist,
+                pressed = pressed)
+        else:
+            """
+            Click on checkbox
+            """
+            point_to_click = self.Rectangle(area="icon").mid_point()
+            point_to_click.y = self.Rectangle(area="icon").bottom - 3
+            # Check ListView display mode
+            # (to be able to process 'Full Row Details' mode separately
+            remote_mem = RemoteMemoryBlock(self.listview_ctrl)
+            hittest = win32structures.LVHITTESTINFO()
+            hittest.pt = point_to_click
+            # Actually, there is no need to set hittest.iItem, because
+            # SendMessage followed by remote_mem.Read always refreshes it
+            #hittest.iItem = self.item_index
+            hittest.iSubItem = self.subitem_index
+            remote_mem.Write(hittest)
+            self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+            remote_mem.Read(hittest)
 
-        self.listview_ctrl.ClickInput(
-            button,
-            coords = (point_to_click.x, point_to_click.y),
-            double = double,
-            wheel_dist = wheel_dist,
-            pressed = pressed)
+            # Hittest flag
+            checkbox_found = False
+            if hittest.flags == win32defines.LVHT_ONITEMICON:
+                """
+                Large Icons, Small Icons, List, Details
+                """
+                while not checkbox_found and point_to_click.x > 0:
+                    point_to_click.x -= 1
+
+                    hittest = win32structures.LVHITTESTINFO()
+                    hittest.pt = point_to_click
+                    #hittest.iItem = self.item_index
+                    hittest.iSubItem = self.subitem_index
+                    remote_mem.Write(hittest)
+                    self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                    remote_mem.Read(hittest)
+
+                    if hittest.flags == win32defines.LVHT_ONITEMSTATEICON:
+                        checkbox_found = True
+                        break
+
+            elif hittest.flags == win32defines.LVHT_ONITEM:
+                """
+                Full Row Details
+                """
+                warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
+                point_to_click.x = self.Rectangle(area="icon").left - 8
+                # Check if point_to_click is still on item
+                hittest = win32structures.LVHITTESTINFO()
+                hittest.pt = point_to_click
+                #hittest.iItem = self.item_index
+                hittest.iSubItem = self.subitem_index
+                remote_mem.Write(hittest)
+                self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                remote_mem.Read(hittest)
+
+                if hittest.flags == win32defines.LVHT_ONITEM:
+                    checkbox_found = True
+            else:
+                raise RuntimeError("Unexpected hit test flags value " + str(hittest.flags) + " trying to find checkbox")
+
+            # Click on the found checkbox
+            if checkbox_found:
+                self.listview_ctrl.ClickInput(
+                    button,
+                    coords = (point_to_click.x, point_to_click.y),
+                    double = double,
+                    wheel_dist = wheel_dist,
+                    pressed = pressed)
+            else:
+                raise RuntimeError("Area ('check') not found for this list view item")
 
     #----------------------------------------------------------------
     def EnsureVisible(self):
