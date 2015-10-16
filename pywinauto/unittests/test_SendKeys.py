@@ -43,7 +43,11 @@ import sys
 sys.path.append(".")
 from pywinauto.SendKeysCtypes import SendKeys
 from pywinauto import six
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto.application import Application
+from pywinauto.actionlogger import ActionLogger
 import os
+import locale
 import unittest
 
 # Fix Python 2.x.
@@ -52,18 +56,40 @@ if six.PY2:
 else:
     input_func = input
 
+def _notepad_exe():
+    if is_x64_Python() or not is_x64_OS():
+        return r"C:\Windows\System32\notepad.exe"
+    else:
+        return r"C:\Windows\SysWOW64\notepad.exe"
+
 
 class SendKeysTests(unittest.TestCase):
     "Unit tests for the Sendkeys module"
 
     def setUp(self):
-        """Actualy does nothing!"""
-        #sys.stdin.flush()
-        pass
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+        self.app = Application()
+        self.app.start(_notepad_exe())
+        
+        self.dlg = self.app.UntitledNotepad
+        self.ctrl = self.dlg.Edit
 
     def tearDown(self):
-        "delete the file we have created"
-        pass
+        "Close the application after tests"
+        try:
+            self.dlg.Close(0.1)
+        except Exception: # TimeoutError:
+            pass
+        try:
+            if self.app.Notepad["Do&n't Save"].Exists():
+                self.app.Notepad["Do&n't Save"].Click()
+                self.app.Notepad["Do&n't Save"].WaitNot('visible')
+        except Exception: # TimeoutError:
+            pass
+        finally:
+            if self.dlg.Exists(timeout=0.1):
+                self.app.kill_()
 
     def __run_NormalCharacters_with_options(self, **args):
         "Make sure that sending any character in range "
@@ -75,8 +101,8 @@ class SendKeysTests(unittest.TestCase):
             if chr(i) in (' ', '%', '^', '+', '(', ')', '{', '}', '~'):
                 continue
 
-            SendKeys(chr(i) + "{ENTER}", pause = .001, **args)
-            received = input_func()
+            SendKeys(chr(i), pause = .001, **args)
+            received = self.ctrl.TextBlock()[-1]
 
             self.assertEquals(i, ord(received))
 
@@ -91,14 +117,14 @@ class SendKeysTests(unittest.TestCase):
 
     def testSpaceWithSpaces(self):
         "Make sure that with spaces option works"
-        SendKeys(" \t \t {ENTER}", pause = .001, with_spaces = True)
-        received = input_func()
+        SendKeys(" \t \t ", pause = .001, with_spaces = True)
+        received = self.ctrl.TextBlock()
         self.assertEquals("   ", received)
 
     def testSpaceWithoutSpaces(self):
         "Make sure that with spaces option works"
-        SendKeys(" \t \t {ENTER}", pause = .001, with_spaces = False)
-        received = input_func()
+        SendKeys(" \t \t ", pause = .001, with_spaces = False)
+        received = self.ctrl.TextBlock()
         self.assertEquals("", received)
 
 
@@ -113,21 +139,21 @@ class SendKeysTests(unittest.TestCase):
 
     def testTabWithTabs(self):
         "Make sure that with spaces option works"
-        SendKeys("\t \t \t{ENTER}", pause = .1, with_tabs = True)
-        received = input_func()
+        SendKeys("\t \t \t", pause = .1, with_tabs = True)
+        received = self.ctrl.TextBlock()
         self.assertEquals("\t\t\t", received)
 
     def testTabWithoutTabs(self):
         "Make sure that with spaces option works"
-        SendKeys("\t a\t b\t{ENTER}", pause = .1, with_tabs = False)
-        received = input_func()
+        SendKeys("\t a\t b\t", pause = .1, with_tabs = False)
+        received = self.ctrl.TextBlock()
         self.assertEquals("ab", received)
 
 
     def testTab(self):
         "Make sure that with spaces option works"
-        SendKeys("{TAB}  {TAB} {ENTER}", pause = .3)
-        received = input_func()
+        SendKeys("{TAB}  {TAB} ", pause = .3)
+        received = self.ctrl.TextBlock()
         self.assertEquals("\t\t", received)
 
 
@@ -138,54 +164,52 @@ class SendKeysTests(unittest.TestCase):
         self.__run_NormalCharacters_with_options(with_newlines = True)
 
     def testNormalWithoutNewlines(self):
-        "Make sure that with spaces option works"
+        "Make sure that with_newlines option works"
         self.__run_NormalCharacters_with_options(with_newlines = False)
 
-    #def testNewlinesWithNewlines(self):
-    #    "Make sure that with spaces option works"
-    #    SendKeys("\t \t \t a~\tb\nc{ENTER}", pause = .5, with_newlines = True)
-    #    received = input_func()
-    #    self.assertEquals("a", received)
-
-    #    received = input_func()
-    #    self.assertEquals("b", received)
-
-    #    received = input_func()
-    #    self.assertEquals("c", received)
+    def testNewlinesWithNewlines(self):
+        "Make sure that with_newlines option works"
+        SendKeys("\t \t \t a~\tb\nc", pause = .5, with_newlines = True)
+        received = self.ctrl.TextBlock()
+        self.assertEquals("a\r\nb\r\nc", received)
 
     def testNewlinesWithoutNewlines(self):
-        "Make sure that with spaces option works"
-        SendKeys("\t \t \t\na{ENTER}", pause = .01, with_newlines = False)
-        received = input_func()
+        "Make sure that with_newlines option works"
+        SendKeys("\t \t \t\na", pause = .01, with_newlines = False)
+        received = self.ctrl.TextBlock()
         self.assertEquals("a", received)
 
 
-    def testANSIExtendedCharacters(self):
-        "Make sure that sending any character in range "
-        os.system("chcp 850")
-        matched = 0
-        extended_chars = b"\x81\x82\x83\xa1\xe1\xff"
-        for char in extended_chars:
+    #def testANSIExtendedCharacters(self):
+    #    "Make sure that sending any character in range "
+    #    #self.cmd = Application()
+    #    #self.cmd.start("cmd.exe", create_new_console=True, wait_for_idle=False)
+    #    ActionLogger().log('Preferred encoding: ' + locale.getpreferredencoding())
+    #    
+    #    #os.system("chcp 850")
+    #    matched = 0
+    #    extended_chars = b"\x81\x82\x83\xa1\xe1\xff"
+    #    for char in extended_chars:
 
-            if six.PY3:
-                c = str(char)
-            else:
-                c = char.decode('cp850')
-            SendKeys(c + "{ENTER}", pause = .01)
-            received = input_func()
+    #        if six.PY3:
+    #            c = str(char)
+    #        else:
+    #            c = char.decode(locale.getpreferredencoding()) #'cp850')
+    #        SendKeys(c, pause = .01)
+    #        received = self.ctrl.TextBlock()[-1]
 
-            if str(char) == received:
-                matched += 1
-            else:
-                print("expected %s, recieved %s"% (
-                    repr(char), repr(received)))
+    #        if c == received:
+    #            matched += 1
+    #        else:
+    #            print("expected %s, recieved %s"% (
+    #                repr(c), repr(received)))
 
-        self.assertEquals(matched, len(extended_chars))
+    #    self.assertEquals(matched, len(extended_chars))
 
     def testCharsThatMustBeEscaped(self):
         "Make sure that escaping characters works"
-        SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}{ENTER}")
-        received = input_func()
+        SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}")
+        received = self.ctrl.TextBlock()
         self.assertEquals("%^+(){}~", received)
 
 
