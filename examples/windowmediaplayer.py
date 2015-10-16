@@ -42,7 +42,7 @@ def WindowsMedia():
     app = application.Application()
 
     try:
-        app.start_(   # connect_(path =
+        app.start(   # connect_(path =
             r"C:\Program Files\Windows Media Player\wmplayer.exe")
     except application.ProcessNotFoundError:
         print("You must first start Windows Media "\

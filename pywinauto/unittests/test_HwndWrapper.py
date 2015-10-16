@@ -72,9 +72,9 @@ class HwndWrapperTests(unittest.TestCase):
         # start the application
         self.app = Application()
         if is_x64_Python() or not is_x64_OS():
-            self.app.start_(r"C:\Windows\System32\calc.exe")
+            self.app.start(r"C:\Windows\System32\calc.exe")
         else:
-            self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
+            self.app.start(r"C:\Windows\SysWOW64\calc.exe")
 
         self.dlg = self.app.Calculator
         self.dlg.MenuSelect('View->Scientific\tAlt+2')
@@ -498,7 +498,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         is in the state we want it."""
 
         # start the application
-        self.app = Application.start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.Select('CButton (Command Link)')
@@ -588,13 +588,13 @@ class NotepadRegressionTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        self.app.start_(_notepad_exe())
+        self.app.start(_notepad_exe())
 
         self.dlg = self.app.Window_(title='Untitled - Notepad', class_name='Notepad')
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
         self.dlg.edit.SetEditText("Here is some text\r\n and some more")
 
-        self.app2 = Application.start(_notepad_exe())
+        self.app2 = Application().start(_notepad_exe())
 
 
     def tearDown(self):
@@ -650,7 +650,7 @@ class DragAndDropTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+        self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.ctrl = self.dlg.TreeView.WrapperObject()
@@ -691,9 +691,9 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
         # start the application
         self.app = Application()
         if is_x64_Python() or not is_x64_OS():
-            self.app.start_(r"C:\Windows\System32\notepad.exe")
+            self.app.start(r"C:\Windows\System32\notepad.exe")
         else:
-            self.app.start_(r"C:\Windows\SysWOW64\notepad.exe")
+            self.app.start(r"C:\Windows\SysWOW64\notepad.exe")
 
         self.dlg = self.app.UntitledNotepad
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
@@ -727,7 +727,7 @@ class RemoteMemoryBlockTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+        self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.ctrl = self.dlg.TreeView.WrapperObject()

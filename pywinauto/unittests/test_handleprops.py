@@ -44,7 +44,7 @@ class HandlepropsTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        self.app = Application().start_("notepad")
+        self.app = Application().start("notepad")
         self.dlghandle = self.app.UntitledNotepad.handle
         self.edit_handle = self.app.UntitledNotepad.Edit.handle
 
@@ -237,7 +237,7 @@ class HandlepropsTestCases(unittest.TestCase):
             if is_x64_Python():
                 exe32bit = os.path.join(os.path.dirname(__file__),
                               r"..\..\apps\MFC_samples\RowList.exe")
-                app = Application().start_(exe32bit, timeout=20)
+                app = Application().start(exe32bit, timeout=20)
                 pid = app.RowListSampleApplication.ProcessID()
                 res_is64bit = is64bitprocess(pid)
                 try:

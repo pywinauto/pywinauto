@@ -136,7 +136,7 @@ langs = [int(arg) for arg in sys.argv[1:]]
 
 for lang in langs:
     # start the application
-    app = Application().start_(t['apppath'][lang])
+    app = Application().start(t['apppath'][lang])
 
     # we have to wait for the Licence Dialog to open
     time.sleep(2)

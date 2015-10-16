@@ -57,7 +57,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     """
 
     app = Application()
-    starter = app.start_(r'explorer.exe')
+    starter = app.start(r'explorer.exe')
     class_name = 'CabinetWClass'
 
     def _cabinetwclass_exist():
@@ -114,7 +114,7 @@ class TaskbarTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
         app = Application()
-        app.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         self.app = app
         self.dlg = app.TrayMenu  # top_window_()
         self.dlg.Wait('ready')
@@ -226,7 +226,7 @@ class TaskbarTestCases(unittest.TestCase):
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
         app2 = Application()
-        app2.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         dlg2 = app2.TrayMenu
         dlg2.Wait('visible')
         dlg2.Minimize()
@@ -259,7 +259,7 @@ class TaskbarTestCases(unittest.TestCase):
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
         app2 = Application()
-        app2.start_(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         dlg2 = app2.TrayMenu
         dlg2.Wait('visible')
         dlg2.Minimize()

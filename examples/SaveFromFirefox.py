@@ -61,7 +61,7 @@ else:
 outputfilename = os.path.abspath(outputfilename)
 
 # start IE with a start URL of what was passed in
-app = application.Application().start_(
+app = application.Application().start(
     r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe %s"% web_addresss)
 
 # some pages are slow to open - so wait some seconds
@@ -73,11 +73,11 @@ time.sleep(5)
 #  - find the actual process
 #  - connect to it
 if app.windows_():
-    mozilla =  app.window_(title_re = ".*Mozilla Firefox")
+    mozilla =  app.window_(title_re=".*Mozilla Firefox")
 
 else:
-    app = application.Application().connect_(title_re = ".*Mozilla Firefox")
-    mozilla = app.window_(title_re = ".*Mozilla Firefox")
+    app = application.Application().connect(title_re=".*Mozilla Firefox")
+    mozilla = app.window_(title_re=".*Mozilla Firefox")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
 print("No Menu's in FireFox:", mozilla.MenuItems())
