@@ -186,8 +186,12 @@ def find_windows(class_name = None,
 
     elif title_re is not None:
         title_regex = re.compile(title_re)
-        windows = [win for win in windows
-            if handleprops.text(win) is not None and title_regex.match(handleprops.text(win))]
+        def _title_match(w):
+            t = handleprops.text(w)
+            if t is not None:
+                return title_regex.match(t)
+            return False
+        windows = [win for win in windows if _title_match(win)]
 
     if visible_only:
         windows = [win for win in windows if handleprops.isvisible(win)]
