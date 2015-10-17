@@ -41,7 +41,7 @@ u"\x01"
 
 import sys
 sys.path.append(".")
-from pywinauto.SendKeysCtypes import SendKeys
+from pywinauto.SendKeysCtypes import SendKeys, DEBUG, KeySequenceError, KeyAction
 from pywinauto import six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
@@ -157,7 +157,6 @@ class SendKeysTests(unittest.TestCase):
         self.assertEquals("\t\t", received)
 
 
-
     # Newline tests
     def testNormalWithNewlines(self):
         "Make sure that with spaces option works"
@@ -211,6 +210,16 @@ class SendKeysTests(unittest.TestCase):
         SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}")
         received = self.ctrl.TextBlock()
         self.assertEquals("%^+(){}~", received)
+
+    def testIncorrectCases(self):
+        "Make sure that incorrect key sequences raise an exception"
+        DEBUG = 1
+        self.assertRaises(KeySequenceError, SendKeys, "{ENTER")
+        self.assertRaises(RuntimeError, SendKeys, "%{Enterius}")
+        try:
+            SendKeys("ENTER}")
+        except KeySequenceError as exc:
+            self.assertEquals("`}` should be preceeded by `{`", str(exc))
 
 
 #====================================================================
