@@ -216,10 +216,23 @@ class SendKeysTests(unittest.TestCase):
         DEBUG = 1
         self.assertRaises(KeySequenceError, SendKeys, "{ENTER")
         self.assertRaises(RuntimeError, SendKeys, "%{Enterius}")
+        self.assertRaises(KeySequenceError, SendKeys, "{PAUSE small}")
         try:
             SendKeys("ENTER}")
         except KeySequenceError as exc:
             self.assertEquals("`}` should be preceeded by `{`", str(exc))
+
+    def testKeyDescription(self):
+        "Test KeyAction._"
+        self.assertEquals("<X>", str(KeyAction("X")))
+        self.assertEquals("<Y down>", str(KeyAction("Y", up=False)))
+        self.assertEquals("<Y up>", str(KeyAction("Y", down=False)))
+
+    def testRepetition(self):
+        "Make sure that repeated action works"
+        SendKeys("{TAB 3}{PAUSE 0.5}{F 2}", pause = .3)
+        received = self.ctrl.TextBlock()
+        self.assertEquals("\t\t\tFF", received)
 
 
 #====================================================================
