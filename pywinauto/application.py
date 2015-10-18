@@ -248,6 +248,7 @@ class WindowSpecification(object):
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
             if len(self.criteria) == 1 and hasattr(DialogWrapper, attr):
+
                 ctrls = _resolve_control(self.criteria)
 
                 return getattr(ctrls[-1], attr)
@@ -598,7 +599,6 @@ def _resolve_from_appdata(
 
     dialog = None
     ctrl = None
-
     if process_elems:
         similar_child_count = [e for e in process_elems
             if matched_control[1]['ControlCount'] -2 <=
@@ -829,7 +829,7 @@ class Application(object):
             connected = True
 
         elif kwargs:
-            handle = findwindows.find_window(**kwargs)
+            handle = findwindows.find_window(**kwargs).handle
             self.process = handleprops.processid(handle)
             connected = True
 
@@ -947,45 +947,6 @@ class Application(object):
                 warnings.warn(
                     "64-bit application should be automated using 64-bit Python (you use 32-bit Python)",
                     UserWarning)
-
-
-    def connect_(self, **kwargs):
-        "Connects to an already running process"
-
-        connected = False
-        if 'process' in kwargs:
-            self.process = kwargs['process']
-            assert_valid_process(self.process)
-            connected = True
-
-        elif 'handle' in kwargs:
-
-            if not handleprops.iswindow(kwargs['handle']):
-                message = "Invalid handle 0x%x passed to connect_()"% (
-                    kwargs['handle'])
-                raise RuntimeError(message)
-
-            self.process = handleprops.processid(kwargs['handle'])
-
-            connected = True
-
-        elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'])
-            connected = True
-
-        elif kwargs:
-            window = findwindows.find_window(**kwargs).handle
-            self.process = handleprops.processid(window)
-            connected = True
-
-        if not connected:
-            raise RuntimeError(
-                "You must specify one of process, handle or path")
-
-        self.__warn_incorrect_bitness()
-
-        return self
-    Connect_ = connect_
 
     def is64bit(self):
         "Return True if running process is 64-bit"
