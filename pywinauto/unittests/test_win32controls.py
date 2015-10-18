@@ -66,9 +66,9 @@ class ButtonTestCases(unittest.TestCase):
         self.app = Application()
 
         if is_x64_Python() or not is_x64_OS():
-            self.app.start_(r"C:\Windows\System32\calc.exe")
+            self.app.start(r"C:\Windows\System32\calc.exe")
         else:
-            self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
+            self.app.start(r"C:\Windows\SysWOW64\calc.exe")
         self.calc = self.app.Calculator
         self.calc.MenuSelect("View->Scientific")
 
@@ -171,7 +171,7 @@ class CheckBoxTests(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+        self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.tree = self.dlg.TreeView.WrapperObject()
@@ -260,7 +260,7 @@ class ComboBoxTestCases(unittest.TestCase):
         # start the application
         self.app = Application()
 
-        self.app.start_(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
+        self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
 
         self.app.Common_Controls_Sample.TabControl.Select("CSpinButtonCtrl")
 
@@ -351,7 +351,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.app = Application()
 
         app_path = os.path.join(MFC_tutorial_folder, "MFC_Tutorial9.exe")
-        self.app.start_(app_path)
+        self.app.start(app_path)
 
         self.dlg = self.app.MFC_Tutorial9
         self.dlg.Wait('ready', timeout=20)
@@ -453,7 +453,7 @@ class EditTestCases(unittest.TestCase):
         print('self.test_data:')
         print(self.test_data.encode('utf-8', 'ignore'))
 
-        app.start_("Notepad.exe " + test_file, timeout=20)
+        app.start("Notepad.exe " + test_file, timeout=20)
 
         self.app = app
         self.dlg = app.UntitledNotepad
@@ -615,9 +615,9 @@ class DialogTestCases(unittest.TestCase):
         self.app = Application()
 
         if is_x64_Python() or not is_x64_OS():
-            self.app.start_(r"C:\Windows\System32\calc.exe")
+            self.app.start(r"C:\Windows\System32\calc.exe")
         else:
-            self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
+            self.app.start(r"C:\Windows\SysWOW64\calc.exe")
         self.calc = self.app.CalcFrame
 
         # write out the XML so that we can read it in later
@@ -718,7 +718,7 @@ class PopupMenuTestCases(unittest.TestCase):
         from pywinauto.application import Application
         self.app = Application()
 
-        self.app.start_("notepad.exe")
+        self.app.start("notepad.exe")
         self.app.Notepad.Edit.RightClick()
         self.popup = self.app.PopupMenu.WrapperObject()
 

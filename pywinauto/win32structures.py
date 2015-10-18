@@ -1085,22 +1085,18 @@ assert sizeof(WINDOWPLACEMENT) == 44, sizeof(WINDOWPLACEMENT)
 assert alignment(WINDOWPLACEMENT) == 4, alignment(WINDOWPLACEMENT)
 
 # TODO: use it for clicking on "check" icon etc.
-#class LVHITTESTINFO(Structure):
-#    #_pack_ = 1
-#    _fields_ = [
-#        # https://msdn.microsoft.com/en-us/library/windows/desktop/bb774754(v=vs.85).aspx
-#        ('pt', POINT),
-#        ('flags', UINT),
-#        ('iItem', c_int),
-#        ('iSubItem', c_int),
-#        ('iGroup', c_int),
-#    ]
-#if sysinfo.is_x64_Python():
-#    assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
-#    assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
-#else:
-#    assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
-#    assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
+class LVHITTESTINFO(Structure):
+    #_pack_ = 1
+    _fields_ = [
+        # https://msdn.microsoft.com/en-us/library/windows/desktop/bb774754(v=vs.85).aspx
+        ('pt', POINT),
+        ('flags', UINT),
+        ('iItem', c_int),
+        ('iSubItem', c_int),
+        ('iGroup', c_int),
+    ]
+assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
+assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4052

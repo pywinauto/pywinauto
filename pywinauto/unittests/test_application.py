@@ -64,11 +64,19 @@ class ApplicationWarningTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application
         is in the state we want it."""
-        mfc_samples_folder = os.path.join(os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        mfc_samples_folder = os.path.join(os.path.dirname(__file__),
+                                          r"..\..\apps\MFC_samples")
         if is_x64_Python():
-            self.sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+            self.sample_exe = os.path.join(mfc_samples_folder,
+                                           "x64",
+                                           "CmnCtrl1.exe")
+            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
+                                                            "CmnCtrl1.exe")
         else:
-            self.sample_exe = os.path.join(mfc_samples_folder, 'x64', "CmnCtrl1.exe")
+            self.sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
+                                                            "x64",
+                                                            "CmnCtrl1.exe")
 
     def testStartWarning3264(self):
         if not is_x64_OS():
@@ -78,7 +86,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app = Application.start(self.sample_exe)
+            app = Application().start(self.sample_exe_inverted_bitness)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
@@ -89,15 +97,46 @@ class ApplicationWarningTestCases(unittest.TestCase):
             self.defaultTestResult()
             return
         
-        app = Application.start(self.sample_exe)
+        app = Application().start(self.sample_exe_inverted_bitness)
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app2 = Application.connect(path=self.sample_exe)
+            app2 = Application().connect(path=self.sample_exe_inverted_bitness)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
             assert "64-bit" in str(w[-1].message)
+
+    def testDeprecatedConnectWarning(self):
+        warn_text = "connect_()/Connect_() methods are deprecated,"
+        deprecated_connect_methods = ('connect_', 'Connect_')
+        # warnings.filterwarnings('always', category=PendingDeprecationWarning,
+        #                         append=True)
+        with warnings.catch_warnings(record=True) as warns:
+            app = Application().start(self.sample_exe)
+            for deprecated_method in deprecated_connect_methods:
+                app2 = getattr(Application(),
+                               deprecated_method)(path=self.sample_exe)
+            app.kill_()
+
+        self.assertEquals(len(deprecated_connect_methods), len(warns))
+        self.assertEquals(warns[-1].category, PendingDeprecationWarning)
+        self.assertEquals(warn_text in str(warns[-1].message), True)
+
+    def testDeprecatedStartWarning(self):
+        warn_text = "start_()/Start_() methods are deprecated,"
+        deprecated_start_methods = ('start_', 'Start_')
+        # warnings.filterwarnings('always', category=PendingDeprecationWarning,
+        #                         append=True)
+        with warnings.catch_warnings(record=True) as warns:
+            for deprecated_method in deprecated_start_methods:
+                app = getattr(Application(),
+                              deprecated_method)(self.sample_exe)
+                app.kill_()
+
+        self.assertEquals(len(deprecated_start_methods), len(warns))
+        self.assertEquals(warns[-1].category, PendingDeprecationWarning)
+        self.assertEquals(warn_text in str(warns[-1].message), True)
 
 
 class ApplicationTestCases(unittest.TestCase):
@@ -131,13 +170,13 @@ class ApplicationTestCases(unittest.TestCase):
 
     def testStartProblem(self):
         "Verify start_ raises on unknown command"
-        self.assertRaises (AppStartError, Application().start_, 'Hiya')
+        self.assertRaises (AppStartError, Application().start, 'Hiya')
 
-    def teststart_(self):
-        "test start_() works correctly"
+    def teststart(self):
+        "test start() works correctly"
         app = Application()
         self.assertEqual(app.process, None)
-        app.start_(_notepad_exe())
+        app.start(_notepad_exe())
         self.assertNotEqual(app.process, None)
 
         self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
@@ -168,7 +207,7 @@ class ApplicationTestCases(unittest.TestCase):
         application.app_start_timeout = 1
         app_name = r"I am not * and Application!/\.exe"
         try:
-            app.start_(app_name)
+            app.start(app_name)
         except AppStartError as e:
             self.assertEquals(app_name in str(e), True)
 
@@ -207,17 +246,17 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_path(self):
         "Test that connect_() works with a path"
         app1 = Application()
-        app1.start_(_notepad_exe())
+        app1.start(_notepad_exe())
 
         app_conn = Application()
-        app_conn.connect_(path = self.notepad_subpath)
+        app_conn.connect(path=self.notepad_subpath)
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn = Application()
         if is_x64_Python() or not is_x64_OS():
-            app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
+            app_conn.connect(path=r"c:\windows\system32\notepad.exe")
         else:
-            app_conn.connect_(path = r"c:\windows\syswow64\notepad.exe")
+            app_conn.connect(path=r"c:\windows\syswow64\notepad.exe")
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
@@ -240,10 +279,10 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_process(self):
         "Test that connect_() works with a process"
         app1 = Application()
-        app1.start_(_notepad_exe())
+        app1.start(_notepad_exe())
 
         app_conn = Application()
-        app_conn.connect_(process = app1.process)
+        app_conn.connect(process=app1.process)
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
@@ -252,11 +291,11 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_handle(self):
         "Test that connect_() works with a handle"
         app1 = Application()
-        app1.start_(_notepad_exe())
+        app1.start(_notepad_exe())
         handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
-        app_conn.connect_(handle = handle)
+        app_conn.connect(handle=handle)
         self.assertEqual(app1.process, app_conn.process)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
@@ -264,19 +303,19 @@ class ApplicationTestCases(unittest.TestCase):
     def testConnect_windowspec(self):
         "Test that connect_() works with a windowspec"
         app1 = Application()
-        app1.start_(_notepad_exe())
+        app1.start(_notepad_exe())
         #unused var: handle = app1.UntitledNotepad.handle
 
         app_conn = Application()
         try:
-            app_conn.connect_(title = "Untitled - Notepad")
+            app_conn.connect(title="Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
             wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
-            app_conn.connect_(handle = wins[0])
+            app_conn.connect(handle=wins[0])
         except findwindows.WindowNotFoundError:
             WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title = "Untitled - Notepad")) > 0)
             wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
-            app_conn.connect_(handle = wins[0])
+            app_conn.connect(handle=wins[0])
 
         self.assertEqual(app1.process, app_conn.process)
 
@@ -287,33 +326,33 @@ class ApplicationTestCases(unittest.TestCase):
         # try an argument that does not exist
         self.assertRaises (
             TypeError,
-            Application().connect_, **{'not_arg': 23})
+            Application().connect, **{'not_arg': 23})
 
         self.assertRaises (
             RuntimeError,
-            Application().connect_)
+            Application().connect)
 
         # try to pass an invalid process
         self.assertRaises (
             ProcessNotFoundError,
-            Application().connect_, **{'process': 0})
+            Application().connect, **{'process': 0})
 
         # try to pass an invalid handle
         self.assertRaises(
             RuntimeError,
-            Application().connect_, **{'handle' : 0})
+            Application().connect, **{'handle' : 0})
 
         # try to pass an invalid path
         self.assertRaises(
             ProcessNotFoundError,
-            Application().connect_, **{'path': "no app here"})
+            Application().connect, **{'path': "no app here"})
 
     def testTopWindow(self):
         "Test that top_window_() works correctly"
         app = Application()
         self.assertRaises(AppNotConnected, app.top_window_)
         
-        app.start_(_notepad_exe())
+        app.start(_notepad_exe())
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
 
@@ -331,7 +370,7 @@ class ApplicationTestCases(unittest.TestCase):
         app = Application()
         self.assertRaises(AppNotConnected, app.active_)
         self.assertRaises(AppNotConnected, app.is64bit)
-        app.start_(_notepad_exe())
+        app.start(_notepad_exe())
         app.UntitledNotepad.Wait('ready')
         self.assertEqual(app.active_().handle, app.UntitledNotepad.handle)
         app.UntitledNotepad.MenuSelect("File->Exit")
@@ -371,7 +410,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertRaises(AppNotConnected, app.windows_, **{'title' : 'not connected'})
 
-        app.start_('notepad.exe')
+        app.start('notepad.exe')
 
         notepad_handle = app.UntitledNotepad.handle
         self.assertEquals(app.windows_(visible_only = True), [notepad_handle])
@@ -389,7 +428,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testWindow(self):
         "Test that window_() works correctly"
         app = Application()
-        app.start_(_notepad_exe())
+        app.start(_notepad_exe())
 
         title = app.window_(title = "Untitled - Notepad")
         title_re = app.window_(title_re = "Untitled[ -]+Notepad")
@@ -412,7 +451,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testGetitem(self):
         "Test that __getitem__() works correctly"
         app = Application()
-        app.start_(_notepad_exe())
+        app.start(_notepad_exe())
 
         try:
             app['blahblah']
@@ -444,7 +483,7 @@ class ApplicationTestCases(unittest.TestCase):
     def testGetattr(self):
         "Test that __getattr__() works correctly"
         app = Application()
-        app.start_(_notepad_exe())
+        app.start(_notepad_exe())
 
         #prev_timeout = application.window_find_timeout
         #application.window_find_timeout = .1
@@ -497,7 +536,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        self.app = Application().start_("Notepad")
+        self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit
 
