@@ -162,6 +162,8 @@ class TimeConfig(object):
         'scroll_step_wait': 0.1,
     }
 
+    assert(__default_timing['window_find_timeout'] >=\
+           __default_timing['window_find_retry'] * 2)
 
     _timings = __default_timing.copy()
     _cur_speed = 1

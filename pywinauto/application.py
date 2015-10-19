@@ -1009,8 +1009,8 @@ class Application(object):
             windows = findwindows.find_windows(process = self.process)
             if windows:
                 break
-            time.sleep(0.2)
-            timeout -= 0.2
+            time.sleep(Timings.window_find_retry)
+            timeout -= Timings.window_find_retry
         else:
             raise RuntimeError("No windows for that process could be found")
 
