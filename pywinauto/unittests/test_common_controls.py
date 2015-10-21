@@ -118,8 +118,10 @@ class ListViewTestCases(unittest.TestCase):
         for row in self.texts:
             flat_texts.extend(row)
 
-        for i, item in enumerate(self.ctrl.Items()):
+        items = self.ctrl.Items()
+        for i, item in enumerate(items):
             self.assertEquals(item['text'], flat_texts[i])
+        self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
         "Test the ListView Texts method"
