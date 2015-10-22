@@ -1247,6 +1247,13 @@ class RebarTestCases(unittest.TestCase):
     def testGetToolTipsControl(self):
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
 
+    def testAfxToolBarButtons(self):
+        "Make sure we can click on Afx ToolBar button by index"
+        self.dlg.StandardToolbar.Button(1).Click()
+        self.app.Window_(title='Open').Wait('ready')
+        self.app.Window_(title='Open').Cancel.ClickInput()
+        self.app.Window_(title='Open').WaitNot('visible')
+
 
 class DatetimeTestCases(unittest.TestCase):
     "Unit tests for the DateTimePicker class"

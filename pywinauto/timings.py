@@ -55,7 +55,7 @@ The Following are the individual timing settings that can be adjusted:
 
 * before_closeclick_wait    (default .1)
 * closeclick_retry  (default .05)
-* closeclick_dialog_close_wait  (default .05)
+* closeclick_dialog_close_wait  (default .5)
 * after_closeclick_wait (default .2)
 
 * after_windowclose_timeout (default 2)
@@ -125,7 +125,7 @@ class TimeConfig(object):
 
         'before_closeclick_wait' : .1,
         'closeclick_retry' : .05,
-        'closeclick_dialog_close_wait' : .05,
+        'closeclick_dialog_close_wait' : .5,
         'after_closeclick_wait' : .2,
 
         'after_windowclose_timeout': 2,

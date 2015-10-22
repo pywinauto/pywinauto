@@ -2064,13 +2064,16 @@ class _toolbar_button(object):
         rect = win32structures.RECT()
 
         remote_mem.Write(rect)
-
-        self.toolbar_ctrl.SendMessage(
-            win32defines.TB_GETRECT,
-            self.info.idCommand,
-            remote_mem)
-
+        self.toolbar_ctrl.SendMessage(win32defines.TB_GETRECT,
+                                      self.info.idCommand,
+                                      remote_mem)
         rect = remote_mem.Read(rect)
+        
+        if rect == win32structures.RECT(0, 0, 0, 0):
+            self.toolbar_ctrl.SendMessage(win32defines.TB_GETITEMRECT,
+                                          self.index,
+                                          remote_mem)
+            rect = remote_mem.Read(rect)
 
         del remote_mem
 
@@ -2353,24 +2356,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     def GetButtonRect(self, button_index):
         "Get the rectangle of a button on the toolbar"
 
-        button_struct = self.GetButton(button_index)
-
-        remote_mem = RemoteMemoryBlock(self)
-
-        rect = win32structures.RECT()
-
-        remote_mem.Write(rect)
-
-        self.SendMessage(
-            win32defines.TB_GETRECT,
-            button_struct.idCommand,
-            remote_mem)
-
-        rect = remote_mem.Read(rect)
-
-        del remote_mem
-
-        return rect
+        return self.Button(button_index).Rectangle()
 
     #----------------------------------------------------------------
     def GetToolTipsControl(self):
