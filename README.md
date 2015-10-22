@@ -1,5 +1,7 @@
 pywinauto
 ============
+
+[![Join the chat at https://gitter.im/pywinauto/pywinauto](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pywinauto/pywinauto?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 pywinauto (c) Mark Mc Mahon
 
 pywinauto is a set of python modules to automate the Microsoft Windows GUI. 
