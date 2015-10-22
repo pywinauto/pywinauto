@@ -77,6 +77,30 @@ class _listview_item(object):
         self.subitem_index = subitem_index
         #self._as_parameter_ = self.item_index
 
+    #-----------------------------------------------------------
+    def __eq__(self, other):
+
+        """
+        Returns True if the parent control and the indexes are the same
+        as the other.
+        """
+
+        if isinstance(other, _listview_item):
+            return self.listview_ctrl == other.listview_ctrl and \
+                        self.item_index == other.item_index and \
+                        self.subitem_index == other.subitem_index
+        else:
+            return False
+
+    #-----------------------------------------------------------
+    def __ne__(self, other):
+
+        """
+        Returns True if not matched the parent control or an index.
+        """
+
+        return not self == other
+
     #----------------------------------------------------------------
     def _readitem(self):
         "Read the list view item"
@@ -761,7 +785,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
                 # get the item
                 #yield self.GetItem(item_index, subitem_index) # return iterator
-                items.append(self.GetItem(item_index, subitem_index).ItemData())
+                items.append(self.GetItem(item_index, subitem_index))
 
         return items
 
