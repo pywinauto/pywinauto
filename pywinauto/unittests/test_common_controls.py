@@ -118,8 +118,10 @@ class ListViewTestCases(unittest.TestCase):
         for row in self.texts:
             flat_texts.extend(row)
 
-        for i, item in enumerate(self.ctrl.Items()):
+        items = self.ctrl.Items()
+        for i, item in enumerate(items):
             self.assertEquals(item['text'], flat_texts[i])
+        self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
         "Test the ListView Texts method"
@@ -433,8 +435,19 @@ class ListViewTestCases(unittest.TestCase):
 #
 #            #self.assertEquals(item.Text, texts[i])
 
+    def testEqualsItems(self):
 
+        """
+        Test __eq__ and __ne__ cases for _listview_item.
+        """
 
+        item1 = self.ctrl.GetItem(0, 0)
+        item1_copy = self.ctrl.GetItem(0, 0)
+        item2 = self.ctrl.GetItem(1, 0)
+
+        self.assertEqual(item1, item1_copy)
+        self.assertNotEqual(item1, "Not _listview_item")
+        self.assertNotEqual(item1, item2)
 
 
 class TreeViewTestCases(unittest.TestCase):
