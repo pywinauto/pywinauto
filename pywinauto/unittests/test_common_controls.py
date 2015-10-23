@@ -1254,6 +1254,18 @@ class RebarTestCases(unittest.TestCase):
         self.app.Window_(title='Open').Cancel.ClickInput()
         self.app.Window_(title='Open').WaitNot('visible')
 
+    def testMenuBarClickInput(self):
+        "Make sure we can click on Menu Bar items by indexed path"
+        self.assertRaises(TypeError, self.dlg.MenuBar.MenuBarClickInput, '#one->#0', self.app)
+        
+        self.dlg.MenuBar.MenuBarClickInput('#1->#0->#0', self.app)
+        self.app.Customize.CloseButton.Click()
+        self.app.Customize.WaitNot('visible')
+        
+        self.dlg.MenuBar.MenuBarClickInput([2, 0], self.app)
+        self.app.Window_(title='About RebarTest').OK.Click()
+        self.app.Window_(title='About RebarTest').WaitNot('visible')
+
 
 class DatetimeTestCases(unittest.TestCase):
     "Unit tests for the DateTimePicker class"
