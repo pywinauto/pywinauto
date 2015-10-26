@@ -34,8 +34,16 @@ environment:
     - PYTHON: "C:\\Python34-x64"
       PYTHON_VERSION: "3.4"
       PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5"
+      PYTHON_ARCH: "64"
 os:
-  - unstable # Unstable worker image with logged in user, desktop and interactive build agent
+  - Windows Server 2012
 
 install:
   # Some listings for debug only

@@ -1004,11 +1004,14 @@ class Application(object):
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
 
-        time.sleep(Timings.window_find_timeout)
-        # very simple
-        windows = findwindows.find_windows(process = self.process)
-
-        if not windows:
+        timeout = Timings.window_find_timeout
+        while timeout >= 0:
+            windows = findwindows.find_windows(process = self.process)
+            if windows:
+                break
+            time.sleep(Timings.window_find_retry)
+            timeout -= Timings.window_find_retry
+        else:
             raise RuntimeError("No windows for that process could be found")
 
         criteria = {}

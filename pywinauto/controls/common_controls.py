@@ -54,15 +54,11 @@ from ..RemoteMemoryBlock import RemoteMemoryBlock
 from . import HwndWrapper
 
 from ..timings import Timings
+from ..timings import WaitUntil
 
 
 # Todo: I should return iterators from things like Items() and Texts()
 #       to save building full lists all the time
-# Todo: ListViews should be based off of GetItem, and then have actions
-#       Applied to that e.g. ListView.Item(xxx).Select(), rather then
-#       ListView.Select(xxx)
-#       Or at least most of the functions should call GetItem to get the
-#       Item they want to work with.
 
 class _listview_item(object):
     "Wrapper around ListView items"
@@ -76,6 +72,30 @@ class _listview_item(object):
         self.item_index = self.listview_ctrl._as_item_index(item_index)
         self.subitem_index = subitem_index
         #self._as_parameter_ = self.item_index
+
+    #-----------------------------------------------------------
+    def __eq__(self, other):
+
+        """
+        Returns True if the parent control and the indexes are the same
+        as the other.
+        """
+
+        if isinstance(other, _listview_item):
+            return self.listview_ctrl == other.listview_ctrl and \
+                        self.item_index == other.item_index and \
+                        self.subitem_index == other.subitem_index
+        else:
+            return False
+
+    #-----------------------------------------------------------
+    def __ne__(self, other):
+
+        """
+        Returns True if not matched the parent control or an index.
+        """
+
+        return not self == other
 
     #----------------------------------------------------------------
     def _readitem(self):
@@ -761,7 +781,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
                 # get the item
                 #yield self.GetItem(item_index, subitem_index) # return iterator
-                items.append(self.GetItem(item_index, subitem_index).ItemData())
+                items.append(self.GetItem(item_index, subitem_index))
 
         return items
 
@@ -2040,13 +2060,16 @@ class _toolbar_button(object):
         rect = win32structures.RECT()
 
         remote_mem.Write(rect)
-
-        self.toolbar_ctrl.SendMessage(
-            win32defines.TB_GETRECT,
-            self.info.idCommand,
-            remote_mem)
-
+        self.toolbar_ctrl.SendMessage(win32defines.TB_GETRECT,
+                                      self.info.idCommand,
+                                      remote_mem)
         rect = remote_mem.Read(rect)
+        
+        if rect == win32structures.RECT(0, 0, 0, 0):
+            self.toolbar_ctrl.SendMessage(win32defines.TB_GETITEMRECT,
+                                          self.index,
+                                          remote_mem)
+            rect = remote_mem.Read(rect)
 
         del remote_mem
 
@@ -2173,7 +2196,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "Toolbar"
     windowclasses = [
         "ToolbarWindow32",
-        r"WindowsForms\d*\.ToolbarWindow32\..*"]
+        r"WindowsForms\d*\.ToolbarWindow32\..*",
+        "Afx:ToolBar:.*"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2328,31 +2352,12 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     def GetButtonRect(self, button_index):
         "Get the rectangle of a button on the toolbar"
 
-        button_struct = self.GetButton(button_index)
-
-        remote_mem = RemoteMemoryBlock(self)
-
-        rect = win32structures.RECT()
-
-        remote_mem.Write(rect)
-
-        self.SendMessage(
-            win32defines.TB_GETRECT,
-            button_struct.idCommand,
-            remote_mem)
-
-        rect = remote_mem.Read(rect)
-
-        del remote_mem
-
-        return rect
+        return self.Button(button_index).Rectangle()
 
     #----------------------------------------------------------------
     def GetToolTipsControl(self):
         "Return the tooltip control associated with this control"
         return ToolTipsWrapper(self.SendMessage(win32defines.TB_GETTOOLTIPS))
-
-
 
 #    def Right_Click(self, button_index, **kwargs):
 #        "Right click for Toolbar buttons"
@@ -2408,11 +2413,6 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #        self.ReleaseMouse(button = "right", coords = (x, y))
 #
 #        win32functions.ReleaseCapture()
-#
-
-
-
-    # TODO def Button(i or string).rect
 
     #----------------------------------------------------------------
     def PressButton(self, button_identifier, exact = True):
@@ -2459,6 +2459,52 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             #    i += 1
             #    if i > 10:
             #        raise RuntimeError("Cannot wait button check state!")
+        self.actions.logSectionEnd()
+
+    #----------------------------------------------------------------
+    def MenuBarClickInput(self, path, app):
+        """Select menu bar items by path (experimental!)
+        
+        The path is specified by a list of items separated by '->' each Item
+        can be the zero based index of the item to return prefaced by # e.g. #1.
+        
+        Example:
+            "#1 -> #0",
+            "#1->#0->#0"
+        """
+        warnings.warn("MenuBarClickInput method is experimental. Use carefully!")
+
+        self.actions.logSectionStart('Clicking "{0}" menu bar path "{1}"'.format(self.WindowText(), path))
+        if isinstance(path, list):
+            parts = path
+        else:
+            parts = path.split("->")
+        indices = []
+        for part in parts:
+            if isinstance(part, int):
+                indices.append(part)
+            else:
+                item_string = part.strip().lstrip('#')
+                try:
+                    index = int(item_string)
+                except Exception:
+                    raise TypeError('Path must contain integers only!')
+                indices.append(index)
+        
+        # circle import doesn't work with current package structure
+        # so use the app instance as a method param
+        #app = Application().Connect(handle=self.handle)
+        
+        current_toolbar = self
+        for i in range(len(indices)):
+            index = indices[i]
+            windows_before = app.Windows_(visible_only=True)
+            current_toolbar.Button(index).ClickInput()
+            if i < len(indices) - 1:
+                WaitUntil(5, 0.1, lambda: len(app.Windows_(visible_only=True)) > len(windows_before))
+                windows_after = app.Windows_(visible_only=True)
+                new_window = set(windows_after) - set(windows_before)
+                current_toolbar = list(new_window)[0].Children()[0]
         self.actions.logSectionEnd()
 
 

@@ -118,8 +118,10 @@ class ListViewTestCases(unittest.TestCase):
         for row in self.texts:
             flat_texts.extend(row)
 
-        for i, item in enumerate(self.ctrl.Items()):
+        items = self.ctrl.Items()
+        for i, item in enumerate(items):
             self.assertEquals(item['text'], flat_texts[i])
+        self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
         "Test the ListView Texts method"
@@ -433,8 +435,19 @@ class ListViewTestCases(unittest.TestCase):
 #
 #            #self.assertEquals(item.Text, texts[i])
 
+    def testEqualsItems(self):
 
+        """
+        Test __eq__ and __ne__ cases for _listview_item.
+        """
 
+        item1 = self.ctrl.GetItem(0, 0)
+        item1_copy = self.ctrl.GetItem(0, 0)
+        item2 = self.ctrl.GetItem(1, 0)
+
+        self.assertEqual(item1, item1_copy)
+        self.assertNotEqual(item1, "Not _listview_item")
+        self.assertNotEqual(item1, item2)
 
 
 class TreeViewTestCases(unittest.TestCase):
@@ -1233,6 +1246,25 @@ class RebarTestCases(unittest.TestCase):
 
     def testGetToolTipsControl(self):
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
+
+    def testAfxToolBarButtons(self):
+        "Make sure we can click on Afx ToolBar button by index"
+        self.dlg.StandardToolbar.Button(1).Click()
+        self.app.Window_(title='Open').Wait('ready')
+        self.app.Window_(title='Open').Cancel.ClickInput()
+        self.app.Window_(title='Open').WaitNot('visible')
+
+    def testMenuBarClickInput(self):
+        "Make sure we can click on Menu Bar items by indexed path"
+        self.assertRaises(TypeError, self.dlg.MenuBar.MenuBarClickInput, '#one->#0', self.app)
+        
+        self.dlg.MenuBar.MenuBarClickInput('#1->#0->#0', self.app)
+        self.app.Customize.CloseButton.Click()
+        self.app.Customize.WaitNot('visible')
+        
+        self.dlg.MenuBar.MenuBarClickInput([2, 0], self.app)
+        self.app.Window_(title='About RebarTest').OK.Click()
+        self.app.Window_(title='About RebarTest').WaitNot('visible')
 
 
 class DatetimeTestCases(unittest.TestCase):

@@ -1095,12 +1095,8 @@ class LVHITTESTINFO(Structure):
         ('iSubItem', c_int),
         ('iGroup', c_int),
     ]
-if sysinfo.is_x64_Python():
-    assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
-    assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
-else:
-    assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
-    assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
+assert sizeof(LVHITTESTINFO) == 24, sizeof(LVHITTESTINFO)
+assert alignment(LVHITTESTINFO) == 4, alignment(LVHITTESTINFO)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 4052

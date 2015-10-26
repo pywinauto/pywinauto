@@ -20,8 +20,6 @@
 
 "Tests for taskbar.py"
 
-__revision__ = "$Revision$"
-
 import unittest
 import sys
 import time

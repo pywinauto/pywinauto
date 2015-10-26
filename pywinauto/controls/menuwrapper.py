@@ -414,17 +414,19 @@ class Menu(object):
         return win32gui.GetMenuItemCount(self.handle)
 
     @ensure_accessible
-    def Item(self, index):
+    def Item(self, index, exact = False):
         """Return a specific menu item
 
-        * **index** is the 0 based index of the menu item you want
+        * **index** is the 0 based index or text of the menu item you want
+        * **exact** is True means exact matching for item text,
+                       False means best matching
         """
         if isinstance(index, six.string_types):
             if self.ctrl.appdata is not None:
                 menu_appdata = self.ctrl.appdata['MenuItems']
             else:
                 menu_appdata = None
-            self.GetMenuPath(index, appdata = menu_appdata, exact=exact)[-1]
+            return self.GetMenuPath(index, appdata = menu_appdata, exact=exact)[-1]
         return MenuItem(self.ctrl, self, index, self.is_main_menu)
 
     @ensure_accessible

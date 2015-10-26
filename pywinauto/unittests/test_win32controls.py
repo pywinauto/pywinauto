@@ -479,9 +479,14 @@ class EditTestCases(unittest.TestCase):
         # close the application
         self.dlg.MenuSelect("File->Exit")
 
-        if self.app.UntitledNotepad["Do&n't Save"].Exists():
-            self.app.UntitledNotepad["Do&n't Save"].Click()
-        self.app.kill_()
+        try:
+            if self.app.UntitledNotepad["Do&n't Save"].Exists():
+                self.app.UntitledNotepad["Do&n't Save"].Click()
+                self.app.UntitledNotepad.WaitNot('visible')
+        except Exception:
+            pass
+        finally:
+            self.app.kill_()
 
     def testSetText(self):
         "Test setting the text of the edit control"
