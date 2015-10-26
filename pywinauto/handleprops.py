@@ -151,7 +151,7 @@ def is64bitprocess(process_id):
        and False if it is only a 32-bit process running under Wow64.
        Always return False for x86"""
 
-    from pywinauto.sysinfo import is_x64_OS
+    from .sysinfo import is_x64_OS
     is32 = True
     if is_x64_OS():
         import win32process, win32api, win32con

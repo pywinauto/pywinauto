@@ -22,8 +22,8 @@
 from __future__ import absolute_import
 
 import ctypes
-from pywinauto import win32defines, win32structures
-from pywinauto.actionlogger import ActionLogger
+from . import win32defines, win32structures
+from .actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
 
 import sys
