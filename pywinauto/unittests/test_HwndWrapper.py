@@ -314,13 +314,15 @@ class HwndWrapperTests(unittest.TestCase):
 
 
     def testSendMessageTimeout(self):
-
+        default_timeout = Timings.sendmessagetimeout_timeout
+        Timings.sendmessagetimeout_timeout = 0.1
         vk = self.dlg.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
         code = self.dlg.Degrees.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         # The expected return code is: "Button" = 0x2000 and "Radio" = 0x40
         expected = 0x2000 + 0x40
+        Timings.sendmessagetimeout_timeout = default_timeout
         self.assertEqual(expected, code)
 
     def testPostMessage(self):
