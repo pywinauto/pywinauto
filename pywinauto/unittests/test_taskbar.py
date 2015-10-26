@@ -123,7 +123,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         # cleanup additional unclosed sampleapps
         l = pywinauto.actionlogger.ActionLogger()
-        hndls = findwindows.find_windows(title="TrayMenu")
+        hndls = [w.handle for w in findwindows.find_windows(title="TrayMenu")]
         for h in hndls:
             l.log("Cleanup unclosed sample app, handle: 0x%x" % (h))
             Application().windows_(handle=h).Close()
