@@ -2,6 +2,22 @@
 Change Log
 ==========
 
+0.5.4 Bug fixes and partial MFC Menu Bar support
+--------------------------------------------------------------------
+30-October-2015
+ * Fix bugs and inconsistencies:
+
+   - Add `where="check"` possible value to the ListViewWrapper.Click/ClickInput` methods.
+
+   - Add `CheckByClickInput` and `UncheckByClickInput` methods for a plain check box.
+
+   - Fix crash while waiting for the window start.
+
+ * Add partial MFC Menu Bar support. The menu bar can be interpreted as a toolbar. Items are clickable by index through experimental `MenuBarClickInput` method of the `ToolbarWrapper`.
+
+ * Python 3.5 is supported.
+
+
 0.5.3 Better Unicode support for SetEditText/TypeKeys and menu items
 --------------------------------------------------------------------
 25-September-2015

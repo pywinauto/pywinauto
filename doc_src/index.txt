@@ -1,9 +1,12 @@
 ====================
 What is pywinauto
 ====================
-(0.5.x releases are maintained by Intel Corporation, 2015)
 
-© Mark Mc Mahon
+0.6+ development is on the roadmap of the Open Source community (https://github.com/pywinauto)
+
+Current 0.5.x maintainance is lead by © Intel Corporation, 2015
+
+© Mark Mc Mahon, 2006-2014
 
 Released under the LGPL v2.1 or later
 
@@ -89,14 +92,16 @@ Some similar tools for comparison
 ---------------------------------
 * Python tools
 
-  - PyAutoGui (https://github.com/asweigart/pyautogui)
-  - AXUI (https://github.com/xcgspring/AXUI)
-  - winGuiAuto (http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html)
+  - PyAutoGui (https://github.com/asweigart/pyautogui) - it's a cross-platform but there is no windows/controls manipulation at all.
+  - AXUI (https://github.com/xcgspring/AXUI) - this is one of the wrappers around UI Automation API.
+  - winGuiAuto (http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html) - another module using Win32 API.
 
 * Other scripting language tools
 
   - Perl Win32::GuiTest  (http://winguitest.sourceforge.net/)
   - Ruby Win32-Autogui (https://github.com/robertwahler/win32-autogui)
+  - Ruby RAutomation (https://github.com/jarmo/RAutomation) - there are 3 adapters: Win32 API, UIA, AutoIt.
+  - C# Winium.Desktop (https://github.com/2gis/Winium.Desktop)
   - others (http://www.opensourcetesting.org/functional.php)
 
 * Other free tools
