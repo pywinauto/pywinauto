@@ -2197,8 +2197,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "ToolbarWindow32",
         r"WindowsForms\d*\.ToolbarWindow32\..*",
-        "Afx:ToolBar:.*",
-        ".*DockBar" ]
+        "Afx:ToolBar:.*"]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
