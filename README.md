@@ -31,17 +31,16 @@ or
 * [Change Log / History](http://pywinauto.github.io/docs/HISTORY.html)
 * [HowTo's](http://pywinauto.github.io/docs/HowTo.html)
 * [Code examples (gists) on gist.github.com](https://gist.github.com/vasily-v-ryabov)
+* [Mailing list](https://sourceforge.net/p/pywinauto/mailman/)
 
-### pywinauto 0.5.3 release notes (2015 September, 25)
- * Better backward compatibility with pywinauto 0.4.2:
-   - support Unicode symbols in the `TypeKeys` method again;
-   - allow `SetEditText/TypeKeys` methods to take non-string arguments;
-   - fix taking Unicode parameters in `SetEditText/TypeKeys`.
- * Fix bug in `Wait("active")`, raise a SyntaxError when waiting for an incorrect state.
- * Re-consider some timings, update docs for the default values etc.
- * Fix several issues with an owner-drawn menu.
- * `MenuItem` method `Click` is renamed to `ClickInput` while `Click = Select` now.
- * New `SetTransparency` method can make a window transparent in a specified degree.
+### Example
+It is simple and the resulting scripts are very readable. How simple?
+
+```python
+app.UntitledNotepad.MenuSelect("Help->About Notepad")
+app.AboutNotepad.OK.Click()
+app.UntitledNotepad.Edit.TypeKeys ("pywinauto Works!", with_spaces = True)
+```
 
 ### Supported controls
 * Native Windows controls (full support through Win32 API)
