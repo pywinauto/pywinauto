@@ -1688,8 +1688,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "StatusBar"
     windowclasses = [
         "msctls_statusbar32",
-        "HSStatusBar",
-        "TStatusBar",
+        ".*StatusBar",
         r"WindowsForms\d*\.msctls_statusbar32\..*"]
 
     #----------------------------------------------------------------

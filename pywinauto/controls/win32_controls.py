@@ -50,12 +50,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "Button"
     windowclasses = [
         "Button",
+        ".*Button",
         r"WindowsForms\d*\.BUTTON\..*",
-        "TButton",
-        "ThunderCommandButton",
-        "ThunderOptionButton",
-        "ThunderCheckBox",
-        "TCheckBox"]
+        ".*CheckBox", ]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -255,7 +252,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "ComboBox",
         "WindowsForms\d*\.COMBOBOX\..*",
-        "TComboBox"]
+        ".*ComboBox", ]
     has_title = False
 
     #-----------------------------------------------------------
@@ -408,9 +405,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "ListBox",
         r"WindowsForms\d*\.LISTBOX\..*",
-        "ThunderListBox",
-        "ThunderFileListBox",
-        "TListBox",]
+        ".*ListBox", ]
     has_title = False
 
     #-----------------------------------------------------------
@@ -603,7 +598,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "Edit"
     windowclasses = [
         "Edit",
-        "TEdit",
+        ".*Edit",
         "TMemo",
         r"WindowsForms\d*\.EDIT\..*",
         "ThunderTextBox",
@@ -797,7 +792,8 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "Static",
         r"WindowsForms\d*\.STATIC\..*",
-        "TPanel"]
+        "TPanel",
+        ".*StaticText"]
     can_be_label = True
 
     def __init__(self, hwnd):
