@@ -95,7 +95,7 @@ class AppNotConnected(Exception):
 
 #=========================================================================
 class WindowSpecification(object):
-    """A specificiation for finding a window or control
+    """A specification for finding a window or control
 
     Windows are resolved when used.
     You can also wait for existance or non existance of a window 
@@ -113,7 +113,7 @@ class WindowSpecification(object):
                          }
 
     def __init__(self, search_criteria):
-        """Initailize the class
+        """Initialize the class
 
         :param search_criteria: the criteria to match a dialog
         """
