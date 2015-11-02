@@ -1575,38 +1575,10 @@ class HwndWrapper(object):
 
         # if it is already foreground then just return
         if self.handle != cur_foreground:
-
-            # get the thread of the window that is in the foreground
-            cur_fore_thread = win32functions.GetWindowThreadProcessId(
-                cur_foreground, 0)
-
-            # get the thread of the window that we want to be in the foreground
-            control_thread = win32functions.GetWindowThreadProcessId(self, 0)
-
-            # if a different thread owns the active window
-            if cur_fore_thread != control_thread:
-                # Attach the two threads and set the foreground window
-                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.TRUE)
-                # TODO: check return value of AttachThreadInput properly
-
-                win32functions.SetForegroundWindow(self)
-
-                # detach the thread again
-                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.FALSE)
-                # TODO: check return value of AttachThreadInput properly
-
-            else:   # same threads - just set the foreground window
-                win32functions.SetForegroundWindow(self)
-
-            # make sure that we are idle before returning
-            win32functions.WaitGuiThreadIdle(self)
-
-            # only sleep if we had to change something!
-            time.sleep(Timings.after_setfocus_wait)
+            # set the foreground window
+            win32gui.SetForegroundWindow(self.handle)
 
         return self
-
-
 
     #-----------------------------------------------------------
     def SetApplicationData(self, appdata):
