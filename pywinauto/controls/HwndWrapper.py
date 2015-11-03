@@ -1628,7 +1628,7 @@ class HwndWrapper(object):
 
         # the constant that matches direction, and how much
         scroll_type = \
-            HwndWrapper._scroll_types[direction.lower()][amount.lower()]
+            self._scroll_types[direction.lower()][amount.lower()]
 
         # Scroll as often as we have been asked to
         if retry_interval is None:

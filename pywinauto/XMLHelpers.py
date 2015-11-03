@@ -218,7 +218,7 @@ def _XMLToStruct(element, struct_type = None):
         struct = globals()[struct_type]()
 
     # get the attribute and set them upper case
-    struct_attribs = dict([(at.upper(), at) for at in dir(struct)])
+    struct_attribs = dict((at.upper(), at) for at in dir(struct))
 
     # for each of the attributes in the element
     for prop_name in attribs:

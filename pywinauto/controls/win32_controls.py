@@ -520,10 +520,10 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         or it can be the string that you want to select
         """
 
-        if self.IsSingleSelection() and (isinstance(item, list) or isinstance(item, tuple)) and len(item) > 1:
+        if self.IsSingleSelection() and isinstance(item, (list, tuple)) and len(item) > 1:
             raise Exception('Cannot set multiple selection for single-selection listbox!')
 
-        if isinstance(item, list) or isinstance(item, tuple):
+        if isinstance(item, (list, tuple)):
             for i in item:
                 if i is not None:
                     self.Select(i, select)

@@ -645,7 +645,7 @@ def _resolve_from_appdata(
                             if handleprops.controlid(hwnd) == \
                                 matched_control[2]['ControlID']]
 
-                    if len(same_ids) >= 1:
+                    if same_ids:
                         ctrl_hwnds = same_ids
 
                 try:
