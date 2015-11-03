@@ -28,7 +28,6 @@ The tips and tricks at http://www.pinvoke.net/default.aspx/user32.sendinput
 is useful!
 
 """
-from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import time
@@ -47,8 +46,9 @@ DEBUG = 0
 GetMessageExtraInfo = ctypes.windll.user32.GetMessageExtraInfo
 MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
 SendInput = ctypes.windll.user32.SendInput
-SendInput.restype = win32structures.UINT
-SendInput.argtypes = [win32structures.UINT, ctypes.c_void_p, ctypes.c_int]
+UINT = ctypes.c_uint
+SendInput.restype = UINT
+SendInput.argtypes = [UINT, ctypes.c_void_p, ctypes.c_int]
 
 VkKeyScan = ctypes.windll.user32.VkKeyScanW
 VkKeyScan.restype = ctypes.c_short

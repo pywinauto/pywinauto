@@ -19,7 +19,9 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-from __future__ import absolute_import
+"""Module containing wrapper around VirtualAllocEx/VirtualFreeEx 
+Win32 API functions to perform custom marshalling
+"""
 from __future__ import print_function
 
 import ctypes, win32api, sys

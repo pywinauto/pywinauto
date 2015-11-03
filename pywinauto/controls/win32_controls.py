@@ -20,25 +20,20 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Wraps various standard windows controls"
-from __future__ import absolute_import
+"""Wraps various standard windows controls
+"""
 from __future__ import unicode_literals
 
-__revision__ = "$Revision$"
-
 import time
-
 import ctypes
 import win32gui
 import locale
 
 from . import HwndWrapper
-
 from .. import six
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures
-#from .. import findbestmatch
 from .. import controlproperties
 
 from ..timings import Timings

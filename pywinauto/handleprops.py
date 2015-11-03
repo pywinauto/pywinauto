@@ -25,7 +25,6 @@
 These are implemented in a procedural way so as to to be
 useful to other modules with the least conceptual overhead
 """
-from __future__ import absolute_import
 
 import ctypes
 

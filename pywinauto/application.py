@@ -54,11 +54,9 @@ in almost exactly the same ways. ::
   :func:`WindowSpecification.Window`
 
 """
-from __future__ import absolute_import
 
 import time
 import os.path
-##import os
 import warnings
 import pickle
 

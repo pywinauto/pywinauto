@@ -20,11 +20,9 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Module to find the closest match of a string in a list"
+"""Module to find the closest match of a string in a list
+"""
 from __future__ import unicode_literals
-from __future__ import absolute_import
-
-__revision__ = "$Revision$"
 
 import re
 import difflib

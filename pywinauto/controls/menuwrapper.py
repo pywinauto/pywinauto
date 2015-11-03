@@ -25,7 +25,6 @@ These wrappers allow you to work easily with menu items.
 You can select or click on items and check if they are
 checked or unchecked.
 """
-from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import ctypes

@@ -35,9 +35,6 @@ Classes that wrap the Windows Common controls
    :members:
    :show-inheritance:
 """
-
-
-from __future__ import absolute_import
 from __future__ import print_function
 
 import time

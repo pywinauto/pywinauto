@@ -19,7 +19,6 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 """Defines Windows(tm) functions"""
-from __future__ import absolute_import
 
 import ctypes
 from . import win32defines, win32structures
@@ -30,7 +29,6 @@ import sys
 if sys.platform == "cygwin":
     windll = ctypes.cdll
     HRESULT = c_long
-
 
 
 UINT = c_uint
