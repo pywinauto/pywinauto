@@ -388,7 +388,7 @@ class ApplicationTestCases(unittest.TestCase):
         explorer = Application().Connect(process=window.ProcessID())
         
         try:
-            window.AddressBandRoot.ClickInput()
+            window.AddressBandRoot.ClickInput(double=True)
             window.Edit.SetEditText(r'Control Panel\Programs\Programs and Features')
             window.TypeKeys(r'{ENTER 2}', set_foreground=False)
             WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title='Programs and Features', class_name='CabinetWClass')) > 0)
