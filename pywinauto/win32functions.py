@@ -19,18 +19,16 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 """Defines Windows(tm) functions"""
-from __future__ import absolute_import
 
 import ctypes
-from pywinauto import win32defines, win32structures
-from pywinauto.actionlogger import ActionLogger
+from . import win32defines, win32structures
+from .actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
 
 import sys
 if sys.platform == "cygwin":
     windll = ctypes.cdll
     HRESULT = c_long
-
 
 
 UINT = c_uint

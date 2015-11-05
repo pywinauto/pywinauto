@@ -22,27 +22,12 @@
 
 """Module containing operations for reading and writing dialogs as XML
 """
-from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-__revision__ = "$Revision$"
-
-
-# how should we read in the XML file
-# NOT USING MS Components (requirement on machine)
-# maybe using built in XML
-# maybe using elementtree
-# others?
-
-#import elementtree
-try:
-    # Python 2.5 (thanks to Daisuke Yamashita)
-    from xml.etree.ElementTree import Element, SubElement, ElementTree
-    from xml.etree.cElementTree import Element, SubElement, ElementTree
-except ImportError:
-    from elementtree.ElementTree import Element, SubElement, ElementTree
-    from cElementTree import Element, SubElement, ElementTree
+from xml.etree.cElementTree import Element
+from xml.etree.cElementTree import SubElement
+from xml.etree.cElementTree import ElementTree
 
 import ctypes
 import re
@@ -233,7 +218,7 @@ def _XMLToStruct(element, struct_type = None):
         struct = globals()[struct_type]()
 
     # get the attribute and set them upper case
-    struct_attribs = dict([(at.upper(), at) for at in dir(struct)])
+    struct_attribs = dict((at.upper(), at) for at in dir(struct))
 
     # for each of the attributes in the element
     for prop_name in attribs:

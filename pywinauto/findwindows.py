@@ -22,7 +22,6 @@
 """Provides functions for iterating and finding windows
 
 """
-from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import re

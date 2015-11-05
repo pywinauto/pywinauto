@@ -25,7 +25,6 @@ These wrappers allow you to work easily with menu items.
 You can select or click on items and check if they are
 checked or unchecked.
 """
-from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import ctypes
@@ -487,9 +486,9 @@ class Menu(object):
             else:
                 item_IDs = [item['ID'] for item in appdata]
 
-            id = int(current_part[1:])
+            item_id = int(current_part[1:])
             # find the item that best matches the current part
-            best_item = self.Item(item_IDs.index(id))
+            best_item = self.Item(item_IDs.index(item_id))
         else:
             # get the text names from the menu items
             if appdata is None:

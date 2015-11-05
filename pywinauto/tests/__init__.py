@@ -19,11 +19,9 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Package of tests that can be run on controls or lists of controls"
+"""Package of tests that can be run on controls or lists of controls
+"""
 from __future__ import print_function
-from __future__ import absolute_import
-
-__revision__ = "$Revision$"
 
 from .. import six
 

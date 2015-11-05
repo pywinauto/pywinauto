@@ -67,7 +67,7 @@ except ImportError:
 
 
 setup(name='pywinauto',
-    version = '0.5.3',
+    version = '0.5.4',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",

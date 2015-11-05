@@ -20,14 +20,11 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Wraps various standard windows controls"
-from __future__ import absolute_import
+"""Wraps various standard windows controls
+"""
 from __future__ import unicode_literals
 
-__revision__ = "$Revision$"
-
 import time
-
 import ctypes
 import win32gui
 import locale
@@ -39,7 +36,6 @@ from .. import six
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures
-#from .. import findbestmatch
 from .. import controlproperties
 
 from ..timings import Timings
@@ -54,12 +50,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "Button"
     windowclasses = [
         "Button",
+        ".*Button",
         r"WindowsForms\d*\.BUTTON\..*",
-        "TButton",
-        "ThunderCommandButton",
-        "ThunderOptionButton",
-        "ThunderCheckBox",
-        "TCheckBox"]
+        ".*CheckBox", ]
     if sysinfo.UIA_support:
         controltypes = [
             UIAElementInfo._UIA_dll.UIA_ButtonControlTypeId,
@@ -264,7 +257,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "ComboBox",
         "WindowsForms\d*\.COMBOBOX\..*",
-        "TComboBox"]
+        ".*ComboBox", ]
     if sysinfo.UIA_support:
         controltypes = [
             UIAElementInfo._UIA_dll.UIA_ComboBoxControlTypeId]
@@ -420,9 +413,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "ListBox",
         r"WindowsForms\d*\.LISTBOX\..*",
-        "ThunderListBox",
-        "ThunderFileListBox",
-        "TListBox",]
+        ".*ListBox", ]
     if sysinfo.UIA_support:
         controltypes = [
             UIAElementInfo._UIA_dll.UIA_ListControlTypeId]
@@ -545,10 +536,10 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         or it can be the string that you want to select
         """
 
-        if self.IsSingleSelection() and (isinstance(item, list) or isinstance(item, tuple)) and len(item) > 1:
+        if self.IsSingleSelection() and isinstance(item, (list, tuple)) and len(item) > 1:
             raise Exception('Cannot set multiple selection for single-selection listbox!')
 
-        if isinstance(item, list) or isinstance(item, tuple):
+        if isinstance(item, (list, tuple)):
             for i in item:
                 if i is not None:
                     self.Select(i, select)
@@ -618,7 +609,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     friendlyclassname = "Edit"
     windowclasses = [
         "Edit",
-        "TEdit",
+        ".*Edit",
         "TMemo",
         r"WindowsForms\d*\.EDIT\..*",
         "ThunderTextBox",
@@ -815,7 +806,8 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
     windowclasses = [
         "Static",
         r"WindowsForms\d*\.STATIC\..*",
-        "TPanel"]
+        "TPanel",
+        ".*StaticText"]
     if sysinfo.UIA_support:
         controltypes = [
             UIAElementInfo._UIA_dll.UIA_ImageControlTypeId,

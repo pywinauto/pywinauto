@@ -54,11 +54,9 @@ in almost exactly the same ways. ::
   :func:`WindowSpecification.Window`
 
 """
-from __future__ import absolute_import
 
 import time
 import os.path
-##import os
 import warnings
 import pickle
 
@@ -95,7 +93,7 @@ class AppNotConnected(Exception):
 
 #=========================================================================
 class WindowSpecification(object):
-    """A specificiation for finding a window or control
+    """A specification for finding a window or control
 
     Windows are resolved when used.
     You can also wait for existance or non existance of a window 
@@ -113,7 +111,7 @@ class WindowSpecification(object):
                          }
 
     def __init__(self, search_criteria):
-        """Initailize the class
+        """Initialize the class
 
         :param search_criteria: the criteria to match a dialog
         """
@@ -646,7 +644,7 @@ def _resolve_from_appdata(
                             if elem.controlId == \
                                 matched_control[2]['ControlID']]
 
-                    if len(same_ids) >= 1:
+                    if same_ids:
                         ctrl_elems = same_ids
 
                 try:

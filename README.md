@@ -2,7 +2,10 @@ pywinauto
 ============
 
 [![Join the chat at https://gitter.im/pywinauto/pywinauto](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pywinauto/pywinauto?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-pywinauto (c) Mark Mc Mahon
+
+Current 0.5.x maintainance is lead by © Intel Corporation, 2015
+
+pywinauto (c) Mark Mc Mahon and [Contributors](https://github.com/pywinauto/pywinauto/graphs/contributors), 2006-2015
 
 pywinauto is a set of python modules to automate the Microsoft Windows GUI. 
 At it’s simplest it allows you to send mouse and keyboard actions to windows 
@@ -28,17 +31,16 @@ or
 * [Change Log / History](http://pywinauto.github.io/docs/HISTORY.html)
 * [HowTo's](http://pywinauto.github.io/docs/HowTo.html)
 * [Code examples (gists) on gist.github.com](https://gist.github.com/vasily-v-ryabov)
+* [Mailing list](https://sourceforge.net/p/pywinauto/mailman/)
 
-### pywinauto 0.5.3 release notes (2015 September, 25)
- * Better backward compatibility with pywinauto 0.4.2:
-   - support Unicode symbols in the `TypeKeys` method again;
-   - allow `SetEditText/TypeKeys` methods to take non-string arguments;
-   - fix taking Unicode parameters in `SetEditText/TypeKeys`.
- * Fix bug in `Wait("active")`, raise a SyntaxError when waiting for an incorrect state.
- * Re-consider some timings, update docs for the default values etc.
- * Fix several issues with an owner-drawn menu.
- * `MenuItem` method `Click` is renamed to `ClickInput` while `Click = Select` now.
- * New `SetTransparency` method can make a window transparent in a specified degree.
+### Example
+It is simple and the resulting scripts are very readable. How simple?
+
+```python
+app.UntitledNotepad.MenuSelect("Help->About Notepad")
+app.AboutNotepad.OK.Click()
+app.UntitledNotepad.Edit.TypeKeys ("pywinauto Works!", with_spaces = True)
+```
 
 ### Supported controls
 * Native Windows controls (full support through Win32 API)
@@ -52,7 +54,7 @@ or
 
 ### Downloads statistics
 * PyPI: [![Daily downloads](https://img.shields.io/pypi/dd/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Weekly downloads](https://img.shields.io/pypi/dw/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto) [![Monthly downloads](https://img.shields.io/pypi/dm/pywinauto.svg)](https://pypi.python.org/pypi/pywinauto)
-* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.3/pywinauto-0.5.3.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.3/pywinauto-0.5.3.zip)
+* GitHub: [![GitHub downloads](https://img.shields.io/github/downloads/pywinauto/pywinauto/0.5.4/pywinauto-0.5.4.zip.svg)](https://github.com/pywinauto/pywinauto/releases/download/0.5.4/pywinauto-0.5.4.zip)
 
 #### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow) or PIL

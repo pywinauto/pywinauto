@@ -1,6 +1,6 @@
-apps/
-ci/
-doc_src/
-sandbox/
+apps/*
+ci/*
+doc_src/*
+sandbox/*
 pywinauto/six.py
-pywinauto/unittests/
+pywinauto/unittests/*

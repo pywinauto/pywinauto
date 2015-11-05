@@ -20,10 +20,8 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Definition of Windows structures"
-from __future__ import absolute_import
-
-__revision__ = "$Revision$"
+"""Definition of Windows structures
+"""
 
 from .win32defines import LF_FACESIZE
 from . import six
