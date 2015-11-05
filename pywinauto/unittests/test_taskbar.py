@@ -115,7 +115,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
 def _wait_minimized(dlg):
     '''
-    A helper function to verify that a specified dialos is minimized.
+    A helper function to verify that the specified dialog is minimized.
     Basically, WaitNot('visible', timeout=30) would work too, just
     wanted to make sure the dlg is really got to the 'minimized' state
     because we test hiding the window to the tray
@@ -147,11 +147,10 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.WaitNot('ready')
 
         # cleanup additional unclosed sampleapps
-        hndls = findwindows.find_windows(title="TrayMenu")
         if self.app2:
             l = pywinauto.actionlogger.ActionLogger()
-            l.log("Cleanup unclosed sample app, handle: 0x%x" % (h))
-            self.app2.Close()
+            l.log("Cleanup the unclosed sample app: {0}".format(self.app2))
+            self.app2.TrayMenu.SendMessage(win32defines.WM_CLOSE)
 
     def testTaskbar(self):
         # just make sure it's found
@@ -283,9 +282,9 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
-        app2 = Application()
-        app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = app2.TrayMenu
+        self.app2 = Application()
+        self.app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        dlg2 = self.app2.TrayMenu
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
@@ -311,6 +310,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         # close the second sample app
         dlg2.SendMessage(win32defines.WM_CLOSE)
+        self.app2 = None
 
 if __name__ == "__main__":
     unittest.main()
