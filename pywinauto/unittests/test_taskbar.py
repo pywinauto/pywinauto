@@ -137,7 +137,7 @@ class TaskbarTestCases(unittest.TestCase):
         app = Application()
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         self.app = app
-        self.dlg = app.TrayMenu  # top_window_()
+        self.dlg = app.top_window_()
         self.dlg.Wait('ready', timeout=self.tm)
         self.app2 = None
 
@@ -250,7 +250,7 @@ class TaskbarTestCases(unittest.TestCase):
         # hopefully one of the icons moves into the hidden area
         self.app2 = Application()
         self.app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = self.app2.TrayMenu
+        dlg2 = self.app2.top_window_()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
