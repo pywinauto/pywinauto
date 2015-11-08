@@ -137,7 +137,7 @@ class TaskbarTestCases(unittest.TestCase):
         app = Application()
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         self.app = app
-        self.dlg = app.TrayMenu  # top_window_()
+        self.dlg = app.top_window_()
         self.dlg.Wait('ready', timeout=self.tm)
         self.app2 = None
 
@@ -150,7 +150,7 @@ class TaskbarTestCases(unittest.TestCase):
         if self.app2:
             l = pywinauto.actionlogger.ActionLogger()
             l.log("Cleanup the unclosed sample app: {0}".format(self.app2))
-            self.app2.TrayMenu.SendMessage(win32defines.WM_CLOSE)
+            self.app2.top_window_().SendMessage(win32defines.WM_CLOSE)
 
     def testTaskbar(self):
         # just make sure it's found
@@ -170,7 +170,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         time.sleep(5)
         app = Application.connect(path=sample_app_exe())
-        dlg = app.TrayMenu  # top_window_()
+        dlg = app.top_window_()
         Wait('ready', timeout=self.tm)
     '''
 
@@ -250,7 +250,7 @@ class TaskbarTestCases(unittest.TestCase):
         # hopefully one of the icons moves into the hidden area
         self.app2 = Application()
         self.app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = self.app2.TrayMenu
+        dlg2 = self.app2.top_window_()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
@@ -284,7 +284,7 @@ class TaskbarTestCases(unittest.TestCase):
         # hopefully one of the icons moves into the hidden area
         self.app2 = Application()
         self.app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = self.app2.TrayMenu
+        dlg2 = self.app2.top_window_()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
