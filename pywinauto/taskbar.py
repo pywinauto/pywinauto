@@ -26,6 +26,7 @@ This module will likely change significantly in the future!"""
 
 import warnings
 
+from . import sysinfo
 from pywinauto import findwindows
 from pywinauto import application
 
@@ -33,7 +34,10 @@ warnings.warn("The taskbar module is still very experimental", FutureWarning)
 
 def TaskBarHandle():
     "Return the first window that has a class name 'Shell_TrayWnd'"
-    return findwindows.find_windows(class_name = "Shell_TrayWnd")[0].handle
+    if sysinfo.UIA_support:
+        return findwindows.find_elements(class_name = "Shell_TrayWnd")[0].handle
+    else:
+        return findwindows.find_windows(class_name = "Shell_TrayWnd")[0].handle
 
 
 def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, by_tooltip = False, double = False):

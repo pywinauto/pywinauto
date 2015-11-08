@@ -72,7 +72,7 @@ import win32process, win32api, win32gui, win32con, win32event, multiprocessing
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
-from .sysinfo import is_x64_Python
+from .sysinfo import is_x64_Python, UIA_support
 
 
 class AppStartError(Exception):
@@ -231,7 +231,7 @@ class WindowSpecification(object):
             raise AttributeError(
                 "Application object has no attribute '%s'"% attr)
 
-        from pywinauto.controls.win32_controls import DialogWrapper
+        from .controls.win32_controls import DialogWrapper
 
         # if we already have 2 levels of criteria (dlg, conrol)
         # this third must be an attribute so resolve and get the
@@ -516,8 +516,10 @@ def _get_ctrl(criteria_):
     criteria = [crit.copy() for crit in criteria_]
 
     # find the dialog
-    dialog = controls.WrapHandle(
-        findwindows.find_window(**criteria[0]).handle)
+    if UIA_support:
+        dialog = controls.WrapElement(findwindows.find_window(**criteria[0]))
+    else:
+        dialog = controls.WrapHandle(findwindows.find_window(**criteria[0]).handle)
 
     ctrl = None
     # if there is only criteria for a dialog then return it
@@ -530,8 +532,10 @@ def _get_ctrl(criteria_):
             ctrl_criteria["parent"] = dialog.handle
 
         # resolve the control and return it
-        ctrl = controls.WrapHandle(
-            findwindows.find_window(**ctrl_criteria).handle)
+        if UIA_support:
+            ctrl = controls.WrapElement(findwindows.find_window(**ctrl_criteria))
+        else:
+            ctrl = controls.WrapHandle(findwindows.find_window(**ctrl_criteria).handle)
 
     if ctrl:
         return (dialog, ctrl)
@@ -593,7 +597,10 @@ def _resolve_from_appdata(
     dialog_criterion['class_name'] = matched_control[1]['Class']
 
     # find all the windows in the process
-    process_elems = findwindows.find_windows(**dialog_criterion)
+    if UIA_support:
+        process_elems = findwindows.find_elements(**dialog_criterion)
+    else:
+        process_elems = findwindows.find_windows(**dialog_criterion)
 
     dialog = None
     ctrl = None
@@ -614,7 +621,10 @@ def _resolve_from_appdata(
             #print controls.WrapHandle(h).GetProperties()
             #print "======", h, h, h
 
-            dialog = controls.WrapHandle(e.handle)
+            if UIA_support:
+                dialog = controls.WrapElement(e)
+            else:
+                dialog = controls.WrapHandle(e.handle)
 
             # if a control was specified also
             if len(criteria_) > 1:
@@ -636,7 +646,10 @@ def _resolve_from_appdata(
                 ctrl_criterion['top_level_only'] = False
                 #ctrl_criterion['predicate_func'] = has_same_id
                 #print "CTRLCTRJL", ctrl_criterion
-                ctrl_elems = findwindows.find_windows(**ctrl_criterion)
+                if UIA_support:
+                    ctrl_elems = findwindows.find_elements(**ctrl_criterion)
+                else:
+                    ctrl_elems = findwindows.find_windows(**ctrl_criterion)
 
                 if len(ctrl_elems) > 1:
                     same_ids = \
@@ -648,7 +661,10 @@ def _resolve_from_appdata(
                         ctrl_elems = same_ids
 
                 try:
-                    ctrl = controls.WrapHandle(ctrl_elems[0].handle)
+                    if UIA_support:
+                        ctrl = controls.WrapElement(ctrl_elems[0])
+                    else:
+                        ctrl = controls.WrapHandle(ctrl_elems[0].handle)
                 except IndexError:
                     print("-+-+=_" * 20)
                     #print(found_criteria)
@@ -1003,7 +1019,10 @@ class Application(object):
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_windows(process = self.process)
+            if UIA_support:
+                windows = findwindows.find_elements(process = self.process)
+            else:
+                windows = findwindows.find_windows(process = self.process)
             if windows:
                 break
             time.sleep(Timings.window_find_retry)
@@ -1024,8 +1043,10 @@ class Application(object):
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_windows(
-            process = self.process, active_only = True)
+        if UIA_support:
+            windows = findwindows.find_elements(process = self.process, active_only = True)
+        else:
+            windows = findwindows.find_windows(process = self.process, active_only = True)
 
         if not windows:
             raise RuntimeError("No Windows of that application are active")
@@ -1053,9 +1074,12 @@ class Application(object):
 
         kwargs['process'] = self.process
 
-        windows = findwindows.find_windows(**kwargs)
-
-        return [controls.WrapHandle(win.handle) for win in windows]
+        if UIA_support:
+            windows = findwindows.find_elements(**kwargs)
+            return [controls.WrapElement(win) for win in windows]
+        else:
+            windows = findwindows.find_windows(**kwargs)
+            return [controls.WrapHandle(win.handle) for win in windows]
 
     Windows_ = windows_
 

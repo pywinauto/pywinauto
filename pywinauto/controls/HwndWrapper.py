@@ -83,7 +83,7 @@ class InvalidWindowHandle(RuntimeError):
     def __init__(self, hwnd):
         "Initialise the RuntimError parent with the mesage"
         RuntimeError.__init__(self,
-            "Handle 0x%d is not a vaild window handle"% hwnd)
+            "Handle {0} is not a vaild window handle".format(hwnd))
 
 
 
@@ -141,13 +141,17 @@ class _MetaWrapper(type):
     @staticmethod
     def FindWrapperUIA(elementinfo):
         """Find the wrapper for this elementinfo"""
-        wrapper = FindWrapper(elementinfo.handle)
+        if elementinfo.handle != None:
+            wrapper = _MetaWrapper.FindWrapper(elementinfo.handle)
+            if wrapper == HwndWrapper:
+                if wrapper.controlType in _MetaWrapper.control_types.keys():
+                    wrapper = _MetaWrapper.control_types[wrapper.controlType]
+        else:
+            # TODO: temporary thing
+            from .ElementWrapper import ElementWrapper
+            wrapper = ElementWrapper
 
-        if wrapper == HwndWrapper:
-            try:
-                return _MetaWrapper.control_types[elementinfo.controlType]
-            except KeyError:
-                return HwndWrapper
+        return wrapper
 
 
 #====================================================================
