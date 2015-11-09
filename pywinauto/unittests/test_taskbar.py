@@ -218,6 +218,16 @@ class TaskbarTestCases(unittest.TestCase):
 
         # click in the visible area
         taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=self.tm)
+        taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
+
+        # verify PopupWindow method
+        menu_window = self.app.top_window_().Children()[0]
+        WaitUntil(self.tm, _retry_interval, menu_window.IsVisible)
+        menu_window.MenuBarClickInput("#2", self.app)
+        popup_window = self.app.top_window_()
+        hdl = self.dlg.PopupWindow()
+        self.assertEquals(popup_window.handle, hdl)
+
         taskbar.ClickSystemTrayIcon('MFCTrayDemo', double=True)
         self.dlg.Wait('active', timeout=self.tm)
 
