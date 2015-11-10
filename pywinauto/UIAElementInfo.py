@@ -1,8 +1,9 @@
 import comtypes
 import comtypes.client
 
-from .handleprops import text, dumpwindow
+from .handleprops import text, dumpwindow, controlid
 from .elementInfo import ElementInfo
+from .win32structures import RECT
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
 _iuia = comtypes.CoCreateInstance(
@@ -46,7 +47,14 @@ class UIAElementInfo(ElementInfo):
     def automationId(self):
         "Return AutomationId of element"
         return self._element.CurrentAutomationId
-    controlId = automationId
+
+    @property
+    def controlId(self):
+        "Return ControlId of element if it has handle"
+        if (self.handle):
+            return controlid(self.handle)
+        else:
+            return None;
 
     @property
     def processId(self):
@@ -68,19 +76,10 @@ class UIAElementInfo(ElementInfo):
         "Return class name of element"
         return self._element.CurrentClassName
     
-    @property
-    def windowText(self):
-        "Return windowText of element"
-        framework = self.frameworkId
-        if framework == "Win32":
-            return self._getTextFromHandle(self.handle)
-        elif framework == "WinForm":
-            return self._getTextFromHandle(self.handle)
-        
-        return self._getTextFromElementViaTextPattern(self._element)
+
 
     @property
-    def ControlType(self):
+    def controlType(self):
         "Return control type of element"
         return self._element.CurrentControlType
 
@@ -140,9 +139,31 @@ class UIAElementInfo(ElementInfo):
         "Check if element is enabled"
         return bool(self._element.CurrentIsEnabled)
 
+    @property
+    def rectangle(self):
+        "Return rectangle of element"
+        bound_rect = self.elem.CurrentBoundingRectangle
+        rect = RECT()
+        rect.left = bound_rect.left
+        rect.top = bound_rect.top
+        rect.right = bound_rect.right
+        rect.bottom = bound_rect.bottom
+        return rect
+
     def dumpWindow(self):
         "Dump a window to a set of properties"
         return dumpwindow(self.handle)
+
+    @property
+    def windowText(self):
+        "Return windowText of element"
+        framework = self.frameworkId
+        if framework == "Win32":
+            return self._getTextFromHandle(self.handle)
+        elif framework == "WinForm":
+            return self._getTextFromHandle(self.handle)
+
+        return self._getTextFromElementViaTextPattern(self._element)
 
     def _getTextFromHandle(self, handle):
         return text(self.handle)
@@ -152,6 +173,7 @@ class UIAElementInfo(ElementInfo):
         if _patternId['textPattern'] in supportedPatterns:
             textpattern = element.GetCurrentPatternAs(_patternId['textPattern'], "32eba289-3583-42c9-9c59-3b6d9a1e9b6a")
         else:
+            return ''
             raise NotImplementedError()
             
         return textPattern.DocumentRange.GetText()
@@ -161,5 +183,5 @@ class UIAElementInfo(ElementInfo):
         if not isinstance(other, UIAElementInfo):
             return False;
         return self.handle == other.handle and self.className == other.className and self.name == other.name and \
-               self.processId == other.processId and self.controlId == other.controlId and \
-               self.frameworkId == other.frameworkId and self.ControlType == other.ControlType
+               self.processId == other.processId and self.automationId == other.automationId and \
+               self.frameworkId == other.frameworkId and self.controlType == other.controlType

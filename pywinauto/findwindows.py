@@ -35,7 +35,9 @@ from . import handleprops
 from . import findbestmatch
 from . import controls
 from .elementInfo import NativeElementInfo
-from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
+
+if sysinfo.UIA_support:
+    from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
 
 # TODO: we should filter out invalid windows before returning
 
@@ -128,7 +130,7 @@ def find_elements(class_name = None,
 
     # check if parent is a handle of element (in case of searching native controls)
     if parent:
-        if isinstance(parent, int):
+        if isinstance(parent, (int, ctypes.c_long)):
             parent = UIAElementInfo(parent)
 
     if top_level_only:
@@ -157,7 +159,7 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.controlId == control_id]
 
     if active_only:
-        # TODO: getting active windows is based on win32functions - needs rewriting
+        # TODO: getting active windows is based on win32functions - rewriting is needed
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
 
@@ -209,14 +211,13 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.enabled]
 
     if best_match is not None:
-        print('best_match = ', len(elements))
         wrapped_elems = []
         for elem in elements:
             try:
                 # TODO: can't skip invalid handles because UIA element can have no handle
                 # TODO: rewrite findbestmatch metod ? or use className and name check ?
-                if elem.handle:
-                #if elem.name and elem.name != '':
+                #if elem.handle:
+                if elem.className and elem.className != '':
                     wrapped_elems.append(controls.WrapElement(elem))
             except controls.InvalidWindowElement:
                 # skip invalid handles - they have dissapeared

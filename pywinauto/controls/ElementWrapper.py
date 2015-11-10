@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from __future__ import unicode_literals
 from __future__ import print_function
 
@@ -68,7 +67,7 @@ WindowPattern = comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
 #endregion
 
 #=========================================================================
-_control_types = [attr[len('UIA_'):][:-len('ControlTypeId')] for attr in dir(_UIA_dll) if attr.endswith('ControlTypeId')]
+_control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(_UIA_dll) if attr.endswith('ControlTypeId')]
 _known_control_types = {}
 for type in _control_types:
     _known_control_types[type] = _UIA_dll.__getattribute__('UIA_' + type + 'ControlTypeId')
@@ -142,6 +141,7 @@ class ElementWrapper(object):
     controltypes = []
     handle = None
     can_be_label = False
+    has_title = True
 
     #------------------------------------------------------------
     def __new__(cls, elementInfo):
@@ -175,10 +175,443 @@ class ElementWrapper(object):
             raise TypeError('ElementWrapper can be initialized with UIAElementInfo instance only!')
         if elementInfo:
             self._elementInfo = elementInfo
-            if self._elementInfo.ControlType in ['Button', 'Text', 'Group']:
+            if self._elementInfo.controlType in ['Button', 'Text', 'Group']:
                 self.can_be_label = True
+
+            self._cache = {}
+
             self.actions = ActionLogger()
         else:
             raise RuntimeError('NULL COM pointer used to initialize ElementWrapper')
 
     #------------------------------------------------------------
+    def FriendlyClassName(self):
+        """
+        Return the friendly class name for the control
+
+        This differs from the class of the control in some cases.
+        Class() is the actual 'Registered' window class of the control
+        while FriendlyClassName() is hopefully something that will make
+        more sense to the user.
+
+        For example Checkboxes are implemented as Buttons - so the class
+        of a CheckBox is "Button" - but the friendly class is "CheckBox"
+        """
+        if self._elementInfo.controlType not in pywinauto_control_types.keys():
+            return self._elementInfo.controlType
+        if pywinauto_control_types[self._elementInfo.controlType] is None:
+            return self._elementInfo.controlType
+        return pywinauto_control_types[self._elementInfo.controlType]
+
+    #------------------------------------------------------------
+    def Class(self):
+        """Return the class name of the elenemt"""
+        if not ("class" in self._cache.keys()):
+            self._cache['class'] = self._elementInfo.className
+        return self._cache['class']
+
+    #------------------------------------------------------------
+    def WindowText(self):
+        """
+        Window text of the element
+
+        Quite  a few contorls have other text that is visible, for example
+        Edit controls usually have an empty string for WindowText but still
+        have text displayed in the edit window.
+        """
+        return self._elementInfo.windowText
+
+    #------------------------------------------------------------
+    def Style(self):
+        pass
+
+    #------------------------------------------------------------
+    def ExStyle(self):
+        pass
+
+    #------------------------------------------------------------
+    def ControlID(self):
+        pass
+
+    #------------------------------------------------------------
+    def UserData(self):
+        pass
+
+    #------------------------------------------------------------
+    def ContextHelpID(self):
+        pass
+
+    #------------------------------------------------------------
+    def IsActive(self):
+        pass
+
+    #------------------------------------------------------------
+    def IsUnicode(self):
+        pass
+
+    #------------------------------------------------------------
+    def IsVisible(self):
+        """
+        Whether the element is visible or not
+        """
+        return self._elementInfo.visible
+
+    #------------------------------------------------------------
+    def IsEnabled(self):
+        pass
+
+    #------------------------------------------------------------
+    def Rectangle(self):
+        """
+        Return the rectangle of window
+
+        The rectangle is the rectangle of the element on the screen,
+        coordinates are given from the top left of the screen.
+
+        This method returns a RECT structure, Which has attributes - top,
+        left, right, bottom. and has methods width() and height().
+        See win32structures.RECT for more information.
+        """
+        return self._elementInfo.rectangle
+
+    #------------------------------------------------------------
+    def ClientRect(self):
+        pass
+
+    #------------------------------------------------------------
+    def ClientToScreen(self, client_point):
+        pass
+
+    #------------------------------------------------------------
+    def Font(self):
+        pass
+
+    #-----------------------------------------------------------
+    def ProcessID(self):
+        pass
+
+    #-----------------------------------------------------------
+    def HasStyle(self, style):
+        pass
+
+    #-----------------------------------------------------------
+    def HasExStyle(self, exstyle):
+        pass
+
+    #-----------------------------------------------------------
+    def IsDialog(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Parent(self):
+        pass
+
+    #-----------------------------------------------------------
+    def TopLevelParent(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Texts(self):
+        """Return the text for each item of this control"
+
+        It is a list of strings for the control. It is frequently over-ridden
+        to extract all strings from a control with multiple items.
+
+        It is always a list with one or more strings:
+
+          * First elemtent is the window text of the control
+          * Subsequent elements contain the text of any items of the
+            control (e.g. items in a listbox/combobox, tabs in a tabcontrol)
+        """
+        texts = [self.WindowText(), ]
+        return texts
+
+    #-----------------------------------------------------------
+    def ClientRects(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Fonts(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Children(self):
+        pass
+
+    #-----------------------------------------------------------
+    def ControlCount(self):
+        pass
+
+    #-----------------------------------------------------------
+    def IsChild(self, parent):
+        pass
+
+    #-----------------------------------------------------------
+    def SendCommand(self, commandID):
+        pass
+
+    #-----------------------------------------------------------
+    def PostCommand(self, commandID):
+        pass
+
+    #-----------------------------------------------------------
+    #def Notify(self, code):
+
+    #-----------------------------------------------------------
+    def SendMessage(self, message, wparam = 0 , lparam = 0):
+        pass
+
+    #-----------------------------------------------------------
+    def SendMessageTimeout(self):
+        pass
+
+    #-----------------------------------------------------------
+    def PostMessage(self, message, wparam = 0 , lparam = 0):
+        pass
+
+    #-----------------------------------------------------------
+    #def NotifyMenuSelect(self, menu_id):
+
+    #-----------------------------------------------------------
+    def NotifyParent(self, message, controlID = None):
+        pass
+
+    #-----------------------------------------------------------
+    def GetProperties(self):
+        pass
+
+    #-----------------------------------------------------------
+    def CaptureAsImage(self, rect = None):
+        pass
+
+    #-----------------------------------------------------------
+    def __hash__(self):
+        pass
+
+    #-----------------------------------------------------------
+    def __eq__(self, other):
+        pass
+
+    #-----------------------------------------------------------
+    def __ne__(self, other):
+        pass
+
+    #-----------------------------------------------------------
+    def VerifyActionable(self):
+        pass
+
+    #-----------------------------------------------------------
+    def VerifyEnabled(self):
+        pass
+
+    #-----------------------------------------------------------
+    def VerifyVisible(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Click(self):
+        pass
+
+    #-----------------------------------------------------------
+    def ClickInput(self):
+        pass
+
+    #-----------------------------------------------------------
+    def CloseClick(self):
+        pass
+
+    #-----------------------------------------------------------
+    def CloseAltF4(self):
+        pass
+
+    #-----------------------------------------------------------
+    def DoubleClick(self):
+        pass
+
+    #-----------------------------------------------------------
+    def DoubleClickInput(self, button = "left", coords = (None, None)):
+        pass
+
+    #-----------------------------------------------------------
+    def RightClick(self):
+        pass
+
+    #-----------------------------------------------------------
+    def RightClickInput(self, coords = (None, None)):
+        pass
+
+    #-----------------------------------------------------------
+    def PressMouse(self, button = "left", coords = (0, 0), pressed = ""):
+        pass
+
+    #-----------------------------------------------------------
+    def PressMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
+        pass
+
+    #-----------------------------------------------------------
+    def ReleaseMouse(self, button = "left", coords = (0, 0), pressed = ""):
+        pass
+
+    #-----------------------------------------------------------
+    def ReleaseMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
+        pass
+
+    #-----------------------------------------------------------
+    def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
+        pass
+
+    #-----------------------------------------------------------
+    def MoveMouseInput(self, coords = (0, 0), pressed = "", absolute = False):
+        pass
+
+    #-----------------------------------------------------------
+    def DragMouse(self):
+        pass
+
+    #-----------------------------------------------------------
+    def DragMouseInput(self):
+        pass
+
+    #-----------------------------------------------------------
+    def WheelMouseInput(self):
+        pass
+
+    #-----------------------------------------------------------
+    def SetWindowText(self, text, append = False):
+        pass
+
+    #-----------------------------------------------------------
+    def TypeKeys(self):
+        pass
+
+    #-----------------------------------------------------------
+    def DebugMessage(self, text):
+        pass
+
+    #-----------------------------------------------------------
+    def DrawOutline(self):
+        pass
+
+    #-----------------------------------------------------------
+    def SetTransparency(self, alpha = 120):
+        pass
+
+    #-----------------------------------------------------------
+    def PopupWindow(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Owner(self):
+        pass
+
+    #-----------------------------------------------------------
+    #def ContextMenuSelect(self, path, x = None, y = None):
+
+    #-----------------------------------------------------------
+    def _menu_handle(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Menu(self):
+        pass
+
+    #-----------------------------------------------------------
+    def MenuItem(self, path, exact = False):
+        pass
+
+    #-----------------------------------------------------------
+    def MenuItems(self):
+        pass
+
+    #-----------------------------------------------------------
+    #def MenuClick(self, path):
+
+    #-----------------------------------------------------------
+    def MenuSelect(self, path, exact = False, ):
+        pass
+
+    #-----------------------------------------------------------
+    def MoveWindow(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Close(self, wait_time = 0):
+        pass
+
+    #-----------------------------------------------------------
+    def Maximize(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Minimize(self):
+        pass
+
+    #-----------------------------------------------------------
+    def Restore(self):
+        pass
+
+    #-----------------------------------------------------------
+    def GetShowState(self):
+        pass
+
+    #-----------------------------------------------------------
+    def GetActive(self):
+        pass
+
+    #-----------------------------------------------------------
+    def GetFocus(self):
+        pass
+
+    #-----------------------------------------------------------
+    def SetFocus(self):
+        pass
+
+    #-----------------------------------------------------------
+    def SetApplicationData(self, appdata):
+        pass
+
+    #-----------------------------------------------------------
+    def Scroll(self, direction, amount, count = 1, retry_interval = None):
+        pass
+
+    #-----------------------------------------------------------
+    def GetToolbar(self):
+        """Get the first child toolbar if it exists"""
+
+        for child in self.Children():
+            if child.__class__.__name__ == 'ToolbarWrapper':
+                return child
+
+        return None
+
+
+#====================================================================
+def _perform_click_input():
+    pass
+
+#====================================================================
+def _perform_click():
+    pass
+
+"""
+_mouse_flags = {
+    "left": win32defines.MK_LBUTTON,
+    "right": win32defines.MK_RBUTTON,
+    "middle": win32defines.MK_MBUTTON,
+    "shift": win32defines.MK_SHIFT,
+    "control": win32defines.MK_CONTROL,
+}
+"""
+
+#====================================================================
+def _calc_flags_and_coords(pressed, coords):
+    pass
+
+#====================================================================
+class _dummy_control(dict):
+    "A subclass of dict so that we can assign attributes"
+    pass
+
+#====================================================================
+def GetDialogPropsFromHandle(hwnd):
+    pass
