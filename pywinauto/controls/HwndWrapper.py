@@ -1266,7 +1266,6 @@ class HwndWrapper(object):
         
         Please do not use in production code yet - not tested fully
         """
-        # it seems GW_ENABLEDPOPUP should be used, but it doesn't work
         popup = win32functions.GetWindow(self, win32defines.GW_ENABLEDPOPUP)
 
         return popup
