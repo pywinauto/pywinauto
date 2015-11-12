@@ -514,7 +514,6 @@ def _get_ctrl(criteria_):
 
     # make a copy of the criteria
     criteria = [crit.copy() for crit in criteria_]
-
     # find the dialog
     if UIA_support:
         dialog = controls.WrapElement(findwindows.find_window(**criteria[0]))

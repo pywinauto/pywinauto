@@ -100,6 +100,7 @@ def find_elements(class_name = None,
                   predicate_func = None,
                   active_only = False,
                   control_id = None,
+                  auto_id = None,
     ):
     """
     Find elements based on criteria passed in
@@ -145,10 +146,11 @@ def find_elements(class_name = None,
     else:
         # if not given a parent look for all children of the desktop
         if not parent:
-            parent = UIAElementInfo(None)
+            parent = UIAElementInfo.fromElement(_iuia.getRootElement())
 
         # look for all children of that parent
-        elements = parent.descendants
+        #elements = parent.descendants
+        elements = parent.children()
 
         # if the ctrl_index has been specified then just return
         # that control
@@ -157,6 +159,9 @@ def find_elements(class_name = None,
 
     if control_id is not None and elements:
         elements = [elem for elem in elements if elem.controlId == control_id]
+
+    if auto_id is not None and elements:
+        elements = [elem for elem in elements if elem.automationId == auto_id]
 
     if active_only:
         # TODO: getting active windows is based on win32functions - rewriting is needed
@@ -215,9 +220,9 @@ def find_elements(class_name = None,
         for elem in elements:
             try:
                 # TODO: can't skip invalid handles because UIA element can have no handle
-                # TODO: rewrite findbestmatch metod ? or use className and name check ?
+                # TODO: use name or className check for this
                 #if elem.handle:
-                if elem.className and elem.className != '':
+                if elem.className or elem.name:
                     wrapped_elems.append(controls.WrapElement(elem))
             except controls.InvalidWindowElement:
                 # skip invalid handles - they have dissapeared
@@ -227,10 +232,13 @@ def find_elements(class_name = None,
             best_match, wrapped_elems)
 
         # convert found elements back to UIAElementInfo
-        # TODO: once again: UIA element can have no handle but findbestmatch returns all kinds of wrappers
-        # TODO: (e.g. DialogWrapper or ListViewWrapper)
-        # TODO: rewrite findbestmatch or write a method to be able to convert wrapped objects back to UIAElementInfo
-        elements = [UIAElementInfo(elem.handle) for elem in elements]
+        backup_elements = elements[:]
+        elements = []
+        for elem in backup_elements:
+            if hasattr(elem, "_elementInfo"):
+                elements.append(elem._elementInfo)
+            else:
+                elements.append(UIAElementInfo(elem.handle))
 
     if predicate_func is not None:
         elements = [elem for elem in elements if predicate_func(elem)]
@@ -428,8 +436,5 @@ def enum_windows():
 #=========================================================================
 def enum_elements():
     "Return a list of UIAElementInfo objects of all the top level windows using UIA functions"
-    # TODO: enum_elements() returns UIAElementInfo's from handles from enum_windows()
-    # TODO: enum_windows() returns 100+ handles
-    # TODO: what is enum_windows() supposed to return? all top-level controls from all windows?
-    windows = enum_windows()
-    return [UIAElementInfo(handle) for handle in windows]
+    root = UIAElementInfo.fromElement(_iuia.getRootElement())
+    return root.children()

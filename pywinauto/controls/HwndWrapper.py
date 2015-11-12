@@ -74,7 +74,7 @@ class ControlNotEnabled(RuntimeError):
 
 #====================================================================
 class ControlNotVisible(RuntimeError):
-    "Raised when a control is nto visible"
+    "Raised when a control is not visible"
     pass
 
 #====================================================================
@@ -1733,12 +1733,10 @@ def _perform_click_input(
     if button.lower() == 'wheel':
         events.append(win32defines.MOUSEEVENTF_WHEEL)
 
-
     # if we were asked to double click (and we are doing a full click
     # not just up or down.
     if double and button_down and button_up:
         events *= 2
-
 
     if ctrl is None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
@@ -1778,7 +1776,6 @@ def _perform_click_input(
         SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
     if ('alt' in keyboard_keys) and key_down:
         SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up = False).Run()
-
 
     inp_struct.mi.dwFlags = 0
     for event in events:
@@ -1827,9 +1824,6 @@ def _perform_click_input(
             message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
                   '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
         ActionLogger().log(message)
-
-
-
 
 #====================================================================
 def _perform_click(
@@ -2000,10 +1994,3 @@ def GetDialogPropsFromHandle(hwnd):
         props.append(ctrl_props)
 
     return props
-
-
-
-
-
-
-

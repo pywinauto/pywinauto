@@ -25,6 +25,33 @@ _patternId = {
     'textPattern': _UIA_dll.UIA_TextPatternId
 }
 
+"""
+Possible properties:
+
+CurrentAcceleratorKey
+CurrentAccessKey
+CurrentAriaProperties
+CurrentAriaRole
+CurrentControllerFor
+CurrentCulture
+CurrentDescribedBy
+CurrentFlowsTo
+CurrentHasKeyboardFocus
+CurrentHelpText
+CurrentIsContentElement
+CurrentIsControlElement
+CurrentIsDataValidForForm
+CurrentIsKeyboardFocusable
+CurrentIsPassword
+CurrentIsRequiredForForm
+CurrentItemStatus
+CurrentItemType
+CurrentLabeledBy
+CurrentLocalizedControlType
+CurrentOrientation
+CurrentProviderDescription
+"""
+
 class UIAElementInfo(ElementInfo):
     "UI element wrapper for IUIAutomation API"
 
@@ -75,8 +102,6 @@ class UIAElementInfo(ElementInfo):
     def className(self):
         "Return class name of element"
         return self._element.CurrentClassName
-    
-
 
     @property
     def controlType(self):
@@ -96,7 +121,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def parent(self):
         "Return parent of element"
-        return UIAElementInfo(_iuia.ControlViewWalker.GetParentElement(self._element).CurrentNativeWindowHandle)
+        return UIAElementInfo.fromElement(_iuia.ControlViewWalker.GetParentElement(self._element))
 
     def children(self):
         "Return list of children for element"
@@ -142,7 +167,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def rectangle(self):
         "Return rectangle of element"
-        bound_rect = self.elem.CurrentBoundingRectangle
+        bound_rect = self._element.CurrentBoundingRectangle
         rect = RECT()
         rect.left = bound_rect.left
         rect.top = bound_rect.top
@@ -157,13 +182,21 @@ class UIAElementInfo(ElementInfo):
     @property
     def windowText(self):
         "Return windowText of element"
-        framework = self.frameworkId
-        if framework == "Win32":
-            return self._getTextFromHandle(self.handle)
-        elif framework == "WinForm":
-            return self._getTextFromHandle(self.handle)
+        # TODO: replaced this function with the one from PythonicAutomationElement
+        if self.className == '':
+            return self.name
+        try:
+            pattern = self._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId).QueryInterface(TextPattern)
+            return pattern.DocumentRange.GetText(-1)
+        except:
+            return self.name
 
-        return self._getTextFromElementViaTextPattern(self._element)
+        #framework = self.frameworkId
+        #if framework == "Win32":
+        #    return self._getTextFromHandle(self.handle)
+        #elif framework == "WinForm":
+        #    return self._getTextFromHandle(self.handle)
+        #return self._getTextFromElementViaTextPattern(self._element)
 
     def _getTextFromHandle(self, handle):
         return text(self.handle)

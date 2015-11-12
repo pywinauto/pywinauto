@@ -2,25 +2,19 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 #region IMPORTS
-# pylint:  disable-msg=W0611
-
 #import sys
 import time
 import re
-#import ctypes
+import ctypes
 #import win32api
 #import win32gui
 #import win32con
 #import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
 #import locale
 
-# the wrappers may be used in an environment that does not need
-# the actions - as such I don't want to require sendkeys - so
-# the following makes the import optional.
-
 from .. import SendKeysCtypes as SendKeys
 from .. import six
-#from .. import win32functions, win32defines, win32structures
+from .. import win32defines, win32structures, win32functions
 from ..timings import Timings
 from ..actionlogger import ActionLogger
 
@@ -34,7 +28,7 @@ from System.Windows.Automation import SelectionItemPattern, SelectionPattern, Sy
 from System.Windows.Automation import TextPattern, TogglePattern, TransformPattern, ValuePattern, VirtualizedItemPattern, WindowPattern
 '''
 
-from .HwndWrapper import _MetaWrapper, HwndWrapper
+from .HwndWrapper import _MetaWrapper, HwndWrapper, _perform_click_input
 #endregion
 
 from ..UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia
@@ -70,7 +64,7 @@ WindowPattern = comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
 _control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(_UIA_dll) if attr.endswith('ControlTypeId')]
 _known_control_types = {}
 for type in _control_types:
-    _known_control_types[type] = _UIA_dll.__getattribute__('UIA_' + type + 'ControlTypeId')
+    _known_control_types[_UIA_dll.__getattribute__('UIA_' + type + 'ControlTypeId')] = type
 
 #=========================================================================
 pywinauto_control_types = {'Custom': None,
@@ -112,6 +106,15 @@ class WindowNotFoundError(Exception):
 #=========================================================================
 class WindowAmbiguousError(Exception):
     "There was more then one window that matched"
+    pass
+#=========================================================================
+class ElementNotEnabled(RuntimeError):
+    "Raised when an element is not enabled"
+    pass
+
+#=========================================================================
+class ElementNotVisible(RuntimeError):
+    "Raised when an element is not visible"
     pass
 #=========================================================================
 class InvalidWindowElement(RuntimeError):
@@ -197,11 +200,14 @@ class ElementWrapper(object):
         For example Checkboxes are implemented as Buttons - so the class
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
-        if self._elementInfo.controlType not in pywinauto_control_types.keys():
-            return self._elementInfo.controlType
-        if pywinauto_control_types[self._elementInfo.controlType] is None:
-            return self._elementInfo.controlType
-        return pywinauto_control_types[self._elementInfo.controlType]
+        if self._elementInfo.controlType not in _known_control_types.keys():
+            return str(self._elementInfo.controlType)
+        ControlType = _known_control_types[self._elementInfo.controlType]
+        if ControlType not in pywinauto_control_types.keys():
+            return ControlType
+        if pywinauto_control_types[ControlType] is None:
+            return ControlType
+        return pywinauto_control_types[ControlType]
 
     #------------------------------------------------------------
     def Class(self):
@@ -231,7 +237,16 @@ class ElementWrapper(object):
 
     #------------------------------------------------------------
     def ControlID(self):
-        pass
+        """
+        Return the ID of the element
+
+        Only controls have a valid ID - dialogs usually have no ID assigned.
+
+        The ID usually identified the control in the window - but there can
+        be duplicate ID's for example lables in a dialog may have duplicate
+        ID's.
+        """
+        return self._elementInfo.controlId
 
     #------------------------------------------------------------
     def UserData(self):
@@ -253,12 +268,39 @@ class ElementWrapper(object):
     def IsVisible(self):
         """
         Whether the element is visible or not
+
+        Checks that both the Top Level Parent (probably dialog) that
+        owns this element and the element itself are both visible.
+
+        If you want to wait for an element to become visible (or wait
+        for it to become hidden) use ``Application.Wait('visible')`` or
+        ``Application.WaitNot('visible')``.
+
+        If you want to raise an exception immediately if an element is
+        not visible then you can use the ElementWrapper.VerifyVisible().
+        ElementWrapper.VerifyActionable() raises if the window is not both
+        visible and enabled.
         """
-        return self._elementInfo.visible
+        return self._elementInfo.visible# and self.TopLevelParent()._elementInfo.visible
 
     #------------------------------------------------------------
     def IsEnabled(self):
-        pass
+        """
+        Whether the element is enabled or not
+
+        Checks that both the Top Level Parent (probably dialog) that
+        owns this element and the element itself are both enabled.
+
+        If you want to wait for an element to become enabled (or wait
+        for it to become disabled) use ``Application.Wait('visible')`` or
+        ``Application.WaitNot('visible')``.
+
+        If you want to raise an exception immediately if an element is
+        not enabled then you can use the ElementWrapper.VerifyEnabled().
+        ElementWrapper.VerifyReady() raises if the window is not both
+        visible and enabled.
+        """
+        return self._elementInfo.enabled# and self.TopLevelParent()._elementInfo.enabled
 
     #------------------------------------------------------------
     def Rectangle(self):
@@ -280,7 +322,25 @@ class ElementWrapper(object):
 
     #------------------------------------------------------------
     def ClientToScreen(self, client_point):
-        pass
+        "Maps point from client to screen coordinates"
+        rect = self.Rectangle()
+        if isinstance(client_point, win32structures.POINT):
+            return (client_point.x + rect.left, client_point.y + rect.top)
+        else:
+            return (client_point[0] + rect.left, client_point[1] + rect.top)
+
+        #point = win32structures.POINT()
+        #if isinstance(client_point, win32structures.POINT):
+        #    point.x = client_point.x
+        #    point.y = client_point.y
+        #else:
+        #    point.x = client_point[0]
+        #    point.y = client_point[1]
+        #win32functions.ClientToScreen(self, ctypes.byref(point))
+
+        # return tuple in any case because
+        # coords param is always expected to be tuple
+        #return point.x, point.y
 
     #------------------------------------------------------------
     def Font(self):
@@ -288,7 +348,8 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def ProcessID(self):
-        pass
+        "Return the ID of process that owns this window"
+        return self._elementInfo.processId
 
     #-----------------------------------------------------------
     def HasStyle(self, style):
@@ -300,15 +361,58 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def IsDialog(self):
-        pass
+        "Return true if the control is a top level window"
+        if not ("isdialog" in self._cache.keys()):
+            if self.Parent():
+                self._cache['isdialog'] = (self == self.TopLevelParent())
+            else:
+                self._cache['isdialog'] = False
+
+        return self._cache['isdialog']
 
     #-----------------------------------------------------------
     def Parent(self):
-        pass
+        """
+        Return the parent of this element
+
+        Note that the parent of a control is not necesarily a dialog or
+        other main window. A group box may be the parent of some radio
+        buttons for example.
+
+        To get the main (or top level) window then use
+        ElementWrapper.TopLevelParent().
+        """
+        if not ("parent" in self._cache.keys()):
+            parent_elem = self._elementInfo.parent
+
+            if parent_elem:
+                self._cache["parent"] = ElementWrapper(parent_elem)
+            else:
+                self._cache["parent"] = None
+
+        return self._cache["parent"]
 
     #-----------------------------------------------------------
     def TopLevelParent(self):
-        pass
+        """
+        Return the top level window of this control
+
+        The TopLevel parent is different from the parent in that the Parent
+        is the element that owns this element - but it may not be a dialog/main
+        window. For example most Comboboxes have an Edit. The ComboBox is the
+        parent of the Edit control.
+
+        This will always return a valid window element (if the control has
+        no top level parent then the control itself is returned - as it is
+        a top level window already!)
+        """
+        if not ("top_level_parent" in self._cache.keys()):
+            if self.Parent() == ElementWrapper(UIAElementInfo.fromElement(_iuia.getRootElement())):
+                self._cache["top_level_parent"] = self
+            else:
+                return self.Parent().TopLevelParent()
+
+        return self._cache["top_level_parent"]
 
     #-----------------------------------------------------------
     def Texts(self):
@@ -336,11 +440,19 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def Children(self):
-        pass
+        """
+        Return the children of this element as a list
+
+        It returns a list of ElementWrapper (or subclass) instances, it
+        returns an empty list if there are no children.
+        """
+        child_elements = self._elementInfo.children()
+        return [ElementWrapper(elementInfo) for elementInfo in child_elements]
 
     #-----------------------------------------------------------
     def ControlCount(self):
-        pass
+        "Return the number of children of this control"
+        return len(self._elementInfo.children())
 
     #-----------------------------------------------------------
     def IsChild(self, parent):
@@ -355,7 +467,8 @@ class ElementWrapper(object):
         pass
 
     #-----------------------------------------------------------
-    #def Notify(self, code):
+    def Notify(self, code):
+        pass
 
     #-----------------------------------------------------------
     def SendMessage(self, message, wparam = 0 , lparam = 0):
@@ -370,7 +483,8 @@ class ElementWrapper(object):
         pass
 
     #-----------------------------------------------------------
-    #def NotifyMenuSelect(self, menu_id):
+    def NotifyMenuSelect(self, menu_id):
+        pass
 
     #-----------------------------------------------------------
     def NotifyParent(self, message, controlID = None):
@@ -390,31 +504,92 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def __eq__(self, other):
-        pass
+        "Returns true if 2 ElementWrapper's describe 1 actual element"
+        if isinstance(other, ElementWrapper):
+            return self._elementInfo == other._elementInfo
+        else:
+            return False
 
     #-----------------------------------------------------------
     def __ne__(self, other):
-        pass
+        "Returns False if the elements described by 2 ElementWrapper's are different"
+        return not self == other
 
     #-----------------------------------------------------------
     def VerifyActionable(self):
-        pass
+        """
+        Verify that the element is both visible and enabled
+
+        Raise either ElementNotEnalbed or ElementNotVisible if not
+        enabled or visible respectively.
+        """
+        win32functions.WaitGuiThreadIdle(self)
+        self.VerifyVisible()
+        self.VerifyEnabled()
 
     #-----------------------------------------------------------
     def VerifyEnabled(self):
-        pass
+        """
+        Verify that the element is enabled
+
+        Check first if the element's parent is enabled (skip if no parent),
+        then check if element itself is enabled.
+        """
+
+        # Check if the element and it's parent are enabled
+        if not self.IsEnabled():
+            raise ElementNotEnabled()
 
     #-----------------------------------------------------------
     def VerifyVisible(self):
-        pass
+        """
+        Verify that the element is visible
+
+        Check first if the element's parent is visible. (skip if no parent),
+        then check if element itself is visible.
+        """
+
+        # check if the control and it's parent are visible
+        if not self.IsVisible():
+            raise ElementNotVisible()
 
     #-----------------------------------------------------------
     def Click(self):
         pass
 
     #-----------------------------------------------------------
-    def ClickInput(self):
-        pass
+    def ClickInput(
+        self,
+        button = "left",
+        coords = (None, None),
+        double = False,
+        wheel_dist = 0,
+        use_log = True,
+        pressed = "",
+        absolute = False
+    ):
+        """
+        Click at the specified coordinates
+
+        * **button** The mouse button to click. One of 'left', 'right',
+          'middle' or 'x' (Default: 'left')
+        * **coords** The coordinates to click at.(Default: center of control)
+        * **double** Whether to perform a double click or not (Default: False)
+        * **wheel_dist** The distance to move the mouse wheel (default: 0)
+
+        NOTES:
+           This is different from Click in that it requires the control to
+           be visible on the screen but performs a more realistic 'click'
+           simulation.
+
+           This method is also vulnerable if the mouse is moved by the user
+           as that could easily move the mouse off the control before the
+           Click has finished.
+        """
+        _perform_click_input(
+            self, button, coords, double, wheel_dist = wheel_dist, use_log = use_log, pressed = pressed,
+            absolute = absolute
+        )
 
     #-----------------------------------------------------------
     def CloseClick(self):
@@ -430,7 +605,8 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def DoubleClickInput(self, button = "left", coords = (None, None)):
-        pass
+        "Double click at the specified coordinates"
+        _perform_click_input(self, button, coords, double = True)
 
     #-----------------------------------------------------------
     def RightClick(self):
@@ -438,23 +614,62 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def RightClickInput(self, coords = (None, None)):
-        pass
+        "Right click at the specified coords"
+        _perform_click_input(self, 'right', coords)
 
     #-----------------------------------------------------------
     def PressMouse(self, button = "left", coords = (0, 0), pressed = ""):
         pass
 
     #-----------------------------------------------------------
-    def PressMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
-        pass
+    def PressMouseInput(
+            self,
+            button = "left",
+            coords = (None, None),
+            pressed = "",
+            absolute = False,
+            key_down = True,
+            key_up = True
+    ):
+        "Press a mouse button using SendInput"
+        _perform_click_input(
+            self,
+            button,
+            coords,
+            button_down=True,
+            button_up=False,
+            pressed=pressed,
+            absolute=absolute,
+            key_down=key_down,
+            key_up=key_up
+        )
 
     #-----------------------------------------------------------
     def ReleaseMouse(self, button = "left", coords = (0, 0), pressed = ""):
         pass
 
     #-----------------------------------------------------------
-    def ReleaseMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
-        pass
+    def ReleaseMouseInput(
+            self,
+            button = "left",
+            coords = (None, None),
+            pressed = "",
+            absolute = False,
+            key_down = True,
+            key_up = True
+    ):
+        "Release the mouse button"
+        _perform_click_input(
+            self,
+            button,
+            coords,
+            button_down=False,
+            button_up=True,
+            pressed=pressed,
+            absolute=absolute,
+            key_down=key_down,
+            key_up=key_up
+        )
 
     #-----------------------------------------------------------
     def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
@@ -462,7 +677,14 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def MoveMouseInput(self, coords = (0, 0), pressed = "", absolute = False):
-        pass
+        "Move the mouse"
+        if not absolute:
+            self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
+
+        _perform_click_input(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
+
+        win32functions.WaitGuiThreadIdle(self)
+        return self
 
     #-----------------------------------------------------------
     def DragMouse(self):
@@ -473,16 +695,32 @@ class ElementWrapper(object):
         pass
 
     #-----------------------------------------------------------
-    def WheelMouseInput(self):
-        pass
+    def WheelMouseInput(self, coords = (None, None), wheel_dist = 1, pressed = ""):
+        "Do mouse wheel"
+        _perform_click_input(self, button='wheel', coords=coords, wheel_dist = 120 * wheel_dist, pressed=pressed)
+        return self
 
     #-----------------------------------------------------------
     def SetWindowText(self, text, append = False):
         pass
 
     #-----------------------------------------------------------
-    def TypeKeys(self):
-        pass
+    def TypeKeys(self, keys):
+        """
+        Type keys to the element using SendKeys
+
+        This uses the SendKeys python module from
+        http://www.rutherfurd.net/python/sendkeys/ .This is the best place
+        to find documentation on what to use for the **keys**
+        """
+        # TODO: this is test version from PythonicAutomationElement using patterns
+        self.SetFocus()
+        base_pattern = self._elementInfo._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId)
+        if base_pattern:
+            self.actions.log('Select whole text in edit box')
+            pattern = base_pattern.QueryInterface(TextPattern)
+            pattern.DocumentRange.Select()
+        SendKeys.SendKeys(keys, with_spaces=True, with_tabs=True, with_newlines=True)
 
     #-----------------------------------------------------------
     def DebugMessage(self, text):
@@ -564,7 +802,13 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def SetFocus(self):
-        pass
+        "Set the focus to this element"
+        try:
+            self._elementInfo._element.SetFocus()
+        except comtypes.COMError as exc:
+            pass
+
+        return self
 
     #-----------------------------------------------------------
     def SetApplicationData(self, appdata):
@@ -576,22 +820,9 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def GetToolbar(self):
-        """Get the first child toolbar if it exists"""
-
-        for child in self.Children():
-            if child.__class__.__name__ == 'ToolbarWrapper':
-                return child
-
-        return None
-
+        pass
 
 #====================================================================
-def _perform_click_input():
-    pass
-
-#====================================================================
-def _perform_click():
-    pass
 
 """
 _mouse_flags = {
