@@ -110,7 +110,7 @@ class _MetaWrapper(type):
 
     @staticmethod
     def FindWrapper(handle):
-        """Find the correct wrapper for this handle"""
+        "Find the correct wrapper for this handle"
         class_name = handleprops.classname(handle)
 
         try:
@@ -140,14 +140,15 @@ class _MetaWrapper(type):
 
     @staticmethod
     def FindWrapperUIA(elementinfo):
-        """Find the wrapper for this elementinfo"""
+        "Find the wrapper for this elementinfo"
         if elementinfo.handle != None:
             wrapper = _MetaWrapper.FindWrapper(elementinfo.handle)
+
             if wrapper == HwndWrapper:
-                if wrapper.controlType in _MetaWrapper.control_types.keys():
-                    wrapper = _MetaWrapper.control_types[wrapper.controlType]
+                if elementinfo.controlType in _MetaWrapper.control_types.keys():
+                    wrapper = _MetaWrapper.control_types[elementinfo.controlType]
         else:
-            # TODO: temporary thing
+            # TODO: temporary thing (there is no UIA based wrappers tree yet)
             from .ElementWrapper import ElementWrapper
             wrapper = ElementWrapper
 

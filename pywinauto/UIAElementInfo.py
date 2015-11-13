@@ -157,7 +157,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def visible(self):
         "Check if element is visible"
-        return bool(not self._element.CurrentIsOffscreen and self._element.GetClickablePoint()[1])
+        return bool(not self._element.CurrentIsOffscreen)
 
     @property
     def enabled(self):
@@ -183,7 +183,7 @@ class UIAElementInfo(ElementInfo):
     def windowText(self):
         "Return windowText of element"
         # TODO: replaced this function with the one from PythonicAutomationElement
-        if self.className == '':
+        if not self.className:
             return self.name
         try:
             pattern = self._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId).QueryInterface(TextPattern)

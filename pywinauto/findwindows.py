@@ -131,7 +131,7 @@ def find_elements(class_name = None,
 
     # check if parent is a handle of element (in case of searching native controls)
     if parent:
-        if isinstance(parent, (int, ctypes.c_long)):
+        if isinstance(parent, (int, six.integer_types)):
             parent = UIAElementInfo(parent)
 
     if top_level_only:
@@ -148,9 +148,8 @@ def find_elements(class_name = None,
         if not parent:
             parent = UIAElementInfo.fromElement(_iuia.getRootElement())
 
-        # look for all children of that parent
-        #elements = parent.descendants
-        elements = parent.children()
+        # look for ALL children of that parent
+        elements = parent.descendants
 
         # if the ctrl_index has been specified then just return
         # that control
@@ -220,9 +219,8 @@ def find_elements(class_name = None,
         for elem in elements:
             try:
                 # TODO: can't skip invalid handles because UIA element can have no handle
-                # TODO: use name or className check for this
-                #if elem.handle:
-                if elem.className or elem.name:
+                # TODO: use className check for this ?
+                if elem.className:
                     wrapped_elems.append(controls.WrapElement(elem))
             except controls.InvalidWindowElement:
                 # skip invalid handles - they have dissapeared
