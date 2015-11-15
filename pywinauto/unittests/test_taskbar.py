@@ -139,7 +139,6 @@ class TaskbarTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.top_window_()
         self.dlg.Wait('ready', timeout=self.tm)
-        self.app2 = None
 
     def tearDown(self):
         "Close the application after tests"
@@ -147,10 +146,18 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.WaitNot('ready')
 
         # cleanup additional unclosed sampleapps
-        if self.app2:
-            l = pywinauto.actionlogger.ActionLogger()
-            l.log("Cleanup the unclosed sample app: {0}".format(self.app2))
-            self.app2.top_window_().SendMessage(win32defines.WM_CLOSE)
+        l = pywinauto.actionlogger.ActionLogger()
+        try:
+            for i in range(2):
+                l.log("Look for unclosed sample apps")
+                app = Application()
+                app.connect(path="TrayMenu.exe")
+                l.log("Forse closing a leftover app: {0}".format(app))
+                app.kill_()
+        except(ProcessNotFoundError):
+            l.log("No more leftovers. All good.")
+            pass
+
 
     def testTaskbar(self):
         # just make sure it's found
@@ -218,6 +225,16 @@ class TaskbarTestCases(unittest.TestCase):
 
         # click in the visible area
         taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=self.tm)
+        taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
+
+        # verify PopupWindow method
+        menu_window = self.app.top_window_().Children()[0]
+        WaitUntil(self.tm, _retry_interval, menu_window.IsVisible)
+        menu_window.MenuBarClickInput("#2", self.app)
+        popup_window = self.app.top_window_()
+        hdl = self.dlg.PopupWindow()
+        self.assertEquals(popup_window.handle, hdl)
+
         taskbar.ClickSystemTrayIcon('MFCTrayDemo', double=True)
         self.dlg.Wait('active', timeout=self.tm)
 
@@ -248,9 +265,9 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
-        self.app2 = Application()
-        self.app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = self.app2.top_window_()
+        app2 = Application()
+        app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        dlg2 = app2.top_window_()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
@@ -265,7 +282,6 @@ class TaskbarTestCases(unittest.TestCase):
                                         debug_img="%s_02" % (self.id()))
 
         dlg2.SendMessage(win32defines.WM_CLOSE)
-        self.app2 = None
 
     def testClickCustomizeButton(self):
         "Test click on the 'show hidden icons' button"
@@ -282,9 +298,9 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
-        self.app2 = Application()
-        self.app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = self.app2.top_window_()
+        app2 = Application()
+        app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        dlg2 = app2.top_window_()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
@@ -310,7 +326,6 @@ class TaskbarTestCases(unittest.TestCase):
 
         # close the second sample app
         dlg2.SendMessage(win32defines.WM_CLOSE)
-        self.app2 = None
 
 if __name__ == "__main__":
     unittest.main()
