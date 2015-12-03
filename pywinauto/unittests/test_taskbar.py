@@ -198,7 +198,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Close the applet with Esc, we don't click again on it because
         # the second click sometimes doesn't hide a clock but just relaunch it
-        taskbar.Clock.TypeKeys("{ESC}")
+        taskbar.Clock.TypeKeys("{ESC}", set_foreground=False)
         ClockWindow.WaitNot('visible', timeout=self.tm)
 
     def testClickVisibleIcon(self):
