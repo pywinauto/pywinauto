@@ -606,9 +606,9 @@ def _resolve_from_appdata(
     if process_elems:
         similar_child_count = [e for e in process_elems
             if matched_control[1]['ControlCount'] -2 <=
-                    len(e.children()) and
+                    len(e.children) and
                 matched_control[1]['ControlCount'] +2 >=
-                    len(e.children())]
+                    len(e.children)]
 
         if similar_child_count:
             process_hwnds = similar_child_count

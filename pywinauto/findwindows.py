@@ -34,7 +34,7 @@ from . import win32structures
 from . import handleprops
 from . import findbestmatch
 from . import controls
-from .elementInfo import NativeElementInfo
+from .NativeElementInfo import NativeElementInfo
 
 if sysinfo.UIA_support:
     from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
@@ -136,7 +136,7 @@ def find_elements(class_name = None,
 
     if top_level_only:
         # find the top level elements
-        elements = enum_elements()
+        elements = enum_windows_UIA()
 
         # if we have been given a parent
         if parent:
@@ -146,7 +146,7 @@ def find_elements(class_name = None,
     else:
         # if not given a parent look for all children of the desktop
         if not parent:
-            parent = UIAElementInfo.fromElement(_iuia.getRootElement())
+            parent = UIAElementInfo(_iuia.getRootElement())
 
         # look for ALL children of that parent
         elements = parent.descendants
@@ -197,12 +197,12 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.processId == process]
 
     if title is not None:
-        elements = [elem for elem in elements if elem.windowText == title]
+        elements = [elem for elem in elements if elem.richText == title]
 
     elif title_re is not None:
         title_regex = re.compile(title_re)
         def _title_match(w):
-            t = w.windowText
+            t = w.richText
             if t is not None:
                 return title_regex.match(t)
             return False
@@ -432,7 +432,7 @@ def enum_windows():
     return windows
 
 #=========================================================================
-def enum_elements():
+def enum_windows_UIA():
     "Return a list of UIAElementInfo objects of all the top level windows using UIA functions"
-    root = UIAElementInfo.fromElement(_iuia.getRootElement())
-    return root.children()
+    root = UIAElementInfo(_iuia.getRootElement())
+    return root.children

@@ -1,86 +1,65 @@
-from . import handleprops
-
 class ElementInfo(object):
-    "Wrapper for window handler"
-
+    "Wrapper for element"
     @property
     def handle(self):
-        "Return the handle of the window"
-        return self._handle
-
-    @handle.setter
-    def handle(self, handle):
-        assert handle
-        self._handle = handle
+        "Return the handle of the element"
+        raise NotImplementedError()
 
     @property
-    def windowText(self):
-        "Return the text of the window"
-        return self._windowText
+    def name(self):
+        "Return the name of the element"
+        raise NotImplementedError()
 
-    @windowText.setter
-    def windowText(self, windowText):
-        self._windowText = windowText
+    @property
+    def richText(self):
+        "Return the text of the element"
+        raise NotImplementedError()
 
     @property
     def controlId(self):
         "Return the ID of the control"
-        return self._controlId
+        raise NotImplementedError()
 
     @property
     def processId(self):
-        "Return the ID of process that controls this window"
-        return self._processId
+        "Return the ID of process that controls this element"
+        raise NotImplementedError()
+
+    @property
+    def frameworkId(self):
+        "Return the framework of the element"
+        raise NotImplementedError()
     
     @property
     def className(self):
-        "Return the class name of the window"
-        return self._className
+        "Return the class name of the element"
+        raise NotImplementedError()
 
     @property
     def enabled(self):
-        "Return True if the window is enabled"
-        self._enabled = handleprops.isenabled(self._handle)
-        return self._enabled
+        "Return True if the element is enabled"
+        raise NotImplementedError()
         
     @property
     def visible(self):
-        "Return True if the window is visible"
-        self._visible = handleprops.isvisible(self._handle)
-        return self._visible
+        "Return True if the element is visible"
+        raise NotImplementedError()
        
     @property
     def parent(self):
-        "Return the handle of the parent of the window"
-        return self._parent
+        "Return the parent of the element"
+        raise NotImplementedError()
 
-    @parent.setter
-    def parent(self, parent):
-        self._parent = parent
-    
+    @property
     def children(self):
-        pass
+        "Return children of the element"
+        raise NotImplementedError()
+
+    @property
+    def descendants(self):
+        "Return descendants of the element"
+        raise NotImplementedError()
 
     def dumpWindow(self):
-        pass
-
-class NativeElementInfo(ElementInfo):
-    def __init__(self, handle):
-        self._handle = handle
-        self._windowText = handleprops.text(handle)
-        self._controlId = handleprops.controlid(handle)
-        self._processId = handleprops.processid(handle)
-        self._className = handleprops.classname(handle)
-        self._enabled = handleprops.isenabled(handle)
-        self._visible = handleprops.isvisible(handle)
-        self._parent  = handleprops.parent(handle)
-        
-    def children(self):
-        "Return a list of handles to the children of this window"
-        child_handles = handleprops.children(self.handle)
-        return [NativeElementInfo(ch) for ch in child_handles]
-
-    def dumpWindow(self):
-        "Dump a window to a set of properties"
-        return handleprops.dumpwindow(self.handle)
-
+        "Dump an element to a set of properties"
+        raise NotImplementedError()

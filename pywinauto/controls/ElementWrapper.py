@@ -20,13 +20,6 @@ from ..actionlogger import ActionLogger
 
 import comtypes
 import comtypes.client
-'''
-from System.Windows.Automation import AutomationElement, PropertyCondition, TreeScope, Condition, Automation, InvokePattern, TextPattern
-from System.Windows.Automation import AutomationPattern, BasePattern, DockPattern, ExpandCollapsePattern, GridItemPattern, GridPattern
-from System.Windows.Automation import ItemContainerPattern, MultipleViewPattern, RangeValuePattern, ScrollItemPattern, ScrollPattern
-from System.Windows.Automation import SelectionItemPattern, SelectionPattern, SynchronizedInputPattern, TableItemPattern, TablePattern
-from System.Windows.Automation import TextPattern, TogglePattern, TransformPattern, ValuePattern, VirtualizedItemPattern, WindowPattern
-'''
 
 from .HwndWrapper import _MetaWrapper, HwndWrapper, _perform_click_input
 #endregion
@@ -181,6 +174,8 @@ class ElementWrapper(object):
             if self._elementInfo.controlType in ['Button', 'Text', 'Group']:
                 self.can_be_label = True
 
+            self._as_parameter_ = self._elementInfo.handle
+
             self._cache = {}
 
             self.actions = ActionLogger()
@@ -225,7 +220,7 @@ class ElementWrapper(object):
         Edit controls usually have an empty string for WindowText but still
         have text displayed in the edit window.
         """
-        return self._elementInfo.windowText
+        return self._elementInfo.richText
 
     #------------------------------------------------------------
     def Style(self):
@@ -407,7 +402,7 @@ class ElementWrapper(object):
         a top level window already!)
         """
         if not ("top_level_parent" in self._cache.keys()):
-            if self.Parent() == ElementWrapper(UIAElementInfo.fromElement(_iuia.getRootElement())):
+            if self.Parent() == ElementWrapper(UIAElementInfo(_iuia.getRootElement())):
                 self._cache["top_level_parent"] = self
             else:
                 return self.Parent().TopLevelParent()
@@ -446,13 +441,24 @@ class ElementWrapper(object):
         It returns a list of ElementWrapper (or subclass) instances, it
         returns an empty list if there are no children.
         """
-        child_elements = self._elementInfo.children()
+        child_elements = self._elementInfo.children
         return [ElementWrapper(elementInfo) for elementInfo in child_elements]
+
+    #-----------------------------------------------------------
+    def Descendants(self):
+        """
+        Return the descendants of this element as a list
+
+        It returns a list of ElementWrapper (or subclass) instances, it
+        returns an empty list if there are no descendants.
+        """
+        desc_elements = self._elementInfo.descendants
+        return [ElementWrapper(elementInfo) for elementInfo in desc_elements]
 
     #-----------------------------------------------------------
     def ControlCount(self):
         "Return the number of children of this control"
-        return len(self._elementInfo.children())
+        return len(self._elementInfo.children)
 
     #-----------------------------------------------------------
     def IsChild(self, parent):
@@ -705,7 +711,15 @@ class ElementWrapper(object):
         pass
 
     #-----------------------------------------------------------
-    def TypeKeys(self, keys):
+    def TypeKeys(
+        self,
+        keys,
+        pause = None,
+        with_spaces = False,
+        with_tabs = False,
+        with_newlines = False,
+        turn_off_numlock = True,
+        set_foreground = True):
         """
         Type keys to the element using SendKeys
 
@@ -713,14 +727,42 @@ class ElementWrapper(object):
         http://www.rutherfurd.net/python/sendkeys/ .This is the best place
         to find documentation on what to use for the **keys**
         """
-        # TODO: this is test version from PythonicAutomationElement using patterns
-        self.SetFocus()
+        self.VerifyActionable()
+
+        if pause is None:
+            pause = Timings.after_sendkeys_key_wait
+
+        if set_foreground:
+            self.SetFocus()
+
+        if isinstance(keys, six.text_type):
+            aligned_keys = keys
+        elif isinstance(keys, six.binary_type):
+            aligned_keys = keys.decode(locale.getpreferredencoding())
+        else:
+            # convert a non-string input
+            aligned_keys = six.text_type(keys)
+
+        # Play the keys to the active window
+        SendKeys.SendKeys(
+            aligned_keys + '\n',
+            pause,
+            with_spaces,
+            with_tabs,
+            with_newlines,
+            turn_off_numlock)
+
+        win32functions.WaitGuiThreadIdle(self)
+        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
+        return self
+
+        # TODO: select all text from edit field before typing new text
+        """
         base_pattern = self._elementInfo._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId)
         if base_pattern:
-            self.actions.log('Select whole text in edit box')
             pattern = base_pattern.QueryInterface(TextPattern)
             pattern.DocumentRange.Select()
-        SendKeys.SendKeys(keys, with_spaces=True, with_tabs=True, with_newlines=True)
+        """
 
     #-----------------------------------------------------------
     def DebugMessage(self, text):

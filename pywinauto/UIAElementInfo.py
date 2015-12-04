@@ -1,8 +1,9 @@
 import comtypes
 import comtypes.client
 
+from .six import integer_types
 from .handleprops import text, dumpwindow, controlid
-from .elementInfo import ElementInfo
+from .ElementInfo import ElementInfo
 from .win32structures import RECT
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
@@ -11,6 +12,8 @@ _iuia = comtypes.CoCreateInstance(
     interface=comtypes.gen.UIAutomationClient.IUIAutomation,
     clsctx=comtypes.CLSCTX_INPROC_SERVER
 )
+
+_trueCondition = _iuia.CreateTrueCondition()
 
 _treeScope = {
     'ancestors': _UIA_dll.TreeScope_Ancestors,
@@ -36,12 +39,10 @@ CurrentControllerFor
 CurrentCulture
 CurrentDescribedBy
 CurrentFlowsTo
-CurrentHasKeyboardFocus
 CurrentHelpText
 CurrentIsContentElement
 CurrentIsControlElement
 CurrentIsDataValidForForm
-CurrentIsKeyboardFocusable
 CurrentIsPassword
 CurrentIsRequiredForForm
 CurrentItemStatus
@@ -55,20 +56,23 @@ CurrentProviderDescription
 class UIAElementInfo(ElementInfo):
     "UI element wrapper for IUIAutomation API"
 
-    def __init__(self, handle = None):
-        """Create instane of UIAElementInfo from handle.
-        If handle is None create instanse for UI root element"""        
-        if handle is not None:
-            self._element = _iuia.ElementFromHandle(handle)
+    def __init__(self, handle_or_elem = None):
+        """
+        Create instane of UIAElementInfo from a handle (int or long)
+        or from an IUIAutomationElement.
+        If handle_or_elem is None create instanse for UI root element
+        """
+        if handle_or_elem is not None:
+            if isinstance(handle_or_elem, integer_types):
+                # Create instane of UIAElementInfo from a handle
+                self._element = _iuia.ElementFromHandle(handle_or_elem)
+            elif isinstance(handle_or_elem, comtypes.gen.UIAutomationClient.IUIAutomationElement):
+                self._element = handle_or_elem
+            else:
+                raise TypeError("UIAElementInfo object can be initialized with integer or IUIAutomationElement \
+                                instance only!")
         else:
             self._element = _iuia.GetRootElement()            
-
-    @classmethod
-    def fromElement(cls, element):
-        "Create instance of UIAElementInfo from IUIAutomationElement"
-        elementInfo = cls(None)
-        elementInfo._element = element
-        return elementInfo
 
     @property
     def automationId(self):
@@ -113,28 +117,20 @@ class UIAElementInfo(ElementInfo):
         "Return handle of element"
         return self._element.CurrentNativeWindowHandle
 
-    @handle.setter
-    def handle(self, handle):
-        assert handle
-        self._element = _iuia.ElementFromHandle(handle)
-
     @property
     def parent(self):
         "Return parent of element"
-        return UIAElementInfo.fromElement(_iuia.ControlViewWalker.GetParentElement(self._element))
+        return UIAElementInfo(_iuia.ControlViewWalker.GetParentElement(self._element))
 
+    @property
     def children(self):
         "Return list of children for element"
         children = []
         
-        trueCondition = _iuia.CreateTrueCondition()
-        childrenArray = self._element.FindAll(_treeScope['children'], trueCondition)
+        childrenArray = self._element.FindAll(_treeScope['children'], _trueCondition)
         for childNumber in range(childrenArray.Length):
             childElement = childrenArray.GetElement(childNumber)
-            if childElement.CurrentNativeWindowHandle is not None:
-                children.append(UIAElementInfo(childElement.CurrentNativeWindowHandle))
-            else:
-                children.append(UIAElementInfo.fromElement(childElement))
+            children.append(UIAElementInfo(childElement))
             
         return children
 
@@ -143,14 +139,10 @@ class UIAElementInfo(ElementInfo):
         "Return list of children for element"
         descendants = []
 
-        trueCondition = _iuia.CreateTrueCondition()
-        descendantsArray = self._element.FindAll(_treeScope['descendants'], trueCondition)
+        descendantsArray = self._element.FindAll(_treeScope['descendants'], _trueCondition)
         for descendantNumber in range(descendantsArray.Length):
             descendantElement = descendantsArray.GetElement(descendantNumber)
-            if descendantElement.CurrentNativeWindowHandle is not None:
-                descendants.append(UIAElementInfo(descendantElement.CurrentNativeWindowHandle))
-            else:
-                descendants.append(UIAElementInfo.fromElement(descendantElement))
+            descendants.append(UIAElementInfo(descendantElement))
 
         return descendants
 
@@ -180,23 +172,26 @@ class UIAElementInfo(ElementInfo):
         return dumpwindow(self.handle)
 
     @property
-    def windowText(self):
-        "Return windowText of element"
-        # TODO: replaced this function with the one from PythonicAutomationElement
+    def richText(self):
+        "Return richText of element"
         if not self.className:
             return self.name
         try:
-            pattern = self._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId).QueryInterface(TextPattern)
+            pattern = self._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId).QueryInterface(
+                comtypes.gen.UIAutomationClient.IUIAutomationTextPattern)
             return pattern.DocumentRange.GetText(-1)
         except:
             return self.name
 
-        #framework = self.frameworkId
-        #if framework == "Win32":
-        #    return self._getTextFromHandle(self.handle)
-        #elif framework == "WinForm":
-        #    return self._getTextFromHandle(self.handle)
-        #return self._getTextFromElementViaTextPattern(self._element)
+    @property
+    def isKeyboardFocusable(self):
+        "Return True if element can be focused with keyboard"
+        return self._element.CurrentIsKeyboardFocusable
+
+    @property
+    def hasKeyboardFocus(self):
+        "Return True if element is focused with keyboard"
+        return self._element.CurrentHasKeyboardFocus
 
     def _getTextFromHandle(self, handle):
         return text(self.handle)
