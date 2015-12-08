@@ -10,7 +10,7 @@ import ctypes
 #import win32gui
 #import win32con
 #import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
-#import locale
+import locale
 
 from .. import SendKeysCtypes as SendKeys
 from .. import six
