@@ -72,7 +72,7 @@ class AutoScreenshotTestCase(unittest.TestCase):
             try:
                 original_return = original_method(*args, **kwargs)
 
-            except:
+            except BaseException:
                 if self._testMethodName == method_name:
                     # test's main execution section
                     name = method_name
