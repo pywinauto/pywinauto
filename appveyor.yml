@@ -62,6 +62,10 @@ environment:
 os:
   - Windows Server 2012
 
+#init:
+  # Enable RDP.
+  #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 install:
   # Some listings for debug only
   #- ECHO "Filesystem root:"
@@ -79,6 +83,9 @@ install:
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
+
+  # Enable desktop (for correct screenshots).
+  #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-desktop.ps1'))
 
 build: false  # Not a C# project, build stuff at the test step instead.
 
@@ -99,3 +106,8 @@ artifacts:
 #on_success:
 #  - TODO: 
 #
+
+#on_failure:
+  # Collect screenshots.
+  #- "7z a screenshots.zip %APPVEYOR_BUILD_FOLDER%\\scr-*.jpg"
+  #- "appveyor PushArtifact screenshots.zip"
