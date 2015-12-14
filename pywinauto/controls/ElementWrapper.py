@@ -92,15 +92,6 @@ def removeNonAlphaNumericSymbols(s):
     return re.sub("\W", "_", s)
 
 #=========================================================================
-class WindowNotFoundError(Exception):
-    "No window could be found"
-    pass
-
-#=========================================================================
-class WindowAmbiguousError(Exception):
-    "There was more then one window that matched"
-    pass
-#=========================================================================
 class ElementNotEnabled(RuntimeError):
     "Raised when an element is not enabled"
     pass
@@ -110,13 +101,11 @@ class ElementNotVisible(RuntimeError):
     "Raised when an element is not visible"
     pass
 #=========================================================================
-class InvalidWindowElement(RuntimeError):
-    "Raised when an invalid handle is passed to HwndWrapper "
-    def __init__(self, elementinfo):
+class InvalidElement(RuntimeError):
+    "Raised when an invalid element is passed to ElementWrapper "
+    def __init__(self, elementInfo):
         "Initialise the RuntimError parent with the mesage"
-        RuntimeError.__init__(self,
-            "Element {0} is not a vaild UIA element".format(elementinfo))
-
+        RuntimeError.__init__(self, "Element {0} is not a vaild UIA element".format(elementInfo))
 
 #=========================================================================
 @six.add_metaclass(_MetaWrapper)
@@ -168,7 +157,7 @@ class ElementWrapper(object):
         an InvalidWindowHandle error is raised.
         """
         if not isinstance(elementInfo, UIAElementInfo):
-            raise TypeError('ElementWrapper can be initialized with UIAElementInfo instance only!')
+            raise InvalidElement(elementInfo)
         if elementInfo:
             self._elementInfo = elementInfo
             if self._elementInfo.controlType in ['Button', 'Text', 'Group']:
@@ -207,9 +196,7 @@ class ElementWrapper(object):
     #------------------------------------------------------------
     def Class(self):
         """Return the class name of the elenemt"""
-        if not ("class" in self._cache.keys()):
-            self._cache['class'] = self._elementInfo.className
-        return self._cache['class']
+        return self._elementInfo.className
 
     #------------------------------------------------------------
     def WindowText(self):
@@ -221,14 +208,6 @@ class ElementWrapper(object):
         have text displayed in the edit window.
         """
         return self._elementInfo.richText
-
-    #------------------------------------------------------------
-    def Style(self):
-        pass
-
-    #------------------------------------------------------------
-    def ExStyle(self):
-        pass
 
     #------------------------------------------------------------
     def ControlID(self):
@@ -244,19 +223,7 @@ class ElementWrapper(object):
         return self._elementInfo.controlId
 
     #------------------------------------------------------------
-    def UserData(self):
-        pass
-
-    #------------------------------------------------------------
-    def ContextHelpID(self):
-        pass
-
-    #------------------------------------------------------------
     def IsActive(self):
-        pass
-
-    #------------------------------------------------------------
-    def IsUnicode(self):
         pass
 
     #------------------------------------------------------------
@@ -337,33 +304,18 @@ class ElementWrapper(object):
         # coords param is always expected to be tuple
         #return point.x, point.y
 
-    #------------------------------------------------------------
-    def Font(self):
-        pass
-
     #-----------------------------------------------------------
     def ProcessID(self):
         "Return the ID of process that owns this window"
         return self._elementInfo.processId
 
     #-----------------------------------------------------------
-    def HasStyle(self, style):
-        pass
-
-    #-----------------------------------------------------------
-    def HasExStyle(self, exstyle):
-        pass
-
-    #-----------------------------------------------------------
     def IsDialog(self):
         "Return true if the control is a top level window"
-        if not ("isdialog" in self._cache.keys()):
-            if self.Parent():
-                self._cache['isdialog'] = (self == self.TopLevelParent())
-            else:
-                self._cache['isdialog'] = False
-
-        return self._cache['isdialog']
+        if self.Parent():
+            return self == self.TopLevelParent()
+        else:
+            return False
 
     #-----------------------------------------------------------
     def Parent(self):
@@ -377,15 +329,12 @@ class ElementWrapper(object):
         To get the main (or top level) window then use
         ElementWrapper.TopLevelParent().
         """
-        if not ("parent" in self._cache.keys()):
-            parent_elem = self._elementInfo.parent
+        parent_elem = self._elementInfo.parent
 
-            if parent_elem:
-                self._cache["parent"] = ElementWrapper(parent_elem)
-            else:
-                self._cache["parent"] = None
-
-        return self._cache["parent"]
+        if parent_elem:
+            return ElementWrapper(parent_elem)
+        else:
+            return None
 
     #-----------------------------------------------------------
     def TopLevelParent(self):
@@ -426,14 +375,6 @@ class ElementWrapper(object):
         return texts
 
     #-----------------------------------------------------------
-    def ClientRects(self):
-        pass
-
-    #-----------------------------------------------------------
-    def Fonts(self):
-        pass
-
-    #-----------------------------------------------------------
     def Children(self):
         """
         Return the children of this element as a list
@@ -462,47 +403,15 @@ class ElementWrapper(object):
 
     #-----------------------------------------------------------
     def IsChild(self, parent):
-        pass
+        """
+        Return True if this element is a child of 'parent'.
 
-    #-----------------------------------------------------------
-    def SendCommand(self, commandID):
-        pass
-
-    #-----------------------------------------------------------
-    def PostCommand(self, commandID):
-        pass
-
-    #-----------------------------------------------------------
-    def Notify(self, code):
-        pass
-
-    #-----------------------------------------------------------
-    def SendMessage(self, message, wparam = 0 , lparam = 0):
-        pass
-
-    #-----------------------------------------------------------
-    def SendMessageTimeout(self):
-        pass
-
-    #-----------------------------------------------------------
-    def PostMessage(self, message, wparam = 0 , lparam = 0):
-        pass
-
-    #-----------------------------------------------------------
-    def NotifyMenuSelect(self, menu_id):
-        pass
-
-    #-----------------------------------------------------------
-    def NotifyParent(self, message, controlID = None):
-        pass
-
-    #-----------------------------------------------------------
-    def GetProperties(self):
-        pass
-
-    #-----------------------------------------------------------
-    def CaptureAsImage(self, rect = None):
-        pass
+        An element is a child of another element when it is a direct of the
+        other element. An element is a direct descendant of a given
+        element if the parent element is the the chain of parent elements
+        for the child element.
+        """
+        return self.Parent() == parent
 
     #-----------------------------------------------------------
     def __hash__(self):
@@ -514,7 +423,7 @@ class ElementWrapper(object):
         if isinstance(other, ElementWrapper):
             return self._elementInfo == other._elementInfo
         else:
-            return False
+            return self._elementInfo == other
 
     #-----------------------------------------------------------
     def __ne__(self, other):
@@ -765,104 +674,25 @@ class ElementWrapper(object):
         """
 
     #-----------------------------------------------------------
-    def DebugMessage(self, text):
-        pass
+    def IsKeyboardFocusable(self):
+        "Return True if element can be focused with keyboard"
+        return self._elementInfo._element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
-    def DrawOutline(self):
-        pass
-
-    #-----------------------------------------------------------
-    def SetTransparency(self, alpha = 120):
-        pass
-
-    #-----------------------------------------------------------
-    def PopupWindow(self):
-        pass
-
-    #-----------------------------------------------------------
-    def Owner(self):
-        pass
-
-    #-----------------------------------------------------------
-    #def ContextMenuSelect(self, path, x = None, y = None):
-
-    #-----------------------------------------------------------
-    def _menu_handle(self):
-        pass
-
-    #-----------------------------------------------------------
-    def Menu(self):
-        pass
-
-    #-----------------------------------------------------------
-    def MenuItem(self, path, exact = False):
-        pass
-
-    #-----------------------------------------------------------
-    def MenuItems(self):
-        pass
-
-    #-----------------------------------------------------------
-    #def MenuClick(self, path):
-
-    #-----------------------------------------------------------
-    def MenuSelect(self, path, exact = False, ):
-        pass
-
-    #-----------------------------------------------------------
-    def MoveWindow(self):
-        pass
-
-    #-----------------------------------------------------------
-    def Close(self, wait_time = 0):
-        pass
-
-    #-----------------------------------------------------------
-    def Maximize(self):
-        pass
-
-    #-----------------------------------------------------------
-    def Minimize(self):
-        pass
-
-    #-----------------------------------------------------------
-    def Restore(self):
-        pass
-
-    #-----------------------------------------------------------
-    def GetShowState(self):
-        pass
-
-    #-----------------------------------------------------------
-    def GetActive(self):
-        pass
-
-    #-----------------------------------------------------------
-    def GetFocus(self):
-        pass
+    def HasKeyboardFocus(self):
+        "Return True if element is focused with keyboard"
+        return self._elementInfo._element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
     def SetFocus(self):
         "Set the focus to this element"
-        try:
-            self._elementInfo._element.SetFocus()
-        except comtypes.COMError as exc:
-            pass
+        if self.IsKeyboardFocusable() and not self.HasKeyboardFocus():
+            try:
+                self._elementInfo._element.SetFocus()
+            except comtypes.COMError as exc:
+                pass
 
         return self
-
-    #-----------------------------------------------------------
-    def SetApplicationData(self, appdata):
-        pass
-
-    #-----------------------------------------------------------
-    def Scroll(self, direction, amount, count = 1, retry_interval = None):
-        pass
-
-    #-----------------------------------------------------------
-    def GetToolbar(self):
-        pass
 
 #====================================================================
 
@@ -875,16 +705,3 @@ _mouse_flags = {
     "control": win32defines.MK_CONTROL,
 }
 """
-
-#====================================================================
-def _calc_flags_and_coords(pressed, coords):
-    pass
-
-#====================================================================
-class _dummy_control(dict):
-    "A subclass of dict so that we can assign attributes"
-    pass
-
-#====================================================================
-def GetDialogPropsFromHandle(hwnd):
-    pass

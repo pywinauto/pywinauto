@@ -35,6 +35,6 @@ from . import win32_controls
 # new class hierarchy
 from ..sysinfo import UIA_support
 if UIA_support:
-    from .ElementWrapper import InvalidWindowElement
+    from .ElementWrapper import InvalidElement
     # make an alias for the ElementWrapper object as WrapElement
     from .ElementWrapper import ElementWrapper as WrapElement

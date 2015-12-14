@@ -51,7 +51,15 @@ class WindowAmbiguousError(Exception):
     "There was more then one window that matched"
     pass
 
+#=========================================================================
+class ElementNotFoundError(Exception):
+    "No element could be found"
+    pass
 
+#=========================================================================
+class ElementAmbiguousError(Exception):
+    "There was more then one element that matched"
+    pass
 
 #=========================================================================
 def find_window(**kwargs):
@@ -246,7 +254,7 @@ def find_elements(class_name = None,
         if found_index < len(elements):
             elements = elements[found_index:found_index + 1]
         else:
-            raise WindowNotFoundError(
+            raise ElementNotFoundError(
                 "found_index is specified as %d, but %d window/s found" %
                 (found_index, len(elements))
             )

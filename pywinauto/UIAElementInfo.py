@@ -183,16 +183,6 @@ class UIAElementInfo(ElementInfo):
         except:
             return self.name
 
-    @property
-    def isKeyboardFocusable(self):
-        "Return True if element can be focused with keyboard"
-        return self._element.CurrentIsKeyboardFocusable
-
-    @property
-    def hasKeyboardFocus(self):
-        "Return True if element is focused with keyboard"
-        return self._element.CurrentHasKeyboardFocus
-
     def _getTextFromHandle(self, handle):
         return text(self.handle)
 
