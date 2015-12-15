@@ -2747,6 +2747,7 @@ BINDVERB_GET = 0
 RB_SHOWBAND = 1059 # Variable c_int
 RPC_S_NO_BINDINGS = 1718 # Variable c_long
 BS_TEXT = 0 # Variable c_long
+BS_COMMANDLINK = 14
 BSM_NETDRIVER = 2 # Variable c_int
 ERROR_NO_SIGNAL_SENT = 205 # Variable c_long
 LVBKIF_SOURCE_MASK = 3 # Variable c_int

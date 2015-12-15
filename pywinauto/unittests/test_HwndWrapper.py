@@ -41,7 +41,7 @@ from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper, \
                 InvalidWindowHandle, GetDialogPropsFromHandle
 from pywinauto import win32structures, win32defines
-from pywinauto.findwindows import WindowNotFoundError
+from pywinauto.findwindows import WindowNotFoundError, ElementNotFoundError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
@@ -70,15 +70,15 @@ class HwndWrapperTests(unittest.TestCase):
         is in the state we want it."""
 
         # start the application
-        self.app = Application()
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start(r"C:\Windows\System32\calc.exe")
-        else:
-            self.app.start(r"C:\Windows\SysWOW64\calc.exe")
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
-        self.dlg = self.app.Calculator
-        self.dlg.MenuSelect('View->Scientific\tAlt+2')
-        self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
+        self.dlg = self.app.Common_Controls_Sample
+        self.dlg.TabControl.Select('CButton (Command Link)')
+        self.ctrl = HwndWrapper(self.dlg.Command_button_here.handle)
+
+        #self.dlg = self.app.Calculator
+        #self.dlg.MenuSelect('View->Scientific\tAlt+2')
+        #self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
 
     def tearDown(self):
         "Close the application after tests"
@@ -91,23 +91,19 @@ class HwndWrapperTests(unittest.TestCase):
         "Test that an exception is raised with an invalid window handle"
         self.assertRaises(InvalidWindowHandle, HwndWrapper, -1)
 
-    #def testText(self):
-    #    "Test getting the window Text of the dialog"
-    #    self.assertEquals(self.dlg.WindowText(), "Untitled - Notepad")
-
     def testFriendlyClassName(self):
-        "Test getting the friendly classname of the dialog"
+        "Test getting the friendly classname of the control"
         self.assertEquals(self.ctrl.FriendlyClassName(), "Button")
 
 
     def testClass(self):
-        "Test getting the classname of the dialog"
+        "Test getting the classname of the control"
         self.assertEquals(self.ctrl.Class(), "Button")
 
     def testWindowText(self):
-        "Test getting the window Text of the dialog"
+        "Test getting the window Text of the control"
         self.assertEquals(
-            HwndWrapper(self.dlg.Degrees.handle).WindowText(), u'Degrees')
+            HwndWrapper(self.dlg.Set.handle).WindowText(), u'Set')
 
     def testStyle(self):
 
@@ -116,8 +112,8 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEquals(self.ctrl.Style(),
             win32defines.WS_CHILD |
             win32defines.WS_VISIBLE |
-            win32defines.BS_PUSHBUTTON |
-            win32defines.BS_TEXT)
+            win32defines.WS_TABSTOP |
+            win32defines.BS_COMMANDLINK)
 
 
     def testExStyle(self):
@@ -136,7 +132,7 @@ class HwndWrapperTests(unittest.TestCase):
             win32defines.WS_EX_APPWINDOW)"""
 
     def testControlID(self):
-        self.assertEquals(self.ctrl.ControlID(), 83)
+        self.assertEquals(self.ctrl.ControlID(), 1037)
         self.dlg.ControlID()
 
     def testUserData(self):
@@ -158,44 +154,19 @@ class HwndWrapperTests(unittest.TestCase):
     def testIsEnabled(self):
         self.assertEqual(self.ctrl.IsEnabled(), True)
         self.assertEqual(self.dlg.IsEnabled(), True)
-        self.assertEqual(self.dlg.Button26.IsEnabled(), False); # Button26 = '%'
-
-    def testCloseClick_bug(self):
-        self.dlg.MenuSelect('Help->About Calculator')
-        self.app.AboutCalculator.Wait("visible", 10)
-        self.app.AboutCalculator.CloseButton.CloseClick()
-        Timings.closeclick_dialog_close_wait = .7
-        try:
-            self.app.AboutCalculator.CloseClick()
-        except TimeoutError:
-            pass
-
-        self.app.AboutCalculator.Close()
-
-        #self.assertEquals(self.app.StatisticsBox.Exists(), False)
-
-    def testCloseAltF4(self):
-        self.dlg.MenuSelect('Help->About Calculator')
-        AboutCalculator = self.app.Window_(title='About Calculator', active_only=True, class_name='#32770')
-        AboutWrapper = AboutCalculator.Wait("enabled")
-        AboutCalculator.CloseAltF4()
-        AboutCalculator.WaitNot('visible')
-        self.assertNotEqual(AboutWrapper.IsVisible(), True)
+        #self.assertEqual(self.dlg.Note.IsEnabled(), False); # Button26 = '%'
 
     def testRectangle(self):
         "Test getting the rectangle of the dialog"
         rect = self.dlg.Rectangle()
+        
         self.assertNotEqual(rect.top, None)
         self.assertNotEqual(rect.left, None)
         self.assertNotEqual(rect.bottom, None)
         self.assertNotEqual(rect.right, None)
 
-        if abs(rect.height() - 323) > 2:
-            if rect.height() != 310:
-                self.assertEqual(rect.height(), 323)
-        if abs(rect.width() - 423) > 2:
-            if rect.width() != 413:
-                self.assertEqual(rect.width(), 423)
+        self.assertEqual(rect.height(), 423)
+        self.assertEqual(rect.width(), 506)
 
     def testClientRect(self):
         rect = self.dlg.Rectangle()
@@ -232,23 +203,17 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(self.ctrl.IsDialog(), False)
         self.assertEqual(self.dlg.IsDialog(), True)
 
-    def testMenuItems(self):
-        self.assertEqual(self.ctrl.MenuItems(), [])
-        self.assertEqual(self.dlg.MenuItems()[1]['Text'], '&Edit')
-
-
     def testParent(self):
-        self.assertEqual(self.ctrl.Parent().Parent().Parent(), self.dlg.handle)
-
+        self.assertEqual(self.ctrl.Parent().Parent(), self.dlg.handle)
 
     def testTopLevelParent(self):
         self.assertEqual(self.ctrl.TopLevelParent(), self.dlg.handle)
         self.assertEqual(self.dlg.TopLevelParent(), self.dlg.handle)
 
     def testTexts(self):
-        self.assertEqual(self.dlg.Texts(), ['Calculator'])
-        self.assertEqual(HwndWrapper(self.dlg.Degrees.handle).Texts(), [u'Degrees'])
-        self.assertEqual(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts(), ['0'])
+        self.assertEqual(self.dlg.Texts(), ['Common Controls Sample'])
+        self.assertEqual(HwndWrapper(self.dlg.Show.handle).Texts(), [u'Show'])
+        self.assertEqual(self.dlg.ChildWindow(class_name='Button', ctrl_index=3).Texts(), [u'Elevation Icon'])
 
     def testFoundIndex(self):
         "test an access to a control by found_index"
@@ -256,9 +221,9 @@ class HwndWrapperTests(unittest.TestCase):
         # The edit box with '0' can be accessed directly by control_index = 5
         # or by a search combination: class_name='Static', found_index=3
         ctl = self.dlg.ChildWindow(ctrl_index=5)
-        self.assertEqual(ctl.Texts(), [u'0'])
-        ctl = self.dlg.ChildWindow(class_name='Static', found_index=3)
-        self.assertEqual(ctl.Texts(), [u'0'])
+        self.assertEqual(ctl.Texts(), [u'Command button here'])
+        ctl = self.dlg.ChildWindow(class_name='Button', found_index=3)
+        self.assertEqual(ctl.Texts(), [u'Show'])
         ctl.DrawOutline('blue')  # visualize
         
         # Test an out-of-range access
@@ -268,21 +233,23 @@ class HwndWrapperTests(unittest.TestCase):
         # For this reason we can't use an assertRaises statement here because
         # the exception is raised before actual call to DrawOutline
         ctl = self.dlg.ChildWindow(class_name='Static', found_index=3333)
-        self.assertRaises(WindowNotFoundError, ctl.WrapperObject)
+        self.assertRaises(ElementNotFoundError, ctl.WrapperObject)
 
     def testSearchWithPredicateFunc(self):
         "test an access to a control by filtering with a predicate function"
 
-        def is_radians(h):
+        def is_checkbox(elem):
             res = False
-            hwwrp = HwndWrapper(h)
-            if hwwrp.FriendlyClassName() == u'RadioButton':
-                if hwwrp.Texts() == [u'Radians']:
+            if elem.handle is None:
+                return False
+            hwwrp = HwndWrapper(elem.handle)
+            if hwwrp.FriendlyClassName() == u'CheckBox':
+                if hwwrp.Texts() == [u'Show']:
                     res = True
             return res
 
-        ctl = self.dlg.ChildWindow(predicate_func=is_radians)
-        self.assertEqual(ctl.Texts(), [u'Radians'])
+        ctl = self.dlg.ChildWindow(predicate_func=is_checkbox)
+        self.assertEqual(ctl.Texts(), [u'Show'])
         ctl.DrawOutline('red')  # visualize
 
     def testClientRects(self):
@@ -307,9 +274,9 @@ class HwndWrapperTests(unittest.TestCase):
         vk = self.dlg.SendMessage(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Degrees.SendMessage(win32defines.WM_GETDLGCODE)
-        # The expected return code is: "Button" = 0x2000 and "Radio" = 0x40
-        expected = 0x2000 + 0x40
+        code = self.dlg.Edit.SendMessage(win32defines.WM_GETDLGCODE)
+        # The expected return code is: "Edit" ? # "Button" = 0x2000 and "Radio" = 0x40
+        expected = 0x89 # 0x2000 + 0x40
         self.assertEqual(expected, code)
 
 
@@ -319,15 +286,15 @@ class HwndWrapperTests(unittest.TestCase):
         vk = self.dlg.SendMessageTimeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Degrees.SendMessageTimeout(win32defines.WM_GETDLGCODE)
-        # The expected return code is: "Button" = 0x2000 and "Radio" = 0x40
-        expected = 0x2000 + 0x40
+        code = self.dlg.Show.SendMessageTimeout(win32defines.WM_GETDLGCODE)
+        # The expected return code is: "Button" = 0x2000 # and "Radio" = 0x40
+        expected = 0x2000 #+ 0x40
         Timings.sendmessagetimeout_timeout = default_timeout
         self.assertEqual(expected, code)
 
     def testPostMessage(self):
         self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
-        self.assertNotEquals(0, self.dlg.Degrees.PostMessage(win32defines.WM_PAINT))
+        self.assertNotEquals(0, self.dlg.Show.PostMessage(win32defines.WM_PAINT))
 
 #    def testNotifyMenuSelect(self):
 #        "Call NotifyMenuSelect to ensure it does not raise"
@@ -437,59 +404,92 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(self.dlg.GetFocus(), None)
         self.assertEqual(self.dlg.GetFocus(), self.ctrl.GetFocus())
 
-        self.dlg.Radians.SetFocus()
-        self.assertEqual(self.dlg.GetFocus(), self.dlg.Radians.handle)
+        self.dlg.Set.SetFocus()
+        self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
 
     def testSetFocus(self):
-        self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Radians.handle)
-        self.dlg.Radians.SetFocus()
-        self.assertEqual(self.dlg.GetFocus(), self.dlg.Radians.handle)
+        self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
+        self.dlg.Set.SetFocus()
+        self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
+
+
+class HwndWrapperMenuTests(unittest.TestCase):
+    "Unit tests for menu actions of the HwndWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+
+        # start the application
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        
+        self.dlg = self.app.RowListSampleApplication
+        self.ctrl = self.app.RowListSampleApplication.ListView.WrapperObject()
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testMenuItems(self):
+        self.assertEqual(self.ctrl.MenuItems(), [])
+        self.assertEqual(self.dlg.MenuItems()[1]['Text'], '&View')
 
     def testMenuSelect(self):
         "Test selecting a menu item"
 
-        if not self.dlg.MenuItem("View -> Digit grouping").IsChecked():
-            self.dlg.MenuSelect("View -> Digit grouping")
+        if self.dlg.MenuItem("View -> Toolbar").IsChecked():
+            self.dlg.MenuSelect("View -> Toolbar")
+        self.assertEquals(self.dlg.MenuItem("View -> Toolbar").IsChecked(), False)
 
-        self.dlg.TypeKeys("1234567")
-        self.dlg.MenuSelect("Edit->Copy\tCtrl+C")
-        self.dlg.Button8.Click()  # 'Button8' is a class name of the 'CE' button
-        self.assertEquals(self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "0")
-        
-        # get a pasted text 
-        self.dlg.MenuSelect("Edit->Paste\tCtrl+V")
-        cur_str = self.dlg.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0]
-
-        # use a regular expression to match the typed string 
-        # because on machines with different locales
-        # the digit groups can have different spacers. For example:
-        # "1,234,567" or "1 234 567" and so on.        
-        exp_pattern = u"1.234.567"
-        res = re.match(exp_pattern, cur_str)
-        self.assertNotEqual(res, None)
+        self.dlg.MenuSelect("View -> Toolbar")
+        self.assertEquals(self.dlg.MenuItem("View -> Toolbar").IsChecked(), True)
 
     def testClose(self):
         "Test the Close() method of windows"
         # open about dialog
-        self.dlg.MenuSelect('Help->About Calculator')
+        self.dlg.MenuSelect('Help->About RowList...')
         
         # make sure it is open and visible
-        self.app.AboutCalculator.Wait("visible", 20)
-        self.assertTrue(self.app.Window_(title='About Calculator').IsVisible(), True)
+        self.app.AboutRowList.Wait("visible", 20)
+        self.assertTrue(self.app.Window_(title='About RowList').IsVisible(), True)
 
         # close it
-        self.app.Window_(title='About Calculator', class_name='#32770').Close(1)
+        self.app.Window_(title='About RowList', class_name='#32770').Close(1)
 
         # make sure that it is not visible
         try:
-            #self.assertRaises(WindowNotFoundError, self.app.Window_(title='About Calculator', class_name='#32770').WrapperObject())
+            #self.assertRaises(WindowNotFoundError, self.app.Window_(title='About RowList', class_name='#32770').WrapperObject())
             # vvryabov: TimeoutError is caught by assertRaises, so the second raise is not caught correctly
-            self.app.Window_(title='About Calculator', class_name='#32770').WrapperObject()
+            self.app.Window_(title='About RowList', class_name='#32770').WrapperObject()
         except WindowNotFoundError:
             print('WindowNotFoundError exception is raised as expected. OK.')
 
-        # make sure the main calculator dialog is still open
+        # make sure the main RowList dialog is still open
         self.assertEquals(self.dlg.IsVisible(), True)
+
+    def testCloseClick_bug(self):
+        self.dlg.MenuSelect('Help->About RowList...')
+        self.app.AboutRowList.Wait("visible", 10)
+        self.app.AboutRowList.CloseButton.CloseClick()
+        Timings.closeclick_dialog_close_wait = .7
+        try:
+            self.app.AboutRowList.CloseClick()
+        except TimeoutError:
+            pass
+
+        self.app.AboutRowList.Close()
+
+        #self.assertEquals(self.app.StatisticsBox.Exists(), False)
+
+    def testCloseAltF4(self):
+        self.dlg.MenuSelect('Help->About RowList...')
+        AboutRowList = self.app.Window_(title='About RowList', active_only=True, class_name='#32770')
+        AboutWrapper = AboutRowList.Wait("enabled")
+        AboutRowList.CloseAltF4()
+        AboutRowList.WaitNot('visible')
+        self.assertNotEqual(AboutWrapper.IsVisible(), True)
+
 
 
 class HwndWrapperMouseTests(unittest.TestCase):
