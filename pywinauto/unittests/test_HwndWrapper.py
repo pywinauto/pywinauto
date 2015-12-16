@@ -165,8 +165,10 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(rect.bottom, None)
         self.assertNotEqual(rect.right, None)
 
-        self.assertEqual(rect.height(), 423)
-        self.assertEqual(rect.width(), 506)
+        if abs(rect.height() - 423) > 5:
+            self.assertEqual(rect.height(), 423)
+        if abs(rect.width() - 506) > 5:
+            self.assertEqual(rect.width(), 506)
 
     def testClientRect(self):
         rect = self.dlg.Rectangle()
@@ -213,15 +215,11 @@ class HwndWrapperTests(unittest.TestCase):
     def testTexts(self):
         self.assertEqual(self.dlg.Texts(), ['Common Controls Sample'])
         self.assertEqual(HwndWrapper(self.dlg.Show.handle).Texts(), [u'Show'])
-        self.assertEqual(self.dlg.ChildWindow(class_name='Button', ctrl_index=3).Texts(), [u'Elevation Icon'])
+        self.assertEqual(self.dlg.ChildWindow(class_name='Button', found_index=2).Texts(), [u'Elevation Icon'])
 
     def testFoundIndex(self):
         "test an access to a control by found_index"
 
-        # The edit box with '0' can be accessed directly by control_index = 5
-        # or by a search combination: class_name='Static', found_index=3
-        ctl = self.dlg.ChildWindow(ctrl_index=5)
-        self.assertEqual(ctl.Texts(), [u'Command button here'])
         ctl = self.dlg.ChildWindow(class_name='Button', found_index=3)
         self.assertEqual(ctl.Texts(), [u'Show'])
         ctl.DrawOutline('blue')  # visualize
@@ -232,7 +230,7 @@ class HwndWrapperTests(unittest.TestCase):
         # The exception is raised later when we try to find the window.
         # For this reason we can't use an assertRaises statement here because
         # the exception is raised before actual call to DrawOutline
-        ctl = self.dlg.ChildWindow(class_name='Static', found_index=3333)
+        ctl = self.dlg.ChildWindow(class_name='Button', found_index=3333)
         self.assertRaises(ElementNotFoundError, ctl.WrapperObject)
 
     def testSearchWithPredicateFunc(self):
