@@ -41,7 +41,7 @@ from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper, \
                 InvalidWindowHandle, GetDialogPropsFromHandle
 from pywinauto import win32structures, win32defines
-from pywinauto.findwindows import WindowNotFoundError, ElementNotFoundError
+from pywinauto.findwindows import ElementNotFoundError, ElementNotFoundError
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
@@ -457,11 +457,11 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
         # make sure that it is not visible
         try:
-            #self.assertRaises(WindowNotFoundError, self.app.Window_(title='About RowList', class_name='#32770').WrapperObject())
+            #self.assertRaises(ElementNotFoundError, self.app.Window_(title='About RowList', class_name='#32770').WrapperObject())
             # vvryabov: TimeoutError is caught by assertRaises, so the second raise is not caught correctly
             self.app.Window_(title='About RowList', class_name='#32770').WrapperObject()
-        except WindowNotFoundError:
-            print('WindowNotFoundError exception is raised as expected. OK.')
+        except ElementNotFoundError:
+            print('ElementNotFoundError exception is raised as expected. OK.')
 
         # make sure the main RowList dialog is still open
         self.assertEquals(self.dlg.IsVisible(), True)
@@ -472,7 +472,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         self.app.AboutRowList.CloseButton.CloseClick()
         Timings.closeclick_dialog_close_wait = .7
         try:
-            self.app.AboutRowList.CloseClick()
+            self.app.AboutRowList.CloseButton.CloseClick()
         except TimeoutError:
             pass
 

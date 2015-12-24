@@ -1,11 +1,40 @@
+# GUI Application automation and testing library
+# Copyright (C) 2016 Vasily Ryabov
+# Copyright (C) 2016 Alexander Rumyantsev
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation; either version 2.1
+# of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the
+#    Free Software Foundation, Inc.,
+#    59 Temple Place,
+#    Suite 330,
+#    Boston, MA 02111-1307 USA
+
+"""Back-end components storage (links to platform-specific things)"""
+
+import ctypes
+
+from . import win32functions
 from . import handleprops
 from .ElementInfo import ElementInfo
 
 class NativeElementInfo(ElementInfo):
     "Wrapper for window handler"
-    def __init__(self, handle):
+    def __init__(self, handle = None):
         self._cache = {}
-        self._handle = handle
+        if handle is None: # root element
+            self._handle = win32functions.GetDesktopWindow()
+        else:
+            self._handle = handle
 
     @property
     def handle(self):
@@ -15,65 +44,72 @@ class NativeElementInfo(ElementInfo):
     @property
     def richText(self):
         "Return the text of the window"
-        if not "richText" in self._cache.keys():
-            self._cache["richText"] = handleprops.text(self._handle)
-        return self._cache["richText"]
+        return handleprops.text(self._handle)
 
     name = richText
 
     @property
     def controlId(self):
         "Return the ID of the window"
-        if not "controlId" in self._cache.keys():
-            self._cache["controlId"] = handleprops.controlid(self._handle)
-        return self._cache["controlId"]
+        return handleprops.controlid(self._handle)
 
     @property
     def processId(self):
         "Return the ID of process that controls this window"
-        if not "processId" in self._cache.keys():
-            self._cache["processId"] = handleprops.processid(self._handle)
-        return self._cache["processId"]
+        return handleprops.processid(self._handle)
 
     @property
     def className(self):
         "Return the class name of the window"
-        if not "className" in self._cache.keys():
-            self._cache["className"] = handleprops.classname(self._handle)
-        return self._cache["className"]
+        return handleprops.classname(self._handle)
 
     @property
     def enabled(self):
         "Return True if the window is enabled"
-        if not "enabled" in self._cache.keys():
-            self._cache["enabled"] = handleprops.isenabled(self._handle)
-        return self._cache["enabled"]
+        return handleprops.isenabled(self._handle)
 
     @property
     def visible(self):
         "Return True if the window is visible"
-        if not "visible" in self._cache.keys():
-            self._cache["visible"] = handleprops.isvisible(self._handle)
-        return self._cache["visible"]
+        return handleprops.isvisible(self._handle)
 
     @property
     def parent(self):
         "Return the parent of the window"
-        if not "parent" in self._cache.keys():
-            self._cache["parent"] = handleprops.parent(self._handle)
-        return self._cache["parent"]
+        return NativeElementInfo(handleprops.parent(self._handle))
 
     @property
     def children(self):
-        "Return a list of children of the window"
-        child_handles = handleprops.children(self._handle)
-        return [NativewindowInfo(ch) for ch in child_handles]
+        "Return a list of immediate children of the window"
+        if self == NativeElementInfo(): # self == root
+            child_handles = []
+
+            # The callback function that will be called for each HWND
+            # all we do is append the wrapped handle
+            def EnumWindowProc(hwnd, lparam):
+                "Called for each window - adds handles to a list"
+                child_handles.append(hwnd)
+                return True
+
+            # define the type of the child procedure
+            enum_win_proc = ctypes.WINFUNCTYPE(
+                ctypes.c_int, ctypes.c_long, ctypes.c_long)
+
+            # 'construct' the callback with our function
+            proc = enum_win_proc(EnumWindowProc)
+
+            # loop over all the top level windows (callback called for each)
+            win32functions.EnumWindows(proc, 0)
+        else:
+            # TODO: this code returns the whole sub-tree, we need to re-write it
+            child_handles = handleprops.children(self._handle)
+        return [NativeElementInfo(ch) for ch in child_handles]
 
     @property
     def descendants(self):
-        "Return descendants of the window"
+        "Return descendants of the window (all children from sub-tree)"
         child_handles = handleprops.children(self._handle)
-        return [NativewindowInfo(ch) for ch in child_handles]
+        return [NativeElementInfo(ch) for ch in child_handles]
 
     def dumpWindow(self):
         "Dump a window to a set of properties"

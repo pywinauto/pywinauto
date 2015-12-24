@@ -67,6 +67,7 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 from . import handleprops
+from . import backend
 
 import win32process, win32api, win32gui, win32con, win32event, multiprocessing
 
@@ -286,7 +287,7 @@ class WindowSpecification(object):
 
             return True
         except (
-            findwindows.WindowNotFoundError,
+            findwindows.ElementNotFoundError,
             findbestmatch.MatchError,
             controls.InvalidWindowHandle):
             return False
@@ -333,7 +334,7 @@ class WindowSpecification(object):
             try:
                 # Hidden _resolve_control call, handle the exceptions.
                 check = getattr(self, check_name)
-            except (findwindows.WindowNotFoundError,
+            except (findwindows.ElementNotFoundError,
                     findbestmatch.MatchError,
                     controls.InvalidWindowHandle):
                 # The control does not exist.
@@ -518,7 +519,7 @@ def _get_ctrl(criteria_):
     if UIA_support:
         dialog = controls.WrapElement(findwindows.find_window(**criteria[0]))
     else:
-        dialog = controls.WrapHandle(findwindows.find_window(**criteria[0]).handle)
+        dialog = controls.WrapHandle(findwindows.find_window(**criteria[0]))
 
     ctrl = None
     # if there is only criteria for a dialog then return it
@@ -534,7 +535,7 @@ def _get_ctrl(criteria_):
         if UIA_support:
             ctrl = controls.WrapElement(findwindows.find_window(**ctrl_criteria))
         else:
-            ctrl = controls.WrapHandle(findwindows.find_window(**ctrl_criteria).handle)
+            ctrl = controls.WrapHandle(findwindows.find_window(**ctrl_criteria))
 
     if ctrl:
         return (dialog, ctrl)
@@ -623,7 +624,7 @@ def _resolve_from_appdata(
             if UIA_support:
                 dialog = controls.WrapElement(e)
             else:
-                dialog = controls.WrapHandle(e.handle)
+                dialog = controls.WrapHandle(e)
 
             # if a control was specified also
             if len(criteria_) > 1:
@@ -663,7 +664,7 @@ def _resolve_from_appdata(
                     if UIA_support:
                         ctrl = controls.WrapElement(ctrl_elems[0])
                     else:
-                        ctrl = controls.WrapHandle(ctrl_elems[0].handle)
+                        ctrl = controls.WrapHandle(ctrl_elems[0])
                 except IndexError:
                     print("-+-+=_" * 20)
                     #print(found_criteria)
@@ -676,10 +677,10 @@ def _resolve_from_appdata(
     # it is possible that the dialog will not be found - so we
     # should raise an error
     if dialog is None:
-        raise findwindows.WindowNotFoundError()
+        raise findwindows.ElementNotFoundError()
 
     if len(criteria_) == 2 and ctrl is None:
-        raise findwindows.WindowNotFoundError()
+        raise findwindows.ElementNotFoundError()
 
     if ctrl:
         return dialog, ctrl
@@ -761,7 +762,7 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
             timeout,
             retry_interval,
             _get_ctrl,
-            (findwindows.WindowNotFoundError,
+            (findwindows.ElementNotFoundError,
             findbestmatch.MatchError,
             controls.InvalidWindowHandle),
             criteria)
@@ -842,8 +843,7 @@ class Application(object):
             connected = True
 
         elif kwargs:
-            handle = findwindows.find_window(**kwargs).handle
-            self.process = handleprops.processid(handle)
+            self.process = findwindows.find_window(**kwargs).processId
             connected = True
 
         if not connected:
@@ -1078,7 +1078,7 @@ class Application(object):
             return [controls.WrapElement(win) for win in windows]
         else:
             windows = findwindows.find_windows(**kwargs)
-            return [controls.WrapHandle(win.handle) for win in windows]
+            return [controls.WrapHandle(win) for win in windows]
 
     Windows_ = windows_
 
