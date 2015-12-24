@@ -34,17 +34,12 @@ from . import win32structures
 from . import handleprops
 from . import findbestmatch
 from . import controls
-from .NativeElementInfo import NativeElementInfo
+from . import backend
 
 if sysinfo.UIA_support:
     from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
 
 # TODO: we should filter out invalid windows before returning
-
-#=========================================================================
-class WindowNotFoundError(Exception):
-    "No window could be found"
-    pass
 
 #=========================================================================
 class WindowAmbiguousError(Exception):
@@ -73,7 +68,7 @@ def find_window(**kwargs):
         windows = find_windows(**kwargs)
 
     if not windows:
-        raise WindowNotFoundError()
+        raise ElementNotFoundError()
 
     if len(windows) > 1:
         #for w in windows:
@@ -139,7 +134,7 @@ def find_elements(class_name = None,
 
     # check if parent is a handle of element (in case of searching native controls)
     if parent:
-        if isinstance(parent, (int, six.integer_types)):
+        if isinstance(parent, six.integer_types):
             parent = UIAElementInfo(parent)
 
     if top_level_only:
@@ -303,36 +298,42 @@ def find_windows(class_name = None,
     # allow a handle to be passed in
     # if it is present - just return it
     if handle is not None:
-        return [NativeElementInfo(handle), ]
+        return [backend.ActiveElementInfo(handle), ]
+
+    # check if parent is a handle of element (in case of searching native controls)
+    if parent:
+        if isinstance(parent, six.integer_types):
+            parent = backend.ActiveElementInfo(parent)
 
     if top_level_only:
         # find the top level windows
-        windows = enum_windows()
+        windows = backend.ActiveElementInfo().children # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
             windows = [win for win in windows
-                if handleprops.parent(win) == parent]
+                if win.parent == parent]
 
     # looking for child windows
     else:
         # if not given a parent look for all children of the desktop
         if not parent:
-            parent = win32functions.GetDesktopWindow()
+            parent = backend.ActiveElementInfo() # root, win32functions.GetDesktopWindow()
 
         # look for all children of that parent
-        windows = handleprops.children(parent)
+        windows = parent.children
 
         # if the ctrl_index has been specified then just return
         # that control
         if ctrl_index is not None:
-            return [NativeElementInfo(windows[ctrl_index])]
+            return [backend.ActiveElementInfo(windows[ctrl_index])]
 
     if control_id is not None and windows:
         windows = [win for win in windows if
-            handleprops.controlid(win) == control_id]
+            win.controlId == control_id]
 
     if active_only:
+        # TODO: re-write to use ElementInfo interface
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
 
@@ -343,7 +344,7 @@ def find_windows(class_name = None,
             raise ctypes.WinError()
 
         if gui_info.hwndActive in windows:
-            windows = [gui_info.hwndActive]
+            windows = [backend.ActiveElementInfo(gui_info.hwndActive)]
         else:
             windows = []
 
@@ -353,43 +354,44 @@ def find_windows(class_name = None,
 
     if class_name is not None:
         windows = [win for win in windows
-            if class_name == handleprops.classname(win)]
+            if class_name == win.className]
 
     if class_name_re is not None:
         class_name_regex = re.compile(class_name_re)
         windows = [win for win in windows
-            if class_name_regex.match(handleprops.classname(win))]
+            if class_name_regex.match(win.className)]
 
     if process is not None:
         windows = [win for win in windows
-            if handleprops.processid(win) == process]
+            if win.processId == process]
 
     if title is not None:
         windows = [win for win in windows
-            if title == handleprops.text(win)]
+            if title == win.name]
 
     elif title_re is not None:
         title_regex = re.compile(title_re)
         def _title_match(w):
-            t = handleprops.text(w)
+            t = w.name
             if t is not None:
                 return title_regex.match(t)
             return False
         windows = [win for win in windows if _title_match(win)]
 
     if visible_only:
-        windows = [win for win in windows if handleprops.isvisible(win)]
+        windows = [win for win in windows if win.visible]
 
     if enabled_only:
-        windows = [win for win in windows if handleprops.isenabled(win)]
+        windows = [win for win in windows if win.enabled]
 
     if best_match is not None:
         wrapped_wins = []
 
         for win in windows:
             try:
-                wrapped_wins.append(controls.WrapHandle(win))
+                wrapped_wins.append(backend.ActiveWrapper(win))
             except controls.InvalidWindowHandle:
+                # TODO: InvalidElement might be raised in UIA case
                 # skip invalid handles - they have dissapeared
                 # since the list of windows was retrieved
                 pass
@@ -397,7 +399,7 @@ def find_windows(class_name = None,
             best_match, wrapped_wins)
 
         # convert window back to handle
-        windows = [win.handle for win in windows]
+        windows = [backend.ActiveElementInfo(win.handle) for win in windows]
 
     if predicate_func is not None:
         windows = [win for win in windows if predicate_func(win)]
@@ -407,12 +409,12 @@ def find_windows(class_name = None,
         if found_index < len(windows):
             windows = windows[found_index:found_index+1]
         else:
-            raise WindowNotFoundError(
+            raise ElementNotFoundError(
                 "found_index is specified as %d, but %d window/s found" % 
                 (found_index, len(windows)) 
                 )
 
-    return [NativeElementInfo(handle) for handle in windows]
+    return windows #[backend.ActiveElementInfo(handle) for handle in windows]
 
 #=========================================================================
 def enum_windows():

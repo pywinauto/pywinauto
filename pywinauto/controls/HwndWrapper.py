@@ -60,6 +60,7 @@ from .. import timings
 
 #from .. import findbestmatch
 from .. import handleprops
+from ..NativeElementInfo import NativeElementInfo
 
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
@@ -110,9 +111,11 @@ class _MetaWrapper(type):
             _MetaWrapper.control_types[control_type] = cls
 
     @staticmethod
-    def FindWrapper(handle):
-        "Find the correct wrapper for this handle"
-        class_name = handleprops.classname(handle)
+    def FindWrapper(element):
+        "Find the correct wrapper for this native element"
+        if isinstance(element, six.integer_types):
+            element = NativeElementInfo(element)
+        class_name = element.className
 
         try:
             return _MetaWrapper.str_wrappers[class_name]
@@ -128,7 +131,7 @@ class _MetaWrapper(type):
 
         # if it is a dialog then override the wrapper we found
         # and make it a DialogWrapper
-        if handleprops.is_toplevel_window(handle):
+        if handleprops.is_toplevel_window(element.handle):
             from . import win32_controls
             wrapper_match = win32_controls.DialogWrapper
 
@@ -143,7 +146,7 @@ class _MetaWrapper(type):
     def FindWrapperUIA(elementinfo):
         "Find the wrapper for this elementinfo"
         if elementinfo.handle != None:
-            wrapper = _MetaWrapper.FindWrapper(elementinfo.handle)
+            wrapper = _MetaWrapper.FindWrapper(elementinfo)
 
             if wrapper == HwndWrapper:
                 if elementinfo.controlType in _MetaWrapper.control_types.keys():
@@ -188,41 +191,43 @@ class HwndWrapper(object):
     _NeedsImageProp = False
 
     #-----------------------------------------------------------
-    def __new__(cls, handle):
+    def __new__(cls, element):
         # only use the meta class to find the wrapper for HwndWrapper
         # so allow users to force the wrapper if they want
         # thanks to Raghav for finding this.
         if cls != HwndWrapper:
             obj = object.__new__(cls)
-            obj.__init__(handle)
+            obj.__init__(element)
             return obj
 
-        new_class = cls.FindWrapper(handle)
+        new_class = cls.FindWrapper(element)
         #super(currentclass, cls).__new__(cls[, ...])"
         obj = object.__new__(new_class)
-        obj.__init__(handle)
+        obj.__init__(element)
         return obj
 
     #-----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, element):
         """Initialize the control
 
-        * **hwnd** is either a valid window handle or it can be an
+        * **element** is either a valid NativeElementInfo or it can be an
           instance or subclass of HwndWrapper.
 
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-
-        # handle if hwnd is actually a HwndWrapper
-        try:
-            self.handle = hwnd.handle
-        except AttributeError:
-            self.handle = hwnd
+        if isinstance(element, six.integer_types):
+            element = NativeElementInfo(element)
+            self.handle = element.handle
+        elif isinstance(element, NativeElementInfo):
+            self.handle = element.handle
+        else:
+            # handle if hwnd is actually a HwndWrapper
+            self.handle = element.handle
 
         # verify that we have been passed in a valid windows handle
-        if not win32functions.IsWindow(hwnd):
-            raise InvalidWindowHandle(hwnd)
+        if not win32functions.IsWindow(self.handle):
+            raise InvalidWindowHandle(self.handle)
 
         # make it so that ctypes conversion happens correctly
         self._as_parameter_ = self.handle

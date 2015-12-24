@@ -311,7 +311,7 @@ class ApplicationTestCases(unittest.TestCase):
         except findwindows.WindowAmbiguousError:
             wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
             app_conn.connect(handle=wins[0])
-        except findwindows.WindowNotFoundError:
+        except findwindows.ElementNotFoundError:
             WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title = "Untitled - Notepad")) > 0)
             wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
             app_conn.connect(handle=wins[0].handle)
