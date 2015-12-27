@@ -46,6 +46,7 @@ from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
 from pywinauto import clipboard
+from pywinauto import backend
 
 import unittest
 
@@ -61,6 +62,8 @@ def _notepad_exe():
     else:
         return r"C:\Windows\SysWOW64\notepad.exe"
 
+if backend.active_name != "native":
+    backend.set("native")
 
 class HwndWrapperTests(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
@@ -470,11 +473,12 @@ class HwndWrapperMenuTests(unittest.TestCase):
         self.dlg.MenuSelect('Help->About RowList...')
         self.app.AboutRowList.Wait("visible", 10)
         self.app.AboutRowList.CloseButton.CloseClick()
-        Timings.closeclick_dialog_close_wait = .7
-        try:
-            self.app.AboutRowList.CloseButton.CloseClick()
-        except TimeoutError:
-            pass
+
+        #Timings.closeclick_dialog_close_wait = .7
+        #try:
+        #    self.app.AboutRowList.CloseButton.CloseClick()
+        #except TimeoutError:
+        #    pass
 
         self.app.AboutRowList.Close()
 

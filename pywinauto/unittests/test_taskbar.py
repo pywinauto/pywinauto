@@ -61,12 +61,12 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
     def _cabinetwclass_exist():
         "Verify if at least one active 'CabinetWClass' window is created"
-        l = findwindows.find_windows(active_only=True, class_name=class_name)
+        l = findwindows.find_elements(active_only = True, class_name = class_name)
         return (len(l) > 0)
 
     WaitUntil(_ready_timeout, _retry_interval, _cabinetwclass_exist)
-    handle = findwindows.find_windows(active_only=True,
-                                      class_name=class_name)[-1].handle
+    handle = findwindows.find_elements(active_only = True,
+                                      class_name = class_name)[-1].handle
     window = WindowSpecification({'handle': handle, })
     explorer = Application().Connect(process=window.ProcessID())
     cur_state = None

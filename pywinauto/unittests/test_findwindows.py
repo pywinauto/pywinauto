@@ -27,14 +27,14 @@ import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.findwindows import find_windows, find_window
+from pywinauto.findwindows import find_elements, find_element
 from pywinauto.findwindows import ElementNotFoundError, WindowAmbiguousError
 
 
 #=========================================================================
 def _unittests():
     "Do a quick test of finding some windows"
-    windows = find_windows(
+    windows = find_elements(
         class_name_re = "#32770",
         enabled_only = False,
         visible_only = False)

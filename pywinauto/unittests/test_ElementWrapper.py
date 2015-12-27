@@ -21,6 +21,7 @@ if UIA_support:
 #from pywinauto.findwindows import ElementNotFoundError
 from pywinauto.timings import Timings, TimeoutError
 #from pywinauto import clipboard
+import pywinauto.backend as backend
 
 import unittest
 
@@ -30,6 +31,10 @@ if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
 
 if UIA_support:
+    # Set backend to UIA
+    if backend.active_name != "uia":
+        backend.set("uia")
+
     class ElementWrapperTests(unittest.TestCase):
         "Unit tests for the ElementWrapper class"
 

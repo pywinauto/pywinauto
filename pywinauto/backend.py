@@ -38,17 +38,19 @@ ActiveElementInfo = NativeElementInfo
 ActiveWrapper = HwndWrapper
 
 def set(new_active_name):
-    """Set active back-end by name
+    """
+    Set active back-end by name
 
     Possible values of **active_name** are "native", "uia" or
-        other name registered by the **register** function.
+    other name registered by the **register** function.
     """
     if new_active_name not in registered_backends.keys():
         raise ValueError('Back-end "{backend}" is not registered!'.format(backend=new_active_name))
-    
-    active_name = new_active_name
-    (ActiveElementInfo, ActiveWrapper) = registered_backends[new_active_name]
 
+    global active_name
+    active_name = new_active_name
+    global ActiveElementInfo, ActiveWrapper
+    (ActiveElementInfo, ActiveWrapper) = registered_backends[new_active_name]
 
 def register(backend_name, wrapper):
     pass

@@ -114,3 +114,9 @@ class NativeElementInfo(ElementInfo):
     def dumpWindow(self):
         "Dump a window to a set of properties"
         return handleprops.dumpwindow(self._handle)
+
+    def __eq__(self, other):
+        "Check if 2 NativeElementInfo objects describe 1 actual element"
+        if not isinstance(other, NativeElementInfo):
+            return False
+        return self._handle == other._handle

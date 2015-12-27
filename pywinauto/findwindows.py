@@ -57,15 +57,12 @@ class ElementAmbiguousError(Exception):
     pass
 
 #=========================================================================
-def find_window(**kwargs):
+def find_element(**kwargs):
     """Call findwindows and ensure that only one window is returned
 
     Calls find_windows with exactly the same arguments as it is called with
     so please see find_windows for a description of them."""
-    if sysinfo.UIA_support:
-        windows = find_elements(**kwargs)
-    else:
-        windows = find_windows(**kwargs)
+    windows = find_elements(**kwargs)
 
     if not windows:
         raise ElementNotFoundError()
@@ -104,6 +101,7 @@ def find_elements(class_name = None,
                   active_only = False,
                   control_id = None,
                   auto_id = None,
+                  framework_id = None,
     ):
     """
     Find elements based on criteria passed in
@@ -125,21 +123,23 @@ def find_elements(class_name = None,
     * **found_index**    The index of the filtered out child lement to return
     * **active_only**    Active elements only (default=False)
     * **control_id**     Elements with this control id
+    * **auto_id**        Elements with this automation id (for UIAutomation elements)
+    * **framework_id**   Elements with this frameword id (for UIAutomation elements)
     """
 
     # allow a handle to be passed in
     # if it is present - just return it
     if handle is not None:
-        return [UIAElementInfo(handle), ]
+        return [backend.ActiveElementInfo(handle), ]
 
     # check if parent is a handle of element (in case of searching native controls)
     if parent:
         if isinstance(parent, six.integer_types):
-            parent = UIAElementInfo(parent)
+            parent = backend.ActiveElementInfo(parent)
 
     if top_level_only:
         # find the top level elements
-        elements = enum_windows_UIA()
+        elements = backend.ActiveElementInfo().children # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
@@ -149,7 +149,7 @@ def find_elements(class_name = None,
     else:
         # if not given a parent look for all children of the desktop
         if not parent:
-            parent = UIAElementInfo(_iuia.getRootElement())
+            parent = backend.ActiveElementInfo()
 
         # look for ALL children of that parent
         elements = parent.descendants
@@ -159,6 +159,9 @@ def find_elements(class_name = None,
         if ctrl_index is not None:
             return [elements[ctrl_index], ]
 
+    if framework_id is not None and elements:
+        elements = [elem for elem in elements if elem.frameworkId == framework_id]
+
     if control_id is not None and elements:
         elements = [elem for elem in elements if elem.controlId == control_id]
 
@@ -166,7 +169,7 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.automationId == auto_id]
 
     if active_only:
-        # TODO: getting active windows is based on win32functions - rewriting is needed
+        # TODO: re-write to use ElementInfo interface
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
 
@@ -201,7 +204,6 @@ def find_elements(class_name = None,
 
     if title is not None:
         elements = [elem for elem in elements if elem.richText == title]
-
     elif title_re is not None:
         title_regex = re.compile(title_re)
         def _title_match(w):
@@ -224,22 +226,22 @@ def find_elements(class_name = None,
                 # TODO: can't skip invalid handles because UIA element can have no handle
                 # TODO: use className check for this ?
                 if elem.className:
-                    wrapped_elems.append(controls.WrapElement(elem))
-            except controls.InvalidWindowElement:
+                    wrapped_elems.append(backend.ActiveWrapper(elem))
+            except (controls.InvalidWindowHandle,
+                    controls.InvalidElement):
                 # skip invalid handles - they have dissapeared
                 # since the list of elements was retrieved
                 pass
-        elements = findbestmatch.find_best_control_matches(
-            best_match, wrapped_elems)
+        elements = findbestmatch.find_best_control_matches(best_match, wrapped_elems)
 
-        # convert found elements back to UIAElementInfo
+        # convert found elements back to ElementInfo
         backup_elements = elements[:]
         elements = []
         for elem in backup_elements:
             if hasattr(elem, "_elementInfo"):
                 elements.append(elem._elementInfo)
             else:
-                elements.append(UIAElementInfo(elem.handle))
+                elements.append(backend.ActiveElementInfo(elem.handle))
 
     if predicate_func is not None:
         elements = [elem for elem in elements if predicate_func(elem)]
@@ -255,166 +257,6 @@ def find_elements(class_name = None,
             )
 
     return elements
-
-#=========================================================================
-def find_windows(class_name = None,
-                class_name_re = None,
-                parent = None,
-                process = None,
-                title = None,
-                title_re = None,
-                top_level_only = True,
-                visible_only = True,
-                enabled_only = False,
-                best_match = None,
-                handle = None,
-                ctrl_index = None,
-                found_index = None,
-                predicate_func = None,
-                active_only = False,
-                control_id = None,
-    ):
-    """Find windows based on criteria passed in
-
-    Possible values are:
-
-    * **class_name**  Windows with this window class
-    * **class_name_re**  Windows whose class match this regular expression
-    * **parent**    Windows that are children of this
-    * **process**   Windows running in this process
-    * **title**     Windows with this Text
-    * **title_re**  Windows whose Text match this regular expression
-    * **top_level_only** Top level windows only (default=True)
-    * **visible_only**   Visible windows only (default=True)
-    * **enabled_only**   Enabled windows only (default=False)
-    * **best_match**  Windows with a title similar to this
-    * **handle**      The handle of the window to return
-    * **ctrl_index**  The index of the child window to return
-    * **found_index** The index of the filtered out child window to return
-    * **active_only** Active windows only (default=False)
-    * **control_id**  Windows with this control id
-   """
-
-    # allow a handle to be passed in
-    # if it is present - just return it
-    if handle is not None:
-        return [backend.ActiveElementInfo(handle), ]
-
-    # check if parent is a handle of element (in case of searching native controls)
-    if parent:
-        if isinstance(parent, six.integer_types):
-            parent = backend.ActiveElementInfo(parent)
-
-    if top_level_only:
-        # find the top level windows
-        windows = backend.ActiveElementInfo().children # root.children == enum_windows()
-
-        # if we have been given a parent
-        if parent:
-            windows = [win for win in windows
-                if win.parent == parent]
-
-    # looking for child windows
-    else:
-        # if not given a parent look for all children of the desktop
-        if not parent:
-            parent = backend.ActiveElementInfo() # root, win32functions.GetDesktopWindow()
-
-        # look for all children of that parent
-        windows = parent.children
-
-        # if the ctrl_index has been specified then just return
-        # that control
-        if ctrl_index is not None:
-            return [backend.ActiveElementInfo(windows[ctrl_index])]
-
-    if control_id is not None and windows:
-        windows = [win for win in windows if
-            win.controlId == control_id]
-
-    if active_only:
-        # TODO: re-write to use ElementInfo interface
-        gui_info = win32structures.GUITHREADINFO()
-        gui_info.cbSize = ctypes.sizeof(gui_info)
-
-        # get all the active windows (not just the specified process)
-        ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
-
-        if not ret:
-            raise ctypes.WinError()
-
-        if gui_info.hwndActive in windows:
-            windows = [backend.ActiveElementInfo(gui_info.hwndActive)]
-        else:
-            windows = []
-
-    # early stop
-    if not windows:
-        return windows
-
-    if class_name is not None:
-        windows = [win for win in windows
-            if class_name == win.className]
-
-    if class_name_re is not None:
-        class_name_regex = re.compile(class_name_re)
-        windows = [win for win in windows
-            if class_name_regex.match(win.className)]
-
-    if process is not None:
-        windows = [win for win in windows
-            if win.processId == process]
-
-    if title is not None:
-        windows = [win for win in windows
-            if title == win.name]
-
-    elif title_re is not None:
-        title_regex = re.compile(title_re)
-        def _title_match(w):
-            t = w.name
-            if t is not None:
-                return title_regex.match(t)
-            return False
-        windows = [win for win in windows if _title_match(win)]
-
-    if visible_only:
-        windows = [win for win in windows if win.visible]
-
-    if enabled_only:
-        windows = [win for win in windows if win.enabled]
-
-    if best_match is not None:
-        wrapped_wins = []
-
-        for win in windows:
-            try:
-                wrapped_wins.append(backend.ActiveWrapper(win))
-            except controls.InvalidWindowHandle:
-                # TODO: InvalidElement might be raised in UIA case
-                # skip invalid handles - they have dissapeared
-                # since the list of windows was retrieved
-                pass
-        windows = findbestmatch.find_best_control_matches(
-            best_match, wrapped_wins)
-
-        # convert window back to handle
-        windows = [backend.ActiveElementInfo(win.handle) for win in windows]
-
-    if predicate_func is not None:
-        windows = [win for win in windows if predicate_func(win)]
-
-    # found_index is the last criterion to filter results
-    if found_index is not None:
-        if found_index < len(windows):
-            windows = windows[found_index:found_index+1]
-        else:
-            raise ElementNotFoundError(
-                "found_index is specified as %d, but %d window/s found" % 
-                (found_index, len(windows)) 
-                )
-
-    return windows #[backend.ActiveElementInfo(handle) for handle in windows]
 
 #=========================================================================
 def enum_windows():
@@ -440,9 +282,3 @@ def enum_windows():
 
     # return the collected wrapped windows
     return windows
-
-#=========================================================================
-def enum_windows_UIA():
-    "Return a list of UIAElementInfo objects of all the top level windows using UIA functions"
-    root = UIAElementInfo(_iuia.getRootElement())
-    return root.children
