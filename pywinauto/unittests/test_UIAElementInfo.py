@@ -39,11 +39,6 @@ if UIA_support:
         def testHandle(self):
             self.assertEqual(self.ctrl.handle, self.handle)
 
-        def testSetHandle(self):
-            element = UIAElementInfo(self.dlg.Button2.handle)
-            element.handle = self.handle
-            self.assertEqual(self.ctrl.handle, self.handle)
-
         def testEnabled(self):
             self.assertEqual(self.ctrl.enabled, True)
 

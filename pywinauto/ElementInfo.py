@@ -60,6 +60,11 @@ class ElementInfo(object):
         "Return descendants of the element"
         raise NotImplementedError()
 
+    @property
+    def rectangle(self):
+        "Return rectangle of element"
+        raise NotImplementedError()
+
     def dumpWindow(self):
         "Dump an element to a set of properties"
         raise NotImplementedError()

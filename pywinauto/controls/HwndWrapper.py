@@ -66,9 +66,6 @@ from ..NativeElementInfo import NativeElementInfo
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-
-
-
 #====================================================================
 class ControlNotEnabled(RuntimeError):
     "Raised when a control is not enabled"
@@ -86,9 +83,6 @@ class InvalidWindowHandle(RuntimeError):
         "Initialise the RuntimError parent with the mesage"
         RuntimeError.__init__(self,
             "Handle {0} is not a vaild window handle".format(hwnd))
-
-
-
 
 # metaclass that will know about
 class _MetaWrapper(type):
@@ -139,12 +133,13 @@ class _MetaWrapper(type):
             wrapper_match = HwndWrapper
         return wrapper_match
 
-        #if handle in meta.wrappers:
-        #    return meta.wrappers[handle]
-
     @staticmethod
     def FindWrapperUIA(elementinfo):
         "Find the wrapper for this elementinfo"
+        if isinstance(elementinfo, six.integer_types):
+            from ..UIAElementInfo import UIAElementInfo
+            elementinfo = UIAElementInfo(elementinfo)
+
         if elementinfo.handle != None:
             wrapper = _MetaWrapper.FindWrapper(elementinfo)
 

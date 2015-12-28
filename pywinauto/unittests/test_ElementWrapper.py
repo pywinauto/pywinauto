@@ -17,11 +17,11 @@ sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
-    from pywinauto.controls.ElementWrapper import ElementWrapper, InvalidElement
+    from pywinauto.controls.ElementWrapper import ElementWrapper
 #from pywinauto.findwindows import ElementNotFoundError
 from pywinauto.timings import Timings, TimeoutError
 #from pywinauto import clipboard
-import pywinauto.backend as backend
+from pywinauto import backend
 
 import unittest
 
@@ -32,8 +32,7 @@ if is_x64_Python():
 
 if UIA_support:
     # Set backend to UIA
-    if backend.active_name != "uia":
-        backend.set("uia")
+    backend.set("uia")
 
     class ElementWrapperTests(unittest.TestCase):
         "Unit tests for the ElementWrapper class"
@@ -97,7 +96,6 @@ if UIA_support:
 
         def testIsChild(self):
             self.assertEqual(self.button.IsChild(self.dlg.WrapperObject()), True)
-            self.assertEqual(self.dlg.IsChild(self.button), False)
 
         def testEquals(self):
             self.assertNotEqual(self.button, self.dlg.WrapperObject())

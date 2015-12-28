@@ -472,17 +472,17 @@ class HwndWrapperMenuTests(unittest.TestCase):
     def testCloseClick_bug(self):
         self.dlg.MenuSelect('Help->About RowList...')
         self.app.AboutRowList.Wait("visible", 10)
+
+        self.assertEqual(self.app.AboutRowList.Exists(), True)
         self.app.AboutRowList.CloseButton.CloseClick()
+        self.assertEqual(self.app.AboutRowList.Exists(), False)
 
         #Timings.closeclick_dialog_close_wait = .7
         #try:
         #    self.app.AboutRowList.CloseButton.CloseClick()
         #except TimeoutError:
         #    pass
-
-        self.app.AboutRowList.Close()
-
-        #self.assertEquals(self.app.StatisticsBox.Exists(), False)
+        #self.app.AboutRowList.Close()
 
     def testCloseAltF4(self):
         self.dlg.MenuSelect('Help->About RowList...')
@@ -596,7 +596,7 @@ class NotepadRegressionTests(unittest.TestCase):
 
         self.dlg = self.app.Window_(title='Untitled - Notepad', class_name='Notepad')
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
-        self.dlg.edit.SetEditText("Here is some text\r\n and some more")
+        self.dlg.Edit.SetEditText("Here is some text\r\n and some more")
 
         self.app2 = Application().start(_notepad_exe())
 
@@ -694,10 +694,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 
         # start the application
         self.app = Application()
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start(r"C:\Windows\System32\notepad.exe")
-        else:
-            self.app.start(r"C:\Windows\SysWOW64\notepad.exe")
+        self.app.start(_notepad_exe())
 
         self.dlg = self.app.UntitledNotepad
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)

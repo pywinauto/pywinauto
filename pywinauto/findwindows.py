@@ -35,11 +35,12 @@ from . import handleprops
 from . import findbestmatch
 from . import controls
 from . import backend
+from .controls.BaseWrapper import BaseWrapper
 
 if sysinfo.UIA_support:
     from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
 
-# TODO: we should filter out invalid windows before returning
+# TODO: we should filter out invalid elements before returning
 
 #=========================================================================
 class WindowAmbiguousError(Exception):
@@ -58,30 +59,27 @@ class ElementAmbiguousError(Exception):
 
 #=========================================================================
 def find_element(**kwargs):
-    """Call findwindows and ensure that only one window is returned
+    """Call find_elements and ensure that only one element is returned
 
-    Calls find_windows with exactly the same arguments as it is called with
-    so please see find_windows for a description of them."""
-    windows = find_elements(**kwargs)
+    Calls find_elements with exactly the same arguments as it is called with
+    so please see find_elements for a description of them."""
+    elements = find_elements(**kwargs)
 
-    if not windows:
-        raise ElementNotFoundError()
+    if not elements:
+        raise ElementNotFoundError(kwargs)
 
-    if len(windows) > 1:
-        #for w in windows:
-        #    print "ambig", handleprops.classname(w), \
-        #    handleprops.text(w), handleprops.processid(w)
+    if len(elements) > 1:
         exception =  WindowAmbiguousError(
-            "There are %d windows that match the criteria %s"% (
-            len(windows),
+            "There are %d elements that match the criteria %s"% (
+            len(elements),
             six.text_type(kwargs),
             )
         )
 
-        exception.windows = windows
+        exception.elements = elements
         raise exception
 
-    return windows[0]
+    return elements[0]
 
 #=========================================================================
 def find_elements(class_name = None,
@@ -203,6 +201,9 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.processId == process]
 
     if title is not None:
+        # TODO: some magic is happenning here
+        if elements:
+            elements[0].richText
         elements = [elem for elem in elements if elem.richText == title]
     elif title_re is not None:
         title_regex = re.compile(title_re)
@@ -226,7 +227,8 @@ def find_elements(class_name = None,
                 # TODO: can't skip invalid handles because UIA element can have no handle
                 # TODO: use className check for this ?
                 if elem.className:
-                    wrapped_elems.append(backend.ActiveWrapper(elem))
+                    #wrapped_elems.append(backend.ActiveWrapper(elem))
+                    wrapped_elems.append(BaseWrapper(elem))
             except (controls.InvalidWindowHandle,
                     controls.InvalidElement):
                 # skip invalid handles - they have dissapeared

@@ -111,6 +111,11 @@ class NativeElementInfo(ElementInfo):
         child_handles = handleprops.children(self._handle)
         return [NativeElementInfo(ch) for ch in child_handles]
 
+    @property
+    def rectangle(self):
+        "Return rectangle of element"
+        return handleprops.rectangle(self._handle)
+
     def dumpWindow(self):
         "Dump a window to a set of properties"
         return handleprops.dumpwindow(self._handle)
