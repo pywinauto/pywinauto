@@ -32,8 +32,8 @@ registered_backends = {
 from .sysinfo import UIA_support
 if UIA_support:
     from .UIAElementInfo import UIAElementInfo
-    #from .controls.ElementWrapper import ElementWrapper
-    #registered_backends['uia'] = (UIAElementInfo, ElementWrapper)
+    #from .controls.UIAWrapper import UIAWrapper
+    #registered_backends['uia'] = (UIAElementInfo, UIAWrapper)
     registered_backends['uia'] = UIAElementInfo
 
 active_name = 'native'

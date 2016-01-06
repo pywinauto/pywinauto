@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-"Tests for ElementWrapper"
+"Tests for UIAWrapper"
 
 import time
 #import pprint
@@ -17,7 +17,7 @@ sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
-    from pywinauto.controls.ElementWrapper import ElementWrapper
+    from pywinauto.controls.UIAWrapper import UIAWrapper
 #from pywinauto.findwindows import ElementNotFoundError
 from pywinauto.timings import Timings, TimeoutError
 #from pywinauto import clipboard
@@ -34,8 +34,8 @@ if UIA_support:
     # Set backend to UIA
     backend.set("uia")
 
-    class ElementWrapperTests(unittest.TestCase):
-        "Unit tests for the ElementWrapper class"
+    class UIAWrapperTests(unittest.TestCase):
+        "Unit tests for the UIAWrapper class"
 
         def setUp(self):
             """Start the application set some data and ensure the application
@@ -45,9 +45,9 @@ if UIA_support:
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = ElementWrapper(self.dlg.Button._elementInfo)
-            self.edit = ElementWrapper(self.dlg.Edit._elementInfo)
-            self.label = ElementWrapper(self.dlg.TestLabel._elementInfo)
+            self.button = UIAWrapper(self.dlg.Button._elementInfo)
+            self.edit = UIAWrapper(self.dlg.Edit._elementInfo)
+            self.label = UIAWrapper(self.dlg.TestLabel._elementInfo)
 
         def tearDown(self):
             "Close the application after tests"
@@ -128,8 +128,8 @@ if UIA_support:
             self.edit.TypeKeys("testTypeKeys")
             self.assertEqual(self.edit.WindowText(), "testTypeKeys")
 
-    class ElementWrapperMouseTests(unittest.TestCase):
-        "Unit tests for mouse actions of the ElementWrapper class"
+    class UIAWrapperMouseTests(unittest.TestCase):
+        "Unit tests for mouse actions of the UIAWrapper class"
 
         def setUp(self):
             """
@@ -141,7 +141,7 @@ if UIA_support:
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = ElementWrapper(self.dlg.Button._elementInfo)
+            self.button = UIAWrapper(self.dlg.Button._elementInfo)
             self.label = self.dlg.TestLabel.WrapperObject()
 
         def tearDown(self):

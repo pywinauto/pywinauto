@@ -84,7 +84,7 @@ def removeNonAlphaNumericSymbols(s):
     return re.sub("\W", "_", s)
 
 #=========================================================================
-class ElementWrapper(BaseWrapper.BaseWrapper):
+class UIAWrapper(BaseWrapper.BaseWrapper):
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -96,6 +96,23 @@ class ElementWrapper(BaseWrapper.BaseWrapper):
     Most of the methods apply to every single element type. For example
     you can Click() on any element.
     """
+
+    #------------------------------------------------------------
+    # TODO: can't inherit __new__ function from BaseWrapper?
+    def __new__(cls, elementInfo):
+        # only use the meta class to find the wrapper for BaseWrapper
+        # so allow users to force the wrapper if they want
+        if cls != UIAWrapper:
+            obj = object.__new__(cls)
+            obj.__init__(elementInfo)
+            return obj
+
+        new_class = cls.FindWrapperUIA(elementInfo)
+        obj = object.__new__(new_class)
+
+        obj.__init__(elementInfo)
+
+        return obj
 
     #------------------------------------------------------------
     def FriendlyClassName(self):
@@ -110,14 +127,16 @@ class ElementWrapper(BaseWrapper.BaseWrapper):
         For example Checkboxes are implemented as Buttons - so the class
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
-        if self._elementInfo.controlType not in _known_control_types.keys():
-            return str(self._elementInfo.controlType)
-        ControlType = _known_control_types[self._elementInfo.controlType]
-        if ControlType not in pywinauto_control_types.keys():
-            return ControlType
-        if pywinauto_control_types[ControlType] is None:
-            return ControlType
-        return pywinauto_control_types[ControlType]
+        if self.friendlyclassname is None:
+            if self._elementInfo.controlType not in _known_control_types.keys():
+                self.friendlyclassname = str(self._elementInfo.controlType)
+            else:
+                ControlType = _known_control_types[self._elementInfo.controlType]
+                if (ControlType not in pywinauto_control_types.keys()) or (pywinauto_control_types[ControlType] is None):
+                    self.friendlyclassname = ControlType
+                else:
+                    self.friendlyclassname = pywinauto_control_types[ControlType]
+        return self.friendlyclassname
 
     #-----------------------------------------------------------
     def IsKeyboardFocusable(self):

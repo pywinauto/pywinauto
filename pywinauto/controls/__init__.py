@@ -29,4 +29,8 @@ from .HwndWrapper import InvalidWindowHandle
 from . import common_controls
 from . import win32_controls
 
+from ..sysinfo import UIA_support
+if UIA_support:
+    from . import UIAWrapper
+
 from .BaseWrapper import InvalidElement
