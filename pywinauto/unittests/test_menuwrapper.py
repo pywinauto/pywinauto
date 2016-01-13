@@ -22,12 +22,14 @@
 """Tests for Menu"""
 
 import sys, os
+import unittest
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.controls.menuwrapper import MenuItemNotEnabled
+from pywinauto import backend
+backend.set("native")
 
-import unittest
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")

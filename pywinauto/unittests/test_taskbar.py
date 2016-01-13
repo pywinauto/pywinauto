@@ -35,6 +35,8 @@ from pywinauto.sysinfo import is_x64_Python, \
 from pywinauto import win32defines
 from pywinauto.timings import WaitUntil
 import pywinauto.actionlogger
+from pywinauto import backend
+backend.set("native")
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(

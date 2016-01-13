@@ -36,6 +36,7 @@ import locale
 import re
 
 import sys, os
+import unittest
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper, \
@@ -47,8 +48,7 @@ from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
 from pywinauto import clipboard
 from pywinauto import backend
-
-import unittest
+backend.set("native")
 
 
 mfc_samples_folder = os.path.join(
@@ -62,8 +62,6 @@ def _notepad_exe():
     else:
         return r"C:\Windows\SysWOW64\notepad.exe"
 
-if backend.active_name != "native":
-    backend.set("native")
 
 class HwndWrapperTests(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"

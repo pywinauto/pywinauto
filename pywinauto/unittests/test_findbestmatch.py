@@ -31,6 +31,8 @@ import sys
 sys.path.append(".")
 from pywinauto import findbestmatch
 from pywinauto import win32structures
+from pywinauto import backend
+backend.set("native")
 
 
 class TestFindBestMatch(unittest.TestCase):

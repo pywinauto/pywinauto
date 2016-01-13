@@ -27,12 +27,13 @@ from __future__ import unicode_literals
 
 import os, sys
 import codecs
+import unittest
 sys.path.append(".")
 from pywinauto import XMLHelpers, win32defines #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
-
-import unittest
+from pywinauto import backend
+backend.set("native")
 
 # following imports are not required for the tests
 # but are useful for debugging

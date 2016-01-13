@@ -24,12 +24,14 @@
 import unittest
 
 import sys
+import time
 sys.path.append(".")
 from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard
 from pywinauto.application import Application
 from pywinauto.win32structures import RECT
+from pywinauto import backend
+backend.set("native")
 
-import time
 
 class ClipboardTestCases(unittest.TestCase):
     "Unit tests for the clipboard"

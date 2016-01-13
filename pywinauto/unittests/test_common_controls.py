@@ -42,6 +42,8 @@ from pywinauto.sysinfo import is_x64_Python
 from pywinauto.RemoteMemoryBlock import AccessDenied
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
+from pywinauto import backend
+backend.set("native")
 
 
 controlspy_folder = os.path.join(

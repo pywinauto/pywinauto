@@ -36,6 +36,8 @@ from pywinauto.handleprops import children, classname, clientrect, contexthelpid
 from pywinauto.application import Application
 from pywinauto import six
 from pywinauto.sysinfo import is_x64_OS, is_x64_Python
+from pywinauto import backend
+backend.set("native")
 
 
 class HandlepropsTestCases(unittest.TestCase):

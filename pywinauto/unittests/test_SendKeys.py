@@ -28,6 +28,9 @@ from __future__ import print_function
 """
 
 import sys
+import os
+import locale
+import unittest
 sys.path.append(".")
 from pywinauto.SendKeysCtypes import SendKeys, DEBUG, KeySequenceError
 from pywinauto.SendKeysCtypes import KeyAction, VirtualKeyAction, PauseAction
@@ -35,9 +38,8 @@ from pywinauto import six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
 from pywinauto.actionlogger import ActionLogger
-import os
-import locale
-import unittest
+from pywinauto import backend
+backend.set("native")
 
 
 mfc_samples_folder = os.path.join(

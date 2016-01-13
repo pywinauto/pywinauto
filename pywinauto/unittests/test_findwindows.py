@@ -29,6 +29,8 @@ import sys
 sys.path.append(".")
 from pywinauto.findwindows import find_elements, find_element
 from pywinauto.findwindows import ElementNotFoundError, WindowAmbiguousError
+from pywinauto import backend
+backend.set("native")
 
 
 #=========================================================================

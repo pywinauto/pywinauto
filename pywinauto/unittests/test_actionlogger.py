@@ -29,6 +29,8 @@ sys.path.append(".")
 from pywinauto import actionlogger
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto import backend
+backend.set("native")
 
 
 def _notepad_exe():
