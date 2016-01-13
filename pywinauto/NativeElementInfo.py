@@ -36,6 +36,8 @@ class NativeElementInfo(ElementInfo):
         else:
             self._handle = handle
 
+        self._as_parameter_ = self._handle
+
     @property
     def handle(self):
         "Return the handle of the window"
@@ -44,39 +46,43 @@ class NativeElementInfo(ElementInfo):
     @property
     def richText(self):
         "Return the text of the window"
-        return handleprops.text(self._handle)
+        return handleprops.text(self)
 
     name = richText
 
     @property
     def controlId(self):
         "Return the ID of the window"
-        return handleprops.controlid(self._handle)
+        return handleprops.controlid(self)
 
     @property
     def processId(self):
         "Return the ID of process that controls this window"
-        return handleprops.processid(self._handle)
+        return handleprops.processid(self)
 
     @property
     def className(self):
         "Return the class name of the window"
-        return handleprops.classname(self._handle)
+        return handleprops.classname(self)
 
     @property
     def enabled(self):
         "Return True if the window is enabled"
-        return handleprops.isenabled(self._handle)
+        return handleprops.isenabled(self)
 
     @property
     def visible(self):
         "Return True if the window is visible"
-        return handleprops.isvisible(self._handle)
+        return handleprops.isvisible(self)
 
     @property
     def parent(self):
         "Return the parent of the window"
-        return NativeElementInfo(handleprops.parent(self._handle))
+        parent_hwnd = handleprops.parent(self)
+        if parent_hwnd:
+            return NativeElementInfo(parent_hwnd)
+        else:
+            return None
 
     @property
     def children(self):
@@ -108,9 +114,20 @@ class NativeElementInfo(ElementInfo):
     @property
     def descendants(self):
         "Return descendants of the window (all children from sub-tree)"
-        child_handles = handleprops.children(self._handle)
+        child_handles = handleprops.children(self)
         return [NativeElementInfo(ch) for ch in child_handles]
+
+    @property
+    def rectangle(self):
+        "Return rectangle of element"
+        return handleprops.rectangle(self)
 
     def dumpWindow(self):
         "Dump a window to a set of properties"
-        return handleprops.dumpwindow(self._handle)
+        return handleprops.dumpwindow(self)
+
+    def __eq__(self, other):
+        "Check if 2 NativeElementInfo objects describe 1 actual element"
+        if not isinstance(other, NativeElementInfo):
+            return False
+        return self._handle == other._handle

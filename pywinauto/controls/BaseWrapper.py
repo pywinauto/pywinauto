@@ -1,15 +1,11 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-#region IMPORTS
-#import sys
 import time
 import re
 import ctypes
-#import win32api
-#import win32gui
-#import win32con
-#import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
+import win32api
+import win32gui
 import locale
 
 from .. import SendKeysCtypes as SendKeys
@@ -17,79 +13,18 @@ from .. import six
 from .. import win32defines, win32structures, win32functions
 from ..timings import Timings
 from ..actionlogger import ActionLogger
+from .. import handleprops
 
-import comtypes
-import comtypes.client
-
-from .HwndWrapper import _MetaWrapper, HwndWrapper, _perform_click_input
-#endregion
-
-from ..UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia
-
-#region PATTERNS
-AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
-
-DockPattern = comtypes.gen.UIAutomationClient.IUIAutomationDockPattern
-ExpandCollapsePattern = comtypes.gen.UIAutomationClient.IUIAutomationExpandCollapsePattern
-GridItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationGridItemPattern
-GridPattern = comtypes.gen.UIAutomationClient.IUIAutomationGridPattern
-InvokePattern = comtypes.gen.UIAutomationClient.IUIAutomationInvokePattern
-ItemContainerPattern = comtypes.gen.UIAutomationClient.IUIAutomationItemContainerPattern
-LegacyIAccessiblePattern = comtypes.gen.UIAutomationClient.IUIAutomationLegacyIAccessiblePattern
-MultipleViewPattern = comtypes.gen.UIAutomationClient.IUIAutomationMultipleViewPattern
-RangeValuePattern = comtypes.gen.UIAutomationClient.IUIAutomationRangeValuePattern
-ScrollItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationScrollItemPattern
-ScrollPattern = comtypes.gen.UIAutomationClient.IUIAutomationScrollPattern
-SelectionItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationSelectionItemPattern
-SelectionPattern = comtypes.gen.UIAutomationClient.IUIAutomationSelectionPattern
-SynchronizedInputPattern = comtypes.gen.UIAutomationClient.IUIAutomationSynchronizedInputPattern
-TableItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationTableItemPattern
-TablePattern = comtypes.gen.UIAutomationClient.IUIAutomationTablePattern
-TextPattern = comtypes.gen.UIAutomationClient.IUIAutomationTextPattern
-TogglePattern = comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern
-TransformPattern = comtypes.gen.UIAutomationClient.IUIAutomationTransformPattern
-ValuePattern = comtypes.gen.UIAutomationClient.IUIAutomationValuePattern
-VirtualizedItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationVirtualizedItemPattern
-WindowPattern = comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
-#endregion
-
-#=========================================================================
-_control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(_UIA_dll) if attr.endswith('ControlTypeId')]
-_known_control_types = {}
-for type in _control_types:
-    _known_control_types[_UIA_dll.__getattribute__('UIA_' + type + 'ControlTypeId')] = type
-
-#=========================================================================
-pywinauto_control_types = {'Custom': None,
-                           'DataGrid': None,
-                           'Document': None,
-                           'Group': 'GroupBox',
-                           'Hyperlink': None,
-                           'Image': None,
-                           'List': 'ListBox',
-                           'MenuBar': None,
-                           'Menu': None,
-                           'Pane': None,
-                           'ProgressBar': 'Progress',
-                           'ScrollBar': None,
-                           'Separator': None,
-                           'Slider': None,
-                           'Spinner': 'UpDown',
-                           'SplitButton': None,
-                           'Tab': 'TabControl',
-                           'Table': None,
-                           'Text': 'Static',
-                           'Thumb': None,
-                           'TitleBar': None,
-                           'ToolBar': 'Toolbar',
-                           'ToolTip': 'ToolTips',
-                           'Tree': None,
-                           'Window': 'Dialog',
-                           }
+from .. import backend
 
 #=========================================================================
 def removeNonAlphaNumericSymbols(s):
     return re.sub("\W", "_", s)
+
+#=========================================================================
+class InvalidElement(RuntimeError):
+    "Raises when an invalid element is passed"
+    pass
 
 #=========================================================================
 class ElementNotEnabled(RuntimeError):
@@ -100,50 +35,114 @@ class ElementNotEnabled(RuntimeError):
 class ElementNotVisible(RuntimeError):
     "Raised when an element is not visible"
     pass
+
 #=========================================================================
-class InvalidElement(RuntimeError):
-    "Raised when an invalid element is passed to ElementWrapper "
-    def __init__(self, elementInfo):
-        "Initialise the RuntimError parent with the mesage"
-        RuntimeError.__init__(self, "Element {0} is not a vaild UIA element".format(elementInfo))
+class _MetaWrapper(type):
+    "Metaclass for Wrapper objects"
+    re_wrappers = {}
+    str_wrappers = {}
+    control_types = {}
+
+    def __init__(cls, name, bases, attrs):
+        # register the class names, both the regular expression
+        # or the classes directly
+
+        #print("metaclass __init__", cls)
+        type.__init__(cls, name, bases, attrs)
+
+        for win_class in cls.windowclasses:
+            _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
+            _MetaWrapper.str_wrappers[win_class] = cls
+        for control_type in cls.controltypes:
+            _MetaWrapper.control_types[control_type] = cls
+
+    @staticmethod
+    def FindWrapper(element):
+        "Find the correct wrapper for this native element"
+        if isinstance(element, six.integer_types):
+            from ..NativeElementInfo import NativeElementInfo
+            element = NativeElementInfo(element)
+        class_name = element.className
+
+        try:
+            return _MetaWrapper.str_wrappers[class_name]
+        except KeyError:
+            wrapper_match = None
+
+            for regex, wrapper in _MetaWrapper.re_wrappers.items():
+                if regex.match(class_name):
+                    wrapper_match = wrapper
+                    _MetaWrapper.str_wrappers[class_name] = wrapper
+
+                    return wrapper
+
+        # if it is a dialog then override the wrapper we found
+        # and make it a DialogWrapper
+        if handleprops.is_toplevel_window(element.handle):
+            from . import win32_controls
+            wrapper_match = win32_controls.DialogWrapper
+
+        if wrapper_match is None:
+            from .HwndWrapper import HwndWrapper
+            wrapper_match = HwndWrapper
+        return wrapper_match
+
+    @staticmethod
+    def FindWrapperUIA(elementinfo):
+        "Find the wrapper for this elementinfo"
+        if isinstance(elementinfo, six.integer_types):
+            from ..UIAElementInfo import UIAElementInfo
+            elementinfo = UIAElementInfo(elementinfo)
+
+        if elementinfo.handle != None:
+            wrapper = _MetaWrapper.FindWrapper(elementinfo)
+
+            from .HwndWrapper import HwndWrapper
+            if wrapper == HwndWrapper:
+                if elementinfo.controlType in _MetaWrapper.control_types.keys():
+                    wrapper = _MetaWrapper.control_types[elementinfo.controlType]
+        else:
+            # TODO: temporary thing (there is no UIA based wrappers tree yet)
+            from .UIAWrapper import UIAWrapper
+            wrapper = UIAWrapper
+
+        return wrapper
 
 #=========================================================================
 @six.add_metaclass(_MetaWrapper)
-class ElementWrapper(object):
+class BaseWrapper(object):
     """
-    Default wrapper for User Interface Automation (UIA) controls.
+    Abstract wrapper for elements.
 
-    All other UIA wrappers are derived from this.
-
-    This class wraps a lot of functionality of underlying UIA features
-    for working with windows.
-
-    Most of the methods apply to every single window type. For example
-    you can Click() on any window.
+    All other wrappers are derived from this.
     """
 
+    # Properties required for _MetaWrapper class
+    friendlyclassname = None
     windowclasses = []
     controltypes = []
-    handle = None
+
+    # Properties that describe type of the element
     can_be_label = False
     has_title = True
 
     #------------------------------------------------------------
     def __new__(cls, elementInfo):
-        # only use the meta class to find the wrapper for ElementWrapper
+        # only use the meta class to find the wrapper for BaseWrapper
         # so allow users to force the wrapper if they want
-        if cls != ElementWrapper:
+        if cls != BaseWrapper:
             obj = object.__new__(cls)
             obj.__init__(elementInfo)
             return obj
 
-        new_class = cls.FindWrapperUIA(elementInfo)
-        obj = object.__new__(new_class)
-        # TODO: check what type of wrapper was found: Hwnd-type or UIA-type
-        if new_class != ElementWrapper:
-            obj.__init__(elementInfo.handle)
+        if backend.active_name == "uia":
+            new_class = cls.FindWrapperUIA(elementInfo)
         else:
-            obj.__init__(elementInfo)
+            new_class = cls.FindWrapper(elementInfo)
+        obj = object.__new__(new_class)
+
+        obj.__init__(elementInfo)
+
         return obj
 
     #------------------------------------------------------------
@@ -151,25 +150,22 @@ class ElementWrapper(object):
         """
         Initialize the element
 
-        * **elementInfo** is instance of UIAElementInfo
-
-        If **elementInfo** is not instance of UIAElementInfo then
-        an InvalidWindowHandle error is raised.
+        * **elementInfo** is instance of int or one of ElementInfo childs
         """
-        if not isinstance(elementInfo, UIAElementInfo):
-            raise InvalidElement(elementInfo)
         if elementInfo:
+            if isinstance(elementInfo, six.integer_types):
+                elementInfo = backend.ActiveElementInfo(elementInfo)
+
             self._elementInfo = elementInfo
-            if self._elementInfo.controlType in ['Button', 'Text', 'Group']:
-                self.can_be_label = True
 
-            self._as_parameter_ = self._elementInfo.handle
+            #self._as_parameter_ = self._elementInfo.handle
 
+            self.ref = None
+            self.appdata = None
             self._cache = {}
-
             self.actions = ActionLogger()
         else:
-            raise RuntimeError('NULL COM pointer used to initialize ElementWrapper')
+            raise RuntimeError('NULL pointer used to initialize BaseWrapper')
 
     #------------------------------------------------------------
     def FriendlyClassName(self):
@@ -177,21 +173,16 @@ class ElementWrapper(object):
         Return the friendly class name for the control
 
         This differs from the class of the control in some cases.
-        Class() is the actual 'Registered' window class of the control
+        Class() is the actual 'Registered' element class of the control
         while FriendlyClassName() is hopefully something that will make
         more sense to the user.
 
         For example Checkboxes are implemented as Buttons - so the class
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
-        if self._elementInfo.controlType not in _known_control_types.keys():
-            return str(self._elementInfo.controlType)
-        ControlType = _known_control_types[self._elementInfo.controlType]
-        if ControlType not in pywinauto_control_types.keys():
-            return ControlType
-        if pywinauto_control_types[ControlType] is None:
-            return ControlType
-        return pywinauto_control_types[ControlType]
+        if self.friendlyclassname is None:
+            self.friendlyclassname = self._elementInfo.className
+        return self.friendlyclassname
 
     #------------------------------------------------------------
     def Class(self):
@@ -223,10 +214,6 @@ class ElementWrapper(object):
         return self._elementInfo.controlId
 
     #------------------------------------------------------------
-    def IsActive(self):
-        pass
-
-    #------------------------------------------------------------
     def IsVisible(self):
         """
         Whether the element is visible or not
@@ -239,8 +226,8 @@ class ElementWrapper(object):
         ``Application.WaitNot('visible')``.
 
         If you want to raise an exception immediately if an element is
-        not visible then you can use the ElementWrapper.VerifyVisible().
-        ElementWrapper.VerifyActionable() raises if the window is not both
+        not visible then you can use the BaseWrapper.VerifyVisible().
+        BaseWrapper.VerifyActionable() raises if the element is not both
         visible and enabled.
         """
         return self._elementInfo.visible# and self.TopLevelParent()._elementInfo.visible
@@ -258,8 +245,8 @@ class ElementWrapper(object):
         ``Application.WaitNot('visible')``.
 
         If you want to raise an exception immediately if an element is
-        not enabled then you can use the ElementWrapper.VerifyEnabled().
-        ElementWrapper.VerifyReady() raises if the window is not both
+        not enabled then you can use the BaseWrapper.VerifyEnabled().
+        BaseWrapper.VerifyReady() raises if the window is not both
         visible and enabled.
         """
         return self._elementInfo.enabled# and self.TopLevelParent()._elementInfo.enabled
@@ -267,20 +254,16 @@ class ElementWrapper(object):
     #------------------------------------------------------------
     def Rectangle(self):
         """
-        Return the rectangle of window
+        Return the rectangle of element
 
-        The rectangle is the rectangle of the element on the screen,
-        coordinates are given from the top left of the screen.
+        The Rectangle() is the rectangle of the element on the screen.
+        Coordinates are given from the top left of the screen.
 
         This method returns a RECT structure, Which has attributes - top,
         left, right, bottom. and has methods width() and height().
         See win32structures.RECT for more information.
         """
         return self._elementInfo.rectangle
-
-    #------------------------------------------------------------
-    def ClientRect(self):
-        pass
 
     #------------------------------------------------------------
     def ClientToScreen(self, client_point):
@@ -290,19 +273,6 @@ class ElementWrapper(object):
             return (client_point.x + rect.left, client_point.y + rect.top)
         else:
             return (client_point[0] + rect.left, client_point[1] + rect.top)
-
-        #point = win32structures.POINT()
-        #if isinstance(client_point, win32structures.POINT):
-        #    point.x = client_point.x
-        #    point.y = client_point.y
-        #else:
-        #    point.x = client_point[0]
-        #    point.y = client_point[1]
-        #win32functions.ClientToScreen(self, ctypes.byref(point))
-
-        # return tuple in any case because
-        # coords param is always expected to be tuple
-        #return point.x, point.y
 
     #-----------------------------------------------------------
     def ProcessID(self):
@@ -327,12 +297,12 @@ class ElementWrapper(object):
         buttons for example.
 
         To get the main (or top level) window then use
-        ElementWrapper.TopLevelParent().
+        BaseWrapper.TopLevelParent().
         """
         parent_elem = self._elementInfo.parent
 
         if parent_elem:
-            return ElementWrapper(parent_elem)
+            return BaseWrapper(parent_elem)
         else:
             return None
 
@@ -350,17 +320,24 @@ class ElementWrapper(object):
         no top level parent then the control itself is returned - as it is
         a top level window already!)
         """
+
         if not ("top_level_parent" in self._cache.keys()):
-            if self.Parent() == ElementWrapper(UIAElementInfo(_iuia.getRootElement())):
-                self._cache["top_level_parent"] = self
+            parent = self.Parent()
+
+            if parent:
+                if self.Parent() == BaseWrapper(backend.ActiveElementInfo()):
+                    self._cache["top_level_parent"] = self
+                else:
+                    return self.Parent().TopLevelParent()
             else:
-                return self.Parent().TopLevelParent()
+                self._cache["top_level_parent"] = self
 
         return self._cache["top_level_parent"]
 
     #-----------------------------------------------------------
     def Texts(self):
-        """Return the text for each item of this control"
+        """
+        Return the text for each item of this control"
 
         It is a list of strings for the control. It is frequently over-ridden
         to extract all strings from a control with multiple items.
@@ -379,22 +356,22 @@ class ElementWrapper(object):
         """
         Return the children of this element as a list
 
-        It returns a list of ElementWrapper (or subclass) instances, it
+        It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no children.
         """
         child_elements = self._elementInfo.children
-        return [ElementWrapper(elementInfo) for elementInfo in child_elements]
+        return [BaseWrapper(elementInfo) for elementInfo in child_elements]
 
     #-----------------------------------------------------------
     def Descendants(self):
         """
         Return the descendants of this element as a list
 
-        It returns a list of ElementWrapper (or subclass) instances, it
+        It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no descendants.
         """
         desc_elements = self._elementInfo.descendants
-        return [ElementWrapper(elementInfo) for elementInfo in desc_elements]
+        return [BaseWrapper(elementInfo) for elementInfo in desc_elements]
 
     #-----------------------------------------------------------
     def ControlCount(self):
@@ -411,23 +388,22 @@ class ElementWrapper(object):
         element if the parent element is the the chain of parent elements
         for the child element.
         """
-        return self.Parent() == parent
-
-    #-----------------------------------------------------------
-    def __hash__(self):
-        pass
+        return self in parent.Children()
 
     #-----------------------------------------------------------
     def __eq__(self, other):
-        "Returns true if 2 ElementWrapper's describe 1 actual element"
-        if isinstance(other, ElementWrapper):
+        "Returns true if 2 BaseWrapper's describe 1 actual element"
+        if isinstance(other, six.integer_types):
+            other = backend.ActiveElementInfo(other)
+
+        if hasattr(other, "_elementInfo"):
             return self._elementInfo == other._elementInfo
         else:
             return self._elementInfo == other
 
     #-----------------------------------------------------------
     def __ne__(self, other):
-        "Returns False if the elements described by 2 ElementWrapper's are different"
+        "Returns False if the elements described by 2 BaseWrapper's are different"
         return not self == other
 
     #-----------------------------------------------------------
@@ -438,7 +414,11 @@ class ElementWrapper(object):
         Raise either ElementNotEnalbed or ElementNotVisible if not
         enabled or visible respectively.
         """
-        win32functions.WaitGuiThreadIdle(self)
+        if self._elementInfo.handle:
+            win32functions.WaitGuiThreadIdle(self)
+        else:
+            # TODO: get WaitGuiThreadIdle function for elements without handle
+            pass
         self.VerifyVisible()
         self.VerifyEnabled()
 
@@ -450,8 +430,6 @@ class ElementWrapper(object):
         Check first if the element's parent is enabled (skip if no parent),
         then check if element itself is enabled.
         """
-
-        # Check if the element and it's parent are enabled
         if not self.IsEnabled():
             raise ElementNotEnabled()
 
@@ -463,14 +441,8 @@ class ElementWrapper(object):
         Check first if the element's parent is visible. (skip if no parent),
         then check if element itself is visible.
         """
-
-        # check if the control and it's parent are visible
         if not self.IsVisible():
             raise ElementNotVisible()
-
-    #-----------------------------------------------------------
-    def Click(self):
-        pass
 
     #-----------------------------------------------------------
     def ClickInput(
@@ -507,34 +479,14 @@ class ElementWrapper(object):
         )
 
     #-----------------------------------------------------------
-    def CloseClick(self):
-        pass
-
-    #-----------------------------------------------------------
-    def CloseAltF4(self):
-        pass
-
-    #-----------------------------------------------------------
-    def DoubleClick(self):
-        pass
-
-    #-----------------------------------------------------------
     def DoubleClickInput(self, button = "left", coords = (None, None)):
         "Double click at the specified coordinates"
         _perform_click_input(self, button, coords, double = True)
 
     #-----------------------------------------------------------
-    def RightClick(self):
-        pass
-
-    #-----------------------------------------------------------
     def RightClickInput(self, coords = (None, None)):
         "Right click at the specified coords"
         _perform_click_input(self, 'right', coords)
-
-    #-----------------------------------------------------------
-    def PressMouse(self, button = "left", coords = (0, 0), pressed = ""):
-        pass
 
     #-----------------------------------------------------------
     def PressMouseInput(
@@ -560,10 +512,6 @@ class ElementWrapper(object):
         )
 
     #-----------------------------------------------------------
-    def ReleaseMouse(self, button = "left", coords = (0, 0), pressed = ""):
-        pass
-
-    #-----------------------------------------------------------
     def ReleaseMouseInput(
             self,
             button = "left",
@@ -587,10 +535,6 @@ class ElementWrapper(object):
         )
 
     #-----------------------------------------------------------
-    def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
-        pass
-
-    #-----------------------------------------------------------
     def MoveMouseInput(self, coords = (0, 0), pressed = "", absolute = False):
         "Move the mouse"
         if not absolute:
@@ -598,26 +542,45 @@ class ElementWrapper(object):
 
         _perform_click_input(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
 
-        win32functions.WaitGuiThreadIdle(self)
+        if self._elementInfo.handle:
+            win32functions.WaitGuiThreadIdle(self)
+        else:
+            # TODO: get WaitGuiThreadIdle function for elements without handle
+            pass
+
         return self
 
     #-----------------------------------------------------------
-    def DragMouse(self):
-        pass
+    def DragMouseInput(self,
+        button = "left",
+        press_coords = (0, 0),
+        release_coords = (0, 0),
+        pressed = "",
+        absolute = False):
+        "Drag the mouse"
 
-    #-----------------------------------------------------------
-    def DragMouseInput(self):
-        pass
+        if isinstance(press_coords, win32structures.POINT):
+            press_coords = (press_coords.x, press_coords.y)
+
+        if isinstance(release_coords, win32structures.POINT):
+            release_coords = (release_coords.x, release_coords.y)
+
+        self.PressMouseInput(button, press_coords, pressed, absolute=absolute)
+        time.sleep(Timings.before_drag_wait)
+        for i in range(5):
+            self.MoveMouseInput((press_coords[0]+i,press_coords[1]), pressed=pressed, absolute=absolute) # "left"
+            time.sleep(Timings.drag_n_drop_move_mouse_wait)
+        self.MoveMouseInput(release_coords, pressed=pressed, absolute=absolute) # "left"
+        time.sleep(Timings.before_drop_wait)
+        self.ReleaseMouseInput(button, release_coords, pressed, absolute=absolute)
+        time.sleep(Timings.after_drag_n_drop_wait)
+        return self
 
     #-----------------------------------------------------------
     def WheelMouseInput(self, coords = (None, None), wheel_dist = 1, pressed = ""):
         "Do mouse wheel"
         _perform_click_input(self, button='wheel', coords=coords, wheel_dist = 120 * wheel_dist, pressed=pressed)
         return self
-
-    #-----------------------------------------------------------
-    def SetWindowText(self, text, append = False):
-        pass
 
     #-----------------------------------------------------------
     def TypeKeys(
@@ -644,6 +607,15 @@ class ElementWrapper(object):
         if set_foreground:
             self.SetFocus()
 
+        # attach the Python process with the process that self is in
+        if self._elementInfo.handle:
+            window_thread_id = win32functions.GetWindowThreadProcessId(self, 0)
+            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
+            # TODO: check return value of AttachThreadInput properly
+        else:
+            # TODO: UIA stuff
+            pass
+
         if isinstance(keys, six.text_type):
             aligned_keys = keys
         elif isinstance(keys, six.binary_type):
@@ -661,47 +633,178 @@ class ElementWrapper(object):
             with_newlines,
             turn_off_numlock)
 
-        win32functions.WaitGuiThreadIdle(self)
+        # detach the python process from the window's process
+        if self._elementInfo.handle:
+            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
+            # TODO: check return value of AttachThreadInput properly
+        else:
+            # TODO: UIA stuff
+            pass
+
+        if self._elementInfo.handle:
+            win32functions.WaitGuiThreadIdle(self)
+        else:
+            # TODO: get WaitGuiThreadIdle function for elements without handle
+            pass
+
         self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
         return self
 
-        # TODO: select all text from edit field before typing new text
-        """
-        base_pattern = self._elementInfo._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId)
-        if base_pattern:
-            pattern = base_pattern.QueryInterface(TextPattern)
-            pattern.DocumentRange.Select()
-        """
-
-    #-----------------------------------------------------------
-    def IsKeyboardFocusable(self):
-        "Return True if element can be focused with keyboard"
-        return self._elementInfo._element.CurrentIsKeyboardFocusable == 1
-
-    #-----------------------------------------------------------
-    def HasKeyboardFocus(self):
-        "Return True if element is focused with keyboard"
-        return self._elementInfo._element.CurrentHasKeyboardFocus == 1
-
-    #-----------------------------------------------------------
     def SetFocus(self):
         "Set the focus to this element"
-        if self.IsKeyboardFocusable() and not self.HasKeyboardFocus():
-            try:
-                self._elementInfo._element.SetFocus()
-            except comtypes.COMError as exc:
-                pass
-
-        return self
+        pass
 
 #====================================================================
+def _perform_click_input(
+    ctrl = None,
+    button = "left",
+    coords = (None, None),
+    double = False,
+    button_down = True,
+    button_up = True,
+    absolute = False,
+    wheel_dist = 0,
+    use_log = True,
+    pressed = "",
+    key_down = True,
+    key_up = True,
+    ):
+    """Peform a click action using SendInput
 
-"""
-_mouse_flags = {
-    "left": win32defines.MK_LBUTTON,
-    "right": win32defines.MK_RBUTTON,
-    "middle": win32defines.MK_MBUTTON,
-    "shift": win32defines.MK_SHIFT,
-    "control": win32defines.MK_CONTROL,
-}
-"""
+    All the *ClickInput() and *MouseInput() methods use this function.
+
+    Thanks to a bug report from Tomas Walch (twalch) on sourceforge and code
+    seen at http://msdn.microsoft.com/en-us/magazine/cc164126.aspx this
+    function now always works the same way whether the mouse buttons are
+    swapped or not.
+
+    For example if you send a right click to Notepad.Edit - it will always
+    bring up a popup menu rather than 'clicking' it.
+    """
+
+    # Handle if the mouse buttons are swapped
+    if win32functions.GetSystemMetrics(win32defines.SM_SWAPBUTTON):
+        if button.lower() == 'left':
+            button = 'right'
+        elif button.lower() == 'right':
+            button = 'left'
+
+    events = []
+    if button.lower() == 'left':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_LEFTDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_LEFTUP)
+    elif button.lower() == 'right':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_RIGHTDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_RIGHTUP)
+    elif button.lower() == 'middle':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_MIDDLEDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_MIDDLEUP)
+    elif button.lower() == 'move':
+        events.append(win32defines.MOUSEEVENTF_MOVE)
+        events.append(win32defines.MOUSEEVENTF_ABSOLUTE)
+    elif button.lower() == 'x':
+        if button_down:
+            events.append(win32defines.MOUSEEVENTF_XDOWN)
+        if button_up:
+            events.append(win32defines.MOUSEEVENTF_XUP)
+
+    if button.lower() == 'wheel':
+        events.append(win32defines.MOUSEEVENTF_WHEEL)
+
+    # if we were asked to double click (and we are doing a full click
+    # not just up or down.
+    if double and button_down and button_up:
+        events *= 2
+
+    if ctrl is None:
+        ctrl = HwndWrapper(win32functions.GetDesktopWindow())
+    elif ctrl.IsDialog():
+        ctrl.SetFocus()
+    ctrl_text = ctrl.WindowText()
+
+    if isinstance(coords, win32structures.RECT):
+        coords = [coords.left, coords.top]
+
+#    # allow points objects to be passed as the coords
+    if isinstance(coords, win32structures.POINT):
+        coords = [coords.x, coords.y]
+#    else:
+    coords = list(coords)
+
+    # set the default coordinates
+    if coords[0] is None:
+        coords[0] = int(ctrl.Rectangle().width() / 2)
+    if coords[1] is None:
+        coords[1] = int(ctrl.Rectangle().height() / 2)
+
+    if not absolute:
+        coords = ctrl.ClientToScreen(coords)
+
+    # set the cursor position
+    win32api.SetCursorPos((coords[0], coords[1]))
+    time.sleep(Timings.after_setcursorpos_wait)
+
+    inp_struct = win32structures.INPUT()
+    inp_struct.type = win32defines.INPUT_MOUSE
+
+    keyboard_keys = pressed.lower().split()
+    if ('control' in keyboard_keys) and key_down:
+        SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, up = False).Run()
+    if ('shift' in keyboard_keys) and key_down:
+        SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
+    if ('alt' in keyboard_keys) and key_down:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up = False).Run()
+
+    inp_struct.mi.dwFlags = 0
+    for event in events:
+        inp_struct.mi.dwFlags |= event
+
+    dwData = 0
+    if button.lower() == 'wheel':
+        dwData = wheel_dist
+        inp_struct.mi.mouseData = wheel_dist
+    else:
+        inp_struct.mi.mouseData = 0
+
+    if button.lower() == 'move':
+        #win32functions.SendInput(     # vvryabov: SendInput() should be called sequentially in a loop [for event in events]
+        #    win32structures.UINT(1),
+        #    ctypes.pointer(inp_struct),
+        #    ctypes.c_int(ctypes.sizeof(inp_struct)))
+        X_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
+        Y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
+        X_coord = int(float(coords[0]) * (65535. / float(X_res - 1)))
+        Y_coord = int(float(coords[1]) * (65535. / float(Y_res - 1)))
+        win32api.mouse_event(inp_struct.mi.dwFlags, X_coord, Y_coord, dwData)
+    else:
+        for event in events:
+            inp_struct.mi.dwFlags = event
+            win32api.mouse_event(inp_struct.mi.dwFlags, coords[0], coords[1], dwData)
+            time.sleep(Timings.after_clickinput_wait)
+
+    time.sleep(Timings.after_clickinput_wait)
+
+    if ('control' in keyboard_keys) and key_up:
+        SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, down = False).Run()
+    if ('shift' in keyboard_keys) and key_up:
+        SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, down = False).Run()
+    if ('alt' in keyboard_keys) and key_up:
+        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, down = False).Run()
+
+    if use_log:
+        if ctrl_text is None:
+            ctrl_text = six.text_type(ctrl_text)
+        message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+                  '" by ' + str(button) + ' button mouse click (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+        if double:
+            message = 'Double-c' + message[1:]
+        if button.lower() == 'move':
+            message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+                  '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+        ActionLogger().log(message)

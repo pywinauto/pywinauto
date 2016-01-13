@@ -120,7 +120,11 @@ class UIAElementInfo(ElementInfo):
     @property
     def parent(self):
         "Return parent of element"
-        return UIAElementInfo(_iuia.ControlViewWalker.GetParentElement(self._element))
+        parent_elem = _iuia.ControlViewWalker.GetParentElement(self._element)
+        if parent_elem:
+            return UIAElementInfo(parent_elem)
+        else:
+            return None
 
     @property
     def children(self):

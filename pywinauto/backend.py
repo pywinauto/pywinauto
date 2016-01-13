@@ -21,34 +21,41 @@
 """Back-end components storage (links to platform-specific things)"""
 
 from .NativeElementInfo import NativeElementInfo
-from .controls.HwndWrapper import HwndWrapper
+#from .controls.HwndWrapper import HwndWrapper
+#from .controls.BaseWrapper import BaseWrapper
 
 registered_backends = {
-    'native': (NativeElementInfo, HwndWrapper, ),
+    #'native': (NativeElementInfo, HwndWrapper),
+    'native': NativeElementInfo,
 }
 
 from .sysinfo import UIA_support
 if UIA_support:
     from .UIAElementInfo import UIAElementInfo
-    from .controls.ElementWrapper import ElementWrapper
-    registered_backends['uia'] = (UIAElementInfo, ElementWrapper, )
+    #from .controls.UIAWrapper import UIAWrapper
+    #registered_backends['uia'] = (UIAElementInfo, UIAWrapper)
+    registered_backends['uia'] = UIAElementInfo
 
 active_name = 'native'
 ActiveElementInfo = NativeElementInfo
-ActiveWrapper = HwndWrapper
+#ActiveWrapper = HwndWrapper
 
 def set(new_active_name):
-    """Set active back-end by name
+    """
+    Set active back-end by name
 
     Possible values of **active_name** are "native", "uia" or
-        other name registered by the **register** function.
+    other name registered by the **register** function.
     """
     if new_active_name not in registered_backends.keys():
         raise ValueError('Back-end "{backend}" is not registered!'.format(backend=new_active_name))
-    
-    active_name = new_active_name
-    (ActiveElementInfo, ActiveWrapper) = registered_backends[new_active_name]
 
+    #global active_name, ActiveElementInfo, ActiveWrapper
+    global active_name, ActiveElementInfo
+    active_name = new_active_name
+    ActiveElementInfo = registered_backends[new_active_name]
+    #ActiveElementInfo = registered_backends[new_active_name][0]
+    #ActiveWrapper = registered_backends[new_active_name][1]
 
 def register(backend_name, wrapper):
     pass

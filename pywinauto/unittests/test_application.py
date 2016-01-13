@@ -307,14 +307,14 @@ class ApplicationTestCases(unittest.TestCase):
 
         app_conn = Application()
         try:
-            app_conn.connect(title="Untitled - Notepad")
+            app_conn.connect(title = "Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
-            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
-            app_conn.connect(handle=wins[0])
+            wins = findwindows.find_elements(active_only = True, title = "Untitled - Notepad")
+            app_conn.connect(handle = wins[0].handle)
         except findwindows.ElementNotFoundError:
-            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title = "Untitled - Notepad")) > 0)
-            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
-            app_conn.connect(handle=wins[0].handle)
+            WaitUntil(30, 0.5, lambda: len(findwindows.find_elements(active_only = True, title = "Untitled - Notepad")) > 0)
+            wins = findwindows.find_elements(active_only = True, title = "Untitled - Notepad")
+            app_conn.connect(handle = wins[0].handle)
 
         self.assertEqual(app1.process, app_conn.process)
 
@@ -381,17 +381,19 @@ class ApplicationTestCases(unittest.TestCase):
             return None
         
         app = Application().Start(r'explorer.exe')
-        WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, class_name='CabinetWClass')) > 0)
-        handle = findwindows.find_windows(active_only=True, class_name='CabinetWClass')[-1].handle
+        WaitUntil(30, 0.5, lambda: len(findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')) > 0)
+        handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, })
-        explorer = Application().Connect(process=window.ProcessID())
+        explorer = Application().Connect(process = window.ProcessID())
         
         try:
-            window.AddressBandRoot.ClickInput(double=True)
+            window.AddressBandRoot.ClickInput(double = True)
             window.Edit.SetEditText(r'Control Panel\Programs\Programs and Features')
-            window.TypeKeys(r'{ENTER 2}', set_foreground=False)
-            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title='Programs and Features', class_name='CabinetWClass')) > 0)
-            explorer.WaitCPUUsageLower(threshold=2.5, timeout=40, usage_interval=2)
+            window.TypeKeys(r'{ENTER 2}', set_foreground = False)
+            WaitUntil(30, 0.5, lambda: len(findwindows.find_elements(active_only = True,
+                                                                     title = 'Programs and Features',
+                                                                     class_name='CabinetWClass')) > 0)
+            explorer.WaitCPUUsageLower(threshold = 2.5, timeout = 40, usage_interval = 2)
             installed_programs = window.FolderView.Texts()[1:]
             programs_list = ','.join(installed_programs)
             if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
@@ -840,12 +842,11 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()
 
-    def test_find_windows_re(self):
-        "Test for bug #90: A crash in 'find_windows' when called with 'title_re' argument"
+    def test_find_elements_re(self):
+        "Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"
         self.dlgspec.Wait('visible')
-        windows = findwindows.find_windows(title_re="Untitled - Notepad")
+        windows = findwindows.find_elements(title_re = "Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
-
 
 if __name__ == "__main__":
     #_unittests()
