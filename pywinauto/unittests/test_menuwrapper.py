@@ -28,7 +28,6 @@ from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.controls.menuwrapper import MenuItemNotEnabled
 from pywinauto import backend
-backend.set("native")
 
 
 mfc_samples_folder = os.path.join(
@@ -43,6 +42,7 @@ class MenuWrapperTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application()
@@ -119,6 +119,7 @@ class OwnerDrawnMenuTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
 

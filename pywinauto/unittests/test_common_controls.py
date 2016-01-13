@@ -43,7 +43,6 @@ from pywinauto.RemoteMemoryBlock import AccessDenied
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
 from pywinauto import backend
-backend.set("native")
 
 
 controlspy_folder = os.path.join(
@@ -66,6 +65,7 @@ class ListViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -458,6 +458,7 @@ class TreeViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -602,6 +603,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -695,6 +697,7 @@ class HeaderTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -780,6 +783,7 @@ class StatusBarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -884,18 +888,13 @@ class StatusBarTestCases(unittest.TestCase):
             self.assertEquals(text, self.ctrl.GetPartText(i))
 
 
-
-
-
-
-
-
 class TabControlTestCases(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
@@ -1036,16 +1035,13 @@ class TabControlTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.Select, 99)
 
 
-
-
-
-
 class ToolbarTestCases(unittest.TestCase):
     "Unit tests for the ToolbarWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1197,6 +1193,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title 
         even though the app is started with a short title "RebarTest".
         """
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1275,6 +1272,7 @@ class DatetimeTestCases(unittest.TestCase):
         """
         Start the application and get 'Date Time Picker' control.
         """
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1349,6 +1347,7 @@ class ToolTipsTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
@@ -1435,6 +1434,7 @@ class UpDownTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application

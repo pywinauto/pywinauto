@@ -30,7 +30,6 @@ from pywinauto.XMLHelpers import LOGFONTW
 from pywinauto.XMLHelpers import RECT
 from pywinauto import six
 from pywinauto import backend
-backend.set("native")
 
 
 class XMLHelperTestCases(unittest.TestCase):
@@ -38,7 +37,7 @@ class XMLHelperTestCases(unittest.TestCase):
 
     def setUp(self):
         """Actually does nothing!"""
-        pass
+        backend.set("native")
 
     def tearDown(self):
         "delete the file we have created"

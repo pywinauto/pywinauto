@@ -39,7 +39,6 @@ from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
 from pywinauto.actionlogger import ActionLogger
 from pywinauto import backend
-backend.set("native")
 
 
 mfc_samples_folder = os.path.join(
@@ -60,6 +59,7 @@ class SendKeysTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         self.app = Application()
         self.app.start(_notepad_exe())
         

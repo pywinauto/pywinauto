@@ -32,7 +32,6 @@ if is_x64_Python():
 
 if UIA_support:
     # Set backend to UIA
-    backend.set("uia")
 
     class UIAWrapperTests(unittest.TestCase):
         "Unit tests for the UIAWrapper class"
@@ -40,6 +39,7 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
+            backend.set("uia")
 
             # start the application
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
@@ -136,6 +136,7 @@ if UIA_support:
             Start the application set some data and ensure the application
             is in the state we want it.
             """
+            backend.set("uia")
 
             # start the application
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))

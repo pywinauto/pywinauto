@@ -44,7 +44,6 @@ from pywinauto import findwindows, findbestmatch
 from pywinauto.timings import Timings, TimeoutError, WaitUntil
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto import backend
-backend.set("native")
 
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
 
@@ -65,6 +64,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         mfc_samples_folder = os.path.join(os.path.dirname(__file__),
                                           r"..\..\apps\MFC_samples")
         if is_x64_Python():
@@ -146,6 +146,7 @@ class ApplicationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
@@ -539,6 +540,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit

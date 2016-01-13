@@ -30,7 +30,6 @@ from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, Emp
 from pywinauto.application import Application
 from pywinauto.win32structures import RECT
 from pywinauto import backend
-backend.set("native")
 
 
 class ClipboardTestCases(unittest.TestCase):
@@ -39,6 +38,7 @@ class ClipboardTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         EmptyClipboard()
         self.app1 = Application().start("notepad.exe")
         self.app2 = Application().start("notepad.exe")
