@@ -169,7 +169,7 @@ if UIA_support:
 
         def testDoubleClickInput(self):
             self.dlg.SetFocus()
-            time.sleep(0.5)
+            time.sleep(1.5)
             Timings.after_clickinput_wait = 0.001
             self.button.DoubleClickInput()
             time.sleep(0.2)
