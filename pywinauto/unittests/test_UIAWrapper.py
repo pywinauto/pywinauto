@@ -168,7 +168,9 @@ if UIA_support:
         #    pass
 
         def testDoubleClickInput(self):
-            time.sleep(1.0)
+            time.sleep(0.5)
+            self.dlg.SetFocus()
+            Timings.after_clickinput_wait = 0.001
             self.button.DoubleClickInput()
             time.sleep(0.1)
             self.assertEqual(self.label.WindowText(), "DoubleClick")
