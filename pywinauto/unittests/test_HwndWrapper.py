@@ -36,6 +36,7 @@ import locale
 import re
 
 import sys, os
+import unittest
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.controls.HwndWrapper import HwndWrapper, \
@@ -47,8 +48,6 @@ from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
 from pywinauto import clipboard
 from pywinauto import backend
-
-import unittest
 
 
 mfc_samples_folder = os.path.join(
@@ -62,8 +61,6 @@ def _notepad_exe():
     else:
         return r"C:\Windows\SysWOW64\notepad.exe"
 
-if backend.active_name != "native":
-    backend.set("native")
 
 class HwndWrapperTests(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
@@ -71,6 +68,7 @@ class HwndWrapperTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
@@ -420,6 +418,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
@@ -500,6 +499,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
@@ -589,6 +589,7 @@ class NotepadRegressionTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application()
@@ -651,6 +652,7 @@ class DragAndDropTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application()
@@ -691,6 +693,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application()
@@ -725,6 +728,7 @@ class RemoteMemoryBlockTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application()

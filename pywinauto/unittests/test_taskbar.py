@@ -35,6 +35,7 @@ from pywinauto.sysinfo import is_x64_Python, \
 from pywinauto import win32defines
 from pywinauto.timings import WaitUntil
 import pywinauto.actionlogger
+from pywinauto import backend
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
@@ -133,6 +134,7 @@ class TaskbarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         self.tm = _ready_timeout
         app = Application()
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))

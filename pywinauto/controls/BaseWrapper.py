@@ -723,7 +723,7 @@ def _perform_click_input(
         events *= 2
 
     if ctrl is None:
-        ctrl = HwndWrapper(win32functions.GetDesktopWindow())
+        ctrl = BaseWrapper(win32functions.GetDesktopWindow())
     elif ctrl.IsDialog():
         ctrl.SetFocus()
     ctrl_text = ctrl.WindowText()

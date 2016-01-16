@@ -27,12 +27,12 @@ from __future__ import unicode_literals
 
 import os, sys
 import codecs
+import unittest
 sys.path.append(".")
 from pywinauto import XMLHelpers, win32defines #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
-
-import unittest
+from pywinauto import backend
 
 # following imports are not required for the tests
 # but are useful for debugging
@@ -60,6 +60,7 @@ class ButtonTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -168,6 +169,7 @@ class CheckBoxTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application()
@@ -226,6 +228,7 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
     def setUp(self):
 
         """Start the sample application. Open a tab with ownerdraw button."""
+        backend.set("native")
 
         # start the application
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
@@ -256,6 +259,7 @@ class ComboBoxTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application()
@@ -345,6 +349,7 @@ class ListBoxTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -435,6 +440,7 @@ class EditTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -566,6 +572,7 @@ class UnicodeEditTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
@@ -614,6 +621,7 @@ class DialogTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -718,6 +726,7 @@ class PopupMenuTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
 
         # start the application
         from pywinauto.application import Application
@@ -762,6 +771,7 @@ class StaticTestCases(unittest.TestCase):
     def setUp(self):
 
         """Start the sample application. Open a tab with ownerdraw button."""
+        backend.set("native")
 
         # start the application
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"RebarTest.exe"))

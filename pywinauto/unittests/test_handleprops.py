@@ -36,6 +36,7 @@ from pywinauto.handleprops import children, classname, clientrect, contexthelpid
 from pywinauto.application import Application
 from pywinauto import six
 from pywinauto.sysinfo import is_x64_OS, is_x64_Python
+from pywinauto import backend
 
 
 class HandlepropsTestCases(unittest.TestCase):
@@ -44,6 +45,7 @@ class HandlepropsTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.set("native")
         self.app = Application().start("notepad")
         self.dlghandle = self.app.UntitledNotepad.handle
         self.edit_handle = self.app.UntitledNotepad.Edit.handle

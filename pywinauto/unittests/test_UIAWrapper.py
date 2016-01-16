@@ -32,7 +32,6 @@ if is_x64_Python():
 
 if UIA_support:
     # Set backend to UIA
-    backend.set("uia")
 
     class UIAWrapperTests(unittest.TestCase):
         "Unit tests for the UIAWrapper class"
@@ -40,6 +39,7 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
+            backend.set("uia")
 
             # start the application
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
@@ -136,6 +136,7 @@ if UIA_support:
             Start the application set some data and ensure the application
             is in the state we want it.
             """
+            backend.set("uia")
 
             # start the application
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
@@ -167,8 +168,11 @@ if UIA_support:
         #    pass
 
         def testDoubleClickInput(self):
-            time.sleep(0.5)
+            self.dlg.SetFocus()
+            time.sleep(1.5)
+            Timings.after_clickinput_wait = 0.001
             self.button.DoubleClickInput()
+            time.sleep(0.2)
             self.assertEqual(self.label.WindowText(), "DoubleClick")
 
         #def testRightClick(self):

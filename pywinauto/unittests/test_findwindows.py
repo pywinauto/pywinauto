@@ -29,6 +29,7 @@ import sys
 sys.path.append(".")
 from pywinauto.findwindows import find_elements, find_element
 from pywinauto.findwindows import ElementNotFoundError, WindowAmbiguousError
+from pywinauto import backend
 
 
 #=========================================================================
@@ -49,7 +50,7 @@ def _unittests():
 #    def setUp(self):
 #        """Start the application set some data and ensure the application
 #        is in the state we want it."""
-#        pass
+#        backend.set("native")
 #
 #    def tearDown(self):
 #        "Close the application after tests"
