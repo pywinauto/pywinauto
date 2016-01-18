@@ -37,7 +37,7 @@ class XMLHelperTestCases(unittest.TestCase):
 
     def setUp(self):
         """Actually does nothing!"""
-        backend.set("native")
+        backend.activate("native")
 
     def tearDown(self):
         "delete the file we have created"

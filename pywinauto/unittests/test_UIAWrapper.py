@@ -39,15 +39,15 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
-            backend.set("uia")
+            backend.activate("uia")
 
             # start the application
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button._elementInfo)
-            self.edit = UIAWrapper(self.dlg.Edit._elementInfo)
-            self.label = UIAWrapper(self.dlg.TestLabel._elementInfo)
+            self.button = UIAWrapper(self.dlg.Button.elementInfo)
+            self.edit = UIAWrapper(self.dlg.Edit.elementInfo)
+            self.label = UIAWrapper(self.dlg.TestLabel.elementInfo)
 
         def tearDown(self):
             "Close the application after tests"
@@ -99,7 +99,7 @@ if UIA_support:
 
         def testEquals(self):
             self.assertNotEqual(self.button, self.dlg.WrapperObject())
-            self.assertEqual(self.button, self.button._elementInfo)
+            self.assertEqual(self.button, self.button.elementInfo)
             self.assertEqual(self.button, self.button)
 
         #def testVerifyActionable(self):
@@ -136,13 +136,13 @@ if UIA_support:
             Start the application set some data and ensure the application
             is in the state we want it.
             """
-            backend.set("uia")
+            backend.activate("uia")
 
             # start the application
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button._elementInfo)
+            self.button = UIAWrapper(self.dlg.Button.elementInfo)
             self.label = self.dlg.TestLabel.WrapperObject()
 
         def tearDown(self):

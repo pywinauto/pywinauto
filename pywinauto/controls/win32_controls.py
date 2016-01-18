@@ -41,7 +41,7 @@ from .. import controlproperties
 from ..timings import Timings
 
 if sysinfo.UIA_support:
-    from .. import UIAElementInfo
+    from ..UIAElementInfo import _UIA_dll
 
 #====================================================================
 class ButtonWrapper(HwndWrapper.HwndWrapper):
@@ -55,9 +55,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         ".*CheckBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            UIAElementInfo._UIA_dll.UIA_ButtonControlTypeId,
-            UIAElementInfo._UIA_dll.UIA_CheckBoxControlTypeId,
-            UIAElementInfo._UIA_dll.UIA_RadioButtonControlTypeId]
+            _UIA_dll.UIA_ButtonControlTypeId,
+            _UIA_dll.UIA_CheckBoxControlTypeId,
+            _UIA_dll.UIA_RadioButtonControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -260,7 +260,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         ".*ComboBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            UIAElementInfo._UIA_dll.UIA_ComboBoxControlTypeId]
+            _UIA_dll.UIA_ComboBoxControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -416,7 +416,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         ".*ListBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            UIAElementInfo._UIA_dll.UIA_ListControlTypeId]
+            _UIA_dll.UIA_ListControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -617,7 +617,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         ]
     if sysinfo.UIA_support:
         controltypes = [
-            UIAElementInfo._UIA_dll.UIA_EditControlTypeId]
+            _UIA_dll.UIA_EditControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -810,8 +810,8 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         ".*StaticText"]
     if sysinfo.UIA_support:
         controltypes = [
-            UIAElementInfo._UIA_dll.UIA_ImageControlTypeId,
-            UIAElementInfo._UIA_dll.UIA_TextControlTypeId]
+            _UIA_dll.UIA_ImageControlTypeId,
+            _UIA_dll.UIA_TextControlTypeId]
     can_be_label = True
 
     def __init__(self, hwnd):
@@ -846,7 +846,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     #windowclasses = ["#32770", ]
     if sysinfo.UIA_support:
         controltypes = [
-            UIAElementInfo._UIA_dll.UIA_WindowControlTypeId]
+            _UIA_dll.UIA_WindowControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -971,7 +971,7 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
     windowclasses = ["#32768", ]
     if sysinfo.UIA_support:
         controltypes = [
-            UIAElementInfo._UIA_dll.UIA_MenuControlTypeId]
+            _UIA_dll.UIA_MenuControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------

@@ -75,6 +75,11 @@ class UIAElementInfo(ElementInfo):
             self._element = _iuia.GetRootElement()            
 
     @property
+    def element(self):
+        "Return AutomationElement object"
+        return self._element
+
+    @property
     def automationId(self):
         "Return AutomationId of element"
         return self._element.CurrentAutomationId

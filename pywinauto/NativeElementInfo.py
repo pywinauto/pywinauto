@@ -130,4 +130,4 @@ class NativeElementInfo(ElementInfo):
         "Check if 2 NativeElementInfo objects describe 1 actual element"
         if not isinstance(other, NativeElementInfo):
             return False
-        return self._handle == other._handle
+        return self.handle == other.handle

@@ -141,20 +141,20 @@ class UIAWrapper(BaseWrapper.BaseWrapper):
     #-----------------------------------------------------------
     def IsKeyboardFocusable(self):
         "Return True if element can be focused with keyboard"
-        return self._elementInfo._element.CurrentIsKeyboardFocusable == 1
+        return self._elementInfo.element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
     def HasKeyboardFocus(self):
         "Return True if element is focused with keyboard"
-        return self._elementInfo._element.CurrentHasKeyboardFocus == 1
+        return self._elementInfo.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
     def SetFocus(self):
         "Set the focus to this element"
         if self.IsKeyboardFocusable() and not self.HasKeyboardFocus():
             try:
-                self._elementInfo._element.SetFocus()
+                self._elementInfo.element.SetFocus()
             except comtypes.COMError as exc:
-                pass
+                pass # TODO: add RuntimeWarning here
 
         return self
