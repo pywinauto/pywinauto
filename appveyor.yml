@@ -100,10 +100,12 @@ after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - coverage xml
   - codecov
+  - sphinx-build -w warnings.txt -E -b html .\doc_src .\html_docs
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
   - path: Coverage_report
+  - path: html_docs
 
 #on_success:
 #  - TODO: 
