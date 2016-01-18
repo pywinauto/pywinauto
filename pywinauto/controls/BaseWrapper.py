@@ -94,7 +94,7 @@ class _MetaWrapper(type):
             from ..UIAElementInfo import UIAElementInfo
             elementinfo = UIAElementInfo(elementinfo)
 
-        if elementinfo.handle != None:
+        if elementinfo.handle is not None:
             wrapper = _MetaWrapper.FindWrapper(elementinfo)
 
             from .HwndWrapper import HwndWrapper

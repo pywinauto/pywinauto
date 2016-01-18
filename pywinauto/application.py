@@ -484,16 +484,16 @@ class WindowSpecification(object):
         print("Control Identifiers:")
         for ctrl in ctrls_to_print:
 
-            print("%s - '%s'   %s"% (
-                ctrl.Class(),
-                ctrl.WindowText().encode("unicode-escape"),
-                str(ctrl.Rectangle())))
+            print("{class_name} - '{text}'   {rect}".format(
+                class_name=ctrl.FriendlyClassName(),
+                text=ctrl.WindowText(),
+                rect=str(ctrl.Rectangle())))
 
             print("\t"),
             names = control_name_map[ctrl]
             names.sort()
             for name in names:
-                print("'%s'" % name.encode("unicode_escape")),
+                print("'{name}'".format(name=name.encode("unicode_escape"))),
             print()
 
 
