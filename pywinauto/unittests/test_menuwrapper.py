@@ -42,7 +42,7 @@ class MenuWrapperTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application()
@@ -119,7 +119,7 @@ class OwnerDrawnMenuTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
 

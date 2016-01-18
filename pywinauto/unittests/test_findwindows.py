@@ -50,7 +50,7 @@ def _unittests():
 #    def setUp(self):
 #        """Start the application set some data and ensure the application
 #        is in the state we want it."""
-#        backend.set("native")
+#        backend.activate("native")
 #
 #    def tearDown(self):
 #        "Close the application after tests"

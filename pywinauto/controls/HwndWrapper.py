@@ -140,14 +140,13 @@ class HwndWrapper(BaseWrapper):
         if isinstance(elementInfo, six.integer_types):
             elementInfo = NativeElementInfo(elementInfo)
         if hasattr(elementInfo, "_elementInfo"):
-            elementInfo = elementInfo._elementInfo
+            elementInfo = elementInfo.elementInfo
 
         BaseWrapper.__init__(self, elementInfo)
         self.handle = elementInfo.handle
 
         # verify that we have been passed in a valid windows handle
         if not win32functions.IsWindow(self.handle):
-            print(elementInfo._handle)
             raise InvalidWindowHandle(self.handle)
 
         # make it so that ctypes conversion happens correctly

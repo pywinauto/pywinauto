@@ -64,7 +64,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
         mfc_samples_folder = os.path.join(os.path.dirname(__file__),
                                           r"..\..\apps\MFC_samples")
         if is_x64_Python():
@@ -146,7 +146,7 @@ class ApplicationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
@@ -540,7 +540,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
         self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit

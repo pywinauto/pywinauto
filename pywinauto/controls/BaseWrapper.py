@@ -94,7 +94,7 @@ class _MetaWrapper(type):
             from ..UIAElementInfo import UIAElementInfo
             elementinfo = UIAElementInfo(elementinfo)
 
-        if elementinfo.handle != None:
+        if elementinfo.handle is not None:
             wrapper = _MetaWrapper.FindWrapper(elementinfo)
 
             from .HwndWrapper import HwndWrapper
@@ -166,6 +166,12 @@ class BaseWrapper(object):
             self.actions = ActionLogger()
         else:
             raise RuntimeError('NULL pointer used to initialize BaseWrapper')
+
+    #------------------------------------------------------------
+    @property
+    def elementInfo(self):
+        """Read-only property to get *ElementInfo object"""
+        return self._elementInfo
 
     #------------------------------------------------------------
     def FriendlyClassName(self):
@@ -397,9 +403,9 @@ class BaseWrapper(object):
             other = backend.ActiveElementInfo(other)
 
         if hasattr(other, "_elementInfo"):
-            return self._elementInfo == other._elementInfo
+            return self.elementInfo == other.elementInfo
         else:
-            return self._elementInfo == other
+            return self.elementInfo == other
 
     #-----------------------------------------------------------
     def __ne__(self, other):

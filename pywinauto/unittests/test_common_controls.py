@@ -65,7 +65,7 @@ class ListViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -458,7 +458,7 @@ class TreeViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -603,7 +603,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -697,7 +697,7 @@ class HeaderTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -783,7 +783,7 @@ class StatusBarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -894,7 +894,7 @@ class TabControlTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
         self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
@@ -1041,7 +1041,7 @@ class ToolbarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1193,7 +1193,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title 
         even though the app is started with a short title "RebarTest".
         """
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1272,7 +1272,7 @@ class DatetimeTestCases(unittest.TestCase):
         """
         Start the application and get 'Date Time Picker' control.
         """
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1347,7 +1347,7 @@ class ToolTipsTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
@@ -1434,7 +1434,7 @@ class UpDownTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application

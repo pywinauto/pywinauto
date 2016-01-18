@@ -32,13 +32,13 @@ sys.path.append(".")
 from pywinauto import findbestmatch
 from pywinauto import win32structures
 from pywinauto import backend
-backend.set("native")
+backend.activate("native")
 
 
 class TestFindBestMatch(unittest.TestCase):
 
     def setUp(self):
-        backend.set("native")
+        backend.activate("native")
         # load the test strings
         self.strings = open(os.path.join(test_path, "testtext.txt"), "rb").readlines()
         self.strings = (line.decode('utf-8')[:-1] for line in self.strings)

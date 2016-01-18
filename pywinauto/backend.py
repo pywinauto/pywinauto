@@ -40,7 +40,7 @@ active_name = 'native'
 ActiveElementInfo = NativeElementInfo
 #ActiveWrapper = HwndWrapper
 
-def set(new_active_name):
+def activate(new_active_name):
     """
     Set active back-end by name
 

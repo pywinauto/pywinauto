@@ -68,7 +68,7 @@ class HwndWrapperTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
@@ -418,7 +418,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
@@ -499,7 +499,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
@@ -589,7 +589,7 @@ class NotepadRegressionTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application()
@@ -652,7 +652,7 @@ class DragAndDropTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application()
@@ -693,7 +693,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application()
@@ -728,7 +728,7 @@ class RemoteMemoryBlockTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.set("native")
+        backend.activate("native")
 
         # start the application
         self.app = Application()

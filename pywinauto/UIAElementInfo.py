@@ -8,7 +8,7 @@ from .win32structures import RECT
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
 _iuia = comtypes.CoCreateInstance(
-    comtypes.gen.UIAutomationClient.CUIAutomation._reg_clsid_,
+    comtypes.gen.UIAutomationClient.CUIAutomation().IPersist_GetClassID(),
     interface=comtypes.gen.UIAutomationClient.IUIAutomation,
     clsctx=comtypes.CLSCTX_INPROC_SERVER
 )
@@ -73,6 +73,11 @@ class UIAElementInfo(ElementInfo):
                                 instance only!")
         else:
             self._element = _iuia.GetRootElement()            
+
+    @property
+    def element(self):
+        "Return AutomationElement object"
+        return self._element
 
     @property
     def automationId(self):
@@ -184,8 +189,8 @@ class UIAElementInfo(ElementInfo):
             pattern = self._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId).QueryInterface(
                 comtypes.gen.UIAutomationClient.IUIAutomationTextPattern)
             return pattern.DocumentRange.GetText(-1)
-        except:
-            return self.name
+        except Exception:
+            return self.name # TODO: probably we should raise an exception here
 
     def _getTextFromHandle(self, handle):
         return text(self.handle)
