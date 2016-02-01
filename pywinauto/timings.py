@@ -344,7 +344,7 @@ def WaitUntilPasses(
          # wait a maximum of 10.5 seconds for the 
          # window to be found in increments of .5 of a second.
          # P.int a message and re-raise the original exception if never found.
-         WaitUntilPasses(10.5, .5, self.Exists, (WindowNotFoundError))
+         WaitUntilPasses(10.5, .5, self.Exists, (ElementNotFoundError))
       except TimeoutError as e:
          print("timed out")
          raise e.

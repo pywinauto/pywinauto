@@ -1,11 +1,12 @@
+import unittest
 from pywinauto.application import Application
 from pywinauto.handleprops import processid 
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 
 if UIA_support:
     from pywinauto.UIAElementInfo import UIAElementInfo
+    from pywinauto import backend
 
-import unittest
 
 if UIA_support:
     class UIAElementInfoTests(unittest.TestCase):
@@ -14,6 +15,7 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
+            backend.activate("native") # yeah, it's not a joke :) TODO: re-write the whole test
             # start the application
             self.app = Application()
             if is_x64_Python() or not is_x64_OS():
@@ -37,11 +39,6 @@ if UIA_support:
             self.assertEqual(self.ctrl.name, "Calculator")
 
         def testHandle(self):
-            self.assertEqual(self.ctrl.handle, self.handle)
-
-        def testSetHandle(self):
-            element = UIAElementInfo(self.dlg.Button2.handle)
-            element.handle = self.handle
             self.assertEqual(self.ctrl.handle, self.handle)
 
         def testEnabled(self):

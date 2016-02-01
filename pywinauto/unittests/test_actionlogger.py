@@ -29,6 +29,7 @@ sys.path.append(".")
 from pywinauto import actionlogger
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto import backend
 
 
 def _notepad_exe():
@@ -44,6 +45,7 @@ class ActionloggerTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
         actionlogger.enable()
         self.app = Application().start(_notepad_exe())
         self.logger = logging.getLogger('pywinauto')

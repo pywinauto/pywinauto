@@ -23,10 +23,14 @@
 
 from .HwndWrapper import GetDialogPropsFromHandle
 from .HwndWrapper import InvalidWindowHandle
-# make an alias for the HwndWrapper object as WrapHandle
-from .HwndWrapper import HwndWrapper as WrapHandle
 
 # import the control classes - this will register the classes they
 # contain
 from . import common_controls
 from . import win32_controls
+
+from ..sysinfo import UIA_support
+if UIA_support:
+    from . import UIAWrapper
+
+from .BaseWrapper import InvalidElement

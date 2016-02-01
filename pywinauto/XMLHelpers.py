@@ -288,7 +288,7 @@ def _ExtractProperties(properties, prop_name, prop_value):
     # was not already set - then just set it
 
     # if this is an indexed member of a list
-    if reqd_index == None:
+    if reqd_index is None:
         # Have we hit a property with this name already
         if prop_name in properties:
             # try to append current value to the property
