@@ -46,7 +46,7 @@ Please find below a sample run ::
 	      Type "help", "copyright", "credits" or "license" for more information.
 	(1)   >>> from pywinauto import application
 	(2)   >>> app = application.Application()
-	(3)   >>> app.Start_("Notepad.exe")
+	(3)   >>> app.start("Notepad.exe")
 	      <pywinauto.application.Application object at 0x00AE0990>
 	(4)   >>> app.Notepad.DrawOutline()
 	(5)   >>> app.Notepad.MenuSelect("Edit -> Replace")
@@ -83,7 +83,7 @@ Please find below a sample run ::
    through this object.
 3. We have created an Application instance in step 2 but we did not supply
    any information on the Windows application it referred to. By using the
-   Start_() method we execute that application and connect it to the
+   start() method we execute that application and connect it to the
    Application instance app.
 4. Draw a green rectangle around the Notepad dialog - so that we know we have
    the correct window.

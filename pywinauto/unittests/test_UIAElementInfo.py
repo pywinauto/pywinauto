@@ -19,9 +19,9 @@ if UIA_support:
             # start the application
             self.app = Application()
             if is_x64_Python() or not is_x64_OS():
-                self.app.start_(r"C:\Windows\System32\calc.exe")
+                self.app.start(r"C:\Windows\System32\calc.exe")
             else:
-                self.app.start_(r"C:\Windows\SysWOW64\calc.exe")
+                self.app.start(r"C:\Windows\SysWOW64\calc.exe")
             
             self.dlg = self.app.Calculator
             self.handle = self.dlg.handle
