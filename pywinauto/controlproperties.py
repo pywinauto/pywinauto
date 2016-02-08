@@ -25,7 +25,7 @@
 __revision__ = "$Rev: 439 $"
 
 
-from pywinauto.win32structures import RECT, LOGFONTW
+from .win32structures import RECT, LOGFONTW
 
 
 #====================================================================

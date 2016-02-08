@@ -54,13 +54,19 @@ environment:
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "64"
+      UIA_SUPPORT: "NO"
 
 os:
   - Windows Server 2012
+
+#init:
+  # Enable RDP.
+  #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   # Some listings for debug only
@@ -80,6 +86,9 @@ install:
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
 
+  # Enable desktop (for correct screenshots).
+  #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-desktop.ps1'))
+
 build: false  # Not a C# project, build stuff at the test step instead.
 
 test_script:
@@ -91,11 +100,18 @@ after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - coverage xml
   - codecov
+  - sphinx-build -w warnings.txt -E -b html .\doc_src .\html_docs
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
   - path: Coverage_report
+  - path: html_docs
 
 #on_success:
 #  - TODO: 
 #
+
+#on_failure:
+  # Collect screenshots.
+  #- "7z a screenshots.zip %APPVEYOR_BUILD_FOLDER%\\scr-*.jpg"
+  #- "appveyor PushArtifact screenshots.zip"

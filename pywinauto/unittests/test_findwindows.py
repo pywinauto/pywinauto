@@ -27,14 +27,15 @@ import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.findwindows import find_windows, find_window
-from pywinauto.findwindows import WindowNotFoundError, WindowAmbiguousError
+from pywinauto.findwindows import find_elements, find_element
+from pywinauto.findwindows import ElementNotFoundError, WindowAmbiguousError
+from pywinauto import backend
 
 
 #=========================================================================
 def _unittests():
     "Do a quick test of finding some windows"
-    windows = find_windows(
+    windows = find_elements(
         class_name_re = "#32770",
         enabled_only = False,
         visible_only = False)
@@ -49,7 +50,7 @@ def _unittests():
 #    def setUp(self):
 #        """Start the application set some data and ensure the application
 #        is in the state we want it."""
-#        pass
+#        backend.activate("native")
 #
 #    def tearDown(self):
 #        "Close the application after tests"

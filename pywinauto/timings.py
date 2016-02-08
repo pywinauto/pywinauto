@@ -55,13 +55,15 @@ The Following are the individual timing settings that can be adjusted:
 
 * before_closeclick_wait    (default .1)
 * closeclick_retry  (default .05)
-* closeclick_dialog_close_wait  (default .05)
+* closeclick_dialog_close_wait  (default .5)
 * after_closeclick_wait (default .2)
 
 * after_windowclose_timeout (default 2)
 * after_windowclose_retry (default .5)
 
 * after_setfocus_wait   (default .06)
+* setfocus_timeout   (default 2)
+* setfocus_retry   (default .1)
 
 * after_setcursorpos_wait   (default .01)
 
@@ -125,13 +127,15 @@ class TimeConfig(object):
 
         'before_closeclick_wait' : .1,
         'closeclick_retry' : .05,
-        'closeclick_dialog_close_wait' : .05,
+        'closeclick_dialog_close_wait' : .5,
         'after_closeclick_wait' : .2,
 
         'after_windowclose_timeout': 2,
         'after_windowclose_retry':  .5,
 
-        'after_setfocus_wait' : .06,
+        'after_setfocus_wait': .06,
+        'setfocus_timeout': 2,
+        'setfocus_retry': .1,
 
         'after_setcursorpos_wait' : .01,
 
@@ -162,6 +166,8 @@ class TimeConfig(object):
         'scroll_step_wait': 0.1,
     }
 
+    assert(__default_timing['window_find_timeout'] >=\
+           __default_timing['window_find_retry'] * 2)
 
     _timings = __default_timing.copy()
     _cur_speed = 1
@@ -338,7 +344,7 @@ def WaitUntilPasses(
          # wait a maximum of 10.5 seconds for the 
          # window to be found in increments of .5 of a second.
          # P.int a message and re-raise the original exception if never found.
-         WaitUntilPasses(10.5, .5, self.Exists, (WindowNotFoundError))
+         WaitUntilPasses(10.5, .5, self.Exists, (ElementNotFoundError))
       except TimeoutError as e:
          print("timed out")
          raise e.

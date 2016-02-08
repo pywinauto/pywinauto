@@ -24,13 +24,17 @@
 Python package for automating GUI manipulation on Windows
 
 """
-from __future__ import absolute_import
 
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 
 from . import findwindows
 WindowAmbiguousError = findwindows.WindowAmbiguousError
-WindowNotFoundError = findwindows.WindowNotFoundError
+ElementNotFoundError = findwindows.ElementNotFoundError
+
+from .sysinfo import UIA_support
+if UIA_support:
+    ElementNotFoundError = findwindows.ElementNotFoundError
+    ElementAmbiguousError = findwindows.ElementAmbiguousError
 
 from . import findbestmatch
 MatchError = findbestmatch.MatchError

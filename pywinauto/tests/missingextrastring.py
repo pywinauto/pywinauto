@@ -144,7 +144,6 @@ def _unittests():
     class Control(object):
         def Text(self):
             return self.text
-        pass
 
     ctrls = []
     total_bug_count = 0

@@ -21,9 +21,8 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Basic wrapping of Windows controls"
+"""Basic wrapping of Windows controls"""
 from __future__ import unicode_literals
-from __future__ import absolute_import
 from __future__ import print_function
 
 # pylint:  disable-msg=W0611
@@ -35,6 +34,7 @@ import ctypes
 import win32api
 import win32gui
 import win32con
+import win32process
 import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
 import locale
 
@@ -60,13 +60,13 @@ from .. import timings
 
 #from .. import findbestmatch
 from .. import handleprops
+from ..NativeElementInfo import NativeElementInfo
 
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-
-
+from .BaseWrapper import BaseWrapper, _perform_click_input
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -75,7 +75,7 @@ class ControlNotEnabled(RuntimeError):
 
 #====================================================================
 class ControlNotVisible(RuntimeError):
-    "Raised when a control is nto visible"
+    "Raised when a control is not visible"
     pass
 
 #====================================================================
@@ -84,76 +84,10 @@ class InvalidWindowHandle(RuntimeError):
     def __init__(self, hwnd):
         "Initialise the RuntimError parent with the mesage"
         RuntimeError.__init__(self,
-            "Handle 0x%d is not a vaild window handle"% hwnd)
-
-
-
-
-# metaclass that will know about
-class _MetaWrapper(type):
-    "Metaclass for Wrapper objects"
-    re_wrappers = {}
-    str_wrappers = {}
-    control_types = {}
-
-    def __init__(cls, name, bases, attrs):
-        # register the class names, both the regular expression
-        # or the classes directly
-
-        #print("metaclass __init__", cls)
-        type.__init__(cls, name, bases, attrs)
-
-        for win_class in cls.windowclasses:
-            _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
-            _MetaWrapper.str_wrappers[win_class] = cls
-        for control_type in cls.controltypes:
-            _MetaWrapper.control_types[control_type] = cls
-
-    @staticmethod
-    def FindWrapper(handle):
-        """Find the correct wrapper for this handle"""
-        class_name = handleprops.classname(handle)
-
-        try:
-            return _MetaWrapper.str_wrappers[class_name]
-        except KeyError:
-            wrapper_match = None
-
-            for regex, wrapper in _MetaWrapper.re_wrappers.items():
-                if regex.match(class_name):
-                    wrapper_match = wrapper
-                    _MetaWrapper.str_wrappers[class_name] = wrapper
-
-                    return wrapper
-
-        # if it is a dialog then override the wrapper we found
-        # and make it a DialogWrapper
-        if handleprops.is_toplevel_window(handle):
-            from . import win32_controls
-            wrapper_match = win32_controls.DialogWrapper
-
-        if wrapper_match is None:
-            wrapper_match = HwndWrapper
-        return wrapper_match
-
-        #if handle in meta.wrappers:
-        #    return meta.wrappers[handle]
-
-    @staticmethod
-    def FindWrapperUIA(elementinfo):
-        """Find the wrapper for this elementinfo"""
-        wrapper = FindWrapper(elementinfo.handle)
-
-        if wrapper == HwndWrapper:
-            try:
-                return _MetaWrapper.control_types[elementinfo.controlType]
-            except KeyError:
-                return HwndWrapper
-
+            "Handle {0} is not a vaild window handle".format(hwnd))
 
 #====================================================================
-@six.add_metaclass(_MetaWrapper)
-class HwndWrapper(object):
+class HwndWrapper(BaseWrapper):
     """Default wrapper for controls.
 
     All other wrappers are derived from this.
@@ -171,68 +105,52 @@ class HwndWrapper(object):
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_)"""
 
-    friendlyclassname = None
-    windowclasses = []
-    controltypes = []
     handle = None
-    can_be_label = False
-    has_title = True
 
     # specify whether we need to grab an image of ourselves
     # when asked for properties
     _NeedsImageProp = False
 
     #-----------------------------------------------------------
-    def __new__(cls, handle):
+    # TODO: can't inherit __new__ function from BaseWrapper?
+    def __new__(cls, element):
         # only use the meta class to find the wrapper for HwndWrapper
         # so allow users to force the wrapper if they want
         # thanks to Raghav for finding this.
         if cls != HwndWrapper:
             obj = object.__new__(cls)
-            obj.__init__(handle)
+            obj.__init__(element)
             return obj
 
-        new_class = cls.FindWrapper(handle)
-        #super(currentclass, cls).__new__(cls[, ...])"
+        new_class = cls.FindWrapper(element)
+
         obj = object.__new__(new_class)
-        obj.__init__(handle)
+        obj.__init__(element)
+
         return obj
 
     #-----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elementInfo):
         """Initialize the control
-
-        * **hwnd** is either a valid window handle or it can be an
+        * **elementInfo** is either a valid NativeElementInfo or it can be an
           instance or subclass of HwndWrapper.
-
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
+        if isinstance(elementInfo, six.integer_types):
+            elementInfo = NativeElementInfo(elementInfo)
+        if hasattr(elementInfo, "_elementInfo"):
+            elementInfo = elementInfo.elementInfo
 
-        # handle if hwnd is actually a HwndWrapper
-        try:
-            self.handle = hwnd.handle
-        except AttributeError:
-            self.handle = hwnd
+        BaseWrapper.__init__(self, elementInfo)
+        self.handle = elementInfo.handle
 
         # verify that we have been passed in a valid windows handle
-        if not win32functions.IsWindow(hwnd):
-            raise InvalidWindowHandle(hwnd)
+        if not win32functions.IsWindow(self.handle):
+            raise InvalidWindowHandle(self.handle)
 
         # make it so that ctypes conversion happens correctly
         self._as_parameter_ = self.handle
-
-        # TODO: 32 or 64 bits process running on x64
-        #self.is64bitprocess = handleprops.is64bitprocess(self.ProcessID())
-
-        #win32functions.WaitGuiThreadIdle(self)
-
-        # default to not having a reference control added
-        self.ref = None
-
-        self.appdata = None
-
-        self._cache = {}
 
         # build the list of default properties to be written
         # Derived classes can either modify this list or override
@@ -255,40 +173,6 @@ class HwndWrapper(object):
             'MenuItems',
             'ControlCount',
             ];
-        self.actions = ActionLogger()
-
-    #-----------------------------------------------------------
-    def FriendlyClassName(self):
-        """Return the friendly class name for the control
-
-        This differs from the class of the control in some cases.
-        Class() is the actual 'Registered' window class of the control
-        while FriendlyClassName() is hopefully something that will make
-        more sense to the user.
-
-        For example Checkboxes are implemented as Buttons - so the class
-        of a CheckBox is "Button" - but the friendly class is "CheckBox"
-        """
-        if self.friendlyclassname is None:
-            self.friendlyclassname = handleprops.classname(self)
-        return self.friendlyclassname
-
-    #-----------------------------------------------------------
-    def Class(self):
-        """Return the class name of the window"""
-        if not ("class" in self._cache.keys()):
-            self._cache['class'] = handleprops.classname(self)
-        return self._cache['class']
-
-    #-----------------------------------------------------------
-    def WindowText(self):
-        """Window text of the control
-
-        Quite  a few contorls have other text that is visible, for example
-        Edit controls usually have an empty string for WindowText but still
-        have text displayed in the edit window.
-        """
-        return handleprops.text(self)
 
     #-----------------------------------------------------------
     def Style(self):
@@ -313,18 +197,6 @@ class HwndWrapper(object):
         particular style.
         """
         return handleprops.exstyle(self)
-
-    #-----------------------------------------------------------
-    def ControlID(self):
-        """Return the ID of the window
-
-        Only controls have a valid ID - dialogs usually have no ID assigned.
-
-        The ID usually identified the control in the window - but there can
-        be duplicate ID's for example lables in a dialog may have duplicate
-        ID's.
-        """
-        return handleprops.controlid(self)
 
     #-----------------------------------------------------------
     def UserData(self):
@@ -360,58 +232,6 @@ class HwndWrapper(object):
         return handleprops.isunicode(self)
 
     #-----------------------------------------------------------
-    def IsVisible(self):
-        """Whether the window is visible or not
-
-        Checks that both the Top Level Parent (probably dialog) that
-        owns this window and the window itself are both visible.
-
-        If you want to wait for a control to become visible (or wait
-        for it to become hidden) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``.
-
-        If you want to raise an exception immediately if a window is
-        not visible then you can use the HwndWrapper.VerifyVisible().
-        HwndWrapper.VerifyActionable() raises if the window is not both
-        visible and enabled.
-        """
-
-        return handleprops.isvisible(self.TopLevelParent()) and \
-            handleprops.isvisible(self)
-
-    #-----------------------------------------------------------
-    def IsEnabled(self):
-        """Whether the window is enabled or not
-
-        Checks that both the Top Level Parent (probably dialog) that
-        owns this window and the window itself are both enabled.
-
-        If you want to wait for a control to become enabled (or wait
-        for it to become disabled) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``.
-
-        If you want to raise an exception immediately if a window is
-        not enabled then you can use the HwndWrapper.VerifyEnabled().
-        HwndWrapper.VerifyReady() raises if the window is not both
-        visible and enabled.
-        """
-        return handleprops.isenabled(self.TopLevelParent()) and \
-            handleprops.isenabled(self)
-
-    #-----------------------------------------------------------
-    def Rectangle(self):
-        """Return the rectangle of window
-
-        The rectangle is the rectangle of the control on the screen,
-        coordinates are given from the top left of the screen.
-
-        This method returns a RECT structure, Which has attributes - top,
-        left, right, bottom. and has methods width() and height().
-        See win32structures.RECT for more information.
-        """
-        return handleprops.rectangle(self)
-
-    #-----------------------------------------------------------
     def ClientRect(self):
         """Returns the client rectangle of window
 
@@ -427,20 +247,20 @@ class HwndWrapper(object):
         return handleprops.clientrect(self)
 
     #-----------------------------------------------------------
-    def ClientToScreen(self, client_point):
-        """Maps point from client to screen coordinates"""
-        point = win32structures.POINT()
-        if isinstance(client_point, win32structures.POINT):
-            point.x = client_point.x
-            point.y = client_point.y
-        else:
-            point.x = client_point[0]
-            point.y = client_point[1]
-        win32functions.ClientToScreen(self, ctypes.byref(point))
-        
-        # return tuple in any case because
-        # coords param is always expected to be tuple
-        return point.x, point.y
+    #def ClientToScreen(self, client_point):
+    #    """Maps point from client to screen coordinates"""
+    #    point = win32structures.POINT()
+    #    if isinstance(client_point, win32structures.POINT):
+    #        point.x = client_point.x
+    #        point.y = client_point.y
+    #    else:
+    #        point.x = client_point[0]
+    #        point.y = client_point[1]
+    #    win32functions.ClientToScreen(self, ctypes.byref(point))
+    #
+    #    # return tuple in any case because
+    #    # coords param is always expected to be tuple
+    #    return point.x, point.y
 
     #-----------------------------------------------------------
     def Font(self):
@@ -453,11 +273,6 @@ class HwndWrapper(object):
         See win32structures.LOGFONTW for more information.
         """
         return handleprops.font(self)
-
-    #-----------------------------------------------------------
-    def ProcessID(self):
-        """Return the ID of process that owns this window"""
-        return handleprops.processid(self)
 
     #-----------------------------------------------------------
     def HasStyle(self, style):
@@ -477,82 +292,6 @@ class HwndWrapper(object):
             self._cache['isdialog'] = handleprops.is_toplevel_window(self)
 
         return self._cache['isdialog']
-
-    #-----------------------------------------------------------
-    def Parent(self):
-        """Return the parent of this control
-
-        Note that the parent of a control is not necesarily a dialog or
-        other main window. A group box may be the parent of some radio
-        buttons for example.
-
-        To get the main (or top level) window then use
-        HwndWrapper.TopLevelParent().
-        """
-
-        if not ("parent" in self._cache.keys()):
-
-            parent_hwnd = handleprops.parent(self)
-
-            if parent_hwnd:
-                #return WrapHandle(parent_hwnd)
-
-                self._cache["parent"] = HwndWrapper(parent_hwnd)
-            else:
-                self._cache["parent"] = None
-
-        return self._cache["parent"]
-
-    #-----------------------------------------------------------
-    def TopLevelParent(self):
-        """Return the top level window of this control
-
-        The TopLevel parent is different from the parent in that the Parent
-        is the window that owns this window - but it may not be a dialog/main
-        window. For example most Comboboxes have an Edit. The ComboBox is the
-        parent of the Edit control.
-
-        This will always return a valid window handle (if the control has
-        no top level parent then the control itself is returned - as it is
-        a top level window already!)
-        """
-
-        if not ("top_level_parent" in self._cache.keys()):
-
-            parent = self.Parent()
-
-            if self.IsDialog():
-                self._cache["top_level_parent"] = self
-                #return self
-
-            elif not parent:
-                self._cache["top_level_parent"] = self
-                #return self
-
-            elif not parent.IsDialog():
-                self._cache["top_level_parent"] = parent.TopLevelParent()
-                #return parent.TopLevelParent()
-            else:
-                self._cache["top_level_parent"] = parent
-                #return parent
-
-        return self._cache["top_level_parent"]
-
-    #-----------------------------------------------------------
-    def Texts(self):
-        """Return the text for each item of this control"
-
-        It is a list of strings for the control. It is frequently over-ridden
-        to extract all strings from a control with multiple items.
-
-        It is always a list with one or more strings:
-
-          * First elemtent is the window text of the control
-          * Subsequent elements contain the text of any items of the
-            control (e.g. items in a listbox/combobox, tabs in a tabcontrol)
-        """
-        texts = [self.WindowText(), ]
-        return texts
 
     #-----------------------------------------------------------
     def ClientRects(self):
@@ -586,37 +325,6 @@ class HwndWrapper(object):
             tabcontrol)
         """
         return [self.Font(), ]
-
-    #-----------------------------------------------------------
-    def Children(self):
-        """Return the children of this control as a list
-
-        It returns a list of HwndWrapper (or subclass) instances, it
-        returns an empty list if there are no children.
-        """
-
-        child_windows = handleprops.children(self)
-        return [HwndWrapper(hwnd) for hwnd in child_windows]
-
-    #-----------------------------------------------------------
-    def ControlCount(self):
-        "Return the number of children of this control"
-
-        return len(handleprops.children(self))
-
-    #-----------------------------------------------------------
-    def IsChild(self, parent):
-        """Return True if this window is a child of 'parent'.
-
-        A window is a child of another window when it is a direct of the
-        other window. A window is a direct descendant of a given
-        window if the parent window is the the chain of parent windows
-        for the child window.
-        """
-
-        # Call the IsChild API funciton and convert the result
-        # to True/False
-        return win32functions.IsChild(parent, self.handle) != 0
 
     #-----------------------------------------------------------
     def SendCommand(self, commandID):
@@ -817,56 +525,6 @@ class HwndWrapper(object):
         return hash(self.handle)
 
     #-----------------------------------------------------------
-    def __eq__(self, other):
-        "Returns True if the handles of both controls are the same"
-        if isinstance(other, HwndWrapper):
-            return self.handle == other.handle
-        else:
-            return self.handle == other
-
-    #-----------------------------------------------------------
-    def __ne__(self, other):
-        "Returns False if the handles of both controls are not the same"
-        return not self == other
-
-    #-----------------------------------------------------------
-    def VerifyActionable(self):
-        """Verify that the control is both visible and enabled
-
-        Raise either ControlNotEnalbed or ControlNotVisible if not
-        enabled or visible respectively.
-        """
-        win32functions.WaitGuiThreadIdle(self)
-        self.VerifyVisible()
-        self.VerifyEnabled()
-
-
-    #-----------------------------------------------------------
-    def VerifyEnabled(self):
-        """Verify that the control is enabled
-
-        Check first if the control's parent is enabled (skip if no parent),
-        then check if control itself is enabled.
-        """
-
-        # Check if the control and it's parent are enabled
-        if not self.IsEnabled():
-            raise ControlNotEnabled()
-
-    #-----------------------------------------------------------
-    def VerifyVisible(self):
-        """Verify that the control is visible
-
-        Check first if the control's parent is visible. (skip if no parent),
-        then check if control itself is visible.
-        """
-
-        # check if the control and it's parent are visible
-        if not self.IsVisible():
-            raise ControlNotVisible()
-
-
-    #-----------------------------------------------------------
     def Click(
         self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
         """Simulates a mouse click on the control
@@ -882,38 +540,6 @@ class HwndWrapper(object):
 
         _perform_click(self, button, pressed, coords, double, absolute=absolute)
         return self
-
-
-    #-----------------------------------------------------------
-    def ClickInput(
-        self, 
-        button = "left", 
-        coords = (None, None), 
-        double = False, 
-        wheel_dist = 0,
-        use_log = True,
-        pressed = "",
-        absolute = False):
-        """Click at the specified coordinates
-
-        * **button** The mouse button to click. One of 'left', 'right',
-          'middle' or 'x' (Default: 'left')
-        * **coords** The coordinates to click at.(Default: center of control)
-        * **double** Whether to perform a double click or not (Default: False)
-        * **wheel_dist** The distance to move the mouse wheel (default: 0)
-
-        NOTES: 
-           This is different from Click in that it requires the control to
-           be visible on the screen but performs a more realistic 'click'
-           simulation.
-
-           This method is also vulnerable if the mouse is moved by the user
-           as that could easily move the mouse off the control before the
-           Click has finished.
-        """
-        _perform_click_input(
-            self, button, coords, double, wheel_dist = wheel_dist, use_log = use_log, pressed = pressed, absolute = absolute)
-
 
     #-----------------------------------------------------------
     def CloseClick(
@@ -963,11 +589,6 @@ class HwndWrapper(object):
         return self
 
     #-----------------------------------------------------------
-    def DoubleClickInput(self, button = "left", coords = (None, None)):
-        "Double click at the specified coordinates"
-        _perform_click_input(self, button, coords, double = True)
-
-    #-----------------------------------------------------------
     def RightClick(
         self, pressed = "", coords = (0, 0)):
         "Perform a right click action"
@@ -978,24 +599,12 @@ class HwndWrapper(object):
         return self
 
     #-----------------------------------------------------------
-    def RightClickInput(self, coords = (None, None)):
-        "Right click at the specified coords"
-        _perform_click_input(self, 'right', coords)
-
-
-    #-----------------------------------------------------------
     def PressMouse(self, button = "left", coords = (0, 0), pressed = ""):
         "Press the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
 
         _perform_click(self, button, pressed, coords, button_down=True, button_up=False)
         return self
-
-    #-----------------------------------------------------------
-    def PressMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
-        "Press a mouse button using SendInput"
-        _perform_click_input(self, button, coords, button_down=True, button_up=False, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
-
 
     #-----------------------------------------------------------
     def ReleaseMouse(self, button = "left", coords = (0, 0), pressed = ""):
@@ -1005,11 +614,6 @@ class HwndWrapper(object):
         return self
 
     #-----------------------------------------------------------
-    def ReleaseMouseInput(self, button = "left", coords = (None, None), pressed = "", absolute = False, key_down = True, key_up = True):
-        "Release the mouse button"
-        _perform_click_input(self, button, coords, button_down=False, button_up=True, pressed=pressed, absolute=absolute, key_down=key_down, key_up=key_up)
-
-    #-----------------------------------------------------------
     def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
         "Move the mouse by WM_MOUSEMOVE"
         
@@ -1017,18 +621,6 @@ class HwndWrapper(object):
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
         
         _perform_click(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
-        
-        win32functions.WaitGuiThreadIdle(self)
-        return self
-
-    #-----------------------------------------------------------
-    def MoveMouseInput(self, coords = (0, 0), pressed = "", absolute = False):
-        "Move the mouse"
-        
-        if not absolute:
-            self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
-        
-        _perform_click_input(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
         
         win32functions.WaitGuiThreadIdle(self)
         return self
@@ -1061,42 +653,6 @@ class HwndWrapper(object):
         return self
 
     #-----------------------------------------------------------
-    def DragMouseInput(self, button = "left",
-        press_coords = (0, 0),
-        release_coords = (0, 0),
-        pressed = "",
-        absolute = False):
-        "Drag the mouse"
-        
-        if isinstance(press_coords, win32structures.POINT):
-            press_coords = (press_coords.x, press_coords.y)
-
-        if isinstance(release_coords, win32structures.POINT):
-            release_coords = (release_coords.x, release_coords.y)
-
-        self.PressMouseInput(button, press_coords, pressed, absolute=absolute)
-        time.sleep(Timings.before_drag_wait)
-        for i in range(5):
-            self.MoveMouseInput((press_coords[0]+i,press_coords[1]), pressed=pressed, absolute=absolute) # "left"
-            time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        self.MoveMouseInput(release_coords, pressed=pressed, absolute=absolute) # "left"
-        time.sleep(Timings.before_drop_wait)
-        self.ReleaseMouseInput(button, release_coords, pressed, absolute=absolute)
-        time.sleep(Timings.after_drag_n_drop_wait)
-        return self
-
-    #-----------------------------------------------------------
-    def WheelMouseInput(self,
-        coords = (None, None),
-        wheel_dist = 1,
-        pressed = ""):
-        "Do mouse wheel"
-
-        _perform_click_input(self, button='wheel', coords=coords, wheel_dist = 120 * wheel_dist, pressed=pressed)
-        return self
-
-
-    #-----------------------------------------------------------
     def SetWindowText(self, text, append = False):
         "Set the text of the window"
 
@@ -1110,62 +666,6 @@ class HwndWrapper(object):
         win32functions.WaitGuiThreadIdle(self)
 
         self.actions.log('Set text to the ' + self.FriendlyClassName() + ': ' + str(text))
-        return self
-
-    #-----------------------------------------------------------
-    def TypeKeys(
-        self,
-        keys,
-        pause = None,
-        with_spaces = False,
-        with_tabs = False,
-        with_newlines = False,
-        turn_off_numlock = True,
-        set_foreground=True):
-        """Type keys to the window using SendKeys
-
-        This uses the SendKeys python module from
-        http://www.rutherfurd.net/python/sendkeys/ .This is the best place
-        to find documentation on what to use for the ``keys``
-        """
-
-        self.VerifyActionable()
-
-        if pause is None:
-            pause = Timings.after_sendkeys_key_wait
-
-        if set_foreground:
-            self.SetFocus()
-            #self.TopLevelParent().SetFocus()
-            #win32functions.SetFocus(self)
-
-        # attach the Python process with the process that self is in
-        window_thread_id = win32functions.GetWindowThreadProcessId(self, 0)
-        win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
-        # TODO: check return value of AttachThreadInput properly
-
-        if isinstance(keys, six.text_type):
-            aligned_keys = keys
-        elif isinstance(keys, six.binary_type):
-            aligned_keys = keys.decode(locale.getpreferredencoding())
-        else:
-            # convert a non-string input
-            aligned_keys = six.text_type(keys)
-
-        # Play the keys to the active window
-        SendKeys.SendKeys(
-            aligned_keys + '\n',
-            pause, with_spaces,
-            with_tabs,
-            with_newlines,
-            turn_off_numlock)
-
-        # detach the python process from the window's process
-        win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
-        # TODO: check return value of AttachThreadInput properly
-
-        win32functions.WaitGuiThreadIdle(self)
-        self.actions.log('Typed text to the ' + self.FriendlyClassName() + ': ' + aligned_keys)
         return self
 
     #-----------------------------------------------------------
@@ -1197,7 +697,6 @@ class HwndWrapper(object):
             raise ctypes.WinError()
 
         return self
-
 
     #-----------------------------------------------------------
     def DrawOutline(
@@ -1282,8 +781,7 @@ class HwndWrapper(object):
         
         Please do not use in production code yet - not tested fully
         """
-        # it seems GW_ENABLEDPOPUP should be used, but it doesn't work
-        popup = win32functions.GetWindow(self, win32defines.GW_HWNDNEXT) # GW_ENABLEDPOPUP
+        popup = win32functions.GetWindow(self, win32defines.GW_ENABLEDPOPUP)
 
         return popup
 
@@ -1581,37 +1079,57 @@ class HwndWrapper(object):
 
     #-----------------------------------------------------------
     def SetFocus(self):
-        """Set the focus to this control
+        """
+        Set the focus to this control.
 
-        Bring the window to the foreground first if necessary."""
-
+        Bring the window to the foreground first if necessary.
+        """
         # find the current foreground window
-        cur_foreground = win32functions.GetForegroundWindow()
+        cur_foreground = win32gui.GetForegroundWindow()
 
         # if it is already foreground then just return
         if self.handle != cur_foreground:
+            # set the foreground window
 
             # get the thread of the window that is in the foreground
-            cur_fore_thread = win32functions.GetWindowThreadProcessId(
-                cur_foreground, 0)
+            cur_fore_thread = win32process.GetWindowThreadProcessId(
+                cur_foreground)[0]
 
             # get the thread of the window that we want to be in the foreground
-            control_thread = win32functions.GetWindowThreadProcessId(self, 0)
+            control_thread = win32process.GetWindowThreadProcessId(
+                self.handle)[0]
 
             # if a different thread owns the active window
             if cur_fore_thread != control_thread:
                 # Attach the two threads and set the foreground window
-                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.TRUE)
-                # TODO: check return value of AttachThreadInput properly
+                win32process.AttachThreadInput(control_thread,
+                                               cur_fore_thread,
+                                               1)
 
-                win32functions.SetForegroundWindow(self)
+                win32gui.SetForegroundWindow(self.handle)
 
-                # detach the thread again
-                win32functions.AttachThreadInput(cur_fore_thread, control_thread, win32defines.FALSE)
-                # TODO: check return value of AttachThreadInput properly
+                # ensure foreground window has changed to the target
+                # or is 0(no foreground window) before the threads detaching
+                timings.WaitUntil(
+                    Timings.setfocus_timeout,
+                    Timings.setfocus_retry,
+                    lambda: win32gui.GetForegroundWindow()
+                    in [self.TopLevelParent().handle, 0])
 
-            else:   # same threads - just set the foreground window
-                win32functions.SetForegroundWindow(self)
+                # get the threads again to check they are still valid.
+                cur_fore_thread = win32process.GetWindowThreadProcessId(
+                    cur_foreground)[0]
+                control_thread = win32process.GetWindowThreadProcessId(
+                    self.handle)[0]
+
+                if cur_fore_thread and control_thread:  # both are valid
+                    # Detach the threads
+                    win32process.AttachThreadInput(control_thread,
+                                                   cur_fore_thread,
+                                                   0)
+            else:
+                # same threads - just set the foreground window
+                win32gui.SetForegroundWindow(self.handle)
 
             # make sure that we are idle before returning
             win32functions.WaitGuiThreadIdle(self)
@@ -1620,8 +1138,6 @@ class HwndWrapper(object):
             time.sleep(Timings.after_setfocus_wait)
 
         return self
-
-
 
     #-----------------------------------------------------------
     def SetApplicationData(self, appdata):
@@ -1672,7 +1188,7 @@ class HwndWrapper(object):
 
         # the constant that matches direction, and how much
         scroll_type = \
-            HwndWrapper._scroll_types[direction.lower()][amount.lower()]
+            self._scroll_types[direction.lower()][amount.lower()]
 
         # Scroll as often as we have been asked to
         if retry_interval is None:
@@ -1693,168 +1209,6 @@ class HwndWrapper(object):
                 return child
 
         return None
-
-
-#====================================================================
-def _perform_click_input(
-    ctrl = None,
-    button = "left",
-    coords = (None, None),
-    double = False,
-    button_down = True,
-    button_up = True,
-    absolute = False,
-    wheel_dist = 0,
-    use_log = True,
-    pressed = "",
-    key_down = True,
-    key_up = True,
-    ):
-    """Peform a click action using SendInput
-
-    All the *ClickInput() and *MouseInput() methods use this function.
-    
-    Thanks to a bug report from Tomas Walch (twalch) on sourceforge and code 
-    seen at http://msdn.microsoft.com/en-us/magazine/cc164126.aspx this 
-    function now always works the same way whether the mouse buttons are 
-    swapped or not.
-    
-    For example if you send a right click to Notepad.Edit - it will always
-    bring up a popup menu rather than 'clicking' it.
-    """
-
-    # Handle if the mouse buttons are swapped
-    if win32functions.GetSystemMetrics(win32defines.SM_SWAPBUTTON):
-        if button.lower() == 'left':
-            button = 'right'
-        elif button.lower() == 'right':
-            button = 'left'
-
-    events = []
-    if button.lower() == 'left':
-        if button_down:
-            events.append(win32defines.MOUSEEVENTF_LEFTDOWN)
-        if button_up:
-            events.append(win32defines.MOUSEEVENTF_LEFTUP)
-    elif button.lower() == 'right':
-        if button_down:
-            events.append(win32defines.MOUSEEVENTF_RIGHTDOWN)
-        if button_up:
-            events.append(win32defines.MOUSEEVENTF_RIGHTUP)
-    elif button.lower() == 'middle':
-        if button_down:
-            events.append(win32defines.MOUSEEVENTF_MIDDLEDOWN)
-        if button_up:
-            events.append(win32defines.MOUSEEVENTF_MIDDLEUP)
-    elif button.lower() == 'move':
-        events.append(win32defines.MOUSEEVENTF_MOVE)
-        events.append(win32defines.MOUSEEVENTF_ABSOLUTE)
-    elif button.lower() == 'x':
-        if button_down:
-            events.append(win32defines.MOUSEEVENTF_XDOWN)
-        if button_up:
-            events.append(win32defines.MOUSEEVENTF_XUP)
-
-    if button.lower() == 'wheel':
-        events.append(win32defines.MOUSEEVENTF_WHEEL)
-
-
-    # if we were asked to double click (and we are doing a full click
-    # not just up or down.
-    if double and button_down and button_up:
-        events *= 2
-
-
-    if ctrl is None:
-        ctrl = HwndWrapper(win32functions.GetDesktopWindow())
-    elif ctrl.IsDialog():
-        ctrl.SetFocus()
-    ctrl_text = ctrl.WindowText()
-
-    if isinstance(coords, win32structures.RECT):
-        coords = [coords.left, coords.top]
-
-#    # allow points objects to be passed as the coords
-    if isinstance(coords, win32structures.POINT):
-        coords = [coords.x, coords.y]
-#    else:
-    coords = list(coords)
-
-    # set the default coordinates
-    if coords[0] is None:
-        coords[0] = int(ctrl.Rectangle().width() / 2)
-    if coords[1] is None:
-        coords[1] = int(ctrl.Rectangle().height() / 2)
-
-    if not absolute:
-        coords = ctrl.ClientToScreen(coords)
-
-    # set the cursor position
-    win32api.SetCursorPos((coords[0], coords[1]))
-    time.sleep(Timings.after_setcursorpos_wait)
-
-    inp_struct = win32structures.INPUT()
-    inp_struct.type = win32defines.INPUT_MOUSE
-
-    keyboard_keys = pressed.lower().split()
-    if ('control' in keyboard_keys) and key_down:
-        SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, up = False).Run()
-    if ('shift' in keyboard_keys) and key_down:
-        SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up = False).Run()
-    if ('alt' in keyboard_keys) and key_down:
-        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up = False).Run()
-
-
-    inp_struct.mi.dwFlags = 0
-    for event in events:
-        inp_struct.mi.dwFlags |= event
-
-    dwData = 0
-    if button.lower() == 'wheel':
-        dwData = wheel_dist
-        inp_struct.mi.mouseData = wheel_dist
-    else:
-        inp_struct.mi.mouseData = 0
-
-    if button.lower() == 'move':
-        #win32functions.SendInput(     # vvryabov: SendInput() should be called sequentially in a loop [for event in events]
-        #    win32structures.UINT(1),
-        #    ctypes.pointer(inp_struct),
-        #    ctypes.c_int(ctypes.sizeof(inp_struct)))
-        X_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
-        Y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
-        X_coord = int(float(coords[0]) * (65535. / float(X_res - 1)))
-        Y_coord = int(float(coords[1]) * (65535. / float(Y_res - 1)))
-        win32api.mouse_event(inp_struct.mi.dwFlags, X_coord, Y_coord, dwData)
-    else:
-        for event in events:
-            inp_struct.mi.dwFlags = event
-            win32api.mouse_event(inp_struct.mi.dwFlags, coords[0], coords[1], dwData)
-            time.sleep(Timings.after_clickinput_wait)
-
-    time.sleep(Timings.after_clickinput_wait)
-
-    if ('control' in keyboard_keys) and key_up:
-        SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, down = False).Run()
-    if ('shift' in keyboard_keys) and key_up:
-        SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, down = False).Run()
-    if ('alt' in keyboard_keys) and key_up:
-        SendKeys.VirtualKeyAction(SendKeys.VK_MENU, down = False).Run()
-
-    if use_log:
-        if ctrl_text is None:
-            ctrl_text = six.text_type(ctrl_text)
-        message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
-                  '" by ' + str(button) + ' button mouse click (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
-        if double:
-            message = 'Double-c' + message[1:]
-        if button.lower() == 'move':
-            message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
-                  '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
-        ActionLogger().log(message)
-
-
-
 
 #====================================================================
 def _perform_click(
@@ -2025,10 +1379,3 @@ def GetDialogPropsFromHandle(hwnd):
         props.append(ctrl_props)
 
     return props
-
-
-
-
-
-
-

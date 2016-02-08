@@ -22,19 +22,22 @@
 """Module containing tests for XMLHelpers Module"""
 
 import sys
-sys.path.append(".")
-
-from pywinauto.XMLHelpers import WriteDialogToFile, ReadPropertiesFromFile, LOGFONTW, RECT
-from pywinauto import six
-
 import unittest
+sys.path.append(".")
+from pywinauto.XMLHelpers import WriteDialogToFile
+from pywinauto.XMLHelpers import ReadPropertiesFromFile
+from pywinauto.XMLHelpers import LOGFONTW
+from pywinauto.XMLHelpers import RECT
+from pywinauto import six
+from pywinauto import backend
+
 
 class XMLHelperTestCases(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
 
     def setUp(self):
         """Actually does nothing!"""
-        pass
+        backend.activate("native")
 
     def tearDown(self):
         "delete the file we have created"

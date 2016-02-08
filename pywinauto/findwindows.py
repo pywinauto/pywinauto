@@ -22,214 +22,243 @@
 """Provides functions for iterating and finding windows
 
 """
-from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import re
 import ctypes
 
+from . import sysinfo
 from . import six
 from . import win32functions
 from . import win32structures
 from . import handleprops
 from . import findbestmatch
 from . import controls
-from .elementInfo import NativeElementInfo
+from . import backend
+from .controls.BaseWrapper import BaseWrapper
 
+if sysinfo.UIA_support:
+    from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
 
-# TODO: we should filter out invalid windows before returning
-
-#=========================================================================
-class WindowNotFoundError(Exception):
-    "No window could be found"
-    pass
+# TODO: we should filter out invalid elements before returning
 
 #=========================================================================
 class WindowAmbiguousError(Exception):
     "There was more then one window that matched"
     pass
 
-
+#=========================================================================
+class ElementNotFoundError(Exception):
+    "No element could be found"
+    pass
 
 #=========================================================================
-def find_window(**kwargs):
-    """Call findwindows and ensure that only one window is returned
+class ElementAmbiguousError(Exception):
+    "There was more then one element that matched"
+    pass
 
-    Calls find_windows with exactly the same arguments as it is called with
-    so please see find_windows for a description of them."""
-    windows = find_windows(**kwargs)
+#=========================================================================
+def find_element(**kwargs):
+    """Call find_elements and ensure that only one element is returned
 
-    if not windows:
-        raise WindowNotFoundError()
+    Calls find_elements with exactly the same arguments as it is called with
+    so please see find_elements for a description of them."""
+    elements = find_elements(**kwargs)
 
-    if len(windows) > 1:
-        #for w in windows:
-        #    print "ambig", handleprops.classname(w), \
-        #    handleprops.text(w), handleprops.processid(w)
+    if not elements:
+        raise ElementNotFoundError(kwargs)
+
+    if len(elements) > 1:
         exception =  WindowAmbiguousError(
-            "There are %d windows that match the criteria %s"% (
-            len(windows),
+            "There are %d elements that match the criteria %s"% (
+            len(elements),
             six.text_type(kwargs),
             )
         )
 
-        exception.windows = windows
+        exception.elements = elements
         raise exception
 
-    return windows[0]
+    return elements[0]
 
 #=========================================================================
-def find_windows(class_name = None,
-                class_name_re = None,
-                parent = None,
-                process = None,
-                title = None,
-                title_re = None,
-                top_level_only = True,
-                visible_only = True,
-                enabled_only = False,
-                best_match = None,
-                handle = None,
-                ctrl_index = None,
-                found_index = None,
-                predicate_func = None,
-                active_only = False,
-                control_id = None,
+def find_elements(class_name = None,
+                  class_name_re = None,
+                  parent = None,
+                  process = None,
+                  title = None,
+                  title_re = None,
+                  top_level_only = True,
+                  visible_only = True,
+                  enabled_only = False,
+                  best_match = None,
+                  handle = None,
+                  ctrl_index = None,
+                  found_index = None,
+                  predicate_func = None,
+                  active_only = False,
+                  control_id = None,
+                  auto_id = None,
+                  framework_id = None,
     ):
-    """Find windows based on criteria passed in
+    """
+    Find elements based on criteria passed in
 
     Possible values are:
 
-    * **class_name**  Windows with this window class
-    * **class_name_re**  Windows whose class match this regular expression
-    * **parent**    Windows that are children of this
-    * **process**   Windows running in this process
-    * **title**     Windows with this Text
-    * **title_re**  Windows whose Text match this regular expression
-    * **top_level_only** Top level windows only (default=True)
-    * **visible_only**   Visible windows only (default=True)
-    * **enabled_only**   Enabled windows only (default=False)
-    * **best_match**  Windows with a title similar to this
-    * **handle**      The handle of the window to return
-    * **ctrl_index**  The index of the child window to return
-    * **found_index** The index of the filtered out child window to return
-    * **active_only** Active windows only (default=False)
-    * **control_id**  Windows with this control id
-   """
+    * **class_name**     Elements with this window class
+    * **class_name_re**  Elements whose class match this regular expression
+    * **parent**         Elements that are children of this
+    * **process**        Elements running in this process
+    * **title**          Elements with this Text
+    * **title_re**       Elements whose Text match this regular expression
+    * **top_level_only** Top level elements only (default=True)
+    * **visible_only**   Visible elements only (default=True)
+    * **enabled_only**   Enabled elements only (default=False)
+    * **best_match**     Elements with a title similar to this
+    * **handle**         The handle of the element to return
+    * **ctrl_index**     The index of the child element to return
+    * **found_index**    The index of the filtered out child lement to return
+    * **active_only**    Active elements only (default=False)
+    * **control_id**     Elements with this control id
+    * **auto_id**        Elements with this automation id (for UIAutomation elements)
+    * **framework_id**   Elements with this frameword id (for UIAutomation elements)
+    """
 
     # allow a handle to be passed in
     # if it is present - just return it
     if handle is not None:
-        return [NativeElementInfo(handle), ]
+        return [backend.ActiveElementInfo(handle), ]
+
+    # check if parent is a handle of element (in case of searching native controls)
+    if parent:
+        if isinstance(parent, six.integer_types):
+            parent = backend.ActiveElementInfo(parent)
 
     if top_level_only:
-        # find the top level windows
-        windows = enum_windows()
+        # find the top level elements
+        elements = backend.ActiveElementInfo().children # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
-            windows = [win for win in windows
-                if handleprops.parent(win) == parent]
+            elements = [elem for elem in elements if elem.parent == parent]
 
-    # looking for child windows
+    # looking for child elements
     else:
         # if not given a parent look for all children of the desktop
         if not parent:
-            parent = win32functions.GetDesktopWindow()
+            parent = backend.ActiveElementInfo()
 
-        # look for all children of that parent
-        windows = handleprops.children(parent)
+        # look for ALL children of that parent
+        elements = parent.descendants
 
         # if the ctrl_index has been specified then just return
         # that control
         if ctrl_index is not None:
-            return [NativeElementInfo(windows[ctrl_index])]
+            return [elements[ctrl_index], ]
 
-    if control_id is not None and windows:
-        windows = [win for win in windows if
-            handleprops.controlid(win) == control_id]
+    if framework_id is not None and elements:
+        elements = [elem for elem in elements if elem.frameworkId == framework_id]
+
+    if control_id is not None and elements:
+        elements = [elem for elem in elements if elem.controlId == control_id]
+
+    if auto_id is not None and elements:
+        elements = [elem for elem in elements if elem.automationId == auto_id]
 
     if active_only:
+        # TODO: re-write to use ElementInfo interface
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
 
-        # get all the active windows (not just the specified process)
+        # get all the active elements (not just the specified process)
         ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
 
         if not ret:
             raise ctypes.WinError()
 
-        if gui_info.hwndActive in windows:
-            windows = [gui_info.hwndActive]
-        else:
-            windows = []
+        found_active = False
+        for elem in elements:
+            if elem.handle == gui_info.hwndActive:
+                found_active = True
+                elements = [elem, ]
+                break
+        if not found_active:
+            elements = []
 
     # early stop
-    if not windows:
-        return windows
+    if not elements:
+        return elements
 
     if class_name is not None:
-        windows = [win for win in windows
-            if class_name == handleprops.classname(win)]
+        elements = [elem for elem in elements if elem.className == class_name]
 
     if class_name_re is not None:
         class_name_regex = re.compile(class_name_re)
-        windows = [win for win in windows
-            if class_name_regex.match(handleprops.classname(win))]
+        elements = [elem for elem in elements if class_name_regex.match(elem.className)]
 
     if process is not None:
-        windows = [win for win in windows
-            if handleprops.processid(win) == process]
+        elements = [elem for elem in elements if elem.processId == process]
 
     if title is not None:
-        windows = [win for win in windows
-            if title == handleprops.text(win)]
-
+        # TODO: some magic is happenning here
+        if elements:
+            elements[0].richText
+        elements = [elem for elem in elements if elem.richText == title]
     elif title_re is not None:
         title_regex = re.compile(title_re)
         def _title_match(w):
-            t = handleprops.text(w)
+            t = w.richText
             if t is not None:
                 return title_regex.match(t)
             return False
-        windows = [win for win in windows if _title_match(win)]
+        elements = [elem for elem in elements if _title_match(elem)]
 
     if visible_only:
-        windows = [win for win in windows if handleprops.isvisible(win)]
+        elements = [elem for elem in elements if elem.visible]
 
     if enabled_only:
-        windows = [win for win in windows if handleprops.isenabled(win)]
+        elements = [elem for elem in elements if elem.enabled]
 
     if best_match is not None:
-        wrapped_wins = []
-
-        for win in windows:
+        wrapped_elems = []
+        for elem in elements:
             try:
-                wrapped_wins.append(controls.WrapHandle(win))
-            except controls.InvalidWindowHandle:
+                # TODO: can't skip invalid handles because UIA element can have no handle
+                # TODO: use className check for this ?
+                if elem.className:
+                    #wrapped_elems.append(backend.ActiveWrapper(elem))
+                    wrapped_elems.append(BaseWrapper(elem))
+            except (controls.InvalidWindowHandle,
+                    controls.InvalidElement):
                 # skip invalid handles - they have dissapeared
-                # since the list of windows was retrieved
+                # since the list of elements was retrieved
                 pass
-        windows = findbestmatch.find_best_control_matches(
-            best_match, wrapped_wins)
+        elements = findbestmatch.find_best_control_matches(best_match, wrapped_elems)
 
-        # convert window back to handle
-        windows = [win.handle for win in windows]
+        # convert found elements back to ElementInfo
+        backup_elements = elements[:]
+        elements = []
+        for elem in backup_elements:
+            if hasattr(elem, "_elementInfo"):
+                elements.append(elem.elementInfo)
+            else:
+                elements.append(backend.ActiveElementInfo(elem.handle))
 
     if predicate_func is not None:
-        windows = [win for win in windows if predicate_func(win)]
+        elements = [elem for elem in elements if predicate_func(elem)]
 
     # found_index is the last criterion to filter results
     if found_index is not None:
-        if found_index < len(windows):
-            windows = windows[found_index:found_index+1]
+        if found_index < len(elements):
+            elements = elements[found_index:found_index + 1]
         else:
-            raise WindowNotFoundError(
-                "found_index is specified as %d, but %d window/s found" % 
-                (found_index, len(windows)) 
-                )
+            raise ElementNotFoundError(
+                "found_index is specified as %d, but %d window/s found" %
+                (found_index, len(elements))
+            )
 
-    return [NativeElementInfo(handle) for handle in windows]
+    return elements
 
 #=========================================================================
 def enum_windows():
@@ -255,4 +284,3 @@ def enum_windows():
 
     # return the collected wrapped windows
     return windows
-

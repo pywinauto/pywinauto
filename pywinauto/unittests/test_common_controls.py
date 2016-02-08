@@ -42,6 +42,7 @@ from pywinauto.sysinfo import is_x64_Python
 from pywinauto.RemoteMemoryBlock import AccessDenied
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
+from pywinauto import backend
 
 
 controlspy_folder = os.path.join(
@@ -64,6 +65,7 @@ class ListViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -118,8 +120,10 @@ class ListViewTestCases(unittest.TestCase):
         for row in self.texts:
             flat_texts.extend(row)
 
-        for i, item in enumerate(self.ctrl.Items()):
+        items = self.ctrl.Items()
+        for i, item in enumerate(items):
             self.assertEquals(item['text'], flat_texts[i])
+        self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
         "Test the ListView Texts method"
@@ -433,8 +437,19 @@ class ListViewTestCases(unittest.TestCase):
 #
 #            #self.assertEquals(item.Text, texts[i])
 
+    def testEqualsItems(self):
 
+        """
+        Test __eq__ and __ne__ cases for _listview_item.
+        """
 
+        item1 = self.ctrl.GetItem(0, 0)
+        item1_copy = self.ctrl.GetItem(0, 0)
+        item2 = self.ctrl.GetItem(1, 0)
+
+        self.assertEqual(item1, item1_copy)
+        self.assertNotEqual(item1, "Not _listview_item")
+        self.assertNotEqual(item1, item2)
 
 
 class TreeViewTestCases(unittest.TestCase):
@@ -443,6 +458,7 @@ class TreeViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -587,6 +603,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -680,6 +697,7 @@ class HeaderTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -765,6 +783,7 @@ class StatusBarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -869,18 +888,13 @@ class StatusBarTestCases(unittest.TestCase):
             self.assertEquals(text, self.ctrl.GetPartText(i))
 
 
-
-
-
-
-
-
 class TabControlTestCases(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
         self.screen_w = win32api.GetSystemMetrics(0)
 
         # start the application
@@ -1021,16 +1035,13 @@ class TabControlTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.Select, 99)
 
 
-
-
-
-
 class ToolbarTestCases(unittest.TestCase):
     "Unit tests for the ToolbarWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1182,6 +1193,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title 
         even though the app is started with a short title "RebarTest".
         """
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1234,6 +1246,24 @@ class RebarTestCases(unittest.TestCase):
     def testGetToolTipsControl(self):
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
 
+    def testAfxToolBarButtons(self):
+        "Make sure we can click on Afx ToolBar button by index"
+        self.dlg.StandardToolbar.Button(1).Click()
+        self.app.Window_(title='Open').Wait('ready')
+        self.app.Window_(title='Open').Cancel.CloseClick(double=True)
+
+    def testMenuBarClickInput(self):
+        "Make sure we can click on Menu Bar items by indexed path"
+        self.assertRaises(TypeError, self.dlg.MenuBar.MenuBarClickInput, '#one->#0', self.app)
+        
+        self.dlg.MenuBar.MenuBarClickInput('#1->#0->#0', self.app)
+        self.app.Customize.CloseButton.Click()
+        self.app.Customize.WaitNot('visible')
+        
+        self.dlg.MenuBar.MenuBarClickInput([2, 0], self.app)
+        self.app.Window_(title='About RebarTest').OK.Click()
+        self.app.Window_(title='About RebarTest').WaitNot('visible')
+
 
 class DatetimeTestCases(unittest.TestCase):
     "Unit tests for the DateTimePicker class"
@@ -1242,6 +1272,7 @@ class DatetimeTestCases(unittest.TestCase):
         """
         Start the application and get 'Date Time Picker' control.
         """
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application
@@ -1316,6 +1347,7 @@ class ToolTipsTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
@@ -1402,6 +1434,7 @@ class UpDownTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         from pywinauto.application import Application

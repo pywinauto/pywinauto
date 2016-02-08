@@ -24,12 +24,13 @@
 import unittest
 
 import sys
+import time
 sys.path.append(".")
 from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard
 from pywinauto.application import Application
 from pywinauto.win32structures import RECT
+from pywinauto import backend
 
-import time
 
 class ClipboardTestCases(unittest.TestCase):
     "Unit tests for the clipboard"
@@ -37,6 +38,7 @@ class ClipboardTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
         EmptyClipboard()
         self.app1 = Application().start("notepad.exe")
         self.app2 = Application().start("notepad.exe")

@@ -22,14 +22,13 @@
 """Tests for Menu"""
 
 import sys, os
+import unittest
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-#from pywinauto.controls.HwndWrapper import HwndWrapper
-#from pywinauto import win32structures, win32defines
 from pywinauto.controls.menuwrapper import MenuItemNotEnabled
+from pywinauto import backend
 
-import unittest
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -43,6 +42,7 @@ class MenuWrapperTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         # start the application
         self.app = Application()
@@ -66,6 +66,8 @@ class MenuWrapperTests(unittest.TestCase):
 
     def testItem(self):
         self.assertEquals(u'&File', self.dlg.Menu().Item(0).Text())
+        self.assertEquals(u'&File', self.dlg.Menu().Item(u'File').Text())
+        self.assertEquals(u'&File', self.dlg.Menu().Item(u'&File', exact=True).Text())
 
     def testItems(self):
         self.assertEquals([u'&File', u'&Edit', u'F&ormat', u'&View', u'&Help'],
@@ -117,6 +119,7 @@ class OwnerDrawnMenuTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
+        backend.activate("native")
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
 
@@ -129,7 +132,6 @@ class OwnerDrawnMenuTests(unittest.TestCase):
     def testCorrectText(self):
         self.assertEquals(u'&New', self.dlg.Menu().GetMenuPath('&File->#0')[-1].Text()[:4])
         self.assertEquals(u'&Open...', self.dlg.Menu().GetMenuPath('&File->#1')[-1].Text()[:8])
-
 
 
 if __name__ == "__main__":
