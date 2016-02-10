@@ -1343,7 +1343,7 @@ def _calc_flags_and_coords(pressed, coords):
 
 
 #====================================================================
-class _dummy_control(dict):
+class _DummyControl(dict):
     "A subclass of dict so that we can assign attributes"
     pass
 
@@ -1367,8 +1367,8 @@ def GetDialogPropsFromHandle(hwnd):
     # Add each control to the properties for this dialog
     for ctrl in controls:
         # Get properties for each control and wrap them in
-        # _dummy_control so that we can assign handle
-        ctrl_props = _dummy_control(ctrl.GetProperties())
+        # _DummyControl so that we can assign handle
+        ctrl_props = _DummyControl(ctrl.GetProperties())
 
         # assign the handle
         ctrl_props.handle = ctrl.handle

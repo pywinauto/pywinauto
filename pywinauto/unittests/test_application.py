@@ -462,9 +462,6 @@ class ApplicationTestCases(unittest.TestCase):
         except Exception:
             pass
 
-
-        #prev_timeout = application.window_find_timeout
-        #application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
             app['blahblah']['not here'].__getitem__, 'handle')
@@ -482,18 +479,14 @@ class ApplicationTestCases(unittest.TestCase):
         app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-        #application.window_find_timeout = prev_timeout
-
-    def testGetattr(self):
-        "Test that __getattr__() works correctly"
+    def testGetattribute(self):
+        "Test that __getattribute__() works correctly"
         app = Application()
         app.start(_notepad_exe())
 
-        #prev_timeout = application.window_find_timeout
-        #application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
-            app.blahblah.__getattr__, 'handle')
+            app.blahblah.__getattribute__, 'handle')
 
         self.assertEqual(
             app.UntitledNotepad.handle,
@@ -505,7 +498,7 @@ class ApplicationTestCases(unittest.TestCase):
         # just because the window is not enabled - doesn't mean you
         # should not be able to access it at all!
         #self.assertRaises(findbestmatch.MatchError,
-        #    app.Notepad.__getattr__, 'handle')
+        #    app.Notepad.__getattribute__, 'handle')
 
         self.assertEqual(
             app.AboutNotepad.handle,
@@ -513,8 +506,6 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
-
-        #application.window_find_timeout = prev_timeout
 
     def testkill_(self):
         "test killing the application"
@@ -526,8 +517,8 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Print...")
 
-        #app.Print.FindPrinter.Click() # vvryabov: (Win7 x64) "Find Printers" dialog is from splwow64.exe process
-        #app.FindPrinters.Stop.Click() #           so cannot handle it in 32-bit Python
+        #app.Print.FindPrinter.Click() # Vasily: (Win7 x64) "Find Printer" dialog is from splwow64.exe process
+        #app.FindPrinters.Stop.Click()
 
         app.kill_()
 

@@ -22,14 +22,12 @@
 
 """Wrap"""
 
-__revision__ = "$Rev: 439 $"
-
 
 from .win32structures import RECT, LOGFONTW
 
 
 #====================================================================
-class func_wrapper(object):
+class FuncWrapper(object):
     "Little class to allow attribute access to return a callable object"
     def __init__(self, value):
         self.value = value
@@ -53,9 +51,9 @@ class ControlProps(dict):
         # if the key is not in the dictionary but the plural is
         if attr not in self and attr + "s" in self:
             # return the first element of the possible list item
-            return func_wrapper(self[attr+'s'][0])
+            return FuncWrapper(self[attr+'s'][0])
 
-        return func_wrapper(self[attr])
+        return FuncWrapper(self[attr])
 
     #def FriendlyClassName(self):
     #    print "sdafafasdfafasdfasdf",
