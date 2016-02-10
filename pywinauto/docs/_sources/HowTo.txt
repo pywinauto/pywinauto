@@ -10,15 +10,13 @@ to be connected to a process. There are two ways of doing this:
 
   ::
 
-    start(self, cmd_line, timeout = app_start_timeout) # static method:
-    start_(self, cmd_line, timeout = app_start_timeout) # instance method:
+    start(self, cmd_line, timeout = app_start_timeout) # instance method:
 
 or:
 
   ::
 
-    connect(self, **kwargs) # static method:
-    connect_(self, **kwargs) # instance method:
+    connect(self, **kwargs) # instance method:
 
 ``start()`` is used when the application is not running and you
 need to start it. Use it in the following way:
