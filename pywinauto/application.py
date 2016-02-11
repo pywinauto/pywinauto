@@ -88,6 +88,11 @@ class AppNotConnected(Exception):
     pass    #pragma: no cover
 
 
+# Display User and Deprecation warnings every time
+for warning in (UserWarning, PendingDeprecationWarning):
+    warnings.simplefilter('always', warning)
+
+
 #wait_method_deprecation = "Wait* functions are just simple wrappers around " \
 #    "Wait() or WaitNot(), so they may be removed in the future!"
 
@@ -789,7 +794,6 @@ class Application(object):
         the .connect().
         Should be also removed in 0.6.X.
         """
-        warnings.simplefilter('always', PendingDeprecationWarning)
         warnings.warn(
             "connect_()/Connect_() methods are deprecated, "
             "please switch to instance method connect(). "
@@ -848,7 +852,6 @@ class Application(object):
         calling the .start().
         Should be also removed in 0.6.X.
         """
-        warnings.simplefilter('always', PendingDeprecationWarning)
         warnings.warn(
             "start_()/Start_() methods are deprecated, "
             "please switch to instance method start(). "
@@ -937,12 +940,10 @@ class Application(object):
     def __warn_incorrect_bitness(self):
         if self.is64bit() != is_x64_Python():
             if is_x64_Python():
-                warnings.simplefilter('always', UserWarning) # warn each time
                 warnings.warn(
                     "32-bit application should be automated using 32-bit Python (you use 64-bit Python)",
                     UserWarning)
             else:
-                warnings.simplefilter('always', UserWarning) # warn each time
                 warnings.warn(
                     "64-bit application should be automated using 64-bit Python (you use 32-bit Python)",
                     UserWarning)
@@ -1232,7 +1233,6 @@ def _warn_incorrect_binary_bitness(exe_name):
     "warn if executable is of incorrect bitness"
     if os.path.isabs(exe_name) and os.path.isfile(exe_name):
         if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
-            warnings.simplefilter('always', UserWarning) # warn for every 32-bit binary
             warnings.warn(
                 "64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
                 UserWarning, stacklevel=2)
