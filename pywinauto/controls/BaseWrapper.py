@@ -456,15 +456,15 @@ class BaseWrapper(object):
         self,
         button = "left",
         coords = (None, None),
-        button_down=True,
-        button_up=True,
+        button_down = True,
+        button_up = True,
         double = False,
         wheel_dist = 0,
         use_log = True,
         pressed = "",
         absolute = False,
-        key_down= True,
-        key_up= True):
+        key_down = True,
+        key_up = True):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
@@ -503,8 +503,9 @@ class BaseWrapper(object):
         if not absolute:
             coords = self.ClientToScreen(coords)
 
-        _perform_click_input(
-            button, coords, double, button_down, button_up, wheel_dist = wheel_dist, pressed = pressed,key_down=key_down, key_up=key_up)
+        _perform_click_input(button, coords, double, button_down, button_up,
+                             wheel_dist=wheel_dist, pressed=pressed,
+                             key_down=key_down, key_up=key_up)
 
         if use_log:
             if ctrl_text is None:
@@ -521,12 +522,12 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def DoubleClickInput(self, button = "left", coords = (None, None)):
         "Double click at the specified coordinates"
-        self.ClickInput(button, coords, double = True)
+        self.ClickInput(button, coords, double=True)
 
     #-----------------------------------------------------------
     def RightClickInput(self, coords = (None, None)):
         "Right click at the specified coords"
-        self.ClickInput(button = 'right', coords = coords)
+        self.ClickInput(button='right', coords=coords)
 
     #-----------------------------------------------------------
     def PressMouseInput(
@@ -564,8 +565,8 @@ class BaseWrapper(object):
         self.ClickInput(
             button,
             coords,
-            button_down = False,
-            button_up = True,
+            button_down=False,
+            button_up=True,
             pressed=pressed,
             absolute=absolute,
             key_down=key_down,
@@ -617,7 +618,7 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def WheelMouseInput(self, coords = (None, None), wheel_dist = 1, pressed = ""):
         "Do mouse wheel"
-        self.ClickInput(button='wheel', coords=coords, wheel_dist = wheel_dist, pressed=pressed)
+        self.ClickInput(button='wheel', coords=coords, wheel_dist=wheel_dist, pressed=pressed)
         return self
 
     #-----------------------------------------------------------
