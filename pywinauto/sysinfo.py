@@ -28,7 +28,7 @@ try:
 except ImportError:
     UIA_support = False
 
-def OS_architecture():
+def os_arch():
     architectureMap = {
         'x86':'x86',
         'i386':'x86',
@@ -52,11 +52,11 @@ def OS_architecture():
     else:
         return architectureMap.get(platform.machine(), '')
 
-def PythonBitness():
+def python_bitness():
     return ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) * 8
 
 def is_x64_Python():
-    return PythonBitness() == 64
+    return python_bitness() == 64
 
 def is_x64_OS():
-    return OS_architecture() in ['x86_64', 'ia64']
+    return os_arch() in ['x86_64', 'ia64']

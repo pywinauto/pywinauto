@@ -37,7 +37,7 @@ except ImportError:
     from pywinauto import application
 
 
-def WindowsMedia():
+def windows_media():
 
     app = application.Application()
 
@@ -77,12 +77,12 @@ def WindowsMedia():
     app.WindowsMediaPlayer.MenuSelect("File->Exit")
 
 
-def Main():
+def main():
     start = time.time()
 
-    WindowsMedia()
+    windows_media()
 
     print("Total time taken:", time.time() - start)
 
 if __name__ == "__main__":
-    Main()
+    main()

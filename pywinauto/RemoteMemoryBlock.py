@@ -24,7 +24,10 @@ Win32 API functions to perform custom marshalling
 """
 from __future__ import print_function
 
-import ctypes, win32api, sys
+import sys
+import ctypes
+import win32api
+import win32process
 
 from . import win32functions
 from . import win32defines
@@ -40,24 +43,20 @@ class AccessDenied(RuntimeError):
 class RemoteMemoryBlock(object):
     "Class that enables reading and writing memory in a different process"
     #----------------------------------------------------------------
-    def __init__(self, handle, size = 4096): #4096): #16384):
+    def __init__(self, ctrl, size = 4096): #4096): #16384):
         "Allocate the memory"
         self.memAddress = 0
         self.size = size
         self.process = 0
+        self.handle = ctrl.handle
         
-        if handle == 0xffffffff80000000:
-            raise Exception('Incorrect handle: ' + str(handle))
+        if self.handle == 0xffffffff80000000:
+            raise Exception('Incorrect handle: ' + str(self.handle))
 
         self._as_parameter_ = self.memAddress
 
-        if sysinfo.is_x64_Python():
-            process_id = ctypes.c_ulonglong()
-        else:
-            process_id = ctypes.c_ulong()
-        win32functions.GetWindowThreadProcessId(
-            handle, ctypes.byref(process_id))
-        if not process_id.value:
+        thread_id, process_id = win32process.GetWindowThreadProcessId(self.handle)
+        if not process_id:
             raise AccessDenied(
                 str(ctypes.WinError()) + " Cannot get process ID from handle.")
 
@@ -71,7 +70,7 @@ class RemoteMemoryBlock(object):
         if not self.process:
             raise AccessDenied(
                 str(ctypes.WinError()) + "process: %d",
-                process_id.value)
+                process_id)
 
         self.memAddress = win32functions.VirtualAllocEx(
             ctypes.c_void_p(self.process),	# remote process

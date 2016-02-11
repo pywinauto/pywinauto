@@ -56,7 +56,7 @@ if is_x64_Python():
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
     def test__init__fail(self):
-        self.assertRaises(AccessDenied, RemoteMemoryBlock, 0)
+        self.assertRaises(AttributeError, RemoteMemoryBlock, 0)
 
 
 class ListViewTestCases(unittest.TestCase):

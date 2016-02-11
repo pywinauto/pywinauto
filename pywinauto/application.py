@@ -910,7 +910,7 @@ class Application(object):
 
         self.__warn_incorrect_bitness()
 
-        def AppIdle():
+        def app_idle():
             "Return true when the application is ready to start"
             result = win32event.WaitForInputIdle(
                 hProcess, int(timeout * 1000))
@@ -928,7 +928,7 @@ class Application(object):
         if wait_for_idle:
             # Wait until the application is ready after starting it
             try:
-                WaitUntil(timeout, retry_interval, AppIdle)
+                WaitUntil(timeout, retry_interval, app_idle)
             except TimeoutError:
                 pass
 

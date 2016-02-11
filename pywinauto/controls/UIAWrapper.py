@@ -80,7 +80,7 @@ pywinauto_control_types = {'Custom': None,
                            }
 
 #=========================================================================
-def removeNonAlphaNumericSymbols(s):
+def remove_non_alphanumeric_symbols(s):
     return re.sub("\W", "_", s)
 
 #=========================================================================

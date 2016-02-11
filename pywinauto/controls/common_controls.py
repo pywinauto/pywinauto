@@ -457,7 +457,7 @@ class _listview_item(object):
     def UnCheck(self):
         "Uncheck the ListView item"
 
-        def INDEXTOSTATEIMAGEMASK(i):
+        def index_to_state_image_mask(i):
             return i << 12
 
         self.listview_ctrl.VerifyActionable()
@@ -465,7 +465,7 @@ class _listview_item(object):
         lvitem = self.listview_ctrl.LVITEM()
 
         lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(INDEXTOSTATEIMAGEMASK(1)) #win32structures.UINT(0x1000)
+        lvitem.state = win32structures.UINT(index_to_state_image_mask(1)) #win32structures.UINT(0x1000)
         lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
@@ -483,7 +483,7 @@ class _listview_item(object):
     def Check(self):
         "Check the ListView item"
 
-        def INDEXTOSTATEIMAGEMASK(i):
+        def index_to_state_image_mask(i):
             return i << 12
 
         self.listview_ctrl.VerifyActionable()
@@ -491,7 +491,7 @@ class _listview_item(object):
         lvitem = self.listview_ctrl.LVITEM()
 
         lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(INDEXTOSTATEIMAGEMASK(2)) #win32structures.UINT(0x2000)
+        lvitem.state = win32structures.UINT(index_to_state_image_mask(2)) #win32structures.UINT(0x2000)
         lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
@@ -1480,13 +1480,13 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         
         self.text = self.WindowText() + "\n"
 
-        def PrintOneLevel(item,ident):
+        def print_one_level(item,ident):
             self.text += " " * ident + item.Text() + "\n"
             for child in item.Children():
-                PrintOneLevel(child,ident+1)
+                print_one_level(child,ident+1)
 
         for root in self.Roots():
-            PrintOneLevel(root,0)
+            print_one_level(root,0)
             
         return self.text
 

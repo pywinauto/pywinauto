@@ -35,7 +35,6 @@ import win32api
 import win32gui
 import win32con
 import win32process
-import pywintypes # TODO: get rid of pywintypes because it's not compatible with Python 3.5
 import locale
 
 # the wrappers may be used in an environment that does not need
@@ -410,12 +409,12 @@ class HwndWrapper(BaseWrapper):
         #    ctypes.byref(result))
         result = -1
         try:
-            (ret, result) = win32gui.SendMessageTimeout(pywintypes.HANDLE(self.handle), message, wparam, lparam, timeoutflags, int(timeout * 1000))
+            (ret, result) = win32gui.SendMessageTimeout(int(self.handle), message, wparam, lparam, timeoutflags, int(timeout * 1000))
             #print '(ret, result) = ', (ret, result)
         except Exception as exc:
             #import traceback, inspect
             #print('____________________________________________________________')
-            #print('self.handle =', pywintypes.HANDLE(self.handle), ', message =', message,
+            #print('self.handle =', int(self.handle), ', message =', message,
             #      ', wparam =', wparam, ', lparam =', lparam, ', timeout =', timeout)
             #print('Exception: ', exc)
             #print(traceback.format_exc())
@@ -1048,8 +1047,9 @@ class HwndWrapper(BaseWrapper):
         """
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
+        window_thread_id, pid = win32process.GetWindowThreadProcessId(int(self.handle))
         ret = win32functions.GetGUIThreadInfo(
-            win32functions.GetWindowThreadProcessId(self, 0),
+            window_thread_id,
             ctypes.byref(gui_info))
 
         if not ret:
@@ -1068,8 +1068,9 @@ class HwndWrapper(BaseWrapper):
 
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
+        window_thread_id, pid = win32process.GetWindowThreadProcessId(self.handle)
         ret = win32functions.GetGUIThreadInfo(
-            win32functions.GetWindowThreadProcessId(self, 0),
+            window_thread_id,
             ctypes.byref(gui_info))
 
         if not ret:

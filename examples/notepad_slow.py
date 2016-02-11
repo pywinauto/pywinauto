@@ -45,7 +45,7 @@ Timings.Slow()
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 
-def RunNotepad():
+def run_notepad():
     "Run notepad and do some small stuff with it"
 
     start = time.time()
@@ -240,4 +240,4 @@ def RunNotepad():
     print("That took %.3f to run"% (time.time() - start))
 
 if __name__ == "__main__":
-    RunNotepad()
+    run_notepad()

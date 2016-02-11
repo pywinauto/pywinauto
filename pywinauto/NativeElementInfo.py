@@ -58,7 +58,7 @@ class NativeElementInfo(ElementInfo):
     @property
     def processId(self):
         "Return the ID of process that controls this window"
-        return handleprops.processid(self)
+        return handleprops.processid(self.handle)
 
     @property
     def className(self):
@@ -92,17 +92,17 @@ class NativeElementInfo(ElementInfo):
 
             # The callback function that will be called for each HWND
             # all we do is append the wrapped handle
-            def EnumWindowProc(hwnd, lparam):
+            def enum_window_proc(hwnd, lparam):
                 "Called for each window - adds handles to a list"
                 child_handles.append(hwnd)
                 return True
 
             # define the type of the child procedure
-            enum_win_proc = ctypes.WINFUNCTYPE(
+            enum_win_proc_t = ctypes.WINFUNCTYPE(
                 ctypes.c_int, ctypes.c_long, ctypes.c_long)
 
             # 'construct' the callback with our function
-            proc = enum_win_proc(EnumWindowProc)
+            proc = enum_win_proc_t(enum_window_proc)
 
             # loop over all the top level windows (callback called for each)
             win32functions.EnumWindows(proc, 0)

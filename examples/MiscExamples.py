@@ -39,7 +39,7 @@ from pywinauto.timings import Timings
 
 Timings.window_find_timeout = 10
 
-def TestExceptions():
+def test_exceptions():
     "Test some things that should raise exceptions"
 
     # test that trying to connect_ to a non existent app fails
@@ -69,7 +69,7 @@ def TestExceptions():
 
 
 
-def GetInfo():
+def get_info():
     app = application.Application()
 
     app.start(r"notepad.exe")
@@ -93,5 +93,5 @@ def GetInfo():
 
 
 if __name__ == '__main__':
-    TestExceptions()
-    GetInfo()
+    test_exceptions()
+    get_info()
