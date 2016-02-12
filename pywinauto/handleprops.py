@@ -27,16 +27,13 @@ useful to other modules with the least conceptual overhead
 """
 
 import ctypes
+import win32process
 
 from . import win32functions
 from . import win32defines
 from . import win32structures
 from .actionlogger import ActionLogger
 
-if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
-    def g_alloc_pid(): return ctypes.c_ulonglong()
-else:
-    def g_alloc_pid(): return ctypes.c_ulong()
 
 #=========================================================================
 def text(handle):
@@ -259,10 +256,10 @@ def font(handle):
 #=========================================================================
 def processid(handle):
     "Return the ID of process that controls this window"
-    process_id = g_alloc_pid()
-    win32functions.GetWindowThreadProcessId(handle, ctypes.byref(process_id))
 
-    return process_id.value
+    thread_id, process_id = win32process.GetWindowThreadProcessId(int(handle))
+
+    return process_id
 
 #=========================================================================
 def children(handle):
@@ -272,7 +269,7 @@ def children(handle):
     child_windows = []
 
     # callback function for EnumChildWindows
-    def EnumChildProc(hwnd, lparam):
+    def enum_child_proc(hwnd, lparam):
         "Called for each child - adds child hwnd to list"
 
         # append it to our list
@@ -282,13 +279,13 @@ def children(handle):
         return True
 
     # define the child proc type
-    enum_child_proc = ctypes.WINFUNCTYPE(
+    enum_child_proc_t = ctypes.WINFUNCTYPE(
         ctypes.c_int, 			# return type
         win32structures.HWND, 	# the window handle
         win32structures.LPARAM)	# extra information
 
     # update the proc to the correct type
-    proc = enum_child_proc(EnumChildProc)
+    proc = enum_child_proc_t(enum_child_proc)
 
     # loop over all the children (callback called for each)
     win32functions.EnumChildWindows(handle, proc, 0)

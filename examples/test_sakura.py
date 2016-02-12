@@ -29,7 +29,7 @@ from pywinauto import application
 #from pywinauto import tests
 
 
-def SakuraTest():
+def sakura_test():
 
 	app = application.Application()
 	app.start(r"C:\Program Files\sakura\sakura.exe")
@@ -53,12 +53,12 @@ def SakuraTest():
 	mainwin.TypeKeys("%FX")
 
 
-def Main():
+def main():
 	start = time.time()
 
-	SakuraTest()
+	sakura_test()
 
 	print("Total time taken:", time.time() - start)
 
 if __name__ == "__main__":
-	Main()
+	main()

@@ -6,6 +6,7 @@ import re
 import ctypes
 import win32api
 import win32gui
+import win32process
 import locale
 
 from .. import SendKeysCtypes as SendKeys
@@ -18,7 +19,7 @@ from .. import handleprops
 from .. import backend
 
 #=========================================================================
-def removeNonAlphaNumericSymbols(s):
+def remove_non_alphanumeric_symbols(s):
     return re.sub("\W", "_", s)
 
 #=========================================================================
@@ -615,11 +616,11 @@ class BaseWrapper(object):
 
         # attach the Python process with the process that self is in
         if self._elementInfo.handle:
-            window_thread_id = win32functions.GetWindowThreadProcessId(self, 0)
+            window_thread_id, pid = win32process.GetWindowThreadProcessId(int(self.handle))
             win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
             # TODO: check return value of AttachThreadInput properly
         else:
-            # TODO: UIA stuff
+            # TODO: UIA stuff maybe
             pass
 
         if isinstance(keys, six.text_type):

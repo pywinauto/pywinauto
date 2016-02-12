@@ -127,8 +127,8 @@ class WindowSpecification(object):
 
         if "best_match" in self.criteria[-1]:
             raise AttributeError(
-                "WindowSpecification class has no '%s' method" %
-                self.criteria[-1]['best_match'])
+                "WindowSpecification class has no '{0}' method".\
+                format(self.criteria[-1]['best_match']) )
 
         message = (
             "You tried to execute a function call on a WindowSpecification "
@@ -177,11 +177,11 @@ class WindowSpecification(object):
 
         This allows::
 
-            app.['DialogTitle']['ControlTextClass']
+            app['DialogTitle']['ControlTextClass']
 
         to be used to access dialogs and controls.
 
-        Both this and :func:`__getattr__` use the rules outlined in the
+        Both this and :func:`__getattribute__` use the rules outlined in the
         HowTo document.
         """
 
@@ -212,7 +212,7 @@ class WindowSpecification(object):
         return new_item
 
 
-    def __getattr__(self, attr):
+    def __getattribute__(self, attr_name):
         """Attribute access for this class
 
         If we already have criteria for both dialog and control then
@@ -225,13 +225,14 @@ class WindowSpecification(object):
         Otherwise delegate functionality to :func:`__getitem__` - which
         sets the appropriate criteria for the control.
         """
+        if attr_name in ['__dict__', '__members__', '__methods__', '__class__', '__name__']:
+            return object.__getattribute__(self, attr_name)
 
-        # dir (and possibly other code introspection asks for
-        # members like __methods__ and __members__, these are deprecated and I
-         #am not using them so just raise an attribute error immediately
-        if attr.startswith("__") or attr.endswith("__"):
-            raise AttributeError(
-                "Application object has no attribute '%s'"% attr)
+        if attr_name in dir(self.__class__):
+            return object.__getattribute__(self, attr_name)
+
+        if attr_name in self.__dict__:
+            return self.__dict__[attr_name]
 
         from .controls.win32_controls import DialogWrapper
 
@@ -242,20 +243,20 @@ class WindowSpecification(object):
 
             ctrls = _resolve_control(self.criteria)
 
-            return getattr(ctrls[-1], attr)
+            return getattr(ctrls[-1], attr_name)
 
         else:
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
-            if len(self.criteria) == 1 and hasattr(DialogWrapper, attr):
+            if len(self.criteria) == 1 and hasattr(DialogWrapper, attr_name):
 
                 ctrls = _resolve_control(self.criteria)
 
-                return getattr(ctrls[-1], attr)
+                return getattr(ctrls[-1], attr_name)
 
         # It is a dialog/control criterion so let getitem
         # deal with it
-        return self[attr]
+        return self[attr_name]
 
 
     def Exists(self, timeout = None, retry_interval = None):
@@ -830,7 +831,6 @@ class Application(object):
             connected = True
 
         elif kwargs:
-            print("tyt")
             self.process = findwindows.find_element(**kwargs).processId
             connected = True
 
@@ -910,7 +910,7 @@ class Application(object):
 
         self.__warn_incorrect_bitness()
 
-        def AppIdle():
+        def app_idle():
             "Return true when the application is ready to start"
             result = win32event.WaitForInputIdle(
                 hProcess, int(timeout * 1000))
@@ -928,7 +928,7 @@ class Application(object):
         if wait_for_idle:
             # Wait until the application is ready after starting it
             try:
-                WaitUntil(timeout, retry_interval, AppIdle)
+                WaitUntil(timeout, retry_interval, app_idle)
             except TimeoutError:
                 pass
 
@@ -1088,18 +1088,20 @@ class Application(object):
         # delegate searching functionality to self.window_()
         return self.window_(best_match = key)
 
-    def __getattr__(self, key):
+    def __getattribute__(self, attr_name):
         "Find the specified dialog of the application"
 
-        # dir (and possibly other code introspection asks for the following
-        # members, these are deprecated and I am not using them so just
-        # raise an attribute error immediately
-        if key.startswith("__") or key.endswith("__"):
-            raise AttributeError(
-                "Application object has no attribute '%s'"% key)
+        if attr_name in ['__dict__', '__members__', '__methods__', '__class__']:
+            return object.__getattribute__(self, attr_name)
+
+        if attr_name in dir(Application):
+            return object.__getattribute__(self, attr_name)
+
+        if attr_name in self.__dict__:
+            return self.__dict__[attr_name]
 
         # delegate all functionality to item access
-        return self[key]
+        return self[attr_name]
 
     def WriteAppData(self, filename):
         "Should not be used - part of application data implementation"
