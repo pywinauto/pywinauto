@@ -63,6 +63,12 @@ class ApplicationWarningTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application
         is in the state we want it."""
+
+        # Force Display User and Deprecation warnings every time
+        # Python 3.3+nose/unittest trys really hard to suppress them
+        for warning in (UserWarning, PendingDeprecationWarning):
+            warnings.simplefilter('always', warning)
+
         mfc_samples_folder = os.path.join(os.path.dirname(__file__),
                                           r"..\..\apps\MFC_samples")
         if is_x64_Python():
