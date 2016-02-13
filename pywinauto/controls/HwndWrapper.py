@@ -65,7 +65,8 @@ from ..NativeElementInfo import NativeElementInfo
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from .BaseWrapper import BaseWrapper, _perform_click_input
+from .BaseWrapper import BaseWrapper
+from .. import mouse
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -369,13 +370,13 @@ class HwndWrapper(BaseWrapper):
         lParamAddress = lparam
         if hasattr(lparam, 'memAddress'):
             lParamAddress = lparam.memAddress
-        
+
         CArgObject = type(ctypes.byref(ctypes.c_int(0)))
         if isinstance(wparam, CArgObject):
             wParamAddress = ctypes.addressof(wparam._obj)
         if isinstance(lparam, CArgObject):
             lParamAddress = ctypes.addressof(lparam._obj)
-        
+
         return win32gui.SendMessage(self.handle, message, wParamAddress, lParamAddress)
 
         #result = ctypes.c_long()
@@ -492,7 +493,7 @@ class HwndWrapper(BaseWrapper):
 
         See PIL documentation to know what you can do with the resulting
         image"""
-        
+
         rectangle = self.Rectangle()
         if not (rectangle.width() and rectangle.height()):
             return None
@@ -615,12 +616,12 @@ class HwndWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
         "Move the mouse by WM_MOUSEMOVE"
-        
+
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
-        
+
         _perform_click(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
-        
+
         win32functions.WaitGuiThreadIdle(self)
         return self
 
@@ -636,11 +637,11 @@ class HwndWrapper(BaseWrapper):
 
         if isinstance(release_coords, win32structures.POINT):
             release_coords = (release_coords.x, release_coords.y)
-        
+
         _pressed = pressed
         if not _pressed:
             _pressed = "left"
-        
+
         self.PressMouse(button, press_coords, pressed=pressed)
         for i in range(5):
             self.MoveMouse((press_coords[0]+i,press_coords[1]), pressed=_pressed)
@@ -777,7 +778,7 @@ class HwndWrapper(BaseWrapper):
         If there is no enabled popups at that time, it returns **self**.
         See MSDN reference:
         https://msdn.microsoft.com/en-us/library/windows/desktop/ms633515.aspx
-        
+
         Please do not use in production code yet - not tested fully
         """
         popup = win32functions.GetWindow(self, win32defines.GW_ENABLEDPOPUP)
@@ -1299,7 +1300,7 @@ def _perform_click(
         #flags = 0
 
         time.sleep(Timings.sendmessagetimeout_timeout)
-        
+
         # wait until the thread can accept another message
         win32functions.WaitGuiThreadIdle(ctrl)
 

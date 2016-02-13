@@ -39,6 +39,7 @@ from .. import win32functions
 from .. import win32defines
 from .. import findbestmatch
 from .. import six
+from .. import mouse
 from ..RemoteMemoryBlock import RemoteMemoryBlock
 from ..timings import Timings
 
@@ -112,7 +113,7 @@ class MenuItem(object):
 
         See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menufunctions/getmenuiteminfo.asp
         for more information."""
-        
+
         item_info = MenuItemInfo()
         buf, extras = win32gui_struct.EmptyMENUITEMINFO()
         win32gui.GetMenuItemInfo(self.menu.handle, self.index, True, buf)
@@ -158,7 +159,7 @@ class MenuItem(object):
 
         #(rect.left.value, rect.top.value, rect.right.value, rect.bottom.value) = win32gui.GetMenuItemRect(ctrl.handle, self.menu.handle, self.index)
         #self.__print__(ctrl, hMenu, self.index)
-        
+
         win32functions.GetMenuItemRect(
             ctrl,
             hMenu,
@@ -245,12 +246,7 @@ class MenuItem(object):
         x_pt = int(float(rect.left + rect.right) / 2.)
         y_pt = int(float(rect.top + rect.bottom) / 2.)
 
-        from .HwndWrapper import _perform_click_input
-
-        _perform_click_input(
-            None,
-            coords = (x_pt, y_pt),
-            absolute = True)
+        mouse.click(coords = (x_pt, y_pt))
 
         win32functions.WaitGuiThreadIdle(self.ctrl)
         time.sleep(Timings.after_menu_wait)
@@ -391,7 +387,7 @@ class Menu(object):
 
         if self.is_main_menu:
             self.ctrl.SendMessageTimeout(win32defines.WM_INITMENU, self.handle)
-        
+
         menu_info = MenuInfo()
         buf = win32gui_struct.EmptyMENUINFO()
         try:
@@ -455,16 +451,16 @@ class Menu(object):
     @ensure_accessible
     def GetMenuPath(self, path, path_items = None, appdata = None, exact=False):
         """Walk the items in this menu to find the item specified by path
-        
+
         The path is specified by a list of items separated by '->' each Item
         can be either a string (can include spaces) e.g. "Save As" or the zero
-        based index of the item to return prefaced by # e.g. #1. 
-        
+        based index of the item to return prefaced by # e.g. #1.
+
         These can be mixed as necessary. For Example:
-            "#0 -> Save As", 
+            "#0 -> Save As",
             "$23453 -> Save As",
             "Tools -> #0 -> Configure"
-        
+
         Text matching is done using a 'best match' fuzzy algorithm, so you don't
         have to add all punctuation, ellipses, etc.
         """
@@ -636,5 +632,3 @@ class Menu(object):
 #
 #    return items
 #
-
-
