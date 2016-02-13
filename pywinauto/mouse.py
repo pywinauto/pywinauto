@@ -172,7 +172,12 @@ else:
                              button_down=True, button_up=True, double=False,
                              wheel_dist=0, pressed="", key_down=True, key_up=True):
         "Perform a click action using Python-xlib"
-        _move(coords)
+        #Move mouse
+        x = int(coords[0])
+        y = int(coords[1])
+        fake_input(_display, X.MotionNotify, x=x, y=y)
+        _display.sync()
+
         if button == 'wheel':
             if wheel_dist == 0:
                 return
@@ -232,11 +237,3 @@ def scroll(coords=(0, 0), wheel_dist=1):
 def wheel_click(coords=(0, 0)):
     "Middle mouse button click at the specified coords"
     _perform_click_input(button='middle', coords=coords)
-
-
-def _move(coords=(0, 0)):
-    "Move mouse function for non win32 platform"
-    x = int(coords[0])
-    y = int(coords[1])
-    fake_input(_display, X.MotionNotify, x=x, y=y)
-    _display.sync()
