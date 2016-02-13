@@ -547,8 +547,8 @@ class BaseWrapper(object):
             button_up=False,
             pressed=pressed,
             absolute=absolute,
-#            key_down=key_down,
-#            key_up=key_up
+            key_down=key_down,
+            key_up=key_up
         )
 
     #-----------------------------------------------------------

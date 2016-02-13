@@ -171,6 +171,7 @@ else:
     def _perform_click_input(button='left', coords=(0, 0),
                              button_down=True, button_up=True, double=False,
                              wheel_dist=0, pressed="", key_down=True, key_up=True):
+        "Perform a click action using Python-xlib"
         _move(coords)
         if button == 'wheel':
             if wheel_dist == 0:
@@ -214,12 +215,12 @@ def move(coords=(0, 0)):
 
 def press(button='left', coords=(0, 0)):
     "Press the mouse button"
-    _perform_click_input(button='left', coords=coords, button_down=True, button_up=False)
+    _perform_click_input(button=button, coords=coords, button_down=True, button_up=False)
 
 
 def release(button='left', coords=(0, 0)):
     "Release the mouse button"
-    _perform_click_input(button='left', coords=coords, button_down=False, button_up=True)
+    _perform_click_input(button=button, coords=coords, button_down=False, button_up=True)
 
 
 def scroll(coords=(0, 0), wheel_dist=1):
@@ -234,6 +235,7 @@ def wheel_click(coords=(0, 0)):
 
 
 def _move(coords=(0, 0)):
+    "Move mouse function for non win32 platform"
     x = int(coords[0])
     y = int(coords[1])
     fake_input(_display, X.MotionNotify, x=x, y=y)
