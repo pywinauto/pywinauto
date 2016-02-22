@@ -21,6 +21,7 @@ from .mouse import _perform_click_input
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
+    "Make text usable for attribute name"
     return re.sub("\W", "_", s)
 
 #=========================================================================
@@ -44,8 +45,8 @@ class BaseMeta(abc.ABCMeta):
     "Abstract metaclass for Wrapper objects"
     
     @staticmethod
-    @abc.abstractmethod
     def find_wrapper(element):
+        "Abstract static method to find appropriate wrapper"
         raise NotImplementedError()
 
 #=========================================================================

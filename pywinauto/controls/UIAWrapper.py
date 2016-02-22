@@ -88,17 +88,12 @@ pywinauto_control_types = {'Custom': None,
                            }
 
 #=========================================================================
-def remove_non_alphanumeric_symbols(s):
-    return re.sub("\W", "_", s)
-
-#=========================================================================
-class UiaMeta(HwndMeta): # TODO: inherit from BaseMeta
+class UiaMeta(BaseMeta):
     "Metaclass for UiaWrapper objects"
     control_types = {}
 
     def __init__(cls, name, bases, attrs):
-        # register the class names, both the regular expression
-        # or the classes directly
+        "Register the control types"
 
         type.__init__(cls, name, bases, attrs)
 
@@ -106,25 +101,11 @@ class UiaMeta(HwndMeta): # TODO: inherit from BaseMeta
             UiaMeta.control_types[control_type] = cls
 
     @staticmethod
-    def find_wrapper(elementinfo):
-        "Find the wrapper for this elementinfo"
-        if isinstance(elementinfo, six.integer_types):
-            from ..UIAElementInfo import UIAElementInfo
-            elementinfo = UIAElementInfo(elementinfo)
+    def find_wrapper(element):
+        "Find the correct wrapper for this UI element"
 
-        '''
-        if elementinfo.handle is not None and elementInfo.frameworkId == 'Win32':
-            wrapper = HwndMeta.find_wrapper(elementinfo)
-
-            if wrapper == HwndWrapper:
-                if elementinfo.controlType in UiaMeta.control_types.keys():
-                    wrapper = UiaMeta.control_types[elementinfo.controlType]
-        else:
-        '''
         # TODO: temporary thing (there is no UIA based wrappers tree yet)
-        wrapper = UIAWrapper
-
-        return wrapper
+        return UIAWrapper
 
 #=========================================================================
 @six.add_metaclass(UiaMeta)
