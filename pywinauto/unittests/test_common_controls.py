@@ -496,7 +496,7 @@ class TreeViewTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (TreeView)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "TreeView")
 
     def testItemCount(self):
@@ -618,7 +618,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.app.kill_()
 
     def testCheckBoxes(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure tree view item method IsChecked() works as expected"
         self.dlg.TVS_CHECKBOXES.ClickInput()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
@@ -627,6 +627,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals (birds.IsChecked(), False)
 
     def testPrintItems(self):
+        "Test TreeView method PrintItems()"
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         items_str = self.ctrl.PrintItems()
@@ -635,6 +636,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
                                      "Fish\n Salmon\n Snapper\n Sole\n")
 
     def testIsSelected(self):
+        "Make sure tree view item method IsSelected() works as expected"
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         eagle = self.ctrl.GetItem(r'\Birds\Eagle')
@@ -642,6 +644,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals(eagle.IsSelected(), True)
 
     def testExpandCollapse(self):
+        "Make sure tree view item methods Expand() and Collapse() work as expected"
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         self.assertEquals(birds.IsExpanded(), True)
@@ -667,11 +670,13 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals(birds.IsExpanded(), False)
 
     def testIncorrectAreas(self):
+        "Make sure incorrect area raises an exception"
         birds = self.ctrl.GetItem(r'\Birds')
         self.assertRaises(RuntimeError, birds.Click, where='radiob')
         self.assertRaises(RuntimeError, birds.ClickInput, where='radiob')
 
     def testStartDraggingAndDrop(self):
+        "Make sure tree view item methods StartDragging() and Drop() work as expected"
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         
@@ -726,7 +731,7 @@ class HeaderTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (Header)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "Header")
 
     def testTexts(self):
@@ -813,7 +818,7 @@ class StatusBarTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (StatusBar)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "StatusBar")
 
     def testTexts(self):
@@ -932,7 +937,7 @@ class TabControlTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (TabControl)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "TabControl")
 
     def testTexts(self):
@@ -1077,7 +1082,7 @@ class ToolbarTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (Toolbar)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "Toolbar")
 
     def testTexts(self):
@@ -1219,7 +1224,7 @@ class RebarTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (ReBar)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "ReBar")
 
     def testTexts(self):
@@ -1292,7 +1297,7 @@ class DatetimeTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (DateTimePicker)"
         self.assertEqual(self.ctrl.FriendlyClassName(), "DateTimePicker")
 
     def testGetTime(self):
@@ -1392,7 +1397,7 @@ class ToolTipsTestCases(unittest.TestCase):
         self.app.kill_()
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (ToolTips)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "ToolTips")
 
     def testGetProperties(self):
@@ -1459,7 +1464,7 @@ class UpDownTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure the friendly class is set correctly (UpDown)"
         self.assertEquals (self.ctrl.FriendlyClassName(), "UpDown")
 
     def testTexts(self):

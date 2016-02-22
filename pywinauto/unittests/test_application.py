@@ -832,7 +832,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
 
     def testPrintControlIdentifiers(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure PrintControlIdentifiers() doesn't crash"
 
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()
