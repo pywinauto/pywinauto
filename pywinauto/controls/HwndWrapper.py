@@ -68,7 +68,6 @@ from .menuwrapper import Menu #, MenuItemNotEnabled
 
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
-from .. import mouse
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -1030,7 +1029,7 @@ class HwndWrapper(BaseWrapper):
         def has_closed():
             return not (win32functions.IsWindow(self) and self.IsVisible())
 
-        if wait_time==0:
+        if not wait_time:
             wait_time = Timings.closeclick_dialog_close_wait
 
         # Keep waiting until both this control and it's parent

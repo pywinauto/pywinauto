@@ -1063,16 +1063,7 @@ class Application(object):
         kwargs['process'] = self.process
 
         windows = findwindows.find_elements(**kwargs)
-        out_windows = []
-        for win in windows:
-            try:
-                out_windows.append(registry.wrapper_class(win))
-            except (controls.InvalidWindowHandle,
-                    controls.InvalidElement) as exc:
-                # skip invalid handles - they have dissapeared
-                # since the list of elements was retrieved
-                pass #print('exc = {0}'.format(exc))
-        return out_windows #[registry.wrapper_class(win) for win in windows]
+        return [registry.wrapper_class(win) for win in windows]
         #return [BaseWrapper(win) for win in windows]
 
     Windows_ = windows_

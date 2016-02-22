@@ -19,7 +19,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"""Provides functions for iterating and finding windows
+"""Provides functions for iterating and finding windows/elements
 
 """
 from __future__ import unicode_literals
