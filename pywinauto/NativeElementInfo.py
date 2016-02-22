@@ -129,5 +129,5 @@ class NativeElementInfo(ElementInfo):
     def __eq__(self, other):
         "Check if 2 NativeElementInfo objects describe 1 actual element"
         if not isinstance(other, NativeElementInfo):
-            return False
+            return self.handle == other
         return self.handle == other.handle
