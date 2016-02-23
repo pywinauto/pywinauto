@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Ivan Magazinnik
+# Copyright (C) 2016 Ivan Magazinnik
 # Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2010 Mark Mc Mahon
 # All rights reserved.
@@ -13,7 +13,7 @@
 #   this list of conditions and the following disclaimer in the documentation
 #   and/or other materials provided with the distribution.
 #
-# * Neither the name of ttt nor the names of its
+# * Neither the name of pywinauto nor the names of its
 #   contributors may be used to endorse or promote products derived from
 #   this software without specific prior written permission.
 #
@@ -36,8 +36,8 @@ if sys.platform == 'win32':
     from . import win32functions
     from . import win32defines
     from .timings import Timings
-    from . import win32structures
     import win32api
+    import win32gui
 else:
     from Xlib.display import Display
     from Xlib import X
@@ -82,6 +82,7 @@ if sys.platform == 'win32':
 
         events = []
         if button.lower() == 'left':
+            events.append(win32defines.MOUSEEVENTF_MOVE)
             if button_down:
                 events.append(win32defines.MOUSEEVENTF_LEFTDOWN)
             if button_up:
@@ -113,12 +114,17 @@ if sys.platform == 'win32':
         if double and button_down and button_up:
             events *= 2
 
+        if button_down and (button.lower() not in ['move', 'wheel']):
+            # wait while previous click is not affecting our current click
+            while 0 < win32api.GetTickCount() - win32api.GetLastInputInfo() < win32gui.GetDoubleClickTime():
+                time.sleep(Timings.after_clickinput_wait)
+
         # set the cursor position
         win32api.SetCursorPos((coords[0], coords[1]))
         time.sleep(Timings.after_setcursorpos_wait)
-
-        inp_struct = win32structures.INPUT()
-        inp_struct.type = win32defines.INPUT_MOUSE
+        if win32api.GetCursorPos() != (coords[0], coords[1]):
+            win32api.SetCursorPos((coords[0], coords[1]))
+            time.sleep(Timings.after_setcursorpos_wait)
 
         keyboard_keys = pressed.lower().split()
         if ('control' in keyboard_keys) and key_down:
@@ -128,33 +134,31 @@ if sys.platform == 'win32':
         if ('alt' in keyboard_keys) and key_down:
             SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up=False).Run()
 
-        inp_struct.mi.dwFlags = 0
+        dw_flags = 0
         for event in events:
-            inp_struct.mi.dwFlags |= event
+            dw_flags |= event
 
-        dwData = 0
+        dw_data = 0
         if button.lower() == 'wheel':
             wheel_dist = wheel_dist * 120
-            dwData = wheel_dist
-            inp_struct.mi.mouseData = wheel_dist
-        else:
-            inp_struct.mi.mouseData = 0
+            dw_data = wheel_dist
 
         if button.lower() == 'move':
-            # win32functions.SendInput(     # vvryabov: SendInput() should be called sequentially in a loop [for event in events]
-            #    win32structures.UINT(1),
-            #    ctypes.pointer(inp_struct),
-            #    ctypes.c_int(ctypes.sizeof(inp_struct)))
-            X_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
-            Y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
-            X_coord = int(float(coords[0]) * (65535. / float(X_res - 1)))
-            Y_coord = int(float(coords[1]) * (65535. / float(Y_res - 1)))
-            win32api.mouse_event(inp_struct.mi.dwFlags, X_coord, Y_coord, dwData)
+            x_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
+            y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
+            x_coord = int(float(coords[0]) * (65535. / float(x_res - 1)))
+            y_coord = int(float(coords[1]) * (65535. / float(y_res - 1)))
+            win32api.mouse_event(dw_flags, x_coord, y_coord, dw_data)
         else:
             for event in events:
-                inp_struct.mi.dwFlags = event
-                win32api.mouse_event(inp_struct.mi.dwFlags, coords[0], coords[1], dwData)
-                time.sleep(Timings.after_clickinput_wait)
+                if event == win32defines.MOUSEEVENTF_MOVE:
+                    x_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
+                    y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
+                    x_coord = int(float(coords[0]) * (65535. / float(x_res - 1)))
+                    y_coord = int(float(coords[1]) * (65535. / float(y_res - 1)))
+                    win32api.mouse_event(win32defines.MOUSEEVENTF_MOVE | win32defines.MOUSEEVENTF_ABSOLUTE, x_coord, y_coord, dw_data)
+                else:
+                    win32api.mouse_event(event | win32defines.MOUSEEVENTF_ABSOLUTE, coords[0], coords[1], dw_data)
 
         time.sleep(Timings.after_clickinput_wait)
 
@@ -204,8 +208,7 @@ def click(button='left', coords=(0, 0)):
 
 def double_click(button='left', coords=(0, 0)):
     "Double click at the specified coordinates"
-    _perform_click_input(button=button, coords=coords)
-    _perform_click_input(button=button, coords=coords)
+    _perform_click_input(button=button, coords=coords, double=True)
 
 
 def right_click(coords=(0, 0)):

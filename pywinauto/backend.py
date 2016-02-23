@@ -20,42 +20,74 @@
 
 """Back-end components storage (links to platform-specific things)"""
 
-from .NativeElementInfo import NativeElementInfo
-#from .controls.HwndWrapper import HwndWrapper
-#from .controls.BaseWrapper import BaseWrapper
+from .ElementInfo import ElementInfo
+from .base_wrapper import BaseWrapper
 
-registered_backends = {
-    #'native': (NativeElementInfo, HwndWrapper),
-    'native': NativeElementInfo,
-}
 
-from .sysinfo import UIA_support
-if UIA_support:
-    from .UIAElementInfo import UIAElementInfo
-    #from .controls.UIAWrapper import UIAWrapper
-    #registered_backends['uia'] = (UIAElementInfo, UIAWrapper)
-    registered_backends['uia'] = UIAElementInfo
+class BackEnd(object):
+    "Minimal back-end description (name & 2 required base classes)"
 
-active_name = 'native'
-ActiveElementInfo = NativeElementInfo
-#ActiveWrapper = HwndWrapper
+    def __init__(self, name, element_info_class, generic_wrapper_class):
+        "Init back-end description"
+        self.name = name
+        if not issubclass(element_info_class, ElementInfo):
+            raise TypeError('element_info_class should be a class derived from ElementInfo')
+        if not issubclass(generic_wrapper_class, BaseWrapper):
+            raise TypeError('element_info_class should be a class derived from BaseWrapper')
+        self.element_info_class = element_info_class
+        self.generic_wrapper_class = generic_wrapper_class
 
-def activate(new_active_name):
+class BackendsRegistry(object):
+    "Registry pattern class for the list of available back-ends"
+
+    def __init__(self):
+        "Init back-ends list (it doesn't aware of concrete back-ends yet)"
+        self.backends = {}
+        self.active_backend = None
+
+    @property
+    def name(self):
+        "Name of the active backend"
+        return self.active_backend.name
+
+    @property
+    def element_class(self):
+        "ElementInfo's subclass of the active backend"
+        return self.active_backend.element_info_class
+
+    @property
+    def wrapper_class(self):
+        "BaseWrapper's subclass of the active backend"
+        return self.active_backend.generic_wrapper_class
+
+registry = BackendsRegistry()
+
+def name():
+    "Return name of the active backend"
+    return registry.name
+
+def element_class():
+    "Return ElementInfo's subclass of the active backend"
+    return registry.element_class
+
+def wrapper_class():
+    "Return BaseWrapper's subclass of the active backend"
+    return registry.element_class
+
+def activate(name):
     """
     Set active back-end by name
 
     Possible values of **active_name** are "native", "uia" or
     other name registered by the **register** function.
     """
-    if new_active_name not in registered_backends.keys():
-        raise ValueError('Back-end "{backend}" is not registered!'.format(backend=new_active_name))
+    if name not in registry.backends:
+        raise ValueError('Back-end "{backend}" is not registered!'.format(backend=name))
 
-    #global active_name, ActiveElementInfo, ActiveWrapper
-    global active_name, ActiveElementInfo
-    active_name = new_active_name
-    ActiveElementInfo = registered_backends[new_active_name]
-    #ActiveElementInfo = registered_backends[new_active_name][0]
-    #ActiveWrapper = registered_backends[new_active_name][1]
+    registry.active_backend = registry.backends[name]
 
-def register(backend_name, wrapper):
-    pass
+
+def register(name, element_info_class, generic_wrapper_class):
+    "Register new back-end"
+    
+    registry.backends[name] = BackEnd(name, element_info_class, generic_wrapper_class)

@@ -60,13 +60,14 @@ from .. import timings
 #from .. import findbestmatch
 from .. import handleprops
 from ..NativeElementInfo import NativeElementInfo
+from .. import backend
 
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from .BaseWrapper import BaseWrapper
-from .. import mouse
+from ..base_wrapper import BaseWrapper
+from ..base_wrapper import BaseMeta
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -86,7 +87,56 @@ class InvalidWindowHandle(RuntimeError):
         RuntimeError.__init__(self,
             "Handle {0} is not a vaild window handle".format(hwnd))
 
+#=========================================================================
+class HwndMeta(BaseMeta):
+    "Metaclass for HwndWrapper objects"
+    re_wrappers = {}
+    str_wrappers = {}
+
+    def __init__(cls, name, bases, attrs):
+        # register the class names, both the regular expression
+        # or the classes directly
+
+        #print("metaclass __init__", cls)
+        BaseMeta.__init__(cls, name, bases, attrs)
+
+        for win_class in cls.windowclasses:
+            HwndMeta.re_wrappers[re.compile(win_class)] = cls
+            HwndMeta.str_wrappers[win_class] = cls
+
+    @staticmethod
+    def find_wrapper(element):
+        "Find the correct wrapper for this native element"
+        if isinstance(element, six.integer_types):
+            from ..NativeElementInfo import NativeElementInfo
+            element = NativeElementInfo(element)
+        class_name = element.className
+
+        try:
+            return HwndMeta.str_wrappers[class_name]
+        except KeyError:
+            wrapper_match = None
+
+            for regex, wrapper in HwndMeta.re_wrappers.items():
+                if regex.match(class_name):
+                    wrapper_match = wrapper
+                    HwndMeta.str_wrappers[class_name] = wrapper
+
+                    return wrapper
+
+        # if it is a dialog then override the wrapper we found
+        # and make it a DialogWrapper
+        if handleprops.is_toplevel_window(element.handle):
+            from . import win32_controls
+            wrapper_match = win32_controls.DialogWrapper
+
+        if wrapper_match is None:
+            from .HwndWrapper import HwndWrapper
+            wrapper_match = HwndWrapper
+        return wrapper_match
+
 #====================================================================
+@six.add_metaclass(HwndMeta)
 class HwndWrapper(BaseWrapper):
     """Default wrapper for controls.
 
@@ -122,7 +172,7 @@ class HwndWrapper(BaseWrapper):
             obj.__init__(element)
             return obj
 
-        new_class = cls.FindWrapper(element)
+        new_class = cls.find_wrapper(element)
 
         obj = object.__new__(new_class)
         obj.__init__(element)
@@ -142,8 +192,7 @@ class HwndWrapper(BaseWrapper):
         if hasattr(elementInfo, "_elementInfo"):
             elementInfo = elementInfo.elementInfo
 
-        BaseWrapper.__init__(self, elementInfo)
-        self.handle = elementInfo.handle
+        BaseWrapper.__init__(self, elementInfo, backend.registry.backends['native'])
 
         # verify that we have been passed in a valid windows handle
         if not win32functions.IsWindow(self.handle):
@@ -980,7 +1029,7 @@ class HwndWrapper(BaseWrapper):
         def has_closed():
             return not (win32functions.IsWindow(self) and self.IsVisible())
 
-        if wait_time==0:
+        if not wait_time:
             wait_time = Timings.closeclick_dialog_close_wait
 
         # Keep waiting until both this control and it's parent
@@ -1381,3 +1430,7 @@ def GetDialogPropsFromHandle(hwnd):
         props.append(ctrl_props)
 
     return props
+
+
+backend.register('native', NativeElementInfo, HwndWrapper)
+backend.activate('native') # default

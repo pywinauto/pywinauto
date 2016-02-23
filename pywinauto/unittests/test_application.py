@@ -26,15 +26,14 @@
 
 "Tests for application.py"
 
+import sys
 import os
-import os.path
 import unittest
 import time
 #import pprint
 #import pdb
 import warnings
 
-import sys
 sys.path.append(".")
 from pywinauto import application
 from pywinauto.controls import HwndWrapper
@@ -832,7 +831,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
 
     def testPrintControlIdentifiers(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure PrintControlIdentifiers() doesn't crash"
 
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()

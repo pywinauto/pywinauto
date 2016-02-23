@@ -15,8 +15,16 @@ from ..actionlogger import ActionLogger
 import comtypes
 import comtypes.client
 
-from ..UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia
-from . import BaseWrapper
+from .. import backend
+from ..base_wrapper import BaseWrapper
+from ..base_wrapper import BaseMeta
+
+from .HwndWrapper import HwndWrapper
+from .HwndWrapper import HwndMeta
+
+from ..UIAElementInfo import UIAElementInfo
+from ..UIAElementInfo import _UIA_dll
+from ..UIAElementInfo import _iuia
 
 #region PATTERNS
 AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
@@ -80,11 +88,28 @@ pywinauto_control_types = {'Custom': None,
                            }
 
 #=========================================================================
-def remove_non_alphanumeric_symbols(s):
-    return re.sub("\W", "_", s)
+class UiaMeta(BaseMeta):
+    "Metaclass for UiaWrapper objects"
+    control_types = {}
+
+    def __init__(cls, name, bases, attrs):
+        "Register the control types"
+
+        type.__init__(cls, name, bases, attrs)
+
+        for control_type in cls.controltypes:
+            UiaMeta.control_types[control_type] = cls
+
+    @staticmethod
+    def find_wrapper(element):
+        "Find the correct wrapper for this UI element"
+
+        # TODO: temporary thing (there is no UIA based wrappers tree yet)
+        return UIAWrapper
 
 #=========================================================================
-class UIAWrapper(BaseWrapper.BaseWrapper):
+@six.add_metaclass(UiaMeta)
+class UIAWrapper(BaseWrapper):
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -99,20 +124,35 @@ class UIAWrapper(BaseWrapper.BaseWrapper):
 
     #------------------------------------------------------------
     # TODO: can't inherit __new__ function from BaseWrapper?
-    def __new__(cls, elementInfo):
+    def __new__(cls, element_info):
         # only use the meta class to find the wrapper for BaseWrapper
         # so allow users to force the wrapper if they want
         if cls != UIAWrapper:
             obj = object.__new__(cls)
-            obj.__init__(elementInfo)
+            obj.__init__(element_info)
             return obj
 
-        new_class = cls.FindWrapperUIA(elementInfo)
+        new_class = cls.find_wrapper(element_info)
         obj = object.__new__(new_class)
 
-        obj.__init__(elementInfo)
+        obj.__init__(element_info)
 
         return obj
+
+    #-----------------------------------------------------------
+    def __init__(self, elementInfo):
+        """Initialize the control
+        * **elementInfo** is either a valid UIAElementInfo or it can be an
+          instance or subclass of UIAWrapper.
+        If the handle is not valid then an InvalidWindowHandle error
+        is raised.
+        """
+        BaseWrapper.__init__(self, elementInfo, backend.registry.backends['uia'])
+
+    #------------------------------------------------------------
+    def __hash__(self):
+        "Return unique hash value based on element's Runtime ID"
+        return hash(self.elementInfo.runtime_id)
 
     #------------------------------------------------------------
     def FriendlyClassName(self):
@@ -158,3 +198,6 @@ class UIAWrapper(BaseWrapper.BaseWrapper):
                 pass # TODO: add RuntimeWarning here
 
         return self
+
+
+backend.register('uia', UIAElementInfo, UIAWrapper)

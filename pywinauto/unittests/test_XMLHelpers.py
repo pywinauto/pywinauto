@@ -52,17 +52,17 @@ class XMLHelperTestCases(unittest.TestCase):
         self.assertEquals(props, read_props)
 
     def testOneUnicode(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a unicode string"
         props = [dict(test = u"hiya")]
         self.assertReadWriteSame(props)
 
     def testOneString(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a string"
         props = [dict(test = "hiya")]
         self.assertReadWriteSame(props)
 
     def testSomeEscapes(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a dictionary with some escape sequences"
 
         test_string = []
         for i in range(0, 50000):
@@ -85,7 +85,7 @@ class XMLHelperTestCases(unittest.TestCase):
         self.assertReadWriteSame(props)
 
     def testOneDict(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a dictionary with one element"
         props = [dict(test_value = dict(test = 1))]
         self.assertReadWriteSame(props)
 

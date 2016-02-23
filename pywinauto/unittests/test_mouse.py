@@ -1,4 +1,4 @@
-"Test for mouse.py"
+"Tests for mouse.py"
 
 import time
 import ctypes
@@ -9,6 +9,8 @@ import sys
 import os
 import win32clipboard
 import unittest
+
+sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.SendKeysCtypes import SendKeys
 from pywinauto import mouse
