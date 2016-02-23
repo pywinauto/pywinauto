@@ -41,7 +41,7 @@ from pywinauto import backend
 from pywinauto.timings import Timings
 Timings.Fast()
 Timings.window_find_timeout = 3
-Timings.closeclick_dialog_close_wait = .5
+Timings.closeclick_dialog_close_wait = 1.
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")

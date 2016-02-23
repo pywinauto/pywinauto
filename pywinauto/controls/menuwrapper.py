@@ -43,7 +43,7 @@ from .. import mouse
 from ..RemoteMemoryBlock import RemoteMemoryBlock
 from ..timings import Timings
 
-class MenuItemInfo:
+class MenuItemInfo(object):
     def __init__(self):
         self.fType = 0
         self.fState = 0
@@ -56,7 +56,7 @@ class MenuItemInfo:
         self.hbmpItem = 0
 
 
-class MenuInfo:
+class MenuInfo(object):
     def __init__(self):
         self.dwStyle = 0
         self.cyMax = 0

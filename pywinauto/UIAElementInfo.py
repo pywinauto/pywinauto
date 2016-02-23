@@ -1,3 +1,36 @@
+# Copyright (C) 2016 Vasily Ryabov
+# Copyright (C) 2016 Alexander Rumyantsev
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""Implementation of the class to deal with an UI element (based on UI Automation API)
+
+"""
+
 import comtypes
 import comtypes.client
 
@@ -60,7 +93,7 @@ class UIAElementInfo(ElementInfo):
         """
         Create instane of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
-        If handle_or_elem is None create instanse for UI root element
+        If handle_or_elem is None create instance for UI root element
         """
         if handle_or_elem is not None:
             if isinstance(handle_or_elem, integer_types):
@@ -76,40 +109,45 @@ class UIAElementInfo(ElementInfo):
 
     @property
     def element(self):
-        "Return AutomationElement object"
+        "Return AutomationElement's instance"
         return self._element
 
     @property
     def automationId(self):
-        "Return AutomationId of element"
+        "Return AutomationId of the element"
         return self._element.CurrentAutomationId
 
     @property
     def controlId(self):
-        "Return ControlId of element if it has handle"
+        "Return ControlId of the element if it has a handle"
         if (self.handle):
             return controlid(self.handle)
         else:
-            return None;
+            return None
 
     @property
     def processId(self):
-        "Return ProcessId of element"
+        "Return ProcessId of the element"
         return self._element.CurrentProcessId
 
     @property
     def frameworkId(self):
-        "Return FrameworkId of element"
+        "Return FrameworkId of the element"
         return self._element.CurrentFrameworkId
 
     @property
+    def runtime_id(self):
+        "Return Runtime ID (hashable value but may be different from run to run)"
+        return self._element.GetRuntimeId()
+
+    @property
     def name(self):
-        "Return name of element"        
+        "Return name of the element"
         return self._element.CurrentName
 
     @property
     def className(self):
-        "Return class name of element"
+        "Return class name of the element"
         return self._element.CurrentClassName
 
     @property
@@ -119,12 +157,12 @@ class UIAElementInfo(ElementInfo):
 
     @property
     def handle(self):
-        "Return handle of element"
+        "Return handle of the element"
         return self._element.CurrentNativeWindowHandle
 
     @property
     def parent(self):
-        "Return parent of element"
+        "Return parent of the element"
         parent_elem = _iuia.ControlViewWalker.GetParentElement(self._element)
         if parent_elem:
             return UIAElementInfo(parent_elem)
@@ -133,7 +171,7 @@ class UIAElementInfo(ElementInfo):
 
     @property
     def children(self):
-        "Return list of children for element"
+        "Return list of immediate children for the element"
         children = []
         
         childrenArray = self._element.FindAll(_treeScope['children'], _trueCondition)
@@ -145,7 +183,7 @@ class UIAElementInfo(ElementInfo):
 
     @property
     def descendants(self):
-        "Return list of children for element"
+        "Return list of all children for the element"
         descendants = []
 
         descendantsArray = self._element.FindAll(_treeScope['descendants'], _trueCondition)
@@ -157,17 +195,17 @@ class UIAElementInfo(ElementInfo):
 
     @property
     def visible(self):
-        "Check if element is visible"
+        "Check if the element is visible"
         return bool(not self._element.CurrentIsOffscreen)
 
     @property
     def enabled(self):
-        "Check if element is enabled"
+        "Check if the element is enabled"
         return bool(self._element.CurrentIsEnabled)
 
     @property
     def rectangle(self):
-        "Return rectangle of element"
+        "Return rectangle of the element"
         bound_rect = self._element.CurrentBoundingRectangle
         rect = RECT()
         rect.left = bound_rect.left
@@ -177,12 +215,12 @@ class UIAElementInfo(ElementInfo):
         return rect
 
     def dumpWindow(self):
-        "Dump a window to a set of properties"
+        "Dump window to a set of properties"
         return dumpwindow(self.handle)
 
     @property
     def richText(self):
-        "Return richText of element"
+        "Return richText of the element"
         if not self.className:
             return self.name
         try:
@@ -191,19 +229,6 @@ class UIAElementInfo(ElementInfo):
             return pattern.DocumentRange.GetText(-1)
         except Exception:
             return self.name # TODO: probably we should raise an exception here
-
-    def _getTextFromHandle(self, handle):
-        return text(self.handle)
-
-    def _getTextFromElementViaTextPattern(self, element):
-        supportedPatterns = _iuia.PollForPotentialSupportedPatterns(element)[0]
-        if _patternId['textPattern'] in supportedPatterns:
-            textpattern = element.GetCurrentPatternAs(_patternId['textPattern'], "32eba289-3583-42c9-9c59-3b6d9a1e9b6a")
-        else:
-            return ''
-            raise NotImplementedError()
-            
-        return textPattern.DocumentRange.GetText()
 
     def __eq__(self, other):
         "Check if 2 UIAElementInfo objects describe 1 actual element"

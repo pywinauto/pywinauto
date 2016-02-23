@@ -168,11 +168,7 @@ if UIA_support:
         #    pass
 
         def testDoubleClickInput(self):
-            self.dlg.set_focus()
-            time.sleep(2.0)
-            Timings.after_clickinput_wait = 0.001
             self.button.double_click_input()
-            time.sleep(0.5)
             self.assertEqual(self.label.window_text(), "DoubleClick")
 
         #def testRightClick(self):

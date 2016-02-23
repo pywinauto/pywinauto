@@ -146,7 +146,7 @@ class HandlepropsTestCases(unittest.TestCase):
         self.app.Replace.Cancel.Click()
 
     def test_clientrect(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure clientrect() function works"
         self.assertEquals(0, clientrect(self.dlghandle).left)
         self.assertEquals(0, clientrect(self.edit_handle).left)
 
@@ -166,7 +166,7 @@ class HandlepropsTestCases(unittest.TestCase):
 
 
     def test_rectangle(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure rectangle() function works"
         dlgrect = rectangle(self.dlghandle)
         self.assertEquals(True, dlgrect.left < dlgrect.right)
         self.assertEquals(True, dlgrect.top < dlgrect.bottom)
@@ -176,7 +176,7 @@ class HandlepropsTestCases(unittest.TestCase):
         self.assertEquals(True, editrect.top < editrect.bottom)
 
     def test_font(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure font() function works"
         dlgfont = font(self.dlghandle)
         self.assertEquals(True, isinstance(dlgfont.lfFaceName, six.string_types))
 
@@ -185,7 +185,7 @@ class HandlepropsTestCases(unittest.TestCase):
 
 
     def test_processid(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure processid() function works"
         self.assertEquals(self.app.process, processid(self.dlghandle))
         self.assertEquals(self.app.process, processid(self.edit_handle))
 
@@ -212,7 +212,7 @@ class HandlepropsTestCases(unittest.TestCase):
         self.assertEquals(False, has_exstyle(self.edit_handle, 0x10))
 
     def test_is_toplevel_window(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure is_toplevel_window() function works"
 
         self.assertEquals(True, is_toplevel_window(self.dlghandle))
         self.assertEquals(False, is_toplevel_window(self.edit_handle))
@@ -259,7 +259,7 @@ class HandlepropsTestCases(unittest.TestCase):
         self.assertEquals(expected_is64bit, res_is64bit)
 
     def test_dumpwindow(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure dumpwindow() function works"
         dlgdump = dumpwindow(self.dlghandle)
 
         for key, item in dlgdump.items():

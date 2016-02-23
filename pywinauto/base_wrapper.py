@@ -8,6 +8,7 @@ import win32api
 import win32gui
 import win32process
 import locale
+import abc
 
 from . import SendKeysCtypes as SendKeys
 from . import six
@@ -15,12 +16,12 @@ from . import win32defines, win32structures, win32functions
 from .timings import Timings
 from .actionlogger import ActionLogger
 from . import handleprops
-from . import mouse
 from .mouse import _perform_click_input
-from . import backend
+#from . import backend
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
+    "Make text usable for attribute name"
     return re.sub("\W", "_", s)
 
 #=========================================================================
@@ -39,79 +40,17 @@ class ElementNotVisible(RuntimeError):
     pass
 
 #=========================================================================
-class _MetaWrapper(type):
-    "Metaclass for Wrapper objects"
-    re_wrappers = {}
-    str_wrappers = {}
-    control_types = {}
-
-    def __init__(cls, name, bases, attrs):
-        # register the class names, both the regular expression
-        # or the classes directly
-
-        #print("metaclass __init__", cls)
-        type.__init__(cls, name, bases, attrs)
-
-        for win_class in cls.windowclasses:
-            _MetaWrapper.re_wrappers[re.compile(win_class)] = cls
-            _MetaWrapper.str_wrappers[win_class] = cls
-        for control_type in cls.controltypes:
-            _MetaWrapper.control_types[control_type] = cls
-
+@six.add_metaclass(abc.ABCMeta)
+class BaseMeta(abc.ABCMeta):
+    "Abstract metaclass for Wrapper objects"
+    
     @staticmethod
-    def FindWrapper(element):
-        "Find the correct wrapper for this native element"
-        if isinstance(element, six.integer_types):
-            from .NativeElementInfo import NativeElementInfo
-            element = NativeElementInfo(element)
-        class_name = element.className
-
-        try:
-            return _MetaWrapper.str_wrappers[class_name]
-        except KeyError:
-            wrapper_match = None
-
-            for regex, wrapper in _MetaWrapper.re_wrappers.items():
-                if regex.match(class_name):
-                    wrapper_match = wrapper
-                    _MetaWrapper.str_wrappers[class_name] = wrapper
-
-                    return wrapper
-
-        # if it is a dialog then override the wrapper we found
-        # and make it a DialogWrapper
-        if handleprops.is_toplevel_window(element.handle):
-            from .controls import win32_controls
-            wrapper_match = win32_controls.DialogWrapper
-
-        if wrapper_match is None:
-            from .controls.HwndWrapper import HwndWrapper
-            wrapper_match = HwndWrapper
-        return wrapper_match
-
-    @staticmethod
-    def FindWrapperUIA(elementinfo):
-        "Find the wrapper for this elementinfo"
-        if isinstance(elementinfo, six.integer_types):
-            from .UIAElementInfo import UIAElementInfo
-            elementinfo = UIAElementInfo(elementinfo)
-
-        if elementinfo.handle is not None:
-            wrapper = _MetaWrapper.FindWrapper(elementinfo)
-
-            from .controls.HwndWrapper import HwndWrapper
-            if wrapper == HwndWrapper:
-                if elementinfo.controlType in _MetaWrapper.control_types.keys():
-                    wrapper = _MetaWrapper.control_types[elementinfo.controlType]
-        else:
-            # TODO: temporary thing (there is no UIA based wrappers tree yet)
-            from .controls.UIAWrapper import UIAWrapper
-            wrapper = UIAWrapper
-
-        return wrapper
+    def find_wrapper(element):
+        "Abstract static method to find appropriate wrapper"
+        raise NotImplementedError()
 
 #=========================================================================
-@six.add_metaclass(_MetaWrapper)
+@six.add_metaclass(BaseMeta)
 class BaseWrapper(object):
     """
     Abstract wrapper for elements.
@@ -128,6 +67,7 @@ class BaseWrapper(object):
     can_be_label = False
     has_title = True
 
+    '''
     #------------------------------------------------------------
     def __new__(cls, elementInfo):
         # only use the meta class to find the wrapper for BaseWrapper
@@ -137,30 +77,30 @@ class BaseWrapper(object):
             obj.__init__(elementInfo)
             return obj
 
-        if backend.active_name == "uia":
-            new_class = cls.FindWrapperUIA(elementInfo)
-        else:
-            new_class = cls.FindWrapper(elementInfo)
+        new_class = cls.find_wrapper(elementInfo)
         obj = object.__new__(new_class)
 
         obj.__init__(elementInfo)
 
         return obj
+    '''
 
     #------------------------------------------------------------
-    def __init__(self, elementInfo):
+    def __init__(self, elementInfo, active_backend):
         """
         Initialize the element
 
         * **element_info** is instance of int or one of ElementInfo childs
         """
+        self.backend = active_backend
         if elementInfo:
-            if isinstance(elementInfo, six.integer_types):
-                elementInfo = backend.ActiveElementInfo(elementInfo)
+            #if isinstance(elementInfo, six.integer_types):
+            #    elementInfo = self.backend.element_info_class(elementInfo)
 
             self._elementInfo = elementInfo
 
-            #self._as_parameter_ = self._elementInfo.handle
+            self.handle = self._elementInfo.handle
+            self._as_parameter_ = self.handle
 
             self.ref = None
             self.appdata = None
@@ -191,7 +131,7 @@ class BaseWrapper(object):
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            self.friendlyclassname = self._elementInfo.className
+            self.friendlyclassname = self.element_info.className
         return self.friendlyclassname
     # Non PEP-8 alias
     FriendlyClassName = friendly_class_name
@@ -199,7 +139,7 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     def class_name(self):
         """Return the class name of the elenemt"""
-        return self._elementInfo.className
+        return self.element_info.className
     # Non PEP-8 alias
     Class = class_name
 
@@ -212,7 +152,7 @@ class BaseWrapper(object):
         Edit controls usually have an empty string for window_text but still
         have text displayed in the edit window.
         """
-        return self._elementInfo.richText
+        return self.element_info.richText
     # Non PEP-8 alias
     WindowText = window_text
 
@@ -227,7 +167,7 @@ class BaseWrapper(object):
         be duplicate ID's for example lables in a dialog may have duplicate
         ID's.
         """
-        return self._elementInfo.controlId
+        return self.element_info.controlId
     # Non PEP-8 alias
     ControlID = control_id
 
@@ -248,7 +188,7 @@ class BaseWrapper(object):
         BaseWrapper.verify_actionable() raises if the element is not both
         visible and enabled.
         """
-        return self._elementInfo.visible# and self.top_level_parent()._elementInfo.visible
+        return self.element_info.visible #and self.top_level_parent().element_info.visible
     # Non PEP-8 alias
     IsVisible = is_visible
 
@@ -269,7 +209,7 @@ class BaseWrapper(object):
         BaseWrapper.VerifyReady() raises if the window is not both
         visible and enabled.
         """
-        return self._elementInfo.enabled# and self.top_level_parent()._elementInfo.enabled
+        return self.element_info.enabled #and self.top_level_parent().element_info.enabled
     # Non PEP-8 alias
     IsEnabled = is_enabled
 
@@ -285,7 +225,7 @@ class BaseWrapper(object):
         left, right, bottom. and has methods width() and height().
         See win32structures.RECT for more information.
         """
-        return self._elementInfo.rectangle
+        return self.element_info.rectangle
     # Non PEP-8 alias
     Rectangle = rectangle
 
@@ -303,7 +243,7 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def process_id(self):
         "Return the ID of process that owns this window"
-        return self._elementInfo.processId
+        return self.element_info.processId
     # Non PEP-8 alias
     ProcessID = process_id
 
@@ -329,14 +269,19 @@ class BaseWrapper(object):
         To get the main (or top level) window then use
         BaseWrapper.top_level_parent().
         """
-        parent_elem = self._elementInfo.parent
+        parent_elem = self.element_info.parent
 
         if parent_elem:
-            return BaseWrapper(parent_elem)
+            return self.backend.generic_wrapper_class(parent_elem)
         else:
             return None
     # Non PEP-8 alias
     Parent = parent
+
+    #-----------------------------------------------------------
+    def root(self):
+        "Return wrapper for root element (desktop)"
+        return self.backend.generic_wrapper_class(self.backend.element_info_class())
 
     #-----------------------------------------------------------
     def top_level_parent(self):
@@ -357,7 +302,7 @@ class BaseWrapper(object):
             parent = self.parent()
 
             if parent:
-                if self.parent() == BaseWrapper(backend.ActiveElementInfo()):
+                if self.parent() == self.root():
                     self._cache["top_level_parent"] = self
                 else:
                     return self.parent().top_level_parent()
@@ -395,8 +340,8 @@ class BaseWrapper(object):
         It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no children.
         """
-        child_elements = self._elementInfo.children
-        return [BaseWrapper(elementInfo) for elementInfo in child_elements]
+        child_elements = self.element_info.children
+        return [self.backend.generic_wrapper_class(elementInfo) for elementInfo in child_elements]
     # Non PEP-8 alias
     Children = children
 
@@ -408,15 +353,15 @@ class BaseWrapper(object):
         It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no descendants.
         """
-        desc_elements = self._elementInfo.descendants
-        return [BaseWrapper(elementInfo) for elementInfo in desc_elements]
+        desc_elements = self.element_info.descendants
+        return [self.backend.generic_wrapper_class(elementInfo) for elementInfo in desc_elements]
     # Non PEP-8 alias
     Descendants = descendants
 
     #-----------------------------------------------------------
     def control_count(self):
         "Return the number of children of this control"
-        return len(self._elementInfo.children)
+        return len(self.element_info.children)
     # Non PEP-8 alias
     ControlCount = control_count
 
@@ -437,11 +382,8 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def __eq__(self, other):
         "Returns true if 2 BaseWrapper's describe 1 actual element"
-        if isinstance(other, six.integer_types):
-            other = backend.ActiveElementInfo(other)
-
         if hasattr(other, "_elementInfo"):
-            return self.element_info == other.elementInfo
+            return self.element_info == other.element_info
         else:
             return self.element_info == other
     # Non PEP-8 alias
@@ -459,7 +401,7 @@ class BaseWrapper(object):
         Raise either ElementNotEnalbed or ElementNotVisible if not
         enabled or visible respectively.
         """
-        if self._elementInfo.handle:
+        if self.element_info.handle:
             win32functions.WaitGuiThreadIdle(self)
         else:
             # TODO: get WaitGuiThreadIdle function for elements without handle
@@ -635,7 +577,7 @@ class BaseWrapper(object):
 
         self.click_input(button='move', coords=coords, absolute=absolute, pressed=pressed)
 
-        if self._elementInfo.handle:
+        if self.element_info.handle:
             win32functions.WaitGuiThreadIdle(self)
         else:
             # TODO: get WaitGuiThreadIdle function for elements without handle
@@ -707,7 +649,7 @@ class BaseWrapper(object):
             self.set_focus()
 
         # attach the Python process with the process that self is in
-        if self._elementInfo.handle:
+        if self.element_info.handle:
             window_thread_id, pid = win32process.GetWindowThreadProcessId(int(self.handle))
             win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
             # TODO: check return value of AttachThreadInput properly
@@ -733,14 +675,14 @@ class BaseWrapper(object):
             turn_off_numlock)
 
         # detach the python process from the window's process
-        if self._elementInfo.handle:
+        if self.element_info.handle:
             win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
             # TODO: check return value of AttachThreadInput properly
         else:
             # TODO: UIA stuff
             pass
 
-        if self._elementInfo.handle:
+        if self.element_info.handle:
             win32functions.WaitGuiThreadIdle(self)
         else:
             # TODO: get WaitGuiThreadIdle function for elements without handle

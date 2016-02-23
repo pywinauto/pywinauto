@@ -54,11 +54,20 @@ in almost exactly the same ways. ::
   :func:`WindowSpecification.Window`
 
 """
+from __future__ import print_function
 
 import os.path
 import pickle
 import time
 import warnings
+
+import win32process
+import win32api
+import win32gui
+import win32con
+import win32event
+import multiprocessing
+
 
 #from . import win32functions
 from . import win32defines
@@ -66,9 +75,8 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 from . import handleprops
-from .base_wrapper import BaseWrapper
-
-import win32process, win32api, win32gui, win32con, win32event, multiprocessing
+from . import backend
+from .backend import registry
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
@@ -492,7 +500,7 @@ class WindowSpecification(object):
             names = control_name_map[ctrl]
             names.sort()
             for name in names:
-                print("'{name}'".format(name=name.encode("unicode_escape"))),
+                print("'{0}' ".format(name), end='')
             print()
 
 
@@ -516,8 +524,8 @@ def _get_ctrl(criteria_):
     # make a copy of the criteria
     criteria = [crit.copy() for crit in criteria_]
     # find the dialog
-    #dialog = backend.ActiveWrapper(findwindows.find_element(**criteria[0]))
-    dialog = BaseWrapper(findwindows.find_element(**criteria[0]))
+    dialog = registry.wrapper_class(findwindows.find_element(**criteria[0]))
+    #dialog = BaseWrapper(findwindows.find_element(**criteria[0]))
 
     ctrl = None
     # if there is only criteria for a dialog then return it
@@ -530,8 +538,8 @@ def _get_ctrl(criteria_):
             ctrl_criteria["parent"] = dialog.handle
 
         # resolve the control and return it
-        #ctrl = backend.ActiveWrapper(findwindows.find_element(**ctrl_criteria))
-        ctrl = BaseWrapper(findwindows.find_element(**ctrl_criteria))
+        ctrl = registry.wrapper_class(findwindows.find_element(**ctrl_criteria))
+        #ctrl = BaseWrapper(findwindows.find_element(**ctrl_criteria))
 
     if ctrl:
         return (dialog, ctrl)
@@ -614,8 +622,8 @@ def _resolve_from_appdata(
             #print controls.WrapHandle(h).GetProperties()
             #print "======", h, h, h
 
-            #dialog = backend.ActiveWrapper(e)
-            dialog = BaseWrapper(e)
+            dialog = registry.wrapper_class(e)
+            #dialog = BaseWrapper(e)
 
             # if a control was specified also
             if len(criteria_) > 1:
@@ -649,8 +657,8 @@ def _resolve_from_appdata(
                         ctrl_elems = same_ids
 
                 try:
-                    #ctrl = backend.ActiveWrapper(ctrl_elems[0])
-                    ctrl = BaseWrapper(ctrl_elems[0])
+                    ctrl = registry.wrapper_class(ctrl_elems[0])
+                    #ctrl = BaseWrapper(ctrl_elems[0])
                 except IndexError:
                     print("-+-+=_" * 20)
                     #print(found_criteria)
@@ -776,6 +784,7 @@ class Application(object):
 
         self.match_history = []
         self.use_history = False
+        self.actions = ActionLogger()
 
         # load the match history if a file was specifed
         # and it exists
@@ -1054,8 +1063,8 @@ class Application(object):
         kwargs['process'] = self.process
 
         windows = findwindows.find_elements(**kwargs)
-        #return [backend.ActiveWrapper(win) for win in windows]
-        return [BaseWrapper(win) for win in windows]
+        return [registry.wrapper_class(win) for win in windows]
+        #return [BaseWrapper(win) for win in windows]
 
     Windows_ = windows_
 
@@ -1124,17 +1133,19 @@ class Application(object):
 
         for win in windows:
 
-            win.SendMessageTimeout(
-                win32defines.WM_QUERYENDSESSION,
-                timeout = .5,
-                timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
-                    #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
-                    #win32defines.SMTO_BLOCK)
+            if hasattr(win, 'SendMessageTimeout'):
+                win.SendMessageTimeout(
+                    win32defines.WM_QUERYENDSESSION,
+                    timeout = .5,
+                    timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
+                        #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+                        #win32defines.SMTO_BLOCK)
 
             try:
-                win.Close()
+                if hasattr(win, 'Close'):
+                    win.Close()
             except TimeoutError:
-                pass
+                self.actions.log('Failed to close top level window')
 
         # window has let us know that it doesn't want to die - so we abort
         # this means that the app is not hung - but knows it doesn't want
