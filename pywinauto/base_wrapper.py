@@ -50,7 +50,7 @@ class BaseMeta(abc.ABCMeta):
         raise NotImplementedError()
 
 #=========================================================================
-@six.add_metaclass(abc.ABCMeta)
+@six.add_metaclass(BaseMeta)
 class BaseWrapper(object):
     """
     Abstract wrapper for elements.

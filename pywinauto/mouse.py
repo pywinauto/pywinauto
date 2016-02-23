@@ -113,7 +113,9 @@ if sys.platform == 'win32':
         # not just up or down.
         if double and button_down and button_up:
             events *= 2
-            # wait while previous click is not affecting our current double click
+
+        if button_down and (button.lower() not in ['move', 'wheel']):
+            # wait while previous click is not affecting our current click
             while 0 < win32api.GetTickCount() - win32api.GetLastInputInfo() < win32gui.GetDoubleClickTime():
                 time.sleep(Timings.after_clickinput_wait)
 
