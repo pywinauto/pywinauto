@@ -181,7 +181,7 @@ class ApplicationTestCases(unittest.TestCase):
         app.start(_notepad_exe())
         self.assertNotEqual(app.process, None)
 
-        self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
+        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
 
         notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
         self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
@@ -195,7 +195,7 @@ class ApplicationTestCases(unittest.TestCase):
 #        app._start("notepad.exe")
 #        self.assertNotEqual(app.process, None)
 #
-#        self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
+#        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
 #
 #        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
 #        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
@@ -387,17 +387,17 @@ class ApplicationTestCases(unittest.TestCase):
         WaitUntil(30, 0.5, lambda: len(findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')) > 0)
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, })
-        explorer = Application().Connect(process = window.ProcessID())
+        explorer = Application().Connect(process = window.process_id())
         
         try:
-            window.AddressBandRoot.ClickInput(double = True)
+            window.AddressBandRoot.click_input(double = True)
             window.Edit.SetEditText(r'Control Panel\Programs\Programs and Features')
-            window.TypeKeys(r'{ENTER 2}', set_foreground = False)
+            window.type_keys(r'{ENTER 2}', set_foreground = False)
             WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(active_only = True,
                                                                      title = 'Programs and Features',
                                                                      class_name='CabinetWClass')) > 0)
             explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
-            installed_programs = window.FolderView.Texts()[1:]
+            installed_programs = window.FolderView.texts()[1:]
             programs_list = ','.join(installed_programs)
             if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
                 HwndWrapper.ImageGrab.grab().save(r'explorer_screenshot.jpg')
@@ -513,7 +513,7 @@ class ApplicationTestCases(unittest.TestCase):
         app = Application()
         app.start(_notepad_exe())
 
-        app.UntitledNotepad.Edit.TypeKeys("hello")
+        app.UntitledNotepad.Edit.type_keys("hello")
 
         app.UntitledNotepad.MenuSelect("File->Print...")
 
@@ -554,7 +554,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             )
 
         self.assertEquals(
-            wspec.WindowText(),
+            wspec.window_text(),
             u"Untitled - Notepad")
 
 
@@ -585,8 +585,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
         sub_spec_legacy = self.dlgspec.Window_(class_name = "Edit")
 
         self.assertEquals(True, isinstance(sub_spec, WindowSpecification))
-        self.assertEquals(sub_spec.Class(), "Edit")
-        self.assertEquals(sub_spec_legacy.Class(), "Edit")
+        self.assertEquals(sub_spec.class_name(), "Edit")
+        self.assertEquals(sub_spec_legacy.class_name(), "Edit")
 
 
     def test__getitem__(self):
@@ -597,7 +597,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             isinstance(self.dlgspec['Edit'], WindowSpecification)
             )
 
-        self.assertEquals(self.dlgspec['Edit'].Class(), "Edit")
+        self.assertEquals(self.dlgspec['Edit'].class_name(), "Edit")
 
         self.assertRaises(AttributeError, self.ctrlspec.__getitem__, 'edit')
 
@@ -610,13 +610,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
             isinstance(self.dlgspec.Edit, WindowSpecification)
             )
 
-        self.assertEquals(self.dlgspec.Edit.Class(), "Edit")
+        self.assertEquals(self.dlgspec.Edit.class_name(), "Edit")
 
 
         # check that getting a dialog attribute works correctly
         self.assertEquals(
             "Notepad",
-            self.dlgspec.Class())
+            self.dlgspec.class_name())
 
 
     def testExists(self):

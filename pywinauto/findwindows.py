@@ -24,21 +24,20 @@
 """
 from __future__ import unicode_literals
 
-import re
 import ctypes
+import re
 
-from . import sysinfo
+from .base_wrapper import BaseWrapper
+from . import backend
+from . import controls
+from . import findbestmatch
 from . import six
+from . import sysinfo
 from . import win32functions
 from . import win32structures
-from . import handleprops
-from . import findbestmatch
-from . import controls
-from . import backend
-from .controls.BaseWrapper import BaseWrapper
 
 if sysinfo.UIA_support:
-    from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
+    pass
 
 # TODO: we should filter out invalid elements before returning
 
@@ -241,7 +240,7 @@ def find_elements(class_name = None,
         elements = []
         for elem in backup_elements:
             if hasattr(elem, "_elementInfo"):
-                elements.append(elem.elementInfo)
+                elements.append(elem.element_info)
             else:
                 elements.append(backend.ActiveElementInfo(elem.handle))
 

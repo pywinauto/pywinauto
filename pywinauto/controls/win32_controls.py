@@ -76,15 +76,15 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         # calling HasStyle a number of times
         style = self.Style()
 
-        if self.IsVisible() and (style & win32defines.BS_BITMAP or
-                                 style & win32defines.BS_ICON or
-                                 style & win32defines.BS_OWNERDRAW):
+        if self.is_visible() and (style & win32defines.BS_BITMAP or
+                                  style & win32defines.BS_ICON or
+                                  style & win32defines.BS_OWNERDRAW):
             return True
         else:
             return False
 
     #-----------------------------------------------------------
-    def FriendlyClassName(self):
+    def friendly_class_name(self):
         """Return the friendly class name of the button
 
         Windows controls with the class "Button" can look like different
@@ -109,8 +109,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
             "ThunderCommandButton": "Button"
         }
 
-        if self.Class() in vb_buttons:
-            f_class_name = vb_buttons[self.Class()]
+        if self.class_name() in vb_buttons:
+            f_class_name = vb_buttons[self.class_name()]
 
         if style_lsb == win32defines.BS_3STATE or \
             style_lsb == win32defines.BS_AUTO3STATE or \
@@ -183,7 +183,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         return self
 
     #-----------------------------------------------------------
-    def IsDialog(self):
+    def is_dialog(self):
         "Buttons are never dialogs so return False"
         return False
 
@@ -211,15 +211,15 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def CheckByClickInput(self):
-        "Check the CheckBox control by ClickInput() method"
+        "Check the CheckBox control by click_input() method"
         if self.GetCheckState() != win32defines.BST_CHECKED:
-            self.ClickInput()
+            self.click_input()
 
     #-----------------------------------------------------------
     def UncheckByClickInput(self):
-        "Uncheck the CheckBox control by ClickInput() method"
+        "Uncheck the CheckBox control by click_input() method"
         if self.GetCheckState() != win32defines.BST_UNCHECKED:
-            self.ClickInput()
+            self.click_input()
 
 #====================================================================
 def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
@@ -284,7 +284,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
             ctypes.byref(dropped_rect))
 
         # we need to offset the dropped rect from the control
-        dropped_rect -= self.Rectangle()
+        dropped_rect -= self.rectangle()
 
         return dropped_rect
 
@@ -342,9 +342,9 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
             win32defines.CB_GETLBTEXT)
 
     #-----------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the text of the items in the combobox"
-        texts = [self.WindowText()]
+        texts = [self.window_text()]
         texts.extend(self.ItemTexts())
         return texts
 
@@ -366,7 +366,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         item can be either a 0 based index of the item to select
         or it can be the string that you want to select
         """
-        self.VerifyActionable()
+        self.verify_actionable()
 
         index = self._get_item_index(item)
 
@@ -511,9 +511,9 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         return rect
 
     #-----------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the texts of the control"
-        texts = [self.WindowText()]
+        texts = [self.window_text()]
         texts.extend(self.ItemTexts())
         return texts
 
@@ -545,7 +545,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
                     self.Select(i, select)
             return self
 
-        self.VerifyActionable()
+        self.verify_actionable()
 
         # Make sure we have an index  so if passed in a
         # string then find which item it is
@@ -660,10 +660,10 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         return text.value
 
     #-----------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Get the text of the edit control"
 
-        texts = [self.WindowText(), ]
+        texts = [self.window_text(), ]
 
         for i in range(self.LineCount()):
             texts.append(self.GetLine(i))
@@ -697,7 +697,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         """Override SetWindowText for edit controls because it should not be
         used for Edit controls.
 
-        Edit Controls should either use SetEditText() or TypeKeys() to modify
+        Edit Controls should either use SetEditText() or type_keys() to modify
         the contents of the edit control."""
         HwndWrapper.HwndWrapper.SetWindowText(self, text, append)
         raise UserWarning(
@@ -706,7 +706,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def SetEditText(self, text, pos_start = None, pos_end = None):
         "Set the text of the edit control"
-        self.VerifyActionable()
+        self.verify_actionable()
 
         # allow one or both of pos_start and pos_end to be None
         if pos_start is not None or pos_end is not None:
@@ -767,7 +767,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def Select(self, start = 0, end = None):
         "Set the edit selection of the edit control"
-        self.VerifyActionable()
+        self.verify_actionable()
         win32functions.SetFocus(self)
 
         # if we have been asked to select a string
@@ -826,10 +826,10 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         """_NeedsImageProp=True if it is an image static"""
 
         # if the control is visible - and it shows an image
-        if self.IsVisible() and (self.HasStyle(win32defines.SS_ICON) or
-                                 self.HasStyle(win32defines.SS_BITMAP) or
-                                 self.HasStyle(win32defines.SS_CENTERIMAGE) or
-                                 self.HasStyle(win32defines.SS_OWNERDRAW)):
+        if self.is_visible() and (self.HasStyle(win32defines.SS_ICON) or
+                                  self.HasStyle(win32defines.SS_BITMAP) or
+                                  self.HasStyle(win32defines.SS_CENTERIMAGE) or
+                                  self.HasStyle(win32defines.SS_OWNERDRAW)):
 
             return True
         else:
@@ -859,10 +859,10 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         """
         HwndWrapper.HwndWrapper.__init__(self, hwnd)
 
-        if self.Class() == "#32770":
+        if self.class_name() == "#32770":
             self.friendlyclassname = "Dialog"
         else:
-            self.friendlyclassname = self.Class()
+            self.friendlyclassname = self.class_name()
 
     #-----------------------------------------------------------
     def RunTests(self, tests_to_run = None, ref_controls = None):
@@ -872,7 +872,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         from .. import tests
 
         # get all the controls
-        controls = [self] + self.Children()
+        controls = [self] + self.children()
         
         # add the reference controls
         if ref_controls is not None:
@@ -892,7 +892,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     def WriteToXML(self, filename):
         "Write the dialog an XML file (requires elementtree)"
         
-        controls = [self] + self.Children()
+        controls = [self] + self.children()
         props = [ctrl.GetProperties() for ctrl in controls]
 
         from .. import XMLHelpers
@@ -906,7 +906,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         The client area of a control is the bounds of the control, minus the
         nonclient elements such as scroll bars, borders, title bars, and 
         menus."""
-        rect = win32structures.RECT(self.Rectangle())
+        rect = win32structures.RECT(self.rectangle())
         self.SendMessage(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
 
@@ -945,7 +945,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 #    #-----------------------------------------------------------
 #    def AddReference(self, reference):
 #
-#        if len(self.Children() != len(reference)):
+#        if len(self.children() != len(reference)):
 #            raise "different number of reference controls"
 #
 #        for i, ctrl in enumerate(reference):
@@ -955,7 +955,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 #                ctrl = CtrlProps(ctrl)
 #
 #            self.
-#            if ctrl.Class() != self.Children()[i+1].Class():
+#            if ctrl.class_name() != self.children()[i+1].class_name():
 #                print "different classes"
 
 
@@ -975,7 +975,7 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
     has_title = False
 
     #-----------------------------------------------------------
-    def IsDialog(self):
+    def is_dialog(self):
         "Return whether it is a dialog"
         return True
 

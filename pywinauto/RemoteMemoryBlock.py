@@ -41,7 +41,7 @@ class AccessDenied(RuntimeError):
 
 #====================================================================
 class RemoteMemoryBlock(object):
-    "Class that enables reading and writing memory in a different process"
+    "class_name that enables reading and writing memory in a different process"
     #----------------------------------------------------------------
     def __init__(self, ctrl, size = 4096): #4096): #16384):
         "Allocate the memory"

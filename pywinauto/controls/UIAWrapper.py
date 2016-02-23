@@ -1,22 +1,13 @@
-from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import unicode_literals
 
-import time
 import re
-import ctypes
-import locale
-
-from .. import SendKeysCtypes as SendKeys
-from .. import six
-from .. import win32defines, win32structures, win32functions
-from ..timings import Timings
-from ..actionlogger import ActionLogger
 
 import comtypes
 import comtypes.client
 
-from ..UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia
-from . import BaseWrapper
+from .. import base_wrapper
+from ..UIAElementInfo import _UIA_dll
 
 #region PATTERNS
 AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
@@ -84,7 +75,7 @@ def remove_non_alphanumeric_symbols(s):
     return re.sub("\W", "_", s)
 
 #=========================================================================
-class UIAWrapper(BaseWrapper.BaseWrapper):
+class UIAWrapper(base_wrapper.BaseWrapper):
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -115,13 +106,13 @@ class UIAWrapper(BaseWrapper.BaseWrapper):
         return obj
 
     #------------------------------------------------------------
-    def FriendlyClassName(self):
+    def friendly_class_name(self):
         """
         Return the friendly class name for the control
 
         This differs from the class of the control in some cases.
-        Class() is the actual 'Registered' window class of the control
-        while FriendlyClassName() is hopefully something that will make
+        class_name() is the actual 'Registered' window class of the control
+        while friendly_class_name() is hopefully something that will make
         more sense to the user.
 
         For example Checkboxes are implemented as Buttons - so the class
@@ -149,7 +140,7 @@ class UIAWrapper(BaseWrapper.BaseWrapper):
         return self._elementInfo.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
-    def SetFocus(self):
+    def set_focus(self):
         "Set the focus to this element"
         if self.IsKeyboardFocusable() and not self.HasKeyboardFocus():
             try:

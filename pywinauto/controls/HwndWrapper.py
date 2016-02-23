@@ -22,26 +22,23 @@
 #    Boston, MA 02111-1307 USA
 
 """Basic wrapping of Windows controls"""
-from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import unicode_literals
 
 # pylint:  disable-msg=W0611
 
 #import sys
 import time
-import re
 import ctypes
 import win32api
 import win32gui
 import win32con
 import win32process
-import locale
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
-from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
 
@@ -65,8 +62,8 @@ from ..NativeElementInfo import NativeElementInfo
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from .BaseWrapper import BaseWrapper
-from .. import mouse
+from ..base_wrapper import BaseWrapper
+
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
@@ -132,7 +129,7 @@ class HwndWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def __init__(self, elementInfo):
         """Initialize the control
-        * **elementInfo** is either a valid NativeElementInfo or it can be an
+        * **element_info** is either a valid NativeElementInfo or it can be an
           instance or subclass of HwndWrapper.
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
@@ -156,22 +153,22 @@ class HwndWrapper(BaseWrapper):
         # Derived classes can either modify this list or override
         # GetProperties depending on how much control they need.
         self.writable_props = [
-            'Class',
-            'FriendlyClassName',
-            'Texts',
+            'class_name',
+            'friendly_class_name',
+            'texts',
             'Style',
             'ExStyle',
-            'ControlID',
+            'control_id',
             'UserData',
             'ContextHelpID',
             'Fonts',
             'ClientRects',
-            'Rectangle',
-            'IsVisible',
+            'rectangle',
+            'is_visible',
             'IsUnicode',
-            'IsEnabled',
+            'is_enabled',
             'MenuItems',
-            'ControlCount',
+            'control_count',
             ];
 
     #-----------------------------------------------------------
@@ -220,7 +217,7 @@ class HwndWrapper(BaseWrapper):
         """
         Whether the window is active or not
         """
-        return self.TopLevelParent() == self.GetActive()
+        return self.top_level_parent() == self.GetActive()
 
     #-----------------------------------------------------------
     def IsUnicode(self):
@@ -247,7 +244,7 @@ class HwndWrapper(BaseWrapper):
         return handleprops.clientrect(self)
 
     #-----------------------------------------------------------
-    #def ClientToScreen(self, client_point):
+    #def client_to_screen(self, client_point):
     #    """Maps point from client to screen coordinates"""
     #    point = win32structures.POINT()
     #    if isinstance(client_point, win32structures.POINT):
@@ -256,7 +253,7 @@ class HwndWrapper(BaseWrapper):
     #    else:
     #        point.x = client_point[0]
     #        point.y = client_point[1]
-    #    win32functions.ClientToScreen(self, ctypes.byref(point))
+    #    win32functions.client_to_screen(self, ctypes.byref(point))
     #
     #    # return tuple in any case because
     #    # coords param is always expected to be tuple
@@ -285,7 +282,7 @@ class HwndWrapper(BaseWrapper):
         return handleprops.has_exstyle(self, exstyle)
 
     #-----------------------------------------------------------
-    def IsDialog(self):
+    def is_dialog(self):
         "Return true if the control is a top level window"
 
         if not ("isdialog" in self._cache.keys()):
@@ -341,14 +338,14 @@ class HwndWrapper(BaseWrapper):
     #    # now we need to notify the parent that the state has changed
     #    nmhdr = win32structures.NMHDR()
     #    nmhdr.hwndFrom = self.handle
-    #    nmhdr.idFrom = self.ControlID()
+    #    nmhdr.idFrom = self.control_id()
     #    nmhdr.code = code
 
     #    from ..RemoteMemoryBlock import RemoteMemoryBlock
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
-    #    retval = self.Parent().SendMessage(
+    #    retval = self.parent().SendMessage(
     #        win32defines.WM_NOTIFY,
     #        self.handle,
     #        remote_mem)
@@ -451,7 +448,7 @@ class HwndWrapper(BaseWrapper):
 #            "equivalent functionality is being moved to the MenuWrapper class."
 #        warnings.warn(warning_msg, DeprecationWarning)
 #
-#        self.SetFocus()
+#        self.set_focus()
 #
 #        msg = win32defines.WM_COMMAND
 #        return self.SendMessageTimeout(
@@ -465,9 +462,9 @@ class HwndWrapper(BaseWrapper):
         "Send the notification message to parent of this control"
 
         if controlID is None:
-            controlID = self.ControlID()
+            controlID = self.control_id()
 
-        return self.Parent().PostMessage(
+        return self.parent().PostMessage(
             win32defines.WM_COMMAND,
             win32functions.MakeLong(message, controlID),
             self)
@@ -494,7 +491,7 @@ class HwndWrapper(BaseWrapper):
         See PIL documentation to know what you can do with the resulting
         image"""
 
-        rectangle = self.Rectangle()
+        rectangle = self.rectangle()
         if not (rectangle.width() and rectangle.height()):
             return None
 
@@ -530,13 +527,13 @@ class HwndWrapper(BaseWrapper):
         """Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
-        'realistic' mouse click use ClickInput() which uses mouse_event() API
+        'realistic' mouse click use click_input() which uses mouse_event() API
         to perform the click.
 
         This method does not require that the control be visible on the screen
         (i.e. it can be hidden beneath another window and it will still work.)
         """
-        self.VerifyActionable()
+        self.verify_actionable()
 
         _perform_click(self, button, pressed, coords, double, absolute=absolute)
         return self
@@ -557,7 +554,7 @@ class HwndWrapper(BaseWrapper):
         def has_closed():
             return not (
                 win32functions.IsWindow(self) or
-                win32functions.IsWindow(self.Parent()))
+                win32functions.IsWindow(self.parent()))
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
@@ -576,7 +573,7 @@ class HwndWrapper(BaseWrapper):
         """Close the window by pressing Alt+F4 keys."""
 
         time.sleep(Timings.before_closeclick_wait)
-        self.TypeKeys('%{F4}')
+        self.type_keys('%{F4}')
         time.sleep(Timings.after_closeclick_wait)
 
         return self
@@ -656,16 +653,16 @@ class HwndWrapper(BaseWrapper):
     def SetWindowText(self, text, append = False):
         "Set the text of the window"
 
-        self.VerifyActionable()
+        self.verify_actionable()
 
         if append:
-            text = self.WindowText() + text
+            text = self.window_text() + text
 
         text = ctypes.c_wchar_p(six.text_type(text))
         self.PostMessage(win32defines.WM_SETTEXT, 0, text)
         win32functions.WaitGuiThreadIdle(self)
 
-        self.actions.log('Set text to the ' + self.FriendlyClassName() + ': ' + str(text))
+        self.actions.log('Set text to the ' + self.friendly_class_name() + ': ' + str(text))
         return self
 
     #-----------------------------------------------------------
@@ -679,7 +676,7 @@ class HwndWrapper(BaseWrapper):
         if not dc:
             raise ctypes.WinError()
 
-        rect = self.Rectangle()
+        rect = self.rectangle()
 
         #ret = win32functions.TextOut(
         #    dc, rect.left, rect.top, six.text_type(text), len(text))
@@ -716,7 +713,7 @@ class HwndWrapper(BaseWrapper):
         """
 
         # don't draw if dialog is not visible
-        if not self.IsVisible():
+        if not self.is_visible():
             return
 
         colours = {
@@ -730,7 +727,7 @@ class HwndWrapper(BaseWrapper):
             colour = colours[colour]
 
         if not rect:
-            rect = self.Rectangle()
+            rect = self.rectangle()
 
         # create the pen(outline)
         pen_handle = win32functions.CreatePen(
@@ -855,7 +852,7 @@ class HwndWrapper(BaseWrapper):
 
         If there are no menu items then return an empty list
         """
-        if self.IsDialog() and self.Menu():
+        if self.is_dialog() and self.Menu():
             #menu_handle = win32functions.GetMenu(self)
             #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
             return self.Menu().GetProperties()['MenuItems']
@@ -871,16 +868,16 @@ class HwndWrapper(BaseWrapper):
 #    def MenuClick(self, path):
 #        "Select the menuitem specifed in path"
 #
-#        self.VerifyActionable()
+#        self.verify_actionable()
 #
-#        self.SetFocus()
+#        self.set_focus()
 #
 #        menu = Menu(self, self._menu_handle())
 #
 #        path_items = menu.GetMenuPath(path)
 #
 #        for menu_item in path_items:
-#            if not menu_item.IsEnabled():
+#            if not menu_item.is_enabled():
 #                raise MenuItemNotEnabled(
 #                    "MenuItem '%s' is disabled"% menu_item.Text())
 #
@@ -893,7 +890,7 @@ class HwndWrapper(BaseWrapper):
     def MenuSelect(self, path, exact = False, ):
         "Select the menuitem specified in path"
 
-        self.VerifyActionable()
+        self.verify_actionable()
 
         self.MenuItem(path, exact=exact).Select()
 
@@ -921,7 +918,7 @@ class HwndWrapper(BaseWrapper):
 
         """
 
-        cur_rect = self.Rectangle()
+        cur_rect = self.rectangle()
 
         # if no X is specified - so use current coordinate
         if x is None:
@@ -965,7 +962,7 @@ class HwndWrapper(BaseWrapper):
         Code modified from http://msdn.microsoft.com/msdnmag/issues/02/08/CQA/
 
         """
-        window_text = self.WindowText()
+        window_text = self.window_text()
 
         # tell the window it must close
         self.PostMessage(win32defines.WM_CLOSE)
@@ -978,7 +975,7 @@ class HwndWrapper(BaseWrapper):
         # any one of these conditions evaluates to false means the window is
         # closed or we have timed out
         def has_closed():
-            return not (win32functions.IsWindow(self) and self.IsVisible())
+            return not (win32functions.IsWindow(self) and self.is_visible())
 
         if wait_time==0:
             wait_time = Timings.closeclick_dialog_close_wait
@@ -997,13 +994,13 @@ class HwndWrapper(BaseWrapper):
     def Maximize(self):
         """Maximize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MAXIMIZE)
-        self.actions.log('Maximized window "{0}"'.format(self.WindowText()))
+        self.actions.log('Maximized window "{0}"'.format(self.window_text()))
 
     #-----------------------------------------------------------
     def Minimize(self):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
-        self.actions.log('Minimized window "{0}"'.format(self.WindowText()))
+        self.actions.log('Minimized window "{0}"'.format(self.window_text()))
 
     #-----------------------------------------------------------
     def Restore(self):
@@ -1014,7 +1011,7 @@ class HwndWrapper(BaseWrapper):
         # after the first ShowWindow, and Restored after the 2nd
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
-        self.actions.log('Restored window "{0}"'.format(self.WindowText()))
+        self.actions.log('Restored window "{0}"'.format(self.window_text()))
 
 
     #-----------------------------------------------------------
@@ -1080,7 +1077,7 @@ class HwndWrapper(BaseWrapper):
         return HwndWrapper(gui_info.hwndFocus)
 
     #-----------------------------------------------------------
-    def SetFocus(self):
+    def set_focus(self):
         """
         Set the focus to this control.
 
@@ -1116,7 +1113,7 @@ class HwndWrapper(BaseWrapper):
                     Timings.setfocus_timeout,
                     Timings.setfocus_retry,
                     lambda: win32gui.GetForegroundWindow()
-                    in [self.TopLevelParent().handle, 0])
+                    in [self.top_level_parent().handle, 0])
 
                 # get the threads again to check they are still valid.
                 cur_fore_thread = win32process.GetWindowThreadProcessId(
@@ -1206,7 +1203,7 @@ class HwndWrapper(BaseWrapper):
     def GetToolbar(self):
         """Get the first child toolbar if it exists"""
 
-        for child in self.Children():
+        for child in self.children():
             if child.__class__.__name__ == 'ToolbarWrapper':
                 return child
 
@@ -1227,8 +1224,8 @@ def _perform_click(
 
     if ctrl is None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
-    ctrl.VerifyActionable()
-    ctrl_text = ctrl.WindowText()
+    ctrl.verify_actionable()
+    ctrl_text = ctrl.window_text()
 
     if isinstance(coords, win32structures.RECT):
         coords = [coords.left, coords.top]
@@ -1239,7 +1236,7 @@ def _perform_click(
     coords = list(coords)
 
     if absolute:
-        coords = ctrl.ClientToScreen(coords)
+        coords = ctrl.client_to_screen(coords)
 
     # figure out the messages for click/press
     msgs  = []
@@ -1311,12 +1308,12 @@ def _perform_click(
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)
 
-    message = 'Clicked ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+    message = 'Clicked ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
               '" by ' + str(button) + ' button event (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
     if double:
         message = 'Double-c' + message[1:]
     if button.lower() == 'move':
-        message = 'Moved mouse over ' + ctrl.FriendlyClassName() + ' "' + ctrl_text + \
+        message = 'Moved mouse over ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
               '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ') by WM_MOUSEMOVE'
     ActionLogger().log(message)
 
@@ -1357,12 +1354,12 @@ def GetDialogPropsFromHandle(hwnd):
     # controls on the dialog
     try:
         controls = [hwnd, ]
-        controls.extend(hwnd.Children())
+        controls.extend(hwnd.children())
     except AttributeError:
         controls = [HwndWrapper(hwnd), ]
 
         # add all the children of the dialog
-        controls.extend(controls[0].Children())
+        controls.extend(controls[0].children())
 
     props = []
 
@@ -1376,7 +1373,7 @@ def GetDialogPropsFromHandle(hwnd):
         ctrl_props.handle = ctrl.handle
 
         # offset the rectangle from the dialog rectangle
-        ctrl_props['Rectangle'] -= controls[0].Rectangle()
+        ctrl_props['rectangle'] -= controls[0].rectangle()
 
         props.append(ctrl_props)
 

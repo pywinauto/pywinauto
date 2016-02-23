@@ -97,7 +97,7 @@ class ListViewTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the ListView friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), u"ListView")
+        self.assertEquals (self.ctrl.friendly_class_name(), u"ListView")
 
     def testColumnCount(self):
         "Test the ListView ColumnCount method"
@@ -126,13 +126,13 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
-        "Test the ListView Texts method"
+        "Test the ListView texts method"
 
         flat_texts = []
         for row in self.texts:
             flat_texts.extend(row)
 
-        self.assertEquals(flat_texts, self.ctrl.Texts()[1:])
+        self.assertEquals(flat_texts, self.ctrl.texts()[1:])
 
 
     def testGetItem(self):
@@ -258,10 +258,10 @@ class ListViewTestCases(unittest.TestCase):
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            "ListView", props['FriendlyClassName'])
+            "ListView", props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props.keys():
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -367,18 +367,18 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testItemClickInput(self):
-        "Test clicking item rectangles by ClickInput() method"
+        "Test clicking item rectangles by click_input() method"
         
-        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
         
-        self.ctrl.GetItem('Magenta').ClickInput(where='select')
+        self.ctrl.GetItem('Magenta').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
         self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
         self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
         
-        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
         self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
@@ -392,22 +392,22 @@ class ListViewTestCases(unittest.TestCase):
         for i in range(1, 6):
             self.dlg.Toolbar.Button(i - 1).Click()
 
-            self.ctrl.GetItem(i).ClickInput(where='check') # check item
+            self.ctrl.GetItem(i).click_input(where='check') # check item
             time.sleep(0.5)
             self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
             self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
 
-            self.ctrl.GetItem(i).ClickInput(where='check') # uncheck item
+            self.ctrl.GetItem(i).click_input(where='check') # uncheck item
             time.sleep(0.5)
             self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
 
-            self.ctrl.GetItem(i).ClickInput(where='check') # recheck item
+            self.ctrl.GetItem(i).click_input(where='check') # recheck item
             time.sleep(0.5)
             self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
 
         self.dlg.Toolbar.Button(6).Click() # switch off states
 
-        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).ClickInput, where="check")
+        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).click_input, where="check")
 
 
     def testItemMethods(self):
@@ -422,7 +422,7 @@ class ListViewTestCases(unittest.TestCase):
         # Gray is not selected by click because it's not visible
         self.ctrl.GetItem('Gray').Click()
         self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
-        self.dlg.SetFocus() # just in case
+        self.dlg.set_focus() # just in case
         
         self.ctrl.GetItem('Gray').EnsureVisible()
         self.ctrl.GetItem('Gray').Click()
@@ -485,7 +485,7 @@ class TreeViewTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -497,7 +497,7 @@ class TreeViewTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "TreeView")
+        self.assertEquals (self.ctrl.friendly_class_name(), "TreeView")
 
     def testItemCount(self):
         "Test the TreeView ItemCount method"
@@ -548,7 +548,7 @@ class TreeViewTestCases(unittest.TestCase):
         self.ctrl.EnsureVisible((0, 8, 2))
 
         # make sure that the item is not hidden
-        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).Rectangle())
+        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).rectangle())
 
 
     def testGetProperties(self):
@@ -556,10 +556,10 @@ class TreeViewTestCases(unittest.TestCase):
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            "TreeView", props['FriendlyClassName'])
+            "TreeView", props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -619,11 +619,11 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
     def testCheckBoxes(self):
         "Make sure the friendly class is set correctly"
-        self.dlg.TVS_CHECKBOXES.ClickInput()
+        self.dlg.TVS_CHECKBOXES.click_input()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
         self.assertEquals (birds.IsChecked(), True)
-        birds.ClickInput(where='check')
+        birds.click_input(where='check')
         self.assertEquals (birds.IsChecked(), False)
 
     def testPrintItems(self):
@@ -651,9 +651,9 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
     def testCheckBoxes(self):
         "Make sure correct area is clicked"
-        self.dlg.TVS_HASBUTTONS.ClickInput()
-        self.dlg.TVS_HASLINES.ClickInput()
-        self.dlg.TVS_LINESATROOT.ClickInput()
+        self.dlg.TVS_HASBUTTONS.click_input()
+        self.dlg.TVS_HASLINES.click_input()
+        self.dlg.TVS_LINESATROOT.click_input()
         birds = self.ctrl.GetItem(r'\Birds')
         
         birds.Click(where='button')
@@ -661,15 +661,15 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.Click(double=True, where='icon')
         self.assertEquals(birds.IsExpanded(), False)
         
-        birds.ClickInput(where='button')
+        birds.click_input(where='button')
         self.assertEquals(birds.IsExpanded(), True)
-        birds.ClickInput(double=True, where='icon')
+        birds.click_input(double=True, where='icon')
         self.assertEquals(birds.IsExpanded(), False)
 
     def testIncorrectAreas(self):
         birds = self.ctrl.GetItem(r'\Birds')
         self.assertRaises(RuntimeError, birds.Click, where='radiob')
-        self.assertRaises(RuntimeError, birds.ClickInput, where='radiob')
+        self.assertRaises(RuntimeError, birds.click_input, where='radiob')
 
     def testStartDraggingAndDrop(self):
         birds = self.ctrl.GetItem(r'\Birds')
@@ -687,8 +687,8 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread', exact=True)
         
         new_pigeon = self.ctrl.GetItem(r'\Birds\Eagle\Pigeon')
-        self.assertEquals(len(birds.Children()), 2)
-        self.assertEquals(new_pigeon.Children(), [])
+        self.assertEquals(len(birds.children()), 2)
+        self.assertEquals(new_pigeon.children(), [])
 
 
 class HeaderTestCases(unittest.TestCase):
@@ -727,21 +727,21 @@ class HeaderTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "Header")
+        self.assertEquals (self.ctrl.friendly_class_name(), "Header")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+        self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         "Test getting the properties for the header control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -802,7 +802,7 @@ class StatusBarTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -814,21 +814,21 @@ class StatusBarTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "StatusBar")
+        self.assertEquals (self.ctrl.friendly_class_name(), "StatusBar")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+        self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         "Test getting the properties for the status bar control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -921,7 +921,7 @@ class TabControlTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -933,21 +933,21 @@ class TabControlTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "TabControl")
+        self.assertEquals (self.ctrl.friendly_class_name(), "TabControl")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+        self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         "Test getting the properties for the tabcontrol"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -955,8 +955,8 @@ class TabControlTestCases(unittest.TestCase):
     def testRowCount(self):
         self.assertEquals(1, self.ctrl.RowCount())
 
-        dlgClientRect = self.ctrl.Parent().Rectangle() # use the parent as a reference
-        prev_rect = self.ctrl.Rectangle() - dlgClientRect
+        dlgClientRect = self.ctrl.parent().rectangle() # use the parent as a reference
+        prev_rect = self.ctrl.rectangle() - dlgClientRect
 
         # squeeze the tab control to force two rows
         new_rect = RECT(prev_rect)
@@ -1066,7 +1066,7 @@ class ToolbarTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -1078,11 +1078,11 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "Toolbar")
+        self.assertEquals (self.ctrl.friendly_class_name(), "Toolbar")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        for txt in self.ctrl.Texts():
+        for txt in self.ctrl.texts():
             self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testGetProperties(self):
@@ -1090,10 +1090,10 @@ class ToolbarTestCases(unittest.TestCase):
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         self.assertEquals(
             self.ctrl.ButtonCount(), props['ButtonCount'])
@@ -1132,12 +1132,12 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testGetToolTipsControls(self):
         tips = self.ctrl.GetToolTipsControl()
-        tt = tips.Texts()
+        tt = tips.texts()
         self.assertEquals(u"New" in tt,True)
         self.assertEquals(u"About" in tt,True)
 
         tips = self.ctrl2.GetToolTipsControl()
-        tt = tips.Texts()
+        tt = tips.texts()
         self.assertEquals(u"Pencil" in tt,True)
         self.assertEquals(u"Ellipse" in tt,True)
 
@@ -1146,7 +1146,7 @@ class ToolbarTestCases(unittest.TestCase):
 
         self.ctrl.PressButton(0)
 
-        #print(self.ctrl.Texts())
+        #print(self.ctrl.texts())
         self.assertRaises(
             findbestmatch.MatchError,
             self.ctrl.PressButton,
@@ -1208,7 +1208,7 @@ class RebarTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -1220,11 +1220,11 @@ class RebarTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "ReBar")
+        self.assertEquals (self.ctrl.friendly_class_name(), "ReBar")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        for txt in self.ctrl.Texts():
+        for txt in self.ctrl.texts():
             self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testBandCount(self):
@@ -1293,7 +1293,7 @@ class DatetimeTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEqual(self.ctrl.FriendlyClassName(), "DateTimePicker")
+        self.assertEqual(self.ctrl.friendly_class_name(), "DateTimePicker")
 
     def testGetTime(self):
         "Test reading a date from a 'Date Time Picker' control"
@@ -1362,7 +1362,7 @@ class ToolTipsTestCases(unittest.TestCase):
 
         # Make sure the mouse doesn't hover over tested controls
         # so it won't generate an unexpected tooltip
-        self.dlg.MoveMouseInput(coords=(-100,-100), absolute=True)
+        self.dlg.move_mouse_input(coords=(-100, -100), absolute=True)
         
         self.dlg.TabControl.Select(u'CToolBarCtrl')
 
@@ -1381,7 +1381,7 @@ class ToolTipsTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -1393,17 +1393,17 @@ class ToolTipsTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "ToolTips")
+        self.assertEquals (self.ctrl.friendly_class_name(), "ToolTips")
 
     def testGetProperties(self):
         "Test getting the properties for the tooltips control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -1421,10 +1421,10 @@ class ToolTipsTestCases(unittest.TestCase):
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.dlg.MoveMouseInput(coords=(0, 0)) # just to make sure a tooltip is not shown
-        ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.Texts()))
-        self.assertEquals(self.ctrl.Texts()[0], '')
-        self.assertEquals(self.ctrl.Texts()[1:], self.texts)
+        self.dlg.move_mouse_input(coords=(0, 0)) # just to make sure a tooltip is not shown
+        ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.texts()))
+        self.assertEquals(self.ctrl.texts()[0], '')
+        self.assertEquals(self.ctrl.texts()[1:], self.texts)
 
 
 
@@ -1448,7 +1448,7 @@ class UpDownTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -1460,21 +1460,21 @@ class UpDownTestCases(unittest.TestCase):
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "UpDown")
+        self.assertEquals (self.ctrl.friendly_class_name(), "UpDown")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], [])
+        self.assertEquals (self.ctrl.texts()[1:], [])
 
     def testGetProperties(self):
         "Test getting the properties for the updown control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -1493,7 +1493,7 @@ class UpDownTestCases(unittest.TestCase):
         self.ctrl.SetValue(23)
         self.assertEquals (self.ctrl.GetValue(), 23)
         self.assertEquals(
-            int(self.ctrl.GetBuddyControl().Texts()[1]),
+            int(self.ctrl.GetBuddyControl().texts()[1]),
             23)
 
     def testGetBase(self):
@@ -1502,7 +1502,7 @@ class UpDownTestCases(unittest.TestCase):
         #self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
 
         # use CloseClick to allow the control time to respond to the message
-        #self.dlg.Send.ClickInput()
+        #self.dlg.Send.click_input()
         self.ctrl.SetBase(16)
 
         self.assertEquals (self.ctrl.GetBase(), 16)

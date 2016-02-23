@@ -45,9 +45,9 @@ if UIA_support:
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button.elementInfo)
-            self.edit = UIAWrapper(self.dlg.Edit.elementInfo)
-            self.label = UIAWrapper(self.dlg.TestLabel.elementInfo)
+            self.button = UIAWrapper(self.dlg.Button.element_info)
+            self.edit = UIAWrapper(self.dlg.Edit.element_info)
+            self.label = UIAWrapper(self.dlg.TestLabel.element_info)
 
         def tearDown(self):
             "Close the application after tests"
@@ -55,51 +55,51 @@ if UIA_support:
 
         def testFriendlyClassName(self):
             "Test getting the friendly classname of the dialog"
-            self.assertEqual(self.button.FriendlyClassName(), "Button")
+            self.assertEqual(self.button.friendly_class_name(), "Button")
 
         def testClass(self):
             "Test getting the classname of the dialog"
-            self.assertEqual(self.button.Class(), "Button")
+            self.assertEqual(self.button.class_name(), "Button")
 
         def testWindowText(self):
             "Test getting the window Text of the dialog"
-            self.assertEqual(self.label.WindowText(), u"TestLable")
+            self.assertEqual(self.label.window_text(), u"TestLable")
 
         def testControlID(self):
-            self.assertEqual(self.button.ControlID(), None)
+            self.assertEqual(self.button.control_id(), None)
 
         def testIsVisible(self):
-            self.assertEqual(self.button.IsVisible(), True)
+            self.assertEqual(self.button.is_visible(), True)
 
         def testIsEnabled(self):
-            self.assertEqual(self.button.IsEnabled(), True)
+            self.assertEqual(self.button.is_enabled(), True)
 
-        def ProcessID(self):
-            self.assertEqual(self.button.ProcessID(), self.dlg.ProcessID())
-            self.assertNotEqual(self.button.ProcessID(), 0)
+        def testProcessID(self):
+            self.assertEqual(self.button.process_id(), self.dlg.process_id())
+            self.assertNotEqual(self.button.process_id(), 0)
 
         def testIsDialog(self):
-            self.assertEqual(self.button.IsDialog(), False)
+            self.assertEqual(self.button.is_dialog(), False)
 
         def testParent(self):
-            self.assertEqual(self.button.Parent(), self.dlg.WrapperObject())
+            self.assertEqual(self.button.parent(), self.dlg.WrapperObject())
 
         def testTopLevelParent(self):
-            self.assertEqual(self.button.TopLevelParent(), self.dlg.WrapperObject())
+            self.assertEqual(self.button.top_level_parent(), self.dlg.WrapperObject())
 
         def testTexts(self):
-            self.assertEqual(self.dlg.Texts(), ['WPF Sample Application'])
+            self.assertEqual(self.dlg.texts(), ['WPF Sample Application'])
 
         def testChildren(self):
-            self.assertEqual(len(self.button.Children()), 1)
-            self.assertEqual(self.button.Children()[0].Class(), "TextBlock")
+            self.assertEqual(len(self.button.children()), 1)
+            self.assertEqual(self.button.children()[0].class_name(), "TextBlock")
 
         def testIsChild(self):
-            self.assertEqual(self.button.IsChild(self.dlg.WrapperObject()), True)
+            self.assertEqual(self.button.is_child(self.dlg.WrapperObject()), True)
 
         def testEquals(self):
             self.assertNotEqual(self.button, self.dlg.WrapperObject())
-            self.assertEqual(self.button, self.button.elementInfo)
+            self.assertEqual(self.button, self.button.element_info)
             self.assertEqual(self.button, self.button)
 
         #def testVerifyActionable(self):
@@ -117,16 +117,16 @@ if UIA_support:
             self.assertEqual(self.label.IsKeyboardFocusable(), False)
 
         def testHasKeyboardFocus(self):
-            self.edit.SetFocus()
+            self.edit.set_focus()
             self.assertEqual(self.edit.HasKeyboardFocus(), True)
 
         def testSetFocus(self):
-            self.edit.SetFocus()
+            self.edit.set_focus()
             self.assertEqual(self.edit.HasKeyboardFocus(), True)
 
         def testTypeKeys(self):
-            self.edit.TypeKeys("testTypeKeys")
-            self.assertEqual(self.edit.WindowText(), "testTypeKeys")
+            self.edit.type_keys("testTypeKeys")
+            self.assertEqual(self.edit.window_text(), "testTypeKeys")
 
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"
@@ -142,7 +142,7 @@ if UIA_support:
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button.elementInfo)
+            self.button = UIAWrapper(self.dlg.Button.element_info)
             self.label = self.dlg.TestLabel.WrapperObject()
 
         def tearDown(self):
@@ -161,27 +161,27 @@ if UIA_support:
 
         def testClickInput(self):
             time.sleep(0.5)
-            self.button.ClickInput()
-            self.assertEqual(self.label.WindowText(), "LeftClick")
+            self.button.click_input()
+            self.assertEqual(self.label.window_text(), "LeftClick")
 
         #def testDoubleClick(self):
         #    pass
 
         def testDoubleClickInput(self):
-            self.dlg.SetFocus()
+            self.dlg.set_focus()
             time.sleep(2.0)
             Timings.after_clickinput_wait = 0.001
-            self.button.DoubleClickInput()
+            self.button.double_click_input()
             time.sleep(0.5)
-            self.assertEqual(self.label.WindowText(), "DoubleClick")
+            self.assertEqual(self.label.window_text(), "DoubleClick")
 
         #def testRightClick(self):
         #    pass
 
         def testRightClickInput(self):
             time.sleep(0.5)
-            self.button.RightClickInput()
-            self.assertEqual(self.label.WindowText(), "RightClick")
+            self.button.right_click_input()
+            self.assertEqual(self.label.window_text(), "RightClick")
 
         #def testPressMoveRelease(self):
         #    pass

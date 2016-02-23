@@ -284,7 +284,7 @@ def with_metaclass(meta, *bases):
 
 
 def add_metaclass(metaclass):
-    """Class decorator for creating a class with a metaclass."""
+    """class_name decorator for creating a class with a metaclass."""
     def wrapper(cls):
         orig_vars = cls.__dict__.copy()
         slots = orig_vars.get('__slots__')

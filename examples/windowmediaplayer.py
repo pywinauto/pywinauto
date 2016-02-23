@@ -52,8 +52,8 @@ def windows_media():
     app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
     app.WindowsMediaPlayer.MenuSelect("View->Choose Columns")
 
-    #for ctrl in app.ChooseColumns.Children():
-    #    print ctrl.Class()
+    #for ctrl in app.ChooseColumns.children():
+    #    print ctrl.class_name()
 
 
     print("Is it checked already:", app.ChooseColumsn.ListView.IsChecked(1))

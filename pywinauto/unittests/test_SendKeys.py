@@ -257,7 +257,7 @@ class SendKeysModifiersTests(unittest.TestCase):
     def testModifiersForFewChars(self):
         "Make sure that repeated action works"
         SendKeys("%(SC)", pause = .3)
-        dlg = self.app.Window_(title='Using C++ Derived Class')
+        dlg = self.app.Window_(title='Using C++ Derived class_name')
         dlg.Wait('ready')
         dlg.Done.CloseClick()
         dlg.WaitNot('visible')

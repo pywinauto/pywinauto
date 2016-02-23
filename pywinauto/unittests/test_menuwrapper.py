@@ -74,12 +74,12 @@ class MenuWrapperTests(unittest.TestCase):
                           [item.Text() for item in self.dlg.Menu().Items()])
 
     def testFriendlyClassName(self):
-        self.assertEquals('MenuItem', self.dlg.Menu().Item(0).FriendlyClassName())
+        self.assertEquals('MenuItem', self.dlg.Menu().Item(0).friendly_class_name())
 
     def testMenuItemNotEnabled(self):
         self.assertRaises(MenuItemNotEnabled, self.dlg.MenuSelect, 'Edit->Find Next')
         self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').Click)
-        self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').ClickInput)
+        self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').click_input)
 
     def testGetProperties(self):
         self.assertEquals({u'MenuItems': [{u'Index': 0, u'State': 0, u'Type': 0, u'ID': 64, u'Text': u'View &Help'},
@@ -106,7 +106,7 @@ class MenuWrapperTests(unittest.TestCase):
         About.WaitNot('visible')
 
     def testClickInput(self):
-        self.dlg.Menu().GetMenuPath('&Help->&About Notepad')[-1].ClickInput()
+        self.dlg.Menu().GetMenuPath('&Help->&About Notepad')[-1].click_input()
         About = self.app.Window_(title='About Notepad')
         About.Wait('ready')
         About.OK.Click()
