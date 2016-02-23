@@ -208,8 +208,7 @@ def click(button='left', coords=(0, 0)):
 
 def double_click(button='left', coords=(0, 0)):
     "Double click at the specified coordinates"
-    _perform_click_input(button=button, coords=coords)
-    _perform_click_input(button=button, coords=coords)
+    _perform_click_input(button=button, coords=coords, double=True)
 
 
 def right_click(coords=(0, 0)):

@@ -26,15 +26,14 @@
 
 "Tests for application.py"
 
+import sys
 import os
-import os.path
 import unittest
 import time
 #import pprint
 #import pdb
 import warnings
 
-import sys
 sys.path.append(".")
 from pywinauto import application
 from pywinauto.controls import HwndWrapper
