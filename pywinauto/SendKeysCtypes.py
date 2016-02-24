@@ -243,7 +243,7 @@ class KeySequenceError(Exception):
 
 
 class KeyAction(object):
-    """class_name that represents a single 'keyboard' action
+    """Class that represents a single 'keyboard' action
 
     It represents either a PAUSE action (not reallly keyboard) or a keyboard
     action (press or release or both) of a particular key.

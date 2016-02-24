@@ -24,15 +24,11 @@
 """
 from __future__ import unicode_literals
 
-import ctypes
 import re
+import ctypes
 
-from .base_wrapper import BaseWrapper
-from . import backend
-from . import controls
-from . import findbestmatch
-from . import six
 from . import sysinfo
+from . import six
 from . import win32functions
 from . import win32structures
 from . import handleprops
@@ -41,7 +37,7 @@ from . import controls
 from .backend import registry
 
 if sysinfo.UIA_support:
-    pass
+    from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
 
 # TODO: we should filter out invalid elements before returning
 

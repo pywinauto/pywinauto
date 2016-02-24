@@ -114,8 +114,6 @@ class BaseWrapper(object):
     def element_info(self):
         """Read-only property to get *ElementInfo object"""
         return self._elementInfo
-    # Non PEP-8 alias
-    elementInfo = element_info
 
     #------------------------------------------------------------
     def friendly_class_name(self):
@@ -176,7 +174,7 @@ class BaseWrapper(object):
         """
         Whether the element is visible or not
 
-        Checks that both the Top Level parent (probably dialog) that
+        Checks that both the top level parent (probably dialog) that
         owns this element and the element itself are both visible.
 
         If you want to wait for an element to become visible (or wait
@@ -197,7 +195,7 @@ class BaseWrapper(object):
         """
         Whether the element is enabled or not
 
-        Checks that both the Top Level parent (probably dialog) that
+        Checks that both the top level parent (probably dialog) that
         owns this element and the element itself are both enabled.
 
         If you want to wait for an element to become enabled (or wait
@@ -355,8 +353,6 @@ class BaseWrapper(object):
         """
         desc_elements = self.element_info.descendants
         return [self.backend.generic_wrapper_class(elementInfo) for elementInfo in desc_elements]
-    # Non PEP-8 alias
-    Descendants = descendants
 
     #-----------------------------------------------------------
     def control_count(self):
@@ -386,7 +382,6 @@ class BaseWrapper(object):
             return self.element_info == other.element_info
         else:
             return self.element_info == other
-    # Non PEP-8 alias
 
     #-----------------------------------------------------------
     def __ne__(self, other):
