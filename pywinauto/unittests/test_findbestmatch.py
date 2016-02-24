@@ -64,8 +64,6 @@ class DummyCtrl():
         self.rect = win32structures.RECT(l, t, r, b)
     def rectangle(self):
         return self.rect
-    # Non PEP-8 alias
-    Rectangle = rectangle
 
 class TestIsAboveOrToLeft(unittest.TestCase):
     def testSameRect(self):
