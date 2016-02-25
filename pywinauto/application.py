@@ -56,10 +56,10 @@ in almost exactly the same ways. ::
 """
 from __future__ import print_function
 
-import time
 import os.path
-import warnings
 import pickle
+import time
+import warnings
 
 import win32process
 import win32api
@@ -80,7 +80,7 @@ from .backend import registry
 
 from .actionlogger import ActionLogger
 from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
-from .sysinfo import is_x64_Python, UIA_support
+from .sysinfo import is_x64_Python
 
 
 class AppStartError(Exception):
@@ -112,9 +112,9 @@ class WindowSpecification(object):
     """
 
     WAIT_CRITERIA_MAP = {'exists': ('Exists',),
-                         'visible': ('IsVisible',),
-                         'enabled': ('IsEnabled',),
-                         'ready': ('IsVisible', 'IsEnabled',),
+                         'visible': ('is_visible',),
+                         'enabled': ('is_enabled',),
+                         'ready': ('is_visible', 'is_enabled',),
                          'active': ('IsActive',),
                          }
 
@@ -329,7 +329,7 @@ class WindowSpecification(object):
             else:
                 unique_check_names.update(check_methods)
 
-        # unique_check_names = set(['IsEnabled', 'IsActive', 'IsVisible', 'Exists'])
+        # unique_check_names = set(['is_enabled', 'IsActive', 'is_visible', 'Exists'])
         return unique_check_names, timeout, retry_interval
 
     def __check_all_conditions(self, check_names):
@@ -426,16 +426,16 @@ class WindowSpecification(object):
         ctrls = _resolve_control(
             self.criteria)
 
-        if ctrls[-1].IsDialog():
+        if ctrls[-1].is_dialog():
             # dialog controls are all the control on the dialog
-            dialog_controls = ctrls[-1].Children()
+            dialog_controls = ctrls[-1].children()
 
             ctrls_to_print = dialog_controls[:]
             # filter out hidden controls
             ctrls_to_print = [
-                ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
+                ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
         else:
-            dialog_controls = ctrls[-1].TopLevelParent().Children()
+            dialog_controls = ctrls[-1].top_level_parent().children()
             ctrls_to_print = [ctrls[-1]]
 
         # build the list of disambiguated list of control names
@@ -468,16 +468,16 @@ class WindowSpecification(object):
         ctrls = _resolve_control(
             self.criteria)
 
-        if ctrls[-1].IsDialog():
+        if ctrls[-1].is_dialog():
             # dialog controls are all the control on the dialog
-            dialog_controls = ctrls[-1].Children()
+            dialog_controls = ctrls[-1].children()
 
             ctrls_to_print = dialog_controls[:]
             # filter out hidden controls
             ctrls_to_print = [
-                ctrl for ctrl in ctrls_to_print if ctrl.IsVisible()]
+                ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
         else:
-            dialog_controls = ctrls[-1].TopLevelParent().Children()
+            dialog_controls = ctrls[-1].top_level_parent().children()
             ctrls_to_print = [ctrls[-1]]
 
         # build the list of disambiguated list of control names
@@ -492,9 +492,9 @@ class WindowSpecification(object):
         for ctrl in ctrls_to_print:
 
             print("{class_name} - '{text}'   {rect}".format(
-                class_name=ctrl.FriendlyClassName(),
-                text=ctrl.WindowText(),
-                rect=str(ctrl.Rectangle())))
+                class_name=ctrl.friendly_class_name(),
+                text=ctrl.window_text(),
+                rect=str(ctrl.rectangle())))
 
             print("\t"),
             names = control_name_map[ctrl]
@@ -506,7 +506,7 @@ class WindowSpecification(object):
 
 #        for ctrl in ctrls_to_print:
 #            print "%s - '%s'   %s"% (
-#                ctrl.Class(), ctrl.WindowText(), str(ctrl.Rectangle()))
+#                ctrl.class_name(), ctrl.window_text(), str(ctrl.rectangle()))
 #
 #            print "\t",
 #            for text in findbestmatch.get_control_names(
@@ -598,7 +598,7 @@ def _resolve_from_appdata(
 
     dialog_criterion = criteria[0]
     #print list(matched_control)
-    dialog_criterion['class_name'] = matched_control[1]['Class']
+    dialog_criterion['class_name'] = matched_control[1]['class_name']
 
     # find all the windows in the process
     process_elems = findwindows.find_elements(**dialog_criterion)
@@ -607,16 +607,16 @@ def _resolve_from_appdata(
     ctrl = None
     if process_elems:
         similar_child_count = [e for e in process_elems
-            if matched_control[1]['ControlCount'] -2 <=
+            if matched_control[1]['control_count'] -2 <=
                     len(e.children) and
-                matched_control[1]['ControlCount'] +2 >=
+                matched_control[1]['control_count'] +2 >=
                     len(e.children)]
 
         if similar_child_count:
             process_hwnds = similar_child_count
         #else:
         #    print("None Similar child count!!???")
-        #    print(matched_control[1]['ControlCount'], len(handleprops.children(h)))
+        #    print(matched_control[1]['control_count'], len(handleprops.children(h)))
 
         for e in process_elems:
             #print controls.WrapHandle(h).GetProperties()
@@ -635,12 +635,12 @@ def _resolve_from_appdata(
 
                 #def has_same_id(other_ctrl):
                 #    print "==="*20
-                #    print "testing", item[2]['ControlID'],
+                #    print "testing", item[2]['control_id'],
                 #    print "against", other_ctrl
-                #    return item[2]['ControlID'] == \
+                #    return item[2]['control_id'] == \
                 #    handleprops.controlid(other_ctrl)
 
-                ctrl_criterion['class_name'] = matched_control[2]['Class']
+                ctrl_criterion['class_name'] = matched_control[2]['class_name']
                 ctrl_criterion['parent'] = dialog.handle
                 ctrl_criterion['top_level_only'] = False
                 #ctrl_criterion['predicate_func'] = has_same_id
@@ -651,7 +651,7 @@ def _resolve_from_appdata(
                     same_ids = \
                         [elem for elem in ctrl_elems
                             if elem.controlId == \
-                                matched_control[2]['ControlID']]
+                                matched_control[2]['control_id']]
 
                     if same_ids:
                         ctrl_elems = same_ids
@@ -687,11 +687,11 @@ def _resolve_from_appdata(
 ##
 ##        # if best match was specified for the dialog
 ##        # then we need to replace it with other values
-##        # for now we will just use Class
+##        # for now we will just use class_name
 ##        for crit in ['best_match', 'title', 'title_re']:
 ##            if crit in criteria[0]:
 ##                del(criteria[0][crit])
-##                criteria[0]['class_name'] = app_data[0].Class()#['Class']
+##                criteria[0]['class_name'] = app_data[0].class_name()#['class_name']
 ##
 ##            if len(criteria) > 1:
 ##                # find the best match of the application data
@@ -699,15 +699,15 @@ def _resolve_from_appdata(
 ##                    best_match = findbestmatch.find_best_control_matches(
 ##                        criteria[1]['best_match'], app_data)[0]
 ##
-##                    #visible_controls = [ctrl in app_data if ctrl.IsVisible()]
+##                    #visible_controls = [ctrl in app_data if ctrl.is_visible()]
 ##
 ##                    #find the index of the best match item
 ##                    ctrl_index = app_data.index(best_match)
-##                    #print best_match[0].WindowText()
-##                    ctrl_index, best_match.WindowText()
+##                    #print best_match[0].window_text()
+##                    ctrl_index, best_match.window_text()
 ##
 ##                    criteria[1]['ctrl_index'] = ctrl_index -1
-##                    #criteria[1]['class_name'] = best_match.Class()
+##                    #criteria[1]['class_name'] = best_match.class_name()
 ##                    #del(criteria[1]['best_match'])
 ##
 ## One idea here would be to run the new criteria on the app_data dialog and
@@ -1079,7 +1079,7 @@ class Application(object):
 
         if not self.process:
             win_spec = WindowSpecification(kwargs)
-            self.process = win_spec.WrapperObject().ProcessID()
+            self.process = win_spec.WrapperObject().process_id()
         # add the restriction for this particular process
         else:
             kwargs['process'] = self.process

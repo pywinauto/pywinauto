@@ -463,21 +463,21 @@ def ReadPropertiesFromFile(filename):
 
             ctrl_prop['Fonts'] = [_XMLToStruct(ctrl_prop['FONT'], "LOGFONTW"), ]
 
-            ctrl_prop['Rectangle'] = \
+            ctrl_prop['rectangle'] = \
                 _XMLToStruct(ctrl_prop["RECTANGLE"], "RECT")
 
             ctrl_prop['ClientRects'] = [
                 _XMLToStruct(ctrl_prop["CLIENTRECT"], "RECT"),]
 
-            ctrl_prop['Texts'] = _OLD_XMLToTitles(ctrl_prop["TITLES"])
+            ctrl_prop['texts'] = _OLD_XMLToTitles(ctrl_prop["TITLES"])
 
-            ctrl_prop['Class'] = ctrl_prop['CLASS']
+            ctrl_prop['class_name'] = ctrl_prop['CLASS']
             ctrl_prop['ContextHelpID'] = ctrl_prop['HELPID']
-            ctrl_prop['ControlID'] = ctrl_prop['CTRLID']
+            ctrl_prop['control_id'] = ctrl_prop['CTRLID']
             ctrl_prop['ExStyle'] = ctrl_prop['EXSTYLE']
-            ctrl_prop['FriendlyClassName'] = ctrl_prop['FRIENDLYCLASS']
+            ctrl_prop['friendly_class_name'] = ctrl_prop['FRIENDLYCLASS']
             ctrl_prop['IsUnicode'] = ctrl_prop['ISUNICODE']
-            ctrl_prop['IsVisible'] = ctrl_prop['ISVISIBLE']
+            ctrl_prop['is_visible'] = ctrl_prop['ISVISIBLE']
             ctrl_prop['Style'] = ctrl_prop['STYLE']
             ctrl_prop['UserData'] = ctrl_prop['USERDATA']
 

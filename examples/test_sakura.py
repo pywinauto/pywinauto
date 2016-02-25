@@ -42,7 +42,7 @@ def sakura_test():
 	# so using keys to select a menu item
 
 	# open some dialog
-	mainwin.TypeKeys("%OC")
+	mainwin.type_keys("%OC")
 
 	dlg = app.window_(title = u'共通設定')
 	dlg.window_(title_re = r"フリーカーソル.*").Click()
@@ -50,7 +50,7 @@ def sakura_test():
 	dlg.Cancel.Click()
 
 	# quit the application
-	mainwin.TypeKeys("%FX")
+	mainwin.type_keys("%FX")
 
 
 def main():

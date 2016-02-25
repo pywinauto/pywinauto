@@ -42,20 +42,20 @@ def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, b
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
         button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
     except Exception:
-        ShowHiddenIconsButton.ClickInput() # may fail from PythonWin when script takes long time
+        ShowHiddenIconsButton.click_input() # may fail from PythonWin when script takes long time
         popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
         button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
 
-    popup_toolbar.Button(button_index).ClickInput(button=mouse_button, double=double)
+    popup_toolbar.Button(button_index).click_input(button=mouse_button, double=double)
 
 def ClickSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a visible tray icon given by button"
-    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput(double=double)
+    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).click_input(double=double)
 
 def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
     "Right click on a visible tray icon given by button"
-    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).ClickInput(button='right')
+    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).click_input(button='right')
 
 def ClickHiddenSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a hidden tray icon given by button"
@@ -101,4 +101,4 @@ except Exception:
     LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 
 # the hidden tray icons button (TODO: think how to optimize)
-ShowHiddenIconsButton = [ch for ch in TaskBar.Children() if ch.FriendlyClassName() == 'Button'][-1] #TaskBar.Button #added
+ShowHiddenIconsButton = [ch for ch in TaskBar.children() if ch.friendly_class_name() == 'Button'][-1] #TaskBar.Button #added

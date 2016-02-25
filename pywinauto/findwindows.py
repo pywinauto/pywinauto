@@ -240,7 +240,7 @@ def find_elements(class_name = None,
         elements = []
         for elem in backup_elements:
             if hasattr(elem, "_elementInfo"):
-                elements.append(elem.elementInfo)
+                elements.append(elem.element_info)
             else:
                 elements.append(registry.active_backend.element_info_class(elem.handle))
 

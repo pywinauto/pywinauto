@@ -240,7 +240,7 @@ class HandlepropsTestCases(unittest.TestCase):
                 exe32bit = os.path.join(os.path.dirname(__file__),
                               r"..\..\apps\MFC_samples\RowList.exe")
                 app = Application().start(exe32bit, timeout=20)
-                pid = app.RowListSampleApplication.ProcessID()
+                pid = app.RowListSampleApplication.process_id()
                 res_is64bit = is64bitprocess(pid)
                 try:
                     self.assertEquals(expected_is64bit, res_is64bit)
@@ -255,7 +255,7 @@ class HandlepropsTestCases(unittest.TestCase):
             expected_is64bit = False
 
         # test native Notepad app
-        res_is64bit = is64bitprocess(self.app.UntitledNotepad.ProcessID())
+        res_is64bit = is64bitprocess(self.app.UntitledNotepad.process_id())
         self.assertEquals(expected_is64bit, res_is64bit)
 
     def test_dumpwindow(self):

@@ -61,7 +61,7 @@ A bug is reported when:
 This test produces 3 different types of bug:
 BugType: "Overlapping"
 Name    Description
-OverlappedRect  <What this info is>, Rectangle
+OverlappedRect  <What this info is>, rectangle
 
 **BugType -  "NotContainedOverlap"**
 There is no extra information associated with this bug type
@@ -96,18 +96,18 @@ def OverlappingTest(windows):
     bugs = []
 
     for i, first in enumerate(windows[:-1]):
-        first_rect = first.Rectangle()
+        first_rect = first.rectangle()
 
         if first.ref:
-            first_ref_rect = first.ref.Rectangle()
+            first_ref_rect = first.ref.rectangle()
 
         for second in windows[i+1:]:
-            second_rect = second.Rectangle()
+            second_rect = second.rectangle()
 
 
             # if the reference controls are available
             if first.ref and second.ref:
-                second_ref_rect = second.ref.Rectangle()
+                second_ref_rect = second.ref.rectangle()
 
                 if first_ref_rect == second_ref_rect and \
                     not first_rect == second_rect:

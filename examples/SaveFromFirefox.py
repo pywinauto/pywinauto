@@ -83,7 +83,7 @@ else:
 print("No Menu's in FireFox:", mozilla.MenuItems())
 
 # File -> Save As
-mozilla.TypeKeys("%FA")
+mozilla.type_keys("%FA")
 #ie.Toolbar3.PressButton("File")
 app.SaveAs.Edit.SetEditText(outputfilename)
 
@@ -96,11 +96,11 @@ try:
 except WindowAmbiguousError as e:
     for w in e.windows:
         w = HwndWrapper(w)
-        print(w.WindowText(), w.Class())
+        print(w.window_text(), w.class_name())
 
 print("saved:", outputfilename)
 
 # File close tab or close
 #(Firefox makes it easy for us having the same shortcut for both!
-mozilla.TypeKeys("%FC")
+mozilla.type_keys("%FC")
 

@@ -55,17 +55,19 @@ class ControlProps(dict):
 
         return FuncWrapper(self[attr])
 
-    #def FriendlyClassName(self):
+    #def friendly_class_name(self):
     #    print "sdafafasdfafasdfasdf",
     #    try:
-    #        print "---", self['FriendlyClassName']
+    #        print "---", self['friendly_class_name']
     #    except Exception as e:
     #        print "fffffffffffffffffffff"
     #        print `e`
-    #    return self['FriendlyClassName']
+    #    return self['friendly_class_name']
 
-    def WindowText(self):
-        return self['Texts'][0]
+    def window_text(self):
+        return self['texts'][0]
+    # Non PEP-8 alias
+    WindowText = window_text
 
     def HasStyle(self, style):
         return self['Style'] & style == style
@@ -99,7 +101,7 @@ def MenuBlockAsControls(menuItems, parentage = None):
         # do a bit of conversion first :-)
         itemAsCtrl = MenuItemAsControl(item)
 
-        # update the FriendlyClassName to contain the 'path' to
+        # update the friendly_class_name to contain the 'path' to
         # this particular item
         # TODO: CHECK - as itemPath is currently unused!
         if parentage:
@@ -138,23 +140,23 @@ def MenuItemAsControl(menuItem):
 
     itemAsCtrl = ControlProps()
 
-    itemAsCtrl["Texts"] = [menuItem['Text'], ]
-    itemAsCtrl["ControlID"] = menuItem['ID']
+    itemAsCtrl["texts"] = [menuItem['Text'], ]
+    itemAsCtrl["control_id"] = menuItem['ID']
     itemAsCtrl["Type"] = menuItem['Type']
     itemAsCtrl["State"] = menuItem['State']
 
-    itemAsCtrl["Class"] = "MenuItem"
-    itemAsCtrl["FriendlyClassName"] = "MenuItem"
+    itemAsCtrl["class_name"] = "MenuItem"
+    itemAsCtrl["friendly_class_name"] = "MenuItem"
 
     # as most of these don't matter - just set them up with default stuff
-    itemAsCtrl["Rectangle"] = RECT(0, 0, 999, 999)
+    itemAsCtrl["rectangle"] = RECT(0, 0, 999, 999)
     itemAsCtrl["Fonts"] = [LOGFONTW(), ]
     itemAsCtrl["ClientRects"] = [RECT(0, 0, 999, 999), ]
     itemAsCtrl["ContextHelpID"] = 0
     itemAsCtrl["UserData"]  = 0
     itemAsCtrl["Style"] = 0
     itemAsCtrl["ExStyle"] = 0
-    itemAsCtrl["IsVisible"] = 1
+    itemAsCtrl["is_visible"] = 1
 
     return itemAsCtrl
 
@@ -185,14 +187,14 @@ def SetReferenceControls(controls, refControls):
     allClassesSameFlag = 4
 
     # find if all the control id's match
-    if  [ctrl.ControlID() for ctrl in controls] == \
-        [ctrl.ControlID() for ctrl in refControls]:
+    if  [ctrl.control_id() for ctrl in controls] == \
+        [ctrl.control_id() for ctrl in refControls]:
 
         toRet += allIDsSameFlag
 
     # check if the control classes match
-    if [ctrl.Class() for ctrl in controls] == \
-       [ctrl.Class() for ctrl in refControls]:
+    if [ctrl.class_name() for ctrl in controls] == \
+       [ctrl.class_name() for ctrl in refControls]:
 
         toRet += allClassesSameFlag
 
