@@ -182,6 +182,29 @@ if UIA_support:
         #def testPressMoveRelease(self):
         #    pass
 
+    class ButtonWrapperTests(unittest.TestCase):
+        "Unit tests for the ButtonWrapper class"
+
+        def setUp(self):
+            """Start the application set some data and ensure the application
+            is in the state we want it."""
+            backend.activate("uia")
+
+            # start the application
+            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+
+            self.dlg = self.app.WPFSampleApplication
+            self.button = self.dlg.Button
+            #self.button = UIAWrapper(self.dlg.Button.elementInfo)
+
+        def tearDown(self):
+            "Close the application after tests"
+            self.app.kill_()
+
+        def testFriendlyClassName(self):
+            "Test getting the friendly classname of the dialog"
+            self.assertEqual(self.button.FriendlyClassName(), "Button")
+
 if __name__ == "__main__":
     if UIA_support:
         unittest.main()

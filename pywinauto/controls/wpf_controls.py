@@ -31,18 +31,11 @@ from ..UIAElementInfo import _UIA_dll
 class ButtonWrapper(UIAWrapper.UIAWrapper):
     "Wrap a WPF Button control"
 
-    friendlyclassname = "Button"
-    windowclasses = [
-        "Button",
-        ".*Button",
-        r"WindowsForms\d*\.BUTTON\..*",
-        ".*CheckBox", ]
-    controltypes = [
-            _UIA_dll.UIA_ButtonControlTypeId,
-            _UIA_dll.UIA_CheckBoxControlTypeId,
-            _UIA_dll.UIA_RadioButtonControlTypeId
-            ]
-    can_be_label = True
+    control_types = [
+        _UIA_dll.UIA_ButtonControlTypeId,
+        _UIA_dll.UIA_CheckBoxControlTypeId,
+        _UIA_dll.UIA_RadioButtonControlTypeId
+        ]
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
