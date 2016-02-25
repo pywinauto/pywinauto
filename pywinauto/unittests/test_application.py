@@ -389,13 +389,14 @@ class ApplicationTestCases(unittest.TestCase):
         explorer = Application().Connect(process = window.ProcessID())
         
         try:
+            explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
             window.AddressBandRoot.ClickInput(double = True)
             window.Edit.SetEditText(r'Control Panel\Programs\Programs and Features')
             window.TypeKeys(r'{ENTER 2}', set_foreground = False)
             WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(active_only = True,
                                                                      title = 'Programs and Features',
                                                                      class_name='CabinetWClass')) > 0)
-            explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
+            explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 90, usage_interval = 3)
             installed_programs = window.FolderView.Texts()[1:]
             programs_list = ','.join(installed_programs)
             if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
