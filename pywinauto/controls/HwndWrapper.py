@@ -111,7 +111,7 @@ class HwndMeta(BaseMeta):
         if isinstance(element, six.integer_types):
             from ..NativeElementInfo import NativeElementInfo
             element = NativeElementInfo(element)
-        class_name = element.className
+        class_name = element.class_name
 
         try:
             return HwndMeta.str_wrappers[class_name]

@@ -33,7 +33,7 @@ if UIA_support:
             self.app.kill_()
 
         def testProcessId(self):
-            self.assertEqual(self.ctrl.processId, processid(self.handle))
+            self.assertEqual(self.ctrl.process_id, processid(self.handle))
 
         def testName(self):
             self.assertEqual(self.ctrl.name, "Calculator")

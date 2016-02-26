@@ -168,10 +168,10 @@ class UIAWrapper(BaseWrapper):
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            if self.element_info.controlType not in _known_control_types.keys():
-                self.friendlyclassname = str(self.element_info.controlType)
+            if self.element_info.control_type not in _known_control_types.keys():
+                self.friendlyclassname = str(self.element_info.control_type)
             else:
-                ControlType = _known_control_types[self.element_info.controlType]
+                ControlType = _known_control_types[self.element_info.control_type]
                 if (ControlType not in pywinauto_control_types.keys()) or (pywinauto_control_types[ControlType] is None):
                     self.friendlyclassname = ControlType
                 else:

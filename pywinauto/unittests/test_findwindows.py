@@ -42,7 +42,7 @@ def _unittests():
 
     for win in windows:
         print("==" * 20)
-        print(win.dumpWindow())
+        print(win.dump_window())
 
 #class ApplicationTestCases(unittest.TestCase):
 #    "Unit tests for the ListViewWrapper class"

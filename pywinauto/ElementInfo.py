@@ -11,27 +11,27 @@ class ElementInfo(object):
         raise NotImplementedError()
 
     @property
-    def richText(self):
+    def rich_text(self):
         "Return the text of the element"
         raise NotImplementedError()
 
     @property
-    def controlId(self):
+    def control_id(self):
         "Return the ID of the control"
         raise NotImplementedError()
 
     @property
-    def processId(self):
+    def process_id(self):
         "Return the ID of process that controls this element"
         raise NotImplementedError()
 
     @property
-    def frameworkId(self):
+    def framework_id(self):
         "Return the framework of the element"
         raise NotImplementedError()
     
     @property
-    def className(self):
+    def class_name(self):
         "Return the class name of the element"
         raise NotImplementedError()
 
@@ -65,6 +65,6 @@ class ElementInfo(object):
         "Return rectangle of element"
         raise NotImplementedError()
 
-    def dumpWindow(self):
+    def dump_window(self):
         "Dump an element to a set of properties"
         raise NotImplementedError()

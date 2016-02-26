@@ -37,7 +37,7 @@ from . import controls
 from .backend import registry
 
 if sysinfo.UIA_support:
-    from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _treeScope
+    from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _tree_scope
 
 # TODO: we should filter out invalid elements before returning
 
@@ -157,13 +157,13 @@ def find_elements(class_name = None,
             return [elements[ctrl_index], ]
 
     if framework_id is not None and elements:
-        elements = [elem for elem in elements if elem.frameworkId == framework_id]
+        elements = [elem for elem in elements if elem.framework_id == framework_id]
 
     if control_id is not None and elements:
-        elements = [elem for elem in elements if elem.controlId == control_id]
+        elements = [elem for elem in elements if elem.control_id == control_id]
 
     if auto_id is not None and elements:
-        elements = [elem for elem in elements if elem.automationId == auto_id]
+        elements = [elem for elem in elements if elem.automation_id == auto_id]
 
     if active_only:
         # TODO: re-write to use ElementInfo interface
@@ -190,24 +190,24 @@ def find_elements(class_name = None,
         return elements
 
     if class_name is not None:
-        elements = [elem for elem in elements if elem.className == class_name]
+        elements = [elem for elem in elements if elem.class_name == class_name]
 
     if class_name_re is not None:
         class_name_regex = re.compile(class_name_re)
-        elements = [elem for elem in elements if class_name_regex.match(elem.className)]
+        elements = [elem for elem in elements if class_name_regex.match(elem.class_name)]
 
     if process is not None:
-        elements = [elem for elem in elements if elem.processId == process]
+        elements = [elem for elem in elements if elem.process_id == process]
 
     if title is not None:
         # TODO: some magic is happenning here
         if elements:
-            elements[0].richText
-        elements = [elem for elem in elements if elem.richText == title]
+            elements[0].rich_text
+        elements = [elem for elem in elements if elem.rich_text == title]
     elif title_re is not None:
         title_regex = re.compile(title_re)
         def _title_match(w):
-            t = w.richText
+            t = w.rich_text
             if t is not None:
                 return title_regex.match(t)
             return False
@@ -224,8 +224,8 @@ def find_elements(class_name = None,
         for elem in elements:
             try:
                 # TODO: can't skip invalid handles because UIA element can have no handle
-                # TODO: use className check for this ?
-                if elem.className:
+                # TODO: use class_name check for this ?
+                if elem.class_name:
                     wrapped_elems.append(registry.wrapper_class(elem))
                     #wrapped_elems.append(BaseWrapper(elem))
             except (controls.InvalidWindowHandle,

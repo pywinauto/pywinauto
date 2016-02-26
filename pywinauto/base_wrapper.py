@@ -129,7 +129,7 @@ class BaseWrapper(object):
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            self.friendlyclassname = self.element_info.className
+            self.friendlyclassname = self.element_info.class_name
         return self.friendlyclassname
     # Non PEP-8 alias
     FriendlyClassName = friendly_class_name
@@ -137,7 +137,7 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     def class_name(self):
         """Return the class name of the elenemt"""
-        return self.element_info.className
+        return self.element_info.class_name
     # Non PEP-8 alias
     Class = class_name
 
@@ -150,7 +150,7 @@ class BaseWrapper(object):
         Edit controls usually have an empty string for window_text but still
         have text displayed in the edit window.
         """
-        return self.element_info.richText
+        return self.element_info.rich_text
     # Non PEP-8 alias
     WindowText = window_text
 
@@ -165,7 +165,7 @@ class BaseWrapper(object):
         be duplicate ID's for example lables in a dialog may have duplicate
         ID's.
         """
-        return self.element_info.controlId
+        return self.element_info.control_id
     # Non PEP-8 alias
     ControlID = control_id
 
@@ -241,7 +241,7 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def process_id(self):
         "Return the ID of process that owns this window"
-        return self.element_info.processId
+        return self.element_info.process_id
     # Non PEP-8 alias
     ProcessID = process_id
 

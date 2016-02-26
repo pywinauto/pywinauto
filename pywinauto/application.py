@@ -655,8 +655,8 @@ def _resolve_from_appdata(
                 if len(ctrl_elems) > 1:
                     same_ids = \
                         [elem for elem in ctrl_elems
-                            if elem.controlId == \
-                                matched_control[2]['control_id']]
+                         if elem.control_id == \
+                         matched_control[2]['control_id']]
 
                     if same_ids:
                         ctrl_elems = same_ids
@@ -842,7 +842,7 @@ class Application(object):
             connected = True
 
         elif kwargs:
-            self.process = findwindows.find_element(**kwargs).processId
+            self.process = findwindows.find_element(**kwargs).process_id
             connected = True
 
         if not connected:
