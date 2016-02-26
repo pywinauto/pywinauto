@@ -43,7 +43,7 @@ mfc_samples_folder = os.path.join(
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
-_ready_timeout = 30
+_ready_timeout = 40
 _retry_interval = 0.5
 def _toggle_notification_area_icons(show_all=True, debug_img=None):
     """
