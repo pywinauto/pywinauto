@@ -42,7 +42,7 @@ if UIA_support:
             backend.activate("uia")
 
             # start the application
-            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)
@@ -139,7 +139,7 @@ if UIA_support:
             backend.activate("uia")
 
             # start the application
-            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)

@@ -68,7 +68,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     WaitUntil(_ready_timeout, _retry_interval, _cabinetwclass_exist)
     handle = findwindows.find_elements(active_only = True,
                                       class_name = class_name)[-1].handle
-    window = WindowSpecification({'handle': handle, })
+    window = WindowSpecification({'handle': handle, 'backend': 'native', })
     explorer = Application().Connect(process=window.process_id())
     cur_state = None
 

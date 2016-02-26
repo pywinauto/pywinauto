@@ -396,7 +396,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         WaitUntil(40, 0.5, _cabinetwclass_exist)
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
-        window = WindowSpecification({'handle': handle, })
+        window = WindowSpecification({'handle': handle, 'backend': 'native', })
         explorer = Application().Connect(process = window.process_id())
         
         try:

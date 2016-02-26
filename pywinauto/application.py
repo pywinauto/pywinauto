@@ -112,7 +112,7 @@ class WindowSpecification(object):
     You can also wait for existance or non existance of a window 
  
     .. implicitly document some private functions
-    .. automethod:: __getattr__
+    .. automethod:: __getattribute__
     .. automethod:: __getitem__
     """
 
@@ -132,6 +132,7 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
+        #self.backend = registry.backends[search_criteria['backend']]
 
     def __call__(self, *args, **kwargs):
         "No __call__ so return a usefull error"
@@ -302,7 +303,8 @@ class WindowSpecification(object):
         except (
             findwindows.ElementNotFoundError,
             findbestmatch.MatchError,
-            controls.InvalidWindowHandle):
+            controls.InvalidWindowHandle,
+            controls.InvalidElement):
             return False
 
     @classmethod
@@ -349,7 +351,8 @@ class WindowSpecification(object):
                 check = getattr(self, check_name)
             except (findwindows.ElementNotFoundError,
                     findbestmatch.MatchError,
-                    controls.InvalidWindowHandle):
+                    controls.InvalidWindowHandle,
+                    controls.InvalidElement):
                 # The control does not exist.
                 return False
             else:
@@ -763,7 +766,8 @@ def _resolve_control(criteria, timeout = None, retry_interval = None):
             _get_ctrl,
             (findwindows.ElementNotFoundError,
             findbestmatch.MatchError,
-            controls.InvalidWindowHandle),
+            controls.InvalidWindowHandle,
+            controls.InvalidElement),
             criteria)
 
     except TimeoutError as e:
@@ -778,11 +782,11 @@ class Application(object):
     Represents an application
  
     .. implicitly document some private functions
-    .. automethod:: __getattr__
+    .. automethod:: __getattribute__
     .. automethod:: __getitem__
     """
 
-    def __init__(self, datafilename = None):
+    def __init__(self, backend = "native", datafilename = None):
         "Set the attributes"
         self.process = None
         self.xmlpath = ''
@@ -790,6 +794,9 @@ class Application(object):
         self.match_history = []
         self.use_history = False
         self.actions = ActionLogger()
+        if backend not in registry.backends:
+            raise ValueError('Backend "{0}" is not registered!'.format(backend))
+        self.backend = registry.backends[backend]
 
         # load the match history if a file was specifed
         # and it exists
@@ -1014,7 +1021,7 @@ class Application(object):
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_elements(process = self.process)
+            windows = findwindows.find_elements(process = self.process, backend = self.backend.name)
             if windows:
                 break
             time.sleep(Timings.window_find_retry)
@@ -1023,7 +1030,11 @@ class Application(object):
             raise RuntimeError("No windows for that process could be found")
 
         criteria = {}
-        criteria['handle'] = windows[0].handle
+        criteria['backend'] = self.backend.name
+        if windows[0].handle:
+            criteria['handle'] = windows[0].handle
+        else:
+            criteria['title'] = windows[0].name
 
         return WindowSpecification(criteria)
 
@@ -1035,13 +1046,17 @@ class Application(object):
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_elements(process = self.process, active_only = True)
+        windows = findwindows.find_elements(process = self.process, active_only = True, backend = self.backend.name)
 
         if not windows:
             raise RuntimeError("No Windows of that application are active")
 
         criteria = {}
-        criteria['handle'] = windows[0].handle
+        criteria['backend'] = self.backend.name
+        if windows[0].handle:
+            criteria['handle'] = windows[0].handle
+        else:
+            criteria['title'] = windows[0].name
 
         return WindowSpecification(criteria)
 
@@ -1054,6 +1069,8 @@ class Application(object):
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
+        if 'backend' in kwargs:
+            raise ValueError('Using another backend than set in the app constructor is not allowed!')
 
         if 'visible_only' not in kwargs:
             kwargs['visible_only'] = False
@@ -1062,9 +1079,10 @@ class Application(object):
             kwargs['enabled_only'] = False
 
         kwargs['process'] = self.process
+        kwargs['backend'] = self.backend.name
 
         windows = findwindows.find_elements(**kwargs)
-        return [registry.wrapper_class(win) for win in windows]
+        return [self.backend.generic_wrapper_class(win) for win in windows]
         #return [BaseWrapper(win) for win in windows]
 
     Windows_ = windows_
@@ -1077,6 +1095,9 @@ class Application(object):
         It will add the process parameter to ensure that the window is from
         the current process.
         """
+        if 'backend' in kwargs:
+            raise ValueError('Using another backend than set in the app constructor is not allowed!')
+        kwargs['backend'] = self.backend.name
 
         if not self.process:
             win_spec = WindowSpecification(kwargs)
