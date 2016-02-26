@@ -62,7 +62,7 @@ if sys.platform == 'win32':
     ):
         """Perform a click action using SendInput
 
-        All the *ClickInput() and *MouseInput() methods use this function.
+        All the *click_input() and *mouse_input() methods use this function.
 
         Thanks to a bug report from Tomas Walch (twalch) on sourceforge and code
         seen at http://msdn.microsoft.com/en-us/magazine/cc164126.aspx this

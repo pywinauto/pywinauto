@@ -24,11 +24,11 @@
 **What is checked**
 This checks various values related to a control in windows. The values tested
 are
-Class	The class type of the control
+class_name	The class type of the control
 Style	The Style of the control (GetWindowLong)
 ExStyle	The Extended Style of the control (GetWindowLong)
 HelpID	The Help ID of the control (GetWindowLong)
-ControlID	The Control ID of the control (GetWindowLong)
+control_id	The Control ID of the control (GetWindowLong)
 UserData	The User Data of the control (GetWindowLong)
 Visibility	Whether the control is visible or not
 
@@ -71,8 +71,8 @@ def MiscValuesTest(windows):
 
         diffs = {}
 
-        if win.Class() != win.ref.Class():
-            diffs[u"Class"] = (win.Class(), win.ref.Class())
+        if win.class_name() != win.ref.class_name():
+            diffs[u"class_name"] = (win.class_name(), win.ref.class_name())
 
         if win.Style() != win.ref.Style():
             diffs[u"Style"] = (win.Style(), win.ref.Style())
@@ -83,11 +83,11 @@ def MiscValuesTest(windows):
         if win.ContextHelpID() != win.ref.ContextHelpID():
             diffs[u"HelpID"] = (win.ContextHelpID(), win.ref.ContextHelpID())
 
-        if win.ControlID() != win.ref.ControlID():
-            diffs[u"ControlID"] = (win.ControlID(), win.ref.ControlID())
+        if win.control_id() != win.ref.control_id():
+            diffs[u"control_id"] = (win.control_id(), win.ref.control_id())
 
-        if win.IsVisible() != win.ref.IsVisible():
-            diffs[u"Visibility"] = (win.IsVisible(), win.ref.IsVisible())
+        if win.is_visible() != win.ref.is_visible():
+            diffs[u"Visibility"] = (win.is_visible(), win.ref.is_visible())
 
         if win.UserData() != win.ref.UserData():
             diffs[u"UserData"] = (win.UserData(), win.ref.UserData())

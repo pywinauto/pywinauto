@@ -98,7 +98,7 @@ def RepeatedHotkeyTest(windows):
             # build up the available characters for each control
             for ctrl in controls:
                 controlChars = ""
-                controlChars = set(ctrl.WindowText().lower())
+                controlChars = set(ctrl.window_text().lower())
 
                 controlAvailableChars = controlChars.intersection(dlgAvailable)
                 controlAvailableChars = \
@@ -156,7 +156,7 @@ def _CollectDialogInfo(windows):
             continue
 
         # get the hotkey
-        pos, char = GetHotkey(win.WindowText())
+        pos, char = GetHotkey(win.window_text())
 
         # if no hotkey for this control
         # then continue
@@ -170,7 +170,7 @@ def _CollectDialogInfo(windows):
 
         # Add the title of this control to the list of available
         # characters for the dialog
-        allChars += win.WindowText().lower()
+        allChars += win.window_text().lower()
 
 
     allChars = set(allChars)
@@ -221,14 +221,14 @@ def ImplementsHotkey(win):
     "checks whether a control interprets & character to be a hotkey"
 
     # buttons always implement hotkey
-    if win.Class() == "Button":
+    if win.class_name() == "Button":
         return True
 
     # Statics do if they don't have SS_NOPREFIX style
-    elif win.Class() == "Static" and not win.HasStyle(SS_NOPREFIX):
+    elif win.class_name() == "Static" and not win.HasStyle(SS_NOPREFIX):
         return True
 
-    if win.Class() == "MenuItem" and win.State() != "2048":
+    if win.class_name() == "MenuItem" and win.State() != "2048":
         return True
 
     # Most controls don't - so just return false if

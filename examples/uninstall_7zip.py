@@ -15,9 +15,9 @@ explorer = pywinauto.Application().Connect(path='explorer.exe')
 # Go to "Control Panel -> Programs and Features"
 NewWindow = explorer.Window_(top_level_only=True, active_only=True, class_name='CabinetWClass')
 try:
-    NewWindow.AddressBandRoot.ClickInput()
-    NewWindow.TypeKeys(r'Control Panel\Programs\Programs and Features{ENTER}',
-                       with_spaces=True, set_foreground=False)
+    NewWindow.AddressBandRoot.click_input()
+    NewWindow.type_keys(r'Control Panel\Programs\Programs and Features{ENTER}',
+                        with_spaces=True, set_foreground=False)
     ProgramsAndFeatures = explorer.Window_(top_level_only=True, active_only=True,
                                            title='Programs and Features', class_name='CabinetWClass')
 
@@ -26,12 +26,12 @@ try:
 
     item_7z = ProgramsAndFeatures.FolderView.GetItem('7-Zip 9.20 (x64 edition)')
     item_7z.EnsureVisible()
-    item_7z.ClickInput(button='right', where='icon')
+    item_7z.click_input(button='right', where='icon')
     explorer.PopupMenu.MenuItem('Uninstall').Click()
 
     Confirmation = explorer.Window_(title='Programs and Features', class_name='#32770', active_only=True)
     if Confirmation.Exists():
-        Confirmation.Yes.ClickInput()
+        Confirmation.Yes.click_input()
         Confirmation.WaitNot('visible')
 
     WindowsInstaller = explorer.Window_(title='Windows Installer', class_name='#32770', active_only=True)
@@ -42,7 +42,7 @@ try:
     if SevenZipInstaller.Exists():
         SevenZipInstaller.WaitNot('visible', timeout=20)
 
-    if '7-Zip 9.20 (x64 edition)' not in ProgramsAndFeatures.FolderView.Texts():
+    if '7-Zip 9.20 (x64 edition)' not in ProgramsAndFeatures.FolderView.texts():
         print('OK')
 finally:
     NewWindow.Close()

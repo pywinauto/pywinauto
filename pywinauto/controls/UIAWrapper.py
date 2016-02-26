@@ -155,23 +155,23 @@ class UIAWrapper(BaseWrapper):
         return hash(self.elementInfo.runtime_id)
 
     #------------------------------------------------------------
-    def FriendlyClassName(self):
+    def friendly_class_name(self):
         """
         Return the friendly class name for the control
 
         This differs from the class of the control in some cases.
-        Class() is the actual 'Registered' window class of the control
-        while FriendlyClassName() is hopefully something that will make
+        class_name() is the actual 'Registered' window class of the control
+        while friendly_class_name() is hopefully something that will make
         more sense to the user.
 
         For example Checkboxes are implemented as Buttons - so the class
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            if self._elementInfo.controlType not in _known_control_types.keys():
-                self.friendlyclassname = str(self._elementInfo.controlType)
+            if self.element_info.controlType not in _known_control_types.keys():
+                self.friendlyclassname = str(self.element_info.controlType)
             else:
-                ControlType = _known_control_types[self._elementInfo.controlType]
+                ControlType = _known_control_types[self.element_info.controlType]
                 if (ControlType not in pywinauto_control_types.keys()) or (pywinauto_control_types[ControlType] is None):
                     self.friendlyclassname = ControlType
                 else:
@@ -181,19 +181,19 @@ class UIAWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def IsKeyboardFocusable(self):
         "Return True if element can be focused with keyboard"
-        return self._elementInfo.element.CurrentIsKeyboardFocusable == 1
+        return self.element_info.element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
     def HasKeyboardFocus(self):
         "Return True if element is focused with keyboard"
-        return self._elementInfo.element.CurrentHasKeyboardFocus == 1
+        return self.element_info.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
-    def SetFocus(self):
+    def set_focus(self):
         "Set the focus to this element"
         if self.IsKeyboardFocusable() and not self.HasKeyboardFocus():
             try:
-                self._elementInfo.element.SetFocus()
+                self.element_info.element.SetFocus()
             except comtypes.COMError as exc:
                 pass # TODO: add RuntimeWarning here
 
