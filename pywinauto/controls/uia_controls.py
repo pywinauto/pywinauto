@@ -20,7 +20,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"""Wraps various WPF windows controls
+"""Wraps various UIAwindows controls
 """
 from . import UIAWrapper
 from ..UIAElementInfo import _UIA_dll
@@ -42,3 +42,4 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         "Initialize the control"
         super(ButtonWrapper, self).__init__(hwnd)
 
+    #-----------------------------------------------------------

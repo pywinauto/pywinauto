@@ -32,7 +32,7 @@ from .HwndWrapper import InvalidWindowHandle
 # contain
 from . import common_controls
 from . import win32_controls
-from . import wpf_controls
+from . import uia_controls
 
 
 from ..base_wrapper import InvalidElement
