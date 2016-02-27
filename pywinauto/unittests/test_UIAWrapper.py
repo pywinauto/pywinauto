@@ -220,7 +220,7 @@ if UIA_support:
             cur_state = self.dlg.CheckBox.get_toggle_state()
             self.assertEqual(cur_state, uia_elem.toggle_state_off)
             
-            # Toggle to the next state
+            # Toggle the next state
             self.dlg.CheckBox.toggle()
             
             # Get a new state of the check box control
@@ -228,7 +228,7 @@ if UIA_support:
             self.assertEqual(cur_state, uia_elem.toggle_state_on)
 
         def testButtonClick(self):
-            "Test the Click method for the Button control"
+            "Test the click method for the Button control"
             self.dlg.Button.click()
 
 if __name__ == "__main__":

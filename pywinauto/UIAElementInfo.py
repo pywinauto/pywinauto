@@ -184,7 +184,7 @@ except(AttributeError):
 #       ToggleState_On, 
 #       ToggleState_Indeterminate 
 # };
-# The definitiono can als be found in the comtypes package 
+# The definition can also be found in the comtypes package 
 # In a file automatically generated according to UIAutomation GUID:
 # comtypes\gen\_944DE083_8FB8_45CF_BCB7_C477ACB2F897_*.py
 toggle_state_off = 0
