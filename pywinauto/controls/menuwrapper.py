@@ -139,13 +139,15 @@ class MenuItem(object):
 
         return item_info
 
-    def FriendlyClassName(self):
+    def friendly_class_name(self):
         return "MenuItem"
+    # Non PEP-8 alias
+    FriendlyClassName = friendly_class_name
 
     #def __print__(self, ctrl, menu, index):
     #    print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
 
-    def Rectangle(self):
+    def rectangle(self):
         "Get the rectangle of the menu item"
         rect = win32structures.RECT()
 
@@ -167,6 +169,8 @@ class MenuItem(object):
             ctypes.byref(rect))
 
         return rect
+    # Non PEP-8 alias
+    Rectangle = rectangle
 
     def Index(self):
         "Return the index of this menu item"
@@ -208,17 +212,19 @@ class MenuItem(object):
 
         return None
 
-    def IsEnabled(self):
+    def is_enabled(self):
         "Return True if the item is enabled."
         return not (
             self.State() & win32defines.MF_DISABLED or
             self.State() & win32defines.MF_GRAYED)
+    # Non PEP-8 alias
+    IsEnabled = is_enabled
 
     def IsChecked(self):
         "Return True if the item is checked."
         return bool(self.State() & win32defines.MF_CHECKED)
 
-    def ClickInput(self):
+    def click_input(self):
         """Click on the menu item in a more realistic way
 
         If the menu is open it will click with the mouse event on the item.
@@ -227,11 +233,11 @@ class MenuItem(object):
 
         """
 
-        self.ctrl.VerifyActionable()
+        self.ctrl.verify_actionable()
 
-        rect = self.Rectangle()
+        rect = self.rectangle()
 
-        if not self.IsEnabled():
+        if not self.is_enabled():
             raise MenuItemNotEnabled(
                 "MenuItem '%s' is disabled"% self.Text())
 
@@ -239,9 +245,9 @@ class MenuItem(object):
         # until we find an item we CAN click on
         if rect == (0, 0, 0, 0):
             if self.menu.owner_item:
-                self.menu.owner_item.ClickInput()
+                self.menu.owner_item.click_input()
 
-        rect = self.Rectangle()
+        rect = self.rectangle()
 
         x_pt = int(float(rect.left + rect.right) / 2.)
         y_pt = int(float(rect.top + rect.bottom) / 2.)
@@ -250,6 +256,8 @@ class MenuItem(object):
 
         win32functions.WaitGuiThreadIdle(self.ctrl)
         time.sleep(Timings.after_menu_wait)
+    # Non PEP-8 alias
+    ClickInput = click_input
 
     def Select(self):
         """Select the menu item
@@ -258,7 +266,7 @@ class MenuItem(object):
         item was picked
         """
 
-        if not self.IsEnabled():
+        if not self.is_enabled():
             raise MenuItemNotEnabled(
                 "MenuItem '%s' is disabled"% self.Text())
 
@@ -267,12 +275,12 @@ class MenuItem(object):
         #    self.ctrl.NotifyMenuSelect(self.Index(), True)
         #else:
 
-        # seems like SetFocus might be messing with getting the
-        # id for Popup menu items - so I calling it before SetFocus
+        # seems like set_focus might be messing with getting the
+        # id for Popup menu items - so I calling it before set_focus
         command_id = self.ID()
 
         # notify the control that a menu item was selected
-        self.ctrl.SetFocus()
+        self.ctrl.set_focus()
         self.ctrl.SendMessageTimeout(
             self.menu.COMMAND, command_id, timeout=1.0)
 

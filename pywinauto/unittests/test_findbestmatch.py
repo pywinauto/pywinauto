@@ -62,7 +62,7 @@ class TestFindBestMatch(unittest.TestCase):
 class DummyCtrl():
     def __init__(self, l, t, r, b):
         self.rect = win32structures.RECT(l, t, r, b)
-    def Rectangle(self):
+    def rectangle(self):
         return self.rect
 
 class TestIsAboveOrToLeft(unittest.TestCase):

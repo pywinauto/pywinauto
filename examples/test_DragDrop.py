@@ -24,7 +24,7 @@ birds = tree.GetItem(r'\Birds')
 dogs = tree.GetItem(r'\Dogs')
 
 # drag-n-drop without focus on the window
-#tree.DragMouse("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
+#tree.DragMouse("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
 
 # most natural drag-n-drop (with real moving mouse, like real user)
-tree.DragMouseInput("left", birds.Rectangle().mid_point(), dogs.Rectangle().mid_point())
+tree.drag_mouse_input("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())

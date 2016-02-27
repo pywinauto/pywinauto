@@ -41,7 +41,7 @@ def run_tests(controls, tests_to_run = None, test_visible_only = True):
 
     # Filter out hidden controls if requested
     if test_visible_only:
-        controls = [ctrl for ctrl in controls if ctrl.IsVisible()]
+        controls = [ctrl for ctrl in controls if ctrl.is_visible()]
 
     bugs = []
     # run each test
@@ -65,14 +65,14 @@ def get_bug_as_string(bug):
     lines.append(" ".join(header))
     
     for i, ctrl in enumerate(ctrls):
-        lines.append(u'\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
-            ctrl.WindowText(),
-            ctrl.FriendlyClassName(),
-            ctrl.Rectangle().left,
-            ctrl.Rectangle().top,
-            ctrl.Rectangle().right,
-            ctrl.Rectangle().bottom,
-            ctrl.IsVisible(),))
+        lines.append(u'\t"%s" "%s" (%d %d %d %d) Vis: %d' % (
+            ctrl.window_text(),
+            ctrl.friendly_class_name(),
+            ctrl.rectangle().left,
+            ctrl.rectangle().top,
+            ctrl.rectangle().right,
+            ctrl.rectangle().bottom,
+            ctrl.is_visible(),))
     
     return u"\n".join(lines)
 
@@ -94,14 +94,14 @@ def print_bugs(bugs):
 
 
         for i, ctrl in enumerate(ctrls):
-            print('\t"%s" "%s" (%d %d %d %d) Vis: %d'% (
-                ctrl.WindowText().encode('utf-8'),
-                ctrl.FriendlyClassName().encode('utf-8'),
-                ctrl.Rectangle().left,
-                ctrl.Rectangle().top,
-                ctrl.Rectangle().right,
-                ctrl.Rectangle().bottom,
-                ctrl.IsVisible(),))
+            print('\t"%s" "%s" (%d %d %d %d) Vis: %d' % (
+                ctrl.window_text().encode('utf-8'),
+                ctrl.friendly_class_name().encode('utf-8'),
+                ctrl.rectangle().left,
+                ctrl.rectangle().top,
+                ctrl.rectangle().right,
+                ctrl.rectangle().bottom,
+                ctrl.is_visible(),))
 
             try:
                 ctrl.DrawOutline()

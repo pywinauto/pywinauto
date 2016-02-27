@@ -43,7 +43,7 @@ mfc_samples_folder = os.path.join(
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
-_ready_timeout = 30
+_ready_timeout = 40
 _retry_interval = 0.5
 def _toggle_notification_area_icons(show_all=True, debug_img=None):
     """
@@ -69,20 +69,20 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     handle = findwindows.find_elements(active_only = True,
                                       class_name = class_name)[-1].handle
     window = WindowSpecification({'handle': handle, })
-    explorer = Application().Connect(process=window.ProcessID())
+    explorer = Application().Connect(process=window.process_id())
     cur_state = None
 
     try:
         # Go to "Control Panel -> Notification Area Icons"
         window.Wait("ready", timeout=_ready_timeout)
-        window.AddressBandRoot.ClickInput()
-        window.TypeKeys(
+        window.AddressBandRoot.click_input()
+        window.type_keys(
                     r'control /name Microsoft.NotificationAreaIcons',
                     with_spaces=True,
                     set_foreground=True)
         # Send 'ENTER' separately, this is to make sure 
         # the window focus hasn't accidentally been lost
-        window.TypeKeys(
+        window.type_keys(
                     '{ENTER}',
                     with_spaces=True,
                     set_foreground=True)
@@ -96,8 +96,8 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
         # toggle the checkbox if it differs and close the applet
         if bool(cur_state) != show_all:
-            notif_area.CheckBox.ClickInput()
-        notif_area.Ok.ClickInput()
+            notif_area.CheckBox.click_input()
+        notif_area.Ok.click_input()
         explorer.WaitCPUUsageLower(threshold=5, timeout=_ready_timeout)
 
     except Exception as e:
@@ -166,12 +166,12 @@ class TaskbarTestCases(unittest.TestCase):
 
     '''
     def testStartButton(self): # TODO: fix it for AppVeyor
-        taskbar.StartButton.ClickInput()
+        taskbar.StartButton.click_input()
 
         sample_app_exe = os.path.join(mfc_samples_folder, u"TrayMenu.exe")
         start_menu = taskbar.explorer_app.Window_(class_name='DV2ControlHost')
-        start_menu.SearchEditBoxWrapperClass.ClickInput()
-        start_menu.SearchEditBoxWrapperClass.TypeKeys(
+        start_menu.SearchEditBoxWrapperClass.click_input()
+        start_menu.SearchEditBoxWrapperClass.type_keys(
            sample_app_exe() + '{ENTER}',
            with_spaces=True, set_foreground=False
            )
@@ -193,14 +193,14 @@ class TaskbarTestCases(unittest.TestCase):
         _wait_minimized(self.dlg)
 
         # Launch Clock applet
-        taskbar.Clock.ClickInput()
+        taskbar.Clock.click_input()
         ClockWindow = taskbar.explorer_app.Window_(
                                class_name='ClockFlyoutWindow')
         ClockWindow.Wait('visible', timeout=self.tm)
 
         # Close the applet with Esc, we don't click again on it because
         # the second click sometimes doesn't hide a clock but just relaunch it
-        taskbar.Clock.TypeKeys("{ESC}", set_foreground=False)
+        taskbar.Clock.type_keys("{ESC}", set_foreground=False)
         ClockWindow.WaitNot('visible', timeout=self.tm)
 
     def testClickVisibleIcon(self):
@@ -229,8 +229,8 @@ class TaskbarTestCases(unittest.TestCase):
         taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
 
         # verify PopupWindow method
-        menu_window = self.app.top_window_().Children()[0]
-        WaitUntil(self.tm, _retry_interval, menu_window.IsVisible)
+        menu_window = self.app.top_window_().children()[0]
+        WaitUntil(self.tm, _retry_interval, menu_window.is_visible)
         menu_window.MenuBarClickInput("#2", self.app)
         popup_window = self.app.top_window_()
         hdl = self.dlg.PopupWindow()
@@ -307,18 +307,18 @@ class TaskbarTestCases(unittest.TestCase):
         _wait_minimized(dlg2)
 
         # Test click on "Show Hidden Icons" button
-        taskbar.ShowHiddenIconsButton.ClickInput()
+        taskbar.ShowHiddenIconsButton.click_input()
         niow_dlg = taskbar.explorer_app.Window_(
                 class_name='NotifyIconOverflowWindow')
         niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=self.tm)
-        niow_dlg.SysLink.ClickInput()
+        niow_dlg.SysLink.click_input()
         nai = taskbar.explorer_app.Window_(
                 title="Notification Area Icons",
                 class_name="CabinetWClass"
                 )
         origAlwaysShow = nai.CheckBox.GetCheckState()
         if not origAlwaysShow:
-            nai.CheckBox.ClickInput()
+            nai.CheckBox.click_input()
         nai.OK.Click()
 
         # Restore Notification Area settings

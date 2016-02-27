@@ -40,7 +40,7 @@ class MouseTests(unittest.TestCase):
         self.app.kill_()
 
     def __get_pos(self, shift):
-        rect = self.dlg.Rectangle()
+        rect = self.dlg.rectangle()
         return rect.left + shift, rect.top + shift
 
     def __get_text(self):
