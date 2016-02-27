@@ -32,7 +32,7 @@
 """
 
 from . import UIAWrapper
-from ..UIAElementInfo import _UIA_dll
+from ..uia_definitions import _UIA_dll
 
 
 #====================================================================
@@ -67,7 +67,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         1 - checked
         2 - indeterminate
 
-        The following constants are defined in the UIAElementInfo module
+        The following constants are defined in the uia_definitions module
         toggle_state_off = 0
         toggle_state_on = 1
         toggle_state_inderteminate = 2

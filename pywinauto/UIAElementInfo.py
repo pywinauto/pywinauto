@@ -38,6 +38,7 @@ from .six import integer_types
 from .handleprops import text, dumpwindow, controlid
 from .ElementInfo import ElementInfo
 from .win32structures import RECT
+from .uia_definitions import pattern_ids as _pattern_id
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
 _iuia = comtypes.CoCreateInstance(
@@ -57,140 +58,6 @@ _treeScope = {
     'subtree': _UIA_dll.TreeScope_Subtree
 }
 
-
-# Named constants that identify Microsoft UI Automation control patterns
-# https://msdn.microsoft.com/en-us/library/windows/desktop/ee671195(v=vs.85).aspx
-# header: UIAutomationClient.h
-_pattern_id = {
-    # Dock control pattern.
-    'Dock': _UIA_dll.UIA_DockPatternId,
-    
-    # ExpandCollapse control pattern.
-    'ExpandCollapse': _UIA_dll.UIA_ExpandCollapsePatternId,
-    
-    # GridItem control pattern.
-    'GridItem': _UIA_dll.UIA_GridItemPatternId,
-    
-    # Grid control pattern.
-    'Grid': _UIA_dll.UIA_GridPatternId,
-    
-    # Invoke control pattern.
-    'Invoke': _UIA_dll.UIA_InvokePatternId,
-    
-    # ItemContainer control pattern.
-    'ItemContainer': _UIA_dll.UIA_ItemContainerPatternId,
-    
-    # LegacyIAccessible control pattern.
-    'LegacyIAccessible': _UIA_dll.UIA_LegacyIAccessiblePatternId,
-    
-    # MultipleView control pattern.
-    'MulipleView': _UIA_dll.UIA_MultipleViewPatternId,
-    
-    # RangeValue control pattern.
-    'RangeValue': _UIA_dll.UIA_RangeValuePatternId,
-    
-    # ScrollItem control pattern.
-    'ScrollItem': _UIA_dll.UIA_ScrollItemPatternId,
-    
-    # Scroll control pattern.
-    'Scroll': _UIA_dll.UIA_ScrollPatternId,
-    
-    # SelectionItem control pattern.
-    'SelectionItem': _UIA_dll.UIA_SelectionItemPatternId,
-    
-    # Selection control pattern.
-    'Selection': _UIA_dll.UIA_SelectionPatternId,
-    
-    # SynchronizedInput control pattern.
-    'SynchronizedInput': _UIA_dll.UIA_SynchronizedInputPatternId,
-    
-    # TableItem control pattern.
-    'TableItem': _UIA_dll.UIA_TableItemPatternId,
-    
-    # Table control pattern.
-    'Table': _UIA_dll.UIA_TablePatternId,
-    
-    # Text control pattern.
-    'Text': _UIA_dll.UIA_TextPatternId,
-    
-    # Toggle control pattern.
-    'Toggle': _UIA_dll.UIA_TogglePatternId,
-    
-    # Transform control pattern.
-    'Transform': _UIA_dll.UIA_TransformPatternId,
-    
-    # Value control pattern.
-    'Value': _UIA_dll.UIA_ValuePatternId,
-    
-    # VirtualizedItem control pattern.
-    'VirtualizedItem': _UIA_dll.UIA_VirtualizedItemPatternId,
-    
-    # Window control pattern. 
-    'Window': _UIA_dll.UIA_WindowPatternId
-}
-
-# We also try to add new patterns, supported by Win8 and later versions
-try:
-    ### Patterns supported starting with 
-    ### Windows 8.
-    # Annotation control pattern.
-    _pattern_id['Annotation'] = _UIA_dll.UIA_AnnotationPatternId,
-    
-    # Drag control pattern. 
-    _pattern_id['Drag'] = _UIA_dll.UIA_DragPatternId,
-    
-    # DropTarget control pattern.
-    _pattern_id['Drop'] = _UIA_dll.UIA_DropTargetPatternId,
-    
-    # ObjectModel control pattern.
-    _pattern_id['ObjectModel'] = _UIA_dll.UIA_ObjectModelPatternId,
-    
-    # Spreadsheet control pattern.
-    _pattern_id['Spreadsheet'] = _UIA_dll.UIA_SpreadsheetPatternId,
-    
-    # SpreadsheetItem control pattern.
-    _pattern_id['SpreadsheetItem'] = _UIA_dll.UIA_SpreadsheetItemPatternId,
-    
-    # Styles control pattern.
-    _pattern_id['Styles'] = _UIA_dll.UIA_StylesPatternId,
-    
-    # TextChild control pattern.
-    _pattern_id['TextChild'] = _UIA_dll.UIA_TextChildPatternId,
-    
-    # A second version of the Text control pattern. 
-    _pattern_id['TextV2'] = _UIA_dll.UIA_TextPattern2Id,
-    
-    # A second version of the Transform control pattern. 
-    _pattern_id['TransformV2'] = _UIA_dll.UIA_TransformPattern2Id,
-
-    
-    ### Patterns supported starting with 
-    ### Windows 8.1.
-    # TextEdit control pattern.
-    _pattern_id['TextEdit'] = _UIA_dll.UIA_TextEditPatternId,
-
-
-    ### Patterns supported starting with 
-    ### Windows 10.
-    # CustomNavigation control pattern.
-    _pattern_id['CustomNavigation'] = _UIA_dll.UIA_CustomNavigationPatternId,
-except(AttributeError): 
-    pass
-    
-
-# Return values for the toggle_state propery
-#     enum ToggleState {  
-#       ToggleState_Off, 
-#       ToggleState_On, 
-#       ToggleState_Indeterminate 
-# };
-# The definition can also be found in the comtypes package 
-# In a file automatically generated according to UIAutomation GUID:
-# comtypes\gen\_944DE083_8FB8_45CF_BCB7_C477ACB2F897_*.py
-toggle_state_off = 0
-toggle_state_on = 1
-toggle_state_inderteminate = 2
-    
 
 """
 Possible properties:
