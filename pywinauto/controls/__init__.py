@@ -24,6 +24,7 @@
 from ..sysinfo import UIA_support
 if UIA_support:
     from . import UIAWrapper # register "uia" back-end (at the end of UIAWrapper module)
+    from . import uia_controls
 
 from .HwndWrapper import GetDialogPropsFromHandle
 from .HwndWrapper import InvalidWindowHandle
@@ -32,7 +33,6 @@ from .HwndWrapper import InvalidWindowHandle
 # contain
 from . import common_controls
 from . import win32_controls
-from . import uia_controls
 
 
 from ..base_wrapper import InvalidElement
