@@ -222,9 +222,9 @@ class UIAElementInfo(ElementInfo):
 
     def __init__(self, handle_or_elem = None):
         """
-        Create instane of UIAElementInfo from a handle (int or long)
+        Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
-        If handle_or_elem is None create instance for UI root element
+        If handle_or_elem is None create an instance for UI root element
         """
         if handle_or_elem is not None:
             if isinstance(handle_or_elem, integer_types):
@@ -363,19 +363,18 @@ class UIAElementInfo(ElementInfo):
         because it is not capable of cycling through its valid states.
         """
         pattern = self._element.GetCurrentPattern(_pattern_id["Toggle"])
-        p = pattern.QueryInterface(
+        interface = pattern.QueryInterface(
                 comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern)
-        p.Toggle()
+        interface.Toggle()
         
     @property
     def toggle_state(self):
         """
         An interface to ToggleState property of the Toggle control pattern.
-        Control supporting the Toggle pattern cycles through its 
+        A control supporting the Toggle pattern cycles through its 
         toggle states in the following order: 
         ToggleState_On, ToggleState_Off and, 
         if supported, ToggleState_Indeterminate
-        
         
         Usually applied for the check box control.
         
@@ -383,9 +382,17 @@ class UIAElementInfo(ElementInfo):
         because it is not capable of cycling through its valid states.
         """
         pattern = self._element.GetCurrentPattern(_pattern_id["Toggle"])
-        p = pattern.QueryInterface(
+        interface = pattern.QueryInterface(
                 comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern)
-        return p.CurrentToggleState
+        return interface.CurrentToggleState
+
+    def invoke(self):
+        "An interface to the Invoke method of the Invoke control pattern"""
+        pattern = self._element.GetCurrentPattern(_pattern_id["Invoke"])
+        interface = pattern.QueryInterface(
+                comtypes.gen.UIAutomationClient.IUIAutomationInvokePattern)
+        interface.Invoke()
+
 
     @property
     def richText(self):

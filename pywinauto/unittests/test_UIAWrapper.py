@@ -211,7 +211,10 @@ if UIA_support:
             self.assertEqual(friendly_name, "CheckBox")
 
         def testCheckBox(self):
-            "Test check method for CheckBox"
+            """"
+            Test the toggle and the toggle_state methods 
+            for the check box control
+            """
             
             # Get a current state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
@@ -223,6 +226,10 @@ if UIA_support:
             # Get a new state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
             self.assertEqual(cur_state, uia_elem.toggle_state_on)
+
+        def testButtonClick(self):
+            "Test the Click method for the Button control"
+            self.dlg.Button.click()
 
 if __name__ == "__main__":
     if UIA_support:

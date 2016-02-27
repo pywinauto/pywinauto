@@ -20,7 +20,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"""Wraps various UIAwindows controls
+"""Wraps various UIA windows controls
 """
 from . import UIAWrapper
 from ..UIAElementInfo import _UIA_dll
@@ -42,7 +42,6 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         super(ButtonWrapper, self).__init__(hwnd)
 
     #-----------------------------------------------------------
-
     def toggle(self):
         """
         Toggle a state of a check box control.
@@ -52,9 +51,26 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         self._elementInfo.toggle()
 
     #-----------------------------------------------------------
-
     def get_toggle_state(self):
-        "Get a toggle state of a check box control"
+        """Get a toggle state of a check box control.
+        The toggle state is represented by an integer
+        0 - unchecked
+        1 - checked
+        2 - indeterminate
+
+        The following constants are defined in the UIAElementInfo module
+        toggle_state_off = 0
+        toggle_state_on = 1
+        toggle_state_inderteminate = 2
+        """
         return self._elementInfo.toggle_state
 
     #-----------------------------------------------------------
+    def is_dialog(self):
+        "Buttons are never dialogs so return False"
+        return False
+
+    #-----------------------------------------------------------
+    def click(self, *args, **kwargs):
+        "Click the Button control by using Invoke pattern"
+        self._elementInfo.invoke()
