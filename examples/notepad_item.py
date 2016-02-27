@@ -35,7 +35,7 @@ app.start(r"notepad.exe")
 
 app['Notepad'].Wait('ready')
 
-app['Notepad'].MenuSelect("File->PageSetup")
+app['Notepad'].menu_select("File->PageSetup")
 
 # ----- Page Setup Dialog ----
 # Select the 4th combobox item
@@ -45,20 +45,20 @@ app['PageSetupDlg']['ComboBox1'].Select(4)
 app['PageSetupDlg']['ComboBox1'].Select("Letter")
 
 # ----- Next Page Setup Dialog ----
-app['PageSetupDlg']['Printer'].Click()
+app['PageSetupDlg']['Printer'].click()
 
-app['PageSetupDlg']['Network'].Click()
+app['PageSetupDlg']['Network'].click()
 
 # ----- Connect To Printer Dialog ----
 # Select a checkbox
 app['ConnectToPrinter']['ExpandByDef'].Check()
-# Uncheck it again - but use Click this time!
-app['ConnectToPrinter']['ExpandByDef'].Click()
+# Uncheck it again - but use click this time!
+app['ConnectToPrinter']['ExpandByDef'].click()
 
-app['ConnectToPrinter']['OK'].CloseClick()
+app['ConnectToPrinter']['OK'].close_click()
 
 # ----- 2nd Page Setup Dialog again ----
-app['PageSetupDlg2']['Properties'].Click()
+app['PageSetupDlg2']['Properties'].click()
 
 # ----- Document Properties Dialog ----
 doc_props = app.window_(title_re = ".*Document Properties")
@@ -68,29 +68,29 @@ doc_props['TabCtrl'].Select(2)
 doc_props['TabCtrl'].Select("Layout")
 
 # click a Radio button
-doc_props['RotatedLandscape'].Click()
-doc_props['Portrait'].Click()
+doc_props['RotatedLandscape'].click()
+doc_props['Portrait'].click()
 
 # open the Advanced options dialog in two steps
 advbutton = doc_props['Advanced']
-advbutton.Click()
+advbutton.click()
 
 # ----- Advanced Options Dialog ----
 # close the 4 windows
-app.window_(title_re = ".* Advanced Options")['Ok'].Click()
+app.window_(title_re = ".* Advanced Options")['Ok'].click()
 
 # ----- Document Properties Dialog again ----
-doc_props['Cancel'].CloseClick()
+doc_props['Cancel'].close_click()
 # ----- 2nd Page Setup Dialog again ----
-app['PageSetup2']['OK'].CloseClick()
+app['PageSetup2']['OK'].close_click()
 # ----- Page Setup Dialog ----
-app['PageSetup']['Ok'].CloseClick()
+app['PageSetup']['Ok'].close_click()
 
 # type some text
 app['Notepad']['Edit'].SetEditText("I am typing s\xe4me text to Notepad"
     "\r\n\r\nAnd then I am going to quit")
 
 # exit notepad
-app['NotepadDialog'].MenuSelect("File->Exit")
-app['Notepad']['No'].CloseClick()
+app['NotepadDialog'].menu_select("File->Exit")
+app['Notepad']['No'].close_click()
 

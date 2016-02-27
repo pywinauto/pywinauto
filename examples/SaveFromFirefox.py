@@ -80,19 +80,19 @@ else:
     mozilla = app.window_(title_re=".*Mozilla Firefox")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
-print("No Menu's in FireFox:", mozilla.MenuItems())
+print("No Menu's in FireFox:", mozilla.menu_items())
 
 # File -> Save As
 mozilla.type_keys("%FA")
 #ie.Toolbar3.PressButton("File")
 app.SaveAs.Edit.SetEditText(outputfilename)
 
-app.SaveAs.Save.CloseClick()
+app.SaveAs.Save.close_click()
 
 try:
     # if asked to overwrite say yes
     if app.SaveAs.Yes.Exists():
-        app.SaveAs.Yes.CloseClick()
+        app.SaveAs.Yes.close_click()
 except WindowAmbiguousError as e:
     for w in e.windows:
         w = HwndWrapper(w)

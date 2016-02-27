@@ -112,17 +112,17 @@ if UIA_support:
         #    self.assertRaises()
 
         def testIsKeyboardFocusable(self):
-            self.assertEqual(self.button.IsKeyboardFocusable(), True)
-            self.assertEqual(self.edit.IsKeyboardFocusable(), True)
-            self.assertEqual(self.label.IsKeyboardFocusable(), False)
+            self.assertEqual(self.button.is_keyboard_focusable(), True)
+            self.assertEqual(self.edit.is_keyboard_focusable(), True)
+            self.assertEqual(self.label.is_keyboard_focusable(), False)
 
         def testHasKeyboardFocus(self):
             self.edit.set_focus()
-            self.assertEqual(self.edit.HasKeyboardFocus(), True)
+            self.assertEqual(self.edit.has_keyboard_focus(), True)
 
         def testSetFocus(self):
             self.edit.set_focus()
-            self.assertEqual(self.edit.HasKeyboardFocus(), True)
+            self.assertEqual(self.edit.has_keyboard_focus(), True)
 
         def testTypeKeys(self):
             self.edit.type_keys("testTypeKeys")

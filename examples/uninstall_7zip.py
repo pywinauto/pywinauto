@@ -27,7 +27,7 @@ try:
     item_7z = ProgramsAndFeatures.FolderView.GetItem('7-Zip 9.20 (x64 edition)')
     item_7z.EnsureVisible()
     item_7z.click_input(button='right', where='icon')
-    explorer.PopupMenu.MenuItem('Uninstall').Click()
+    explorer.PopupMenu.menu_item('Uninstall').click()
 
     Confirmation = explorer.Window_(title='Programs and Features', class_name='#32770', active_only=True)
     if Confirmation.Exists():
@@ -45,4 +45,4 @@ try:
     if '7-Zip 9.20 (x64 edition)' not in ProgramsAndFeatures.FolderView.texts():
         print('OK')
 finally:
-    NewWindow.Close()
+    NewWindow.close()

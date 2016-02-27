@@ -72,9 +72,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         """_NeedsImageProp=True if it is an image button"""
 
-        # optimization call Style once and work with that rather than
-        # calling HasStyle a number of times
-        style = self.Style()
+        # optimization call style once and work with that rather than
+        # calling has_style a number of times
+        style = self.style()
 
         if self.is_visible() and (style & win32defines.BS_BITMAP or
                                   style & win32defines.BS_ICON or
@@ -98,7 +98,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         """
         # get the least significant BIT
-        style_lsb = self.Style() & 0xF
+        style_lsb = self.style() & 0xF
 
         f_class_name = 'Button'
 
@@ -123,7 +123,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         elif style_lsb ==  win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"
 
-        if self.Style() & win32defines.BS_PUSHLIKE:
+        if self.style() & win32defines.BS_PUSHLIKE:
             f_class_name = "Button"
 
         return f_class_name
@@ -143,13 +143,13 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         BST_CHECKED = 1
         BST_INDETERMINATE = 2
         """
-        return self.SendMessage(win32defines.BM_GETCHECK)
+        return self.send_message(win32defines.BM_GETCHECK)
 
     #-----------------------------------------------------------
     def Check(self):
         "Check a checkbox"
-        self.SendMessageTimeout(win32defines.BM_SETCHECK,
-            win32defines.BST_CHECKED)
+        self.send_message_timeout(win32defines.BM_SETCHECK,
+                                  win32defines.BST_CHECKED)
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_buttoncheck_wait)
@@ -161,8 +161,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def UnCheck(self):
         "Uncheck a checkbox"
-        self.SendMessageTimeout(win32defines.BM_SETCHECK,
-            win32defines.BST_UNCHECKED)
+        self.send_message_timeout(win32defines.BM_SETCHECK,
+                                  win32defines.BST_UNCHECKED)
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_buttoncheck_wait)
@@ -173,8 +173,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def SetCheckIndeterminate(self):
         "Set the checkbox to indeterminate"
-        self.SendMessageTimeout(win32defines.BM_SETCHECK,
-            win32defines.BST_INDETERMINATE)
+        self.send_message_timeout(win32defines.BM_SETCHECK,
+                                  win32defines.BST_INDETERMINATE)
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_buttoncheck_wait)
@@ -188,26 +188,26 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         return False
 
     #-----------------------------------------------------------
-    def Click(self, *args, **kwargs):
+    def click(self, *args, **kwargs):
         "Click the Button control"
     #    import win32functions
     #    win32functions.WaitGuiThreadIdle(self)
-    #    self.NotifyParent(win32defines.BN_CLICKED)
-        HwndWrapper.HwndWrapper.Click(self, *args, **kwargs)
+    #    self.notify_parent(win32defines.BN_CLICKED)
+        HwndWrapper.HwndWrapper.click(self, *args, **kwargs)
     #    win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_button_click_wait)
 
     #-----------------------------------------------------------
     def CheckByClick(self):
-        "Check the CheckBox control by Click() method"
+        "Check the CheckBox control by click() method"
         if self.GetCheckState() != win32defines.BST_CHECKED:
-            self.Click()
+            self.click()
 
     #-----------------------------------------------------------
     def UncheckByClick(self):
-        "Uncheck the CheckBox control by Click() method"
+        "Uncheck the CheckBox control by click() method"
         if self.GetCheckState() != win32defines.BST_UNCHECKED:
-            self.Click()
+            self.click()
 
     #-----------------------------------------------------------
     def CheckByClickInput(self):
@@ -228,18 +228,18 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
     texts = []
 
     # find out how many text items are in the combobox
-    num_items = wrapper.SendMessage(count_msg)
+    num_items = wrapper.send_message(count_msg)
 
     # get the text for each item in the combobox
     for i in range(0, num_items):
-        text_len = wrapper.SendMessage (item_len_msg, i, 0)
+        text_len = wrapper.send_message (item_len_msg, i, 0)
 
         if six.PY3:
             text = ctypes.create_unicode_buffer(text_len + 1)
         else:
             text = ctypes.create_string_buffer(text_len + 1)
 
-        wrapper.SendMessage(item_get_msg, i, ctypes.byref(text))
+        wrapper.send_message(item_get_msg, i, ctypes.byref(text))
 
         if six.PY3:
             texts.append(text.value.replace('\u200e', ''))
@@ -278,7 +278,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "Get the dropped rectangle of the combobox"
         dropped_rect = win32structures.RECT()
 
-        self.SendMessage(
+        self.send_message(
             win32defines.CB_GETDROPPEDCONTROLRECT,
             0,
             ctypes.byref(dropped_rect))
@@ -291,12 +291,12 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def ItemCount(self):
         "Return the number of items in the combobox"
-        return self.SendMessage(win32defines.CB_GETCOUNT)
+        return self.send_message(win32defines.CB_GETCOUNT)
 
     #-----------------------------------------------------------
     def SelectedIndex(self):
         "Return the selected index"
-        return self.SendMessage(win32defines.CB_GETCURSEL)
+        return self.send_message(win32defines.CB_GETCURSEL)
 
     #-----------------------------------------------------------
     def SelectedText(self):
@@ -330,7 +330,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     def ItemData(self, item):
         "Returns the item data associated with the item if any"
         index = self._get_item_index(item)
-        return self.SendMessage(win32defines.CB_GETITEMDATA, index)
+        return self.send_message(win32defines.CB_GETITEMDATA, index)
 
     #-----------------------------------------------------------
     def ItemTexts(self):
@@ -349,9 +349,9 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         return texts
 
     #-----------------------------------------------------------
-    def GetProperties(self):
+    def get_properties(self):
         "Return the properties of the control as a dictionary"
-        props = HwndWrapper.HwndWrapper.GetProperties(self)
+        props = HwndWrapper.HwndWrapper.get_properties(self)
 
         #props['ItemData'] = []
         #for i in range(self.ItemCount()):
@@ -371,19 +371,19 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         index = self._get_item_index(item)
 
         # change the selected item
-        self.SendMessageTimeout(win32defines.CB_SETCURSEL, index, timeout=0.05)
+        self.send_message_timeout(win32defines.CB_SETCURSEL, index, timeout=0.05)
 
         # Notify the parent that we are finished selecting
-        self.NotifyParent(win32defines.CBN_SELENDOK)
+        self.notify_parent(win32defines.CBN_SELENDOK)
 
         # Notify the parent that we have changed
-        self.NotifyParent(win32defines.CBN_SELCHANGE)
+        self.notify_parent(win32defines.CBN_SELCHANGE)
 
         # simple combo boxes don't have drop downs so they do not recieve
         # this notification
-        if self.HasStyle(win32defines.CBS_DROPDOWN):
+        if self.has_style(win32defines.CBS_DROPDOWN):
             # Notify the parent that the drop down has closed
-            self.NotifyParent(win32defines.CBN_CLOSEUP)
+            self.notify_parent(win32defines.CBN_CLOSEUP)
 
 
         win32functions.WaitGuiThreadIdle(self)
@@ -430,7 +430,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def IsSingleSelection(self):
         """Check whether the listbox has single selection mode."""
-        num_selected = self.SendMessage(win32defines.LB_GETSELCOUNT)
+        num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
         return (num_selected == win32defines.LB_ERR)
@@ -438,17 +438,17 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def SelectedIndices(self):
         "The currently selected indices of the listbox"
-        num_selected = self.SendMessage(win32defines.LB_GETSELCOUNT)
+        num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
         if num_selected == win32defines.LB_ERR:
-            items = tuple([self.SendMessage(win32defines.LB_GETCURSEL)])
+            items = tuple([self.send_message(win32defines.LB_GETCURSEL)])
 
         # otherwise it is a multiselection list box
         else:
             items = (ctypes.c_int * num_selected)()
 
-            self.SendMessage(
+            self.send_message(
                 win32defines.LB_GETSELITEMS, num_selected, ctypes.byref(items))
 
             # Need to convert from Ctypes array to a python tuple
@@ -481,7 +481,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def ItemCount(self):
         "Return the number of items in the ListBox"
-        return self.SendMessage(win32defines.LB_GETCOUNT)
+        return self.send_message(win32defines.LB_GETCOUNT)
 
     #-----------------------------------------------------------
     def ItemData(self, i):
@@ -489,7 +489,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         index = self._get_item_index(i)
 
-        return self.SendMessage(win32defines.LB_GETITEMDATA, index)
+        return self.send_message(win32defines.LB_GETITEMDATA, index)
 
     #-----------------------------------------------------------
     def ItemTexts(self):
@@ -505,7 +505,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "Return the rect of the item "
         index = self._get_item_index(item)
         rect = win32structures.RECT()
-        res = self.SendMessage(win32defines.LB_GETITEMRECT, index, ctypes.byref(rect))
+        res = self.send_message(win32defines.LB_GETITEMRECT, index, ctypes.byref(rect))
         if res == win32defines.LB_ERR:
             raise RuntimeError("LB_GETITEMRECT failed")
         return rect
@@ -518,9 +518,9 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         return texts
 
 #    #-----------------------------------------------------------
-#    def GetProperties(self):
+#    def get_properties(self):
 #        "Return the properties as a dictionary for the control"
-#        props = HwndWrapper.HwndWrapper.GetProperties(self)
+#        props = HwndWrapper.HwndWrapper.get_properties(self)
 #
 #        props['ItemData'] = []
 #        for i in range(self.ItemCount()):
@@ -553,17 +553,17 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         if self.IsSingleSelection():
             # change the selected item
-            self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
+            self.send_message_timeout(win32defines.LB_SETCURSEL, index)
         else:
             if select:
                 # add the item to selection
-                self.SendMessageTimeout(win32defines.LB_SETSEL, win32defines.TRUE, index)
+                self.send_message_timeout(win32defines.LB_SETSEL, win32defines.TRUE, index)
             else:
                 # remove the item from selection
-                self.SendMessageTimeout(win32defines.LB_SETSEL, win32defines.FALSE, index)
+                self.send_message_timeout(win32defines.LB_SETSEL, win32defines.FALSE, index)
 
         # Notify the parent that we have changed
-        self.NotifyParent(win32defines.LBN_SELCHANGE)
+        self.notify_parent(win32defines.LBN_SELCHANGE)
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_listboxselect_wait)
@@ -577,11 +577,11 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         index = self._get_item_index(item)
 
         # if it is a multiple selection dialog
-        if self.HasStyle(win32defines.LBS_EXTENDEDSEL) or \
-            self.HasStyle(win32defines.LBS_MULTIPLESEL):
-            self.SendMessageTimeout(win32defines.LB_SETCARETINDEX, index)
+        if self.has_style(win32defines.LBS_EXTENDEDSEL) or \
+            self.has_style(win32defines.LBS_MULTIPLESEL):
+            self.send_message_timeout(win32defines.LB_SETCARETINDEX, index)
         else:
-            self.SendMessageTimeout(win32defines.LB_SETCURSEL, index)
+            self.send_message_timeout(win32defines.LB_SETCURSEL, index)
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_listboxfocuschange_wait)
@@ -595,11 +595,11 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "Retrun the index of current selection in a ListBox"
 
         # if it is a multiple selection dialog
-        if self.HasStyle(win32defines.LBS_EXTENDEDSEL) or \
-            self.HasStyle(win32defines.LBS_MULTIPLESEL):
-            return self.SendMessage(win32defines.LB_GETCARETINDEX)
+        if self.has_style(win32defines.LBS_EXTENDEDSEL) or \
+            self.has_style(win32defines.LBS_MULTIPLESEL):
+            return self.send_message(win32defines.LB_GETCARETINDEX)
         else:
-            return self.SendMessage(win32defines.LB_GETCURSEL)
+            return self.send_message(win32defines.LB_GETCURSEL)
 
 
 #====================================================================
@@ -631,17 +631,17 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def LineCount(self):
         "Return how many lines there are in the Edit"
-        return  self.SendMessage(win32defines.EM_GETLINECOUNT)
+        return  self.send_message(win32defines.EM_GETLINECOUNT)
 
     #-----------------------------------------------------------
     def LineLength(self, line_index):
         "Return how many characters there are in the line"
 
         # need to first get a character index of that line
-        char_index = self.SendMessage(win32defines.EM_LINEINDEX, line_index)
+        char_index = self.send_message(win32defines.EM_LINEINDEX, line_index)
 
         # now get the length of text on that line
-        return self.SendMessage (
+        return self.send_message (
             win32defines.EM_LINELENGTH, char_index, 0)
 
 
@@ -674,7 +674,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     def TextBlock(self):
         "Get the text of the edit control"
 
-        length = self.SendMessage(win32defines.WM_GETTEXTLENGTH)
+        length = self.send_message(win32defines.WM_GETTEXTLENGTH)
 
         text = ctypes.create_unicode_buffer(length + 1)
 
@@ -687,21 +687,21 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "The start and end indices of the current selection"
         start = ctypes.c_int()
         end = ctypes.c_int()
-        self.SendMessage(
+        self.send_message(
             win32defines.EM_GETSEL, ctypes.byref(start), ctypes.byref(end))
 
         return (start.value, end.value)
 
     #-----------------------------------------------------------
-    def SetWindowText(self, text, append = False):
-        """Override SetWindowText for edit controls because it should not be
+    def set_window_text(self, text, append = False):
+        """Override set_window_text for edit controls because it should not be
         used for Edit controls.
 
         Edit Controls should either use SetEditText() or type_keys() to modify
         the contents of the edit control."""
-        HwndWrapper.HwndWrapper.SetWindowText(self, text, append)
+        HwndWrapper.HwndWrapper.set_window_text(self, text, append)
         raise UserWarning(
-            "SetWindowText() should probably not be called for Edit Controls")
+            "set_window_text() should probably not be called for Edit Controls")
 
     #-----------------------------------------------------------
     def SetEditText(self, text, pos_start = None, pos_end = None):
@@ -748,7 +748,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
 
         # replace the selection with
-        self.SendMessage(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
+        self.send_message(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
@@ -787,7 +787,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         if end is None:
             end = -1
 
-        self.SendMessage(win32defines.EM_SETSEL, start, end)
+        self.send_message(win32defines.EM_SETSEL, start, end)
 
         # give the control a chance to catch up before continuing
         win32functions.WaitGuiThreadIdle(self)
@@ -826,10 +826,10 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         """_NeedsImageProp=True if it is an image static"""
 
         # if the control is visible - and it shows an image
-        if self.is_visible() and (self.HasStyle(win32defines.SS_ICON) or
-                                  self.HasStyle(win32defines.SS_BITMAP) or
-                                  self.HasStyle(win32defines.SS_CENTERIMAGE) or
-                                  self.HasStyle(win32defines.SS_OWNERDRAW)):
+        if self.is_visible() and (self.has_style(win32defines.SS_ICON) or
+                                  self.has_style(win32defines.SS_BITMAP) or
+                                  self.has_style(win32defines.SS_CENTERIMAGE) or
+                                  self.has_style(win32defines.SS_OWNERDRAW)):
 
             return True
         else:
@@ -893,7 +893,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         "Write the dialog an XML file (requires elementtree)"
         
         controls = [self] + self.children()
-        props = [ctrl.GetProperties() for ctrl in controls]
+        props = [ctrl.get_properties() for ctrl in controls]
 
         from .. import XMLHelpers
         XMLHelpers.WriteDialogToFile(filename, props)
@@ -907,21 +907,21 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         nonclient elements such as scroll bars, borders, title bars, and 
         menus."""
         rect = win32structures.RECT(self.rectangle())
-        self.SendMessage(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
+        self.send_message(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
 
     #-----------------------------------------------------------
     def HideFromTaskbar(self):
         "Hide the dialog from the Windows taskbar"
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
-        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.ExStyle() | win32defines.WS_EX_TOOLWINDOW)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_TOOLWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
 
     #-----------------------------------------------------------
     def ShowInTaskbar(self):
         "Show the dialog in the Windows taskbar"
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
-        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.ExStyle() | win32defines.WS_EX_APPWINDOW)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_APPWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
 
     #-----------------------------------------------------------
@@ -933,7 +933,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         # A window is represented in the taskbar if:
         # It is not owned and does not have the WS_EX_TOOLWINDOW extended style, or
         # It has the WS_EX_APPWINDOW extended style.
-        return self.HasExStyle(win32defines.WS_EX_APPWINDOW) or (self.Owner() is None and not self.HasExStyle(win32defines.WS_EX_TOOLWINDOW))
+        return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
 
 #    #-----------------------------------------------------------
 #    def ReadControlsFromXML(self, filename):

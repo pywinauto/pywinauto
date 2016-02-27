@@ -147,7 +147,7 @@ class HwndWrapper(BaseWrapper):
     features for working with windows.
 
     Most of the methods apply to every single window type. For example
-    you can Click() on any window.
+    you can click() on any window.
 
     Most of the methods of this class are simple wrappers around
     API calls and as such they try do the simplest thing possible.
@@ -191,7 +191,7 @@ class HwndWrapper(BaseWrapper):
         if isinstance(elementInfo, six.integer_types):
             elementInfo = NativeElementInfo(elementInfo)
         if hasattr(elementInfo, "_elementInfo"):
-            elementInfo = elementInfo.elementInfo
+            elementInfo = elementInfo._elementInfo
 
         BaseWrapper.__init__(self, elementInfo, backend.registry.backends['native'])
 
@@ -204,52 +204,56 @@ class HwndWrapper(BaseWrapper):
 
         # build the list of default properties to be written
         # Derived classes can either modify this list or override
-        # GetProperties depending on how much control they need.
+        # get_properties depending on how much control they need.
         self.writable_props = [
             'class_name',
             'friendly_class_name',
             'texts',
-            'Style',
-            'ExStyle',
+            'style',
+            'exstyle',
             'control_id',
-            'UserData',
-            'ContextHelpID',
-            'Fonts',
-            'ClientRects',
+            'user_data',
+            'context_help_id',
+            'fonts',
+            'client_rects',
             'rectangle',
             'is_visible',
-            'IsUnicode',
+            'is_unicode',
             'is_enabled',
-            'MenuItems',
+            'menu_items',
             'control_count',
             ];
 
     #-----------------------------------------------------------
-    def Style(self):
+    def style(self):
         """Returns the style of window
 
         Return value is a long.
 
         Combination of WS_* and specific control specific styles.
-        See HwndWrapper.HasStyle() to easily check if the window has a
+        See HwndWrapper.has_style() to easily check if the window has a
         particular style.
         """
         return handleprops.style(self)
+    # Non PEP-8 alias
+    Style = style
 
     #-----------------------------------------------------------
-    def ExStyle(self):
+    def exstyle(self):
         """Returns the Extended style of window
 
         Return value is a long.
 
         Combination of WS_* and specific control specific styles.
-        See HwndWrapper.HasStyle() to easily check if the window has a
+        See HwndWrapper.has_style() to easily check if the window has a
         particular style.
         """
         return handleprops.exstyle(self)
+    # Non PEP-8 alias
+    ExStyle = exstyle
 
     #-----------------------------------------------------------
-    def UserData(self):
+    def user_data(self):
         """Extra data associted with the window
 
         This value is a long value that has been associated with the window
@@ -257,32 +261,40 @@ class HwndWrapper(BaseWrapper):
         of).
         """
         return handleprops.userdata(self)
+    # Non PEP-8 alias
+    UserData = user_data
 
     #-----------------------------------------------------------
-    def ContextHelpID(self):
+    def context_help_id(self):
         """
         Return the Context Help ID of the window
         """
         return handleprops.contexthelpid(self)
+    # Non PEP-8 alias
+    ContextHelpID = context_help_id
 
     #-----------------------------------------------------------
-    def IsActive(self):
+    def is_active(self):
         """
         Whether the window is active or not
         """
-        return self.top_level_parent() == self.GetActive()
+        return self.top_level_parent() == self.get_active()
+    # Non PEP-8 alias
+    IsActive = is_active
 
     #-----------------------------------------------------------
-    def IsUnicode(self):
+    def is_unicode(self):
         """Whether the window is unicode or not
 
         A window is Unicode if it was registered by the Wide char version
         of RegisterClass(Ex).
         """
         return handleprops.isunicode(self)
+    # Non PEP-8 alias
+    IsUnicode = is_unicode
 
     #-----------------------------------------------------------
-    def ClientRect(self):
+    def client_rect(self):
         """Returns the client rectangle of window
 
         The client rectangle is the window rectangle minus any borders that
@@ -295,6 +307,8 @@ class HwndWrapper(BaseWrapper):
         See win32structures.RECT for more information.
         """
         return handleprops.clientrect(self)
+    # Non PEP-8 alias
+    ClientRect = client_rect
 
     #-----------------------------------------------------------
     #def client_to_screen(self, client_point):
@@ -313,26 +327,32 @@ class HwndWrapper(BaseWrapper):
     #    return point.x, point.y
 
     #-----------------------------------------------------------
-    def Font(self):
+    def font(self):
         """Return the font of the window
 
         The font of the window is used to draw the text of that window.
-        It is a structure which has attributes for Font name, height, width
+        It is a structure which has attributes for font name, height, width
         etc.
 
         See win32structures.LOGFONTW for more information.
         """
         return handleprops.font(self)
+    # Non PEP-8 alias
+    Font = font
 
     #-----------------------------------------------------------
-    def HasStyle(self, style):
+    def has_style(self, style):
         "Return True if the control has the specified style"
         return handleprops.has_style(self, style)
+    # Non PEP-8 alias
+    HasStyle = has_style
 
     #-----------------------------------------------------------
-    def HasExStyle(self, exstyle):
+    def has_exstyle(self, exstyle):
         "Return True if the control has the specified extended style"
         return handleprops.has_exstyle(self, exstyle)
+    # Non PEP-8 alias
+    HasExStyle = has_exstyle
 
     #-----------------------------------------------------------
     def is_dialog(self):
@@ -344,7 +364,7 @@ class HwndWrapper(BaseWrapper):
         return self._cache['isdialog']
 
     #-----------------------------------------------------------
-    def ClientRects(self):
+    def client_rects(self):
         """Return the client rect for each item in this control
 
         It is a list of rectangles for the control. It is frequently over-ridden
@@ -358,10 +378,12 @@ class HwndWrapper(BaseWrapper):
             tabcontrol)
         """
 
-        return [self.ClientRect(), ]
+        return [self.client_rect(), ]
+    # Non PEP-8 alias
+    ClientRects = client_rects
 
     #-----------------------------------------------------------
-    def Fonts(self):
+    def fonts(self):
         """Return the font for each item in this control
 
         It is a list of fonts for the control. It is frequently over-ridden
@@ -374,18 +396,24 @@ class HwndWrapper(BaseWrapper):
             the control (e.g. items in a listbox/combobox, tabs in a
             tabcontrol)
         """
-        return [self.Font(), ]
+        return [self.font(), ]
+    # Non PEP-8 alias
+    Fonts = fonts
 
     #-----------------------------------------------------------
-    def SendCommand(self, commandID):
-        return self.SendMessage(win32defines.WM_COMMAND, commandID)
+    def send_command(self, commandID):
+        return self.send_message(win32defines.WM_COMMAND, commandID)
+    # Non PEP-8 alias
+    SendCommand = send_command
 
     #-----------------------------------------------------------
-    def PostCommand(self, commandID):
-        return self.PostMessage(win32defines.WM_COMMAND, commandID)
+    def post_command(self, commandID):
+        return self.post_message(win32defines.WM_COMMAND, commandID)
+    # Non PEP-8 alias
+    PostCommand = post_command
 
     #-----------------------------------------------------------
-    #def Notify(self, code):
+    #def notify(self, code):
     #    "Send a notification to the parent (not tested yet)"
 
     #    # now we need to notify the parent that the state has changed
@@ -398,7 +426,7 @@ class HwndWrapper(BaseWrapper):
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
-    #    retval = self.parent().SendMessage(
+    #    retval = self.parent().send_message(
     #        win32defines.WM_NOTIFY,
     #        self.handle,
     #        remote_mem)
@@ -408,10 +436,11 @@ class HwndWrapper(BaseWrapper):
     #    del remote_mem
 
     #    return retval
-
+    # Non PEP-8 alias
+    #Notify = notify
 
     #-----------------------------------------------------------
-    def SendMessage(self, message, wparam = 0 , lparam = 0):
+    def send_message(self, message, wparam = 0, lparam = 0):
         "Send a message to the control and wait for it to return"
         #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
@@ -434,10 +463,11 @@ class HwndWrapper(BaseWrapper):
         #    win32defines.SMTO_NORMAL, 400, ctypes.byref(result))
 
         #return result.value
-
+    # Non PEP-8 alias
+    SendMessage = send_message
 
     #-----------------------------------------------------------
-    def SendMessageTimeout(
+    def send_message_timeout(
         self,
         message,
         wparam = 0 ,
@@ -475,10 +505,11 @@ class HwndWrapper(BaseWrapper):
             result = str(exc)
 
         return result #result.value
-
+    # Non PEP-8 alias
+    SendMessageTimeout = send_message_timeout
 
     #-----------------------------------------------------------
-    def PostMessage(self, message, wparam = 0 , lparam = 0):
+    def post_message(self, message, wparam = 0, lparam = 0):
         "Post a message to the control message queue and return"
         return win32functions.PostMessage(self, message, wparam, lparam)
 
@@ -487,10 +518,11 @@ class HwndWrapper(BaseWrapper):
         #    win32defines.SMTO_NORMAL, 400, ctypes.byref(result))
 
         #return result.value
-
+    # Non PEP-8 alias
+    PostMessage = post_message
 
 #    #-----------------------------------------------------------
-#    def NotifyMenuSelect(self, menu_id):
+#    def notify_menu_select(self, menu_id):
 #        """Notify the dialog that one of it's menu items was selected
 #
 #        **This method is Deprecated**
@@ -504,26 +536,29 @@ class HwndWrapper(BaseWrapper):
 #        self.set_focus()
 #
 #        msg = win32defines.WM_COMMAND
-#        return self.SendMessageTimeout(
+#        return self.send_message_timeout(
 #            msg,
 #            win32functions.MakeLong(0, menu_id), #wparam
 #            )
-#
+    # Non PEP-8 alias
+    #NotifyMenuSelect = notify_menu_select
 
     #-----------------------------------------------------------
-    def NotifyParent(self, message, controlID = None):
+    def notify_parent(self, message, controlID = None):
         "Send the notification message to parent of this control"
 
         if controlID is None:
             controlID = self.control_id()
 
-        return self.parent().PostMessage(
+        return self.parent().post_message(
             win32defines.WM_COMMAND,
             win32functions.MakeLong(message, controlID),
             self)
+    # Non PEP-8 alias
+    NotifyParent = notify_parent
 
     #-----------------------------------------------------------
-    def GetProperties(self):
+    def get_properties(self):
         "Return the properties of the control as a dictionary"
         props = {}
 
@@ -533,12 +568,14 @@ class HwndWrapper(BaseWrapper):
             props[propname] = getattr(self, propname)()
 
         if self._NeedsImageProp:
-            props["Image"] = self.CaptureAsImage()
+            props["Image"] = self.capture_as_image()
 
         return props
+    # Non PEP-8 alias
+    GetProperties = get_properties
 
     #-----------------------------------------------------------
-    def CaptureAsImage(self, rect = None):
+    def capture_as_image(self, rect = None):
         """Return a PIL image of the control
 
         See PIL documentation to know what you can do with the resulting
@@ -551,9 +588,9 @@ class HwndWrapper(BaseWrapper):
         # PIL is optional so check first
         if not ImageGrab:
             print("PIL does not seem to be installed. "
-                "PIL is required for CaptureAsImage")
+                "PIL is required for capture_as_image")
             self.actions.log("PIL does not seem to be installed. "
-                "PIL is required for CaptureAsImage")
+                "PIL is required for capture_as_image")
             return None
 
         # get the control rectangle in a way that PIL likes it
@@ -568,6 +605,8 @@ class HwndWrapper(BaseWrapper):
 
         # grab the image and get raw data as a string
         return ImageGrab.grab(box)
+    # Non PEP-8 alias
+    CaptureAsImage = capture_as_image
 
     #-----------------------------------------------------------
     def __hash__(self):
@@ -575,7 +614,7 @@ class HwndWrapper(BaseWrapper):
         return hash(self.handle)
 
     #-----------------------------------------------------------
-    def Click(
+    def click(
         self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
         """Simulates a mouse click on the control
 
@@ -590,13 +629,15 @@ class HwndWrapper(BaseWrapper):
 
         _perform_click(self, button, pressed, coords, double, absolute=absolute)
         return self
+    # Non PEP-8 alias
+    Click = click
 
     #-----------------------------------------------------------
-    def CloseClick(
+    def close_click(
         self, button = "left", pressed = "", coords = (0, 0), double = False):
         """Perform a click action that should make the window go away
 
-        The only difference from Click is that there are extra delays
+        The only difference from click is that there are extra delays
         before and after the click action.
         """
 
@@ -620,9 +661,11 @@ class HwndWrapper(BaseWrapper):
         time.sleep(Timings.after_closeclick_wait)
 
         return self
+    # Non PEP-8 alias
+    CloseClick = close_click
 
     #-----------------------------------------------------------
-    def CloseAltF4(self):
+    def close_alt_f4(self):
         """Close the window by pressing Alt+F4 keys."""
 
         time.sleep(Timings.before_closeclick_wait)
@@ -630,16 +673,20 @@ class HwndWrapper(BaseWrapper):
         time.sleep(Timings.after_closeclick_wait)
 
         return self
+    # Non PEP-8 alias
+    CloseAltF4 = close_alt_f4
 
     #-----------------------------------------------------------
-    def DoubleClick(
+    def double_click(
         self, button = "left", pressed = "", coords = (0, 0)):
         "Perform a double click action"
         _perform_click(self, button, pressed, coords, double = True)
         return self
+    # Non PEP-8 alias
+    DoubleClick = double_click
 
     #-----------------------------------------------------------
-    def RightClick(
+    def right_click(
         self, pressed = "", coords = (0, 0)):
         "Perform a right click action"
 
@@ -647,24 +694,30 @@ class HwndWrapper(BaseWrapper):
             self, "right", "right " + pressed, coords, button_up = False)
         _perform_click(self, "right", pressed, coords, button_down = False)
         return self
+    # Non PEP-8 alias
+    RightClick = right_click
 
     #-----------------------------------------------------------
-    def PressMouse(self, button = "left", coords = (0, 0), pressed = ""):
+    def press_mouse(self, button ="left", coords = (0, 0), pressed =""):
         "Press the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
 
         _perform_click(self, button, pressed, coords, button_down=True, button_up=False)
         return self
+    # Non PEP-8 alias
+    PressMouse = press_mouse
 
     #-----------------------------------------------------------
-    def ReleaseMouse(self, button = "left", coords = (0, 0), pressed = ""):
+    def release_mouse(self, button ="left", coords = (0, 0), pressed =""):
         "Release the mouse button"
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
         _perform_click(self, button, pressed, coords, button_down=False, button_up=True)
         return self
+    # Non PEP-8 alias
+    ReleaseMouse = release_mouse
 
     #-----------------------------------------------------------
-    def MoveMouse(self, coords = (0, 0), pressed = "", absolute = False):
+    def move_mouse(self, coords = (0, 0), pressed ="", absolute = False):
         "Move the mouse by WM_MOUSEMOVE"
 
         if not absolute:
@@ -674,12 +727,14 @@ class HwndWrapper(BaseWrapper):
 
         win32functions.WaitGuiThreadIdle(self)
         return self
+    # Non PEP-8 alias
+    MoveMouse = move_mouse
 
     #-----------------------------------------------------------
-    def DragMouse(self, button = "left",
-        press_coords = (0, 0),
-        release_coords = (0, 0),
-        pressed = ""):
+    def drag_mouse(self, button ="left",
+                   press_coords = (0, 0),
+                   release_coords = (0, 0),
+                   pressed = ""):
         "Drag the mouse"
 
         if isinstance(press_coords, win32structures.POINT):
@@ -692,18 +747,20 @@ class HwndWrapper(BaseWrapper):
         if not _pressed:
             _pressed = "left"
 
-        self.PressMouse(button, press_coords, pressed=pressed)
+        self.press_mouse(button, press_coords, pressed=pressed)
         for i in range(5):
-            self.MoveMouse((press_coords[0]+i,press_coords[1]), pressed=_pressed)
+            self.move_mouse((press_coords[0] + i, press_coords[1]), pressed=_pressed)
             time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        self.MoveMouse(release_coords, pressed=_pressed)
+        self.move_mouse(release_coords, pressed=_pressed)
         time.sleep(Timings.before_drop_wait)
-        self.ReleaseMouse(button, release_coords, pressed=pressed)
+        self.release_mouse(button, release_coords, pressed=pressed)
         time.sleep(Timings.after_drag_n_drop_wait)
         return self
+    # Non PEP-8 alias
+    DragMouse = drag_mouse
 
     #-----------------------------------------------------------
-    def SetWindowText(self, text, append = False):
+    def set_window_text(self, text, append = False):
         "Set the text of the window"
 
         self.verify_actionable()
@@ -712,14 +769,16 @@ class HwndWrapper(BaseWrapper):
             text = self.window_text() + text
 
         text = ctypes.c_wchar_p(six.text_type(text))
-        self.PostMessage(win32defines.WM_SETTEXT, 0, text)
+        self.post_message(win32defines.WM_SETTEXT, 0, text)
         win32functions.WaitGuiThreadIdle(self)
 
         self.actions.log('Set text to the ' + self.friendly_class_name() + ': ' + str(text))
         return self
+    # Non PEP-8 alias
+    SetWindowText = set_window_text
 
     #-----------------------------------------------------------
-    def DebugMessage(self, text):
+    def debug_message(self, text):
         "Write some debug text over the window"
 
         # don't draw if dialog is not visible
@@ -747,9 +806,11 @@ class HwndWrapper(BaseWrapper):
             raise ctypes.WinError()
 
         return self
+    # Non PEP-8 alias
+    DebugMessage = debug_message
 
     #-----------------------------------------------------------
-    def DrawOutline(
+    def draw_outline(
         self,
         colour = 'green',
         thickness = 2,
@@ -809,20 +870,22 @@ class HwndWrapper(BaseWrapper):
 
         # delete the Display context that we created
         win32functions.DeleteDC(dc)
-
+    # Non PEP-8 alias
+    DrawOutline = draw_outline
 
     #-----------------------------------------------------------
-    def SetTransparency(self, alpha = 120):
+    def set_transparency(self, alpha = 120):
         "Set the window transparency from 0 to 255 by alpha attribute"
         if not (0 <= alpha <= 255):
             raise ValueError('alpha should be in [0, 255] interval!')
         # TODO: implement SetExStyle method
-        win32gui.SetWindowLong(self.handle, win32defines.GWL_EXSTYLE, self.ExStyle() | win32con.WS_EX_LAYERED)
+        win32gui.SetWindowLong(self.handle, win32defines.GWL_EXSTYLE, self.exstyle() | win32con.WS_EX_LAYERED)
         win32gui.SetLayeredWindowAttributes(self.handle, win32api.RGB(0,0,0), alpha, win32con.LWA_ALPHA)
-
+    # Non PEP-8 alias
+    SetTransparency = set_transparency
 
     #-----------------------------------------------------------
-    def PopupWindow(self):
+    def popup_window(self):
         """Return owned enabled Popup window wrapper if shown.
 
         If there is no enabled popups at that time, it returns **self**.
@@ -834,10 +897,11 @@ class HwndWrapper(BaseWrapper):
         popup = win32functions.GetWindow(self, win32defines.GW_ENABLEDPOPUP)
 
         return popup
-
+    # Non PEP-8 alias
+    PopupWindow = popup_window
 
     #-----------------------------------------------------------
-    def Owner(self):
+    def owner(self):
         """Return the owner window for the window if it exists
 
         Returns None if there is no owner"""
@@ -846,13 +910,17 @@ class HwndWrapper(BaseWrapper):
             return HwndWrapper(owner)
         else:
             return None
+    # Non PEP-8 alias
+    Owner = owner
 
     #-----------------------------------------------------------
-#    def ContextMenuSelect(self, path, x = None, y = None):
-#        "TODO ContextMenuSelect Not Implemented"
+#    def context_menu_select(self, path, x = None, y = None):
+#        "TODO context_menu_select Not Implemented"
 #        pass
 #        #raise NotImplementedError(
 #        #    "HwndWrapper.ContextMenuSelect not implemented yet")
+#    # Non PEP-8 alias
+#    ContextMenuSelect = context_menu_select
 
     #-----------------------------------------------------------
     def _menu_handle(self):
@@ -861,20 +929,22 @@ class HwndWrapper(BaseWrapper):
         hMenu = win32gui.GetMenu(self.handle)
         is_main_menu = True
         if not hMenu:
-            hMenu = self.SendMessage(self.handle, win32defines.MN_GETHMENU);
+            hMenu = self.send_message(self.handle, win32defines.MN_GETHMENU);
             is_main_menu = False
         return (hMenu, is_main_menu) #win32gui.GetMenu(self.handle)
 
     #-----------------------------------------------------------
-    def Menu(self):
+    def menu(self):
         "Return the menu of the control"
         hMenu, is_main_menu = self._menu_handle()
         if hMenu: # and win32functions.IsMenu(menu_hwnd):
             return Menu(self, hMenu, is_main_menu=is_main_menu)
         return None
+    # Non PEP-8 alias
+    Menu = menu
 
     #-----------------------------------------------------------
-    def MenuItem(self, path, exact = False):
+    def menu_item(self, path, exact = False):
         """Return the menu item specified by path
 
         Path can be a string in the form "MenuItem->MenuItem->MenuItem..."
@@ -889,37 +959,39 @@ class HwndWrapper(BaseWrapper):
 
         """
         if self.appdata is not None:
-            menu_appdata = self.appdata['MenuItems']
+            menu_appdata = self.appdata['menu_items']
         else:
             menu_appdata = None
 
-        menu = self.Menu()
+        menu = self.menu()
         if menu:
-            return self.Menu().GetMenuPath(path, appdata = menu_appdata, exact=exact)[-1]
+            return self.menu().GetMenuPath(path, appdata = menu_appdata, exact=exact)[-1]
 
         raise RuntimeError("There is no menu.")
+    # Non PEP-8 alias
+    MenuItem = menu_item
 
     #-----------------------------------------------------------
-    def MenuItems(self):
+    def menu_items(self):
         """Return the menu items for the dialog
 
         If there are no menu items then return an empty list
         """
-        if self.is_dialog() and self.Menu():
+        if self.is_dialog() and self.menu():
             #menu_handle = win32functions.GetMenu(self)
-            #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
-            return self.Menu().GetProperties()['MenuItems']
+            #self.send_message(win32defines.WM_INITMENU, menu_handle)
+            return self.menu().get_properties()['menu_items']
 
-            #self.SendMessage(win32defines.WM_INITMENU, menu_handle)
+            #self.send_message(win32defines.WM_INITMENU, menu_handle)
             #return _GetMenuItems(menu_handle, self)
         else:
             return []
-
-
+    # Non PEP-8 alias
+    MenuItems = menu_items
 
 #    #-----------------------------------------------------------
-#    def MenuClick(self, path):
-#        "Select the menuitem specifed in path"
+#    def menu_click(self, path):
+#        "Select the MenuItem specifed in path"
 #
 #        self.verify_actionable()
 #
@@ -934,22 +1006,24 @@ class HwndWrapper(BaseWrapper):
 #                raise MenuItemNotEnabled(
 #                    "MenuItem '%s' is disabled"% menu_item.Text())
 #
-#            menu_item.Click()
+#            menu_item.click()
 #
 #        return self
-
+#    # Non PEP-8 alias
+#    MenuClick = menu_click
 
     #-----------------------------------------------------------
-    def MenuSelect(self, path, exact = False, ):
+    def menu_select(self, path, exact = False, ):
         "Select the menuitem specified in path"
 
         self.verify_actionable()
 
-        self.MenuItem(path, exact=exact).Select()
-
+        self.menu_item(path, exact=exact).Select()
+    # Non PEP-8 alias
+    MenuSelect = menu_select
 
     #-----------------------------------------------------------
-    def MoveWindow(
+    def move_window(
         self,
         x = None,
         y = None,
@@ -1006,10 +1080,11 @@ class HwndWrapper(BaseWrapper):
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_movewindow_wait)
-
+    # Non PEP-8 alias
+    MoveWindow = move_window
 
     #-----------------------------------------------------------
-    def Close(self, wait_time = 0):
+    def close(self, wait_time = 0):
         """Close the window
 
         Code modified from http://msdn.microsoft.com/msdnmag/issues/02/08/CQA/
@@ -1018,7 +1093,7 @@ class HwndWrapper(BaseWrapper):
         window_text = self.window_text()
 
         # tell the window it must close
-        self.PostMessage(win32defines.WM_CLOSE)
+        self.post_message(win32defines.WM_CLOSE)
 
         #unused var: start = time.time()
         # Keeps trying while
@@ -1042,21 +1117,27 @@ class HwndWrapper(BaseWrapper):
         )
 
         self.actions.log('Closed window "{0}"'.format(window_text))
+    # Non PEP-8 alias
+    Close = close
 
     #-----------------------------------------------------------
-    def Maximize(self):
+    def maximize(self):
         """Maximize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MAXIMIZE)
         self.actions.log('Maximized window "{0}"'.format(self.window_text()))
+    # Non PEP-8 alias
+    Maximize = maximize
 
     #-----------------------------------------------------------
-    def Minimize(self):
+    def minimize(self):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
         self.actions.log('Minimized window "{0}"'.format(self.window_text()))
+    # Non PEP-8 alias
+    Minimize = minimize
 
     #-----------------------------------------------------------
-    def Restore(self):
+    def restore(self):
         """Restore the window"""
 
         # do it twice just in case the window was minimized from being
@@ -1065,10 +1146,11 @@ class HwndWrapper(BaseWrapper):
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         self.actions.log('Restored window "{0}"'.format(self.window_text()))
-
+    # Non PEP-8 alias
+    Restore = restore
 
     #-----------------------------------------------------------
-    def GetShowState(self):
+    def get_show_state(self):
         """Get the show state and Maximized/minimzed/restored state
 
         Returns a value that is a union of the following
@@ -1090,9 +1172,11 @@ class HwndWrapper(BaseWrapper):
             raise ctypes.WinError()
 
         return wp.showCmd
+    # Non PEP-8 alias
+    GetShowState = get_show_state
 
     #-----------------------------------------------------------
-    def GetActive(self):
+    def get_active(self):
         """
         Return a handle to the active window within the process
         """
@@ -1111,9 +1195,11 @@ class HwndWrapper(BaseWrapper):
             return HwndWrapper(hwndActive)
         else:
             return None
+    # Non PEP-8 alias
+    GetActive = get_active
 
     #-----------------------------------------------------------
-    def GetFocus(self):
+    def get_focus(self):
         """Return the control in the process of this window that has the Focus
         """
 
@@ -1128,6 +1214,8 @@ class HwndWrapper(BaseWrapper):
             return None
 
         return HwndWrapper(gui_info.hwndFocus)
+    # Non PEP-8 alias
+    GetFocus = get_focus
 
     #-----------------------------------------------------------
     def set_focus(self):
@@ -1192,7 +1280,7 @@ class HwndWrapper(BaseWrapper):
         return self
 
     #-----------------------------------------------------------
-    def SetApplicationData(self, appdata):
+    def set_application_data(self, appdata):
         """Application data is data from a previous run of the software
 
         It is essential for running scripts written for one spoke language
@@ -1222,9 +1310,11 @@ class HwndWrapper(BaseWrapper):
                 "end" :  win32defines.SB_BOTTOM,
             },
         }
+    # Non PEP-8 alias
+    SetApplicationData = set_application_data
 
     #-----------------------------------------------------------
-    def Scroll(self, direction, amount, count = 1, retry_interval = None):
+    def scroll(self, direction, amount, count = 1, retry_interval = None):
         """Ask the control to scroll itself
 
         **direction** can be any of "up", "down", "left", "right"
@@ -1246,14 +1336,16 @@ class HwndWrapper(BaseWrapper):
         if retry_interval is None:
             retry_interval = Timings.scroll_step_wait
         while count > 0:
-            self.SendMessage(message, scroll_type)
+            self.send_message(message, scroll_type)
             time.sleep(retry_interval)
             count -= 1
 
         return self
+    # Non PEP-8 alias
+    Scroll = scroll
 
     #-----------------------------------------------------------
-    def GetToolbar(self):
+    def get_toolbar(self):
         """Get the first child toolbar if it exists"""
 
         for child in self.children():
@@ -1261,6 +1353,8 @@ class HwndWrapper(BaseWrapper):
                 return child
 
         return None
+    # Non PEP-8 alias
+    GetToolbar = get_toolbar
 
 #====================================================================
 def _perform_click(
@@ -1346,7 +1440,7 @@ def _perform_click(
     # send each message
     for msg in msgs:
         win32functions.PostMessage(ctrl, msg, win32structures.WPARAM(flags), win32structures.LPARAM(click_point))
-        #ctrl.PostMessage(msg, flags, click_point)
+        #ctrl.post_message(msg, flags, click_point)
         #flags = 0
 
         time.sleep(Timings.sendmessagetimeout_timeout)
@@ -1392,15 +1486,13 @@ def _calc_flags_and_coords(pressed, coords):
 
     return flags, click_point
 
-
-
 #====================================================================
 class _DummyControl(dict):
     "A subclass of dict so that we can assign attributes"
     pass
 
 #====================================================================
-def GetDialogPropsFromHandle(hwnd):
+def get_dialog_props_from_handle(hwnd):
     "Get the properties of all the controls as a list of dictionaries"
 
     # wrap the dialog handle and start a new list for the
@@ -1420,7 +1512,7 @@ def GetDialogPropsFromHandle(hwnd):
     for ctrl in controls:
         # Get properties for each control and wrap them in
         # _DummyControl so that we can assign handle
-        ctrl_props = _DummyControl(ctrl.GetProperties())
+        ctrl_props = _DummyControl(ctrl.get_properties())
 
         # assign the handle
         ctrl_props.handle = ctrl.handle
@@ -1431,6 +1523,8 @@ def GetDialogPropsFromHandle(hwnd):
         props.append(ctrl_props)
 
     return props
+# Non PEP-8 alias
+GetDialogPropsFromHandle = get_dialog_props_from_handle
 
 
 backend.register('native', NativeElementInfo, HwndWrapper)

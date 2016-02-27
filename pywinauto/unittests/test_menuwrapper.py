@@ -82,9 +82,9 @@ class MenuWrapperTests(unittest.TestCase):
         self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').click_input)
 
     def testGetProperties(self):
-        self.assertEquals({u'MenuItems': [{u'Index': 0, u'State': 0, u'Type': 0, u'ID': 64, u'Text': u'View &Help'},
-                                          {u'Index': 1, u'State': 3, u'Type': 2048, u'ID': 0, u'Text': u''},
-                                          {u'Index': 2, u'State': 0, u'Type': 0, u'ID': 65, u'Text': u'&About Notepad'}]},
+        self.assertEquals({u'menu_items': [{u'Index': 0, u'State': 0, u'Type': 0, u'ID': 64, u'Text': u'View &Help'},
+                                           {u'Index': 1, u'State': 3, u'Type': 2048, u'ID': 0, u'Text': u''},
+                                           {u'Index': 2, u'State': 0, u'Type': 0, u'ID': 65, u'Text': u'&About Notepad'}]},
                           self.dlg.Menu().GetMenuPath('Help')[0].SubMenu().GetProperties())
 
     def testGetMenuPath(self):

@@ -49,8 +49,8 @@ def windows_media():
             "Player before running this script")
         sys.exit()
 
-    app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
-    app.WindowsMediaPlayer.MenuSelect("View->Choose Columns")
+    app.WindowsMediaPlayer.menu_select("View->GoTo->Library")
+    app.WindowsMediaPlayer.menu_select("View->Choose Columns")
 
     #for ctrl in app.ChooseColumns.children():
     #    print ctrl.class_name()
@@ -72,9 +72,9 @@ def windows_media():
     app.ChooseColumns.ListView.Check(1)
     time.sleep(.5)
 
-    app.ChooseColumsn.Cancel.Click()
+    app.ChooseColumsn.Cancel.click()
 
-    app.WindowsMediaPlayer.MenuSelect("File->Exit")
+    app.WindowsMediaPlayer.menu_select("File->Exit")
 
 
 def main():

@@ -455,7 +455,7 @@ class BaseWrapper(object):
         * **wheel_dist** The distance to move the mouse wheel (default: 0)
 
         NOTES:
-           This is different from Click in that it requires the control to
+           This is different from click in that it requires the control to
            be visible on the screen but performs a more realistic 'click'
            simulation.
 

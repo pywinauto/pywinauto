@@ -281,7 +281,7 @@ class MenuItem(object):
 
         # notify the control that a menu item was selected
         self.ctrl.set_focus()
-        self.ctrl.SendMessageTimeout(
+        self.ctrl.send_message_timeout(
             self.menu.COMMAND, command_id, timeout=1.0)
 
         win32functions.WaitGuiThreadIdle(self.ctrl)
@@ -290,12 +290,12 @@ class MenuItem(object):
     # _perform_click() doesn't work for MenuItem, so let's call Select() method
     Click = Select
 
-    def GetProperties(self):
+    def get_properties(self):
         """Return the properties for the item as a dict
 
-        If this item opens a sub menu then call Menu.GetProperties()
+        If this item opens a sub menu then call Menu.get_properties()
         to return the list of items in the sub menu. This is avialable
-        under the 'MenuItems' key
+        under the 'menu_items' key
         """
         props = {}
         props['Index'] = self.Index()
@@ -307,13 +307,15 @@ class MenuItem(object):
         submenu = self.SubMenu()
         if submenu:
             if submenu.accessible:
-                props['MenuItems'] = submenu.GetProperties()
+                props['menu_items'] = submenu.get_properties()
             else:
                 # Submenu is attached to the item but not accessible,
                 # so just mark that it exists without any additional information.
-                props['MenuItems'] = []
+                props['menu_items'] = []
 
         return props
+    # Non PEP-9 alias
+    GetProperties = get_properties
 
     def __repr__(self):
         "Return a representation of the object as a string"
@@ -394,7 +396,7 @@ class Menu(object):
         self.accessible = True
 
         if self.is_main_menu:
-            self.ctrl.SendMessageTimeout(win32defines.WM_INITMENU, self.handle)
+            self.ctrl.send_message_timeout(win32defines.WM_INITMENU, self.handle)
 
         menu_info = MenuInfo()
         buf = win32gui_struct.EmptyMENUINFO()
@@ -426,7 +428,7 @@ class Menu(object):
         """
         if isinstance(index, six.string_types):
             if self.ctrl.appdata is not None:
-                menu_appdata = self.ctrl.appdata['MenuItems']
+                menu_appdata = self.ctrl.appdata['menu_items']
             else:
                 menu_appdata = None
             return self.GetMenuPath(index, appdata = menu_appdata, exact=exact)[-1]
@@ -442,19 +444,21 @@ class Menu(object):
         return items
 
     @ensure_accessible
-    def GetProperties(self):
+    def get_properties(self):
         """Return the properties for the menu as a list of dictionaries
 
-        This method is actually recursive. It calls GetProperties() for each
+        This method is actually recursive. It calls get_properties() for each
         of the items. If the item has a sub menu it will call this
-        GetProperties to get the sub menu items.
+        get_properties to get the sub menu items.
         """
         item_props = []
 
         for item in self.Items():
-            item_props.append(item.GetProperties())
+            item_props.append(item.get_properties())
 
-        return {'MenuItems': item_props}
+        return {'menu_items': item_props}
+    # Non PEP-8 alias
+    GetProperties = get_properties
 
     @ensure_accessible
     def GetMenuPath(self, path, path_items = None, appdata = None, exact=False):
@@ -517,7 +521,7 @@ class Menu(object):
         # if there are more parts - then get the next level
         if parts[1:]:
             if appdata:
-                appdata = appdata[best_item.Index()]['MenuItems']
+                appdata = appdata[best_item.Index()]['menu_items']
             if best_item.SubMenu() is not None:
                 best_item.SubMenu().GetMenuPath(
                     "->".join(parts[1:]),
@@ -532,7 +536,7 @@ class Menu(object):
         return "<Menu %d>" % self.handle
 
 
-#    def GetProperties(self):
+#    def get_properties(self):
 #
 #        for i in range(0, self.ItemCount()):
 #            menu_info = self.Item(self, i)[0]
@@ -546,7 +550,7 @@ class Menu(object):
 #                item_prop['Text'] = ""
 #
 #            if self.IsSubMenu(i):
-#                item_prop['MenuItems'] = self.SubMenu(i).GetProperties()
+#                item_prop['menu_items'] = self.SubMenu(i).get_properties()
 #
 #            return item_prop
 
@@ -624,17 +628,17 @@ class Menu(object):
 #        # if it's a sub menu then get it's items
 #        if menu_info.hSubMenu:
 #            # make sure that the app updates the menu if it need to
-#            ctrl.SendMessage(
+#            ctrl.send_message(
 #                win32defines.WM_INITMENUPOPUP, menu_info.hSubMenu, i)
 #
-#            #ctrl.SendMessage(
+#            #ctrl.send_message(
 #            #    win32defines.WM_INITMENU, menu_info.hSubMenu, )
 #
 #            # get the sub menu items
 #            sub_menu_items = _GetMenuItems(menu_info.hSubMenu, ctrl)
 #
 #            # append them
-#            item_prop['MenuItems'] = sub_menu_items
+#            item_prop['menu_items'] = sub_menu_items
 #
 #        items.append(item_prop)
 #

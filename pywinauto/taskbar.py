@@ -27,8 +27,8 @@ This module will likely change significantly in the future!"""
 import warnings
 
 from . import sysinfo
-from pywinauto import findwindows
-from pywinauto import application
+from . import findwindows
+from . import application
 
 warnings.warn("The taskbar module is still very experimental", FutureWarning)
 

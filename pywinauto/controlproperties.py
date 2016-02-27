@@ -45,7 +45,7 @@ class ControlProps(dict):
         dict.__init__(self, *args, **kwargs)
 
         self.ref = None
-        #self.MenuItems = []
+        #self.menu_items = []
 
     def __getattr__(self, attr):
         # if the key is not in the dictionary but the plural is
@@ -70,19 +70,19 @@ class ControlProps(dict):
     WindowText = window_text
 
     def HasStyle(self, style):
-        return self['Style'] & style == style
+        return self['style'] & style == style
 
     def HasExStyle(self, exstyle):
-        return self['ExStyle'] & exstyle == exstyle
+        return self['exstyle'] & exstyle == exstyle
 
 
 #====================================================================
 def GetMenuBlocks(ctrls):
     allMenuBlocks = []
     for ctrl in ctrls:
-        if 'MenuItems' in ctrl.keys():
+        if 'menu_items' in ctrl.keys():
             # we need to get all the separate menu blocks!
-            menuBlocks = MenuBlockAsControls(ctrl.MenuItems())
+            menuBlocks = MenuBlockAsControls(ctrl.menu_items())
             allMenuBlocks.extend(menuBlocks)
 
     return allMenuBlocks
@@ -113,7 +113,7 @@ def MenuBlockAsControls(menuItems, parentage = None):
         curBlock.append(itemAsCtrl)
 
         # If the item has a sub menu
-        if 'MenuItems' in item.keys():
+        if 'menu_items' in item.keys():
 
             # add the current item the path
             parentage.append(item['Text'])
@@ -122,7 +122,7 @@ def MenuBlockAsControls(menuItems, parentage = None):
             # blocks we have found
             blocks.extend(
                 MenuBlockAsControls(
-                    item['MenuItems']['MenuItems'], parentage))
+                    item['menu_items']['menu_items'], parentage))
 
             # and seeing as we are dong with that sub menu remove the current
             # item from the path
@@ -150,12 +150,12 @@ def MenuItemAsControl(menuItem):
 
     # as most of these don't matter - just set them up with default stuff
     itemAsCtrl["rectangle"] = RECT(0, 0, 999, 999)
-    itemAsCtrl["Fonts"] = [LOGFONTW(), ]
-    itemAsCtrl["ClientRects"] = [RECT(0, 0, 999, 999), ]
-    itemAsCtrl["ContextHelpID"] = 0
-    itemAsCtrl["UserData"]  = 0
-    itemAsCtrl["Style"] = 0
-    itemAsCtrl["ExStyle"] = 0
+    itemAsCtrl["fonts"] = [LOGFONTW(), ]
+    itemAsCtrl["client_rects"] = [RECT(0, 0, 999, 999), ]
+    itemAsCtrl["context_help_id"] = 0
+    itemAsCtrl["user_data"]  = 0
+    itemAsCtrl["style"] = 0
+    itemAsCtrl["exstyle"] = 0
     itemAsCtrl["is_visible"] = 1
 
     return itemAsCtrl
@@ -207,7 +207,7 @@ def SetReferenceControls(controls, refControls):
 #    #----------------------------------------------------------------
 #    def __init__(self, props = {}):
 #        # default to having menuItems for all things
-#        self.MenuItems = []
+#        self.menu_items = []
 #
 #        self.update(props)
 #        #for x in props:
@@ -222,7 +222,7 @@ def SetReferenceControls(controls, refControls):
 #
 #    #----------------------------------------------------------------
 #    # handles attribute access for dictionary items and
-#    # for plurals (e.g. if self.Fonts = [4, 2] then self.Font = 4)
+#    # for plurals (e.g. if self.fonts = [4, 2] then self.font = 4)
 #    def __getattr__(self, key):
 #
 #        # if the key is not in the dictionary but the plural is
@@ -247,11 +247,11 @@ def SetReferenceControls(controls, refControls):
 #            self[key] = value
 #
 #    #----------------------------------------------------------------
-#    def HasStyle(self, flag):
-#        return self.Style & flag == flag
+#    def has_style(self, flag):
+#        return self.style & flag == flag
 #
 #    #----------------------------------------------------------------
-#    def HasExStyle(self, flag):
-#        return self.ExStyle & flag == flag
+#    def has_exstyle(self, flag):
+#        return self.exstyle & flag == flag
 #
 #
