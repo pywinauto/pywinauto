@@ -177,14 +177,20 @@ try:
 except(AttributeError): 
     pass
     
-    
-## Supported starting with Windows 10.
-#try:
-#    # CustomNavigation control pattern.
-#    _pattern_id['CustomNavigation'] = _UIA_dll.UIA_CustomNavigationPatternId,
-#except(AttributeError): 
-#    pass
 
+# Return values for the toggle_state propery
+#     enum ToggleState {  
+#       ToggleState_Off, 
+#       ToggleState_On, 
+#       ToggleState_Indeterminate 
+# };
+# The definitiono can als be found in the comtypes package 
+# In a file automatically generated according to UIAutomation GUID:
+# comtypes\gen\_944DE083_8FB8_45CF_BCB7_C477ACB2F897_*.py
+toggle_state_off = 0
+toggle_state_on = 1
+toggle_state_inderteminate = 2
+    
 
 """
 Possible properties:
@@ -342,6 +348,44 @@ class UIAElementInfo(ElementInfo):
     def dumpWindow(self):
         "Dump window to a set of properties"
         return dumpwindow(self.handle)
+
+    def toggle(self):
+        """
+        An interface to Toggle method of the Toggle control pattern.
+        Control supporting the Toggle pattern cycles through its 
+        toggle states in the following order: 
+        ToggleState_On, ToggleState_Off and, 
+        if supported, ToggleState_Indeterminate
+        
+        Usually applied for the check box control.
+        
+        The radio button control does not implement IToggleProvider, 
+        because it is not capable of cycling through its valid states.
+        """
+        pattern = self._element.GetCurrentPattern(_pattern_id["Toggle"])
+        p = pattern.QueryInterface(
+                comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern)
+        p.Toggle()
+        
+    @property
+    def toggle_state(self):
+        """
+        An interface to ToggleState property of the Toggle control pattern.
+        Control supporting the Toggle pattern cycles through its 
+        toggle states in the following order: 
+        ToggleState_On, ToggleState_Off and, 
+        if supported, ToggleState_Indeterminate
+        
+        
+        Usually applied for the check box control.
+        
+        The radio button control does not implement IToggleProvider, 
+        because it is not capable of cycling through its valid states.
+        """
+        pattern = self._element.GetCurrentPattern(_pattern_id["Toggle"])
+        p = pattern.QueryInterface(
+                comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern)
+        return p.CurrentToggleState
 
     @property
     def richText(self):

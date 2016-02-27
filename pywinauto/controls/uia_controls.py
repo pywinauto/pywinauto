@@ -26,7 +26,6 @@ from . import UIAWrapper
 from ..UIAElementInfo import _UIA_dll
 
 
-
 #====================================================================
 class ButtonWrapper(UIAWrapper.UIAWrapper):
     "Wrap a WPF Button control"
@@ -41,5 +40,21 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
     def __init__(self, hwnd):
         "Initialize the control"
         super(ButtonWrapper, self).__init__(hwnd)
+
+    #-----------------------------------------------------------
+
+    def toggle(self):
+        """
+        Toggle a state of a check box control.
+        Notice, a radio button control isn't supported by UIA.
+        https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
+        """
+        self._elementInfo.toggle()
+
+    #-----------------------------------------------------------
+
+    def get_toggle_state(self):
+        "Get a toggle state of a check box control"
+        return self._elementInfo.toggle_state
 
     #-----------------------------------------------------------
