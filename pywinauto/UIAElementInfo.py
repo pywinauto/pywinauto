@@ -33,6 +33,7 @@
 
 import comtypes
 import comtypes.client
+import pywinauto.uia_definitions as uia_defs
 
 from .six import integer_types
 from .handleprops import text, dumpwindow, controlid
@@ -229,9 +230,7 @@ class UIAElementInfo(ElementInfo):
         The radio button control does not implement IToggleProvider, 
         because it is not capable of cycling through its valid states.
         """
-        pattern = self._element.GetCurrentPattern(_pattern_id["Toggle"])
-        interface = pattern.QueryInterface(
-                comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern)
+        interface = uia_defs.get_elem_interface(self._element, "Toggle")
         interface.Toggle()
         
     @property
@@ -248,16 +247,12 @@ class UIAElementInfo(ElementInfo):
         The radio button control does not implement IToggleProvider, 
         because it is not capable of cycling through its valid states.
         """
-        pattern = self._element.GetCurrentPattern(_pattern_id["Toggle"])
-        interface = pattern.QueryInterface(
-                comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern)
+        interface = uia_defs.get_elem_interface(self._element, "Toggle")
         return interface.CurrentToggleState
 
     def invoke(self):
         "An interface to the Invoke method of the Invoke control pattern"""
-        pattern = self._element.GetCurrentPattern(_pattern_id["Invoke"])
-        interface = pattern.QueryInterface(
-                comtypes.gen.UIAutomationClient.IUIAutomationInvokePattern)
+        interface = uia_defs.get_elem_interface(self._element, "Invoke")
         interface.Invoke()
 
 
@@ -267,8 +262,7 @@ class UIAElementInfo(ElementInfo):
         if not self.className:
             return self.name
         try:
-            pattern = self._element.GetCurrentPattern(_pattern_id["Text"]).QueryInterface(
-                comtypes.gen.UIAutomationClient.IUIAutomationTextPattern)
+            pattern = uia_defs.get_elem_interface(self._element, "Text")
             return pattern.DocumentRange.GetText(-1)
         except Exception:
             return self.name # TODO: probably we should raise an exception here

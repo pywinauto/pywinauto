@@ -17,6 +17,7 @@ sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
+    import pywinauto.uia_definitions as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
     import pywinauto.UIAElementInfo as uia_elem
 #from pywinauto.findwindows import ElementNotFoundError
@@ -218,14 +219,14 @@ if UIA_support:
             
             # Get a current state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
-            self.assertEqual(cur_state, uia_elem.toggle_state_off)
+            self.assertEqual(cur_state, uia_defs.toggle_state_off)
             
             # Toggle the next state
             self.dlg.CheckBox.toggle()
             
             # Get a new state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
-            self.assertEqual(cur_state, uia_elem.toggle_state_on)
+            self.assertEqual(cur_state, uia_defs.toggle_state_on)
 
         def testButtonClick(self):
             "Test the click method for the Button control"
