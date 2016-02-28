@@ -17,7 +17,7 @@ sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
-    import pywinauto.uia_definitions as uia_defs
+    import pywinauto.uia_defines as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
     import pywinauto.UIAElementInfo as uia_elem
 #from pywinauto.findwindows import ElementNotFoundError
@@ -230,6 +230,8 @@ if UIA_support:
 
         def testButtonClick(self):
             "Test the click method for the Button control"
+
+            #TODO: verify click
             self.dlg.Button.click()
 
 if __name__ == "__main__":

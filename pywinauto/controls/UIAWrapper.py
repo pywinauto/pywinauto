@@ -14,7 +14,7 @@ from ..actionlogger import ActionLogger
 
 import comtypes
 import comtypes.client
-import pywinauto.uia_definitions as uia_defs
+import pywinauto.uia_defines as uia_defs
 
 from .. import backend
 from ..base_wrapper import BaseWrapper

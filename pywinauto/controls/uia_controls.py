@@ -31,9 +31,9 @@
 """Wrap various UIA windows controls
 """
 
-import pywinauto.uia_definitions as uia_defs
+import pywinauto.uia_defines as uia_defs
 from . import UIAWrapper
-from ..uia_definitions import _UIA_dll
+from ..uia_defines import _UIA_dll
 
 
 #====================================================================
@@ -80,7 +80,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         1 - checked
         2 - indeterminate
 
-        The following constants are defined in the uia_definitions module
+        The following constants are defined in the uia_defines module
         toggle_state_off = 0
         toggle_state_on = 1
         toggle_state_inderteminate = 2
