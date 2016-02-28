@@ -217,45 +217,6 @@ class UIAElementInfo(ElementInfo):
         "Dump window to a set of properties"
         return dumpwindow(self.handle)
 
-    def toggle(self):
-        """
-        An interface to Toggle method of the Toggle control pattern.
-        Control supporting the Toggle pattern cycles through its 
-        toggle states in the following order: 
-        ToggleState_On, ToggleState_Off and, 
-        if supported, ToggleState_Indeterminate
-        
-        Usually applied for the check box control.
-        
-        The radio button control does not implement IToggleProvider, 
-        because it is not capable of cycling through its valid states.
-        """
-        interface = uia_defs.get_elem_interface(self._element, "Toggle")
-        interface.Toggle()
-        
-    @property
-    def toggle_state(self):
-        """
-        An interface to ToggleState property of the Toggle control pattern.
-        A control supporting the Toggle pattern cycles through its 
-        toggle states in the following order: 
-        ToggleState_On, ToggleState_Off and, 
-        if supported, ToggleState_Indeterminate
-        
-        Usually applied for the check box control.
-        
-        The radio button control does not implement IToggleProvider, 
-        because it is not capable of cycling through its valid states.
-        """
-        interface = uia_defs.get_elem_interface(self._element, "Toggle")
-        return interface.CurrentToggleState
-
-    def invoke(self):
-        "An interface to the Invoke method of the Invoke control pattern"""
-        interface = uia_defs.get_elem_interface(self._element, "Invoke")
-        interface.Invoke()
-
-
     @property
     def richText(self):
         "Return richText of the element"

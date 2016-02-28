@@ -31,6 +31,7 @@
 """Wrap various UIA windows controls
 """
 
+import pywinauto.uia_definitions as uia_defs
 from . import UIAWrapper
 from ..uia_definitions import _UIA_dll
 
@@ -53,11 +54,23 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
     #-----------------------------------------------------------
     def toggle(self):
         """
+        An interface to Toggle method of the Toggle control pattern.
+        Control supporting the Toggle pattern cycles through its 
+        toggle states in the following order: 
+        ToggleState_On, ToggleState_Off and, 
+        if supported, ToggleState_Indeterminate
+        
+        Usually applied for the check box control.
+        
+        The radio button control does not implement IToggleProvider, 
+        because it is not capable of cycling through its valid states.
         Toggle a state of a check box control.
         Notice, a radio button control isn't supported by UIA.
         https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
-        self._elementInfo.toggle()
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Toggle")
+        iface.Toggle()
 
     #-----------------------------------------------------------
     def get_toggle_state(self):
@@ -72,7 +85,9 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         toggle_state_on = 1
         toggle_state_inderteminate = 2
         """
-        return self._elementInfo.toggle_state
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Toggle")
+        return iface.CurrentToggleState
 
     #-----------------------------------------------------------
     def is_dialog(self):
@@ -82,4 +97,5 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
     #-----------------------------------------------------------
     def click(self, *args, **kwargs):
         "Click the Button control by using Invoke pattern"
-        self._elementInfo.invoke()
+        self.invoke()
+        

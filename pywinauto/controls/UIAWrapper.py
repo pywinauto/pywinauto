@@ -14,6 +14,7 @@ from ..actionlogger import ActionLogger
 
 import comtypes
 import comtypes.client
+import pywinauto.uia_definitions as uia_defs
 
 from .. import backend
 from ..base_wrapper import BaseWrapper
@@ -207,6 +208,13 @@ class UIAWrapper(BaseWrapper):
                 pass # TODO: add RuntimeWarning here
 
         return self
+
+    #-----------------------------------------------------------
+    def invoke(self):
+        "An interface to the Invoke method of the Invoke control pattern"
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Invoke")
+        iface.Invoke()
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)
