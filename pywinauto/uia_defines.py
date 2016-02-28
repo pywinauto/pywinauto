@@ -1,5 +1,5 @@
+# Copyright (C) 2016 Vasily Ryabov
 # Copyright (C) 2016 airelil
-# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2010 Mark Mc Mahon
 # All rights reserved.
 #

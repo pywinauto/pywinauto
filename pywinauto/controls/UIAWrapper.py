@@ -111,7 +111,6 @@ class UiaMeta(BaseMeta):
         # Check for a more specific wrapper in the registry
         if element.controlType in UiaMeta.control_type_to_cls:
             wrapper_match = UiaMeta.control_type_to_cls[element.controlType]
-            #print("UIA found: ", wrapper_match)
 
         return wrapper_match
 

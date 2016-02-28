@@ -1,5 +1,5 @@
+# Copyright (C) 2016 Vasily Ryabov
 # Copyright (C) 2016 airelil
-# Copyright (C) 2015 Intel Corporation
 # Copyright (C) 2010 Mark Mc Mahon
 # All rights reserved.
 #
@@ -38,7 +38,7 @@ from ..uia_defines import _UIA_dll
 
 #====================================================================
 class ButtonWrapper(UIAWrapper.UIAWrapper):
-    "Wrap a WPF Button control"
+    "Wrap a UIA-compatible Button, CheckBox or RadioButton control"
 
     control_types = [
         _UIA_dll.UIA_ButtonControlTypeId,

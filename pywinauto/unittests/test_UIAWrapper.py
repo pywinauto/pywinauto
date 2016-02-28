@@ -19,7 +19,6 @@ from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
-    import pywinauto.UIAElementInfo as uia_elem
 #from pywinauto.findwindows import ElementNotFoundError
 from pywinauto.timings import Timings, TimeoutError
 #from pywinauto import clipboard
