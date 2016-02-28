@@ -763,9 +763,9 @@ class HeaderTestCases(unittest.TestCase):
 
     def testClientRects(self):
         test_rects = self.item_rects
-        test_rects.insert(0, self.ctrl.ClientRect())
+        test_rects.insert(0, self.ctrl.client_rect())
 
-        client_rects = self.ctrl.ClientRects()
+        client_rects = self.ctrl.client_rects()
         self.assertEquals(len(test_rects), len(client_rects))
         for i in range(len(test_rects)):
             self.assertEquals(test_rects[i].left, client_rects[i].left)
@@ -1026,8 +1026,8 @@ class TabControlTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.GetTabText, 99)
 
     def testClientRects(self):
-        self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
-        self.assertEquals(self.rects, self.ctrl.ClientRects()[1:])
+        self.assertEquals(self.ctrl.client_rect(), self.ctrl.client_rects()[0])
+        self.assertEquals(self.rects, self.ctrl.client_rects()[1:])
 
     def testSelect(self):
         self.assertEquals(0, self.ctrl.GetSelectedTab())

@@ -693,6 +693,9 @@ class DialogTestCases(unittest.TestCase):
                     ctrl_value = list(ctrl_value)
                     expected_value = list(expected_value)
 
+                if ctrl_value == 'None':
+                    ctrl_value = None
+
                 self.assertEquals(ctrl_value, expected_value)
 
         import os
