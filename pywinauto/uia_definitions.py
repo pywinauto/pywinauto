@@ -34,225 +34,55 @@ import comtypes
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
 
-# Named constants that identify Microsoft UI Automation control patterns
-# and their appropriate comtypes classes
+# Build a list of named constants that identify Microsoft UI Automation 
+# control patterns and their appropriate comtypes classes
+# We'll try to add all patterns available for the given version of Windows OS
+# Reference:
 # https://msdn.microsoft.com/en-us/library/windows/desktop/ee671195(v=vs.85).aspx
 # header: UIAutomationClient.h
-pattern_ids = {
-    # Dock control pattern.
-    'Dock': [
-        _UIA_dll.UIA_DockPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationDockPattern
-        ],
-    
-    # ExpandCollapse control pattern.
-    'ExpandCollapse': [
-        _UIA_dll.UIA_ExpandCollapsePatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationExpandCollapsePattern
-        ],
-    
-    # GridItem control pattern.
-    'GridItem': [
-        _UIA_dll.UIA_GridItemPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationGridItemPattern 
-        ],
-    
-    # Grid control pattern.
-    'Grid': [
-        _UIA_dll.UIA_GridPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationGridPattern
-        ],
-    
-    # Invoke control pattern.
-    'Invoke': [
-        _UIA_dll.UIA_InvokePatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationInvokePattern
-        ],
-    
-    # ItemContainer control pattern.
-    'ItemContainer': [
-        _UIA_dll.UIA_ItemContainerPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationItemContainerPattern
-        ],
-    
-    # LegacyIAccessible control pattern.
-    'LegacyIAccessible': [
-        _UIA_dll.UIA_LegacyIAccessiblePatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationLegacyIAccessiblePattern
-        ],
-    
-    # MultipleView control pattern.
-    'MulipleView': [
-        _UIA_dll.UIA_MultipleViewPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationMultipleViewPattern
-        ],
-    
-    # RangeValue control pattern.
-    'RangeValue': [
-        _UIA_dll.UIA_RangeValuePatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomation
-        ],
-    
-    # ScrollItem control pattern.
-    'ScrollItem': [
-        _UIA_dll.UIA_ScrollItemPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationScrollItemPattern
-        ],
-    
-    # Scroll control pattern.
-    'Scroll': [
-        _UIA_dll.UIA_ScrollPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationScrollPattern,
-        ],
-    
-    # SelectionItem control pattern.
-    'SelectionItem': [
-        _UIA_dll.UIA_SelectionItemPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationSelectionItemPattern
-        ],
-    
-    # Selection control pattern.
-    'Selection': [
-        _UIA_dll.UIA_SelectionPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationSelectionPattern
-        ],
-    
-    # SynchronizedInput control pattern.
-    'SynchronizedInput': [
-        _UIA_dll.UIA_SynchronizedInputPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationSynchronizedInputPattern
-        ],
-    
-    # TableItem control pattern.
-    'TableItem': [
-        _UIA_dll.UIA_TableItemPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationTableItemPattern
-        ],
-    
-    # Table control pattern.
-    'Table': [
-        _UIA_dll.UIA_TablePatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationTablePattern
-        ],
-    
-    # Text control pattern.
-    'Text': [
-        _UIA_dll.UIA_TextPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationTextPattern
-        ],
-    
-    # Toggle control pattern.
-    'Toggle': [
-        _UIA_dll.UIA_TogglePatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern
-        ],
-    
-    # Transform control pattern.
-    'Transform': [
-        _UIA_dll.UIA_TransformPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationTransformPattern
-        ],
-    
-    # Value control pattern.
-    'Value': [
-        _UIA_dll.UIA_ValuePatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationValuePattern
-        ],
-    
-    # VirtualizedItem control pattern.
-    'VirtualizedItem': [
-        _UIA_dll.UIA_VirtualizedItemPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationVirtualizedItemPattern
-        ],
-    
-    # Window control pattern. 
-    'Window': [
-        _UIA_dll.UIA_WindowPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
-        ]
-}
 
-# We also try to add new patterns, supported by Win8 and later versions
-try:
-    ### Patterns supported starting with 
-    ### Windows 8.
-    # Annotation control pattern.
-    pattern_ids['Annotation'] = [
-        _UIA_dll.UIA_AnnotationPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationAnnotationPattern
-        ],
+def _build_pattern_ids_dic():
+    """A helper procedure to build a registry of control patterns 
+    supported on the current system
+    """
+    base_names = [
+        'Dock', 'ExpandCollapse', 'GridItem', 'Grid', 'Invoke', 'ItemContainer',
+        'LegacyIAccessible', 'MulipleView', 'RangeValue', 'ScrollItem', 'Scroll',
+        'SelectionItem', 'Selection', 'SynchronizedInput', 'TableItem', 'Table',
+        'Text', 'Toggle', 'VirtualizedItem', 'Value', 'Window',
     
-    # Drag control pattern. 
-    pattern_ids['Drag'] = [
-        _UIA_dll.UIA_DragPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationDragPattern
-        ],
+        # Windows 8 and later
+        'Annotation', 'Drag', 'Drop', 'ObjectModel', 'Spreadsheet', 
+        'SpreadsheetItem', 'Styles', 'TextChild', 'TextV2', 'TransformV2',
     
-    # DropTarget control pattern.
-    pattern_ids['Drop'] = [
-        _UIA_dll.UIA_DropTargetPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationDropTargetPattern
-        ],
+        # Windows 8.1 and later
+        'TextEdit',
     
-    # ObjectModel control pattern.
-    pattern_ids['ObjectModel'] = [
-        _UIA_dll.UIA_ObjectModelPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationObjectModelPattern
-        ],
+        # Windows 10 and later
+        'CustomNavigation'
+    ]
     
-    # Spreadsheet control pattern.
-    pattern_ids['Spreadsheet'] = [
-        _UIA_dll.UIA_SpreadsheetPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationSpreadsheetPattern
-        ],
-    
-    # SpreadsheetItem control pattern.
-    pattern_ids['SpreadsheetItem'] = [
-        _UIA_dll.UIA_SpreadsheetItemPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationSpreadsheetItemPattern
-        ],
-    
-    # Styles control pattern.
-    pattern_ids['Styles'] = [
-        _UIA_dll.UIA_StylesPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationStylesPattern
-        ],
-    
-    # TextChild control pattern.
-    pattern_ids['TextChild'] = [
-        _UIA_dll.UIA_TextChildPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationTextChildPattern
-        ],
-    
-    # A second version of the Text control pattern. 
-    pattern_ids['TextV2'] = [
-        _UIA_dll.UIA_TextPattern2Id,
-        comtypes.gen.UIAutomationClient.IUIAutomationTextPattern
-        ],
-    
-    # A second version of the Transform control pattern. 
-    pattern_ids['TransformV2'] = [
-        _UIA_dll.UIA_TransformPattern2Id,
-        comtypes.gen.UIAutomationClient.IUIAutomationTransformPattern
-        ],
+    ptrn_ids_dic = {}
 
-    ### Patterns supported starting with 
-    ### Windows 8.1.
-    # TextEdit control pattern.
-    pattern_ids['TextEdit'] = [
-        _UIA_dll.UIA_TextEditPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationTextEditPattern
-        ],
+    # Loop over the all base names and try to retrieve control patterns
+    for ptrn_name in base_names:
 
-    ### Patterns supported starting with 
-    ### Windows 10.
-    # CustomNavigation control pattern.
-    pattern_ids['CustomNavigation'] = [
-        _UIA_dll.UIA_CustomNavigationPatternId,
-        comtypes.gen.UIAutomationClient.IUIAutomationCustomNavigationPattern
-        ],
-except(AttributeError): 
-    pass
+        # Construct a class name and check if it is supported by comtypes
+        cls_name = ''.join(['IUIAutomation', ptrn_name, 'Pattern'])
+        if hasattr(comtypes.gen.UIAutomationClient, cls_name):
+            klass = getattr(comtypes.gen.UIAutomationClient, cls_name)
+            
+            # Contruct a pattern ID name and get the ID value
+            ptrn_id_name = 'UIA_' + ptrn_name + 'PatternId'
+            ptrn_id = getattr(_UIA_dll, ptrn_id_name)
+    
+            # Update the registry of known patterns
+            ptrn_ids_dic[ptrn_name] = (ptrn_id, klass)
+    
+    return ptrn_ids_dic
+
+pattern_ids = _build_pattern_ids_dic()
+
 
 # Return values for the toggle_state propery
 #     enum ToggleState {  
