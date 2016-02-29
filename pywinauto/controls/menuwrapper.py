@@ -317,7 +317,7 @@ class MenuItem(object):
         props['index'] = self.index()
         props['state'] = self.state()
         props['type'] = self.type()
-        props['ID'] = self.id()
+        props['id'] = self.id()
         props['text'] = self.text()
 
         submenu = self.sub_menu()
