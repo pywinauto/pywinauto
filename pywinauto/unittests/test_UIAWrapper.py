@@ -17,6 +17,7 @@ sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
+    import pywinauto.uia_defines as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
 #from pywinauto.findwindows import ElementNotFoundError
 from pywinauto.timings import Timings, TimeoutError
@@ -181,6 +182,56 @@ if UIA_support:
 
         #def testPressMoveRelease(self):
         #    pass
+
+    class ButtonWrapperTests(unittest.TestCase):
+        "Unit tests for the ButtonWrapper class"
+
+        def setUp(self):
+            """Start the application set some data and ensure the application
+            is in the state we want it."""
+            backend.activate("uia")
+
+            # start the application
+            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+
+            self.dlg = self.app.WPFSampleApplication
+            self.button = self.dlg.Button
+            #self.button = UIAWrapper(self.dlg.Button.elementInfo)
+
+        def tearDown(self):
+            "Close the application after tests"
+            self.app.kill_()
+
+        def testFriendlyClassName(self):
+            """
+            Test getting the friendly class name of a check box control 
+            on the dialog
+            """
+            friendly_name = self.dlg.CheckBox.FriendlyClassName()
+            self.assertEqual(friendly_name, "CheckBox")
+
+        def testCheckBox(self):
+            """"
+            Test the toggle and the toggle_state methods 
+            for the check box control
+            """
+            
+            # Get a current state of the check box control
+            cur_state = self.dlg.CheckBox.get_toggle_state()
+            self.assertEqual(cur_state, uia_defs.toggle_state_off)
+            
+            # Toggle the next state
+            self.dlg.CheckBox.toggle()
+            
+            # Get a new state of the check box control
+            cur_state = self.dlg.CheckBox.get_toggle_state()
+            self.assertEqual(cur_state, uia_defs.toggle_state_on)
+
+        def testButtonClick(self):
+            "Test the click method for the Button control"
+
+            #TODO: verify click
+            self.dlg.Button.click()
 
 if __name__ == "__main__":
     if UIA_support:

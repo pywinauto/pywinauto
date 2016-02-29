@@ -61,7 +61,6 @@ class BaseWrapper(object):
     # Properties required for _MetaWrapper class
     friendlyclassname = None
     windowclasses = []
-    controltypes = []
 
     # Properties that describe type of the element
     can_be_label = False
