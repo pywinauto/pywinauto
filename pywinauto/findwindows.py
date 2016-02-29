@@ -96,7 +96,7 @@ def find_elements(class_name = None,
                   control_id = None,
                   auto_id = None,
                   framework_id = None,
-                  backend = 'native',
+                  backend = None,
     ):
     """
     Find elements based on criteria passed in
@@ -123,6 +123,8 @@ def find_elements(class_name = None,
     * **backend**        Back-end name to use while searching (default='native')
     """
 
+    if backend is None:
+        backend = registry.active_backend.name
     backend_obj = registry.backends[backend]
 
     # allow a handle to be passed in

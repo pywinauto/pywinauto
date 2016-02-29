@@ -132,7 +132,10 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
-        #self.backend = registry.backends[search_criteria['backend']]
+        if 'backend' not in search_criteria:
+            self.backend = registry.active_backend
+        else:
+            self.backend = registry.backends[search_criteria['backend']]
 
     def __call__(self, *args, **kwargs):
         "No __call__ so return a usefull error"
@@ -151,10 +154,77 @@ class WindowSpecification(object):
         raise AttributeError(message)
 
 
+    def __get_ctrl(self, criteria_):
+        "Get the control based on the various criteria"
+
+        # make a copy of the criteria
+        criteria = [crit.copy() for crit in criteria_]
+        # find the dialog
+        dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
+        #dialog = BaseWrapper(findwindows.find_element(**criteria[0]))
+
+        ctrl = None
+        # if there is only criteria for a dialog then return it
+        if len(criteria) > 1:
+            # so there was criteria for a control, add the extra criteria
+            # that are required for child controls
+            ctrl_criteria = criteria[1]
+            ctrl_criteria["top_level_only"] = False
+            if not "parent" in ctrl_criteria:
+                ctrl_criteria["parent"] = dialog.handle
+
+            # resolve the control and return it
+            ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
+            #ctrl = BaseWrapper(findwindows.find_element(**ctrl_criteria))
+
+        if ctrl:
+            return (dialog, ctrl)
+        else:
+            return (dialog, )
+
+
+    def __resolve_control(self, criteria, timeout = None, retry_interval = None):
+        """Find a control using criteria
+
+        * **criteria** - a list that contains 1 or 2 dictionaries
+
+             1st element is search criteria for the dialog
+
+             2nd element is the search criteria for a control of the dialog
+
+        * **timeout** -  maximum length of time to try to find the controls (default 5)
+        * **retry_interval** - how long to wait between each retry (default .2)
+        """
+
+        #start = time.time()
+
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+
+
+        try:
+            ctrl = WaitUntilPasses(
+                timeout,
+                retry_interval,
+                self.__get_ctrl,
+                (findwindows.ElementNotFoundError,
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle,
+                controls.InvalidElement),
+                criteria)
+
+        except TimeoutError as e:
+            raise e.original_exception
+
+        return ctrl
+
+
     def WrapperObject(self):
         "Allow the calling code to get the HwndWrapper object"
 
-        ctrls = _resolve_control(self.criteria)
+        ctrls = self.__resolve_control(self.criteria)
 
         return ctrls[-1]
 
@@ -201,7 +271,7 @@ class WindowSpecification(object):
         # then resolve the control and do a getitem on it for the
         if len(self.criteria) == 2:
 
-            ctrls = _resolve_control(self.criteria)
+            ctrls = self.__resolve_control(self.criteria)
 
             # try to return a good error message if the control does not
             # have a __getitem__() method)
@@ -253,7 +323,7 @@ class WindowSpecification(object):
         # attribute and return it
         if len(self.criteria) == 2:
 
-            ctrls = _resolve_control(self.criteria)
+            ctrls = self.__resolve_control(self.criteria)
 
             return getattr(ctrls[-1], attr_name)
 
@@ -262,7 +332,7 @@ class WindowSpecification(object):
             # then resolve the window and return the attribute
             if len(self.criteria) == 1 and hasattr(DialogWrapper, attr_name):
 
-                ctrls = _resolve_control(self.criteria)
+                ctrls = self.__resolve_control(self.criteria)
 
                 return getattr(ctrls[-1], attr_name)
 
@@ -296,8 +366,7 @@ class WindowSpecification(object):
             criterion['visible_only'] = False
 
         try:
-            _resolve_control(
-                exists_criteria, timeout, retry_interval)
+            self.__resolve_control(exists_criteria, timeout, retry_interval)
 
             return True
         except (
@@ -347,7 +416,7 @@ class WindowSpecification(object):
         """
         for check_name in check_names:
             try:
-                # Hidden _resolve_control call, handle the exceptions.
+                # Hidden __resolve_control call, handle the exceptions.
                 check = getattr(self, check_name)
             except (findwindows.ElementNotFoundError,
                     findbestmatch.MatchError,
@@ -431,8 +500,7 @@ class WindowSpecification(object):
 
     def _ctrl_identifiers(self):
 
-        ctrls = _resolve_control(
-            self.criteria)
+        ctrls = self.__resolve_control(self.criteria)
 
         if ctrls[-1].is_dialog():
             # dialog controls are all the control on the dialog
@@ -473,8 +541,7 @@ class WindowSpecification(object):
         """
 
         #name_control_map = self._ctrl_identifiers()
-        ctrls = _resolve_control(
-            self.criteria)
+        ctrls = self.__resolve_control(self.criteria)
 
         if ctrls[-1].is_dialog():
             # dialog controls are all the control on the dialog
@@ -525,34 +592,6 @@ class WindowSpecification(object):
 
     print_control_identifiers = PrintControlIdentifiers
 
-
-def _get_ctrl(criteria_):
-    "Get the control based on the various criteria"
-
-    # make a copy of the criteria
-    criteria = [crit.copy() for crit in criteria_]
-    # find the dialog
-    dialog = registry.wrapper_class(findwindows.find_element(**criteria[0]))
-    #dialog = BaseWrapper(findwindows.find_element(**criteria[0]))
-
-    ctrl = None
-    # if there is only criteria for a dialog then return it
-    if len(criteria) > 1:
-        # so there was criteria for a control, add the extra criteria
-        # that are required for child controls
-        ctrl_criteria = criteria[1]
-        ctrl_criteria["top_level_only"] = False
-        if not "parent" in ctrl_criteria:
-            ctrl_criteria["parent"] = dialog.handle
-
-        # resolve the control and return it
-        ctrl = registry.wrapper_class(findwindows.find_element(**ctrl_criteria))
-        #ctrl = BaseWrapper(findwindows.find_element(**ctrl_criteria))
-
-    if ctrl:
-        return (dialog, ctrl)
-    else:
-        return (dialog, )
 
 cur_item = 0
 
@@ -736,44 +775,6 @@ def _resolve_from_appdata(
     #return _resolve_control(criteria_, timeout, retry_interval)
 
 
-
-
-def _resolve_control(criteria, timeout = None, retry_interval = None):
-    """Find a control using criteria
-
-    * **criteria** - a list that contains 1 or 2 dictionaries
-
-         1st element is search criteria for the dialog
-
-         2nd element is the search criteria for a control of the dialog
-
-    * **timeout** -  maximum length of time to try to find the controls (default 5)
-    * **retry_interval** - how long to wait between each retry (default .2)
-    """
-
-    #start = time.time()
-
-    if timeout is None:
-        timeout = Timings.window_find_timeout
-    if retry_interval is None:
-        retry_interval = Timings.window_find_retry
-
-
-    try:
-        ctrl = WaitUntilPasses(
-            timeout,
-            retry_interval,
-            _get_ctrl,
-            (findwindows.ElementNotFoundError,
-            findbestmatch.MatchError,
-            controls.InvalidWindowHandle,
-            controls.InvalidElement),
-            criteria)
-
-    except TimeoutError as e:
-        raise e.original_exception
-
-    return ctrl
 
 
 #=========================================================================
