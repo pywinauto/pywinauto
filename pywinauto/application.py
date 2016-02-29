@@ -160,6 +160,8 @@ class WindowSpecification(object):
         # make a copy of the criteria
         criteria = [crit.copy() for crit in criteria_]
         # find the dialog
+        if 'backend' not in criteria[0]:
+            criteria[0]['backend'] = self.backend.name
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
         #dialog = BaseWrapper(findwindows.find_element(**criteria[0]))
 
@@ -174,6 +176,8 @@ class WindowSpecification(object):
                 ctrl_criteria["parent"] = dialog.handle
 
             # resolve the control and return it
+            if 'backend' not in ctrl_criteria:
+                ctrl_criteria['backend'] = self.backend.name
             ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
             #ctrl = BaseWrapper(findwindows.find_element(**ctrl_criteria))
 
@@ -598,6 +602,7 @@ cur_item = 0
 def _resolve_from_appdata(
     criteria_, app, timeout = None, retry_interval = None):
     "Should not be used at the moment!"
+    # TODO: take a look into this functionality
 
     if timeout is None:
         timeout = Timings.window_find_timeout
@@ -850,6 +855,7 @@ class Application(object):
             connected = True
 
         elif kwargs:
+            kwargs['backend'] = self.backend.name
             self.process = findwindows.find_element(**kwargs).processId
             connected = True
 
