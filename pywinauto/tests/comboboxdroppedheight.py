@@ -60,7 +60,7 @@ def ComboBoxDroppedHeightTest(windows):
         if win.class_name() != "ComboBox" or win.ref.class_name() != "ComboBox":
             continue
 
-        if win.DroppedRect().height() != win.ref.DroppedRect().height():
+        if win.dropped_rect().height() != win.ref.dropped_rect().height():
 
             bugs.append((
                 [win, ],

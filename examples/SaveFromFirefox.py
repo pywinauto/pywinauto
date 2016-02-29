@@ -84,8 +84,8 @@ print("No Menu's in FireFox:", mozilla.menu_items())
 
 # File -> Save As
 mozilla.type_keys("%FA")
-#ie.Toolbar3.PressButton("File")
-app.SaveAs.Edit.SetEditText(outputfilename)
+#ie.Toolbar3.press_button("File")
+app.SaveAs.Edit.set_edit_text(outputfilename)
 
 app.SaveAs.Save.close_click()
 

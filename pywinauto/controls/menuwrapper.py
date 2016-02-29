@@ -102,7 +102,7 @@ class MenuItem(object):
         * **on_main_menu**	True if the item is on the main menu
 
         """
-        self.index = index
+        self._index = index
         self.menu = menu
         self.ctrl = ctrl
         self.on_main_menu = on_main_menu
@@ -116,7 +116,7 @@ class MenuItem(object):
 
         item_info = MenuItemInfo()
         buf, extras = win32gui_struct.EmptyMENUITEMINFO()
-        win32gui.GetMenuItemInfo(self.menu.handle, self.index, True, buf)
+        win32gui.GetMenuItemInfo(self.menu.handle, self._index, True, buf)
         item_info.fType, item_info.fState, item_info.wID, item_info.hSubMenu, item_info.hbmpChecked, \
         item_info.hbmpUnchecked, item_info.dwItemData, item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
         if six.PY2:
@@ -165,26 +165,31 @@ class MenuItem(object):
         win32functions.GetMenuItemRect(
             ctrl,
             hMenu,
-            self.index,
+            self._index,
             ctypes.byref(rect))
 
         return rect
     # Non PEP-8 alias
     Rectangle = rectangle
 
-    def Index(self):
+    def index(self):
         "Return the index of this menu item"
-        return self.index
+        return self._index
+    # Non PEP-8 alias
 
-    def State(self):
+    def state(self):
         "Return the state of this menu item"
         return self._read_item().fState
+    # Non PEP-8 alias
+    State = state
 
-    def ID(self):
+    def id(self):
         "Return the ID of this menu item"
         return self._read_item().wID
+    # Non PEP-8 alias
+    ID = id
 
-    def Type(self):
+    def type(self):
         """Return the Type of this menu item
 
         Main types are MF_STRING, MF_BITMAP, MF_SEPARATOR.
@@ -192,37 +197,45 @@ class MenuItem(object):
         See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menustructures/menuiteminfo.asp
         for further information."""
         return self._read_item().fType
+    # Non PEP-8 alias
+    Type = type
 
-    def Text(self):
+    def text(self):
         "Return the text of this menu item"
         return self._read_item().text
+    # Non PEP-8 alias
+    Text = text
 
-    def SubMenu(self):
+    def sub_menu(self):
         "Return the SubMenu or None if no submenu"
         submenu_handle = self._read_item().hSubMenu
 
         if submenu_handle:
             win32gui.SendMessageTimeout(self.ctrl.handle, win32defines.WM_INITMENUPOPUP,
                                         submenu_handle,
-                                        self.index,
+                                        self._index,
                                         win32defines.SMTO_NORMAL,
                                         0)
 
             return Menu(self.ctrl, submenu_handle, False, self)
 
         return None
+    # Non PEP-8 alias
+    SubMenu = sub_menu
 
     def is_enabled(self):
         "Return True if the item is enabled."
         return not (
-            self.State() & win32defines.MF_DISABLED or
-            self.State() & win32defines.MF_GRAYED)
+            self.state() & win32defines.MF_DISABLED or
+            self.state() & win32defines.MF_GRAYED)
     # Non PEP-8 alias
     IsEnabled = is_enabled
 
-    def IsChecked(self):
+    def is_checked(self):
         "Return True if the item is checked."
-        return bool(self.State() & win32defines.MF_CHECKED)
+        return bool(self.state() & win32defines.MF_CHECKED)
+    # Non PEP-8 alias
+    IsChecked = is_checked
 
     def click_input(self):
         """Click on the menu item in a more realistic way
@@ -239,7 +252,7 @@ class MenuItem(object):
 
         if not self.is_enabled():
             raise MenuItemNotEnabled(
-                "MenuItem '%s' is disabled"% self.Text())
+                "MenuItem '%s' is disabled"% self.text())
 
         # if the item is not visible - work up along it's parents
         # until we find an item we CAN click on
@@ -259,7 +272,7 @@ class MenuItem(object):
     # Non PEP-8 alias
     ClickInput = click_input
 
-    def Select(self):
+    def select(self):
         """Select the menu item
 
         This will send a message to the parent window that the
@@ -268,16 +281,16 @@ class MenuItem(object):
 
         if not self.is_enabled():
             raise MenuItemNotEnabled(
-                "MenuItem '%s' is disabled"% self.Text())
+                "MenuItem '%s' is disabled"% self.text())
 
-        #if self.State() & win32defines.MF_BYPOSITION:
-        #    print self.Text(), "BYPOSITION"
-        #    self.ctrl.NotifyMenuSelect(self.Index(), True)
+        #if self.state() & win32defines.MF_BYPOSITION:
+        #    print self.text(), "BYPOSITION"
+        #    self.ctrl.NotifyMenuSelect(self.index(), True)
         #else:
 
         # seems like set_focus might be messing with getting the
         # id for Popup menu items - so I calling it before set_focus
-        command_id = self.ID()
+        command_id = self.id()
 
         # notify the control that a menu item was selected
         self.ctrl.set_focus()
@@ -287,8 +300,11 @@ class MenuItem(object):
         win32functions.WaitGuiThreadIdle(self.ctrl)
         time.sleep(Timings.after_menu_wait)
 
-    # _perform_click() doesn't work for MenuItem, so let's call Select() method
-    Click = Select
+    # _perform_click() doesn't work for MenuItem, so let's call select() method
+    click = select
+    # Non PEP-8 alias
+    Click = select
+    Select = select
 
     def get_properties(self):
         """Return the properties for the item as a dict
@@ -298,13 +314,13 @@ class MenuItem(object):
         under the 'menu_items' key
         """
         props = {}
-        props['Index'] = self.Index()
-        props['State'] = self.State()
-        props['Type'] = self.Type()
-        props['ID'] = self.ID()
-        props['Text'] = self.Text()
+        props['index'] = self.index()
+        props['state'] = self.state()
+        props['type'] = self.type()
+        props['ID'] = self.id()
+        props['text'] = self.text()
 
-        submenu = self.SubMenu()
+        submenu = self.sub_menu()
         if submenu:
             if submenu.accessible:
                 props['menu_items'] = submenu.get_properties()
@@ -320,20 +336,20 @@ class MenuItem(object):
     def __repr__(self):
         "Return a representation of the object as a string"
         if six.PY3:
-            return "<MenuItem " + self.Text() + ">"
+            return "<MenuItem " + self.text() + ">"
         else:
-            return "<MenuItem " + self.Text().encode(locale.getpreferredencoding()) + ">"
+            return "<MenuItem " + self.text().encode(locale.getpreferredencoding()) + ">"
 
 
 
-#    def Check(self):
+#    def check(self):
 #        item = self._read_item()
 #        item.fMask = win32defines.MIIM_STATE
 #        item.fState &= win32defines.MF_CHECKED
 #
 ##        ret = win32functions.SetMenuItemInfo(
 ##            self.menuhandle,
-##            self.ID(),
+##            self.id(),
 ##            0, # by position
 ##            ctypes.byref(item))
 ##
@@ -347,14 +363,14 @@ class MenuItem(object):
 #
 #        win32functions.DrawMenuBar(self.ctrl)
 #
-#    def UnCheck(self):
+#    def uncheck(self):
 #        item = self._read_item()
 #        item.fMask = win32defines.MIIM_STATE
 #        item.fState &= win32defines.MF_UNCHECKED
 #
 #        ret = win32functions.SetMenuItemInfo(
 #            self.menuhandle,
-#            self.ID(),
+#            self.id(),
 #            0, # by position
 #            ctypes.byref(item))
 #
@@ -414,12 +430,14 @@ class Menu(object):
                 self.COMMAND = win32defines.WM_COMMAND
 
     @ensure_accessible
-    def ItemCount(self):
+    def item_count(self):
         "Return the count of items in this menu"
         return win32gui.GetMenuItemCount(self.handle)
+    # Non PEP-8 alias
+    ItemCount = item_count
 
     @ensure_accessible
-    def Item(self, index, exact = False):
+    def item(self, index, exact = False):
         """Return a specific menu item
 
         * **index** is the 0 based index or text of the menu item you want
@@ -431,17 +449,21 @@ class Menu(object):
                 menu_appdata = self.ctrl.appdata['menu_items']
             else:
                 menu_appdata = None
-            return self.GetMenuPath(index, appdata = menu_appdata, exact=exact)[-1]
+            return self.get_menu_path(index, appdata = menu_appdata, exact=exact)[-1]
         return MenuItem(self.ctrl, self, index, self.is_main_menu)
+    # Non PEP-8 alias
+    Item = item
 
     @ensure_accessible
-    def Items(self):
+    def items(self):
         "Return a list of all the items in this menu"
         items = []
-        for i in range(0, self.ItemCount()):
-            items.append(self.Item(i))
+        for i in range(0, self.item_count()):
+            items.append(self.item(i))
 
         return items
+    # Non PEP-8 alias
+    Items = items
 
     @ensure_accessible
     def get_properties(self):
@@ -453,7 +475,7 @@ class Menu(object):
         """
         item_props = []
 
-        for item in self.Items():
+        for item in self.items():
             item_props.append(item.get_properties())
 
         return {'menu_items': item_props}
@@ -461,7 +483,7 @@ class Menu(object):
     GetProperties = get_properties
 
     @ensure_accessible
-    def GetMenuPath(self, path, path_items = None, appdata = None, exact=False):
+    def get_menu_path(self, path, path_items = None, appdata = None, exact=False):
         """Walk the items in this menu to find the item specified by path
 
         The path is specified by a list of items separated by '->' each Item
@@ -486,34 +508,34 @@ class Menu(object):
 
         if current_part.startswith("#"):
             index = int(current_part[1:])
-            best_item = self.Item(index)
+            best_item = self.item(index)
         elif current_part.startswith("$"):
             # get the IDs from the menu items
             if appdata is None:
-                item_IDs = [item.ID() for item in self.Items()]
+                item_IDs = [item.id() for item in self.items()]
             else:
-                item_IDs = [item['ID'] for item in appdata]
+                item_IDs = [item['id'] for item in appdata]
 
             item_id = int(current_part[1:])
             # find the item that best matches the current part
-            best_item = self.Item(item_IDs.index(item_id))
+            best_item = self.item(item_IDs.index(item_id))
         else:
             # get the text names from the menu items
             if appdata is None:
-                item_texts = [item.Text() for item in self.Items()]
+                item_texts = [item.text() for item in self.items()]
             else:
-                item_texts = [item['Text'] for item in appdata]
+                item_texts = [item['text'] for item in appdata]
 
             if exact:
                 if current_part not in item_texts:
                     raise IndexError('There are no menu item "' + str(current_part) + '" in ' + str(item_texts))
-                best_item = self.Items()[item_texts.index(current_part)]
+                best_item = self.items()[item_texts.index(current_part)]
             else:
                 # find the item that best matches the current part
                 best_item = findbestmatch.find_best_match(
                     current_part,
                     item_texts,
-                    self.Items())
+                    self.items())
 
         path_items.append(best_item)
 
@@ -521,15 +543,17 @@ class Menu(object):
         # if there are more parts - then get the next level
         if parts[1:]:
             if appdata:
-                appdata = appdata[best_item.Index()]['menu_items']
-            if best_item.SubMenu() is not None:
-                best_item.SubMenu().GetMenuPath(
+                appdata = appdata[best_item.index()]['menu_items']
+            if best_item.sub_menu() is not None:
+                best_item.sub_menu().get_menu_path(
                     "->".join(parts[1:]),
                     path_items,
                     appdata,
                     exact=exact)
 
         return path_items
+    # Non PEP-8 alias
+    GetMenuPath = get_menu_path
 
     def __repr__(self):
         "Return a simple representation of the menu"
@@ -538,25 +562,25 @@ class Menu(object):
 
 #    def get_properties(self):
 #
-#        for i in range(0, self.ItemCount()):
-#            menu_info = self.Item(self, i)[0]
+#        for i in range(0, self.item_count()):
+#            menu_info = self.item(self, i)[0]
 #
-#            item_prop['Index'] = i
-#            item_prop['State'] = menu_info.fState
-#            item_prop['Type'] = menu_info.fType
-#            item_prop['ID'] = menu_info.wID
+#            item_prop['index'] = i
+#            item_prop['state'] = menu_info.fState
+#            item_prop['type'] = menu_info.fType
+#            item_prop['id'] = menu_info.wID
 #
 #            else:
-#                item_prop['Text'] = ""
+#                item_prop['text'] = ""
 #
 #            if self.IsSubMenu(i):
-#                item_prop['menu_items'] = self.SubMenu(i).get_properties()
+#                item_prop['menu_items'] = self.sub_menu(i).get_properties()
 #
 #            return item_prop
 
 
 ##====================================================================
-#def _GetMenuItems(menu_handle, ctrl):
+#def _get_menu_items(menu_handle, ctrl):
 #    "Get the menu items as a list of dictionaries"
 #    # If it doesn't have a real menu just return
 #    if not win32functions.IsMenu(menu_handle):
@@ -566,14 +590,14 @@ class Menu(object):
 #    menu = Menu(ctrl, menu_handle)
 #
 #    props = []
-#    for item in menu.Items():
+#    for item in menu.items():
 #        item_props = {}
 #
-#        item_prop['Index'] = item.Index()
-#        item_prop['State'] = item.State()
-#        item_prop['Type'] = item.Type()
-#        item_prop['ID'] = item.ID()
-#        item_prop['Text'] = item.Text()
+#        item_prop['index'] = item.index()
+#        item_prop['state'] = item.state()
+#        item_prop['type'] = item.type()
+#        item_prop['id'] = item.id()
+#        item_prop['text'] = item.text()
 #
 #        props.append(item_props)
 #
@@ -621,9 +645,9 @@ class Menu(object):
 #            menu_info.cch = buffer_size
 #            win32functions.GetMenuItemInfo (
 #                menu_handle, i, True, ctypes.byref(menu_info))
-#            item_prop['Text'] = text.value
+#            item_prop['text'] = text.value
 #        else:
-#            item_prop['Text'] = ""
+#            item_prop['text'] = ""
 #
 #        # if it's a sub menu then get it's items
 #        if menu_info.hSubMenu:
@@ -643,4 +667,6 @@ class Menu(object):
 #        items.append(item_prop)
 #
 #    return items
+#    # Non PEP-8 alias
+#    _GetMenuItems = _get_menu_items
 #

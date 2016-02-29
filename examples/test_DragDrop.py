@@ -20,8 +20,8 @@ app = pywinauto.Application().start(os.path.join(mfc_samples_folder,
 
 tree = app.Common_Controls_Sample.TreeView.WrapperObject()
 
-birds = tree.GetItem(r'\Birds')
-dogs = tree.GetItem(r'\Dogs')
+birds = tree.get_item(r'\Birds')
+dogs = tree.get_item(r'\Dogs')
 
 # drag-n-drop without focus on the window
 #tree.drag_mouse("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())

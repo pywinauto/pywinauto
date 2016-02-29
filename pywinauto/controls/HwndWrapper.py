@@ -568,7 +568,7 @@ class HwndWrapper(BaseWrapper):
             props[propname] = getattr(self, propname)()
 
         if self._NeedsImageProp:
-            props["Image"] = self.capture_as_image()
+            props["image"] = self.capture_as_image()
 
         return props
     # Non PEP-8 alias
@@ -965,7 +965,7 @@ class HwndWrapper(BaseWrapper):
 
         menu = self.menu()
         if menu:
-            return self.menu().GetMenuPath(path, appdata = menu_appdata, exact=exact)[-1]
+            return self.menu().get_menu_path(path, appdata = menu_appdata, exact=exact)[-1]
 
         raise RuntimeError("There is no menu.")
     # Non PEP-8 alias
@@ -999,12 +999,12 @@ class HwndWrapper(BaseWrapper):
 #
 #        menu = Menu(self, self._menu_handle())
 #
-#        path_items = menu.GetMenuPath(path)
+#        path_items = menu.get_menu_path(path)
 #
 #        for menu_item in path_items:
 #            if not menu_item.is_enabled():
 #                raise MenuItemNotEnabled(
-#                    "MenuItem '%s' is disabled"% menu_item.Text())
+#                    "MenuItem '%s' is disabled"% menu_item.text())
 #
 #            menu_item.click()
 #
@@ -1018,7 +1018,7 @@ class HwndWrapper(BaseWrapper):
 
         self.verify_actionable()
 
-        self.menu_item(path, exact=exact).Select()
+        self.menu_item(path, exact=exact).select()
     # Non PEP-8 alias
     MenuSelect = menu_select
 

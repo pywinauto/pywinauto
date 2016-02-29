@@ -17,7 +17,7 @@ app = pywinauto.Application().Start(r'msiexec.exe /i 7z920-x64.msi')
 Wizard = app['7-Zip 9.20 (x64 edition) Setup']
 Wizard.NextButton.click()
 
-Wizard['I &accept the terms in the License Agreement'].Wait('enabled').CheckByClick()
+Wizard['I &accept the terms in the License Agreement'].Wait('enabled').check_by_click()
 Wizard.NextButton.click()
 
 Wizard['Custom Setup'].Wait('enabled')

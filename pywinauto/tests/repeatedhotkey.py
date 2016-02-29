@@ -228,7 +228,7 @@ def ImplementsHotkey(win):
     elif win.class_name() == "Static" and not win.HasStyle(SS_NOPREFIX):
         return True
 
-    if win.class_name() == "MenuItem" and win.State() != "2048":
+    if win.class_name() == "MenuItem" and win.state() != "2048":
         return True
 
     # Most controls don't - so just return false if

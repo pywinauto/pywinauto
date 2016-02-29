@@ -85,15 +85,15 @@ def run_notepad():
 
     # ----- Page Setup Dialog ----
     # Select the 4th combobox item
-    app.PageSetupDlg.SizeComboBox.Select(4)
+    app.PageSetupDlg.SizeComboBox.select(4)
 
     # Select the 'Letter' combobox item or the Letter 
     try:
-        app.PageSetupDlg.SizeComboBox.Select("Letter")
+        app.PageSetupDlg.SizeComboBox.select("Letter")
     except ValueError:
-        app.PageSetupDlg.SizeComboBox.Select('Letter (8.5" x 11")')
+        app.PageSetupDlg.SizeComboBox.select('Letter (8.5" x 11")')
                                          
-    app.PageSetupDlg.SizeComboBox.Select(2)
+    app.PageSetupDlg.SizeComboBox.select(2)
 
     # run some tests on the Dialog. List of available tests:
     #        "AllControls",
@@ -109,7 +109,7 @@ def run_notepad():
     #        "Translation",
     #        "Truncation",
 
-    bugs = app.PageSetupDlg.RunTests('RepeatedHotkey Truncation')
+    bugs = app.PageSetupDlg.run_tests('RepeatedHotkey Truncation')
 
     # if there are any bugs they will be printed to the console
     # and the controls will be highlighted
@@ -125,9 +125,9 @@ def run_notepad():
 
     # ----- Connect To Printer Dialog ----
     # Select a checkbox
-    app.ConnectToPrinter.ExpandByDefault.Check()
+    app.ConnectToPrinter.ExpandByDefault.check()
 
-    app.ConnectToPrinter.ExpandByDefault.UnCheck()
+    app.ConnectToPrinter.ExpandByDefault.uncheck()
 
     # try doing the same by using click
     app.ConnectToPrinter.ExpandByDefault.click()
@@ -147,27 +147,27 @@ def run_notepad():
 #    # ----- Document Properties Dialog ----
 #    # some tab control selections
 #    # Two ways of selecting tabs with indices...
-#    doc_props.TabCtrl.Select(0)
-#    doc_props.TabCtrl.Select(1)
+#    doc_props.TabCtrl.select(0)
+#    doc_props.TabCtrl.select(1)
 #    try:
-#        doc_props.TabCtrl.Select(2)
+#        doc_props.TabCtrl.select(2)
 #    except IndexError:
 #        # not all users have 3 tabs in this dialog
 #        pass
 #
 #    # or with text...
-#    #doc_props.TabCtrl.Select("PaperQuality")
-#    doc_props.TabCtrl.Select(1)
+#    #doc_props.TabCtrl.select("PaperQuality")
+#    doc_props.TabCtrl.select(1)
 #
 #    try:
-#        #doc_props.TabCtrl.Select("JobRetention")
-#        doc_props.TabCtrl.Select("3")
+#        #doc_props.TabCtrl.select("JobRetention")
+#        doc_props.TabCtrl.select("3")
 #    except MatchError:
 #        # some people do not have the "Job Retention" tab
 #        pass
 #
-#    doc_props.TabCtrl.Select("Finishing")
-#    #doc_props.TabCtrl.Select(0)
+#    doc_props.TabCtrl.select("Finishing")
+#    #doc_props.TabCtrl.select(0)
 #
 #    # do some radio button clicks
 #    doc_props.RotatedLandscape.click()
@@ -202,7 +202,7 @@ def run_notepad():
     app.PageSetupDlg.Ok.close_click()
 
     # type some text - note that extended characters ARE allowed
-    app.Notepad.Edit.SetEditText(u"I am typing s\xe4me text to Notepad\r\n\r\n"
+    app.Notepad.Edit.set_edit_text(u"I am typing s\xe4me text to Notepad\r\n\r\n"
         "And then I am going to quit")
 
     app.Notepad.Edit.right_click()
@@ -232,8 +232,8 @@ def run_notepad():
 
     # Try and save
     app.Notepad.menu_select("File->SaveAs")
-    app.SaveAs.EncodingComboBox.Select("UTF-8")
-    app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
+    app.SaveAs.EncodingComboBox.select("UTF-8")
+    app.SaveAs.FileNameEdit.set_edit_text("Example-utf8.txt")
     app.SaveAs.Save.close_click()
 
     # my machine has a weird problem - when connected to the network

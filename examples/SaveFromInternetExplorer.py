@@ -65,8 +65,8 @@ print("No Menu's in IE:", ie.menu_items())
 print("They are implemented as a toolbar:", ie.Toolbar3.texts())
 
 ie.type_keys("%FA")
-#ie.Toolbar3.PressButton("File")
-app.SaveWebPage.Edit.SetEditText(os.path.join(r"c:\.temp",outputfilename))
+#ie.Toolbar3.press_button("File")
+app.SaveWebPage.Edit.set_edit_text(os.path.join(r"c:\.temp", outputfilename))
 
 
 app.SaveWebPage.Save.close_click()

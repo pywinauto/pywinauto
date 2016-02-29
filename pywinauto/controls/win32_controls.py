@@ -68,9 +68,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         #self._set_if_needs_image()
 
     @property
-    def _NeedsImageProp(self):
+    def _needs_image_prop(self):
 
-        """_NeedsImageProp=True if it is an image button"""
+        """_needs_image_prop=True if it is an image button"""
 
         # optimization call style once and work with that rather than
         # calling has_style a number of times
@@ -82,6 +82,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
             return True
         else:
             return False
+    # Non PEP-8 alias
+    _NeedsImageProp = _needs_image_prop
 
     #-----------------------------------------------------------
     def friendly_class_name(self):
@@ -130,7 +132,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
 
     #-----------------------------------------------------------
-    def GetCheckState(self):
+    def get_check_state(self):
         """Return the check state of the checkbox
 
         The check state is represented by an integer
@@ -144,9 +146,11 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         BST_INDETERMINATE = 2
         """
         return self.send_message(win32defines.BM_GETCHECK)
+    # Non PEP-8 alias
+    GetCheckState = get_check_state
 
     #-----------------------------------------------------------
-    def Check(self):
+    def check(self):
         "Check a checkbox"
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_CHECKED)
@@ -156,10 +160,11 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
-
+    # Non PEP-8 alias
+    Check = check
 
     #-----------------------------------------------------------
-    def UnCheck(self):
+    def uncheck(self):
         "Uncheck a checkbox"
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_UNCHECKED)
@@ -169,9 +174,11 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
+    # Non PEP-8 alias
+    UnCheck = uncheck
 
     #-----------------------------------------------------------
-    def SetCheckIndeterminate(self):
+    def set_check_indeterminate(self):
         "Set the checkbox to indeterminate"
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_INDETERMINATE)
@@ -181,6 +188,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
+    # Non PEP-8 alias
+    SetCheckIndeterminate = set_check_indeterminate
 
     #-----------------------------------------------------------
     def is_dialog(self):
@@ -198,28 +207,36 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         time.sleep(Timings.after_button_click_wait)
 
     #-----------------------------------------------------------
-    def CheckByClick(self):
+    def check_by_click(self):
         "Check the CheckBox control by click() method"
-        if self.GetCheckState() != win32defines.BST_CHECKED:
+        if self.get_check_state() != win32defines.BST_CHECKED:
             self.click()
+    # Non PEP-8 alias
+    CheckByClick = check_by_click
 
     #-----------------------------------------------------------
-    def UncheckByClick(self):
+    def uncheck_by_click(self):
         "Uncheck the CheckBox control by click() method"
-        if self.GetCheckState() != win32defines.BST_UNCHECKED:
+        if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click()
+    # Non PEP-8 alias
+    UncheckByClick = uncheck_by_click
 
     #-----------------------------------------------------------
     def CheckByClickInput(self):
         "Check the CheckBox control by click_input() method"
-        if self.GetCheckState() != win32defines.BST_CHECKED:
+        if self.get_check_state() != win32defines.BST_CHECKED:
             self.click_input()
+    # Non PEP-8 alias
+    CheckByClickInput = CheckByClickInput
 
     #-----------------------------------------------------------
-    def UncheckByClickInput(self):
+    def uncheck_by_click_input(self):
         "Uncheck the CheckBox control by click_input() method"
-        if self.GetCheckState() != win32defines.BST_UNCHECKED:
+        if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click_input()
+    # Non PEP-8 alias
+    UncheckByClickInput = uncheck_by_click_input
 
 #====================================================================
 def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
@@ -269,12 +286,12 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         super(ComboBoxWrapper, self).__init__(hwnd)
 
         self.writable_props.extend([
-            "SelectedIndex",
-            "DroppedRect",
+            "selected_index",
+            "dropped_rect",
             ])
 
     #-----------------------------------------------------------
-    def DroppedRect(self):
+    def dropped_rect(self):
         "Get the dropped rectangle of the combobox"
         dropped_rect = win32structures.RECT()
 
@@ -287,65 +304,77 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         dropped_rect -= self.rectangle()
 
         return dropped_rect
+    # Non PEP-8 alias
+    DroppedRect = dropped_rect
 
     #-----------------------------------------------------------
-    def ItemCount(self):
+    def item_count(self):
         "Return the number of items in the combobox"
         return self.send_message(win32defines.CB_GETCOUNT)
+    # Non PEP-8 alias
+    ItemCount = item_count
 
     #-----------------------------------------------------------
-    def SelectedIndex(self):
+    def selected_index(self):
         "Return the selected index"
         return self.send_message(win32defines.CB_GETCURSEL)
+    # Non PEP-8 alias
+    SelectedIndex = selected_index
 
     #-----------------------------------------------------------
-    def SelectedText(self):
+    def selected_text(self):
         "Return the selected text"
-        return self.ItemTexts()[self.SelectedIndex()]
+        return self.item_texts()[self.selected_index()]
+    # Non PEP-8 alias
+    SelectedText = selected_text
 
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
         "Get the index for the item with this 'ident'"
         if isinstance(ident, six.integer_types):
 
-            if ident >= self.ItemCount():
+            if ident >= self.item_count():
                 raise IndexError(
                     "Combobox has %d items, you requested item %d (0 based)"%
-                        (self.ItemCount(),
+                        (self.item_count(),
                         ident))
 
             # negative index
             if ident < 0:
                 # convert it to a positive index
-                ident = (self.ItemCount() + ident)
+                ident = (self.item_count() + ident)
 
         elif isinstance(ident, six.string_types):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
-            ident = self.ItemTexts().index(ident)
+            ident = self.item_texts().index(ident)
 
         return ident
 
     #-----------------------------------------------------------
-    def ItemData(self, item):
+    def item_data(self, item):
         "Returns the item data associated with the item if any"
         index = self._get_item_index(item)
         return self.send_message(win32defines.CB_GETITEMDATA, index)
+    # Non PEP-8 alias
+    ItemData = item_data
 
     #-----------------------------------------------------------
-    def ItemTexts(self):
+    def item_texts(self):
         "Return the text of the items of the combobox"
         return _get_multiple_text_items(
             self,
             win32defines.CB_GETCOUNT,
             win32defines.CB_GETLBTEXTLEN,
             win32defines.CB_GETLBTEXT)
+    # Non PEP-8 alias
+    ItemTexts = item_texts
 
     #-----------------------------------------------------------
     def texts(self):
         "Return the text of the items in the combobox"
         texts = [self.window_text()]
-        texts.extend(self.ItemTexts())
+        texts.extend(self.item_texts())
         return texts
 
     #-----------------------------------------------------------
@@ -353,14 +382,14 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "Return the properties of the control as a dictionary"
         props = HwndWrapper.HwndWrapper.get_properties(self)
 
-        #props['ItemData'] = []
-        #for i in range(self.ItemCount()):
-        #    props['ItemData'].append(self.ItemData(i))
+        #props['item_data'] = []
+        #for i in range(self.item_count()):
+        #    props['item_data'].append(self.item_data(i))
 
         return props
 
     #-----------------------------------------------------------
-    def Select(self, item):
+    def select(self, item):
         """Select the ComboBox item
 
         item can be either a 0 based index of the item to select
@@ -391,18 +420,20 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
+    # Non PEP-8 alias
+    Select = select
 
     #-----------------------------------------------------------
-    #def Deselect(self, item):
+    #def deselect(self, item):
     # Not implemented because it doesn't make sense for combo boxes.
 
-    #TODO def EditControl(self): # return the edit control of the Combobox
+    #TODO def edit_control(self): # return the edit control of the Combobox
 
-    #TODO def ListControl(self): # return the list control of the combobox
+    #TODO def list_control(self): # return the list control of the combobox
 
-    #TODO def ItemText(self, index):  # get the test of item XX?
+    #TODO def item_text(self, index):  # get the test of item XX?
 
-    #TODO def EditText(self):  # or should this be self.EditControl.Text()?
+    #TODO def edit_text(self):  # or should this be self.EditControl.text()?
 
 
 #====================================================================
@@ -425,18 +456,20 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         super(ListBoxWrapper, self).__init__(hwnd)
 
         self.writable_props.extend([
-            "SelectedIndices"])
+            "selected_indices"])
 
     #-----------------------------------------------------------
-    def IsSingleSelection(self):
+    def is_single_selection(self):
         """Check whether the listbox has single selection mode."""
         num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
         return (num_selected == win32defines.LB_ERR)
+    # Non PEP-9 alias
+    IsSingleSelection = is_single_selection
 
     #-----------------------------------------------------------
-    def SelectedIndices(self):
+    def selected_indices(self):
         "The currently selected indices of the listbox"
         num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
@@ -455,53 +488,61 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             items = tuple(items)
 
         return items
+    # Non PEP-9 alias
+    SelectedIndices = selected_indices
 
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
         "Return the index of the item 'ident'"
         if isinstance(ident, six.integer_types):
 
-            if ident >= self.ItemCount():
+            if ident >= self.item_count():
                 raise IndexError(
                     "ListBox has %d items, you requested item %d (0 based)"%
-                        (self.ItemCount(),
+                        (self.item_count(),
                         ident))
 
             # negative index
             if ident < 0:
-                ident = (self.ItemCount() + ident)
+                ident = (self.item_count() + ident)
 
         elif isinstance(ident, six.string_types):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
-            ident = self.ItemTexts().index(ident) #-1
+            ident = self.item_texts().index(ident) #-1
 
         return ident
 
     #-----------------------------------------------------------
-    def ItemCount(self):
+    def item_count(self):
         "Return the number of items in the ListBox"
         return self.send_message(win32defines.LB_GETCOUNT)
+    # Non PEP-9 alias
+    ItemCount = item_count
 
     #-----------------------------------------------------------
-    def ItemData(self, i):
-        "Return the ItemData if any associted with the item"
+    def item_data(self, i):
+        "Return the item_data if any associted with the item"
 
         index = self._get_item_index(i)
 
         return self.send_message(win32defines.LB_GETITEMDATA, index)
+    # Non PEP-9 alias
+    ItemData = item_data
 
     #-----------------------------------------------------------
-    def ItemTexts(self):
+    def item_texts(self):
         "Return the text of the items of the listbox"
         return _get_multiple_text_items(
             self,
             win32defines.LB_GETCOUNT,
             win32defines.LB_GETTEXTLEN,
             win32defines.LB_GETTEXT)
+    # Non PEP-9 alias
+    ItemTexts = item_texts
 
     #-----------------------------------------------------------
-    def ItemRect(self, item):
+    def item_rect(self, item):
         "Return the rect of the item "
         index = self._get_item_index(item)
         rect = win32structures.RECT()
@@ -509,12 +550,14 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         if res == win32defines.LB_ERR:
             raise RuntimeError("LB_GETITEMRECT failed")
         return rect
+    # Non PEP-9 alias
+    ItemRect = item_rect
 
     #-----------------------------------------------------------
     def texts(self):
         "Return the texts of the control"
         texts = [self.window_text()]
-        texts.extend(self.ItemTexts())
+        texts.extend(self.item_texts())
         return texts
 
 #    #-----------------------------------------------------------
@@ -522,27 +565,27 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 #        "Return the properties as a dictionary for the control"
 #        props = HwndWrapper.HwndWrapper.get_properties(self)
 #
-#        props['ItemData'] = []
-#        for i in range(self.ItemCount()):
-#            props['ItemData'].append(self.ItemData(i))
+#        props['item_data'] = []
+#        for i in range(self.item_count()):
+#            props['item_data'].append(self.item_data(i))
 #
 #        return props
 
     #-----------------------------------------------------------
-    def Select(self, item, select=True):
+    def select(self, item, select=True):
         """Select the ListBox item
 
         item can be either a 0 based index of the item to select
         or it can be the string that you want to select
         """
 
-        if self.IsSingleSelection() and isinstance(item, (list, tuple)) and len(item) > 1:
+        if self.is_single_selection() and isinstance(item, (list, tuple)) and len(item) > 1:
             raise Exception('Cannot set multiple selection for single-selection listbox!')
 
         if isinstance(item, (list, tuple)):
             for i in item:
                 if i is not None:
-                    self.Select(i, select)
+                    self.select(i, select)
             return self
 
         self.verify_actionable()
@@ -551,7 +594,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         # string then find which item it is
         index = self._get_item_index(item)
 
-        if self.IsSingleSelection():
+        if self.is_single_selection():
             # change the selected item
             self.send_message_timeout(win32defines.LB_SETCURSEL, index)
         else:
@@ -569,9 +612,11 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         time.sleep(Timings.after_listboxselect_wait)
 
         return self
+    # Non PEP-9 alias
+    Select = select
 
     #-----------------------------------------------------------
-    def SetItemFocus(self, item):
+    def set_item_focus(self, item):
         "Set the ListBox focus to the item at index"
 
         index = self._get_item_index(item)
@@ -588,10 +633,11 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
-
+    # Non PEP-9 alias
+    SetItemFocus = set_item_focus
 
     #-----------------------------------------------------------
-    def GetItemFocus(self):
+    def get_item_focus(self):
         "Retrun the index of current selection in a ListBox"
 
         # if it is a multiple selection dialog
@@ -600,6 +646,8 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             return self.send_message(win32defines.LB_GETCARETINDEX)
         else:
             return self.send_message(win32defines.LB_GETCURSEL)
+    # Non PEP-9 alias
+    GetItemFocus = get_item_focus
 
 
 #====================================================================
@@ -626,15 +674,17 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         super(EditWrapper, self).__init__(hwnd)
 
         self.writable_props.extend([
-            'SelectionIndices'])
+            'selection_indices'])
 
     #-----------------------------------------------------------
-    def LineCount(self):
+    def line_count(self):
         "Return how many lines there are in the Edit"
         return  self.send_message(win32defines.EM_GETLINECOUNT)
+    # Non PEP-9 alias
+    LineCount = line_count
 
     #-----------------------------------------------------------
-    def LineLength(self, line_index):
+    def line_length(self, line_index):
         "Return how many characters there are in the line"
 
         # need to first get a character index of that line
@@ -643,13 +693,14 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         # now get the length of text on that line
         return self.send_message (
             win32defines.EM_LINELENGTH, char_index, 0)
-
+    # Non PEP-9 alias
+    LineLength = line_length
 
     #-----------------------------------------------------------
-    def GetLine(self, line_index):
+    def get_line(self, line_index):
         "Return the line specified"
 
-        text_len = self.LineLength(line_index)
+        text_len = self.line_length(line_index)
         # create a buffer and set the length at the start of the buffer
         text = ctypes.create_unicode_buffer(text_len+3)
         text[0] = six.unichr(text_len)
@@ -658,6 +709,8 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         win32functions.SendMessage(self, win32defines.EM_GETLINE, line_index, ctypes.byref(text))
 
         return text.value
+    # Non PEP-9 alias
+    GetLine = get_line
 
     #-----------------------------------------------------------
     def texts(self):
@@ -665,13 +718,13 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         texts = [self.window_text(), ]
 
-        for i in range(self.LineCount()):
-            texts.append(self.GetLine(i))
+        for i in range(self.line_count()):
+            texts.append(self.get_line(i))
 
         return texts
 
     #-----------------------------------------------------------
-    def TextBlock(self):
+    def text_block(self):
         "Get the text of the edit control"
 
         length = self.send_message(win32defines.WM_GETTEXTLENGTH)
@@ -681,9 +734,11 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         win32functions.SendMessage(self, win32defines.WM_GETTEXT, length + 1, ctypes.byref(text))
 
         return text.value
+    # Non PEP-9 alias
+    TextBlock = text_block
 
     #-----------------------------------------------------------
-    def SelectionIndices(self):
+    def selection_indices(self):
         "The start and end indices of the current selection"
         start = ctypes.c_int()
         end = ctypes.c_int()
@@ -691,20 +746,22 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             win32defines.EM_GETSEL, ctypes.byref(start), ctypes.byref(end))
 
         return (start.value, end.value)
+    # Non PEP-9 alias
+    SelectionIndices = selection_indices
 
     #-----------------------------------------------------------
     def set_window_text(self, text, append = False):
         """Override set_window_text for edit controls because it should not be
         used for Edit controls.
 
-        Edit Controls should either use SetEditText() or type_keys() to modify
+        Edit Controls should either use set_edit_text() or type_keys() to modify
         the contents of the edit control."""
         HwndWrapper.HwndWrapper.set_window_text(self, text, append)
         raise UserWarning(
             "set_window_text() should probably not be called for Edit Controls")
 
     #-----------------------------------------------------------
-    def SetEditText(self, text, pos_start = None, pos_end = None):
+    def set_edit_text(self, text, pos_start = None, pos_end = None):
         "Set the text of the edit control"
         self.verify_actionable()
 
@@ -713,7 +770,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
             # if only one has been specified - then set the other
             # to the current selection start or end
-            start, end = self.SelectionIndices()
+            start, end = self.selection_indices()
             if pos_start is None:
                 pos_start = start
             if pos_end is None and not isinstance(start, six.string_types):
@@ -721,9 +778,9 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
             # set the selection if either start or end has
             # been specified
-            self.Select(pos_start, pos_end)
+            self.select(pos_start, pos_end)
         else:
-            self.Select()
+            self.select()
 
         if isinstance(text, six.text_type):
             if six.PY3:
@@ -761,11 +818,14 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
 
-    # set SetText as an alias to SetEditText
-    SetText = SetEditText
+    # set SetText as an alias to set_edit_text
+    set_text = set_edit_text
+    # Non PEP-9 alias
+    SetText = set_edit_text
+    SetEditText = set_edit_text
 
     #-----------------------------------------------------------
-    def Select(self, start = 0, end = None):
+    def select(self, start = 0, end = None):
         "Set the edit selection of the edit control"
         self.verify_actionable()
         win32functions.SetFocus(self)
@@ -773,13 +833,13 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         # if we have been asked to select a string
         if isinstance(start, six.text_type):
             string_to_select = start
-            start = self.TextBlock().index(string_to_select)
+            start = self.text_block().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
         elif isinstance(start, six.binary_type):
             string_to_select = start.decode(locale.getpreferredencoding())
-            start = self.TextBlock().index(string_to_select)
+            start = self.text_block().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
@@ -796,6 +856,8 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
+    # Non PEP-9 alias
+    Select = select
 
 
 #====================================================================
@@ -821,9 +883,9 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         super(StaticWrapper, self).__init__(hwnd)
 
     @property
-    def _NeedsImageProp(self):
+    def _needs_image_prop(self):
 
-        """_NeedsImageProp=True if it is an image static"""
+        """_needs_image_prop=True if it is an image static"""
 
         # if the control is visible - and it shows an image
         if self.is_visible() and (self.has_style(win32defines.SS_ICON) or
@@ -834,6 +896,8 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
             return True
         else:
             return False
+    # Non PEP-9 alias
+    _NeedsImageProp = _needs_image_prop
 
 #====================================================================
 # the main reason for this is just to make sure that
@@ -865,7 +929,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
             self.friendlyclassname = self.class_name()
 
     #-----------------------------------------------------------
-    def RunTests(self, tests_to_run = None, ref_controls = None):
+    def run_tests(self, tests_to_run = None, ref_controls = None):
         "Run the tests on dialog"
 
         # the tests package is imported only when running unittests
@@ -887,9 +951,11 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
             # i.e. 1 + 2 + 4 = perfect match
         
         return tests.run_tests(controls, tests_to_run)
+    # Non PEP-9 alias
+    RunTests = run_tests
 
     #-----------------------------------------------------------
-    def WriteToXML(self, filename):
+    def write_to_xml(self, filename):
         "Write the dialog an XML file (requires elementtree)"
         
         controls = [self] + self.children()
@@ -897,9 +963,11 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
         from .. import XMLHelpers
         XMLHelpers.WriteDialogToFile(filename, props)
+    # Non PEP-9 alias
+    WriteToXML = write_to_xml
 
     #-----------------------------------------------------------
-    def ClientAreaRect(self):
+    def client_area_rect(self):
         """Return the client area rectangle
 
         From MSDN
@@ -909,23 +977,29 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         rect = win32structures.RECT(self.rectangle())
         self.send_message(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
+    # Non PEP-9 alias
+    ClientAreaRect = client_area_rect
 
     #-----------------------------------------------------------
-    def HideFromTaskbar(self):
+    def hide_from_taskbar(self):
         "Hide the dialog from the Windows taskbar"
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_TOOLWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
+    # Non PEP-9 alias
+    HideFromTaskbar = hide_from_taskbar
 
     #-----------------------------------------------------------
-    def ShowInTaskbar(self):
+    def show_in_taskbar(self):
         "Show the dialog in the Windows taskbar"
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_APPWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
+    # Non PEP-9 alias
+    ShowInTaskbar = show_in_taskbar
 
     #-----------------------------------------------------------
-    def IsInTaskbar(self):
+    def is_in_taskbar(self):
         "Check whether the dialog is shown in the Windows taskbar"
 
         # Thanks to David Heffernan for the idea: 
@@ -933,17 +1007,21 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         # A window is represented in the taskbar if:
         # It is not owned and does not have the WS_EX_TOOLWINDOW extended style, or
         # It has the WS_EX_APPWINDOW extended style.
-        return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
+        return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or \
+               (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
+    # Non PEP-9 alias
+    IsInTaskbar = is_in_taskbar
 
 #    #-----------------------------------------------------------
-#    def ReadControlsFromXML(self, filename):
+#    def read_controls_from_xml(self, filename):
 #        from pywinauto import XMLHelpers
 #        [controlproperties.ControlProps(ctrl) for
-#            ctrl in XMLHelpers.ReadPropertiesFromFile(handle)]  
-
+#            ctrl in XMLHelpers.ReadPropertiesFromFile(handle)]
+#    # Non PEP-9 alias
+#    ReadControlsFromXML = read_controls_from_xml
 
 #    #-----------------------------------------------------------
-#    def AddReference(self, reference):
+#    def add_reference(self, reference):
 #
 #        if len(self.children() != len(reference)):
 #            raise "different number of reference controls"
@@ -957,6 +1035,8 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 #            self.
 #            if ctrl.class_name() != self.children()[i+1].class_name():
 #                print "different classes"
+#    # Non PEP-9 alias
+#    AddReference = add_reference
 
 
 

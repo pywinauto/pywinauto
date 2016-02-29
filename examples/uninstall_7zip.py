@@ -24,8 +24,8 @@ try:
     # wait while the list of programs is loading
     explorer.WaitCPUUsageLower(threshold=5)
 
-    item_7z = ProgramsAndFeatures.FolderView.GetItem('7-Zip 9.20 (x64 edition)')
-    item_7z.EnsureVisible()
+    item_7z = ProgramsAndFeatures.FolderView.get_item('7-Zip 9.20 (x64 edition)')
+    item_7z.ensure_visible()
     item_7z.click_input(button='right', where='icon')
     explorer.PopupMenu.menu_item('Uninstall').click()
 

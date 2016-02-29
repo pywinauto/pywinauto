@@ -266,8 +266,8 @@ class ListViewTestCases(unittest.TestCase):
         for prop_name in props.keys():
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
-        self.assertEquals(props['ColumnCount'], 8)
-        self.assertEquals(props['ItemCount'], 7)
+        self.assertEquals(props['column_count'], 8)
+        self.assertEquals(props['item_count'], 7)
 
 
     def testGetColumnTexts(self):
@@ -1101,7 +1101,7 @@ class ToolbarTestCases(unittest.TestCase):
             self.ctrl.texts(), props['texts'])
 
         self.assertEquals(
-            self.ctrl.ButtonCount(), props['ButtonCount'])
+            self.ctrl.ButtonCount(), props['button_count'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])

@@ -105,9 +105,9 @@ def MenuBlockAsControls(menuItems, parentage = None):
         # this particular item
         # TODO: CHECK - as itemPath is currently unused!
         if parentage:
-            itemPath = "%s->%s" % ("->".join(parentage), item['Text'])
+            itemPath = "%s->%s" % ("->".join(parentage), item['text'])
         else:
-            itemPath = item['Text']
+            itemPath = item['text']
 
         #append the item to the current menu block
         curBlock.append(itemAsCtrl)
@@ -116,7 +116,7 @@ def MenuBlockAsControls(menuItems, parentage = None):
         if 'menu_items' in item.keys():
 
             # add the current item the path
-            parentage.append(item['Text'])
+            parentage.append(item['text'])
 
             # Get the block for the SubMenu, and add it to the list of
             # blocks we have found
@@ -140,10 +140,10 @@ def MenuItemAsControl(menuItem):
 
     itemAsCtrl = ControlProps()
 
-    itemAsCtrl["texts"] = [menuItem['Text'], ]
-    itemAsCtrl["control_id"] = menuItem['ID']
-    itemAsCtrl["Type"] = menuItem['Type']
-    itemAsCtrl["State"] = menuItem['State']
+    itemAsCtrl["texts"] = [menuItem['text'], ]
+    itemAsCtrl["control_id"] = menuItem['id']
+    itemAsCtrl["type"] = menuItem['type']
+    itemAsCtrl["state"] = menuItem['state']
 
     itemAsCtrl["class_name"] = "MenuItem"
     itemAsCtrl["friendly_class_name"] = "MenuItem"

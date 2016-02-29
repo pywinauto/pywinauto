@@ -25,11 +25,11 @@
 This checks various values related to a control in windows. The values tested
 are
 class_name	The class type of the control
-Style	The Style of the control (GetWindowLong)
-ExStyle	The Extended Style of the control (GetWindowLong)
-HelpID	The Help ID of the control (GetWindowLong)
+style	The Style of the control (GetWindowLong)
+exstyle	The Extended Style of the control (GetWindowLong)
+help_id	The Help ID of the control (GetWindowLong)
 control_id	The Control ID of the control (GetWindowLong)
-UserData	The User Data of the control (GetWindowLong)
+user_data	The User Data of the control (GetWindowLong)
 Visibility	Whether the control is visible or not
 
 **How is it checked**

@@ -101,29 +101,29 @@ def get_winrar_dlgs(rar_dlg, app, lang):
 
     optionsdlg = app[t['Configure'][lang]]
 
-    optionsdlg.WriteToXML("Options_%d.xml"%lang)
+    optionsdlg.write_to_xml("Options_%d.xml" % lang)
 
     optionsdlg.capture_as_image().save("Options_%d.png" % lang)
     optionsdlg[t['Buttons'][lang]].click()
 
     contextMenuDlg = app[t['PeronnaliseToolbars'][lang]]
-    contextMenuDlg.WriteToXML("PersonaliseToolbars_%d.xml"%lang)
+    contextMenuDlg.write_to_xml("PersonaliseToolbars_%d.xml" % lang)
     contextMenuDlg.capture_as_image().save("PersonaliseToolbars_%d.png" % lang)
     contextMenuDlg.OK.click()
 
-    optionsdlg.TabCtrl.Select(1)
+    optionsdlg.TabCtrl.select(1)
     optionsdlg[t['CreateDefaultProfile'][lang]].click()
 
     defaultOptionsDlg = app[t['ConfigureDefaultOptions'][lang]]
-    defaultOptionsDlg.WriteToXML("DefaultOptions_%d.xml"%lang)
+    defaultOptionsDlg.write_to_xml("DefaultOptions_%d.xml" % lang)
     defaultOptionsDlg.capture_as_image().save("DefaultOptions_%d.png" % lang)
     defaultOptionsDlg.OK.click()
 
-    optionsdlg.TabCtrl.Select(6)
+    optionsdlg.TabCtrl.select(6)
     optionsdlg[t['ContextMenus'][lang]].click()
 
     anotherMenuDlg = app[t['contextMenuDlg'][lang]]
-    anotherMenuDlg.WriteToXML("2ndMenuDlg_%d.xml"%lang)
+    anotherMenuDlg.write_to_xml("2ndMenuDlg_%d.xml" % lang)
     anotherMenuDlg.capture_as_image().save("2ndMenuDlg_%d.png" % lang)
 
     anotherMenuDlg.OK.click()

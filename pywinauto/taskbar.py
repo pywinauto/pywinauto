@@ -40,22 +40,22 @@ def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, b
     popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
     try:
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
-        button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
+        button_index = popup_toolbar.button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
     except Exception:
         ShowHiddenIconsButton.click_input() # may fail from PythonWin when script takes long time
         popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
-        button_index = popup_toolbar.Button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
+        button_index = popup_toolbar.button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
 
-    popup_toolbar.Button(button_index).click_input(button=mouse_button, double=double)
+    popup_toolbar.button(button_index).click_input(button=mouse_button, double=double)
 
 def ClickSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a visible tray icon given by button"
-    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).click_input(double=double)
+    SystemTrayIcons.button(button, exact=exact, by_tooltip=by_tooltip).click_input(double=double)
 
 def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
     "Right click on a visible tray icon given by button"
-    SystemTrayIcons.Button(button, exact=exact, by_tooltip=by_tooltip).click_input(button='right')
+    SystemTrayIcons.button(button, exact=exact, by_tooltip=by_tooltip).click_input(button='right')
 
 def ClickHiddenSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
     "Click on a hidden tray icon given by button"
