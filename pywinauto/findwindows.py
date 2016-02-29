@@ -120,7 +120,7 @@ def find_elements(class_name = None,
     * **control_id**     Elements with this control id
     * **auto_id**        Elements with this automation id (for UIAutomation elements)
     * **framework_id**   Elements with this framework id (for UIAutomation elements)
-    * **backend**        Back-end name to use while searching (default='native')
+    * **backend**        Back-end name to use while searching (default=None means current active backend)
     """
 
     if backend is None:

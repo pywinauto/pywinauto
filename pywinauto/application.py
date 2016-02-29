@@ -130,12 +130,11 @@ class WindowSpecification(object):
         """
 
         # kwargs will contain however to find this window
+        if 'backend' not in search_criteria:
+            search_criteria['backend'] = registry.active_backend.name
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
-        if 'backend' not in search_criteria:
-            self.backend = registry.active_backend
-        else:
-            self.backend = registry.backends[search_criteria['backend']]
+        self.backend = registry.backends[search_criteria['backend']]
 
     def __call__(self, *args, **kwargs):
         "No __call__ so return a usefull error"
