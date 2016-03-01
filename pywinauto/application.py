@@ -569,17 +569,16 @@ class WindowSpecification(object):
         print("Control Identifiers:")
         for ctrl in ctrls_to_print:
 
-            print("{class_name} - '{text}'   {rect}".format(
+            print("{class_name} - '{text}'   {rect}\t".format(
                 class_name=ctrl.friendly_class_name(),
                 text=ctrl.window_text(),
                 rect=str(ctrl.rectangle())))
 
-            print("\t"),
             names = control_name_map[ctrl]
             names.sort()
             for name in names:
                 print("'{0}' ".format(name), end='')
-            print()
+            print("\n")
 
 
 #        for ctrl in ctrls_to_print:

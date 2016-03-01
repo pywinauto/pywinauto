@@ -149,19 +149,19 @@ class UIAWrapper(BaseWrapper):
         return obj
 
     #-----------------------------------------------------------
-    def __init__(self, elementInfo):
+    def __init__(self, element_info):
         """Initialize the control
-        * **elementInfo** is either a valid UIAElementInfo or it can be an
+        * **element_info** is either a valid UIAElementInfo or it can be an
           instance or subclass of UIAWrapper.
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        BaseWrapper.__init__(self, elementInfo, backend.registry.backends['uia'])
+        BaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     #------------------------------------------------------------
     def __hash__(self):
         "Return unique hash value based on element's Runtime ID"
-        return hash(self.elementInfo.runtime_id)
+        return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
     def friendly_class_name(self):

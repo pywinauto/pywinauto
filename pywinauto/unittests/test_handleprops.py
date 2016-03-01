@@ -45,7 +45,6 @@ class HandlepropsTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
         self.app = Application().start("notepad")
         self.dlghandle = self.app.UntitledNotepad.handle
         self.edit_handle = self.app.UntitledNotepad.Edit.handle

@@ -42,9 +42,7 @@ class MenuWrapperTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
         self.app = Application()
         self.app.start("Notepad.exe")
 
@@ -119,10 +117,8 @@ class OwnerDrawnMenuTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
-
         self.dlg = self.app.BCDialogMenu
 
     def tearDown(self):

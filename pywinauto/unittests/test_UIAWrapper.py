@@ -40,7 +40,6 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
-            backend.activate("uia")
 
             # start the application
             self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
@@ -137,9 +136,7 @@ if UIA_support:
             Start the application set some data and ensure the application
             is in the state we want it.
             """
-            backend.activate("uia")
 
-            # start the application
             self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
@@ -149,13 +146,7 @@ if UIA_support:
         def tearDown(self):
             "Close the application after tests"
 
-            # close the application
-            try:
-                self.dlg.Close(0.5)
-            except Exception: # TimeoutError:
-                pass
-            finally:
-                self.app.kill_()
+            self.app.kill_()
 
         #def testClick(self):
         #    pass
@@ -189,14 +180,11 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
-            backend.activate("uia")
 
-            # start the application
-            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
             self.button = self.dlg.Button
-            #self.button = UIAWrapper(self.dlg.Button.elementInfo)
 
         def tearDown(self):
             "Close the application after tests"

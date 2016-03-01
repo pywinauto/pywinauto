@@ -34,6 +34,7 @@ import os
 import win32api
 
 sys.path.append(".")
+from pywinauto.application import Application
 from pywinauto import six
 from pywinauto.win32structures import RECT
 from pywinauto import win32defines
@@ -65,10 +66,7 @@ class ListViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
 
@@ -458,10 +456,7 @@ class TreeViewTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(controlspy_folder, "Tree View.exe"))
 
@@ -603,10 +598,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.dlg = self.app.CommonControlsSample #top_window_()
@@ -702,10 +694,7 @@ class HeaderTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
 
@@ -788,10 +777,7 @@ class StatusBarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(controlspy_folder, "Status bar.exe"))
 
@@ -899,11 +885,8 @@ class TabControlTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
         self.screen_w = win32api.GetSystemMetrics(0)
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1046,10 +1029,7 @@ class ToolbarTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1198,10 +1178,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title 
         even though the app is started with a short title "RebarTest".
         """
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
 
@@ -1277,10 +1254,7 @@ class DatetimeTestCases(unittest.TestCase):
         """
         Start the application and get 'Date Time Picker' control.
         """
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1352,12 +1326,9 @@ class ToolTipsTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
         #app.start_(os.path.join(controlspy_folder, "Tooltip.exe"))
@@ -1439,10 +1410,7 @@ class UpDownTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(controlspy_folder,  "Up-Down.exe"))
 
