@@ -161,7 +161,7 @@ class UIAWrapper(BaseWrapper):
     #------------------------------------------------------------
     def __hash__(self):
         "Return unique hash value based on element's Runtime ID"
-        return hash(self.elementInfo.runtime_id)
+        return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
     def friendly_class_name(self):
