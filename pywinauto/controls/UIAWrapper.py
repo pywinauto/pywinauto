@@ -140,8 +140,8 @@ class UiaMeta(BaseMeta):
         wrapper_match = UIAWrapper
 
         # Check for a more specific wrapper in the registry
-        if element.controlType in UiaMeta.control_type_to_cls:
-            wrapper_match = UiaMeta.control_type_to_cls[element.controlType]
+        if element.control_type in UiaMeta.control_type_to_cls:
+            wrapper_match = UiaMeta.control_type_to_cls[element.control_type]
 
         return wrapper_match
 

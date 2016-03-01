@@ -176,6 +176,7 @@ class MenuItem(object):
         "Return the index of this menu item"
         return self._index
     # Non PEP-8 alias
+    Index = index
 
     def state(self):
         "Return the state of this menu item"
@@ -330,7 +331,7 @@ class MenuItem(object):
                 props['menu_items'] = []
 
         return props
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     GetProperties = get_properties
 
     def __repr__(self):

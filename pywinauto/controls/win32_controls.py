@@ -223,12 +223,12 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
     UncheckByClick = uncheck_by_click
 
     #-----------------------------------------------------------
-    def CheckByClickInput(self):
+    def check_by_click_input(self):
         "Check the CheckBox control by click_input() method"
         if self.get_check_state() != win32defines.BST_CHECKED:
             self.click_input()
     # Non PEP-8 alias
-    CheckByClickInput = CheckByClickInput
+    CheckByClickInput = check_by_click_input
 
     #-----------------------------------------------------------
     def uncheck_by_click_input(self):
@@ -465,7 +465,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         # if we got LB_ERR then it is a single selection list box
         return (num_selected == win32defines.LB_ERR)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     IsSingleSelection = is_single_selection
 
     #-----------------------------------------------------------
@@ -488,7 +488,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             items = tuple(items)
 
         return items
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     SelectedIndices = selected_indices
 
     #-----------------------------------------------------------
@@ -517,7 +517,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
     def item_count(self):
         "Return the number of items in the ListBox"
         return self.send_message(win32defines.LB_GETCOUNT)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     ItemCount = item_count
 
     #-----------------------------------------------------------
@@ -527,7 +527,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         index = self._get_item_index(i)
 
         return self.send_message(win32defines.LB_GETITEMDATA, index)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     ItemData = item_data
 
     #-----------------------------------------------------------
@@ -538,7 +538,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             win32defines.LB_GETCOUNT,
             win32defines.LB_GETTEXTLEN,
             win32defines.LB_GETTEXT)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     ItemTexts = item_texts
 
     #-----------------------------------------------------------
@@ -550,7 +550,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         if res == win32defines.LB_ERR:
             raise RuntimeError("LB_GETITEMRECT failed")
         return rect
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     ItemRect = item_rect
 
     #-----------------------------------------------------------
@@ -612,7 +612,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         time.sleep(Timings.after_listboxselect_wait)
 
         return self
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     Select = select
 
     #-----------------------------------------------------------
@@ -633,7 +633,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     SetItemFocus = set_item_focus
 
     #-----------------------------------------------------------
@@ -646,7 +646,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
             return self.send_message(win32defines.LB_GETCARETINDEX)
         else:
             return self.send_message(win32defines.LB_GETCURSEL)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     GetItemFocus = get_item_focus
 
 
@@ -680,7 +680,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
     def line_count(self):
         "Return how many lines there are in the Edit"
         return  self.send_message(win32defines.EM_GETLINECOUNT)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     LineCount = line_count
 
     #-----------------------------------------------------------
@@ -693,7 +693,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         # now get the length of text on that line
         return self.send_message (
             win32defines.EM_LINELENGTH, char_index, 0)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     LineLength = line_length
 
     #-----------------------------------------------------------
@@ -709,7 +709,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         win32functions.SendMessage(self, win32defines.EM_GETLINE, line_index, ctypes.byref(text))
 
         return text.value
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     GetLine = get_line
 
     #-----------------------------------------------------------
@@ -734,7 +734,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         win32functions.SendMessage(self, win32defines.WM_GETTEXT, length + 1, ctypes.byref(text))
 
         return text.value
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     TextBlock = text_block
 
     #-----------------------------------------------------------
@@ -746,7 +746,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
             win32defines.EM_GETSEL, ctypes.byref(start), ctypes.byref(end))
 
         return (start.value, end.value)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     SelectionIndices = selection_indices
 
     #-----------------------------------------------------------
@@ -820,7 +820,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
     # set SetText as an alias to set_edit_text
     set_text = set_edit_text
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     SetText = set_edit_text
     SetEditText = set_edit_text
 
@@ -856,7 +856,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         # return this control so that actions can be chained.
         return self
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     Select = select
 
 
@@ -896,7 +896,7 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
             return True
         else:
             return False
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     _NeedsImageProp = _needs_image_prop
 
 #====================================================================
@@ -951,7 +951,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
             # i.e. 1 + 2 + 4 = perfect match
         
         return tests.run_tests(controls, tests_to_run)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     RunTests = run_tests
 
     #-----------------------------------------------------------
@@ -963,7 +963,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
         from .. import XMLHelpers
         XMLHelpers.WriteDialogToFile(filename, props)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     WriteToXML = write_to_xml
 
     #-----------------------------------------------------------
@@ -977,7 +977,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         rect = win32structures.RECT(self.rectangle())
         self.send_message(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     ClientAreaRect = client_area_rect
 
     #-----------------------------------------------------------
@@ -986,7 +986,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_TOOLWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     HideFromTaskbar = hide_from_taskbar
 
     #-----------------------------------------------------------
@@ -995,7 +995,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_APPWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     ShowInTaskbar = show_in_taskbar
 
     #-----------------------------------------------------------
@@ -1009,7 +1009,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         # It has the WS_EX_APPWINDOW extended style.
         return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or \
                (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
-    # Non PEP-9 alias
+    # Non PEP-8 alias
     IsInTaskbar = is_in_taskbar
 
 #    #-----------------------------------------------------------
@@ -1017,7 +1017,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 #        from pywinauto import XMLHelpers
 #        [controlproperties.ControlProps(ctrl) for
 #            ctrl in XMLHelpers.ReadPropertiesFromFile(handle)]
-#    # Non PEP-9 alias
+#    # Non PEP-8 alias
 #    ReadControlsFromXML = read_controls_from_xml
 
 #    #-----------------------------------------------------------
@@ -1035,7 +1035,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 #            self.
 #            if ctrl.class_name() != self.children()[i+1].class_name():
 #                print "different classes"
-#    # Non PEP-9 alias
+#    # Non PEP-8 alias
 #    AddReference = add_reference
 
 

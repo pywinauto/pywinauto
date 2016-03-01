@@ -59,13 +59,6 @@ _tree_scope = {
     'subtree': _UIA_dll.TreeScope_Subtree
 }
 
-<<<<<<< HEAD
-_pattern_id = {
-    'textPattern': _UIA_dll.UIA_TextPatternId
-}
-=======
->>>>>>> af36e5c8e5bf8416144815ec3644fbfdfcc4632e
-
 """
 Possible properties:
 
