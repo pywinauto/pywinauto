@@ -33,11 +33,13 @@
 
 import comtypes
 import comtypes.client
+import pywinauto.uia_defines as uia_defs
 
 from .six import integer_types
 from .handleprops import text, dumpwindow, controlid
 from .ElementInfo import ElementInfo
 from .win32structures import RECT
+from .uia_defines import pattern_ids as _pattern_id
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
 _iuia = comtypes.CoCreateInstance(
@@ -57,9 +59,12 @@ _tree_scope = {
     'subtree': _UIA_dll.TreeScope_Subtree
 }
 
+<<<<<<< HEAD
 _pattern_id = {
     'textPattern': _UIA_dll.UIA_TextPatternId
 }
+=======
+>>>>>>> af36e5c8e5bf8416144815ec3644fbfdfcc4632e
 
 """
 Possible properties:
@@ -90,9 +95,9 @@ class UIAElementInfo(ElementInfo):
     "UI element wrapper for IUIAutomation API"
     def __init__(self, handle_or_elem = None):
         """
-        Create instane of UIAElementInfo from a handle (int or long)
+        Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
-        If handle_or_elem is None create instance for UI root element
+        If handle_or_elem is None create an instance for UI root element
         """
         if handle_or_elem is not None:
             if isinstance(handle_or_elem, integer_types):
@@ -223,8 +228,7 @@ class UIAElementInfo(ElementInfo):
         if not self.class_name:
             return self.name
         try:
-            pattern = self._element.GetCurrentPattern(_UIA_dll.UIA_TextPatternId).QueryInterface(
-                comtypes.gen.UIAutomationClient.IUIAutomationTextPattern)
+            pattern = uia_defs.get_elem_interface(self._element, "Text")
             return pattern.DocumentRange.GetText(-1)
         except Exception:
             return self.name # TODO: probably we should raise an exception here

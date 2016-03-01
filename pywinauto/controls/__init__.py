@@ -24,6 +24,7 @@
 from ..sysinfo import UIA_support
 if UIA_support:
     from . import UIAWrapper # register "uia" back-end (at the end of UIAWrapper module)
+    from . import uia_controls
 
 from .HwndWrapper import get_dialog_props_from_handle
 from .HwndWrapper import InvalidWindowHandle

@@ -45,6 +45,7 @@ from ..actionlogger import ActionLogger
 
 import comtypes
 import comtypes.client
+import pywinauto.uia_defines as uia_defs
 
 from .. import backend
 from ..base_wrapper import BaseWrapper
@@ -87,8 +88,8 @@ WindowPattern = comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
 #=========================================================================
 _control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(_UIA_dll) if attr.endswith('ControlTypeId')]
 _known_control_types = {}
-for type in _control_types:
-    _known_control_types[_UIA_dll.__getattribute__('UIA_' + type + 'ControlTypeId')] = type
+for type_ in _control_types:
+    _known_control_types[_UIA_dll.__getattribute__('UIA_' + type_ + 'ControlTypeId')] = type_
 
 #=========================================================================
 _pywinauto_control_types = {'Custom': None,
@@ -121,22 +122,28 @@ _pywinauto_control_types = {'Custom': None,
 #=========================================================================
 class UiaMeta(BaseMeta):
     "Metaclass for UiaWrapper objects"
-    control_types = {}
+    control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
         "Register the control types"
 
         type.__init__(cls, name, bases, attrs)
 
-        for control_type in cls.controltypes:
-            UiaMeta.control_types[control_type] = cls
+        for t in cls.control_types:
+            UiaMeta.control_type_to_cls[t] = cls
 
     @staticmethod
     def find_wrapper(element):
-        "Find the correct wrapper for this UI element"
+        "Find the correct wrapper for this UIA element"
 
-        # TODO: temporary thing (there is no UIA based wrappers tree yet)
-        return UIAWrapper
+        # Set a general wrapper by default
+        wrapper_match = UIAWrapper
+
+        # Check for a more specific wrapper in the registry
+        if element.controlType in UiaMeta.control_type_to_cls:
+            wrapper_match = UiaMeta.control_type_to_cls[element.controlType]
+
+        return wrapper_match
 
 #=========================================================================
 @six.add_metaclass(UiaMeta)
@@ -152,6 +159,8 @@ class UIAWrapper(BaseWrapper):
     Most of the methods apply to every single element type. For example
     you can click() on any element.
     """
+    
+    control_types = []
 
     #------------------------------------------------------------
     # TODO: can't inherit __new__ function from BaseWrapper?
@@ -229,6 +238,13 @@ class UIAWrapper(BaseWrapper):
                 pass # TODO: add RuntimeWarning here
 
         return self
+
+    #-----------------------------------------------------------
+    def invoke(self):
+        "An interface to the Invoke method of the Invoke control pattern"
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Invoke")
+        iface.Invoke()
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)
