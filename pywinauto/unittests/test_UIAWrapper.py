@@ -261,8 +261,8 @@ if UIA_support:
 
         def testRadioButton(self):
             """"
-            Test the toggle and the toggle_state methods 
-            for the check box control
+            Test the select and is_selected methods 
+            for the radio button control
             """
             cur_state = self.dlg.Yes.is_selected()
             self.assertEqual(cur_state, False)
