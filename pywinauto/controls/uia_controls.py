@@ -72,6 +72,9 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         iface = uia_defs.get_elem_interface(elem, "Toggle")
         iface.Toggle()
 
+        # Return itself so that action can be chained
+        return self
+
     #-----------------------------------------------------------
     def get_toggle_state(self):
         """Get a toggle state of a check box control.
@@ -98,4 +101,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
     def click(self, *args, **kwargs):
         "Click the Button control by using Invoke pattern"
         self.invoke()
+
+        # Return itself so that action can be chained
+        return self
         
