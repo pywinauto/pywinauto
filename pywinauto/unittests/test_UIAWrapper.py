@@ -127,7 +127,7 @@ if UIA_support:
 
         def testTypeKeys(self):
             self.edit.type_keys("testTypeKeys")
-            self.assertEqual(self.edit.window_text(), b"testTypeKeys")
+            self.assertEqual(self.edit.window_text(), "testTypeKeys")
 
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"
