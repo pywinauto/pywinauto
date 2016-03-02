@@ -35,13 +35,11 @@ import win32api
 import win32gui
 import win32con
 import win32process
-import locale
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
-from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
 
@@ -132,7 +130,6 @@ class HwndMeta(BaseMeta):
             wrapper_match = win32_controls.DialogWrapper
 
         if wrapper_match is None:
-            from .HwndWrapper import HwndWrapper
             wrapper_match = HwndWrapper
         return wrapper_match
 

@@ -31,7 +31,6 @@ from . import sysinfo
 from . import six
 from . import win32functions
 from . import win32structures
-from . import handleprops
 from . import findbestmatch
 from . import controls
 from .backend import registry

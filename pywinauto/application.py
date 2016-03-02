@@ -75,7 +75,6 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 from . import handleprops
-from . import backend
 from .backend import registry
 
 from .actionlogger import ActionLogger
@@ -425,15 +424,15 @@ class WindowSpecification(object):
                     findbestmatch.MatchError,
                     controls.InvalidWindowHandle,
                     controls.InvalidElement):
-                # The control does not exist.
+                # The control does not exist
                 return False
             else:
                 if not check():
-                    # At least one check not passed.
+                    # At least one check not passed
                     return False
-        else:
-            # All the checks have been done.
-            return True
+
+        # All the checks have been done
+        return True
 
     def Wait(self, wait_for, timeout=None, retry_interval=None):
         """Wait for the window to be in a particular state/states.
@@ -662,8 +661,8 @@ def _resolve_from_appdata(
                 matched_control[1]['control_count'] +2 >=
                     len(e.children)]
 
-        if similar_child_count:
-            process_hwnds = similar_child_count
+        #if similar_child_count:
+        #    process_hwnds = similar_child_count
         #else:
         #    print("None Similar child count!!???")
         #    print(matched_control[1]['control_count'], len(handleprops.children(h)))
@@ -949,10 +948,7 @@ class Application(object):
 
         if wait_for_idle:
             # Wait until the application is ready after starting it
-            try:
-                WaitUntil(timeout, retry_interval, app_idle)
-            except TimeoutError:
-                pass
+            WaitUntil(timeout, retry_interval, app_idle)
 
         return self
 
@@ -1202,7 +1198,7 @@ class Application(object):
             try:
                 win32api.TerminateProcess(process_wait_handle, 0)
             except win32gui.error:
-                pass #print('Warning: ' + str(exc))
+                self.actions.log('Process {0} seems already killed'.format(self.process))
             #win32functions.TerminateProcess(process_wait_handle, 0)
             #else:
             #    killed = False
@@ -1240,9 +1236,7 @@ def process_get_modules():
         if pid != 0: # skip system process (0x00000000)
             try:
                 modules.append((pid, process_module(pid), None))
-            except win32gui.error:
-                pass
-            except ProcessNotFoundError:
+            except (win32gui.error, ProcessNotFoundError):
                 pass
     return modules
 

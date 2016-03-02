@@ -298,9 +298,8 @@ class _listview_item(object):
                 double = double,
                 pressed = pressed)
         else:
-            """
-            Click on checkbox
-            """
+            # Click on checkbox
+
             point_to_click = self.rectangle(area="icon").mid_point()
             point_to_click.y = self.rectangle(area="icon").bottom - 3
             # Check ListView display mode
@@ -319,9 +318,9 @@ class _listview_item(object):
             # Hittest flag
             checkbox_found = False
             if hittest.flags == win32defines.LVHT_ONITEMICON:
-                """
-                Large Icons, Small Icons, List, Details
-                """
+
+                # Large Icons, Small Icons, List, Details
+
                 while not checkbox_found and point_to_click.x > 0:
                     point_to_click.x -= 1
 
@@ -338,9 +337,9 @@ class _listview_item(object):
                         break
 
             elif hittest.flags == win32defines.LVHT_ONITEM:
-                """
-                Full Row Details
-                """
+
+                # Full Row Details
+
                 warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
                 point_to_click.x = self.rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item
@@ -386,9 +385,8 @@ class _listview_item(object):
                 wheel_dist = wheel_dist,
                 pressed = pressed)
         else:
-            """
-            Click on checkbox
-            """
+            # Click on checkbox
+
             point_to_click = self.rectangle(area="icon").mid_point()
             point_to_click.y = self.rectangle(area="icon").bottom - 3
             # Check ListView display mode
@@ -407,9 +405,9 @@ class _listview_item(object):
             # Hittest flag
             checkbox_found = False
             if hittest.flags == win32defines.LVHT_ONITEMICON:
-                """
-                Large Icons, Small Icons, List, Details
-                """
+
+                # Large Icons, Small Icons, List, Details
+
                 while not checkbox_found and point_to_click.x > 0:
                     point_to_click.x -= 1
 
@@ -426,9 +424,9 @@ class _listview_item(object):
                         break
 
             elif hittest.flags == win32defines.LVHT_ONITEM:
-                """
-                Full Row Details
-                """
+
+                # Full Row Details
+
                 warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
                 point_to_click.x = self.rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item

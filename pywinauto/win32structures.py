@@ -186,16 +186,11 @@ class RECT(Structure):
         else:
             #if not isinstance(otherRect_or_left, (int, long)):
             #    print type(self), type(otherRect_or_left), otherRect_or_left
-            if six.PY3:
-                self.left = otherRect_or_left
-                self.right = right
-                self.top = top
-                self.bottom = bottom
-            else:
-                self.left = long(otherRect_or_left)
-                self.right = long(right)
-                self.top = long(top)
-                self.bottom = long(bottom)
+            long_int = six.integer_types[-1]
+            self.left = long_int(otherRect_or_left)
+            self.right = long_int(right)
+            self.top = long_int(top)
+            self.bottom = long_int(bottom)
 
 
 #    #----------------------------------------------------------------

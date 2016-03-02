@@ -28,6 +28,8 @@ useful to other modules with the least conceptual overhead
 
 import ctypes
 import win32process
+import win32api
+import win32con
 
 from . import win32functions
 from . import win32defines
@@ -150,7 +152,6 @@ def is64bitprocess(process_id):
     from .sysinfo import is_x64_OS
     is32 = True
     if is_x64_OS():
-        import win32process, win32api, win32con
         phndl = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
         if phndl:
           is32 = win32process.IsWow64Process(phndl)

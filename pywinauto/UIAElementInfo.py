@@ -36,10 +36,9 @@ import comtypes.client
 import pywinauto.uia_defines as uia_defs
 
 from .six import integer_types
-from .handleprops import text, dumpwindow, controlid
+from .handleprops import dumpwindow, controlid
 from .ElementInfo import ElementInfo
 from .win32structures import RECT
-from .uia_defines import pattern_ids as _pattern_id
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
 _iuia = comtypes.CoCreateInstance(

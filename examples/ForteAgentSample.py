@@ -4,8 +4,9 @@ NOTE: Forte Agent has a very dynamic interface
 e.g. whether it is free or not, whether it is still in the grace
 period. For this reason this example script may or may not work well
 for you"""
+from __future__ import print_function
 
-print __doc__
+print(__doc__)
 
 import time
 from pprint import pprint

@@ -26,7 +26,6 @@ This module will likely change significantly in the future!"""
 
 import warnings
 
-from . import sysinfo
 from . import findwindows
 from . import application
 

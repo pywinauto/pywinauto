@@ -3,9 +3,6 @@ from __future__ import print_function
 
 import time
 import re
-import ctypes
-import win32api
-import win32gui
 import win32process
 import locale
 import abc
@@ -15,9 +12,7 @@ from . import six
 from . import win32defines, win32structures, win32functions
 from .timings import Timings
 from .actionlogger import ActionLogger
-from . import handleprops
 from .mouse import _perform_click_input
-#from . import backend
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):

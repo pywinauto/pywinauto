@@ -38,6 +38,7 @@ if sys.platform == 'win32':
     from .timings import Timings
     import win32api
     import win32gui
+    from . import SendKeysCtypes as SendKeys
 else:
     from Xlib.display import Display
     from Xlib import X

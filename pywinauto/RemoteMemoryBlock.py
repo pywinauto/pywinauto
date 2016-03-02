@@ -32,7 +32,6 @@ import win32process
 from . import win32functions
 from . import win32defines
 from . import win32structures
-from . import sysinfo
 from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):

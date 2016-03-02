@@ -33,13 +33,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import time
-import re
-import ctypes
-import locale
 
-from .. import SendKeysCtypes as SendKeys
 from .. import six
-from .. import win32defines, win32structures, win32functions
 from ..timings import Timings
 from ..actionlogger import ActionLogger
 
@@ -51,12 +46,8 @@ from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
-from .HwndWrapper import HwndWrapper
-from .HwndWrapper import HwndMeta
-
 from ..UIAElementInfo import UIAElementInfo
 from ..UIAElementInfo import _UIA_dll
-from ..UIAElementInfo import _iuia
 
 #region PATTERNS
 AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
@@ -127,7 +118,7 @@ class UiaMeta(BaseMeta):
     def __init__(cls, name, bases, attrs):
         "Register the control types"
 
-        type.__init__(cls, name, bases, attrs)
+        BaseMeta.__init__(cls, name, bases, attrs)
 
         for t in cls.control_types:
             UiaMeta.control_type_to_cls[t] = cls

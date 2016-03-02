@@ -57,15 +57,13 @@ _cache = {}
 def _get_match_ratios(texts, match_against):
     "Get the match ratio of how each item in texts compared to match_against"
 
-    # now time to figre out the matching
+    # now time to figure out the matching
     ratio_calc = difflib.SequenceMatcher()
     ratio_calc.set_seq1(match_against)
 
     ratios = {}
     best_ratio = 0
     best_text = ''
-
-    global _cache
 
     for text in texts:
 
