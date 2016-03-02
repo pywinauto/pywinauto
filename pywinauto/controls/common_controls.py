@@ -1200,7 +1200,7 @@ class _treeview_element(object):
 
                 # now get all the next children
                 while True:
-                    next_child = children_elements[-1].next()
+                    next_child = children_elements[-1].next_item()
 
                     if next_child is not None:
                         children_elements.append(next_child)
@@ -1216,7 +1216,7 @@ class _treeview_element(object):
     Children = children
 
     #----------------------------------------------------------------
-    def next(self):
+    def next_item(self):
         "Return the next item"
         # get the next element
         next_elem = self.tree_ctrl.send_message(
@@ -1233,7 +1233,7 @@ class _treeview_element(object):
         #else:
         #    raise ctypes.WinError()
     # Non PEP-8 alias
-    Next = next
+    Next = next_item
 
     #----------------------------------------------------------------
     def sub_elements(self):
@@ -1502,7 +1502,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         # get the correct lowest level item
 #        current_elem.get_child
 #        for i in range(0, path[0]):
-#            current_elem = current_elem.next()
+#            current_elem = current_elem.next_item()
 #
 #            if current_elem is None:
 #                raise IndexError("Root Item '%s' does not have %d sibling(s)"%

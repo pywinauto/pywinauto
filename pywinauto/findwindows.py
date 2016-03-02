@@ -243,7 +243,7 @@ def find_elements(class_name = None,
         backup_elements = elements[:]
         elements = []
         for elem in backup_elements:
-            if hasattr(elem, "_elementInfo"):
+            if hasattr(elem, "_element_info"):
                 elements.append(elem.element_info)
             else:
                 elements.append(backend_obj.element_info_class(elem.handle))

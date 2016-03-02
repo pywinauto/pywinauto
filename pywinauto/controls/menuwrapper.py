@@ -184,13 +184,13 @@ class MenuItem(object):
     # Non PEP-8 alias
     State = state
 
-    def id(self):
+    def item_id(self):
         "Return the ID of this menu item"
         return self._read_item().wID
     # Non PEP-8 alias
-    ID = id
+    ID = item_id
 
-    def type(self):
+    def item_type(self):
         """Return the Type of this menu item
 
         Main types are MF_STRING, MF_BITMAP, MF_SEPARATOR.
@@ -199,7 +199,7 @@ class MenuItem(object):
         for further information."""
         return self._read_item().fType
     # Non PEP-8 alias
-    Type = type
+    Type = item_type
 
     def text(self):
         "Return the text of this menu item"
@@ -291,7 +291,7 @@ class MenuItem(object):
 
         # seems like set_focus might be messing with getting the
         # id for Popup menu items - so I calling it before set_focus
-        command_id = self.id()
+        command_id = self.item_id()
 
         # notify the control that a menu item was selected
         self.ctrl.set_focus()
@@ -317,8 +317,8 @@ class MenuItem(object):
         props = {}
         props['index'] = self.index()
         props['state'] = self.state()
-        props['type'] = self.type()
-        props['id'] = self.id()
+        props['item_type'] = self.item_type()
+        props['item_id'] = self.item_id()
         props['text'] = self.text()
 
         submenu = self.sub_menu()
@@ -350,7 +350,7 @@ class MenuItem(object):
 #
 ##        ret = win32functions.SetMenuItemInfo(
 ##            self.menuhandle,
-##            self.id(),
+##            self.item_id(),
 ##            0, # by position
 ##            ctypes.byref(item))
 ##
@@ -371,7 +371,7 @@ class MenuItem(object):
 #
 #        ret = win32functions.SetMenuItemInfo(
 #            self.menuhandle,
-#            self.id(),
+#            self.item_id(),
 #            0, # by position
 #            ctypes.byref(item))
 #
@@ -513,9 +513,9 @@ class Menu(object):
         elif current_part.startswith("$"):
             # get the IDs from the menu items
             if appdata is None:
-                item_IDs = [item.id() for item in self.items()]
+                item_IDs = [item.item_id() for item in self.items()]
             else:
-                item_IDs = [item['id'] for item in appdata]
+                item_IDs = [item['item_id'] for item in appdata]
 
             item_id = int(current_part[1:])
             # find the item that best matches the current part
@@ -568,8 +568,8 @@ class Menu(object):
 #
 #            item_prop['index'] = i
 #            item_prop['state'] = menu_info.fState
-#            item_prop['type'] = menu_info.fType
-#            item_prop['id'] = menu_info.wID
+#            item_prop['item_type'] = menu_info.fType
+#            item_prop['item_id'] = menu_info.wID
 #
 #            else:
 #                item_prop['text'] = ""
@@ -596,8 +596,8 @@ class Menu(object):
 #
 #        item_prop['index'] = item.index()
 #        item_prop['state'] = item.state()
-#        item_prop['type'] = item.type()
-#        item_prop['id'] = item.id()
+#        item_prop['item_type'] = item.item_type()
+#        item_prop['item_id'] = item.item_id()
 #        item_prop['text'] = item.text()
 #
 #        props.append(item_props)
