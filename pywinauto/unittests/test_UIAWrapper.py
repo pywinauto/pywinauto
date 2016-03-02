@@ -207,6 +207,15 @@ if UIA_support:
             friendly_name = self.dlg.CheckBox.FriendlyClassName()
             self.assertEqual(friendly_name, "CheckBox")
 
+            friendly_name = self.dlg.Apply.FriendlyClassName()
+            self.assertEqual(friendly_name, "Button")
+
+            friendly_name = self.dlg.ToggleMe.FriendlyClassName()
+            self.assertEqual(friendly_name, "Button")
+
+            friendly_name = self.dlg.Yes.FriendlyClassName()
+            self.assertEqual(friendly_name, "RadioButton")
+
         def testCheckBox(self):
             """"
             Test the toggle and the toggle_state methods 
