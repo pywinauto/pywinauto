@@ -54,24 +54,24 @@ class NativeElementInfo(ElementInfo):
         return self._handle
 
     @property
-    def richText(self):
+    def rich_text(self):
         "Return the text of the window"
         return handleprops.text(self)
 
-    name = richText
+    name = rich_text
 
     @property
-    def controlId(self):
+    def control_id(self):
         "Return the ID of the window"
         return handleprops.controlid(self)
 
     @property
-    def processId(self):
+    def process_id(self):
         "Return the ID of process that controls this window"
         return handleprops.processid(self.handle)
 
     @property
-    def className(self):
+    def class_name(self):
         "Return the class name of the window"
         return handleprops.classname(self)
 
@@ -132,7 +132,7 @@ class NativeElementInfo(ElementInfo):
         "Return rectangle of element"
         return handleprops.rectangle(self)
 
-    def dumpWindow(self):
+    def dump_window(self):
         "Dump a window to a set of properties"
         return handleprops.dumpwindow(self)
 

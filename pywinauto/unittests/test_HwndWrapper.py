@@ -429,7 +429,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
     def testMenuItems(self):
         self.assertEqual(self.ctrl.MenuItems(), [])
-        self.assertEqual(self.dlg.MenuItems()[1]['Text'], '&View')
+        self.assertEqual(self.dlg.MenuItems()[1]['text'], '&View')
 
     def testMenuSelect(self):
         "Test selecting a menu item"

@@ -98,8 +98,8 @@ class ButtonTestCases(unittest.TestCase):
         """test whether an image needs to be saved with the properties"""
 
         self.assertEquals(self.calc.Button5._NeedsImageProp, False)
-        self.assertEquals('Image' in self.calc.Button5.GetProperties(), False)
-        #self.assertNotIn('Image', self.calc.Button5.GetProperties())
+        self.assertEquals('image' in self.calc.Button5.GetProperties(), False)
+        #self.assertNotIn('image', self.calc.Button5.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
     def testFriendlyClass(self):
@@ -240,8 +240,8 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
 
         active_window = self.app.active_()
         self.assertEquals(active_window.Button2._NeedsImageProp, True)
-        self.assertEquals('Image' in active_window.Button2.GetProperties(), True)
-        #self.assertIn('Image', active_window.Button2.GetProperties())
+        self.assertEquals('image' in active_window.Button2.GetProperties(), True)
+        #self.assertIn('image', active_window.Button2.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
 
@@ -669,6 +669,9 @@ class DialogTestCases(unittest.TestCase):
                     ctrl_value = list(ctrl_value)
                     expected_value = list(expected_value)
 
+                if ctrl_value == 'None':
+                    ctrl_value = None
+
                 self.assertEquals(ctrl_value, expected_value)
 
         import os
@@ -761,8 +764,8 @@ class StaticTestCases(unittest.TestCase):
 
         active_window = self.app.active_()
         self.assertEquals(active_window.Static2._NeedsImageProp, False)
-        self.assertEquals('Image' in active_window.Static2.GetProperties(), False)
-        #self.assertNotIn('Image', active_window.Static2.GetProperties())
+        self.assertEquals('image' in active_window.Static2.GetProperties(), False)
+        #self.assertNotIn('image', active_window.Static2.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
     def test_NeedsImageProp_ownerdraw(self):
@@ -771,8 +774,8 @@ class StaticTestCases(unittest.TestCase):
 
         active_window = self.app.active_()
         self.assertEquals(active_window.Static._NeedsImageProp, True)
-        self.assertEquals('Image' in active_window.Static.GetProperties(), True)
-        #self.assertIn('Image', active_window.Static.GetProperties())
+        self.assertEquals('image' in active_window.Static.GetProperties(), True)
+        #self.assertIn('image', active_window.Static.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
 

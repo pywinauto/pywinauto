@@ -48,9 +48,9 @@ _iuia = comtypes.CoCreateInstance(
     clsctx=comtypes.CLSCTX_INPROC_SERVER
 )
 
-_trueCondition = _iuia.CreateTrueCondition()
+_true_condition = _iuia.CreateTrueCondition()
 
-_treeScope = {
+_tree_scope = {
     'ancestors': _UIA_dll.TreeScope_Ancestors,
     'children': _UIA_dll.TreeScope_Children,
     'descendants': _UIA_dll.TreeScope_Descendants,
@@ -58,7 +58,6 @@ _treeScope = {
     'parent': _UIA_dll.TreeScope_Parent,
     'subtree': _UIA_dll.TreeScope_Subtree
 }
-
 
 """
 Possible properties:
@@ -87,7 +86,6 @@ CurrentProviderDescription
 
 class UIAElementInfo(ElementInfo):
     "UI element wrapper for IUIAutomation API"
-
     def __init__(self, handle_or_elem = None):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
@@ -112,12 +110,12 @@ class UIAElementInfo(ElementInfo):
         return self._element
 
     @property
-    def automationId(self):
+    def automation_id(self):
         "Return AutomationId of the element"
         return self._element.CurrentAutomationId
 
     @property
-    def controlId(self):
+    def control_id(self):
         "Return ControlId of the element if it has a handle"
         if (self.handle):
             return controlid(self.handle)
@@ -125,12 +123,12 @@ class UIAElementInfo(ElementInfo):
             return None
 
     @property
-    def processId(self):
+    def process_id(self):
         "Return ProcessId of the element"
         return self._element.CurrentProcessId
 
     @property
-    def frameworkId(self):
+    def framework_id(self):
         "Return FrameworkId of the element"
         return self._element.CurrentFrameworkId
 
@@ -145,12 +143,12 @@ class UIAElementInfo(ElementInfo):
         return self._element.CurrentName
 
     @property
-    def className(self):
+    def class_name(self):
         "Return class name of the element"
         return self._element.CurrentClassName
 
     @property
-    def controlType(self):
+    def control_type(self):
         "Return control type of element"
         return self._element.CurrentControlType
 
@@ -173,7 +171,7 @@ class UIAElementInfo(ElementInfo):
         "Return list of immediate children for the element"
         children = []
         
-        childrenArray = self._element.FindAll(_treeScope['children'], _trueCondition)
+        childrenArray = self._element.FindAll(_tree_scope['children'], _true_condition)
         for childNumber in range(childrenArray.Length):
             childElement = childrenArray.GetElement(childNumber)
             children.append(UIAElementInfo(childElement))
@@ -185,7 +183,7 @@ class UIAElementInfo(ElementInfo):
         "Return list of all children for the element"
         descendants = []
 
-        descendantsArray = self._element.FindAll(_treeScope['descendants'], _trueCondition)
+        descendantsArray = self._element.FindAll(_tree_scope['descendants'], _true_condition)
         for descendantNumber in range(descendantsArray.Length):
             descendantElement = descendantsArray.GetElement(descendantNumber)
             descendants.append(UIAElementInfo(descendantElement))
@@ -213,14 +211,14 @@ class UIAElementInfo(ElementInfo):
         rect.bottom = bound_rect.bottom
         return rect
 
-    def dumpWindow(self):
+    def dump_window(self):
         "Dump window to a set of properties"
         return dumpwindow(self.handle)
 
     @property
-    def richText(self):
-        "Return richText of the element"
-        if not self.className:
+    def rich_text(self):
+        "Return rich_text of the element"
+        if not self.class_name:
             return self.name
         try:
             pattern = uia_defs.get_elem_interface(self._element, "Text")
@@ -232,6 +230,6 @@ class UIAElementInfo(ElementInfo):
         "Check if 2 UIAElementInfo objects describe 1 actual element"
         if not isinstance(other, UIAElementInfo):
             return False;
-        return self.handle == other.handle and self.className == other.className and self.name == other.name and \
-               self.processId == other.processId and self.automationId == other.automationId and \
-               self.frameworkId == other.frameworkId and self.controlType == other.controlType
+        return self.handle == other.handle and self.class_name == other.class_name and self.name == other.name and \
+               self.process_id == other.process_id and self.automation_id == other.automation_id and \
+               self.framework_id == other.framework_id and self.control_type == other.control_type

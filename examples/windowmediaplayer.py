@@ -49,32 +49,32 @@ def windows_media():
             "Player before running this script")
         sys.exit()
 
-    app.WindowsMediaPlayer.MenuSelect("View->GoTo->Library")
-    app.WindowsMediaPlayer.MenuSelect("View->Choose Columns")
+    app.WindowsMediaPlayer.menu_select("View->GoTo->Library")
+    app.WindowsMediaPlayer.menu_select("View->Choose Columns")
 
     #for ctrl in app.ChooseColumns.children():
     #    print ctrl.class_name()
 
 
-    print("Is it checked already:", app.ChooseColumsn.ListView.IsChecked(1))
+    print("Is it checked already:", app.ChooseColumsn.ListView.is_checked(1))
 
     # Check an Item in the listview
-    app.ChooseColumns.ListView.Check(1)
+    app.ChooseColumns.ListView.check(1)
     time.sleep(.5)
-    print("Shold be checked now:", app.ChooseColumsn.ListView.IsChecked(1))
+    print("Shold be checked now:", app.ChooseColumsn.ListView.is_checked(1))
 
     # Uncheck it
-    app.ChooseColumns.ListView.UnCheck(1)
+    app.ChooseColumns.ListView.uncheck(1)
     time.sleep(.5)
-    print("Should not be checked now:", app.ChooseColumsn.ListView.IsChecked(1))
+    print("Should not be checked now:", app.ChooseColumsn.ListView.is_checked(1))
 
     # Check it again
-    app.ChooseColumns.ListView.Check(1)
+    app.ChooseColumns.ListView.check(1)
     time.sleep(.5)
 
-    app.ChooseColumsn.Cancel.Click()
+    app.ChooseColumsn.Cancel.click()
 
-    app.WindowsMediaPlayer.MenuSelect("File->Exit")
+    app.WindowsMediaPlayer.menu_select("File->Exit")
 
 
 def main():

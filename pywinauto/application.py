@@ -120,7 +120,7 @@ class WindowSpecification(object):
                          'visible': ('is_visible',),
                          'enabled': ('is_enabled',),
                          'ready': ('is_visible', 'is_enabled',),
-                         'active': ('IsActive',),
+                         'active': ('is_active',),
                          }
 
     def __init__(self, search_criteria):
@@ -408,7 +408,7 @@ class WindowSpecification(object):
             else:
                 unique_check_names.update(check_methods)
 
-        # unique_check_names = set(['is_enabled', 'IsActive', 'is_visible', 'Exists'])
+        # unique_check_names = set(['is_enabled', 'is_active', 'is_visible', 'Exists'])
         return unique_check_names, timeout, retry_interval
 
     def __check_all_conditions(self, check_names):
@@ -669,7 +669,7 @@ def _resolve_from_appdata(
         #    print(matched_control[1]['control_count'], len(handleprops.children(h)))
 
         for e in process_elems:
-            #print controls.WrapHandle(h).GetProperties()
+            #print controls.WrapHandle(h).get_properties()
             #print "======", h, h, h
 
             dialog = registry.wrapper_class(e)
@@ -700,8 +700,8 @@ def _resolve_from_appdata(
                 if len(ctrl_elems) > 1:
                     same_ids = \
                         [elem for elem in ctrl_elems
-                            if elem.controlId == \
-                                matched_control[2]['control_id']]
+                         if elem.control_id == \
+                         matched_control[2]['control_id']]
 
                     if same_ids:
                         ctrl_elems = same_ids
@@ -854,7 +854,7 @@ class Application(object):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
-            self.process = findwindows.find_element(**kwargs).processId
+            self.process = findwindows.find_element(**kwargs).process_id
             connected = True
 
         if not connected:
@@ -1160,8 +1160,8 @@ class Application(object):
 
         for win in windows:
 
-            if hasattr(win, 'SendMessageTimeout'):
-                win.SendMessageTimeout(
+            if hasattr(win, 'send_message_timeout'):
+                win.send_message_timeout(
                     win32defines.WM_QUERYENDSESSION,
                     timeout = .5,
                     timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
@@ -1169,8 +1169,8 @@ class Application(object):
                         #win32defines.SMTO_BLOCK)
 
             try:
-                if hasattr(win, 'Close'):
-                    win.Close()
+                if hasattr(win, 'close'):
+                    win.close()
             except TimeoutError:
                 self.actions.log('Failed to close top level window')
 
