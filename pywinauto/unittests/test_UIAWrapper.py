@@ -42,7 +42,7 @@ if UIA_support:
             is in the state we want it."""
 
             # start the application
-            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"), timeout = 30)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)
@@ -137,7 +137,7 @@ if UIA_support:
             is in the state we want it.
             """
 
-            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"), timeout = 30)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)
@@ -181,7 +181,7 @@ if UIA_support:
             """Start the application set some data and ensure the application
             is in the state we want it."""
 
-            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"), timeout = 30)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = self.dlg.Button
