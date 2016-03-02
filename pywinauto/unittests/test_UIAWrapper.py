@@ -259,6 +259,17 @@ if UIA_support:
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
 
+        def testRadioButton(self):
+            """"
+            Test the toggle and the toggle_state methods 
+            for the check box control
+            """
+            cur_state = self.dlg.Yes.is_selected()
+            self.assertEqual(cur_state, False)
+
+            cur_state = self.dlg.Yes.select().is_selected()
+            self.assertEqual(cur_state, True)
+
 if __name__ == "__main__":
     if UIA_support:
         unittest.main()
