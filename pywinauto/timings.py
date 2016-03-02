@@ -283,9 +283,9 @@ def WaitUntil(
       
       try:
          # wait a maximum of 10.5 seconds for the 
-         # the objects ItemCount() method to return 10
+         # the objects item_count() method to return 10
          # in increments of .5 of a second
-         WaitUntil(10.5, .5, self.ItemCount, 10)
+         WaitUntil(10.5, .5, self.item_count, 10)
       except TimeoutError as e:
          print("timed out")
      

@@ -62,7 +62,7 @@ def test_exceptions():
 #    try:
 #        app = application.Application()
 #        #app.start_(ur"c:\windows\system32\notepad.exe")
-#        app.Notepad.Click()
+#        app.Notepad.click()
 #        #assert False
 #    except application.AppNotConnected:
 #        pass
@@ -74,7 +74,7 @@ def get_info():
 
     app.start(r"notepad.exe")
 
-    app.Notepad.MenuSelect("File->PageSetup")
+    app.Notepad.menu_select("File->PageSetup")
 
     print("==" * 20)
     print("Windows of this application:", app.windows_())
@@ -87,8 +87,8 @@ def get_info():
     app.PageSetup.Edit2.print_control_identifiers()
     print("==" * 20)
 
-    app.PageSetup.OK.CloseClick()
-    app.Notepad.MenuSelect("File->Exit")
+    app.PageSetup.OK.close_click()
+    app.Notepad.menu_select("File->Exit")
 
 
 

@@ -46,11 +46,11 @@ def sakura_test():
 
 	dlg = app[u'共通設定']
 
-	app[u'共通設定'][u"フリーカーソル"].Click()
+	app[u'共通設定'][u"フリーカーソル"].click()
 
-	dlg.MSDOS.Click()
+	dlg.MSDOS.click()
 
-	dlg.Cancel.Click()
+	dlg.Cancel.click()
 
 	# quit the application
 	mainwin.type_keys("%FX")

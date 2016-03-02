@@ -116,7 +116,7 @@ def _unittests():
     "Run the unit tests for this test"
 
 
-    # set up some mock controls - (only requires some 'Text')
+    # set up some mock controls - (only requires some 'text')
     test_strings = (
         ("Nospecial", "NietherHere", 0),
 

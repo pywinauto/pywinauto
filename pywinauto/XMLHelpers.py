@@ -147,7 +147,7 @@ def WriteDialogToFile(filename, props):
     try:
         props[0].keys()
     except (TypeError, AttributeError):
-        props = controls.GetDialogPropsFromHandle(props)
+        props = controls.get_dialog_props_from_handle(props)
 
     # build a tree structure
     root = Element("DIALOG")
@@ -461,25 +461,25 @@ def ReadPropertiesFromFile(filename):
         # find each of the control elements
         for ctrl_prop in props:
 
-            ctrl_prop['Fonts'] = [_XMLToStruct(ctrl_prop['FONT'], "LOGFONTW"), ]
+            ctrl_prop['fonts'] = [_XMLToStruct(ctrl_prop['FONT'], "LOGFONTW"), ]
 
             ctrl_prop['rectangle'] = \
                 _XMLToStruct(ctrl_prop["RECTANGLE"], "RECT")
 
-            ctrl_prop['ClientRects'] = [
+            ctrl_prop['client_rects'] = [
                 _XMLToStruct(ctrl_prop["CLIENTRECT"], "RECT"),]
 
             ctrl_prop['texts'] = _OLD_XMLToTitles(ctrl_prop["TITLES"])
 
             ctrl_prop['class_name'] = ctrl_prop['CLASS']
-            ctrl_prop['ContextHelpID'] = ctrl_prop['HELPID']
+            ctrl_prop['context_help_id'] = ctrl_prop['HELPID']
             ctrl_prop['control_id'] = ctrl_prop['CTRLID']
-            ctrl_prop['ExStyle'] = ctrl_prop['EXSTYLE']
+            ctrl_prop['exstyle'] = ctrl_prop['EXSTYLE']
             ctrl_prop['friendly_class_name'] = ctrl_prop['FRIENDLYCLASS']
-            ctrl_prop['IsUnicode'] = ctrl_prop['ISUNICODE']
+            ctrl_prop['is_unicode'] = ctrl_prop['ISUNICODE']
             ctrl_prop['is_visible'] = ctrl_prop['ISVISIBLE']
-            ctrl_prop['Style'] = ctrl_prop['STYLE']
-            ctrl_prop['UserData'] = ctrl_prop['USERDATA']
+            ctrl_prop['style'] = ctrl_prop['STYLE']
+            ctrl_prop['user_data'] = ctrl_prop['USERDATA']
 
             for prop_name in [
                 'CLASS',
