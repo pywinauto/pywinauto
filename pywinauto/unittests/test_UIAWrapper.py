@@ -46,8 +46,8 @@ if UIA_support:
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button.element_info)
-            self.edit = UIAWrapper(self.dlg.Edit.element_info)
+            self.button = UIAWrapper(self.dlg.OK.element_info)
+            self.edit = UIAWrapper(self.dlg.TestLabelEdit.element_info)
             self.label = UIAWrapper(self.dlg.TestLabel.element_info)
 
         def tearDown(self):
@@ -64,7 +64,7 @@ if UIA_support:
 
         def testWindowText(self):
             "Test getting the window Text of the dialog"
-            self.assertEqual(self.label.window_text(), u"TestLable")
+            self.assertEqual(self.label.window_text(), u"TestLabel")
 
         def testControlID(self):
             self.assertEqual(self.button.control_id(), None)
@@ -127,7 +127,7 @@ if UIA_support:
 
         def testTypeKeys(self):
             self.edit.type_keys("testTypeKeys")
-            self.assertEqual(self.edit.window_text(), "testTypeKeys")
+            self.assertEqual(self.edit.window_text(), b"testTypeKeys")
 
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"
@@ -143,7 +143,7 @@ if UIA_support:
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button.element_info)
+            self.button = UIAWrapper(self.dlg.OK.element_info)
             self.label = self.dlg.TestLabel.WrapperObject()
 
         def tearDown(self):
@@ -193,10 +193,7 @@ if UIA_support:
 
             # start the application
             self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
-
             self.dlg = self.app.WPFSampleApplication
-            self.button = self.dlg.Button
-            #self.button = UIAWrapper(self.dlg.Button.elementInfo)
 
         def tearDown(self):
             "Close the application after tests"
@@ -218,20 +215,21 @@ if UIA_support:
             
             # Get a current state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
-            self.assertEqual(cur_state, uia_defs.toggle_state_off)
+            self.assertEqual(cur_state, uia_defs.toggle_state_inderteminate)
             
             # Toggle the next state
             self.dlg.CheckBox.toggle()
             
             # Get a new state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
-            self.assertEqual(cur_state, uia_defs.toggle_state_on)
+            self.assertEqual(cur_state, uia_defs.toggle_state_off)
 
         def testButtonClick(self):
             "Test the click method for the Button control"
 
-            #TODO: verify click
-            self.dlg.Button.click()
+            label = UIAWrapper(self.dlg.TestLabel.element_info)
+            self.dlg.Apply.click()
+            self.assertEqual(label.window_text(), "ApplyClick")
 
 if __name__ == "__main__":
     if UIA_support:
