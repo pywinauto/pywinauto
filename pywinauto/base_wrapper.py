@@ -463,10 +463,10 @@ class BaseWrapper(object):
         if isinstance(coords, win32structures.RECT):
             coords = [coords.left, coords.top]
 
-    #    # allow points objects to be passed as the coords
+        # allow points objects to be passed as the coords
         if isinstance(coords, win32structures.POINT):
             coords = [coords.x, coords.y]
-    #    else:
+        #else:
         coords = list(coords)
 
         # set the default coordinates
@@ -486,12 +486,14 @@ class BaseWrapper(object):
             if ctrl_text is None:
                 ctrl_text = six.text_type(ctrl_text)
             message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                      '" by ' + str(button) + ' button mouse click (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+                      '" by ' + str(button) + ' button mouse click (x,y=' + \
+                      ','.join([str(coord) for coord in coords]) + ')'
             if double:
                 message = 'Double-c' + message[1:]
             if button.lower() == 'move':
-                message = 'Moved mouse over ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                      '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+                message = 'Moved mouse over ' + self.friendly_class_name() + \
+                          ' "' + ctrl_text + '" to screen point (x,y=' + \
+                          ','.join([str(coord) for coord in coords]) + ')'
             ActionLogger().log(message)
     # Non PEP-8 alias
     ClickInput = click_input

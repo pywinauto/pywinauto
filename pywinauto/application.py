@@ -170,7 +170,7 @@ class WindowSpecification(object):
             # that are required for child controls
             ctrl_criteria = criteria[1]
             ctrl_criteria["top_level_only"] = False
-            if not "parent" in ctrl_criteria:
+            if "parent" not in ctrl_criteria:
                 ctrl_criteria["parent"] = dialog.handle
 
             # resolve the control and return it
@@ -446,10 +446,11 @@ class WindowSpecification(object):
              * 'ready' means that the window is visible and enabled
              * 'active' means that the window is active
 
-        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is not in the appropriate
-            state after this number of seconds.
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is not in the appropriate state after this number of seconds.
 
-        :param retry_interval: How long to sleep between each retry. Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+        :param retry_interval: How long to sleep between each retry.
+        Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
         An example to wait until the dialog
         exists, is ready, enabled and visible::
@@ -483,7 +484,8 @@ class WindowSpecification(object):
         :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is sill in the
             state after this number of seconds.
 
-        :param retry_interval: How long to sleep between each retry. Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+        :param retry_interval: How long to sleep between each retry.
+        Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
         An example to wait until the dialog is not ready, enabled or visible::
 
@@ -495,7 +497,8 @@ class WindowSpecification(object):
            :func:`pywinauto.timings.TimeoutError`
         """
 
-        check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for_not, timeout, retry_interval)
+        check_method_names, timeout, retry_interval = \
+            self.__parse_wait_args(wait_for_not, timeout, retry_interval)
         WaitUntil(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
@@ -1161,8 +1164,8 @@ class Application(object):
                     win32defines.WM_QUERYENDSESSION,
                     timeout = .5,
                     timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
-                        #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
-                        #win32defines.SMTO_BLOCK)
+                    #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+                    #win32defines.SMTO_BLOCK)
 
             try:
                 if hasattr(win, 'close'):

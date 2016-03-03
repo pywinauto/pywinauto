@@ -111,14 +111,15 @@ class MenuItem(object):
     def _read_item(self):
         """Read the menu item info
 
-        See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menufunctions/getmenuiteminfo.asp
+        See https://msdn.microsoft.com/en-us/library/windows/desktop/ms647980.aspx
         for more information."""
 
         item_info = MenuItemInfo()
         buf, extras = win32gui_struct.EmptyMENUITEMINFO()
         win32gui.GetMenuItemInfo(self.menu.handle, self._index, True, buf)
-        item_info.fType, item_info.fState, item_info.wID, item_info.hSubMenu, item_info.hbmpChecked, \
-        item_info.hbmpUnchecked, item_info.dwItemData, item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
+        item_info.fType, item_info.fState, item_info.wID, item_info.hSubMenu, \
+        item_info.hbmpChecked, item_info.hbmpUnchecked, item_info.dwItemData, \
+        item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
         if six.PY2:
             item_info.text = item_info.text.decode(locale.getpreferredencoding())
 
@@ -159,7 +160,8 @@ class MenuItem(object):
         # make it as HMENU type
         hMenu = ctypes.wintypes.HMENU(self.menu.handle)
 
-        #(rect.left.value, rect.top.value, rect.right.value, rect.bottom.value) = win32gui.GetMenuItemRect(ctrl.handle, self.menu.handle, self.index)
+        #(rect.left.value, rect.top.value, rect.right.value, rect.bottom.value) = \
+        #    win32gui.GetMenuItemRect(ctrl.handle, self.menu.handle, self.index)
         #self.__print__(ctrl, hMenu, self.index)
 
         win32functions.GetMenuItemRect(
@@ -195,7 +197,7 @@ class MenuItem(object):
 
         Main types are MF_STRING, MF_BITMAP, MF_SEPARATOR.
 
-        See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/resources/menus/menureference/menustructures/menuiteminfo.asp
+        See https://msdn.microsoft.com/en-us/library/windows/desktop/ms647980.aspx
         for further information."""
         return self._read_item().fType
     # Non PEP-8 alias

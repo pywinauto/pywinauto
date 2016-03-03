@@ -157,9 +157,13 @@ if sys.platform == 'win32':
                     y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
                     x_coord = int(float(coords[0]) * (65535. / float(x_res - 1)))
                     y_coord = int(float(coords[1]) * (65535. / float(y_res - 1)))
-                    win32api.mouse_event(win32defines.MOUSEEVENTF_MOVE | win32defines.MOUSEEVENTF_ABSOLUTE, x_coord, y_coord, dw_data)
+                    win32api.mouse_event(
+                        win32defines.MOUSEEVENTF_MOVE | win32defines.MOUSEEVENTF_ABSOLUTE,
+                        x_coord, y_coord, dw_data)
                 else:
-                    win32api.mouse_event(event | win32defines.MOUSEEVENTF_ABSOLUTE, coords[0], coords[1], dw_data)
+                    win32api.mouse_event(
+                        event | win32defines.MOUSEEVENTF_ABSOLUTE,
+                        coords[0], coords[1], dw_data)
 
         time.sleep(Timings.after_clickinput_wait)
 

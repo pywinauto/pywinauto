@@ -31,7 +31,7 @@ import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, \
-    POINTER, sizeof, alignment, Union, c_ulonglong, c_longlong, c_size_t
+    POINTER, sizeof, alignment, Union, c_longlong, c_size_t
 
 class Structure(ctypes.Structure):
     "Override the Structure class from ctypes to add printing and comparison"
@@ -1149,8 +1149,14 @@ class SYSTEMTIME(Structure):
     ]
     
     def __repr__(self):
-        return '<wYear=' + str(self.wYear) + ', wMonth=' + str(self.wMonth) + ', wDayOfWeek=' + str(self.wDayOfWeek) + ', wDay=' + str(self.wDay) + ', wHour=' + str(self.wHour) + ', wMinute=' + str(self.wMinute) + \
-               ', wSecond=' + str(self.wSecond) + ', wMilliseconds=' + str(self.wMilliseconds) + '>'
+        return '<wYear=' + str(self.wYear) + \
+            ', wMonth=' + str(self.wMonth) + \
+            ', wDayOfWeek=' + str(self.wDayOfWeek) + \
+            ', wDay=' + str(self.wDay) + \
+            ', wHour=' + str(self.wHour) + \
+            ', wMinute=' + str(self.wMinute) + \
+            ', wSecond=' + str(self.wSecond) + \
+            ', wMilliseconds=' + str(self.wMilliseconds) + '>'
     
     def __str__(self):
         return self.__repr__()

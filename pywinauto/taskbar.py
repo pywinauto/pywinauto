@@ -100,4 +100,5 @@ except Exception:
     LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 
 # the hidden tray icons button (TODO: think how to optimize)
-ShowHiddenIconsButton = [ch for ch in TaskBar.children() if ch.friendly_class_name() == 'Button'][-1] #TaskBar.Button #added
+ShowHiddenIconsButton = \
+    [ch for ch in TaskBar.children() if ch.friendly_class_name() == 'Button'][-1]

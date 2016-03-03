@@ -1057,9 +1057,10 @@ class _treeview_element(object):
             coords = (point_to_click.x, point_to_click.y),
             double = double,
             pressed = pressed) #,
-            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1, but it doesn't work for 32-bit ControlSpyV6.exe
+            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
+                              # but it doesn't work for 32-bit ControlSpyV6.exe
 
-        # if we use click instead of clickInput - then we need to tell the
+        # TODO: if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
         #self.tree_ctrl.
     # Non PEP-8 alias
@@ -1550,14 +1551,10 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         self.set_focus()
 
         elem = self.get_item(path)
-        #result = ctypes.c_long()
         retval = self.send_message(
             win32defines.TVM_SELECTITEM, # message
             win32defines.TVGN_CARET,     # how to select
             elem.elem)                   # item to select
-            #win32defines.SMTO_NORMAL,
-            #int(Timings.after_treeviewselect_wait * 1000),
-            #ctypes.byref(result))
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
@@ -2473,7 +2470,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             win32defines.TBIF_LPARAM | \
             win32defines.TBIF_STATE | \
             win32defines.TBIF_TEXT
-            #win32defines.TBIF_IMAGELABEL | \
+        #win32defines.TBIF_IMAGELABEL | \
 
         button_info.cchText = 2000
 
@@ -2493,9 +2490,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         if ret == -1:
             del remote_mem
-            raise RuntimeError(
-                "GetButtonInfo failed for button with command id %d"%
-                    button.idCommand)
+            raise RuntimeError('GetButtonInfo failed for button with command' + \
+                               ' id {0}'.format(button.idCommand))
 
         # read the text
         button_info.text = ctypes.create_unicode_buffer(1999)
@@ -2642,7 +2638,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     def check_button(self, button_identifier, make_checked, exact = True):
         "Find where the button is and click it if it's unchecked and vice versa"
 
-        self.actions.logSectionStart('Checking "' + self.window_text() + '" toolbar button "' + str(button_identifier) + '"')
+        self.actions.logSectionStart('Checking "' + self.window_text() + \
+            '" toolbar button "' + str(button_identifier) + '"')
         button = self.button(button_identifier, exact=exact)
         if make_checked:
             self.actions.log('Pressing down toolbar button "' + str(button_identifier) + '"')
@@ -2824,9 +2821,8 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         "Get a band of the ReBar control"
 
         if band_index >= self.band_count():
-            raise IndexError(
-                "band_index %d greater then number of available bands: %d" %
-                    (band_index, self.band_count()))
+            raise IndexError('band_index {0} greater then number of' + \
+                ' available bands: {1}'.format(band_index, self.band_count()))
 
         remote_mem = RemoteMemoryBlock(self)
 
@@ -2970,9 +2966,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     def get_tip(self, tip_index):
         "Return the particular tooltip"
         if tip_index >= self.tool_count():
-            raise IndexError(
-                "tip_index %d greater then number of available tips: %d" %
-                    (tip_index, self.tool_count()))
+            raise IndexError('tip_index {0} is greater than number of' + \
+                ' available tips: {1}'.format(tip_index, self.tool_count()))
         return ToolTip(self, tip_index)
     # Non PEP-8 alias
     GetTip = get_tip
@@ -3020,7 +3015,8 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_value(self):
         "Get the current value of the UpDown control"
-        pos = win32functions.SendMessage(self, win32defines.UDM_GETPOS, win32structures.LPARAM(0), win32structures.WPARAM(0))
+        pos = win32functions.SendMessage(self, win32defines.UDM_GETPOS,
+                    win32structures.LPARAM(0), win32structures.WPARAM(0))
         return win32functions.LoWord(pos)
     # Non PEP-8 alias
     GetValue = get_value

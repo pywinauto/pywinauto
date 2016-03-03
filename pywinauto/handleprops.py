@@ -62,7 +62,13 @@ def text(handle):
     # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
     # WM_GETTEXTLENGTH may hang even for notepad.exe main window!
     c_length = win32structures.DWORD(0)
-    result = win32functions.SendMessageTimeout(handle, win32defines.WM_GETTEXTLENGTH, 0, 0, win32defines.SMTO_ABORTIFHUNG, 500, ctypes.byref(c_length))
+    result = win32functions.SendMessageTimeout(
+                        handle,
+                        win32defines.WM_GETTEXTLENGTH,
+                        0, 0,
+                        win32defines.SMTO_ABORTIFHUNG,
+                        500,
+                        ctypes.byref(c_length))
     if result == 0:
         ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
         return None
@@ -154,8 +160,8 @@ def is64bitprocess(process_id):
     if is_x64_OS():
         phndl = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
         if phndl:
-          is32 = win32process.IsWow64Process(phndl)
-          #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
+            is32 = win32process.IsWow64Process(phndl)
+            #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
         
     return (not is32)
 

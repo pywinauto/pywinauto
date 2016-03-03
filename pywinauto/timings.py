@@ -172,17 +172,25 @@ class TimeConfig(object):
     _timings = __default_timing.copy()
     _cur_speed = 1
 
-    def __getattr__(self, attr):
+    def __getattribute__(self, attr):
         "Get the value for a particular timing"
+        if attr in ['__dict__', '__members__', '__methods__', '__class__']:
+            return object.__getattribute__(self, attr)
+
+        if attr in dir(TimeConfig):
+            return object.__getattribute__(self, attr)
+
         if attr in self.__default_timing:
             return self._timings[attr]
         else:
-            raise KeyError(
+            raise AttributeError(
                 "Unknown timing setting: %s" % attr)
 
     def __setattr__(self, attr, value):
         "Set a particular timing"
-        if attr in self.__default_timing:
+        if attr == '_timings':
+            object.__setattr__(self, attr, value)
+        elif attr in self.__default_timing:
             self._timings[attr] = value
         else:
             raise KeyError(

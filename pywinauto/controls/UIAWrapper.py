@@ -83,32 +83,33 @@ for type_ in _control_types:
     _known_control_types[_UIA_dll.__getattribute__('UIA_' + type_ + 'ControlTypeId')] = type_
 
 #=========================================================================
-_pywinauto_control_types = {'Custom': None,
-                            'DataGrid': None,
-                            'Document': None,
-                            'Group': 'GroupBox',
-                            'Hyperlink': None,
-                            'Image': None,
-                            'List': 'ListBox',
-                            'MenuBar': None,
-                            'Menu': None,
-                            'Pane': None,
-                            'ProgressBar': 'Progress',
-                            'ScrollBar': None,
-                            'Separator': None,
-                            'Slider': None,
-                            'Spinner': 'UpDown',
-                            'SplitButton': None,
-                            'Tab': 'TabControl',
-                            'Table': None,
-                            'Text': 'Static',
-                            'Thumb': None,
-                            'TitleBar': None,
-                            'ToolBar': 'Toolbar',
-                            'ToolTip': 'ToolTips',
-                            'Tree': None,
-                            'Window': 'Dialog',
-                            }
+_friendly_classes = {
+    'Custom': None,
+    'DataGrid': None,
+    'Document': None,
+    'Group': 'GroupBox',
+    'Hyperlink': None,
+    'Image': None,
+    'List': 'ListBox',
+    'MenuBar': None,
+    'Menu': None,
+    'Pane': None,
+    'ProgressBar': 'Progress',
+    'ScrollBar': None,
+    'Separator': None,
+    'Slider': None,
+    'Spinner': 'UpDown',
+    'SplitButton': None,
+    'Tab': 'TabControl',
+    'Table': None,
+    'Text': 'Static',
+    'Thumb': None,
+    'TitleBar': None,
+    'ToolBar': 'Toolbar',
+    'ToolTip': 'ToolTips',
+    'Tree': None,
+    'Window': 'Dialog',
+    }
 
 #=========================================================================
 class UiaMeta(BaseMeta):
@@ -202,11 +203,11 @@ class UIAWrapper(BaseWrapper):
             if self.element_info.control_type not in _known_control_types.keys():
                 self.friendlyclassname = str(self.element_info.control_type)
             else:
-                ControlType = _known_control_types[self.element_info.control_type]
-                if (ControlType not in _pywinauto_control_types.keys()) or (_pywinauto_control_types[ControlType] is None):
-                    self.friendlyclassname = ControlType
+                ctrl_type = _known_control_types[self.element_info.control_type]
+                if (ctrl_type not in _friendly_classes) or (_friendly_classes[ctrl_type] is None):
+                    self.friendlyclassname = ctrl_type
                 else:
-                    self.friendlyclassname = _pywinauto_control_types[ControlType]
+                    self.friendlyclassname = _friendly_classes[ctrl_type]
         return self.friendlyclassname
 
     #-----------------------------------------------------------
