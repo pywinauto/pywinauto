@@ -187,7 +187,7 @@ class HwndWrapper(BaseWrapper):
         """
         if isinstance(element_info, six.integer_types):
             element_info = NativeElementInfo(element_info)
-        if hasattr(element_info, "_element_info"):
+        if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
         BaseWrapper.__init__(self, element_info, backend.registry.backends['native'])

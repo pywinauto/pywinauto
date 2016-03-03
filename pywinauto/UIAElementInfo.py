@@ -41,9 +41,11 @@ from .ElementInfo import ElementInfo
 from .win32structures import RECT
 
 _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
+from comtypes.gen import UIAutomationClient
+
 _iuia = comtypes.CoCreateInstance(
-    comtypes.gen.UIAutomationClient.CUIAutomation().IPersist_GetClassID(),
-    interface=comtypes.gen.UIAutomationClient.IUIAutomation,
+    UIAutomationClient.CUIAutomation().IPersist_GetClassID(),
+    interface=UIAutomationClient.IUIAutomation,
     clsctx=comtypes.CLSCTX_INPROC_SERVER
 )
 
@@ -95,11 +97,11 @@ class UIAElementInfo(ElementInfo):
             if isinstance(handle_or_elem, integer_types):
                 # Create instane of UIAElementInfo from a handle
                 self._element = _iuia.ElementFromHandle(handle_or_elem)
-            elif isinstance(handle_or_elem, comtypes.gen.UIAutomationClient.IUIAutomationElement):
+            elif isinstance(handle_or_elem, UIAutomationClient.IUIAutomationElement):
                 self._element = handle_or_elem
             else:
-                raise TypeError("UIAElementInfo object can be initialized with integer or IUIAutomationElement \
-                                instance only!")
+                raise TypeError("UIAElementInfo object can be initialized ' + \
+                    'with integer or IUIAutomationElement instance only!")
         else:
             self._element = _iuia.GetRootElement()            
 

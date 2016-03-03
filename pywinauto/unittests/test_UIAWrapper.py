@@ -30,6 +30,7 @@ wpf_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\WPF_samples")
 if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
+wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
 if UIA_support:
     # Set backend to UIA
@@ -42,7 +43,8 @@ if UIA_support:
             is in the state we want it."""
 
             # start the application
-            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"), timeout = 30)
+            self.app = Application(backend = 'uia')
+            self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)
@@ -137,7 +139,8 @@ if UIA_support:
             is in the state we want it.
             """
 
-            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"), timeout = 30)
+            self.app = Application(backend = 'uia')
+            self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)
@@ -181,7 +184,8 @@ if UIA_support:
             """Start the application set some data and ensure the application
             is in the state we want it."""
 
-            self.app = Application(backend = 'uia').Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"), timeout = 30)
+            self.app = Application(backend = 'uia')
+            self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = self.dlg.Button

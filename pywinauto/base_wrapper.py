@@ -372,7 +372,7 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def __eq__(self, other):
         "Returns true if 2 BaseWrapper's describe 1 actual element"
-        if hasattr(other, "_element_info"):
+        if hasattr(other, "element_info"):
             return self.element_info == other.element_info
         else:
             return self.element_info == other
