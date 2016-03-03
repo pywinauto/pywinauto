@@ -285,10 +285,14 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(ComboBoxWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            "selected_index",
-            "dropped_rect",
-            ])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ComboBoxWrapper, self).writable_props
+        props.extend(["selected_index",
+                      "dropped_rect",
+                      ])
+        return props
 
     #-----------------------------------------------------------
     def dropped_rect(self):
@@ -455,8 +459,12 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(ListBoxWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            "selected_indices"])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListBoxWrapper, self).writable_props
+        props.extend(["selected_indices"])
+        return props
 
     #-----------------------------------------------------------
     def is_single_selection(self):
@@ -673,8 +681,12 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(EditWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'selection_indices'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(EditWrapper, self).writable_props
+        props.extend(['selection_indices'])
+        return props
 
     #-----------------------------------------------------------
     def line_count(self):
