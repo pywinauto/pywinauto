@@ -59,19 +59,19 @@ def run_notepad():
     #    app.start_(r"c:\windows\system32\notepad.exe")
     app.start(r"notepad.exe")
 
-    app.Notepad.MenuSelect("File->PageSetup")
+    app.Notepad.menu_select("File->PageSetup")
 
     # ----- Page Setup Dialog ----
     # Select the 4th combobox item
-    app.PageSetupDlg.SizeComboBox.Select(4)
+    app.PageSetupDlg.SizeComboBox.select(4)
 
     # Select the 'Letter' combobox item or the Letter 
     try:
-        app.PageSetupDlg.SizeComboBox.Select("Letter")
+        app.PageSetupDlg.SizeComboBox.select("Letter")
     except ValueError:
-        app.PageSetupDlg.SizeComboBox.Select('Letter (8.5" x 11")')
+        app.PageSetupDlg.SizeComboBox.select('Letter (8.5" x 11")')
 
-    app.PageSetupDlg.SizeComboBox.Select(2)
+    app.PageSetupDlg.SizeComboBox.select(2)
 
     # run some tests on the Dialog. List of available tests:
     #        "AllControls",
@@ -87,36 +87,36 @@ def run_notepad():
     #        "Translation",
     #        "Truncation",
 
-    bugs = app.PageSetupDlg.RunTests('RepeatedHotkey Truncation')
+    bugs = app.PageSetupDlg.run_tests('RepeatedHotkey Truncation')
 
     # if there are any bugs they will be printed to the console
     # and the controls will be highlighted
     tests.print_bugs(bugs)
 
     # ----- Next Page Setup Dialog ----
-    app.PageSetupDlg.Printer.Click()
+    app.PageSetupDlg.Printer.click()
 
     # do some radio button clicks
     # Open the Connect to printer dialog so we can
     # try out checking/unchecking a checkbox
-    app.PageSetupDlg.Network.Click()
+    app.PageSetupDlg.Network.click()
 
     # ----- Connect To Printer Dialog ----
     # Select a checkbox
-    app.ConnectToPrinter.ExpandByDefault.Check()
+    app.ConnectToPrinter.ExpandByDefault.check()
 
-    app.ConnectToPrinter.ExpandByDefault.UnCheck()
+    app.ConnectToPrinter.ExpandByDefault.uncheck()
 
     # try doing the same by using click
-    app.ConnectToPrinter.ExpandByDefault.Click()
+    app.ConnectToPrinter.ExpandByDefault.click()
 
-    app.ConnectToPrinter.ExpandByDefault.Click()
+    app.ConnectToPrinter.ExpandByDefault.click()
 
     # close the dialog
-    app.ConnectToPrinter.Cancel.CloseClick()
+    app.ConnectToPrinter.Cancel.close_click()
 
     # ----- 2nd Page Setup Dialog again ----
-    app.PageSetupDlg.Properties.Click()
+    app.PageSetupDlg.Properties.click()
 
     doc_props = app.window_(title_re = ".*Properties$")
     doc_props.Wait('exists', timeout = 40)
@@ -124,75 +124,75 @@ def run_notepad():
     # ----- Document Properties Dialog ----
     # some tab control selections
     # Two ways of selecting tabs with indices...
-    doc_props.TabCtrl.Select(0)
-    doc_props.TabCtrl.Select(1)
+    doc_props.TabCtrl.select(0)
+    doc_props.TabCtrl.select(1)
     try:
-        doc_props.TabCtrl.Select(2)
+        doc_props.TabCtrl.select(2)
     except IndexError:
         # not all users have 3 tabs in this dialog
         pass
 
     # or with text...
-    doc_props.TabCtrl.Select("PaperQuality")
+    doc_props.TabCtrl.select("PaperQuality")
 
     try:
-        doc_props.TabCtrl.Select("JobRetention")
+        doc_props.TabCtrl.select("JobRetention")
     except MatchError:
         # some people do not have the "Job Retention" tab
         pass
 
-#    doc_props.TabCtrl.Select("Layout")
+#    doc_props.TabCtrl.select("Layout")
 #
 #    # do some radio button clicks
-#    doc_props.RotatedLandscape.Click()
-#    doc_props.BackToFront.Click()
-#    doc_props.FlipOnShortEdge.Click()
+#    doc_props.RotatedLandscape.click()
+#    doc_props.BackToFront.click()
+#    doc_props.FlipOnShortEdge.click()
 #
-#    doc_props.Portrait.Click()
-#    doc_props._None.Click()
-#    doc_props.FrontToBack.Click()
+#    doc_props.Portrait.click()
+#    doc_props._None.click()
+#    doc_props.FrontToBack.click()
 #
 #    # open the Advanced options dialog in two steps
 #    advbutton = doc_props.Advanced
-#    advbutton.Click()
+#    advbutton.click()
 #
 #    # close the 4 windows
 #
 #    # ----- Advanced Options Dialog ----
-#    app.window_(title_re = ".* Advanced Options").Ok.Click()
+#    app.window_(title_re = ".* Advanced Options").Ok.click()
 
     # ----- Document Properties Dialog again ----
-    doc_props.Cancel.CloseClick()
+    doc_props.Cancel.close_click()
     
     # for some reason my current printer driver 
     # window does not close cleanly :(
     if doc_props.Cancel.Exists():
-        doc_props.OK.CloseClick()
+        doc_props.OK.close_click()
         
     
     # ----- 2nd Page Setup Dialog again ----
-    app.PageSetupDlg.OK.CloseClick()
+    app.PageSetupDlg.OK.close_click()
     # ----- Page Setup Dialog ----
-    app.PageSetupDlg.Ok.CloseClick()
+    app.PageSetupDlg.Ok.close_click()
 
     # type some text - note that extended characters ARE allowed
-    app.Notepad.Edit.SetEditText("I am typing s\xe4me text to Notepad\r\n\r\n"
+    app.Notepad.Edit.set_edit_text("I am typing s\xe4me text to Notepad\r\n\r\n"
         "And then I am going to quit")
 
-    app.Notepad.Edit.RightClick()
-    app.Popup.MenuItem("Right To Left Reading Order").Click()
+    app.Notepad.Edit.right_click()
+    app.Popup.menu_item("Right To Left Reading Order").click()
 
-    #app.PopupMenu.MenuSelect("Paste", app.Notepad.ctrl_())
-    #app.Notepad.Edit.RightClick()
-    #app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
-    #app.PopupMenu.MenuSelect("Show unicode control characters", app.Notepad.ctrl_())
+    #app.PopupMenu.menu_select("Paste", app.Notepad.ctrl_())
+    #app.Notepad.Edit.right_click()
+    #app.PopupMenu.menu_select("Right To Left Reading Order", app.Notepad.ctrl_())
+    #app.PopupMenu.menu_select("Show unicode control characters", app.Notepad.ctrl_())
     #time.sleep(1)
-    #app.Notepad.Edit.RightClick()
-    #app.PopupMenu.MenuSelect("Right To Left Reading Order", app.Notepad.ctrl_())
+    #app.Notepad.Edit.right_click()
+    #app.PopupMenu.menu_select("Right To Left Reading Order", app.Notepad.ctrl_())
     #time.sleep(1)
 
-    #app.Notepad.Edit.RightClick()
-    #app.PopupMenu.MenuSelect("Insert Unicode control character -> IAFS", app.Notepad.ctrl_())
+    #app.Notepad.Edit.right_click()
+    #app.PopupMenu.menu_select("Insert Unicode control character -> IAFS", app.Notepad.ctrl_())
     #time.sleep(1)
 
     #app.Notepad.Edit.type_keys("{ESC}")
@@ -203,10 +203,10 @@ def run_notepad():
         u"s\xfcpp\xf4rt \xe0cce\xf1ted characters!!!", with_spaces = True)
 
     # Try and save
-    app.Notepad.MenuSelect("File->SaveAs")
-    app.SaveAs.EncodingComboBox.Select("UTF-8")
-    app.SaveAs.FileNameEdit.SetEditText("Example-utf8.txt")
-    app.SaveAs.Save.CloseClick()
+    app.Notepad.menu_select("File->SaveAs")
+    app.SaveAs.EncodingComboBox.select("UTF-8")
+    app.SaveAs.FileNameEdit.set_edit_text("Example-utf8.txt")
+    app.SaveAs.Save.close_click()
 
     # my machine has a weird problem - when connected to the network
     # the SaveAs Dialog appears - but doing anything with it can
@@ -225,12 +225,12 @@ def run_notepad():
 
     # If file exists - it asks you if you want to overwrite
     try:
-        app.SaveAs.Yes.Wait('exists').CloseClick()
+        app.SaveAs.Yes.Wait('exists').close_click()
     except MatchError:
         pass
 
     # exit notepad
-    app.Notepad.MenuSelect("File->Exit")
+    app.Notepad.menu_select("File->Exit")
 
     #if not run_with_appdata:
     #    app.WriteAppData(os.path.join(scriptdir, "Notepad_fast.pkl"))

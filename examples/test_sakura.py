@@ -45,9 +45,9 @@ def sakura_test():
 	mainwin.type_keys("%OC")
 
 	dlg = app.window_(title = u'共通設定')
-	dlg.window_(title_re = r"フリーカーソル.*").Click()
-	dlg.MSDOS.Click()
-	dlg.Cancel.Click()
+	dlg.window_(title_re = r"フリーカーソル.*").click()
+	dlg.MSDOS.click()
+	dlg.Cancel.click()
 
 	# quit the application
 	mainwin.type_keys("%FX")
