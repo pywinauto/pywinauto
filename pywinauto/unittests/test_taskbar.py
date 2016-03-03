@@ -137,7 +137,7 @@ class TaskbarTestCases(unittest.TestCase):
         backend.activate("native")
         self.tm = _ready_timeout
         app = Application()
-        app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
+        app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle = False)
         self.app = app
         self.dlg = app.top_window_()
         self.dlg.Wait('ready', timeout=self.tm)
