@@ -183,8 +183,7 @@ class TimeConfig(object):
         if attr in self.__default_timing:
             return self._timings[attr]
         else:
-            raise AttributeError(
-                "Unknown timing setting: %s" % attr)
+            raise AttributeError("Unknown timing setting: {0}".format(attr))
 
     def __setattr__(self, attr, value):
         "Set a particular timing"
@@ -193,8 +192,7 @@ class TimeConfig(object):
         elif attr in self.__default_timing:
             self._timings[attr] = value
         else:
-            raise KeyError(
-                "Unknown timing setting: %s" % attr)
+            raise AttributeError("Unknown timing setting: {0}".format(attr))
 
     def Fast(self):
         """Set fast timing values

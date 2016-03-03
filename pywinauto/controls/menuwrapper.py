@@ -560,7 +560,7 @@ class Menu(object):
 
     def __repr__(self):
         "Return a simple representation of the menu"
-        return "<Menu %d>" % self.handle
+        return "<Menu {0}>".format(self.handle)
 
 
 #    def get_properties(self):
