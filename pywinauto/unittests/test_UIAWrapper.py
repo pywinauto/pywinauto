@@ -193,7 +193,7 @@ if UIA_support:
         "Unit tests for the ButtonWrapper class"
 
         def setUp(self):
-            """Start the application set some data and ensure the application
+            """Start the application, set some data and ensure the application
             is in the state we want it."""
             backend.activate("uia")
 
@@ -205,11 +205,8 @@ if UIA_support:
             "Close the application after tests"
             self.app.kill_()
 
-        def testFriendlyClassName(self):
-            """
-            Test getting the friendly class name of a check box control 
-            on the dialog
-            """
+        def testFriendlyClassNames(self):
+            "Test getting friendly class names of button-like controls"
             friendly_name = self.dlg.CheckBox.FriendlyClassName()
             self.assertEqual(friendly_name, "CheckBox")
 
@@ -223,10 +220,7 @@ if UIA_support:
             self.assertEqual(friendly_name, "RadioButton")
 
         def testCheckBox(self):
-            """"
-            Test the toggle and the toggle_state methods 
-            for the check box control
-            """
+            "Test 'toggle' and 'toggle_state' for the check box control"
             
             # Get a current state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
@@ -239,10 +233,7 @@ if UIA_support:
             self.assertEqual(cur_state, uia_defs.toggle_state_off)
 
         def testToggleButton(self):
-            """"
-            Test the toggle and the toggle_state methods 
-            for the check box control
-            """
+            "Test 'toggle' and 'toggle_state' for the toggle button control"
             
             # Get a current state of the check box control
             cur_state = self.dlg.ToggleMe.get_toggle_state()
@@ -266,10 +257,7 @@ if UIA_support:
             self.assertEqual(label.window_text(), "ApplyClick")
 
         def testRadioButton(self):
-            """"
-            Test the select and is_selected methods 
-            for the radio button control
-            """
+            "Test 'select' and 'is_selected' for the radio button control"
             cur_state = self.dlg.Yes.is_selected()
             self.assertEqual(cur_state, False)
 
