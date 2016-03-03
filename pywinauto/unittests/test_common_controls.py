@@ -44,6 +44,8 @@ from pywinauto.RemoteMemoryBlock import AccessDenied
 from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
 from pywinauto import backend
+from pywinauto.timings import Timings
+Timings.Defaults()
 
 
 controlspy_folder = os.path.join(

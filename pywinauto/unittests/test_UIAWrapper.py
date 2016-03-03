@@ -20,9 +20,10 @@ if UIA_support:
     import pywinauto.uia_defines as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
 #from pywinauto.findwindows import ElementNotFoundError
-from pywinauto.timings import Timings, TimeoutError
 #from pywinauto import clipboard
 from pywinauto import backend
+from pywinauto.timings import Timings, TimeoutError
+Timings.Defaults()
 
 import unittest
 
