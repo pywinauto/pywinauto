@@ -672,12 +672,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ListViewWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'column_count',
-            'item_count',
-            'columns',
-            'items'])
-        
         if self.is_unicode():
             self.create_buffer = ctypes.create_unicode_buffer
             self.LVCOLUMN       = win32structures.LVCOLUMNW
@@ -692,6 +686,17 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
             self.LVM_GETITEM    = win32defines.LVM_GETITEMA
             self.text_decode    = lambda v: v.decode(locale.getpreferredencoding())
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListViewWrapper, self).writable_props
+        props.extend(['column_count',
+                      'item_count',
+                      'columns',
+                      'items',
+                      ])
+        return props
 
     #-----------------------------------------------------------
     def column_count(self):
@@ -1829,12 +1834,15 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(StatusBarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'border_widths',
-            'part_count',
-            'part_right_edges',
-
-        ])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(StatusBarWrapper, self).writable_props
+        props.extend(['border_widths',
+                      'part_count',
+                      'part_right_edges',
+                      ])
+        return props
 
     #----------------------------------------------------------------
     def border_widths(self):
@@ -2393,7 +2401,12 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ToolbarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend(['button_count'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ToolbarWrapper, self).writable_props
+        props.extend(['button_count'])
+        return props
 
     #----------------------------------------------------------------
     def button_count(self):
@@ -2812,7 +2825,12 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ReBarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend(['band_count'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ReBarWrapper, self).writable_props
+        props.extend(['band_count'])
+        return props
 
     #----------------------------------------------------------------
     def band_count(self):

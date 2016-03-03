@@ -129,6 +129,21 @@ if UIA_support:
             self.edit.type_keys("testTypeKeys")
             self.assertEqual(self.edit.window_text(), "testTypeKeys")
 
+        def testGetProperties(self):
+            uia_props = {'class_name',
+                         'friendly_class_name',
+                         'texts',
+                         'control_id',
+                         'rectangle',
+                         'is_visible',
+                         'is_enabled',
+                         'control_count',
+                         'is_keyboard_focusable',
+                         'has_keyboard_focus',
+                         }
+            props = set(self.edit.get_properties().keys())
+            self.assertEquals(props, uia_props)
+
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"
 
