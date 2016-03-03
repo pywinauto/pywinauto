@@ -1164,8 +1164,8 @@ class Application(object):
                     win32defines.WM_QUERYENDSESSION,
                     timeout = .5,
                     timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
-                    #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
-                    #win32defines.SMTO_BLOCK)
+                #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+                #win32defines.SMTO_BLOCK)
 
             try:
                 if hasattr(win, 'close'):

@@ -170,8 +170,8 @@ class RemoteMemoryBlock(object):
             nSize = win32structures.ULONG_PTR(ctypes.sizeof(data))
         
         if self.size < nSize.value:
-            raise Exception('Write: RemoteMemoryBlock is too small ({0} bytes),' + \
-                ' {1} is required.'.format(self.size, nSize.value))
+            raise Exception(('Write: RemoteMemoryBlock is too small ({0} bytes),' + \
+                ' {1} is required.').format(self.size, nSize.value))
         
         if hex(address).lower().startswith('0xffffff'):
             raise Exception('Write: RemoteMemoryBlock has incorrect address = ' + hex(address))
@@ -206,8 +206,8 @@ class RemoteMemoryBlock(object):
             nSize = win32structures.ULONG_PTR(ctypes.sizeof(data))
 
         if self.size < nSize.value:
-            raise Exception('Read: RemoteMemoryBlock is too small ({0} bytes),' + \
-                ' {1} is required.'.format(self.size, nSize.value))
+            raise Exception(('Read: RemoteMemoryBlock is too small ({0} bytes),' + \
+                ' {1} is required.').format(self.size, nSize.value))
         
         if hex(address).lower().startswith('0xffffff'):
             raise Exception('Read: RemoteMemoryBlock has incorrect address =' + hex(address))

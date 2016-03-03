@@ -334,8 +334,8 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         if isinstance(ident, six.integer_types):
 
             if ident >= self.item_count():
-                raise IndexError('Combobox has {0} items, you requested ' + \
-                    'item {1} (0 based)'.format(self.item_count(), ident))
+                raise IndexError(('Combobox has {0} items, you requested ' + \
+                    'item {1} (0 based)').format(self.item_count(), ident))
 
             # negative index
             if ident < 0:
@@ -495,8 +495,8 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         if isinstance(ident, six.integer_types):
 
             if ident >= self.item_count():
-                raise IndexError('ListBox has {0} items, you requested ' + \
-                    'item {1} (0 based)'.format(self.item_count(), ident))
+                raise IndexError(('ListBox has {0} items, you requested ' + \
+                    'item {1} (0 based)').format(self.item_count(), ident))
 
             # negative index
             if ident < 0:

@@ -1057,8 +1057,9 @@ class _treeview_element(object):
             coords = (point_to_click.x, point_to_click.y),
             double = double,
             pressed = pressed) #,
-            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
-                              # but it doesn't work for 32-bit ControlSpyV6.exe
+        # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
+        # but it doesn't work for 32-bit ControlSpyV6.exe
+        #absolute = True)
 
         # TODO: if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
@@ -2821,8 +2822,8 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         "Get a band of the ReBar control"
 
         if band_index >= self.band_count():
-            raise IndexError('band_index {0} greater then number of' + \
-                ' available bands: {1}'.format(band_index, self.band_count()))
+            raise IndexError(('band_index {0} greater then number of' + \
+                ' available bands: {1}').format(band_index, self.band_count()))
 
         remote_mem = RemoteMemoryBlock(self)
 
@@ -2966,8 +2967,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     def get_tip(self, tip_index):
         "Return the particular tooltip"
         if tip_index >= self.tool_count():
-            raise IndexError('tip_index {0} is greater than number of' + \
-                ' available tips: {1}'.format(tip_index, self.tool_count()))
+            raise IndexError(('tip_index {0} is greater than number of' + \
+                ' available tips: {1}').format(tip_index, self.tool_count()))
         return ToolTip(self, tip_index)
     # Non PEP-8 alias
     GetTip = get_tip
