@@ -129,6 +129,12 @@ if UIA_support:
             self.edit.type_keys("testTypeKeys")
             self.assertEqual(self.edit.window_text(), "testTypeKeys")
 
+        def test_query_interface_exception(self):
+            "Test a query interface exception handling"
+            elem = self.button.element_info.element
+            iface = uia_defs.get_elem_interface(elem, "Selection")
+            self.assertEqual(iface, None)
+
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"
 
