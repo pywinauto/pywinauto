@@ -97,7 +97,7 @@ class ButtonTestCases(unittest.TestCase):
 
         """test whether an image needs to be saved with the properties"""
 
-        self.assertEquals(self.calc.Button5._NeedsImageProp, False)
+        self.assertEquals(self.calc.Button5._needs_image_prop, False)
         self.assertEquals('image' in self.calc.Button5.GetProperties(), False)
         #self.assertNotIn('image', self.calc.Button5.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
@@ -239,7 +239,7 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
         """test whether an image needs to be saved with the properties"""
 
         active_window = self.app.active_()
-        self.assertEquals(active_window.Button2._NeedsImageProp, True)
+        self.assertEquals(active_window.Button2._needs_image_prop, True)
         self.assertEquals('image' in active_window.Button2.GetProperties(), True)
         #self.assertIn('image', active_window.Button2.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
@@ -763,7 +763,7 @@ class StaticTestCases(unittest.TestCase):
         """test a regular static has no the image property"""
 
         active_window = self.app.active_()
-        self.assertEquals(active_window.Static2._NeedsImageProp, False)
+        self.assertEquals(active_window.Static2._needs_image_prop, False)
         self.assertEquals('image' in active_window.Static2.GetProperties(), False)
         #self.assertNotIn('image', active_window.Static2.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
@@ -773,7 +773,7 @@ class StaticTestCases(unittest.TestCase):
         """test whether an image needs to be saved with the properties"""
 
         active_window = self.app.active_()
-        self.assertEquals(active_window.Static._NeedsImageProp, True)
+        self.assertEquals(active_window.Static._needs_image_prop, True)
         self.assertEquals('image' in active_window.Static.GetProperties(), True)
         #self.assertIn('image', active_window.Static.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6

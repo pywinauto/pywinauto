@@ -189,6 +189,16 @@ class UIAWrapper(BaseWrapper):
         return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(UIAWrapper, self).writable_props
+        props.extend(['is_keyboard_focusable',
+                      'has_keyboard_focus',
+                      ])
+        return props
+
+    #------------------------------------------------------------
     def friendly_class_name(self):
         """
         Return the friendly class name for the control
