@@ -951,7 +951,7 @@ class Application(object):
 
         # Wait until the application is ready after starting it
         if wait_for_idle and not app_idle():
-            raise RuntimeError('Application is not loaded correctly (WaitForInputIdle failed)')
+            raise RuntimeWarning('Application is not loaded correctly (WaitForInputIdle failed)')
 
         return self
 
