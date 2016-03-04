@@ -35,9 +35,9 @@ from pywinauto import backend
 class XMLHelperTestCases(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
 
-    def setUp(self):
-        """Actually does nothing!"""
-        backend.activate("native")
+    #def setUp(self):
+    #    """Actually does nothing!"""
+    #    pass
 
     def tearDown(self):
         "delete the file we have created"

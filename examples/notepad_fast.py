@@ -255,7 +255,7 @@ def run_notepad():
     try:
         app.SaveAs.Yes.Wait('exists').close_click()
     except pywinauto.MatchError:
-        pass
+        print('Skip overwriting...')
 
     # exit notepad
     app.Notepad.menu_select("File->Exit")

@@ -150,7 +150,6 @@ class ApplicationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
@@ -396,7 +395,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         WaitUntil(40, 0.5, _cabinetwclass_exist)
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
-        window = WindowSpecification({'handle': handle, })
+        window = WindowSpecification({'handle': handle, 'backend': 'native', })
         explorer = Application().Connect(process = window.process_id())
         
         try:
@@ -542,7 +541,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        backend.activate("native")
         self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit

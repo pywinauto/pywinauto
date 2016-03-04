@@ -15,9 +15,9 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
-            backend.activate("native") # yeah, it's not a joke :) TODO: re-write the whole test
-            # start the application
-            self.app = Application()
+
+            # TODO: re-write the whole test
+            self.app = Application(backend="native")
             if is_x64_Python() or not is_x64_OS():
                 self.app.start(r"C:\Windows\System32\calc.exe")
             else:

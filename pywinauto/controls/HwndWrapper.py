@@ -35,13 +35,11 @@ import win32api
 import win32gui
 import win32con
 import win32process
-import locale
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
-from .. import SendKeysCtypes as SendKeys
 from .. import win32functions
 from ..actionlogger import ActionLogger
 
@@ -132,7 +130,6 @@ class HwndMeta(BaseMeta):
             wrapper_match = win32_controls.DialogWrapper
 
         if wrapper_match is None:
-            from .HwndWrapper import HwndWrapper
             wrapper_match = HwndWrapper
         return wrapper_match
 
@@ -181,19 +178,19 @@ class HwndWrapper(BaseWrapper):
         return obj
 
     #-----------------------------------------------------------
-    def __init__(self, elementInfo):
+    def __init__(self, element_info):
         """Initialize the control
         * **element_info** is either a valid NativeElementInfo or it can be an
           instance or subclass of HwndWrapper.
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        if isinstance(elementInfo, six.integer_types):
-            elementInfo = NativeElementInfo(elementInfo)
-        if hasattr(elementInfo, "_elementInfo"):
-            elementInfo = elementInfo._elementInfo
+        if isinstance(element_info, six.integer_types):
+            element_info = NativeElementInfo(element_info)
+        if hasattr(element_info, "element_info"):
+            element_info = element_info.element_info
 
-        BaseWrapper.__init__(self, elementInfo, backend.registry.backends['native'])
+        BaseWrapper.__init__(self, element_info, backend.registry.backends['native'])
 
         # verify that we have been passed in a valid windows handle
         if not win32functions.IsWindow(self.handle):

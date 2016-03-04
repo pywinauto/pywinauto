@@ -20,9 +20,10 @@ if UIA_support:
     import pywinauto.uia_defines as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
 #from pywinauto.findwindows import ElementNotFoundError
-from pywinauto.timings import Timings, TimeoutError
 #from pywinauto import clipboard
 from pywinauto import backend
+from pywinauto.timings import Timings, TimeoutError
+Timings.Defaults()
 
 import unittest
 
@@ -30,6 +31,7 @@ wpf_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\WPF_samples")
 if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
+wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
 if UIA_support:
     # Set backend to UIA
@@ -40,10 +42,10 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
-            backend.activate("uia")
 
             # start the application
-            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia')
+            self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)
@@ -137,10 +139,9 @@ if UIA_support:
             Start the application set some data and ensure the application
             is in the state we want it.
             """
-            backend.activate("uia")
 
-            # start the application
-            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia')
+            self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = UIAWrapper(self.dlg.Button.element_info)
@@ -149,13 +150,7 @@ if UIA_support:
         def tearDown(self):
             "Close the application after tests"
 
-            # close the application
-            try:
-                self.dlg.Close(0.5)
-            except Exception: # TimeoutError:
-                pass
-            finally:
-                self.app.kill_()
+            self.app.kill_()
 
         #def testClick(self):
         #    pass
@@ -189,14 +184,12 @@ if UIA_support:
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
-            backend.activate("uia")
 
-            # start the application
-            self.app = Application().Start(os.path.join(wpf_samples_folder, u"WpfApplication1.exe"))
+            self.app = Application(backend = 'uia')
+            self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = self.dlg.Button
-            #self.button = UIAWrapper(self.dlg.Button.elementInfo)
 
         def tearDown(self):
             "Close the application after tests"

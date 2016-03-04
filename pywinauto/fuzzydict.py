@@ -115,7 +115,7 @@ class FuzzyDict(dict):
             # string - if it cannot be fuzzy matched and we are here
             # this it is defintely not in the dictionary
             try:
-            # calculate the match value
+                # calculate the match value
                 ratio = ratio_calc.ratio()
             except TypeError:
                 break
@@ -148,9 +148,8 @@ class FuzzyDict(dict):
         matched, key, item, ratio = self._search(lookfor)
 
         if not matched:
-            raise KeyError(
-                "'%s'. closest match: '%s' with ratio %.3f"%
-                    (str(lookfor), str(key), ratio))
+            raise KeyError("'{0}'. closest match: '{1}' with ratio {2}".\
+                format(str(lookfor), str(key), ratio))
 
         return item
 

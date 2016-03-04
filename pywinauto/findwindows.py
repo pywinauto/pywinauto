@@ -31,13 +31,10 @@ from . import sysinfo
 from . import six
 from . import win32functions
 from . import win32structures
-from . import handleprops
 from . import findbestmatch
 from . import controls
 from .backend import registry
 
-if sysinfo.UIA_support:
-    from .UIAElementInfo import UIAElementInfo, _UIA_dll, _iuia, _tree_scope
 
 # TODO: we should filter out invalid elements before returning
 
@@ -99,6 +96,7 @@ def find_elements(class_name = None,
                   control_id = None,
                   auto_id = None,
                   framework_id = None,
+                  backend = None,
     ):
     """
     Find elements based on criteria passed in
@@ -109,8 +107,8 @@ def find_elements(class_name = None,
     * **class_name_re**  Elements whose class match this regular expression
     * **parent**         Elements that are children of this
     * **process**        Elements running in this process
-    * **title**          Elements with this Text
-    * **title_re**       Elements whose Text match this regular expression
+    * **title**          Elements with this text
+    * **title_re**       Elements whose text match this regular expression
     * **top_level_only** Top level elements only (default=True)
     * **visible_only**   Visible elements only (default=True)
     * **enabled_only**   Enabled elements only (default=False)
@@ -121,22 +119,27 @@ def find_elements(class_name = None,
     * **active_only**    Active elements only (default=False)
     * **control_id**     Elements with this control id
     * **auto_id**        Elements with this automation id (for UIAutomation elements)
-    * **framework_id**   Elements with this frameword id (for UIAutomation elements)
+    * **framework_id**   Elements with this framework id (for UIAutomation elements)
+    * **backend**        Back-end name to use while searching (default=None means current active backend)
     """
+
+    if backend is None:
+        backend = registry.active_backend.name
+    backend_obj = registry.backends[backend]
 
     # allow a handle to be passed in
     # if it is present - just return it
     if handle is not None:
-        return [registry.active_backend.element_info_class(handle), ]
+        return [backend_obj.element_info_class(handle), ]
 
     # check if parent is a handle of element (in case of searching native controls)
     if parent:
         if isinstance(parent, six.integer_types):
-            parent = registry.active_backend.element_info_class(parent)
+            parent = backend_obj.element_info_class(parent)
 
     if top_level_only:
         # find the top level elements
-        elements = registry.active_backend.element_info_class().children # root.children == enum_windows()
+        elements = backend_obj.element_info_class().children # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
@@ -146,7 +149,7 @@ def find_elements(class_name = None,
     else:
         # if not given a parent look for all children of the desktop
         if not parent:
-            parent = registry.active_backend.element_info_class()
+            parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
         elements = parent.descendants
@@ -224,9 +227,9 @@ def find_elements(class_name = None,
         for elem in elements:
             try:
                 # TODO: can't skip invalid handles because UIA element can have no handle
-                # TODO: use class_name check for this ?
+                # TODO: use className check for this ?
                 if elem.class_name:
-                    wrapped_elems.append(registry.wrapper_class(elem))
+                    wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
                     #wrapped_elems.append(BaseWrapper(elem))
             except (controls.InvalidWindowHandle,
                     controls.InvalidElement):
@@ -239,10 +242,10 @@ def find_elements(class_name = None,
         backup_elements = elements[:]
         elements = []
         for elem in backup_elements:
-            if hasattr(elem, "_elementInfo"):
+            if hasattr(elem, "element_info"):
                 elements.append(elem.element_info)
             else:
-                elements.append(registry.active_backend.element_info_class(elem.handle))
+                elements.append(backend_obj.element_info_class(elem.handle))
 
     if predicate_func is not None:
         elements = [elem for elem in elements if predicate_func(elem)]

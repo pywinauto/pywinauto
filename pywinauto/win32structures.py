@@ -31,7 +31,7 @@ import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, \
-    POINTER, sizeof, alignment, Union, c_ulonglong, c_longlong, c_size_t
+    POINTER, sizeof, alignment, Union, c_longlong, c_size_t
 
 class Structure(ctypes.Structure):
     "Override the Structure class from ctypes to add printing and comparison"
@@ -186,16 +186,11 @@ class RECT(Structure):
         else:
             #if not isinstance(otherRect_or_left, (int, long)):
             #    print type(self), type(otherRect_or_left), otherRect_or_left
-            if six.PY3:
-                self.left = otherRect_or_left
-                self.right = right
-                self.top = top
-                self.bottom = bottom
-            else:
-                self.left = long(otherRect_or_left)
-                self.right = long(right)
-                self.top = long(top)
-                self.bottom = long(bottom)
+            long_int = six.integer_types[-1]
+            self.left = long_int(otherRect_or_left)
+            self.right = long_int(right)
+            self.top = long_int(top)
+            self.bottom = long_int(bottom)
 
 
 #    #----------------------------------------------------------------
@@ -1154,8 +1149,14 @@ class SYSTEMTIME(Structure):
     ]
     
     def __repr__(self):
-        return '<wYear=' + str(self.wYear) + ', wMonth=' + str(self.wMonth) + ', wDayOfWeek=' + str(self.wDayOfWeek) + ', wDay=' + str(self.wDay) + ', wHour=' + str(self.wHour) + ', wMinute=' + str(self.wMinute) + \
-               ', wSecond=' + str(self.wSecond) + ', wMilliseconds=' + str(self.wMilliseconds) + '>'
+        return '<wYear=' + str(self.wYear) + \
+            ', wMonth=' + str(self.wMonth) + \
+            ', wDayOfWeek=' + str(self.wDayOfWeek) + \
+            ', wDay=' + str(self.wDay) + \
+            ', wHour=' + str(self.wHour) + \
+            ', wMinute=' + str(self.wMinute) + \
+            ', wSecond=' + str(self.wSecond) + \
+            ', wMilliseconds=' + str(self.wMilliseconds) + '>'
     
     def __str__(self):
         return self.__repr__()
