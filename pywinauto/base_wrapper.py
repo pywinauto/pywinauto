@@ -7,6 +7,11 @@ import win32process
 import locale
 import abc
 
+try:
+    from PIL import ImageGrab
+except ImportError:
+    ImageGrab = None
+
 from . import SendKeysCtypes as SendKeys
 from . import six
 from . import win32defines, win32structures, win32functions
@@ -102,6 +107,33 @@ class BaseWrapper(object):
             self.actions = ActionLogger()
         else:
             raise RuntimeError('NULL pointer used to initialize BaseWrapper')
+
+    #------------------------------------------------------------
+    @property
+    def writable_props(self):
+        """
+        Build the list of the default properties to be written.
+
+        Derived classes may override or extend this list depending
+        on how much control they need.
+        """
+        props = ['class_name',
+                 'friendly_class_name',
+                 'texts',
+                 'control_id',
+                 'rectangle',
+                 'is_visible',
+                 'is_enabled',
+                 'control_count',
+                 ]
+        return props
+
+    #------------------------------------------------------------
+    @property
+    def _NeedsImageProp(self):
+        """Specify whether we need to grab an image of ourselves when asked
+        for properties"""
+        return False
 
     #------------------------------------------------------------
     @property
@@ -354,6 +386,58 @@ class BaseWrapper(object):
         return len(self.element_info.children)
     # Non PEP-8 alias
     ControlCount = control_count
+
+    #-----------------------------------------------------------
+    def capture_as_image(self, rect=None):
+        """
+        Return a PIL image of the control.
+
+        See PIL documentation to know what you can do with the resulting
+        image.
+        """
+
+        control_rectangle = self.rectangle()
+        if not (control_rectangle.width() and control_rectangle.height()):
+            return None
+
+        # PIL is optional so check first
+        if not ImageGrab:
+            print("PIL does not seem to be installed. "
+                  "PIL is required for CaptureAsImage")
+            self.actions.log("PIL does not seem to be installed. "
+                             "PIL is required for CaptureAsImage")
+            return None
+
+        # get the control rectangle in a way that PIL likes it
+        if rect:
+            box = (rect.left, rect.top, rect.right, rect.bottom)
+        else:
+            box = (control_rectangle.left,
+                   control_rectangle.top,
+                   control_rectangle.right,
+                   control_rectangle.bottom)
+
+        # grab the image and get raw data as a string
+        return ImageGrab.grab(box)
+    # Non PEP-8 alias
+    CaptureAsImage = capture_as_image
+
+    #-----------------------------------------------------------
+    def get_properties(self):
+        """Return the properties of the control as a dictionary."""
+        props = {}
+
+        # for each of the properties that can be written out
+        for propname in self.writable_props:
+            # set the item in the props dictionary keyed on the propname
+            props[propname] = getattr(self, propname)()
+
+        if self._NeedsImageProp:
+            props["image"] = self.CaptureAsImage()
+
+        return props
+    # Non PEP-8 alias
+    GetProperties = get_properties
 
     #-----------------------------------------------------------
     def is_child(self, parent):
