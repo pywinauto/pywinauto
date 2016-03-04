@@ -171,7 +171,11 @@ GetACP				=	ctypes.windll.kernel32.GetACP
 WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
 WaitForInputIdle	= ctypes.windll.user32.WaitForInputIdle
 
-GetModuleFileNameEx		=	ctypes.windll.psapi.GetModuleFileNameExW
+IsHungAppWindow     = ctypes.windll.user32.IsHungAppWindow
+IsHungAppWindow.restype = win32structures.BOOL
+IsHungAppWindow.argtypes = [win32structures.HWND]
+
+GetModuleFileNameEx = ctypes.windll.psapi.GetModuleFileNameExW
 
 GetClipboardData = ctypes.windll.user32.GetClipboardData
 OpenClipboard    = ctypes.windll.user32.OpenClipboard
@@ -262,7 +266,7 @@ def LoWord(value):
     return value & 0xFFFF
 
 #====================================================================
-def WaitGuiThreadIdle(handle, timeout = 1):
+def WaitGuiThreadIdle(handle):
     "Wait until the thread of the specified handle is ready"
     from . import win32defines
 
@@ -275,13 +279,14 @@ def WaitGuiThreadIdle(handle, timeout = 1):
         0,
         process_id.value)
 
-    # wait for the timeout number of seconds
-    ret = WaitForInputIdle(hprocess, timeout * 1000)
+    # WaitForInputIdle call is removed because it's useful only
+    # while an app is starting (should be called only once)
+    if IsHungAppWindow(handle) == win32defines.TRUE:
+        raise RuntimeError('Window (hwnd={0}) is not responding!'.format(handle))
 
     CloseHandle(hprocess)
 
-    return ret
-
+#====================================================================
 def GetDpiAwarenessByPid(pid):
     "Get DPI awareness properties of a process specified by ID"
         

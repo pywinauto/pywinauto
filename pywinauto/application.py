@@ -951,7 +951,8 @@ class Application(object):
 
         if wait_for_idle:
             # Wait until the application is ready after starting it
-            WaitUntil(timeout, retry_interval, app_idle)
+            if not app_idle():
+                raise RuntimeError('Application is not loaded correctly (WaitForInputIdle failed)')
 
         return self
 
