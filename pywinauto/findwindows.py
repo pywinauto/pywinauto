@@ -27,7 +27,6 @@ from __future__ import unicode_literals
 import re
 import ctypes
 
-from . import sysinfo
 from . import six
 from . import win32functions
 from . import win32structures
@@ -235,7 +234,7 @@ def find_elements(class_name = None,
                     controls.InvalidElement):
                 # skip invalid handles - they have dissapeared
                 # since the list of elements was retrieved
-                pass
+                continue
         elements = findbestmatch.find_best_control_matches(best_match, wrapped_elems)
 
         # convert found elements back to ElementInfo
@@ -255,10 +254,8 @@ def find_elements(class_name = None,
         if found_index < len(elements):
             elements = elements[found_index:found_index + 1]
         else:
-            raise ElementNotFoundError(
-                "found_index is specified as %d, but %d window/s found" %
-                (found_index, len(elements))
-            )
+            raise ElementNotFoundError("found_index is specified as {0}, but {1} window/s found".\
+                format(found_index, len(elements)))
 
     return elements
 

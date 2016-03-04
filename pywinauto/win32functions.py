@@ -248,7 +248,7 @@ LoadString = ctypes.windll.user32.LoadStringW
 
 #====================================================================
 def MakeLong(high, low):
-    "Pack high into the high word of a long and low into the low word"
+    """Pack high into the high word of a long and low into the low word"""
 
     # we need to AND each value with 0xFFFF to account for numbers
     # greater then normal WORD (short) size
@@ -256,18 +256,18 @@ def MakeLong(high, low):
 
 #====================================================================
 def HiWord(value):
-    "Return the high word from a long"
+    """Return the high word from a long"""
     #return (value & (~ 0xFFFF)) / 0xFFFF
     return (value >> 16) & 0xffff
 
 #====================================================================
 def LoWord(value):
-    "Return the low word from a long"
+    """Return the low word from a long"""
     return value & 0xFFFF
 
 #====================================================================
 def WaitGuiThreadIdle(handle):
-    "Wait until the thread of the specified handle is ready"
+    """Wait until the thread of the specified handle is ready"""
     from . import win32defines
 
     process_id = ctypes.c_int()
@@ -288,7 +288,7 @@ def WaitGuiThreadIdle(handle):
 
 #====================================================================
 def GetDpiAwarenessByPid(pid):
-    "Get DPI awareness properties of a process specified by ID"
+    """Get DPI awareness properties of a process specified by ID"""
         
     dpi_awareness = -1
     hProcess = None

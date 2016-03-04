@@ -179,7 +179,9 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, element_info):
-        """Initialize the control
+        """
+        Initialize the control
+        
         * **element_info** is either a valid NativeElementInfo or it can be an
           instance or subclass of HwndWrapper.
         If the handle is not valid then an InvalidWindowHandle error

@@ -22,7 +22,7 @@ while not app.Windows_():
 # if the trial nag dialog pops up
 if app.window_(title = "Forte Agent Trial").Exists():
     #app.ForteAgentTrial.IdLikeToContinueUsingAgentfor7moredays.click()
-    app.ForteAgentTrial.IdliketouseFreeAgent
+    app.ForteAgentTrial.IdliketouseFreeAgent.check()
     app.ForteAgentTrial.OK.click()
 
 if app.window_(title = "Free Agent Registration").Exists():

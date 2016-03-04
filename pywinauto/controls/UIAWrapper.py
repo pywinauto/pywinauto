@@ -173,7 +173,9 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, element_info):
-        """Initialize the control
+        """
+        Initialize the control
+        
         * **element_info** is either a valid UIAElementInfo or it can be an
           instance or subclass of UIAWrapper.
         If the handle is not valid then an InvalidWindowHandle error
@@ -226,7 +228,7 @@ class UIAWrapper(BaseWrapper):
         if self.is_keyboard_focusable() and not self.has_keyboard_focus():
             try:
                 self.element_info.element.SetFocus()
-            except comtypes.COMError as exc:
+            except comtypes.COMError:
                 pass # TODO: add RuntimeWarning here
 
         return self
