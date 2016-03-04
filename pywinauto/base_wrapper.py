@@ -410,9 +410,9 @@ class BaseWrapper(object):
         # PIL is optional so check first
         if not ImageGrab:
             print("PIL does not seem to be installed. "
-                  "PIL is required for CaptureAsImage")
+                  "PIL is required for capture_as_image")
             self.actions.log("PIL does not seem to be installed. "
-                             "PIL is required for CaptureAsImage")
+                             "PIL is required for capture_as_image")
             return None
 
         # get the control rectangle in a way that PIL likes it
@@ -440,7 +440,7 @@ class BaseWrapper(object):
             props[propname] = getattr(self, propname)()
 
         if self._needs_image_prop:
-            props["image"] = self.CaptureAsImage()
+            props["image"] = self.capture_as_image()
 
         return props
     # Non PEP-8 alias
