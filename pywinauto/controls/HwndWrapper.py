@@ -155,10 +155,6 @@ class HwndWrapper(BaseWrapper):
 
     handle = None
 
-    # specify whether we need to grab an image of ourselves
-    # when asked for properties
-    _NeedsImageProp = False
-
     #-----------------------------------------------------------
     # TODO: can't inherit __new__ function from BaseWrapper?
     def __new__(cls, element):
@@ -199,27 +195,20 @@ class HwndWrapper(BaseWrapper):
         # make it so that ctypes conversion happens correctly
         self._as_parameter_ = self.handle
 
-        # build the list of default properties to be written
-        # Derived classes can either modify this list or override
-        # get_properties depending on how much control they need.
-        self.writable_props = [
-            'class_name',
-            'friendly_class_name',
-            'texts',
-            'style',
-            'exstyle',
-            'control_id',
-            'user_data',
-            'context_help_id',
-            'fonts',
-            'client_rects',
-            'rectangle',
-            'is_visible',
-            'is_unicode',
-            'is_enabled',
-            'menu_items',
-            'control_count',
-            ];
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(HwndWrapper, self).writable_props
+        props.extend(['style',
+                      'exstyle',
+                      'user_data',
+                      'context_help_id',
+                      'fonts',
+                      'client_rects',
+                      'is_unicode',
+                      'menu_items',
+                      ])
+        return props
 
     #-----------------------------------------------------------
     def style(self):
@@ -553,57 +542,6 @@ class HwndWrapper(BaseWrapper):
             self)
     # Non PEP-8 alias
     NotifyParent = notify_parent
-
-    #-----------------------------------------------------------
-    def get_properties(self):
-        "Return the properties of the control as a dictionary"
-        props = {}
-
-        # for each of the properties that can be written out
-        for propname in self.writable_props:
-            # set the item in the props dictionary keyed on the propname
-            props[propname] = getattr(self, propname)()
-
-        if self._NeedsImageProp:
-            props["image"] = self.capture_as_image()
-
-        return props
-    # Non PEP-8 alias
-    GetProperties = get_properties
-
-    #-----------------------------------------------------------
-    def capture_as_image(self, rect = None):
-        """Return a PIL image of the control
-
-        See PIL documentation to know what you can do with the resulting
-        image"""
-
-        rectangle = self.rectangle()
-        if not (rectangle.width() and rectangle.height()):
-            return None
-
-        # PIL is optional so check first
-        if not ImageGrab:
-            print("PIL does not seem to be installed. "
-                "PIL is required for capture_as_image")
-            self.actions.log("PIL does not seem to be installed. "
-                "PIL is required for capture_as_image")
-            return None
-
-        # get the control rectangle in a way that PIL likes it
-        if rect:
-            box = (rect.left, rect.top, rect.right, rect.bottom)
-        else:
-            box = (
-                rectangle.left,
-                rectangle.top,
-                rectangle.right,
-                rectangle.bottom)
-
-        # grab the image and get raw data as a string
-        return ImageGrab.grab(box)
-    # Non PEP-8 alias
-    CaptureAsImage = capture_as_image
 
     #-----------------------------------------------------------
     def __hash__(self):
