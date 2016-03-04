@@ -116,7 +116,12 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     @property
     def writable_props(self):
-        """List of default properties."""
+        """
+        Build the list of the default properties to be written.
+
+        Derived classes may override or extend this list depending
+        on how much control they need.
+        """
         props = ['class_name',
                  'friendly_class_name',
                  'texts',

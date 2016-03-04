@@ -197,7 +197,7 @@ class UIAWrapper(BaseWrapper):
     #------------------------------------------------------------
     @property
     def writable_props(self):
-        """List of default properties."""
+        """Extend default properties list."""
         props = super(UIAWrapper, self).writable_props
         props.extend(['is_keyboard_focusable',
                       'has_keyboard_focus',

@@ -200,12 +200,7 @@ class HwndWrapper(BaseWrapper):
 
     @property
     def writable_props(self):
-        """
-        Build the list of default properties to be written.
-
-        Derived classes may override this list depending on how much control
-        they need.
-        """
+        """Extend default properties list."""
         props = super(HwndWrapper, self).writable_props
         props.extend(['style',
                       'exstyle',
