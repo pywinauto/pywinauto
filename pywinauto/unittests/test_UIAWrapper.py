@@ -131,11 +131,15 @@ if UIA_support:
             self.edit.type_keys("testTypeKeys")
             self.assertEqual(self.edit.window_text(), "testTypeKeys")
 
-        def test_query_interface_exception(self):
+        def testNoPatternInterfaceError(self):
             "Test a query interface exception handling"
             elem = self.button.element_info.element
-            iface = uia_defs.get_elem_interface(elem, "Selection")
-            self.assertEqual(iface, None)
+            self.assertRaises(
+                    uia_defs.NoPatternInterfaceError,
+                    uia_defs.get_elem_interface,
+                    elem, 
+                    "Selection",
+                    )
 
         def testGetProperties(self):
             uia_props = {'class_name',
