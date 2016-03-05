@@ -53,8 +53,8 @@ else:
     outputfilename = outputfilename.replace('\\', '')
     outputfilename = outputfilename.replace(':', '')
     if not (outputfilename.lower().endswith("htm") or
-       outputfilename.lower().endswith("html")):
-       outputfilename += ".html"
+        outputfilename.lower().endswith("html")):
+        outputfilename += ".html"
 
 # make sure that we have an absolute path - otherwise it is
 # hard to know where firefox might save the file!

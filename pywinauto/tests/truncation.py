@@ -224,11 +224,11 @@ def _GroupBoxTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
     newRect.bottom -=  heightAdj
 
-    return [(win.window_text(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 
 #==============================================================================
@@ -251,10 +251,10 @@ def _RadioButtonTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
 
-    return [(win.window_text(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 
 #==============================================================================
@@ -277,10 +277,10 @@ def _CheckBoxTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
 
-    return [(win.window_text(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 
 #==============================================================================
@@ -311,11 +311,11 @@ def _ButtonTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
     newRect.bottom -=  heightAdj
 
-    return [(win.window_text(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 #==============================================================================
 def _ComboBoxTruncInfo(win):
@@ -331,9 +331,9 @@ def _ComboBoxTruncInfo(win):
 
     truncData = []
     for title in win.texts():
-        newRect = win.ClientRects()[0]
+        newRect = win.client_rects()[0]
         newRect.right -= widthAdj
-        truncData.append((title, newRect, win.Font(), lineFormat))
+        truncData.append((title, newRect, win.font(), lineFormat))
 
     return truncData
 
@@ -345,9 +345,9 @@ def _ComboLBoxTruncInfo(win):
 
     truncData = []
     for title in win.texts():
-        newRect = win.ClientRects()[0]
+        newRect = win.client_rects()[0]
         newRect.right -= 5
-        truncData.append((title, newRect, win.Font(), lineFormat))
+        truncData.append((title, newRect, win.font(), lineFormat))
 
     return truncData
 
@@ -360,10 +360,10 @@ def _ListBoxTruncInfo(win):
 
     truncData = []
     for title in win.texts():
-        newRect = win.ClientRects()[0]
+        newRect = win.client_rects()[0]
         newRect.right -= 2
         newRect.bottom -= 1
-        truncData.append((title, newRect, win.Font(), lineFormat))
+        truncData.append((title, newRect, win.font(), lineFormat))
 
     return truncData
 
@@ -383,7 +383,7 @@ def _StaticTruncInfo(win):
     if win.HasStyle(win32defines.SS_NOPREFIX):
         lineFormat |= win32defines.DT_NOPREFIX
 
-    return [(win.window_text(), win.ClientRects()[0], win.Font(), lineFormat), ]
+    return [(win.window_text(), win.client_rects()[0], win.font(), lineFormat), ]
 
 #==============================================================================
 def _EditTruncInfo(win):
@@ -393,7 +393,7 @@ def _EditTruncInfo(win):
     if not win.HasStyle(win32defines.ES_MULTILINE):
         lineFormat |= win32defines.DT_SINGLELINE
 
-    return [(win.window_text(), win.ClientRects()[0], win.Font(), lineFormat), ]
+    return [(win.window_text(), win.client_rects()[0], win.font(), lineFormat), ]
 
 
 #==============================================================================
@@ -401,7 +401,7 @@ def _DialogTruncInfo(win):
     "Return truncation information specific to Header controls"
     # move it down more into range
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
 
     newRect.top += 5
     newRect.left += 5
@@ -473,7 +473,7 @@ def _DialogTruncInfo(win):
             if 'min' in buttons and 'help' in buttons:
                 diff += 4
 
-    return [(win.window_text(), newRect, win.Font(), win32defines.DT_SINGLELINE), ]
+    return [(win.window_text(), newRect, win.font(), win32defines.DT_SINGLELINE), ]
 
 
 #==============================================================================
@@ -513,15 +513,15 @@ def _WindowTruncInfo(win):
     for i, title in enumerate(win.texts()):
 
         # Use the client rects for rectangles
-        if i < len(win.ClientRects()):
-            rect = win.ClientRects()[i]
+        if i < len(win.client_rects()):
+            rect = win.client_rects()[i]
         else:
             # until we run out then just use the first 'main' client rectangle
-            rect = win.ClientRects()[0]
+            rect = win.client_rects()[0]
 
         # if we have fewer fonts than titles
         if len(win.Fonts())-1 < i:
-            font = win.Font()
+            font = win.font()
         else:
             font = win.Fonts()[i]
 

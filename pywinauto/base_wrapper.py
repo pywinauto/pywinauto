@@ -3,21 +3,21 @@ from __future__ import print_function
 
 import time
 import re
-import ctypes
-import win32api
-import win32gui
 import win32process
 import locale
 import abc
+
+try:
+    from PIL import ImageGrab
+except ImportError:
+    ImageGrab = None
 
 from . import SendKeysCtypes as SendKeys
 from . import six
 from . import win32defines, win32structures, win32functions
 from .timings import Timings
 from .actionlogger import ActionLogger
-from . import handleprops
 from .mouse import _perform_click_input
-#from . import backend
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
@@ -68,37 +68,37 @@ class BaseWrapper(object):
 
     '''
     #------------------------------------------------------------
-    def __new__(cls, elementInfo):
+    def __new__(cls, element_info):
         # only use the meta class to find the wrapper for BaseWrapper
         # so allow users to force the wrapper if they want
         if cls != BaseWrapper:
             obj = object.__new__(cls)
-            obj.__init__(elementInfo)
+            obj.__init__(element_info)
             return obj
 
-        new_class = cls.find_wrapper(elementInfo)
+        new_class = cls.find_wrapper(element_info)
         obj = object.__new__(new_class)
 
-        obj.__init__(elementInfo)
+        obj.__init__(element_info)
 
         return obj
     '''
 
     #------------------------------------------------------------
-    def __init__(self, elementInfo, active_backend):
+    def __init__(self, element_info, active_backend):
         """
         Initialize the element
 
         * **element_info** is instance of int or one of ElementInfo childs
         """
         self.backend = active_backend
-        if elementInfo:
-            #if isinstance(elementInfo, six.integer_types):
-            #    elementInfo = self.backend.element_info_class(elementInfo)
+        if element_info:
+            #if isinstance(element_info, six.integer_types):
+            #    element_info = self.backend.element_info_class(element_info)
 
-            self._elementInfo = elementInfo
+            self._element_info = element_info
 
-            self.handle = self._elementInfo.handle
+            self.handle = self._element_info.handle
             self._as_parameter_ = self.handle
 
             self.ref = None
@@ -110,9 +110,38 @@ class BaseWrapper(object):
 
     #------------------------------------------------------------
     @property
+    def writable_props(self):
+        """
+        Build the list of the default properties to be written.
+
+        Derived classes may override or extend this list depending
+        on how much control they need.
+        """
+        props = ['class_name',
+                 'friendly_class_name',
+                 'texts',
+                 'control_id',
+                 'rectangle',
+                 'is_visible',
+                 'is_enabled',
+                 'control_count',
+                 ]
+        return props
+
+    #------------------------------------------------------------
+    @property
+    def _needs_image_prop(self):
+        """Specify whether we need to grab an image of ourselves when asked
+        for properties"""
+        return False
+    # Non PEP-8 alias
+    _NeedsImageProp = _needs_image_prop
+
+    #------------------------------------------------------------
+    @property
     def element_info(self):
         """Read-only property to get *ElementInfo object"""
-        return self._elementInfo
+        return self._element_info
 
     #------------------------------------------------------------
     def friendly_class_name(self):
@@ -338,7 +367,7 @@ class BaseWrapper(object):
         returns an empty list if there are no children.
         """
         child_elements = self.element_info.children
-        return [self.backend.generic_wrapper_class(elementInfo) for elementInfo in child_elements]
+        return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
     # Non PEP-8 alias
     Children = children
 
@@ -351,7 +380,7 @@ class BaseWrapper(object):
         returns an empty list if there are no descendants.
         """
         desc_elements = self.element_info.descendants
-        return [self.backend.generic_wrapper_class(elementInfo) for elementInfo in desc_elements]
+        return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
 
     #-----------------------------------------------------------
     def control_count(self):
@@ -359,6 +388,58 @@ class BaseWrapper(object):
         return len(self.element_info.children)
     # Non PEP-8 alias
     ControlCount = control_count
+
+    #-----------------------------------------------------------
+    def capture_as_image(self, rect=None):
+        """
+        Return a PIL image of the control.
+
+        See PIL documentation to know what you can do with the resulting
+        image.
+        """
+
+        control_rectangle = self.rectangle()
+        if not (control_rectangle.width() and control_rectangle.height()):
+            return None
+
+        # PIL is optional so check first
+        if not ImageGrab:
+            print("PIL does not seem to be installed. "
+                  "PIL is required for capture_as_image")
+            self.actions.log("PIL does not seem to be installed. "
+                             "PIL is required for capture_as_image")
+            return None
+
+        # get the control rectangle in a way that PIL likes it
+        if rect:
+            box = (rect.left, rect.top, rect.right, rect.bottom)
+        else:
+            box = (control_rectangle.left,
+                   control_rectangle.top,
+                   control_rectangle.right,
+                   control_rectangle.bottom)
+
+        # grab the image and get raw data as a string
+        return ImageGrab.grab(box)
+    # Non PEP-8 alias
+    CaptureAsImage = capture_as_image
+
+    #-----------------------------------------------------------
+    def get_properties(self):
+        """Return the properties of the control as a dictionary."""
+        props = {}
+
+        # for each of the properties that can be written out
+        for propname in self.writable_props:
+            # set the item in the props dictionary keyed on the propname
+            props[propname] = getattr(self, propname)()
+
+        if self._needs_image_prop:
+            props["image"] = self.capture_as_image()
+
+        return props
+    # Non PEP-8 alias
+    GetProperties = get_properties
 
     #-----------------------------------------------------------
     def is_child(self, parent):
@@ -377,7 +458,7 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def __eq__(self, other):
         "Returns true if 2 BaseWrapper's describe 1 actual element"
-        if hasattr(other, "_elementInfo"):
+        if hasattr(other, "element_info"):
             return self.element_info == other.element_info
         else:
             return self.element_info == other
@@ -468,10 +549,10 @@ class BaseWrapper(object):
         if isinstance(coords, win32structures.RECT):
             coords = [coords.left, coords.top]
 
-    #    # allow points objects to be passed as the coords
+        # allow points objects to be passed as the coords
         if isinstance(coords, win32structures.POINT):
             coords = [coords.x, coords.y]
-    #    else:
+        #else:
         coords = list(coords)
 
         # set the default coordinates
@@ -491,12 +572,14 @@ class BaseWrapper(object):
             if ctrl_text is None:
                 ctrl_text = six.text_type(ctrl_text)
             message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                      '" by ' + str(button) + ' button mouse click (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+                      '" by ' + str(button) + ' button mouse click (x,y=' + \
+                      ','.join([str(coord) for coord in coords]) + ')'
             if double:
                 message = 'Double-c' + message[1:]
             if button.lower() == 'move':
-                message = 'Moved mouse over ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                      '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+                message = 'Moved mouse over ' + self.friendly_class_name() + \
+                          ' "' + ctrl_text + '" to screen point (x,y=' + \
+                          ','.join([str(coord) for coord in coords]) + ')'
             ActionLogger().log(message)
     # Non PEP-8 alias
     ClickInput = click_input

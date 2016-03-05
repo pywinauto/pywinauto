@@ -285,10 +285,14 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(ComboBoxWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            "selected_index",
-            "dropped_rect",
-            ])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ComboBoxWrapper, self).writable_props
+        props.extend(["selected_index",
+                      "dropped_rect",
+                      ])
+        return props
 
     #-----------------------------------------------------------
     def dropped_rect(self):
@@ -334,10 +338,8 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         if isinstance(ident, six.integer_types):
 
             if ident >= self.item_count():
-                raise IndexError(
-                    "Combobox has %d items, you requested item %d (0 based)"%
-                        (self.item_count(),
-                        ident))
+                raise IndexError(('Combobox has {0} items, you requested ' + \
+                    'item {1} (0 based)').format(self.item_count(), ident))
 
             # negative index
             if ident < 0:
@@ -455,8 +457,12 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(ListBoxWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            "selected_indices"])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListBoxWrapper, self).writable_props
+        props.extend(["selected_indices"])
+        return props
 
     #-----------------------------------------------------------
     def is_single_selection(self):
@@ -497,10 +503,8 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         if isinstance(ident, six.integer_types):
 
             if ident >= self.item_count():
-                raise IndexError(
-                    "ListBox has %d items, you requested item %d (0 based)"%
-                        (self.item_count(),
-                        ident))
+                raise IndexError(('ListBox has {0} items, you requested ' + \
+                    'item {1} (0 based)').format(self.item_count(), ident))
 
             # negative index
             if ident < 0:
@@ -673,8 +677,12 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         "Initialize the control"
         super(EditWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'selection_indices'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(EditWrapper, self).writable_props
+        props.extend(['selection_indices'])
+        return props
 
     #-----------------------------------------------------------
     def line_count(self):

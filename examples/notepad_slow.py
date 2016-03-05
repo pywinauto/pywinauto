@@ -130,7 +130,7 @@ def run_notepad():
         doc_props.TabCtrl.select(2)
     except IndexError:
         # not all users have 3 tabs in this dialog
-        pass
+        print('Skip 3rd tab selection...')
 
     # or with text...
     doc_props.TabCtrl.select("PaperQuality")
@@ -139,7 +139,7 @@ def run_notepad():
         doc_props.TabCtrl.select("JobRetention")
     except MatchError:
         # some people do not have the "Job Retention" tab
-        pass
+        print('Skip "Job Retention" tab...')
 
 #    doc_props.TabCtrl.select("Layout")
 #
@@ -227,7 +227,7 @@ def run_notepad():
     try:
         app.SaveAs.Yes.Wait('exists').close_click()
     except MatchError:
-        pass
+        print('Skip overwriting...')
 
     # exit notepad
     app.Notepad.menu_select("File->Exit")

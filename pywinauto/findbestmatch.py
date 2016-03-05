@@ -57,15 +57,13 @@ _cache = {}
 def _get_match_ratios(texts, match_against):
     "Get the match ratio of how each item in texts compared to match_against"
 
-    # now time to figre out the matching
+    # now time to figure out the matching
     ratio_calc = difflib.SequenceMatcher()
     ratio_calc.set_seq1(match_against)
 
     ratios = {}
     best_ratio = 0
     best_text = ''
-
-    global _cache
 
     for text in texts:
 
@@ -254,7 +252,9 @@ def GetNonTextControlName(ctrl, controls, text_ctrls):
         
         # UpDown control should use Static text only because edit box text is often useless
         if ctrl_friendly_class_name == "UpDown":
-            if text_ctrl.friendly_class_name() == "Static": # vvryabov's TODO: use search in all text controls for all non-text ones (like Dijkstra algorithm vs Floyd one)
+            if text_ctrl.friendly_class_name() == "Static":
+                # TODO: use search in all text controls for all non-text ones
+                # (like Dijkstra algorithm vs Floyd one)
                 if distance < closest:
                     closest = distance
                     best_name = text_ctrl.window_text() + ctrl_friendly_class_name

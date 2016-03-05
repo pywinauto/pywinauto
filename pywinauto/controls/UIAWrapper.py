@@ -33,13 +33,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import time
-import re
-import ctypes
-import locale
 
-from .. import SendKeysCtypes as SendKeys
 from .. import six
-from .. import win32defines, win32structures, win32functions
 from ..timings import Timings
 from ..actionlogger import ActionLogger
 
@@ -51,12 +46,8 @@ from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
-from .HwndWrapper import HwndWrapper
-from .HwndWrapper import HwndMeta
-
 from ..UIAElementInfo import UIAElementInfo
 from ..UIAElementInfo import _UIA_dll
-from ..UIAElementInfo import _iuia
 
 #region PATTERNS
 AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
@@ -92,32 +83,33 @@ for type_ in _control_types:
     _known_control_types[_UIA_dll.__getattribute__('UIA_' + type_ + 'ControlTypeId')] = type_
 
 #=========================================================================
-_pywinauto_control_types = {'Custom': None,
-                            'DataGrid': None,
-                            'Document': None,
-                            'Group': 'GroupBox',
-                            'Hyperlink': None,
-                            'Image': None,
-                            'List': 'ListBox',
-                            'MenuBar': None,
-                            'Menu': None,
-                            'Pane': None,
-                            'ProgressBar': 'Progress',
-                            'ScrollBar': None,
-                            'Separator': None,
-                            'Slider': None,
-                            'Spinner': 'UpDown',
-                            'SplitButton': None,
-                            'Tab': 'TabControl',
-                            'Table': None,
-                            'Text': 'Static',
-                            'Thumb': None,
-                            'TitleBar': None,
-                            'ToolBar': 'Toolbar',
-                            'ToolTip': 'ToolTips',
-                            'Tree': None,
-                            'Window': 'Dialog',
-                            }
+_friendly_classes = {
+    'Custom': None,
+    'DataGrid': None,
+    'Document': None,
+    'Group': 'GroupBox',
+    'Hyperlink': None,
+    'Image': None,
+    'List': 'ListBox',
+    'MenuBar': None,
+    'Menu': None,
+    'Pane': None,
+    'ProgressBar': 'Progress',
+    'ScrollBar': None,
+    'Separator': None,
+    'Slider': None,
+    'Spinner': 'UpDown',
+    'SplitButton': None,
+    'Tab': 'TabControl',
+    'Table': None,
+    'Text': 'Static',
+    'Thumb': None,
+    'TitleBar': None,
+    'ToolBar': 'Toolbar',
+    'ToolTip': 'ToolTips',
+    'Tree': None,
+    'Window': 'Dialog',
+    }
 
 #=========================================================================
 class UiaMeta(BaseMeta):
@@ -127,7 +119,7 @@ class UiaMeta(BaseMeta):
     def __init__(cls, name, bases, attrs):
         "Register the control types"
 
-        type.__init__(cls, name, bases, attrs)
+        BaseMeta.__init__(cls, name, bases, attrs)
 
         for t in cls.control_types:
             UiaMeta.control_type_to_cls[t] = cls
@@ -180,19 +172,29 @@ class UIAWrapper(BaseWrapper):
         return obj
 
     #-----------------------------------------------------------
-    def __init__(self, elementInfo):
+    def __init__(self, element_info):
         """Initialize the control
-        * **elementInfo** is either a valid UIAElementInfo or it can be an
+        * **element_info** is either a valid UIAElementInfo or it can be an
           instance or subclass of UIAWrapper.
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        BaseWrapper.__init__(self, elementInfo, backend.registry.backends['uia'])
+        BaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     #------------------------------------------------------------
     def __hash__(self):
         "Return unique hash value based on element's Runtime ID"
         return hash(self.element_info.runtime_id)
+
+    #------------------------------------------------------------
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(UIAWrapper, self).writable_props
+        props.extend(['is_keyboard_focusable',
+                      'has_keyboard_focus',
+                      ])
+        return props
 
     #------------------------------------------------------------
     def friendly_class_name(self):
@@ -211,11 +213,11 @@ class UIAWrapper(BaseWrapper):
             if self.element_info.control_type not in _known_control_types.keys():
                 self.friendlyclassname = str(self.element_info.control_type)
             else:
-                ControlType = _known_control_types[self.element_info.control_type]
-                if (ControlType not in _pywinauto_control_types.keys()) or (_pywinauto_control_types[ControlType] is None):
-                    self.friendlyclassname = ControlType
+                ctrl_type = _known_control_types[self.element_info.control_type]
+                if (ctrl_type not in _friendly_classes) or (_friendly_classes[ctrl_type] is None):
+                    self.friendlyclassname = ctrl_type
                 else:
-                    self.friendlyclassname = _pywinauto_control_types[ControlType]
+                    self.friendlyclassname = _friendly_classes[ctrl_type]
         return self.friendlyclassname
 
     #-----------------------------------------------------------

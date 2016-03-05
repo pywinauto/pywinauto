@@ -73,7 +73,7 @@ def _SetNodeProps(element, name, value):
         struct_elem = SubElement(element, name)
         #clsModule = value.__class__.__module__
         cls_name = value.__class__.__name__
-        struct_elem.set("__type__", "%s" % cls_name)
+        struct_elem.set("__type__", "{0}".format(cls_name))
 
         # iterate over the fields in the structure
         for prop_name in value._fields_:

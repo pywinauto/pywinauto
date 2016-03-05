@@ -298,9 +298,8 @@ class _listview_item(object):
                 double = double,
                 pressed = pressed)
         else:
-            """
-            Click on checkbox
-            """
+            # Click on checkbox
+
             point_to_click = self.rectangle(area="icon").mid_point()
             point_to_click.y = self.rectangle(area="icon").bottom - 3
             # Check ListView display mode
@@ -319,9 +318,9 @@ class _listview_item(object):
             # Hittest flag
             checkbox_found = False
             if hittest.flags == win32defines.LVHT_ONITEMICON:
-                """
-                Large Icons, Small Icons, List, Details
-                """
+
+                # Large Icons, Small Icons, List, Details
+
                 while not checkbox_found and point_to_click.x > 0:
                     point_to_click.x -= 1
 
@@ -338,9 +337,9 @@ class _listview_item(object):
                         break
 
             elif hittest.flags == win32defines.LVHT_ONITEM:
-                """
-                Full Row Details
-                """
+
+                # Full Row Details
+
                 warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
                 point_to_click.x = self.rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item
@@ -386,9 +385,8 @@ class _listview_item(object):
                 wheel_dist = wheel_dist,
                 pressed = pressed)
         else:
-            """
-            Click on checkbox
-            """
+            # Click on checkbox
+
             point_to_click = self.rectangle(area="icon").mid_point()
             point_to_click.y = self.rectangle(area="icon").bottom - 3
             # Check ListView display mode
@@ -407,9 +405,9 @@ class _listview_item(object):
             # Hittest flag
             checkbox_found = False
             if hittest.flags == win32defines.LVHT_ONITEMICON:
-                """
-                Large Icons, Small Icons, List, Details
-                """
+
+                # Large Icons, Small Icons, List, Details
+
                 while not checkbox_found and point_to_click.x > 0:
                     point_to_click.x -= 1
 
@@ -426,9 +424,9 @@ class _listview_item(object):
                         break
 
             elif hittest.flags == win32defines.LVHT_ONITEM:
-                """
-                Full Row Details
-                """
+
+                # Full Row Details
+
                 warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
                 point_to_click.x = self.rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item
@@ -672,12 +670,6 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ListViewWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'column_count',
-            'item_count',
-            'columns',
-            'items'])
-        
         if self.is_unicode():
             self.create_buffer = ctypes.create_unicode_buffer
             self.LVCOLUMN       = win32structures.LVCOLUMNW
@@ -692,6 +684,17 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
             self.LVM_GETITEM    = win32defines.LVM_GETITEMA
             self.text_decode    = lambda v: v.decode(locale.getpreferredencoding())
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListViewWrapper, self).writable_props
+        props.extend(['column_count',
+                      'item_count',
+                      'columns',
+                      'items',
+                      ])
+        return props
 
     #-----------------------------------------------------------
     def column_count(self):
@@ -1059,9 +1062,11 @@ class _treeview_element(object):
             coords = (point_to_click.x, point_to_click.y),
             double = double,
             pressed = pressed) #,
-            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1, but it doesn't work for 32-bit ControlSpyV6.exe
+        # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
+        # but it doesn't work for 32-bit ControlSpyV6.exe
+        #absolute = True)
 
-        # if we use click instead of clickInput - then we need to tell the
+        # TODO: if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
         #self.tree_ctrl.
     # Non PEP-8 alias
@@ -1200,7 +1205,7 @@ class _treeview_element(object):
 
                 # now get all the next children
                 while True:
-                    next_child = children_elements[-1].next()
+                    next_child = children_elements[-1].next_item()
 
                     if next_child is not None:
                         children_elements.append(next_child)
@@ -1216,7 +1221,7 @@ class _treeview_element(object):
     Children = children
 
     #----------------------------------------------------------------
-    def next(self):
+    def next_item(self):
         "Return the next item"
         # get the next element
         next_elem = self.tree_ctrl.send_message(
@@ -1233,7 +1238,7 @@ class _treeview_element(object):
         #else:
         #    raise ctypes.WinError()
     # Non PEP-8 alias
-    Next = next
+    Next = next_item
 
     #----------------------------------------------------------------
     def sub_elements(self):
@@ -1502,7 +1507,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         # get the correct lowest level item
 #        current_elem.get_child
 #        for i in range(0, path[0]):
-#            current_elem = current_elem.next()
+#            current_elem = current_elem.next_item()
 #
 #            if current_elem is None:
 #                raise IndexError("Root Item '%s' does not have %d sibling(s)"%
@@ -1552,14 +1557,10 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         self.set_focus()
 
         elem = self.get_item(path)
-        #result = ctypes.c_long()
         retval = self.send_message(
             win32defines.TVM_SELECTITEM, # message
             win32defines.TVGN_CARET,     # how to select
             elem.elem)                   # item to select
-            #win32defines.SMTO_NORMAL,
-            #int(Timings.after_treeviewselect_wait * 1000),
-            #ctypes.byref(result))
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
@@ -1829,12 +1830,15 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(StatusBarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'border_widths',
-            'part_count',
-            'part_right_edges',
-
-        ])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(StatusBarWrapper, self).writable_props
+        props.extend(['border_widths',
+                      'part_count',
+                      'part_right_edges',
+                      ])
+        return props
 
     #----------------------------------------------------------------
     def border_widths(self):
@@ -2393,7 +2397,12 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ToolbarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend(['button_count'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ToolbarWrapper, self).writable_props
+        props.extend(['button_count'])
+        return props
 
     #----------------------------------------------------------------
     def button_count(self):
@@ -2475,7 +2484,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             win32defines.TBIF_LPARAM | \
             win32defines.TBIF_STATE | \
             win32defines.TBIF_TEXT
-            #win32defines.TBIF_IMAGELABEL | \
+        #win32defines.TBIF_IMAGELABEL | \
 
         button_info.cchText = 2000
 
@@ -2495,9 +2504,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         if ret == -1:
             del remote_mem
-            raise RuntimeError(
-                "GetButtonInfo failed for button with command id %d"%
-                    button.idCommand)
+            raise RuntimeError('GetButtonInfo failed for button with command' + \
+                               ' id {0}'.format(button.idCommand))
 
         # read the text
         button_info.text = ctypes.create_unicode_buffer(1999)
@@ -2644,7 +2652,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
     def check_button(self, button_identifier, make_checked, exact = True):
         "Find where the button is and click it if it's unchecked and vice versa"
 
-        self.actions.logSectionStart('Checking "' + self.window_text() + '" toolbar button "' + str(button_identifier) + '"')
+        self.actions.logSectionStart('Checking "' + self.window_text() + \
+            '" toolbar button "' + str(button_identifier) + '"')
         button = self.button(button_identifier, exact=exact)
         if make_checked:
             self.actions.log('Pressing down toolbar button "' + str(button_identifier) + '"')
@@ -2812,7 +2821,12 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ReBarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend(['band_count'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ReBarWrapper, self).writable_props
+        props.extend(['band_count'])
+        return props
 
     #----------------------------------------------------------------
     def band_count(self):
@@ -2826,9 +2840,8 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         "Get a band of the ReBar control"
 
         if band_index >= self.band_count():
-            raise IndexError(
-                "band_index %d greater then number of available bands: %d" %
-                    (band_index, self.band_count()))
+            raise IndexError(('band_index {0} greater then number of' + \
+                ' available bands: {1}').format(band_index, self.band_count()))
 
         remote_mem = RemoteMemoryBlock(self)
 
@@ -2972,9 +2985,8 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     def get_tip(self, tip_index):
         "Return the particular tooltip"
         if tip_index >= self.tool_count():
-            raise IndexError(
-                "tip_index %d greater then number of available tips: %d" %
-                    (tip_index, self.tool_count()))
+            raise IndexError(('tip_index {0} is greater than number of' + \
+                ' available tips: {1}').format(tip_index, self.tool_count()))
         return ToolTip(self, tip_index)
     # Non PEP-8 alias
     GetTip = get_tip
@@ -3022,7 +3034,8 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_value(self):
         "Get the current value of the UpDown control"
-        pos = win32functions.SendMessage(self, win32defines.UDM_GETPOS, win32structures.LPARAM(0), win32structures.WPARAM(0))
+        pos = win32functions.SendMessage(self, win32defines.UDM_GETPOS,
+                    win32structures.LPARAM(0), win32structures.WPARAM(0))
         return win32functions.LoWord(pos)
     # Non PEP-8 alias
     GetValue = get_value

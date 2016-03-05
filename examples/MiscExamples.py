@@ -48,7 +48,7 @@ def test_exceptions():
         app.connect(path=r"No process with this please")
         assert False
     except application.ProcessNotFoundError:
-        pass
+        print('ProcessNotFoundError has been raised. OK.')
 
     # test that trying to connect_ to a non existent app fails
     try:
@@ -56,7 +56,7 @@ def test_exceptions():
         app.start(cmd_line = r"No process with this please")
         assert False
     except application.AppStartError:
-        pass
+        print('AppStartError has been raised. OK.')
 
 #    # try when it isn't connected
 #    try:

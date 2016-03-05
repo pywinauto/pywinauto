@@ -98,7 +98,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         return False
 
     #-----------------------------------------------------------
-    def click(self, *args, **kwargs):
+    def click(self):
         "Click the Button control by using Invoke pattern"
         self.invoke()
 

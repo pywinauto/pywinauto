@@ -4,8 +4,9 @@ NOTE: Forte Agent has a very dynamic interface
 e.g. whether it is free or not, whether it is still in the grace
 period. For this reason this example script may or may not work well
 for you"""
+from __future__ import print_function
 
-print __doc__
+print(__doc__)
 
 import time
 from pprint import pprint
@@ -79,15 +80,15 @@ if app.ToolsApplyFilters.OK.Exists():
 #app.ApplyFiltersToFolders.Cancel.click()
 
 
-print "==" * 20
-print "The Agent File Menu..."
-print "==" * 20
+print("==" * 20)
+print("The Agent File Menu...")
+print("==" * 20)
 pprint (app.FreeAgent.menu_items()[1])
 try:
     app.FreeAgent.menu_select("File->Print")
     app.Print.Cancel.click()
 except Exception:
-    print "Print Menu was probably disabled"
+    print("Print Menu was probably disabled")
 
 # quit Agent
 app.FreeAgent.menu_select("File -> Exit")

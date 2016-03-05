@@ -20,8 +20,6 @@
 
 "Tests for findbestmatch.py"
 
-__revision__ = "$Revision: 234 $"
-
 import unittest
 import os.path
 
@@ -38,22 +36,24 @@ backend.activate("native")
 class TestFindBestMatch(unittest.TestCase):
 
     def setUp(self):
-        backend.activate("native")
-        # load the test strings
+        "load the test strings"
         self.strings = open(os.path.join(test_path, "testtext.txt"), "rb").readlines()
         self.strings = (line.decode('utf-8')[:-1] for line in self.strings)
 
     def testclean_text_1(self):
+        "Test for _clean_non_chars (alphanumeric symbols)"
         s = "nothingremovedhere"
         result =  findbestmatch._clean_non_chars(s)
         self.assertEqual(s, result)
 
     def testclean_text_2(self):
+        "Test for _clean_non_chars (special symbols)"
         s = "#$%#^$%&**"
         result =  findbestmatch._clean_non_chars(s)
         self.assertEqual('', result)
 
     def testclean_text_3(self):
+        "Test for _clean_non_chars (empty string)"
         s = ""
         result =  findbestmatch._clean_non_chars(s)
         self.assertEqual('', result)
