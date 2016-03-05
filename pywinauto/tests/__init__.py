@@ -107,7 +107,7 @@ def print_bugs(bugs):
                 ctrl.DrawOutline()
             except (AttributeError, KeyError):
                 #print(e)
-                pass
+                continue
 
         print()
 

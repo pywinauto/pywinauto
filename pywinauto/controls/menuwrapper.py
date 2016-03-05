@@ -66,12 +66,11 @@ class MenuInfo(object):
 
 
 class MenuItemNotEnabled(RuntimeError):
-    "Raised when a menu item is not enabled"
+    """Raised when a menu item is not enabled"""
     pass
 
 
 class MenuInaccessible(RuntimeError):
-
     """Raised when a menu has handle but inaccessible."""
     pass
 
@@ -94,13 +93,13 @@ class MenuItem(object):
     """Wrap a menu item"""
 
     def __init__(self, ctrl, menu, index, on_main_menu = False):
-        """Initialize the menu item
+        """
+        Initialize the menu item
 
         * **ctrl**	The dialog or control that owns this menu
         * **menu**	The menu that this item is on
         * **index**	The Index of this menu item on the menu
         * **on_main_menu**	True if the item is on the main menu
-
         """
         self._index = index
         self.menu = menu
@@ -109,11 +108,12 @@ class MenuItem(object):
 
 
     def _read_item(self):
-        """Read the menu item info
+        """
+        Read the menu item info
 
         See https://msdn.microsoft.com/en-us/library/windows/desktop/ms647980.aspx
-        for more information."""
-
+        for more information.
+        """
         item_info = MenuItemInfo()
         buf, extras = win32gui_struct.EmptyMENUITEMINFO()
         win32gui.GetMenuItemInfo(self.menu.handle, self._index, True, buf)
@@ -141,6 +141,7 @@ class MenuItem(object):
         return item_info
 
     def friendly_class_name(self):
+        """Return friendly class name"""
         return "MenuItem"
     # Non PEP-8 alias
     FriendlyClassName = friendly_class_name
@@ -149,7 +150,7 @@ class MenuItem(object):
     #    print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
 
     def rectangle(self):
-        "Get the rectangle of the menu item"
+        """Get the rectangle of the menu item"""
         rect = win32structures.RECT()
 
         if self.on_main_menu:
@@ -175,42 +176,44 @@ class MenuItem(object):
     Rectangle = rectangle
 
     def index(self):
-        "Return the index of this menu item"
+        """Return the index of this menu item"""
         return self._index
     # Non PEP-8 alias
     Index = index
 
     def state(self):
-        "Return the state of this menu item"
+        """Return the state of this menu item"""
         return self._read_item().fState
     # Non PEP-8 alias
     State = state
 
     def item_id(self):
-        "Return the ID of this menu item"
+        """Return the ID of this menu item"""
         return self._read_item().wID
     # Non PEP-8 alias
     ID = item_id
 
     def item_type(self):
-        """Return the Type of this menu item
+        """
+        Return the Type of this menu item
 
         Main types are MF_STRING, MF_BITMAP, MF_SEPARATOR.
 
         See https://msdn.microsoft.com/en-us/library/windows/desktop/ms647980.aspx
-        for further information."""
+        for further information.
+        """
         return self._read_item().fType
     # Non PEP-8 alias
     Type = item_type
 
     def text(self):
-        "Return the text of this menu item"
+        """Return the text of this menu item"""
         return self._read_item().text
     # Non PEP-8 alias
     Text = text
 
     def sub_menu(self):
-        "Return the SubMenu or None if no submenu"
+        """Return the SubMenu or None if no submenu"""
         submenu_handle = self._read_item().hSubMenu
 
         if submenu_handle:
@@ -227,7 +230,7 @@ class MenuItem(object):
     SubMenu = sub_menu
 
     def is_enabled(self):
-        "Return True if the item is enabled."
+        """Return True if the item is enabled."""
         return not (
             self.state() & win32defines.MF_DISABLED or
             self.state() & win32defines.MF_GRAYED)
@@ -241,14 +244,13 @@ class MenuItem(object):
     IsChecked = is_checked
 
     def click_input(self):
-        """Click on the menu item in a more realistic way
+        """
+        Click on the menu item in a more realistic way
 
         If the menu is open it will click with the mouse event on the item.
         If the menu is not open each of it's parent's will be opened
         until the item is visible.
-
         """
-
         self.ctrl.verify_actionable()
 
         rect = self.rectangle()
@@ -276,10 +278,11 @@ class MenuItem(object):
     ClickInput = click_input
 
     def select(self):
-        """Select the menu item
+        """
+        Select the menu item
 
         This will send a message to the parent window that the
-        item was picked
+        item was picked.
         """
 
         if not self.is_enabled():
@@ -310,11 +313,12 @@ class MenuItem(object):
     Select = select
 
     def get_properties(self):
-        """Return the properties for the item as a dict
+        """
+        Return the properties for the item as a dict
 
         If this item opens a sub menu then call Menu.get_properties()
         to return the list of items in the sub menu. This is avialable
-        under the 'menu_items' key
+        under the 'menu_items' key.
         """
         props = {}
         props['index'] = self.index()
@@ -337,7 +341,7 @@ class MenuItem(object):
     GetProperties = get_properties
 
     def __repr__(self):
-        "Return a representation of the object as a string"
+        """Return a representation of the object as a string"""
         if six.PY3:
             return "<MenuItem " + self.text() + ">"
         else:
@@ -385,17 +389,20 @@ class MenuItem(object):
 #
 
 class Menu(object):
-    """A simple wrapper around a menu handle
+    """
+    A simple wrapper around a menu handle
 
     A menu supports methods for querying the menu
-    and getting it's menu items."""
+    and getting it's menu items.
+    """
     def __init__(
         self,
         owner_ctrl,
         menuhandle,
         is_main_menu = True,
         owner_item = None):
-        """Initialize the class.
+        """
+        Initialize the class
 
         * **owner_ctrl** is the Control that owns this menu
         * **menuhandle** is the menu handle of the menu
@@ -404,7 +411,6 @@ class Menu(object):
         * **owner_item** The item that contains this menu - this will be
           None for the main menu, it will be a MenuItem instance for a
           submenu.
-
         """
         self.ctrl = owner_ctrl
         self.handle = menuhandle
@@ -434,18 +440,19 @@ class Menu(object):
 
     @ensure_accessible
     def item_count(self):
-        "Return the count of items in this menu"
+        """Return the count of items in this menu"""
         return win32gui.GetMenuItemCount(self.handle)
     # Non PEP-8 alias
     ItemCount = item_count
 
     @ensure_accessible
     def item(self, index, exact = False):
-        """Return a specific menu item
+        """
+        Return a specific menu item
 
-        * **index** is the 0 based index or text of the menu item you want
+        * **index** is the 0 based index or text of the menu item you want.
         * **exact** is True means exact matching for item text,
-                       False means best matching
+                       False means best matching.
         """
         if isinstance(index, six.string_types):
             if self.ctrl.appdata is not None:
@@ -470,7 +477,8 @@ class Menu(object):
 
     @ensure_accessible
     def get_properties(self):
-        """Return the properties for the menu as a list of dictionaries
+        """
+        Return the properties for the menu as a list of dictionaries
 
         This method is actually recursive. It calls get_properties() for each
         of the items. If the item has a sub menu it will call this
@@ -487,7 +495,8 @@ class Menu(object):
 
     @ensure_accessible
     def get_menu_path(self, path, path_items = None, appdata = None, exact=False):
-        """Walk the items in this menu to find the item specified by path
+        """
+        Walk the items in this menu to find the item specified by path
 
         The path is specified by a list of items separated by '->' each Item
         can be either a string (can include spaces) e.g. "Save As" or the zero
@@ -559,7 +568,7 @@ class Menu(object):
     GetMenuPath = get_menu_path
 
     def __repr__(self):
-        "Return a simple representation of the menu"
+        """Return a simple representation of the menu"""
         return "<Menu {0}>".format(self.handle)
 
 
