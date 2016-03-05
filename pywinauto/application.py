@@ -153,8 +153,7 @@ class WindowSpecification(object):
 
 
     def __get_ctrl(self, criteria_):
-        "Get the control based on the various criteria"
-
+        """Get the control based on the various criteria"""
         # make a copy of the criteria
         criteria = [crit.copy() for crit in criteria_]
         # find the dialog
@@ -197,14 +196,10 @@ class WindowSpecification(object):
         * **timeout** -  maximum length of time to try to find the controls (default 5)
         * **retry_interval** - how long to wait between each retry (default .2)
         """
-
-        #start = time.time()
-
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
-
 
         try:
             ctrl = WaitUntilPasses(
@@ -658,11 +653,11 @@ def _resolve_from_appdata(
     dialog = None
     ctrl = None
     if process_elems:
-        similar_child_count = [e for e in process_elems
-            if matched_control[1]['control_count'] -2 <=
-                    len(e.children) and
-                matched_control[1]['control_count'] +2 >=
-                    len(e.children)]
+        #similar_child_count = [e for e in process_elems
+        #    if matched_control[1]['control_count'] -2 <=
+        #            len(e.children) and
+        #        matched_control[1]['control_count'] +2 >=
+        #            len(e.children)]
 
         #if similar_child_count:
         #    process_hwnds = similar_child_count
@@ -793,7 +788,12 @@ class Application(object):
     """
 
     def __init__(self, backend = "native", datafilename = None):
-        "Set the attributes"
+        """
+        Initialize the Appliction object
+        
+        * **backend** is a name of used back-end (values: "native", "uia").
+        * **datafilename** is a file name for reading matching history.
+        """
         self.process = None
         self.xmlpath = ''
 
@@ -935,7 +935,7 @@ class Application(object):
         self.__warn_incorrect_bitness()
 
         def app_idle():
-            "Return true when the application is ready to start"
+            """Return true when the application is ready to start"""
             result = win32event.WaitForInputIdle(
                 hProcess, int(timeout * 1000))
 
@@ -949,9 +949,9 @@ class Application(object):
 
             return bool(self.windows_())
 
-        if wait_for_idle:
-            # Wait until the application is ready after starting it
-            WaitUntil(timeout, retry_interval, app_idle)
+        # Wait until the application is ready after starting it
+        if wait_for_idle and not app_idle():
+            raise RuntimeWarning('Application is not loaded correctly (WaitForInputIdle failed)')
 
         return self
 
@@ -1240,7 +1240,7 @@ def process_get_modules():
             try:
                 modules.append((pid, process_module(pid), None))
             except (win32gui.error, ProcessNotFoundError):
-                pass
+                continue
     return modules
 
 #=========================================================================
