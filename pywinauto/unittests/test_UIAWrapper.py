@@ -146,6 +146,21 @@ if UIA_support:
             props = set(self.edit.get_properties().keys())
             self.assertEquals(props, uia_props)
 
+        # def testDrawOutline(self):
+        #     """Test the outline was drawn."""
+        #     # not sure why, but this extra call makes the test stable
+        #     self.dlg.draw_outline()
+        #
+        #     # outline control
+        #     self.button.draw_outline()
+        #     img1 = self.button.capture_as_image()
+        #     self.assertEquals(img1.getpixel((0, 0)), (0, 255, 0))  # green
+        #
+        #     # outline window
+        #     self.dlg.draw_outline(colour="blue")
+        #     img2 = self.dlg.capture_as_image()
+        #     self.assertEquals(img2.getpixel((0, 0)), (0, 0, 255))  # blue
+
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"
 

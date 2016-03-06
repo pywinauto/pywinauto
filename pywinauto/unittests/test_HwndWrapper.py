@@ -319,6 +319,25 @@ class HwndWrapperTests(unittest.TestCase):
 #    def testCaptureAsImage(self):
 #        pass
 
+    # def testDrawOutline(self):
+    #     """Test the outline was drawn."""
+    #     # make sure window is ready
+    #     self.dlg.Wait('active')
+    #     self.dlg.Show.Click()
+    #
+    #     # not sure why, but this extra call makes the test stable
+    #     self.dlg.draw_outline()
+    #
+    #     # outline control
+    #     self.dlg.Show.draw_outline()
+    #     img1 = self.dlg.Show.capture_as_image()
+    #     self.assertEquals(img1.getpixel((0, 0)), (0, 255, 0))  # green
+    #
+    #     # outline window
+    #     self.dlg.draw_outline(colour="red")
+    #     img2 = self.dlg.capture_as_image()
+    #     self.assertEquals(img2.getpixel((0, 0)), (255, 0, 0))  # red
+
     def testEquals(self):
         self.assertNotEqual(self.ctrl, self.dlg.handle)
         self.assertEqual(self.ctrl, self.ctrl.handle)
