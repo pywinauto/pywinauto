@@ -449,14 +449,15 @@ class BaseWrapper(object):
         thickness=2,
         fill=win32defines.BS_NULL,
         rect=None):
-        """Draw an outline around the window.
+        """
+        Draw an outline around the window.
 
         * **colour** can be either an integer or one of 'red', 'green', 'blue'
           (default 'green')
         * **thickness** thickness of rectangle (default 2)
         * **fill** how to fill in the rectangle (default BS_NULL)
         * **rect** the coordinates of the rectangle to draw (defaults to
-          the rectangle of the control.
+          the rectangle of the control)
         """
 
         # don't draw if dialog is not visible
