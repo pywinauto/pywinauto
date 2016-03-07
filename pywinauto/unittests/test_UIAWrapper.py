@@ -154,12 +154,12 @@ if UIA_support:
         #     # outline control
         #     self.button.draw_outline()
         #     img1 = self.button.capture_as_image()
-        #     self.assertEquals(img1.getpixel((0, 0)), (0, 255, 0))  # green
+        #     self.assertEqual(img1.getpixel((0, 0)), (0, 255, 0))  # green
         #
         #     # outline window
         #     self.dlg.draw_outline(colour="blue")
         #     img2 = self.dlg.capture_as_image()
-        #     self.assertEquals(img2.getpixel((0, 0)), (0, 0, 255))  # blue
+        #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
 
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"

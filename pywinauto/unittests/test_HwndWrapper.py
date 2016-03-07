@@ -331,12 +331,12 @@ class HwndWrapperTests(unittest.TestCase):
     #     # outline control
     #     self.dlg.Show.draw_outline()
     #     img1 = self.dlg.Show.capture_as_image()
-    #     self.assertEquals(img1.getpixel((0, 0)), (0, 255, 0))  # green
+    #     self.assertEqual(img1.getpixel((0, 0)), (0, 255, 0))  # green
     #
     #     # outline window
     #     self.dlg.draw_outline(colour="red")
     #     img2 = self.dlg.capture_as_image()
-    #     self.assertEquals(img2.getpixel((0, 0)), (255, 0, 0))  # red
+    #     self.assertEqual(img2.getpixel((0, 0)), (255, 0, 0))  # red
 
     def testEquals(self):
         self.assertNotEqual(self.ctrl, self.dlg.handle)
