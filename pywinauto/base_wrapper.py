@@ -1,11 +1,12 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import time
-import re
-import win32process
-import locale
 import abc
+import ctypes
+import locale
+import re
+import time
+import win32process
 
 try:
     from PIL import ImageGrab
@@ -440,6 +441,71 @@ class BaseWrapper(object):
         return props
     # Non PEP-8 alias
     GetProperties = get_properties
+
+    #-----------------------------------------------------------
+    def draw_outline(
+        self,
+        colour='green',
+        thickness=2,
+        fill=win32defines.BS_NULL,
+        rect=None):
+        """
+        Draw an outline around the window.
+
+        * **colour** can be either an integer or one of 'red', 'green', 'blue'
+          (default 'green')
+        * **thickness** thickness of rectangle (default 2)
+        * **fill** how to fill in the rectangle (default BS_NULL)
+        * **rect** the coordinates of the rectangle to draw (defaults to
+          the rectangle of the control)
+        """
+
+        # don't draw if dialog is not visible
+        if not self.is_visible():
+            return
+
+        colours = {
+            "green": 0x00ff00,
+            "blue": 0xff0000,
+            "red": 0x0000ff,
+        }
+
+        # if it's a known colour
+        if colour in colours:
+            colour = colours[colour]
+
+        if rect is None:
+            rect = self.rectangle()
+
+        # create the pen(outline)
+        pen_handle = win32functions.CreatePen(
+                win32defines.PS_SOLID, thickness, colour)
+
+        # create the brush (inside)
+        brush = win32structures.LOGBRUSH()
+        brush.lbStyle = fill
+        brush.lbHatch = win32defines.HS_DIAGCROSS
+        brush_handle = win32functions.CreateBrushIndirect(ctypes.byref(brush))
+
+        # get the Device Context
+        dc = win32functions.CreateDC("DISPLAY", None, None, None )
+
+        # push our objects into it
+        win32functions.SelectObject(dc, brush_handle)
+        win32functions.SelectObject(dc, pen_handle)
+
+        # draw the rectangle to the DC
+        win32functions.Rectangle(
+            dc, rect.left, rect.top, rect.right, rect.bottom)
+
+        # Delete the brush and pen we created
+        win32functions.DeleteObject(brush_handle)
+        win32functions.DeleteObject(pen_handle)
+
+        # delete the Display context that we created
+        win32functions.DeleteDC(dc)
+    # Non PEP-8 alias
+    DrawOutline = draw_outline
 
     #-----------------------------------------------------------
     def is_child(self, parent):

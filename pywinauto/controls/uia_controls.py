@@ -64,13 +64,16 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         
         The radio button control does not implement IToggleProvider, 
         because it is not capable of cycling through its valid states.
-        Toggle a state of a check box control.
+        Toggle a state of a check box control. (Use 'select' method instead)
         Notice, a radio button control isn't supported by UIA.
         https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Toggle")
         iface.Toggle()
+
+        # Return itself so that action can be chained
+        return self
 
     #-----------------------------------------------------------
     def get_toggle_state(self):
@@ -98,4 +101,33 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
     def click(self):
         "Click the Button control by using Invoke pattern"
         self.invoke()
+
+        # Return itself so that action can be chained
+        return self
+
+    #-----------------------------------------------------------
+    def select(self):
+        """
+        An interface to Select method of the SelectionItem control pattern.
+
+        Usually applied for a radio button control
+        """
+
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "SelectionItem")
+        iface.Select()
+
+        # Return itself so that action can be chained
+        return self
         
+    #-----------------------------------------------------------
+    def is_selected(self):
+        """
+        An interface to CurrentIsSelected method of the SelectionItem control pattern.
+
+        Usually applied for a radio button control
+        """
+
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "SelectionItem")
+        return iface.CurrentIsSelected

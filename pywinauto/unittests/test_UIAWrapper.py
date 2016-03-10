@@ -48,8 +48,8 @@ if UIA_support:
             self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button.element_info)
-            self.edit = UIAWrapper(self.dlg.Edit.element_info)
+            self.button = UIAWrapper(self.dlg.OK.element_info)
+            self.edit = UIAWrapper(self.dlg.TestLabelEdit.element_info)
             self.label = UIAWrapper(self.dlg.TestLabel.element_info)
 
         def tearDown(self):
@@ -66,7 +66,7 @@ if UIA_support:
 
         def testWindowText(self):
             "Test getting the window Text of the dialog"
-            self.assertEqual(self.label.window_text(), u"TestLable")
+            self.assertEqual(self.label.window_text(), u"TestLabel")
 
         def testControlID(self):
             self.assertEqual(self.button.control_id(), None)
@@ -131,6 +131,16 @@ if UIA_support:
             self.edit.type_keys("testTypeKeys")
             self.assertEqual(self.edit.window_text(), "testTypeKeys")
 
+        def testNoPatternInterfaceError(self):
+            "Test a query interface exception handling"
+            elem = self.button.element_info.element
+            self.assertRaises(
+                    uia_defs.NoPatternInterfaceError,
+                    uia_defs.get_elem_interface,
+                    elem, 
+                    "Selection",
+                    )
+
         def testGetProperties(self):
             uia_props = {'class_name',
                          'friendly_class_name',
@@ -146,6 +156,21 @@ if UIA_support:
             props = set(self.edit.get_properties().keys())
             self.assertEquals(props, uia_props)
 
+        # def testDrawOutline(self):
+        #     """Test the outline was drawn."""
+        #     # not sure why, but this extra call makes the test stable
+        #     self.dlg.draw_outline()
+        #
+        #     # outline control
+        #     self.button.draw_outline()
+        #     img1 = self.button.capture_as_image()
+        #     self.assertEqual(img1.getpixel((0, 0)), (0, 255, 0))  # green
+        #
+        #     # outline window
+        #     self.dlg.draw_outline(colour="blue")
+        #     img2 = self.dlg.capture_as_image()
+        #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
+
     class UIAWrapperMouseTests(unittest.TestCase):
         "Unit tests for mouse actions of the UIAWrapper class"
 
@@ -159,7 +184,7 @@ if UIA_support:
             self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.Button.element_info)
+            self.button = UIAWrapper(self.dlg.OK.element_info)
             self.label = self.dlg.TestLabel.WrapperObject()
 
         def tearDown(self):
@@ -197,11 +222,12 @@ if UIA_support:
         "Unit tests for the ButtonWrapper class"
 
         def setUp(self):
-            """Start the application set some data and ensure the application
+            """Start the application, set some data and ensure the application
             is in the state we want it."""
 
-            self.app = Application(backend = 'uia')
-            self.app = self.app.Start(wpf_app_1)
+            # start the application
+            app = Application(backend = 'uia')
+            self.app = app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.button = self.dlg.Button
@@ -210,36 +236,64 @@ if UIA_support:
             "Close the application after tests"
             self.app.kill_()
 
-        def testFriendlyClassName(self):
-            """
-            Test getting the friendly class name of a check box control 
-            on the dialog
-            """
+        def testFriendlyClassNames(self):
+            "Test getting friendly class names of button-like controls"
             friendly_name = self.dlg.CheckBox.FriendlyClassName()
             self.assertEqual(friendly_name, "CheckBox")
 
+            friendly_name = self.dlg.Apply.FriendlyClassName()
+            self.assertEqual(friendly_name, "Button")
+
+            friendly_name = self.dlg.ToggleMe.FriendlyClassName()
+            self.assertEqual(friendly_name, "Button")
+
+            friendly_name = self.dlg.Yes.FriendlyClassName()
+            self.assertEqual(friendly_name, "RadioButton")
+
         def testCheckBox(self):
-            """"
-            Test the toggle and the toggle_state methods 
-            for the check box control
-            """
+            "Test 'toggle' and 'toggle_state' for the check box control"
             
             # Get a current state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
+            self.assertEqual(cur_state, uia_defs.toggle_state_inderteminate)
+            
+            # Toggle the next state
+            cur_state = self.dlg.CheckBox.toggle().get_toggle_state()
+            
+            # Get a new state of the check box control
+            self.assertEqual(cur_state, uia_defs.toggle_state_off)
+
+        def testToggleButton(self):
+            "Test 'toggle' and 'toggle_state' for the toggle button control"
+            
+            # Get a current state of the check box control
+            cur_state = self.dlg.ToggleMe.get_toggle_state()
+            self.assertEqual(cur_state, uia_defs.toggle_state_on)
+            
+            # Toggle the next state
+            cur_state = self.dlg.ToggleMe.toggle().get_toggle_state()
+            
+            # Get a new state of the check box control
             self.assertEqual(cur_state, uia_defs.toggle_state_off)
             
             # Toggle the next state
-            self.dlg.CheckBox.toggle()
-            
-            # Get a new state of the check box control
-            cur_state = self.dlg.CheckBox.get_toggle_state()
+            cur_state = self.dlg.ToggleMe.toggle().get_toggle_state()
             self.assertEqual(cur_state, uia_defs.toggle_state_on)
 
         def testButtonClick(self):
             "Test the click method for the Button control"
 
-            #TODO: verify click
-            self.dlg.Button.click()
+            label = UIAWrapper(self.dlg.TestLabel.element_info)
+            self.dlg.Apply.click()
+            self.assertEqual(label.window_text(), "ApplyClick")
+
+        def testRadioButton(self):
+            "Test 'select' and 'is_selected' for the radio button control"
+            cur_state = self.dlg.Yes.is_selected()
+            self.assertEqual(cur_state, False)
+
+            cur_state = self.dlg.Yes.select().is_selected()
+            self.assertEqual(cur_state, True)
 
 if __name__ == "__main__":
     if UIA_support:

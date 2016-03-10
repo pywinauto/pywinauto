@@ -97,17 +97,23 @@ toggle_state_off = 0
 toggle_state_on = 1
 toggle_state_inderteminate = 2
 
+class NoPatternInterfaceError(Exception):
+    "There is no such interface for the specified pattern"
+    pass
+
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name
 
     TODO: handle a wrong pattern name
-    TODO: handle possible query interface exceptions
     """
     # Resolve the pattern id and the class to query
     ptrn_id, cls_name = pattern_ids[pattern_name]
     # Get the interface
-    cur_ptrn = element_info.GetCurrentPattern(ptrn_id)
-    iface = cur_ptrn.QueryInterface(cls_name)
+    try:
+        cur_ptrn = element_info.GetCurrentPattern(ptrn_id)
+        iface = cur_ptrn.QueryInterface(cls_name)
+    except(ValueError):
+        raise NoPatternInterfaceError()
     return iface
     
     
