@@ -48,7 +48,7 @@ if UIA_support:
             self.assertEqual(self.ctrl.visible, True)
 
         def testChildren(self):
-            self.assertEqual(len(self.ctrl.children), 3)
+            self.assertEqual(len(self.ctrl.children()), 3)
 
 if __name__ == "__main__":
     if UIA_support:
