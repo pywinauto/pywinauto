@@ -81,13 +81,11 @@ class ElementInfo(object):
         "Return the parent of the element"
         raise NotImplementedError()
 
-    @property
-    def children(self):
+    def children(self, proc_id=None, class_name=None):
         "Return children of the element"
         raise NotImplementedError()
 
-    @property
-    def descendants(self):
+    def descendants(self, proc_id=None, class_name=None):
         "Return descendants of the element"
         raise NotImplementedError()
 

@@ -139,10 +139,7 @@ def find_elements(class_name = None,
     if top_level_only:
         # find the top level elements
         element = backend_obj.element_info_class()
-        if backend == 'uia':
-            elements = element.children_with_criteria(process, class_name, handle) # root.children == enum_windows()
-        else:
-            elements = element.children
+        elements = element.children(process, class_name) # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
@@ -155,10 +152,7 @@ def find_elements(class_name = None,
             parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
-        if backend == 'uia':
-            elements = parent.descendants_with_criteria(process, class_name, handle) # root.children == enum_windows()
-        else:
-            elements = parent.descendants
+        elements = parent.descendants(process, class_name) # root.children == enum_windows()
 
         # if the ctrl_index has been specified then just return
         # that control
