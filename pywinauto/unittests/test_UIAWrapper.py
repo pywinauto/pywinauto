@@ -142,7 +142,7 @@ if UIA_support:
                     )
 
         def testGetProperties(self):
-            uia_props = {'class_name',
+            uia_props = set(['class_name',
                          'friendly_class_name',
                          'texts',
                          'control_id',
@@ -152,9 +152,9 @@ if UIA_support:
                          'control_count',
                          'is_keyboard_focusable',
                          'has_keyboard_focus',
-                         }
+                         ])
             props = set(self.edit.get_properties().keys())
-            self.assertEquals(props, uia_props)
+            self.assertEqual(props, uia_props)
 
         # def testDrawOutline(self):
         #     """Test the outline was drawn."""
