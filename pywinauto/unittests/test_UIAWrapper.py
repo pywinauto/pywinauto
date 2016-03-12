@@ -19,7 +19,7 @@ from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
-#from pywinauto.findwindows import ElementNotFoundError
+from pywinauto import findwindows
 #from pywinauto import clipboard
 from pywinauto import backend
 from pywinauto.timings import Timings, TimeoutError
@@ -59,6 +59,36 @@ if UIA_support:
         def testFriendlyClassName(self):
             "Test getting the friendly classname of the dialog"
             self.assertEqual(self.button.friendly_class_name(), "Button")
+
+        def testFindNonTopCtlByClassNameAndTitle(self):
+            "Test getting a non-top control by a class name and a title"
+
+            # Look up for a non-top button control with 'Apply' caption
+            caption = 'Apply'
+            wins = self.app.windows_(top_level_only = False,
+                                     class_name = 'Button',
+                                     title = caption)
+
+            # Verify the number of found wrappers
+            self.assertEqual(len(wins), 1)
+
+            # Verify the caption of the found wrapper
+            self.assertEqual(wins[0].texts()[0], caption)
+
+        def testFindTopCtlByClassNameAndTitle(self):
+            "Test getting a top window by a class name and a title"
+
+            # Since the top_level_only is True by default 
+            # we don't specify it as a criteria argument
+            caption = 'WPF Sample Application'
+            wins = self.app.windows_(class_name = 'Window',
+                                     title = caption)
+
+            # Verify the number of found wrappers
+            self.assertEqual(len(wins), 1)
+
+            # Verify the caption of the found wrapper
+            self.assertEqual(wins[0].texts()[0], caption)
 
         def testClass(self):
             "Test getting the classname of the dialog"
