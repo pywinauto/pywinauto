@@ -177,7 +177,7 @@ class UIAElementInfo(ElementInfo):
 
         return elements
 
-    def _build_condition(self, process = None, class_name = None):
+    def _build_condition(self, process = None, class_name = None, title = None):
         "Build UIA filtering conditions"
         full_cond = _true_condition
         if process:
@@ -188,6 +188,12 @@ class UIAElementInfo(ElementInfo):
         if class_name:
             new_cond = _iuia.CreatePropertyCondition(
                                     _UIA_dll.UIA_ClassNamePropertyId, class_name)
+            full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+            
+        if title:
+            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
+            new_cond = _iuia.CreatePropertyCondition(
+                                    _UIA_dll.UIA_NamePropertyId, title)
             full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
 
         return full_cond
