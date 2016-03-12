@@ -81,11 +81,11 @@ class ElementInfo(object):
         "Return the parent of the element"
         raise NotImplementedError()
 
-    def children(self, proc_id=None, class_name=None):
+    def children(self, **kwargs):
         "Return children of the element"
         raise NotImplementedError()
 
-    def descendants(self, proc_id=None, class_name=None):
+    def descendants(self, **kwargs):
         "Return descendants of the element"
         raise NotImplementedError()
 

@@ -94,7 +94,7 @@ class NativeElementInfo(ElementInfo):
         else:
             return None
 
-    def children(self, proc_id=None, class_name=None):
+    def children(self, **kwargs):
         "Return a list of immediate children of the window"
         if self == NativeElementInfo(): # self == root
             child_handles = []
@@ -120,7 +120,7 @@ class NativeElementInfo(ElementInfo):
             child_handles = handleprops.children(self._handle)
         return [NativeElementInfo(ch) for ch in child_handles]
 
-    def descendants(self, proc_id=None, class_name=None):
+    def descendants(self, **kwargs):
         "Return descendants of the window (all children from sub-tree)"
         child_handles = handleprops.children(self)
         return [NativeElementInfo(ch) for ch in child_handles]

@@ -360,14 +360,15 @@ class BaseWrapper(object):
     Texts = texts
 
     #-----------------------------------------------------------
-    def children(self):
+    def children(self, class_name = None):
         """
         Return the children of this element as a list
 
         It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no children.
         """
-        child_elements = self.element_info.children(proc_id=self.process_id())
+        child_elements = self.element_info.children(
+                process = self.process_id(), class_name = class_name)
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
     # Non PEP-8 alias
     Children = children
@@ -386,7 +387,7 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def control_count(self):
         "Return the number of children of this control"
-        return len(self.element_info.children(proc_id=self.process_id()))
+        return len(self.element_info.children(process=self.process_id()))
     # Non PEP-8 alias
     ControlCount = control_count
 
@@ -517,7 +518,7 @@ class BaseWrapper(object):
         element if the parent element is the the chain of parent elements
         for the child element.
         """
-        return self in parent.children()
+        return self in parent.children(class_name = self.class_name())
     # Non PEP-8 alias
     IsChild = is_child
 

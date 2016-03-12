@@ -177,26 +177,29 @@ class UIAElementInfo(ElementInfo):
 
         return elements
 
-    def _build_condition(self, proc_id, class_name):
+    def _build_condition(self, process = None, class_name = None):
         "Build UIA filtering conditions"
-        cond = _true_condition
-        if proc_id:
-            proc_cond = _iuia.CreatePropertyCondition(_UIA_dll.UIA_ProcessIdPropertyId, proc_id)
-            cond = _iuia.CreateAndCondition(proc_cond, cond)
+        full_cond = _true_condition
+        if process:
+            new_cond = _iuia.CreatePropertyCondition(
+                                    _UIA_dll.UIA_ProcessIdPropertyId, process)
+            full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+            
         if class_name:
-            class_name_cond = _iuia.CreatePropertyCondition(_UIA_dll.UIA_ClassNamePropertyId, class_name)
-            cond = _iuia.CreateAndCondition(class_name_cond, cond)
+            new_cond = _iuia.CreatePropertyCondition(
+                                    _UIA_dll.UIA_ClassNamePropertyId, class_name)
+            full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
 
-        return cond
+        return full_cond
 
-    def children(self, proc_id=None, class_name=None):
+    def children(self, **kwargs):
         "Return a list of only immediate children of the element according to the criterias"
-        cond = self._build_condition(proc_id, class_name)
+        cond = self._build_condition(**kwargs)
         return self._get_elements(_tree_scope["children"], cond)
 
-    def descendants(self, proc_id=None, class_name=None):
+    def descendants(self, **kwargs):
         "Return a list of all descendant children of the element according to the criterias"
-        cond = self._build_condition(proc_id, class_name)
+        cond = self._build_condition(**kwargs)
         return self._get_elements(_tree_scope["descendants"], cond)
 
     @property
