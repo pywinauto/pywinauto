@@ -85,6 +85,27 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
+def _build_condition(process = None, class_name = None, title = None):
+    "Build UIA filtering conditions"
+    full_cond = _true_condition
+    if process:
+        new_cond = _iuia.CreatePropertyCondition(
+                                _UIA_dll.UIA_ProcessIdPropertyId, process)
+        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+        
+    if class_name:
+        new_cond = _iuia.CreatePropertyCondition(
+                                _UIA_dll.UIA_ClassNamePropertyId, class_name)
+        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+        
+    if title:
+        # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
+        new_cond = _iuia.CreatePropertyCondition(
+                                _UIA_dll.UIA_NamePropertyId, title)
+        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+
+    return full_cond
+
 class UIAElementInfo(ElementInfo):
     "UI element wrapper for IUIAutomation API"
     def __init__(self, handle_or_elem = None):
@@ -167,29 +188,27 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    @property
-    def children(self):
-        "Return list of immediate children for the element"
-        children = []
-        
-        childrenArray = self._element.FindAll(_tree_scope['children'], _true_condition)
-        for childNumber in range(childrenArray.Length):
-            childElement = childrenArray.GetElement(childNumber)
-            children.append(UIAElementInfo(childElement))
-            
-        return children
+    def _get_elements(self, tree_scope, cond = _true_condition):
+        """Find all elements according to the given tree scope and conditions"""
+        elements = []
+        ptrs_array = self._element.FindAll(tree_scope, cond)
+        for num in range(ptrs_array.Length):
+            child = ptrs_array.GetElement(num)
+            elements.append(UIAElementInfo(child))
 
-    @property
-    def descendants(self):
-        "Return list of all children for the element"
-        descendants = []
+        return elements
 
-        descendantsArray = self._element.FindAll(_tree_scope['descendants'], _true_condition)
-        for descendantNumber in range(descendantsArray.Length):
-            descendantElement = descendantsArray.GetElement(descendantNumber)
-            descendants.append(UIAElementInfo(descendantElement))
+    def children(self, **kwargs):
+        """Return a list of only immediate children of the element
+        according to the criteria"""
+        cond = _build_condition(**kwargs)
+        return self._get_elements(_tree_scope["children"], cond)
 
-        return descendants
+    def descendants(self, **kwargs):
+        """Return a list of all descendant children of the element 
+        according to the criteria"""
+        cond = _build_condition(**kwargs)
+        return self._get_elements(_tree_scope["descendants"], cond)
 
     @property
     def visible(self):
