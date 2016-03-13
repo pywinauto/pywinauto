@@ -45,7 +45,7 @@ from . import six
 from .win32structures import LOGFONTW, RECT
 
 class XMLParsingError(RuntimeError):
-    "Wrap parsing Exceptions"
+    """Wrap parsing Exceptions"""
     pass
 
 
@@ -62,8 +62,7 @@ class XMLParsingError(RuntimeError):
 
 #-----------------------------------------------------------------------------
 def _set_node_props(element, name, value):
-    "Set the properties of the node based on the type of object"
-
+    """Set the properties of the node based on the type of object"""
     # if it is a ctypes structure
     if isinstance(value, ctypes.Structure):
 
@@ -136,9 +135,10 @@ def _set_node_props(element, name, value):
 
 #-----------------------------------------------------------------------------
 def WriteDialogToFile(filename, props):
-    """Write the props to the file
+    """
+    Write the props to the file
 
-    props can be either a dialog of a dictionary
+    props can be either a dialog or a dictionary
     """
     # if we are passed in a wrapped handle then
     # get the properties
@@ -162,8 +162,7 @@ def WriteDialogToFile(filename, props):
 
 #-----------------------------------------------------------------------------
 def _escape_specials(string):
-    "Ensure that some characters are escaped before writing to XML"
-
+    """Ensure that some characters are escaped before writing to XML"""
     # ensure it is unicode
     string = six.text_type(string)
 
@@ -179,8 +178,7 @@ def _escape_specials(string):
 
 #-----------------------------------------------------------------------------
 def _un_escape_specials(string):
-    "Replace escaped characters with real character"
-
+    """Replace escaped characters with real character"""
     # Unescape all the escape characters
     for i in range(0, 32):
         string = string.replace("\\%02d"%i, six.unichr(i))
@@ -193,12 +191,12 @@ def _un_escape_specials(string):
 
 #-----------------------------------------------------------------------------
 def _xml_to_struct(element, struct_type = None):
-    """Convert an ElementTree to a ctypes Struct
+    """
+    Convert an ElementTree to a ctypes Struct
 
     If struct_type is not specified then element['__type__']
-    will be used for the ctypes struct type"""
-
-
+    will be used for the ctypes struct type
+    """
     # handle if we are passed in an element or a dictionary
     try:
         attribs = element.attrib
@@ -247,7 +245,7 @@ def _xml_to_struct(element, struct_type = None):
 
 #====================================================================
 def _old_xml_to_titles(element):
-    "For OLD XML files convert the titles as a list"
+    """For OLD XML files convert the titles as a list"""
     # get all the attribute names
     title_names = element.keys()
 
@@ -272,9 +270,10 @@ def _old_xml_to_titles(element):
 #       for each type of processing e.g.
 #       ElementTo
 def _extract_properties(properties, prop_name, prop_value):
-    """Hmmm - confusing - can't remember exactly how
-    all these similar functions call each other"""
-
+    """
+    Hmmm - confusing - can't remember exactly how
+    all these similar functions call each other
+    """
     # get the base property name and number if it in the form
     #  "PROPNAME_00001" = ('PROPNAME', 1)
     prop_name, reqd_index = _split_number(prop_name)
@@ -320,8 +319,7 @@ def _extract_properties(properties, prop_name, prop_value):
 
 #====================================================================
 def _get_attributes(element):
-    "Get the attributes from an element"
-
+    """Get the attributes from an element"""
     properties = {}
 
     # get all the attributes
@@ -344,7 +342,8 @@ def _get_attributes(element):
 #====================================================================
 number = re.compile(r"^(.*)_(\d{5})$")
 def _split_number(prop_name):
-    """Return (string, number) for a prop_name in the format string_number
+    """
+    Return (string, number) for a prop_name in the format string_number
 
     The number part has to be 5 digits long
     None is returned if there is no _number part
@@ -367,7 +366,8 @@ def _split_number(prop_name):
 
 #====================================================================
 def _read_xml_structure(control_element):
-    """Convert an element into nested Python objects
+    """
+    Convert an element into nested Python objects
 
     The values will be returned in a dictionary as following:
 
@@ -436,8 +436,9 @@ def _read_xml_structure(control_element):
 
 #====================================================================
 def ReadPropertiesFromFile(filename):
-    """Return a list of controls from XML file filename"""
-
+    """
+    Return a list of controls from XML file filename
+    """
     # parse the file
     parsed = ElementTree().parse(filename)
 

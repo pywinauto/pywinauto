@@ -69,8 +69,6 @@ import win32event
 import multiprocessing
 
 
-#from . import win32functions
-from . import win32defines
 from . import controls
 from . import findbestmatch
 from . import findwindows
@@ -1169,8 +1167,14 @@ class Application(object):
             except TimeoutError:
                 self.actions.log('Failed to close top level window')
 
-        #print("supposedly closed all windows!")
-
+        try:
+            process_wait_handle = win32api.OpenProcess(
+                win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
+                0,
+                self.process)
+        except win32gui.error:
+            return True # already closed
+        
         # so we have either closed the windows - or the app is hung
         killed = True
         if process_wait_handle:

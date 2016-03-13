@@ -27,6 +27,9 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32gui
+import win32api
+import win32event
+import win32con
 import locale
 
 from . import HwndWrapper
