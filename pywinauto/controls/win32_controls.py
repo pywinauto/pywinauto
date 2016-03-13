@@ -912,7 +912,7 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
 class DialogWrapper(HwndWrapper.HwndWrapper):
-    "Wrap a dialog"
+    """Wrap a dialog"""
 
     friendlyclassname = "Dialog"
     #windowclasses = ["#32770", ]
@@ -938,8 +938,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def run_tests(self, tests_to_run = None, ref_controls = None):
-        "Run the tests on dialog"
-
+        """Run the tests on dialog"""
         # the tests package is imported only when running unittests
         from .. import tests
 
@@ -964,8 +963,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def write_to_xml(self, filename):
-        "Write the dialog an XML file (requires elementtree)"
-        
+        """Write the dialog an XML file (requires elementtree)"""
         controls = [self] + self.children()
         props = [ctrl.get_properties() for ctrl in controls]
 
@@ -976,12 +974,14 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def client_area_rect(self):
-        """Return the client area rectangle
+        """
+        Return the client area rectangle
 
-        From MSDN
+        From MSDN:
         The client area of a control is the bounds of the control, minus the
         nonclient elements such as scroll bars, borders, title bars, and 
-        menus."""
+        menus.
+        """
         rect = win32structures.RECT(self.rectangle())
         self.send_message(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
@@ -990,7 +990,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def hide_from_taskbar(self):
-        "Hide the dialog from the Windows taskbar"
+        """Hide the dialog from the Windows taskbar"""
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_TOOLWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
@@ -999,26 +999,60 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def show_in_taskbar(self):
-        "Show the dialog in the Windows taskbar"
+        """Show the dialog in the Windows taskbar"""
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
-        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_APPWINDOW)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE,
+            self.exstyle() | win32defines.WS_EX_APPWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
     # Non PEP-8 alias
     ShowInTaskbar = show_in_taskbar
 
     #-----------------------------------------------------------
     def is_in_taskbar(self):
-        "Check whether the dialog is shown in the Windows taskbar"
-
-        # Thanks to David Heffernan for the idea: 
-        # http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
-        # A window is represented in the taskbar if:
-        # It is not owned and does not have the WS_EX_TOOLWINDOW extended style, or
-        # It has the WS_EX_APPWINDOW extended style.
+        """
+        Check whether the dialog is shown in the Windows taskbar
+        
+        Thanks to David Heffernan for the idea: 
+        http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
+        A window is represented in the taskbar if:
+        It has no owner and it does not have the WS_EX_TOOLWINDOW extended style,
+        or it has the WS_EX_APPWINDOW extended style.
+        """
         return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or \
                (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
     # Non PEP-8 alias
     IsInTaskbar = is_in_taskbar
+
+    #-----------------------------------------------------------
+    def force_close(self):
+        """
+        Close the dialog forcefully using WM_QUERYENDSESSION and return the result
+        
+        Window has let us know that it doesn't want to die - so we abort
+        this means that the app is not hung - but knows it doesn't want
+        to close yet - e.g. it is asking the user if they want to save.
+        """
+        self.send_message_timeout(
+            win32defines.WM_QUERYENDSESSION,
+            timeout = .5,
+            timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
+        #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+        #win32defines.SMTO_BLOCK)
+        
+        # get a handle we can wait on
+        try:
+            process_wait_handle = win32api.OpenProcess(
+                win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
+                0,
+                self.process)
+        except win32gui.error:
+            return True # already closed
+        
+        result = win32event.WaitForSingleObject(
+            process_wait_handle,
+            int(Timings.after_windowclose_timeout * 1000))
+        
+        return result != win32con.WAIT_TIMEOUT
 
 #    #-----------------------------------------------------------
 #    def read_controls_from_xml(self, filename):
@@ -1053,7 +1087,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
 class PopupMenuWrapper(HwndWrapper.HwndWrapper):
-    "Wrap a Popup Menu"
+    """Wrap a Popup Menu"""
 
     friendlyclassname = "PopupMenu"
     windowclasses = ["#32768", ]
@@ -1064,12 +1098,12 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Return whether it is a dialog"
+        """Return whether it is a dialog"""
         return True
 
     #-----------------------------------------------------------
     def _menu_handle(self):
-        '''Get the menu handle for the popup menu'''
+        """Get the menu handle for the popup menu"""
         hMenu = win32gui.SendMessage(self.handle, win32defines.MN_GETHMENU)
 
         if not hMenu:
