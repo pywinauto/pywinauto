@@ -85,6 +85,27 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
+def _build_condition(process = None, class_name = None, title = None):
+    "Build UIA filtering conditions"
+    full_cond = _true_condition
+    if process:
+        new_cond = _iuia.CreatePropertyCondition(
+                                _UIA_dll.UIA_ProcessIdPropertyId, process)
+        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+        
+    if class_name:
+        new_cond = _iuia.CreatePropertyCondition(
+                                _UIA_dll.UIA_ClassNamePropertyId, class_name)
+        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+        
+    if title:
+        # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
+        new_cond = _iuia.CreatePropertyCondition(
+                                _UIA_dll.UIA_NamePropertyId, title)
+        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+
+    return full_cond
+
 class UIAElementInfo(ElementInfo):
     "UI element wrapper for IUIAutomation API"
     def __init__(self, handle_or_elem = None):
@@ -167,45 +188,26 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    def _get_elements(self, scope, cond=_true_condition):
-        "Find all elements according to the given scope and conditions"
+    def _get_elements(self, tree_scope, cond = _true_condition):
+        """Find all elements according to the given tree scope and conditions"""
         elements = []
-        ptrs_array = self._element.FindAll(scope, cond)
+        ptrs_array = self._element.FindAll(tree_scope, cond)
         for num in range(ptrs_array.Length):
             child = ptrs_array.GetElement(num)
             elements.append(UIAElementInfo(child))
 
         return elements
 
-    def _build_condition(self, process = None, class_name = None, title = None):
-        "Build UIA filtering conditions"
-        full_cond = _true_condition
-        if process:
-            new_cond = _iuia.CreatePropertyCondition(
-                                    _UIA_dll.UIA_ProcessIdPropertyId, process)
-            full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
-            
-        if class_name:
-            new_cond = _iuia.CreatePropertyCondition(
-                                    _UIA_dll.UIA_ClassNamePropertyId, class_name)
-            full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
-            
-        if title:
-            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-            new_cond = _iuia.CreatePropertyCondition(
-                                    _UIA_dll.UIA_NamePropertyId, title)
-            full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
-
-        return full_cond
-
     def children(self, **kwargs):
-        "Return a list of only immediate children of the element according to the criterias"
-        cond = self._build_condition(**kwargs)
+        """Return a list of only immediate children of the element
+        according to the criteria"""
+        cond = _build_condition(**kwargs)
         return self._get_elements(_tree_scope["children"], cond)
 
     def descendants(self, **kwargs):
-        "Return a list of all descendant children of the element according to the criterias"
-        cond = self._build_condition(**kwargs)
+        """Return a list of all descendant children of the element 
+        according to the criteria"""
+        cond = _build_condition(**kwargs)
         return self._get_elements(_tree_scope["descendants"], cond)
 
     @property
