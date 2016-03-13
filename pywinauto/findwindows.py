@@ -139,7 +139,9 @@ def find_elements(class_name = None,
     if top_level_only:
         # find the top level elements
         element = backend_obj.element_info_class()
-        elements = element.children(process = process, class_name = class_name, title = title) # root.children == enum_windows()
+        elements = element.children(process = process, 
+                                    class_name = class_name, 
+                                    title = title) # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
@@ -152,7 +154,9 @@ def find_elements(class_name = None,
             parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
-        elements = parent.descendants(process = process, class_name = class_name, title = title) # root.children == enum_windows()
+        elements = parent.descendants(process = process, 
+                                      class_name = class_name, 
+                                      title = title) # root.children == enum_windows()
 
         # if the ctrl_index has been specified then just return
         # that control

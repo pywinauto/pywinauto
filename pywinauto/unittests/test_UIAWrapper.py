@@ -60,7 +60,7 @@ if UIA_support:
             "Test getting the friendly classname of the dialog"
             self.assertEqual(self.button.friendly_class_name(), "Button")
 
-        def testFindNonTopCtlByClassNameAndTitle(self):
+        def test_find_nontop_ctl_by_class_name_and_title(self):
             "Test getting a non-top control by a class name and a title"
 
             # Look up for a non-top button control with 'Apply' caption
@@ -75,7 +75,7 @@ if UIA_support:
             # Verify the caption of the found wrapper
             self.assertEqual(wins[0].texts()[0], caption)
 
-        def testFindTopCtlByClassNameAndTitle(self):
+        def test_find_top_win_by_class_name_and_title(self):
             "Test getting a top window by a class name and a title"
 
             # Since the top_level_only is True by default 
