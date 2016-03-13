@@ -113,11 +113,11 @@ _friendly_classes = {
 
 #=========================================================================
 class UiaMeta(BaseMeta):
-    "Metaclass for UiaWrapper objects"
+    """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
-        "Register the control types"
+        """Register the control types"""
 
         BaseMeta.__init__(cls, name, bases, attrs)
 
@@ -126,7 +126,7 @@ class UiaMeta(BaseMeta):
 
     @staticmethod
     def find_wrapper(element):
-        "Find the correct wrapper for this UIA element"
+        """Find the correct wrapper for this UIA element"""
 
         # Set a general wrapper by default
         wrapper_match = UIAWrapper
@@ -140,8 +140,7 @@ class UiaMeta(BaseMeta):
 #=========================================================================
 @six.add_metaclass(UiaMeta)
 class UIAWrapper(BaseWrapper):
-    """
-    Default wrapper for User Interface Automation (UIA) controls.
+    """Default wrapper for User Interface Automation (UIA) controls.
 
     All other UIA wrappers are derived from this.
 
@@ -173,8 +172,7 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, element_info):
-        """
-        Initialize the control
+        """Initialize the control
         
         * **element_info** is either a valid UIAElementInfo or it can be an
           instance or subclass of UIAWrapper.
@@ -185,7 +183,7 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def __hash__(self):
-        "Return unique hash value based on element's Runtime ID"
+        """Return unique hash value based on element's Runtime ID"""
         return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
@@ -200,8 +198,7 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def friendly_class_name(self):
-        """
-        Return the friendly class name for the control
+        """Return the friendly class name for the control
 
         This differs from the class of the control in some cases.
         class_name() is the actual 'Registered' window class of the control
@@ -224,17 +221,17 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def is_keyboard_focusable(self):
-        "Return True if element can be focused with keyboard"
+        """Return True if element can be focused with keyboard"""
         return self.element_info.element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
     def has_keyboard_focus(self):
-        "Return True if element is focused with keyboard"
+        """Return True if element is focused with keyboard"""
         return self.element_info.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
     def set_focus(self):
-        "Set the focus to this element"
+        """Set the focus to this element"""
         if self.is_keyboard_focusable() and not self.has_keyboard_focus():
             try:
                 self.element_info.element.SetFocus()
@@ -245,7 +242,7 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def invoke(self):
-        "An interface to the Invoke method of the Invoke control pattern"
+        """An interface to the Invoke method of the Invoke control pattern"""
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Invoke")
         iface.Invoke()
@@ -255,8 +252,7 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def expand(self):
-        """
-        An interface to Expand method of the ExpandCollapse control pattern.
+        """An interface to Expand method of the ExpandCollapse control pattern.
 
         Displays all child nodes, controls, or content of the control
         """
@@ -285,17 +281,16 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def get_expand_state(self):
-        """
-        An interface to CurrentExpandCollapseState property of 
+        """An interface to CurrentExpandCollapseState property of 
         the ExpandCollapse control pattern.
 
         Indicates the state, expanded or collapsed, of the control.
         
-        Values for enumeration as defined in comptypes.gen.Client module:
-        ExpandCollapseState_Collapsed = 0
-        ExpandCollapseState_Expanded = 1
-        ExpandCollapseState_PartiallyExpanded = 2
-        ExpandCollapseState_LeafNode = 3
+        Values for enumeration as defined in uia_defines module:
+        expand_state_collapsed = 0
+        expand_state_expanded = 1
+        expand_state_partially = 2
+        expand_state_leaf_node = 3
         """
 
         elem = self.element_info.element
@@ -304,23 +299,18 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def is_expanded(self):
-        """
-        Test if the control is expanded
-        """
+        """Test if the control is expanded"""
         state = self.get_expand_state()
         return state == uia_defs.expand_state_expanded
 
     #-----------------------------------------------------------
     def is_collapsed(self):
-        """
-        Test if the control is collapsed
-        """
+        """Test if the control is collapsed"""
         state = self.get_expand_state()
         return state == uia_defs.expand_state_collapsed
 
     def get_selection(self):
-        """
-        An interface to GetSelection of the SelectionProvider pattern
+        """An interface to GetSelection of the SelectionProvider pattern
 
         Retrieves a UI Automation provider for each child element
         that is selected. Builds a list of UIAElementInfo elements 
@@ -332,8 +322,7 @@ class UIAWrapper(BaseWrapper):
         return elements_from_uia_array(ptrs_array)
 
     def can_select_multiple(self):
-        """
-        An interface to CanSelectMultiple of the SelectionProvider pattern
+        """An interface to CanSelectMultiple of the SelectionProvider pattern
 
         Indicates whether the UI Automation provider allows more than one 
         child element to be selected concurrently.
