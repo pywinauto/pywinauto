@@ -85,8 +85,11 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
-def _build_condition(process = None, class_name = None, title = None):
-    "Build UIA filtering conditions"
+def _build_condition(process = None, 
+                     class_name = None, 
+                     title = None, 
+                     control_id = None):
+    """Build UIA filtering conditions"""
     full_cond = _true_condition
     if process:
         new_cond = _iuia.CreatePropertyCondition(
@@ -103,8 +106,22 @@ def _build_condition(process = None, class_name = None, title = None):
         new_cond = _iuia.CreatePropertyCondition(
                                 _UIA_dll.UIA_NamePropertyId, title)
         full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
+        
+    if control_id:
+        new_cond = _iuia.CreatePropertyCondition(
+                                _UIA_dll.UIA_ControlTypePropertyId, control_id)
+        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
 
     return full_cond
+
+def elements_from_uia_array(ptrs_array):
+    """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
+    elements = []
+    for num in range(ptrs_array.Length):
+        child = ptrs_array.GetElement(num)
+        elements.append(UIAElementInfo(child))
+
+    return elements
 
 class UIAElementInfo(ElementInfo):
     "UI element wrapper for IUIAutomation API"
@@ -121,8 +138,8 @@ class UIAElementInfo(ElementInfo):
             elif isinstance(handle_or_elem, UIAutomationClient.IUIAutomationElement):
                 self._element = handle_or_elem
             else:
-                raise TypeError("UIAElementInfo object can be initialized ' + \
-                    'with integer or IUIAutomationElement instance only!")
+                raise TypeError("UIAElementInfo object can be initialized " + \
+                    "with integer or IUIAutomationElement instance only!")
         else:
             self._element = _iuia.GetRootElement()            
 
@@ -190,13 +207,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_elements(self, tree_scope, cond = _true_condition):
         """Find all elements according to the given tree scope and conditions"""
-        elements = []
         ptrs_array = self._element.FindAll(tree_scope, cond)
-        for num in range(ptrs_array.Length):
-            child = ptrs_array.GetElement(num)
-            elements.append(UIAElementInfo(child))
-
-        return elements
+        return elements_from_uia_array(ptrs_array)
 
     def children(self, **kwargs):
         """Return a list of only immediate children of the element
