@@ -46,7 +46,7 @@ from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
-from ..UIAElementInfo import UIAElementInfo
+from ..UIAElementInfo import UIAElementInfo, elements_from_uia_array
 from ..UIAElementInfo import _UIA_dll
 
 #region PATTERNS
@@ -249,6 +249,130 @@ class UIAWrapper(BaseWrapper):
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Invoke")
         iface.Invoke()
+        
+        # Return itself to allow action chaining
+        return self
+
+    #-----------------------------------------------------------
+    def expand(self):
+        """
+        An interface to Expand method of the ExpandCollapse control pattern.
+
+        Displays all child nodes, controls, or content of the control
+        """
+
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
+        iface.Expand()
+
+        # Return itself to allow action chaining
+        return self
+
+    #-----------------------------------------------------------
+    def collapse(self):
+        """
+        An interface to Collapse method of the ExpandCollapse control pattern.
+
+        Displays all child nodes, controls, or content of the control
+        """
+
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
+        iface.Collapse()
+
+        # Return itself to allow action chaining
+        return self
+
+    #-----------------------------------------------------------
+    def get_expand_state(self):
+        """
+        An interface to CurrentExpandCollapseState property of 
+        the ExpandCollapse control pattern.
+
+        Indicates the state, expanded or collapsed, of the control.
+        
+        Values for enumeration as defined in comptypes.gen.Client module:
+        ExpandCollapseState_Collapsed = 0
+        ExpandCollapseState_Expanded = 1
+        ExpandCollapseState_PartiallyExpanded = 2
+        ExpandCollapseState_LeafNode = 3
+        """
+
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
+        return iface.CurrentExpandCollapseState
+
+    #-----------------------------------------------------------
+    def is_expanded(self):
+        """
+        Test if the control is expanded
+        """
+        state = self.get_expand_state()
+        return state == uia_defs.expand_state_expanded
+
+    #-----------------------------------------------------------
+    def is_collapsed(self):
+        """
+        Test if the control is collapsed
+        """
+        state = self.get_expand_state()
+        return state == uia_defs.expand_state_collapsed
+
+    def get_selection(self):
+        """
+        An interface to GetSelection of the SelectionProvider pattern
+
+        Retrieves a UI Automation provider for each child element
+        that is selected. Builds a list of UIAElementInfo elements 
+        from all retrieved providers.
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Selection")
+        ptrs_array = iface.GetCurrentSelection()
+        return elements_from_uia_array(ptrs_array)
+
+    def can_select_multiple(self):
+        """
+        An interface to CanSelectMultiple of the SelectionProvider pattern
+
+        Indicates whether the UI Automation provider allows more than one 
+        child element to be selected concurrently.
+
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Selection")
+        return iface.CurrentCanSelectMultiple
+
+    def is_selection_required(self):
+        """
+        An interface to IsSelectionRequired property of the 
+        SelectionProvider pattern.
+
+        This property can be dynamic. For example, the initial state of 
+        a control might not have any items selected by default, 
+        meaning that IsSelectionRequired is FALSE. However, 
+        after an item is selected the control must always have 
+        at least one item selected.
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Selection")
+        return iface.CurrentIsSelectionRequired
+
+    def select_by_name_or_by_idx(self, item_name = None, item_index = 0):
+        """Find a child item by the name or index and select
+        
+        The action can be applied for dirrent controls with items:
+        ComboBox, TreeView, ListView
+        """
+
+        list_ = self.element_info.children(title = item_name)
+        if item_index < len(list_):
+            elem = list_[item_index].element
+            iface = uia_defs.get_elem_interface(elem, "SelectionItem")
+            iface.Select()
+        else:
+            raise ValueError
+
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

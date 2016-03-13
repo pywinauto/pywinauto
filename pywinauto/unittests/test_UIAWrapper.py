@@ -325,6 +325,47 @@ if UIA_support:
             cur_state = self.dlg.Yes.select().is_selected()
             self.assertEqual(cur_state, True)
 
+        def testComboBox(self):
+            "Test 'Expand' and 'Collapse' for the combo box control"
+
+            combo_box = self.dlg.ComboBox
+
+            self.assertEqual(combo_box.can_select_multiple(), 0)
+            self.assertEqual(combo_box.is_selection_required(), False)
+            selection = combo_box.get_selection()
+            num_selected_items = len(selection)
+            self.assertEqual(num_selected_items, 0)
+            
+            # The ComboBox on the sample app has following items:
+            # 0. Combo Item 1
+            # 1. Combo Item 2
+            selection = combo_box.select(0).get_selection()
+            self.assertEqual(len(selection), 1)
+            self.assertEqual(selection[0].name, 'Combo Item 1')
+            
+            collapsed = combo_box.is_collapsed()
+            self.assertEqual(collapsed, True)
+            
+            selection = combo_box.select(1).get_selection()
+            self.assertEqual(len(selection), 1)
+            self.assertEqual(selection[0].name, 'Combo Item 2')
+            
+            combo_box.select('Combo Item 1')
+            selection = combo_box.get_selection()
+            self.assertEqual(len(selection), 1)
+            self.assertEqual(selection[0].name, 'Combo Item 1')
+            
+            collapsed = combo_box.is_collapsed()
+            self.assertEqual(collapsed, True)
+            
+            expanded = combo_box.expand().is_expanded()
+            self.assertEqual(expanded, True)
+            
+            collapsed = combo_box.collapse().is_collapsed()
+            self.assertEqual(collapsed, True)
+
+
+
 if __name__ == "__main__":
     if UIA_support:
         unittest.main()

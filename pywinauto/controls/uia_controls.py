@@ -30,7 +30,7 @@
 
 """Wrap various UIA windows controls
 """
-
+import pywinauto.six as six
 import pywinauto.uia_defines as uia_defs
 from . import UIAWrapper
 from ..uia_defines import _UIA_dll
@@ -131,3 +131,41 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "SelectionItem")
         return iface.CurrentIsSelected
+
+#====================================================================
+class ComboBoxWrapper(UIAWrapper.UIAWrapper):
+    "Wrap a UIA CoboBox control"
+
+    control_types = [
+       _UIA_dll.UIA_ComboBoxControlTypeId
+        ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        "Initialize the control"
+        super(ComboBoxWrapper, self).__init__(hwnd)
+
+    def select(self, item):
+        """Select the ComboBox item
+
+        item can be either a 0 based index of the item to select
+        or it can be the string that you want to select
+        """
+
+        item_index = 0
+        item_name = None
+        if isinstance(item, six.integer_types):
+            item_index = item
+        elif isinstance(item, six.string_types):
+            item_name = item
+        else:
+            self.actions.log(
+                "UIA ComboBox.select error: wrong item type - {0}".format(item))
+            raise ValueError
+
+        self.expand()
+        try:
+            self.select_by_name_or_by_idx(item_name, item_index)
+        finally:
+            self.collapse()
+            return self
