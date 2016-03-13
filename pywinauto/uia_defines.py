@@ -32,7 +32,39 @@
 
 import comtypes
 
-_UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
+class _Singleton(object):
+    """
+    Singleton class implementation from StackOverflow
+    
+    http://stackoverflow.com/a/1810367/3648361
+    """
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(_Singleton, cls).__new__(
+                                cls, *args, **kwargs)
+        return cls._instance
+
+class IUIA(_Singleton):
+    """Singleton class to store global COM objects from UIAutomationCore.dll"""
+    def __init__(self):
+        print('++++ IUIA constructor')
+        self.UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
+        self.ui_automation_client = comtypes.gen.UIAutomationClient
+        self.iuia = comtypes.CoCreateInstance(
+                self.ui_automation_client.CUIAutomation().IPersist_GetClassID(),
+                interface=self.ui_automation_client.IUIAutomation,
+                clsctx=comtypes.CLSCTX_INPROC_SERVER
+                )
+        self.true_condition = self.iuia.CreateTrueCondition()
+        self.tree_scope = {
+                'ancestors': self.UIA_dll.TreeScope_Ancestors,
+                'children': self.UIA_dll.TreeScope_Children,
+                'descendants': self.UIA_dll.TreeScope_Descendants,
+                'element': self.UIA_dll.TreeScope_Element,
+                'parent': self.UIA_dll.TreeScope_Parent,
+                'subtree': self.UIA_dll.TreeScope_Subtree,
+                }
 
 # Build a list of named constants that identify Microsoft UI Automation 
 # control patterns and their appropriate comtypes classes
@@ -69,12 +101,12 @@ def _build_pattern_ids_dic():
 
         # Construct a class name and check if it is supported by comtypes
         cls_name = ''.join(['IUIAutomation', ptrn_name, 'Pattern'])
-        if hasattr(comtypes.gen.UIAutomationClient, cls_name):
-            klass = getattr(comtypes.gen.UIAutomationClient, cls_name)
+        if hasattr(IUIA().ui_automation_client, cls_name):
+            klass = getattr(IUIA().ui_automation_client, cls_name)
             
             # Contruct a pattern ID name and get the ID value
             ptrn_id_name = 'UIA_' + ptrn_name + 'PatternId'
-            ptrn_id = getattr(_UIA_dll, ptrn_id_name)
+            ptrn_id = getattr(IUIA().UIA_dll, ptrn_id_name)
     
             # Update the registry of known patterns
             ptrn_ids_dic[ptrn_name] = (ptrn_id, klass)

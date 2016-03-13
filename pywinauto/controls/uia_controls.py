@@ -33,7 +33,7 @@
 
 import pywinauto.uia_defines as uia_defs
 from . import UIAWrapper
-from ..uia_defines import _UIA_dll
+from ..uia_defines import IUIA
 
 
 #====================================================================
@@ -41,9 +41,9 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
     "Wrap a UIA-compatible Button, CheckBox or RadioButton control"
 
     control_types = [
-        _UIA_dll.UIA_ButtonControlTypeId,
-        _UIA_dll.UIA_CheckBoxControlTypeId,
-        _UIA_dll.UIA_RadioButtonControlTypeId
+        IUIA().UIA_dll.UIA_ButtonControlTypeId,
+        IUIA().UIA_dll.UIA_CheckBoxControlTypeId,
+        IUIA().UIA_dll.UIA_RadioButtonControlTypeId
         ]
 
     #-----------------------------------------------------------

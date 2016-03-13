@@ -30,6 +30,7 @@ import win32gui
 import win32api
 import win32event
 import win32con
+import win32process
 import locale
 
 from . import HwndWrapper
@@ -44,7 +45,7 @@ from .. import controlproperties
 from ..timings import Timings
 
 if sysinfo.UIA_support:
-    from ..UIAElementInfo import _UIA_dll
+    from ..uia_defines import IUIA
 
 #====================================================================
 class ButtonWrapper(HwndWrapper.HwndWrapper):
@@ -58,9 +59,9 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         ".*CheckBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ButtonControlTypeId,
-            _UIA_dll.UIA_CheckBoxControlTypeId,
-            _UIA_dll.UIA_RadioButtonControlTypeId]
+            IUIA().UIA_dll.UIA_ButtonControlTypeId,
+            IUIA().UIA_dll.UIA_CheckBoxControlTypeId,
+            IUIA().UIA_dll.UIA_RadioButtonControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -280,7 +281,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         ".*ComboBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ComboBoxControlTypeId]
+            IUIA().UIA_dll.UIA_ComboBoxControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -452,7 +453,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         ".*ListBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ListControlTypeId]
+            IUIA().UIA_dll.UIA_ListControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -672,7 +673,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_EditControlTypeId]
+            IUIA().UIA_dll.UIA_EditControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -883,8 +884,8 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         ".*StaticText"]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ImageControlTypeId,
-            _UIA_dll.UIA_TextControlTypeId]
+            IUIA().UIA_dll.UIA_ImageControlTypeId,
+            IUIA().UIA_dll.UIA_TextControlTypeId]
     can_be_label = True
 
     def __init__(self, hwnd):
@@ -921,7 +922,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
     #windowclasses = ["#32770", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_WindowControlTypeId]
+            IUIA().UIA_dll.UIA_WindowControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -1043,11 +1044,12 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         #win32defines.SMTO_BLOCK)
         
         # get a handle we can wait on
+        _, pid = win32process.GetWindowThreadProcessId(int(self.handle))
         try:
             process_wait_handle = win32api.OpenProcess(
-                win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
+                win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
                 0,
-                self.process)
+                pid)
         except win32gui.error:
             return True # already closed
         
@@ -1096,7 +1098,7 @@ class PopupMenuWrapper(HwndWrapper.HwndWrapper):
     windowclasses = ["#32768", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_MenuControlTypeId]
+            IUIA().UIA_dll.UIA_MenuControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------

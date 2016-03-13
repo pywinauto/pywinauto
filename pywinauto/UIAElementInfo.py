@@ -32,33 +32,13 @@
 """
 
 import comtypes
-import comtypes.client
-import pywinauto.uia_defines as uia_defs
+from .uia_defines import IUIA
+from .uia_defines import get_elem_interface
 
 from .six import integer_types
 from .handleprops import dumpwindow, controlid
 from .ElementInfo import ElementInfo
 from .win32structures import RECT
-
-_UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
-from comtypes.gen import UIAutomationClient
-
-_iuia = comtypes.CoCreateInstance(
-    UIAutomationClient.CUIAutomation().IPersist_GetClassID(),
-    interface=UIAutomationClient.IUIAutomation,
-    clsctx=comtypes.CLSCTX_INPROC_SERVER
-)
-
-_true_condition = _iuia.CreateTrueCondition()
-
-_tree_scope = {
-    'ancestors': _UIA_dll.TreeScope_Ancestors,
-    'children': _UIA_dll.TreeScope_Children,
-    'descendants': _UIA_dll.TreeScope_Descendants,
-    'element': _UIA_dll.TreeScope_Element,
-    'parent': _UIA_dll.TreeScope_Parent,
-    'subtree': _UIA_dll.TreeScope_Subtree
-}
 
 """
 Possible properties:
@@ -89,27 +69,28 @@ def _build_condition(process = None, class_name = None, title = None):
     """Build UIA filtering conditions"""
     conditions = []
     if process:
-        conditions.append(_iuia.CreatePropertyCondition(
-                                _UIA_dll.UIA_ProcessIdPropertyId, process))
-    # XXX TODO: figure out why _iuia.CreatePropertyCondition() fails on Win8.1
+        print('UIA_ProcessIdPropertyId: process = ', process, ' type =', type(process))
+        conditions.append(IUIA().iuia.CreatePropertyCondition(
+                                IUIA().UIA_dll.UIA_ProcessIdPropertyId, process))
+    # XXX TODO: figure out why IUIA().iuia.CreatePropertyCondition() fails
     
     if class_name:
-        conditions.append(_iuia.CreatePropertyCondition(
-                                _UIA_dll.UIA_ClassNamePropertyId, class_name))
+        conditions.append(IUIA().iuia.CreatePropertyCondition(
+                                IUIA().UIA_dll.UIA_ClassNamePropertyId, class_name))
     
     if title:
         # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-        conditions.append(_iuia.CreatePropertyCondition(
-                                _UIA_dll.UIA_NamePropertyId, title))
+        conditions.append(IUIA().iuia.CreatePropertyCondition(
+                                IUIA().UIA_dll.UIA_NamePropertyId, title))
     
     if len(conditions) > 1:
         conditions_array = comtypes.safearray.array.array.fromlist(conditions)
-        return _iuia.CreateAndConditionFromArray(conditions_array)
+        return IUIA().iuia.CreateAndConditionFromArray(conditions_array)
     
     if len(conditions) == 1:
         return conditions[0]
     
-    return _true_condition
+    return IUIA().true_condition
 
 
 class UIAElementInfo(ElementInfo):
@@ -125,14 +106,14 @@ class UIAElementInfo(ElementInfo):
         if handle_or_elem is not None:
             if isinstance(handle_or_elem, integer_types):
                 # Create instane of UIAElementInfo from a handle
-                self._element = _iuia.ElementFromHandle(handle_or_elem)
+                self._element = IUIA().iuia.ElementFromHandle(handle_or_elem)
             elif isinstance(handle_or_elem, UIAutomationClient.IUIAutomationElement):
                 self._element = handle_or_elem
             else:
                 raise TypeError("UIAElementInfo object can be initialized ' + \
                     'with integer or IUIAutomationElement instance only!")
         else:
-            self._element = _iuia.GetRootElement()
+            self._element = IUIA().iuia.GetRootElement()
 
     @property
     def element(self):
@@ -190,13 +171,13 @@ class UIAElementInfo(ElementInfo):
     @property
     def parent(self):
         """Return parent of the element"""
-        parent_elem = _iuia.ControlViewWalker.GetParentElement(self._element)
+        parent_elem = IUIA().iuia.ControlViewWalker.GetParentElement(self._element)
         if parent_elem:
             return UIAElementInfo(parent_elem)
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond = _true_condition):
+    def _get_elements(self, tree_scope, cond = IUIA().true_condition):
         """Find all elements according to the given tree scope and conditions"""
         elements = []
         ptrs_array = self._element.FindAll(tree_scope, cond)
@@ -210,13 +191,13 @@ class UIAElementInfo(ElementInfo):
         """Return a list of only immediate children of the element
         according to the criteria"""
         cond = _build_condition(**kwargs)
-        return self._get_elements(_tree_scope["children"], cond)
+        return self._get_elements(IUIA().tree_scope["children"], cond)
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element 
         according to the criteria"""
         cond = _build_condition(**kwargs)
-        return self._get_elements(_tree_scope["descendants"], cond)
+        return self._get_elements(IUIA().tree_scope["descendants"], cond)
 
     @property
     def visible(self):

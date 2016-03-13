@@ -436,17 +436,13 @@ def _read_xml_structure(control_element):
 
 #====================================================================
 def ReadPropertiesFromFile(filename):
-    """
-    Return a list of controls from XML file filename
-    """
-    # parse the file
+    """Return a list of controls from XML file filename"""
     parsed = ElementTree().parse(filename)
 
     # Return the list that has been stored under 'CONTROL'
     props =  _read_xml_structure(parsed)['CONTROL']
     if not isinstance(props, list):
         props = [props]
-
 
     # it is an old XML so let's fix it up a little
     if not ("_version_" in parsed.attrib.keys()):

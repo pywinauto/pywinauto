@@ -47,7 +47,7 @@ from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
 from ..UIAElementInfo import UIAElementInfo
-from ..UIAElementInfo import _UIA_dll
+from ..uia_defines import IUIA
 
 #region PATTERNS
 AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
@@ -77,10 +77,10 @@ WindowPattern = comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
 #endregion
 
 #=========================================================================
-_control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(_UIA_dll) if attr.endswith('ControlTypeId')]
+_control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(IUIA().UIA_dll) if attr.endswith('ControlTypeId')]
 _known_control_types = {}
 for type_ in _control_types:
-    _known_control_types[_UIA_dll.__getattribute__('UIA_' + type_ + 'ControlTypeId')] = type_
+    _known_control_types[IUIA().UIA_dll.__getattribute__('UIA_' + type_ + 'ControlTypeId')] = type_
 
 #=========================================================================
 _friendly_classes = {
