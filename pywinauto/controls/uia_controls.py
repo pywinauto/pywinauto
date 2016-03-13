@@ -38,7 +38,7 @@ from ..uia_defines import _UIA_dll
 
 #====================================================================
 class ButtonWrapper(UIAWrapper.UIAWrapper):
-    "Wrap a UIA-compatible Button, CheckBox or RadioButton control"
+    """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
     control_types = [
         _UIA_dll.UIA_ButtonControlTypeId,
@@ -48,13 +48,13 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
-        "Initialize the control"
+        """Initialize the control"""
         super(ButtonWrapper, self).__init__(hwnd)
 
     #-----------------------------------------------------------
     def toggle(self):
-        """
-        An interface to Toggle method of the Toggle control pattern.
+        """An interface to Toggle method of the Toggle control pattern.
+        
         Control supporting the Toggle pattern cycles through its 
         toggle states in the following order: 
         ToggleState_On, ToggleState_Off and, 
@@ -78,6 +78,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
     #-----------------------------------------------------------
     def get_toggle_state(self):
         """Get a toggle state of a check box control.
+
         The toggle state is represented by an integer
         0 - unchecked
         1 - checked
@@ -94,12 +95,12 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Buttons are never dialogs so return False"
+        """Buttons are never dialogs so return False"""
         return False
 
     #-----------------------------------------------------------
     def click(self):
-        "Click the Button control by using Invoke pattern"
+        """Click the Button control by using Invoke pattern"""
         self.invoke()
 
         # Return itself so that action can be chained
@@ -107,8 +108,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def select(self):
-        """
-        An interface to Select method of the SelectionItem control pattern.
+        """An interface to Select method of the SelectionItem control pattern.
 
         Usually applied for a radio button control
         """
@@ -134,7 +134,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
 #====================================================================
 class ComboBoxWrapper(UIAWrapper.UIAWrapper):
-    "Wrap a UIA CoboBox control"
+    """Wrap a UIA CoboBox control"""
 
     control_types = [
        _UIA_dll.UIA_ComboBoxControlTypeId
@@ -142,7 +142,7 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
-        "Initialize the control"
+        """Initialize the control"""
         super(ComboBoxWrapper, self).__init__(hwnd)
 
     def select(self, item):
@@ -163,6 +163,7 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
                 "UIA ComboBox.select error: wrong item type - {0}".format(item))
             raise ValueError
 
+        # ComboBox has to be expanded to populate a list of its children items
         self.expand()
         try:
             self.select_by_name_or_by_idx(item_name, item_index)
