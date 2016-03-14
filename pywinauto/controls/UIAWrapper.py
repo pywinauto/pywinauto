@@ -39,8 +39,8 @@ from ..timings import Timings
 from ..actionlogger import ActionLogger
 
 import comtypes
-import comtypes.client
-import pywinauto.uia_defines as uia_defs
+from ..uia_defines import IUIA
+from .. import uia_defines as uia_defs
 
 from .. import backend
 from ..base_wrapper import BaseWrapper
@@ -50,30 +50,30 @@ from ..UIAElementInfo import UIAElementInfo
 from ..uia_defines import IUIA
 
 #region PATTERNS
-AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
+AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
 
-DockPattern = comtypes.gen.UIAutomationClient.IUIAutomationDockPattern
-ExpandCollapsePattern = comtypes.gen.UIAutomationClient.IUIAutomationExpandCollapsePattern
-GridItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationGridItemPattern
-GridPattern = comtypes.gen.UIAutomationClient.IUIAutomationGridPattern
-InvokePattern = comtypes.gen.UIAutomationClient.IUIAutomationInvokePattern
-ItemContainerPattern = comtypes.gen.UIAutomationClient.IUIAutomationItemContainerPattern
-LegacyIAccessiblePattern = comtypes.gen.UIAutomationClient.IUIAutomationLegacyIAccessiblePattern
-MultipleViewPattern = comtypes.gen.UIAutomationClient.IUIAutomationMultipleViewPattern
-RangeValuePattern = comtypes.gen.UIAutomationClient.IUIAutomationRangeValuePattern
-ScrollItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationScrollItemPattern
-ScrollPattern = comtypes.gen.UIAutomationClient.IUIAutomationScrollPattern
-SelectionItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationSelectionItemPattern
-SelectionPattern = comtypes.gen.UIAutomationClient.IUIAutomationSelectionPattern
-SynchronizedInputPattern = comtypes.gen.UIAutomationClient.IUIAutomationSynchronizedInputPattern
-TableItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationTableItemPattern
-TablePattern = comtypes.gen.UIAutomationClient.IUIAutomationTablePattern
-TextPattern = comtypes.gen.UIAutomationClient.IUIAutomationTextPattern
-TogglePattern = comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern
-TransformPattern = comtypes.gen.UIAutomationClient.IUIAutomationTransformPattern
-ValuePattern = comtypes.gen.UIAutomationClient.IUIAutomationValuePattern
-VirtualizedItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationVirtualizedItemPattern
-WindowPattern = comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
+DockPattern = IUIA().ui_automation_client.IUIAutomationDockPattern
+ExpandCollapsePattern = IUIA().ui_automation_client.IUIAutomationExpandCollapsePattern
+GridItemPattern = IUIA().ui_automation_client.IUIAutomationGridItemPattern
+GridPattern = IUIA().ui_automation_client.IUIAutomationGridPattern
+InvokePattern = IUIA().ui_automation_client.IUIAutomationInvokePattern
+ItemContainerPattern = IUIA().ui_automation_client.IUIAutomationItemContainerPattern
+LegacyIAccessiblePattern = IUIA().ui_automation_client.IUIAutomationLegacyIAccessiblePattern
+MultipleViewPattern = IUIA().ui_automation_client.IUIAutomationMultipleViewPattern
+RangeValuePattern = IUIA().ui_automation_client.IUIAutomationRangeValuePattern
+ScrollItemPattern = IUIA().ui_automation_client.IUIAutomationScrollItemPattern
+ScrollPattern = IUIA().ui_automation_client.IUIAutomationScrollPattern
+SelectionItemPattern = IUIA().ui_automation_client.IUIAutomationSelectionItemPattern
+SelectionPattern = IUIA().ui_automation_client.IUIAutomationSelectionPattern
+SynchronizedInputPattern = IUIA().ui_automation_client.IUIAutomationSynchronizedInputPattern
+TableItemPattern = IUIA().ui_automation_client.IUIAutomationTableItemPattern
+TablePattern = IUIA().ui_automation_client.IUIAutomationTablePattern
+TextPattern = IUIA().ui_automation_client.IUIAutomationTextPattern
+TogglePattern = IUIA().ui_automation_client.IUIAutomationTogglePattern
+TransformPattern = IUIA().ui_automation_client.IUIAutomationTransformPattern
+ValuePattern = IUIA().ui_automation_client.IUIAutomationValuePattern
+VirtualizedItemPattern = IUIA().ui_automation_client.IUIAutomationVirtualizedItemPattern
+WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
 #endregion
 
 #=========================================================================

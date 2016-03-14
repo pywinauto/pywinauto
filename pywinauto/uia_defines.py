@@ -31,22 +31,30 @@
 """Common UIA definitions and helper functions"""
 
 import comtypes
+import comtypes.client
+from . import six
 
-class _Singleton(object):
+
+class _Singleton(type):
+
     """
-    Singleton class implementation from StackOverflow
+    Singleton metaclass implementation from StackOverflow
     
-    http://stackoverflow.com/a/1810367/3648361
+    http://stackoverflow.com/q/6760685/3648361
     """
-    _instance = None
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(_Singleton, cls).__new__(
-                                cls, *args, **kwargs)
-        return cls._instance
 
-class IUIA(_Singleton):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+@six.add_metaclass(_Singleton)
+class IUIA(object):
+
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
+
     def __init__(self):
         print('++++ IUIA constructor')
         self.UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
@@ -65,6 +73,34 @@ class IUIA(_Singleton):
                 'parent': self.UIA_dll.TreeScope_Parent,
                 'subtree': self.UIA_dll.TreeScope_Subtree,
                 }
+        self.root = self.iuia.GetRootElement()
+    
+    def build_condition(self, process = None, class_name = None, title = None):
+        """Build UIA filtering conditions"""
+        conditions = []
+        if process:
+            print('UIA_ProcessIdPropertyId: process = ', process, ' type =', type(process))
+            conditions.append(self.iuia.CreatePropertyCondition(
+                                    self.UIA_dll.UIA_ProcessIdPropertyId, process))
+        # XXX TODO: figure out why self.iuia.CreatePropertyCondition() fails
+        
+        if class_name:
+            conditions.append(self.iuia.CreatePropertyCondition(
+                                    self.UIA_dll.UIA_ClassNamePropertyId, class_name))
+        
+        if title:
+            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
+            conditions.append(self.iuia.CreatePropertyCondition(
+                                    self.UIA_dll.UIA_NamePropertyId, title))
+        
+        if len(conditions) > 1:
+            conditions_array = comtypes.safearray.array.array.fromlist(conditions)
+            return self.iuia.CreateAndConditionFromArray(conditions_array)
+        
+        if len(conditions) == 1:
+            return conditions[0]
+        
+        return self.true_condition
 
 # Build a list of named constants that identify Microsoft UI Automation 
 # control patterns and their appropriate comtypes classes
@@ -130,8 +166,10 @@ toggle_state_on = 1
 toggle_state_inderteminate = 2
 
 class NoPatternInterfaceError(Exception):
-    "There is no such interface for the specified pattern"
+
+    """There is no such interface for the specified pattern"""
     pass
+
 
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name

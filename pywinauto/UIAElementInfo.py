@@ -65,34 +65,6 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
-def _build_condition(process = None, class_name = None, title = None):
-    """Build UIA filtering conditions"""
-    conditions = []
-    if process:
-        print('UIA_ProcessIdPropertyId: process = ', process, ' type =', type(process))
-        conditions.append(IUIA().iuia.CreatePropertyCondition(
-                                IUIA().UIA_dll.UIA_ProcessIdPropertyId, process))
-    # XXX TODO: figure out why IUIA().iuia.CreatePropertyCondition() fails
-    
-    if class_name:
-        conditions.append(IUIA().iuia.CreatePropertyCondition(
-                                IUIA().UIA_dll.UIA_ClassNamePropertyId, class_name))
-    
-    if title:
-        # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-        conditions.append(IUIA().iuia.CreatePropertyCondition(
-                                IUIA().UIA_dll.UIA_NamePropertyId, title))
-    
-    if len(conditions) > 1:
-        conditions_array = comtypes.safearray.array.array.fromlist(conditions)
-        return IUIA().iuia.CreateAndConditionFromArray(conditions_array)
-    
-    if len(conditions) == 1:
-        return conditions[0]
-    
-    return IUIA().true_condition
-
-
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
@@ -113,7 +85,7 @@ class UIAElementInfo(ElementInfo):
                 raise TypeError("UIAElementInfo object can be initialized ' + \
                     'with integer or IUIAutomationElement instance only!")
         else:
-            self._element = IUIA().iuia.GetRootElement()
+            self._element = IUIA().root
 
     @property
     def element(self):
@@ -190,13 +162,13 @@ class UIAElementInfo(ElementInfo):
     def children(self, **kwargs):
         """Return a list of only immediate children of the element
         according to the criteria"""
-        cond = _build_condition(**kwargs)
+        cond = IUIA().build_condition(**kwargs)
         return self._get_elements(IUIA().tree_scope["children"], cond)
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element 
         according to the criteria"""
-        cond = _build_condition(**kwargs)
+        cond = IUIA().build_condition(**kwargs)
         return self._get_elements(IUIA().tree_scope["descendants"], cond)
 
     @property
