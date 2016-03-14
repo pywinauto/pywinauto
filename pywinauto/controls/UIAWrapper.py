@@ -38,16 +38,14 @@ from .. import six
 from ..timings import Timings
 from ..actionlogger import ActionLogger
 
-import comtypes
-from ..uia_defines import IUIA
-from .. import uia_defines as uia_defs
-
 from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
-from ..UIAElementInfo import UIAElementInfo
+import comtypes
 from ..uia_defines import IUIA
+from .. import uia_defines as uia_defs
+from ..UIAElementInfo import UIAElementInfo
 
 #region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement

@@ -56,7 +56,6 @@ class IUIA(object):
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
 
     def __init__(self):
-        print('++++ IUIA constructor')
         self.UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
         self.ui_automation_client = comtypes.gen.UIAutomationClient
         self.iuia = comtypes.CoCreateInstance(
@@ -79,10 +78,8 @@ class IUIA(object):
         """Build UIA filtering conditions"""
         conditions = []
         if process:
-            print('UIA_ProcessIdPropertyId: process = ', process, ' type =', type(process))
             conditions.append(self.iuia.CreatePropertyCondition(
                                     self.UIA_dll.UIA_ProcessIdPropertyId, process))
-        # XXX TODO: figure out why self.iuia.CreatePropertyCondition() fails
         
         if class_name:
             conditions.append(self.iuia.CreatePropertyCondition(
@@ -94,8 +91,7 @@ class IUIA(object):
                                     self.UIA_dll.UIA_NamePropertyId, title))
         
         if len(conditions) > 1:
-            conditions_array = comtypes.safearray.array.array.fromlist(conditions)
-            return self.iuia.CreateAndConditionFromArray(conditions_array)
+            return self.iuia.CreateAndConditionFromArray(conditions)
         
         if len(conditions) == 1:
             return conditions[0]
@@ -110,7 +106,8 @@ class IUIA(object):
 # header: UIAutomationClient.h
 
 def _build_pattern_ids_dic():
-    """A helper procedure to build a registry of control patterns 
+    """
+    A helper procedure to build a registry of control patterns 
     supported on the current system
     """
     base_names = [

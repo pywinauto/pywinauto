@@ -1157,9 +1157,8 @@ class Application(object):
 
         for win in windows:
 
-            if hasattr(win, 'force_close'):
-                if win.force_close():
-                    continue
+            if hasattr(win, 'force_close') and win.force_close():
+                continue
 
             try:
                 if hasattr(win, 'close'):
@@ -1243,11 +1242,12 @@ def process_module(process_id):
 #=========================================================================
 def _warn_incorrect_binary_bitness(exe_name):
     "warn if executable is of incorrect bitness"
-    if os.path.isabs(exe_name) and os.path.isfile(exe_name):
-        if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
-            warnings.warn(
-                "64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
-                UserWarning, stacklevel=2)
+    if os.path.isabs(exe_name) and os.path.isfile(exe_name) and \
+            handleprops.is64bitbinary(exe_name) and not is_x64_Python():
+        warnings.warn(
+            "64-bit binary from 32-bit Python may work incorrectly " \
+            "(please use 64-bit Python instead)",
+            UserWarning, stacklevel=2)
 
 #=========================================================================
 def process_from_module(module):

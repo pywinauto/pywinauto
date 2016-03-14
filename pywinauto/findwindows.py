@@ -39,25 +39,30 @@ from .backend import registry
 
 #=========================================================================
 class WindowAmbiguousError(Exception):
-    "There was more then one window that matched"
+
+    """There was more then one window that matched"""
     pass
 
 #=========================================================================
 class ElementNotFoundError(Exception):
-    "No element could be found"
+
+    """No element could be found"""
     pass
 
 #=========================================================================
 class ElementAmbiguousError(Exception):
-    "There was more then one element that matched"
+
+    """There was more then one element that matched"""
     pass
 
 #=========================================================================
 def find_element(**kwargs):
-    """Call find_elements and ensure that only one element is returned
+    """
+    Call find_elements and ensure that only one element is returned
 
     Calls find_elements with exactly the same arguments as it is called with
-    so please see find_elements for a description of them."""
+    so please see find_elements for a description of them.
+    """
     elements = find_elements(**kwargs)
 
     if not elements:
@@ -132,9 +137,8 @@ def find_elements(class_name = None,
         return [backend_obj.element_info_class(handle), ]
 
     # check if parent is a handle of element (in case of searching native controls)
-    if parent:
-        if isinstance(parent, six.integer_types):
-            parent = backend_obj.element_info_class(parent)
+    if parent and isinstance(parent, six.integer_types):
+        parent = backend_obj.element_info_class(parent)
 
     if top_level_only:
         # find the top level elements

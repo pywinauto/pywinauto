@@ -374,11 +374,11 @@ def _StaticTruncInfo(win):
     lineFormat = win32defines.DT_WORDBREAK
 
     if win.HasStyle(win32defines.SS_CENTERIMAGE) or \
-        win.HasStyle(win32defines.SS_SIMPLE) or \
-        win.HasStyle(win32defines.SS_LEFTNOWORDWRAP):
+            win.HasStyle(win32defines.SS_SIMPLE) or \
+            win.HasStyle(win32defines.SS_LEFTNOWORDWRAP) and \
+            "WindowsForms" not in win.class_name():
 
-        if "WindowsForms" not in win.class_name():
-            lineFormat = win32defines.DT_SINGLELINE
+        lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.SS_NOPREFIX):
         lineFormat |= win32defines.DT_NOPREFIX

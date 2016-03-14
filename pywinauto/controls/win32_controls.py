@@ -66,16 +66,14 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
-        "Initialize the control"
+        """Initialize the control"""
         super(ButtonWrapper, self).__init__(hwnd)
 
         #self._set_if_needs_image()
 
     @property
     def _needs_image_prop(self):
-
         """_needs_image_prop=True if it is an image button"""
-
         # optimization call style once and work with that rather than
         # calling has_style a number of times
         style = self.style()
@@ -91,7 +89,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def friendly_class_name(self):
-        """Return the friendly class name of the button
+        """
+        Return the friendly class name of the button
 
         Windows controls with the class "Button" can look like different
         controls based on their style. They can look like the following
@@ -101,13 +100,11 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
           - CheckBoxes, this method returns "CheckBox"
           - RadioButtons, this method returns "RadioButton"
           - GroupBoxes, this method returns "GroupBox"
-
         """
         # get the least significant BIT
         style_lsb = self.style() & 0xF
 
         f_class_name = 'Button'
-
 
         vb_buttons = {
             "ThunderOptionButton": "RadioButton",
@@ -118,15 +115,15 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         if self.class_name() in vb_buttons:
             f_class_name = vb_buttons[self.class_name()]
 
-        if style_lsb == win32defines.BS_3STATE or \
-            style_lsb == win32defines.BS_AUTO3STATE or \
-            style_lsb == win32defines.BS_AUTOCHECKBOX or \
-            style_lsb == win32defines.BS_CHECKBOX:
+        if style_lsb in [win32defines.BS_3STATE,
+                        win32defines.BS_AUTO3STATE,
+                        win32defines.BS_AUTOCHECKBOX,
+                        win32defines.BS_CHECKBOX, ]:
             f_class_name = "CheckBox"
-        elif style_lsb == win32defines.BS_RADIOBUTTON or \
-            style_lsb == win32defines.BS_AUTORADIOBUTTON:
+        elif style_lsb in [win32defines.BS_RADIOBUTTON,
+                        win32defines.BS_AUTORADIOBUTTON, ]:
             f_class_name = "RadioButton"
-        elif style_lsb ==  win32defines.BS_GROUPBOX:
+        elif style_lsb == win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"
 
         if self.style() & win32defines.BS_PUSHLIKE:
@@ -134,10 +131,10 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         return f_class_name
 
-
     #-----------------------------------------------------------
     def get_check_state(self):
-        """Return the check state of the checkbox
+        """
+        Return the check state of the checkbox
 
         The check state is represented by an integer
         0 - unchecked
@@ -155,7 +152,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def check(self):
-        "Check a checkbox"
+        """Check a checkbox"""
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_CHECKED)
 
@@ -169,7 +166,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def uncheck(self):
-        "Uncheck a checkbox"
+        """Uncheck a checkbox"""
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_UNCHECKED)
 
@@ -183,7 +180,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def set_check_indeterminate(self):
-        "Set the checkbox to indeterminate"
+        """Set the checkbox to indeterminate"""
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_INDETERMINATE)
 
@@ -197,22 +194,22 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Buttons are never dialogs so return False"
+        """Buttons are never dialogs so return False"""
         return False
 
     #-----------------------------------------------------------
     def click(self, *args, **kwargs):
-        "Click the Button control"
-    #    import win32functions
-    #    win32functions.WaitGuiThreadIdle(self)
-    #    self.notify_parent(win32defines.BN_CLICKED)
+        """Click the Button control"""
+        #import win32functions
+        #win32functions.WaitGuiThreadIdle(self)
+        #self.notify_parent(win32defines.BN_CLICKED)
         HwndWrapper.HwndWrapper.click(self, *args, **kwargs)
-    #    win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_button_click_wait)
 
     #-----------------------------------------------------------
     def check_by_click(self):
-        "Check the CheckBox control by click() method"
+        """Check the CheckBox control by click() method"""
         if self.get_check_state() != win32defines.BST_CHECKED:
             self.click()
     # Non PEP-8 alias
@@ -220,7 +217,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def uncheck_by_click(self):
-        "Uncheck the CheckBox control by click() method"
+        """Uncheck the CheckBox control by click() method"""
         if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click()
     # Non PEP-8 alias
@@ -228,7 +225,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def check_by_click_input(self):
-        "Check the CheckBox control by click_input() method"
+        """Check the CheckBox control by click_input() method"""
         if self.get_check_state() != win32defines.BST_CHECKED:
             self.click_input()
     # Non PEP-8 alias
@@ -236,7 +233,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def uncheck_by_click_input(self):
-        "Uncheck the CheckBox control by click_input() method"
+        """Uncheck the CheckBox control by click_input() method"""
         if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click_input()
     # Non PEP-8 alias
@@ -244,8 +241,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
-    "Helper function to get multiple text items from a control"
-
+    """Helper function to get multiple text items from a control"""
     texts = []
 
     # find out how many text items are in the combobox

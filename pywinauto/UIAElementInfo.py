@@ -31,7 +31,6 @@
 
 """
 
-import comtypes
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
 
@@ -79,7 +78,7 @@ class UIAElementInfo(ElementInfo):
             if isinstance(handle_or_elem, integer_types):
                 # Create instane of UIAElementInfo from a handle
                 self._element = IUIA().iuia.ElementFromHandle(handle_or_elem)
-            elif isinstance(handle_or_elem, UIAutomationClient.IUIAutomationElement):
+            elif isinstance(handle_or_elem, IUIA().ui_automation_client.IUIAutomationElement):
                 self._element = handle_or_elem
             else:
                 raise TypeError("UIAElementInfo object can be initialized ' + \
