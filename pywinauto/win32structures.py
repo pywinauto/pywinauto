@@ -107,7 +107,10 @@ def _construct(typ, buf):
     return obj
 
 def _reduce(self):
-    return (_construct, (self.__class__, str(buffer(self))))
+    if six.PY2:
+        return (_construct, (self.__class__, str(buffer(self))))
+    else:
+        return (_construct, (self.__class__, bytes(memoryview(self))))
 
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)

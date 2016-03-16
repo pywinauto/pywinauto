@@ -911,7 +911,7 @@ class Application(object):
         if create_new_console:
             dw_creation_flags = win32con.CREATE_NEW_CONSOLE
         try:
-            (h_process, h_thread, dw_process_id, dw_thread_id) = win32process.CreateProcess(
+            (h_process, _, dw_process_id, _) = win32process.CreateProcess(
                 None, 					# module name
                 command_line,			# command line
                 None, 					# Process handle not inheritable.

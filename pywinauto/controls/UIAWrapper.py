@@ -75,10 +75,13 @@ WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
 #endregion
 
 #=========================================================================
-_control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(IUIA().UIA_dll) if attr.endswith('ControlTypeId')]
+_control_types = [attr[len('UIA_'):-len('ControlTypeId')] \
+        for attr in dir(IUIA().UIA_dll) if attr.endswith('ControlTypeId')]
 _known_control_types = {}
-for type_ in _control_types:
-    _known_control_types[IUIA().UIA_dll.__getattribute__('UIA_' + type_ + 'ControlTypeId')] = type_
+for ctrl_type in _control_types:
+    type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
+    type_id = IUIA().UIA_dll.__getattribute__(type_id_name)
+    _known_control_types[type_id] = ctrl_type
 
 #=========================================================================
 _friendly_classes = {
@@ -111,11 +114,12 @@ _friendly_classes = {
 
 #=========================================================================
 class UiaMeta(BaseMeta):
-    "Metaclass for UiaWrapper objects"
+
+    """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
-        "Register the control types"
+        """Register the control types"""
 
         BaseMeta.__init__(cls, name, bases, attrs)
 
@@ -124,8 +128,7 @@ class UiaMeta(BaseMeta):
 
     @staticmethod
     def find_wrapper(element):
-        "Find the correct wrapper for this UIA element"
-
+        """Find the correct wrapper for this UIA element"""
         # Set a general wrapper by default
         wrapper_match = UIAWrapper
 
@@ -183,7 +186,7 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def __hash__(self):
-        "Return unique hash value based on element's Runtime ID"
+        """Return unique hash value based on element's Runtime ID"""
         return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
@@ -222,17 +225,17 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def is_keyboard_focusable(self):
-        "Return True if element can be focused with keyboard"
+        """Return True if element can be focused with keyboard"""
         return self.element_info.element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
     def has_keyboard_focus(self):
-        "Return True if element is focused with keyboard"
+        """Return True if element is focused with keyboard"""
         return self.element_info.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
     def set_focus(self):
-        "Set the focus to this element"
+        """Set the focus to this element"""
         if self.is_keyboard_focusable() and not self.has_keyboard_focus():
             try:
                 self.element_info.element.SetFocus()
@@ -243,7 +246,7 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def invoke(self):
-        "An interface to the Invoke method of the Invoke control pattern"
+        """An interface to the Invoke method of the Invoke control pattern"""
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Invoke")
         iface.Invoke()

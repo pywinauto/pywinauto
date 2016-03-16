@@ -159,14 +159,22 @@ class UIAElementInfo(ElementInfo):
         return elements
 
     def children(self, **kwargs):
-        """Return a list of only immediate children of the element
-        according to the criteria"""
+        """
+        Return a list of only immediate children of the element
+        
+        * **kwargs** is a criteria to reduce a list by process, 
+        class_name and/or title.
+        """
         cond = IUIA().build_condition(**kwargs)
         return self._get_elements(IUIA().tree_scope["children"], cond)
 
     def descendants(self, **kwargs):
-        """Return a list of all descendant children of the element 
-        according to the criteria"""
+        """
+        Return a list of all descendant children of the element 
+        
+        * **kwargs** is a criteria to reduce a list by process, 
+        class_name and/or title.
+        """
         cond = IUIA().build_condition(**kwargs)
         return self._get_elements(IUIA().tree_scope["descendants"], cond)
 
