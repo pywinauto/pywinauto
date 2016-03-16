@@ -201,7 +201,7 @@ class UIAElementInfo(ElementInfo):
         if not self.class_name:
             return self.name
         try:
-            pattern = uia_defs.get_elem_interface(self._element, "Text")
+            pattern = get_elem_interface(self._element, "Text")
             return pattern.DocumentRange.GetText(-1)
         except Exception:
             return self.name # TODO: probably we should raise an exception here
