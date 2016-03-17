@@ -103,7 +103,6 @@ class HwndMeta(BaseMeta):
         
         Both the regular expression or the classes directly are registered.
         """
-
         BaseMeta.__init__(cls, name, bases, attrs)
 
         for win_class in cls.windowclasses:
