@@ -115,7 +115,7 @@ def _set_node_props(element, name, value):
         listelem = SubElement(element, name + "_LIST")
 
         for i, attrval in enumerate(value):
-            _set_node_props(listelem, "{0}_{1:5d}".format(name, i), attrval)
+            _set_node_props(listelem, "%s_%05d"%(name, i), attrval)
 
     elif isinstance(value, dict):
         dict_elem = SubElement(element, name)
@@ -171,7 +171,7 @@ def _escape_specials(string):
 
     # escape non printable characters (chars below 30)
     for i in range(0, 32):
-        string = string.replace(six.unichr(i), "\\{0:2d}".format(i))
+        string = string.replace(six.unichr(i), "\\%02d"%i)
 
     return string
 
@@ -181,7 +181,7 @@ def _un_escape_specials(string):
     """Replace escaped characters with real character"""
     # Unescape all the escape characters
     for i in range(0, 32):
-        string = string.replace("\\{0:2d}".format(i), six.unichr(i))
+        string = string.replace("\\%02d"%i, six.unichr(i))
 
     # convert doubled backslashes to a single backslash
     string = string.replace(r'\\', '\\')
