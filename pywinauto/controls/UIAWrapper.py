@@ -140,7 +140,8 @@ class UiaMeta(BaseMeta):
 #=========================================================================
 @six.add_metaclass(UiaMeta)
 class UIAWrapper(BaseWrapper):
-    """Default wrapper for User Interface Automation (UIA) controls.
+    """
+    Default wrapper for User Interface Automation (UIA) controls.
 
     All other UIA wrappers are derived from this.
 
@@ -172,7 +173,8 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, element_info):
-        """Initialize the control
+        """
+        Initialize the control
         
         * **element_info** is either a valid UIAElementInfo or it can be an
           instance or subclass of UIAWrapper.
@@ -198,7 +200,8 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def friendly_class_name(self):
-        """Return the friendly class name for the control
+        """
+        Return the friendly class name for the control
 
         This differs from the class of the control in some cases.
         class_name() is the actual 'Registered' window class of the control
@@ -252,7 +255,8 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def expand(self):
-        """An interface to Expand method of the ExpandCollapse control pattern.
+        """
+        An interface to Expand method of the ExpandCollapse control pattern.
 
         Displays all child nodes, controls, or content of the control
         """
@@ -281,7 +285,8 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def get_expand_state(self):
-        """An interface to CurrentExpandCollapseState property of 
+        """
+        An interface to CurrentExpandCollapseState property of 
         the ExpandCollapse control pattern.
 
         Indicates the state, expanded or collapsed, of the control.
@@ -310,7 +315,8 @@ class UIAWrapper(BaseWrapper):
         return state == uia_defs.expand_state_collapsed
 
     def get_selection(self):
-        """An interface to GetSelection of the SelectionProvider pattern
+        """
+        An interface to GetSelection of the SelectionProvider pattern
 
         Retrieves a UI Automation provider for each child element
         that is selected. Builds a list of UIAElementInfo elements 
@@ -322,7 +328,8 @@ class UIAWrapper(BaseWrapper):
         return elements_from_uia_array(ptrs_array)
 
     def can_select_multiple(self):
-        """An interface to CanSelectMultiple of the SelectionProvider pattern
+        """
+        An interface to CanSelectMultiple of the SelectionProvider pattern
 
         Indicates whether the UI Automation provider allows more than one 
         child element to be selected concurrently.
@@ -348,7 +355,8 @@ class UIAWrapper(BaseWrapper):
         return iface.CurrentIsSelectionRequired
 
     def select_by_name_or_by_idx(self, item_name = None, item_index = 0):
-        """Find a child item by the name or index and select
+        """
+        Find a child item by the name or index and select
         
         The action can be applied for dirrent controls with items:
         ComboBox, TreeView, ListView

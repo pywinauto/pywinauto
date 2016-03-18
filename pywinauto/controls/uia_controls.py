@@ -28,7 +28,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Wrap various UIA windows controls
+"""
+Wrap various UIA windows controls
 """
 import pywinauto.six as six
 import pywinauto.uia_defines as uia_defs
@@ -53,7 +54,8 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def toggle(self):
-        """An interface to Toggle method of the Toggle control pattern.
+        """
+        An interface to Toggle method of the Toggle control pattern.
         
         Control supporting the Toggle pattern cycles through its 
         toggle states in the following order: 
@@ -77,7 +79,8 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def get_toggle_state(self):
-        """Get a toggle state of a check box control.
+        """
+        Get a toggle state of a check box control.
 
         The toggle state is represented by an integer
         0 - unchecked
@@ -108,7 +111,8 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def select(self):
-        """An interface to Select method of the SelectionItem control pattern.
+        """
+        An interface to Select method of the SelectionItem control pattern.
 
         Usually applied for a radio button control
         """
@@ -146,7 +150,8 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         super(ComboBoxWrapper, self).__init__(hwnd)
 
     def select(self, item):
-        """Select the ComboBox item
+        """
+        Select the ComboBox item
 
         item can be either a 0 based index of the item to select
         or it can be the string that you want to select
