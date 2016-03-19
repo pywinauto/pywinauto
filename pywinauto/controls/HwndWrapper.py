@@ -70,33 +70,39 @@ from ..base_wrapper import BaseMeta
 
 #====================================================================
 class ControlNotEnabled(RuntimeError):
-    "Raised when a control is not enabled"
+
+    """Raised when a control is not enabled"""
     pass
 
 #====================================================================
 class ControlNotVisible(RuntimeError):
-    "Raised when a control is not visible"
+
+    """Raised when a control is not visible"""
     pass
 
 #====================================================================
 class InvalidWindowHandle(RuntimeError):
-    "Raised when an invalid handle is passed to HwndWrapper "
+
+    """Raised when an invalid handle is passed to HwndWrapper"""
+
     def __init__(self, hwnd):
-        "Initialise the RuntimError parent with the mesage"
+        """Initialise the RuntimError parent with the mesage"""
         RuntimeError.__init__(self,
             "Handle {0} is not a vaild window handle".format(hwnd))
 
 #=========================================================================
 class HwndMeta(BaseMeta):
-    "Metaclass for HwndWrapper objects"
+
+    """Metaclass for HwndWrapper objects"""
     re_wrappers = {}
     str_wrappers = {}
 
     def __init__(cls, name, bases, attrs):
-        # register the class names, both the regular expression
-        # or the classes directly
-
-        #print("metaclass __init__", cls)
+        """
+        Register the class names
+        
+        Both the regular expression or the classes directly are registered.
+        """
         BaseMeta.__init__(cls, name, bases, attrs)
 
         for win_class in cls.windowclasses:
@@ -105,7 +111,7 @@ class HwndMeta(BaseMeta):
 
     @staticmethod
     def find_wrapper(element):
-        "Find the correct wrapper for this native element"
+        """Find the correct wrapper for this native element"""
         if isinstance(element, six.integer_types):
             from ..NativeElementInfo import NativeElementInfo
             element = NativeElementInfo(element)
@@ -136,7 +142,9 @@ class HwndMeta(BaseMeta):
 #====================================================================
 @six.add_metaclass(HwndMeta)
 class HwndWrapper(BaseWrapper):
-    """Default wrapper for controls.
+
+    """
+    Default wrapper for controls.
 
     All other wrappers are derived from this.
 
@@ -149,9 +157,10 @@ class HwndWrapper(BaseWrapper):
     Most of the methods of this class are simple wrappers around
     API calls and as such they try do the simplest thing possible.
 
-    A HwndWrapper object can be passed directly to a ctypes wrapped
+    An HwndWrapper object can be passed directly to a ctypes wrapped
     C function - and it will get converted to a Long with the value of
-    it's handle (see ctypes, _as_parameter_)"""
+    it's handle (see ctypes, _as_parameter_).
+    """
 
     handle = None
 
@@ -214,7 +223,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def style(self):
-        """Returns the style of window
+        """
+        Returns the style of window
 
         Return value is a long.
 
@@ -228,7 +238,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def exstyle(self):
-        """Returns the Extended style of window
+        """
+        Returns the Extended style of window
 
         Return value is a long.
 
@@ -242,7 +253,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def user_data(self):
-        """Extra data associted with the window
+        """
+        Extra data associted with the window
 
         This value is a long value that has been associated with the window
         and rarely has useful data (or at least data that you know the use
@@ -254,25 +266,22 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def context_help_id(self):
-        """
-        Return the Context Help ID of the window
-        """
+        """Return the Context Help ID of the window"""
         return handleprops.contexthelpid(self)
     # Non PEP-8 alias
     ContextHelpID = context_help_id
 
     #-----------------------------------------------------------
     def is_active(self):
-        """
-        Whether the window is active or not
-        """
+        """Whether the window is active or not"""
         return self.top_level_parent() == self.get_active()
     # Non PEP-8 alias
     IsActive = is_active
 
     #-----------------------------------------------------------
     def is_unicode(self):
-        """Whether the window is unicode or not
+        """
+        Whether the window is unicode or not
 
         A window is Unicode if it was registered by the Wide char version
         of RegisterClass(Ex).
@@ -283,7 +292,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def client_rect(self):
-        """Returns the client rectangle of window
+        """
+        Returns the client rectangle of window
 
         The client rectangle is the window rectangle minus any borders that
         are not available to the control for drawing.
@@ -316,7 +326,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def font(self):
-        """Return the font of the window
+        """
+        Return the font of the window
 
         The font of the window is used to draw the text of that window.
         It is a structure which has attributes for font name, height, width
@@ -330,22 +341,21 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def has_style(self, style):
-        "Return True if the control has the specified style"
+        """Return True if the control has the specified style"""
         return handleprops.has_style(self, style)
     # Non PEP-8 alias
     HasStyle = has_style
 
     #-----------------------------------------------------------
     def has_exstyle(self, exstyle):
-        "Return True if the control has the specified extended style"
+        """Return True if the control has the specified extended style"""
         return handleprops.has_exstyle(self, exstyle)
     # Non PEP-8 alias
     HasExStyle = has_exstyle
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Return true if the control is a top level window"
-
+        """Return true if the control is a top level window"""
         if not ("isdialog" in self._cache.keys()):
             self._cache['isdialog'] = handleprops.is_toplevel_window(self)
 
@@ -353,7 +363,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def client_rects(self):
-        """Return the client rect for each item in this control
+        """
+        Return the client rect for each item in this control
 
         It is a list of rectangles for the control. It is frequently over-ridden
         to extract all rectangles from a control with multiple items.
@@ -372,7 +383,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def fonts(self):
-        """Return the font for each item in this control
+        """
+        Return the font for each item in this control
 
         It is a list of fonts for the control. It is frequently over-ridden
         to extract all fonts from a control with multiple items.
@@ -429,7 +441,7 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def send_message(self, message, wparam = 0, lparam = 0):
-        "Send a message to the control and wait for it to return"
+        """Send a message to the control and wait for it to return"""
         #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
         if hasattr(wparam, 'memAddress'):
@@ -446,11 +458,6 @@ class HwndWrapper(BaseWrapper):
 
         return win32gui.SendMessage(self.handle, message, wParamAddress, lParamAddress)
 
-        #result = ctypes.c_long()
-        #ret = win32functions.SendMessageTimeout(self, message, wparam, lparam,
-        #    win32defines.SMTO_NORMAL, 400, ctypes.byref(result))
-
-        #return result.value
     # Non PEP-8 alias
     SendMessage = send_message
 
@@ -462,34 +469,33 @@ class HwndWrapper(BaseWrapper):
         lparam = 0,
         timeout = None,
         timeoutflags = win32defines.SMTO_NORMAL):
-        """Send a message to the control and wait for it to return or to timeout
+        """
+        Send a message to the control and wait for it to return or to timeout
 
-        If no timeout is given then a default timeout of .4 of a second will
+        If no timeout is given then a default timeout of .01 of a second will
         be used.
         """
 
         if timeout is None:
             timeout = Timings.sendmessagetimeout_timeout
 
-        #result = ctypes.c_long()
-        #win32functions.SendMessageTimeout(self,
-        #    message, wparam, lparam,
-        #    timeoutflags, int(timeout * 1000),
-        #    ctypes.byref(result))
         result = -1
         try:
-            (ret, result) = win32gui.SendMessageTimeout(int(self.handle), message, wparam, lparam, timeoutflags, int(timeout * 1000))
-            #print '(ret, result) = ', (ret, result)
+            (_, result) = win32gui.SendMessageTimeout(
+                    int(self.handle),
+                    message,
+                    wparam,
+                    lparam,
+                    timeoutflags,
+                    int(timeout * 1000)
+                    )
         except Exception as exc:
-            #import traceback, inspect
+            #import traceback
             #print('____________________________________________________________')
             #print('self.handle =', int(self.handle), ', message =', message,
             #      ', wparam =', wparam, ', lparam =', lparam, ', timeout =', timeout)
             #print('Exception: ', exc)
             #print(traceback.format_exc())
-            #print('Caller stack:')
-            #for frame in inspect.stack():
-            #    print(frame[1:])
             result = str(exc)
 
         return result #result.value
@@ -498,14 +504,9 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def post_message(self, message, wparam = 0, lparam = 0):
-        "Post a message to the control message queue and return"
+        """Post a message to the control message queue and return"""
         return win32functions.PostMessage(self, message, wparam, lparam)
 
-        #result = ctypes.c_long()
-        #ret = win32functions.SendMessageTimeout(self, message, wparam, lparam,
-        #    win32defines.SMTO_NORMAL, 400, ctypes.byref(result))
-
-        #return result.value
     # Non PEP-8 alias
     PostMessage = post_message
 
@@ -533,8 +534,7 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def notify_parent(self, message, controlID = None):
-        "Send the notification message to parent of this control"
-
+        """Send the notification message to parent of this control"""
         if controlID is None:
             controlID = self.control_id()
 
@@ -547,20 +547,21 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def __hash__(self):
-        "Returns the hash value of the handle"
+        """Returns the hash value of the handle"""
         return hash(self.handle)
 
     #-----------------------------------------------------------
     def click(
         self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
-        """Simulates a mouse click on the control
+        """
+        Simulates a mouse click on the control
 
         This method sends WM_* messages to the control, to do a more
         'realistic' mouse click use click_input() which uses mouse_event() API
         to perform the click.
 
         This method does not require that the control be visible on the screen
-        (i.e. it can be hidden beneath another window and it will still work.)
+        (i.e. it can be hidden beneath another window and it will still work).
         """
         self.verify_actionable()
 
@@ -572,7 +573,8 @@ class HwndWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def close_click(
         self, button = "left", pressed = "", coords = (0, 0), double = False):
-        """Perform a click action that should make the window go away
+        """
+        Perform a click action that should make the window go away
 
         The only difference from click is that there are extra delays
         before and after the click action.
@@ -1055,7 +1057,7 @@ class HwndWrapper(BaseWrapper):
         """
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id, pid = win32process.GetWindowThreadProcessId(int(self.handle))
+        window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
         ret = win32functions.GetGUIThreadInfo(
             window_thread_id,
             ctypes.byref(gui_info))
@@ -1078,7 +1080,7 @@ class HwndWrapper(BaseWrapper):
 
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id, pid = win32process.GetWindowThreadProcessId(self.handle)
+        window_thread_id, _ = win32process.GetWindowThreadProcessId(self.handle)
         ret = win32functions.GetGUIThreadInfo(
             window_thread_id,
             ctypes.byref(gui_info))

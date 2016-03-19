@@ -69,8 +69,6 @@ import win32event
 import multiprocessing
 
 
-#from . import win32functions
-from . import win32defines
 from . import controls
 from . import findbestmatch
 from . import findwindows
@@ -909,17 +907,17 @@ class Application(object):
         command_line = cmd_line
 
         # Actually create the process
-        dwCreationFlags = 0
+        dw_creation_flags = 0
         if create_new_console:
-            dwCreationFlags = win32con.CREATE_NEW_CONSOLE
+            dw_creation_flags = win32con.CREATE_NEW_CONSOLE
         try:
-            (hProcess, hThread, dwProcessId, dwThreadId) = win32process.CreateProcess(
+            (h_process, _, dw_process_id, _) = win32process.CreateProcess(
                 None, 					# module name
                 command_line,			# command line
                 None, 					# Process handle not inheritable.
                 None, 					# Thread handle not inheritable.
                 0, 						# Set handle inheritance to FALSE.
-                dwCreationFlags, 		# Creation flags.
+                dw_creation_flags,		# Creation flags.
                 None, 					# Use parent's environment block.
                 None, 					# Use parent's starting directory.
                 start_info)				# STARTUPINFO structure.
@@ -930,14 +928,14 @@ class Application(object):
                     cmd_line, str(exc))
             raise AppStartError(message)
 
-        self.process = dwProcessId
+        self.process = dw_process_id
 
         self.__warn_incorrect_bitness()
 
         def app_idle():
             """Return true when the application is ready to start"""
             result = win32event.WaitForInputIdle(
-                hProcess, int(timeout * 1000))
+                h_process, int(timeout * 1000))
 
             # wait completed successfully
             if result == 0:
@@ -951,7 +949,7 @@ class Application(object):
 
         # Wait until the application is ready after starting it
         if wait_for_idle and not app_idle():
-            raise RuntimeWarning('Application is not loaded correctly (WaitForInputIdle failed)')
+            warnings.warn('Application is not loaded correctly (WaitForInputIdle failed)', RuntimeWarning)
 
         return self
 
@@ -1159,13 +1157,8 @@ class Application(object):
 
         for win in windows:
 
-            if hasattr(win, 'send_message_timeout'):
-                win.send_message_timeout(
-                    win32defines.WM_QUERYENDSESSION,
-                    timeout = .5,
-                    timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
-                #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
-                #win32defines.SMTO_BLOCK)
+            if hasattr(win, 'force_close') and win.force_close():
+                continue
 
             try:
                 if hasattr(win, 'close'):
@@ -1173,38 +1166,21 @@ class Application(object):
             except TimeoutError:
                 self.actions.log('Failed to close top level window')
 
-        # window has let us know that it doesn't want to die - so we abort
-        # this means that the app is not hung - but knows it doesn't want
-        # to close yet - e.g. it is asking the user if they want to save
-
-        #print "supposedly closed all windows!"
-
-        # so we have either closed the windows - or the app is hung
-
-        # get a handle we can wait on
         try:
             process_wait_handle = win32api.OpenProcess(
-                win32defines.SYNCHRONIZE | win32defines.PROCESS_TERMINATE,
+                win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
                 0,
                 self.process)
         except win32gui.error:
-            return True # already killed
-
+            return True # already closed
+        
+        # so we have either closed the windows - or the app is hung
         killed = True
         if process_wait_handle:
-
-            # wait for the window to close
-            win32event.WaitForSingleObject(
-                process_wait_handle,
-                int(Timings.after_windowclose_timeout * 1000))
-
             try:
                 win32api.TerminateProcess(process_wait_handle, 0)
             except win32gui.error:
                 self.actions.log('Process {0} seems already killed'.format(self.process))
-            #win32functions.TerminateProcess(process_wait_handle, 0)
-            #else:
-            #    killed = False
 
         win32api.CloseHandle(process_wait_handle)
 
@@ -1266,11 +1242,12 @@ def process_module(process_id):
 #=========================================================================
 def _warn_incorrect_binary_bitness(exe_name):
     "warn if executable is of incorrect bitness"
-    if os.path.isabs(exe_name) and os.path.isfile(exe_name):
-        if handleprops.is64bitbinary(exe_name) and not is_x64_Python():
-            warnings.warn(
-                "64-bit binary from 32-bit Python may work incorrectly (please use 64-bit Python instead)",
-                UserWarning, stacklevel=2)
+    if os.path.isabs(exe_name) and os.path.isfile(exe_name) and \
+            handleprops.is64bitbinary(exe_name) and not is_x64_Python():
+        warnings.warn(
+            "64-bit binary from 32-bit Python may work incorrectly " \
+            "(please use 64-bit Python instead)",
+            UserWarning, stacklevel=2)
 
 #=========================================================================
 def process_from_module(module):
