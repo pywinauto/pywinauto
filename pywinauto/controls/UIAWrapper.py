@@ -271,7 +271,7 @@ class UIAWrapper(BaseWrapper):
             self.type_keys("^{HOME}")
             self.type_keys("^+{END}")
             self.type_keys("{DEL}")
-            self.type_keys(text)
+            self.type_keys(text, with_spaces=True, with_newlines=True, with_tabs=True)
 
         return self
 

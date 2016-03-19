@@ -165,23 +165,39 @@ class EditWrapper(UIAWrapper.UIAWrapper):
     #-----------------------------------------------------------
     def line_count(self):
         """Return how many lines there are in the Edit"""
-        return self.window_text().count('\n') + 1
+        return self.window_text().count("\n") + 1
 
     #-----------------------------------------------------------
     def line_length(self, line_index):
         """Return how many characters there are in the line"""
         # need to first get a character index of that line
-        return len(self.window_text().splitlines()[line_index])
+        lines = self.window_text().splitlines()
+        if line_index < len(lines):
+            return len(lines[line_index])
+        elif line_index == self.line_count() - 1:
+            return 0
+        else:
+            raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     #-----------------------------------------------------------
     def get_line(self, line_index):
         """Return the line specified"""
-        return self.window_text().splitlines()[line_index]
+        lines = self.window_text().splitlines()
+        if line_index < len(lines):
+            return lines[line_index]
+        elif line_index == self.line_count() - 1:
+            return ""
+        else:
+            raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     #-----------------------------------------------------------
     def texts(self):
         """Get the text of the edit control"""
         texts = [self.window_text(), ]
+
+        for i in range(self.line_count()):
+            texts.append(self.get_line(i))
+
         return texts
 
     #-----------------------------------------------------------
@@ -254,14 +270,13 @@ class EditWrapper(UIAWrapper.UIAWrapper):
             iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
             # Calculate new text value
             current_text = self.window_text()
-            print(pos_start, pos_end)
             new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
             iface.SetValue(new_text)
         except uia_defs.NoPatternInterfaceError:
             # Element doesn't support ValuePattern (e.g. RichTextBox)
             # Replace selected text with type_keys()
             self.select(pos_start, pos_end)
-            self.type_keys(aligned_text)
+            self.type_keys(aligned_text, with_spaces=True, with_newlines=True, with_tabs=True)
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
@@ -289,27 +304,30 @@ class EditWrapper(UIAWrapper.UIAWrapper):
         elif isinstance(start, six.binary_type):
             string_to_select = start.decode(locale.getpreferredencoding())
         elif isinstance(start, six.integer_types):
+            if isinstance(end, six.integer_types) and start > end:
+                start, end = end, start
             string_to_select = self.window_text()[start:end]
 
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Text")
-        document_range = iface.DocumentRange
-        search_range = document_range.FindText(string_to_select, False, False)
+        if string_to_select:
+            elem = self.element_info.element
+            iface = uia_defs.get_elem_interface(elem, "Text")
+            document_range = iface.DocumentRange
+            search_range = document_range.FindText(string_to_select, False, False)
 
-        try:
-            search_range.Select()
-        except ValueError:
-            # No such string has been found
-            pass
+            try:
+                search_range.Select()
+            except ValueError:
+                # No such string has been found
+                pass
 
-        # give the control a chance to catch up before continuing
-        if self.element_info.handle:
-            win32functions.WaitGuiThreadIdle(self)
-        else:
-            # TODO: get WaitGuiThreadIdle function for elements without handle
-            pass
+            # give the control a chance to catch up before continuing
+            if self.element_info.handle:
+                win32functions.WaitGuiThreadIdle(self)
+            else:
+                # TODO: get WaitGuiThreadIdle function for elements without handle
+                pass
 
-        time.sleep(Timings.after_editselect_wait)
+            time.sleep(Timings.after_editselect_wait)
 
         # return this control so that actions can be chained.
         return self

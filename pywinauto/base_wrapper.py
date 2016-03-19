@@ -811,7 +811,7 @@ class BaseWrapper(object):
 
         # Play the keys to the active window
         SendKeys.SendKeys(
-            aligned_keys + '\n',
+            aligned_keys,
             pause,
             with_spaces,
             with_tabs,

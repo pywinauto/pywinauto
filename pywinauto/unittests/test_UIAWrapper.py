@@ -325,6 +325,89 @@ if UIA_support:
             cur_state = self.dlg.Yes.select().is_selected()
             self.assertEqual(cur_state, True)
 
+
+    class EditTestCases(unittest.TestCase):
+        """Unit tests for the EditWrapper class"""
+
+        def setUp(self):
+            """Start the application set some data and ensure the application
+            is in the state we want it."""
+
+            # start the application
+            app = Application(backend = 'uia')
+            app = app.start(wpf_app_1)
+
+            self.app = app
+            self.dlg = app.WPFSampleApplication
+
+            from pywinauto.controls.uia_controls import EditWrapper
+            self.edit = EditWrapper(self.dlg.TestLabelEdit.element_info)
+            self.richedit = EditWrapper(self.dlg.RichTextBox.element_info)
+
+        def tearDown(self):
+            "Close the application after tests"
+            self.app.kill_()
+
+        def testFriendlyClassNames(self):
+            "Test getting friendly class names of textbox-like controls"
+            self.assertEqual(self.edit.friendly_class_name(), "Edit")
+
+            self.assertEqual(self.richedit.friendly_class_name(), "Document")
+
+        def testSetText(self):
+            "Test setting the text of the edit control"
+            self.edit.set_edit_text("Some text")
+            self.assertEqual(self.edit.text_block(), "Some text")
+
+            self.richedit.set_edit_text("Here is\r\nsome text")
+            self.assertEqual("\n".join(self.richedit.texts()[1:]), "Here is\nsome text")
+
+            self.edit.set_edit_text(579)
+            self.assertEqual(self.edit.window_text(), "579")
+
+            self.edit.set_edit_text(333, pos_start=1, pos_end=2)
+            self.assertEqual(self.edit.window_text(), "53339")
+
+        def testLineCount(self):
+            "Test getting the line count of the edit control"
+            self.richedit.set_edit_text("Here are\r\n3 lines\r\nof text")
+
+            self.assertEqual(self.richedit.line_count(), 3)
+
+        def testGetLine(self):
+            "Test getting each line of the edit control"
+            test_data = "Here are\r\n4 lines\r\nof text\r\n"
+            self.richedit.set_edit_text(test_data)
+
+            for i, line in enumerate(test_data.split("\r\n")):
+                self.assertEqual(self.richedit.get_line(i), line)
+
+        def testTextBlock(self):
+            "Test getting the text block of the edit control"
+            test_data = "Here are\r\n3 lines\r\nof text"
+            self.richedit.set_edit_text(test_data)
+            self.assertEqual(self.richedit.text_block(), test_data)
+
+        def testSelect(self):
+            "Test selecting text in the edit control in various ways"
+            self.edit.set_edit_text("Some text")
+
+            self.edit.select(0, 0)
+            self.assertEqual((0, 0), self.edit.selection_indices())
+
+            self.edit.select()
+            self.assertEqual((0, 9), self.edit.selection_indices())
+
+            self.edit.select(1, 7)
+            self.assertEqual((1, 7), self.edit.selection_indices())
+
+            self.edit.select(5, 2)
+            self.assertEqual((2, 5), self.edit.selection_indices())
+
+            self.edit.select("me t")
+            self.assertEqual((2, 6), self.edit.selection_indices())
+
+
 if __name__ == "__main__":
     if UIA_support:
         unittest.main()
