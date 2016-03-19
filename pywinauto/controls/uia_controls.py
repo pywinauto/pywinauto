@@ -195,6 +195,7 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         return self
 
     #-----------------------------------------------------------
+    #TODO: add sected_texts for a combobox with multi-select
     def selected_text(self):
         """
         Return the selected text or None
@@ -209,6 +210,26 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
             return None
 
     #-----------------------------------------------------------
+    #TODO: add sected_indices for a combobox with multi-select
     def selected_index(self):
         """Return the selected index"""
-        pass
+
+        # Go through all children and look for an index 
+        # of an item with the same text.
+        # Maybe there is another and more efficient way to do it
+        selection = self.get_selection()
+        if selection:
+            for i, c in enumerate(self.children()):
+                if c.window_text() == selection[0].name:
+                    return i
+        return None
+
+    #-----------------------------------------------------------
+    def item_count(self):
+        """
+        Return the number of items in the combobox
+        
+        The interface is kept mostly for a backward compatibility with
+        the native ComboBox interface
+        """
+        return self.control_count()
