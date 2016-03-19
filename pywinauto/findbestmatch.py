@@ -157,7 +157,7 @@ def _clean_non_chars(text):
     return _non_word_chars.sub("", text)
 
 
-def IsAboveOrToLeft(ref_control, other_ctrl):
+def is_above_or_to_left(ref_control, other_ctrl):
     "Return true if the other_ctrl is above or to the left of ref_control"
     text_r = other_ctrl.rectangle()
     ctrl_r = ref_control.rectangle()
@@ -180,10 +180,11 @@ def IsAboveOrToLeft(ref_control, other_ctrl):
 
 #====================================================================
 distance_cuttoff = 999
-def GetNonTextControlName(ctrl, controls, text_ctrls):
-    """return the name for this control by finding the closest
-    text control above and to its left"""
-
+def get_non_text_control_name(ctrl, controls, text_ctrls):
+    """
+    return the name for this control by finding the closest
+    text control above and to its left
+    """
     names = []
 
     ctrl_index = controls.index(ctrl)
@@ -194,7 +195,7 @@ def GetNonTextControlName(ctrl, controls, text_ctrls):
 
         if prev_ctrl.friendly_class_name() == "Static" and \
             prev_ctrl.is_visible() and prev_ctrl.window_text() and \
-            IsAboveOrToLeft(ctrl, prev_ctrl):
+            is_above_or_to_left(ctrl, prev_ctrl):
 
             names.append(
                 prev_ctrl.window_text() +
@@ -251,15 +252,14 @@ def GetNonTextControlName(ctrl, controls, text_ctrls):
         distance = min(distance, distance2)
         
         # UpDown control should use Static text only because edit box text is often useless
-        if ctrl_friendly_class_name == "UpDown":
-            if text_ctrl.friendly_class_name() == "Static":
-                # TODO: use search in all text controls for all non-text ones
-                # (like Dijkstra algorithm vs Floyd one)
-                if distance < closest:
-                    closest = distance
-                    best_name = text_ctrl.window_text() + ctrl_friendly_class_name
+        if ctrl_friendly_class_name == "UpDown" and \
+                text_ctrl.friendly_class_name() == "Static" and distance < closest:
+            # TODO: use search in all text controls for all non-text ones
+            # (like Dijkstra algorithm vs Floyd one)
+            closest = distance
+            best_name = text_ctrl.window_text() + ctrl_friendly_class_name
 
-        # if this distance was closer then the last one
+        # if this distance was closer than the last one
         elif distance < closest:
             closest = distance
             #if text_ctrl.window_text() == '':
@@ -302,7 +302,7 @@ def get_control_names(control, allcontrols, textcontrols):
             pass #ActionLogger().log('Warning! Cannot get control.texts()') #\nTraceback:\n' + traceback.format_exc())
 
         # so find the text of the nearest text visible control
-        non_text_names = GetNonTextControlName(control, allcontrols, textcontrols)
+        non_text_names = get_non_text_control_name(control, allcontrols, textcontrols)
 
         # and if one was found - add it
         if non_text_names:
@@ -310,7 +310,7 @@ def get_control_names(control, allcontrols, textcontrols):
     # it didn't have visible text
     else:
         # so find the text of the nearest text visible control
-        non_text_names = GetNonTextControlName(control, allcontrols, textcontrols)
+        non_text_names = get_non_text_control_name(control, allcontrols, textcontrols)
 
         # and if one was found - add it
         if non_text_names:

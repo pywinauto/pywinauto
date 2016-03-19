@@ -31,34 +31,13 @@
 
 """
 
-import comtypes
-import comtypes.client
-from . import uia_defines as uia_defs
+from .uia_defines import IUIA
+from .uia_defines import get_elem_interface
 
 from .six import integer_types
 from .handleprops import dumpwindow, controlid
 from .ElementInfo import ElementInfo
 from .win32structures import RECT
-
-_UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
-from comtypes.gen import UIAutomationClient
-
-_iuia = comtypes.CoCreateInstance(
-    UIAutomationClient.CUIAutomation().IPersist_GetClassID(),
-    interface=UIAutomationClient.IUIAutomation,
-    clsctx=comtypes.CLSCTX_INPROC_SERVER
-)
-
-_true_condition = _iuia.CreateTrueCondition()
-
-_tree_scope = {
-    'ancestors': _UIA_dll.TreeScope_Ancestors,
-    'children': _UIA_dll.TreeScope_Children,
-    'descendants': _UIA_dll.TreeScope_Descendants,
-    'element': _UIA_dll.TreeScope_Element,
-    'parent': _UIA_dll.TreeScope_Parent,
-    'subtree': _UIA_dll.TreeScope_Subtree
-}
 
 """
 Possible properties:
@@ -85,60 +64,41 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
-def _build_condition(process = None, class_name = None, title = None):
-    "Build UIA filtering conditions"
-    full_cond = _true_condition
-    if process:
-        new_cond = _iuia.CreatePropertyCondition(
-                                _UIA_dll.UIA_ProcessIdPropertyId, process)
-        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
-        
-    if class_name:
-        new_cond = _iuia.CreatePropertyCondition(
-                                _UIA_dll.UIA_ClassNamePropertyId, class_name)
-        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
-        
-    if title:
-        # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-        new_cond = _iuia.CreatePropertyCondition(
-                                _UIA_dll.UIA_NamePropertyId, title)
-        full_cond = _iuia.CreateAndCondition(new_cond, full_cond)
-
-    return full_cond
-
 class UIAElementInfo(ElementInfo):
-    "UI element wrapper for IUIAutomation API"
+    """UI element wrapper for IUIAutomation API"""
+
     def __init__(self, handle_or_elem = None):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
-        If handle_or_elem is None create an instance for UI root element
+        
+        If handle_or_elem is None create an instance for UI root element.
         """
         if handle_or_elem is not None:
             if isinstance(handle_or_elem, integer_types):
                 # Create instane of UIAElementInfo from a handle
-                self._element = _iuia.ElementFromHandle(handle_or_elem)
-            elif isinstance(handle_or_elem, UIAutomationClient.IUIAutomationElement):
+                self._element = IUIA().iuia.ElementFromHandle(handle_or_elem)
+            elif isinstance(handle_or_elem, IUIA().ui_automation_client.IUIAutomationElement):
                 self._element = handle_or_elem
             else:
                 raise TypeError("UIAElementInfo object can be initialized ' + \
                     'with integer or IUIAutomationElement instance only!")
         else:
-            self._element = _iuia.GetRootElement()            
+            self._element = IUIA().root
 
     @property
     def element(self):
-        "Return AutomationElement's instance"
+        """Return AutomationElement's instance"""
         return self._element
 
     @property
     def automation_id(self):
-        "Return AutomationId of the element"
+        """Return AutomationId of the element"""
         return self._element.CurrentAutomationId
 
     @property
     def control_id(self):
-        "Return ControlId of the element if it has a handle"
+        """Return ControlId of the element if it has a handle"""
         if (self.handle):
             return controlid(self.handle)
         else:
@@ -146,49 +106,49 @@ class UIAElementInfo(ElementInfo):
 
     @property
     def process_id(self):
-        "Return ProcessId of the element"
+        """Return ProcessId of the element"""
         return self._element.CurrentProcessId
 
     @property
     def framework_id(self):
-        "Return FrameworkId of the element"
+        """Return FrameworkId of the element"""
         return self._element.CurrentFrameworkId
 
     @property
     def runtime_id(self):
-        "Return Runtime ID (hashable value but may be different from run to run)"
+        """Return Runtime ID (hashable value but may be different from run to run)"""
         return self._element.GetRuntimeId()
 
     @property
     def name(self):
-        "Return name of the element"
+        """Return name of the element"""
         return self._element.CurrentName
 
     @property
     def class_name(self):
-        "Return class name of the element"
+        """Return class name of the element"""
         return self._element.CurrentClassName
 
     @property
     def control_type(self):
-        "Return control type of element"
+        """Return control type of element"""
         return self._element.CurrentControlType
 
     @property
     def handle(self):
-        "Return handle of the element"
+        """Return handle of the element"""
         return self._element.CurrentNativeWindowHandle
 
     @property
     def parent(self):
-        "Return parent of the element"
-        parent_elem = _iuia.ControlViewWalker.GetParentElement(self._element)
+        """Return parent of the element"""
+        parent_elem = IUIA().iuia.ControlViewWalker.GetParentElement(self._element)
         if parent_elem:
             return UIAElementInfo(parent_elem)
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond = _true_condition):
+    def _get_elements(self, tree_scope, cond = IUIA().true_condition):
         """Find all elements according to the given tree scope and conditions"""
         elements = []
         ptrs_array = self._element.FindAll(tree_scope, cond)
@@ -199,30 +159,38 @@ class UIAElementInfo(ElementInfo):
         return elements
 
     def children(self, **kwargs):
-        """Return a list of only immediate children of the element
-        according to the criteria"""
-        cond = _build_condition(**kwargs)
-        return self._get_elements(_tree_scope["children"], cond)
+        """
+        Return a list of only immediate children of the element
+        
+        * **kwargs** is a criteria to reduce a list by process, 
+        class_name and/or title.
+        """
+        cond = IUIA().build_condition(**kwargs)
+        return self._get_elements(IUIA().tree_scope["children"], cond)
 
     def descendants(self, **kwargs):
-        """Return a list of all descendant children of the element 
-        according to the criteria"""
-        cond = _build_condition(**kwargs)
-        return self._get_elements(_tree_scope["descendants"], cond)
+        """
+        Return a list of all descendant children of the element 
+        
+        * **kwargs** is a criteria to reduce a list by process, 
+        class_name and/or title.
+        """
+        cond = IUIA().build_condition(**kwargs)
+        return self._get_elements(IUIA().tree_scope["descendants"], cond)
 
     @property
     def visible(self):
-        "Check if the element is visible"
+        """Check if the element is visible"""
         return bool(not self._element.CurrentIsOffscreen)
 
     @property
     def enabled(self):
-        "Check if the element is enabled"
+        """Check if the element is enabled"""
         return bool(self._element.CurrentIsEnabled)
 
     @property
     def rectangle(self):
-        "Return rectangle of the element"
+        """Return rectangle of the element"""
         bound_rect = self._element.CurrentBoundingRectangle
         rect = RECT()
         rect.left = bound_rect.left
@@ -232,22 +200,22 @@ class UIAElementInfo(ElementInfo):
         return rect
 
     def dump_window(self):
-        "Dump window to a set of properties"
+        """Dump window to a set of properties"""
         return dumpwindow(self.handle)
 
     @property
     def rich_text(self):
-        "Return rich_text of the element"
+        """Return rich_text of the element"""
         if not self.class_name:
             return self.name
         try:
-            pattern = uia_defs.get_elem_interface(self._element, "Text")
+            pattern = get_elem_interface(self._element, "Text")
             return pattern.DocumentRange.GetText(-1)
         except Exception:
             return self.name # TODO: probably we should raise an exception here
 
     def __eq__(self, other):
-        "Check if 2 UIAElementInfo objects describe 1 actual element"
+        """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):
             return False;
         return self.handle == other.handle and self.class_name == other.class_name and self.name == other.name and \

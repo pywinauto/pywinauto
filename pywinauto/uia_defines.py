@@ -31,8 +31,72 @@
 """Common UIA definitions and helper functions"""
 
 import comtypes
+import comtypes.client
+from . import six
 
-_UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
+
+class _Singleton(type):
+
+    """
+    Singleton metaclass implementation from StackOverflow
+    
+    http://stackoverflow.com/q/6760685/3648361
+    """
+
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+@six.add_metaclass(_Singleton)
+class IUIA(object):
+
+    """Singleton class to store global COM objects from UIAutomationCore.dll"""
+
+    def __init__(self):
+        self.UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
+        self.ui_automation_client = comtypes.gen.UIAutomationClient
+        self.iuia = comtypes.CoCreateInstance(
+                self.ui_automation_client.CUIAutomation().IPersist_GetClassID(),
+                interface=self.ui_automation_client.IUIAutomation,
+                clsctx=comtypes.CLSCTX_INPROC_SERVER
+                )
+        self.true_condition = self.iuia.CreateTrueCondition()
+        self.tree_scope = {
+                'ancestors': self.UIA_dll.TreeScope_Ancestors,
+                'children': self.UIA_dll.TreeScope_Children,
+                'descendants': self.UIA_dll.TreeScope_Descendants,
+                'element': self.UIA_dll.TreeScope_Element,
+                'parent': self.UIA_dll.TreeScope_Parent,
+                'subtree': self.UIA_dll.TreeScope_Subtree,
+                }
+        self.root = self.iuia.GetRootElement()
+    
+    def build_condition(self, process = None, class_name = None, title = None):
+        """Build UIA filtering conditions"""
+        conditions = []
+        if process:
+            conditions.append(self.iuia.CreatePropertyCondition(
+                                    self.UIA_dll.UIA_ProcessIdPropertyId, process))
+        
+        if class_name:
+            conditions.append(self.iuia.CreatePropertyCondition(
+                                    self.UIA_dll.UIA_ClassNamePropertyId, class_name))
+        
+        if title:
+            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
+            conditions.append(self.iuia.CreatePropertyCondition(
+                                    self.UIA_dll.UIA_NamePropertyId, title))
+        
+        if len(conditions) > 1:
+            return self.iuia.CreateAndConditionFromArray(conditions)
+        
+        if len(conditions) == 1:
+            return conditions[0]
+        
+        return self.true_condition
 
 # Build a list of named constants that identify Microsoft UI Automation 
 # control patterns and their appropriate comtypes classes
@@ -42,7 +106,8 @@ _UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
 # header: UIAutomationClient.h
 
 def _build_pattern_ids_dic():
-    """A helper procedure to build a registry of control patterns 
+    """
+    A helper procedure to build a registry of control patterns 
     supported on the current system
     """
     base_names = [
@@ -69,12 +134,12 @@ def _build_pattern_ids_dic():
 
         # Construct a class name and check if it is supported by comtypes
         cls_name = ''.join(['IUIAutomation', ptrn_name, 'Pattern'])
-        if hasattr(comtypes.gen.UIAutomationClient, cls_name):
-            klass = getattr(comtypes.gen.UIAutomationClient, cls_name)
+        if hasattr(IUIA().ui_automation_client, cls_name):
+            klass = getattr(IUIA().ui_automation_client, cls_name)
             
             # Contruct a pattern ID name and get the ID value
             ptrn_id_name = 'UIA_' + ptrn_name + 'PatternId'
-            ptrn_id = getattr(_UIA_dll, ptrn_id_name)
+            ptrn_id = getattr(IUIA().UIA_dll, ptrn_id_name)
     
             # Update the registry of known patterns
             ptrn_ids_dic[ptrn_name] = (ptrn_id, klass)
@@ -98,8 +163,10 @@ toggle_state_on = 1
 toggle_state_inderteminate = 2
 
 class NoPatternInterfaceError(Exception):
-    "There is no such interface for the specified pattern"
+
+    """There is no such interface for the specified pattern"""
     pass
+
 
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name

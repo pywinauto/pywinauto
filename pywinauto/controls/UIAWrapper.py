@@ -38,55 +38,55 @@ from .. import six
 from ..timings import Timings
 from ..actionlogger import ActionLogger
 
-import comtypes
-import comtypes.client
-from .. import uia_defines as uia_defs
-
 from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
+import comtypes
+from ..uia_defines import IUIA
+from .. import uia_defines as uia_defs
 from ..UIAElementInfo import UIAElementInfo
-from ..UIAElementInfo import _UIA_dll
 
 #region PATTERNS
-AutomationElement = comtypes.gen.UIAutomationClient.IUIAutomationElement
-
-DockPattern = comtypes.gen.UIAutomationClient.IUIAutomationDockPattern
-ExpandCollapsePattern = comtypes.gen.UIAutomationClient.IUIAutomationExpandCollapsePattern
-GridItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationGridItemPattern
-GridPattern = comtypes.gen.UIAutomationClient.IUIAutomationGridPattern
-InvokePattern = comtypes.gen.UIAutomationClient.IUIAutomationInvokePattern
-ItemContainerPattern = comtypes.gen.UIAutomationClient.IUIAutomationItemContainerPattern
-LegacyIAccessiblePattern = comtypes.gen.UIAutomationClient.IUIAutomationLegacyIAccessiblePattern
-MultipleViewPattern = comtypes.gen.UIAutomationClient.IUIAutomationMultipleViewPattern
-RangeValuePattern = comtypes.gen.UIAutomationClient.IUIAutomationRangeValuePattern
-ScrollItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationScrollItemPattern
-ScrollPattern = comtypes.gen.UIAutomationClient.IUIAutomationScrollPattern
-SelectionItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationSelectionItemPattern
-SelectionPattern = comtypes.gen.UIAutomationClient.IUIAutomationSelectionPattern
-SynchronizedInputPattern = comtypes.gen.UIAutomationClient.IUIAutomationSynchronizedInputPattern
-TableItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationTableItemPattern
-TablePattern = comtypes.gen.UIAutomationClient.IUIAutomationTablePattern
-TextPattern = comtypes.gen.UIAutomationClient.IUIAutomationTextPattern
-TogglePattern = comtypes.gen.UIAutomationClient.IUIAutomationTogglePattern
-TransformPattern = comtypes.gen.UIAutomationClient.IUIAutomationTransformPattern
-ValuePattern = comtypes.gen.UIAutomationClient.IUIAutomationValuePattern
-VirtualizedItemPattern = comtypes.gen.UIAutomationClient.IUIAutomationVirtualizedItemPattern
-WindowPattern = comtypes.gen.UIAutomationClient.IUIAutomationWindowPattern
+AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
+DockPattern = IUIA().ui_automation_client.IUIAutomationDockPattern
+ExpandCollapsePattern = IUIA().ui_automation_client.IUIAutomationExpandCollapsePattern
+GridItemPattern = IUIA().ui_automation_client.IUIAutomationGridItemPattern
+GridPattern = IUIA().ui_automation_client.IUIAutomationGridPattern
+InvokePattern = IUIA().ui_automation_client.IUIAutomationInvokePattern
+ItemContainerPattern = IUIA().ui_automation_client.IUIAutomationItemContainerPattern
+LegacyIAccessiblePattern = IUIA().ui_automation_client.IUIAutomationLegacyIAccessiblePattern
+MultipleViewPattern = IUIA().ui_automation_client.IUIAutomationMultipleViewPattern
+RangeValuePattern = IUIA().ui_automation_client.IUIAutomationRangeValuePattern
+ScrollItemPattern = IUIA().ui_automation_client.IUIAutomationScrollItemPattern
+ScrollPattern = IUIA().ui_automation_client.IUIAutomationScrollPattern
+SelectionItemPattern = IUIA().ui_automation_client.IUIAutomationSelectionItemPattern
+SelectionPattern = IUIA().ui_automation_client.IUIAutomationSelectionPattern
+SynchronizedInputPattern = IUIA().ui_automation_client.IUIAutomationSynchronizedInputPattern
+TableItemPattern = IUIA().ui_automation_client.IUIAutomationTableItemPattern
+TablePattern = IUIA().ui_automation_client.IUIAutomationTablePattern
+TextPattern = IUIA().ui_automation_client.IUIAutomationTextPattern
+TogglePattern = IUIA().ui_automation_client.IUIAutomationTogglePattern
+TransformPattern = IUIA().ui_automation_client.IUIAutomationTransformPattern
+ValuePattern = IUIA().ui_automation_client.IUIAutomationValuePattern
+VirtualizedItemPattern = IUIA().ui_automation_client.IUIAutomationVirtualizedItemPattern
+WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
 #endregion
 
 #=========================================================================
-_control_types = [attr[len('UIA_'):-len('ControlTypeId')] for attr in dir(_UIA_dll) if attr.endswith('ControlTypeId')]
+_control_types = [attr[len('UIA_'):-len('ControlTypeId')] \
+        for attr in dir(IUIA().UIA_dll) if attr.endswith('ControlTypeId')]
 _known_control_types = {}
-for type_ in _control_types:
-    _known_control_types[_UIA_dll.__getattribute__('UIA_' + type_ + 'ControlTypeId')] = type_
+for ctrl_type in _control_types:
+    type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
+    type_id = IUIA().UIA_dll.__getattribute__(type_id_name)
+    _known_control_types[type_id] = ctrl_type
 
 #=========================================================================
 _friendly_classes = {
     'Custom': None,
     'DataGrid': None,
-    'Document': None,
+    'Document': None, # TODO: this is RichTextBox
     'Group': 'GroupBox',
     'Hyperlink': None,
     'Image': None,
@@ -113,11 +113,12 @@ _friendly_classes = {
 
 #=========================================================================
 class UiaMeta(BaseMeta):
-    "Metaclass for UiaWrapper objects"
+
+    """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
-        "Register the control types"
+        """Register the control types"""
 
         BaseMeta.__init__(cls, name, bases, attrs)
 
@@ -126,8 +127,7 @@ class UiaMeta(BaseMeta):
 
     @staticmethod
     def find_wrapper(element):
-        "Find the correct wrapper for this UIA element"
-
+        """Find the correct wrapper for this UIA element"""
         # Set a general wrapper by default
         wrapper_match = UIAWrapper
 
@@ -185,7 +185,7 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def __hash__(self):
-        "Return unique hash value based on element's Runtime ID"
+        """Return unique hash value based on element's Runtime ID"""
         return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
@@ -224,17 +224,17 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def is_keyboard_focusable(self):
-        "Return True if element can be focused with keyboard"
+        """Return True if element can be focused with keyboard"""
         return self.element_info.element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
     def has_keyboard_focus(self):
-        "Return True if element is focused with keyboard"
+        """Return True if element is focused with keyboard"""
         return self.element_info.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
     def set_focus(self):
-        "Set the focus to this element"
+        """Set the focus to this element"""
         if self.is_keyboard_focusable() and not self.has_keyboard_focus():
             try:
                 self.element_info.element.SetFocus()
@@ -245,7 +245,7 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def invoke(self):
-        "An interface to the Invoke method of the Invoke control pattern"
+        """An interface to the Invoke method of the Invoke control pattern"""
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Invoke")
         iface.Invoke()
