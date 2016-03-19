@@ -338,7 +338,7 @@ if UIA_support:
 
 
         def test_combobox_select(self):
-            """Test items texts for the combo box control"""
+            """Test select related methods for the combo box control"""
             combo_box = self.dlg.ComboBox
             
             # Verify combobox properties and an initial state
@@ -372,7 +372,7 @@ if UIA_support:
             self.assertEqual(combo_box.selected_text(), 'Combo Item 1')
             
         def test_combobox_expand_collapse(self):
-            """Test 'Expand' and 'Collapse' for the combo box control"""
+            """Test 'expand' and 'collapse' for the combo box control"""
             
             combo_box = self.dlg.ComboBox
             

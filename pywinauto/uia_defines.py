@@ -34,8 +34,6 @@ import comtypes
 import comtypes.client
 from . import six
 
-_UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
-_uia_clnt = comtypes.gen.UIAutomationClient
 
 class _Singleton(type):
 
@@ -160,9 +158,9 @@ pattern_ids = _build_pattern_ids_dic()
 # The definition can also be found in the comtypes package 
 # In a file automatically generated according to UIAutomation GUID:
 # comtypes\gen\_944DE083_8FB8_45CF_BCB7_C477ACB2F897_*.py
-toggle_state_off = _uia_clnt.ToggleState_Off
-toggle_state_on = _uia_clnt.ToggleState_On
-toggle_state_inderteminate = _uia_clnt.ToggleState_Indeterminate
+toggle_state_off = IUIA().ui_automation_client.ToggleState_Off
+toggle_state_on = IUIA().ui_automation_client.ToggleState_On
+toggle_state_inderteminate = IUIA().ui_automation_client.ToggleState_Indeterminate
 
 class NoPatternInterfaceError(Exception):
 
@@ -170,10 +168,10 @@ class NoPatternInterfaceError(Exception):
     pass
 
 # values for enumeration 'ExpandCollapseState'
-expand_state_collapsed = _uia_clnt.ExpandCollapseState_Collapsed
-expand_state_expanded = _uia_clnt.ExpandCollapseState_Expanded
-expand_state_partially = _uia_clnt.ExpandCollapseState_PartiallyExpanded
-expand_state_leaf_node = _uia_clnt.ExpandCollapseState_LeafNode
+expand_state_collapsed =IUIA().ui_automation_client.ExpandCollapseState_Collapsed
+expand_state_expanded = IUIA().ui_automation_client.ExpandCollapseState_Expanded
+expand_state_partially = IUIA().ui_automation_client.ExpandCollapseState_PartiallyExpanded
+expand_state_leaf_node = IUIA().ui_automation_client.ExpandCollapseState_LeafNode
 
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name

@@ -195,7 +195,7 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         return self
 
     #-----------------------------------------------------------
-    #TODO: add sected_texts for a combobox with multi-select
+    # TODO: add selected_texts for a combobox with a multi-select support
     def selected_text(self):
         """
         Return the selected text or None
@@ -210,7 +210,7 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
             return None
 
     #-----------------------------------------------------------
-    #TODO: add sected_indices for a combobox with multi-select
+    # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
 
