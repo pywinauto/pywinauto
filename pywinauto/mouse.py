@@ -194,7 +194,7 @@ else:
                 button = 'up_scroll'
             if wheel_dist < 0:
                 button = 'down_scroll'
-            for i in range(abs(wheel_dist)):
+            for _ in range(abs(wheel_dist)):
                 _perform_click_input(button, coords)
         else:
             button = BUTTON_MAPPING[button]

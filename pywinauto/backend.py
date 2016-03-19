@@ -25,10 +25,11 @@ from .base_wrapper import BaseWrapper
 
 
 class BackEnd(object):
-    "Minimal back-end description (name & 2 required base classes)"
+
+    """Minimal back-end description (name & 2 required base classes)"""
 
     def __init__(self, name, element_info_class, generic_wrapper_class):
-        "Init back-end description"
+        """Init back-end description"""
         self.name = name
         if not issubclass(element_info_class, ElementInfo):
             raise TypeError('element_info_class should be a class derived from ElementInfo')
@@ -37,41 +38,43 @@ class BackEnd(object):
         self.element_info_class = element_info_class
         self.generic_wrapper_class = generic_wrapper_class
 
+
 class BackendsRegistry(object):
-    "Registry pattern class for the list of available back-ends"
+
+    """Registry pattern class for the list of available back-ends"""
 
     def __init__(self):
-        "Init back-ends list (it doesn't aware of concrete back-ends yet)"
+        """Init back-ends list (it doesn't aware of concrete back-ends yet)"""
         self.backends = {}
         self.active_backend = None
 
     @property
     def name(self):
-        "Name of the active backend"
+        """Name of the active backend"""
         return self.active_backend.name
 
     @property
     def element_class(self):
-        "ElementInfo's subclass of the active backend"
+        """ElementInfo's subclass of the active backend"""
         return self.active_backend.element_info_class
 
     @property
     def wrapper_class(self):
-        "BaseWrapper's subclass of the active backend"
+        """BaseWrapper's subclass of the active backend"""
         return self.active_backend.generic_wrapper_class
 
 registry = BackendsRegistry()
 
 def name():
-    "Return name of the active backend"
+    """Return name of the active backend"""
     return registry.name
 
 def element_class():
-    "Return ElementInfo's subclass of the active backend"
+    """Return ElementInfo's subclass of the active backend"""
     return registry.element_class
 
 def wrapper_class():
-    "Return BaseWrapper's subclass of the active backend"
+    """Return BaseWrapper's subclass of the active backend"""
     return registry.element_class
 
 def activate(name):
@@ -86,8 +89,6 @@ def activate(name):
 
     registry.active_backend = registry.backends[name]
 
-
 def register(name, element_info_class, generic_wrapper_class):
-    "Register new back-end"
-    
+    """Register new back-end"""
     registry.backends[name] = BackEnd(name, element_info_class, generic_wrapper_class)

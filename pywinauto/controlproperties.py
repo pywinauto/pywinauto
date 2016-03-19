@@ -188,7 +188,7 @@ def SetReferenceControls(controls, refControls):
 
     # find if all the control id's match
     if  [ctrl.control_id() for ctrl in controls] == \
-        [ctrl.control_id() for ctrl in refControls]:
+            [ctrl.control_id() for ctrl in refControls]:
 
         toRet += allIDsSameFlag
 

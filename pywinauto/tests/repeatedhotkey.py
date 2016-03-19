@@ -195,7 +195,7 @@ def GetHotkey(text):
         # One found was at the end of the text or
         # no (more) & were found
         # so return the None value
-        if pos == -1 or pos == len(text):
+        if pos in [-1, len(text)]:
             return (-1, '')
 
         # One found but was prededed by non valid hotkey character

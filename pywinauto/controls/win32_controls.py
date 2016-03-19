@@ -27,6 +27,10 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32gui
+import win32api
+import win32event
+import win32con
+import win32process
 import locale
 
 from . import HwndWrapper
@@ -41,7 +45,7 @@ from .. import controlproperties
 from ..timings import Timings
 
 if sysinfo.UIA_support:
-    from ..UIAElementInfo import _UIA_dll
+    from ..uia_defines import IUIA
 
 #====================================================================
 class ButtonWrapper(HwndWrapper.HwndWrapper):
@@ -55,23 +59,21 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         ".*CheckBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ButtonControlTypeId,
-            _UIA_dll.UIA_CheckBoxControlTypeId,
-            _UIA_dll.UIA_RadioButtonControlTypeId]
+            IUIA().UIA_dll.UIA_ButtonControlTypeId,
+            IUIA().UIA_dll.UIA_CheckBoxControlTypeId,
+            IUIA().UIA_dll.UIA_RadioButtonControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
-        "Initialize the control"
+        """Initialize the control"""
         super(ButtonWrapper, self).__init__(hwnd)
 
         #self._set_if_needs_image()
 
     @property
     def _needs_image_prop(self):
-
         """_needs_image_prop=True if it is an image button"""
-
         # optimization call style once and work with that rather than
         # calling has_style a number of times
         style = self.style()
@@ -87,7 +89,8 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def friendly_class_name(self):
-        """Return the friendly class name of the button
+        """
+        Return the friendly class name of the button
 
         Windows controls with the class "Button" can look like different
         controls based on their style. They can look like the following
@@ -97,13 +100,11 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
           - CheckBoxes, this method returns "CheckBox"
           - RadioButtons, this method returns "RadioButton"
           - GroupBoxes, this method returns "GroupBox"
-
         """
         # get the least significant BIT
         style_lsb = self.style() & 0xF
 
         f_class_name = 'Button'
-
 
         vb_buttons = {
             "ThunderOptionButton": "RadioButton",
@@ -114,15 +115,15 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         if self.class_name() in vb_buttons:
             f_class_name = vb_buttons[self.class_name()]
 
-        if style_lsb == win32defines.BS_3STATE or \
-            style_lsb == win32defines.BS_AUTO3STATE or \
-            style_lsb == win32defines.BS_AUTOCHECKBOX or \
-            style_lsb == win32defines.BS_CHECKBOX:
+        if style_lsb in [win32defines.BS_3STATE,
+                        win32defines.BS_AUTO3STATE,
+                        win32defines.BS_AUTOCHECKBOX,
+                        win32defines.BS_CHECKBOX, ]:
             f_class_name = "CheckBox"
-        elif style_lsb == win32defines.BS_RADIOBUTTON or \
-            style_lsb == win32defines.BS_AUTORADIOBUTTON:
+        elif style_lsb in [win32defines.BS_RADIOBUTTON,
+                        win32defines.BS_AUTORADIOBUTTON, ]:
             f_class_name = "RadioButton"
-        elif style_lsb ==  win32defines.BS_GROUPBOX:
+        elif style_lsb == win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"
 
         if self.style() & win32defines.BS_PUSHLIKE:
@@ -130,10 +131,10 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
         return f_class_name
 
-
     #-----------------------------------------------------------
     def get_check_state(self):
-        """Return the check state of the checkbox
+        """
+        Return the check state of the checkbox
 
         The check state is represented by an integer
         0 - unchecked
@@ -151,7 +152,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def check(self):
-        "Check a checkbox"
+        """Check a checkbox"""
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_CHECKED)
 
@@ -165,7 +166,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def uncheck(self):
-        "Uncheck a checkbox"
+        """Uncheck a checkbox"""
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_UNCHECKED)
 
@@ -179,7 +180,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def set_check_indeterminate(self):
-        "Set the checkbox to indeterminate"
+        """Set the checkbox to indeterminate"""
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_INDETERMINATE)
 
@@ -193,22 +194,22 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Buttons are never dialogs so return False"
+        """Buttons are never dialogs so return False"""
         return False
 
     #-----------------------------------------------------------
     def click(self, *args, **kwargs):
-        "Click the Button control"
-    #    import win32functions
-    #    win32functions.WaitGuiThreadIdle(self)
-    #    self.notify_parent(win32defines.BN_CLICKED)
+        """Click the Button control"""
+        #import win32functions
+        #win32functions.WaitGuiThreadIdle(self)
+        #self.notify_parent(win32defines.BN_CLICKED)
         HwndWrapper.HwndWrapper.click(self, *args, **kwargs)
-    #    win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_button_click_wait)
 
     #-----------------------------------------------------------
     def check_by_click(self):
-        "Check the CheckBox control by click() method"
+        """Check the CheckBox control by click() method"""
         if self.get_check_state() != win32defines.BST_CHECKED:
             self.click()
     # Non PEP-8 alias
@@ -216,7 +217,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def uncheck_by_click(self):
-        "Uncheck the CheckBox control by click() method"
+        """Uncheck the CheckBox control by click() method"""
         if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click()
     # Non PEP-8 alias
@@ -224,7 +225,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def check_by_click_input(self):
-        "Check the CheckBox control by click_input() method"
+        """Check the CheckBox control by click_input() method"""
         if self.get_check_state() != win32defines.BST_CHECKED:
             self.click_input()
     # Non PEP-8 alias
@@ -232,7 +233,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def uncheck_by_click_input(self):
-        "Uncheck the CheckBox control by click_input() method"
+        """Uncheck the CheckBox control by click_input() method"""
         if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click_input()
     # Non PEP-8 alias
@@ -240,8 +241,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
-    "Helper function to get multiple text items from a control"
-
+    """Helper function to get multiple text items from a control"""
     texts = []
 
     # find out how many text items are in the combobox
@@ -277,7 +277,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
         ".*ComboBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ComboBoxControlTypeId]
+            IUIA().UIA_dll.UIA_ComboBoxControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -449,7 +449,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
         ".*ListBox", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ListControlTypeId]
+            IUIA().UIA_dll.UIA_ListControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -669,7 +669,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
         ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_EditControlTypeId]
+            IUIA().UIA_dll.UIA_EditControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -880,8 +880,8 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
         ".*StaticText"]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_ImageControlTypeId,
-            _UIA_dll.UIA_TextControlTypeId]
+            IUIA().UIA_dll.UIA_ImageControlTypeId,
+            IUIA().UIA_dll.UIA_TextControlTypeId]
     can_be_label = True
 
     def __init__(self, hwnd):
@@ -912,13 +912,13 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
 class DialogWrapper(HwndWrapper.HwndWrapper):
-    "Wrap a dialog"
+    """Wrap a dialog"""
 
     friendlyclassname = "Dialog"
     #windowclasses = ["#32770", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_WindowControlTypeId]
+            IUIA().UIA_dll.UIA_WindowControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -938,8 +938,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def run_tests(self, tests_to_run = None, ref_controls = None):
-        "Run the tests on dialog"
-
+        """Run the tests on dialog"""
         # the tests package is imported only when running unittests
         from .. import tests
 
@@ -964,8 +963,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def write_to_xml(self, filename):
-        "Write the dialog an XML file (requires elementtree)"
-        
+        """Write the dialog an XML file (requires elementtree)"""
         controls = [self] + self.children()
         props = [ctrl.get_properties() for ctrl in controls]
 
@@ -976,12 +974,14 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def client_area_rect(self):
-        """Return the client area rectangle
+        """
+        Return the client area rectangle
 
-        From MSDN
+        From MSDN:
         The client area of a control is the bounds of the control, minus the
         nonclient elements such as scroll bars, borders, title bars, and 
-        menus."""
+        menus.
+        """
         rect = win32structures.RECT(self.rectangle())
         self.send_message(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
         return rect
@@ -990,7 +990,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def hide_from_taskbar(self):
-        "Hide the dialog from the Windows taskbar"
+        """Hide the dialog from the Windows taskbar"""
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_TOOLWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
@@ -999,26 +999,61 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def show_in_taskbar(self):
-        "Show the dialog in the Windows taskbar"
+        """Show the dialog in the Windows taskbar"""
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
-        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_APPWINDOW)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE,
+            self.exstyle() | win32defines.WS_EX_APPWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
     # Non PEP-8 alias
     ShowInTaskbar = show_in_taskbar
 
     #-----------------------------------------------------------
     def is_in_taskbar(self):
-        "Check whether the dialog is shown in the Windows taskbar"
-
-        # Thanks to David Heffernan for the idea: 
-        # http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
-        # A window is represented in the taskbar if:
-        # It is not owned and does not have the WS_EX_TOOLWINDOW extended style, or
-        # It has the WS_EX_APPWINDOW extended style.
+        """
+        Check whether the dialog is shown in the Windows taskbar
+        
+        Thanks to David Heffernan for the idea: 
+        http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
+        A window is represented in the taskbar if:
+        It has no owner and it does not have the WS_EX_TOOLWINDOW extended style,
+        or it has the WS_EX_APPWINDOW extended style.
+        """
         return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or \
                (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
     # Non PEP-8 alias
     IsInTaskbar = is_in_taskbar
+
+    #-----------------------------------------------------------
+    def force_close(self):
+        """
+        Close the dialog forcefully using WM_QUERYENDSESSION and return the result
+        
+        Window has let us know that it doesn't want to die - so we abort
+        this means that the app is not hung - but knows it doesn't want
+        to close yet - e.g. it is asking the user if they want to save.
+        """
+        self.send_message_timeout(
+            win32defines.WM_QUERYENDSESSION,
+            timeout = .5,
+            timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
+        #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+        #win32defines.SMTO_BLOCK)
+        
+        # get a handle we can wait on
+        _, pid = win32process.GetWindowThreadProcessId(int(self.handle))
+        try:
+            process_wait_handle = win32api.OpenProcess(
+                win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
+                0,
+                pid)
+        except win32gui.error:
+            return True # already closed
+        
+        result = win32event.WaitForSingleObject(
+            process_wait_handle,
+            int(Timings.after_windowclose_timeout * 1000))
+        
+        return result != win32con.WAIT_TIMEOUT
 
 #    #-----------------------------------------------------------
 #    def read_controls_from_xml(self, filename):
@@ -1053,23 +1088,23 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
 class PopupMenuWrapper(HwndWrapper.HwndWrapper):
-    "Wrap a Popup Menu"
+    """Wrap a Popup Menu"""
 
     friendlyclassname = "PopupMenu"
     windowclasses = ["#32768", ]
     if sysinfo.UIA_support:
         controltypes = [
-            _UIA_dll.UIA_MenuControlTypeId]
+            IUIA().UIA_dll.UIA_MenuControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Return whether it is a dialog"
+        """Return whether it is a dialog"""
         return True
 
     #-----------------------------------------------------------
     def _menu_handle(self):
-        '''Get the menu handle for the popup menu'''
+        """Get the menu handle for the popup menu"""
         hMenu = win32gui.SendMessage(self.handle, win32defines.MN_GETHMENU)
 
         if not hMenu:
