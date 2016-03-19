@@ -33,7 +33,7 @@
 
 import comtypes
 import comtypes.client
-import pywinauto.uia_defines as uia_defs
+from . import uia_defines as uia_defs
 
 from .six import integer_types
 from .handleprops import dumpwindow, controlid

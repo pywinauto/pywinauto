@@ -40,7 +40,7 @@ from ..actionlogger import ActionLogger
 
 import comtypes
 import comtypes.client
-import pywinauto.uia_defines as uia_defs
+from .. import uia_defines as uia_defs
 
 from .. import backend
 from ..base_wrapper import BaseWrapper
@@ -250,5 +250,29 @@ class UIAWrapper(BaseWrapper):
         iface = uia_defs.get_elem_interface(elem, "Invoke")
         iface.Invoke()
 
+    #-----------------------------------------------------------
+    def set_window_text(self, text, append = False):
+        "Set the text of the window"
+
+        self.verify_actionable()
+
+        if append:
+            text = self.window_text() + text
+
+        self.set_focus()
+
+        try:
+            # Try to set text using IUIAutomationValuePattern
+            iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
+            iface.SetValue(text)
+        except uia_defs.NoPatternInterfaceError:
+            # Element doesn't support ValuePattern (e.g. RichTextBox)
+            # Select all text, delete it and then set the new one
+            self.type_keys("^{HOME}")
+            self.type_keys("^+{END}")
+            self.type_keys("{DEL}")
+            self.type_keys(text)
+
+        return self
 
 backend.register('uia', UIAElementInfo, UIAWrapper)
