@@ -260,6 +260,10 @@ if UIA_support:
             self.app = app.Start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
 
+            # Make sure the mouse doesn't hover over tested controls
+            # so it won't generate an unexpected event
+            self.dlg.move_mouse_input(coords=(-100, -100), absolute=True)
+
         def tearDown(self):
             "Close the application after tests"
             self.app.kill_()
