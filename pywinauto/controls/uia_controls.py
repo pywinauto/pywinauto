@@ -149,6 +149,21 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         """Initialize the control"""
         super(ComboBoxWrapper, self).__init__(hwnd)
 
+    #-----------------------------------------------------------
+    def texts(self):
+        """Return the text of the items in the combobox"""
+
+        texts = []
+        # ComboBox has to be expanded to populate a list of its children items
+        try:
+            self.expand()
+            for c in self.children():
+                texts.append(c.window_text())
+        finally:
+            # Make sure we collapse back in any case
+            self.collapse()
+        return texts
+
     def select(self, item):
         """
         Select the ComboBox item
@@ -164,14 +179,36 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         elif isinstance(item, six.string_types):
             item_name = item
         else:
-            self.actions.log(
-                "UIA ComboBox.select error: wrong item type - {0}".format(item))
-            raise ValueError
+            err_msg = "unsupported {0} for item {1}".format(type(item), item)
+            raise ValueError(err_msg)
 
         # ComboBox has to be expanded to populate a list of its children items
         self.expand()
         try:
             self.select_by_name_or_by_idx(item_name, item_index)
+        # TODO: do we need to handle except ValueError for a wrong name/index ?
+        #except ValueError:
+        #    raise  # re-raise the last exception
         finally:
+            # Make sure we collapse back in any case
             self.collapse()
-            return self
+        return self
+
+    #-----------------------------------------------------------
+    def selected_text(self):
+        """
+        Return the selected text or None
+        
+        Notice, that in case of multi-select it will be only the text from 
+        a first selected item
+        """
+        selection = self.get_selection()
+        if selection:
+            return selection[0].name
+        else:
+            return None
+
+    #-----------------------------------------------------------
+    def selected_index(self):
+        """Return the selected index"""
+        pass

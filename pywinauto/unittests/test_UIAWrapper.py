@@ -248,7 +248,7 @@ if UIA_support:
         #def testPressMoveRelease(self):
         #    pass
 
-    class ButtonWrapperTests(unittest.TestCase):
+    class UiaControlsTests(unittest.TestCase):
         "Unit tests for the ButtonWrapper class"
 
         def setUp(self):
@@ -258,9 +258,7 @@ if UIA_support:
             # start the application
             app = Application(backend = 'uia')
             self.app = app.Start(wpf_app_1)
-
             self.dlg = self.app.WPFSampleApplication
-            self.button = self.dlg.Button
 
         def tearDown(self):
             "Close the application after tests"
@@ -325,35 +323,55 @@ if UIA_support:
             cur_state = self.dlg.Yes.select().is_selected()
             self.assertEqual(cur_state, True)
 
-        def testComboBox(self):
-            "Test 'Expand' and 'Collapse' for the combo box control"
-
-            combo_box = self.dlg.ComboBox
-
-            self.assertEqual(combo_box.can_select_multiple(), 0)
-            self.assertEqual(combo_box.is_selection_required(), False)
-            selection = combo_box.get_selection()
-            num_selected_items = len(selection)
-            self.assertEqual(num_selected_items, 0)
+        def test_combobox_texts(self):
+            """Test items texts for the combo box control"""
             
             # The ComboBox on the sample app has following items:
             # 0. Combo Item 1
             # 1. Combo Item 2
-            selection = combo_box.select(0).get_selection()
-            self.assertEqual(len(selection), 1)
-            self.assertEqual(selection[0].name, 'Combo Item 1')
+            ref_texts = ['Combo Item 1', 'Combo Item 2']
+
+            combo_box = self.dlg.ComboBox
+            for t in combo_box.texts():
+                self.assertEqual((t in ref_texts), True)
+
+        def test_combobox_select(self):
+            """Test items texts for the combo box control"""
+            combo_box = self.dlg.ComboBox
+            
+            # Verify combobox properties and an initial state
+            self.assertEqual(combo_box.can_select_multiple(), 0)
+            self.assertEqual(combo_box.is_selection_required(), False)
+            self.assertEqual(len(combo_box.get_selection()), 0)
+            
+            # The ComboBox on the sample app has following items:
+            # 0. Combo Item 1
+            # 1. Combo Item 2
+            combo_box.select(0)
+            self.assertEqual(combo_box.selected_text(), 'Combo Item 1')
             
             collapsed = combo_box.is_collapsed()
             self.assertEqual(collapsed, True)
             
-            selection = combo_box.select(1).get_selection()
-            self.assertEqual(len(selection), 1)
-            self.assertEqual(selection[0].name, 'Combo Item 2')
+            combo_box.select(1)
+            self.assertEqual(combo_box.selected_text(), 'Combo Item 2')
             
             combo_box.select('Combo Item 1')
-            selection = combo_box.get_selection()
-            self.assertEqual(len(selection), 1)
-            self.assertEqual(selection[0].name, 'Combo Item 1')
+            self.assertEqual(combo_box.selected_text(), 'Combo Item 1')
+            
+            # Try to use unsupported item type as a parameter for select
+            self.assertRaises(ValueError, combo_box.select, 1.2)
+
+            # Try to select a non-existing item,
+            # verify the selected item didn't change
+            #combo_box.select('Combo Item 23455')
+            self.assertRaises(ValueError, combo_box.select, 'Combo Item 23455')
+            self.assertEqual(combo_box.selected_text(), 'Combo Item 1')
+            
+        def test_combobox_expand_collapse(self):
+            """Test 'Expand' and 'Collapse' for the combo box control"""
+            
+            combo_box = self.dlg.ComboBox
             
             collapsed = combo_box.is_collapsed()
             self.assertEqual(collapsed, True)

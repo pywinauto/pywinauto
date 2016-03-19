@@ -368,7 +368,7 @@ class UIAWrapper(BaseWrapper):
             iface = uia_defs.get_elem_interface(elem, "SelectionItem")
             iface.Select()
         else:
-            raise ValueError
+            raise ValueError("item not found")
 
 
 
