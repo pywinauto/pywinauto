@@ -96,8 +96,6 @@ class UIAElementInfo(ElementInfo):
         else:
             self._element = IUIA().root
 
-        self._cached_class_name = self._get_current_class_name()
-        self._cached_handle = self._get_current_handle()
         self.set_cache_strategy(False)
 
     def _get_current_class_name(self):
@@ -119,6 +117,8 @@ class UIAElementInfo(ElementInfo):
     def set_cache_strategy(self, cached = False):
         """Setup a cache strategy for frequently used attributes"""
         if cached:
+            self._cached_class_name = self._get_current_class_name()
+            self._cached_handle = self._get_current_handle()
             self._get_class_name = self._get_cached_class_name
             self._get_handle = self._get_cached_handle
         else:
