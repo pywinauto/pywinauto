@@ -233,6 +233,7 @@ def find_elements(class_name = None,
     if best_match is not None:
         wrapped_elems = []
         for elem in elements:
+            elem.set_cache_strategy(True)
             try:
                 # TODO: can't skip invalid handles because UIA element can have no handle
                 # TODO: use className check for this ?
@@ -251,6 +252,7 @@ def find_elements(class_name = None,
         elements = []
         for elem in backup_elements:
             if hasattr(elem, "element_info"):
+                elem.element_info.set_cache_strategy(False)
                 elements.append(elem.element_info)
             else:
                 elements.append(backend_obj.element_info_class(elem.handle))

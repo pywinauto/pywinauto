@@ -96,6 +96,35 @@ class UIAElementInfo(ElementInfo):
         else:
             self._element = IUIA().root
 
+        self._cached_class_name = self._get_current_class_name()
+        self._cached_handle = self._get_current_handle()
+        self.set_cache_strategy(False)
+
+    def _get_current_class_name(self):
+        """Return an actual class name of the element"""
+        return self._element.CurrentClassName
+    
+    def _get_cached_class_name(self):
+        """Return a cached class name of the element"""
+        return self._cached_class_name
+
+    def _get_current_handle(self):
+        """Return an actual handle of the element"""
+        return self._element.CurrentNativeWindowHandle
+
+    def _get_cached_handle(self):
+        """Return a cached handle of the element"""
+        return self._cached_handle
+
+    def set_cache_strategy(self, cached = False):
+        """Setup a cache strategy for frequently used attributes"""
+        if cached:
+            self._get_class_name = self._get_cached_class_name
+            self._get_handle = self._get_cached_handle
+        else:
+            self._get_class_name = self._get_current_class_name
+            self._get_handle = self._get_current_handle
+
     @property
     def element(self):
         """Return AutomationElement's instance"""
@@ -137,7 +166,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return class name of the element"""
-        return self._element.CurrentClassName
+        return self._get_class_name()
 
     @property
     def control_type(self):
@@ -147,7 +176,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def handle(self):
         """Return handle of the element"""
-        return self._element.CurrentNativeWindowHandle
+        return self._get_handle()
 
     @property
     def parent(self):
