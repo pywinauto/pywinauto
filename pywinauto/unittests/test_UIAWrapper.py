@@ -367,7 +367,7 @@ if UIA_support:
 
             # Try to select a non-existing item,
             # verify the selected item didn't change
-            self.assertRaises(ValueError, combo_box.select, 'Combo Item 23455')
+            self.assertRaises(IndexError, combo_box.select, 'Combo Item 23455')
             self.assertEqual(combo_box.selected_text(), 'Combo Item 1')
             
         def test_combobox_expand_collapse(self):

@@ -352,20 +352,30 @@ class UIAWrapper(BaseWrapper):
         iface = uia_defs.get_elem_interface(elem, "Selection")
         return iface.CurrentIsSelectionRequired
 
-    def select_by_name_or_by_idx(self, item_name = None, item_index = 0):
+    def select(self, item = None):
         """
         Find a child item by the name or index and select
         
         The action can be applied for dirrent controls with items:
         ComboBox, TreeView, ListView
         """
-        list_ = self.element_info.children(title = item_name)
+        if isinstance(item, six.integer_types):
+            item_index = item
+            title = None
+        elif isinstance(item, six.string_types):
+            item_index = 0
+            title = item
+        else:
+            err_msg = u"unsupported {0} for item {1}".format(type(item), item)
+            raise ValueError(err_msg)
+
+        list_ = self.element_info.children(title = title)
         if item_index < len(list_):
             elem = list_[item_index].element
             iface = uia_defs.get_elem_interface(elem, "SelectionItem")
             iface.Select()
         else:
-            raise ValueError("item not found")
+            raise IndexError("item not found")
 
 
 

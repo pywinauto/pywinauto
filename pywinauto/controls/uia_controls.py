@@ -168,24 +168,14 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         """
         Select the ComboBox item
 
-        item can be either a 0 based index of the item to select
+        The item can be either a 0 based index of the item to select
         or it can be the string that you want to select
         """
-        item_index = 0
-        item_name = None
-        if isinstance(item, six.integer_types):
-            item_index = item
-        elif isinstance(item, six.string_types):
-            item_name = item
-        else:
-            err_msg = "unsupported {0} for item {1}".format(type(item), item)
-            raise ValueError(err_msg)
-
         # ComboBox has to be expanded to populate a list of its children items
         self.expand()
         try:
-            self.select_by_name_or_by_idx(item_name, item_index)
-        # TODO: do we need to handle except ValueError for a wrong name/index ?
+            super(ComboBoxWrapper, self).select(item)
+        # TODO: do we need to handle ValueError/IndexError for a wrong index ?
         #except ValueError:
         #    raise  # re-raise the last exception
         finally:
