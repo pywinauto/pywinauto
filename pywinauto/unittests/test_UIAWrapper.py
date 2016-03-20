@@ -342,7 +342,6 @@ if UIA_support:
 
             from pywinauto.controls.uia_controls import EditWrapper
             self.edit = EditWrapper(self.dlg.TestLabelEdit.element_info)
-            self.richedit = EditWrapper(self.dlg.RichTextBox.element_info)
 
         def tearDown(self):
             "Close the application after tests"
@@ -352,15 +351,10 @@ if UIA_support:
             "Test getting friendly class names of textbox-like controls"
             self.assertEqual(self.edit.friendly_class_name(), "Edit")
 
-            self.assertEqual(self.richedit.friendly_class_name(), "Document")
-
         def testSetText(self):
             "Test setting the text of the edit control"
             self.edit.set_edit_text("Some text")
             self.assertEqual(self.edit.text_block(), "Some text")
-
-            self.richedit.set_edit_text("Here is\r\nsome text")
-            self.assertEqual("\n".join(self.richedit.texts()[1:]), "Here is\nsome text")
 
             self.edit.set_edit_text(579)
             self.assertEqual(self.edit.window_text(), "579")
@@ -370,23 +364,23 @@ if UIA_support:
 
         def testLineCount(self):
             "Test getting the line count of the edit control"
-            self.richedit.set_edit_text("Here are\r\n3 lines\r\nof text")
+            self.edit.set_edit_text("Here is some text")
 
-            self.assertEqual(self.richedit.line_count(), 3)
+            self.assertEqual(self.edit.line_count(), 1)
 
         def testGetLine(self):
             "Test getting each line of the edit control"
-            test_data = "Here are\r\n4 lines\r\nof text\r\n"
-            self.richedit.set_edit_text(test_data)
+            test_data = "Here is some text"
+            self.edit.set_edit_text(test_data)
 
-            for i, line in enumerate(test_data.split("\r\n")):
-                self.assertEqual(self.richedit.get_line(i), line)
+            self.assertEqual(self.edit.get_line(0), test_data)
 
         def testTextBlock(self):
             "Test getting the text block of the edit control"
-            test_data = "Here are\r\n3 lines\r\nof text"
-            self.richedit.set_edit_text(test_data)
-            self.assertEqual(self.richedit.text_block(), test_data)
+            test_data = "Here is some text"
+            self.edit.set_edit_text(test_data)
+
+            self.assertEqual(self.edit.text_block(), test_data)
 
         def testSelect(self):
             "Test selecting text in the edit control in various ways"

@@ -146,7 +146,6 @@ class EditWrapper(UIAWrapper.UIAWrapper):
 
     controltypes = [
         IUIA().UIA_dll.UIA_EditControlTypeId,
-        IUIA().UIA_dll.UIA_DocumentControlTypeId
     ]
     has_title = False
 
@@ -209,7 +208,6 @@ class EditWrapper(UIAWrapper.UIAWrapper):
     #-----------------------------------------------------------
     def selection_indices(self):
         """The start and end indices of the current selection"""
-        #TODO: some elements can support multiple, disjoint spans of selected text
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Text")
 
@@ -227,7 +225,17 @@ class EditWrapper(UIAWrapper.UIAWrapper):
         Edit Controls should either use set_edit_text() or type_keys() to modify
         the contents of the edit control.
         """
-        super(EditWrapper, self).set_window_text(text, append)
+        self.verify_actionable()
+
+        if append:
+            text = self.window_text() + text
+
+        self.set_focus()
+
+        # Set text using IUIAutomationValuePattern
+        iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
+        iface.SetValue(text)
+
         raise UserWarning(
             "set_window_text() should probably not be called for Edit Controls")
 
@@ -266,18 +274,12 @@ class EditWrapper(UIAWrapper.UIAWrapper):
             else:
                 aligned_text = six.binary_type(text)
 
-        try:
-            # Try to set text using IUIAutomationValuePattern
-            iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
-            # Calculate new text value
-            current_text = self.window_text()
-            new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
-            iface.SetValue(new_text)
-        except uia_defs.NoPatternInterfaceError:
-            # Element doesn't support ValuePattern (e.g. RichTextBox)
-            # Replace selected text with type_keys()
-            self.select(pos_start, pos_end)
-            self.type_keys(aligned_text, with_spaces=True, with_newlines=True, with_tabs=True)
+        # Set text using IUIAutomationValuePattern
+        iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
+        # Calculate new text value
+        current_text = self.window_text()
+        new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
+        iface.SetValue(new_text)
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
@@ -289,7 +291,6 @@ class EditWrapper(UIAWrapper.UIAWrapper):
 
         # return this control so that actions can be chained.
         return self
-
     # set SetText as an alias to set_edit_text
     set_text = set_edit_text
 
@@ -318,8 +319,7 @@ class EditWrapper(UIAWrapper.UIAWrapper):
             try:
                 search_range.Select()
             except ValueError:
-                # No such string has been found
-                pass
+                raise RuntimeError("Text '{0}' hasn't been found".format(string_to_select))
 
             # give the control a chance to catch up before continuing
             if self.element_info.handle:
