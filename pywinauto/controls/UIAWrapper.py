@@ -140,6 +140,7 @@ class UiaMeta(BaseMeta):
 #=========================================================================
 @six.add_metaclass(UiaMeta)
 class UIAWrapper(BaseWrapper):
+    
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -260,7 +261,6 @@ class UIAWrapper(BaseWrapper):
 
         Displays all child nodes, controls, or content of the control
         """
-
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
         iface.Expand()
@@ -275,7 +275,6 @@ class UIAWrapper(BaseWrapper):
 
         Displays all child nodes, controls, or content of the control
         """
-
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
         iface.Collapse()
@@ -297,7 +296,6 @@ class UIAWrapper(BaseWrapper):
         expand_state_partially = 2
         expand_state_leaf_node = 3
         """
-
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
         return iface.CurrentExpandCollapseState
@@ -361,7 +359,6 @@ class UIAWrapper(BaseWrapper):
         The action can be applied for dirrent controls with items:
         ComboBox, TreeView, ListView
         """
-
         list_ = self.element_info.children(title = item_name)
         if item_index < len(list_):
             elem = list_[item_index].element

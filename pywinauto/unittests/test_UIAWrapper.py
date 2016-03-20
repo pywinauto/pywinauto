@@ -61,8 +61,7 @@ if UIA_support:
             self.assertEqual(self.button.friendly_class_name(), "Button")
 
         def test_find_nontop_ctl_by_class_name_and_title(self):
-            "Test getting a non-top control by a class name and a title"
-
+            """Test getting a non-top control by a class name and a title"""
             # Look up for a non-top button control with 'Apply' caption
             caption = 'Apply'
             wins = self.app.windows_(top_level_only = False,
@@ -76,8 +75,7 @@ if UIA_support:
             self.assertEqual(wins[0].texts()[0], caption)
 
         def test_find_top_win_by_class_name_and_title(self):
-            "Test getting a top window by a class name and a title"
-
+            """Test getting a top window by a class name and a title"""
             # Since the top_level_only is True by default 
             # we don't specify it as a criteria argument
             caption = 'WPF Sample Application'
@@ -249,12 +247,14 @@ if UIA_support:
         #    pass
 
     class UiaControlsTests(unittest.TestCase):
-        "Unit tests for the ButtonWrapper class"
+
+        """Unit tests for the UIA control wrappers"""
 
         def setUp(self):
-            """Start the application, set some data and ensure the application
-            is in the state we want it."""
-
+            """
+            Start the application, set some data and ensure the application
+            is in the state we want it.
+            """
             # start the application
             app = Application(backend = 'uia')
             self.app = app.Start(wpf_app_1)
@@ -265,11 +265,11 @@ if UIA_support:
             self.dlg.move_mouse_input(coords=(-100, -100), absolute=True)
 
         def tearDown(self):
-            "Close the application after tests"
+            """Close the application after tests"""
             self.app.kill_()
 
-        def testFriendlyClassNames(self):
-            "Test getting friendly class names of button-like controls"
+        def test_friendly_class_names(self):
+            """Test getting friendly class names of button-like controls"""
             friendly_name = self.dlg.CheckBox.FriendlyClassName()
             self.assertEqual(friendly_name, "CheckBox")
 
@@ -282,9 +282,8 @@ if UIA_support:
             friendly_name = self.dlg.Yes.FriendlyClassName()
             self.assertEqual(friendly_name, "RadioButton")
 
-        def testCheckBox(self):
-            "Test 'toggle' and 'toggle_state' for the check box control"
-            
+        def test_check_box(self):
+            """Test 'toggle' and 'toggle_state' for the check box control"""
             # Get a current state of the check box control
             cur_state = self.dlg.CheckBox.get_toggle_state()
             self.assertEqual(cur_state, uia_defs.toggle_state_inderteminate)
@@ -295,9 +294,8 @@ if UIA_support:
             # Get a new state of the check box control
             self.assertEqual(cur_state, uia_defs.toggle_state_off)
 
-        def testToggleButton(self):
-            "Test 'toggle' and 'toggle_state' for the toggle button control"
-            
+        def test_toggle_button(self):
+            """Test 'toggle' and 'toggle_state' for the toggle button control"""
             # Get a current state of the check box control
             cur_state = self.dlg.ToggleMe.get_toggle_state()
             self.assertEqual(cur_state, uia_defs.toggle_state_on)
@@ -312,15 +310,14 @@ if UIA_support:
             cur_state = self.dlg.ToggleMe.toggle().get_toggle_state()
             self.assertEqual(cur_state, uia_defs.toggle_state_on)
 
-        def testButtonClick(self):
-            "Test the click method for the Button control"
-
+        def test_button_click(self):
+            """Test the click method for the Button control"""
             label = UIAWrapper(self.dlg.TestLabel.element_info)
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
 
-        def testRadioButton(self):
-            "Test 'select' and 'is_selected' for the radio button control"
+        def test_radio_button(self):
+            """Test 'select' and 'is_selected' for the radio button control"""
             cur_state = self.dlg.Yes.is_selected()
             self.assertEqual(cur_state, False)
 
@@ -329,7 +326,6 @@ if UIA_support:
 
         def test_combobox_texts(self):
             """Test items texts for the combo box control"""
-            
             # The ComboBox on the sample app has following items:
             # 0. Combo Item 1
             # 1. Combo Item 2
@@ -339,7 +335,6 @@ if UIA_support:
             self.assertEqual(combo_box.item_count(), len(ref_texts))
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
-
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
@@ -377,7 +372,6 @@ if UIA_support:
             
         def test_combobox_expand_collapse(self):
             """Test 'expand' and 'collapse' for the combo box control"""
-            
             combo_box = self.dlg.ComboBox
             
             collapsed = combo_box.is_collapsed()

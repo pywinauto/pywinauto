@@ -39,6 +39,7 @@ from ..uia_defines import IUIA
 
 #====================================================================
 class ButtonWrapper(UIAWrapper.UIAWrapper):
+
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
     control_types = [
@@ -116,7 +117,6 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
         Usually applied for a radio button control
         """
-
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "SelectionItem")
         iface.Select()
@@ -131,13 +131,13 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
         Usually applied for a radio button control
         """
-
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "SelectionItem")
         return iface.CurrentIsSelected
 
 #====================================================================
 class ComboBoxWrapper(UIAWrapper.UIAWrapper):
+
     """Wrap a UIA CoboBox control"""
 
     control_types = [
@@ -171,7 +171,6 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         item can be either a 0 based index of the item to select
         or it can be the string that you want to select
         """
-
         item_index = 0
         item_name = None
         if isinstance(item, six.integer_types):
@@ -213,7 +212,6 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
-
         # Go through all children and look for an index 
         # of an item with the same text.
         # Maybe there is another and more efficient way to do it
