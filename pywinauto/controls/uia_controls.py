@@ -152,7 +152,6 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
     #-----------------------------------------------------------
     def texts(self):
         """Return the text of the items in the combobox"""
-
         texts = []
         # ComboBox has to be expanded to populate a list of its children items
         try:
@@ -174,7 +173,7 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
         # ComboBox has to be expanded to populate a list of its children items
         self.expand()
         try:
-            super(ComboBoxWrapper, self).select(item)
+            self._select(item)
         # TODO: do we need to handle ValueError/IndexError for a wrong index ?
         #except ValueError:
         #    raise  # re-raise the last exception

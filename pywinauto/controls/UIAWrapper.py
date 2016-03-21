@@ -186,7 +186,7 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def __hash__(self):
-        """Return unique hash value based on element's Runtime ID"""
+        """Return a unique hash value based on the element's Runtime ID"""
         return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
@@ -225,12 +225,12 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def is_keyboard_focusable(self):
-        """Return True if element can be focused with keyboard"""
+        """Return True if the element can be focused with keyboard"""
         return self.element_info.element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
     def has_keyboard_focus(self):
-        """Return True if element is focused with keyboard"""
+        """Return True if the element is focused with keyboard"""
         return self.element_info.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
@@ -257,9 +257,9 @@ class UIAWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def expand(self):
         """
-        An interface to Expand method of the ExpandCollapse control pattern.
-
         Displays all child nodes, controls, or content of the control
+
+        An interface to Expand method of the ExpandCollapse control pattern.
         """
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
@@ -271,9 +271,9 @@ class UIAWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def collapse(self):
         """
-        An interface to Collapse method of the ExpandCollapse control pattern.
-
         Displays all child nodes, controls, or content of the control
+
+        An interface to Collapse method of the ExpandCollapse control pattern.
         """
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
@@ -285,11 +285,9 @@ class UIAWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def get_expand_state(self):
         """
-        An interface to CurrentExpandCollapseState property of 
-        the ExpandCollapse control pattern.
+        Indicates the state of the control: expanded or collapsed.
 
-        Indicates the state, expanded or collapsed, of the control.
-        
+        An interface to CurrentExpandCollapseState property of the ExpandCollapse control pattern.
         Values for enumeration as defined in uia_defines module:
         expand_state_collapsed = 0
         expand_state_expanded = 1
@@ -339,8 +337,7 @@ class UIAWrapper(BaseWrapper):
 
     def is_selection_required(self):
         """
-        An interface to IsSelectionRequired property of the 
-        SelectionProvider pattern.
+        An interface to IsSelectionRequired property of the SelectionProvider pattern.
 
         This property can be dynamic. For example, the initial state of 
         a control might not have any items selected by default, 
@@ -352,7 +349,7 @@ class UIAWrapper(BaseWrapper):
         iface = uia_defs.get_elem_interface(elem, "Selection")
         return iface.CurrentIsSelectionRequired
 
-    def select(self, item = None):
+    def _select(self, item = None):
         """
         Find a child item by the name or index and select
         
