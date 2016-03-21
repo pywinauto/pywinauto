@@ -31,6 +31,11 @@
 
 class ElementInfo(object):
     "Wrapper for element"
+
+    def set_cache_strategy(self, cached):
+        """Set a cache strategy for frequently used attributes of the element"""
+        raise NotImplementedError()
+
     @property
     def handle(self):
         "Return the handle of the element"
