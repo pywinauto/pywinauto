@@ -45,7 +45,7 @@ from ..base_wrapper import BaseMeta
 import comtypes
 from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
-from ..UIAElementInfo import UIAElementInfo
+from ..UIAElementInfo import UIAElementInfo, elements_from_uia_array
 
 #region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
@@ -114,7 +114,6 @@ _friendly_classes = {
 
 #=========================================================================
 class UiaMeta(BaseMeta):
-
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
@@ -141,6 +140,7 @@ class UiaMeta(BaseMeta):
 #=========================================================================
 @six.add_metaclass(UiaMeta)
 class UIAWrapper(BaseWrapper):
+    
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -186,7 +186,7 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def __hash__(self):
-        """Return unique hash value based on element's Runtime ID"""
+        """Return a unique hash value based on the element's Runtime ID"""
         return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
@@ -225,12 +225,12 @@ class UIAWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def is_keyboard_focusable(self):
-        """Return True if element can be focused with keyboard"""
+        """Return True if the element can be focused with keyboard"""
         return self.element_info.element.CurrentIsKeyboardFocusable == 1
 
     #-----------------------------------------------------------
     def has_keyboard_focus(self):
-        """Return True if element is focused with keyboard"""
+        """Return True if the element is focused with keyboard"""
         return self.element_info.element.CurrentHasKeyboardFocus == 1
 
     #-----------------------------------------------------------
@@ -250,6 +250,130 @@ class UIAWrapper(BaseWrapper):
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Invoke")
         iface.Invoke()
+        
+        # Return itself to allow action chaining
+        return self
+
+    #-----------------------------------------------------------
+    def expand(self):
+        """
+        Displays all child nodes, controls, or content of the control
+
+        An interface to Expand method of the ExpandCollapse control pattern.
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
+        iface.Expand()
+
+        # Return itself to allow action chaining
+        return self
+
+    #-----------------------------------------------------------
+    def collapse(self):
+        """
+        Displays all child nodes, controls, or content of the control
+
+        An interface to Collapse method of the ExpandCollapse control pattern.
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
+        iface.Collapse()
+
+        # Return itself to allow action chaining
+        return self
+
+    #-----------------------------------------------------------
+    def get_expand_state(self):
+        """
+        Indicates the state of the control: expanded or collapsed.
+
+        An interface to CurrentExpandCollapseState property of the ExpandCollapse control pattern.
+        Values for enumeration as defined in uia_defines module:
+        expand_state_collapsed = 0
+        expand_state_expanded = 1
+        expand_state_partially = 2
+        expand_state_leaf_node = 3
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
+        return iface.CurrentExpandCollapseState
+
+    #-----------------------------------------------------------
+    def is_expanded(self):
+        """Test if the control is expanded"""
+        state = self.get_expand_state()
+        return state == uia_defs.expand_state_expanded
+
+    #-----------------------------------------------------------
+    def is_collapsed(self):
+        """Test if the control is collapsed"""
+        state = self.get_expand_state()
+        return state == uia_defs.expand_state_collapsed
+
+    def get_selection(self):
+        """
+        An interface to GetSelection of the SelectionProvider pattern
+
+        Retrieves a UI Automation provider for each child element
+        that is selected. Builds a list of UIAElementInfo elements 
+        from all retrieved providers.
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Selection")
+        ptrs_array = iface.GetCurrentSelection()
+        return elements_from_uia_array(ptrs_array)
+
+    def can_select_multiple(self):
+        """
+        An interface to CanSelectMultiple of the SelectionProvider pattern
+
+        Indicates whether the UI Automation provider allows more than one 
+        child element to be selected concurrently.
+
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Selection")
+        return iface.CurrentCanSelectMultiple
+
+    def is_selection_required(self):
+        """
+        An interface to IsSelectionRequired property of the SelectionProvider pattern.
+
+        This property can be dynamic. For example, the initial state of 
+        a control might not have any items selected by default, 
+        meaning that IsSelectionRequired is FALSE. However, 
+        after an item is selected the control must always have 
+        at least one item selected.
+        """
+        elem = self.element_info.element
+        iface = uia_defs.get_elem_interface(elem, "Selection")
+        return iface.CurrentIsSelectionRequired
+
+    def _select(self, item = None):
+        """
+        Find a child item by the name or index and select
+        
+        The action can be applied for dirrent controls with items:
+        ComboBox, TreeView, ListView
+        """
+        if isinstance(item, six.integer_types):
+            item_index = item
+            title = None
+        elif isinstance(item, six.string_types):
+            item_index = 0
+            title = item
+        else:
+            err_msg = u"unsupported {0} for item {1}".format(type(item), item)
+            raise ValueError(err_msg)
+
+        list_ = self.element_info.children(title = title)
+        if item_index < len(list_):
+            elem = list_[item_index].element
+            iface = uia_defs.get_elem_interface(elem, "SelectionItem")
+            iface.Select()
+        else:
+            raise IndexError("item not found")
+
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

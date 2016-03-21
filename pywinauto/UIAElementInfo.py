@@ -64,6 +64,16 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
+def elements_from_uia_array(ptrs_array):
+    """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
+    elements = []
+    for num in range(ptrs_array.Length):
+        child = ptrs_array.GetElement(num)
+        elements.append(UIAElementInfo(child))
+
+    return elements
+
+
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
@@ -81,8 +91,8 @@ class UIAElementInfo(ElementInfo):
             elif isinstance(handle_or_elem, IUIA().ui_automation_client.IUIAutomationElement):
                 self._element = handle_or_elem
             else:
-                raise TypeError("UIAElementInfo object can be initialized ' + \
-                    'with integer or IUIAutomationElement instance only!")
+                raise TypeError("UIAElementInfo object can be initialized " + \
+                    "with integer or IUIAutomationElement instance only!")
         else:
             self._element = IUIA().root
 
@@ -150,13 +160,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_elements(self, tree_scope, cond = IUIA().true_condition):
         """Find all elements according to the given tree scope and conditions"""
-        elements = []
         ptrs_array = self._element.FindAll(tree_scope, cond)
-        for num in range(ptrs_array.Length):
-            child = ptrs_array.GetElement(num)
-            elements.append(UIAElementInfo(child))
-
-        return elements
+        return elements_from_uia_array(ptrs_array)
 
     def children(self, **kwargs):
         """
