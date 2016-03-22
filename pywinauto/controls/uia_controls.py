@@ -31,7 +31,7 @@
 """
 Wrap various UIA windows controls
 """
-import pywinauto.uia_defines as uia_defs
+from .. import uia_defines as uia_defs
 from . import UIAWrapper
 from ..uia_defines import IUIA
 

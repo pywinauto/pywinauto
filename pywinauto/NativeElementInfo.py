@@ -51,6 +51,10 @@ class NativeElementInfo(ElementInfo):
 
         self._as_parameter_ = self._handle
 
+    def set_cache_strategy(self, cached):
+        """Set a cache strategy for frequently used attributes of the element"""
+        pass  # TODO: implement a cache strategy for native elements
+
     @property
     def handle(self):
         """Return the handle of the window"""
