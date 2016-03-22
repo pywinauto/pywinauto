@@ -49,7 +49,6 @@ from ..UIAElementInfo import UIAElementInfo, elements_from_uia_array
 
 #region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
-
 DockPattern = IUIA().ui_automation_client.IUIAutomationDockPattern
 ExpandCollapsePattern = IUIA().ui_automation_client.IUIAutomationExpandCollapsePattern
 GridItemPattern = IUIA().ui_automation_client.IUIAutomationGridItemPattern
@@ -87,7 +86,7 @@ for ctrl_type in _control_types:
 _friendly_classes = {
     'Custom': None,
     'DataGrid': None,
-    'Document': None,
+    'Document': None, # TODO: this is RichTextBox
     'Group': 'GroupBox',
     'Hyperlink': None,
     'Image': None,
