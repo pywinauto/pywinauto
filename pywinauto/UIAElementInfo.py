@@ -114,16 +114,31 @@ class UIAElementInfo(ElementInfo):
         """Return a cached handle of the element"""
         return self._cached_handle
 
+    def _get_current_control_type(self):
+        """Return an actual control type of the element"""
+        return self._element.CurrentControlType
+
+    def _get_cached_control_type(self):
+        """Return a cached control type of the element"""
+        return self._cached_control_type
+
     def set_cache_strategy(self, cached = False):
         """Setup a cache strategy for frequently used attributes"""
         if cached:
+            # Refresh cached attributes
             self._cached_class_name = self._get_current_class_name()
             self._cached_handle = self._get_current_handle()
+            self._cached_control_type = self._get_current_control_type()
+
+            # Switch to cached attributes
             self._get_class_name = self._get_cached_class_name
             self._get_handle = self._get_cached_handle
+            self._get_control_type = self._get_cached_control_type
         else:
+            # Switch to actual (non-cached) attributes 
             self._get_class_name = self._get_current_class_name
             self._get_handle = self._get_current_handle
+            self._get_control_type = self._get_current_control_type
 
     @property
     def element(self):
@@ -171,7 +186,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def control_type(self):
         """Return control type of element"""
-        return self._element.CurrentControlType
+        return self._get_control_type()
 
     @property
     def handle(self):
