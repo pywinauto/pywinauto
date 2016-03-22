@@ -31,14 +31,9 @@
 """
 Wrap various UIA windows controls
 """
-from .. import uia_defines as uia_defs
-
-import time
 import locale
 
 from .. import six
-from ..timings import Timings
-from .. import win32functions
 
 from .. import uia_defines as uia_defs
 from . import UIAWrapper
@@ -411,15 +406,6 @@ class EditWrapper(UIAWrapper.UIAWrapper):
                 search_range.Select()
             except ValueError:
                 raise RuntimeError("Text '{0}' hasn't been found".format(string_to_select))
-
-            # give the control a chance to catch up before continuing
-            if self.element_info.handle:
-                win32functions.WaitGuiThreadIdle(self)
-            else:
-                # TODO: get WaitGuiThreadIdle function for elements without handle
-                pass
-
-            time.sleep(Timings.after_editselect_wait)
 
         # return this control so that actions can be chained.
         return self
