@@ -28,8 +28,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Wrap various UIA windows controls
 """
+Wrap various UIA windows controls
+"""
+from .. import uia_defines as uia_defs
 
 import time
 import locale
@@ -45,7 +47,8 @@ from ..uia_defines import IUIA
 
 #====================================================================
 class ButtonWrapper(UIAWrapper.UIAWrapper):
-    "Wrap a UIA-compatible Button, CheckBox or RadioButton control"
+
+    """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
     control_types = [
         IUIA().UIA_dll.UIA_ButtonControlTypeId,
@@ -55,13 +58,14 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def __init__(self, hwnd):
-        "Initialize the control"
+        """Initialize the control"""
         super(ButtonWrapper, self).__init__(hwnd)
 
     #-----------------------------------------------------------
     def toggle(self):
         """
         An interface to Toggle method of the Toggle control pattern.
+        
         Control supporting the Toggle pattern cycles through its 
         toggle states in the following order: 
         ToggleState_On, ToggleState_Off and, 
@@ -84,7 +88,9 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def get_toggle_state(self):
-        """Get a toggle state of a check box control.
+        """
+        Get a toggle state of a check box control.
+
         The toggle state is represented by an integer
         0 - unchecked
         1 - checked
@@ -101,12 +107,12 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Buttons are never dialogs so return False"
+        """Buttons are never dialogs so return False"""
         return False
 
     #-----------------------------------------------------------
     def click(self):
-        "Click the Button control by using Invoke pattern"
+        """Click the Button control by using Invoke pattern"""
         self.invoke()
 
         # Return itself so that action can be chained
@@ -119,7 +125,6 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
         Usually applied for a radio button control
         """
-
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "SelectionItem")
         iface.Select()
@@ -134,14 +139,100 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
         Usually applied for a radio button control
         """
-
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "SelectionItem")
         return iface.CurrentIsSelected
 
+#====================================================================
+class ComboBoxWrapper(UIAWrapper.UIAWrapper):
+
+    """Wrap a UIA CoboBox control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_ComboBoxControlTypeId
+        ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(ComboBoxWrapper, self).__init__(hwnd)
+
+    #-----------------------------------------------------------
+    def texts(self):
+        """Return the text of the items in the combobox"""
+        texts = []
+        # ComboBox has to be expanded to populate a list of its children items
+        try:
+            self.expand()
+            for c in self.children():
+                texts.append(c.window_text())
+        finally:
+            # Make sure we collapse back in any case
+            self.collapse()
+        return texts
+
+    def select(self, item):
+        """
+        Select the ComboBox item
+
+        The item can be either a 0 based index of the item to select
+        or it can be the string that you want to select
+        """
+        # ComboBox has to be expanded to populate a list of its children items
+        self.expand()
+        try:
+            self._select(item)
+        # TODO: do we need to handle ValueError/IndexError for a wrong index ?
+        #except ValueError:
+        #    raise  # re-raise the last exception
+        finally:
+            # Make sure we collapse back in any case
+            self.collapse()
+        return self
+
+    #-----------------------------------------------------------
+    # TODO: add selected_texts for a combobox with a multi-select support
+    def selected_text(self):
+        """
+        Return the selected text or None
+        
+        Notice, that in case of multi-select it will be only the text from 
+        a first selected item
+        """
+        selection = self.get_selection()
+        if selection:
+            return selection[0].name
+        else:
+            return None
+
+    #-----------------------------------------------------------
+    # TODO: add selected_indices for a combobox with multi-select support
+    def selected_index(self):
+        """Return the selected index"""
+        # Go through all children and look for an index 
+        # of an item with the same text.
+        # Maybe there is another and more efficient way to do it
+        selection = self.get_selection()
+        if selection:
+            for i, c in enumerate(self.children()):
+                if c.window_text() == selection[0].name:
+                    return i
+        return None
+
+    #-----------------------------------------------------------
+    def item_count(self):
+        """
+        Return the number of items in the combobox
+        
+        The interface is kept mostly for a backward compatibility with
+        the native ComboBox interface
+        """
+        return self.control_count()
+
 
 #====================================================================
 class EditWrapper(UIAWrapper.UIAWrapper):
+
     """Wrap an UIA-compatible Edit control"""
 
     controltypes = [
@@ -332,3 +423,4 @@ class EditWrapper(UIAWrapper.UIAWrapper):
 
         # return this control so that actions can be chained.
         return self
+
