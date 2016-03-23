@@ -1168,11 +1168,11 @@ class ToolbarTestCases(unittest.TestCase):
 
 
 class RebarTestCases(unittest.TestCase):
-    "Unit tests for the UpDownWrapper class"
+
+    """Unit tests for the UpDownWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it.
+        """Start the application, set some data and wait for the state we want
 
         The app title can be tricky. If no document is opened the title is just: "RebarTest"
         However if an document is created/opened in the child frame
@@ -1180,7 +1180,6 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title 
         even though the app is started with a short title "RebarTest".
         """
-
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
 
@@ -1198,29 +1197,29 @@ class RebarTestCases(unittest.TestCase):
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (ReBar)"
+        """Make sure the friendly class is set correctly (ReBar)"""
         self.assertEquals (self.ctrl.friendly_class_name(), "ReBar")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
+        """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
             self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testBandCount(self):
+        """Make sure BandCount() returns 2"""
         self.assertEquals(self.ctrl.BandCount(), 2)
 
     def testGetBand(self):
-
+        """Check that GetBand() is working corectly"""
         self.assertRaises(IndexError, self.ctrl.GetBand, 99)
         self.assertRaises(IndexError, self.ctrl.GetBand, 2)
 
         band = self.ctrl.GetBand(0)
-
 
         self.assertEquals(band.hwndChild, self.dlg.MenuBar.handle)
 
@@ -1228,16 +1227,17 @@ class RebarTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetBand(0).text, u"Menus band:")
 
     def testGetToolTipsControl(self):
+        """Make sure GetToolTipsControl() returns None"""
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
 
     def testAfxToolBarButtons(self):
-        "Make sure we can click on Afx ToolBar button by index"
+        """Make sure we can click on Afx ToolBar button by index"""
         self.dlg.StandardToolbar.Button(1).Click()
         self.app.Window_(title='Open').Wait('ready')
-        self.app.Window_(title='Open').Cancel.CloseClick(double=True)
+        self.app.Window_(title='Open').Cancel.CloseClick()
 
     def testMenuBarClickInput(self):
-        "Make sure we can click on Menu Bar items by indexed path"
+        """Make sure we can click on Menu Bar items by indexed path"""
         self.assertRaises(TypeError, self.dlg.MenuBar.MenuBarClickInput, '#one->#0', self.app)
         
         self.dlg.MenuBar.MenuBarClickInput('#1->#0->#0', self.app)
@@ -1250,13 +1250,11 @@ class RebarTestCases(unittest.TestCase):
 
 
 class DatetimeTestCases(unittest.TestCase):
-    "Unit tests for the DateTimePicker class"
+
+    """Unit tests for the DateTimePicker class"""
 
     def setUp(self):
-        """
-        Start the application and get 'Date Time Picker' control.
-        """
-
+        """Start the application and get 'Date Time Picker' control"""
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1268,16 +1266,16 @@ class DatetimeTestCases(unittest.TestCase):
         self.ctrl = self.dlg.DateTimePicker
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (DateTimePicker)"
+        """Make sure the friendly class is set correctly (DateTimePicker)"""
         self.assertEqual(self.ctrl.friendly_class_name(), "DateTimePicker")
 
     def testGetTime(self):
-        "Test reading a date from a 'Date Time Picker' control"
+        """Test reading a date from a 'Date Time Picker' control"""
 
         # No check for seconds and milliseconds as it can slip
         # These values are verified in the next 'testSetTime'
@@ -1290,7 +1288,7 @@ class DatetimeTestCases(unittest.TestCase):
         self.assertEqual(test_date_time.wMinute, date_time_now.minute)
 
     def testSetTime(self):
-        "Test setting a date to a 'Date Time Picker' control"
+        """Test setting a date to a 'Date Time Picker' control"""
         year = 2025
         month = 9
         day_of_week = 5
@@ -1323,12 +1321,11 @@ class DatetimeTestCases(unittest.TestCase):
 
 
 class ToolTipsTestCases(unittest.TestCase):
-    "Unit tests for the tooltips class"
+
+    """Unit tests for the tooltips class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
-
+        """Start the application set some data and wait for the state we want"""
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
         app = Application()
@@ -1344,17 +1341,7 @@ class ToolTipsTestCases(unittest.TestCase):
         
         self.dlg.TabControl.Select(u'CToolBarCtrl')
 
-        '''
-        tips = app.windows_(
-            visible_only = False,
-            enabled_only = False,
-            top_level_only = False,
-            class_name = "tooltips_class32")
-        '''
-
-        self.ctrl = self.dlg.Toolbar.GetToolTipsControl() #WrapHandle(tips[1])
-        #self.ctrl = HwndWrapper(tips[1])
-
+        self.ctrl = self.dlg.Toolbar.GetToolTipsControl()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -1365,16 +1352,16 @@ class ToolTipsTestCases(unittest.TestCase):
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.app.kill_()
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (ToolTips)"
+        """Make sure the friendly class is set correctly (ToolTips)"""
         self.assertEquals (self.ctrl.friendly_class_name(), "ToolTips")
 
     def testGetProperties(self):
-        "Test getting the properties for the tooltips control"
+        """Test getting the properties for the tooltips control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -1387,32 +1374,33 @@ class ToolTipsTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testGetTip(self):
+        """Test that GetTip() returns correct ToolTip object"""
         self.assertRaises(IndexError, self.ctrl.GetTip, 99)
         tip = self.ctrl.GetTip(1)
         self.assertEquals(tip.text, self.texts[1])
 
     def testToolCount(self):
+        """Test that ToolCount() returns correct value"""
         self.assertEquals(10, self.ctrl.ToolCount())
 
     def testGetTipText(self):
+        """Test that GetTipText() returns correct text"""
         self.assertEquals(self.texts[1], self.ctrl.GetTipText(1))
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
+        """Make sure the texts are set correctly"""
         self.dlg.move_mouse_input(coords=(0, 0)) # just to make sure a tooltip is not shown
         ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.texts()))
         self.assertEquals(self.ctrl.texts()[0], '')
         self.assertEquals(self.ctrl.texts()[1:], self.texts)
 
 
-
 class UpDownTestCases(unittest.TestCase):
-    "Unit tests for the UpDownWrapper class"
+
+    """Unit tests for the UpDownWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
-
+        """Start the application set some data and wait for the state we want"""
         app = Application()
         app.start(os.path.join(controlspy_folder,  "Up-Down.exe"))
 
@@ -1429,20 +1417,20 @@ class UpDownTestCases(unittest.TestCase):
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (UpDown)"
+        """Make sure the friendly class is set correctly (UpDown)"""
         self.assertEquals (self.ctrl.friendly_class_name(), "UpDown")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
+        """Make sure the texts are set correctly"""
         self.assertEquals (self.ctrl.texts()[1:], [])
 
     def testGetProperties(self):
-        "Test getting the properties for the updown control"
+        """Test getting the properties for the updown control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -1455,14 +1443,14 @@ class UpDownTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testGetValue(self):
-        "Test getting up-down position"
+        """Test getting up-down position"""
         self.assertEquals (self.ctrl.GetValue(), 0)
 
         self.ctrl.SetValue(23)
         self.assertEquals (self.ctrl.GetValue(), 23)
 
     def testSetValue(self):
-        "Test setting up-down position"
+        """Test setting up-down position"""
         self.assertEquals (self.ctrl.GetValue(), 0)
 
         self.ctrl.SetValue(23)
@@ -1472,7 +1460,7 @@ class UpDownTestCases(unittest.TestCase):
             23)
 
     def testGetBase(self):
-        "Test getting the base of the up-down control"
+        """Test getting the base of the up-down control"""
         self.assertEquals (self.ctrl.GetBase(), 10)
         #self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
 
@@ -1483,27 +1471,24 @@ class UpDownTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.GetBase(), 16)
 
     def testGetRange(self):
-        "Test getting the range of the up-down control"
+        """Test getting the range of the up-down control"""
         self.assertEquals((0, 9999), self.ctrl.GetRange())
 
     def testGetBuddy(self):
-        "Test getting the buddy control"
+        """Test getting the buddy control"""
         self.assertEquals (self.ctrl.GetBuddyControl().handle, self.dlg.Edit6.handle)
 
 
     def testIncrement(self):
-        "Test incremementing up-down position"
+        """Test incremementing up-down position"""
         self.ctrl.Increment()
         self.assertEquals (self.ctrl.GetValue(), 1)
 
     def testDecrement(self):
-        "Test decrementing up-down position"
+        """Test decrementing up-down position"""
         self.ctrl.SetValue(23)
         self.ctrl.Decrement()
         self.assertEquals (self.ctrl.GetValue(), 22)
-
-
-
 
 
 if __name__ == "__main__":
