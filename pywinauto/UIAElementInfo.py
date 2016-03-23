@@ -64,6 +64,16 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
+def elements_from_uia_array(ptrs_array):
+    """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
+    elements = []
+    for num in range(ptrs_array.Length):
+        child = ptrs_array.GetElement(num)
+        elements.append(UIAElementInfo(child))
+
+    return elements
+
+
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
@@ -81,10 +91,39 @@ class UIAElementInfo(ElementInfo):
             elif isinstance(handle_or_elem, IUIA().ui_automation_client.IUIAutomationElement):
                 self._element = handle_or_elem
             else:
-                raise TypeError("UIAElementInfo object can be initialized ' + \
-                    'with integer or IUIAutomationElement instance only!")
+                raise TypeError("UIAElementInfo object can be initialized " + \
+                    "with integer or IUIAutomationElement instance only!")
         else:
             self._element = IUIA().root
+
+        self.set_cache_strategy(False)
+
+    def _get_current_class_name(self):
+        """Return an actual class name of the element"""
+        return self._element.CurrentClassName
+    
+    def _get_cached_class_name(self):
+        """Return a cached class name of the element"""
+        return self._cached_class_name
+
+    def _get_current_handle(self):
+        """Return an actual handle of the element"""
+        return self._element.CurrentNativeWindowHandle
+
+    def _get_cached_handle(self):
+        """Return a cached handle of the element"""
+        return self._cached_handle
+
+    def set_cache_strategy(self, cached = False):
+        """Setup a cache strategy for frequently used attributes"""
+        if cached:
+            self._cached_class_name = self._get_current_class_name()
+            self._cached_handle = self._get_current_handle()
+            self._get_class_name = self._get_cached_class_name
+            self._get_handle = self._get_cached_handle
+        else:
+            self._get_class_name = self._get_current_class_name
+            self._get_handle = self._get_current_handle
 
     @property
     def element(self):
@@ -127,7 +166,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return class name of the element"""
-        return self._element.CurrentClassName
+        return self._get_class_name()
 
     @property
     def control_type(self):
@@ -137,7 +176,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def handle(self):
         """Return handle of the element"""
-        return self._element.CurrentNativeWindowHandle
+        return self._get_handle()
 
     @property
     def parent(self):
@@ -150,13 +189,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_elements(self, tree_scope, cond = IUIA().true_condition):
         """Find all elements according to the given tree scope and conditions"""
-        elements = []
         ptrs_array = self._element.FindAll(tree_scope, cond)
-        for num in range(ptrs_array.Length):
-            child = ptrs_array.GetElement(num)
-            elements.append(UIAElementInfo(child))
-
-        return elements
+        return elements_from_uia_array(ptrs_array)
 
     def children(self, **kwargs):
         """
