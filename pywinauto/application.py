@@ -1212,7 +1212,7 @@ def process_get_modules():
     # collect all the running processes
     pids = win32process.EnumProcesses()
     for pid in pids:
-        if pid != 0: # skip system process (0x00000000)
+        if pid != 0 and isinstance(pid, int): # skip system process (0x00000000)
             try:
                 modules.append((pid, process_module(pid), None))
             except (win32gui.error, ProcessNotFoundError):
@@ -1229,7 +1229,8 @@ def _process_get_modules_wmi():
     # collect all the running processes
     processes = _wmi.ExecQuery('Select * from win32_process')
     for p in processes:
-        modules.append((p.ProcessId, p.ExecutablePath, p.CommandLine)) # p.Name
+        if isinstance(p.ProcessId, int):
+            modules.append((p.ProcessId, p.ExecutablePath, p.CommandLine)) # p.Name
     return modules
 
 #=========================================================================
