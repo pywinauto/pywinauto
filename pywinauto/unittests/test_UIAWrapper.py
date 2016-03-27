@@ -261,10 +261,6 @@ if UIA_support:
             self.app = app.Start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
 
-            # Make sure the mouse doesn't hover over tested controls
-            # so it won't generate an unexpected event
-            self.dlg.move_mouse_input(coords=(-100, -100), absolute=True)
-
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
@@ -286,11 +282,12 @@ if UIA_support:
         def test_check_box(self):
             """Test 'toggle' and 'toggle_state' for the check box control"""
             # Get a current state of the check box control
-            cur_state = self.dlg.CheckBox.get_toggle_state()
+            check_box = self.dlg.CheckBox.WrapperObject()
+            cur_state = check_box.get_toggle_state()
             self.assertEqual(cur_state, uia_defs.toggle_state_inderteminate)
             
             # Toggle the next state
-            cur_state = self.dlg.CheckBox.toggle().get_toggle_state()
+            cur_state = check_box.toggle().get_toggle_state()
             
             # Get a new state of the check box control
             self.assertEqual(cur_state, uia_defs.toggle_state_off)
@@ -298,17 +295,18 @@ if UIA_support:
         def test_toggle_button(self):
             """Test 'toggle' and 'toggle_state' for the toggle button control"""
             # Get a current state of the check box control
-            cur_state = self.dlg.ToggleMe.get_toggle_state()
+            button = self.dlg.ToggleMe.WrapperObject()
+            cur_state = button.get_toggle_state()
             self.assertEqual(cur_state, uia_defs.toggle_state_on)
             
             # Toggle the next state
-            cur_state = self.dlg.ToggleMe.toggle().get_toggle_state()
+            cur_state = button.toggle().get_toggle_state()
             
             # Get a new state of the check box control
             self.assertEqual(cur_state, uia_defs.toggle_state_off)
             
             # Toggle the next state
-            cur_state = self.dlg.ToggleMe.toggle().get_toggle_state()
+            cur_state = button.toggle().get_toggle_state()
             self.assertEqual(cur_state, uia_defs.toggle_state_on)
 
         def test_button_click(self):
@@ -319,10 +317,11 @@ if UIA_support:
 
         def test_radio_button(self):
             """Test 'select' and 'is_selected' for the radio button control"""
-            cur_state = self.dlg.Yes.is_selected()
+            yes = self.dlg.Yes.WrapperObject()
+            cur_state = yes.is_selected()
             self.assertEqual(cur_state, False)
 
-            cur_state = self.dlg.Yes.select().is_selected()
+            cur_state = yes.select().is_selected()
             self.assertEqual(cur_state, True)
 
         def test_combobox_texts(self):
