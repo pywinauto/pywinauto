@@ -585,9 +585,13 @@ class HwndWrapper(BaseWrapper):
         _perform_click(self, button, pressed, coords, double)
 
         def has_closed():
-            return not (
-                win32functions.IsWindow(self) or
-                win32functions.IsWindow(self.parent()))
+            closed = not (
+                    win32functions.IsWindow(self) or
+                    win32functions.IsWindow(self.parent()))
+            if not closed:
+                # try closing again
+                _perform_click(self, button, pressed, coords, double)
+            return closed
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
