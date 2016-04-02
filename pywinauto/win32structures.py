@@ -319,6 +319,27 @@ class LVCOLUMNW32(Structure):
         ('cxIdeal', c_int),
     ]
 
+
+class GVITEM(Structure):
+    # _pack_ is not specified, we rely on a default alignment:
+    # 8 bytes on x64 system and 4 bytes on x86
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2679
+        ('mask', UINT),
+        ('iItem', c_int),
+        ('iSubItem', c_int),
+        ('state', UINT),
+        ('stateMask', UINT),
+        ('pszText', c_void_p), #LPTSTR), #c_long), #LPWSTR),
+        ('cchTextMax', c_int),
+        ('iIndent', c_int), #if (_WIN32_IE >= 0x0300)
+        ('iImage', c_int),
+        ('iFont', c_int),
+        ('color', COLORREF),
+        ('param', LPARAM),
+    ]
+
+
 # Main layout for LVITEM, naturally fits for x86 and x64 archs
 class LVITEMW(Structure):
     # _pack_ is not specified, we rely on a default alignment:
