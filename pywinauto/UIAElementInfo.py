@@ -122,6 +122,23 @@ class UIAElementInfo(ElementInfo):
         """Return a cached control type of the element"""
         return self._cached_control_type
 
+    def _get_current_name(self):
+        """Return an actual name of the element"""
+        return self._element.CurrentName
+
+    def _get_cached_name(self):
+        """Return a cached name of the element"""
+        return self._cached_name
+
+    def _get_current_visible(self):
+        """Return an actual visible property of the element"""
+        return bool(not self._element.CurrentIsOffscreen)
+
+    def _get_cached_visible(self):
+        """Return a cached visible property of the element"""
+        return self._cached_visible
+
+
     def set_cache_strategy(self, cached = False):
         """Setup a cache strategy for frequently used attributes"""
         if cached:
@@ -129,16 +146,22 @@ class UIAElementInfo(ElementInfo):
             self._cached_class_name = self._get_current_class_name()
             self._cached_handle = self._get_current_handle()
             self._cached_control_type = self._get_current_control_type()
+            self._cached_name = self._get_current_name()
+            self._cached_visible = self._get_current_visible()
 
             # Switch to cached attributes
             self._get_class_name = self._get_cached_class_name
             self._get_handle = self._get_cached_handle
             self._get_control_type = self._get_cached_control_type
+            self._get_name = self._get_cached_name
+            self._get_visible = self._get_cached_visible
         else:
             # Switch to actual (non-cached) attributes 
             self._get_class_name = self._get_current_class_name
             self._get_handle = self._get_current_handle
             self._get_control_type = self._get_current_control_type
+            self._get_name = self._get_current_name
+            self._get_visible = self._get_current_visible
 
     @property
     def element(self):
@@ -176,7 +199,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def name(self):
         """Return name of the element"""
-        return self._element.CurrentName
+        return self._get_name()
 
     @property
     def class_name(self):
@@ -230,7 +253,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def visible(self):
         """Check if the element is visible"""
-        return bool(not self._element.CurrentIsOffscreen)
+        return self._get_visible()
 
     @property
     def enabled(self):
