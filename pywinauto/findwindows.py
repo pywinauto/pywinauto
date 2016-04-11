@@ -82,6 +82,18 @@ def find_element(**kwargs):
     return elements[0]
 
 #=========================================================================
+def find_window(**kwargs):
+    """
+    Call find_elements and ensure that only handle of one element is returned
+
+    Calls find_elements with exactly the same arguments as it is called with
+    so please see find_elements for a description of them.
+    """
+    kwargs['backend'] = 'native'
+    element = find_element(**kwargs)
+    return element.handle
+
+#=========================================================================
 def find_elements(class_name = None,
                   class_name_re = None,
                   parent = None,
@@ -269,6 +281,18 @@ def find_elements(class_name = None,
                 format(found_index, len(elements)))
 
     return elements
+
+#=========================================================================
+def find_windows(**kwargs):
+    """
+    Find elements based on criteria passed in and return list of their handles
+
+    Calls find_elements with exactly the same arguments as it is called with
+    so please see find_elements for a description of them.
+    """
+    kwargs['backend'] = 'native'
+    elements = find_elements(**kwargs)
+    return [elem.handle for elem in elements]
 
 #=========================================================================
 def enum_windows():
