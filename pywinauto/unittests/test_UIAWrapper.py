@@ -405,7 +405,7 @@ if UIA_support:
             self.assertEqual(collapsed, True)
 
 
-    class EditTestCases(unittest.TestCase):
+    class EditWrapperTestCases(unittest.TestCase):
 
         """Unit tests for the EditWrapper class"""
 
@@ -482,7 +482,7 @@ if UIA_support:
             self.assertEqual((2, 6), self.edit.selection_indices())
 
 
-    class SliderTestCases(unittest.TestCase):
+    class SliderWrapperTestCases(unittest.TestCase):
         """Unit tests for the EditWrapper class"""
 
         def setUp(self):
@@ -538,8 +538,8 @@ if UIA_support:
             self.slider.set_value("75.4")
             self.assertEqual(self.slider.value(), 75.4)
 
-            self.assertRaises(self.slider.set_value(-1), ValueError)
-            self.assertRaises(self.slider.set_value(102), ValueError)
+            self.assertRaises(ValueError, self.slider.set_value, -1)
+            self.assertRaises(ValueError, self.slider.set_value, 102)
 
 
 if __name__ == "__main__":
