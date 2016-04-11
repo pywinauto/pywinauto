@@ -249,11 +249,13 @@ class EditWrapper(UIAWrapper.UIAWrapper):
         return props
 
     #-----------------------------------------------------------
+    # TODO: since this class supports only 1-line textbox return always '1'?
     def line_count(self):
         """Return how many lines there are in the Edit"""
         return self.window_text().count("\n") + 1
 
     #-----------------------------------------------------------
+    # TODO: this class supports only 1-line textboxes
     def line_length(self, line_index):
         """Return how many characters there are in the line"""
         # need to first get a character index of that line
@@ -266,6 +268,7 @@ class EditWrapper(UIAWrapper.UIAWrapper):
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     #-----------------------------------------------------------
+    # TODO: this class supports only 1-line textboxes
     def get_line(self, line_index):
         """Return the line specified"""
         lines = self.window_text().splitlines()
@@ -409,4 +412,76 @@ class EditWrapper(UIAWrapper.UIAWrapper):
 
         # return this control so that actions can be chained.
         return self
+
+
+#====================================================================
+class SliderWrapper(UIAWrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Slider control"""
+
+    controltypes = [
+        IUIA().UIA_dll.UIA_SliderControlTypeId,
+    ]
+    has_title = False
+
+    #-----------------------------------------------------------
+    def __init__(self, elem_or_handle):
+        """Initialize the control"""
+        super(SliderWrapper, self).__init__(elem_or_handle)
+        # Get interface to work with this slider
+        self.iface_RangeValue = uia_defs.get_elem_interface(self.element_info.element, "RangeValue")
+
+    #-----------------------------------------------------------
+    def min_value(self):
+        """Get minimum value of Slider"""
+        return self.iface_RangeValue.CurrentMinimum
+
+    #-----------------------------------------------------------
+    def max_value(self):
+        """Get maximum value of Slider"""
+        return self.iface_RangeValue.CurrentMaximum
+
+    #-----------------------------------------------------------
+    def small_change(self):
+        """
+        Get small change of slider's thumb
+
+        This change is achieved by pressing left and right arrows
+        when slider's thumb has keyboard focus.
+        """
+        return self.iface_RangeValue.CurrentSmallChange
+
+    #-----------------------------------------------------------
+    def large_change(self):
+        """
+        Get large change of slider's thumb
+
+        This change is achieved by pressing PgUp and PgDown keys
+        when slider's thumb has keyboard focus.
+        """
+        return self.iface_RangeValue.CurrentLargeChange
+
+    #-----------------------------------------------------------
+    def value(self):
+        """Get current position of slider's thumb"""
+        return self.iface_RangeValue.CurrentValue
+
+    #-----------------------------------------------------------
+    def set_value(self, value):
+        """Set position of slider's thump"""
+        if isinstance(value, float):
+            value_to_set = value
+        elif isinstance(value, six.integer_types):
+            value_to_set = value
+        elif isinstance(value, six.text_type):
+            value_to_set = float(value)
+        else:
+            raise ValueError("value should be either string or number")
+
+        min_value = self.min_value()
+        max_value = self.max_value()
+        if value_to_set < min_value or value_to_set > max_value:
+            raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
+
+        self.iface_RangeValue.SetValue(value_to_set)
 

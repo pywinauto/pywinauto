@@ -309,6 +309,7 @@ class UIAWrapper(BaseWrapper):
         state = self.get_expand_state()
         return state == uia_defs.expand_state_collapsed
 
+    #-----------------------------------------------------------
     def get_selection(self):
         """
         An interface to GetSelection of the SelectionProvider pattern
@@ -322,18 +323,19 @@ class UIAWrapper(BaseWrapper):
         ptrs_array = iface.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
 
+    #-----------------------------------------------------------
     def can_select_multiple(self):
         """
         An interface to CanSelectMultiple of the SelectionProvider pattern
 
         Indicates whether the UI Automation provider allows more than one 
         child element to be selected concurrently.
-
         """
         elem = self.element_info.element
         iface = uia_defs.get_elem_interface(elem, "Selection")
         return iface.CurrentCanSelectMultiple
 
+    #-----------------------------------------------------------
     def is_selection_required(self):
         """
         An interface to IsSelectionRequired property of the SelectionProvider pattern.
@@ -348,6 +350,7 @@ class UIAWrapper(BaseWrapper):
         iface = uia_defs.get_elem_interface(elem, "Selection")
         return iface.CurrentIsSelectionRequired
 
+    #-----------------------------------------------------------
     def _select(self, item = None):
         """
         Find a child item by the name or index and select
