@@ -433,12 +433,12 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def min_value(self):
-        """Get minimum value of Slider"""
+        """Get minimum value of the Slider"""
         return self.iface_RangeValue.CurrentMinimum
 
     #-----------------------------------------------------------
     def max_value(self):
-        """Get maximum value of Slider"""
+        """Get maximum value of the Slider"""
         return self.iface_RangeValue.CurrentMaximum
 
     #-----------------------------------------------------------

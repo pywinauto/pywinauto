@@ -482,6 +482,66 @@ if UIA_support:
             self.assertEqual((2, 6), self.edit.selection_indices())
 
 
+    class SliderTestCases(unittest.TestCase):
+        """Unit tests for the EditWrapper class"""
+
+        def setUp(self):
+            """Start the application set some data and ensure the application
+            is in the state we want it."""
+
+            # start the application
+            app = Application(backend='uia')
+            app = app.start(wpf_app_1)
+
+            self.app = app
+            self.dlg = app.WPFSampleApplication
+
+            from pywinauto.controls.uia_controls import SliderWrapper
+            self.slider = SliderWrapper(self.dlg.Slider.element_info)
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def testFriendlyClassNames(self):
+            """Test getting friendly class names of textbox-like controls"""
+            self.assertEqual(self.slider.friendly_class_name(), "Slider")
+
+        def testMinValue(self):
+            """Test getting minimum value of the Slider"""
+            self.assertEqual(self.slider.min_value(), 0.0)
+
+        def testMaxValue(self):
+            """Test getting maximum value of the Slider"""
+            self.assertEqual(self.slider.max_value(), 100.0)
+
+        def testSmallChange(self):
+            """Test Getting small change of slider's thumb"""
+            self.assertEqual(self.slider.small_change(), 0.1)
+
+        def testLargeChange(self):
+            """Test Getting large change of slider's thumb"""
+            self.assertEqual(self.slider.large_change(), 1.0)
+
+        def testValue(self):
+            """Test getting current position of slider's thumb"""
+            self.assertEqual(self.slider.value(), 70.0)
+
+        def testSetValue(self):
+            """Test setting position of slider's thumb"""
+            self.slider.set_value(24)
+            self.assertEqual(self.slider.value(), 24.0)
+
+            self.slider.set_value(33.3)
+            self.assertEqual(self.slider.value(), 33.3)
+
+            self.slider.set_value("75.4")
+            self.assertEqual(self.slider.value(), 75.4)
+
+            self.assertRaises(self.slider.set_value(-1), ValueError)
+            self.assertRaises(self.slider.set_value(102), ValueError)
+
+
 if __name__ == "__main__":
     if UIA_support:
         unittest.main()
