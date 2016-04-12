@@ -229,8 +229,10 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
 class EditWrapper(UIAWrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Edit control"""
+    # TODO: this class supports only 1-line textboxes so there is no point
+    # TODO: in methods such as line_count(), line_length(), get_line(), etc
 
-    controltypes = [
+    control_types = [
         IUIA().UIA_dll.UIA_EditControlTypeId,
     ]
     has_title = False
@@ -249,13 +251,11 @@ class EditWrapper(UIAWrapper.UIAWrapper):
         return props
 
     #-----------------------------------------------------------
-    # TODO: since this class supports only 1-line textbox return always '1'?
     def line_count(self):
         """Return how many lines there are in the Edit"""
         return self.window_text().count("\n") + 1
 
     #-----------------------------------------------------------
-    # TODO: this class supports only 1-line textboxes
     def line_length(self, line_index):
         """Return how many characters there are in the line"""
         # need to first get a character index of that line
@@ -268,7 +268,6 @@ class EditWrapper(UIAWrapper.UIAWrapper):
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     #-----------------------------------------------------------
-    # TODO: this class supports only 1-line textboxes
     def get_line(self, line_index):
         """Return the line specified"""
         lines = self.window_text().splitlines()
@@ -325,8 +324,7 @@ class EditWrapper(UIAWrapper.UIAWrapper):
         iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
         iface.SetValue(text)
 
-        raise UserWarning(
-            "set_window_text() should probably not be called for Edit Controls")
+        raise UserWarning("set_window_text() should probably not be called for Edit Controls")
 
     #-----------------------------------------------------------
     def set_edit_text(self, text, pos_start = None, pos_end = None):
@@ -419,7 +417,7 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Slider control"""
 
-    controltypes = [
+    control_types = [
         IUIA().UIA_dll.UIA_SliderControlTypeId,
     ]
     has_title = False
@@ -468,7 +466,7 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def set_value(self, value):
-        """Set position of slider's thump"""
+        """Set position of slider's thumb"""
         if isinstance(value, float):
             value_to_set = value
         elif isinstance(value, six.integer_types):
@@ -480,7 +478,7 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
 
         min_value = self.min_value()
         max_value = self.max_value()
-        if value_to_set < min_value or value_to_set > max_value:
+        if not (min_value <= value_to_set <= max_value):
             raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
         self.iface_RangeValue.SetValue(value_to_set)
