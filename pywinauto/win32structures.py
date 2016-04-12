@@ -403,6 +403,22 @@ else:
     assert alignment(TVITEMW) == 4, alignment(TVITEMW)
 
 
+class TVITEMW32(Structure):
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
+        ('mask', UINT),
+        ('hItem', HTREEITEM),
+        ('state', UINT),
+        ('stateMask', UINT),
+        ('pszText', UINT), # now 4 bytes
+        ('cchTextMax', c_int),
+        ('iImage', c_int),
+        ('iSelectedImage', c_int),
+        ('cChildren', c_int),
+        ('lParam', LPARAM),
+    ]
+
+
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
 class NMHDR(Structure):
     _fields_ = [
