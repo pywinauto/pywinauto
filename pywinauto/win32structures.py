@@ -407,7 +407,7 @@ class TVITEMW32(Structure):
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
         ('mask', UINT),
-        ('hItem', HTREEITEM),
+        ('hItem', UINT),
         ('state', UINT),
         ('stateMask', UINT),
         ('pszText', UINT), # now 4 bytes
@@ -415,8 +415,11 @@ class TVITEMW32(Structure):
         ('iImage', c_int),
         ('iSelectedImage', c_int),
         ('cChildren', c_int),
-        ('lParam', LPARAM),
+        ('lParam', UINT),
     ]
+
+assert sizeof(TVITEMW32) == 40, sizeof(TVITEMW32)
+assert alignment(TVITEMW32) == 4, alignment(TVITEMW32)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
