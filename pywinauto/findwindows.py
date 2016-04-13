@@ -38,6 +38,13 @@ from .backend import registry
 # TODO: we should filter out invalid elements before returning
 
 #=========================================================================
+class WindowNotFoundError(Exception):
+
+    """No window could be found"""
+    pass
+
+
+#=========================================================================
 class WindowAmbiguousError(Exception):
 
     """There was more then one window that matched"""
@@ -69,7 +76,7 @@ def find_element(**kwargs):
         raise ElementNotFoundError(kwargs)
 
     if len(elements) > 1:
-        exception =  WindowAmbiguousError(
+        exception =  ElementAmbiguousError(
             "There are %d elements that match the criteria %s"% (
             len(elements),
             six.text_type(kwargs),
@@ -80,6 +87,23 @@ def find_element(**kwargs):
         raise exception
 
     return elements[0]
+
+#=========================================================================
+def find_window(**kwargs):
+    """
+    Call find_elements and ensure that only handle of one element is returned
+
+    Calls find_elements with exactly the same arguments as it is called with
+    so please see find_elements for a description of them.
+    """
+    try:
+        kwargs['backend'] = 'native'
+        element = find_element(**kwargs)
+        return element.handle
+    except ElementNotFoundError:
+        raise WindowNotFoundError
+    except ElementAmbiguousError:
+        raise WindowAmbiguousError
 
 #=========================================================================
 def find_elements(class_name = None,
@@ -119,7 +143,7 @@ def find_elements(class_name = None,
     * **best_match**     Elements with a title similar to this
     * **handle**         The handle of the element to return
     * **ctrl_index**     The index of the child element to return
-    * **found_index**    The index of the filtered out child lement to return
+    * **found_index**    The index of the filtered out child element to return
     * **active_only**    Active elements only (default=False)
     * **control_id**     Elements with this control id
     * **auto_id**        Elements with this automation id (for UIAutomation elements)
@@ -269,6 +293,21 @@ def find_elements(class_name = None,
                 format(found_index, len(elements)))
 
     return elements
+
+#=========================================================================
+def find_windows(**kwargs):
+    """
+    Find elements based on criteria passed in and return list of their handles
+
+    Calls find_elements with exactly the same arguments as it is called with
+    so please see find_elements for a description of them.
+    """
+    try:
+        kwargs['backend'] = 'native'
+        elements = find_elements(**kwargs)
+        return [elem.handle for elem in elements]
+    except ElementNotFoundError:
+        raise WindowNotFoundError
 
 #=========================================================================
 def enum_windows():
