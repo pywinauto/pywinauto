@@ -49,9 +49,6 @@ if UIA_support:
             self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.OK.element_info)
-            self.edit = UIAWrapper(self.dlg.TestLabelEdit.element_info)
-            self.label = UIAWrapper(self.dlg.TestLabel.element_info)
 
         def tearDown(self):
             "Close the application after tests"
@@ -59,11 +56,13 @@ if UIA_support:
 
         def testFriendlyClassName(self):
             "Test getting the friendly classname of the dialog"
-            self.assertEqual(self.button.friendly_class_name(), "Button")
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.friendly_class_name(), "Button")
 
         def test_find_nontop_ctl_by_class_name_and_title(self):
             """Test getting a non-top control by a class name and a title"""
             # Look up for a non-top button control with 'Apply' caption
+            self.dlg.Wait('ready')
             caption = 'Apply'
             wins = self.app.windows_(top_level_only = False,
                                      class_name = 'Button',
@@ -79,6 +78,7 @@ if UIA_support:
             """Test getting a top window by a class name and a title"""
             # Since the top_level_only is True by default 
             # we don't specify it as a criteria argument
+            self.dlg.Wait('ready')
             caption = 'WPF Sample Application'
             wins = self.app.windows_(class_name = 'Window',
                                      title = caption)
@@ -91,48 +91,60 @@ if UIA_support:
 
         def testClass(self):
             "Test getting the classname of the dialog"
-            self.assertEqual(self.button.class_name(), "Button")
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.class_name(), "Button")
 
         def testWindowText(self):
             "Test getting the window Text of the dialog"
-            self.assertEqual(self.label.window_text(), u"TestLabel")
+            label = self.dlg.TestLabel.WrapperObject()
+            self.assertEqual(label.window_text(), u"TestLabel")
 
         def testControlID(self):
-            self.assertEqual(self.button.control_id(), None)
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.control_id(), None)
 
         def testIsVisible(self):
-            self.assertEqual(self.button.is_visible(), True)
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.is_visible(), True)
 
         def testIsEnabled(self):
-            self.assertEqual(self.button.is_enabled(), True)
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.is_enabled(), True)
 
         def testProcessID(self):
-            self.assertEqual(self.button.process_id(), self.dlg.process_id())
-            self.assertNotEqual(self.button.process_id(), 0)
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.process_id(), self.dlg.process_id())
+            self.assertNotEqual(button.process_id(), 0)
 
         def testIsDialog(self):
-            self.assertEqual(self.button.is_dialog(), False)
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.is_dialog(), False)
 
         def testParent(self):
-            self.assertEqual(self.button.parent(), self.dlg.WrapperObject())
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.parent(), self.dlg.WrapperObject())
 
         def testTopLevelParent(self):
-            self.assertEqual(self.button.top_level_parent(), self.dlg.WrapperObject())
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.top_level_parent(), self.dlg.WrapperObject())
 
         def testTexts(self):
             self.assertEqual(self.dlg.texts(), ['WPF Sample Application'])
 
         def testChildren(self):
-            self.assertEqual(len(self.button.children()), 1)
-            self.assertEqual(self.button.children()[0].class_name(), "TextBlock")
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(len(button.children()), 1)
+            self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
         def testIsChild(self):
-            self.assertEqual(self.button.is_child(self.dlg.WrapperObject()), True)
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.is_child(self.dlg.WrapperObject()), True)
 
         def testEquals(self):
-            self.assertNotEqual(self.button, self.dlg.WrapperObject())
-            self.assertEqual(self.button, self.button.element_info)
-            self.assertEqual(self.button, self.button)
+            button = self.dlg.OK.WrapperObject()
+            self.assertNotEqual(button, self.dlg.WrapperObject())
+            self.assertEqual(button, button.element_info)
+            self.assertEqual(button, button)
 
         #def testVerifyActionable(self):
         #    self.assertRaises()
@@ -144,25 +156,32 @@ if UIA_support:
         #    self.assertRaises()
 
         def testIsKeyboardFocusable(self):
-            self.assertEqual(self.button.is_keyboard_focusable(), True)
-            self.assertEqual(self.edit.is_keyboard_focusable(), True)
-            self.assertEqual(self.label.is_keyboard_focusable(), False)
+            edit = self.dlg.TestLabelEdit.WrapperObject()
+            label = self.dlg.TestLabel.WrapperObject()
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.is_keyboard_focusable(), True)
+            self.assertEqual(edit.is_keyboard_focusable(), True)
+            self.assertEqual(label.is_keyboard_focusable(), False)
 
         def testHasKeyboardFocus(self):
-            self.edit.set_focus()
-            self.assertEqual(self.edit.has_keyboard_focus(), True)
+            edit = self.dlg.TestLabelEdit.WrapperObject()
+            edit.set_focus()
+            self.assertEqual(edit.has_keyboard_focus(), True)
 
         def testSetFocus(self):
-            self.edit.set_focus()
-            self.assertEqual(self.edit.has_keyboard_focus(), True)
+            edit = self.dlg.TestLabelEdit.WrapperObject()
+            edit.set_focus()
+            self.assertEqual(edit.has_keyboard_focus(), True)
 
         def testTypeKeys(self):
-            self.edit.type_keys("testTypeKeys")
-            self.assertEqual(self.edit.window_text(), "testTypeKeys")
+            edit = self.dlg.TestLabelEdit.WrapperObject()
+            edit.type_keys("testTypeKeys")
+            self.assertEqual(edit.window_text(), "testTypeKeys")
 
         def testNoPatternInterfaceError(self):
             "Test a query interface exception handling"
-            elem = self.button.element_info.element
+            button = self.dlg.OK.WrapperObject()
+            elem = button.element_info.element
             self.assertRaises(
                     uia_defs.NoPatternInterfaceError,
                     uia_defs.get_elem_interface,
@@ -181,8 +200,10 @@ if UIA_support:
                          'control_count',
                          'is_keyboard_focusable',
                          'has_keyboard_focus',
+                         'selection_indices',
                          ])
-            props = set(self.edit.get_properties().keys())
+            edit = self.dlg.TestLabelEdit.WrapperObject()
+            props = set(edit.get_properties().keys())
             self.assertEqual(props, uia_props)
 
         # def testDrawOutline(self):
@@ -191,8 +212,9 @@ if UIA_support:
         #     self.dlg.draw_outline()
         #
         #     # outline control
-        #     self.button.draw_outline()
-        #     img1 = self.button.capture_as_image()
+        #     button = self.dlg.OK.WrapperObject()
+        #     button.draw_outline()
+        #     img1 = button.capture_as_image()
         #     self.assertEqual(img1.getpixel((0, 0)), (0, 255, 0))  # green
         #
         #     # outline window
@@ -213,7 +235,7 @@ if UIA_support:
             self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
-            self.button = UIAWrapper(self.dlg.OK.element_info)
+            self.button = self.dlg.OK.WrapperObject()
             self.label = self.dlg.TestLabel.WrapperObject()
 
         def tearDown(self):
@@ -311,7 +333,7 @@ if UIA_support:
 
         def test_button_click(self):
             """Test the click method for the Button control"""
-            label = UIAWrapper(self.dlg.TestLabel.element_info)
+            label = self.dlg.TestLabel.WrapperObject()
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
 
@@ -331,14 +353,14 @@ if UIA_support:
             # 1. Combo Item 2
             ref_texts = ['Combo Item 1', 'Combo Item 2']
 
-            combo_box = self.dlg.ComboBox
+            combo_box = self.dlg.ComboBox.WrapperObject()
             self.assertEqual(combo_box.item_count(), len(ref_texts))
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
-            combo_box = self.dlg.ComboBox
+            combo_box = self.dlg.ComboBox.WrapperObject()
             
             # Verify combobox properties and an initial state
             self.assertEqual(combo_box.can_select_multiple(), 0)
@@ -372,7 +394,7 @@ if UIA_support:
             
         def test_combobox_expand_collapse(self):
             """Test 'expand' and 'collapse' for the combo box control"""
-            combo_box = self.dlg.ComboBox
+            combo_box = self.dlg.ComboBox.WrapperObject()
             
             collapsed = combo_box.is_collapsed()
             self.assertEqual(collapsed, True)
@@ -384,7 +406,7 @@ if UIA_support:
             self.assertEqual(collapsed, True)
 
 
-    class EditTestCases(unittest.TestCase):
+    class EditWrapperTestCases(unittest.TestCase):
 
         """Unit tests for the EditWrapper class"""
 
@@ -399,8 +421,7 @@ if UIA_support:
             self.app = app
             self.dlg = app.WPFSampleApplication
 
-            from pywinauto.controls.uia_controls import EditWrapper
-            self.edit = EditWrapper(self.dlg.TestLabelEdit.element_info)
+            self.edit = self.dlg.TestLabelEdit.WrapperObject()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -410,16 +431,26 @@ if UIA_support:
             """Test getting friendly class names of textbox-like controls"""
             self.assertEqual(self.edit.friendly_class_name(), "Edit")
 
+        def testSetWindowText(self):
+            """Test setting text value of control (the text in textbox itself)"""
+            text_to_set = "This test"
+
+            self.assertRaises(UserWarning, self.edit.set_window_text, text_to_set)
+            self.assertEqual(self.edit.text_block(), text_to_set)
+
+            self.assertRaises(UserWarning, self.edit.set_window_text, " is done", True)
+            self.assertEqual(self.edit.text_block(), text_to_set + " is done")
+
         def testSetText(self):
             """Test setting the text of the edit control"""
             self.edit.set_edit_text("Some text")
             self.assertEqual(self.edit.text_block(), "Some text")
 
             self.edit.set_edit_text(579)
-            self.assertEqual(self.edit.window_text(), "579")
+            self.assertEqual(self.edit.text_block(), "579")
 
             self.edit.set_edit_text(333, pos_start=1, pos_end=2)
-            self.assertEqual(self.edit.window_text(), "53339")
+            self.assertEqual(self.edit.text_block(), "53339")
 
         def testLineCount(self):
             """Test getting the line count of the edit control"""
@@ -459,6 +490,69 @@ if UIA_support:
 
             self.edit.select("me t")
             self.assertEqual((2, 6), self.edit.selection_indices())
+
+            self.assertRaises(RuntimeError, self.edit.select, "123")
+
+
+    class SliderWrapperTestCases(unittest.TestCase):
+        """Unit tests for the EditWrapper class"""
+
+        def setUp(self):
+            """Start the application set some data and ensure the application
+            is in the state we want it."""
+
+            # start the application
+            app = Application(backend='uia')
+            app = app.start(wpf_app_1)
+
+            self.app = app
+            self.dlg = app.WPFSampleApplication
+
+            self.slider = self.dlg.Slider.WrapperObject()
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def testFriendlyClassNames(self):
+            """Test getting friendly class names of textbox-like controls"""
+            self.assertEqual(self.slider.friendly_class_name(), "Slider")
+
+        def testMinValue(self):
+            """Test getting minimum value of the Slider"""
+            self.assertEqual(self.slider.min_value(), 0.0)
+
+        def testMaxValue(self):
+            """Test getting maximum value of the Slider"""
+            self.assertEqual(self.slider.max_value(), 100.0)
+
+        def testSmallChange(self):
+            """Test Getting small change of slider's thumb"""
+            self.assertEqual(self.slider.small_change(), 0.1)
+
+        def testLargeChange(self):
+            """Test Getting large change of slider's thumb"""
+            self.assertEqual(self.slider.large_change(), 1.0)
+
+        def testValue(self):
+            """Test getting current position of slider's thumb"""
+            self.assertEqual(self.slider.value(), 70.0)
+
+        def testSetValue(self):
+            """Test setting position of slider's thumb"""
+            self.slider.set_value(24)
+            self.assertEqual(self.slider.value(), 24.0)
+
+            self.slider.set_value(33.3)
+            self.assertEqual(self.slider.value(), 33.3)
+
+            self.slider.set_value("75.4")
+            self.assertEqual(self.slider.value(), 75.4)
+
+            self.assertRaises(ValueError, self.slider.set_value, -1)
+            self.assertRaises(ValueError, self.slider.set_value, 102)
+
+            self.assertRaises(ValueError, self.slider.set_value, [50,])
 
 
 if __name__ == "__main__":
