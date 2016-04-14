@@ -35,7 +35,6 @@ import locale
 
 from .. import six
 
-from .. import uia_defines as uia_defs
 from . import UIAWrapper
 from ..uia_defines import IUIA
 
@@ -74,9 +73,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         Notice, a radio button control isn't supported by UIA.
         https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Toggle")
-        iface.Toggle()
+        self.iface_toggle.Toggle()
 
         # Return itself so that action can be chained
         return self
@@ -96,9 +93,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         toggle_state_on = 1
         toggle_state_inderteminate = 2
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Toggle")
-        return iface.CurrentToggleState
+        return self.iface_toggle.CurrentToggleState
 
     #-----------------------------------------------------------
     def is_dialog(self):
@@ -120,9 +115,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
         Usually applied for a radio button control
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "SelectionItem")
-        iface.Select()
+        self.iface_selection_item.Select()
 
         # Return itself so that action can be chained
         return self
@@ -134,9 +127,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
 
         Usually applied for a radio button control
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "SelectionItem")
-        return iface.CurrentIsSelected
+        return self.iface_selection_item.CurrentIsSelected
 
 #====================================================================
 class ComboBoxWrapper(UIAWrapper.UIAWrapper):
@@ -296,10 +287,7 @@ class EditWrapper(UIAWrapper.UIAWrapper):
     #-----------------------------------------------------------
     def selection_indices(self):
         """The start and end indices of the current selection"""
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Text")
-
-        selected_text = iface.GetSelection().GetElement(0).GetText(-1)
+        selected_text = self.iface_text.GetSelection().GetElement(0).GetText(-1)
         start = self.window_text().find(selected_text)
         end = start + len(selected_text)
 
@@ -321,8 +309,7 @@ class EditWrapper(UIAWrapper.UIAWrapper):
         self.set_focus()
 
         # Set text using IUIAutomationValuePattern
-        iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
-        iface.SetValue(text)
+        self.iface_value.SetValue(text)
 
         raise UserWarning("set_window_text() should probably not be called for Edit Controls")
 
@@ -361,12 +348,11 @@ class EditWrapper(UIAWrapper.UIAWrapper):
             else:
                 aligned_text = six.binary_type(text)
 
-        # Set text using IUIAutomationValuePattern
-        iface = uia_defs.get_elem_interface(self.element_info.element, "Value")
         # Calculate new text value
         current_text = self.window_text()
         new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
-        iface.SetValue(new_text)
+        # Set text using IUIAutomationValuePattern
+        self.iface_value.SetValue(new_text)
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
@@ -398,9 +384,7 @@ class EditWrapper(UIAWrapper.UIAWrapper):
             string_to_select = self.window_text()[start:end]
 
         if string_to_select:
-            elem = self.element_info.element
-            iface = uia_defs.get_elem_interface(elem, "Text")
-            document_range = iface.DocumentRange
+            document_range = self.iface_text.DocumentRange
             search_range = document_range.FindText(string_to_select, False, False)
 
             try:
@@ -426,18 +410,16 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
     def __init__(self, elem_or_handle):
         """Initialize the control"""
         super(SliderWrapper, self).__init__(elem_or_handle)
-        # Get interface to work with this slider
-        self.iface_RangeValue = uia_defs.get_elem_interface(self.element_info.element, "RangeValue")
 
     #-----------------------------------------------------------
     def min_value(self):
         """Get minimum value of the Slider"""
-        return self.iface_RangeValue.CurrentMinimum
+        return self.iface_range_value.CurrentMinimum
 
     #-----------------------------------------------------------
     def max_value(self):
         """Get maximum value of the Slider"""
-        return self.iface_RangeValue.CurrentMaximum
+        return self.iface_range_value.CurrentMaximum
 
     #-----------------------------------------------------------
     def small_change(self):
@@ -447,7 +429,7 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
         This change is achieved by pressing left and right arrows
         when slider's thumb has keyboard focus.
         """
-        return self.iface_RangeValue.CurrentSmallChange
+        return self.iface_range_value.CurrentSmallChange
 
     #-----------------------------------------------------------
     def large_change(self):
@@ -457,12 +439,12 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
         This change is achieved by pressing PgUp and PgDown keys
         when slider's thumb has keyboard focus.
         """
-        return self.iface_RangeValue.CurrentLargeChange
+        return self.iface_range_value.CurrentLargeChange
 
     #-----------------------------------------------------------
     def value(self):
         """Get current position of slider's thumb"""
-        return self.iface_RangeValue.CurrentValue
+        return self.iface_range_value.CurrentValue
 
     #-----------------------------------------------------------
     def set_value(self, value):
@@ -481,5 +463,5 @@ class SliderWrapper(UIAWrapper.UIAWrapper):
         if not (min_value <= value_to_set <= max_value):
             raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
-        self.iface_RangeValue.SetValue(value_to_set)
+        self.iface_range_value.SetValue(value_to_set)
 

@@ -381,7 +381,7 @@ class BaseWrapper(object):
         It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no descendants.
         """
-        desc_elements = self.element_info.descendants(proc_id=self.process_id())
+        desc_elements = self.element_info.descendants(process = self.process_id())
         return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
 
     #-----------------------------------------------------------
