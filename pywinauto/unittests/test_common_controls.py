@@ -64,7 +64,7 @@ class RemoteMemoryBlockTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, RemoteMemoryBlock, 0)
 
 
-class TestConfig:
+class TestConfigTreeView:
     def __init__(self, path):
         self.path = path
 
@@ -486,11 +486,11 @@ class TreeViewTestCases(unittest.TestCase):
          ]
 
         if is_x64_Python():
-            self.test_configs = [TestConfig(os.path.join(controlspy_folder, "Tree View.exe")),
-                                 TestConfig(os.path.join(controlspy_folder_32, "Tree View.exe"))]
+            self.test_configs = [TestConfigTreeView(os.path.join(controlspy_folder, "Tree View.exe")),
+                                 TestConfigTreeView(os.path.join(controlspy_folder_32, "Tree View.exe"))]
 
         else:
-            self.test_configs = [TestConfig(os.path.join(controlspy_folder, "Tree View.exe"))]
+            self.test_configs = [TestConfigTreeView(os.path.join(controlspy_folder, "Tree View.exe"))]
 
         #self.dlg.MenuSelect("Styles")
 
