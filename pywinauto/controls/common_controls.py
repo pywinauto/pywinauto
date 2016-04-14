@@ -54,6 +54,7 @@ from . import HwndWrapper
 from ..timings import Timings
 from ..timings import WaitUntil
 from pywinauto.handleprops import is64bitprocess
+from pywinauto.sysinfo import is_x64_Python
 
 if sysinfo.UIA_support:
     from ..uia_defines import IUIA
@@ -1338,7 +1339,7 @@ class _treeview_element(object):
         "Read the treeview item"
         remote_mem = RemoteMemoryBlock(self.tree_ctrl)
 
-        if is64bitprocess(self.tree_ctrl._element_info.process_id):
+        if is64bitprocess(self.tree_ctrl._element_info.process_id) or not is_x64_Python():
             item = win32structures.TVITEMW()
         else:
             item = win32structures.TVITEMW32()

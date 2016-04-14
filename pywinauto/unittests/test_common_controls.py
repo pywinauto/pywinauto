@@ -65,10 +65,15 @@ class RemoteMemoryBlockTestCases(unittest.TestCase):
 
 
 class TestConfig:
-    def __init__(self, app, dlg, ctrl):
-        self.app = app
-        self.dlg = dlg
-        self.ctrl = ctrl
+    def __init__(self, path):
+        self.path = path
+
+    def preprocessing(self):
+        self.app = Application()
+        self.app.start(self.path)
+        self.dlg = self.app.MicrosoftControlSpy
+        self.ctrl = self.app.MicrosoftControlSpy.TreeView.WrapperObject()
+
 
 class ListViewTestCases(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
@@ -481,25 +486,11 @@ class TreeViewTestCases(unittest.TestCase):
          ]
 
         if is_x64_Python():
-            app32 = Application()
-            app32.start(os.path.join(controlspy_folder_32, "Tree View.exe"))
-            dlg32 = app32.MicrosoftControlSpy
-            ctrl32 = app32.MicrosoftControlSpy.TreeView.WrapperObject()
-
-            app64 = Application()
-            app64.start(os.path.join(controlspy_folder, "Tree View.exe"))
-            dlg64 = app64.MicrosoftControlSpy
-            ctrl64 = app64.MicrosoftControlSpy.TreeView.WrapperObject()
-
-            self.test_configs = [TestConfig(app32, dlg32, ctrl32), TestConfig(app64, dlg64, ctrl64)]
+            self.test_configs = [TestConfig(os.path.join(controlspy_folder, "Tree View.exe")),
+                                 TestConfig(os.path.join(controlspy_folder_32, "Tree View.exe"))]
 
         else:
-            app32 = Application()
-            app32.start(os.path.join(controlspy_folder, "Tree View.exe"))
-
-            dlg32 = app32.MicrosoftControlSpy
-            ctrl32 = app32.MicrosoftControlSpy.TreeView.WrapperObject()
-            self.test_configs = [TestConfig(app32, dlg32, ctrl32)]
+            self.test_configs = [TestConfig(os.path.join(controlspy_folder, "Tree View.exe"))]
 
         #self.dlg.MenuSelect("Styles")
 
@@ -518,11 +509,13 @@ class TreeViewTestCases(unittest.TestCase):
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly (TreeView)"
         for test_config in self.test_configs:
+            test_config.preprocessing()
             self.assertEquals (test_config.ctrl.friendly_class_name(), "TreeView")
 
     def testItemCount(self):
         "Test the TreeView ItemCount method"
         for test_config in self.test_configs:
+            test_config.preprocessing()
             self.assertEquals (test_config.ctrl.ItemCount(), 37)
 
 
@@ -530,6 +523,7 @@ class TreeViewTestCases(unittest.TestCase):
         "Test the GetItem method"
 
         for test_config in self.test_configs:
+            test_config.preprocessing()
             self.assertRaises(RuntimeError, test_config.ctrl.GetItem, "test\here\please")
 
             self.assertRaises(IndexError, test_config.ctrl.GetItem, r"\test\here\please")
@@ -549,6 +543,7 @@ class TreeViewTestCases(unittest.TestCase):
     def testItemText(self):
         "Test the TreeView item Text() method"
         for test_config in self.test_configs:
+            test_config.preprocessing()
             self.assertEquals(test_config.ctrl.Root().Text(), self.root_text)
 
             self.assertEquals(
@@ -557,6 +552,7 @@ class TreeViewTestCases(unittest.TestCase):
     def testSelect(self):
         "Test selecting an item"
         for test_config in self.test_configs:
+            test_config.preprocessing()
             test_config.ctrl.Select((0, 1, 2))
 
             test_config.ctrl.GetItem((0, 1, 2)).State()
@@ -568,6 +564,7 @@ class TreeViewTestCases(unittest.TestCase):
         "make sure that the item is visible"
 
         for test_config in self.test_configs:
+            test_config.preprocessing()
             # note this is partially a fake test at the moment because
             # just by getting an item - we usually make it visible
             test_config.ctrl.EnsureVisible((0, 8, 2))
@@ -579,6 +576,7 @@ class TreeViewTestCases(unittest.TestCase):
     def testGetProperties(self):
         "Test getting the properties for the treeview control"
         for test_config in self.test_configs:
+            test_config.preprocessing()
             props  = test_config.ctrl.GetProperties()
 
             self.assertEquals(
@@ -594,6 +592,7 @@ class TreeViewTestCases(unittest.TestCase):
         "Test clicking of items and sub-items in the treeview control"
 
         for test_config in self.test_configs:
+            test_config.preprocessing()
             planets_item_path = (0, 0)
             mercury_diam_item_path = (0, 0, 1)
             mars_dist_item_path = (0, 3, 0)

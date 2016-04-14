@@ -407,15 +407,15 @@ class TVITEMW32(Structure):
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
         ('mask', UINT),
-        ('hItem', UINT),
+        ('hItem', UINT), # must be 4 bytes in 32-bit app
         ('state', UINT),
         ('stateMask', UINT),
-        ('pszText', UINT), # now 4 bytes
+        ('pszText', UINT), # must be 4 bytes in 32-bit app
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('iSelectedImage', c_int),
         ('cChildren', c_int),
-        ('lParam', UINT),
+        ('lParam', UINT), # must be 4 bytes in 32-bit app
     ]
 
 assert sizeof(TVITEMW32) == 40, sizeof(TVITEMW32)
