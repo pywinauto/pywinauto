@@ -259,11 +259,8 @@ def find_elements(class_name = None,
         for elem in elements:
             elem.set_cache_strategy(True)
             try:
-                # TODO: can't skip invalid handles because UIA element can have no handle
-                # TODO: use className check for this ?
-                if elem.class_name:
-                    wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
-                    #wrapped_elems.append(BaseWrapper(elem))
+                wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
+                #wrapped_elems.append(BaseWrapper(elem))
             except (controls.InvalidWindowHandle,
                     controls.InvalidElement):
                 # skip invalid handles - they have dissapeared
