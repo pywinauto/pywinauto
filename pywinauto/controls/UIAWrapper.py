@@ -249,13 +249,6 @@ class UIAWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     @lazy_property
-    def iface_selection_item(self):
-        """Get the element's SelectionItem interface pattern"""
-        elem = self.element_info.element
-        return uia_defs.get_elem_interface(elem, "SelectionItem")
-
-    #------------------------------------------------------------
-    @lazy_property
     def iface_text(self):
         """Get the element's Text interface pattern"""
         elem = self.element_info.element

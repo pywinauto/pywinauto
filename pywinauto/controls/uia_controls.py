@@ -35,7 +35,6 @@ import locale
 
 from .. import six
 
-from .. import uia_defines as uia_defs
 from . import UIAWrapper
 from ..uia_defines import IUIA
 
