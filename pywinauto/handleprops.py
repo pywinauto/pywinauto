@@ -31,9 +31,12 @@ import win32process
 import win32api
 import win32con
 
-from . import win32functions
-from . import win32defines
-from . import win32structures
+try:
+    from . import win32functions
+    from . import win32defines
+    from . import win32structures
+except ImportError:
+    pass
 from .actionlogger import ActionLogger
 
 

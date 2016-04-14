@@ -28,10 +28,15 @@ import sys
 import ctypes
 import win32api
 import win32process
+from mock import mock
 
-from . import win32functions
-from . import win32defines
-from . import win32structures
+try:
+    from . import win32functions
+    from . import win32defines
+    from . import win32structures
+except ImportError:
+    win32defines = mock.MagicMock()
+    pass
 from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):

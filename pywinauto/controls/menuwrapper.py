@@ -34,9 +34,12 @@ import win32gui
 import win32gui_struct
 import locale
 
-from .. import win32structures
-from .. import win32functions
-from .. import win32defines
+try:
+    from .. import win32structures
+    from .. import win32functions
+    from .. import win32defines
+except ImportError:
+    pass
 from .. import findbestmatch
 from .. import six
 from .. import mouse

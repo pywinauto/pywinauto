@@ -39,8 +39,13 @@ import win32process
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
+from mock import mock
 
-from .. import win32functions
+try:
+    from .. import win32functions
+except ImportError:
+    pass
+
 from ..actionlogger import ActionLogger
 
 # I leave this optional because PIL is a large dependency
@@ -50,8 +55,13 @@ except ImportError:
     ImageGrab = None
 
 from .. import six
-from .. import win32defines
-from .. import win32structures
+try:
+    from .. import win32defines
+    from .. import win32structures
+except ImportError:
+    win32defines = mock.MagicMock()
+    pass
+
 from ..timings import Timings
 from .. import timings
 

@@ -33,7 +33,10 @@
 
 import ctypes
 
-from . import win32functions
+try:
+    from . import win32functions
+except ImportError:
+    pass
 from . import handleprops
 from .ElementInfo import ElementInfo
 

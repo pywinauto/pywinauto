@@ -7,6 +7,7 @@ import locale
 import re
 import time
 import win32process
+from mock import mock
 
 try:
     from PIL import ImageGrab
@@ -15,7 +16,11 @@ except ImportError:
 
 from . import SendKeysCtypes as SendKeys
 from . import six
-from . import win32defines, win32structures, win32functions
+try:
+    from . import win32defines, win32structures, win32functions
+except ImportError:
+    win32defines = mock.MagicMock()
+    pass
 from .timings import Timings
 from .actionlogger import ActionLogger
 from .mouse import _perform_click_input

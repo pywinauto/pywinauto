@@ -35,7 +35,10 @@ import ctypes
 import win32api
 
 from . import six
-from . import win32structures
+try:
+    from . import win32structures
+except ImportError:
+    pass
 
 __all__ = ['KeySequenceError', 'SendKeys']
 

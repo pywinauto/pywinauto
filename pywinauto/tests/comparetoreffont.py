@@ -18,6 +18,7 @@
 #    59 Temple Place,
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
+from mock import mock
 
 """Compare against reference font test
 
@@ -75,7 +76,10 @@ __revision__ = "$Revision$"
 testname = "CompareToRefFont"
 
 from pywinauto import six
-from pywinauto import win32structures
+try:
+    from pywinauto import win32structures
+except ImportError:
+    win32structures = mock.MagicMock()
 _font_attribs = [field[0] for field in win32structures.LOGFONTW._fields_]
 
 def CompareToRefFontTest(windows):

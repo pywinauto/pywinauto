@@ -37,9 +37,12 @@ from . import HwndWrapper
 
 from .. import sysinfo
 from .. import six
-from .. import win32functions
-from .. import win32defines
-from .. import win32structures
+try:
+    from .. import win32functions
+    from .. import win32defines
+    from .. import win32structures
+except ImportError:
+    pass
 from .. import controlproperties
 
 from ..timings import Timings
