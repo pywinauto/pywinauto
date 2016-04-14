@@ -34,7 +34,7 @@ for mod_name in [
         'win32event',
         'win32com',
         'win32com.Client',
-        'multiprocessing',
+        'multiprocessing','_winreg',
     'ctypes.wintypes','win32gui_struct',
     'ctypes', 'Xlib', 'Xlib.display', 'Xlib.ext.xtest', 'Xlib.ext',
         'pywintypes',
