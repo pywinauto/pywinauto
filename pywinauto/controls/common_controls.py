@@ -1339,7 +1339,7 @@ class _treeview_element(object):
         "Read the treeview item"
         remote_mem = RemoteMemoryBlock(self.tree_ctrl)
 
-        if is64bitprocess(self.tree_ctrl._element_info.process_id) or not is_x64_Python():
+        if is64bitprocess(self.tree_ctrl.process_id()) or not is_x64_Python():
             item = win32structures.TVITEMW()
         else:
             item = win32structures.TVITEMW32()
