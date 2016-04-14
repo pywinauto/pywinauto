@@ -50,8 +50,10 @@ Timings.Defaults()
 
 controlspy_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\controlspy0998")
+controlspy_folder_32 = controlspy_folder
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+mfc_samples_folder_32 = mfc_samples_folder
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
@@ -62,15 +64,25 @@ class RemoteMemoryBlockTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, RemoteMemoryBlock, 0)
 
 
+class TestConfigListView:
+    def __init__(self, path):
+        self.path = path
+
+    def preprocessing(self):
+        self.app = Application()
+        self.app.start(self.path)
+        self.dlg = self.app.RowListSampleApplication
+        self.ctrl = self.app.RowListSampleApplication.ListView.WrapperObject()
+        self.dlg.Toolbar.Button(0).Click() # switch to icon view
+        self.dlg.Toolbar.Button(6).Click() # switch off states
+
+
 class ListViewTestCases(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-
-        app = Application()
-        app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
 
         self.texts = [
             (u"Yellow",  u"255", u"255", u"0",   u"40",  u"240", u"120", u"Neutral"),
@@ -82,96 +94,119 @@ class ListViewTestCases(unittest.TestCase):
             (u"Gray",    u"192", u"192", u"192", u"160", u"0",   u"181", u"Neutral")
         ]
 
-        self.app = app
-        self.dlg = app.RowListSampleApplication #top_window_()
-        self.ctrl = app.RowListSampleApplication.ListView.WrapperObject()
-        self.dlg.Toolbar.Button(0).Click() # switch to icon view
-        self.dlg.Toolbar.Button(6).Click() # switch off states
+        if is_x64_Python():
+            self.test_configs = [TestConfigListView(os.path.join(mfc_samples_folder, u"RowList.exe")),
+                                 TestConfigListView(os.path.join(mfc_samples_folder_32, u"RowList.exe"))]
+
+        else:
+            self.test_configs = [TestConfigListView(os.path.join(mfc_samples_folder, u"RowList.exe"))]
         
 
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        for test_config in self.test_configs:
+            test_config.dlg.SendMessage(win32defines.WM_CLOSE)
 
 
     def testFriendlyClass(self):
         "Make sure the ListView friendly class is set correctly"
-        self.assertEquals (self.ctrl.friendly_class_name(), u"ListView")
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            self.assertEquals (test_config.ctrl.friendly_class_name(), u"ListView")
 
     def testColumnCount(self):
         "Test the ListView ColumnCount method"
-        self.assertEquals (self.ctrl.ColumnCount(), 8)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            self.assertEquals (test_config.ctrl.ColumnCount(), 8)
 
     def testItemCount(self):
         "Test the ListView ItemCount method"
-        self.assertEquals (self.ctrl.ItemCount(), 7)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            self.assertEquals (test_config.ctrl.ItemCount(), 7)
 
     def testItemText(self):
         "Test the ListView item.Text property"
-        item = self.ctrl.GetItem(1)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            item = test_config.ctrl.GetItem(1)
 
-        self.assertEquals(item['text'], u"Red")
+            self.assertEquals(item['text'], u"Red")
 
     def testItems(self):
         "Test the ListView Items method"
 
-        flat_texts = []
-        for row in self.texts:
-            flat_texts.extend(row)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
 
-        items = self.ctrl.Items()
-        for i, item in enumerate(items):
-            self.assertEquals(item['text'], flat_texts[i])
-        self.assertEquals(len(items), len(flat_texts))
+            flat_texts = []
+            for row in self.texts:
+                flat_texts.extend(row)
+
+            items = test_config.ctrl.Items()
+            for i, item in enumerate(items):
+                self.assertEquals(item['text'], flat_texts[i])
+            self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
         "Test the ListView texts method"
 
-        flat_texts = []
-        for row in self.texts:
-            flat_texts.extend(row)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            flat_texts = []
+            for row in self.texts:
+                flat_texts.extend(row)
 
-        self.assertEquals(flat_texts, self.ctrl.texts()[1:])
+            self.assertEquals(flat_texts, test_config.ctrl.texts()[1:])
 
 
     def testGetItem(self):
         "Test the ListView GetItem method"
 
-        for row in range(self.ctrl.ItemCount()):
-            for col in range(self.ctrl.ColumnCount()):
-                self.assertEquals(
-                    self.ctrl.GetItem(row, col)['text'], self.texts[row][col])
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            for row in range(test_config.ctrl.ItemCount()):
+                for col in range(test_config.ctrl.ColumnCount()):
+                    self.assertEquals(
+                        test_config.ctrl.GetItem(row, col)['text'], self.texts[row][col])
 
     def testGetItemText(self):
         "Test the ListView GetItem method - with text this time"
 
-        for text in [row[0] for row in self.texts]:
-            self.assertEquals(
-                self.ctrl.GetItem(text)['text'], text)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            for text in [row[0] for row in self.texts]:
+                self.assertEquals(
+                    test_config.ctrl.GetItem(text)['text'], text)
 
-        self.assertRaises(ValueError, self.ctrl.GetItem, "Item not in this list")
+            self.assertRaises(ValueError, test_config.ctrl.GetItem, "Item not in this list")
 
     def testColumn(self):
         "Test the ListView Columns method"
 
-        cols = self.ctrl.Columns()
-        self.assertEqual (len(cols), self.ctrl.ColumnCount())
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            cols = test_config.ctrl.Columns()
+            self.assertEqual (len(cols), test_config.ctrl.ColumnCount())
 
-        # TODO: add more checking of column values
-        #for col in cols:
-        #    print(col)
+            # TODO: add more checking of column values
+            #for col in cols:
+            #    print(col)
 
 
     def testGetSelectionCount(self):
         "Test the ListView GetSelectedCount method"
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 0)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            self.assertEquals(test_config.ctrl.GetSelectedCount(), 0)
 
-        self.ctrl.Select(1)
-        self.ctrl.Select(6)
+            test_config.ctrl.Select(1)
+            test_config.ctrl.Select(6)
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 2)
+            self.assertEquals(test_config.ctrl.GetSelectedCount(), 2)
 
 
 #    def testGetSelectionCount(self):
@@ -188,245 +223,278 @@ class ListViewTestCases(unittest.TestCase):
     def testIsSelected(self):
         "Test ListView IsSelected for some items"
 
-        # ensure that the item is not selected
-        self.assertEquals(self.ctrl.IsSelected(1), False)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            # ensure that the item is not selected
+            self.assertEquals(test_config.ctrl.IsSelected(1), False)
 
-        # select an item
-        self.ctrl.Select(1)
+            # select an item
+            test_config.ctrl.Select(1)
 
-        # now ensure that the item is selected
-        self.assertEquals(self.ctrl.IsSelected(1), True)
+            # now ensure that the item is selected
+            self.assertEquals(test_config.ctrl.IsSelected(1), True)
 
 
     def _testFocused(self):
         "Test checking the focus of some ListView items"
 
-        print("Select something quick!!")
-        time.sleep(3)
-        #self.ctrl.Select(1)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            print("Select something quick!!")
+            time.sleep(3)
+            #self.ctrl.Select(1)
 
-        print(self.ctrl.IsFocused(0))
-        print(self.ctrl.IsFocused(1))
-        print(self.ctrl.IsFocused(2))
-        print(self.ctrl.IsFocused(3))
-        print(self.ctrl.IsFocused(4))
-        print(self.ctrl.IsFocused(5))
-        #for col in cols:
-        #    print(col)
+            print(test_config.ctrl.IsFocused(0))
+            print(test_config.ctrl.IsFocused(1))
+            print(test_config.ctrl.IsFocused(2))
+            print(test_config.ctrl.IsFocused(3))
+            print(test_config.ctrl.IsFocused(4))
+            print(test_config.ctrl.IsFocused(5))
+            #for col in cols:
+            #    print(col)
 
 
     def testSelect(self):
         "Test ListView Selecting some items"
-        self.ctrl.Select(1)
-        self.ctrl.Select(3)
-        self.ctrl.Select(4)
 
-        self.assertRaises(IndexError, self.ctrl.Deselect, 23)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            test_config.ctrl.Select(1)
+            test_config.ctrl.Select(3)
+            test_config.ctrl.Select(4)
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+            self.assertRaises(IndexError, test_config.ctrl.Deselect, 23)
+
+            self.assertEquals(test_config.ctrl.GetSelectedCount(), 3)
 
 
     def testSelectText(self):
         "Test ListView Selecting some items"
-        self.ctrl.Select(u"Green")
-        self.ctrl.Select(u"Yellow")
-        self.ctrl.Select(u"Gray")
 
-        self.assertRaises(ValueError, self.ctrl.Deselect, u"Item not in list")
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            test_config.ctrl.Select(u"Green")
+            test_config.ctrl.Select(u"Yellow")
+            test_config.ctrl.Select(u"Gray")
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+            self.assertRaises(ValueError, test_config.ctrl.Deselect, u"Item not in list")
+
+            self.assertEquals(test_config.ctrl.GetSelectedCount(), 3)
 
 
 
     def testDeselect(self):
         "Test ListView Selecting some items"
-        self.ctrl.Select(1)
-        self.ctrl.Select(4)
 
-        self.ctrl.Deselect(3)
-        self.ctrl.Deselect(4)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            test_config.ctrl.Select(1)
+            test_config.ctrl.Select(4)
 
-        self.assertRaises(IndexError, self.ctrl.Deselect, 23)
+            test_config.ctrl.Deselect(3)
+            test_config.ctrl.Deselect(4)
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 1)
+            self.assertRaises(IndexError, test_config.ctrl.Deselect, 23)
+
+            self.assertEquals(test_config.ctrl.GetSelectedCount(), 1)
 
 
 
 
     def testGetProperties(self):
         "Test getting the properties for the listview control"
-        props  = self.ctrl.GetProperties()
 
-        self.assertEquals(
-            "ListView", props['friendly_class_name'])
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            props  = test_config.ctrl.GetProperties()
 
-        self.assertEquals(
-            self.ctrl.texts(), props['texts'])
+            self.assertEquals(
+                "ListView", props['friendly_class_name'])
 
-        for prop_name in props.keys():
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEquals(
+                test_config.ctrl.texts(), props['texts'])
 
-        self.assertEquals(props['column_count'], 8)
-        self.assertEquals(props['item_count'], 7)
+            for prop_name in props.keys():
+                self.assertEquals(getattr(test_config.ctrl, prop_name)(), props[prop_name])
+
+            self.assertEquals(props['column_count'], 8)
+            self.assertEquals(props['item_count'], 7)
 
 
     def testGetColumnTexts(self):
         "Test columns titles text"
 
-        self.assertEquals(self.ctrl.GetColumn(0)['text'], u"Color")
-        self.assertEquals(self.ctrl.GetColumn(1)['text'], u"Red")
-        self.assertEquals(self.ctrl.GetColumn(2)['text'], u"Green")
-        self.assertEquals(self.ctrl.GetColumn(3)['text'], u"Blue")
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            self.assertEquals(test_config.ctrl.GetColumn(0)['text'], u"Color")
+            self.assertEquals(test_config.ctrl.GetColumn(1)['text'], u"Red")
+            self.assertEquals(test_config.ctrl.GetColumn(2)['text'], u"Green")
+            self.assertEquals(test_config.ctrl.GetColumn(3)['text'], u"Blue")
 
 
     def testItemRectangles(self):
         "Test getting item rectangles"
         
-        yellow_rect = self.ctrl.GetItemRect('Yellow')
-        gold_rect = RECT(13, 0, 61, 53)
-        self.assertEquals(yellow_rect.left, gold_rect.left)
-        self.assertEquals(yellow_rect.top, gold_rect.top)
-        self.assertEquals(yellow_rect.right, gold_rect.right)
-        if yellow_rect.bottom < 53 or yellow_rect.bottom > 55:
-            self.assertEquals(yellow_rect.bottom, gold_rect.bottom)
-        
-        self.ctrl.GetItem('Green').Click(where='text')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        
-        self.ctrl.GetItem('Magenta').Click(where='icon')
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
-        
-        self.ctrl.GetItem('Green').Click(where='all')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            yellow_rect = test_config.ctrl.GetItemRect('Yellow')
+            gold_rect = RECT(13, 0, 61, 53)
+            self.assertEquals(yellow_rect.left, gold_rect.left)
+            self.assertEquals(yellow_rect.top, gold_rect.top)
+            self.assertEquals(yellow_rect.right, gold_rect.right)
+            if yellow_rect.bottom < 53 or yellow_rect.bottom > 55:
+                self.assertEquals(yellow_rect.bottom, gold_rect.bottom)
+
+            test_config.ctrl.GetItem('Green').Click(where='text')
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), True)
+
+            test_config.ctrl.GetItem('Magenta').Click(where='icon')
+            self.assertEquals(test_config.ctrl.GetItem('Magenta').IsSelected(), True)
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), False)
+
+            test_config.ctrl.GetItem('Green').Click(where='all')
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), True)
+            self.assertEquals(test_config.ctrl.GetItem('Magenta').IsSelected(), False)
 
 
     def testItemCheck(self):
         "Test checking/unchecking item"
-        if not self.dlg.Toolbar.Button(6).IsChecked():
-            self.dlg.Toolbar.Button(6).Click()
-        
-        yellow = self.ctrl.GetItem('Yellow')
-        yellow.Check()
-        self.assertEquals(yellow.IsChecked(), True)
-        
-        yellow.UnCheck()
-        self.assertEquals(yellow.IsChecked(), False)
 
-        # test legacy deprecated methods (TODO: remove later)
-        self.ctrl.Check('Yellow')
-        self.assertEquals(self.ctrl.IsChecked('Yellow'), True)
-        
-        self.ctrl.UnCheck('Yellow')
-        self.assertEquals(self.ctrl.IsChecked('Yellow'), False)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            if not test_config.dlg.Toolbar.Button(6).IsChecked():
+                test_config.dlg.Toolbar.Button(6).Click()
+
+            yellow = test_config.ctrl.GetItem('Yellow')
+            yellow.Check()
+            self.assertEquals(yellow.IsChecked(), True)
+
+            yellow.UnCheck()
+            self.assertEquals(yellow.IsChecked(), False)
+
+            # test legacy deprecated methods (TODO: remove later)
+            test_config.ctrl.Check('Yellow')
+            self.assertEquals(test_config.ctrl.IsChecked('Yellow'), True)
+
+            test_config.ctrl.UnCheck('Yellow')
+            self.assertEquals(test_config.ctrl.IsChecked('Yellow'), False)
 
 
     def testItemClick(self):
         "Test clicking item rectangles by Click() method"
 
-        self.ctrl.GetItem('Green').Click(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            test_config.ctrl.GetItem('Green').Click(where='select')
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), True)
 
-        self.ctrl.GetItem('Magenta').Click(where='select')
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
+            test_config.ctrl.GetItem('Magenta').Click(where='select')
+            self.assertEquals(test_config.ctrl.GetItem('Magenta').IsSelected(), True)
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), False)
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsFocused(), False)
+            self.assertEquals(test_config.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
 
-        self.ctrl.GetItem('Green').Click(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
-        self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+            test_config.ctrl.GetItem('Green').Click(where='select')
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), True)
+            self.assertEquals(test_config.ctrl.IsSelected('Green'), True) # TODO: deprecated method
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsFocused(), True)
+            self.assertEquals(test_config.ctrl.IsFocused('Green'), True) # TODO: deprecated method
+            self.assertEquals(test_config.ctrl.GetItem('Magenta').IsSelected(), False)
 
-		# Test click on checkboxes
-        if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
-            self.dlg.Toolbar.Button(6).Click()
+            # Test click on checkboxes
+            if not test_config.dlg.Toolbar.Button(6).IsChecked(): # switch on states
+                test_config.dlg.Toolbar.Button(6).Click()
 
-        for i in range(1, 6):
-            self.dlg.Toolbar.Button(i - 1).Click()
+            for i in range(1, 6):
+                test_config.dlg.Toolbar.Button(i - 1).Click()
 
-            self.ctrl.GetItem(i).Click(where='check') # check item
-            time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
-            self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
+                test_config.ctrl.GetItem(i).Click(where='check') # check item
+                time.sleep(0.5)
+                self.assertEquals(test_config.ctrl.GetItem(i).IsChecked(), True)
+                self.assertEquals(test_config.ctrl.GetItem(i - 1).IsChecked(), False)
 
-            self.ctrl.GetItem(i).Click(where='check') # uncheck item
-            time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
+                test_config.ctrl.GetItem(i).Click(where='check') # uncheck item
+                time.sleep(0.5)
+                self.assertEquals(test_config.ctrl.GetItem(i).IsChecked(), False)
 
-            self.ctrl.GetItem(i).Click(where='check') # recheck item
-            time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+                test_config.ctrl.GetItem(i).Click(where='check') # recheck item
+                time.sleep(0.5)
+                self.assertEquals(test_config.ctrl.GetItem(i).IsChecked(), True)
 
-        self.dlg.Toolbar.Button(6).Click() # switch off states
+            test_config.dlg.Toolbar.Button(6).Click() # switch off states
 
-        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).Click, where="check")
+            self.assertRaises(RuntimeError, test_config.ctrl.GetItem(6).Click, where="check")
 
 
     def testItemClickInput(self):
         "Test clicking item rectangles by click_input() method"
         
-        self.ctrl.GetItem('Green').click_input(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        
-        self.ctrl.GetItem('Magenta').click_input(where='select')
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
-        
-        self.ctrl.GetItem('Green').click_input(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
-        self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            test_config.ctrl.GetItem('Green').click_input(where='select')
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), True)
 
-		# Test click on checkboxes
-        if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
-            self.dlg.Toolbar.Button(6).Click()
+            test_config.ctrl.GetItem('Magenta').click_input(where='select')
+            self.assertEquals(test_config.ctrl.GetItem('Magenta').IsSelected(), True)
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), False)
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsFocused(), False)
+            self.assertEquals(test_config.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
 
-        for i in range(1, 6):
-            self.dlg.Toolbar.Button(i - 1).Click()
+            test_config.ctrl.GetItem('Green').click_input(where='select')
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsSelected(), True)
+            self.assertEquals(test_config.ctrl.IsSelected('Green'), True) # TODO: deprecated method
+            self.assertEquals(test_config.ctrl.GetItem('Green').IsFocused(), True)
+            self.assertEquals(test_config.ctrl.IsFocused('Green'), True) # TODO: deprecated method
+            self.assertEquals(test_config.ctrl.GetItem('Magenta').IsSelected(), False)
 
-            self.ctrl.GetItem(i).click_input(where='check') # check item
-            time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
-            self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
+            # Test click on checkboxes
+            if not test_config.dlg.Toolbar.Button(6).IsChecked(): # switch on states
+                test_config.dlg.Toolbar.Button(6).Click()
 
-            self.ctrl.GetItem(i).click_input(where='check') # uncheck item
-            time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
+            for i in range(1, 6):
+                test_config.dlg.Toolbar.Button(i - 1).Click()
 
-            self.ctrl.GetItem(i).click_input(where='check') # recheck item
-            time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+                test_config.ctrl.GetItem(i).click_input(where='check') # check item
+                time.sleep(0.5)
+                self.assertEquals(test_config.ctrl.GetItem(i).IsChecked(), True)
+                self.assertEquals(test_config.ctrl.GetItem(i - 1).IsChecked(), False)
 
-        self.dlg.Toolbar.Button(6).Click() # switch off states
+                test_config.ctrl.GetItem(i).click_input(where='check') # uncheck item
+                time.sleep(0.5)
+                self.assertEquals(test_config.ctrl.GetItem(i).IsChecked(), False)
 
-        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).click_input, where="check")
+                test_config.ctrl.GetItem(i).click_input(where='check') # recheck item
+                time.sleep(0.5)
+                self.assertEquals(test_config.ctrl.GetItem(i).IsChecked(), True)
+
+            test_config.dlg.Toolbar.Button(6).Click() # switch off states
+
+            self.assertRaises(RuntimeError, test_config.ctrl.GetItem(6).click_input, where="check")
 
 
     def testItemMethods(self):
         "Test short item methods like Text(), State() etc"
-        self.assertEquals(self.ctrl.GetItem('Green').Text(), 'Green')
-        self.assertEquals(self.ctrl.GetItem('Green').Image(), 2)
-        self.assertEquals(self.ctrl.GetItem('Green').Indent(), 0)
+
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            self.assertEquals(test_config.ctrl.GetItem('Green').Text(), 'Green')
+            self.assertEquals(test_config.ctrl.GetItem('Green').Image(), 2)
+            self.assertEquals(test_config.ctrl.GetItem('Green').Indent(), 0)
 
     def testEnsureVisible(self):
-        self.dlg.MoveWindow(width=300)
-        
-        # Gray is not selected by click because it's not visible
-        self.ctrl.GetItem('Gray').Click()
-        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
-        self.dlg.set_focus() # just in case
-        
-        self.ctrl.GetItem('Gray').EnsureVisible()
-        self.ctrl.GetItem('Gray').Click()
-        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), True)
+
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            test_config.dlg.MoveWindow(width=300)
+
+            # Gray is not selected by click because it's not visible
+            test_config.ctrl.GetItem('Gray').Click()
+            self.assertEquals(test_config.ctrl.GetItem('Gray').IsSelected(), False)
+            test_config.dlg.set_focus() # just in case
+
+            test_config.ctrl.GetItem('Gray').EnsureVisible()
+            test_config.ctrl.GetItem('Gray').Click()
+            self.assertEquals(test_config.ctrl.GetItem('Gray').IsSelected(), True)
 
 #
 #    def testSubItems(self):
@@ -443,13 +511,15 @@ class ListViewTestCases(unittest.TestCase):
         Test __eq__ and __ne__ cases for _listview_item.
         """
 
-        item1 = self.ctrl.GetItem(0, 0)
-        item1_copy = self.ctrl.GetItem(0, 0)
-        item2 = self.ctrl.GetItem(1, 0)
+        for test_config in self.test_configs:
+            test_config.preprocessing()
+            item1 = test_config.ctrl.GetItem(0, 0)
+            item1_copy = test_config.ctrl.GetItem(0, 0)
+            item2 = test_config.ctrl.GetItem(1, 0)
 
-        self.assertEqual(item1, item1_copy)
-        self.assertNotEqual(item1, "Not _listview_item")
-        self.assertNotEqual(item1, item2)
+            self.assertEqual(item1, item1_copy)
+            self.assertNotEqual(item1, "Not _listview_item")
+            self.assertNotEqual(item1, item2)
 
 
 class TreeViewTestCases(unittest.TestCase):

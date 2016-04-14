@@ -717,6 +717,25 @@ else:
     assert sizeof(TBBUTTONINFOW) == 32, sizeof(TBBUTTONINFOW)
     assert alignment(TBBUTTONINFOW) == 4, alignment(TBBUTTONINFOW)
 
+
+class TBBUTTONINFOW32(Structure):
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 1308
+        ('cbSize', UINT),
+        ('dwMask', DWORD),
+        ('idCommand', c_int),
+        ('iImage', c_int),
+        ('fsState', BYTE),
+        ('fsStyle', BYTE),
+        ('cx', WORD),
+        ('lParam', UINT),
+        ('pszText', UINT),
+        ('cchText', c_int),
+    ]
+assert sizeof(TBBUTTONINFOW32) == 32, sizeof(TBBUTTONINFOW32)
+assert alignment(TBBUTTONINFOW32) == 4, alignment(TBBUTTONINFOW32)
+
+
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
 if sysinfo.is_x64_Python():
     class TBBUTTON(Structure):
@@ -751,6 +770,21 @@ else:
     assert sizeof(TBBUTTON) == 20, sizeof(TBBUTTON)
     assert alignment(TBBUTTON) == 4, alignment(TBBUTTON)
 
+
+class TBBUTTON32(Structure):
+    #_pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+        ('iBitmap', c_int),
+        ('idCommand', c_int),
+        ('fsState', BYTE),
+        ('fsStyle', BYTE),
+        ('bReserved', BYTE * 2),
+        ('dwData', UINT),
+        ('iString', UINT),
+    ]
+assert sizeof(TBBUTTON32) == 20, sizeof(TBBUTTON32)
+assert alignment(TBBUTTON32) == 4, alignment(TBBUTTON32)
 
 
 class REBARBANDINFOW(Structure):
