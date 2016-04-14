@@ -22,19 +22,22 @@
 """Module containing tests for XMLHelpers Module"""
 
 import sys
-sys.path.append(".")
-
-from pywinauto.XMLHelpers import WriteDialogToFile, ReadPropertiesFromFile, LOGFONTW, RECT
-from pywinauto import six
-
 import unittest
+sys.path.append(".")
+from pywinauto.XMLHelpers import WriteDialogToFile
+from pywinauto.XMLHelpers import ReadPropertiesFromFile
+from pywinauto.XMLHelpers import LOGFONTW
+from pywinauto.XMLHelpers import RECT
+from pywinauto import six
+from pywinauto import backend
+
 
 class XMLHelperTestCases(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
 
-    def setUp(self):
-        """Actually does nothing!"""
-        pass
+    #def setUp(self):
+    #    """Actually does nothing!"""
+    #    pass
 
     def tearDown(self):
         "delete the file we have created"
@@ -49,17 +52,17 @@ class XMLHelperTestCases(unittest.TestCase):
         self.assertEquals(props, read_props)
 
     def testOneUnicode(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a unicode string"
         props = [dict(test = u"hiya")]
         self.assertReadWriteSame(props)
 
     def testOneString(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a string"
         props = [dict(test = "hiya")]
         self.assertReadWriteSame(props)
 
     def testSomeEscapes(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a dictionary with some escape sequences"
 
         test_string = []
         for i in range(0, 50000):
@@ -82,7 +85,7 @@ class XMLHelperTestCases(unittest.TestCase):
         self.assertReadWriteSame(props)
 
     def testOneDict(self):
-        "Make sure the friendly class is set correctly"
+        "Test writing/reading a dictionary with one element"
         props = [dict(test_value = dict(test = 1))]
         self.assertReadWriteSame(props)
 

@@ -29,7 +29,7 @@ from pywinauto import application
 #from pywinauto import tests
 
 
-def SakuraTest():
+def sakura_test():
 
 	app = application.Application()
 	app.start(r"C:\Program Files\sakura\sakura.exe")
@@ -42,26 +42,26 @@ def SakuraTest():
 	# so using keys to select a menu item
 
 	# open some dialog
-	mainwin.TypeKeys("%OC")
+	mainwin.type_keys("%OC")
 
 	dlg = app[u'共通設定']
 
-	app[u'共通設定'][u"フリーカーソル"].Click()
+	app[u'共通設定'][u"フリーカーソル"].click()
 
-	dlg.MSDOS.Click()
+	dlg.MSDOS.click()
 
-	dlg.Cancel.Click()
+	dlg.Cancel.click()
 
 	# quit the application
-	mainwin.TypeKeys("%FX")
+	mainwin.type_keys("%FX")
 
 
-def Main():
+def main():
 	start = time.time()
 
-	SakuraTest()
+	sakura_test()
 
 	print("Total time taken:", time.time() - start)
 
 if __name__ == "__main__":
-	Main()
+	main()

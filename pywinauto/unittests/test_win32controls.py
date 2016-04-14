@@ -27,12 +27,12 @@ from __future__ import unicode_literals
 
 import os, sys
 import codecs
+import unittest
 sys.path.append(".")
 from pywinauto import XMLHelpers, win32defines #, six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
-
-import unittest
+from pywinauto import backend
 
 # following imports are not required for the tests
 # but are useful for debugging
@@ -41,7 +41,7 @@ import unittest
 from pywinauto.timings import Timings
 Timings.Fast()
 Timings.window_find_timeout = 3
-Timings.closeclick_dialog_close_wait = .5
+Timings.closeclick_dialog_close_wait = 2.
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -61,8 +61,6 @@ class ButtonTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
-        from pywinauto.application import Application
         self.app = Application()
 
         if is_x64_Python() or not is_x64_OS():
@@ -76,20 +74,20 @@ class ButtonTestCases(unittest.TestCase):
         "Close the application after tests"
 
         self.app.kill_()
-        #self.calc.TypeKeys("%{F4}")
+        #self.calc.type_keys("%{F4}")
 
     def testGetProperties(self):
         "Test getting the properties for the button control"
         props = self.calc.Degrees.GetProperties()
 
         self.assertEquals(
-            "RadioButton", props['FriendlyClassName'])
+            "RadioButton", props['friendly_class_name'])
 
         self.assertEquals(
-            self.calc.Degrees.Texts(), ['Degrees'])
+            self.calc.Degrees.texts(), ['Degrees'])
 
         self.assertEquals(
-            self.calc.Degrees.Texts(), props['Texts'])
+            self.calc.Degrees.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
@@ -99,25 +97,25 @@ class ButtonTestCases(unittest.TestCase):
 
         """test whether an image needs to be saved with the properties"""
 
-        self.assertEquals(self.calc.Button5._NeedsImageProp, False)
-        self.assertEquals('Image' in self.calc.Button5.GetProperties(), False)
-        #self.assertNotIn('Image', self.calc.Button5.GetProperties())
+        self.assertEquals(self.calc.Button5._needs_image_prop, False)
+        self.assertEquals('image' in self.calc.Button5.GetProperties(), False)
+        #self.assertNotIn('image', self.calc.Button5.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
     def testFriendlyClass(self):
-        "Test the FriendlyClassName method"
-        self.assertEquals(self.calc.Button9.FriendlyClassName(), "Button")
-        self.assertEquals(self.calc.Degree.FriendlyClassName(), "RadioButton")
-        #self.assertEquals(self.calc.Hex.FriendlyClassName(), "CheckBox")
+        "Test the friendly_class_name method"
+        self.assertEquals(self.calc.Button9.friendly_class_name(), "Button")
+        self.assertEquals(self.calc.Degree.friendly_class_name(), "RadioButton")
+        #self.assertEquals(self.calc.Hex.friendly_class_name(), "CheckBox")
 
-        #children = self.calc.Children()
+        #children = self.calc.children()
         #no_text_buttons = [
         #    c for c in children
-        #        if not c.WindowText() and c.Class() == "Button"]
+        #        if not c.window_text() and c.class_name() == "Button"]
 
         #first_group = no_text_buttons[0]
 
-        #self.assertEquals(first_group.FriendlyClassName(), "GroupBox")
+        #self.assertEquals(first_group.friendly_class_name(), "GroupBox")
 
     def testCheckUncheck(self):
         "Test unchecking a control"
@@ -149,7 +147,7 @@ class ButtonTestCases(unittest.TestCase):
         self.calc.Button4.Click()   # "4"
         self.calc.Button16.Click()  # "3"
         self.calc.Button28.Click()  # "="
-        self.assertEquals(self.calc.ChildWindow(class_name='Static', ctrl_index=5).Texts()[0], "108")
+        self.assertEquals(self.calc.ChildWindow(class_name='Static', ctrl_index=5).texts()[0], "108")
 
     def testIsSelected(self):
         "Test whether the control is selected or not"
@@ -169,7 +167,6 @@ class CheckBoxTests(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
@@ -227,7 +224,6 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
 
         """Start the sample application. Open a tab with ownerdraw button."""
 
-        # start the application
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
         # open the needed tab
         self.app.active_().TabControl.Select(1)
@@ -243,9 +239,9 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
         """test whether an image needs to be saved with the properties"""
 
         active_window = self.app.active_()
-        self.assertEquals(active_window.Button2._NeedsImageProp, True)
-        self.assertEquals('Image' in active_window.Button2.GetProperties(), True)
-        #self.assertIn('Image', active_window.Button2.GetProperties())
+        self.assertEquals(active_window.Button2._needs_image_prop, True)
+        self.assertEquals('image' in active_window.Button2.GetProperties(), True)
+        #self.assertIn('image', active_window.Button2.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
 
@@ -257,11 +253,8 @@ class ComboBoxTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
         self.app = Application()
-
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
-
         self.app.Common_Controls_Sample.TabControl.Select("CSpinButtonCtrl")
 
         self.ctrl = self.app.Common_Controls_Sample.AlignmentComboBox.WrapperObject()
@@ -275,10 +268,10 @@ class ComboBoxTestCases(unittest.TestCase):
         props = self.ctrl.GetProperties()
 
         self.assertEquals(
-            "ComboBox", props['FriendlyClassName'])
+            "ComboBox", props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
@@ -295,13 +288,13 @@ class ComboBoxTestCases(unittest.TestCase):
         self.assertEquals(rect.left, 0)
         self.assertEquals(rect.top, 0)
         self.assertEquals(rect.right, self.ctrl.ClientRect().right)
-        self.assertEquals(rect.bottom, self.ctrl.Rectangle().height() + 48)
+        self.assertEquals(rect.bottom, self.ctrl.rectangle().height() + 48)
 
     def testSelectedIndex(self):
         "That the control returns the correct index for the selected item"
         self.ctrl.Select(1)
         self.assertEquals(self.ctrl.SelectedIndex(), 1)
-        #self.assertEquals(self.ctrl.Texts()[3], self.app.Font.Edit2.Texts()[1])
+        #self.assertEquals(self.ctrl.texts()[3], self.app.Font.Edit2.texts()[1])
 
     def testSelect_negative(self):
         "Test that the Select method correctly handles negative indices"
@@ -346,8 +339,6 @@ class ListBoxTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
-        from pywinauto.application import Application
         self.app = Application()
 
         app_path = os.path.join(MFC_tutorial_folder, "MFC_Tutorial9.exe")
@@ -355,15 +346,15 @@ class ListBoxTestCases(unittest.TestCase):
 
         self.dlg = self.app.MFC_Tutorial9
         self.dlg.Wait('ready', timeout=20)
-        self.dlg.TypeYourTextEdit.TypeKeys('qqq')
+        self.dlg.TypeYourTextEdit.type_keys('qqq')
         self.dlg.Add.Click()
         
         self.dlg.TypeYourTextEdit.Select()
-        self.dlg.TypeYourTextEdit.TypeKeys('123')
+        self.dlg.TypeYourTextEdit.type_keys('123')
         self.dlg.Add.Click()
         
         self.dlg.TypeYourTextEdit.Select()
-        self.dlg.TypeYourTextEdit.TypeKeys('third item', with_spaces=True)
+        self.dlg.TypeYourTextEdit.type_keys('third item', with_spaces=True)
         self.dlg.Add.Click()
         
         self.ctrl = self.dlg.ListBox.WrapperObject()
@@ -381,10 +372,10 @@ class ListBoxTestCases(unittest.TestCase):
         props = self.ctrl.GetProperties()
 
         self.assertEquals(
-            "ListBox", props['FriendlyClassName'])
+            "ListBox", props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
@@ -413,8 +404,8 @@ class ListBoxTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.SelectedIndices(), (1, ))
 
         # get the text of the 2nd item (3rd item in list
-        # because of empty WindowText)
-        item_to_select = self.ctrl.Texts()[2]
+        # because of empty window_text)
+        item_to_select = self.ctrl.texts()[2]
 
         self.ctrl.Select(item_to_select)
         self.assertEquals(self.ctrl.SelectedIndices(), (1, ))
@@ -436,13 +427,9 @@ class EditTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
 
-        import os.path
         path = os.path.split(__file__)[0]
-
         test_file = os.path.join(path, "test.txt")
 
         with codecs.open(test_file, mode="rb", encoding='utf-8') as f:
@@ -459,13 +446,13 @@ class EditTestCases(unittest.TestCase):
         self.dlg = app.UntitledNotepad
         self.ctrl = self.dlg.Edit.WrapperObject()
 
-        self.old_pos = self.dlg.Rectangle
+        self.old_pos = self.dlg.rectangle
 
         self.dlg.MoveWindow(10, 10, 400, 400)
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -474,7 +461,7 @@ class EditTestCases(unittest.TestCase):
         "Close the application after tests"
 
         # set it back to it's old position so not to annoy users :-)
-        self.old_pos = self.dlg.Rectangle
+        self.old_pos = self.dlg.rectangle
 
         # close the application
         self.dlg.MenuSelect("File->Exit")
@@ -492,14 +479,14 @@ class EditTestCases(unittest.TestCase):
         "Test setting the text of the edit control"
         self.ctrl.SetEditText("Here is\r\nsome text")
         self.assertEquals(
-            "\n".join(self.ctrl.Texts()[1:]), "Here is\nsome text")
+            "\n".join(self.ctrl.texts()[1:]), "Here is\nsome text")
 
     def testTypeKeys(self):
         "Test typing some text into the edit control"
         # typekeys types at the current caret position
         # (start when opening a new file)
         added_text = "Here is some more Text"
-        self.ctrl.TypeKeys("%{HOME}" + added_text, with_spaces = True)
+        self.ctrl.type_keys("%{HOME}" + added_text, with_spaces = True)
         expected_text = added_text + self.test_data
 
         self.assertEquals(self.ctrl.TextBlock(), expected_text)
@@ -567,7 +554,6 @@ class UnicodeEditTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
@@ -583,10 +569,10 @@ class UnicodeEditTestCases(unittest.TestCase):
         "Test setting Unicode text by the SetEditText method of the edit control"
         self.ctrl.Select()
         self.ctrl.SetEditText(579)
-        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "579")
+        self.assertEquals("\n".join(self.ctrl.texts()[1:]), "579")
 
         self.ctrl.SetEditText(333, pos_start=1, pos_end=2)
-        self.assertEquals("\n".join(self.ctrl.Texts()[1:]), "53339")
+        self.assertEquals("\n".join(self.ctrl.texts()[1:]), "53339")
 
         #self.ctrl.Select()
         #self.ctrl.SetEditText(u'\u0421\u043f\u0430\u0441\u0438\u0431\u043e!') # u'Spasibo!' in Russian symbols
@@ -615,8 +601,6 @@ class DialogTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
-        from pywinauto.application import Application
         self.app = Application()
 
         if is_x64_Python() or not is_x64_OS():
@@ -631,16 +615,16 @@ class DialogTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         self.app.kill_()
-        #self.calc.TypeKeys("%{F4}")
+        #self.calc.type_keys("%{F4}")
 
     def testGetProperties(self):
         "Test getting the properties for the dialog box"
         props = self.calc.GetProperties()
 
         self.assertEquals(
-            "CalcFrame", props['FriendlyClassName'])
+            "CalcFrame", props['friendly_class_name'])
 
-        self.assertEquals(self.calc.Texts(), props['Texts'])
+        self.assertEquals(self.calc.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
@@ -669,7 +653,7 @@ class DialogTestCases(unittest.TestCase):
         self.calc.WriteToXML("test_output.xml")
 
         all_props = [self.calc.GetProperties()]
-        all_props.extend([c.GetProperties() for c in self.calc.Children()])
+        all_props.extend([c.GetProperties() for c in self.calc.children()])
 
         props = XMLHelpers.ReadPropertiesFromFile("test_output.xml")
         for i, ctrl in enumerate(props):
@@ -685,6 +669,9 @@ class DialogTestCases(unittest.TestCase):
                     ctrl_value = list(ctrl_value)
                     expected_value = list(expected_value)
 
+                if ctrl_value == 'None':
+                    ctrl_value = None
+
                 self.assertEquals(ctrl_value, expected_value)
 
         import os
@@ -696,7 +683,7 @@ class DialogTestCases(unittest.TestCase):
         Notice that we run an approximate comparison as the actual
         area size depends on Windows OS and a current desktop theme"""
         clientarea = self.calc.ClientAreaRect()
-        rectangle = self.calc.Rectangle()
+        rectangle = self.calc.rectangle()
         self.failIf((clientarea.left - rectangle.left) > 10)
         self.failIf((clientarea.top - rectangle.top) > 60)
         self.failIf((rectangle.right - clientarea.right) > 10)
@@ -719,8 +706,6 @@ class PopupMenuTestCases(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
-        from pywinauto.application import Application
         self.app = Application()
 
         self.app.start("notepad.exe")
@@ -729,25 +714,25 @@ class PopupMenuTestCases(unittest.TestCase):
 
     def tearDown(self):
         "Close the application after tests"
-        self.popup.TypeKeys("{ESC}")
-        self.app.kill_() #.Notepad.TypeKeys("%{F4}")
+        self.popup.type_keys("{ESC}")
+        self.app.kill_() #.Notepad.type_keys("%{F4}")
 
     def testGetProperties(self):
         "Test getting the properties for the PopupMenu"
         props = self.popup.GetProperties()
 
         self.assertEquals(
-            "PopupMenu", props['FriendlyClassName'])
+            "PopupMenu", props['friendly_class_name'])
 
-        self.assertEquals(self.popup.Texts(), props['Texts'])
+        self.assertEquals(self.popup.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
                 getattr(self.popup, prop_name)(), props[prop_name])
 
     def testIsDialog(self):
-        "Ensure that IsDialog works correctly"
-        self.assertEquals(True, self.popup.IsDialog())
+        "Ensure that is_dialog works correctly"
+        self.assertEquals(True, self.popup.is_dialog())
 
     def test_menu_handle(self):
         "Ensure that the menu handle is returned"
@@ -763,10 +748,9 @@ class StaticTestCases(unittest.TestCase):
 
         """Start the sample application. Open a tab with ownerdraw button."""
 
-        # start the application
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"RebarTest.exe"))
         # open the Help dailog
-        self.app.active_().TypeKeys('%h{ENTER}')
+        self.app.active_().type_keys('%h{ENTER}')
 
     def tearDown(self):
 
@@ -779,9 +763,9 @@ class StaticTestCases(unittest.TestCase):
         """test a regular static has no the image property"""
 
         active_window = self.app.active_()
-        self.assertEquals(active_window.Static2._NeedsImageProp, False)
-        self.assertEquals('Image' in active_window.Static2.GetProperties(), False)
-        #self.assertNotIn('Image', active_window.Static2.GetProperties())
+        self.assertEquals(active_window.Static2._needs_image_prop, False)
+        self.assertEquals('image' in active_window.Static2.GetProperties(), False)
+        #self.assertNotIn('image', active_window.Static2.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
     def test_NeedsImageProp_ownerdraw(self):
@@ -789,12 +773,11 @@ class StaticTestCases(unittest.TestCase):
         """test whether an image needs to be saved with the properties"""
 
         active_window = self.app.active_()
-        self.assertEquals(active_window.Static._NeedsImageProp, True)
-        self.assertEquals('Image' in active_window.Static.GetProperties(), True)
-        #self.assertIn('Image', active_window.Static.GetProperties())
+        self.assertEquals(active_window.Static._needs_image_prop, True)
+        self.assertEquals('image' in active_window.Static.GetProperties(), True)
+        #self.assertIn('image', active_window.Static.GetProperties())
         # assertIn and assertNotIn are not supported in Python 2.6
 
 
 if __name__ == "__main__":
-    #_unittests()
     unittest.main()

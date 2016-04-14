@@ -39,7 +39,7 @@ from pywinauto.timings import Timings
 
 Timings.window_find_timeout = 10
 
-def TestExceptions():
+def test_exceptions():
     "Test some things that should raise exceptions"
 
     # test that trying to connect_ to a non existent app fails
@@ -48,7 +48,7 @@ def TestExceptions():
         app.connect(path=r"No process with this please")
         assert False
     except application.ProcessNotFoundError:
-        pass
+        print('ProcessNotFoundError has been raised. OK.')
 
     # test that trying to connect_ to a non existent app fails
     try:
@@ -56,25 +56,25 @@ def TestExceptions():
         app.start(cmd_line = r"No process with this please")
         assert False
     except application.AppStartError:
-        pass
+        print('AppStartError has been raised. OK.')
 
 #    # try when it isn't connected
 #    try:
 #        app = application.Application()
 #        #app.start_(ur"c:\windows\system32\notepad.exe")
-#        app.Notepad.Click()
+#        app.Notepad.click()
 #        #assert False
 #    except application.AppNotConnected:
 #        pass
 
 
 
-def GetInfo():
+def get_info():
     app = application.Application()
 
     app.start(r"notepad.exe")
 
-    app.Notepad.MenuSelect("File->PageSetup")
+    app.Notepad.menu_select("File->PageSetup")
 
     print("==" * 20)
     print("Windows of this application:", app.windows_())
@@ -87,11 +87,11 @@ def GetInfo():
     app.PageSetup.Edit2.print_control_identifiers()
     print("==" * 20)
 
-    app.PageSetup.OK.CloseClick()
-    app.Notepad.MenuSelect("File->Exit")
+    app.PageSetup.OK.close_click()
+    app.Notepad.menu_select("File->Exit")
 
 
 
 if __name__ == '__main__':
-    TestExceptions()
-    GetInfo()
+    test_exceptions()
+    get_info()

@@ -24,12 +24,13 @@
 import unittest
 
 import sys
+import time
 sys.path.append(".")
 from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard
 from pywinauto.application import Application
 from pywinauto.win32structures import RECT
+from pywinauto import backend
 
-import time
 
 class ClipboardTestCases(unittest.TestCase):
     "Unit tests for the clipboard"
@@ -95,7 +96,7 @@ class ClipboardTestCases(unittest.TestCase):
 
 
 def gettext(app):
-    return app.UntitledNotepad.Edit.Texts()[1]
+    return app.UntitledNotepad.Edit.texts()[1]
 
 def typetext(app, text):
     app.UntitledNotepad.Edit.Wait('enabled')
@@ -105,15 +106,15 @@ def typetext(app, text):
 
 def copytext(app):
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Select All").ClickInput()
+    app.UntitledNotepad.MenuItem("Edit -> Select All").click_input()
     time.sleep(0.7)
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Copy").ClickInput()
+    app.UntitledNotepad.MenuItem("Edit -> Copy").click_input()
     time.sleep(1.0)
 
 def pastetext(app):
     app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Paste").ClickInput()
+    app.UntitledNotepad.MenuItem("Edit -> Paste").click_input()
 
 if __name__ == "__main__":
     unittest.main()

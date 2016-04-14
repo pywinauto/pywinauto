@@ -42,7 +42,7 @@ import sys
 
 # We need the path to setup.py to be able to run
 # the setup from a different folder
-def SetupPath(path = ""):
+def setup_path(path = ""):
     # get the path to the setup file
     setup_path = os.path.abspath(os.path.split(__file__)[0])
 
@@ -50,7 +50,7 @@ def SetupPath(path = ""):
 
 
 # add it to the system path
-sys.path.append(SetupPath())
+sys.path.append(setup_path())
 
 try:
     import win32api
@@ -62,8 +62,8 @@ except ImportError:
 # todo: see how to build the website
 #if "sdist" in sys.argv:
 #    import shutil
-#    if not os.path.exists(SetupPath("docs")):
-#        shutil.move(SetupPath("website"), SetupPath("docs"))
+#    if not os.path.exists(setup_path("docs")):
+#        shutil.move(setup_path("website"), setup_path("docs"))
 
 
 setup(name='pywinauto',

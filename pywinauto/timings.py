@@ -55,7 +55,7 @@ The Following are the individual timing settings that can be adjusted:
 
 * before_closeclick_wait    (default .1)
 * closeclick_retry  (default .05)
-* closeclick_dialog_close_wait  (default .5)
+* closeclick_dialog_close_wait  (default 2)
 * after_closeclick_wait (default .2)
 
 * after_windowclose_timeout (default 2)
@@ -127,7 +127,7 @@ class TimeConfig(object):
 
         'before_closeclick_wait' : .1,
         'closeclick_retry' : .05,
-        'closeclick_dialog_close_wait' : .5,
+        'closeclick_dialog_close_wait' : 2.,
         'after_closeclick_wait' : .2,
 
         'after_windowclose_timeout': 2,
@@ -172,21 +172,27 @@ class TimeConfig(object):
     _timings = __default_timing.copy()
     _cur_speed = 1
 
-    def __getattr__(self, attr):
+    def __getattribute__(self, attr):
         "Get the value for a particular timing"
-        if attr in TimeConfig.__default_timing:
-            return TimeConfig._timings[attr]
+        if attr in ['__dict__', '__members__', '__methods__', '__class__']:
+            return object.__getattribute__(self, attr)
+
+        if attr in dir(TimeConfig):
+            return object.__getattribute__(self, attr)
+
+        if attr in self.__default_timing:
+            return self._timings[attr]
         else:
-            raise KeyError(
-                "Unknown timing setting: %s" % attr)
+            raise AttributeError("Unknown timing setting: {0}".format(attr))
 
     def __setattr__(self, attr, value):
         "Set a particular timing"
-        if attr in TimeConfig.__default_timing:
-            TimeConfig._timings[attr] = value
+        if attr == '_timings':
+            object.__setattr__(self, attr, value)
+        elif attr in self.__default_timing:
+            self._timings[attr] = value
         else:
-            raise KeyError(
-                "Unknown timing setting: %s" % attr)
+            raise AttributeError("Unknown timing setting: {0}".format(attr))
 
     def Fast(self):
         """Set fast timing values
@@ -199,17 +205,17 @@ class TimeConfig(object):
         (if existing times are faster then keep existing times)
         """
 
-        for setting in TimeConfig.__default_timing:
+        for setting in self.__default_timing:
             # set timeouts to the min of the current speed or 1 second
             if "_timeout" in setting:
-                TimeConfig._timings[setting] = \
-                    min(1, TimeConfig._timings[setting])
+                self._timings[setting] = \
+                    min(1, self._timings[setting])
 
             if "_wait" in setting:
-                TimeConfig._timings[setting] = TimeConfig._timings[setting] / 2
+                self._timings[setting] = self._timings[setting] / 2
 
             elif setting.endswith("_retry"):
-                TimeConfig._timings[setting] = 0.001
+                self._timings[setting] = 0.001
 
             #self._timings['app_start_timeout'] = .5
 
@@ -224,28 +230,28 @@ class TimeConfig(object):
 
         (if existing times are slower then keep existing times)
         """
-        for setting in TimeConfig.__default_timing:
+        for setting in self.__default_timing:
             if "_timeout" in setting:
-                TimeConfig._timings[setting] = max(
-                    TimeConfig.__default_timing[setting] * 10,
-                    TimeConfig._timings[setting])
+                self._timings[setting] = max(
+                    self.__default_timing[setting] * 10,
+                    self._timings[setting])
 
             if "_wait" in setting:
-                TimeConfig._timings[setting] = max(
-                    TimeConfig.__default_timing[setting] * 3,
-                    TimeConfig._timings[setting])
+                self._timings[setting] = max(
+                    self.__default_timing[setting] * 3,
+                    self._timings[setting])
 
             elif setting.endswith("_retry"):
-                TimeConfig._timings[setting] = max(
-                    TimeConfig.__default_timing[setting] * 3,
-                    TimeConfig._timings[setting])
+                self._timings[setting] = max(
+                    self.__default_timing[setting] * 3,
+                    self._timings[setting])
 
-            if TimeConfig._timings[setting] < .2:
-                TimeConfig._timings[setting]= .2
+            if self._timings[setting] < .2:
+                self._timings[setting]= .2
 
     def Defaults(self):
         "Set all timings to the default time"
-        TimeConfig._timings = TimeConfig.__default_timing.copy()
+        self._timings = self.__default_timing.copy()
 
 
 Timings = TimeConfig()
@@ -283,9 +289,9 @@ def WaitUntil(
       
       try:
          # wait a maximum of 10.5 seconds for the 
-         # the objects ItemCount() method to return 10
+         # the objects item_count() method to return 10
          # in increments of .5 of a second
-         WaitUntil(10.5, .5, self.ItemCount, 10)
+         WaitUntil(10.5, .5, self.item_count, 10)
       except TimeoutError as e:
          print("timed out")
      
@@ -344,7 +350,7 @@ def WaitUntilPasses(
          # wait a maximum of 10.5 seconds for the 
          # window to be found in increments of .5 of a second.
          # P.int a message and re-raise the original exception if never found.
-         WaitUntilPasses(10.5, .5, self.Exists, (WindowNotFoundError))
+         WaitUntilPasses(10.5, .5, self.Exists, (ElementNotFoundError))
       except TimeoutError as e:
          print("timed out")
          raise e.
@@ -383,41 +389,3 @@ def WaitUntilPasses(
     
     # return the function value
     return func_val
-
-
-#
-#
-#
-#def Defaults():
-#    _current_timing = __default_timing.copy()
-#
-#
-#def Slow():
-#    for setting in __default_timing:
-#        if "_timeout" in setting:
-#            _current_timing[setting] = _default_timing[setting] * 10
-#
-#        if "_wait" in setting:
-#            _current_timing[setting] = _default_timing[setting] * 3
-#
-#        elif setting.endswith("_retry"):
-#            _current_timing[setting] = _default_timing[setting] * 3
-#
-#
-#
-#def SetTiming(**kwargs):
-#    ""
-#
-#    for setting, time in kwargs.items():
-#        if setting in __default_timing:
-#            _current_timing[setting] = time
-#        else:
-#            raise KeyError(
-#                "Unknown timing setting: %s" % setting)
-#
-#def Get(setting):
-#    if setting in __default_timing:
-#        return _current_timing[setting]
-#    else:
-#        raise KeyError(
-#            "Unknown timing setting: %s" % setting)

@@ -171,7 +171,11 @@ GetACP				=	ctypes.windll.kernel32.GetACP
 WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
 WaitForInputIdle	= ctypes.windll.user32.WaitForInputIdle
 
-GetModuleFileNameEx		=	ctypes.windll.psapi.GetModuleFileNameExW
+IsHungAppWindow     = ctypes.windll.user32.IsHungAppWindow
+IsHungAppWindow.restype = win32structures.BOOL
+IsHungAppWindow.argtypes = [win32structures.HWND]
+
+GetModuleFileNameEx = ctypes.windll.psapi.GetModuleFileNameExW
 
 GetClipboardData = ctypes.windll.user32.GetClipboardData
 OpenClipboard    = ctypes.windll.user32.OpenClipboard
@@ -244,7 +248,7 @@ LoadString = ctypes.windll.user32.LoadStringW
 
 #====================================================================
 def MakeLong(high, low):
-    "Pack high into the high word of a long and low into the low word"
+    """Pack high into the high word of a long and low into the low word"""
 
     # we need to AND each value with 0xFFFF to account for numbers
     # greater then normal WORD (short) size
@@ -252,18 +256,18 @@ def MakeLong(high, low):
 
 #====================================================================
 def HiWord(value):
-    "Return the high word from a long"
+    """Return the high word from a long"""
     #return (value & (~ 0xFFFF)) / 0xFFFF
     return (value >> 16) & 0xffff
 
 #====================================================================
 def LoWord(value):
-    "Return the low word from a long"
+    """Return the low word from a long"""
     return value & 0xFFFF
 
 #====================================================================
-def WaitGuiThreadIdle(handle, timeout = 1):
-    "Wait until the thread of the specified handle is ready"
+def WaitGuiThreadIdle(handle):
+    """Wait until the thread of the specified handle is ready"""
     from . import win32defines
 
     process_id = ctypes.c_int()
@@ -275,15 +279,16 @@ def WaitGuiThreadIdle(handle, timeout = 1):
         0,
         process_id.value)
 
-    # wait for the timeout number of seconds
-    ret = WaitForInputIdle(hprocess, timeout * 1000)
+    # WaitForInputIdle call is removed because it's useful only
+    # while an app is starting (should be called only once)
+    if IsHungAppWindow(handle) == win32defines.TRUE:
+        raise RuntimeError('Window (hwnd={0}) is not responding!'.format(handle))
 
     CloseHandle(hprocess)
 
-    return ret
-
+#====================================================================
 def GetDpiAwarenessByPid(pid):
-    "Get DPI awareness properties of a process specified by ID"
+    """Get DPI awareness properties of a process specified by ID"""
         
     dpi_awareness = -1
     hProcess = None

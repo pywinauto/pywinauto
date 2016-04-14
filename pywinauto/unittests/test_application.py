@@ -26,15 +26,14 @@
 
 "Tests for application.py"
 
+import sys
 import os
-import os.path
 import unittest
 import time
 #import pprint
 #import pdb
 import warnings
 
-import sys
 sys.path.append(".")
 from pywinauto import application
 from pywinauto.controls import HwndWrapper
@@ -43,6 +42,7 @@ from pywinauto.application import ProcessNotFoundError, AppStartError, AppNotCon
 from pywinauto import findwindows, findbestmatch
 from pywinauto.timings import Timings, TimeoutError, WaitUntil
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto import backend
 
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
 
@@ -153,6 +153,7 @@ class ApplicationTestCases(unittest.TestCase):
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
+
         if is_x64_Python() or not is_x64_OS():
             self.notepad_subpath = r"system32\notepad.exe"
         else:
@@ -183,7 +184,7 @@ class ApplicationTestCases(unittest.TestCase):
         app.start(_notepad_exe())
         self.assertNotEqual(app.process, None)
 
-        self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
+        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
 
         notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
         self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
@@ -197,7 +198,7 @@ class ApplicationTestCases(unittest.TestCase):
 #        app._start("notepad.exe")
 #        self.assertNotEqual(app.process, None)
 #
-#        self.assertEqual(app.UntitledNotepad.ProcessID(), app.process)
+#        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
 #
 #        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
 #        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
@@ -206,7 +207,6 @@ class ApplicationTestCases(unittest.TestCase):
 
     def testStart_bug01(self):
         "On SourceForge forum AppStartError forgot to include %s for application name"
-
         app = Application()
         self.assertEqual(app.process, None)
         application.app_start_timeout = 1
@@ -313,14 +313,14 @@ class ApplicationTestCases(unittest.TestCase):
 
         app_conn = Application()
         try:
-            app_conn.connect(title="Untitled - Notepad")
+            app_conn.connect(title = "Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
-            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
-            app_conn.connect(handle=wins[0])
-        except findwindows.WindowNotFoundError:
-            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title = "Untitled - Notepad")) > 0)
-            wins = findwindows.find_windows(active_only=True, title = "Untitled - Notepad")
-            app_conn.connect(handle=wins[0])
+            wins = findwindows.find_elements(active_only = True, title = "Untitled - Notepad")
+            app_conn.connect(handle = wins[0].handle)
+        except findwindows.ElementNotFoundError:
+            WaitUntil(30, 0.5, lambda: len(findwindows.find_elements(active_only = True, title = "Untitled - Notepad")) > 0)
+            wins = findwindows.find_elements(active_only = True, title = "Untitled - Notepad")
+            app_conn.connect(handle = wins[0].handle)
 
         self.assertEqual(app1.process, app_conn.process)
 
@@ -387,24 +387,33 @@ class ApplicationTestCases(unittest.TestCase):
             return None
         
         app = Application().Start(r'explorer.exe')
-        WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, class_name='CabinetWClass')) > 0)
-        handle = findwindows.find_windows(active_only=True, class_name='CabinetWClass')[-1]
-        window = WindowSpecification({'handle': handle, })
-        explorer = Application().Connect(process=window.ProcessID())
+        
+        def _cabinetwclass_exist():
+            "Verify if at least one active 'CabinetWClass' window is created"
+            l = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')
+            return (len(l) > 0)
+
+        WaitUntil(40, 0.5, _cabinetwclass_exist)
+        handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
+        window = WindowSpecification({'handle': handle, 'backend': 'native', })
+        explorer = Application().Connect(process = window.process_id())
         
         try:
-            window.AddressBandRoot.ClickInput(double=True)
-            window.Edit.SetEditText(r'Control Panel\Programs\Programs and Features')
-            window.TypeKeys(r'{ENTER 2}', set_foreground=False)
-            WaitUntil(30, 0.5, lambda: len(findwindows.find_windows(active_only=True, title='Programs and Features', class_name='CabinetWClass')) > 0)
-            explorer.WaitCPUUsageLower(threshold=2.5, timeout=40, usage_interval=2)
-            installed_programs = window.FolderView.Texts()[1:]
+            explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
+            window.AddressBandRoot.ClickInput()
+            window.TypeKeys(r'Control Panel\Programs\Programs and Features', with_spaces=True, set_foreground=True)
+            window.TypeKeys(r'{ENTER}', set_foreground = False)
+            WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(active_only = True,
+                                                                     title = 'Programs and Features',
+                                                                     class_name='CabinetWClass')) > 0)
+            explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
+            installed_programs = window.FolderView.texts()[1:]
             programs_list = ','.join(installed_programs)
             if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
                 HwndWrapper.ImageGrab.grab().save(r'explorer_screenshot.jpg')
-            HwndWrapper.ActionLogger().log('\ninstalled_programs:\n')
-            for prog in installed_programs:
-                HwndWrapper.ActionLogger().log(prog)
+                HwndWrapper.ActionLogger().log('\ninstalled_programs:\n')
+                for prog in installed_programs:
+                    HwndWrapper.ActionLogger().log(prog)
             self.assertEqual(('Microsoft' in programs_list) or ('Python' in programs_list), True)
         finally:
             window.Close(2.0)
@@ -432,7 +441,6 @@ class ApplicationTestCases(unittest.TestCase):
 
     def testWindow(self):
         "Test that window_() works correctly"
-
         app = Application()
         app.start(_notepad_exe())
 
@@ -464,9 +472,6 @@ class ApplicationTestCases(unittest.TestCase):
         except Exception:
             pass
 
-
-        #prev_timeout = application.window_find_timeout
-        #application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
             app['blahblah']['not here'].__getitem__, 'handle')
@@ -484,18 +489,14 @@ class ApplicationTestCases(unittest.TestCase):
         app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-        #application.window_find_timeout = prev_timeout
-
-    def testGetattr(self):
-        "Test that __getattr__() works correctly"
+    def testGetattribute(self):
+        "Test that __getattribute__() works correctly"
         app = Application()
         app.start(_notepad_exe())
 
-        #prev_timeout = application.window_find_timeout
-        #application.window_find_timeout = .1
         self.assertRaises(
             findbestmatch.MatchError,
-            app.blahblah.__getattr__, 'handle')
+            app.blahblah.__getattribute__, 'handle')
 
         self.assertEqual(
             app.UntitledNotepad.handle,
@@ -507,7 +508,7 @@ class ApplicationTestCases(unittest.TestCase):
         # just because the window is not enabled - doesn't mean you
         # should not be able to access it at all!
         #self.assertRaises(findbestmatch.MatchError,
-        #    app.Notepad.__getattr__, 'handle')
+        #    app.Notepad.__getattribute__, 'handle')
 
         self.assertEqual(
             app.AboutNotepad.handle,
@@ -516,20 +517,18 @@ class ApplicationTestCases(unittest.TestCase):
         app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-        #application.window_find_timeout = prev_timeout
-
     def testkill_(self):
         "test killing the application"
 
         app = Application()
         app.start(_notepad_exe())
 
-        app.UntitledNotepad.Edit.TypeKeys("hello")
+        app.UntitledNotepad.Edit.type_keys("hello")
 
         app.UntitledNotepad.MenuSelect("File->Print...")
 
-        #app.Print.FindPrinter.Click() # vvryabov: (Win7 x64) "Find Printers" dialog is from splwow64.exe process
-        #app.FindPrinters.Stop.Click() #           so cannot handle it in 32-bit Python
+        #app.Print.FindPrinter.Click() # Vasily: (Win7 x64) "Find Printer" dialog is from splwow64.exe process
+        #app.FindPrinters.Stop.Click()
 
         app.kill_()
 
@@ -564,7 +563,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             )
 
         self.assertEquals(
-            wspec.WindowText(),
+            wspec.window_text(),
             u"Untitled - Notepad")
 
 
@@ -595,8 +594,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
         sub_spec_legacy = self.dlgspec.Window_(class_name = "Edit")
 
         self.assertEquals(True, isinstance(sub_spec, WindowSpecification))
-        self.assertEquals(sub_spec.Class(), "Edit")
-        self.assertEquals(sub_spec_legacy.Class(), "Edit")
+        self.assertEquals(sub_spec.class_name(), "Edit")
+        self.assertEquals(sub_spec_legacy.class_name(), "Edit")
 
 
     def test__getitem__(self):
@@ -607,7 +606,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             isinstance(self.dlgspec['Edit'], WindowSpecification)
             )
 
-        self.assertEquals(self.dlgspec['Edit'].Class(), "Edit")
+        self.assertEquals(self.dlgspec['Edit'].class_name(), "Edit")
 
         self.assertRaises(AttributeError, self.ctrlspec.__getitem__, 'edit')
 
@@ -620,13 +619,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
             isinstance(self.dlgspec.Edit, WindowSpecification)
             )
 
-        self.assertEquals(self.dlgspec.Edit.Class(), "Edit")
+        self.assertEquals(self.dlgspec.Edit.class_name(), "Edit")
 
 
         # check that getting a dialog attribute works correctly
         self.assertEquals(
             "Notepad",
-            self.dlgspec.Class())
+            self.dlgspec.class_name())
 
 
     def testExists(self):
@@ -635,7 +634,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEquals(True, self.dlgspec.Exists())
         self.assertEquals(True, self.dlgspec.Exists(0))
         self.assertEquals(True, self.ctrlspec.Exists())
-        self.assertEquals(True, self.app.DefaultIME.Exists())
+        # TODO: test a control that is not visible but exists
+        #self.assertEquals(True, self.app.DefaultIME.Exists())
 
         self.assertEquals(False, self.app.BlahBlah.Exists(.1))
 
@@ -662,12 +662,12 @@ class WindowSpecificationTestCases(unittest.TestCase):
         test the functionality and timing of the wait method.
         """
 
-        allowable_error = .3
+        allowable_error = .2
 
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))
         time_taken = (time.time() - start)
-        if not 0 <= time_taken < (0 + allowable_error):
+        if not 0 <= time_taken < (0 + 2 * allowable_error):
             self.assertEqual(.02,  time_taken)
 
         start = time.time()
@@ -841,17 +841,16 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
 
     def testPrintControlIdentifiers(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure PrintControlIdentifiers() doesn't crash"
 
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()
 
-    def test_find_windows_re(self):
-        "Test for bug #90: A crash in 'find_windows' when called with 'title_re' argument"
+    def test_find_elements_re(self):
+        "Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"
         self.dlgspec.Wait('visible')
-        windows = findwindows.find_windows(title_re="Untitled - Notepad")
+        windows = findwindows.find_elements(title_re = "Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
-
 
 if __name__ == "__main__":
     #_unittests()

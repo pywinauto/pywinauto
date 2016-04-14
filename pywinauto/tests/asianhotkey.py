@@ -93,7 +93,7 @@ def AsianHotkeyTest(windows):
         if not ImplementsHotkey(win):
             continue
 
-        if _IsAsianHotkeyFormatIncorrect(win.WindowText()):
+        if _IsAsianHotkeyFormatIncorrect(win.window_text()):
 
             bugs.append((
                 [win,],

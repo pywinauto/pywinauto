@@ -53,8 +53,8 @@ else:
     outputfilename = outputfilename.replace('\\', '')
     outputfilename = outputfilename.replace(':', '')
     if not (outputfilename.lower().endswith("htm") or
-       outputfilename.lower().endswith("html")):
-       outputfilename += ".html"
+        outputfilename.lower().endswith("html")):
+        outputfilename += ".html"
 
 # make sure that we have an absolute path - otherwise it is
 # hard to know where firefox might save the file!
@@ -80,27 +80,27 @@ else:
     mozilla = app.window_(title_re=".*Mozilla Firefox")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
-print("No Menu's in FireFox:", mozilla.MenuItems())
+print("No Menu's in FireFox:", mozilla.menu_items())
 
 # File -> Save As
-mozilla.TypeKeys("%FA")
-#ie.Toolbar3.PressButton("File")
-app.SaveAs.Edit.SetEditText(outputfilename)
+mozilla.type_keys("%FA")
+#ie.Toolbar3.press_button("File")
+app.SaveAs.Edit.set_edit_text(outputfilename)
 
-app.SaveAs.Save.CloseClick()
+app.SaveAs.Save.close_click()
 
 try:
     # if asked to overwrite say yes
     if app.SaveAs.Yes.Exists():
-        app.SaveAs.Yes.CloseClick()
+        app.SaveAs.Yes.close_click()
 except WindowAmbiguousError as e:
     for w in e.windows:
         w = HwndWrapper(w)
-        print(w.WindowText(), w.Class())
+        print(w.window_text(), w.class_name())
 
 print("saved:", outputfilename)
 
 # File close tab or close
 #(Firefox makes it easy for us having the same shortcut for both!
-mozilla.TypeKeys("%FC")
+mozilla.type_keys("%FC")
 

@@ -352,10 +352,8 @@ class VirtualKeyAction(KeyAction):
 
         # copied more or less verbatim from 
         # http://www.pinvoke.net/default.aspx/user32.sendinput
-        if (
-            (self.key >= 33 and self.key <= 46) or 
-            (self.key >= 91 and self.key <= 93) ):
-            flags = KEYEVENTF_EXTENDEDKEY;
+        if 33 <= self.key <= 46 or 91 <= self.key <= 93:
+            flags = KEYEVENTF_EXTENDEDKEY
         else:
             flags = 0
         # This works for %{F4} - ALT + F4
@@ -518,9 +516,9 @@ def parse_keys(string,
         # so it is a normal character
         else:
             # don't output white space unless flags to output have been set
-            if (c == ' ' and not with_spaces or
-                c == '\t' and not with_tabs or
-                c == '\n' and not with_newlines):
+            if (c == ' ' and not with_spaces or \
+                    c == '\t' and not with_tabs or \
+                    c == '\n' and not with_newlines):
                 continue
             
             # output newline

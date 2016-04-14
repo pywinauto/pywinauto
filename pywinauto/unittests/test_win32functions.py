@@ -52,23 +52,23 @@ class Win32FunctionsTestCases(unittest.TestCase):
         self.assertEquals(0, MakeLong(0,0))
 
     def testMakeLong_lowone(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure MakeLong() function works with low word == 1"
         self.assertEquals(1, MakeLong(0,1))
 
     def testMakeLong_highone(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure MakeLong() function works with high word == 1"
         self.assertEquals(0x10000, MakeLong(1,0))
 
     def testMakeLong_highbig(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure MakeLong() function works with big numder in high word"
         self.assertEquals(0xffff0000, MakeLong(0xffff,0))
 
     def testMakeLong_lowbig(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure MakeLong() function works with big numder in low word"
         self.assertEquals(0xffff, MakeLong(0, 0xffff))
 
     def testMakeLong_big(self):
-        "Make sure the friendly class is set correctly"
+        "Make sure MakeLong() function works with big numders in 2 words"
         self.assertEquals(0xffffffff, MakeLong(0xffff, 0xffff))
 
 

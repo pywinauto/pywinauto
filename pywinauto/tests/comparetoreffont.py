@@ -90,9 +90,9 @@ def CompareToRefFontTest(windows):
         # find each of the bugs
         for font_attrib in _font_attribs:
 
-            loc_value = getattr(win.Font(), font_attrib)
+            loc_value = getattr(win.font(), font_attrib)
             # get the reference value
-            ref_value = getattr(win.ref.Font(), font_attrib)
+            ref_value = getattr(win.ref.font(), font_attrib)
 
             # If they are different
             if loc_value != ref_value:

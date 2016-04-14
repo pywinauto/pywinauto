@@ -31,7 +31,7 @@ import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, \
-    POINTER, sizeof, alignment, Union, c_ulonglong, c_longlong, c_size_t
+    POINTER, sizeof, alignment, Union, c_longlong, c_size_t
 
 class Structure(ctypes.Structure):
     "Override the Structure class from ctypes to add printing and comparison"
@@ -107,7 +107,10 @@ def _construct(typ, buf):
     return obj
 
 def _reduce(self):
-    return (_construct, (self.__class__, str(buffer(self))))
+    if six.PY2:
+        return (_construct, (self.__class__, str(buffer(self))))
+    else:
+        return (_construct, (self.__class__, bytes(memoryview(self))))
 
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
@@ -186,16 +189,11 @@ class RECT(Structure):
         else:
             #if not isinstance(otherRect_or_left, (int, long)):
             #    print type(self), type(otherRect_or_left), otherRect_or_left
-            if six.PY3:
-                self.left = otherRect_or_left
-                self.right = right
-                self.top = top
-                self.bottom = bottom
-            else:
-                self.left = long(otherRect_or_left)
-                self.right = long(right)
-                self.top = long(top)
-                self.bottom = long(bottom)
+            long_int = six.integer_types[-1]
+            self.left = long_int(otherRect_or_left)
+            self.right = long_int(right)
+            self.top = long_int(top)
+            self.bottom = long_int(bottom)
 
 
 #    #----------------------------------------------------------------
@@ -403,6 +401,25 @@ if sysinfo.is_x64_Python():
 else:
     assert sizeof(TVITEMW) == 40, sizeof(TVITEMW)
     assert alignment(TVITEMW) == 4, alignment(TVITEMW)
+
+
+class TVITEMW32(Structure):
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
+        ('mask', UINT),
+        ('hItem', UINT), # must be 4 bytes in 32-bit app
+        ('state', UINT),
+        ('stateMask', UINT),
+        ('pszText', UINT), # must be 4 bytes in 32-bit app
+        ('cchTextMax', c_int),
+        ('iImage', c_int),
+        ('iSelectedImage', c_int),
+        ('cChildren', c_int),
+        ('lParam', UINT), # must be 4 bytes in 32-bit app
+    ]
+
+assert sizeof(TVITEMW32) == 40, sizeof(TVITEMW32)
+assert alignment(TVITEMW32) == 4, alignment(TVITEMW32)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
@@ -1154,8 +1171,14 @@ class SYSTEMTIME(Structure):
     ]
     
     def __repr__(self):
-        return '<wYear=' + str(self.wYear) + ', wMonth=' + str(self.wMonth) + ', wDayOfWeek=' + str(self.wDayOfWeek) + ', wDay=' + str(self.wDay) + ', wHour=' + str(self.wHour) + ', wMinute=' + str(self.wMinute) + \
-               ', wSecond=' + str(self.wSecond) + ', wMilliseconds=' + str(self.wMilliseconds) + '>'
+        return '<wYear=' + str(self.wYear) + \
+            ', wMonth=' + str(self.wMonth) + \
+            ', wDayOfWeek=' + str(self.wDayOfWeek) + \
+            ', wDay=' + str(self.wDay) + \
+            ', wHour=' + str(self.wHour) + \
+            ', wMinute=' + str(self.wMinute) + \
+            ', wSecond=' + str(self.wSecond) + \
+            ', wMilliseconds=' + str(self.wMilliseconds) + '>'
     
     def __str__(self):
         return self.__repr__()
