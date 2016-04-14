@@ -36,7 +36,6 @@ try:
     from . import win32structures
 except ImportError:
     win32defines = mock.MagicMock()
-    pass
 from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):
