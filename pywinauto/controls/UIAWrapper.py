@@ -112,12 +112,12 @@ _friendly_classes = {
     }
 
 #=========================================================================
-class lazy_property(object):
+class LazyProperty(object):
     
     """
     A lazy evaluation of an object attribute.
 
-    The property should represent non-mutable data, as it replaces itself.
+    The property should represent immutable data, as it replaces itself.
     Provided by: http://stackoverflow.com/a/6849299/1260742
     """
 
@@ -133,6 +133,7 @@ class lazy_property(object):
         value = self.fget(obj)
         setattr(obj, self.func_name, value)
         return value
+lazy_property = LazyProperty
 
 #=========================================================================
 class UiaMeta(BaseMeta):
