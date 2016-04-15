@@ -16,7 +16,6 @@ except ImportError:
 from . import SendKeysCtypes as SendKeys
 from . import six
 from . import win32defines, win32structures, win32functions
-
 from .timings import Timings
 from .actionlogger import ActionLogger
 from .mouse import _perform_click_input

@@ -28,6 +28,7 @@ import sys
 import ctypes
 import win32api
 import win32process
+
 from . import win32functions
 from . import win32defines
 from . import win32structures

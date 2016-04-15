@@ -66,12 +66,9 @@ testname = "Truncation"
 import ctypes
 
 from pywinauto import six
-try:
-    from pywinauto import win32defines
-    from pywinauto import win32functions
-    from pywinauto.win32structures import RECT
-except ImportError:
-    pass
+from pywinauto import win32defines
+from pywinauto import win32functions
+from pywinauto.win32structures import RECT
 
 
 #==============================================================================

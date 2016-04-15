@@ -65,41 +65,40 @@ def RightClickHiddenSystemTrayIcon(button, exact = False, by_tooltip=False):
     _click_hidden_tray_icon(button, mouse_button='right', exact=exact, by_tooltip=by_tooltip)
 
 
-if __name__ == '__main__':
-    # windows explorer owns all these windows so get that app
-    explorer_app = application.Application().connect(handle = TaskBarHandle())
+# windows explorer owns all these windows so get that app
+explorer_app = application.Application().connect(handle = TaskBarHandle())
 
-    # Get the taskbar
-    TaskBar = explorer_app.window_(handle = TaskBarHandle())
+# Get the taskbar
+TaskBar = explorer_app.window_(handle = TaskBarHandle())
 
-    # The Start button
-    try:
-        StartButton = explorer_app.Window_(title='Start', class_name='Button').Wait('exists', 0.1) # Win7
-    except Exception:
-        StartButton = TaskBar.Start # Win8.1
+# The Start button
+try:
+    StartButton = explorer_app.Window_(title='Start', class_name='Button').Wait('exists', 0.1) # Win7
+except Exception:
+    StartButton = TaskBar.Start # Win8.1
 
-    # the system tray - contains various windows
-    SystemTray = TaskBar.TrayNotifyWnd
+# the system tray - contains various windows
+SystemTray = TaskBar.TrayNotifyWnd
 
-    # the clock is in the system tray
-    Clock = TaskBar.TrayClockWClass
+# the clock is in the system tray
+Clock = TaskBar.TrayClockWClass
 
-    # the show desktop button
-    ShowDesktop = TaskBar.TrayShowDesktopButtonWClass
+# the show desktop button
+ShowDesktop = TaskBar.TrayShowDesktopButtonWClass
 
-    # these are the icons - what people normally think of
-    # as the system tray
-    SystemTrayIcons = TaskBar.NotificationAreaToolbar
+# these are the icons - what people normally think of
+# as the system tray
+SystemTrayIcons = TaskBar.NotificationAreaToolbar
 
-    # the toolbar with the running applications
-    RunningApplications = TaskBar.MSTaskListWClass
+# the toolbar with the running applications
+RunningApplications = TaskBar.MSTaskListWClass
 
-    # the language bar
-    try:
-        LangPanel = TaskBar.CiceroUIWndFrame.Wait('exists', 0.1) # Win7
-    except Exception:
-        LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
+# the language bar
+try:
+    LangPanel = TaskBar.CiceroUIWndFrame.Wait('exists', 0.1) # Win7
+except Exception:
+    LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 
-    # the hidden tray icons button (TODO: think how to optimize)
-    ShowHiddenIconsButton = \
-        [ch for ch in TaskBar.children() if ch.friendly_class_name() == 'Button'][-1]
+# the hidden tray icons button (TODO: think how to optimize)
+ShowHiddenIconsButton = \
+    [ch for ch in TaskBar.children() if ch.friendly_class_name() == 'Button'][-1]

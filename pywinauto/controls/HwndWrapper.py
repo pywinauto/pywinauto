@@ -41,7 +41,6 @@ import win32process
 # the following makes the import optional.
 
 from .. import win32functions
-
 from ..actionlogger import ActionLogger
 
 # I leave this optional because PIL is a large dependency
@@ -53,8 +52,6 @@ except ImportError:
 from .. import six
 from .. import win32defines
 from .. import win32structures
-
-
 from ..timings import Timings
 from .. import timings
 

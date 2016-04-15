@@ -27,17 +27,11 @@ from __future__ import unicode_literals
 import re
 import ctypes
 
-import six
-try:
-    from . import win32functions
-    from . import win32structures
-    from . import findbestmatch
-except ImportError:
-    pass
-
+from . import six
+from . import win32functions
+from . import win32structures
+from . import findbestmatch
 from . import controls
-
-
 from .backend import registry
 
 

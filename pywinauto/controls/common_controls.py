@@ -49,7 +49,7 @@ from .. import win32defines
 from .. import win32structures
 from .. import findbestmatch
 from ..RemoteMemoryBlock import RemoteMemoryBlock
-from pywinauto.controls import HwndWrapper as HwndWrapper
+from . import HwndWrapper
 
 from ..timings import Timings
 from ..timings import WaitUntil
