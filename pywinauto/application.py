@@ -91,7 +91,7 @@ class ProcessNotFoundError(Exception):
 
 class AppNotConnected(Exception):
 
-    """Application has been connected to a process yet"""
+    """Application has not been connected to a process yet"""
     pass    #pragma: no cover
 
 
