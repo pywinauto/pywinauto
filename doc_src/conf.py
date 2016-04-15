@@ -73,8 +73,14 @@ sys.path.append('..')
 # ones.
 extensions = ['sphinx.ext.autodoc']#, 'rst2pdf.pdfbuilder']
 
-import __builtin__
-ttt = __builtin__.__import__
+try:
+    import builtins
+    builtin_module = builtins
+except ImportError:
+    import __builtin__
+    builtin_module = __builtin__
+
+ttt = builtin_module.__import__
 def mocked_import(name, globals={}, locals={}, fromlist=[], level=0):
     #print name
     #print fromlist
@@ -85,7 +91,7 @@ def mocked_import(name, globals={}, locals={}, fromlist=[], level=0):
     else:
         #print 'doing import for' + str(name) + str(fromlist)
         return ttt(name, globals, locals, fromlist, level)
-__builtin__.__import__ = mocked_import
+builtin_module.__import__ = mocked_import
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
