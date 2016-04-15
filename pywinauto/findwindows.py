@@ -26,12 +26,15 @@ from __future__ import unicode_literals
 
 import re
 import ctypes
-import six
 
-import win32functions
-import win32structures
-import findbestmatch
-import controls
+from . import six
+try:
+    from . import win32functions
+    from . import win32structures
+    from . import findbestmatch
+except ImportError:
+    pass
+from . import controls
 
 
 from .backend import registry
