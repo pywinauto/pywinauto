@@ -27,13 +27,14 @@ from __future__ import unicode_literals
 import re
 import ctypes
 
-from . import six
+import six
 try:
     from . import win32functions
     from . import win32structures
     from . import findbestmatch
 except ImportError:
     pass
+
 from . import controls
 
 

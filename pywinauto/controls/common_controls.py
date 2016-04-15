@@ -42,17 +42,11 @@ import ctypes
 import warnings
 import locale
 
-from mock import mock
-
 from .. import sysinfo
 from .. import six
-try:
-    from .. import win32functions
-    from .. import win32defines
-    from .. import win32structures
-except ImportError:
-    win32structures = mock.MagicMock()
-    pass
+from .. import win32functions
+from .. import win32defines
+from .. import win32structures
 from .. import findbestmatch
 from ..RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.controls import HwndWrapper as HwndWrapper

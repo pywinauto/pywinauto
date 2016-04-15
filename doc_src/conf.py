@@ -12,19 +12,14 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-
+import importlib
+import imp
 import sys
 import os
 
 import mock
 import re
 
-
-class Mock(object):
-    def __init__(self, *args):
-        pass
-    def __getattr__(self, item):
-        return Mock
 
 for mod_name in [
         'win32api',
@@ -54,6 +49,8 @@ for mod_name in [
 
     sys.modules[mod_name] = mock.MagicMock()
 
+import sys
+
 # sys.path.append('.')
 sys.path.append('..')
 #
@@ -74,7 +71,21 @@ sys.path.append('..')
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'rst2pdf.pdfbuilder']
+extensions = ['sphinx.ext.autodoc']
+
+import __builtin__
+ttt = __builtin__.__import__
+def mocked_import(name, globals={}, locals={}, fromlist=[], level=0):
+    #print name
+    #print fromlist
+    banned_modules = ['win32structures', 'win32functions', 'win32defines']
+    is_good_fromlist = isinstance(fromlist, list) or isinstance(fromlist, tuple)
+    if name in banned_modules or (is_good_fromlist and [x for x in fromlist if x in banned_modules]):
+        return mock.MagicMock()
+    else:
+        #print 'doing import for' + str(name) + str(fromlist)
+        return ttt(name, globals, locals, fromlist, level)
+__builtin__.__import__ = mocked_import
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
