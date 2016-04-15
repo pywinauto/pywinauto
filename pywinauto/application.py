@@ -272,7 +272,6 @@ class WindowSpecification(object):
         Both this and :func:`__getattribute__` use the rules outlined in the
         HowTo document.
         """
-
         # if we already have 2 levels of criteria (dlg, control)
         # then resolve the control and do a getitem on it for the
         if len(self.criteria) == 2:
@@ -357,7 +356,6 @@ class WindowSpecification(object):
         :param retry_interval: The control is checked for existance this number
                     of seconds. ``Defaults to Timings.exists_retry``
         """
-
         # set the current timings -couldn't set as defaults as they are
         # evaluated at import time - and timings may be changed at any time
         if timeout is None:
@@ -392,7 +390,6 @@ class WindowSpecification(object):
         """
         Both methods Wait & WaitNot have the same args handling and they are not trivial, move it here.
         """
-
         # set the current timings -couldn't set as defaults as they are
         # evaluated at import time - and timings may be changed at any time
         if timeout is None:
@@ -472,7 +469,6 @@ class WindowSpecification(object):
 
            :func:`pywinauto.timings.TimeoutError`
         """
-
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
         WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
 
@@ -510,7 +506,6 @@ class WindowSpecification(object):
 
            :func:`pywinauto.timings.TimeoutError`
         """
-
         check_method_names, timeout, retry_interval = \
             self.__parse_wait_args(wait_for_not, timeout, retry_interval)
         WaitUntil(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
@@ -1006,20 +1001,20 @@ class Application(object):
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
-        hProcess = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
+        h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
         
-        times_dict = win32process.GetProcessTimes(hProcess)
+        times_dict = win32process.GetProcessTimes(h_process)
         UserTime_start, KernelTime_start = times_dict['UserTime'], times_dict['KernelTime']
         
         time.sleep(interval)
         
-        times_dict = win32process.GetProcessTimes(hProcess)
+        times_dict = win32process.GetProcessTimes(h_process)
         UserTime_end, KernelTime_end = times_dict['UserTime'], times_dict['KernelTime']
         
         total_time = (UserTime_end - UserTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND + \
                      (KernelTime_end - KernelTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND
         
-        win32api.CloseHandle(hProcess)
+        win32api.CloseHandle(h_process)
         return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
 
     # Non PEP-8 alias
