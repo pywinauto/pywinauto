@@ -82,16 +82,19 @@ from .sysinfo import is_x64_Python
 class AppStartError(Exception):
 
     """There was a problem starting the Application"""
+
     pass    #pragma: no cover
 
 class ProcessNotFoundError(Exception):
 
     """Could not find that process"""
+
     pass    #pragma: no cover
 
 class AppNotConnected(Exception):
 
     """Application has not been connected to a process yet"""
+
     pass    #pragma: no cover
 
 
@@ -130,7 +133,6 @@ class WindowSpecification(object):
 
         :param search_criteria: the criteria to match a dialog
         """
-
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
             search_criteria['backend'] = registry.active_backend.name
@@ -250,6 +252,7 @@ class WindowSpecification(object):
     ChildWindow = child_window
 
     def Window_(self, **criteria):
+        """Deprecated alias of child_window()"""
         warnings.warn(
             "WindowSpecification.Window() WindowSpecification.Window_(), "
             "WindowSpecification.window() and WindowSpecification.window_() "
@@ -387,9 +390,7 @@ class WindowSpecification(object):
 
     @classmethod
     def __parse_wait_args(cls, wait_conditions, timeout, retry_interval):
-        """
-        Both methods Wait & WaitNot have the same args handling and they are not trivial, move it here.
-        """
+        """Both methods wait & wait_not have the same args handling"""
         # set the current timings -couldn't set as defaults as they are
         # evaluated at import time - and timings may be changed at any time
         if timeout is None:
@@ -419,6 +420,7 @@ class WindowSpecification(object):
     def __check_all_conditions(self, check_names):
         """
         Checks for all conditions
+
         If any check's result != True return False immediately, do not matter others check results.
         True will be returned when all checks passed and all of them equal True.
         """
@@ -616,7 +618,7 @@ cur_item = 0
 
 def _resolve_from_appdata(
     criteria_, app, timeout = None, retry_interval = None):
-    "Should not be used at the moment!"
+    """Should not be used at the moment!"""
     # TODO: take a look into this functionality
 
     if timeout is None:
@@ -1172,7 +1174,6 @@ class Application(object):
         this should only be used when it is OK to kill the process like you
         would in task manager.
         """
-
         windows = self.windows_(visible_only = True)
 
         for win in windows:
@@ -1298,7 +1299,7 @@ def process_from_module(module):
             if process in accessible_processes:
                 return process
             else:
-                raise RuntimeError("Unable to access process with higher priviledge")
+                raise ProcessNotFoundError("Unable to access process with higher priviledge")
 
     message = "Could not find any accessible process with a module of '{0}'".format(module)
     raise ProcessNotFoundError(message)
