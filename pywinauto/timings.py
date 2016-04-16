@@ -319,11 +319,45 @@ def WaitUntil(
             
     return func_val
 
+#=========================================================================
+def wait_until(
+    timeout, 
+    retry_interval, 
+    value = True, 
+    op = operator.eq):
+    
+    """
+	WaitUntil decorator 
+    """
+    
+    def wait_until_decorator(func):		
+        def wrapped(*args):
+	
+            start = time.time()
 
+            func_val = func(*args)
+            # while the function hasn't returned what we are waiting for    
+            while not op(func_val, value):         
+                # find out how much of the time is left
+                time_left = timeout - ( time.time() - start)
+    
+                # if we have to wait some more        
+                if time_left > 0:
+                    # wait either the retry_interval or else the amount of
+                    # time until the timeout expires (whichever is less)
+                    time.sleep(min(retry_interval, time_left))
+                    func_val = func(*args)
+                else:
+                    err = TimeoutError("timed out")
+                    err.function_value = func_val
+                    raise err            
+            return func_val			
+        return wrapped
+    return wait_until_decorator
+	
 #def WaitUntilNot(timeout, retry_interval, func, value = True)
 #    return WaitUntil(timeout, retry_interval, func, value = True)
     
-
 def WaitUntilPasses(
     timeout, 
     retry_interval, 
@@ -389,3 +423,43 @@ def WaitUntilPasses(
     
     # return the function value
     return func_val
+	
+#=========================================================================
+def wait_until_passes(
+    timeout, 
+    retry_interval, 
+    exceptions = (Exception)):
+    
+    """
+	WaitUntilPasses decorator 
+    """
+    
+    def wait_until_passes_decorator(func):		
+        def wrapped(*args):
+            start = time.time()
+            # keep trying until the timeout is passed
+            while True:
+                try:
+                    # Call the function with any arguments
+                    func_val = func(*args)            
+                    # if this did not raise an exception -then we are finised
+                    break        
+                # An exception was raised - so wait and try again
+                except exceptions as e:        
+                    # find out how much of the time is left
+                    time_left = timeout - ( time.time() - start)        
+                    # if we have to wait some more        
+                    if time_left > 0:
+                        # wait either the retry_interval or else the amount of
+                        # time until the timeout expires (whichever is less)
+                        time.sleep(min(retry_interval, time_left))
+                    else:
+                        # Raise a TimeoutError - and put the original exception
+                        # inside it
+                        err = TimeoutError()
+                        err.original_exception = e
+                        raise err    
+            # return the function value
+            return func_val		
+        return wrapped
+    return wait_until_passes_decorator
