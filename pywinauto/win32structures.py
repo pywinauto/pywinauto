@@ -379,7 +379,7 @@ class LVITEMW32(Structure):
 
 assert alignment(LVITEMW32) == 4, alignment(LVITEMW32)
 
-
+# Main layout for TVITEM, naturally fits for x86 and x64 archs
 class TVITEMW(Structure):
     #_pack_ = 1
     _fields_ = [
@@ -403,6 +403,7 @@ else:
     assert alignment(TVITEMW) == 4, alignment(TVITEMW)
 
 
+# Additional layout for TVITEM, used in combination 64-bit python + 32-bit app
 class TVITEMW32(Structure):
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755

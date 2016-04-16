@@ -64,17 +64,6 @@ class RemoteMemoryBlockTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, RemoteMemoryBlock, 0)
 
 
-class TestConfigTreeView:
-    def __init__(self, path):
-        self.path = path
-
-    def preprocessing(self):
-        self.app = Application()
-        self.app.start(self.path)
-        self.dlg = self.app.MicrosoftControlSpy
-        self.ctrl = self.app.MicrosoftControlSpy.TreeView.WrapperObject()
-
-
 class ListViewTestCases(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
 
@@ -465,8 +454,10 @@ class ListViewTestCases(unittest.TestCase):
         self.assertNotEqual(item1, item2)
 
 
-class TreeViewTestCases(unittest.TestCase):
+class TreeViewTestCases32(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
+
+    path = os.path.join(controlspy_folder_32, "Tree View.exe")
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -485,12 +476,10 @@ class TreeViewTestCases(unittest.TestCase):
             ("Pluto",   '5,913,520,000', '2,274', '1.27e22'),
          ]
 
-        if is_x64_Python():
-            self.test_configs = [TestConfigTreeView(os.path.join(controlspy_folder, "Tree View.exe")),
-                                 TestConfigTreeView(os.path.join(controlspy_folder_32, "Tree View.exe"))]
-
-        else:
-            self.test_configs = [TestConfigTreeView(os.path.join(controlspy_folder, "Tree View.exe"))]
+        self.app = Application()
+        self.app.start(self.path)
+        self.dlg = self.app.MicrosoftControlSpy
+        self.ctrl = self.app.MicrosoftControlSpy.TreeView.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -503,125 +492,115 @@ class TreeViewTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        for test_config in self.test_configs:
-            test_config.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
         "Make sure the friendly class is set correctly (TreeView)"
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            self.assertEquals (test_config.ctrl.friendly_class_name(), "TreeView")
+        self.assertEquals (self.ctrl.friendly_class_name(), "TreeView")
 
     def testItemCount(self):
         "Test the TreeView ItemCount method"
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            self.assertEquals (test_config.ctrl.ItemCount(), 37)
+        self.assertEquals (self.ctrl.ItemCount(), 37)
 
 
     def testGetItem(self):
         "Test the GetItem method"
 
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            self.assertRaises(RuntimeError, test_config.ctrl.GetItem, "test\here\please")
+        self.assertRaises(RuntimeError, self.ctrl.GetItem, "test\here\please")
 
-            self.assertRaises(IndexError, test_config.ctrl.GetItem, r"\test\here\please")
+        self.assertRaises(IndexError, self.ctrl.GetItem, r"\test\here\please")
 
-            self.assertEquals(
-                test_config.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
+        self.assertEquals(
+            self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
 
-            self.assertEquals(
-                test_config.ctrl.GetItem(r"\The Planets\Venus\4.869e24 kg", exact=True).Text(), self.texts[1][3] + " kg")
+        self.assertEquals(
+            self.ctrl.GetItem(r"\The Planets\Venus\4.869e24 kg", exact=True).Text(), self.texts[1][3] + " kg")
 
-            self.assertEquals(
-                test_config.ctrl.GetItem(
+        self.assertEquals(
+            self.ctrl.GetItem(
                     ["The Planets", "Venus", "4.869"]).Text(),
-                self.texts[1][3] + " kg")
+            self.texts[1][3] + " kg")
 
 
     def testItemText(self):
         "Test the TreeView item Text() method"
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            self.assertEquals(test_config.ctrl.Root().Text(), self.root_text)
+        self.assertEquals(self.ctrl.Root().Text(), self.root_text)
 
-            self.assertEquals(
-                test_config.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
+        self.assertEquals(
+            self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
 
     def testSelect(self):
         "Test selecting an item"
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            test_config.ctrl.Select((0, 1, 2))
 
-            test_config.ctrl.GetItem((0, 1, 2)).State()
+        self.ctrl.Select((0, 1, 2))
 
-            self.assertEquals(True, test_config.ctrl.IsSelected((0, 1, 2)))
+        self.ctrl.GetItem((0, 1, 2)).State()
+
+        self.assertEquals(True, self.ctrl.IsSelected((0, 1, 2)))
 
 
     def testEnsureVisible(self):
         "make sure that the item is visible"
 
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            # note this is partially a fake test at the moment because
-            # just by getting an item - we usually make it visible
-            test_config.ctrl.EnsureVisible((0, 8, 2))
+        # note this is partially a fake test at the moment because
+        # just by getting an item - we usually make it visible
+        self.ctrl.EnsureVisible((0, 8, 2))
 
-            # make sure that the item is not hidden
-            self.assertNotEqual(None, test_config.ctrl.GetItem((0, 8, 2)).rectangle())
+        # make sure that the item is not hidden
+        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).rectangle())
 
 
     def testGetProperties(self):
         "Test getting the properties for the treeview control"
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            props  = test_config.ctrl.GetProperties()
+        props  = self.ctrl.GetProperties()
 
-            self.assertEquals(
-                "TreeView", props['friendly_class_name'])
+        self.assertEquals(
+            "TreeView", props['friendly_class_name'])
 
-            self.assertEquals(
-                test_config.ctrl.texts(), props['texts'])
+        self.assertEquals(
+            self.ctrl.texts(), props['texts'])
 
-            for prop_name in props:
-                self.assertEquals(getattr(test_config.ctrl, prop_name)(), props[prop_name])
+        for prop_name in props:
+            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemsClick(self):
         "Test clicking of items and sub-items in the treeview control"
 
-        for test_config in self.test_configs:
-            test_config.preprocessing()
-            planets_item_path = (0, 0)
-            mercury_diam_item_path = (0, 0, 1)
-            mars_dist_item_path = (0, 3, 0)
+        planets_item_path = (0, 0)
+        mercury_diam_item_path = (0, 0, 1)
+        mars_dist_item_path = (0, 3, 0)
 
-            itm = test_config.ctrl.GetItem(planets_item_path)
-            itm.EnsureVisible()
-            time.sleep(1)
-            itm.Click(button='left')
-            self.assertEquals(True, test_config.ctrl.IsSelected(planets_item_path))
+        itm = self.ctrl.GetItem(planets_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
 
-            itm = test_config.ctrl.GetItem(mars_dist_item_path)
-            itm.EnsureVisible()
-            time.sleep(1)
-            itm.Click(button='left')
-            self.assertEquals(True, test_config.ctrl.IsSelected(mars_dist_item_path))
+        itm = self.ctrl.GetItem(mars_dist_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(mars_dist_item_path))
 
-            itm = test_config.ctrl.GetItem(mercury_diam_item_path)
-            itm.EnsureVisible()
-            time.sleep(1)
-            itm.Click(button='left')
-            self.assertEquals(True, test_config.ctrl.IsSelected(mercury_diam_item_path))
-            self.assertEquals(False, test_config.ctrl.IsSelected(mars_dist_item_path))
+        itm = self.ctrl.GetItem(mercury_diam_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(mercury_diam_item_path))
+        self.assertEquals(False, self.ctrl.IsSelected(mars_dist_item_path))
 
-            itm = test_config.ctrl.GetItem(planets_item_path)
-            itm.EnsureVisible()
-            time.sleep(1)
-            itm.Click(button='left')
-            self.assertEquals(True, test_config.ctrl.IsSelected(planets_item_path))
-            self.assertEquals(False, test_config.ctrl.IsSelected(mercury_diam_item_path))
+        itm = self.ctrl.GetItem(planets_item_path)
+        itm.EnsureVisible()
+        time.sleep(1)
+        itm.Click(button='left')
+        self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
+        self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
+
+
+if is_x64_Python():
+
+    class TreeViewTestCases64(TreeViewTestCases32):
+        path = os.path.join(controlspy_folder, "Tree View.exe")
 
 
 class TreeViewAdditionalTestCases(unittest.TestCase):
