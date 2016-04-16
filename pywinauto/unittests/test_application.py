@@ -853,12 +853,14 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertTrue(len(windows) >= 1)
 
 class WaitUntilDecoratorTests(unittest.TestCase):
-    """Unit tests for the always_wait_until decorator"""
-
+    """Unit tests for always_wait_until and 
+	always_wait_until_passes decorators
+	"""
+    
     def test_always_wait_until_decorator_success(self):
         """Test always_wait_until_decorator success"""
         
-        @always_wait_until(30, 10)
+        @always_wait_until(4, 2)
         def foo():
             return True
         self.assertTrue(foo())
@@ -866,7 +868,7 @@ class WaitUntilDecoratorTests(unittest.TestCase):
     def test_always_wait_until_decorator_failure(self):
         """Test wait_until_decorator failure"""
         
-        @always_wait_until(20, 10)
+        @always_wait_until(4, 2)
         def foo():
             pass
         self.assertRaises(TimeoutError, foo())
@@ -874,7 +876,7 @@ class WaitUntilDecoratorTests(unittest.TestCase):
     def test_always_wait_until_passes_decorator_success(self):
         """Test always_wait_until_passes_decorator success"""
         
-        @always_wait_until_passes(30, 10)
+        @always_wait_until_passes(4, 2)
         def foo():
             return True
         self.assertTrue(foo())
@@ -882,7 +884,7 @@ class WaitUntilDecoratorTests(unittest.TestCase):
     def test_always_wait_until_passes_decorator_failure(self):
         """Test always_wait_until_passes_decorator failure"""
         
-        @always_wait_until_passes(30, 10)
+        @always_wait_until_passes(4, 2)
         def foo():
             raise Exception()
         self.assertRaises(Exception, foo())

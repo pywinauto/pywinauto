@@ -268,11 +268,12 @@ def always_wait_until(
     retry_interval, 
     value = True, 
     op = operator.eq):
-    
+    """Decorator for wait_until"""
     def wait_until_decorator(func):
+        """Real decorator for wait_until"""
         @wraps(func)
-        def wrapped(*args):
-	
+        def wrapper(*args):
+            """Wrapper function"""
             start = time.time()
 
             func_val = func(*args)
@@ -290,10 +291,10 @@ def always_wait_until(
                 else:
                     err = TimeoutError("timed out")
                     err.function_value = func_val
-                    raise err            
-            return func_val			
-        return wrapped
-    return wait_until_decorator	
+                    raise err
+            return func_val
+        return wrapper
+    return wait_until_decorator
 
 #=========================================================================
 def wait_until(
@@ -303,7 +304,6 @@ def wait_until(
     value = True, 
     op = operator.eq,
     *args):
-        
     """Wait until ``op(function(*args), value)`` is True or until timeout 
        expires
     
@@ -327,13 +327,13 @@ def wait_until(
          WaitUntil(10.5, .5, self.item_count, 10)
       except TimeoutError as e:
          print("timed out")
-     
-    """
     
+    """    
     return always_wait_until(timeout, retry_interval, value, op)(func)(*args)
-    	
-    WaitUntil = wait_until 
-	
+
+# Non PEP-8 alias
+WaitUntil = wait_until
+
 #def WaitUntilNot(timeout, retry_interval, func, value = True)
 #    return WaitUntil(timeout, retry_interval, func, value = True)
 
@@ -341,11 +341,14 @@ def wait_until(
 def always_wait_until_passes(
     timeout, 
     retry_interval, 
-    exceptions = (Exception)):
-    
+
+    exceptions = (Exception)):    
+    """Decorator for wait_until_passes"""
     def wait_until_passes_decorator(func):
+        """Real decorator for wait_until"""
         @wraps(func)
-        def wrapped(*args):
+        def wrapper(*args):
+            """Wrapper function"""
             start = time.time()
             # keep trying until the timeout is passed
             while True:
@@ -370,8 +373,8 @@ def always_wait_until_passes(
                         err.original_exception = e
                         raise err    
             # return the function value
-            return func_val		
-        return wrapped
+            return func_val
+        return wrapper
     return wait_until_passes_decorator
 
 #=========================================================================
@@ -380,8 +383,7 @@ def wait_until_passes(
     retry_interval, 
     func, 
     exceptions = (Exception),
-    *args):	
-    
+    *args):
     """Wait until ``func(*args)`` does not raise one of the exceptions in 
        exceptions
     
@@ -405,9 +407,9 @@ def wait_until_passes(
       except TimeoutError as e:
          print("timed out")
          raise e.
-     
-    """
     
+    """    
     return always_wait_until_passes(timeout, retry_interval, exceptions)(func)(*args)
-    
-    WaitUntilPasses = wait_until_passes
+
+# Non PEP-8 alias   
+WaitUntilPasses = wait_until_passes
