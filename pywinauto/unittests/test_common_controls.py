@@ -64,15 +64,17 @@ class RemoteMemoryBlockTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, RemoteMemoryBlock, 0)
 
 
-class ListViewTestCases(unittest.TestCase):
+class ListViewTestCases32(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
+
+    path = os.path.join(mfc_samples_folder_32, u"RowList.exe")
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
         app = Application()
-        app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        app.start(self.path)
 
         self.texts = [
             (u"Yellow",  u"255", u"255", u"0",   u"40",  u"240", u"120", u"Neutral"),
@@ -452,6 +454,12 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEqual(item1, item1_copy)
         self.assertNotEqual(item1, "Not _listview_item")
         self.assertNotEqual(item1, item2)
+
+
+if is_x64_Python():
+
+    class ListViewTestCases64(ListViewTestCases32):
+        path = os.path.join(mfc_samples_folder, u"RowList.exe")
 
 
 class TreeViewTestCases32(unittest.TestCase):
