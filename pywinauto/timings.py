@@ -98,6 +98,7 @@ The Following are the individual timing settings that can be adjusted:
 
 import time
 import operator
+from functools import wraps
 
 
 #=========================================================================
@@ -261,16 +262,48 @@ Timings = TimeConfig()
 class TimeoutError(RuntimeError):
     pass
 
+#=========================================================================
+def always_wait_until(
+    timeout, 
+    retry_interval, 
+    value = True, 
+    op = operator.eq):
+    
+    def wait_until_decorator(func):
+        @wraps(func)
+        def wrapped(*args):
+	
+            start = time.time()
+
+            func_val = func(*args)
+            # while the function hasn't returned what we are waiting for    
+            while not op(func_val, value):         
+                # find out how much of the time is left
+                time_left = timeout - ( time.time() - start)
+    
+                # if we have to wait some more        
+                if time_left > 0:
+                    # wait either the retry_interval or else the amount of
+                    # time until the timeout expires (whichever is less)
+                    time.sleep(min(retry_interval, time_left))
+                    func_val = func(*args)
+                else:
+                    err = TimeoutError("timed out")
+                    err.function_value = func_val
+                    raise err            
+            return func_val			
+        return wrapped
+    return wait_until_decorator	
 
 #=========================================================================
-def WaitUntil(
+def wait_until(
     timeout, 
     retry_interval, 
     func, 
     value = True, 
     op = operator.eq,
     *args):
-    
+        
     """Wait until ``op(function(*args), value)`` is True or until timeout 
        expires
     
@@ -297,144 +330,21 @@ def WaitUntil(
      
     """
     
-    start = time.time()
-
-    func_val = func(*args)
-    # while the function hasn't returned what we are waiting for    
-    while not op(func_val, value):
-            
-        # find out how much of the time is left
-        time_left = timeout - ( time.time() - start)
-    
-        # if we have to wait some more        
-        if time_left > 0:
-            # wait either the retry_interval or else the amount of
-            # time until the timeout expires (whichever is less)
-            time.sleep(min(retry_interval, time_left))
-            func_val = func(*args)
-        else:
-            err = TimeoutError("timed out")
-            err.function_value = func_val
-            raise err
-            
-    return func_val
-
-#=========================================================================
-def wait_until(
-    timeout, 
-    retry_interval, 
-    value = True, 
-    op = operator.eq):
-    
-    """
-	WaitUntil decorator 
-    """
-    
-    def wait_until_decorator(func):		
-        def wrapped(*args):
-	
-            start = time.time()
-
-            func_val = func(*args)
-            # while the function hasn't returned what we are waiting for    
-            while not op(func_val, value):         
-                # find out how much of the time is left
-                time_left = timeout - ( time.time() - start)
-    
-                # if we have to wait some more        
-                if time_left > 0:
-                    # wait either the retry_interval or else the amount of
-                    # time until the timeout expires (whichever is less)
-                    time.sleep(min(retry_interval, time_left))
-                    func_val = func(*args)
-                else:
-                    err = TimeoutError("timed out")
-                    err.function_value = func_val
-                    raise err            
-            return func_val			
-        return wrapped
-    return wait_until_decorator
+    return always_wait_until(timeout, retry_interval, value, op)(func)(*args)
+    	
+    WaitUntil = wait_until 
 	
 #def WaitUntilNot(timeout, retry_interval, func, value = True)
 #    return WaitUntil(timeout, retry_interval, func, value = True)
-    
-def WaitUntilPasses(
-    timeout, 
-    retry_interval, 
-    func, 
-    exceptions = (Exception),
-    *args):
 
-    """Wait until ``func(*args)`` does not raise one of the exceptions in 
-       exceptions
-    
-     * **timeout**  how long the function will try the function
-     * **retry_interval**  how long to wait between retries
-     * **func** the function that will be executed
-     * **exceptions**  list of exceptions to test against (default: Exception)
-     * **args** optional arguments to be passed to func when called
-     
-     Returns the return value of the function
-     If the operation times out then the original exception raised is in
-     the 'original_exception' attribute of the raised exception.
-     
-     e.g. ::
-     
-      try:
-         # wait a maximum of 10.5 seconds for the 
-         # window to be found in increments of .5 of a second.
-         # P.int a message and re-raise the original exception if never found.
-         WaitUntilPasses(10.5, .5, self.Exists, (ElementNotFoundError))
-      except TimeoutError as e:
-         print("timed out")
-         raise e.
-     
-    """
-    
-    start = time.time()
-
-    # keep trying until the timeout is passed
-    while True:
-        try:
-            # Call the function with any arguments
-            func_val = func(*args)
-            
-            # if this did not raise an exception -then we are finised
-            break
-        
-        # An exception was raised - so wait and try again
-        except exceptions as e:
-        
-            # find out how much of the time is left
-            time_left = timeout - ( time.time() - start)
-        
-            # if we have to wait some more        
-            if time_left > 0:
-                # wait either the retry_interval or else the amount of
-                # time until the timeout expires (whichever is less)
-                time.sleep(min(retry_interval, time_left))
-
-            else:
-                # Raise a TimeoutError - and put the original exception
-                # inside it
-                err = TimeoutError()
-                err.original_exception = e
-                raise err
-    
-    # return the function value
-    return func_val
-	
 #=========================================================================
-def wait_until_passes(
+def always_wait_until_passes(
     timeout, 
     retry_interval, 
     exceptions = (Exception)):
     
-    """
-	WaitUntilPasses decorator 
-    """
-    
-    def wait_until_passes_decorator(func):		
+    def wait_until_passes_decorator(func):
+        @wraps(func)
         def wrapped(*args):
             start = time.time()
             # keep trying until the timeout is passed
@@ -463,3 +373,41 @@ def wait_until_passes(
             return func_val		
         return wrapped
     return wait_until_passes_decorator
+
+#=========================================================================
+def wait_until_passes(
+    timeout, 
+    retry_interval, 
+    func, 
+    exceptions = (Exception),
+    *args):	
+    
+    """Wait until ``func(*args)`` does not raise one of the exceptions in 
+       exceptions
+    
+     * **timeout**  how long the function will try the function
+     * **retry_interval**  how long to wait between retries
+     * **func** the function that will be executed
+     * **exceptions**  list of exceptions to test against (default: Exception)
+     * **args** optional arguments to be passed to func when called
+     
+     Returns the return value of the function
+     If the operation times out then the original exception raised is in
+     the 'original_exception' attribute of the raised exception.
+     
+     e.g. ::
+     
+      try:
+         # wait a maximum of 10.5 seconds for the 
+         # window to be found in increments of .5 of a second.
+         # P.int a message and re-raise the original exception if never found.
+         WaitUntilPasses(10.5, .5, self.Exists, (ElementNotFoundError))
+      except TimeoutError as e:
+         print("timed out")
+         raise e.
+     
+    """
+    
+    return always_wait_until_passes(timeout, retry_interval, exceptions)(func)(*args)
+    
+    WaitUntilPasses = wait_until_passes

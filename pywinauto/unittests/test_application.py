@@ -852,6 +852,41 @@ class WindowSpecificationTestCases(unittest.TestCase):
         windows = findwindows.find_elements(title_re = "Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
 
+class WaitUntilDecoratorTests(unittest.TestCase):
+    """Unit tests for the always_wait_until decorator"""
+
+    def test_always_wait_until_decorator_success(self):
+        """Test always_wait_until_decorator success"""
+        
+        @always_wait_until(30, 10)
+        def foo():
+            return True
+        self.assertTrue(foo())
+		
+    def test_always_wait_until_decorator_failure(self):
+        """Test wait_until_decorator failure"""
+        
+        @always_wait_until(20, 10)
+        def foo():
+            pass
+        self.assertRaises(TimeoutError, foo())
+		
+    def test_always_wait_until_passes_decorator_success(self):
+        """Test always_wait_until_passes_decorator success"""
+        
+        @always_wait_until_passes(30, 10)
+        def foo():
+            return True
+        self.assertTrue(foo())
+		
+    def test_always_wait_until_passes_decorator_failure(self):
+        """Test always_wait_until_passes_decorator failure"""
+        
+        @always_wait_until_passes(30, 10)
+        def foo():
+            raise Exception()
+        self.assertRaises(Exception, foo())
+		
 if __name__ == "__main__":
     #_unittests()
 
