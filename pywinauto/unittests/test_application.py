@@ -276,12 +276,11 @@ class ApplicationTestCases(unittest.TestCase):
             app_conn.connect(path=r"c:\windows\syswow64\notepad.exe")
         self.assertEqual(app1.process, app_conn.process)
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
-        
         accessible_modules = process_get_modules()
         accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
+        self.assertEquals('notepad.exe' in accessible_process_names, True)
 
-        self.assertEquals('explorer.exe' in accessible_process_names, True)
+        app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
 #    def test_Connect(self):
 #        """Test that connect_() works with a path"""
