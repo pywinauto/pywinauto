@@ -38,11 +38,20 @@ import warnings
 sys.path.append(".")
 from pywinauto import application
 from pywinauto.controls import HwndWrapper
-from pywinauto.application import Application, WindowSpecification, process_module
-from pywinauto.application import ProcessNotFoundError, AppStartError, AppNotConnected
-from pywinauto import findwindows, findbestmatch
-from pywinauto.timings import Timings, TimeoutError, WaitUntil
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto.application import Application
+from pywinauto.application import WindowSpecification
+from pywinauto.application import process_module
+from pywinauto.application import process_get_modules
+from pywinauto.application import ProcessNotFoundError
+from pywinauto.application import AppStartError
+from pywinauto.application import AppNotConnected
+from pywinauto import findwindows
+from pywinauto import findbestmatch
+from pywinauto.timings import Timings
+from pywinauto.timings import TimeoutError
+from pywinauto.timings import WaitUntil
+from pywinauto.sysinfo import is_x64_Python
+from pywinauto.sysinfo import is_x64_OS
 from pywinauto import backend
 
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
@@ -269,7 +278,10 @@ class ApplicationTestCases(unittest.TestCase):
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
         
-        self.assertRaises(ProcessNotFoundError, Application().connect, path='svchost.exe')
+        accessible_modules = process_get_modules()
+        accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
+
+        self.assertEquals('explorer.exe' in accessible_process_names, True)
 
 #    def test_Connect(self):
 #        """Test that connect_() works with a path"""

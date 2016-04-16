@@ -1283,23 +1283,16 @@ def process_from_module(module):
         modules = _process_get_modules_wmi()
     except Exception:
         modules = process_get_modules()
-    
-    accessible_modules = process_get_modules()
 
     # check for a module with a matching name in reverse order
     # as we are most likely to want to connect to the last
     # run instance
     modules.reverse()
-    accessible_modules.reverse()
-    accessible_processes = [process for process, name, cmdline in accessible_modules]
     for process, name, cmdline in modules:
         if name is None:
             continue
         if module_path.lower() in name.lower():
-            if process in accessible_processes:
-                return process
-            else:
-                raise ProcessNotFoundError("Unable to access process with higher priviledge")
+            return process
 
     message = "Could not find any accessible process with a module of '{0}'".format(module)
     raise ProcessNotFoundError(message)
