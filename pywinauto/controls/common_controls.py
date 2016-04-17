@@ -3293,6 +3293,86 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
+    #----------------------------------------------------------------
+    def __init__(self, hwnd):
+        "Initialise the instance"
+        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
+        super(CalendarWrapper, self).__init__(hwnd)
+    #----------------------------------------------------------------
+    def get_current_date(self):
+        "Get the currently selected date"
+        
+        remote_mem = RemoteMemoryBlock(self)
+        system_date = win32structures.SYSTEMTIME()
+        remote_mem.Write(system_date)
+        
+        res = self.send_message(win32defines.MCM_GETCURSEL , 0, remote_mem)
+        remote_mem.Read(system_date)
+        del remote_mem
+        
+        if res == 0:
+            raise RuntimeError('Failed to get time in Calendar')
+        
+        #year = system_time.wYear
+        #month = system_time.wMonth
+        #day_of_week = system_time.wDayOfWeek
+        #day = system_time.wDay
+        #hour = system_time.wHour
+        #minute = system_time.wMinute
+        #second = system_time.wSecond
+        #milliseconds = system_time.wMilliseconds
+        #return (year, month, day_of_week, day, hour, minute, second, milliseconds)
+        return system_date
+    # Non PEP-8 alias
+    GetCurrentDate = get_current_date
+    #----------------------------------------------------------------
+    def set_date(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
+        "Set the currently selected date"
+        
+        remote_mem = RemoteMemoryBlock(self)
+        system_time = win32structures.SYSTEMTIME()
+        
+        system_time.wYear = year
+        system_time.wMonth = month
+        system_time.wDayOfWeek = day_of_week
+        system_time.wDay = day
+        system_time.wHour = hour
+        system_time.wMinute = minute
+        system_time.wSecond = second
+        system_time.wMilliseconds = milliseconds
+        
+        remote_mem.Write(system_time)
+        
+        res = self.send_message(win32defines.MCM_SETCURSEL, win32defines.GDT_VALID, remote_mem)
+        del remote_mem
+        
+        if res == 0:
+            raise RuntimeError('Failed to set time in Calendar')
+    # Non PEP-8 alias
+    SetDate = set_date
+    def get_calendar_border(self):
+        "Get the calendar_border"
+        remote_mem = RemoteMemoryBlock(self)
+
+        # get the borders for each of the areas there can be a border.
+        borders = (ctypes.c_int*3)()
+        remote_mem.Write(borders)
+        res = self.send_message(win32defines.MCM_GETCALENDARBORDER, remote_mem)
+        
+        if res == 0:
+            raise RuntimeError('Failed to set time in Calendar')
+
+        borders = remote_mem.Read(borders)
+        borders_widths = {}
+        borders_widths['Horizontal'] = borders[0]
+        borders_widths['Vertical'] = borders[1]
+        borders_widths['Inter'] = borders[2]
+
+        del remote_mem
+
+        return borders_widths
+    # Non PEP-8 alias
+    GetCalendarBorderWidths = get_calendar_border
 
 
 #====================================================================
