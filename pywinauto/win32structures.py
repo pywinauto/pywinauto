@@ -792,17 +792,17 @@ else:
 
 
 class TBBUTTON32(Structure):
-        #_pack_ = 1
-        _fields_ = [
-            # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
-            ('iBitmap', c_int),
-            ('idCommand', c_int),
-            ('fsState', BYTE),
-            ('fsStyle', BYTE),
-            ('bReserved', BYTE * 2),
-            ('dwData', UINT), # must be 4 bytes in 32-bit app
-            ('iString', UINT), # must be 4 bytes in 32-bit app
-        ]
+    #_pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+        ('iBitmap', c_int),
+        ('idCommand', c_int),
+        ('fsState', BYTE),
+        ('fsStyle', BYTE),
+        ('bReserved', BYTE * 2),
+        ('dwData', UINT), # must be 4 bytes in 32-bit app
+        ('iString', UINT), # must be 4 bytes in 32-bit app
+    ]
 assert sizeof(TBBUTTON32) == 20, sizeof(TBBUTTON32)
 assert alignment(TBBUTTON32) == 4, alignment(TBBUTTON32)
 
