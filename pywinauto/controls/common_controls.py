@@ -675,7 +675,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         if self.is_unicode():
             self.create_buffer = ctypes.create_unicode_buffer
 
-            if is64bitprocess(hwnd.process_id) or not is_x64_Python():
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
                 self.LVCOLUMN       = win32structures.LVCOLUMNW
                 self.LVITEM         = win32structures.LVITEMW
             else:
@@ -688,7 +688,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         else:
             self.create_buffer = ctypes.create_string_buffer
 
-            if is64bitprocess(hwnd.process_id) or not is_x64_Python():
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
                 self.LVCOLUMN       = win32structures.LVCOLUMNW
                 self.LVITEM         = win32structures.LVITEMW
             else:
