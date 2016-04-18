@@ -3355,7 +3355,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         "Get the calendar_border"
         return self.send_message(win32defines.MCM_GETCALENDARBORDER, 0,0)
     # Non PEP-8 alias
-    GetCalendarBorderWidths = get_calendar_border
+    GetCalendarBorderWidth = get_calendar_border
 
     def set_calendar_border(self, border):
         "Set the calendar_border"
@@ -3363,8 +3363,14 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         
        
     # Non PEP-8 alias
-    SetCalendarBorderWidths = set_calendar_border
+    SetCalendarBorderWidth = set_calendar_border
 
+    def get_calendars_cout(self):
+        "Get the calendar_border"
+        return self.send_message(win32defines.MCM_GETCALENDARCOUNT, 0,0)
+    # Non PEP-8 alias
+    GetCalendarsCount  = get_calendars_cout
+# MCM_GETCALENDARCOUNT
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "

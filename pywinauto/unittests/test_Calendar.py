@@ -60,13 +60,16 @@ class CalendarWrapperTests(unittest.TestCase):
                                                 datetime.date(2016, 4, 13)) 
 
     def testCanGetCalendarBorder(self):
-        width = self.calendar.GetCalendarBorderWidths()
+        width = self.calendar.GetCalendarBorderWidth()
         self.assertEqual(width,4)
 
     def testCanSetCalendarBorder(self):
-        self.calendar.SetCalendarBorderWidths(6)
-        self.assertEqual(self.calendar.GetCalendarBorderWidths(), 6)
+        self.calendar.SetCalendarBorderWidth(6)
+        self.assertEqual(self.calendar.GetCalendarBorderWidth(), 6)
 
+    def testCanGetCalendarsCount(self):
+        count = self.calendar.GetCalendarsCount()
+        self.assertEqual(count, 1)
 
 
     def assertThatSystemTimeIsEqualCurrentDateTime(self,systemTime, now):        
