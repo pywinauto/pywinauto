@@ -3370,6 +3370,21 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return self.send_message(win32defines.MCM_GETCALENDARCOUNT, 0,0)
     # Non PEP-8 alias
     GetCalendarsCount  = get_calendars_cout
+
+    def get_calendar_view(self):
+        "Get the calendar_view"
+        return self.send_message(win32defines.MCM_GETCURRENTVIEW, 0,0)
+    # Non PEP-8 alias
+    GetCalendarView  = get_calendar_view
+  
+    def set_calendar_view(self, viewType):
+        "Set the calendar_view"
+        res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
+        if res == 0:
+            raise RuntimeError('Failed to set view in Calendar')
+    # Non PEP-8 alias
+    SetCalendarView  = set_calendar_view
+
 # MCM_GETCALENDARCOUNT
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):

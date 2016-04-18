@@ -52,8 +52,6 @@ class CalendarWrapperTests(unittest.TestCase):
         date = self.calendar.GetCurrentDate()
         self.assertThatSystemTimeIsEqualCurrentDateTime(date,datetime.date.today())
 
-        # self.assertEqual(datetime())
-
     def testCanSetCurrenDateInCalendar(self):       
         self.calendar.SetDate(2016, 4, 3, 13)
         self.assertThatSystemTimeIsEqualCurrentDateTime(self.calendar.GetCurrentDate(),
@@ -70,54 +68,31 @@ class CalendarWrapperTests(unittest.TestCase):
     def testCanGetCalendarsCount(self):
         count = self.calendar.GetCalendarsCount()
         self.assertEqual(count, 1)
+    
+    def testCanGetCalendarsView(self):
+        view = self.calendar.GetCalendarView()
+        self.assertEqual(view, 0)
 
+    def testCanSetCalendarsViewIntoMonth(self):
+        self.calendar.SetCalendarView(win32defines.MCMV_MONTH)
+        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_MONTH)
+
+    def testCanSetCalendarsViewIntoYears(self):
+        self.calendar.SetCalendarView(win32defines.MCMV_YEAR)
+        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_YEAR)
+
+    def testCanSetCalendarsViewIntoDecade(self):
+        self.calendar.SetCalendarView(win32defines.MCMV_DECADE)
+        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_DECADE)
+
+    def testCanSetCalendarsViewIntoCentury(self):
+        self.calendar.SetCalendarView(win32defines.MCMV_CENTURY)
+        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_CENTURY)
 
     def assertThatSystemTimeIsEqualCurrentDateTime(self,systemTime, now):        
         self.assertEqual(systemTime.wYear, now.year)
         self.assertEqual(systemTime.wMonth, now.month)
         self.assertEqual(systemTime.wDay, now.day)
 
-# .<wYear=2016, wMonth=4, wDayOfWeek=1, wDay=18, wHour=11, wMinute=51, wSecond=9, wMilliseconds=582>
 if __name__ == "__main__":
     unittest.main()
-
-
-
-# import sys, os
-
-# os.chdir(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0]))) # running at repo root folder
-
-# import pywinauto
-
-# mfc_samples_folder = os.path.join(
-#    os.path.dirname(sys.argv[0]), r"apps\MFC_samples")
-# if pywinauto.sysinfo.is_x64_Python():
-#     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
-
-# app = pywinauto.Application().start(os.path.join(mfc_samples_folder,
-#                                                  u"CmnCtrl1.exe"))
-
-# tabc = app.Common_Controls_Sample.TabControl.WrapperObject()
-# tabc.Select(4)
-# ddd = app.Common_Controls_Sample.CalendarWrapper.GetCurrentDate()
-
-# print(ddd)
-
-# app.Common_Controls_Sample.CalendarWrapper.SetDate(2016, 4, 3, 13, 1, 1, 1, 1)
-
-# ddd = app.Common_Controls_Sample.CalendarWrapper.GetCurrentDate()
-
-# print(ddd)
-
-# widths = app.Common_Controls_Sample.CalendarWrapper.GetCalendarBorderWidths()
-
-# print(widths);
-
-# birds = tree.get_item(r'\Birds')
-# dogs = tree.get_item(r'\Dogs')
-
-# drag-n-drop without focus on the window
-#tree.drag_mouse("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
-#
-# most natural drag-n-drop (with real moving mouse, like real user)
-# tree.drag_mouse_input("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
