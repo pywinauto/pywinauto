@@ -14,49 +14,49 @@
 # serve to show the default.
 import importlib
 import imp
+import platform
 import sys
 import os
-
-import mock
 import re
 
-
-for mod_name in [
-        'win32api',
-        'win32con',
-        'win32process',
-        'win32gui',
-        'win32event',
-        'win32com',
-        'win32com.client',
-        'multiprocessing',
-        '_winreg',
-        'ctypes.wintypes',
-        'win32gui_struct',
-        'ctypes', 
-        'Xlib', 
-        'Xlib.display', 
-        'Xlib.ext.xtest', 
-        'Xlib.ext',
-        'pywintypes',
-        'pywinauto.win32structures',
-        'pywinauto.win32defines',
-        "pywinauto.win32functions",
-        "win32functions",
-        "win32clipboard",
-        'win32structures',
-        ]:
-
-    sys.modules[mod_name] = mock.MagicMock()
+try:
+    import mock
+except ImportError:
+    import unittest.mock as mock
 
 import sys
 
-# sys.path.append('.')
-sys.path.append('..')
-#
-# sys.path.append(os.path.abspath('..'))
-#sys.path.insert(0, os.path.abspath('../'))
 
+if sys.platform.startswith('linux'):
+    for mod_name in [
+            'win32api',
+            'win32con',
+            'win32process',
+            'win32gui',
+            'win32event',
+            'win32com',
+            'win32com.client',
+            'multiprocessing',
+            '_winreg',
+            'ctypes.wintypes',
+            'win32gui_struct',
+            'ctypes',
+            'Xlib',
+            'Xlib.display',
+            'Xlib.ext.xtest',
+            'Xlib.ext',
+            'pywintypes',
+            'pywinauto.win32structures',
+            'pywinauto.win32defines',
+            "pywinauto.win32functions",
+            "win32functions",
+            "win32clipboard",
+            'win32structures',
+            ]:
+
+        sys.modules[mod_name] = mock.MagicMock()
+
+sys.path.append('..')
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

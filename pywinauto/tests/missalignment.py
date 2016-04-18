@@ -63,7 +63,7 @@ __revision__ = "$Revision$"
 
 testname = "Missalignment"
 
-from pywinauto.win32structures import RECT
+from pywinauto import win32structures
 
 #====================================================================
 def MissalignmentTest(windows):
@@ -95,7 +95,7 @@ def MissalignmentTest(windows):
 
             if len(sides) > 1:
 
-                overAllRect = RECT()
+                overAllRect = win32structures.RECT()
                 overAllRect.left = min(
                     [ctrl.rectangle().left for ctrl in controls])
                 overAllRect.top = min(
