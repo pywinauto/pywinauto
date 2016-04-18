@@ -3286,7 +3286,7 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 class CalendarWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows Calendar common control "
+    "Class that wraps Windows Calendar common control"
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
@@ -3298,6 +3298,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(CalendarWrapper, self).__init__(hwnd)
+
     #----------------------------------------------------------------
     def get_current_date(self):
         "Get the currently selected date"
@@ -3325,6 +3326,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return system_date
     # Non PEP-8 alias
     GetCurrentDate = get_current_date
+
     #----------------------------------------------------------------
     def set_date(self, year, month, day_of_week, day):
         "Set the currently selected date"
@@ -3351,41 +3353,43 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     # Non PEP-8 alias
     SetDate = set_date
 
+    #----------------------------------------------------------------
     def get_calendar_border(self):
-        "Get the calendar_border"
+        "Get the calendar border"
         return self.send_message(win32defines.MCM_GETCALENDARBORDER, 0,0)
     # Non PEP-8 alias
     GetCalendarBorderWidth = get_calendar_border
 
+    #----------------------------------------------------------------
     def set_calendar_border(self, border):
-        "Set the calendar_border"
-        self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)
-        
-       
+        "Set the calendar border"
+        self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)       
     # Non PEP-8 alias
     SetCalendarBorderWidth = set_calendar_border
 
+    #----------------------------------------------------------------
     def get_calendars_cout(self):
-        "Get the calendar_border"
+        "Get the calendar border"
         return self.send_message(win32defines.MCM_GETCALENDARCOUNT, 0,0)
     # Non PEP-8 alias
-    GetCalendarsCount  = get_calendars_cout
+    GetCalendarsCount = get_calendars_cout
 
+    #----------------------------------------------------------------
     def get_calendar_view(self):
-        "Get the calendar_view"
+        "Get the calendar view"
         return self.send_message(win32defines.MCM_GETCURRENTVIEW, 0,0)
     # Non PEP-8 alias
-    GetCalendarView  = get_calendar_view
-  
+    GetCalendarView = get_calendar_view
+
+    #----------------------------------------------------------------
     def set_calendar_view(self, viewType):
-        "Set the calendar_view"
+        "Set the calendar view"
         res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
     # Non PEP-8 alias
-    SetCalendarView  = set_calendar_view
+    SetCalendarView = set_calendar_view
 
-# MCM_GETCALENDARCOUNT
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
