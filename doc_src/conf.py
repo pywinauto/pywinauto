@@ -80,17 +80,17 @@ except ImportError:
     import __builtin__
     builtin_module = __builtin__
 
-ttt = builtin_module.__import__
+default_import_func = builtin_module.__import__
 def mocked_import(name, globals={}, locals={}, fromlist=[], level=0):
     #print name
     #print fromlist
-    banned_modules = ['win32structures', 'win32functions', 'win32defines']
-    is_good_fromlist = isinstance(fromlist, list) or isinstance(fromlist, tuple)
-    if name in banned_modules or (is_good_fromlist and [x for x in fromlist if x in banned_modules]):
+    modules_to_mock = ['win32structures', 'win32functions', 'win32defines']
+    is_fromlist_listlike = isinstance(fromlist, list) or isinstance(fromlist, tuple)
+    if name in modules_to_mock or (is_fromlist_listlike and [x for x in fromlist if x in modules_to_mock]):
         return mock.MagicMock()
     else:
         #print 'doing import for' + str(name) + str(fromlist)
-        return ttt(name, globals, locals, fromlist, level)
+        return default_import_func(name, globals, locals, fromlist, level)
 builtin_module.__import__ = mocked_import
 
 # Add any paths that contain templates here, relative to this directory.
