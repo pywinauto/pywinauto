@@ -1,6 +1,6 @@
 "Tests for HwndWrapper"
 
-# import time
+import time
 import datetime
 #import pprint
 #import pdb
@@ -60,16 +60,19 @@ class CalendarWrapperTests(unittest.TestCase):
                                                 datetime.date(2016, 4, 13)) 
 
     def testCanGetCalendarBorder(self):
-        widths = self.calendar.GetCalendarBorderWidths()
-        self.assertEqual(widths, 
-                                {"Horizontal": 0,
-                                "Vertical": 0,
-                                "Inter": 0});
+        width = self.calendar.GetCalendarBorderWidths()
+        self.assertEqual(width,4)
+
+    def testCanSetCalendarBorder(self):
+        self.calendar.SetCalendarBorderWidths(6)
+        self.assertEqual(self.calendar.GetCalendarBorderWidths(), 6)
+
+
 
     def assertThatSystemTimeIsEqualCurrentDateTime(self,systemTime, now):        
-        self.assertEqual(systemTime.wYear, now.year);
-        self.assertEqual(systemTime.wMonth, now.month);
-        self.assertEqual(systemTime.wDay, now.day);
+        self.assertEqual(systemTime.wYear, now.year)
+        self.assertEqual(systemTime.wMonth, now.month)
+        self.assertEqual(systemTime.wDay, now.day)
 
 # .<wYear=2016, wMonth=4, wDayOfWeek=1, wDay=18, wHour=11, wMinute=51, wSecond=9, wMilliseconds=582>
 if __name__ == "__main__":

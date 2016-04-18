@@ -3336,10 +3336,10 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         system_time.wMonth = month
         system_time.wDayOfWeek = day_of_week
         system_time.wDay = day
-        system_time.wHour = 3
-        system_time.wMinute = 3
-        system_time.wSecond = 3
-        system_time.wMilliseconds = 3
+        system_time.wHour = 0
+        system_time.wMinute = 0
+        system_time.wSecond = 0
+        system_time.wMilliseconds = 0
         
         remote_mem.Write(system_time)
         
@@ -3350,30 +3350,20 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             raise RuntimeError('Failed to set time in Calendar')
     # Non PEP-8 alias
     SetDate = set_date
+
     def get_calendar_border(self):
         "Get the calendar_border"
-        remote_mem = RemoteMemoryBlock(self)
-
-        # get the borders for each of the areas there can be a border.
-        borders = (ctypes.c_int*3)()
-        remote_mem.Write(borders)
-        res = self.send_message(win32defines.MCM_GETCALENDARBORDER, remote_mem)
-        
-        if res == 0:
-            raise RuntimeError('Failed to set time in Calendar')
-
-        borders = remote_mem.Read(borders)
-        borders_widths = {}
-        borders_widths['Horizontal'] = borders[0]
-        borders_widths['Vertical'] = borders[1]
-        borders_widths['Inter'] = borders[2]
-
-        del remote_mem
-
-        return borders_widths
+        return self.send_message(win32defines.MCM_GETCALENDARBORDER, 0,0)
     # Non PEP-8 alias
     GetCalendarBorderWidths = get_calendar_border
 
+    def set_calendar_border(self, border):
+        "Set the calendar_border"
+        self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)
+        
+       
+    # Non PEP-8 alias
+    SetCalendarBorderWidths = set_calendar_border
 
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
