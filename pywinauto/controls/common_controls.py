@@ -674,15 +674,27 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         if self.is_unicode():
             self.create_buffer = ctypes.create_unicode_buffer
-            self.LVCOLUMN       = win32structures.LVCOLUMNW
-            self.LVITEM         = win32structures.LVITEMW
+
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
+                self.LVCOLUMN       = win32structures.LVCOLUMNW
+                self.LVITEM         = win32structures.LVITEMW
+            else:
+                self.LVCOLUMN       = win32structures.LVCOLUMNW32
+                self.LVITEM         = win32structures.LVITEMW32
+
             self.LVM_GETITEM    = win32defines.LVM_GETITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNW
             self.text_decode    = lambda v: v
         else:
             self.create_buffer = ctypes.create_string_buffer
-            self.LVCOLUMN       = win32structures.LVCOLUMNW
-            self.LVITEM         = win32structures.LVITEMW
+
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
+                self.LVCOLUMN       = win32structures.LVCOLUMNW
+                self.LVITEM         = win32structures.LVITEMW
+            else:
+                self.LVCOLUMN       = win32structures.LVCOLUMNW32
+                self.LVITEM         = win32structures.LVITEMW32
+
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
             self.LVM_GETITEM    = win32defines.LVM_GETITEMA
             self.text_decode    = lambda v: v.decode(locale.getpreferredencoding())
@@ -2456,7 +2468,12 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
                 self.button_count())
 
         remote_mem = RemoteMemoryBlock(self)
-        button = win32structures.TBBUTTON()
+
+        if is64bitprocess(self.process_id()) or not is_x64_Python():
+            button = win32structures.TBBUTTON()
+        else:
+            button = win32structures.TBBUTTON32()
+
         remote_mem.Write(button)
 
         ret = self.send_message(
@@ -2480,7 +2497,11 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         button = self.get_button_struct(button_index)
 
-        button_info = win32structures.TBBUTTONINFOW()
+        if is64bitprocess(self.process_id()) or not is_x64_Python():
+            button_info = win32structures.TBBUTTONINFOW()
+        else:
+            button_info = win32structures.TBBUTTONINFOW32()
+
         button_info.cbSize = ctypes.sizeof(button_info)
         button_info.dwMask = \
             win32defines.TBIF_COMMAND | \
