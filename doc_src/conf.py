@@ -281,7 +281,7 @@ latex_elements = {
 # ]
 
 #pdf_documents = [('index', u'pywinauto', u'Sampletitle', u'Author', {})]
-latex_documents = [('contents', 'contents.tex', u'pywinauto Documentation', u'Lots of contributors', 'manual'),]
+latex_documents = [('contents', 'contents.tex', u'pywinauto Documentation', u'The pywinauto contributors community', 'manual'),]
 latex_show_urls='inline'
 
 # The name of an image file (relative to this directory) to place at the top of
