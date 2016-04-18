@@ -3326,7 +3326,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     # Non PEP-8 alias
     GetCurrentDate = get_current_date
     #----------------------------------------------------------------
-    def set_date(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
+    def set_date(self, year, month, day_of_week, day):
         "Set the currently selected date"
         
         remote_mem = RemoteMemoryBlock(self)
@@ -3336,10 +3336,10 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         system_time.wMonth = month
         system_time.wDayOfWeek = day_of_week
         system_time.wDay = day
-        system_time.wHour = hour
-        system_time.wMinute = minute
-        system_time.wSecond = second
-        system_time.wMilliseconds = milliseconds
+        system_time.wHour = 3
+        system_time.wMinute = 3
+        system_time.wSecond = 3
+        system_time.wMilliseconds = 3
         
         remote_mem.Write(system_time)
         

@@ -1,6 +1,7 @@
 "Tests for HwndWrapper"
 
-import time
+# import time
+import datetime
 #import pprint
 #import pdb
 #import warnings
@@ -40,39 +41,46 @@ class CalendarWrapperTests(unittest.TestCase):
 
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.Select(4)
-                # self.dlg.TabControl.Select('CButton (Command Link)')
-        self.ctrl = self.app.Common_Controls_Sample.CalendarWrapper
+        self.calendar = self.app.Common_Controls_Sample.CalendarWrapper
 
     def tearDown(self):
         "Close the application after tests"
         # close the application
         self.dlg.type_keys("%{F4}")
 
-    def testDate(self):
-        "Test that an exception is raised with an invalid window handle"
-        ddd = self.ctrl.GetCurrentDate()
+    def testCanGetCurrenDateFromCalendar(self):
+        date = self.calendar.GetCurrentDate()
+        self.assertThatSystemTimeIsEqualCurrentDateTime(date,datetime.date.today())
 
-        print(ddd)
+        # self.assertEqual(datetime())
 
-        self.ctrl.SetDate(2016, 4, 3, 13, 1, 1, 1, 1)
+    def testCanSetCurrenDateInCalendar(self):       
+        self.calendar.SetDate(2016, 4, 3, 13)
+        self.assertThatSystemTimeIsEqualCurrentDateTime(self.calendar.GetCurrentDate(),
+                                                datetime.date(2016, 4, 13)) 
 
-        ddd = self.ctrl.GetCurrentDate()
+    def testCanGetCalendarBorder(self):
+        widths = self.calendar.GetCalendarBorderWidths()
+        self.assertEqual(widths, 
+                                {"Horizontal": 0,
+                                "Vertical": 0,
+                                "Inter": 0});
 
-        print(ddd)
+    def assertThatSystemTimeIsEqualCurrentDateTime(self,systemTime, now):        
+        self.assertEqual(systemTime.wYear, now.year);
+        self.assertEqual(systemTime.wMonth, now.month);
+        self.assertEqual(systemTime.wDay, now.day);
 
-        widths = self.ctrl.GetCalendarBorderWidths()
-
-        print(widths);
-
+# .<wYear=2016, wMonth=4, wDayOfWeek=1, wDay=18, wHour=11, wMinute=51, wSecond=9, wMilliseconds=582>
 if __name__ == "__main__":
     unittest.main()
-
 
 
 
 # import sys, os
 
 # os.chdir(os.path.join(os.getcwd(), os.path.dirname(sys.argv[0]))) # running at repo root folder
+
 # import pywinauto
 
 # mfc_samples_folder = os.path.join(
