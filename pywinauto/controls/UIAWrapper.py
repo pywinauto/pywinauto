@@ -112,6 +112,30 @@ _friendly_classes = {
     }
 
 #=========================================================================
+class LazyProperty(object):
+    
+    """
+    A lazy evaluation of an object attribute.
+
+    The property should represent immutable data, as it replaces itself.
+    Provided by: http://stackoverflow.com/a/6849299/1260742
+    """
+
+    def __init__(self, fget):
+        """Init the property name and method to calculate the property"""
+        self.fget = fget
+        self.func_name = fget.__name__
+
+    def __get__(self, obj, cls):
+        """Replace the property itself on a first access"""
+        if obj is None:
+            return None
+        value = self.fget(obj)
+        setattr(obj, self.func_name, value)
+        return value
+lazy_property = LazyProperty
+
+#=========================================================================
 class UiaMeta(BaseMeta):
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
@@ -189,6 +213,62 @@ class UIAWrapper(BaseWrapper):
         return hash(self.element_info.runtime_id)
 
     #------------------------------------------------------------
+    @lazy_property
+    def iface_expand_collapse(self):
+        """Get the element's ExpandCollapse interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "ExpandCollapse")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_selection(self):
+        """Get the element's Selection interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Selection")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_selection_item(self):
+        """Get the element's SelectionItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "SelectionItem")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_invoke(self):
+        """Get the element's Invoke interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Invoke")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_toggle(self):
+        """Get the element's Toggle interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Toggle")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_text(self):
+        """Get the element's Text interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Text")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_value(self):
+        """Get the element's Value interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Value")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_range_value(self):
+        """Get the element's RangeValue interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "RangeValue")
+
+    #------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -246,9 +326,7 @@ class UIAWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Invoke")
-        iface.Invoke()
+        self.iface_invoke.Invoke()
         
         # Return itself to allow action chaining
         return self
@@ -260,9 +338,7 @@ class UIAWrapper(BaseWrapper):
 
         An interface to Expand method of the ExpandCollapse control pattern.
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
-        iface.Expand()
+        self.iface_expand_collapse.Expand()
 
         # Return itself to allow action chaining
         return self
@@ -274,9 +350,7 @@ class UIAWrapper(BaseWrapper):
 
         An interface to Collapse method of the ExpandCollapse control pattern.
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
-        iface.Collapse()
+        self.iface_expand_collapse.Collapse()
 
         # Return itself to allow action chaining
         return self
@@ -293,9 +367,7 @@ class UIAWrapper(BaseWrapper):
         expand_state_partially = 2
         expand_state_leaf_node = 3
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "ExpandCollapse")
-        return iface.CurrentExpandCollapseState
+        return self.iface_expand_collapse.CurrentExpandCollapseState
 
     #-----------------------------------------------------------
     def is_expanded(self):
@@ -309,6 +381,7 @@ class UIAWrapper(BaseWrapper):
         state = self.get_expand_state()
         return state == uia_defs.expand_state_collapsed
 
+    #-----------------------------------------------------------
     def get_selection(self):
         """
         An interface to GetSelection of the SelectionProvider pattern
@@ -317,23 +390,20 @@ class UIAWrapper(BaseWrapper):
         that is selected. Builds a list of UIAElementInfo elements 
         from all retrieved providers.
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Selection")
-        ptrs_array = iface.GetCurrentSelection()
+        ptrs_array = self.iface_selection.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
 
+    #-----------------------------------------------------------
     def can_select_multiple(self):
         """
         An interface to CanSelectMultiple of the SelectionProvider pattern
 
         Indicates whether the UI Automation provider allows more than one 
         child element to be selected concurrently.
-
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Selection")
-        return iface.CurrentCanSelectMultiple
+        return self.iface_selection.CurrentCanSelectMultiple
 
+    #-----------------------------------------------------------
     def is_selection_required(self):
         """
         An interface to IsSelectionRequired property of the SelectionProvider pattern.
@@ -344,10 +414,9 @@ class UIAWrapper(BaseWrapper):
         after an item is selected the control must always have 
         at least one item selected.
         """
-        elem = self.element_info.element
-        iface = uia_defs.get_elem_interface(elem, "Selection")
-        return iface.CurrentIsSelectionRequired
+        return self.iface_selection.CurrentIsSelectionRequired
 
+    #-----------------------------------------------------------
     def _select(self, item = None):
         """
         Find a child item by the name or index and select

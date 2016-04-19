@@ -379,7 +379,7 @@ class LVITEMW32(Structure):
 
 assert alignment(LVITEMW32) == 4, alignment(LVITEMW32)
 
-
+# Main layout for TVITEM, naturally fits for x86 and x64 archs
 class TVITEMW(Structure):
     #_pack_ = 1
     _fields_ = [
@@ -401,6 +401,26 @@ if sysinfo.is_x64_Python():
 else:
     assert sizeof(TVITEMW) == 40, sizeof(TVITEMW)
     assert alignment(TVITEMW) == 4, alignment(TVITEMW)
+
+
+# Additional layout for TVITEM, used in combination 64-bit python + 32-bit app
+class TVITEMW32(Structure):
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
+        ('mask', UINT),
+        ('hItem', UINT), # must be 4 bytes in 32-bit app
+        ('state', UINT),
+        ('stateMask', UINT),
+        ('pszText', UINT), # must be 4 bytes in 32-bit app
+        ('cchTextMax', c_int),
+        ('iImage', c_int),
+        ('iSelectedImage', c_int),
+        ('cChildren', c_int),
+        ('lParam', UINT), # must be 4 bytes in 32-bit app
+    ]
+
+assert sizeof(TVITEMW32) == 40, sizeof(TVITEMW32)
+assert alignment(TVITEMW32) == 4, alignment(TVITEMW32)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
@@ -717,6 +737,25 @@ else:
     assert sizeof(TBBUTTONINFOW) == 32, sizeof(TBBUTTONINFOW)
     assert alignment(TBBUTTONINFOW) == 4, alignment(TBBUTTONINFOW)
 
+
+class TBBUTTONINFOW32(Structure):
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 1308
+        ('cbSize', UINT),
+        ('dwMask', DWORD),
+        ('idCommand', c_int),
+        ('iImage', c_int),
+        ('fsState', BYTE),
+        ('fsStyle', BYTE),
+        ('cx', WORD),
+        ('lParam', UINT), # must be 4 bytes in 32-bit app
+        ('pszText', UINT), # must be 4 bytes in 32-bit app
+        ('cchText', c_int),
+    ]
+assert sizeof(TBBUTTONINFOW32) == 32, sizeof(TBBUTTONINFOW32)
+assert alignment(TBBUTTONINFOW32) == 4, alignment(TBBUTTONINFOW32)
+
+
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
 if sysinfo.is_x64_Python():
     class TBBUTTON(Structure):
@@ -751,6 +790,21 @@ else:
     assert sizeof(TBBUTTON) == 20, sizeof(TBBUTTON)
     assert alignment(TBBUTTON) == 4, alignment(TBBUTTON)
 
+
+class TBBUTTON32(Structure):
+    #_pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+        ('iBitmap', c_int),
+        ('idCommand', c_int),
+        ('fsState', BYTE),
+        ('fsStyle', BYTE),
+        ('bReserved', BYTE * 2),
+        ('dwData', UINT), # must be 4 bytes in 32-bit app
+        ('iString', UINT), # must be 4 bytes in 32-bit app
+    ]
+assert sizeof(TBBUTTON32) == 20, sizeof(TBBUTTON32)
+assert alignment(TBBUTTON32) == 4, alignment(TBBUTTON32)
 
 
 class REBARBANDINFOW(Structure):

@@ -50,8 +50,10 @@ Timings.Defaults()
 
 controlspy_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\controlspy0998")
+controlspy_folder_32 = controlspy_folder
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+mfc_samples_folder_32 = mfc_samples_folder
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
@@ -62,15 +64,17 @@ class RemoteMemoryBlockTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, RemoteMemoryBlock, 0)
 
 
-class ListViewTestCases(unittest.TestCase):
+class ListViewTestCases32(unittest.TestCase):
     "Unit tests for the ListViewWrapper class"
+
+    path = os.path.join(mfc_samples_folder_32, u"RowList.exe")
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
         app = Application()
-        app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        app.start(self.path)
 
         self.texts = [
             (u"Yellow",  u"255", u"255", u"0",   u"40",  u"240", u"120", u"Neutral"),
@@ -452,15 +456,20 @@ class ListViewTestCases(unittest.TestCase):
         self.assertNotEqual(item1, item2)
 
 
-class TreeViewTestCases(unittest.TestCase):
+if is_x64_Python():
+
+    class ListViewTestCases64(ListViewTestCases32):
+        path = os.path.join(mfc_samples_folder, u"RowList.exe")
+
+
+class TreeViewTestCases32(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
+
+    path = os.path.join(controlspy_folder_32, "Tree View.exe")
 
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-
-        app = Application()
-        app.start(os.path.join(controlspy_folder, "Tree View.exe"))
 
         self.root_text = "The Planets"
         self.texts = [
@@ -475,9 +484,10 @@ class TreeViewTestCases(unittest.TestCase):
             ("Pluto",   '5,913,520,000', '2,274', '1.27e22'),
          ]
 
-        self.app = app
-        self.dlg = app.MicrosoftControlSpy #top_window_()
-        self.ctrl = app.MicrosoftControlSpy.TreeView.WrapperObject()
+        self.app = Application()
+        self.app.start(self.path)
+        self.dlg = self.app.MicrosoftControlSpy
+        self.ctrl = self.app.MicrosoftControlSpy.TreeView.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -516,13 +526,12 @@ class TreeViewTestCases(unittest.TestCase):
 
         self.assertEquals(
             self.ctrl.GetItem(
-                ["The Planets", "Venus", "4.869"]).Text(),
+                    ["The Planets", "Venus", "4.869"]).Text(),
             self.texts[1][3] + " kg")
 
 
     def testItemText(self):
         "Test the TreeView item Text() method"
-
         self.assertEquals(self.ctrl.Root().Text(), self.root_text)
 
         self.assertEquals(
@@ -530,6 +539,7 @@ class TreeViewTestCases(unittest.TestCase):
 
     def testSelect(self):
         "Test selecting an item"
+
         self.ctrl.Select((0, 1, 2))
 
         self.ctrl.GetItem((0, 1, 2)).State()
@@ -563,35 +573,42 @@ class TreeViewTestCases(unittest.TestCase):
 
     def testItemsClick(self):
         "Test clicking of items and sub-items in the treeview control"
+
         planets_item_path = (0, 0)
         mercury_diam_item_path = (0, 0, 1)
         mars_dist_item_path = (0, 3, 0)
-        
+
         itm = self.ctrl.GetItem(planets_item_path)
         itm.EnsureVisible()
         time.sleep(1)
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
-        
+
         itm = self.ctrl.GetItem(mars_dist_item_path)
         itm.EnsureVisible()
         time.sleep(1)
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(mars_dist_item_path))
-        
+
         itm = self.ctrl.GetItem(mercury_diam_item_path)
         itm.EnsureVisible()
         time.sleep(1)
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(mercury_diam_item_path))
         self.assertEquals(False, self.ctrl.IsSelected(mars_dist_item_path))
-        
+
         itm = self.ctrl.GetItem(planets_item_path)
         itm.EnsureVisible()
         time.sleep(1)
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
         self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
+
+
+if is_x64_Python():
+
+    class TreeViewTestCases64(TreeViewTestCases32):
+        path = os.path.join(controlspy_folder, "Tree View.exe")
 
 
 class TreeViewAdditionalTestCases(unittest.TestCase):
