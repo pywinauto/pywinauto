@@ -550,11 +550,11 @@ class WindowSpecification(object):
         Prints identifiers for the control and for its descendants to
         a depth of **depth**.
 
-        .. note:: The identifiers printed by this method have not been made
-               unique. So if you have 2 edit boxes, they will both have "Edit"
-               listed in their identifiers. In reality though the first one
-               can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
-               should be refered to as "Edit2".
+        .. note:: The identifiers printed by this method have been made
+               unique. So if you have 2 edit boxes, they won't both have "Edit"
+               listed in their identifiers. In fact the first one can be
+               referred to as "Edit", "Edit0", "Edit1" and the 2nd should be
+               referred to as "Edit2".
         """
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
@@ -572,9 +572,11 @@ class WindowSpecification(object):
 
         print("Control Identifiers:")
 
-        # Recursive function that prints identifiers for ctrls and theirs
-        # descendants in a tree-like format
         def print_identifiers(ctrls, current_depth = 1):
+            """
+            Recursive function that prints identifiers for ctrls and
+            theirs descendants in a tree-like format
+            """
             if len(ctrls) == 0 or current_depth > depth:
                 return
 
