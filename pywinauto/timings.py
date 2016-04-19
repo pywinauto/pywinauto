@@ -269,10 +269,12 @@ def always_wait_until(
     value = True, 
     op = operator.eq):
     """Decorator to call wait_until(...) every time for a decorated 
-    function/method"""
+    function/method
+    """
     def wait_until_decorator(func):
         """Callable object that must be returned by the @always_wait_until 
-        decorator"""
+        decorator
+        """
         @wraps(func)
         def wrapper(*args):
             """pre-callback, target function call and post-callback"""
@@ -346,10 +348,12 @@ def always_wait_until_passes(
 
     exceptions = (Exception)):    
     """Decorator to call wait_until_passes(...) every time for a decorated 
-    function/method"""
+    function/method
+    """
     def wait_until_passes_decorator(func):
         """Callable object that must be returned by the 
-        @always_wait_until_passes decorator"""
+        @always_wait_until_passes decorator
+        """
         @wraps(func)
         def wrapper(*args):
             """pre-callback, target function call and post-callback"""
