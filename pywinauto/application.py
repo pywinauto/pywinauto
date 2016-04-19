@@ -543,15 +543,12 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self):
+    def print_control_identifiers(self, depth = 2):
         """
         Prints the 'identifiers'
 
-        If you pass in a control then it just prints the identifiers
-        for that control
-
-        If you pass in a dialog then it prints the identifiers for all
-        controls in the dialog.
+        Prints identifiers for the control and for its descendants to
+        a depth of **depth**.
 
         .. note:: The identifiers printed by this method have not been made
                unique. So if you have 2 edit boxes, they will both have "Edit"
@@ -559,59 +556,45 @@ class WindowSpecification(object):
                can be refered to as "Edit", "Edit0", "Edit1" and the 2nd
                should be refered to as "Edit2".
         """
-        #name_control_map = self._ctrl_identifiers()
-        ctrls = self.__resolve_control(self.criteria)
+        # Wrap this control
+        this_ctrl = self.__resolve_control(self.criteria)[-1]
 
-        if ctrls[-1].is_dialog():
-            # dialog controls are all the control on the dialog
-            dialog_controls = ctrls[-1].children()
-
-            ctrls_to_print = dialog_controls[:]
-            # filter out hidden controls
-            ctrls_to_print = [
-                ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
-        else:
-            dialog_controls = ctrls[-1].top_level_parent().children()
-            ctrls_to_print = [ctrls[-1]]
+        # Create a list of this control and all its descendants
+        all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
 
         # build the list of disambiguated list of control names
-        name_control_map = findbestmatch.build_unique_dict(dialog_controls)
+        name_control_map = findbestmatch.build_unique_dict(all_ctrls)
 
         # swap it around so that we are mapped off the controls
         control_name_map = {}
-        for name, ctrl in name_control_map.items():
-            control_name_map.setdefault(ctrl, []).append(name)
+        for name, control in name_control_map.items():
+            control_name_map.setdefault(control, []).append(name)
 
         print("Control Identifiers:")
-        for ctrl in ctrls_to_print:
 
-            print("{class_name} - '{text}'   {rect}\t".format(
-                class_name=ctrl.friendly_class_name(),
-                text=ctrl.window_text(),
-                rect=str(ctrl.rectangle())))
+        # Recursive function that prints identifiers for ctrls and theirs
+        # descendants in a tree-like format
+        def print_identifiers(ctrls, current_depth = 1):
+            if len(ctrls) == 0 or current_depth > depth:
+                return
 
-            names = control_name_map[ctrl]
-            names.sort()
-            for name in names:
-                print("'{0}' ".format(name), end='')
-            print("\n")
+            for ctrl in ctrls:
+                print((current_depth - 1) * "     | ")
+
+                print((current_depth - 1) * "     | ", end='')
+                print("{class_name} - '{text}'    {rect}\t".format(
+                    class_name=ctrl.friendly_class_name(),
+                    text=ctrl.window_text(),
+                    rect=str(ctrl.rectangle())))
+                print((current_depth - 1) * "     | ", end='')
+                print(control_name_map[ctrl])
+
+                print_identifiers(ctrl.children(), current_depth + 1)
+
+        print_identifiers([this_ctrl, ])
 
     # Non PEP-8 alias
     PrintControlIdentifiers = print_control_identifiers
-
-
-#        for ctrl in ctrls_to_print:
-#            print "%s - '%s'   %s"% (
-#                ctrl.class_name(), ctrl.window_text(), str(ctrl.rectangle()))
-#
-#            print "\t",
-#            for text in findbestmatch.get_control_names(
-#                ctrl, dialog_controls):
-#
-#                print "'%s'" % text.encode("unicode_escape"),
-#            print
-
-    print_control_identifiers = PrintControlIdentifiers
 
 
 cur_item = 0

@@ -182,8 +182,8 @@ def find_elements(class_name = None,
             parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
-        elements = parent.descendants(process = process, 
-                                      class_name = class_name, 
+        elements = parent.descendants(process = process,
+                                      class_name = class_name,
                                       title = title) # root.children == enum_windows()
 
         # if the ctrl_index has been specified then just return

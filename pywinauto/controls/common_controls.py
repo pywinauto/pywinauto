@@ -53,8 +53,8 @@ from . import HwndWrapper
 
 from ..timings import Timings
 from ..timings import WaitUntil
-from pywinauto.handleprops import is64bitprocess
-from pywinauto.sysinfo import is_x64_Python
+from ..handleprops import is64bitprocess
+from ..sysinfo import is_x64_Python
 
 if sysinfo.UIA_support:
     from ..uia_defines import IUIA
