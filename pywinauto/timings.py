@@ -268,12 +268,14 @@ def always_wait_until(
     retry_interval, 
     value = True, 
     op = operator.eq):
-    """Decorator for wait_until"""
+    """Decorator to call wait_until(...) every time for a decorated 
+    function/method"""
     def wait_until_decorator(func):
-        """Real decorator for wait_until"""
+        """Callable object that must be returned by the @always_wait_until 
+        decorator"""
         @wraps(func)
         def wrapper(*args):
-            """Wrapper function"""
+            """pre-callback, target function call and post-callback"""
             start = time.time()
 
             func_val = func(*args)
@@ -343,12 +345,14 @@ def always_wait_until_passes(
     retry_interval, 
 
     exceptions = (Exception)):    
-    """Decorator for wait_until_passes"""
+    """Decorator to call wait_until_passes(...) every time for a decorated 
+    function/method"""
     def wait_until_passes_decorator(func):
-        """Real decorator for wait_until"""
+        """Callable object that must be returned by the 
+        @always_wait_until_passes decorator"""
         @wraps(func)
         def wrapper(*args):
-            """Wrapper function"""
+            """pre-callback, target function call and post-callback"""
             start = time.time()
             # keep trying until the timeout is passed
             while True:
