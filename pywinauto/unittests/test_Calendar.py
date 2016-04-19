@@ -1,28 +1,18 @@
 """Tests for CalendarWrapper"""
 import time
 import datetime
-#import pprint
-#import pdb
-#import warnings
-
 import ctypes
 import locale
 import re
-
-import sys, os
+import sys
+import os
 import unittest
 sys.path.append(".")
+from pywinauto import win32structures
+from pywinauto import win32defines
 from pywinauto.application import Application
-from pywinauto.controls.HwndWrapper import HwndWrapper, \
-InvalidWindowHandle, GetDialogPropsFromHandle
-from pywinauto import win32structures, win32defines
-from pywinauto.findwindows import ElementNotFoundError, ElementNotFoundError
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
-from pywinauto.timings import Timings, TimeoutError
-from pywinauto import clipboard
-from pywinauto import backend
-from pywinauto.controls.win32_controls import ButtonWrapper
+from pywinauto.sysinfo import is_x64_Python
+from pywinauto.sysinfo import is_x64_OS
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
