@@ -85,7 +85,7 @@ class CalendarWrapperTests(unittest.TestCase):
         self.calendar.set_view(win32defines.MCMV_CENTURY)
         self.assertEqual(self.calendar.get_view(), win32defines.MCMV_CENTURY)
 
-    def assertThatSystemTimeIsEqualCurrentDateTime(self,systemTime, now):
+    def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):
         self.assertEqual(systemTime.wYear, now.year)
         self.assertEqual(systemTime.wMonth, now.month)
         self.assertEqual(systemTime.wDay, now.day)
