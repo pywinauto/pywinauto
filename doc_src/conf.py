@@ -52,6 +52,7 @@ if sys.platform.startswith('linux'):
         sys.modules[mod_name] = mock.MagicMock()
 
 sys.path.append('..')
+sys.path.append('.')
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
