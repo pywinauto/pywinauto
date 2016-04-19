@@ -14,13 +14,12 @@
 # serve to show the default.
 import os
 import re
+import sys
 
 try:
     import mock
 except ImportError:
     import unittest.mock as mock
-
-import sys
 
 
 if sys.platform.startswith('linux'):
