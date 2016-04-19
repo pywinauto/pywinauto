@@ -1,4 +1,4 @@
-"Tests for CalendarWrapper"
+"""Tests for CalendarWrapper"""
 
 import time
 import datetime
@@ -31,7 +31,7 @@ if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
 class CalendarWrapperTests(unittest.TestCase):
-    "Unit tests for the CalendarWrapperTests class"
+    """Unit tests for the CalendarWrapperTests class"""
 
     def setUp(self):
         """Start the application set some data and ensure the application
@@ -44,56 +44,55 @@ class CalendarWrapperTests(unittest.TestCase):
         self.calendar = self.app.Common_Controls_Sample.CalendarWrapper
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.type_keys("%{F4}")
 
-    def testCanGetCurrenDateFromCalendar(self):
-        date = self.calendar.GetCurrentDate()
+    def test_can_get_current_date_from_calendar(self):
+        date = self.calendar.get_current_date()
         self.assertThatSystemTimeIsEqualCurrentDateTime(date,datetime.date.today())
 
-    def testCanSetCurrenDateInCalendar(self):
-        self.calendar.SetDate(2016, 4, 3, 13)
-        self.assertThatSystemTimeIsEqualCurrentDateTime(self.calendar.GetCurrentDate(),
-                                                datetime.date(2016, 4, 13)) 
+    def test_can_set_current_date_in_calendar(self):
+        self.calendar.set_current_date(2016, 4, 3, 13)
+        self.assertThatSystemTimeIsEqualCurrentDateTime(self.calendar.get_current_date(), datetime.date(2016, 4, 13)) 
 
-    def testShouldReturnErrorwhenTryToSetInvalidDate(self):
-        self.assertRaises(RuntimeError, self.calendar.SetDate, -2016, -4, -3, -13)
+    def test_should_throw_runtime_error_when_try_to_set_invalid_date(self):
+        self.assertRaises(RuntimeError, self.calendar.set_current_date, -2016, -4, -3, -13)
 
-    def testCanGetCalendarBorder(self):
-        width = self.calendar.GetCalendarBorderWidth()
-        self.assertEqual(width,4)
+    def test_can_get_calendar_border(self):
+        width = self.calendar.get_border()
+        self.assertEqual(width, 4)
 
-    def testCanSetCalendarBorder(self):
-        self.calendar.SetCalendarBorderWidth(6)
-        self.assertEqual(self.calendar.GetCalendarBorderWidth(), 6)
+    def test_can_set_calendar_border(self):
+        self.calendar.set_border(6)
+        self.assertEqual(self.calendar.get_border(), 6)
 
-    def testCanGetCalendarsCount(self):
-        count = self.calendar.GetCalendarsCount()
+    def test_can_get_calendars_count(self):
+        count = self.calendar.count()
         self.assertEqual(count, 1)
     
-    def testCanGetCalendarsView(self):
-        view = self.calendar.GetCalendarView()
+    def test_can_get_calendars_view(self):
+        view = self.calendar.get_view()
         self.assertEqual(view, 0)
 
-    def testShouldReturnErrorwhenTryToSetInvalidView(self):
-        self.assertRaises(RuntimeError, self.calendar.SetCalendarView, -1)
+    def test_should_throw__runtime_error_when_try_to_set_invalid_view(self):
+        self.assertRaises(RuntimeError, self.calendar.set_view, -1)
 
-    def testCanSetCalendarsViewIntoMonth(self):
-        self.calendar.SetCalendarView(win32defines.MCMV_MONTH)
-        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_MONTH)
+    def test_can_set_calendars_view_into_month(self):
+        self.calendar.set_view(win32defines.MCMV_MONTH)
+        self.assertEqual(self.calendar.get_view(), win32defines.MCMV_MONTH)
 
-    def testCanSetCalendarsViewIntoYears(self):
-        self.calendar.SetCalendarView(win32defines.MCMV_YEAR)
-        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_YEAR)
+    def test_can_set_calendars_view_into_years(self):
+        self.calendar.set_view(win32defines.MCMV_YEAR)
+        self.assertEqual(self.calendar.get_view(), win32defines.MCMV_YEAR)
 
-    def testCanSetCalendarsViewIntoDecade(self):
-        self.calendar.SetCalendarView(win32defines.MCMV_DECADE)
-        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_DECADE)
+    def test_can_set_calendars_view_into_decade(self):
+        self.calendar.set_view(win32defines.MCMV_DECADE)
+        self.assertEqual(self.calendar.get_view(), win32defines.MCMV_DECADE)
 
-    def testCanSetCalendarsViewIntoCentury(self):
-        self.calendar.SetCalendarView(win32defines.MCMV_CENTURY)
-        self.assertEqual(self.calendar.GetCalendarView(), win32defines.MCMV_CENTURY)
+    def test_can_set_calendars_view_into_century(self):
+        self.calendar.set_view(win32defines.MCMV_CENTURY)
+        self.assertEqual(self.calendar.get_view(), win32defines.MCMV_CENTURY)
 
     def assertThatSystemTimeIsEqualCurrentDateTime(self,systemTime, now):
         self.assertEqual(systemTime.wYear, now.year)

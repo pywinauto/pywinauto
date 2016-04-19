@@ -3286,8 +3286,7 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 class CalendarWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows Calendar common control"
-
+    """Class that wraps Windows Calendar common control"""
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
     if sysinfo.UIA_support:
@@ -3295,45 +3294,31 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     has_title = False
     #----------------------------------------------------------------
     def __init__(self, hwnd):
-        "Initialise the instance"
+        """Initialise the instance"""
         #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(CalendarWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
     def get_current_date(self):
-        "Get the currently selected date"
-        
+        """Get the currently selected date"""        
         remote_mem = RemoteMemoryBlock(self)
         system_date = win32structures.SYSTEMTIME()
         remote_mem.Write(system_date)
-        
+
         res = self.send_message(win32defines.MCM_GETCURSEL , 0, remote_mem)
         remote_mem.Read(system_date)
         del remote_mem
-        
+
         if res == 0:
-            raise RuntimeError('Failed to get time in Calendar')
-        
-        #year = system_time.wYear
-        #month = system_time.wMonth
-        #day_of_week = system_time.wDayOfWeek
-        #day = system_time.wDay
-        #hour = system_time.wHour
-        #minute = system_time.wMinute
-        #second = system_time.wSecond
-        #milliseconds = system_time.wMilliseconds
-        #return (year, month, day_of_week, day, hour, minute, second, milliseconds)
+            raise RuntimeError('Failed to get the currently selected date in Calendar')   
         return system_date
-    # Non PEP-8 alias
-    GetCurrentDate = get_current_date
 
     #----------------------------------------------------------------
-    def set_date(self, year, month, day_of_week, day):
-        "Set the currently selected date"
-        
+    def set_current_date(self, year, month, day_of_week, day):
+        """Set the currently selected date"""
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
-        
+
         system_time.wYear = year
         system_time.wMonth = month
         system_time.wDayOfWeek = day_of_week
@@ -3342,53 +3327,42 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         system_time.wMinute = 0
         system_time.wSecond = 0
         system_time.wMilliseconds = 0
-        
+
         remote_mem.Write(system_time)
-        
+
         res = self.send_message(win32defines.MCM_SETCURSEL, win32defines.GDT_VALID, remote_mem)
+
         del remote_mem
-        
+
         if res == 0:
-            raise RuntimeError('Failed to set time in Calendar')
-    # Non PEP-8 alias
-    SetDate = set_date
+            raise RuntimeError('Failed to set the currently selected date in Calendar')
 
     #----------------------------------------------------------------
-    def get_calendar_border(self):
-        "Get the calendar border"
+    def get_border(self):
+        """Get the calendar border"""
         return self.send_message(win32defines.MCM_GETCALENDARBORDER, 0,0)
-    # Non PEP-8 alias
-    GetCalendarBorderWidth = get_calendar_border
 
     #----------------------------------------------------------------
-    def set_calendar_border(self, border):
-        "Set the calendar border"
+    def set_border(self, border):
+        """Set the calendar border"""
         self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)       
-    # Non PEP-8 alias
-    SetCalendarBorderWidth = set_calendar_border
 
     #----------------------------------------------------------------
-    def get_calendars_cout(self):
-        "Get the calendar border"
+    def count(self):
+        """Get the calendars count"""
         return self.send_message(win32defines.MCM_GETCALENDARCOUNT, 0,0)
-    # Non PEP-8 alias
-    GetCalendarsCount = get_calendars_cout
-
+    
     #----------------------------------------------------------------
-    def get_calendar_view(self):
-        "Get the calendar view"
+    def get_view(self):
+        """Get the calendar view"""
         return self.send_message(win32defines.MCM_GETCURRENTVIEW, 0,0)
-    # Non PEP-8 alias
-    GetCalendarView = get_calendar_view
 
     #----------------------------------------------------------------
-    def set_calendar_view(self, viewType):
-        "Set the calendar view"
+    def set_view(self, viewType):
+        """Set the calendar view"""
         res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
-    # Non PEP-8 alias
-    SetCalendarView = set_calendar_view
 
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
