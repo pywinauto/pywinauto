@@ -20,6 +20,7 @@ if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
 class CalendarWrapperTests(unittest.TestCase):
+
     """Unit tests for the CalendarWrapperTests class"""
     def setUp(self):
         """Start the application set some data and ensure the application
