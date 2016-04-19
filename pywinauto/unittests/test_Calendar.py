@@ -1,5 +1,4 @@
 """Tests for CalendarWrapper"""
-
 import time
 import datetime
 #import pprint
@@ -23,7 +22,7 @@ from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
 from pywinauto import clipboard
 from pywinauto import backend
-
+from pywinauto.controls.win32_controls import ButtonWrapper
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -32,11 +31,9 @@ if is_x64_Python():
 
 class CalendarWrapperTests(unittest.TestCase):
     """Unit tests for the CalendarWrapperTests class"""
-
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
@@ -51,6 +48,10 @@ class CalendarWrapperTests(unittest.TestCase):
     def test_can_get_current_date_from_calendar(self):
         date = self.calendar.get_current_date()
         self.assertThatSystemTimeIsEqualCurrentDateTime(date,datetime.date.today())
+
+    def test_should_throw_runtime_error_when_try_to_get_current_date_from_calendar_if_calendar_state_is_multiselect(self):
+        self.set_calendar_state_into_multiselect()
+        self.assertRaises(RuntimeError, self.calendar.get_current_date)
 
     def test_can_set_current_date_in_calendar(self):
         self.calendar.set_current_date(2016, 4, 3, 13)
@@ -70,12 +71,12 @@ class CalendarWrapperTests(unittest.TestCase):
     def test_can_get_calendars_count(self):
         count = self.calendar.count()
         self.assertEqual(count, 1)
-    
+
     def test_can_get_calendars_view(self):
         view = self.calendar.get_view()
         self.assertEqual(view, 0)
 
-    def test_should_throw__runtime_error_when_try_to_set_invalid_view(self):
+    def test_should_throw_runtime_error_when_try_to_set_invalid_view(self):
         self.assertRaises(RuntimeError, self.calendar.set_view, -1)
 
     def test_can_set_calendars_view_into_month(self):
@@ -98,6 +99,9 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assertEqual(systemTime.wYear, now.year)
         self.assertEqual(systemTime.wMonth, now.month)
         self.assertEqual(systemTime.wDay, now.day)
+
+    def set_calendar_state_into_multiselect(self):
+        self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         
 
 if __name__ == "__main__":
     unittest.main()
