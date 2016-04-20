@@ -3388,6 +3388,30 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
 
+    # ----------------------------------------------------------------
+    def set_id(self, ID):
+        """Set the calendar type"""
+        result = self.send_message(win32defines.MCM_SETCALID, ID, 0)
+        if result == 0:
+            raise RuntimeError('Incorrect type of calendar')
+
+    # ----------------------------------------------------------------
+    def get_id(self):
+        """Get type of calendar"""
+        return self.send_message(win32defines.MCM_GETCALID, 0, 0)
+
+    # ----------------------------------------------------------------
+    def set_color(self, place_of_color, colorref):
+        """Set some color in some place of calendar"""
+        result = self.send_message(win32defines.MCM_SETCOLOR, place_of_color, colorref)
+        if result == 0:
+            raise RuntimeError('Incorrect place ID or COLORREF')
+
+    # ----------------------------------------------------------------
+    def get_color(self, place_of_color):
+        """Return COLORREF in place_of_color which want"""
+        return self.send_message(win32defines.MCM_GETCOLOR, place_of_color, 0)
+
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "

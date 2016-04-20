@@ -91,6 +91,12 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assertEqual(systemTime.wMonth, now.month)
         self.assertEqual(systemTime.wDay, now.day)
 
+    def test_return_incorrect_color(self):
+        self.assertEqual(self.calendar.set_color(0, 0), -1)
+
+    def test_return_correct_color(self):
+        self.assertEqual(self.calendar.set_color(MCSC_TEXT, 0x00010101), 0x00010101)
+
     def set_calendar_state_into_multiselect(self):
         self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         
 
