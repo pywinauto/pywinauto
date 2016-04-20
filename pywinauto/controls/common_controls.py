@@ -3287,8 +3287,8 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 #====================================================================
 
 class CalendarWrapper(HwndWrapper.HwndWrapper):
-
     """Class that wraps Windows Calendar common control"""
+
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
     if sysinfo.UIA_support:
