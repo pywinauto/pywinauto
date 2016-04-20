@@ -40,7 +40,7 @@ from pywinauto.controls import HwndWrapper
 from pywinauto.application import Application, WindowSpecification, process_module
 from pywinauto.application import ProcessNotFoundError, AppStartError, AppNotConnected
 from pywinauto import findwindows, findbestmatch
-from pywinauto.timings import Timings, TimeoutError, WaitUntil
+from pywinauto.timings import Timings, TimeoutError, WaitUntil, always_wait_until, always_wait_until_passes
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto import backend
 
