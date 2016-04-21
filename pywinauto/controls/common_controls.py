@@ -3391,9 +3391,13 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     # ----------------------------------------------------------------
     def set_id(self, ID):
         """Set the calendar type"""
-        result = self.send_message(win32defines.MCM_SETCALID, ID, 0)
-        if result == 0:
-            raise RuntimeError('Incorrect type of calendar')
+        dict_types = {'CAL_GREGORIAN': 1, 'CAL_GREGORIAN_US': 2, 'CAL_JAPAN': 3, 'CAL_TAIWAN': 4, 'CAL_KOREA': 5,
+                      'CAL_HIJRI': 6, 'CAL_THAI': 7, 'CAL_HEBREW': 8, 'CAL_GREGORIAN_ME_FRENCH': 9, 'CAL_GREGORIAN_ARABIC': 10,
+                      'CAL_GREGORIAN_XLIT_ENGLISH': 11, 'CAL_GREGORIAN_XLIT_FRENCH': 12, 'CAL_UMALQURA': 23}
+        if ID in dict_types:
+            self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
+        else:
+            raise RuntimeError('You typed incorrect type of Calendar')
 
     # ----------------------------------------------------------------
     def get_id(self):
@@ -3403,14 +3407,24 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     # ----------------------------------------------------------------
     def set_color(self, place_of_color, colorref):
         """Set some color in some place of calendar"""
-        result = self.send_message(win32defines.MCM_SETCOLOR, place_of_color, colorref)
-        if result == 0:
-            raise RuntimeError('Incorrect place ID or COLORREF')
+        place_in_calendar = {'MCSC_BACKGROUND': 'MCSC_BACKGROUND', 'MCSC_MONTHBK': 'MCSC_MONTHBK', 'MCSC_TEXT': 'MCSC_TEXT',
+                             'MCSC_TITLEBK': 'MCSC_TITLEBK', 'MCSC_TITLETEXT': 'MCSC_TITLETEXT', 'MCSC_TRAILINGTEXT': 'MCSC_TRAILINGTEXT'}
+        if place_of_color in place_in_calendar:
+            result = self.send_message(win32defines.MCM_SETCOLOR, place_of_color, colorref)
+        else:
+            raise RuntimeError('Incorrect place ID for color')
+        if result == -1:
+            raise RuntimeError('Incorrect COLORREF')
 
     # ----------------------------------------------------------------
     def get_color(self, place_of_color):
         """Return COLORREF in place_of_color which want"""
-        return self.send_message(win32defines.MCM_GETCOLOR, place_of_color, 0)
+        place_in_calendar = {'MCSC_BACKGROUND': 'MCSC_BACKGROUND', 'MCSC_MONTHBK': 'MCSC_MONTHBK', 'MCSC_TEXT': 'MCSC_TEXT',
+                             'MCSC_TITLEBK': 'MCSC_TITLEBK', 'MCSC_TITLETEXT': 'MCSC_TITLETEXT', 'MCSC_TRAILINGTEXT': 'MCSC_TRAILINGTEXT'}
+        if place_of_color in place_in_calendar:
+            return self.send_message(win32defines.MCM_GETCOLOR, place_of_color, 0)
+        else:
+            raise RuntimeError('Incorrect place ID of color')
 
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
