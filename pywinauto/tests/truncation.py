@@ -68,7 +68,7 @@ import ctypes
 from pywinauto import six
 from pywinauto import win32defines
 from pywinauto import win32functions
-from pywinauto.win32structures import RECT
+from pywinauto import win32structures
 
 
 #==============================================================================
@@ -180,7 +180,7 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     # put our font into the Device Context
     win32functions.SelectObject (txtDC, hFontGUI)
 
-    modifiedRect = RECT(usableRect)
+    modifiedRect = win32structures.RECT(usableRect)
     # Now write the text to our DC with our font to get the
     # rectangle that the text needs to fit in
     win32functions.DrawText (txtDC, # The DC

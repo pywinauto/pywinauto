@@ -15,7 +15,6 @@ Specific functionality
    :maxdepth: 1
    
    pywinauto.clipboard.txt
-   pywinauto.taskbar.txt
 
 
 Controls Reference

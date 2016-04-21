@@ -53,8 +53,8 @@ from . import HwndWrapper
 
 from ..timings import Timings
 from ..timings import WaitUntil
-from pywinauto.handleprops import is64bitprocess
-from pywinauto.sysinfo import is_x64_Python
+from ..handleprops import is64bitprocess
+from ..sysinfo import is_x64_Python
 
 if sysinfo.UIA_support:
     from ..uia_defines import IUIA
@@ -674,15 +674,27 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         if self.is_unicode():
             self.create_buffer = ctypes.create_unicode_buffer
-            self.LVCOLUMN       = win32structures.LVCOLUMNW
-            self.LVITEM         = win32structures.LVITEMW
+
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
+                self.LVCOLUMN       = win32structures.LVCOLUMNW
+                self.LVITEM         = win32structures.LVITEMW
+            else:
+                self.LVCOLUMN       = win32structures.LVCOLUMNW32
+                self.LVITEM         = win32structures.LVITEMW32
+
             self.LVM_GETITEM    = win32defines.LVM_GETITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNW
             self.text_decode    = lambda v: v
         else:
             self.create_buffer = ctypes.create_string_buffer
-            self.LVCOLUMN       = win32structures.LVCOLUMNW
-            self.LVITEM         = win32structures.LVITEMW
+
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
+                self.LVCOLUMN       = win32structures.LVCOLUMNW
+                self.LVITEM         = win32structures.LVITEMW
+            else:
+                self.LVCOLUMN       = win32structures.LVCOLUMNW32
+                self.LVITEM         = win32structures.LVITEMW32
+
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
             self.LVM_GETITEM    = win32defines.LVM_GETITEMA
             self.text_decode    = lambda v: v.decode(locale.getpreferredencoding())
@@ -2456,7 +2468,12 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
                 self.button_count())
 
         remote_mem = RemoteMemoryBlock(self)
-        button = win32structures.TBBUTTON()
+
+        if is64bitprocess(self.process_id()) or not is_x64_Python():
+            button = win32structures.TBBUTTON()
+        else:
+            button = win32structures.TBBUTTON32()
+
         remote_mem.Write(button)
 
         ret = self.send_message(
@@ -2480,7 +2497,11 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         button = self.get_button_struct(button_index)
 
-        button_info = win32structures.TBBUTTONINFOW()
+        if is64bitprocess(self.process_id()) or not is_x64_Python():
+            button_info = win32structures.TBBUTTONINFOW()
+        else:
+            button_info = win32structures.TBBUTTONINFOW32()
+
         button_info.cbSize = ctypes.sizeof(button_info)
         button_info.dwMask = \
             win32defines.TBIF_COMMAND | \
@@ -3285,15 +3306,87 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
+
 class CalendarWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows Calendar common control "
+    
+    """Class that wraps Windows Calendar common control"""
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
+    #----------------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialise the instance"""
+        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
+        super(CalendarWrapper, self).__init__(hwnd)
 
+    #----------------------------------------------------------------
+    def get_current_date(self):
+        """Get the currently selected date"""        
+        remote_mem = RemoteMemoryBlock(self)
+        system_date = win32structures.SYSTEMTIME()
+        remote_mem.Write(system_date)
+
+        res = self.send_message(win32defines.MCM_GETCURSEL , 0, remote_mem)
+        remote_mem.Read(system_date)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to get the currently selected date in Calendar')   
+        return system_date
+
+    #----------------------------------------------------------------
+    def set_current_date(self, year, month, day_of_week, day):
+        """Set the currently selected date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_time = win32structures.SYSTEMTIME()
+
+        system_time.wYear = year
+        system_time.wMonth = month
+        system_time.wDayOfWeek = day_of_week
+        system_time.wDay = day
+        system_time.wHour = 0
+        system_time.wMinute = 0
+        system_time.wSecond = 0
+        system_time.wMilliseconds = 0
+
+        remote_mem.Write(system_time)
+
+        res = self.send_message(win32defines.MCM_SETCURSEL, win32defines.GDT_VALID, remote_mem)
+
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set the currently selected date in Calendar')
+
+    #----------------------------------------------------------------
+    def get_border(self):
+        """Get the calendar border"""
+        return self.send_message(win32defines.MCM_GETCALENDARBORDER, 0,0)
+
+    #----------------------------------------------------------------
+    def set_border(self, border):
+        """Set the calendar border"""
+        self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)       
+
+    #----------------------------------------------------------------
+    def count(self):
+        """Get the calendars count"""
+        return self.send_message(win32defines.MCM_GETCALENDARCOUNT, 0,0)
+    
+    #----------------------------------------------------------------
+    def get_view(self):
+        """Get the calendar view"""
+        return self.send_message(win32defines.MCM_GETCURRENTVIEW, 0,0)
+
+    #----------------------------------------------------------------
+    def set_view(self, viewType):
+        """Set the calendar view"""
+        res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
+        if res == 0:
+            raise RuntimeError('Failed to set view in Calendar')
 
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
