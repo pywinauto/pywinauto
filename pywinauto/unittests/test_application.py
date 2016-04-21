@@ -887,7 +887,7 @@ class WaitUntilDecoratorTests(unittest.TestCase):
         
         @always_wait_until(4, 2)
         def foo():
-            pass
+            return False
         self.assertRaises(TimeoutError, foo())
 		
     def test_always_wait_until_passes_decorator_success(self):
@@ -903,8 +903,8 @@ class WaitUntilDecoratorTests(unittest.TestCase):
         
         @always_wait_until_passes(4, 2)
         def foo():
-            raise Exception()
-        self.assertRaises(Exception, foo())
+            raise Exception("Unexpected Error in foo")
+        self.assertRaises(TimeoutError, foo())
 		
 if __name__ == "__main__":
     unittest.main()
