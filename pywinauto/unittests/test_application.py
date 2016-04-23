@@ -870,9 +870,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertTrue(len(windows) >= 1)
 
 class WaitUntilDecoratorTests(unittest.TestCase):
-    """Unit tests for always_wait_until and 
-	always_wait_until_passes decorators
-	"""
+    """Unit tests for always_wait_until and always_wait_until_passes decorators"""
     
     def test_always_wait_until_decorator_success(self):
         """Test always_wait_until_decorator success"""
@@ -881,15 +879,15 @@ class WaitUntilDecoratorTests(unittest.TestCase):
         def foo():
             return True
         self.assertTrue(foo())
-		
+        
     def test_always_wait_until_decorator_failure(self):
         """Test wait_until_decorator failure"""
         
         @always_wait_until(4, 2)
         def foo():
             return False
-        self.assertRaises(TimeoutError, foo())
-		
+        self.assertRaises(TimeoutError, foo)
+        
     def test_always_wait_until_passes_decorator_success(self):
         """Test always_wait_until_passes_decorator success"""
         
@@ -897,14 +895,14 @@ class WaitUntilDecoratorTests(unittest.TestCase):
         def foo():
             return True
         self.assertTrue(foo())
-		
+        
     def test_always_wait_until_passes_decorator_failure(self):
         """Test always_wait_until_passes_decorator failure"""
         
         @always_wait_until_passes(4, 2)
         def foo():
             raise Exception("Unexpected Error in foo")
-        self.assertRaises(TimeoutError, foo())
-		
+        self.assertRaises(TimeoutError, foo)
+        
 if __name__ == "__main__":
     unittest.main()
