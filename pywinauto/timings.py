@@ -287,29 +287,28 @@ def wait_until(
     value = True, 
     op = operator.eq,
     *args):
-    """Wait until ``op(function(*args), value)`` is True or until timeout 
-       expires
+    r"""Wait until ``op(function(*args), value)`` is True or until timeout expires
     
-     * **timeout**  how long the function will try the function
-     * **retry_interval**  how long to wait between retries
-     * **func** the function that will be executed
-     * **value**  the value to be compared against (defaults to True)
-     * **op** the comparison function (defaults to equality)\
-     * **args** optional arguments to be passed to func when called
-     
-     Returns the return value of the function
-     If the operation times out then the return value of the the function 
-     is in the 'function_value' attribute of the raised exception.
-     
-     e.g. ::
+    * **timeout**  how long the function will try the function
+    * **retry_interval**  how long to wait between retries
+    * **func** the function that will be executed
+    * **value**  the value to be compared against (defaults to True)
+    * **op** the comparison function (defaults to equality)\
+    * **args** optional arguments to be passed to func when called
+    
+    Returns the return value of the function
+    If the operation times out then the return value of the the function 
+    is in the 'function_value' attribute of the raised exception.
+    
+    e.g. ::
       
-      try:
-         # wait a maximum of 10.5 seconds for the 
-         # the objects item_count() method to return 10
-         # in increments of .5 of a second
-         WaitUntil(10.5, .5, self.item_count, 10)
-      except TimeoutError as e:
-         print("timed out")
+    try:
+    # wait a maximum of 10.5 seconds for the 
+    # the objects item_count() method to return 10
+    # in increments of .5 of a second
+    wait_until(10.5, .5, self.item_count, 10)
+    except TimeoutError as e:
+        print("timed out")
     
     """
     start = time.time()
@@ -360,29 +359,28 @@ def wait_until_passes(
     func, 
     exceptions = (Exception),
     *args):
-    """Wait until ``func(*args)`` does not raise one of the exceptions in 
-       exceptions
+    """Wait until ``func(*args)`` does not raise one of the exceptions in exceptions
     
-     * **timeout**  how long the function will try the function
-     * **retry_interval**  how long to wait between retries
-     * **func** the function that will be executed
-     * **exceptions**  list of exceptions to test against (default: Exception)
-     * **args** optional arguments to be passed to func when called
+    * **timeout**  how long the function will try the function
+    * **retry_interval**  how long to wait between retries
+    * **func** the function that will be executed
+    * **exceptions**  list of exceptions to test against (default: Exception)
+    * **args** optional arguments to be passed to func when called
+    
+    Returns the return value of the function
+    If the operation times out then the original exception raised is in
+    the 'original_exception' attribute of the raised exception.
+    
+    e.g. ::
      
-     Returns the return value of the function
-     If the operation times out then the original exception raised is in
-     the 'original_exception' attribute of the raised exception.
-     
-     e.g. ::
-     
-      try:
-         # wait a maximum of 10.5 seconds for the 
-         # window to be found in increments of .5 of a second.
-         # P.int a message and re-raise the original exception if never found.
-         WaitUntilPasses(10.5, .5, self.Exists, (ElementNotFoundError))
-      except TimeoutError as e:
-         print("timed out")
-         raise e.
+    try:
+    # wait a maximum of 10.5 seconds for the 
+    # window to be found in increments of .5 of a second.
+    # P.int a message and re-raise the original exception if never found.
+    wait_until_passes(10.5, .5, self.Exists, (ElementNotFoundError))
+    except TimeoutError as e:
+        print("timed out")
+        raise e.
     
     """
     start = time.time()
