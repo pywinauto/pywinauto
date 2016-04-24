@@ -3390,10 +3390,30 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
     # ----------------------------------------------------------------
     def set_id(self, ID):
-        """Set the calendar type"""
-        dict_types = {'CAL_GREGORIAN': 1, 'CAL_GREGORIAN_US': 2, 'CAL_JAPAN': 3, 'CAL_TAIWAN': 4, 'CAL_KOREA': 5,
-                      'CAL_HIJRI': 6, 'CAL_THAI': 7, 'CAL_HEBREW': 8, 'CAL_GREGORIAN_ME_FRENCH': 9, 'CAL_GREGORIAN_ARABIC': 10,
-                      'CAL_GREGORIAN_XLIT_ENGLISH': 11, 'CAL_GREGORIAN_XLIT_FRENCH': 12, 'CAL_UMALQURA': 23}
+        """
+        Set the calendar type
+        Receive only one parameter, which takes variants below:
+        'gregorian', 'gregorian_US', 'japan', 'taiwan', 'korea',
+        'hijri', 'thai', 'hebwer', 'gregorian_french_me',
+        'gregorian_arabic', 'gregorian_english_xlit',
+        'gregorian_french_xlit', 'umalqura'
+        """
+
+        dict_types = {
+            'gregorian': 1,
+            'gregorian_US': 2,
+            'japan': 3,
+            'taiwan': 4,
+            'korea': 5,
+            'hijri': 6,
+            'thai': 7,
+            'hebwer': 8,
+            'gregorian_french_me': 9,
+            'gregorian_arabic': 10,
+            'gregorian_english_xlit': 11,
+            'gregorian_french_xlit': 12,
+            'umalqura': 23
+        }
         if ID in dict_types:
             self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
         else:
@@ -3405,22 +3425,53 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return self.send_message(win32defines.MCM_GETCALID, 0, 0)
 
     # ----------------------------------------------------------------
-    def set_color(self, place_of_color, colorref):
-        """Set some color in some place of calendar"""
-        place_in_calendar = {'MCSC_BACKGROUND': 'MCSC_BACKGROUND', 'MCSC_MONTHBK': 'MCSC_MONTHBK', 'MCSC_TEXT': 'MCSC_TEXT',
-                             'MCSC_TITLEBK': 'MCSC_TITLEBK', 'MCSC_TITLETEXT': 'MCSC_TITLETEXT', 'MCSC_TRAILINGTEXT': 'MCSC_TRAILINGTEXT'}
+    def set_color(self, place_of_color, red, green, blue):
+        """
+        Set some color in some place of calendar.
+        Receive four parameters:
+        - First may takes few variants below:
+        'background', 'month_background', 'text', 'title_background',
+        'title_text', 'trailing_text' ;
+        - All other parameters should be integer from 0 to 255.
+        """
+        place_in_calendar = {
+            'background': 'MCSC_BACKGROUND',
+            'month_background': 'MCSC_MONTHBK',
+            'text': 'MCSC_TEXT',
+            'title_background': 'MCSC_TITLEBK',
+            'title_text': 'MCSC_TITLETEXT',
+            'trailing_text': 'MCSC_TRAILINGTEXT'
+        }
+        if red < 0 and red < 255:
+            raise RuntimeError('Incorrect range of color, must be from 0 to 255')
+        if green < 0 and green < 255:
+            raise RuntimeError('Incorrect range of color, must be from 0 to 255')
+        if blue < 0 and blue < 255:
+            raise RuntimeError('Incorrect range of color, must be from 0 to 255')
+        color = (red, green, blue)
         if place_of_color in place_in_calendar:
-            result = self.send_message(win32defines.MCM_SETCOLOR, place_of_color, colorref)
+            result = self.send_message(win32defines.MCM_SETCOLOR, place_of_color, color)
         else:
             raise RuntimeError('Incorrect place ID for color')
         if result == -1:
-            raise RuntimeError('Incorrect COLORREF')
+            raise RuntimeError('Incorrect color')
 
     # ----------------------------------------------------------------
     def get_color(self, place_of_color):
-        """Return COLORREF in place_of_color which want"""
-        place_in_calendar = {'MCSC_BACKGROUND': 'MCSC_BACKGROUND', 'MCSC_MONTHBK': 'MCSC_MONTHBK', 'MCSC_TEXT': 'MCSC_TEXT',
-                             'MCSC_TITLEBK': 'MCSC_TITLEBK', 'MCSC_TITLETEXT': 'MCSC_TITLETEXT', 'MCSC_TRAILINGTEXT': 'MCSC_TRAILINGTEXT'}
+        """
+        Return COLORREF in place_of_color which want.
+        Receive only one parameter, which takes variants below:
+        'background', 'month_background', 'text', 'title_background', 'title_text', 'trailing_text'
+        """
+
+        place_in_calendar = {
+            'background': 'MCSC_BACKGROUND',
+            'month_background': 'MCSC_MONTHBK',
+            'text': 'MCSC_TEXT',
+            'title_background': 'MCSC_TITLEBK',
+            'title_text': 'MCSC_TITLETEXT',
+            'trailing_text': 'MCSC_TRAILINGTEXT'
+        }
         if place_of_color in place_in_calendar:
             return self.send_message(win32defines.MCM_GETCOLOR, place_of_color, 0)
         else:
