@@ -101,14 +101,17 @@ class CalendarWrapperTests(unittest.TestCase):
     def test_should_throw_runtime_error_when_try_to_set_invalid_type_of_place_for_color(self):
         self.assertRaises(RuntimeError, self.calendar.set_color, 'Aloha!', 0, 0, 0)
 
-    def test_should_throw_runtime_error_when_try_to_set_invalid_colorref(self):
-        self.assertRaises(RuntimeError, self.calendar.set_color, 'month', -88)
-
     def test_return_correct_color(self):
         self.assertEqual(self.calendar.set_color('text', 15, 15, 15), (15, 15, 15))
 
     def test_return_error_about_color(self):
         self.assertRaises(RuntimeError, self.calendar.set_color, 'background', -1, -1, -1)
+
+    def test_return_error_when_color_hire_then_255(self):
+        self.assertRaises(RuntimeError, self.calendar.set_color, 'background', 600, 600, 600)
+
+    def test_should_throw_runtime_error_when_try_to_get_invalid_type_of_calendar(self):
+        self.assertRaises(RuntimeError, self.calendar.get_id, 'Aloha!')
 
     def test_should_get_valid_calendar_color(self):
         self.calendar.set_color('text', 5, 5, 5)

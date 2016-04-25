@@ -3391,28 +3391,29 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     # ----------------------------------------------------------------
     def set_id(self, ID):
         """
-        Set the calendar type
+        Set the calendar type.
+
         Receive only one parameter, which takes variants below:
-        'gregorian', 'gregorian_US', 'japan', 'taiwan', 'korea',
-        'hijri', 'thai', 'hebwer', 'gregorian_french_me',
+        'gregorian', 'gregorian_us', 'japan', 'taiwan', 'korea',
+        'hijri', 'thai', 'hebrew', 'gregorian_me_french',
         'gregorian_arabic', 'gregorian_english_xlit',
         'gregorian_french_xlit', 'umalqura'
         """
 
         dict_types = {
-            'gregorian': 1,
-            'gregorian_US': 2,
-            'japan': 3,
-            'taiwan': 4,
-            'korea': 5,
-            'hijri': 6,
-            'thai': 7,
-            'hebwer': 8,
-            'gregorian_french_me': 9,
-            'gregorian_arabic': 10,
-            'gregorian_english_xlit': 11,
-            'gregorian_french_xlit': 12,
-            'umalqura': 23
+            'gregorian': 'CAL_GREGORIAN',
+            'gregorian_us': 'CAL_GREGORIAN_US',
+            'japan': 'CAL_JAPAN',
+            'taiwan': 'CAL_TAIWAN',
+            'korea': 'CAL_KOREA',
+            'hijri': 'CAL_HIJRI',
+            'thai': 'CAL_THAI',
+            'hebrew': 'CAL_HEBREW',
+            'gregorian_me_french': 'CAL_GREGORIAN_ME_FRENCH',
+            'gregorian_arabic': 'CAL_GREGORIAN_ARABIC',
+            'gregorian_english_xlit': 'CAL_GREGORIAN_XLIT_ENGLISH',
+            'gregorian_french_xlit': 'CAL_GREGORIAN_XLIT_FRENCH',
+            'umalqura': 'CAL_UMALQURA'
         }
         if ID in dict_types:
             self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
@@ -3428,8 +3429,9 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     def set_color(self, place_of_color, red, green, blue):
         """
         Set some color in some place of calendar.
+
         Receive four parameters:
-        - First may takes few variants below:
+        - The first parameter may take few variants below:
         'background', 'month_background', 'text', 'title_background',
         'title_text', 'trailing_text' ;
         - All other parameters should be integer from 0 to 255.
@@ -3442,11 +3444,11 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             'title_text': 'MCSC_TITLETEXT',
             'trailing_text': 'MCSC_TRAILINGTEXT'
         }
-        if red < 0 and red < 255:
+        if not (0 <= red <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
-        if green < 0 and green < 255:
+        if (0 <= green <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
-        if blue < 0 and blue < 255:
+        if (0 <= blue <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
         color = (red, green, blue)
         if place_of_color in place_in_calendar:
@@ -3459,7 +3461,8 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     # ----------------------------------------------------------------
     def get_color(self, place_of_color):
         """
-        Return COLORREF in place_of_color which want.
+        Return color of place in calendar, which you specify.
+
         Receive only one parameter, which takes variants below:
         'background', 'month_background', 'text', 'title_background', 'title_text', 'trailing_text'
         """
