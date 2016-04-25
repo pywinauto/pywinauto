@@ -461,6 +461,19 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     SendMessage = send_message
 
+    # -----------------------------------------------------------
+    def send_chars(self, message):
+        """Send a string to the control and wait for it to return"""
+        res = []
+
+        for c in message:
+            res.append(win32api.SendMessage(self.handle, win32con.WM_CHAR, ord(c), 0));
+
+        return res
+
+    # Non PEP-8 alias
+    SendChars = send_chars
+
     #-----------------------------------------------------------
     def send_message_timeout(
         self,
