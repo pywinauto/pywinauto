@@ -42,6 +42,7 @@ import win32process
 
 from .. import win32functions
 from ..actionlogger import ActionLogger
+from .. import SendKeysCtypes
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -466,8 +467,22 @@ class HwndWrapper(BaseWrapper):
         """Send a string to the control and wait for it to return"""
         res = []
 
-        for c in message:
-            res.append(win32api.SendMessage(self.handle, win32con.WM_CHAR, ord(c), 0));
+        mspl = message.split("{TAB}{ENTER 2}")
+        ind = 0
+        for substr in mspl:
+            ind = ind + 1
+
+            for c in substr:
+                if c in SendKeysCtypes.MODIFIERS.keys():
+                    # Shift, Ctrl, Menu
+                    res.append(-1)
+                else:
+                    # Usual character
+                    res.append(win32api.SendMessage(self.handle, win32con.WM_CHAR, ord(c), 0))
+
+            if ind != len(mspl):
+                # "{TAB}{ENTER 2}"
+                res.append(-2)
 
         return res
 

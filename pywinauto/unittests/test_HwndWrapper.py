@@ -277,7 +277,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(expected, code)
 
     def testSendChars(self):
-        expected = "Hello World"
+        expected = "H^e^l^l^o{TAB}{ENTER 2}W%o+r+l+d"
         code = self.dlg.Edit.SendChars(expected)
         actual = self.dlg.Edit.Texts()[0];
         self.assertEqual(expected, actual)
