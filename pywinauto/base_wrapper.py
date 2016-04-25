@@ -13,7 +13,7 @@ try:
 except ImportError:
     ImageGrab = None
 
-from . import SendKeysCtypes as SendKeys
+from . import keyboard
 from . import six
 from . import win32defines, win32structures, win32functions
 from .timings import Timings
@@ -778,9 +778,9 @@ class BaseWrapper(object):
         turn_off_numlock = True,
         set_foreground = True):
         """
-        Type keys to the element using SendKeys
+        Type keys to the element using keyboard.SendKeys
 
-        This uses the SendKeys python module from
+        This uses the re-written keyboard python module like that
         http://www.rutherfurd.net/python/sendkeys/ .This is the best place
         to find documentation on what to use for the **keys**
         """
@@ -810,7 +810,7 @@ class BaseWrapper(object):
             aligned_keys = six.text_type(keys)
 
         # Play the keys to the active window
-        SendKeys.SendKeys(
+        keyboard.SendKeys(
             aligned_keys,
             pause,
             with_spaces,

@@ -35,7 +35,7 @@ from pywinauto.sysinfo import is_x64_Python, \
 from pywinauto import win32defines
 from pywinauto.timings import WaitUntil
 import pywinauto.actionlogger
-from pywinauto import backend
+from pywinauto.timings import Timings
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
@@ -129,21 +129,22 @@ def _wait_minimized(dlg):
     return True
 
 class TaskbarTestCases(unittest.TestCase):
-    "Unit tests for the taskbar"
+
+    """Unit tests for the taskbar"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
-        backend.activate("native")
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
+
         self.tm = _ready_timeout
-        app = Application()
+        app = Application(backend='native')
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle = False)
         self.app = app
         self.dlg = app.top_window_()
         self.dlg.Wait('ready', timeout=self.tm)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         self.dlg.SendMessage(win32defines.WM_CLOSE)
         self.dlg.WaitNot('ready')
 

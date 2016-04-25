@@ -20,7 +20,7 @@
 
 """Back-end components storage (links to platform-specific things)"""
 
-from .ElementInfo import ElementInfo
+from .element_info import ElementInfo
 from .base_wrapper import BaseWrapper
 
 

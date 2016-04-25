@@ -35,7 +35,7 @@ import ctypes
 
 from . import win32functions
 from . import handleprops
-from .ElementInfo import ElementInfo
+from .element_info import ElementInfo
 
 class NativeElementInfo(ElementInfo):
 

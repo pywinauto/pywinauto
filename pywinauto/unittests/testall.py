@@ -39,8 +39,8 @@ import pywinauto
 pywinauto.actionlogger.enable()
 
 # increase timings for AppVeyor
-pywinauto.timings.Timings.app_start_timeout = 40
-pywinauto.timings.Timings.window_find_timeout = 50
+#pywinauto.timings.Timings.app_start_timeout = 40
+#pywinauto.timings.Timings.window_find_timeout = 50
 
 modules_to_test = [pywinauto]
 

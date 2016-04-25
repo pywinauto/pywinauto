@@ -75,6 +75,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         # Force Display User and Deprecation warnings every time
         # Python 3.3+nose/unittest trys really hard to suppress them
         for warning in (UserWarning, PendingDeprecationWarning):
@@ -161,6 +162,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
@@ -372,6 +374,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_top_window(self):
         """Test that top_window_() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
         self.assertRaises(AppNotConnected, app.top_window_)
         
@@ -448,6 +451,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_windows(self):
         """Test that windows_() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
 
         self.assertRaises(AppNotConnected, app.windows_, **{'title' : 'not connected'})
@@ -499,6 +503,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_getitem(self):
         """Test that __getitem__() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
         app.start(_notepad_exe())
 
@@ -523,6 +528,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_getattribute(self):
         """Test that __getattribute__() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
         app.start(_notepad_exe())
 
@@ -572,6 +578,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit

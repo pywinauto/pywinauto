@@ -967,8 +967,8 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         controls = [self] + self.children()
         props = [ctrl.get_properties() for ctrl in controls]
 
-        from .. import XMLHelpers
-        XMLHelpers.WriteDialogToFile(filename, props)
+        from .. import xml_helpers
+        xml_helpers.WriteDialogToFile(filename, props)
     # Non PEP-8 alias
     WriteToXML = write_to_xml
 
@@ -1057,9 +1057,9 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
 #    #-----------------------------------------------------------
 #    def read_controls_from_xml(self, filename):
-#        from pywinauto import XMLHelpers
+#        from pywinauto import xml_helpers
 #        [controlproperties.ControlProps(ctrl) for
-#            ctrl in XMLHelpers.ReadPropertiesFromFile(handle)]
+#            ctrl in xml_helpers.ReadPropertiesFromFile(handle)]
 #    # Non PEP-8 alias
 #    ReadControlsFromXML = read_controls_from_xml
 

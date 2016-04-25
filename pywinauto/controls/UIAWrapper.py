@@ -45,7 +45,7 @@ from ..base_wrapper import BaseMeta
 import comtypes
 from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
-from ..UIAElementInfo import UIAElementInfo, elements_from_uia_array
+from ..uia_element_info import UIAElementInfo, elements_from_uia_array
 
 #region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement

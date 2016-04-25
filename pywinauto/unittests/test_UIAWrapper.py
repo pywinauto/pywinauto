@@ -20,10 +20,8 @@ if UIA_support:
     import pywinauto.uia_defines as uia_defs
     from pywinauto.controls.UIAWrapper import UIAWrapper
 from pywinauto import findwindows
-#from pywinauto import clipboard
-from pywinauto import backend
-from pywinauto.timings import Timings, TimeoutError
-Timings.Defaults()
+from pywinauto.timings import Timings
+from pywinauto.timings import TimeoutError
 
 import unittest
 
@@ -34,15 +32,14 @@ if is_x64_Python():
 wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
 if UIA_support:
-    # Set backend to UIA
 
     class UIAWrapperTests(unittest.TestCase):
 
-        "Unit tests for the UIAWrapper class"
+        """Unit tests for the UIAWrapper class"""
 
         def setUp(self):
-            """Start the application set some data and ensure the application
-            is in the state we want it."""
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
 
             # start the application
             self.app = Application(backend = 'uia')
@@ -223,13 +220,12 @@ if UIA_support:
         #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
 
     class UIAWrapperMouseTests(unittest.TestCase):
+
         """Unit tests for mouse actions of the UIAWrapper class"""
 
         def setUp(self):
-            """
-            Start the application set some data and ensure the application
-            is in the state we want it.
-            """
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
 
             self.app = Application(backend = 'uia')
             self.app = self.app.Start(wpf_app_1)
@@ -274,10 +270,9 @@ if UIA_support:
         """Unit tests for the UIA control wrappers"""
 
         def setUp(self):
-            """
-            Start the application, set some data and ensure the application
-            is in the state we want it.
-            """
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+
             # start the application
             app = Application(backend = 'uia')
             self.app = app.Start(wpf_app_1)
@@ -411,8 +406,8 @@ if UIA_support:
         """Unit tests for the EditWrapper class"""
 
         def setUp(self):
-            """Start the application set some data and ensure the application
-            is in the state we want it."""
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
 
             # start the application
             app = Application(backend = 'uia')
@@ -495,11 +490,12 @@ if UIA_support:
 
 
     class SliderWrapperTestCases(unittest.TestCase):
+
         """Unit tests for the EditWrapper class"""
 
         def setUp(self):
-            """Start the application set some data and ensure the application
-            is in the state we want it."""
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
 
             # start the application
             app = Application(backend='uia')

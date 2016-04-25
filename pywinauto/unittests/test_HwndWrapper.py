@@ -24,7 +24,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-"Tests for HwndWrapper"
+"""Tests for HwndWrapper"""
 
 import time
 #import pprint
@@ -39,15 +39,18 @@ import sys, os
 import unittest
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.controls.HwndWrapper import HwndWrapper, \
-                InvalidWindowHandle, GetDialogPropsFromHandle
-from pywinauto import win32structures, win32defines
-from pywinauto.findwindows import ElementNotFoundError, ElementNotFoundError
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
-from pywinauto.timings import Timings, TimeoutError
+from pywinauto.controls.HwndWrapper import HwndWrapper
+from pywinauto.controls.HwndWrapper import InvalidWindowHandle
+from pywinauto.controls.HwndWrapper import GetDialogPropsFromHandle
+from pywinauto import win32structures
+from pywinauto import win32defines
+from pywinauto.findwindows import ElementNotFoundError
+from pywinauto.sysinfo import is_x64_Python
+from pywinauto.sysinfo import is_x64_OS
+from pywinauto.remote_memory_block import RemoteMemoryBlock
+from pywinauto.timings import Timings
+from pywinauto.timings import TimeoutError
 from pywinauto import clipboard
-from pywinauto import backend
 
 
 mfc_samples_folder = os.path.join(
@@ -63,11 +66,12 @@ def _notepad_exe():
 
 
 class HwndWrapperTests(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the TreeViewWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
@@ -80,8 +84,7 @@ class HwndWrapperTests(unittest.TestCase):
         #self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
 
     def tearDown(self):
-        "Close the application after tests"
-        # close the application
+        """Close the application after tests"""
         #self.dlg.type_keys("%{F4}")
         #self.dlg.Close()
         self.app.kill_()
@@ -430,11 +433,12 @@ class HwndWrapperTests(unittest.TestCase):
 
 
 class HwndWrapperMenuTests(unittest.TestCase):
-    "Unit tests for menu actions of the HwndWrapper class"
+
+    """Unit tests for menu actions of the HwndWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
         
@@ -442,8 +446,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         self.ctrl = self.app.RowListSampleApplication.ListView.WrapperObject()
 
     def tearDown(self):
-        "Close the application after tests"
-        # close the application
+        """Close the application after tests"""
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testMenuItems(self):
@@ -509,11 +512,12 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
 
 class HwndWrapperMouseTests(unittest.TestCase):
-    "Unit tests for mouse actions of the HwndWrapper class"
+
+    """Unit tests for mouse actions of the HwndWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
@@ -522,9 +526,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.ctrl = HwndWrapper(self.dlg.NoteEdit.handle)
 
     def tearDown(self):
-        "Close the application after tests"
-
-        # close the application
+        """Close the application after tests"""
         try:
             self.dlg.Close(0.5)
         except Exception: # TimeoutError:
@@ -597,11 +599,12 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
 
 class NotepadRegressionTests(unittest.TestCase):
-    "Regression unit tests for Notepad"
+
+    """Regression unit tests for Notepad"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
@@ -614,9 +617,7 @@ class NotepadRegressionTests(unittest.TestCase):
 
 
     def tearDown(self):
-        "Close the application after tests"
-
-        # close the application
+        """Close the application after tests"""
         try:
             self.dlg.Close(0.5)
             if self.app.Notepad["Do&n't Save"].Exists():
@@ -629,8 +630,7 @@ class NotepadRegressionTests(unittest.TestCase):
         self.app2.kill_()
 
     def testMenuSelectNotepad_bug(self):
-        "In notepad - MenuSelect Edit->Paste did not work"
-
+        """In notepad - MenuSelect Edit->Paste did not work"""
         text = b'Here are some unicode characters \xef\xfc\r\n'
         self.app2.UntitledNotepad.Edit.Wait('enabled')
         time.sleep(0.3)
@@ -658,11 +658,12 @@ class NotepadRegressionTests(unittest.TestCase):
 
 
 class DragAndDropTests(unittest.TestCase):
-    "Unit tests for mouse actions like drag-n-drop"
+
+    """Unit tests for mouse actions like drag-n-drop"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
@@ -697,11 +698,12 @@ class DragAndDropTests(unittest.TestCase):
 
 
 class GetDialogPropsFromHandleTest(unittest.TestCase):
-    "Unit tests for mouse actions of the HwndWrapper class"
+
+    """Unit tests for mouse actions of the HwndWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
@@ -710,7 +712,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         #self.dlg.type_keys("%{F4}")
         self.dlg.Close(0.5)
@@ -718,23 +720,21 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 
 
     def test_GetDialogPropsFromHandle(self):
-        "Test some small stuff regarding GetDialogPropsFromHandle"
-
+        """Test some small stuff regarding GetDialogPropsFromHandle"""
         props_from_handle = GetDialogPropsFromHandle(self.dlg.handle)
-
         props_from_dialog = GetDialogPropsFromHandle(self.dlg)
-
         #unused var: props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
 
         self.assertEquals(props_from_handle, props_from_dialog)
 
 
 class RemoteMemoryBlockTests(unittest.TestCase):
-    "Unit tests for RemoteMemoryBlock"
+
+    """Unit tests for RemoteMemoryBlock"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))

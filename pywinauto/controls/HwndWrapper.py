@@ -57,7 +57,7 @@ from .. import timings
 
 #from .. import findbestmatch
 from .. import handleprops
-from ..NativeElementInfo import NativeElementInfo
+from ..native_element_info import NativeElementInfo
 from .. import backend
 
 # also import MenuItemNotEnabled so that it is
@@ -113,7 +113,6 @@ class HwndMeta(BaseMeta):
     def find_wrapper(element):
         """Find the correct wrapper for this native element"""
         if isinstance(element, six.integer_types):
-            from ..NativeElementInfo import NativeElementInfo
             element = NativeElementInfo(element)
         class_name = element.class_name
 
@@ -422,7 +421,7 @@ class HwndWrapper(BaseWrapper):
     #    nmhdr.idFrom = self.control_id()
     #    nmhdr.code = code
 
-    #    from ..RemoteMemoryBlock import RemoteMemoryBlock
+    #    from ..remote_memory_block import RemoteMemoryBlock
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
@@ -590,7 +589,10 @@ class HwndWrapper(BaseWrapper):
                     win32functions.IsWindow(self.parent()))
             if not closed:
                 # try closing again
-                _perform_click(self, button, pressed, coords, double)
+                try:
+                    _perform_click(self, button, pressed, coords, double)
+                except Exception:
+                    return True # already closed
             return closed
 
         # Keep waiting until both this control and it's parent

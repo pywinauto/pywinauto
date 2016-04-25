@@ -19,28 +19,28 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"""Module containing tests for XMLHelpers Module"""
+"""Module containing tests for xml_helpers Module"""
 
 import sys
 import unittest
 sys.path.append(".")
-from pywinauto.XMLHelpers import WriteDialogToFile
-from pywinauto.XMLHelpers import ReadPropertiesFromFile
-from pywinauto.XMLHelpers import LOGFONTW
-from pywinauto.XMLHelpers import RECT
+from pywinauto.xml_helpers import WriteDialogToFile
+from pywinauto.xml_helpers import ReadPropertiesFromFile
+from pywinauto.xml_helpers import LOGFONTW
+from pywinauto.xml_helpers import RECT
 from pywinauto import six
-from pywinauto import backend
 
 
 class XMLHelperTestCases(unittest.TestCase):
-    "Unit tests for the ListViewWrapper class"
+
+    """Unit tests for the ListViewWrapper class"""
 
     #def setUp(self):
     #    """Actually does nothing!"""
     #    pass
 
     def tearDown(self):
-        "delete the file we have created"
+        """delete the file we have created"""
         import os
         os.unlink("__unittests.xml")
 

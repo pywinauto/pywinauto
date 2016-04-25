@@ -22,7 +22,7 @@
 
 from __future__ import print_function
 
-"Tests for classes in controls\common_controls.py"
+"""Tests for classes in controls\common_controls.py"""
 
 import sys
 #import ctypes
@@ -40,12 +40,11 @@ from pywinauto.win32structures import RECT
 from pywinauto import win32defines
 from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
-from pywinauto.RemoteMemoryBlock import AccessDenied
-from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
+from pywinauto.remote_memory_block import AccessDenied
+from pywinauto.remote_memory_block import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
 from pywinauto import backend
 from pywinauto.timings import Timings
-Timings.Defaults()
 
 
 controlspy_folder = os.path.join(
@@ -65,13 +64,13 @@ class RemoteMemoryBlockTestCases(unittest.TestCase):
 
 
 class ListViewTestCases32(unittest.TestCase):
-    "Unit tests for the ListViewWrapper class"
+    """Unit tests for the ListViewWrapper class"""
 
     path = os.path.join(mfc_samples_folder_32, u"RowList.exe")
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         app = Application()
         app.start(self.path)
@@ -94,32 +93,30 @@ class ListViewTestCases32(unittest.TestCase):
         
 
     def tearDown(self):
-        "Close the application after tests"
-        # close the application
+        """Close the application after tests"""
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
 
     def testFriendlyClass(self):
-        "Make sure the ListView friendly class is set correctly"
+        """Make sure the ListView friendly class is set correctly"""
         self.assertEquals (self.ctrl.friendly_class_name(), u"ListView")
 
     def testColumnCount(self):
-        "Test the ListView ColumnCount method"
+        """Test the ListView ColumnCount method"""
         self.assertEquals (self.ctrl.ColumnCount(), 8)
 
     def testItemCount(self):
-        "Test the ListView ItemCount method"
+        """Test the ListView ItemCount method"""
         self.assertEquals (self.ctrl.ItemCount(), 7)
 
     def testItemText(self):
-        "Test the ListView item.Text property"
+        """Test the ListView item.Text property"""
         item = self.ctrl.GetItem(1)
 
         self.assertEquals(item['text'], u"Red")
 
     def testItems(self):
-        "Test the ListView Items method"
-
+        """Test the ListView Items method"""
         flat_texts = []
         for row in self.texts:
             flat_texts.extend(row)
@@ -130,8 +127,7 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
-        "Test the ListView texts method"
-
+        """Test the ListView texts method"""
         flat_texts = []
         for row in self.texts:
             flat_texts.extend(row)
@@ -140,16 +136,14 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testGetItem(self):
-        "Test the ListView GetItem method"
-
+        """Test the ListView GetItem method"""
         for row in range(self.ctrl.ItemCount()):
             for col in range(self.ctrl.ColumnCount()):
                 self.assertEquals(
                     self.ctrl.GetItem(row, col)['text'], self.texts[row][col])
 
     def testGetItemText(self):
-        "Test the ListView GetItem method - with text this time"
-
+        """Test the ListView GetItem method - with text this time"""
         for text in [row[0] for row in self.texts]:
             self.assertEquals(
                 self.ctrl.GetItem(text)['text'], text)
@@ -157,8 +151,7 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertRaises(ValueError, self.ctrl.GetItem, "Item not in this list")
 
     def testColumn(self):
-        "Test the ListView Columns method"
-
+        """Test the ListView Columns method"""
         cols = self.ctrl.Columns()
         self.assertEqual (len(cols), self.ctrl.ColumnCount())
 
@@ -168,8 +161,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testGetSelectionCount(self):
-        "Test the ListView GetSelectedCount method"
-
+        """Test the ListView GetSelectedCount method"""
         self.assertEquals(self.ctrl.GetSelectedCount(), 0)
 
         self.ctrl.Select(1)
@@ -190,8 +182,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testIsSelected(self):
-        "Test ListView IsSelected for some items"
-
+        """Test ListView IsSelected for some items"""
         # ensure that the item is not selected
         self.assertEquals(self.ctrl.IsSelected(1), False)
 
@@ -203,8 +194,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def _testFocused(self):
-        "Test checking the focus of some ListView items"
-
+        """Test checking the focus of some ListView items"""
         print("Select something quick!!")
         time.sleep(3)
         #self.ctrl.Select(1)
@@ -220,7 +210,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testSelect(self):
-        "Test ListView Selecting some items"
+        """Test ListView Selecting some items"""
         self.ctrl.Select(1)
         self.ctrl.Select(3)
         self.ctrl.Select(4)
@@ -231,7 +221,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testSelectText(self):
-        "Test ListView Selecting some items"
+        """Test ListView Selecting some items"""
         self.ctrl.Select(u"Green")
         self.ctrl.Select(u"Yellow")
         self.ctrl.Select(u"Gray")
@@ -241,9 +231,8 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(self.ctrl.GetSelectedCount(), 3)
 
 
-
     def testDeselect(self):
-        "Test ListView Selecting some items"
+        """Test ListView Selecting some items"""
         self.ctrl.Select(1)
         self.ctrl.Select(4)
 
@@ -255,10 +244,8 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(self.ctrl.GetSelectedCount(), 1)
 
 
-
-
     def testGetProperties(self):
-        "Test getting the properties for the listview control"
+        """Test getting the properties for the listview control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -275,8 +262,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testGetColumnTexts(self):
-        "Test columns titles text"
-
+        """Test columns titles text"""
         self.assertEquals(self.ctrl.GetColumn(0)['text'], u"Color")
         self.assertEquals(self.ctrl.GetColumn(1)['text'], u"Red")
         self.assertEquals(self.ctrl.GetColumn(2)['text'], u"Green")
@@ -284,8 +270,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testItemRectangles(self):
-        "Test getting item rectangles"
-        
+        """Test getting item rectangles"""
         yellow_rect = self.ctrl.GetItemRect('Yellow')
         gold_rect = RECT(13, 0, 61, 53)
         self.assertEquals(yellow_rect.left, gold_rect.left)
@@ -307,7 +292,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testItemCheck(self):
-        "Test checking/unchecking item"
+        """Test checking/unchecking item"""
         if not self.dlg.Toolbar.Button(6).IsChecked():
             self.dlg.Toolbar.Button(6).Click()
         
@@ -327,8 +312,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testItemClick(self):
-        "Test clicking item rectangles by Click() method"
-
+        """Test clicking item rectangles by Click() method"""
         self.ctrl.GetItem('Green').Click(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
 
@@ -345,7 +329,7 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
 
-		# Test click on checkboxes
+        # Test click on checkboxes
         if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
             self.dlg.Toolbar.Button(6).Click()
 
@@ -371,7 +355,8 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testItemClickInput(self):
-        "Test clicking item rectangles by click_input() method"
+        """Test clicking item rectangles by click_input() method"""
+        Timings.Defaults()
         
         self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
@@ -389,7 +374,7 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
 
-		# Test click on checkboxes
+        # Test click on checkboxes
         if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
             self.dlg.Toolbar.Button(6).Click()
 
@@ -415,7 +400,7 @@ class ListViewTestCases32(unittest.TestCase):
 
 
     def testItemMethods(self):
-        "Test short item methods like Text(), State() etc"
+        """Test short item methods like Text(), State() etc"""
         self.assertEquals(self.ctrl.GetItem('Green').Text(), 'Green')
         self.assertEquals(self.ctrl.GetItem('Green').Image(), 2)
         self.assertEquals(self.ctrl.GetItem('Green').Indent(), 0)
@@ -468,8 +453,8 @@ class TreeViewTestCases32(unittest.TestCase):
     path = os.path.join(controlspy_folder_32, "Tree View.exe")
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.root_text = "The Planets"
         self.texts = [
@@ -615,8 +600,8 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     "More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -708,11 +693,12 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
 
 class HeaderTestCases(unittest.TestCase):
-    "Unit tests for the Header class"
+
+    """Unit tests for the Header class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
@@ -791,11 +777,12 @@ class HeaderTestCases(unittest.TestCase):
 
 
 class StatusBarTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the TreeViewWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         app = Application()
         app.start(os.path.join(controlspy_folder, "Status bar.exe"))
@@ -902,8 +889,8 @@ class TabControlTestCases(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
         self.screen_w = win32api.GetSystemMetrics(0)
 
         app = Application()
@@ -1046,8 +1033,8 @@ class ToolbarTestCases(unittest.TestCase):
     "Unit tests for the ToolbarWrapper class"
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
@@ -1197,6 +1184,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title 
         even though the app is started with a short title "RebarTest".
         """
+        Timings.Fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
 
@@ -1249,6 +1237,7 @@ class RebarTestCases(unittest.TestCase):
 
     def testAfxToolBarButtons(self):
         """Make sure we can click on Afx ToolBar button by index"""
+        Timings.closeclick_dialog_close_wait = 2.
         self.dlg.StandardToolbar.Button(1).Click()
         self.app.Window_(title='Open').Wait('ready')
         self.app.Window_(title='Open').Cancel.CloseClick()
@@ -1272,6 +1261,7 @@ class DatetimeTestCases(unittest.TestCase):
 
     def setUp(self):
         """Start the application and get 'Date Time Picker' control"""
+        Timings.Fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1342,7 +1332,8 @@ class ToolTipsTestCases(unittest.TestCase):
     """Unit tests for the tooltips class"""
 
     def setUp(self):
-        """Start the application set some data and wait for the state we want"""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
         app = Application()
@@ -1417,7 +1408,8 @@ class UpDownTestCases(unittest.TestCase):
     """Unit tests for the UpDownWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and wait for the state we want"""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
         app = Application()
         app.start(os.path.join(controlspy_folder,  "Up-Down.exe"))
 
@@ -1498,11 +1490,13 @@ class UpDownTestCases(unittest.TestCase):
 
     def testIncrement(self):
         """Test incremementing up-down position"""
+        Timings.Defaults()
         self.ctrl.Increment()
         self.assertEquals (self.ctrl.GetValue(), 1)
 
     def testDecrement(self):
         """Test decrementing up-down position"""
+        Timings.Defaults()
         self.ctrl.SetValue(23)
         self.ctrl.Decrement()
         self.assertEquals (self.ctrl.GetValue(), 22)

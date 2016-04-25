@@ -1,4 +1,4 @@
-"Tests for mouse.py"
+"""Tests for mouse.py"""
 
 import time
 import ctypes
@@ -12,8 +12,9 @@ import unittest
 
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.SendKeysCtypes import SendKeys
+from pywinauto.keyboard import SendKeys
 from pywinauto import mouse
+from pywinauto.timings import Timings
 
 
 def _test_app():
@@ -31,6 +32,8 @@ def _test_app():
 class MouseTests(unittest.TestCase):
 
     def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.app = Application()
         self.app.start(_test_app())
         self.dlg = self.app.mousebuttons
