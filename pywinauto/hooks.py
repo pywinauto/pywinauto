@@ -4,25 +4,29 @@ import atexit
 
 
 def create_pointer(handler):
+	"""Create and return C-pointer"""
     cmp_func = CFUNCTYPE(c_int, c_int, c_int, POINTER(c_void_p))
     return cmp_func(handler)
 
 
-class KeyboardEvent:
-    def __init__(self, current_key=None, event_type=None, pressed_key=[]):
+class KeyboardEvent(object):
+	"""Is created when keyboard event catch"""
+    def __init__(self, current_key=None, event_type=None, pressed_key=None):
         self.current_key = current_key
         self.event_type = event_type
         self.pressed_key = pressed_key
 
 
-class MouseEvent:
+class MouseEvent(object):
+	"""Is created when mouse event catch"""
     def __init__(self, current_key=None, event_type=None):
         self.current_key = current_key
         self.event_type = event_type
 
 
-class Hook:
-    MouseId2Key = {513: 'LButton',
+class Hook(object):
+	"""Allow hook low level keyboard and mouse events"""
+    MOUSE_ID_TO_KEY = {513: 'LButton',
                    514: 'LButton',
                    516: 'RButton',
                    517: 'RButton',
@@ -30,7 +34,7 @@ class Hook:
                    520: 'WheelButton',
                    522: 'Wheel'}
 
-    MouseId2EventType = {513: 'key down',
+    MOUSE_ID_TO_EVENT_TYPE = {513: 'key down',
                          514: 'key up',
                          516: 'key down',
                          517: 'key up',
@@ -38,7 +42,7 @@ class Hook:
                          520: 'key up',
                          522: None}
 
-    ID2Key = {8: 'Back',
+    ID_TO_KEY = {8: 'Back',
               9: 'Tab',
               13: 'Return',
               20: 'Capital',
@@ -162,13 +166,15 @@ class Hook:
         self.id = None
 
     def hook(self, keyboard=True, mouse=False):
+		"""Hook mouse and/or keyboard events"""
         if not mouse and not keyboard:
             return;
 
         if keyboard:
-            def low_level_handler(code, event_code, kb_data_ptr):
+            def keyboard_low_level_handler(code, event_code, kb_data_ptr):
+				"""Execute when keyboard low level event was catched"""
                 key_code = kb_data_ptr[0];
-                current_key = self.ID2Key[key_code];
+                current_key = self.ID_TO_KEY[key_code];
 
                 event_code = self.event_types[event_code];
 
@@ -185,7 +191,7 @@ class Hook:
 
                 return windll.user32.CallNextHookEx(self.id, code, event_code, kb_data_ptr)
 
-            keyboard_pointer = create_pointer(low_level_handler);
+            keyboard_pointer = create_pointer(keyboard_low_level_handler);
             windll.kernel32.GetModuleHandleW.restype = wintypes.HMODULE
             windll.kernel32.GetModuleHandleW.argtypes = [wintypes.LPCWSTR]
             self.id = windll.user32.SetWindowsHookExA(0x00D, keyboard_pointer, windll.kernel32.GetModuleHandleW(None),
@@ -193,9 +199,10 @@ class Hook:
 
         if mouse:
             def mouse_low_level_handler(code, event_code, kb_data_ptr):
+				"""Execute when mouse low level event was catched"""
                 if event_code != 512:
-                    current_key = self.MouseId2Key[event_code]
-                    event_code = self.MouseId2EventType[event_code]
+                    current_key = self.MOUSE_ID_TO_KEY[event_code]
+                    event_code = self.MOUSE_ID_TO_EVENT_TYPE[event_code]
 
                     event = MouseEvent(current_key, event_code)
                     if self.handler != 0:
@@ -214,6 +221,7 @@ class Hook:
 
 
 def on_event(args):
+	"""Callback for keyboard and mouse events"""
     if isinstance(args, KeyboardEvent):
         if args.current_key == 'A' and args.event_type == 'key down' and args.pressed_key.__contains__('Lcontrol'):
             print("Ctrl + A was pressed");
@@ -224,6 +232,9 @@ def on_event(args):
     if isinstance(args, MouseEvent):
         if args.current_key == 'RButton' and args.event_type == 'key down':
             print ("Right button pressed")
+			
+		if args.current_key == 'WButton' and args.event_type == 'key down':
+            print ("Wheel button pressed")
 
 if __name__ == '__main__':
     hk = Hook()
