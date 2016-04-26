@@ -276,13 +276,13 @@ class HwndWrapperTests(unittest.TestCase):
         expected = 0x89 # 0x2000 + 0x40
         self.assertEqual(expected, code)
 
-    def testSendChars(self):
-        testString = "H^e^l^l^o{TAB}{ENTER 2}W%o+r+l+d"
+    def test_send_chars(self):
+        testString = "+hello +world"
 
-        code = self.dlg.Edit.SendChars(testString)
+        self.dlg.Edit.send_chars(testString)
 
         actual = self.dlg.Edit.Texts()[0];
-        expected = "HelloWorld"
+        expected = "Hello World"
         self.assertEqual(expected, actual)
 
     def testSendMessageTimeout(self):

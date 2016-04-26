@@ -263,6 +263,10 @@ class KeyAction(object):
         #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
+    def get_key_scan_code(self):
+        """Return scan_code for the action"""
+        return ord(self.key)
+
     def GetInput(self):
         "Build the INPUT structure for the action"
         actions = 1

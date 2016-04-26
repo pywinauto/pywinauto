@@ -463,31 +463,31 @@ class HwndWrapper(BaseWrapper):
     SendMessage = send_message
 
     # -----------------------------------------------------------
-    def send_chars(self, message):
-        """Send a string to the control and wait for it to return"""
-        res = []
+    def send_chars(self,
+                   message,
+                   with_spaces=True,
+                   with_tabs=True,
+                   with_newlines=True):
+        """
+        Silently send a string to the control
 
-        mspl = message.split("{TAB}{ENTER 2}")
-        ind = 0
-        for substr in mspl:
-            ind = ind + 1
+        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{Enter}"
+        For more information about Sequences and Modifiers navigate to SendKeysCtypes.py
+        """
 
-            for c in substr:
-                if c in SendKeysCtypes.MODIFIERS.keys():
-                    # Shift, Ctrl, Menu
-                    res.append(-1)
-                else:
-                    # Usual character
-                    res.append(win32api.SendMessage(self.handle, win32con.WM_CHAR, ord(c), 0))
+        keys = SendKeysCtypes.parse_keys(message, with_spaces, with_tabs, with_newlines)
 
-            if ind != len(mspl):
-                # "{TAB}{ENTER 2}"
-                res.append(-2)
+        for key in keys:
+            #keyinfo = key._get_key_info()
+            #res.append([key, keyinfo])
 
-        return res
+            if (isinstance(key, SendKeysCtypes.EscapedKeyAction) or
+                    isinstance(key, SendKeysCtypes.VirtualKeyAction)):
+                key.Run()
+            else:
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, key.get_key_scan_code(), 0)
 
-    # Non PEP-8 alias
-    SendChars = send_chars
+            time.sleep(0.05)
 
     #-----------------------------------------------------------
     def send_message_timeout(
