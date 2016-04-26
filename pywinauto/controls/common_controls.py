@@ -3428,7 +3428,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     # ----------------------------------------------------------------
     def set_color(self, place_of_color, red, green, blue):
         """
-        Set some color in some place of calendar.
+        Set some color in some place of calendar which you specify.
 
         Receive four parameters:
         - The first parameter may take few variants below:
@@ -3437,12 +3437,12 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         - All other parameters should be integer from 0 to 255.
         """
         place_in_calendar = {
-            'background': 'MCSC_BACKGROUND',
-            'month_background': 'MCSC_MONTHBK',
-            'text': 'MCSC_TEXT',
-            'title_background': 'MCSC_TITLEBK',
-            'title_text': 'MCSC_TITLETEXT',
-            'trailing_text': 'MCSC_TRAILINGTEXT'
+            'background': 0,
+            'month_background': 4,
+            'text': 1,
+            'title_background': 2,
+            'title_text': 3,
+            'trailing_text': 5
         }
         if not (0 <= red <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
@@ -3468,12 +3468,12 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         """
 
         place_in_calendar = {
-            'background': 'MCSC_BACKGROUND',
-            'month_background': 'MCSC_MONTHBK',
-            'text': 'MCSC_TEXT',
-            'title_background': 'MCSC_TITLEBK',
-            'title_text': 'MCSC_TITLETEXT',
-            'trailing_text': 'MCSC_TRAILINGTEXT'
+            'background': 0,
+            'month_background': 4,
+            'text': 1,
+            'title_background': 2,
+            'title_text': 3,
+            'trailing_text': 5
         }
         if place_of_color in place_in_calendar:
             return self.send_message(win32defines.MCM_GETCOLOR, place_of_color, 0)
