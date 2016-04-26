@@ -3,7 +3,7 @@ from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_void_p, byref
 import atexit
 
 
-def create_pointer(handler):
+def _callback_pointer(handler):
 	"""Create and return C-pointer"""
     cmp_func = CFUNCTYPE(c_int, c_int, c_int, POINTER(c_void_p))
     return cmp_func(handler)
@@ -191,7 +191,7 @@ class Hook(object):
 
                 return windll.user32.CallNextHookEx(self.id, code, event_code, kb_data_ptr)
 
-            keyboard_pointer = create_pointer(keyboard_low_level_handler);
+            keyboard_pointer = _callback_pointer(keyboard_low_level_handler);
             windll.kernel32.GetModuleHandleW.restype = wintypes.HMODULE
             windll.kernel32.GetModuleHandleW.argtypes = [wintypes.LPCWSTR]
             self.id = windll.user32.SetWindowsHookExA(0x00D, keyboard_pointer, windll.kernel32.GetModuleHandleW(None),
@@ -210,7 +210,7 @@ class Hook(object):
 
                 return windll.user32.CallNextHookEx(self.id, code, event_code, kb_data_ptr)
 
-            mouse_pointer = create_pointer(mouse_low_level_handler);
+            mouse_pointer = _callback_pointer(mouse_low_level_handler);
             self.id = windll.user32.SetWindowsHookExA(0x0E, mouse_pointer, windll.kernel32.GetModuleHandleW(None), 0)
 
         atexit.register(windll.user32.UnhookWindowsHookEx, self.id)
