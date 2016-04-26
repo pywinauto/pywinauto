@@ -597,7 +597,8 @@ if is_x64_Python():
 
 
 class TreeViewAdditionalTestCases(unittest.TestCase):
-    "More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"
+
+    """More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -609,12 +610,12 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
 
     def tearDown(self):
-        "Close the application after tests"
-        self.dlg.Close()
+        """Close the application after tests"""
+        self.dlg.send_message(win32defines.WM_CLOSE)
         self.app.kill_()
 
     def testCheckBoxes(self):
-        "Make sure tree view item method IsChecked() works as expected"
+        """Make sure tree view item method IsChecked() works as expected"""
         self.dlg.TVS_CHECKBOXES.click_input()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
@@ -623,7 +624,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals (birds.IsChecked(), False)
 
     def testPrintItems(self):
-        "Test TreeView method PrintItems()"
+        """Test TreeView method PrintItems()"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         items_str = self.ctrl.PrintItems()
@@ -632,7 +633,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
                                      "Fish\n Salmon\n Snapper\n Sole\n")
 
     def testIsSelected(self):
-        "Make sure tree view item method IsSelected() works as expected"
+        """Make sure tree view item method IsSelected() works as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         eagle = self.ctrl.GetItem(r'\Birds\Eagle')
@@ -640,7 +641,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals(eagle.IsSelected(), True)
 
     def testExpandCollapse(self):
-        "Make sure tree view item methods Expand() and Collapse() work as expected"
+        """Make sure tree view item methods Expand() and Collapse() work as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         self.assertEquals(birds.IsExpanded(), True)
@@ -649,7 +650,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals(birds.IsExpanded(), False)
 
     def testCheckBoxes(self):
-        "Make sure correct area is clicked"
+        """Make sure correct area is clicked"""
         self.dlg.TVS_HASBUTTONS.click_input()
         self.dlg.TVS_HASLINES.click_input()
         self.dlg.TVS_LINESATROOT.click_input()
@@ -666,13 +667,13 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals(birds.IsExpanded(), False)
 
     def testIncorrectAreas(self):
-        "Make sure incorrect area raises an exception"
+        """Make sure incorrect area raises an exception"""
         birds = self.ctrl.GetItem(r'\Birds')
         self.assertRaises(RuntimeError, birds.Click, where='radiob')
         self.assertRaises(RuntimeError, birds.click_input, where='radiob')
 
     def testStartDraggingAndDrop(self):
-        "Make sure tree view item methods StartDragging() and Drop() work as expected"
+        """Make sure tree view item methods StartDragging() and Drop() work as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         
