@@ -2,6 +2,7 @@ from ctypes import wintypes
 from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_void_p, byref
 import atexit
 
+
 def _callback_pointer(handler):
     """Create and return C-pointer"""
     cmp_func = CFUNCTYPE(c_int, c_int, c_int, POINTER(c_void_p))
@@ -182,7 +183,6 @@ class Hook(object):
                 """Execute when keyboard low level event was catched"""
                 key_code = kb_data_ptr[0]
                 current_key = self.ID_TO_KEY[key_code]
-
                 event_type = self.event_types[event_code]
 
                 if event_type == 'key down':
@@ -199,6 +199,7 @@ class Hook(object):
                 return windll.user32.CallNextHookEx(self.keyboard_id, code, event_code, kb_data_ptr)
 
             keyboard_pointer = _callback_pointer(keyboard_low_level_handler)
+
             windll.kernel32.GetModuleHandleW.restype = wintypes.HMODULE
             windll.kernel32.GetModuleHandleW.argtypes = [wintypes.LPCWSTR]
             self.keyboard_id = windll.user32.SetWindowsHookExA(self.WH_KEYBOARD_LL, keyboard_pointer,
@@ -212,6 +213,7 @@ class Hook(object):
                 if current_key != 'Move':
                     event_type = self.MOUSE_ID_TO_EVENT_TYPE[event_code]
                     event = MouseEvent(current_key, event_type)
+
                     if self.handler != 0:
                         self.handler(event);
 
@@ -219,17 +221,20 @@ class Hook(object):
 
             mouse_pointer = _callback_pointer(mouse_low_level_handler)
             self.mouse_id = windll.user32.SetWindowsHookExA(self.WH_MOUSE_LL, mouse_pointer,
-                                                      windll.kernel32.GetModuleHandleA(None), 0)
+                                                            windll.kernel32.GetModuleHandleA(None), 0)
 
-        self.wait()
+        self.listen()
 
     def unhook_mouse(self):
+        """Unhook mouse events"""
         windll.user32.UnhookWindowsHookEx(self.mouse_id)
 
     def unhook_keyboard(self):
+        """Unhook keyboard events"""
         windll.user32.UnhookWindowsHookEx(self.keyboard_id)
 
-    def wait(self):
+    def listen(self):
+        """Listen events"""
         atexit.register(windll.user32.UnhookWindowsHookEx, self.keyboard_id)
         atexit.register(windll.user32.UnhookWindowsHookEx, self.mouse_id)
         while True:
@@ -239,27 +244,32 @@ class Hook(object):
 
 
 def on_event(args):
+    """Callback for keyboard and mouse events"""
     if isinstance(args, KeyboardEvent):
         if args.current_key == 'A' and args.event_type == 'key down' and 'Lcontrol' in args.pressed_key:
-            print("Ctrl + A was pressed");
+            print("Ctrl + A was pressed")
 
         if args.current_key == 'K' and args.event_type == 'key down':
-            print("K was pressed");
+            print("K was pressed")
 
         if args.current_key == 'M' and args.event_type == 'key down' and 'U' in args.pressed_key:
             hk.unhook_mouse()
-            print("Unhook mouse");
+            print("Unhook mouse")
 
         if args.current_key == 'K' and args.event_type == 'key down' and 'U' in args.pressed_key:
             hk.unhook_keyboard()
-            print("Unhook keyboard");
+            print("Unhook keyboard")
 
     if isinstance(args, MouseEvent):
         if args.current_key == 'RButton' and args.event_type == 'key down':
-            print ("Right button pressed")
+            print("Right button pressed")
+
+        if args.current_key == 'WButton' and args.event_type == 'key down':
+            print("Wheel button pressed")
 
         if args.current_key == 'WheelButton' and args.event_type == 'key down':
             print("Wheel button pressed")
+
 
 hk = Hook()
 hk.handler = on_event
