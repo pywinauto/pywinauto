@@ -478,22 +478,14 @@ class HwndWrapper(BaseWrapper):
         keys = SendKeysCtypes.parse_keys(message, with_spaces, with_tabs, with_newlines)
 
         for key in keys:
-            #keyinfo = key._get_key_info()
-            #res.append([key, keyinfo])
-
-            if (isinstance(key, SendKeysCtypes.EscapedKeyAction) or
-                    isinstance(key, SendKeysCtypes.VirtualKeyAction)):
-                key.Run()
-            else:
-                win32api.SendMessage(self.handle, win32con.WM_CHAR, key.get_key_scan_code(), 0)
-
+            key.SendToHandle(self.handle)
             time.sleep(0.05)
 
     #-----------------------------------------------------------
     def send_message_timeout(
         self,
         message,
-        wparam = 0 ,
+        wparam = 0,
         lparam = 0,
         timeout = None,
         timeoutflags = win32defines.SMTO_NORMAL):
