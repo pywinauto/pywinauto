@@ -1,3 +1,4 @@
+from __future__ import print_function
 from pywinauto.hooks import Hook
 from pywinauto.hooks import KeyboardEvent
 from pywinauto.hooks import MouseEvent

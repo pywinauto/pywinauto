@@ -1,17 +1,21 @@
 from ctypes import wintypes
-from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_void_p, byref
+from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_long, c_longlong, c_void_p, byref
 import atexit
+import sysinfo
 
 
 def _callback_pointer(handler):
     """Create and return C-pointer"""
-    cmp_func = CFUNCTYPE(c_int, c_int, c_int, POINTER(c_void_p))
+    if sysinfo.is_x64_Python():
+        hinstance = c_longlong
+    else:
+        hinstance = c_long
+    cmp_func = CFUNCTYPE(c_int, c_int, hinstance, POINTER(c_void_p))
     return cmp_func(handler)
 
 
 class KeyboardEvent(object):
     """Is created when keyboard event catch"""
-
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
         self.current_key = current_key
         self.event_type = event_type
@@ -187,9 +191,9 @@ class Hook(object):
             def keyboard_low_level_handler(code, event_code, kb_data_ptr):
                 """Execute when keyboard low level event was catched"""
                 try:
-                    key_code = kb_data_ptr[0]
+                    key_code = 0xFFFFFFFF & kb_data_ptr[0]
                     current_key = self.ID_TO_KEY[key_code]
-                    event_type = self.event_types[event_code]
+                    event_type = self.event_types[0xFFFFFFFF & event_code]
 
                     if event_type == 'key down':
                         self.pressed_keys.append(current_key)
