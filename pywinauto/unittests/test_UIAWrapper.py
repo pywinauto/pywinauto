@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-"Tests for UIAWrapper"
+"""Tests for UIAWrapper"""
 
 import time
 #import pprint
@@ -18,7 +18,7 @@ from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
-    from pywinauto.controls.UIAWrapper import UIAWrapper
+    from pywinauto.controls.uiawrapper import UIAWrapper
 from pywinauto import findwindows
 from pywinauto.timings import Timings
 from pywinauto.timings import TimeoutError
@@ -48,11 +48,11 @@ if UIA_support:
             self.dlg = self.app.WPFSampleApplication
 
         def tearDown(self):
-            "Close the application after tests"
+            """Close the application after tests"""
             self.app.kill_()
 
         def testFriendlyClassName(self):
-            "Test getting the friendly classname of the dialog"
+            """Test getting the friendly classname of the dialog"""
             button = self.dlg.OK.WrapperObject()
             self.assertEqual(button.friendly_class_name(), "Button")
 
@@ -87,12 +87,12 @@ if UIA_support:
             self.assertEqual(wins[0].texts()[0], caption)
 
         def testClass(self):
-            "Test getting the classname of the dialog"
+            """Test getting the classname of the dialog"""
             button = self.dlg.OK.WrapperObject()
             self.assertEqual(button.class_name(), "Button")
 
         def testWindowText(self):
-            "Test getting the window Text of the dialog"
+            """Test getting the window Text of the dialog"""
             label = self.dlg.TestLabel.WrapperObject()
             self.assertEqual(label.window_text(), u"TestLabel")
 
@@ -235,8 +235,7 @@ if UIA_support:
             self.label = self.dlg.TestLabel.WrapperObject()
 
         def tearDown(self):
-            "Close the application after tests"
-
+            """Close the application after tests"""
             self.app.kill_()
 
         #def testClick(self):

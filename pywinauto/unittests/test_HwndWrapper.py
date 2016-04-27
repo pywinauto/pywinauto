@@ -39,9 +39,9 @@ import sys, os
 import unittest
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.controls.HwndWrapper import HwndWrapper
-from pywinauto.controls.HwndWrapper import InvalidWindowHandle
-from pywinauto.controls.HwndWrapper import GetDialogPropsFromHandle
+from pywinauto.controls.hwndwrapper import HwndWrapper
+from pywinauto.controls.hwndwrapper import InvalidWindowHandle
+from pywinauto.controls.hwndwrapper import GetDialogPropsFromHandle
 from pywinauto import win32structures
 from pywinauto import win32defines
 from pywinauto.findwindows import ElementNotFoundError

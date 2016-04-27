@@ -636,7 +636,7 @@ class DialogTestCases(unittest.TestCase):
     def testRunTests(self):
         "Test running the UI tests on the dialog"
         bugs = self.calc.RunTests()
-        from pywinauto.controls.HwndWrapper import HwndWrapper
+        from pywinauto.controls.hwndwrapper import HwndWrapper
         self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
 
     def testRunTestsWithReference(self):
@@ -648,7 +648,7 @@ class DialogTestCases(unittest.TestCase):
         bugs = self.calc.RunTests(ref_controls = ref_controls)
         from pywinauto import tests
         tests.print_bugs(bugs)
-        from pywinauto.controls.HwndWrapper import HwndWrapper
+        from pywinauto.controls.hwndwrapper import HwndWrapper
         self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
 
     def testWriteToXML(self):
