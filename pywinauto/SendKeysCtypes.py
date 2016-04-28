@@ -264,6 +264,12 @@ class KeyAction(object):
         #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
+    def get_key_info(self):
+        """Return virtual_key, scan_code, and flags for the action
+
+        This is one of the methods that will be overridden by sub classes"""
+        return self._get_key_info()
+
     def GetInput(self):
         "Build the INPUT structure for the action"
         actions = 1
@@ -302,13 +308,6 @@ class KeyAction(object):
         if num_inserted_events != len(inputs):
             raise RuntimeError('SendInput() inserted only ' + str(num_inserted_events) +
                                ' out of ' + str(len(inputs)) + ' keyboard events')
-
-    def SendToHandle(self, handle):
-        """Silently send a char to the control
-
-        This is one of the methods that will be overridden by sub classes"""
-        keyinfo = self._get_key_info()
-        win32api.SendMessage(handle, win32con.WM_CHAR, keyinfo[1], 0)
 
     def _get_down_up_string(self):
         """Return a string that will show whether the string is up or down
@@ -377,14 +376,6 @@ class VirtualKeyAction(KeyAction):
         for inp in self.GetInput():
             win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
 
-    def SendToHandle(self, handle):
-        """Silently send a char to the control"""
-        # if self.down == True:
-        #     win32api.SendMessage(handle, win32con.WM_KEYDOWN, self.key, 0)
-        # if self.up == True:
-        #     win32api.SendMessage(handle, win32con.WM_KEYUP, self.key, )
-        self.Run()
-
 
 class EscapedKeyAction(KeyAction):
     """Represents an escaped key action e.g. F9 DOWN, etc
@@ -409,10 +400,6 @@ class EscapedKeyAction(KeyAction):
         # it works more stable for virtual keys than SendInput
         for inp in self.GetInput():
             win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
-
-    def SendToHandle(self, handle):
-        """Silently send a char to the control"""
-        self.Run()
 
 
 class PauseAction(KeyAction):

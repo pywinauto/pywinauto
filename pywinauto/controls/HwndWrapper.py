@@ -478,7 +478,27 @@ class HwndWrapper(BaseWrapper):
         keys = SendKeysCtypes.parse_keys(message, with_spaces, with_tabs, with_newlines)
 
         for key in keys:
-            key.SendToHandle(self.handle)
+
+            vk, scan, flags = key.get_key_info()
+
+            lparam = scan << 16 | flags << 24
+
+            if isinstance(key, SendKeysCtypes.VirtualKeyAction):
+                # Shift, Left, Back, Delete, ...
+                if key.down:
+                    lparam = lparam | flags << 24 | 0 << 29 | 0 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+                if key.up:
+                    lparam = lparam | 1 << 1 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
+            elif isinstance(key, SendKeysCtypes.EscapedKeyAction):
+                # An escaped key action e.g. F9 DOWN, etc
+                # And key between Shifts. a -> A
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+            else:
+                # Usual key
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, scan, lparam)
+
             time.sleep(0.05)
 
     #-----------------------------------------------------------
