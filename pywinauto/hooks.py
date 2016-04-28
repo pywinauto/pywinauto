@@ -193,6 +193,7 @@ class Hook(object):
 
     WH_KEYBOARD_LL = 0x00D
     WH_MOUSE_LL = 0x0E
+    WM_QUIT = 0x0012
 
     def __init__(self):
         self.handler = 0
@@ -280,6 +281,8 @@ class Hook(object):
             msg = windll.user32.GetMessageW(message_pointer, 0, 0, 0)
             windll.user32.TranslateMessage(byref(message_pointer))
             windll.user32.DispatchMessageW(byref(message_pointer))
+            if message_pointer.message == self.WM_QUIT:
+                exit(0)
 
 
 if __name__ == "__main__":
