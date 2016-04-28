@@ -1,5 +1,5 @@
 from ctypes import wintypes
-from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_long, c_longlong, c_ulong, c_void_p, byref, sizeof
+from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_long, c_bool, c_longlong, c_ulong, c_void_p, byref, sizeof
 from ctypes import Structure
 import atexit
 
@@ -27,6 +27,7 @@ class MSG(Structure):
                 ("time", wintypes.DWORD),
                 ("pt", wintypes.POINT)]
 
+windll.user32.GetMessageW.restype = c_bool
 windll.user32.GetMessageW.argtypes = [MSG, hinstance, c_uint, c_uint]
 
 
