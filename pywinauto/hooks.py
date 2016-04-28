@@ -1,7 +1,6 @@
 from ctypes import wintypes
 from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_long, c_longlong, c_ulong, c_void_p, byref, sizeof
 import atexit
-import sysinfo
 
 if sizeof(POINTER(c_int)) * 8 == 64:
     hinstance = c_longlong
