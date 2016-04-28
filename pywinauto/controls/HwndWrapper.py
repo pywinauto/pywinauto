@@ -462,32 +462,44 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     SendMessage = send_message
 
-    # -----------------------------------------------------------
-    def send_chars(self, message):
-        """Send a string to the control and wait for it to return"""
-        res = []
+    # —-------------------------------------------------------—
+    def send_chars(self,
+                   message,
+                   with_spaces=True,
+                   with_tabs=True,
+                   with_newlines=True):
+        """
+        Silently send a string to the control
 
-        mspl = message.split("{TAB}{ENTER 2}")
-        ind = 0
-        for substr in mspl:
-            ind = ind + 1
+        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{Enter}"
+        For more information about Sequences and Modifiers navigate to SendKeysCtypes.py
+        """
 
-            for c in substr:
-                if c in SendKeysCtypes.MODIFIERS.keys():
-                    # Shift, Ctrl, Menu
-                    res.append(-1)
-                else:
-                    # Usual character
-                    res.append(win32api.SendMessage(self.handle, win32con.WM_CHAR, ord(c), 0))
+        keys = SendKeysCtypes.parse_keys(message, with_spaces, with_tabs, with_newlines)
 
-            if ind != len(mspl):
-                # "{TAB}{ENTER 2}"
-                res.append(-2)
+        for key in keys:
 
-        return res
+            vk, scan, flags = key.get_key_info()
 
-    # Non PEP-8 alias
-    SendChars = send_chars
+            lparam = scan << 16 | flags << 24
+
+            if isinstance(key, SendKeysCtypes.VirtualKeyAction):
+                # Shift, Left, Back, Delete, ...
+                if key.down:
+                    lparam = lparam | flags << 24 | 0 << 29 | 0 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+                if key.up:
+                    lparam = lparam | 1 << 1 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
+            elif isinstance(key, SendKeysCtypes.EscapedKeyAction):
+                # An escaped key action e.g. F9 DOWN, etc
+                # And key between Shifts. a -> A
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+            else:
+                # Usual key
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, scan, lparam)
+
+            time.sleep(0.05)
 
     #-----------------------------------------------------------
     def send_message_timeout(
