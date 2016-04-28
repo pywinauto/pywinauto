@@ -1,16 +1,23 @@
 from ctypes import wintypes
-from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_long, c_longlong, c_void_p, byref
+from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_long, c_longlong, c_ulong, c_void_p, byref, sizeof
 import atexit
-import sysinfo
 
+if sizeof(POINTER(c_int)) * 8 == 64:
+    hinstance = c_longlong
+else:
+    hinstance = c_long
+
+cmp_func = CFUNCTYPE(c_int, c_int, hinstance, POINTER(c_void_p))
+DWORD = c_ulong
+
+windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
+windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
+
+windll.user32.SetWindowsHookExA.restype = c_int
+windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, hinstance, DWORD]
 
 def _callback_pointer(handler):
     """Create and return C-pointer"""
-    if sysinfo.is_x64_Python():
-        hinstance = c_longlong
-    else:
-        hinstance = c_long
-    cmp_func = CFUNCTYPE(c_int, c_int, hinstance, POINTER(c_void_p))
     return cmp_func(handler)
 
 
@@ -211,8 +218,6 @@ class Hook(object):
 
             keyboard_pointer = _callback_pointer(keyboard_low_level_handler)
 
-            windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
-            windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
             self.keyboard_id = windll.user32.SetWindowsHookExA(self.WH_KEYBOARD_LL, keyboard_pointer,
                                                                windll.kernel32.GetModuleHandleA(None),
                                                                0)
