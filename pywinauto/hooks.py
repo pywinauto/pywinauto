@@ -1,5 +1,6 @@
 from ctypes import wintypes
-from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_long, c_longlong, c_ulong, c_void_p, byref, sizeof
+from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_long, c_longlong, c_ulong, c_void_p, byref, sizeof
+from ctypes import Structure
 import atexit
 
 if sizeof(POINTER(c_int)) * 8 == 64:
@@ -10,11 +11,29 @@ else:
 cmp_func = CFUNCTYPE(c_int, c_int, hinstance, POINTER(c_void_p))
 DWORD = c_ulong
 
+
+class MSG(Structure):
+    _fields_ = [("hWnd", hinstance),
+                ("message", c_uint),
+                ("wParam", wintypes.WPARAM),
+                ("lParam", wintypes.LPARAM),
+                ("time", wintypes.DWORD),
+                ("pt", wintypes.POINT)]
+
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
 windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
 
 windll.user32.SetWindowsHookExA.restype = c_int
 windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, hinstance, DWORD]
+
+windll.user32.GetMessageW.argtypes = [MSG, hinstance, c_uint, c_uint]
+
+
+class Element:
+    def __init__(self, value = None, next = None):
+        self.value = value
+        self.next = next
+
 
 def _callback_pointer(handler):
     """Create and return C-pointer"""
@@ -183,18 +202,18 @@ class Hook(object):
         self.pressed_keys = []
         self.keyboard_id = None
         self.mouse_id = None
-        self.mouse_hook = False
-        self.keyboard_hook = False
+        self.mouse_is_hook = False
+        self.keyboard_is_hook = False
 
     def hook(self, keyboard=True, mouse=False):
         """Hook mouse and/or keyboard events"""
-        self.mouse_hook = mouse
-        self.keyboard_hook = keyboard
+        self.mouse_is_hook = mouse
+        self.keyboard_is_hook = keyboard
 
-        if not self.mouse_hook and not self.keyboard_hook:
+        if not self.mouse_is_hook and not self.keyboard_is_hook:
             return
 
-        if self.keyboard_hook:
+        if self.keyboard_is_hook:
             def keyboard_low_level_handler(code, event_code, kb_data_ptr):
                 """Execute when keyboard low level event was catched"""
                 try:
@@ -222,7 +241,7 @@ class Hook(object):
                                                                windll.kernel32.GetModuleHandleA(None),
                                                                0)
 
-        if self.mouse_hook:
+        if self.mouse_is_hook:
             def mouse_low_level_handler(code, event_code, kb_data_ptr):
                 """Execute when mouse low level event was catched"""
                 try:
@@ -245,20 +264,23 @@ class Hook(object):
 
     def unhook_mouse(self):
         """Unhook mouse events"""
-        self.mouse_hook = False
+        self.mouse_is_hook = False
         windll.user32.UnhookWindowsHookEx(self.mouse_id)
 
     def unhook_keyboard(self):
         """Unhook keyboard events"""
-        self.keyboard_hook = False
+        self.keyboard_is_hook = False
         windll.user32.UnhookWindowsHookEx(self.keyboard_id)
 
     def listen(self):
         """Listen events"""
         atexit.register(windll.user32.UnhookWindowsHookEx, self.keyboard_id)
         atexit.register(windll.user32.UnhookWindowsHookEx, self.mouse_id)
-        while self.mouse_hook or self.keyboard_hook:
-            msg = windll.user32.GetMessageW(None, 0, 0, 0)
+
+        message_pointer = MSG()
+
+        while self.mouse_is_hook or self.keyboard_is_hook:
+            msg = windll.user32.GetMessageW(message_pointer, 0, 0, 0)
             windll.user32.TranslateMessage(byref(msg))
             windll.user32.DispatchMessageW(byref(msg))
 
