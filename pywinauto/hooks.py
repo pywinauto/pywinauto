@@ -1,5 +1,5 @@
 from ctypes import wintypes
-from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_long, c_bool, c_longlong, c_ulong, c_void_p, byref, sizeof
+from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_long, c_longlong, c_ulong, c_void_p, byref, sizeof
 from ctypes import Structure
 import atexit
 
@@ -27,8 +27,9 @@ class MSG(Structure):
                 ("time", wintypes.DWORD),
                 ("pt", wintypes.POINT)]
 
-windll.user32.GetMessageW.restype = c_bool
 windll.user32.GetMessageW.argtypes = [MSG, hinstance, c_uint, c_uint]
+windll.user32.TranslateMessage.argtypes = [POINTER(MSG)]
+windll.user32.DispatchMessageW.argtypes = [POINTER(MSG)]
 
 
 def _callback_pointer(handler):
@@ -277,8 +278,8 @@ class Hook(object):
 
         while self.mouse_is_hook or self.keyboard_is_hook:
             msg = windll.user32.GetMessageW(message_pointer, 0, 0, 0)
-            windll.user32.TranslateMessage(byref(msg))
-            windll.user32.DispatchMessageW(byref(msg))
+            windll.user32.TranslateMessage(byref(message_pointer))
+            windll.user32.DispatchMessageW(byref(message_pointer))
 
 
 if __name__ == "__main__":
