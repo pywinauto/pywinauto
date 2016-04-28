@@ -11,8 +11,15 @@ else:
 cmp_func = CFUNCTYPE(c_int, c_int, hinstance, POINTER(c_void_p))
 DWORD = c_ulong
 
+windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
+windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
+
+windll.user32.SetWindowsHookExA.restype = c_int
+windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, hinstance, DWORD]
+
 
 class MSG(Structure):
+    """MGS Structure for GetMessageW methods"""
     _fields_ = [("hWnd", hinstance),
                 ("message", c_uint),
                 ("wParam", wintypes.WPARAM),
@@ -20,19 +27,7 @@ class MSG(Structure):
                 ("time", wintypes.DWORD),
                 ("pt", wintypes.POINT)]
 
-windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
-windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
-
-windll.user32.SetWindowsHookExA.restype = c_int
-windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, hinstance, DWORD]
-
 windll.user32.GetMessageW.argtypes = [MSG, hinstance, c_uint, c_uint]
-
-
-class Element:
-    def __init__(self, value = None, next = None):
-        self.value = value
-        self.next = next
 
 
 def _callback_pointer(handler):
