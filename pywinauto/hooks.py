@@ -261,19 +261,15 @@ class Hook(object):
 
     def unhook_mouse(self):
         """Unhook mouse events"""
-        if not self.mouse_is_hook:
-            return
-
-        self.mouse_is_hook = False
-        windll.user32.UnhookWindowsHookEx(self.mouse_id)
+        if self.mouse_is_hook:
+            self.mouse_is_hook = False
+            windll.user32.UnhookWindowsHookEx(self.mouse_id)
 
     def unhook_keyboard(self):
         """Unhook keyboard events"""
-        if not self.keyboard_is_hook:
-            return
-
-        self.keyboard_is_hook = False
-        windll.user32.UnhookWindowsHookEx(self.keyboard_id)
+        if self.keyboard_is_hook:
+            self.keyboard_is_hook = False
+            windll.user32.UnhookWindowsHookEx(self.keyboard_id)
 
     def listen(self):
         """Listen events"""
@@ -285,13 +281,11 @@ class Hook(object):
         while self.mouse_is_hook or self.keyboard_is_hook:
             msg = windll.user32.GetMessageW(byref(message), 0, 0, 0)
             if msg == -1:
-                print("Error. Sorry, I exit... :(")
                 hk.unhook_keyboard()
                 hk.unhook_mouse()
                 exit(0)
 
             elif msg == 0:  # GetMessage return 0 only if WM_QUIT
-                print("WM_QUIT")
                 exit(0)
             else:
                 windll.user32.TranslateMessage(byref(message))
