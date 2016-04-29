@@ -1500,5 +1500,62 @@ class UpDownTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.GetValue(), 22)
 
 
+class TrackbarWrapperTestCases(unittest.TestCase):
+
+    def setUp(self):
+        from pywinauto.application import Application
+        app = Application()
+        app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
+        dlg = app.top_window_()
+        dlg.TabControl.Select(1)
+
+        ctrl = dlg.Trackbar.WrapperObject()
+        self.app = app
+        self.dlg = dlg
+        self.ctrl = ctrl
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+
+    def test_friendly_class(self):
+        """Make sure the Trackbar friendly class is set correctly"""
+        self.assertEquals(self.ctrl.friendly_class_name(), u"Trackbar")
+
+    def test_get_range_max(self):
+        """Test the get_range_max method"""
+        self.ctrl.set_range_max(100)
+        self.assertEquals(self.ctrl.get_range_max(), 100)
+
+    def test_get_range_min(self):
+        """Test the get_range_min method"""
+        self.ctrl.set_range_min(25)
+        self.assertEquals(self.ctrl.get_range_min(), 25)
+
+    def test_set_range_min_more_then_range_max(self):
+        """Test the set_range_min method with error"""
+        self.assertRaises(RuntimeError, self.ctrl.set_range_min, self.ctrl.get_range_max()+1)
+
+    def test_set_position_more_than_max_range(self):
+        """Test the set_position method with error"""
+        self.ctrl.set_range_max(100)
+        self.assertRaises(RuntimeError, self.ctrl.set_position, 110)
+
+    def test_set_position_less_than_min_range(self):
+        """Test the set_position method with error"""
+        self.assertRaises(RuntimeError, self.ctrl.set_position, self.ctrl.get_range_min()-10)
+
+    def test_set_correct_position(self):
+        """Test the set_position method"""
+        self.ctrl.set_position(23)
+        self.assertEqual(self.ctrl.get_position(), 23)
+
+    def test_get_num_ticks(self):
+        """Test the get_num_ticks method"""
+        self.assertEqual(self.ctrl.get_num_ticks(), 6)
+
+
 if __name__ == "__main__":
     unittest.main()

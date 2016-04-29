@@ -3129,41 +3129,47 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 class TrackbarWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows Trackbar common control "
+    """Class that wraps Windows Trackbar common control """
 
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
+
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_SliderControlTypeId]
 
-#
-#    #----------------------------------------------------------------
-#    def get_num_ticks(self):
-#        return self.send_message(win32defines.TBM_GETNUMTICS)
-#    # Non PEP-8 alias
-#    GetNumTicks = get_num_ticks
-#
-#    #----------------------------------------------------------------
-#    def get_pos(self):
-#        return self.send_message(win32defines.TBM_GETPOS)
-#    # Non PEP-8 alias
-#    GetPos = get_pos
-#
-#    #----------------------------------------------------------------
-#    def GetRangeMax(self):
-#        return self.send_message(win32defines.TBM_GETRANGEMAX)
-    # Non PEP-8 alias
-#
-#    #----------------------------------------------------------------
-#    def get_range_min(self):
-#        return self.send_message(win32defines.TBM_GETRANGEMIN)
-#    # Non PEP-8 alias
-#    GetRangeMin = get_range_min
-#
-#    #----------------------------------------------------------------
-#    def get_tool_tips_control(self):
-#        "Return the tooltip control associated with this control"
-#        return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
+    def get_range_min(self):
+        """Get min available trackbar value"""
+        return self.SendMessage(win32defines.TBM_GETRANGEMIN)
+
+    def get_range_max(self):
+        """Get max available trackbar value"""
+        return self.SendMessage(win32defines.TBM_GETRANGEMAX)
+
+    def get_position(self):
+        """Get trackbar position"""
+        return self.SendMessage(win32defines.TBM_GETPOS)
+
+    def get_num_ticks(self):
+        """Get trackbar num ticks"""
+        return self.SendMessage(win32defines.TBM_GETNUMTICS)
+
+    def set_range_max(self, range_max):
+        """Set max available trackbar value"""
+        if range_max < self.get_range_min():
+            raise RuntimeError('Failed to set range max')
+        self.SendMessage(win32defines.TBM_SETRANGEMAX, True, range_max)
+
+    def set_range_min(self, range_min):
+        """Set min available trackbar value"""
+        if range_min > self.get_range_max():
+            raise RuntimeError('Failed to set range min')
+        self.SendMessage(win32defines.TBM_SETRANGEMIN, True, range_min)
+
+    def set_position(self, pos):
+        """Set trackbar position"""
+        if self.get_range_max() < pos or self.get_range_min() > pos:
+            raise RuntimeError('Failed to set position')
+        self.SendMessage(win32defines.TBM_SETPOS, True, pos)
 
 
 #====================================================================
