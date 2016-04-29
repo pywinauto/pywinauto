@@ -27,7 +27,7 @@ class MSG(Structure):
                 ("time", wintypes.DWORD),
                 ("pt", wintypes.POINT)]
 
-windll.user32.GetMessageW.argtypes = [MSG, hinstance, c_uint, c_uint]
+windll.user32.GetMessageW.argtypes = [POINTER(MSG), hinstance, c_uint, c_uint]
 windll.user32.TranslateMessage.argtypes = [POINTER(MSG)]
 windll.user32.DispatchMessageW.argtypes = [POINTER(MSG)]
 
@@ -47,7 +47,6 @@ class KeyboardEvent(object):
 
 class MouseEvent(object):
     """Is created when mouse event catch"""
-
     def __init__(self, current_key=None, event_type=None):
         self.current_key = current_key
         self.event_type = event_type
@@ -262,11 +261,17 @@ class Hook(object):
 
     def unhook_mouse(self):
         """Unhook mouse events"""
+        if not self.mouse_is_hook:
+            return
+
         self.mouse_is_hook = False
         windll.user32.UnhookWindowsHookEx(self.mouse_id)
 
     def unhook_keyboard(self):
         """Unhook keyboard events"""
+        if not self.keyboard_is_hook:
+            return
+
         self.keyboard_is_hook = False
         windll.user32.UnhookWindowsHookEx(self.keyboard_id)
 
@@ -275,14 +280,22 @@ class Hook(object):
         atexit.register(windll.user32.UnhookWindowsHookEx, self.keyboard_id)
         atexit.register(windll.user32.UnhookWindowsHookEx, self.mouse_id)
 
-        message_pointer = MSG()
+        message = MSG()
 
         while self.mouse_is_hook or self.keyboard_is_hook:
-            msg = windll.user32.GetMessageW(message_pointer, 0, 0, 0)
-            windll.user32.TranslateMessage(byref(message_pointer))
-            windll.user32.DispatchMessageW(byref(message_pointer))
-            if message_pointer.message == self.WM_QUIT:
+            msg = windll.user32.GetMessageW(byref(message), 0, 0, 0)
+            if msg == -1:
+                print("Error. Sorry, I exit... :(")
+                hk.unhook_keyboard()
+                hk.unhook_mouse()
                 exit(0)
+
+            elif msg == 0:  # GetMessage return 0 only if WM_QUIT
+                print("WM_QUIT")
+                exit(0)
+            else:
+                windll.user32.TranslateMessage(byref(message))
+                windll.user32.DispatchMessageW(byref(message))
 
 
 if __name__ == "__main__":

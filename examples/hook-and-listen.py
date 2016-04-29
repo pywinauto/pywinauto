@@ -1,7 +1,14 @@
-from __future__ import print_function
+import win32api
+import win32con
+from threading import Timer
 from pywinauto.hooks import Hook
 from pywinauto.hooks import KeyboardEvent
 from pywinauto.hooks import MouseEvent
+
+
+def on_timer():
+    """Callback by timer out"""
+    win32api.PostThreadMessage(main_thread_id, win32con.WM_QUIT, 0, 0);
 
 
 def on_event(args):
@@ -30,4 +37,7 @@ def on_event(args):
 
 hk = Hook()
 hk.handler = on_event
+main_thread_id = win32api.GetCurrentThreadId()
+t = Timer(5.0, on_timer)  # Quit after 5 seconds
+t.start()
 hk.hook(keyboard=True, mouse=True)
