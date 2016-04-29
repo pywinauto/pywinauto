@@ -277,10 +277,12 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(expected, code)
 
     def test_send_chars(self):
-        testString = "+hello111{LEFT 3}{DEL 3} +world"
+        testString = "+hello123{LEFT 2}{DEL 2}{BACKSPACE} +world"
+        # testString = "Hello World{ENTER}"
+        # testString = "^a^c{RIGHT}^v"
 
-        self.dlg.Minimize()
-        self.dlg.Edit.send_chars(testString)
+        # self.dlg.Minimize()
+        chars = self.dlg.Edit.send_chars(testString)
 
         actual = self.dlg.Edit.Texts()[0]
         expected = "Hello World"
