@@ -1,0 +1,7 @@
+pywinauto.controls.win32_controls
+---------------------------------
+ .. automodule:: pywinauto.controls.win32_controls
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,17 @@
+Credits
+-------
+Stefaan Himpe - Lots of speed and stability improvements early on<br/>
+
+Jeff Winkler - Early encouragement, creation of screencasts<br/>
+
+Dalius Dobravolskas - Help on the forums and prompted major improvements on the wait* functionality<br/>
+
+Daisuke Yamashita - Bugs/suggestions for 2.5 that MenuWrapper.GetProperties() returns a list rather then a dict<br/>
+
+Raghav - idea with using metaclass for finding wrapper<br/>
+
+Michael Herrmann - bug fixes, project maintenance<br/>
+
+Vasily Ryabov (Intel Corporation) - Port to 64-bit Python and Python 3.x, moving repo to GitHub, project maintenance, other contributions<br/>
+
+airelil - continuous integration with AppVeyor, Python 3.x bug reports, moving unit tests to VC2010 MFC samples, other contributions<br/>

@@ -1,0 +1,6 @@
+pywinauto.findbestmatch
+-----------------------
+ .. automodule:: pywinauto.findbestmatch
+    :members:
+    :undoc-members:
+
