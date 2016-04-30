@@ -1,35 +1,16 @@
 from ctypes import wintypes
-from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_long, c_longlong, c_ulong, c_void_p, byref, sizeof
-from ctypes import Structure
+from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_void_p, byref
 import atexit
 
-if sizeof(POINTER(c_int)) * 8 == 64:
-    hinstance = c_longlong
-else:
-    hinstance = c_long
-
-cmp_func = CFUNCTYPE(c_int, c_int, hinstance, POINTER(c_void_p))
-DWORD = c_ulong
+cmp_func = CFUNCTYPE(c_int, c_int, wintypes.HINSTANCE, POINTER(c_void_p))
 
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
 windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
-
 windll.user32.SetWindowsHookExA.restype = c_int
-windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, hinstance, DWORD]
-
-
-class MSG(Structure):
-    """MGS Structure for GetMessageW methods"""
-    _fields_ = [("hWnd", hinstance),
-                ("message", c_uint),
-                ("wParam", wintypes.WPARAM),
-                ("lParam", wintypes.LPARAM),
-                ("time", wintypes.DWORD),
-                ("pt", wintypes.POINT)]
-
-windll.user32.GetMessageW.argtypes = [POINTER(MSG), hinstance, c_uint, c_uint]
-windll.user32.TranslateMessage.argtypes = [POINTER(MSG)]
-windll.user32.DispatchMessageW.argtypes = [POINTER(MSG)]
+windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, wintypes.HINSTANCE, wintypes.DWORD]
+windll.user32.GetMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint]
+windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
+windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
 
 
 def _callback_pointer(handler):
@@ -276,7 +257,7 @@ class Hook(object):
         atexit.register(windll.user32.UnhookWindowsHookEx, self.keyboard_id)
         atexit.register(windll.user32.UnhookWindowsHookEx, self.mouse_id)
 
-        message = MSG()
+        message = wintypes.MSG()
 
         while self.mouse_is_hook or self.keyboard_is_hook:
             msg = windll.user32.GetMessageW(byref(message), 0, 0, 0)
