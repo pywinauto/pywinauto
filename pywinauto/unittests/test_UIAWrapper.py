@@ -40,6 +40,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
+            Timings.window_find_timeout = 20
 
             # start the application
             self.app = Application(backend = 'uia')
@@ -226,6 +227,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
+            Timings.window_find_timeout = 20
 
             self.app = Application(backend = 'uia')
             self.app = self.app.Start(wpf_app_1)
@@ -271,6 +273,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
+            Timings.window_find_timeout = 20
 
             # start the application
             app = Application(backend = 'uia')
@@ -407,6 +410,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
+            Timings.window_find_timeout = 20
 
             # start the application
             app = Application(backend = 'uia')
@@ -495,6 +499,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
+            Timings.window_find_timeout = 20
 
             # start the application
             app = Application(backend='uia')
