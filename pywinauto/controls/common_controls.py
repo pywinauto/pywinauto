@@ -3388,7 +3388,58 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
 
+    # ----------------------------------------------------------------
+    def set_today(self, year, month, day):
+        """Set today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_time = win32structures.SYSTEMTIME()
+
+        system_time.wYear = year
+        system_time.wMonth = month
+        system_time.wDay = day
+        system_time.wHour = 0
+        system_time.wMinute = 0
+        system_time.wSecond = 0
+        system_time.wMilliseconds = 0
+
+        remote_mem.Write(system_time)
+
+        res = self.send_message(win32defines.MCM_SETTODAY, 0, remote_mem)
+
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set today date in Calendar')
+
+    # ----------------------------------------------------------------
+    def get_today(self):
+                """Get today date"""
+                remote_mem = RemoteMemoryBlock(self)
+                system_date = win32structures.SYSTEMTIME()
+                remote_mem.Write(system_date)
+
+                res = self.send_message(win32defines.MCM_GETTODAY, 0, remote_mem)
+                remote_mem.Read(system_date)
+                del remote_mem
+
+                if res == 0:
+                    raise RuntimeError('Failed to get today date in Calendar')
+                return system_date
+
+    # ----------------------------------------------------------------
+    def set_first_weekday(self, dayNum):
+        """Set first day of the week"""
+        res = self.send_message(win32defines.MCM_SETFIRSTDAYOFWEEK, 0, dayNum)
+
+    # ----------------------------------------------------------------
+    def get_first_weekday(self):
+        """Get first day of the week"""
+        res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
+        return res
+
 #====================================================================
+
+
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
 

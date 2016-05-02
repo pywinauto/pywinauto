@@ -92,7 +92,24 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assertEqual(systemTime.wDay, now.day)
 
     def set_calendar_state_into_multiselect(self):
-        self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         
+        self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()
+
+    def test_can_get_today(self):
+        date = self.calendar.get_today()
+        self.assert_system_time_is_equal_to_current_date_time(date, datetime.date.today())
+
+    def test_can_set_today(self):
+        self.calendar.set_today(2016, 5, 1)
+        self.assert_system_time_is_equal_to_current_date_time(self.calendar.get_today(),
+                                                              datetime.date(2016, 5, 1))
+
+    def test_is_first_day_of_week_locale(self):
+        self.assertEqual(0, self.calendar.get_first_weekday())
+
+    def test_can_set_and_get_first_day_of_week(self):
+        self.calendar.set_first_weekday(4)
+        self.assertEqual(4, self.calendar.get_first_weekday()-65536)
+
 
 if __name__ == "__main__":
     unittest.main()
