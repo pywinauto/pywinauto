@@ -1075,6 +1075,34 @@ else:
     assert alignment(GUITHREADINFO) == 2, alignment(GUITHREADINFO)
 
 
+class LPSCROLLINFO(Structure):
+    # _pack_ = 2
+    _fields_ = [
+        ('cbSize', UINT),
+        ('fMask', UINT),
+        ('nMin', c_int),
+        ('nMax', c_int),
+        ('nPage', UINT),
+        ('nPos', c_int),
+        ('nTrackPos', c_int),
+    ]
+assert sizeof(LPSCROLLINFO) == 28, sizeof(LPSCROLLINFO)
+# assert alignment(LPSCROLLINFO) == 4, alignment(LPSCROLLINFO)
+
+class PSCROLLBARINFO(Structure):
+    # _pack_ = 2
+    _fields_ = [
+        ('cbSize', DWORD),
+        ('rcScrollBar', RECT),
+        ('dxyLineButton', c_int),
+        ('xyThumbTop', c_int),
+        ('xyThumbBottom', c_int),
+        ('reserved', c_int),
+        ('rgstate', DWORD),#[CCHILDREN_SCROLLBAR+1]=[7]?
+    ]
+assert sizeof(PSCROLLBARINFO) == 40, sizeof(PSCROLLBARINFO)
+# assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
+
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
 class MENUINFO(Structure):

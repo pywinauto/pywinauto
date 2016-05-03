@@ -114,7 +114,7 @@ AttachThreadInput.argtypes = [win32structures.DWORD, win32structures.DWORD, win3
 #GetWindowThreadProcessId    =   ctypes.windll.user32.GetWindowThreadProcessId
 GetLastError = ctypes.windll.kernel32.GetLastError
 
-OpenProcess			=	ctypes.windll.kernel32.OpenProcess
+OpenProcess         =   ctypes.windll.kernel32.OpenProcess
 CloseHandle         =   ctypes.windll.kernel32.CloseHandle
 CreateProcess       = ctypes.windll.kernel32.CreateProcessW
 TerminateProcess    = ctypes.windll.kernel32.TerminateProcess
@@ -125,51 +125,51 @@ GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
 GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
-SendMessage			=	ctypes.windll.user32.SendMessageW
+SendMessage         =   ctypes.windll.user32.SendMessageW
 SendMessageTimeout  =   ctypes.windll.user32.SendMessageTimeoutW
-SendMessageA		=	ctypes.windll.user32.SendMessageA
-PostMessage			=	ctypes.windll.user32.PostMessageW
+SendMessageA        =   ctypes.windll.user32.SendMessageA
+PostMessage         =   ctypes.windll.user32.PostMessageW
 GetMessage          =   ctypes.windll.user32.GetMessageW
 
 MoveWindow          =   ctypes.windll.user32.MoveWindow
 EnableWindow        =   ctypes.windll.user32.EnableWindow
-SetActiveWindow		=	ctypes.windll.user32.SetActiveWindow
-GetFocus			=	ctypes.windll.user32.GetFocus
-SetFocus			=	ctypes.windll.user32.SetFocus
-SetForegroundWindow	=	ctypes.windll.user32.SetForegroundWindow
-GetForegroundWindow	=	ctypes.windll.user32.GetForegroundWindow
-SetWindowLong		=	ctypes.windll.user32.SetWindowLongW
+SetActiveWindow     =   ctypes.windll.user32.SetActiveWindow
+GetFocus            =   ctypes.windll.user32.GetFocus
+SetFocus            =   ctypes.windll.user32.SetFocus
+SetForegroundWindow =   ctypes.windll.user32.SetForegroundWindow
+GetForegroundWindow =   ctypes.windll.user32.GetForegroundWindow
+SetWindowLong       =   ctypes.windll.user32.SetWindowLongW
 try:
     SetWindowLongPtr    =   ctypes.windll.user32.SetWindowLongPtrW
     SetWindowLongPtr.argtypes = [win32structures.HWND, ctypes.c_int, win32structures.LONG_PTR]
     SetWindowLongPtr.restype = win32structures.LONG_PTR
 except AttributeError:
     SetWindowLongPtr = SetWindowLong
-SystemParametersInfo =	ctypes.windll.user32.SystemParametersInfoW
-VirtualAllocEx		=	ctypes.windll.kernel32.VirtualAllocEx
+SystemParametersInfo =  ctypes.windll.user32.SystemParametersInfoW
+VirtualAllocEx      =   ctypes.windll.kernel32.VirtualAllocEx
 VirtualAllocEx.restype = ctypes.c_void_p
-VirtualFreeEx		=	ctypes.windll.kernel32.VirtualFreeEx
-DebugBreakProcess	=	ctypes.windll.kernel32.DebugBreakProcess
+VirtualFreeEx       =   ctypes.windll.kernel32.VirtualFreeEx
+DebugBreakProcess   =   ctypes.windll.kernel32.DebugBreakProcess
 
-VirtualAlloc		=	ctypes.windll.kernel32.VirtualAlloc
-VirtualFree			=	ctypes.windll.kernel32.VirtualFree
-WriteProcessMemory	=	ctypes.windll.kernel32.WriteProcessMemory
-GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
-GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
-FindWindow			=	ctypes.windll.user32.FindWindowW
-GetTopWindow		=	ctypes.windll.user32.GetTopWindow
+VirtualAlloc        =   ctypes.windll.kernel32.VirtualAlloc
+VirtualFree         =   ctypes.windll.kernel32.VirtualFree
+WriteProcessMemory  =   ctypes.windll.kernel32.WriteProcessMemory
+GetActiveWindow     =   ctypes.windll.user32.GetActiveWindow
+GetLastActivePopup  =   ctypes.windll.user32.GetLastActivePopup
+FindWindow          =   ctypes.windll.user32.FindWindowW
+GetTopWindow        =   ctypes.windll.user32.GetTopWindow
 
-SetCapture			=	ctypes.windll.user32.SetCapture
-ReleaseCapture		=	ctypes.windll.user32.ReleaseCapture
+SetCapture          =   ctypes.windll.user32.SetCapture
+ReleaseCapture      =   ctypes.windll.user32.ReleaseCapture
 
-ShowOwnedPopups		=	ctypes.windll.user32.ShowOwnedPopups
-WindowFromPoint 	=	ctypes.windll.user32.WindowFromPoint
+ShowOwnedPopups     =   ctypes.windll.user32.ShowOwnedPopups
+WindowFromPoint     =   ctypes.windll.user32.WindowFromPoint
 
-WideCharToMultiByte	=	ctypes.windll.kernel32.WideCharToMultiByte
-GetACP				=	ctypes.windll.kernel32.GetACP
+WideCharToMultiByte =   ctypes.windll.kernel32.WideCharToMultiByte
+GetACP              =   ctypes.windll.kernel32.GetACP
 
 WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
-WaitForInputIdle	= ctypes.windll.user32.WaitForInputIdle
+WaitForInputIdle    = ctypes.windll.user32.WaitForInputIdle
 
 IsHungAppWindow     = ctypes.windll.user32.IsHungAppWindow
 IsHungAppWindow.restype = win32structures.BOOL
@@ -184,6 +184,9 @@ CloseClipboard   = ctypes.windll.user32.CloseClipboard
 CountClipboardFormats  = ctypes.windll.user32.CountClipboardFormats
 EnumClipboardFormats   = ctypes.windll.user32.EnumClipboardFormats
 GetClipboardFormatName = ctypes.windll.user32.GetClipboardFormatNameW
+GetScrollInfo          =   ctypes.windll.user32.GetScrollInfo
+GetScrollPos           =   ctypes.windll.user32.GetScrollPos
+GetScrollBarInfo       =   ctypes.windll.user32.GetScrollBarInfo
 
 # DPIAware API funcs are not available on WinXP
 try:
