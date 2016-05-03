@@ -103,13 +103,13 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def test_can_minimize_rectangle(self):
         expected_rect = self.get_expected_minimized_rectangle()
-        rect = self.calendar.minimize_rectangle_for_calendars(expected_rect.left + 100, expected_rect.top + 100,
-                                                              expected_rect.right + 100, expected_rect.bottom + 100)
+        rect = self.calendar.minimize_calendar_rectangle(expected_rect.left + 100, expected_rect.top + 100,
+                                                         expected_rect.right + 100, expected_rect.bottom + 100)
         self.assertEquals(expected_rect, rect)
 
     def test_can_minimize_rectangle_handle_less_than_zero_values(self):
         expected_rect = self.get_expected_minimized_rectangle()
-        rect = self.calendar.minimize_rectangle_for_calendars(-1, -1, -1, -1)
+        rect = self.calendar.minimize_calendar_rectangle(-1, -1, -1, -1)
         self.assertEquals(expected_rect, rect)
 
     def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):

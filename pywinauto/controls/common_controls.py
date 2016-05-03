@@ -3404,7 +3404,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return res
 
     # ----------------------------------------------------------------
-    def minimize_rectangle_for_calendars(self, left, top, right, bottom):
+    def minimize_calendar_rectangle(self, left, top, right, bottom):
         """Calculates the minimum size that a rectangle needs to be to fit that number of calendars"""
         remote_mem = RemoteMemoryBlock(self)
 
