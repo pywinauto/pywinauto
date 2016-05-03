@@ -112,6 +112,59 @@ class CalendarWrapperTests(unittest.TestCase):
         rect = self.calendar.minimize_calendar_rectangle(-1, -1, -1, -1)
         self.assertEquals(expected_rect, rect)
 
+    def test_can_determine_calendar_is_hit(self):
+        res = self.calendar.do_hit_test(4, 48)
+        self.assertEquals(win32defines.MCHT_CALENDAR, res)
+
+    def test_can_determine_calendar_background_is_hit(self):
+        res = self.calendar.do_hit_test(4, 48)
+        self.assertEquals(win32defines.MCHT_CALENDARBK, res)
+
+    def test_can_determine_date_is_hit(self):
+        res = self.calendar.do_hit_test(140, 120)
+        self.assertEquals(win32defines.MCHT_CALENDARDATE, res)
+
+    def test_can_determine_next_month_date_is_hit(self):
+        res = self.calendar.do_hit_test(140, 130)
+        self.assertEquals(win32defines.MCHT_CALENDARDATENEXT, res)
+
+    def test_can_determine_prev_month_date_is_hit(self):
+        res = self.calendar.do_hit_test(10, 60)
+        self.assertEquals(win32defines.MCHT_CALENDARDATEPREV, res)
+
+    def test_can_determine_nothing_is_hit(self):
+        res = self.calendar.do_hit_test(0, 0)
+        self.assertEquals(win32defines.MCHT_NOWHERE, res)
+
+    def test_can_determine_top_left_title_corner_is_hit(self):
+        res = self.calendar.do_hit_test(10, 10)
+        self.assertEquals(win32defines.MCHT_TITLEBTNPREV, res)
+
+    def test_can_determine_title_is_hit(self):
+        res = self.calendar.do_hit_test(20, 15)
+        self.assertEquals(win32defines.MCHT_TITLE, res)
+
+    def test_can_determine_title_background_is_hit(self):
+        res = self.calendar.do_hit_test(20, 15)
+        self.assertEquals(win32defines.MCHT_TITLEBK, res)
+
+    def test_can_determine_top_right_title_corner_is_hit(self):
+        res = self.calendar.do_hit_test(150, 20)
+        self.assertEquals(win32defines.MCHT_TITLEBTNNEXT, res)
+
+    def test_can_determine_today_link_is_hit(self):
+        res = self.calendar.do_hit_test(130, 140)
+        self.assertEquals(win32defines.MCHT_TODAYLINK, res)
+
+    def test_can_determine_day_abbreviation_is_hit(self):
+        res = self.calendar.do_hit_test(30, 40)
+        self.assertEquals(win32defines.MCHT_CALENDARDAY, res)
+
+    def test_can_determine_week_number_is_hit(self):
+        self.set_calendar_state_to_display_week_numbers()
+        res = self.calendar.do_hit_test(4, 50)
+        self.assertEquals(win32defines.MCHT_CALENDARWEEKNUM, res)
+
     def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):
         self.assertEqual(systemTime.wYear, now.year)
         self.assertEqual(systemTime.wMonth, now.month)
@@ -127,6 +180,9 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def set_calendar_state_to_display_day_states(self):
         self.app['Common Controls Sample']['MCS_DAYSTATE'].WrapperObject().Click()
+
+    def set_calendar_state_to_display_week_numbers(self):
+        self.app['Common Controls Sample']['MCS_WEEKNUMBERS'].WrapperObject().Click()
 
     def set_calendar_state_into_multiselect(self):
         self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         

@@ -3422,7 +3422,22 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
         return minimized_rect
 
+    # ----------------------------------------------------------------
+    def do_hit_test(self, x, y):
+        """Determines which portion of a month calendar control is at a given point on the screen"""
+        remote_mem = RemoteMemoryBlock(self)
+        hit_test_info = win32structures.MCHITTESTINFO()
+        point = win32structures.POINT()
+        point.x = x
+        point.y = y
+        hit_test_info.pt = point
+        hit_test_info.cbSize = ctypes.sizeof(hit_test_info)
 
+        remote_mem.Write(hit_test_info)
+        res = self.send_message(win32defines.MCM_HITTEST, 0, remote_mem)
+        del remote_mem
+
+        return res
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
