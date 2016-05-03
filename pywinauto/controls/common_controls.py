@@ -3438,6 +3438,8 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         return res
+
+
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
