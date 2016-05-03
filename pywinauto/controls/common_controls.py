@@ -3381,14 +3381,14 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         """Get the calendar view"""
         return self.send_message(win32defines.MCM_GETCURRENTVIEW, 0,0)
 
-    # ----------------------------------------------------------------
+    #----------------------------------------------------------------
     def set_view(self, viewType):
         """Set the calendar view"""
         res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
 
-    # ----------------------------------------------------------------
+    #----------------------------------------------------------------
     def set_day_states(self, month_states):
         """Sets the day states for all months that are currently visible within a month calendar control"""
         remote_mem = RemoteMemoryBlock(self)
@@ -3403,7 +3403,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
         return res
 
-    # ----------------------------------------------------------------
+    #----------------------------------------------------------------
     def minimize_calendar_rectangle(self, left, top, right, bottom):
         """Calculates the minimum size that a rectangle needs to be to fit that number of calendars"""
         remote_mem = RemoteMemoryBlock(self)
@@ -3422,7 +3422,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
         return minimized_rect
 
-    # ----------------------------------------------------------------
+    #----------------------------------------------------------------
     def do_hit_test(self, x, y):
         """Determines which portion of a month calendar control is at a given point on the screen"""
         remote_mem = RemoteMemoryBlock(self)
