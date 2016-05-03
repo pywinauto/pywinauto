@@ -22,6 +22,8 @@ if is_x64_Python():
 class CalendarWrapperTests(unittest.TestCase):
 
     """Unit tests for the CalendarWrapperTests class"""
+    NO_HOLIDAYS_IN_MONTH = 0
+
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
@@ -90,6 +92,22 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assertEqual(systemTime.wYear, now.year)
         self.assertEqual(systemTime.wMonth, now.month)
         self.assertEqual(systemTime.wDay, now.day)
+
+    def test_can_set_day_state(self):
+        month_states = [self.NO_HOLIDAYS_IN_MONTH, self.NO_HOLIDAYS_IN_MONTH, self.NO_HOLIDAYS_IN_MONTH]
+        self.set_calendar_state_to_display_day_states()
+
+        res = self.calendar.set_day_states(month_states)
+
+        self.assertNotEquals(0, res)
+
+    def test_cant_set_day_state_passing_one_month_state(self):
+        month_states = [self.NO_HOLIDAYS_IN_MONTH]
+        self.set_calendar_state_to_display_day_states()
+        self.assertRaises(RuntimeError, self.calendar.set_day_states, month_states)
+
+    def set_calendar_state_to_display_day_states(self):
+        self.app['Common Controls Sample']['MCS_DAYSTATE'].WrapperObject().Click()
 
     def set_calendar_state_into_multiselect(self):
         self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         

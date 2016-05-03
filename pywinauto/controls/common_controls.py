@@ -3381,12 +3381,27 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         """Get the calendar view"""
         return self.send_message(win32defines.MCM_GETCURRENTVIEW, 0,0)
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def set_view(self, viewType):
         """Set the calendar view"""
         res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
+
+    # ----------------------------------------------------------------
+    def set_day_states(self, month_states):
+        """Sets the day states for all months that are currently visible within a month calendar control"""
+        remote_mem = RemoteMemoryBlock(self)
+        day_states = (ctypes.c_uint32 * len(month_states))(*month_states)
+
+        remote_mem.Write(day_states)
+        res = self.send_message(win32defines.MCM_SETDAYSTATE, len(day_states), remote_mem)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set the day states in Calendar')
+
+        return res
 
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
