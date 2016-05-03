@@ -88,11 +88,6 @@ class CalendarWrapperTests(unittest.TestCase):
         self.calendar.set_view(win32defines.MCMV_CENTURY)
         self.assertEqual(self.calendar.get_view(), win32defines.MCMV_CENTURY)
 
-    def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):
-        self.assertEqual(systemTime.wYear, now.year)
-        self.assertEqual(systemTime.wMonth, now.month)
-        self.assertEqual(systemTime.wDay, now.day)
-
     def test_can_set_day_state(self):
         month_states = [self.NO_HOLIDAYS_IN_MONTH, self.NO_HOLIDAYS_IN_MONTH, self.NO_HOLIDAYS_IN_MONTH]
         self.set_calendar_state_to_display_day_states()
@@ -105,6 +100,30 @@ class CalendarWrapperTests(unittest.TestCase):
         month_states = [self.NO_HOLIDAYS_IN_MONTH]
         self.set_calendar_state_to_display_day_states()
         self.assertRaises(RuntimeError, self.calendar.set_day_states, month_states)
+
+    def test_can_minimize_rectangle(self):
+        expected_rect = self.get_expected_minimized_rectangle()
+        rect = self.calendar.minimize_rectangle_for_calendars(expected_rect.left + 100, expected_rect.top + 100,
+                                                              expected_rect.right + 100, expected_rect.bottom + 100)
+        self.assertEquals(expected_rect, rect)
+
+    def test_can_minimize_rectangle_handle_less_than_zero_values(self):
+        expected_rect = self.get_expected_minimized_rectangle()
+        rect = self.calendar.minimize_rectangle_for_calendars(-1, -1, -1, -1)
+        self.assertEquals(expected_rect, rect)
+
+    def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):
+        self.assertEqual(systemTime.wYear, now.year)
+        self.assertEqual(systemTime.wMonth, now.month)
+        self.assertEqual(systemTime.wDay, now.day)
+
+    def get_expected_minimized_rectangle(self):
+        expected_rect = win32structures.RECT()
+        expected_rect.left = 0
+        expected_rect.top = 0
+        expected_rect.right = 162
+        expected_rect.bottom = 160
+        return expected_rect
 
     def set_calendar_state_to_display_day_states(self):
         self.app['Common Controls Sample']['MCS_DAYSTATE'].WrapperObject().Click()

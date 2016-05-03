@@ -3403,6 +3403,26 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
         return res
 
+    # ----------------------------------------------------------------
+    def minimize_rectangle_for_calendars(self, left, top, right, bottom):
+        """Calculates the minimum size that a rectangle needs to be to fit that number of calendars"""
+        remote_mem = RemoteMemoryBlock(self)
+
+        minimized_rect = win32structures.RECT()
+        minimized_rect.left = left
+        minimized_rect.top = top
+        minimized_rect.right = right
+        minimized_rect.bottom = bottom
+
+        remote_mem.Write(minimized_rect)
+        self.send_message(win32defines.MCM_SIZERECTTOMIN, 0, remote_mem)
+
+        remote_mem.Read(minimized_rect)
+        del remote_mem
+
+        return minimized_rect
+
+
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
