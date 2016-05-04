@@ -48,6 +48,7 @@ from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
 from pywinauto import clipboard
 from pywinauto import backend
+from pywinauto.base_wrapper import ElementNotEnabled, ElementNotVisible
 
 
 mfc_samples_folder = os.path.join(
@@ -694,6 +695,18 @@ class DragAndDropTests(unittest.TestCase):
         self.ctrl.drag_mouse_input("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
         dogs = self.ctrl.GetItem(r'\Dogs')
         self.assertEquals([child.Text() for child in dogs.children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
+		
+    def testVerifyEnabled(self):
+        "test for verify_enabled"
+        self.dlg.TabControl.Select(4)
+        editBox = self.dlg.EditBox.WrapperObject()
+        self.assertRaises(ElementNotEnabled, editBox.verify_enabled)
+
+    def testVerifyVisible(self):
+        "test for verify_visible"
+        editBox = self.dlg.EditBox.WrapperObject()
+        self.dlg.TabControl.Select(3)
+        self.assertRaises(ElementNotVisible, editBox.verify_visible)
 
 
 class GetDialogPropsFromHandleTest(unittest.TestCase):
