@@ -485,20 +485,16 @@ class HwndWrapper(BaseWrapper):
 
             if isinstance(key, SendKeysCtypes.VirtualKeyAction):
 
-                # + ENTER, SHIFT, LEFT
-                # - CTRL, BACKSPACE removes more than 1 symbol
-                # if key.down:
-                #     win32gui.PostMessage(self.handle, win32con.WM_KEYDOWN, vk, scan)
-                # if key.down and key.up: win32api.Sleep(5)
-                # if key.up:
-                #     win32gui.PostMessage(self.handle, win32con.WM_KEYUP, vk, scan)
-
-                if key.down and key.up and (flags==0):
-                    # + BACKSPACE
-                    # - ENTER
+                if key.down and key.up and (flags == 0):
                     lparam = 1 << 0 | scan << 16
-                    win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
-                elif key.down and key.up and (flags==1):
+                    if vk == win32con.VK_RETURN:
+                        # + Enter
+                        win32gui.PostMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+                        win32gui.PostMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
+                    else:
+                        # + BACKSPACE
+                        win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+                elif key.down and key.up and (flags == 1):
                     # + LEFT, DELETE
                     lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
                     win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
