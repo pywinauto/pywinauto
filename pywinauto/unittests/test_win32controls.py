@@ -62,64 +62,43 @@ class ButtonTestCases(unittest.TestCase):
         is in the state we want it."""
 
         self.app = Application()
+        self.app = self.app.Start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start(r"C:\Windows\System32\calc.exe")
-        else:
-            self.app.start(r"C:\Windows\SysWOW64\calc.exe")
-        self.calc = self.app.Calculator
-        self.calc.MenuSelect("View->Scientific")
+        self.ctrl = self.app.Common_Controls_Sample
 
     def tearDown(self):
         "Close the application after tests"
-
         self.app.kill_()
-        #self.calc.type_keys("%{F4}")
 
     def testGetProperties(self):
         "Test getting the properties for the button control"
-        props = self.calc.Degrees.GetProperties()
+        props = self.ctrl.Set.GetProperties()
 
         self.assertEquals(
-            "RadioButton", props['friendly_class_name'])
+            "Button", props['friendly_class_name'])
 
         self.assertEquals(
-            self.calc.Degrees.texts(), ['Degrees'])
+            self.ctrl.Set.texts(), ['Set'])
 
         self.assertEquals(
-            self.calc.Degrees.texts(), props['texts'])
+            self.ctrl.Set.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
-                getattr(self.calc.Degrees, prop_name)(), props[prop_name])
+                getattr(self.ctrl.Set, prop_name)(), props[prop_name])
 
     def test_NeedsImageProp(self):
-
-        """test whether an image needs to be saved with the properties"""
-
-        self.assertEquals(self.calc.Button5._needs_image_prop, False)
-        self.assertEquals('image' in self.calc.Button5.GetProperties(), False)
-        #self.assertNotIn('image', self.calc.Button5.GetProperties())
-        # assertIn and assertNotIn are not supported in Python 2.6
+        "Test whether an image needs to be saved with the properties"
+        self.assertEquals(self.ctrl.Button3._needs_image_prop, True)
+        self.assertEquals('image' in self.ctrl.Button3.GetProperties(), True)
 
     def testFriendlyClass(self):
         "Test the friendly_class_name method"
-        self.assertEquals(self.calc.Button9.friendly_class_name(), "Button")
-        self.assertEquals(self.calc.Degree.friendly_class_name(), "RadioButton")
-        #self.assertEquals(self.calc.Hex.friendly_class_name(), "CheckBox")
-
-        #children = self.calc.children()
-        #no_text_buttons = [
-        #    c for c in children
-        #        if not c.window_text() and c.class_name() == "Button"]
-
-        #first_group = no_text_buttons[0]
-
-        #self.assertEquals(first_group.friendly_class_name(), "GroupBox")
+        self.assertEquals(self.ctrl.Button2.friendly_class_name(), "Button")
+        self.assertEquals(self.ctrl.Set.friendly_class_name(), "Button")
 
     def testCheckUncheck(self):
         "Test unchecking a control"
-
         self.calc.Grads.Check()
         self.assertEquals(self.calc.Grads.GetCheckState(), 1)
         self.calc.Grads.UnCheck()
