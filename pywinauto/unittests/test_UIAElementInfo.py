@@ -1,4 +1,5 @@
 import unittest
+import os
 from pywinauto.application import Application
 from pywinauto.handleprops import processid 
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
@@ -7,6 +8,11 @@ if UIA_support:
     from pywinauto.UIAElementInfo import UIAElementInfo
     from pywinauto import backend
 
+mfc_samples_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+mfc_app_1 = os.path.join(mfc_samples_folder, u"RowList.exe")
 
 if UIA_support:
     class UIAElementInfoTests(unittest.TestCase):
@@ -16,16 +22,12 @@ if UIA_support:
             """Start the application set some data and ensure the application
             is in the state we want it."""
 
-            # TODO: re-write the whole test
             self.app = Application(backend="native")
-            if is_x64_Python() or not is_x64_OS():
-                self.app.start(r"C:\Windows\System32\calc.exe")
-            else:
-                self.app.start(r"C:\Windows\SysWOW64\calc.exe")
-            
-            self.dlg = self.app.Calculator
+            self.app = self.app.Start(mfc_app_1)
+
+            self.dlg = self.app.RowListSampleApplication
             self.handle = self.dlg.handle
-            self.dlg.MenuSelect('View->Scientific\tAlt+2')
+            self.dlg.MenuSelect('View->Large Icons')
             self.ctrl = UIAElementInfo(self.dlg.handle)
 
         def tearDown(self):
@@ -36,7 +38,7 @@ if UIA_support:
             self.assertEqual(self.ctrl.process_id, processid(self.handle))
 
         def testName(self):
-            self.assertEqual(self.ctrl.name, "Calculator")
+            self.assertEqual(self.ctrl.name, "RowList Sample Application")
 
         def testHandle(self):
             self.assertEqual(self.ctrl.handle, self.handle)
