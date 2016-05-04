@@ -37,6 +37,7 @@ sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto import six
 from pywinauto.win32structures import RECT
+from pywinauto import win32structures
 from pywinauto import win32defines
 from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
@@ -1517,7 +1518,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
     def tearDown(self):
         "Close the application after tests"
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
 
     def test_friendly_class(self):
@@ -1541,11 +1542,11 @@ class TrackbarWrapperTestCases(unittest.TestCase):
     def test_set_position_more_than_max_range(self):
         """Test the set_position method with error"""
         self.ctrl.set_range_max(100)
-        self.assertRaises(RuntimeError, self.ctrl.set_position, 110)
+        self.assertRaises(ValueError, self.ctrl.set_position, 110)
 
     def test_set_position_less_than_min_range(self):
         """Test the set_position method with error"""
-        self.assertRaises(RuntimeError, self.ctrl.set_position, self.ctrl.get_range_min()-10)
+        self.assertRaises(ValueError, self.ctrl.set_position, self.ctrl.get_range_min()-10)
 
     def test_set_correct_position(self):
         """Test the set_position method"""
@@ -1556,6 +1557,35 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         """Test the get_num_ticks method"""
         self.assertEqual(self.ctrl.get_num_ticks(), 6)
 
+    def test_get_channel_rect(self):
+        """Test the get_channel_rect method"""
+        system_rect = win32structures.RECT()
+        system_rect.left = 8
+        system_rect.top = 19
+        system_rect.right = 249
+        system_rect.bottom = 23
+        self.assert_channel_rect(self.ctrl.get_channel_rect(), system_rect)
+
+    def assert_channel_rect(self, first_rect, second_rect):
+        """Compare two rect strucrures"""
+        self.assertEqual(first_rect.left, second_rect.left)
+        self.assertEqual(first_rect.top, second_rect.top)
+        self.assertEqual(first_rect.right, second_rect.right)
+        self.assertEqual(first_rect.bottom, second_rect.bottom)
+
+    def test_get_line_size(self):
+        """Test the get_line_size method"""
+        self.ctrl.set_line_size(10)
+        self.assertEquals(self.ctrl.get_line_size(), 10)
+
+    def test_get_page_size(self):
+        """Test the set_page_size method"""
+        self.ctrl.set_page_size(14)
+        self.assertEquals(self.ctrl.get_page_size(), 14)
+
+    def test_get_tool_tips_control(self):
+        """Test the get_tooltips_control method"""
+        self.assertEquals(self.ctrl.get_tooltips_control(), 0)
 
 if __name__ == "__main__":
     unittest.main()

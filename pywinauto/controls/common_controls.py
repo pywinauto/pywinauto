@@ -3139,38 +3139,69 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
 
     def get_range_min(self):
         """Get min available trackbar value"""
-        return self.SendMessage(win32defines.TBM_GETRANGEMIN)
+        return self.send_message(win32defines.TBM_GETRANGEMIN)
 
     def get_range_max(self):
         """Get max available trackbar value"""
-        return self.SendMessage(win32defines.TBM_GETRANGEMAX)
+        return self.send_message(win32defines.TBM_GETRANGEMAX)
 
     def get_position(self):
         """Get trackbar position"""
-        return self.SendMessage(win32defines.TBM_GETPOS)
+        return self.send_message(win32defines.TBM_GETPOS)
 
     def get_num_ticks(self):
         """Get trackbar num ticks"""
-        return self.SendMessage(win32defines.TBM_GETNUMTICS)
+        return self.send_message(win32defines.TBM_GETNUMTICS)
+
+    def get_channel_rect(self):
+        """Get position of the bounding rectangle for a Trackbar"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_rect = win32structures.RECT()
+        remote_mem.Write(system_rect)
+
+        self.send_message(win32defines.TBM_GETCHANNELRECT , 0, remote_mem)
+        remote_mem.Read(system_rect)
+        del remote_mem
+
+        return system_rect
+
+    def get_line_size(self):
+        """Get the number of logical positions the trackbar's slider"""
+        return self.send_message(win32defines.TBM_GETLINESIZE)
+
+    def get_tooltips_control(self):
+        "Get trackbar tooltip"
+        return self.send_message(win32defines.TBM_GETTOOLTIPS)
+
+    def get_page_size(self):
+        """Get the number of logical positions the trackbar's slider """
+        return self.send_message(win32defines.TBM_GETPAGESIZE)
 
     def set_range_max(self, range_max):
         """Set max available trackbar value"""
         if range_max < self.get_range_min():
             raise RuntimeError('Failed to set range max')
-        self.SendMessage(win32defines.TBM_SETRANGEMAX, True, range_max)
+        self.send_message(win32defines.TBM_SETRANGEMAX, True, range_max)
 
     def set_range_min(self, range_min):
         """Set min available trackbar value"""
         if range_min > self.get_range_max():
             raise RuntimeError('Failed to set range min')
-        self.SendMessage(win32defines.TBM_SETRANGEMIN, True, range_min)
+        self.send_message(win32defines.TBM_SETRANGEMIN, True, range_min)
 
     def set_position(self, pos):
         """Set trackbar position"""
-        if self.get_range_max() < pos or self.get_range_min() > pos:
-            raise RuntimeError('Failed to set position')
-        self.SendMessage(win32defines.TBM_SETPOS, True, pos)
+        if not (self.get_range_min() <= pos <= self.get_range_max()):
+          raise ValueError('Cannot set position out of range')
+        self.send_message(win32defines.TBM_SETPOS, True, pos)
 
+    def set_line_size(self, line_size):
+        """Set trackbar line size"""
+        self.send_message(win32defines.TBM_SETLINESIZE, 0, line_size)
+
+    def set_page_size(self, page_size):
+        """Set trackbar page size"""
+        self.send_message(win32defines.TBM_SETPAGESIZE, 0, page_size)
 
 #====================================================================
 class AnimationWrapper(HwndWrapper.HwndWrapper):
