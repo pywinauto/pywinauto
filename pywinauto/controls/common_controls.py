@@ -3401,19 +3401,19 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         """
 
         dict_types = {
-            'gregorian': 'CAL_GREGORIAN',
-            'gregorian_us': 'CAL_GREGORIAN_US',
-            'japan': 'CAL_JAPAN',
-            'taiwan': 'CAL_TAIWAN',
-            'korea': 'CAL_KOREA',
-            'hijri': 'CAL_HIJRI',
-            'thai': 'CAL_THAI',
-            'hebrew': 'CAL_HEBREW',
-            'gregorian_me_french': 'CAL_GREGORIAN_ME_FRENCH',
-            'gregorian_arabic': 'CAL_GREGORIAN_ARABIC',
-            'gregorian_english_xlit': 'CAL_GREGORIAN_XLIT_ENGLISH',
-            'gregorian_french_xlit': 'CAL_GREGORIAN_XLIT_FRENCH',
-            'umalqura': 'CAL_UMALQURA'
+            'gregorian': win32defines.CAL_GREGORIAN,
+            'gregorian_us': win32defines.CAL_GREGORIAN_US,
+            'japan': win32defines.CAL_JAPAN,
+            'taiwan': win32defines.CAL_TAIWAN,
+            'korea': win32defines.CAL_KOREA,
+            'hijri': win32defines.CAL_HIJRI,
+            'thai': win32defines.CAL_THAI,
+            'hebrew': win32defines.CAL_HEBREW,
+            'gregorian_me_french': win32defines.CAL_GREGORIAN_ME_FRENCH,
+            'gregorian_arabic': win32defines.CAL_GREGORIAN_ARABIC,
+            'gregorian_english_xlit': win32defines.CAL_GREGORIAN_XLIT_ENGLISH,
+            'gregorian_french_xlit': win32defines.CAL_GREGORIAN_XLIT_FRENCH,
+            'umalqura': win32defines.CAL_UMALQURA
         }
         if ID in dict_types:
             self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
@@ -3437,22 +3437,22 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         - All other parameters should be integer from 0 to 255.
         """
         place_in_calendar = {
-            'background': 0,
-            'month_background': 4,
-            'text': 1,
-            'title_background': 2,
-            'title_text': 3,
-            'trailing_text': 5
+            'background': win32defines.MCSC_BACKGROUND,
+            'month_background': win32defines.MCSC_MONTHBK,
+            'text': win32defines.MCSC_TEXT,
+            'title_background': win32defines.MCSC_TITLEBK,
+            'title_text': win32.defines.MCSC_TITLETEXT,
+            'trailing_text': win32defines.MCSC_TRAILINGTEXT
         }
         if not (0 <= red <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
-        if (0 <= green <= 255):
+        if not (0 <= green <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
-        if (0 <= blue <= 255):
+        if not (0 <= blue <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
         color = (red, green, blue)
         if place_of_color in place_in_calendar:
-            result = self.send_message(win32defines.MCM_SETCOLOR, place_of_color, color)
+            result = self.send_message(win32defines.MCM_SETCOLOR, place_in_calendar[place_of_color], color)
         else:
             raise RuntimeError('Incorrect place ID for color')
         if result == -1:
@@ -3468,15 +3468,15 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         """
 
         place_in_calendar = {
-            'background': 0,
-            'month_background': 4,
-            'text': 1,
-            'title_background': 2,
-            'title_text': 3,
-            'trailing_text': 5
+            'background': win32defines.MCSC_BACKGROUND,
+            'month_background': win32defines.MCSC_MONTHBK,
+            'text': win32defines.MCSC_TEXT,
+            'title_background': win32defines.MCSC_TITLEBK,
+            'title_text': win32.defines.MCSC_TITLETEXT,
+            'trailing_text': win32defines.MCSC_TRAILINGTEXT
         }
         if place_of_color in place_in_calendar:
-            return self.send_message(win32defines.MCM_GETCOLOR, place_of_color, 0)
+            return self.send_message(win32defines.MCM_GETCOLOR, place_in_calendar[place_of_color], 0)
         else:
             raise RuntimeError('Incorrect place ID of color')
 

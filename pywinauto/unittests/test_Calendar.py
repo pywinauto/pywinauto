@@ -110,9 +110,6 @@ class CalendarWrapperTests(unittest.TestCase):
     def test_return_error_when_color_hire_then_255(self):
         self.assertRaises(RuntimeError, self.calendar.set_color, 'background', 600, 600, 600)
 
-    def test_should_throw_runtime_error_when_try_to_get_invalid_type_of_calendar(self):
-        self.assertRaises(RuntimeError, self.calendar.get_id, 'Aloha!')
-
     def test_should_get_valid_calendar_color(self):
         self.calendar.set_color('text', 5, 5, 5)
         self.assertEqual(self.calendar.get_color('text'), (5, 5, 5))
