@@ -477,6 +477,33 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.Set.set_focus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
 
+    def test_keyboard_focus_1(self):
+        self.dlg.TabControl.Select('CSplitButton')
+        self.dlg.Edit1.SetText("")
+        self.dlg.Edit2.SetText("")
+
+        self.dlg.Edit1.set_keyboard_focus()
+        self.assertEqual(True, self.dlg.Edit1.has_keyboard_focus())
+        self.assertEqual(False, self.dlg.Edit2.has_keyboard_focus())
+        self.dlg.type_keys("11")
+        self.dlg.type_keys("22")
+
+        self.assertEqual("1122", self.dlg.Edit1.Texts()[0])
+        self.assertEqual("", self.dlg.Edit2.Texts()[0])
+
+    def test_keyboard_focus_2(self):
+        self.dlg.TabControl.Select('CSplitButton')
+        self.dlg.Edit1.SetText("")
+        self.dlg.Edit2.SetText("")
+
+        self.dlg.Edit2.set_keyboard_focus()
+        self.assertEqual(True, self.dlg.Edit2.has_keyboard_focus())
+        self.assertEqual(False, self.dlg.Edit1.has_keyboard_focus())
+        self.dlg.type_keys("33", set_foreground=False)
+        self.dlg.type_keys("44", set_foreground=False)
+
+        self.assertEqual("3344", self.dlg.Edit2.Texts()[0])
+        self.assertEqual("", self.dlg.Edit1.Texts()[0])
 
 class HwndWrapperMenuTests(unittest.TestCase):
     "Unit tests for menu actions of the HwndWrapper class"

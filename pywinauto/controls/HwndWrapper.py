@@ -1213,6 +1213,15 @@ class HwndWrapper(BaseWrapper):
 
         return self
 
+    def has_keyboard_focus(self):
+        if self.get_focus() == self.handle:
+            return True
+        else:
+            return False
+
+    def set_keyboard_focus(self):
+        self.set_focus()
+
     #-----------------------------------------------------------
     def set_application_data(self, appdata):
         """Application data is data from a previous run of the software
