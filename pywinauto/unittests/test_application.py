@@ -68,7 +68,6 @@ def _notepad_exe():
     else:
         return r"C:\Windows\SysWOW64\notepad.exe"
 
-
 class ApplicationWarningTestCases(unittest.TestCase):
 
     """Unit tests for warnings in the application.Application class"""
@@ -564,6 +563,36 @@ class ApplicationTestCases(unittest.TestCase):
         app.kill_()
 
         self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
+
+
+    def test_connect_timeout(self):
+        """Test that connect_() works with a timeout"""
+        app1 = Application()
+        app1.start(_notepad_exe())
+
+        app_conn = Application()
+        if is_x64_Python() or not is_x64_OS():
+            app_conn.connect(path = r"c:\windows\system32\notepad.exe", timeout = 1)
+
+        else:
+            app_conn.connect(path = r"c:\windows\syswow64\notepad.exe", timeout = 1)
+
+        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+
+
+    def test_connect_timeout_incorrect(self):
+        """Test that connect_() works with a timeout"""
+        app1 = Application()
+        app1.start(_notepad_exe())
+
+        app_conn = Application()
+        if is_x64_Python() or not is_x64_OS():
+            app_conn.connect(path = r"c:\windows\system32\notepad.exe", timeout = "1.0")
+
+        else:
+            app_conn.connect(path = r"c:\windows\syswow64\notepad.exe", timeout = "1.0")
+
+        app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
 
 class WindowSpecificationTestCases(unittest.TestCase):

@@ -812,6 +812,7 @@ class Application(object):
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
 
+        self.timeout = 0.0
         # load the match history if a file was specifed
         # and it exists
         if datafilename and os.path.exists(datafilename):
@@ -839,6 +840,15 @@ class Application(object):
     def connect(self, **kwargs):
         """Connects to an already running process"""
         connected = False
+
+        if 'timeout' in kwargs:
+            try:
+                self.timeout = float(kwargs['timeout'])
+                time.sleep(self.timeout)
+            except Exception as e:
+                message = "timeout isn't correct"
+                raise AppNotConnected(str(e) + message)
+
         if 'process' in kwargs:
             self.process = kwargs['process']
             assert_valid_process(self.process)
