@@ -3441,7 +3441,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             'month_background': win32defines.MCSC_MONTHBK,
             'text': win32defines.MCSC_TEXT,
             'title_background': win32defines.MCSC_TITLEBK,
-            'title_text': win32.defines.MCSC_TITLETEXT,
+            'title_text': win32defines.MCSC_TITLETEXT,
             'trailing_text': win32defines.MCSC_TRAILINGTEXT
         }
         if not (0 <= red <= 255):
@@ -3472,7 +3472,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             'month_background': win32defines.MCSC_MONTHBK,
             'text': win32defines.MCSC_TEXT,
             'title_background': win32defines.MCSC_TITLEBK,
-            'title_text': win32.defines.MCSC_TITLETEXT,
+            'title_text': win32defines.MCSC_TITLETEXT,
             'trailing_text': win32defines.MCSC_TRAILINGTEXT
         }
         if place_of_color in place_in_calendar:
