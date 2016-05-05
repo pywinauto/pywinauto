@@ -3170,11 +3170,11 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
         return self.send_message(win32defines.TBM_GETLINESIZE)
 
     def get_tooltips_control(self):
-        "Get trackbar tooltip"
+        """Get trackbar tooltip"""
         return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
 
     def get_page_size(self):
-        """Get the number of logical positions the trackbar's slider """
+        """Get the number of logical positions for the trackbar's slider"""
         return self.send_message(win32defines.TBM_GETPAGESIZE)
 
     def set_range_max(self, range_max):
@@ -3206,7 +3206,7 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
     def set_sel(self, sel_start, sel_end):
         """Set start and end of selection"""
         if not self.has_style(win32defines.TBS_ENABLESELRANGE):
-            raise RuntimeError('Selection does not support for this TrackbarWrapper')
+            raise RuntimeError('Range selection is not supported for this trackbar')
         sel_start_val = win32functions.LoWord(sel_start)
         sel_end_val = win32functions.HiWord(sel_end)
         sel_val = win32functions.MakeLong(sel_start_val, sel_end_val)
@@ -3215,13 +3215,13 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
     def get_sel_start(self):
         """Get start of selection"""
         if not self.has_style(win32defines.TBS_ENABLESELRANGE):
-            raise RuntimeError('Selection does not support for this TrackbarWrapper')
+            raise RuntimeError('Range selection is not supported for this trackbar')
         return self.send_message(win32defines.TBM_GETSELSTART)
 
     def get_sel_end(self):
         """Get end of selection"""
         if not self.has_style(win32defines.TBS_ENABLESELRANGE):
-            raise RuntimeError('Selection does not support for this TrackbarWrapper')
+            raise RuntimeError('Range selection is not supported for this trackbar')
         return self.send_message(win32defines.TBM_GETSELEND)
 
 #====================================================================
