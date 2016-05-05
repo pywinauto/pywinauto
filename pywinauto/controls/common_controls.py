@@ -39,6 +39,7 @@ from __future__ import print_function
 
 import time
 import ctypes
+from ctypes import wintypes
 import warnings
 import locale
 
@@ -3392,7 +3393,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     def set_day_states(self, month_states):
         """Sets the day states for all months that are currently visible"""
         remote_mem = RemoteMemoryBlock(self)
-        day_states = (ctypes.c_uint32 * len(month_states))(*month_states)
+        day_states = (wintypes.DWORD * len(month_states))(*month_states)
 
         remote_mem.Write(day_states)
         res = self.send_message(win32defines.MCM_SETDAYSTATE, len(day_states), remote_mem)
