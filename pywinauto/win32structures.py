@@ -1087,7 +1087,7 @@ class LPSCROLLINFO(Structure):
         ('nTrackPos', c_int),
     ]
 assert sizeof(LPSCROLLINFO) == 28, sizeof(LPSCROLLINFO)
-# assert alignment(LPSCROLLINFO) == 4, alignment(LPSCROLLINFO)
+assert alignment(LPSCROLLINFO) == 4, alignment(LPSCROLLINFO)
 
 class PSCROLLBARINFO(Structure):
     # _pack_ = 2
@@ -1101,7 +1101,7 @@ class PSCROLLBARINFO(Structure):
         ('rgstate', DWORD),#[CCHILDREN_SCROLLBAR+1]=[7]?
     ]
 assert sizeof(PSCROLLBARINFO) == 40, sizeof(PSCROLLBARINFO)
-# assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
+assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
