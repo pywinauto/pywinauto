@@ -485,7 +485,6 @@ class HwndWrapper(BaseWrapper):
             if isinstance(key, SendKeysCtypes.VirtualKeyAction):
 
                 if key.down and key.up and (flags == 0):
-                    # TODO: {RETURN} virtual key doesn't work
                     lparam = 1 << 0 | scan << 16
                     win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
                 elif key.down and key.up and (flags == 1):
