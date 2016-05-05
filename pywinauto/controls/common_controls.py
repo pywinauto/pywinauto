@@ -3390,7 +3390,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def set_day_states(self, month_states):
-        """Sets the day states for all months that are currently visible within a month calendar control"""
+        """Sets the day states for all months that are currently visible"""
         remote_mem = RemoteMemoryBlock(self)
         day_states = (ctypes.c_uint32 * len(month_states))(*month_states)
 
