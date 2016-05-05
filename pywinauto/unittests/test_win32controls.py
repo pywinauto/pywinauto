@@ -54,6 +54,7 @@ if is_x64_Python():
 
 
 class ButtonTestCases(unittest.TestCase):
+
     """Unit tests for the ButtonWrapper class"""
 
     def setUp(self):
@@ -79,9 +80,6 @@ class ButtonTestCases(unittest.TestCase):
             "Button", props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Button2.texts(), ['Отмена'])
-
-        self.assertEquals(
             self.ctrl.Button2.texts(), props['texts'])
 
         for prop_name in props:
@@ -90,8 +88,8 @@ class ButtonTestCases(unittest.TestCase):
 
     def test_NeedsImageProp(self):
         """Test whether an image needs to be saved with the properties"""
-        self.assertEquals(self.ctrl.ОКButton._needs_image_prop, True)
-        self.assertEquals('image' in self.ctrl.ОКButton.GetProperties(), True)
+        self.assertEquals(self.ctrl.OKButton._needs_image_prop, True)
+        self.assertEquals('image' in self.ctrl.OKButton.GetProperties(), True)
 
     def testFriendlyClass(self):
         """Test the friendly_class_name method"""
@@ -568,9 +566,10 @@ class UnicodeEditTestCases(unittest.TestCase):
         #self.ctrl.Select()
         #self.ctrl.SetEditText(u'\u043d\u0435\u0447\u0442', pos_end=2) # u'necht'
         #self.assertEquals(self.ctrl.TextBlock(), u'\u043d\u0435\u0447\u0442\u043e') # u'nechto'
-#
+
 
 class DialogTestCases(unittest.TestCase):
+
     """Unit tests for the DialogWrapper class"""
 
     def setUp(self):

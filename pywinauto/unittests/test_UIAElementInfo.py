@@ -9,10 +9,10 @@ if UIA_support:
     from pywinauto import backend
 
 mfc_samples_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\apps\WPF_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
-mfc_app_1 = os.path.join(mfc_samples_folder, u"RowList.exe")
+wpf_app_1 = os.path.join(mfc_samples_folder, u"WpfApplication1.exe")
 
 if UIA_support:
     class UIAElementInfoTests(unittest.TestCase):
@@ -23,34 +23,39 @@ if UIA_support:
             is in the state we want it."""
 
             self.app = Application(backend="native")
-            self.app = self.app.Start(mfc_app_1)
+            self.app = self.app.Start(wpf_app_1)
 
-            self.dlg = self.app.RowListSampleApplication
+            self.dlg = self.app.WPFSampleApplication
             self.handle = self.dlg.handle
-            self.dlg.MenuSelect('View->Large Icons')
             self.ctrl = UIAElementInfo(self.dlg.handle)
 
         def tearDown(self):
-            "Close the application after tests"
+            """Close the application after tests"""
             self.app.kill_()
 
         def testProcessId(self):
+            """Test process_id equals"""
             self.assertEqual(self.ctrl.process_id, processid(self.handle))
 
         def testName(self):
-            self.assertEqual(self.ctrl.name, "RowList Sample Application")
+            """Test application name equals"""
+            self.assertEqual(self.ctrl.name, "WPF Sample Application")
 
         def testHandle(self):
+            """Test application handle equals"""
             self.assertEqual(self.ctrl.handle, self.handle)
 
         def testEnabled(self):
+            """Test whether the element is enabled"""
             self.assertEqual(self.ctrl.enabled, True)
 
         def testVisible(self):
+            """Test whether the element is visible"""
             self.assertEqual(self.ctrl.visible, True)
 
         def testChildren(self):
-            self.assertEqual(len(self.ctrl.children()), 3)
+            """Test whether a list of only immediate children of the element is equal"""
+            self.assertEqual(len(self.ctrl.children()), 18)
 
 if __name__ == "__main__":
     if UIA_support:
