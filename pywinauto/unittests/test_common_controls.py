@@ -1537,7 +1537,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
 
     def test_set_range_min_more_then_range_max(self):
         """Test the set_range_min method with error"""
-        self.assertRaises(RuntimeError, self.ctrl.set_range_min, self.ctrl.get_range_max()+1)
+        self.assertRaises(ValueError, self.ctrl.set_range_min, self.ctrl.get_range_max()+1)
 
     def test_set_position_more_than_max_range(self):
         """Test the set_position method with error"""
@@ -1585,7 +1585,20 @@ class TrackbarWrapperTestCases(unittest.TestCase):
 
     def test_get_tool_tips_control(self):
         """Test the get_tooltips_control method"""
-        self.assertEquals(self.ctrl.get_tooltips_control(), 0)
+        self.assertRaises(RuntimeError, self.ctrl.get_tooltips_control)
+
+    def test_set_sel(self):
+        """Test the set_sel method"""
+        self.assertRaises(RuntimeError, self.ctrl.set_sel, 22, 55)
+
+    def test_get_sel_start(self):
+        """Test the get_sel_start method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_sel_start)
+
+    def test_get_sel_end(self):
+        """Test the get_sel_end method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_sel_end)
+
 
 if __name__ == "__main__":
     unittest.main()

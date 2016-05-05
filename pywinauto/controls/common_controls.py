@@ -3171,7 +3171,7 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
 
     def get_tooltips_control(self):
         "Get trackbar tooltip"
-        return self.send_message(win32defines.TBM_GETTOOLTIPS)
+        return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
 
     def get_page_size(self):
         """Get the number of logical positions the trackbar's slider """
@@ -3180,19 +3180,19 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
     def set_range_max(self, range_max):
         """Set max available trackbar value"""
         if range_max < self.get_range_min():
-            raise RuntimeError('Failed to set range max')
+            raise ValueError('Cannot set range max less than range min')
         self.send_message(win32defines.TBM_SETRANGEMAX, True, range_max)
 
     def set_range_min(self, range_min):
         """Set min available trackbar value"""
         if range_min > self.get_range_max():
-            raise RuntimeError('Failed to set range min')
+            raise ValueError('Cannot set range min more than range max')
         self.send_message(win32defines.TBM_SETRANGEMIN, True, range_min)
 
     def set_position(self, pos):
         """Set trackbar position"""
         if not (self.get_range_min() <= pos <= self.get_range_max()):
-          raise ValueError('Cannot set position out of range')
+            raise ValueError('Cannot set position out of range')
         self.send_message(win32defines.TBM_SETPOS, True, pos)
 
     def set_line_size(self, line_size):
@@ -3202,6 +3202,27 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
     def set_page_size(self, page_size):
         """Set trackbar page size"""
         self.send_message(win32defines.TBM_SETPAGESIZE, 0, page_size)
+
+    def set_sel(self, sel_start, sel_end):
+        """Set start and end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Selection does not support for this TrackbarWrapper')
+        sel_start_val = win32functions.LoWord(sel_start)
+        sel_end_val = win32functions.HiWord(sel_end)
+        sel_val = win32functions.MakeLong(sel_start_val, sel_end_val)
+        self.send_message(win32defines.TBM_SETSAL, 0, sel_val)
+
+    def get_sel_start(self):
+        """Get start of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Selection does not support for this TrackbarWrapper')
+        return self.send_message(win32defines.TBM_GETSELSTART)
+
+    def get_sel_end(self):
+        """Get end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Selection does not support for this TrackbarWrapper')
+        return self.send_message(win32defines.TBM_GETSELEND)
 
 #====================================================================
 class AnimationWrapper(HwndWrapper.HwndWrapper):
