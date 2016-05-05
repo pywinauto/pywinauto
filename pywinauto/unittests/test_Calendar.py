@@ -109,12 +109,7 @@ class CalendarWrapperTests(unittest.TestCase):
         """Test can set and get first day of the week"""
         self.calendar.set_first_weekday(4)
         self.assertEqual(4, self.calendar.get_first_weekday()[1])
-
-    def test_is_not_locale_when_setting_first_day_of_the_week(self):
-        """Test is locale changes to 1 when the first day of the week other than LOCALE_IFIRSTDAYOFWEEK,"""
-        self.calendar.set_first_weekday(4)
         self.assertEqual(1, self.calendar.get_first_weekday()[0])
-
 
 if __name__ == "__main__":
     unittest.main()
