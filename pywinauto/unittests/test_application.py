@@ -594,6 +594,21 @@ class ApplicationTestCases(unittest.TestCase):
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
+    def test_connect_with_App(self):
+
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+        if is_x64_Python() or not is_x64_OS():
+            path=r"c:\windows\system32\notepad.exe"
+        else:
+            path=r"c:\windows\syswow64\notepad.exe"
+        self.app.Connect(path=path, timeout=1)
+        self.app.start(path)
+
 
 class WindowSpecificationTestCases(unittest.TestCase):
 
