@@ -3413,18 +3413,18 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
     # ----------------------------------------------------------------
     def get_today(self):
-                """Get today date"""
-                remote_mem = RemoteMemoryBlock(self)
-                system_date = win32structures.SYSTEMTIME()
-                remote_mem.Write(system_date)
+        """Get today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_date = win32structures.SYSTEMTIME()
+        remote_mem.Write(system_date)
 
-                res = self.send_message(win32defines.MCM_GETTODAY, 0, remote_mem)
-                remote_mem.Read(system_date)
-                del remote_mem
+        res = self.send_message(win32defines.MCM_GETTODAY, 0, remote_mem)
+        remote_mem.Read(system_date)
+        del remote_mem
 
-                if res == 0:
-                    raise RuntimeError('Failed to get today date in Calendar')
-                return system_date
+        if res == 0:
+            raise RuntimeError('Failed to get today date in Calendar')
+        return system_date
 
     # ----------------------------------------------------------------
     def set_first_weekday(self, dayNum):
