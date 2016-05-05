@@ -3433,9 +3433,9 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
 
     # ----------------------------------------------------------------
     def get_first_weekday(self):
-        """Get first day of the week"""
+        """Get is not in current locale and if so first day of the week"""
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
-        return res-65536
+        return (win32functions.HiWord(res), win32functions.LoWord(res))
 
 #====================================================================
 
