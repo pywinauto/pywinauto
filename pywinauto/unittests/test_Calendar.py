@@ -181,13 +181,13 @@ class CalendarWrapperTests(unittest.TestCase):
         return expected_rect
 
     def _set_calendar_state_to_display_day_states(self):
-        self.app['Common Controls Sample']['MCS_DAYSTATE'].WrapperObject().Click()
+        self.app['Common Controls Sample']['MCS_DAYSTATE'].Click()
 
     def _set_calendar_state_to_display_week_numbers(self):
-        self.app['Common Controls Sample']['MCS_WEEKNUMBERS'].WrapperObject().Click()
+        self.app['Common Controls Sample']['MCS_WEEKNUMBERS'].Click()
 
     def _set_calendar_state_into_multiselect(self):
-        self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         
+        self.app['Common Controls Sample']['MCS_MULTISELECT'].Click()
 
 if __name__ == "__main__":
     unittest.main()
