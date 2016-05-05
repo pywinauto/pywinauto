@@ -3435,7 +3435,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     def get_first_weekday(self):
         """Get first day of the week"""
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
-        return res
+        return res-65536
 
 #====================================================================
 

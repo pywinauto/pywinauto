@@ -105,14 +105,10 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assert_system_time_is_equal_to_current_date_time(self.calendar.get_today(),
                                                               datetime.date(2016, 5, 1))
 
-    def test_is_first_day_of_week_locale(self):
-        """Test is the today field set as LOCALE_IFIRSTDAYOFWEEK"""
-        self.assertEqual(0, self.calendar.get_first_weekday())
-
     def test_can_set_and_get_first_day_of_week(self):
         """Test can set and get first day of the week"""
         self.calendar.set_first_weekday(4)
-        self.assertEqual(4, self.calendar.get_first_weekday()-65536)
+        self.assertEqual(4, self.calendar.get_first_weekday())
 
 
 if __name__ == "__main__":
