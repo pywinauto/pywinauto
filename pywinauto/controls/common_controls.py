@@ -3451,8 +3451,9 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         if not (0 <= blue <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
         color = (red, green, blue)
+        str_color = str(color)
         if place_of_color in place_in_calendar:
-            result = self.send_message(win32defines.MCM_SETCOLOR, place_in_calendar[place_of_color], color)
+            result = self.send_message(win32defines.MCM_SETCOLOR, place_in_calendar[place_of_color], str_color)
         else:
             raise RuntimeError('Incorrect place ID for color')
         if result == -1:
