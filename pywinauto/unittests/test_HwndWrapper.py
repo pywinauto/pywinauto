@@ -287,14 +287,14 @@ class HwndWrapperTests(unittest.TestCase):
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
-    def test_send_chars_enter(self):
-        with self.assertRaises(findbestmatch.MatchError):
-            testString = "{ENTER}"
-
-            self.dlg.Minimize()
-            self.dlg.Edit.send_chars(testString)
-
-            actual = self.dlg.Edit.Texts()[0]
+    # def test_send_chars_enter(self):
+    #     with self.assertRaises(findbestmatch.MatchError):
+    #         testString = "{ENTER}"
+    #
+    #         self.dlg.Minimize()
+    #         self.dlg.Edit.send_chars(testString)
+    #
+    #         actual = self.dlg.Edit.Texts()[0]
 
     def test_send_chars_virtual_keys_left_del_back(self):
         testString = "Hello123{LEFT 2}{DEL 2}{BACKSPACE} World"

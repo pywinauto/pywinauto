@@ -476,7 +476,6 @@ class HwndWrapper(BaseWrapper):
         """
 
         keys = SendKeysCtypes.parse_keys(message, with_spaces, with_tabs, with_newlines)
-        res=[]
         for key in keys:
 
             vk, scan, flags = key.get_key_info()
@@ -486,14 +485,9 @@ class HwndWrapper(BaseWrapper):
             if isinstance(key, SendKeysCtypes.VirtualKeyAction):
 
                 if key.down and key.up and (flags == 0):
+                    # TODO: {RETURN} virtual key doesn't work
                     lparam = 1 << 0 | scan << 16
-                    if vk == win32con.VK_RETURN:
-                        # + Enter
-                        win32gui.PostMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
-                        win32gui.PostMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
-                    else:
-                        # + BACKSPACE
-                        win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+                    win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
                 elif key.down and key.up and (flags == 1):
                     # + LEFT, DELETE
                     lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
@@ -501,13 +495,16 @@ class HwndWrapper(BaseWrapper):
                     lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
                     win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
                 elif key.down:
+                    # TODO: {CTRL} (^) modifier doesn't work
                     # + SHIFT down
                     # - CTRL down
+                    # print('key', key, 'down')
                     lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
                     win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
                 elif key.up:
                     # + SHIFT up
                     # - CTRL up
+                    # print('key', key, 'up')
                     lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
                     win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
             elif isinstance(key, SendKeysCtypes.EscapedKeyAction):
@@ -518,10 +515,7 @@ class HwndWrapper(BaseWrapper):
                 # Usual key
                 win32api.SendMessage(self.handle, win32con.WM_CHAR, scan, lparam)
 
-            time.sleep(0.05)
-
-            res.append([key, vk, scan, flags])
-        return res
+            # time.sleep(Timings.after_sendkeys_key_wait)
 
     #-----------------------------------------------------------
     def send_message_timeout(
