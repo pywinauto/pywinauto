@@ -1410,6 +1410,13 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(TreeViewWrapper, self).__init__(hwnd)
 
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TreeViewWrapper, self).writable_props
+        props.extend(['item_count'])
+        return props
+
     #----------------------------------------------------------------
     def item_count(self):
         "Return the count of the items in the treeview"
@@ -2026,6 +2033,13 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         super(TabControlWrapper, self).__init__(hwnd)
 
         #self.writable_props.append("TabStates")
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TabControlWrapper, self).writable_props
+        props.extend(['tab_count'])
+        return props
 
     #----------------------------------------------------------------
     def row_count(self):
