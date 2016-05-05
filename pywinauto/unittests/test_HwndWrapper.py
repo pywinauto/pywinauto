@@ -48,6 +48,7 @@ from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
 from pywinauto.timings import Timings, TimeoutError
 from pywinauto import clipboard
 from pywinauto import backend
+from pywinauto import findbestmatch
 
 
 mfc_samples_folder = os.path.join(
@@ -276,6 +277,54 @@ class HwndWrapperTests(unittest.TestCase):
         expected = 0x89 # 0x2000 + 0x40
         self.assertEqual(expected, code)
 
+    def test_send_chars_simple(self):
+        testString = "Hello World"
+
+        self.dlg.Minimize()
+        self.dlg.Edit.send_chars(testString)
+
+        actual = self.dlg.Edit.Texts()[0]
+        expected = "Hello World"
+        self.assertEqual(expected, actual)
+
+    # def test_send_chars_enter(self):
+    #     with self.assertRaises(findbestmatch.MatchError):
+    #         testString = "{ENTER}"
+    #
+    #         self.dlg.Minimize()
+    #         self.dlg.Edit.send_chars(testString)
+    #
+    #         actual = self.dlg.Edit.Texts()[0]
+
+    def test_send_chars_virtual_keys_left_del_back(self):
+        testString = "Hello123{LEFT 2}{DEL 2}{BACKSPACE} World"
+
+        self.dlg.Minimize()
+        self.dlg.Edit.send_chars(testString)
+
+        actual = self.dlg.Edit.Texts()[0]
+        expected = "Hello World"
+        self.assertEqual(expected, actual)
+
+    def test_send_chars_virtual_keys_shift(self):
+        testString = "+hello +world"
+
+        self.dlg.Minimize()
+        self.dlg.Edit.send_chars(testString)
+
+        actual = self.dlg.Edit.Texts()[0]
+        expected = "Hello World"
+        self.assertEqual(expected, actual)
+
+    # def test_send_chars_virtual_keys_ctrl(self):
+    #     testString = "^a^c{RIGHT}^v"
+    #
+    #     self.dlg.Minimize()
+    #     self.dlg.Edit.send_chars(testString)
+    #
+    #     actual = self.dlg.Edit.Texts()[0]
+    #     expected = "and the note goes here ...and the note goes here ..."
+    #     self.assertEqual(expected, actual)
 
     def testSendMessageTimeout(self):
         default_timeout = Timings.sendmessagetimeout_timeout

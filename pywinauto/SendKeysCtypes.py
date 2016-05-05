@@ -33,6 +33,7 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32api
+import win32con
 
 from . import six
 from . import win32structures
@@ -262,6 +263,12 @@ class KeyAction(object):
         This is one of the methods that will be overridden by sub classes"""
         #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE
+
+    def get_key_info(self):
+        """Return virtual_key, scan_code, and flags for the action
+
+        This is one of the methods that will be overridden by sub classes"""
+        return self._get_key_info()
 
     def GetInput(self):
         "Build the INPUT structure for the action"
