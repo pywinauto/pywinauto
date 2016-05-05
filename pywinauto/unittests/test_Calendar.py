@@ -29,7 +29,7 @@ class CalendarWrapperTests(unittest.TestCase):
         self.dlg.TabControl.Select(4)
         self.calendar = self.app.Common_Controls_Sample.CalendarWrapper
 
-        rect = self.app['Common Controls Sample']['Calendar'].WrapperObject().Rectangle()
+        rect = self.app['Common Controls Sample']['Calendar'].Rectangle()
         self.width = rect.width()
         self.height = rect.height()
 
