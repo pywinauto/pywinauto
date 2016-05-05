@@ -12026,3 +12026,6 @@ MCMV_MONTH = 0;
 MCMV_YEAR = 1;
 MCMV_DECADE = 2;
 MCMV_CENTURY = 3;
+
+CAL_UMALQURA = 23 # Variable c_int
+MCM_SETCALID = 0 # Variable c_int

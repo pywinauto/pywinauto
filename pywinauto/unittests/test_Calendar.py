@@ -91,6 +91,29 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assertEqual(systemTime.wMonth, now.month)
         self.assertEqual(systemTime.wDay, now.day)
 
+    def test_should_throw_runtime_error_when_try_to_set_invalid_type_of_calendar(self):
+        self.assertRaises(RuntimeError, self.calendar.set_id, 'Aloha!')
+
+    def test_should_get_valid_type_of_calendar(self):
+        self.calendar.set_id('japan')
+        self.assertEqual(self.calendar.get_id, 'CAL_JAPAN')
+
+    def test_should_throw_runtime_error_when_try_to_set_invalid_type_of_place_for_color(self):
+        self.assertRaises(RuntimeError, self.calendar.set_color, 'Aloha!', 0, 0, 0)
+
+    def test_return_correct_color(self):
+        self.assertEqual(self.calendar.set_color('text', 15, 15, 15), '151515')
+
+    def test_return_error_about_color(self):
+        self.assertRaises(RuntimeError, self.calendar.set_color, 'background', -1, -1, -1)
+
+    def test_return_error_when_color_hire_then_255(self):
+        self.assertRaises(RuntimeError, self.calendar.set_color, 'background', 600, 600, 600)
+
+    def test_should_get_valid_calendar_color(self):
+        self.calendar.set_color('text', 5, 5, 5)
+        self.assertEqual(self.calendar.get_color('text'), '555')
+
     def set_calendar_state_into_multiselect(self):
         self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         
 
