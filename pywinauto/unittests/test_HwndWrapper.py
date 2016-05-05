@@ -604,46 +604,50 @@ class HwndWrapperMouseWheelTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
-        self.dlg = self.app.Common_Controls_Sample
-        self.dlg.TabControl.Select('CNetworkAddressCtrl')
-        self.ctrl = HwndWrapper(self.dlg.ListBox.handle)
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        self.dlg = self.app.RowListSampleApplication
+        self.dlg.MenuSelect("View -> Large Icons")
+        prev_rect = self.dlg.rectangle()
+        new_rect = win32structures.RECT(prev_rect)
+        new_rect.right -= 730
+        new_rect.bottom -= 360
+        self.dlg.MoveWindow(
+            new_rect.left,
+            new_rect.top,
+            new_rect.width(),
+            new_rect.height(),
+            )
+        time.sleep(1)
+        self.ctrl = self.app.RowListSampleApplication.ListViewRed.WrapperObject()
 
     def tearDown(self):
         "Close the application after tests"
-        try:
-            self.dlg.Close(0.5)
-        except Exception: # TimeoutError:
-            pass
-        finally:
-            self.app.kill_()
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
 
-    def testWheelMouse(self):
-        self.dlg.ListBox.WheelMouse(360, "control")
-        self.dlg.WheelMouse(-120, "xButton1")
+    def get_text(self):
         SendKeys('^a')
         SendKeys('^c')
         win32clipboard.OpenClipboard()
         data = win32clipboard.GetClipboardData()
         win32clipboard.CloseClipboard()
-        self.assertTrue("xButton1" in data) 
-        self.assertTrue("control" in data)
-        # self.assertTrue("up" in data) 
-        # self.assertTrue("down" in data)
+        return data
+
+    def testWheelMouse(self):
+        self.dlg.wheel_mouse(-360)
+        data = self.get_text()
+        self.assertTrue("down" in data)
 
     def testGetScrollInfo(self):
-        lpsi = win32structures.LPSCROLLINFO()
-        lpsi.cbSize = ctypes.sizeof(lpsi)
-        lpsi.fMask = win32defines.SIF_PAGE
-        self.dlg.ListBox.DragMouse(press_coords=(5, 5), release_coords=(5, 365))
-        self.assertEquals(True, self.dlg.ListBox.GetScrollInfo(self.ctrl, win32defines.SB_VERT, lpsi))
+        self.dlg.scroll("right", "page")
+        self.assertTrue(self.dlg.get_scroll_info(win32defines.SB_HORZ))
 
     def testGetScrollPos(self):
-        self.dlg.ListBox.DragMouse(press_coords=(5, 5), release_coords=(5, 365))
-        self.assertNotEqual(0, self.dlg.ListBox.GetScrollPos(self.ctrl, win32defines.SB_VERT))
+        self.dlg.scroll("down", "page")
+        self.assertNotEqual(0, self.dlg.get_scroll_pos(self.ctrl, win32defines.SB_VERT))
 
     def testGetScrollBarInfo(self):
-        self.assertEquals(True, self.dlg.TabCListBoxontrol.GetScrollBarInfo(self.ctrl, win32defines.OBJID_CLIENT))
+        self.dlg.scroll("down", "page")
+        self.assertTrue(self.dlg.get_scroll_bar_info(win32defines.OBJID_CLIENT))
 
 class NotepadRegressionTests(unittest.TestCase):
     "Regression unit tests for Notepad"

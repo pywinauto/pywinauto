@@ -1224,48 +1224,45 @@ class HwndWrapper(BaseWrapper):
     Scroll = scroll
 
    #-----------------------------------------------------------
-    def get_scroll_info(self, hwnd, fnBar, lpsi):
-        win32functions.GetScrollInfo(hwnd, fnBar, lpsi)
-        if not lpsi:
+    def get_scroll_info(self, scr_bar_type):
+        """Get the scroll bar info"""
+        scr_info = win32structures.LPSCROLLINFO()
+        scr_info.cbSize = ctypes.sizeof(scr_info)
+        scr_info.fMask = win32defines.SIF_PAGE
+        win32functions.GetScrollInfo(self.handle, scr_bar_type, scr_info)
+        if not scr_info:
             return False
         else:
             return True
 
-    # Non PEP-8 alias
-    GetScrollInfo = get_scroll_info
-
     #-----------------------------------------------------------
-    def get_scroll_pos(self, hwnd, nBar):
-        scroll_pos = win32functions.GetScrollPos(hwnd, nBar)
+    def get_scroll_pos(self, handle, scr_bar_type):
+        """Get the scroll box position"""
+
+        scroll_pos = win32functions.GetScrollPos(handle, scr_bar_type)
         if not scroll_pos:
             return 0
         else:
             return scroll_pos
 
-    # Non PEP-8 alias
-    GetScrollPos = get_scroll_pos
-
     #-----------------------------------------------------------
-    def get_scroll_bar_info(self, hwnd, idObject):
+    def get_scroll_bar_info(self, scr_bar_object):
+        """Get the specified scroll bar info"""
+
         scroll_bar_info = win32structures.PSCROLLBARINFO
         scroll_bar_info.cbSize = ctypes.sizeof(scroll_bar_info)
-        scroll_bar_info = win32functions.GetScrollBarInfo(hwnd, idObject)
-        print("scroll_bar_info:")
-        print(scroll_bar_info)
+        scroll_bar_info = win32functions.GetScrollBarInfo(self.handle, scr_bar_object)
         if scroll_bar_info:
             return True
         else:
             return False
 
-    # Non PEP-8 alias
-    GetScrollBarInfo = get_scroll_bar_info
-
     #-----------------------------------------------------------
     def wheel_mouse(self, distance, pressed = "", coords = (0, 0), count = 1, retry_interval = None):
         "Wheel the mouse by WM_MOUSEWHEEL"
         WHEEL_DELTA = 120
-        coeff = distance/WHEEL_DELTA
-        if (coeff <-2):
+        coeff = distance//WHEEL_DELTA
+        if (coeff < -2):
             scroll_type = self._scroll_types["down"]["end"]
         elif (-2 <= coeff < -1):
             scroll_type = self._scroll_types["down"]["page"]
@@ -1279,7 +1276,6 @@ class HwndWrapper(BaseWrapper):
             scroll_type = self._scroll_types["up"]["end"]
         else:
             raise ValueError('Distance should be expressed in multiples or divisions of WHEEL_DELTA and should not be equal to zero!')
-            print("Wrong distance parameter!")
         mouse_flag = pressed
         self.wparam = coeff
         self.lparam = coords
@@ -1289,9 +1285,8 @@ class HwndWrapper(BaseWrapper):
             self.send_message(win32defines.WM_MOUSEWHEEL, mouse_flag, scroll_type)
             time.sleep(retry_interval)
             count -= 1
+
         return self
-    # Non PEP-8 alias
-    WheelMouse = wheel_mouse
 
     #-----------------------------------------------------------
     def get_toolbar(self):
@@ -1421,6 +1416,8 @@ _mouse_flags = {
     "middle": win32defines.MK_MBUTTON,
     "shift": win32defines.MK_SHIFT,
     "control": win32defines.MK_CONTROL,
+    "xButton1": win32defines.MK_XBUTTON1,
+    "xButton2": win32defines.MK_XBUTTON2,
 }
 
 #====================================================================
