@@ -1,18 +1,14 @@
 """Tests for CalendarWrapper"""
-import time
 import datetime
-import ctypes
-import locale
-import re
-import sys
 import os
+import sys
 import unittest
+
 sys.path.append(".")
 from pywinauto import win32structures
 from pywinauto import win32defines
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python
-from pywinauto.sysinfo import is_x64_OS
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
