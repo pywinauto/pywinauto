@@ -608,17 +608,16 @@ class HwndWrapperMouseWheelTests(unittest.TestCase):
         self.dlg = self.app.RowListSampleApplication
         self.dlg.MenuSelect("View -> Large Icons")
         prev_rect = self.dlg.rectangle()
+        list_view_r = self.dlg.ListViewRed.rectangle()
         new_rect = win32structures.RECT(prev_rect)
-        new_rect.right -= 730
-        new_rect.bottom -= 360
+        new_rect.right -= list_view_r.right
+        new_rect.bottom -= list_view_r.bottom
         self.dlg.MoveWindow(
             new_rect.left,
             new_rect.top,
             new_rect.width(),
             new_rect.height(),
             )
-        time.sleep(1)
-        self.ctrl = self.app.RowListSampleApplication.ListViewRed.WrapperObject()
 
     def tearDown(self):
         "Close the application after tests"
@@ -643,7 +642,7 @@ class HwndWrapperMouseWheelTests(unittest.TestCase):
 
     def testGetScrollPos(self):
         self.dlg.scroll("down", "page")
-        self.assertNotEqual(0, self.dlg.get_scroll_pos(self.ctrl, win32defines.SB_VERT))
+        self.assertNotEqual(0, self.dlg.get_scroll_pos(win32defines.SB_VERT))
 
     def testGetScrollBarInfo(self):
         self.dlg.scroll("down", "page")

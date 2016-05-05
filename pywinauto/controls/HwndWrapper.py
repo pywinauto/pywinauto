@@ -1226,6 +1226,7 @@ class HwndWrapper(BaseWrapper):
    #-----------------------------------------------------------
     def get_scroll_info(self, scr_bar_type):
         """Get the scroll bar info"""
+
         scr_info = win32structures.LPSCROLLINFO()
         scr_info.cbSize = ctypes.sizeof(scr_info)
         scr_info.fMask = win32defines.SIF_PAGE
@@ -1236,10 +1237,10 @@ class HwndWrapper(BaseWrapper):
             return True
 
     #-----------------------------------------------------------
-    def get_scroll_pos(self, handle, scr_bar_type):
+    def get_scroll_pos(self, scr_bar_type):
         """Get the scroll box position"""
 
-        scroll_pos = win32functions.GetScrollPos(handle, scr_bar_type)
+        scroll_pos = win32functions.GetScrollPos(self.handle, scr_bar_type)
         if not scroll_pos:
             return 0
         else:
@@ -1259,7 +1260,8 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def wheel_mouse(self, distance, pressed = "", coords = (0, 0), count = 1, retry_interval = None):
-        "Wheel the mouse by WM_MOUSEWHEEL"
+        """Wheel the mouse by WM_MOUSEWHEEL"""
+
         WHEEL_DELTA = 120
         coeff = distance//WHEEL_DELTA
         if (coeff < -2):
