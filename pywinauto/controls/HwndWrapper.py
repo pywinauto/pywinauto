@@ -1229,12 +1229,12 @@ class HwndWrapper(BaseWrapper):
 
         scr_info = win32structures.LPSCROLLINFO()
         scr_info.cbSize = ctypes.sizeof(scr_info)
-        scr_info.fMask = win32defines.SIF_PAGE
-        win32functions.GetScrollInfo(self.handle, scr_bar_type, scr_info)
-        if not scr_info:
-            return False
+        scr_info.fMask = win32defines.SIF_ALL
+        msg = win32functions.GetScrollInfo(self.handle, scr_bar_type, scr_info)
+        if msg == 0:
+            return None
         else:
-            return True
+            return scr_info
 
     #-----------------------------------------------------------
     def get_scroll_pos(self, scr_bar_type):
@@ -1252,11 +1252,11 @@ class HwndWrapper(BaseWrapper):
 
         scroll_bar_info = win32structures.PSCROLLBARINFO
         scroll_bar_info.cbSize = ctypes.sizeof(scroll_bar_info)
-        scroll_bar_info = win32functions.GetScrollBarInfo(self.handle, scr_bar_object)
-        if scroll_bar_info:
-            return True
+        msg = win32functions.GetScrollBarInfo(self.handle, scr_bar_object)
+        if msg == 0:
+            return None
         else:
-            return False
+            return scroll_bar_info
 
     #-----------------------------------------------------------
     def wheel_mouse(self, distance, pressed = "", coords = (0, 0), count = 1, retry_interval = None):
@@ -1278,13 +1278,16 @@ class HwndWrapper(BaseWrapper):
             scroll_type = self._scroll_types["up"]["end"]
         else:
             raise ValueError('Distance should be expressed in multiples or divisions of WHEEL_DELTA and should not be equal to zero!')
-        mouse_flag = pressed
-        self.wparam = coeff
+        self.wparam = [distance,pressed]
+        print("self.wparam:")
+        print(self.wparam)
         self.lparam = coords
+        print("self.lparam:")
+        print(self.lparam)
         if retry_interval is None:
             retry_interval = Timings.scroll_step_wait
         while count > 0:
-            self.send_message(win32defines.WM_MOUSEWHEEL, mouse_flag, scroll_type)
+            self.send_message(win32defines.WM_MOUSEWHEEL, win32structures.WPARAM(distance))
             time.sleep(retry_interval)
             count -= 1
 

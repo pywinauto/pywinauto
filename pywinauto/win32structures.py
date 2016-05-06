@@ -1098,7 +1098,7 @@ class PSCROLLBARINFO(Structure):
         ('xyThumbTop', c_int),
         ('xyThumbBottom', c_int),
         ('reserved', c_int),
-        ('rgstate', DWORD),#[CCHILDREN_SCROLLBAR+1]=[7]?
+        ('rgstate', DWORD),
     ]
 assert sizeof(PSCROLLBARINFO) == 40, sizeof(PSCROLLBARINFO)
 assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)

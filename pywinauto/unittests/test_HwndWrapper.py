@@ -632,21 +632,24 @@ class HwndWrapperMouseWheelTests(unittest.TestCase):
         return data
 
     def testWheelMouse(self):
-        self.dlg.wheel_mouse(-360)
+        self.dlg.wheel_mouse(-120)
         data = self.get_text()
-        self.assertTrue("down" in data)
+        self.assertTrue("-120" in data)
 
     def testGetScrollInfo(self):
         self.dlg.scroll("right", "page")
         self.assertTrue(self.dlg.get_scroll_info(win32defines.SB_HORZ))
 
     def testGetScrollPos(self):
-        self.dlg.scroll("down", "page")
-        self.assertNotEqual(0, self.dlg.get_scroll_pos(win32defines.SB_VERT))
+        self.dlg.scroll("right", "page")
+        scr_info = self.dlg.get_scroll_info(win32defines.SB_HORZ)
+        pos = scr_info.nPos
+        self.assertEquals(pos, self.dlg.get_scroll_pos(win32defines.SB_HORZ))
 
     def testGetScrollBarInfo(self):
-        self.dlg.scroll("down", "page")
-        self.assertTrue(self.dlg.get_scroll_bar_info(win32defines.OBJID_CLIENT))
+        self.dlg.scroll("right", "page")
+        scr_info = self.dlg.get_scroll_bar_info(win32defines.OBJID_CLIENT)
+        self.assertTrue(scr_info.dxyLineButton)
 
 class NotepadRegressionTests(unittest.TestCase):
     "Regression unit tests for Notepad"
