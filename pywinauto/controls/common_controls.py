@@ -3316,6 +3316,16 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
+
+    place_in_calendar = {
+        'background': win32defines.MCSC_BACKGROUND,
+        'month_background': win32defines.MCSC_MONTHBK,
+        'text': win32defines.MCSC_TEXT,
+        'title_background': win32defines.MCSC_TITLEBK,
+        'title_text': win32defines.MCSC_TITLETEXT,
+        'trailing_text': win32defines.MCSC_TRAILINGTEXT
+    }
+
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         """Initialise the instance"""
@@ -3418,7 +3428,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         if ID in dict_types:
             self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
         else:
-            raise RuntimeError('You typed incorrect type of Calendar')
+            raise ValueError('Incorrect calendar ID (use one of {0})'.format(dict_types.keys()))
 
     # ----------------------------------------------------------------
     def get_id(self):
@@ -3436,14 +3446,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         'title_text', 'trailing_text' ;
         - All other parameters should be integer from 0 to 255.
         """
-        place_in_calendar = {
-            'background': win32defines.MCSC_BACKGROUND,
-            'month_background': win32defines.MCSC_MONTHBK,
-            'text': win32defines.MCSC_TEXT,
-            'title_background': win32defines.MCSC_TITLEBK,
-            'title_text': win32defines.MCSC_TITLETEXT,
-            'trailing_text': win32defines.MCSC_TRAILINGTEXT
-        }
+
         if not (0 <= red <= 255):
             raise RuntimeError('Incorrect range of color, must be from 0 to 255')
         if not (0 <= green <= 255):
@@ -3454,10 +3457,10 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         str_green = str(green)
         str_blue = str(blue)
         color = str_red + str_green + str_blue
-        if place_of_color in place_in_calendar:
-            result = self.send_message(win32defines.MCM_SETCOLOR, place_in_calendar[place_of_color], color)
+        if place_of_color in self.place_in_calendar:
+            result = self.send_message(win32defines.MCM_SETCOLOR, self.place_in_calendar[place_of_color], color)
         else:
-            raise RuntimeError('Incorrect place ID for color')
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
         if result == -1:
             raise RuntimeError('Incorrect color')
         return result
@@ -3471,18 +3474,10 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         'background', 'month_background', 'text', 'title_background', 'title_text', 'trailing_text'
         """
 
-        place_in_calendar = {
-            'background': win32defines.MCSC_BACKGROUND,
-            'month_background': win32defines.MCSC_MONTHBK,
-            'text': win32defines.MCSC_TEXT,
-            'title_background': win32defines.MCSC_TITLEBK,
-            'title_text': win32defines.MCSC_TITLETEXT,
-            'trailing_text': win32defines.MCSC_TRAILINGTEXT
-        }
-        if place_of_color in place_in_calendar:
-            return self.send_message(win32defines.MCM_GETCOLOR, place_in_calendar[place_of_color], 0)
+        if place_of_color in self.place_in_calendar:
+            return self.send_message(win32defines.MCM_GETCOLOR, self.place_in_calendar[place_of_color], 0)
         else:
-            raise RuntimeError('Incorrect place ID of color')
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
 
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
