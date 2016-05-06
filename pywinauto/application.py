@@ -67,6 +67,7 @@ import win32con
 import win32event
 import multiprocessing
 
+from functools import partial
 
 from . import controls
 from . import findbestmatch
@@ -844,10 +845,10 @@ class Application(object):
         if 'timeout' in kwargs:
             try:
                 self.timeout = float(kwargs['timeout'])
-                time.sleep(self.timeout)
+                del kwargs['timeout']
+                WaitUntilPasses(self.timeout, Timings.app_connect_retry, partial(self.Connect, **kwargs), (ValueError))
             except Exception as e:
-                message = "timeout isn't correct"
-                raise AppNotConnected(str(e) + message)
+                raise ValueError(str(e))
 
         if 'process' in kwargs:
             self.process = kwargs['process']
