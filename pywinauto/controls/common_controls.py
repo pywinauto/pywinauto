@@ -3460,6 +3460,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             raise RuntimeError('Incorrect place ID for color')
         if result == -1:
             raise RuntimeError('Incorrect color')
+        return result
 
     # ----------------------------------------------------------------
     def get_color(self, place_of_color):
