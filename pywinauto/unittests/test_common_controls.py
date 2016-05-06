@@ -1568,10 +1568,8 @@ class TrackbarWrapperTestCases(unittest.TestCase):
 
     def assert_channel_rect(self, first_rect, second_rect):
         """Compare two rect strucrures"""
-        self.assertEqual(first_rect.left, second_rect.left)
-        self.assertEqual(first_rect.top, second_rect.top)
-        self.assertEqual(first_rect.right, second_rect.right)
-        self.assertEqual(first_rect.bottom, second_rect.bottom)
+        self.assertEqual(first_rect.height, second_rect.height)
+        self.assertEqual(first_rect.width, second_rect.width)
 
     def test_get_line_size(self):
         """Test the get_line_size method"""

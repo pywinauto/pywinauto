@@ -3159,7 +3159,7 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
         system_rect = win32structures.RECT()
         remote_mem.Write(system_rect)
 
-        self.send_message(win32defines.TBM_GETCHANNELRECT , 0, remote_mem)
+        self.send_message(win32defines.TBM_GETCHANNELRECT, 0, remote_mem)
         remote_mem.Read(system_rect)
         del remote_mem
 
