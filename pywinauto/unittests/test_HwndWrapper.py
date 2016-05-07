@@ -625,13 +625,9 @@ class HwndWrapperMouseWheelTests(unittest.TestCase):
 
     def testWheelMouse(self):
         prev_pos = self.dlg.get_scroll_pos(win32defines.SB_HORZ)
-        print(prev_pos)
-        print("prev_pos:")
         self.dlg.wheel_mouse(-120)
         self.dlg.scroll("right", "end")
         cur_pos = self.dlg.get_scroll_pos(win32defines.SB_HORZ)
-        print(cur_pos)
-        print("cur_pos:")
         self.assertNotEquals(prev_pos, cur_pos)
 
     def testGetScrollInfo(self):
