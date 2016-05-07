@@ -1232,7 +1232,7 @@ class HwndWrapper(BaseWrapper):
         scr_info.fMask = win32defines.SIF_ALL
         msg = win32functions.GetScrollInfo(self.handle, scr_bar_type, scr_info)
         if msg == 0:
-            return None
+            raise RuntimeError("Failed to get scroll info!")
         else:
             return scr_info
 
@@ -1254,7 +1254,7 @@ class HwndWrapper(BaseWrapper):
         scroll_bar_info.cbSize = ctypes.sizeof(scroll_bar_info)
         msg = win32functions.GetScrollBarInfo(self.handle, scr_bar_object)
         if msg == 0:
-            return None
+            raise RuntimeError("Failed to get scroll bar info!")
         else:
             return scroll_bar_info
 
@@ -1278,12 +1278,20 @@ class HwndWrapper(BaseWrapper):
             scroll_type = self._scroll_types["up"]["end"]
         else:
             raise ValueError('Distance should be expressed in multiples or divisions of WHEEL_DELTA and should not be equal to zero!')
-        self.wparam = [distance,pressed]
-        self.lparam = coords
         if retry_interval is None:
             retry_interval = Timings.scroll_step_wait
         while count > 0:
-            self.send_message(win32defines.WM_MOUSEWHEEL, win32structures.WPARAM(distance))
+            wLow = win32functions.HiWord(scroll_type)
+            flags = 0
+            for key in pressed.split():
+                flags |= _mouse_flags[key.lower()]
+            wHigh = win32functions.LoWord(flags)
+            lLow = win32functions.HiWord(coords[1])
+            lHigh = win32functions.LoWord(coords[0])
+            self.send_message(
+                win32defines.WM_MOUSEWHEEL,
+                win32functions.MakeLong(wHigh, wLow),
+                win32functions.MakeLong(lHigh, lLow))
             time.sleep(retry_interval)
             count -= 1
 
