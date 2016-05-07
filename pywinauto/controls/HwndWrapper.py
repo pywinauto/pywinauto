@@ -1279,11 +1279,7 @@ class HwndWrapper(BaseWrapper):
         else:
             raise ValueError('Distance should be expressed in multiples or divisions of WHEEL_DELTA and should not be equal to zero!')
         self.wparam = [distance,pressed]
-        print("self.wparam:")
-        print(self.wparam)
         self.lparam = coords
-        print("self.lparam:")
-        print(self.lparam)
         if retry_interval is None:
             retry_interval = Timings.scroll_step_wait
         while count > 0:

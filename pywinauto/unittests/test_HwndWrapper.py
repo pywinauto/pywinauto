@@ -623,18 +623,16 @@ class HwndWrapperMouseWheelTests(unittest.TestCase):
         "Close the application after tests"
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
-    def get_text(self):
-        SendKeys('^a')
-        SendKeys('^c')
-        win32clipboard.OpenClipboard()
-        data = win32clipboard.GetClipboardData()
-        win32clipboard.CloseClipboard()
-        return data
-
     def testWheelMouse(self):
+        prev_pos = self.dlg.get_scroll_pos(win32defines.SB_HORZ)
+        print(prev_pos)
+        print("prev_pos:")
         self.dlg.wheel_mouse(-120)
-        data = self.get_text()
-        self.assertTrue("-120" in data)
+        self.dlg.scroll("right", "end")
+        cur_pos = self.dlg.get_scroll_pos(win32defines.SB_HORZ)
+        print(cur_pos)
+        print("cur_pos:")
+        self.assertNotEquals(prev_pos, cur_pos)
 
     def testGetScrollInfo(self):
         self.dlg.scroll("right", "page")
