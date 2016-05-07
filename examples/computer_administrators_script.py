@@ -11,11 +11,13 @@ from pywinauto.timings import always_wait_until_passes
 
 
 class AccessDeniedError(StandardError):
+    """Raise when current user is not an administrator."""
     def __init__(self, arg):
         self.args = arg
 
 
 class NoExistGroupError(StandardError):
+    """Raise when group Administrators is not exist."""
     def __init__(self, arg):
         self.args = arg
 
