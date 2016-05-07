@@ -10,21 +10,29 @@ from pywinauto import application
 from pywinauto.timings import always_wait_until_passes
 
 
+class AccessDeniedError(StandardError):
+    def __init__(self, arg):
+        self.args = arg
+
+
+class NoExistGroupError(StandardError):
+    def __init__(self, arg):
+        self.args = arg
+
+
 def is_user_an_admin():
+    """ Check user admin """
     import os
     if os.name == 'nt':
         try:
             # only windows users with admin privileges can read the C:\windows\temp
             os.listdir(os.sep.join([os.environ.get('SystemRoot', 'C:\\windows'), 'temp']))
-        except:
-            return os.environ['USERNAME'], False
+        except WindowsError:
+            return False
         else:
-            return os.environ['USERNAME'], True
+            return True
     else:
-        if 'SUDO_USER' in os.environ and os.geteuid() == 0:
-            return os.environ['SUDO_USER'], True
-        else:
-            return os.environ['USERNAME'], False
+        return 'SUDO_USER' in os.environ and os.geteuid() == 0
 
 
 if is_user_an_admin():
@@ -33,6 +41,7 @@ if is_user_an_admin():
 
     @always_wait_until_passes(4, 2, application.ProcessNotFoundError)
     def connect_to_mmc():
+        """ Returns connect app to instance """
         return application.Application().connect(path="mmc.exe")
 
 
@@ -51,7 +60,7 @@ if is_user_an_admin():
         print('Administrators:')
         for element in items:
             print(element.text())
-    except:
+    except ValueError:
         print('There is no Administrators group')
 else:
     print('You are not administrator')
