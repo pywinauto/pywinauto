@@ -1086,8 +1086,12 @@ class LPSCROLLINFO(Structure):
         ('nPos', c_int),
         ('nTrackPos', c_int),
     ]
-assert sizeof(LPSCROLLINFO) == 28, sizeof(LPSCROLLINFO)
-assert alignment(LPSCROLLINFO) == 4, alignment(LPSCROLLINFO)
+if sysinfo.is_x64_Python():
+    assert sizeof(LPSCROLLINFO) == 28, sizeof(LPSCROLLINFO)
+    assert alignment(LPSCROLLINFO) == 4, alignment(LPSCROLLINFO)
+else:
+    assert sizeof(LPSCROLLINFO) == 14, sizeof(LPSCROLLINFO)
+    assert alignment(LPSCROLLINFO) == 2, alignment(LPSCROLLINFO)
 
 class PSCROLLBARINFO(Structure):
     # _pack_ = 2
@@ -1100,8 +1104,12 @@ class PSCROLLBARINFO(Structure):
         ('reserved', c_int),
         ('rgstate', DWORD),
     ]
-assert sizeof(PSCROLLBARINFO) == 40, sizeof(PSCROLLBARINFO)
-assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
+if sysinfo.is_x64_Python():
+    assert sizeof(PSCROLLBARINFO) == 40, sizeof(PSCROLLBARINFO)
+    assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
+else:
+    assert sizeof(PSCROLLBARINFO) == 28, sizeof(PSCROLLBARINFO)
+    assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
