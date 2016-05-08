@@ -1086,12 +1086,8 @@ class LPSCROLLINFO(Structure):
         ('nPos', c_int),
         ('nTrackPos', c_int),
     ]
-if sysinfo.is_x64_Python():
-    assert sizeof(LPSCROLLINFO) == 28, sizeof(LPSCROLLINFO)
-    assert alignment(LPSCROLLINFO) == 4, alignment(LPSCROLLINFO)
-else:
-    assert sizeof(LPSCROLLINFO) == 14, sizeof(LPSCROLLINFO)
-    assert alignment(LPSCROLLINFO) == 2, alignment(LPSCROLLINFO)
+assert sizeof(LPSCROLLINFO) == 28, sizeof(LPSCROLLINFO)
+assert alignment(LPSCROLLINFO) == 4, alignment(LPSCROLLINFO)
 
 class PSCROLLBARINFO(Structure):
     # _pack_ = 2
