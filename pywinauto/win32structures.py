@@ -1100,12 +1100,8 @@ class PSCROLLBARINFO(Structure):
         ('reserved', c_int),
         ('rgstate', DWORD),
     ]
-if sysinfo.is_x64_Python():
-    assert sizeof(PSCROLLBARINFO) == 40, sizeof(PSCROLLBARINFO)
-    assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
-else:
-    assert sizeof(PSCROLLBARINFO) == 28, sizeof(PSCROLLBARINFO)
-    assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
+assert sizeof(PSCROLLBARINFO) == 40, sizeof(PSCROLLBARINFO)
+assert alignment(PSCROLLBARINFO) == 4, alignment(PSCROLLBARINFO)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 5043
