@@ -116,8 +116,19 @@ class CalendarWrapperTests(unittest.TestCase):
         x = int(self.width / 2.19)
         y = int(self.height / 3.33)
 
+        f = open('calendar.txt', 'w')
+
+        f.write("w=" + str(self.width) + " h=" + str(self.height) + "\n")
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                res = self.calendar.do_hit_test(x, y)
+                if res == win32defines.MCHT_CALENDAR:
+                    f.write(str(x) + " " + str(y) + "\n")
+
+
         res = self.calendar.do_hit_test(x, y)
 
+        f.close()
         self.assertEquals(win32defines.MCHT_CALENDAR, res)
 
     def test_can_determine_calendar_background_is_hit(self):
