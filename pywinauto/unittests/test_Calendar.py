@@ -112,7 +112,7 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def test_should_get_valid_calendar_color(self):
         self.calendar.set_color('text', 5, 5, 5)
-        self.assertIsNotNone(self.calendar.get_color('text'))
+        self.assertEqual(self.calendar.get_color('text'), 328965)
 
     def set_calendar_state_into_multiselect(self):
         self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()         
