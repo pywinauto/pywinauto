@@ -53,9 +53,8 @@ if is_user_an_admin():
     groups.click()
     items = app.mmc_main_frame.list_view.items()
     print('\nGroups:')
-    for i in range(len(items)):
-        if i % 2 == 0:
-            print(items[i].text())
+    for i in range(0, len(items), 2):
+        print(items[i].text())
     try:
         administrators = app.mmc_main_frame.list_view.get_item('Administrators')
         administrators.click(double=True)  # double click opens group properties
