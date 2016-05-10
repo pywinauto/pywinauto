@@ -112,33 +112,6 @@ class CalendarWrapperTests(unittest.TestCase):
         rect = self.calendar.calc_min_rectangle(-1, -1, -1, -1)
         self.assertEquals(expected_rect, rect)
 
-    def test_can_determine_calendar_is_hit(self):
-        x = int(self.width / 2.19)
-        y = int(self.height / 3.33)
-
-        f = open('calendar.txt', 'w')
-
-        f.write("w=" + str(self.width) + " h=" + str(self.height) + "\n")
-        for x in range(0, self.width):
-            for y in range(0, self.height):
-                res = self.calendar.do_hit_test(x, y)
-                if res == win32defines.MCHT_CALENDAR:
-                    f.write(str(x) + " " + str(y) + "\n")
-
-
-        res = self.calendar.do_hit_test(x, y)
-
-        f.close()
-        self.assertEquals(win32defines.MCHT_CALENDAR, res)
-
-    def test_can_determine_calendar_background_is_hit(self):
-        x = int(self.width / 2.19)
-        y = int(self.height / 3.33)
-
-        res = self.calendar.do_hit_test(x, y)
-
-        self.assertEquals(win32defines.MCHT_CALENDARBK, res)
-
     def test_can_determine_date_is_hit(self):
         x = int(self.width / 1.14)
         y = int(self.height / 1.33)
