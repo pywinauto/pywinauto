@@ -2994,6 +2994,13 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     windowclasses = ["SysMonthCal32", ]
     has_title = False
 
+    def SetMaxSelCount(self, val):
+        res= self.SendMessage(win32defines.MCM_SETMAXSELCOUNT,val,0)
+        return res
+    
+    def GetMaxSelCount (self):
+        return self.SendMessage(win32defines.MCM_GETMAXSELCOUNT,0,0)
+    
 
 #====================================================================
 class PagerWrapper(HwndWrapper.HwndWrapper):
