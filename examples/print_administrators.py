@@ -58,8 +58,9 @@ if is_user_an_admin():
     try:
         administrators = app.mmc_main_frame.list_view.get_item('Administrators')
         administrators.click(double=True)  # double click opens group properties
+        app.dialog.wait('exists')
         items = app.dialog.list_view.items()
-        print('Administrators:')
+        print('\nAdministrators:')
         for element in items:
             print(element.text())
     except ValueError:
