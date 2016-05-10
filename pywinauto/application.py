@@ -844,9 +844,10 @@ class Application(object):
 
         if 'timeout' in kwargs:
             try:
-                self.timeout = float(kwargs['timeout'])
+                timeout = float(kwargs['timeout'])
                 del kwargs['timeout']
                 WaitUntilPasses(self.timeout, Timings.app_connect_retry, partial(self.Connect, **kwargs), (ValueError))
+                #WaitUntilPasses(timeout, Timings.app_connect_retry, self.connect, (ValueError), kwargs)
             except Exception as e:
                 raise ValueError(str(e))
 

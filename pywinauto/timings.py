@@ -111,7 +111,6 @@ class TimeConfig(object):
         'app_start_timeout' : 10.,
         'app_start_retry' : .90,
 
-        'app_connect_timeout': 5.,
         'app_connect_retry': .5,
 
         'cpu_usage_interval' : .5,
@@ -395,7 +394,7 @@ def wait_until_passes(
     while True:
         try:
             # Call the function with any arguments
-            func_val = func(*args)      
+            func_val = func(*args)
             
             # if this did not raise an exception -then we are finised
             break    

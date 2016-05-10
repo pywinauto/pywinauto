@@ -567,32 +567,36 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_timeout(self):
         """Test that connect_() works with a timeout"""
+
         app1 = Application()
-        app1.start(_notepad_exe())
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+        app1.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        app1.connect(path=os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"), timeout = 1)
 
         app_conn = Application()
-        if is_x64_Python() or not is_x64_OS():
-            app_conn.connect(path = r"c:\windows\system32\notepad.exe", timeout = 1)
-
-        else:
-            app_conn.connect(path = r"c:\windows\syswow64\notepad.exe", timeout = 1)
+        app_conn.connect(process=app1.process)
+        self.assertEqual(app1.process, app_conn.process)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
 
     def test_connect_timeout_incorrect(self):
         """Test that connect_() works with a timeout"""
-        app1 = Application()
-        app1.start(_notepad_exe())
 
         app_conn = Application()
-        if is_x64_Python() or not is_x64_OS():
-            app_conn.connect(path = r"c:\windows\system32\notepad.exe", timeout = "1.0")
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
-        else:
-            app_conn.connect(path = r"c:\windows\syswow64\notepad.exe", timeout = "1.0")
+        self.assertRaises(
+            ValueError,
+            app_conn.connect, **{'path' : os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"), 'timeout' :"1.0a"})
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
 
     def test_connect_with_App(self):
 
@@ -602,12 +606,9 @@ class ApplicationTestCases(unittest.TestCase):
             mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
-        if is_x64_Python() or not is_x64_OS():
-            path=r"c:\windows\system32\notepad.exe"
-        else:
-            path=r"c:\windows\syswow64\notepad.exe"
-        self.app.Connect(path=path, timeout=1)
-        self.app.start(path)
+        self.app1 = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
+        self.app.Connect(path=os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"), timeout=10)
+        self.assertEqual(self.app.process, self.app1.process)
 
 
 class WindowSpecificationTestCases(unittest.TestCase):
