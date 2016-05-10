@@ -95,8 +95,8 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assertRaises(ValueError, self.calendar.set_id, 'Aloha!')
 
     def test_should_get_valid_type_of_calendar(self):
-        self.calendar.set_id('japan')
-        self.assertEqual(self.calendar.get_id(), 3)
+        self.calendar.set_id('taiwan')
+        self.assertEqual(self.calendar.get_id(), 4)
 
     def test_should_throw_runtime_error_when_try_to_set_invalid_type_of_place_for_color(self):
         self.assertRaises(ValueError, self.calendar.set_color, 'Aloha!', 0, 0, 0)
