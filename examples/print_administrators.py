@@ -52,9 +52,10 @@ if is_user_an_admin():
     groups = tree.get_item(r'\Computer Management (Local)\System Tools\Local Users and Groups\Groups')
     groups.click()
     items = app.mmc_main_frame.list_view.items()
-    print('\nGroups and descriptions:')
-    for element in items:
-        print(element.text())
+    print('\nGroups:')
+    for i in range(len(items)):
+        if i % 2 == 0:
+            print(items[i].text())
     try:
         administrators = app.mmc_main_frame.list_view.get_item('Administrators')
         administrators.click(double=True)  # double click opens group properties
