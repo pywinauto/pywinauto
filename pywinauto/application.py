@@ -813,7 +813,6 @@ class Application(object):
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
 
-        self.timeout = 0.0
         # load the match history if a file was specifed
         # and it exists
         if datafilename and os.path.exists(datafilename):
@@ -846,7 +845,7 @@ class Application(object):
             try:
                 timeout = float(kwargs['timeout'])
                 del kwargs['timeout']
-                wait_until_passes(self.timeout, Timings.app_connect_retry, partial(self.Connect, **kwargs), (ValueError))
+                time.sleep(timeout)
             except Exception as e:
                 raise ValueError(str(e))
 
