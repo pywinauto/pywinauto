@@ -581,8 +581,6 @@ class ApplicationTestCases(unittest.TestCase):
         app_conn.connect(process=app1.process)
         self.assertEqual(app1.process, app_conn.process)
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
-
 
     def test_connect_timeout_incorrect(self):
         """Test that connect_() works with a timeout"""
@@ -607,7 +605,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
         self.app1 = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
-        self.app.Connect(path=os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"), timeout=10)
+        self.app.connect(path=os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"), timeout=10)
         self.assertEqual(self.app.process, self.app1.process)
 
 

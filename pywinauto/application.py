@@ -76,7 +76,7 @@ from . import handleprops
 from .backend import registry
 
 from .actionlogger import ActionLogger
-from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses, wait_until_passes
 from .sysinfo import is_x64_Python
 
 
@@ -846,8 +846,7 @@ class Application(object):
             try:
                 timeout = float(kwargs['timeout'])
                 del kwargs['timeout']
-                WaitUntilPasses(self.timeout, Timings.app_connect_retry, partial(self.Connect, **kwargs), (ValueError))
-                #WaitUntilPasses(timeout, Timings.app_connect_retry, self.connect, (ValueError), kwargs)
+                wait_until_passes(self.timeout, Timings.app_connect_retry, partial(self.Connect, **kwargs), (ValueError))
             except Exception as e:
                 raise ValueError(str(e))
 
