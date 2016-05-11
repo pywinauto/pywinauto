@@ -34,6 +34,7 @@ import time
 import ctypes
 import locale
 import re
+import win32clipboard
 
 import sys, os
 import unittest
@@ -50,7 +51,7 @@ from pywinauto import clipboard
 from pywinauto import backend
 from pywinauto.base_wrapper import ElementNotEnabled, ElementNotVisible
 from pywinauto import findbestmatch
-
+from pywinauto.SendKeysCtypes import SendKeys
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -638,6 +639,52 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.SetTransparency()
         self.assertRaises(ValueError, self.dlg.SetTransparency, 256)
 
+
+class HwndWrapperMouseWheelTests(unittest.TestCase):
+    "Unit tests for mouse wheel actions of the HwndWrapper class"
+
+    def setUp(self):
+        """Start the application set some data and ensure the application
+        is in the state we want it."""
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        self.dlg = self.app.RowListSampleApplication
+        self.dlg.MenuSelect("View -> Large Icons")
+        prev_rect = self.dlg.rectangle()
+        list_view_r = self.dlg.ListViewRed.rectangle()
+        new_rect = win32structures.RECT(prev_rect)
+        new_rect.right -= list_view_r.right
+        new_rect.bottom -= list_view_r.bottom
+        self.dlg.MoveWindow(
+            new_rect.left,
+            new_rect.top,
+            new_rect.width(),
+            new_rect.height(),
+            )
+
+    def tearDown(self):
+        "Close the application after tests"
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testWheelMouse(self):
+        prev_pos = self.dlg.get_scroll_pos(win32defines.SB_VERT)
+        self.dlg.wheel_mouse(-120, "control")
+        cur_pos = self.dlg.get_scroll_pos(win32defines.SB_VERT)
+        self.assertNotEquals(prev_pos, cur_pos)
+
+    def testGetScrollInfo(self):
+        self.dlg.scroll("right", "page")
+        self.assertTrue(self.dlg.get_scroll_info(win32defines.SB_HORZ))
+
+    def testGetScrollPos(self):
+        self.dlg.scroll("right", "page")
+        scr_info = self.dlg.get_scroll_info(win32defines.SB_HORZ)
+        pos = scr_info.nPos
+        self.assertEquals(pos, self.dlg.get_scroll_pos(win32defines.SB_HORZ))
+
+    def testGetScrollBarInfo(self):
+        self.dlg.scroll("right", "page")
+        scr_info = self.dlg.get_scroll_bar_info(win32defines.OBJID_CLIENT)
+        self.assertTrue(scr_info.dxyLineButton)
 
 class NotepadRegressionTests(unittest.TestCase):
     "Regression unit tests for Notepad"

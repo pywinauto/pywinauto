@@ -1278,6 +1278,80 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     Scroll = scroll
 
+   #-----------------------------------------------------------
+    def get_scroll_info(self, scr_bar_type):
+        """Get the scroll bar info"""
+
+        scr_info = win32structures.LPSCROLLINFO()
+        scr_info.cbSize = ctypes.sizeof(scr_info)
+        scr_info.fMask = win32defines.SIF_ALL
+        msg = win32functions.GetScrollInfo(self.handle, scr_bar_type, scr_info)
+        if msg == 0:
+            raise RuntimeError("Failed to get scroll info!")
+        else:
+            return scr_info
+
+    #-----------------------------------------------------------
+    def get_scroll_pos(self, scr_bar_type):
+        """Get the scroll box position"""
+
+        scroll_pos = win32functions.GetScrollPos(self.handle, scr_bar_type)
+        if not scroll_pos:
+            return 0
+        else:
+            return scroll_pos
+
+    #-----------------------------------------------------------
+    def get_scroll_bar_info(self, scr_bar_object):
+        """Get the specified scroll bar info"""
+
+        scroll_bar_info = win32structures.PSCROLLBARINFO
+        scroll_bar_info.cbSize = ctypes.sizeof(scroll_bar_info)
+        msg = win32functions.GetScrollBarInfo(self.handle, scr_bar_object)
+        if msg == 0:
+            raise RuntimeError("Failed to get scroll bar info!")
+        else:
+            return scroll_bar_info
+
+    #-----------------------------------------------------------
+    def wheel_mouse(self, distance, pressed = "", coords = (0, 0), count = 1, retry_interval = None):
+        """Wheel the mouse by WM_MOUSEWHEEL"""
+
+        WHEEL_DELTA = 120
+        coeff = distance//WHEEL_DELTA
+        if (coeff < -2):
+            scroll_type = self._scroll_types["down"]["end"]
+        elif (-2 <= coeff < -1):
+            scroll_type = self._scroll_types["down"]["page"]
+        elif (-1 <= coeff < 0):
+            scroll_type = self._scroll_types["down"]["line"]
+        elif (0 < coeff < 1):
+            scroll_type = self._scroll_types["up"]["line"]
+        elif (1 <= coeff < 2):
+            scroll_type = self._scroll_types["up"]["page"]
+        elif (coeff >= 2):
+            scroll_type = self._scroll_types["up"]["end"]
+        else:
+            raise ValueError('Distance should be expressed in multiples or divisions of WHEEL_DELTA and should not be equal to zero!')
+        if retry_interval is None:
+            retry_interval = Timings.scroll_step_wait
+        while count > 0:
+            wLow = win32functions.HiWord(scroll_type)
+            flags = 0
+            for key in pressed.split():
+                flags |= _mouse_flags[key.lower()]
+            wHigh = win32functions.LoWord(flags)
+            lLow = win32functions.HiWord(coords[1])
+            lHigh = win32functions.LoWord(coords[0])
+            self.send_message(
+                win32defines.WM_MOUSEWHEEL,
+                win32functions.MakeLong(wHigh, wLow),
+                win32functions.MakeLong(lHigh, lLow))
+            time.sleep(retry_interval)
+            count -= 1
+
+        return self
+
     #-----------------------------------------------------------
     def get_toolbar(self):
         """Get the first child toolbar if it exists"""
@@ -1406,6 +1480,8 @@ _mouse_flags = {
     "middle": win32defines.MK_MBUTTON,
     "shift": win32defines.MK_SHIFT,
     "control": win32defines.MK_CONTROL,
+    "xButton1": win32defines.MK_XBUTTON1,
+    "xButton2": win32defines.MK_XBUTTON2,
 }
 
 #====================================================================
