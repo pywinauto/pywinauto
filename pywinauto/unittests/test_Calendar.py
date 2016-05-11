@@ -20,6 +20,11 @@ class CalendarWrapperTests(unittest.TestCase):
     """Unit tests for the CalendarWrapperTests class"""
     NO_HOLIDAYS_IN_MONTH = 0
 
+    CALENDARBK_WIDTH_COEFF = 9
+    CALENDARBK_HEIGHT_OFFSET = 112
+    TITLEBK_WIDTH_COEFF = 2
+    TITLEBK_HEIGHT_COEFF = 26.67
+
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
@@ -112,11 +117,27 @@ class CalendarWrapperTests(unittest.TestCase):
         rect = self.calendar.calc_min_rectangle(-1, -1, -1, -1)
         self.assertEquals(expected_rect, rect)
 
+    def test_can_determine_calendar_is_hit(self):
+        x = int(self.width / self.CALENDARBK_WIDTH_COEFF)
+        y = int(self.height - self.CALENDARBK_HEIGHT_OFFSET)
+
+        res = self.calendar.test_hit(x, y)
+
+        self.assertEquals(win32defines.MCHT_CALENDAR, res)
+
+    def test_can_determine_calendar_background_is_hit(self):
+        x = int(self.width / self.CALENDARBK_WIDTH_COEFF)
+        y = int(self.height - self.CALENDARBK_HEIGHT_OFFSET)
+
+        res = self.calendar.test_hit(x, y)
+
+        self.assertEquals(win32defines.MCHT_CALENDARBK, res)
+
     def test_can_determine_date_is_hit(self):
         x = int(self.width / 1.14)
         y = int(self.height / 1.33)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_CALENDARDATE, res)
 
@@ -124,7 +145,7 @@ class CalendarWrapperTests(unittest.TestCase):
         x = int(self.width / 1.14)
         y = int(self.height / 1.23)
 
-        res = self.calendar.do_hit_test(140, 130)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_CALENDARDATENEXT, res)
 
@@ -132,35 +153,35 @@ class CalendarWrapperTests(unittest.TestCase):
         x = int(self.width / 16)
         y = int(self.height / 2.67)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_CALENDARDATEPREV, res)
 
     def test_can_determine_nothing_is_hit(self):
-        res = self.calendar.do_hit_test(0, 0)
+        res = self.calendar.test_hit(0, 0)
         self.assertEquals(win32defines.MCHT_NOWHERE, res)
 
     def test_can_determine_top_left_title_corner_is_hit(self):
         x = int(self.width / 16)
         y = int(self.height / 16)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_TITLEBTNPREV, res)
 
     def test_can_determine_title_is_hit(self):
-        x = int(self.width / 2)
-        y = int(self.height / 26.67)
+        x = int(self.width / self.TITLEBK_WIDTH_COEFF)
+        y = int(self.height / self.TITLEBK_HEIGHT_COEFF)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_TITLE, res)
 
     def test_can_determine_title_background_is_hit(self):
-        x = int(self.width / 2)
-        y = int(self.height / 26.67)
+        x = int(self.width / self.TITLEBK_WIDTH_COEFF)
+        y = int(self.height / self.TITLEBK_HEIGHT_COEFF)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_TITLEBK, res)
 
@@ -168,7 +189,7 @@ class CalendarWrapperTests(unittest.TestCase):
         x = int(self.width / 1.07)
         y = int(self.height / 8)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_TITLEBTNNEXT, res)
 
@@ -176,7 +197,7 @@ class CalendarWrapperTests(unittest.TestCase):
         x = int(self.width / 1.25)
         y = int(self.height / 1.14)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_TODAYLINK, res)
 
@@ -184,7 +205,7 @@ class CalendarWrapperTests(unittest.TestCase):
         x = int(self.width / 5.33)
         y = int(self.height / 4)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_CALENDARDAY, res)
 
@@ -193,7 +214,7 @@ class CalendarWrapperTests(unittest.TestCase):
         x = int(self.width / 13.5)
         y = int(self.height / 1.7)
 
-        res = self.calendar.do_hit_test(x, y)
+        res = self.calendar.test_hit(x, y)
 
         self.assertEquals(win32defines.MCHT_CALENDARWEEKNUM, res)
 
