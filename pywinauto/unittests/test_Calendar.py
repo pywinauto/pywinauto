@@ -34,23 +34,22 @@ class CalendarWrapperTests(unittest.TestCase):
         self.dlg.Wait('ready', 20)
         tab = app.CommonControlsSample.TabControl.WrapperObject()
         tab.Select(4)
-        
-        self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()   
+          
         self.calendar = self.app.Common_Controls_Sample.CalendarWrapper
-
+        self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()
 
     def tearDown(self):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
         
-    def test_SetMaxSelCount(self):
-        count = self.calendar.SetMaxSelCount(4)
+    def test_set_max_sel_count(self):
+        count = self.calendar.set_max_sel_count(4)
         self.assertNotEqual(count,0)
-
-    def test_GetMaxSelCount(self):
-        self.calendar.SetMaxSelCount(7)
-        count = self.calendar.GetMaxSelCount();
+        
+    def test_get_max_sel_count(self):
+        self.calendar.set_max_sel_count(7)
+        count = self.calendar.get_max_sel_count();
         self.assertEqual(count,7)
-
+        
 if __name__ == "__main__":
     unittest.main()
     

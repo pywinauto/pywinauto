@@ -2994,11 +2994,11 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     windowclasses = ["SysMonthCal32", ]
     has_title = False
 
-    def SetMaxSelCount(self, val):
+    def set_max_sel_count(self, val):
         res= self.SendMessage(win32defines.MCM_SETMAXSELCOUNT,val,0)
         return res
     
-    def GetMaxSelCount (self):
+    def get_max_sel_count (self):
         return self.SendMessage(win32defines.MCM_GETMAXSELCOUNT,0,0)
     
 
