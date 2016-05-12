@@ -842,12 +842,9 @@ class Application(object):
         connected = False
 
         if 'timeout' in kwargs:
-            try:
-                timeout = float(kwargs['timeout'])
-                del kwargs['timeout']
-                wait_until_passes(timeout, Timings.app_connect_retry, partial(self.connect, **kwargs), (ValueError, ProcessNotFoundError, RuntimeError))
-            except Exception as e:
-                raise e
+            timeout = float(kwargs['timeout'])
+            del kwargs['timeout']
+            wait_until_passes(timeout, Timings.app_connect_retry, partial(self.connect, **kwargs), (ValueError, ProcessNotFoundError, RuntimeError))
 
         if 'process' in kwargs:
             self.process = kwargs['process']
