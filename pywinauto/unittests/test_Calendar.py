@@ -36,6 +36,7 @@ class CalendarWrapperTests(unittest.TestCase):
         tab.Select(4)
           
         self.calendar = self.app.Common_Controls_Sample.CalendarWrapper
+        self.app['Common Controls Sample']['MCS_MULTISELECT'].WrapperObject().Click()
         
     def tearDown(self):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
