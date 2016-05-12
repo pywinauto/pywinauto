@@ -12010,7 +12010,7 @@ MCMV_DECADE = 2
 MCMV_CENTURY = 3
 
 MCM_SETCALID = 0 # Variable c_int
-MCM_GETCALID = 1 # Variable c_int
+MCM_GETCALID = 0 # Variable. c_int
 
 CAL_GREGORIAN = 1 # Variable c_int
 CAL_GREGORIAN_US = 2 # Variable c_int
