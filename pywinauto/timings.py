@@ -111,6 +111,8 @@ class TimeConfig(object):
         'app_start_timeout' : 10.,
         'app_start_retry' : .90,
 
+        'app_connect_retry' : .5,
+
         'cpu_usage_interval' : .5,
         'cpu_usage_wait_timeout' : 20.,
 
@@ -414,7 +416,7 @@ def wait_until_passes(
                 # inside it
                 err = TimeoutError()
                 err.original_exception = e
-                raise err    
+                raise err
                 
     # return the function value
     return func_val

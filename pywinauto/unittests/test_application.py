@@ -576,15 +576,24 @@ class ApplicationTestCases(unittest.TestCase):
         app1.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         app_conn = Application()
-        timeout = 1
-        t1 = time.time()
-        app_conn.connect(process=app1.process, timeout = timeout)
-        check = time.time() >= t1 + timeout
+        app_conn.connect(process=app1.process, timeout = 2)
         self.assertEqual(app1.process, app_conn.process)
-        self.assertTrue(check)
+
+    def test_connect_timeout_error(self):
+        """Test that connect_() works with a timeout error"""
+
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
+        path = os.path.join(mfc_samples_folder, u"CmnCtrl1.exe")
+
+        app_conn = Application()
+        self.assertRaises(TimeoutError, app_conn.connect, path=path, timeout=2)
 
     def test_connect_timeout_incorrect(self):
-        """Test that connect_() works with a timeout"""
+        """Test that connect_() works with a timeout incorrect"""
 
         app_conn = Application()
         mfc_samples_folder = os.path.join(
