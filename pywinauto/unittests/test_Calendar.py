@@ -193,7 +193,7 @@ class CalendarWrapperTests(unittest.TestCase):
 
         self.assertEquals(win32defines.MCHT_TITLEBTNNEXT, res)
 
-    # TODO: test_can_determine_today_link_is_hit fails in CI with strange res = 1048756.
+    # TODO: test_can_determine_today_link_is_hit fails in CI with strange res = 1048576.
     # There is no such value for MCHT_* defines.
     # def test_can_determine_today_link_is_hit(self):
     #     x = int(self.width / 1.25)
