@@ -471,6 +471,16 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.Set.set_focus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
 
+    def testHasKeyboardFocus(self):
+        self.assertFalse(self.dlg.Set.has_keyboard_focus())
+        self.dlg.Set.set_keyboard_focus()
+        self.assertTrue(self.dlg.Set.has_keyboard_focus())
+
+    def testSetKeyboardFocus(self):
+        self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
+        self.dlg.Set.set_keyboard_focus()
+        self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
+
 
 class HwndWrapperMenuTests(unittest.TestCase):
     "Unit tests for menu actions of the HwndWrapper class"
