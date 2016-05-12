@@ -50,6 +50,8 @@ from pywinauto import findbestmatch
 from pywinauto.timings import Timings
 from pywinauto.timings import TimeoutError
 from pywinauto.timings import WaitUntil
+from pywinauto.timings import always_wait_until
+from pywinauto.timings import always_wait_until_passes
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto import backend
@@ -708,6 +710,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+		
+        start = time.time()
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("actIve "))
+        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
 
@@ -748,6 +754,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         start = time.time()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "exists ", .1, .05)
+        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+		
+        start = time.time()
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "actIve ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.WaitNot, "Invalid_criteria")
@@ -867,5 +877,40 @@ class WindowSpecificationTestCases(unittest.TestCase):
         windows = findwindows.find_elements(title_re = "Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
 
+class WaitUntilDecoratorTests(unittest.TestCase):
+    """Unit tests for always_wait_until and always_wait_until_passes decorators"""
+    
+    def test_always_wait_until_decorator_success(self):
+        """Test always_wait_until_decorator success"""
+        
+        @always_wait_until(4, 2)
+        def foo():
+            return True
+        self.assertTrue(foo())
+        
+    def test_always_wait_until_decorator_failure(self):
+        """Test wait_until_decorator failure"""
+        
+        @always_wait_until(4, 2)
+        def foo():
+            return False
+        self.assertRaises(TimeoutError, foo)
+        
+    def test_always_wait_until_passes_decorator_success(self):
+        """Test always_wait_until_passes_decorator success"""
+        
+        @always_wait_until_passes(4, 2)
+        def foo():
+            return True
+        self.assertTrue(foo())
+        
+    def test_always_wait_until_passes_decorator_failure(self):
+        """Test always_wait_until_passes_decorator failure"""
+        
+        @always_wait_until_passes(4, 2)
+        def foo():
+            raise Exception("Unexpected Error in foo")
+        self.assertRaises(TimeoutError, foo)
+        
 if __name__ == "__main__":
     unittest.main()

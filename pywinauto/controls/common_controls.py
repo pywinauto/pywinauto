@@ -1410,6 +1410,13 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(TreeViewWrapper, self).__init__(hwnd)
 
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TreeViewWrapper, self).writable_props
+        props.extend(['item_count'])
+        return props
+
     #----------------------------------------------------------------
     def item_count(self):
         "Return the count of the items in the treeview"
@@ -2026,6 +2033,13 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         super(TabControlWrapper, self).__init__(hwnd)
 
         #self.writable_props.append("TabStates")
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TabControlWrapper, self).writable_props
+        props.extend(['tab_count'])
+        return props
 
     #----------------------------------------------------------------
     def row_count(self):
@@ -3150,42 +3164,100 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 class TrackbarWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows Trackbar common control "
+    """Class that wraps Windows Trackbar common control """
 
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
+
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_SliderControlTypeId]
 
-#
-#    #----------------------------------------------------------------
-#    def get_num_ticks(self):
-#        return self.send_message(win32defines.TBM_GETNUMTICS)
-#    # Non PEP-8 alias
-#    GetNumTicks = get_num_ticks
-#
-#    #----------------------------------------------------------------
-#    def get_pos(self):
-#        return self.send_message(win32defines.TBM_GETPOS)
-#    # Non PEP-8 alias
-#    GetPos = get_pos
-#
-#    #----------------------------------------------------------------
-#    def GetRangeMax(self):
-#        return self.send_message(win32defines.TBM_GETRANGEMAX)
-    # Non PEP-8 alias
-#
-#    #----------------------------------------------------------------
-#    def get_range_min(self):
-#        return self.send_message(win32defines.TBM_GETRANGEMIN)
-#    # Non PEP-8 alias
-#    GetRangeMin = get_range_min
-#
-#    #----------------------------------------------------------------
-#    def get_tool_tips_control(self):
-#        "Return the tooltip control associated with this control"
-#        return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
+    def get_range_min(self):
+        """Get min available trackbar value"""
+        return self.send_message(win32defines.TBM_GETRANGEMIN)
 
+    def get_range_max(self):
+        """Get max available trackbar value"""
+        return self.send_message(win32defines.TBM_GETRANGEMAX)
+
+    def get_position(self):
+        """Get trackbar position"""
+        return self.send_message(win32defines.TBM_GETPOS)
+
+    def get_num_ticks(self):
+        """Get trackbar num ticks"""
+        return self.send_message(win32defines.TBM_GETNUMTICS)
+
+    def get_channel_rect(self):
+        """Get position of the bounding rectangle for a Trackbar"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_rect = win32structures.RECT()
+        remote_mem.Write(system_rect)
+
+        self.send_message(win32defines.TBM_GETCHANNELRECT, 0, remote_mem)
+        remote_mem.Read(system_rect)
+        del remote_mem
+
+        return system_rect
+
+    def get_line_size(self):
+        """Get the number of logical positions the trackbar's slider"""
+        return self.send_message(win32defines.TBM_GETLINESIZE)
+
+    def get_tooltips_control(self):
+        """Get trackbar tooltip"""
+        return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
+
+    def get_page_size(self):
+        """Get the number of logical positions for the trackbar's slider"""
+        return self.send_message(win32defines.TBM_GETPAGESIZE)
+
+    def set_range_max(self, range_max):
+        """Set max available trackbar value"""
+        if range_max < self.get_range_min():
+            raise ValueError('Cannot set range max less than range min')
+        self.send_message(win32defines.TBM_SETRANGEMAX, True, range_max)
+
+    def set_range_min(self, range_min):
+        """Set min available trackbar value"""
+        if range_min > self.get_range_max():
+            raise ValueError('Cannot set range min more than range max')
+        self.send_message(win32defines.TBM_SETRANGEMIN, True, range_min)
+
+    def set_position(self, pos):
+        """Set trackbar position"""
+        if not (self.get_range_min() <= pos <= self.get_range_max()):
+            raise ValueError('Cannot set position out of range')
+        self.send_message(win32defines.TBM_SETPOS, True, pos)
+
+    def set_line_size(self, line_size):
+        """Set trackbar line size"""
+        self.send_message(win32defines.TBM_SETLINESIZE, 0, line_size)
+
+    def set_page_size(self, page_size):
+        """Set trackbar page size"""
+        self.send_message(win32defines.TBM_SETPAGESIZE, 0, page_size)
+
+    def set_sel(self, sel_start, sel_end):
+        """Set start and end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        sel_start_val = win32functions.LoWord(sel_start)
+        sel_end_val = win32functions.HiWord(sel_end)
+        sel_val = win32functions.MakeLong(sel_start_val, sel_end_val)
+        self.send_message(win32defines.TBM_SETSAL, 0, sel_val)
+
+    def get_sel_start(self):
+        """Get start of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        return self.send_message(win32defines.TBM_GETSELSTART)
+
+    def get_sel_end(self):
+        """Get end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        return self.send_message(win32defines.TBM_GETSELEND)
 
 #====================================================================
 class AnimationWrapper(HwndWrapper.HwndWrapper):
@@ -3399,6 +3471,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             raise RuntimeError('Failed to set view in Calendar')
 
     # ----------------------------------------------------------------
+<<<<<<< HEAD
     def set_id(self, ID):
         """
         Set the calendar type.
@@ -3475,8 +3548,59 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             return self.send_message(win32defines.MCM_GETCOLOR, self.place_in_calendar[place_of_color], 0)
         else:
             raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+=======
+    def set_today(self, year, month, day):
+        """Set today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_time = win32structures.SYSTEMTIME()
+
+        system_time.wYear = year
+        system_time.wMonth = month
+        system_time.wDay = day
+        system_time.wHour = 0
+        system_time.wMinute = 0
+        system_time.wSecond = 0
+        system_time.wMilliseconds = 0
+
+        remote_mem.Write(system_time)
+
+        res = self.send_message(win32defines.MCM_SETTODAY, 0, remote_mem)
+
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set today date in Calendar')
+
+    # ----------------------------------------------------------------
+    def get_today(self):
+        """Get today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_date = win32structures.SYSTEMTIME()
+        remote_mem.Write(system_date)
+
+        res = self.send_message(win32defines.MCM_GETTODAY, 0, remote_mem)
+        remote_mem.Read(system_date)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to get today date in Calendar')
+        return system_date
+
+    # ----------------------------------------------------------------
+    def set_first_weekday(self, dayNum):
+        """Set first day of the week"""
+        res = self.send_message(win32defines.MCM_SETFIRSTDAYOFWEEK, 0, dayNum)
+
+    # ----------------------------------------------------------------
+    def get_first_weekday(self):
+        """Get is not in current locale and if so first day of the week"""
+        res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
+        return (win32functions.HiWord(res), win32functions.LoWord(res))
+>>>>>>> upstream/UIA
 
 #====================================================================
+
+
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
 
