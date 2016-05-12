@@ -3496,7 +3496,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return minimized_rect
 
     #----------------------------------------------------------------
-    def test_hit(self, x, y):
+    def hit_test(self, x, y):
         """Determines which portion of a month calendar control is at a given point on the screen"""
         remote_mem = RemoteMemoryBlock(self)
         hit_test_info = win32structures.MCHITTESTINFO()
