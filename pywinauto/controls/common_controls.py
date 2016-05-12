@@ -3471,7 +3471,6 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             raise RuntimeError('Failed to set view in Calendar')
 
     # ----------------------------------------------------------------
-<<<<<<< HEAD
     def set_id(self, ID):
         """
         Set the calendar type.
@@ -3548,7 +3547,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             return self.send_message(win32defines.MCM_GETCOLOR, self.place_in_calendar[place_of_color], 0)
         else:
             raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
-=======
+
     def set_today(self, year, month, day):
         """Set today date"""
         remote_mem = RemoteMemoryBlock(self)
@@ -3596,11 +3595,8 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         """Get is not in current locale and if so first day of the week"""
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
         return (win32functions.HiWord(res), win32functions.LoWord(res))
->>>>>>> upstream/UIA
 
 #====================================================================
-
-
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
 
