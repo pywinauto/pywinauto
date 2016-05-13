@@ -39,6 +39,7 @@ from __future__ import print_function
 
 import time
 import ctypes
+from ctypes import wintypes
 import warnings
 import locale
 
@@ -3469,6 +3470,57 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
+
+    #----------------------------------------------------------------
+    def set_day_states(self, month_states):
+        """Sets the day states for all months that are currently visible"""
+        remote_mem = RemoteMemoryBlock(self)
+        day_states = (wintypes.DWORD * len(month_states))(*month_states)
+
+        remote_mem.Write(day_states)
+        res = self.send_message(win32defines.MCM_SETDAYSTATE, len(day_states), remote_mem)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set the day states in Calendar')
+
+        return res
+
+    #----------------------------------------------------------------
+    def calc_min_rectangle(self, left, top, right, bottom):
+        """Calculates the minimum size that a rectangle needs to be to fit that number of calendars"""
+        remote_mem = RemoteMemoryBlock(self)
+
+        minimized_rect = win32structures.RECT()
+        minimized_rect.left = left
+        minimized_rect.top = top
+        minimized_rect.right = right
+        minimized_rect.bottom = bottom
+
+        remote_mem.Write(minimized_rect)
+        self.send_message(win32defines.MCM_SIZERECTTOMIN, 0, remote_mem)
+
+        remote_mem.Read(minimized_rect)
+        del remote_mem
+
+        return minimized_rect
+
+    #----------------------------------------------------------------
+    def hit_test(self, x, y):
+        """Determines which portion of a month calendar control is at a given point on the screen"""
+        remote_mem = RemoteMemoryBlock(self)
+        hit_test_info = win32structures.MCHITTESTINFO()
+        point = win32structures.POINT()
+        point.x = x
+        point.y = y
+        hit_test_info.pt = point
+        hit_test_info.cbSize = ctypes.sizeof(hit_test_info)
+
+        remote_mem.Write(hit_test_info)
+        res = self.send_message(win32defines.MCM_HITTEST, 0, remote_mem)
+        del remote_mem
+
+        return res
 
     # ----------------------------------------------------------------
     def set_id(self, ID):
