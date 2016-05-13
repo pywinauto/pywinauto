@@ -63,12 +63,12 @@ __revision__ = "$Revision$"
 #
 #
 ##
-##				if AsianHotkeyFormatIncorrect(item['Text']):
+##				if AsianHotkeyFormatIncorrect(item['text']):
 ##					bugs.append(
 ##					(
 ##						[win,],
 ##						{
-##							"MenuItem": item['Text'],
+##							"MenuItem": item['text'],
 ##						},
 ##						"MenuAsianHotkeyFormat",
 ##						0)

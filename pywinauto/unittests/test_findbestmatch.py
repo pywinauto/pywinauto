@@ -20,8 +20,6 @@
 
 "Tests for findbestmatch.py"
 
-__revision__ = "$Revision: 234 $"
-
 import unittest
 import os.path
 
@@ -31,26 +29,31 @@ import sys
 sys.path.append(".")
 from pywinauto import findbestmatch
 from pywinauto import win32structures
+from pywinauto import backend
+backend.activate("native")
 
 
 class TestFindBestMatch(unittest.TestCase):
 
     def setUp(self):
-        # load the test strings
+        "load the test strings"
         self.strings = open(os.path.join(test_path, "testtext.txt"), "rb").readlines()
         self.strings = (line.decode('utf-8')[:-1] for line in self.strings)
 
     def testclean_text_1(self):
+        "Test for _clean_non_chars (alphanumeric symbols)"
         s = "nothingremovedhere"
         result =  findbestmatch._clean_non_chars(s)
         self.assertEqual(s, result)
 
     def testclean_text_2(self):
+        "Test for _clean_non_chars (special symbols)"
         s = "#$%#^$%&**"
         result =  findbestmatch._clean_non_chars(s)
         self.assertEqual('', result)
 
     def testclean_text_3(self):
+        "Test for _clean_non_chars (empty string)"
         s = ""
         result =  findbestmatch._clean_non_chars(s)
         self.assertEqual('', result)
@@ -59,7 +62,7 @@ class TestFindBestMatch(unittest.TestCase):
 class DummyCtrl():
     def __init__(self, l, t, r, b):
         self.rect = win32structures.RECT(l, t, r, b)
-    def Rectangle(self):
+    def rectangle(self):
         return self.rect
 
 class TestIsAboveOrToLeft(unittest.TestCase):
@@ -68,42 +71,42 @@ class TestIsAboveOrToLeft(unittest.TestCase):
         other = DummyCtrl(10, 20, 200, 40)
         this = DummyCtrl(10, 20, 200, 40)
 
-        result = findbestmatch.IsAboveOrToLeft(this, other)
+        result = findbestmatch.is_above_or_to_left(this, other)
         self.assertEqual(result, False)
 
     def testToLeft(self):
         other = DummyCtrl(10, 20, 200, 40)
         this = DummyCtrl(100, 20, 200, 40)
 
-        result = findbestmatch.IsAboveOrToLeft(this, other)
+        result = findbestmatch.is_above_or_to_left(this, other)
         self.assertEqual(result, True)
 
     def testAbove(self):
         other = DummyCtrl(10, 10, 200, 30)
         this = DummyCtrl(10, 20, 200, 40)
 
-        result = findbestmatch.IsAboveOrToLeft(this, other)
+        result = findbestmatch.is_above_or_to_left(this, other)
         self.assertEqual(result, True)
 
     def testLeftAndTop(self):
         other = DummyCtrl(5, 10, 200, 20)
         this = DummyCtrl(10, 20, 200, 40)
 
-        result = findbestmatch.IsAboveOrToLeft(this, other)
+        result = findbestmatch.is_above_or_to_left(this, other)
         self.assertEqual(result, True)
 
     def testBelow(self):
         other = DummyCtrl(10, 120, 200, 140)
         this = DummyCtrl(10, 20, 20, 40)
 
-        result = findbestmatch.IsAboveOrToLeft(this, other)
+        result = findbestmatch.is_above_or_to_left(this, other)
         self.assertEqual(result, False)
 
     def testToRight(self):
         other = DummyCtrl(110, 20, 120, 40)
         this = DummyCtrl(10, 20, 20, 40)
 
-        result = findbestmatch.IsAboveOrToLeft(this, other)
+        result = findbestmatch.is_above_or_to_left(this, other)
         self.assertEqual(result, False)
 
 
@@ -111,7 +114,7 @@ class TestIsAboveOrToLeft(unittest.TestCase):
         other = DummyCtrl(15, 25, 120, 40)
         this = DummyCtrl(10, 20, 20, 40)
 
-        result = findbestmatch.IsAboveOrToLeft(this, other)
+        result = findbestmatch.is_above_or_to_left(this, other)
         self.assertEqual(result, False)
 
 

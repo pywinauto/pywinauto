@@ -7,7 +7,7 @@ import pythoncom, pyHook
 mouse_mapping = {
     'mouse move': None,
     'mouse right down': True,
-    'mouse right up': ("RightClickInput"),
+    'mouse right up': ("right_click_input"),
     'mouse left down': True,
     'mouse left up': None,
     'mouse wheel': None,
@@ -45,7 +45,7 @@ def OnMouseEvent(event):
     toplevel = ""
     if wrapped and not wrapped.IsDialog():
         toplevel = '.Window_(title = "%s", class_name = "%s")' %(
-            wrapped.TopLevelParent().WindowText(), wrapped.TopLevelParent().Class())
+            wrapped.TopLevelParent().window_text(), wrapped.TopLevelParent().class_name())
 
     if "up" in event.MessageName and "down" in last_message:
         print "time.sleep(%d)"% (event.Time - last_event_time)
@@ -97,8 +97,8 @@ def OnKeyboardEvent(event):
     if "down" in event.MessageName:
         print "time.sleep(%d)"% (event.Time - last_event_time)
         print 'app.Window_(title = "%s", class_name = "%s").Typekeys("%s")'%(
-            wrapped.WindowText(),
-            wrapped.Class(),
+            wrapped.window_text(),
+            wrapped.class_name(),
             `event.Key`)
 
     last_event_time = event.Time

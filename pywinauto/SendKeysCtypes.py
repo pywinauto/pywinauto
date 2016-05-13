@@ -33,6 +33,7 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32api
+import win32con
 
 from . import six
 from . import win32structures
@@ -263,6 +264,12 @@ class KeyAction(object):
         #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
+    def get_key_info(self):
+        """Return virtual_key, scan_code, and flags for the action
+
+        This is one of the methods that will be overridden by sub classes"""
+        return self._get_key_info()
+
     def GetInput(self):
         "Build the INPUT structure for the action"
         actions = 1
@@ -352,10 +359,8 @@ class VirtualKeyAction(KeyAction):
 
         # copied more or less verbatim from 
         # http://www.pinvoke.net/default.aspx/user32.sendinput
-        if (
-            (self.key >= 33 and self.key <= 46) or 
-            (self.key >= 91 and self.key <= 93) ):
-            flags = KEYEVENTF_EXTENDEDKEY;
+        if 33 <= self.key <= 46 or 91 <= self.key <= 93:
+            flags = KEYEVENTF_EXTENDEDKEY
         else:
             flags = 0
         # This works for %{F4} - ALT + F4
@@ -518,9 +523,9 @@ def parse_keys(string,
         # so it is a normal character
         else:
             # don't output white space unless flags to output have been set
-            if (c == ' ' and not with_spaces or
-                c == '\t' and not with_tabs or
-                c == '\n' and not with_newlines):
+            if (c == ' ' and not with_spaces or \
+                    c == '\t' and not with_tabs or \
+                    c == '\n' and not with_newlines):
                 continue
             
             # output newline

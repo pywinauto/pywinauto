@@ -1,5 +1,8 @@
-nose
 pypiwin32
 Pillow==3.0.0
 coverage
+nose
 codecov
+rst2pdf
+Sphinx
+mock==2.0.0

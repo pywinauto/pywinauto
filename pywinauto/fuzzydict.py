@@ -56,19 +56,21 @@ KeyError: "'There'. closest match: 'hello' with ratio 0.400"
 """
 from __future__ import unicode_literals
 
-__revision__ = "$Rev$"
-
 import difflib
 
 class FuzzyDict(dict):
-    "Provides a dictionary that performs fuzzy lookup"
+
+    """Provides a dictionary that performs fuzzy lookup"""
+
     def __init__(self, items = None, cutoff = .6):
-        """Construct a new FuzzyDict instance
+        """
+        Construct a new FuzzyDict instance
 
         items is an dictionary to copy items from (optional)
         cutoff is the match ratio below which mathes should not be considered
         cutoff needs to be a float between 0 and 1 (where zero is no match
-        and 1 is a perfect match)"""
+        and 1 is a perfect match).
+        """
         super(FuzzyDict, self).__init__()
 
         if items:
@@ -83,10 +85,11 @@ class FuzzyDict(dict):
             super(FuzzyDict,self).__getitem__(key)
 
     def _search(self, lookfor, stop_on_first = False):
-        """Returns the value whose key best matches lookfor
+        """
+        Returns the value whose key best matches lookfor
 
         if stop_on_first is True then the method returns as soon
-        as it finds the first item
+        as it finds the first item.
         """
 
         # if the item is in the dictionary then just return it
@@ -115,7 +118,7 @@ class FuzzyDict(dict):
             # string - if it cannot be fuzzy matched and we are here
             # this it is defintely not in the dictionary
             try:
-            # calculate the match value
+                # calculate the match value
                 ratio = ratio_calc.ratio()
             except TypeError:
                 break
@@ -135,46 +138,44 @@ class FuzzyDict(dict):
             best_match,
             best_ratio)
 
-
     def __contains__(self, item):
-        "Overides Dictionary __contains__ to use fuzzy matching"
+        """Overides Dictionary __contains__ to use fuzzy matching"""
         if self._search(item, True)[0]:
             return True
         else:
             return False
 
     def __getitem__(self, lookfor):
-        "Overides Dictionary __getitem__ to use fuzzy matching"
+        """Overides Dictionary __getitem__ to use fuzzy matching"""
         matched, key, item, ratio = self._search(lookfor)
 
         if not matched:
-            raise KeyError(
-                "'%s'. closest match: '%s' with ratio %.3f"%
-                    (str(lookfor), str(key), ratio))
+            raise KeyError("'{0}'. closest match: '{1}' with ratio {2}".\
+                format(str(lookfor), str(key), ratio))
 
         return item
-
 
 
 if __name__ == '__main__':
     import unittest
 
     class FuzzyTestCase(unittest.TestCase):
-        "Perform some tests"
+        
+        """Perform some tests"""
+        
         test_dict = {
             'Hiya'  : 1,
             'hiy\xe4' : 2,
             'test3' : 3,
             1: 324}
 
-
-        def testCreation_Empty(self):
-            "Verify that not specifying any values creates an empty dictionary"
+        def test_creation_empty(self):
+            """Verify that not specifying any values creates an empty dictionary"""
             fd = FuzzyDict()
 
             self.assertEquals(fd, {})
 
-        def testCreation_Dict(self):
+        def test_creation_dict(self):
             "Test creating a fuzzy dict"
             fd = FuzzyDict(self.test_dict)
             self.assertEquals(fd, self.test_dict)
@@ -185,7 +186,7 @@ if __name__ == '__main__':
             self.assertRaises(KeyError, fd2.__getitem__, 'hiya')
 
 
-        def testContains(self):
+        def test_contains(self):
             "Test checking if an item is in a FuzzyDict"
             fd = FuzzyDict(self.test_dict)
 
@@ -202,7 +203,7 @@ if __name__ == '__main__':
             self.assertEquals(False, fd.__contains__(23))
 
 
-        def testGetItem(self):
+        def test_get_item(self):
             "Test getting items from a FuzzyDict"
             fd = FuzzyDict(self.test_dict)
 

@@ -22,12 +22,13 @@
 """Tests for Menu"""
 
 import sys, os
+import unittest
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.controls.menuwrapper import MenuItemNotEnabled
+from pywinauto import backend
 
-import unittest
 
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -42,7 +43,6 @@ class MenuWrapperTests(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
 
-        # start the application
         self.app = Application()
         self.app.start("Notepad.exe")
 
@@ -72,21 +72,21 @@ class MenuWrapperTests(unittest.TestCase):
                           [item.Text() for item in self.dlg.Menu().Items()])
 
     def testFriendlyClassName(self):
-        self.assertEquals('MenuItem', self.dlg.Menu().Item(0).FriendlyClassName())
+        self.assertEquals('MenuItem', self.dlg.Menu().Item(0).friendly_class_name())
 
     def testMenuItemNotEnabled(self):
         self.assertRaises(MenuItemNotEnabled, self.dlg.MenuSelect, 'Edit->Find Next')
         self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').Click)
-        self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').ClickInput)
+        self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').click_input)
 
     def testGetProperties(self):
-        self.assertEquals({u'MenuItems': [{u'Index': 0, u'State': 0, u'Type': 0, u'ID': 64, u'Text': u'View &Help'},
-                                          {u'Index': 1, u'State': 3, u'Type': 2048, u'ID': 0, u'Text': u''},
-                                          {u'Index': 2, u'State': 0, u'Type': 0, u'ID': 65, u'Text': u'&About Notepad'}]},
+        self.assertEquals({u'menu_items': [{u'index': 0, u'state': 0, u'item_type': 0, u'item_id': 64, u'text': u'View &Help'},
+                                           {u'index': 1, u'state': 3, u'item_type': 2048, u'item_id': 0, u'text': u''},
+                                           {u'index': 2, u'state': 0, u'item_type': 0, u'item_id': 65, u'text': u'&About Notepad'}]},
                           self.dlg.Menu().GetMenuPath('Help')[0].SubMenu().GetProperties())
 
     def testGetMenuPath(self):
-        #print('ID = ' + str(self.dlg.Menu().GetMenuPath('Help->#3')[0].ID()))
+        #print('id = ' + str(self.dlg.Menu().GetMenuPath('Help->#3')[0].id()))
         self.assertEquals(u'&About Notepad', self.dlg.Menu().GetMenuPath('Help->#2')[-1].Text())
         self.assertEquals(u'&About Notepad', self.dlg.Menu().GetMenuPath('Help->$65')[-1].Text())
         self.assertEquals(u'&About Notepad', self.dlg.Menu().GetMenuPath('&Help->&About Notepad', exact=True)[-1].Text())
@@ -104,7 +104,7 @@ class MenuWrapperTests(unittest.TestCase):
         About.WaitNot('visible')
 
     def testClickInput(self):
-        self.dlg.Menu().GetMenuPath('&Help->&About Notepad')[-1].ClickInput()
+        self.dlg.Menu().GetMenuPath('&Help->&About Notepad')[-1].click_input()
         About = self.app.Window_(title='About Notepad')
         About.Wait('ready')
         About.OK.Click()
@@ -119,7 +119,6 @@ class OwnerDrawnMenuTests(unittest.TestCase):
         is in the state we want it."""
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
-
         self.dlg = self.app.BCDialogMenu
 
     def tearDown(self):

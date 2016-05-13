@@ -29,6 +29,7 @@ sys.path.append(".")
 from pywinauto import actionlogger
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto import backend
 
 
 def _notepad_exe():
@@ -65,7 +66,7 @@ class ActionloggerTestCases(unittest.TestCase):
     def testEnableDisable(self):
         actionlogger.enable()
         prev_line_count = self.__lineCount()
-        self.app.UntitledNotepad.TypeKeys('Test pywinauto logging', with_spaces=True)
+        self.app.UntitledNotepad.type_keys('Test pywinauto logging', with_spaces=True)
         self.assertEquals(self.__lineCount(), prev_line_count+1)
         
         actionlogger.disable()

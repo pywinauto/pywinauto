@@ -29,7 +29,12 @@ __version__ = "0.5.4"
 
 from . import findwindows
 WindowAmbiguousError = findwindows.WindowAmbiguousError
-WindowNotFoundError = findwindows.WindowNotFoundError
+ElementNotFoundError = findwindows.ElementNotFoundError
+
+from .sysinfo import UIA_support
+if UIA_support:
+    ElementNotFoundError = findwindows.ElementNotFoundError
+    ElementAmbiguousError = findwindows.ElementAmbiguousError
 
 from . import findbestmatch
 MatchError = findbestmatch.MatchError

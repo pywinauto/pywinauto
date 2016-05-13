@@ -61,22 +61,22 @@ time.sleep(10)
 ie =  app.window_(title_re = ".*Windows Internet Explorer.*")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
-print("No Menu's in IE:", ie.MenuItems())
-print("They are implemented as a toolbar:", ie.Toolbar3.Texts())
+print("No Menu's in IE:", ie.menu_items())
+print("They are implemented as a toolbar:", ie.Toolbar3.texts())
 
-ie.TypeKeys("%FA")
-#ie.Toolbar3.PressButton("File")
-app.SaveWebPage.Edit.SetEditText(os.path.join(r"c:\.temp",outputfilename))
+ie.type_keys("%FA")
+#ie.Toolbar3.press_button("File")
+app.SaveWebPage.Edit.set_edit_text(os.path.join(r"c:\.temp", outputfilename))
 
 
-app.SaveWebPage.Save.CloseClick()
+app.SaveWebPage.Save.close_click()
 
 # if asked to overwrite say yes
 if app.SaveWebPage.Yes.Exists():
-    app.SaveWebPage.Yes.CloseClick()
+    app.SaveWebPage.Yes.close_click()
 
 print("saved:", outputfilename)
 
 # quit IE
-ie.TypeKeys("%FC")
+ie.type_keys("%FC")
 
