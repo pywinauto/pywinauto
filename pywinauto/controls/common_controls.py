@@ -3535,6 +3535,8 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return result
 
     # ----------------------------------------------------------------
+    #TODO create method get_color in future
+    '''
     def get_color(self, place_of_color):
         """
         Return color of place in calendar, which you specify.
@@ -3547,6 +3549,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             return self.send_message(win32defines.MCM_GETCOLOR, self.place_in_calendar[place_of_color], 0)
         else:
             raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+    '''
 
     def set_today(self, year, month, day):
         """Set today date"""
