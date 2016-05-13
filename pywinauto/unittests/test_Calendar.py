@@ -220,27 +220,32 @@ class CalendarWrapperTests(unittest.TestCase):
 
         self.assertEquals(win32defines.MCHT_CALENDARWEEKNUM, res)
 
-    def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):
-        self.assertEqual(systemTime.wYear, now.year)
-        self.assertEqual(systemTime.wMonth, now.month)
-        self.assertEqual(systemTime.wDay, now.day)
+    def test_should_throw_runtime_error_when_try_to_set_invalid_type_of_calendar(self):
+        self.assertRaises(ValueError, self.calendar.set_id, 'Aloha!')
 
-    def _get_expected_minimized_rectangle(self):
-        expected_rect = win32structures.RECT()
-        expected_rect.left = 0
-        expected_rect.top = 0
-        expected_rect.right = self.width
-        expected_rect.bottom = self.height
-        return expected_rect
+    def test_should_get_valid_type_of_calendar(self):
+        self.assertEqual(self.calendar.get_id(), 0)
 
-    def _set_calendar_state_to_display_day_states(self):
-        self.app['Common Controls Sample']['MCS_DAYSTATE'].Click()
+    def test_should_throw_runtime_error_when_try_to_set_invalid_type_of_place_for_color(self):
+        self.assertRaises(ValueError, self.calendar.set_color, 'Aloha!', 0, 0, 0)
 
-    def _set_calendar_state_to_display_week_numbers(self):
-        self.app['Common Controls Sample']['MCS_WEEKNUMBERS'].Click()
+    # TODO create tests for get_color in future
+    '''
+    def test_return_zero_when_color_not_set_early(self):
+        self.assertEqual(self.calendar.get_color('text'), 0)
+    '''
 
-    def _set_calendar_state_into_multiselect(self):
-        self.app['Common Controls Sample']['MCS_MULTISELECT'].Click()
+    '''
+    def test_should_get_valid_calendar_color(self):
+        self.calendar.set_color('text', 5, 5, 5)
+        self.assertEqual(self.calendar.get_color('text'), 328965)
+    '''
+
+    def test_return_error_about_color(self):
+        self.assertRaises(RuntimeError, self.calendar.set_color, 'background', -1, -1, -1)
+
+    def test_return_error_when_color_hire_then_255(self):
+        self.assertRaises(RuntimeError, self.calendar.set_color, 'background', 600, 600, 600)
 
     def test_can_get_today(self):
         """Test getting the control's today field"""
@@ -257,6 +262,30 @@ class CalendarWrapperTests(unittest.TestCase):
         """Test can set and get first day of the week"""
         self.calendar.set_first_weekday(4)
         self.assertEqual((True,4), self.calendar.get_first_weekday())
+
+    def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):
+        self.assertEqual(systemTime.wYear, now.year)
+        self.assertEqual(systemTime.wMonth, now.month)
+        self.assertEqual(systemTime.wDay, now.day)
+
+    def _get_expected_minimized_rectangle(self):
+        expected_rect = win32structures.RECT()
+        expected_rect.left = 0
+        expected_rect.top = 0
+        expected_rect.right = self.width
+        expected_rect.bottom = self.height
+        return expected_rect
+
+    def _set_calendar_state_to_display_day_states(self):
+        self.app['Common Controls Sample']['MCS_DAYSTATE'].Click()
+
+
+    def _set_calendar_state_to_display_week_numbers(self):
+        self.app['Common Controls Sample']['MCS_WEEKNUMBERS'].Click()
+
+
+    def _set_calendar_state_into_multiselect(self):
+        self.app['Common Controls Sample']['MCS_MULTISELECT'].Click()
 
 if __name__ == "__main__":
     unittest.main()
