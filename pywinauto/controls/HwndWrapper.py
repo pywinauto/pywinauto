@@ -1214,9 +1214,7 @@ class HwndWrapper(BaseWrapper):
         return self
 
     def has_keyboard_focus(self):
-        """
-        Check the keyboard focus on this control.
-        """
+        """Check the keyboard focus on this control."""
         control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
         focused = win32gui.GetFocus()
@@ -1227,13 +1225,10 @@ class HwndWrapper(BaseWrapper):
         return self.handle == focused
 
     def set_keyboard_focus(self):
-        """
-        Set the keyboard focus to this control.
-        """
+        """Set the keyboard focus to this control."""
         control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
         win32gui.SetFocus(self.handle)
-        control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
 
         win32functions.WaitGuiThreadIdle(self)
