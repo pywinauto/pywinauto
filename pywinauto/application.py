@@ -839,37 +839,42 @@ class Application(object):
 
     def connect(self, **kwargs):
         """Connects to an already running process"""
-        connected = False
 
+        def get_connected(self, **kwargs):
+
+            if 'process' in kwargs:
+                self.process = kwargs['process']
+                assert_valid_process(self.process)
+                connected = True
+
+            elif 'handle' in kwargs:
+
+                if not handleprops.iswindow(kwargs['handle']):
+                    message = "Invalid handle 0x%x passed to connect()" % (
+                        kwargs['handle'])
+                    raise RuntimeError(message)
+
+                self.process = handleprops.processid(kwargs['handle'])
+
+                connected = True
+
+            elif 'path' in kwargs:
+                self.process = process_from_module(kwargs['path'])
+                connected = True
+
+            elif kwargs:
+                kwargs['backend'] = self.backend.name
+                self.process = findwindows.find_element(**kwargs).process_id
+                connected = True
+
+            return connected
+
+        timeout = Timings.app_start_timeout
         if 'timeout' in kwargs:
             timeout = float(kwargs['timeout'])
             del kwargs['timeout']
-            wait_until_passes(timeout, Timings.app_connect_retry, partial(self.connect, **kwargs), (ValueError, ProcessNotFoundError, RuntimeError))
 
-        if 'process' in kwargs:
-            self.process = kwargs['process']
-            assert_valid_process(self.process)
-            connected = True
-
-        elif 'handle' in kwargs:
-
-            if not handleprops.iswindow(kwargs['handle']):
-                message = "Invalid handle 0x%x passed to connect()" % (
-                    kwargs['handle'])
-                raise RuntimeError(message)
-
-            self.process = handleprops.processid(kwargs['handle'])
-
-            connected = True
-
-        elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'])
-            connected = True
-
-        elif kwargs:
-            kwargs['backend'] = self.backend.name
-            self.process = findwindows.find_element(**kwargs).process_id
-            connected = True
+        connected = wait_until_passes(timeout, Timings.app_connect_retry, partial(get_connected, self = self, **kwargs), (ValueError, ProcessNotFoundError, RuntimeError))
 
         if not connected:
             raise RuntimeError(
@@ -880,6 +885,9 @@ class Application(object):
         return self
 
     Connect = connect
+
+
+
 
     def __start(self, *args, **kwargs):
         """
