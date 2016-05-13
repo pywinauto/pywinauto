@@ -850,8 +850,7 @@ class Application(object):
             elif 'handle' in kwargs:
 
                 if not handleprops.iswindow(kwargs['handle']):
-                    message = "Invalid handle 0x%x passed to connect()" % (
-                        kwargs['handle'])
+                    message = "Invalid handle 0x%x passed to connect()" % (kwargs['handle'])
                     raise RuntimeError(message)
 
                 self.process = handleprops.processid(kwargs['handle'])
