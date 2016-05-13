@@ -3388,6 +3388,16 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
+
+    place_in_calendar = {
+        'background': win32defines.MCSC_BACKGROUND,
+        'month_background': win32defines.MCSC_MONTHBK,
+        'text': win32defines.MCSC_TEXT,
+        'title_background': win32defines.MCSC_TITLEBK,
+        'title_text': win32defines.MCSC_TITLETEXT,
+        'trailing_text': win32defines.MCSC_TRAILINGTEXT
+    }
+
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         """Initialise the instance"""
@@ -3461,6 +3471,86 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
             raise RuntimeError('Failed to set view in Calendar')
 
     # ----------------------------------------------------------------
+    def set_id(self, ID):
+        """
+        Set the calendar type.
+
+        Receive only one parameter, which takes variants below:
+        'gregorian', 'gregorian_us', 'japan', 'taiwan', 'korea',
+        'hijri', 'thai', 'hebrew', 'gregorian_me_french',
+        'gregorian_arabic', 'gregorian_english_xlit',
+        'gregorian_french_xlit', 'umalqura'
+        """
+
+        dict_types = {
+            'gregorian': win32defines.CAL_GREGORIAN,
+            'gregorian_us': win32defines.CAL_GREGORIAN_US,
+            'japan': win32defines.CAL_JAPAN,
+            'taiwan': win32defines.CAL_TAIWAN,
+            'korea': win32defines.CAL_KOREA,
+            'hijri': win32defines.CAL_HIJRI,
+            'thai': win32defines.CAL_THAI,
+            'hebrew': win32defines.CAL_HEBREW,
+            'gregorian_me_french': win32defines.CAL_GREGORIAN_ME_FRENCH,
+            'gregorian_arabic': win32defines.CAL_GREGORIAN_ARABIC,
+            'gregorian_english_xlit': win32defines.CAL_GREGORIAN_XLIT_ENGLISH,
+            'gregorian_french_xlit': win32defines.CAL_GREGORIAN_XLIT_FRENCH,
+            'umalqura': win32defines.CAL_UMALQURA
+        }
+        if ID in dict_types:
+            self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
+        else:
+            raise ValueError('Incorrect calendar ID (use one of {0})'.format(dict_types.keys()))
+
+    # ----------------------------------------------------------------
+    def get_id(self):
+        """Get type of calendar"""
+        return self.send_message(win32defines.MCM_GETCALID, 0, 0)
+
+    # ----------------------------------------------------------------
+    def set_color(self, place_of_color, red, green, blue):
+        """
+        Set some color in some place of calendar which you specify.
+
+        Receive four parameters:
+        - The first parameter may take few variants below:
+        'background', 'month_background', 'text', 'title_background',
+        'title_text', 'trailing_text' ;
+        - All other parameters should be integer from 0 to 255.
+        """
+
+        if not (0 <= red <= 255):
+            raise RuntimeError('Incorrect range of red color, must be from 0 to 255')
+        if not (0 <= green <= 255):
+            raise RuntimeError('Incorrect range of green color, must be from 0 to 255')
+        if not (0 <= blue <= 255):
+            raise RuntimeError('Incorrect range of blue color, must be from 0 to 255')
+        color = (red << 16) | (green << 8) | blue
+        if place_of_color in self.place_in_calendar:
+            result = self.send_message(win32defines.MCM_SETCOLOR, self.place_in_calendar[place_of_color], color)
+        else:
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+        if result == -1:
+            raise RuntimeError('Incorrect color')
+        return result
+
+    # ----------------------------------------------------------------
+    #TODO create method get_color in future
+    '''
+    def get_color(self, place_of_color):
+        """
+        Return color of place in calendar, which you specify.
+
+        Receive only one parameter, which takes variants below:
+        'background', 'month_background', 'text', 'title_background', 'title_text', 'trailing_text'
+        """
+
+        if place_of_color in self.place_in_calendar:
+            return self.send_message(win32defines.MCM_GETCOLOR, self.place_in_calendar[place_of_color], 0)
+        else:
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+    '''
+
     def set_today(self, year, month, day):
         """Set today date"""
         remote_mem = RemoteMemoryBlock(self)
@@ -3510,8 +3600,6 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return (win32functions.HiWord(res), win32functions.LoWord(res))
 
 #====================================================================
-
-
 class PagerWrapper(HwndWrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
 
