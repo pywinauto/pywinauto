@@ -67,6 +67,7 @@ import win32con
 import win32event
 import multiprocessing
 
+from functools import partial
 
 from . import controls
 from . import findbestmatch
@@ -75,7 +76,7 @@ from . import handleprops
 from .backend import registry
 
 from .actionlogger import ActionLogger
-from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses, wait_until_passes
 from .sysinfo import is_x64_Python
 
 
@@ -838,31 +839,41 @@ class Application(object):
 
     def connect(self, **kwargs):
         """Connects to an already running process"""
-        connected = False
-        if 'process' in kwargs:
-            self.process = kwargs['process']
-            assert_valid_process(self.process)
-            connected = True
 
-        elif 'handle' in kwargs:
+        def get_connected(self, **kwargs):
 
-            if not handleprops.iswindow(kwargs['handle']):
-                message = "Invalid handle 0x%x passed to connect()" % (
-                    kwargs['handle'])
-                raise RuntimeError(message)
+            if 'process' in kwargs:
+                self.process = kwargs['process']
+                assert_valid_process(self.process)
+                connected = True
 
-            self.process = handleprops.processid(kwargs['handle'])
+            elif 'handle' in kwargs:
 
-            connected = True
+                if not handleprops.iswindow(kwargs['handle']):
+                    message = "Invalid handle 0x%x passed to connect()" % (kwargs['handle'])
+                    raise RuntimeError(message)
 
-        elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'])
-            connected = True
+                self.process = handleprops.processid(kwargs['handle'])
 
-        elif kwargs:
-            kwargs['backend'] = self.backend.name
-            self.process = findwindows.find_element(**kwargs).process_id
-            connected = True
+                connected = True
+
+            elif 'path' in kwargs:
+                self.process = process_from_module(kwargs['path'])
+                connected = True
+
+            elif kwargs:
+                kwargs['backend'] = self.backend.name
+                self.process = findwindows.find_element(**kwargs).process_id
+                connected = True
+
+            return connected
+
+        timeout = Timings.app_start_timeout
+        if 'timeout' in kwargs:
+            timeout = float(kwargs['timeout'])
+            del kwargs['timeout']
+
+        connected = wait_until_passes(timeout, Timings.app_connect_retry, partial(get_connected, self = self, **kwargs), (ValueError, ProcessNotFoundError, RuntimeError))
 
         if not connected:
             raise RuntimeError(
@@ -873,6 +884,9 @@ class Application(object):
         return self
 
     Connect = connect
+
+
+
 
     def __start(self, *args, **kwargs):
         """

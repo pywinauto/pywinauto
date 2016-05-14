@@ -68,7 +68,6 @@ def _notepad_exe():
     else:
         return r"C:\Windows\SysWOW64\notepad.exe"
 
-
 class ApplicationWarningTestCases(unittest.TestCase):
 
     """Unit tests for warnings in the application.Application class"""
@@ -564,6 +563,75 @@ class ApplicationTestCases(unittest.TestCase):
         app.kill_()
 
         self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
+
+
+    def test_connect_timeout(self):
+        """Test that connect_() works with a timeout"""
+
+        app1 = Application()
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+        app1.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        app_conn = Application()
+        app_conn.connect(process=app1.process, timeout = 2)
+        self.assertEqual(app1.process, app_conn.process)
+
+    def test_connect_timeout_error(self):
+        """Test that connect_() works with a timeout error"""
+
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
+        path = os.path.join(mfc_samples_folder, u"ttttt1.exe")
+
+        app_conn = Application()
+        self.assertRaises(TimeoutError, app_conn.connect, path=path, timeout=2)
+
+    def test_connect_default_timeout(self):
+        """Test that connect_() works with a default timeout"""
+
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
+        app1 = Application()
+        app1.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+
+        app_conn = Application()
+        app_conn.connect(process=app1.process, timeout = 2)
+        self.assertEqual(app1.process, app_conn.process)
+
+    def test_connect_timeout_incorrect(self):
+        """Test that connect_() works with a timeout incorrect"""
+
+        app_conn = Application()
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
+        self.assertRaises(
+            ValueError,
+            app_conn.connect, **{'path' : os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"), 'timeout' :"1.0a"})
+
+
+    def test_connect_with_App(self):
+
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+        self.app1 = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
+        self.app.connect(path=os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"), timeout=10)
+        self.assertEqual(self.app.process, self.app1.process)
 
 
 class WindowSpecificationTestCases(unittest.TestCase):
