@@ -49,8 +49,8 @@ from .. import win32functions
 from .. import win32defines
 from .. import win32structures
 from .. import findbestmatch
-from ..RemoteMemoryBlock import RemoteMemoryBlock
-from . import HwndWrapper
+from ..remote_memory_block import RemoteMemoryBlock
+from . import hwndwrapper
 
 from ..timings import Timings
 from ..timings import WaitUntil
@@ -645,15 +645,15 @@ class _listview_item(object):
 
 
 #====================================================================
-class ListViewWrapper(HwndWrapper.HwndWrapper):
+class ListViewWrapper(hwndwrapper.HwndWrapper):
     """Class that wraps Windows ListView common control
 
     This class derives from HwndWrapper - so has all the methods o
     that class also
 
-    **see** HwndWrapper.HwndWrapper_
+    **see** hwndwrapper.HwndWrapper_
 
-    .. _HwndWrapper.HwndWrapper: class-pywinauto.controls.HwndWrapper.HwndWrapper.html
+    .. _hwndwrapper.HwndWrapper: class-pywinauto.controls.hwndwrapper.HwndWrapper.html
 
     """
 
@@ -730,13 +730,10 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def get_header_control(self):
         "Returns the Header control associated with the ListView"
-        #from wraphandle import WrapHandle
-        #from HwndWrapper import WrapHandle
-
         try:
-            return HwndWrapper.HwndWrapper(
+            return hwndwrapper.HwndWrapper(
                 self.send_message(win32defines.LVM_GETHEADER))
-        except HwndWrapper.InvalidWindowHandle:
+        except hwndwrapper.InvalidWindowHandle:
             return None
     # Non PEP-8 alias
     GetHeaderControl = get_header_control
@@ -1397,7 +1394,7 @@ class _treeview_element(object):
 
 
 #====================================================================
-class TreeViewWrapper(HwndWrapper.HwndWrapper):
+class TreeViewWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows TreeView common control"
 
     friendlyclassname = "TreeView"
@@ -1700,7 +1697,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class HeaderWrapper(HwndWrapper.HwndWrapper):
+class HeaderWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ListView Header common control "
 
     friendlyclassname = "Header"
@@ -1840,7 +1837,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class StatusBarWrapper(HwndWrapper.HwndWrapper):
+class StatusBarWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Status Bar common control "
 
     friendlyclassname = "StatusBar"
@@ -2018,7 +2015,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class TabControlWrapper(HwndWrapper.HwndWrapper):
+class TabControlWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Tab common control "
 
     friendlyclassname = "TabControl"
@@ -2414,7 +2411,7 @@ class _toolbar_button(object):
     ClickInput = click_input
 
 #====================================================================
-class ToolbarWrapper(HwndWrapper.HwndWrapper):
+class ToolbarWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Toolbar common control "
 
     friendlyclassname = "Toolbar"
@@ -2848,7 +2845,7 @@ class BandWrapper(win32structures.REBARBANDINFOW):
     pass
 
 #====================================================================
-class ReBarWrapper(HwndWrapper.HwndWrapper):
+class ReBarWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ReBar common control "
 
     friendlyclassname = "ReBar"
@@ -3006,7 +3003,7 @@ class ToolTip(object):
 
 
 #====================================================================
-class ToolTipsWrapper(HwndWrapper.HwndWrapper):
+class ToolTipsWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ToolTips common control (not fully implemented)"
 
     # mask this class as it is not ready for prime time yet!
@@ -3020,7 +3017,6 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the instance"
-        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(ToolTipsWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
@@ -3059,7 +3055,7 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class UpDownWrapper(HwndWrapper.HwndWrapper):
+class UpDownWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows UpDown common control "
 
     friendlyclassname = "UpDown"
@@ -3070,7 +3066,6 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
-        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(UpDownWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
@@ -3114,7 +3109,7 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
         #from wraphandle import WrapHandle
         #from HwndWrapper import WrapHandle
         buddy_handle = self.send_message(win32defines.UDM_GETBUDDY)
-        return HwndWrapper.HwndWrapper(buddy_handle)
+        return hwndwrapper.HwndWrapper(buddy_handle)
     # Non PEP-8 alias
     GetBuddyControl = get_buddy_control
 
@@ -3164,7 +3159,8 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class TrackbarWrapper(HwndWrapper.HwndWrapper):
+class TrackbarWrapper(hwndwrapper.HwndWrapper):
+
     """Class that wraps Windows Trackbar common control """
 
     friendlyclassname = "Trackbar"
@@ -3261,7 +3257,7 @@ class TrackbarWrapper(HwndWrapper.HwndWrapper):
         return self.send_message(win32defines.TBM_GETSELEND)
 
 #====================================================================
-class AnimationWrapper(HwndWrapper.HwndWrapper):
+class AnimationWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Animation common control "
 
     friendlyclassname = "Animation"
@@ -3273,7 +3269,7 @@ class AnimationWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class ComboBoxExWrapper(HwndWrapper.HwndWrapper):
+class ComboBoxExWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ComboBoxEx common control "
 
     friendlyclassname = "ComboBoxEx"
@@ -3286,7 +3282,7 @@ class ComboBoxExWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
+class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows DateTimePicker common control "
 
     friendlyclassname = "DateTimePicker"
@@ -3353,7 +3349,7 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class HotkeyWrapper(HwndWrapper.HwndWrapper):
+class HotkeyWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Hotkey common control "
 
     friendlyclassname = "Hotkey"
@@ -3366,7 +3362,7 @@ class HotkeyWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class IPAddressWrapper(HwndWrapper.HwndWrapper):
+class IPAddressWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows IPAddress common control "
 
     friendlyclassname = "IPAddress"
@@ -3380,7 +3376,7 @@ class IPAddressWrapper(HwndWrapper.HwndWrapper):
 
 #====================================================================
 
-class CalendarWrapper(HwndWrapper.HwndWrapper):
+class CalendarWrapper(hwndwrapper.HwndWrapper):
     
     """Class that wraps Windows Calendar common control"""
 
@@ -3402,7 +3398,6 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         """Initialise the instance"""
-        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(CalendarWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
@@ -3652,7 +3647,7 @@ class CalendarWrapper(HwndWrapper.HwndWrapper):
         return (win32functions.HiWord(res), win32functions.LoWord(res))
 
 #====================================================================
-class PagerWrapper(HwndWrapper.HwndWrapper):
+class PagerWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
 
     friendlyclassname = "Pager"
@@ -3678,7 +3673,7 @@ class PagerWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class ProgressWrapper(HwndWrapper.HwndWrapper):
+class ProgressWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Progress common control "
 
     friendlyclassname = "Progress"
@@ -3730,7 +3725,7 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 
 #
 ##
-###HwndWrapper._HwndWrappers["ComboBoxEx32"] = ComboBoxEx
+###hwndwrapper._HwndWrappers["ComboBoxEx32"] = ComboBoxEx
 ##
 
 

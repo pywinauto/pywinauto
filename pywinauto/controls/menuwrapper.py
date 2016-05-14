@@ -40,7 +40,7 @@ from .. import win32defines
 from .. import findbestmatch
 from .. import six
 from .. import mouse
-from ..RemoteMemoryBlock import RemoteMemoryBlock
+from ..remote_memory_block import RemoteMemoryBlock
 from ..timings import Timings
 
 class MenuItemInfo(object):

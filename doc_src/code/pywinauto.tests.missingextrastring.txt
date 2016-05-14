@@ -1,6 +1,0 @@
-pywinauto.tests.missingextrastring
-----------------------------------
- .. automodule:: pywinauto.tests.missingextrastring
-    :members:
-    :undoc-members:
-

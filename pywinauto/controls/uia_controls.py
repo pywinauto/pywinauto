@@ -35,12 +35,12 @@ import locale
 
 from .. import six
 
-from . import UIAWrapper
+from . import uiawrapper
 from ..uia_defines import IUIA
 
 
 #====================================================================
-class ButtonWrapper(UIAWrapper.UIAWrapper):
+class ButtonWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
@@ -130,7 +130,7 @@ class ButtonWrapper(UIAWrapper.UIAWrapper):
         return self.iface_selection_item.CurrentIsSelected
 
 #====================================================================
-class ComboBoxWrapper(UIAWrapper.UIAWrapper):
+class ComboBoxWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA CoboBox control"""
 
@@ -217,7 +217,7 @@ class ComboBoxWrapper(UIAWrapper.UIAWrapper):
 
 
 #====================================================================
-class EditWrapper(UIAWrapper.UIAWrapper):
+class EditWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Edit control"""
     # TODO: this class supports only 1-line textboxes so there is no point
@@ -397,7 +397,7 @@ class EditWrapper(UIAWrapper.UIAWrapper):
 
 
 #====================================================================
-class SliderWrapper(UIAWrapper.UIAWrapper):
+class SliderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Slider control"""
 

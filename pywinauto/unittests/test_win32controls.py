@@ -29,19 +29,23 @@ import os, sys
 import codecs
 import unittest
 sys.path.append(".")
-from pywinauto import XMLHelpers, win32defines #, six
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto import xml_helpers
+from pywinauto import win32defines
+from pywinauto.sysinfo import is_x64_Python
+from pywinauto.sysinfo import is_x64_OS
 from pywinauto.application import Application
-from pywinauto import backend
 
 # following imports are not required for the tests
 # but are useful for debugging
 #import pprint
 
 from pywinauto.timings import Timings
-Timings.Fast()
-Timings.window_find_timeout = 3
-Timings.closeclick_dialog_close_wait = 2.
+
+def _set_timings_fast():
+    """Set Timings.Fast() and some slower settings for reliability"""
+    Timings.Fast()
+    Timings.window_find_timeout = 3
+    Timings.closeclick_dialog_close_wait = 2.
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
@@ -58,8 +62,8 @@ class ButtonTestCases(unittest.TestCase):
     """Unit tests for the ButtonWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings_fast()
 
         self.app = Application()
         self.app = self.app.Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
@@ -136,11 +140,12 @@ class ButtonTestCases(unittest.TestCase):
 
 
 class CheckBoxTests(unittest.TestCase):
-    "Unit tests for the CheckBox specific methods of the ButtonWrapper class"
+
+    """Unit tests for the CheckBox specific methods of the ButtonWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings_fast()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
@@ -196,8 +201,8 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
     """Unit tests for the ButtonWrapper(ownerdraw button)"""
 
     def setUp(self):
-
         """Start the sample application. Open a tab with ownerdraw button."""
+        _set_timings_fast()
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
         # open the needed tab
@@ -225,8 +230,8 @@ class ComboBoxTestCases(unittest.TestCase):
     """Unit tests for the ComboBoxWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings_fast()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
@@ -311,8 +316,8 @@ class ListBoxTestCases(unittest.TestCase):
     """Unit tests for the ListBoxWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings_fast()
 
         self.app = Application()
 
@@ -399,8 +404,8 @@ class EditTestCases(unittest.TestCase):
     """Unit tests for the EditWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
 
         app = Application()
 
@@ -433,8 +438,7 @@ class EditTestCases(unittest.TestCase):
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
-
+        """Close the application after tests"""
         # set it back to it's old position so not to annoy users :-)
         self.old_pos = self.dlg.rectangle
 
@@ -526,8 +530,8 @@ class UnicodeEditTestCases(unittest.TestCase):
     """Unit tests for the EditWrapper class using Unicode strings"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings_fast()
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
@@ -573,8 +577,8 @@ class DialogTestCases(unittest.TestCase):
     """Unit tests for the DialogWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings_fast()
 
         self.app = Application()
         self.app = self.app.Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
@@ -604,19 +608,19 @@ class DialogTestCases(unittest.TestCase):
     def testRunTests(self):
         """Test running the UI tests on the dialog"""
         bugs = self.cmn_ctrl.RunTests()
-        from pywinauto.controls.HwndWrapper import HwndWrapper
+        from pywinauto.controls.hwndwrapper import HwndWrapper
         self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
 
     def testRunTestsWithReference(self):
         """Add a ref control, get the bugs and validate that the hande"""
         from pywinauto import controlproperties
         ref_controls = [controlproperties.ControlProps(ctrl) for
-                ctrl in XMLHelpers.ReadPropertiesFromFile("ref_controls.xml")]
+                ctrl in xml_helpers.ReadPropertiesFromFile("ref_controls.xml")]
 
         bugs = self.cmn_ctrl.RunTests(ref_controls = ref_controls)
         from pywinauto import tests
         tests.print_bugs(bugs)
-        from pywinauto.controls.HwndWrapper import HwndWrapper
+        from pywinauto.controls.hwndwrapper import HwndWrapper
         self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
 
     def testWriteToXML(self):
@@ -626,7 +630,7 @@ class DialogTestCases(unittest.TestCase):
         all_props = [self.cmn_ctrl.GetProperties()]
         all_props.extend([c.GetProperties() for c in self.cmn_ctrl.children()])
 
-        props = XMLHelpers.ReadPropertiesFromFile("test_output.xml")
+        props = xml_helpers.ReadPropertiesFromFile("test_output.xml")
         for i, ctrl in enumerate(props):
 
             for key, ctrl_value in ctrl.items():
@@ -674,8 +678,8 @@ class PopupMenuTestCases(unittest.TestCase):
     """Unit tests for the PopupMenuWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings_fast()
 
         self.app = Application()
 
@@ -716,23 +720,19 @@ class StaticTestCases(unittest.TestCase):
     """Unit tests for the StaticWrapper class"""
 
     def setUp(self):
-
         """Start the sample application. Open a tab with ownerdraw button."""
+        Timings.Defaults()
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"RebarTest.exe"))
         # open the Help dailog
         self.app.active_().type_keys('%h{ENTER}')
 
     def tearDown(self):
-
         """Close the application after tests"""
-
         self.app.kill_()
 
     def test_NeedsImageProp(self):
-
         """test a regular static has no the image property"""
-
         active_window = self.app.active_()
         self.assertEquals(active_window.Static2._needs_image_prop, False)
         self.assertEquals('image' in active_window.Static2.GetProperties(), False)
@@ -740,9 +740,7 @@ class StaticTestCases(unittest.TestCase):
         # assertIn and assertNotIn are not supported in Python 2.6
 
     def test_NeedsImageProp_ownerdraw(self):
-
         """test whether an image needs to be saved with the properties"""
-
         active_window = self.app.active_()
         self.assertEquals(active_window.Static._needs_image_prop, True)
         self.assertEquals('image' in active_window.Static.GetProperties(), True)

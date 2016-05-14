@@ -27,7 +27,7 @@ sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.controls.menuwrapper import MenuItemNotEnabled
-from pywinauto import backend
+from pywinauto.timings import Timings
 
 
 mfc_samples_folder = os.path.join(
@@ -40,8 +40,8 @@ class MenuWrapperTests(unittest.TestCase):
     "Unit tests for the Menu and the MenuItem classes"
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
 
         self.app = Application()
         self.app.start("Notepad.exe")
@@ -112,17 +112,18 @@ class MenuWrapperTests(unittest.TestCase):
 
 
 class OwnerDrawnMenuTests(unittest.TestCase):
-    "Unit tests for the OWNERDRAW menu items"
+
+    """Unit tests for the OWNERDRAW menu items"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
         self.dlg = self.app.BCDialogMenu
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         self.app.kill_()
 
     def testCorrectText(self):

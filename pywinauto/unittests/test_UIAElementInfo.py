@@ -2,10 +2,13 @@ import unittest
 import os
 from pywinauto.application import Application
 from pywinauto.handleprops import processid 
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
+from pywinauto.sysinfo import is_x64_Python
+from pywinauto.sysinfo import is_x64_OS
+from pywinauto.sysinfo import UIA_support
+from pywinauto.timings import Timings
 
 if UIA_support:
-    from pywinauto.UIAElementInfo import UIAElementInfo
+    from pywinauto.uia_element_info import UIAElementInfo
     from pywinauto import backend
 
 mfc_samples_folder = os.path.join(
@@ -16,11 +19,12 @@ wpf_app_1 = os.path.join(mfc_samples_folder, u"WpfApplication1.exe")
 
 if UIA_support:
     class UIAElementInfoTests(unittest.TestCase):
-        "Unit tests for the UIElementInfo class"
+
+        """Unit tests for the UIElementInfo class"""
 
         def setUp(self):
-            """Start the application set some data and ensure the application
-            is in the state we want it."""
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Slow()
 
             self.app = Application(backend="native")
             self.app = self.app.Start(wpf_app_1)

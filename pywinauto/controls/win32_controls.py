@@ -33,7 +33,7 @@ import win32con
 import win32process
 import locale
 
-from . import HwndWrapper
+from . import hwndwrapper
 
 from .. import sysinfo
 from .. import six
@@ -48,7 +48,7 @@ if sysinfo.UIA_support:
     from ..uia_defines import IUIA
 
 #====================================================================
-class ButtonWrapper(HwndWrapper.HwndWrapper):
+class ButtonWrapper(hwndwrapper.HwndWrapper):
     "Wrap a windows Button control"
 
     friendlyclassname = "Button"
@@ -203,7 +203,7 @@ class ButtonWrapper(HwndWrapper.HwndWrapper):
         #import win32functions
         #win32functions.WaitGuiThreadIdle(self)
         #self.notify_parent(win32defines.BN_CLICKED)
-        HwndWrapper.HwndWrapper.click(self, *args, **kwargs)
+        hwndwrapper.HwndWrapper.click(self, *args, **kwargs)
         #win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_button_click_wait)
 
@@ -267,7 +267,7 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
 
 
 #====================================================================
-class ComboBoxWrapper(HwndWrapper.HwndWrapper):
+class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     "Wrap a windows ComboBox control"
 
     friendlyclassname = "ComboBox"
@@ -382,7 +382,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
     #-----------------------------------------------------------
     def get_properties(self):
         "Return the properties of the control as a dictionary"
-        props = HwndWrapper.HwndWrapper.get_properties(self)
+        props = hwndwrapper.HwndWrapper.get_properties(self)
 
         #props['item_data'] = []
         #for i in range(self.item_count()):
@@ -439,7 +439,7 @@ class ComboBoxWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class ListBoxWrapper(HwndWrapper.HwndWrapper):
+class ListBoxWrapper(hwndwrapper.HwndWrapper):
     "Wrap a windows ListBox control"
 
     friendlyclassname = "ListBox"
@@ -567,7 +567,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 #    #-----------------------------------------------------------
 #    def get_properties(self):
 #        "Return the properties as a dictionary for the control"
-#        props = HwndWrapper.HwndWrapper.get_properties(self)
+#        props = hwndwrapper.HwndWrapper.get_properties(self)
 #
 #        props['item_data'] = []
 #        for i in range(self.item_count()):
@@ -655,7 +655,7 @@ class ListBoxWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class EditWrapper(HwndWrapper.HwndWrapper):
+class EditWrapper(hwndwrapper.HwndWrapper):
     "Wrap a windows Edit control"
 
     friendlyclassname = "Edit"
@@ -764,7 +764,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
         Edit Controls should either use set_edit_text() or type_keys() to modify
         the contents of the edit control."""
-        HwndWrapper.HwndWrapper.set_window_text(self, text, append)
+        hwndwrapper.HwndWrapper.set_window_text(self, text, append)
         raise UserWarning(
             "set_window_text() should probably not be called for Edit Controls")
 
@@ -869,7 +869,7 @@ class EditWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class StaticWrapper(HwndWrapper.HwndWrapper):
+class StaticWrapper(hwndwrapper.HwndWrapper):
     "Wrap a windows Static control"
 
     friendlyclassname = "Static"
@@ -911,7 +911,7 @@ class StaticWrapper(HwndWrapper.HwndWrapper):
 # the main reason for this is just to make sure that
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
-class DialogWrapper(HwndWrapper.HwndWrapper):
+class DialogWrapper(hwndwrapper.HwndWrapper):
     """Wrap a dialog"""
 
     friendlyclassname = "Dialog"
@@ -929,7 +929,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         to make it "Dialog" if the class is "#32770" otherwise to leave it
         the same as the window class.
         """
-        HwndWrapper.HwndWrapper.__init__(self, hwnd)
+        hwndwrapper.HwndWrapper.__init__(self, hwnd)
 
         if self.class_name() == "#32770":
             self.friendlyclassname = "Dialog"
@@ -967,8 +967,8 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
         controls = [self] + self.children()
         props = [ctrl.get_properties() for ctrl in controls]
 
-        from .. import XMLHelpers
-        XMLHelpers.WriteDialogToFile(filename, props)
+        from .. import xml_helpers
+        xml_helpers.WriteDialogToFile(filename, props)
     # Non PEP-8 alias
     WriteToXML = write_to_xml
 
@@ -1057,9 +1057,9 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 
 #    #-----------------------------------------------------------
 #    def read_controls_from_xml(self, filename):
-#        from pywinauto import XMLHelpers
+#        from pywinauto import xml_helpers
 #        [controlproperties.ControlProps(ctrl) for
-#            ctrl in XMLHelpers.ReadPropertiesFromFile(handle)]
+#            ctrl in xml_helpers.ReadPropertiesFromFile(handle)]
 #    # Non PEP-8 alias
 #    ReadControlsFromXML = read_controls_from_xml
 
@@ -1087,7 +1087,7 @@ class DialogWrapper(HwndWrapper.HwndWrapper):
 # the main reason for this is just to make sure that
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
-class PopupMenuWrapper(HwndWrapper.HwndWrapper):
+class PopupMenuWrapper(hwndwrapper.HwndWrapper):
     """Wrap a Popup Menu"""
 
     friendlyclassname = "PopupMenu"

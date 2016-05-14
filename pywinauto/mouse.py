@@ -38,7 +38,7 @@ if sys.platform == 'win32':
     from .timings import Timings
     import win32api
     import win32gui
-    from . import SendKeysCtypes as SendKeys
+    from . import keyboard
 else:
     from Xlib.display import Display
     from Xlib import X
@@ -129,11 +129,11 @@ if sys.platform == 'win32':
 
         keyboard_keys = pressed.lower().split()
         if ('control' in keyboard_keys) and key_down:
-            SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, up=False).Run()
         if ('shift' in keyboard_keys) and key_down:
-            SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, up=False).Run()
         if ('alt' in keyboard_keys) and key_down:
-            SendKeys.VirtualKeyAction(SendKeys.VK_MENU, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_MENU, up=False).Run()
 
         dw_flags = 0
         for event in events:
@@ -168,11 +168,11 @@ if sys.platform == 'win32':
         time.sleep(Timings.after_clickinput_wait)
 
         if ('control' in keyboard_keys) and key_up:
-            SendKeys.VirtualKeyAction(SendKeys.VK_CONTROL, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, down=False).Run()
         if ('shift' in keyboard_keys) and key_up:
-            SendKeys.VirtualKeyAction(SendKeys.VK_SHIFT, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, down=False).Run()
         if ('alt' in keyboard_keys) and key_up:
-            SendKeys.VirtualKeyAction(SendKeys.VK_MENU, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_MENU, down=False).Run()
 
 
 else:

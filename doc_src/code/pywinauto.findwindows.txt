@@ -1,6 +1,0 @@
-pywinauto.findwindows
----------------------
- .. automodule:: pywinauto.findwindows
-    :members:
-    :undoc-members:
-

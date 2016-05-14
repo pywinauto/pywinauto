@@ -18,7 +18,7 @@
 #    Suite 330,
 #    Boston, MA 02111-1307 USA
 
-"Tests for findbestmatch.py"
+"""Tests for findbestmatch.py"""
 
 import unittest
 import os.path
@@ -29,14 +29,12 @@ import sys
 sys.path.append(".")
 from pywinauto import findbestmatch
 from pywinauto import win32structures
-from pywinauto import backend
-backend.activate("native")
 
 
 class TestFindBestMatch(unittest.TestCase):
 
     def setUp(self):
-        "load the test strings"
+        """load the test strings"""
         self.strings = open(os.path.join(test_path, "testtext.txt"), "rb").readlines()
         self.strings = (line.decode('utf-8')[:-1] for line in self.strings)
 

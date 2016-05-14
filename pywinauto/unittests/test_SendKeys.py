@@ -32,13 +32,13 @@ import os
 import locale
 import unittest
 sys.path.append(".")
-from pywinauto.SendKeysCtypes import SendKeys, DEBUG, KeySequenceError
-from pywinauto.SendKeysCtypes import KeyAction, VirtualKeyAction, PauseAction
+from pywinauto.keyboard import SendKeys, DEBUG, KeySequenceError
+from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
 from pywinauto import six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
 from pywinauto.actionlogger import ActionLogger
-from pywinauto import backend
+from pywinauto.timings import Timings
 
 
 mfc_samples_folder = os.path.join(
@@ -54,11 +54,12 @@ def _notepad_exe():
 
 
 class SendKeysTests(unittest.TestCase):
-    "Unit tests for the Sendkeys module"
+
+    """Unit tests for the Sendkeys module"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.app = Application()
         self.app.start(_notepad_exe())
         
@@ -235,11 +236,12 @@ class SendKeysTests(unittest.TestCase):
 
 
 class SendKeysModifiersTests(unittest.TestCase):
-    "Unit tests for the Sendkeys module (modifiers)"
+
+    """Unit tests for the Sendkeys module (modifiers)"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CtrlTest.exe"))
 
         self.dlg = self.app.Control_Test_App

@@ -37,7 +37,7 @@ import warnings
 
 sys.path.append(".")
 from pywinauto import application
-from pywinauto.controls import HwndWrapper
+from pywinauto.controls import hwndwrapper
 from pywinauto.application import Application
 from pywinauto.application import WindowSpecification
 from pywinauto.application import process_module
@@ -75,6 +75,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         # Force Display User and Deprecation warnings every time
         # Python 3.3+nose/unittest trys really hard to suppress them
         for warning in (UserWarning, PendingDeprecationWarning):
@@ -161,6 +162,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
@@ -238,11 +240,11 @@ class ApplicationTestCases(unittest.TestCase):
 #            application.app_start_timeout,
 #            application.exists_timeout,
 #            application.exists_retry_interval,
-#            HwndWrapper.delay_after_click,
-#            HwndWrapper.delay_after_menuselect,
-#            HwndWrapper.delay_after_sendkeys_key,
-#            HwndWrapper.delay_after_button_click,
-#            HwndWrapper.delay_before_after_close_click,
+#            hwndwrapper.delay_after_click,
+#            hwndwrapper.delay_after_menuselect,
+#            hwndwrapper.delay_after_sendkeys_key,
+#            hwndwrapper.delay_after_button_click,
+#            hwndwrapper.delay_before_after_close_click,
 #        )
 #        set_timing(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 #
@@ -253,11 +255,11 @@ class ApplicationTestCases(unittest.TestCase):
 #                application.app_start_timeout,
 #                application.exists_timeout,
 #                application.exists_retry_interval,
-#                HwndWrapper.delay_after_click,
-#                HwndWrapper.delay_after_menuselect,
-#                HwndWrapper.delay_after_sendkeys_key,
-#                HwndWrapper.delay_after_button_click,
-#                HwndWrapper.delay_before_after_close_click,
+#                hwndwrapper.delay_after_click,
+#                hwndwrapper.delay_after_menuselect,
+#                hwndwrapper.delay_after_sendkeys_key,
+#                hwndwrapper.delay_after_button_click,
+#                hwndwrapper.delay_before_after_close_click,
 #            ), (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) )
 #
 #        set_timing(*prev_timing)
@@ -372,6 +374,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_top_window(self):
         """Test that top_window_() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
         self.assertRaises(AppNotConnected, app.top_window_)
         
@@ -438,16 +441,17 @@ class ApplicationTestCases(unittest.TestCase):
             installed_programs = window.FolderView.texts()[1:]
             programs_list = ','.join(installed_programs)
             if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
-                HwndWrapper.ImageGrab.grab().save(r'explorer_screenshot.jpg')
-                HwndWrapper.ActionLogger().log('\ninstalled_programs:\n')
+                hwndwrapper.ImageGrab.grab().save(r'explorer_screenshot.jpg')
+                hwndwrapper.ActionLogger().log('\ninstalled_programs:\n')
                 for prog in installed_programs:
-                    HwndWrapper.ActionLogger().log(prog)
+                    hwndwrapper.ActionLogger().log(prog)
             self.assertEqual(('Microsoft' in programs_list) or ('Python' in programs_list), True)
         finally:
             window.Close(2.0)
 
     def test_windows(self):
         """Test that windows_() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
 
         self.assertRaises(AppNotConnected, app.windows_, **{'title' : 'not connected'})
@@ -499,6 +503,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_getitem(self):
         """Test that __getitem__() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
         app.start(_notepad_exe())
 
@@ -523,6 +528,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_getattribute(self):
         """Test that __getattribute__() works correctly"""
+        Timings.window_find_timeout = 5
         app = Application()
         app.start(_notepad_exe())
 
@@ -572,6 +578,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit
@@ -612,7 +619,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         self.assertEquals(
             True,
-            isinstance(self.dlgspec.WrapperObject(), HwndWrapper.HwndWrapper)
+            isinstance(self.dlgspec.WrapperObject(), hwndwrapper.HwndWrapper)
             )
 
     def test_window(self):
@@ -710,7 +717,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
-		
+
         start = time.time()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("actIve "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
@@ -755,7 +762,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         start = time.time()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "exists ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
-		
+
         start = time.time()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "actIve ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)

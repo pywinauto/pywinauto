@@ -21,7 +21,7 @@
 
 from __future__ import print_function
 
-"Tests for findwindows.py"
+"""Tests for findwindows.py"""
 
 import unittest
 
@@ -32,7 +32,7 @@ from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.findwindows import find_elements, find_element, find_window, find_windows
 from pywinauto.findwindows import ElementNotFoundError, WindowNotFoundError
 from pywinauto.findwindows import ElementAmbiguousError, WindowAmbiguousError
-from pywinauto import backend
+from pywinauto.timings import Timings
 
 
 mfc_samples_folder = os.path.join(
@@ -44,7 +44,7 @@ mfc_app_1 = os.path.join(mfc_samples_folder, u"CmnCtrl2.exe")
 
 #=========================================================================
 def _unittests():
-    "Do a quick test of finding some windows"
+    """Do a quick test of finding some windows"""
     windows = find_elements(
         class_name_re = "#32770",
         enabled_only = False,
@@ -59,10 +59,8 @@ class FindWindowsTestCases(unittest.TestCase):
     """Unit tests for findwindows.py module"""
 
     def setUp(self):
-        """
-        Start the application set some data and ensure the application
-        is in the state we want it.
-        """
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
 
         # start the application
         self.app = Application(backend='native')
@@ -75,10 +73,7 @@ class FindWindowsTestCases(unittest.TestCase):
         self.app.kill_()
 
     def testFindWindow(self):
-        """
-        Test if function find_window() works as expected
-        including raising the exceptions
-        """
+        """Test if function find_window() works as expected including raising the exceptions"""
         ctrl = self.dlg.OK.WrapperObject()
         handle = find_window(process=self.app.process, best_match='OK', top_level_only=False)
 
@@ -90,10 +85,7 @@ class FindWindowsTestCases(unittest.TestCase):
                           process=self.app.process, class_name='Button', top_level_only=False)
 
     def testFindWindows(self):
-        """
-        Test if function find_window() works as expected
-        including raising the exceptions
-        """
+        """Test if function find_window() works as expected including raising the exceptions"""
         ctrl_hwnds = [elem.handle for elem in self.dlg.children() if elem.class_name() == 'Edit']
         handles = find_windows(process=self.app.process, class_name='Edit', top_level_only=False)
 
@@ -101,37 +93,6 @@ class FindWindowsTestCases(unittest.TestCase):
 
         self.assertRaises(WindowNotFoundError, find_windows,
                           process=self.app.process, class_name='FakeClassName', found_index=1)
-
-
-#class ApplicationTestCases(unittest.TestCase):
-#    "Unit tests for the ListViewWrapper class"
-#
-#    def setUp(self):
-#        """Start the application set some data and ensure the application
-#        is in the state we want it."""
-#        backend.activate("native")
-#
-#    def tearDown(self):
-#        "Close the application after tests"
-#        # close the application
-#        #self.dlg.SendMessage(win32defines.WM_CLOSE)
-#        pass
-#
-#    def testNotConnected(self):
-#        "Make sure the friendly class is set correctly"
-#        self.assertRaises (AppNotConnected, Application().__getattr__, 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().window_, title = 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().top_window_,)
-#
-#    def testStartProplem(self):
-#        "Make sure the friendly class is set correctly"
-#        self.assertRaises (AppStartError, Application().start_, 'Hiya')
-#
-#    #def testStartProplem(self):
-#    #    "Make sure the friendly class is set correctly"
-#    #    self.assertRaises (AppStartError, Application().start_, 'Hiya')
-#
 
 
 if __name__ == "__main__":
