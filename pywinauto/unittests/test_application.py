@@ -718,6 +718,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
+        start = time.time()
+        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("actIve "))
+        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+
         self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
 
     def test_wait_not(self):
@@ -757,6 +761,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         start = time.time()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "exists ", .1, .05)
+        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+
+        start = time.time()
+        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "actIve ", .1, .05)
         self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.WaitNot, "Invalid_criteria")

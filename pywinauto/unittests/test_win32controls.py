@@ -29,10 +29,11 @@ import os, sys
 import codecs
 import unittest
 sys.path.append(".")
-from pywinauto import xml_helpers, win32defines
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto import xml_helpers
+from pywinauto import win32defines
+from pywinauto.sysinfo import is_x64_Python
+from pywinauto.sysinfo import is_x64_OS
 from pywinauto.application import Application
-from pywinauto import backend
 
 # following imports are not required for the tests
 # but are useful for debugging
@@ -65,77 +66,55 @@ class ButtonTestCases(unittest.TestCase):
         _set_timings_fast()
 
         self.app = Application()
+        self.app = self.app.Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start(r"C:\Windows\System32\calc.exe")
-        else:
-            self.app.start(r"C:\Windows\SysWOW64\calc.exe")
-        self.calc = self.app.Calculator
-        self.calc.MenuSelect("View->Scientific")
+        self.app.Common_Controls_Sample.TabControl.Select("CDateTimeCtrl")
+
+        self.ctrl = self.app.Common_Controls_Sample
 
     def tearDown(self):
-        "Close the application after tests"
-
+        """Close the application after tests"""
         self.app.kill_()
-        #self.calc.type_keys("%{F4}")
 
     def testGetProperties(self):
-        "Test getting the properties for the button control"
-        props = self.calc.Degrees.GetProperties()
+        """Test getting the properties for the button control"""
+        props = self.ctrl.Button2.GetProperties()
 
         self.assertEquals(
-            "RadioButton", props['friendly_class_name'])
+            "Button", props['friendly_class_name'])
 
         self.assertEquals(
-            self.calc.Degrees.texts(), ['Degrees'])
-
-        self.assertEquals(
-            self.calc.Degrees.texts(), props['texts'])
+            self.ctrl.Button2.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
-                getattr(self.calc.Degrees, prop_name)(), props[prop_name])
+                getattr(self.ctrl.Button2, prop_name)(), props[prop_name])
 
     def test_NeedsImageProp(self):
-
-        """test whether an image needs to be saved with the properties"""
-
-        self.assertEquals(self.calc.Button5._needs_image_prop, False)
-        self.assertEquals('image' in self.calc.Button5.GetProperties(), False)
-        #self.assertNotIn('image', self.calc.Button5.GetProperties())
-        # assertIn and assertNotIn are not supported in Python 2.6
+        """Test whether an image needs to be saved with the properties"""
+        self.assertEquals(self.ctrl.OKButton._needs_image_prop, True)
+        self.assertEquals('image' in self.ctrl.OKButton.GetProperties(), True)
 
     def testFriendlyClass(self):
-        "Test the friendly_class_name method"
-        self.assertEquals(self.calc.Button9.friendly_class_name(), "Button")
-        self.assertEquals(self.calc.Degree.friendly_class_name(), "RadioButton")
-        #self.assertEquals(self.calc.Hex.friendly_class_name(), "CheckBox")
-
-        #children = self.calc.children()
-        #no_text_buttons = [
-        #    c for c in children
-        #        if not c.window_text() and c.class_name() == "Button"]
-
-        #first_group = no_text_buttons[0]
-
-        #self.assertEquals(first_group.friendly_class_name(), "GroupBox")
+        """Test the friendly_class_name method"""
+        self.assertEquals(self.ctrl.Button2.friendly_class_name(), "Button")
+        self.assertEquals(self.ctrl.RadioButton2.friendly_class_name(), "RadioButton")
 
     def testCheckUncheck(self):
-        "Test unchecking a control"
-
-        self.calc.Grads.Check()
-        self.assertEquals(self.calc.Grads.GetCheckState(), 1)
-        self.calc.Grads.UnCheck()
-        self.assertEquals(self.calc.Grads.GetCheckState(), 0)
+        """Test unchecking a control"""
+        self.ctrl.RadioButton2.Check()
+        self.assertEquals(self.ctrl.RadioButton2.GetCheckState(), 1)
+        self.ctrl.RadioButton2.UnCheck()
+        self.assertEquals(self.ctrl.RadioButton2.GetCheckState(), 0)
 
     def testGetCheckState_unchecked(self):
-        "unchecked"
-        self.assertEquals(self.calc.Grads.GetCheckState(), 0)
+        """Test whether the control is unchecked"""
+        self.assertEquals(self.ctrl.RadioButton.GetCheckState(), 0)
 
     def testGetCheckState_checked(self):
-        "checked"
-        self.calc.Grads.Check()
-        self.assertEquals(self.calc.Grads.GetCheckState(), 1)
+        """Test whether the control is checked"""
+        self.ctrl.RadioButton2.Check()
+        self.assertEquals(self.ctrl.RadioButton2.GetCheckState(), 1)
 
 #    def testGetCheckState_indeterminate(self):
 #        "indeterminate"
@@ -143,24 +122,21 @@ class ButtonTestCases(unittest.TestCase):
 #        self.assertEquals(self.calc.Inv.GetCheckState(), 0)
 
     def testClick(self):
-        "Test clicking on buttons"
-        self.calc.Button15.Click()  # "6"
-        self.calc.Button10.Click()  # "5"
-        self.calc.Button23.Click()  # "+"
-        self.calc.Button4.Click()   # "4"
-        self.calc.Button16.Click()  # "3"
-        self.calc.Button28.Click()  # "="
-        self.assertEquals(self.calc.ChildWindow(class_name='Static', ctrl_index=5).texts()[0], "108")
+        """Test clicking on buttons"""
+        self.ctrl.RadioButton2.Click()  # DTS_SHORTDATEFORMAT
+        self.ctrl.RadioButton.Click()  # DTS_TIMEFORMAT
+        self.ctrl.RadioButton3.Click()  # DTS_LONGDATEFORMAT
+        self.assertEquals(self.ctrl.RadioButton3.GetCheckState(), 1)
 
     def testIsSelected(self):
-        "Test whether the control is selected or not"
+        """Test whether the control is selected or not"""
         # Todo - I need to find an application where a button can be
         # selected - I don't see one in Calc at least :)
-        self.assertEquals(self.calc.Radians.GetCheckState(), 0)
+        self.assertEquals(self.ctrl.RadioButton.GetCheckState(), 0)
 
-        self.calc.Radians.Click()
+        self.ctrl.RadioButton.Click()
 
-        self.assertEquals(self.calc.Radians.GetCheckState(), 1)
+        self.assertEquals(self.ctrl.RadioButton.GetCheckState(), 1)
 
 
 class CheckBoxTests(unittest.TestCase):
@@ -186,14 +162,14 @@ class CheckBoxTests(unittest.TestCase):
         self.dlg.TVS_HASLINES.CheckByClick()
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
-        
+
         self.dlg.TVS_HASLINES.CheckByClick() # make sure it doesn't uncheck the box unexpectedly
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
-        
+
         self.dlg.TVS_HASLINES.UncheckByClick()
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
-        
+
         self.dlg.TVS_HASLINES.UncheckByClick() # make sure it doesn't check the box unexpectedly
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
 
@@ -202,14 +178,14 @@ class CheckBoxTests(unittest.TestCase):
         self.dlg.TVS_HASLINES.CheckByClickInput()
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), True)
-        
+
         self.dlg.TVS_HASLINES.CheckByClickInput() # make sure it doesn't uncheck the box unexpectedly
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_CHECKED)
-        
+
         self.dlg.TVS_HASLINES.UncheckByClickInput()
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
         self.assertEquals(self.tree.HasStyle(win32defines.TVS_HASLINES), False)
-        
+
         self.dlg.TVS_HASLINES.UncheckByClickInput() # make sure it doesn't check the box unexpectedly
         self.assertEquals(self.dlg.TVS_HASLINES.GetCheckState(), win32defines.BST_UNCHECKED)
 
@@ -352,15 +328,15 @@ class ListBoxTestCases(unittest.TestCase):
         self.dlg.Wait('ready', timeout=20)
         self.dlg.TypeYourTextEdit.type_keys('qqq')
         self.dlg.Add.Click()
-        
+
         self.dlg.TypeYourTextEdit.Select()
         self.dlg.TypeYourTextEdit.type_keys('123')
         self.dlg.Add.Click()
-        
+
         self.dlg.TypeYourTextEdit.Select()
         self.dlg.TypeYourTextEdit.type_keys('third item', with_spaces=True)
         self.dlg.Add.Click()
-        
+
         self.ctrl = self.dlg.ListBox.WrapperObject()
 
     def tearDown(self):
@@ -605,58 +581,54 @@ class DialogTestCases(unittest.TestCase):
         _set_timings_fast()
 
         self.app = Application()
+        self.app = self.app.Start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
-        if is_x64_Python() or not is_x64_OS():
-            self.app.start(r"C:\Windows\System32\calc.exe")
-        else:
-            self.app.start(r"C:\Windows\SysWOW64\calc.exe")
-        self.calc = self.app.CalcFrame
+        self.cmn_ctrl = self.app.Common_Controls_Sample
 
         # write out the XML so that we can read it in later
-        self.app.Calculator.WriteToXML("ref_controls.xml")
+        self.app.Common_Controls_Sample.WriteToXML("ref_controls.xml")
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         self.app.kill_()
-        #self.calc.type_keys("%{F4}")
 
     def testGetProperties(self):
-        "Test getting the properties for the dialog box"
-        props = self.calc.GetProperties()
+        """Test getting the properties for the dialog box"""
+        props = self.cmn_ctrl.GetProperties()
 
         self.assertEquals(
-            "CalcFrame", props['friendly_class_name'])
+            "Dialog", props['friendly_class_name'])
 
-        self.assertEquals(self.calc.texts(), props['texts'])
+        self.assertEquals(self.cmn_ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(
-                getattr(self.calc, prop_name)(), props[prop_name])
+                getattr(self.cmn_ctrl, prop_name)(), props[prop_name])
 
     def testRunTests(self):
-        "Test running the UI tests on the dialog"
-        bugs = self.calc.RunTests()
+        """Test running the UI tests on the dialog"""
+        bugs = self.cmn_ctrl.RunTests()
         from pywinauto.controls.hwndwrapper import HwndWrapper
         self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
 
     def testRunTestsWithReference(self):
-        "Add a ref control, get the bugs and validate that the hande "
+        """Add a ref control, get the bugs and validate that the hande"""
         from pywinauto import controlproperties
         ref_controls = [controlproperties.ControlProps(ctrl) for
                 ctrl in xml_helpers.ReadPropertiesFromFile("ref_controls.xml")]
 
-        bugs = self.calc.RunTests(ref_controls = ref_controls)
+        bugs = self.cmn_ctrl.RunTests(ref_controls = ref_controls)
         from pywinauto import tests
         tests.print_bugs(bugs)
         from pywinauto.controls.hwndwrapper import HwndWrapper
         self.assertEquals(True, isinstance(bugs[0][0][0], HwndWrapper))
 
     def testWriteToXML(self):
-        "Write the output and validate that it is the same as the test output"
-        self.calc.WriteToXML("test_output.xml")
+        """Write the output and validate that it is the same as the test output"""
+        self.cmn_ctrl.WriteToXML("test_output.xml")
 
-        all_props = [self.calc.GetProperties()]
-        all_props.extend([c.GetProperties() for c in self.calc.children()])
+        all_props = [self.cmn_ctrl.GetProperties()]
+        all_props.extend([c.GetProperties() for c in self.cmn_ctrl.children()])
 
         props = xml_helpers.ReadPropertiesFromFile("test_output.xml")
         for i, ctrl in enumerate(props):
@@ -685,20 +657,20 @@ class DialogTestCases(unittest.TestCase):
         (comparing against the full rectangle)
         Notice that we run an approximate comparison as the actual
         area size depends on Windows OS and a current desktop theme"""
-        clientarea = self.calc.ClientAreaRect()
-        rectangle = self.calc.rectangle()
+        clientarea = self.cmn_ctrl.ClientAreaRect()
+        rectangle = self.cmn_ctrl.rectangle()
         self.failIf((clientarea.left - rectangle.left) > 10)
         self.failIf((clientarea.top - rectangle.top) > 60)
         self.failIf((rectangle.right - clientarea.right) > 10)
         self.failIf((rectangle.bottom - clientarea.bottom) > 10)
 
     def testHideFromTaskbar(self):
-        "Test that a dialog can be hidden from the Windows taskbar"
-        self.assertEquals(self.calc.IsInTaskbar(), True)
-        self.calc.HideFromTaskbar()
-        self.assertEquals(self.calc.IsInTaskbar(), False)
-        self.calc.ShowInTaskbar()
-        self.assertEquals(self.calc.IsInTaskbar(), True)
+        """Test that a dialog can be hidden from the Windows taskbar"""
+        self.assertEquals(self.cmn_ctrl.IsInTaskbar(), True)
+        self.cmn_ctrl.HideFromTaskbar()
+        self.assertEquals(self.cmn_ctrl.IsInTaskbar(), False)
+        self.cmn_ctrl.ShowInTaskbar()
+        self.assertEquals(self.cmn_ctrl.IsInTaskbar(), True)
 
 
 class PopupMenuTestCases(unittest.TestCase):

@@ -39,6 +39,7 @@ from __future__ import print_function
 
 import time
 import ctypes
+from ctypes import wintypes
 import warnings
 import locale
 
@@ -1407,6 +1408,13 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         "Initialise the instance"
         super(TreeViewWrapper, self).__init__(hwnd)
 
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TreeViewWrapper, self).writable_props
+        props.extend(['item_count'])
+        return props
+
     #----------------------------------------------------------------
     def item_count(self):
         "Return the count of the items in the treeview"
@@ -2023,6 +2031,13 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
         super(TabControlWrapper, self).__init__(hwnd)
 
         #self.writable_props.append("TabStates")
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TabControlWrapper, self).writable_props
+        props.extend(['tab_count'])
+        return props
 
     #----------------------------------------------------------------
     def row_count(self):
@@ -3145,42 +3160,101 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
 
 #====================================================================
 class TrackbarWrapper(hwndwrapper.HwndWrapper):
-    "Class that wraps Windows Trackbar common control "
+
+    """Class that wraps Windows Trackbar common control """
 
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
+
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_SliderControlTypeId]
 
-#
-#    #----------------------------------------------------------------
-#    def get_num_ticks(self):
-#        return self.send_message(win32defines.TBM_GETNUMTICS)
-#    # Non PEP-8 alias
-#    GetNumTicks = get_num_ticks
-#
-#    #----------------------------------------------------------------
-#    def get_pos(self):
-#        return self.send_message(win32defines.TBM_GETPOS)
-#    # Non PEP-8 alias
-#    GetPos = get_pos
-#
-#    #----------------------------------------------------------------
-#    def GetRangeMax(self):
-#        return self.send_message(win32defines.TBM_GETRANGEMAX)
-    # Non PEP-8 alias
-#
-#    #----------------------------------------------------------------
-#    def get_range_min(self):
-#        return self.send_message(win32defines.TBM_GETRANGEMIN)
-#    # Non PEP-8 alias
-#    GetRangeMin = get_range_min
-#
-#    #----------------------------------------------------------------
-#    def get_tool_tips_control(self):
-#        "Return the tooltip control associated with this control"
-#        return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
+    def get_range_min(self):
+        """Get min available trackbar value"""
+        return self.send_message(win32defines.TBM_GETRANGEMIN)
 
+    def get_range_max(self):
+        """Get max available trackbar value"""
+        return self.send_message(win32defines.TBM_GETRANGEMAX)
+
+    def get_position(self):
+        """Get trackbar position"""
+        return self.send_message(win32defines.TBM_GETPOS)
+
+    def get_num_ticks(self):
+        """Get trackbar num ticks"""
+        return self.send_message(win32defines.TBM_GETNUMTICS)
+
+    def get_channel_rect(self):
+        """Get position of the bounding rectangle for a Trackbar"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_rect = win32structures.RECT()
+        remote_mem.Write(system_rect)
+
+        self.send_message(win32defines.TBM_GETCHANNELRECT, 0, remote_mem)
+        remote_mem.Read(system_rect)
+        del remote_mem
+
+        return system_rect
+
+    def get_line_size(self):
+        """Get the number of logical positions the trackbar's slider"""
+        return self.send_message(win32defines.TBM_GETLINESIZE)
+
+    def get_tooltips_control(self):
+        """Get trackbar tooltip"""
+        return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
+
+    def get_page_size(self):
+        """Get the number of logical positions for the trackbar's slider"""
+        return self.send_message(win32defines.TBM_GETPAGESIZE)
+
+    def set_range_max(self, range_max):
+        """Set max available trackbar value"""
+        if range_max < self.get_range_min():
+            raise ValueError('Cannot set range max less than range min')
+        self.send_message(win32defines.TBM_SETRANGEMAX, True, range_max)
+
+    def set_range_min(self, range_min):
+        """Set min available trackbar value"""
+        if range_min > self.get_range_max():
+            raise ValueError('Cannot set range min more than range max')
+        self.send_message(win32defines.TBM_SETRANGEMIN, True, range_min)
+
+    def set_position(self, pos):
+        """Set trackbar position"""
+        if not (self.get_range_min() <= pos <= self.get_range_max()):
+            raise ValueError('Cannot set position out of range')
+        self.send_message(win32defines.TBM_SETPOS, True, pos)
+
+    def set_line_size(self, line_size):
+        """Set trackbar line size"""
+        self.send_message(win32defines.TBM_SETLINESIZE, 0, line_size)
+
+    def set_page_size(self, page_size):
+        """Set trackbar page size"""
+        self.send_message(win32defines.TBM_SETPAGESIZE, 0, page_size)
+
+    def set_sel(self, sel_start, sel_end):
+        """Set start and end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        sel_start_val = win32functions.LoWord(sel_start)
+        sel_end_val = win32functions.HiWord(sel_end)
+        sel_val = win32functions.MakeLong(sel_start_val, sel_end_val)
+        self.send_message(win32defines.TBM_SETSAL, 0, sel_val)
+
+    def get_sel_start(self):
+        """Get start of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        return self.send_message(win32defines.TBM_GETSELSTART)
+
+    def get_sel_end(self):
+        """Get end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        return self.send_message(win32defines.TBM_GETSELEND)
 
 #====================================================================
 class AnimationWrapper(hwndwrapper.HwndWrapper):
@@ -3311,6 +3385,16 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
     if sysinfo.UIA_support:
         controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
+
+    place_in_calendar = {
+        'background': win32defines.MCSC_BACKGROUND,
+        'month_background': win32defines.MCSC_MONTHBK,
+        'text': win32defines.MCSC_TEXT,
+        'title_background': win32defines.MCSC_TITLEBK,
+        'title_text': win32defines.MCSC_TITLETEXT,
+        'trailing_text': win32defines.MCSC_TRAILINGTEXT
+    }
+
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         """Initialise the instance"""
@@ -3381,6 +3465,186 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
         if res == 0:
             raise RuntimeError('Failed to set view in Calendar')
+
+    #----------------------------------------------------------------
+    def set_day_states(self, month_states):
+        """Sets the day states for all months that are currently visible"""
+        remote_mem = RemoteMemoryBlock(self)
+        day_states = (wintypes.DWORD * len(month_states))(*month_states)
+
+        remote_mem.Write(day_states)
+        res = self.send_message(win32defines.MCM_SETDAYSTATE, len(day_states), remote_mem)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set the day states in Calendar')
+
+        return res
+
+    #----------------------------------------------------------------
+    def calc_min_rectangle(self, left, top, right, bottom):
+        """Calculates the minimum size that a rectangle needs to be to fit that number of calendars"""
+        remote_mem = RemoteMemoryBlock(self)
+
+        minimized_rect = win32structures.RECT()
+        minimized_rect.left = left
+        minimized_rect.top = top
+        minimized_rect.right = right
+        minimized_rect.bottom = bottom
+
+        remote_mem.Write(minimized_rect)
+        self.send_message(win32defines.MCM_SIZERECTTOMIN, 0, remote_mem)
+
+        remote_mem.Read(minimized_rect)
+        del remote_mem
+
+        return minimized_rect
+
+    #----------------------------------------------------------------
+    def hit_test(self, x, y):
+        """Determines which portion of a month calendar control is at a given point on the screen"""
+        remote_mem = RemoteMemoryBlock(self)
+        hit_test_info = win32structures.MCHITTESTINFO()
+        point = win32structures.POINT()
+        point.x = x
+        point.y = y
+        hit_test_info.pt = point
+        hit_test_info.cbSize = ctypes.sizeof(hit_test_info)
+
+        remote_mem.Write(hit_test_info)
+        res = self.send_message(win32defines.MCM_HITTEST, 0, remote_mem)
+        del remote_mem
+
+        return res
+
+    # ----------------------------------------------------------------
+    def set_id(self, ID):
+        """
+        Set the calendar type.
+
+        Receive only one parameter, which takes variants below:
+        'gregorian', 'gregorian_us', 'japan', 'taiwan', 'korea',
+        'hijri', 'thai', 'hebrew', 'gregorian_me_french',
+        'gregorian_arabic', 'gregorian_english_xlit',
+        'gregorian_french_xlit', 'umalqura'
+        """
+
+        dict_types = {
+            'gregorian': win32defines.CAL_GREGORIAN,
+            'gregorian_us': win32defines.CAL_GREGORIAN_US,
+            'japan': win32defines.CAL_JAPAN,
+            'taiwan': win32defines.CAL_TAIWAN,
+            'korea': win32defines.CAL_KOREA,
+            'hijri': win32defines.CAL_HIJRI,
+            'thai': win32defines.CAL_THAI,
+            'hebrew': win32defines.CAL_HEBREW,
+            'gregorian_me_french': win32defines.CAL_GREGORIAN_ME_FRENCH,
+            'gregorian_arabic': win32defines.CAL_GREGORIAN_ARABIC,
+            'gregorian_english_xlit': win32defines.CAL_GREGORIAN_XLIT_ENGLISH,
+            'gregorian_french_xlit': win32defines.CAL_GREGORIAN_XLIT_FRENCH,
+            'umalqura': win32defines.CAL_UMALQURA
+        }
+        if ID in dict_types:
+            self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
+        else:
+            raise ValueError('Incorrect calendar ID (use one of {0})'.format(dict_types.keys()))
+
+    # ----------------------------------------------------------------
+    def get_id(self):
+        """Get type of calendar"""
+        return self.send_message(win32defines.MCM_GETCALID, 0, 0)
+
+    # ----------------------------------------------------------------
+    def set_color(self, place_of_color, red, green, blue):
+        """
+        Set some color in some place of calendar which you specify.
+
+        Receive four parameters:
+        - The first parameter may take few variants below:
+        'background', 'month_background', 'text', 'title_background',
+        'title_text', 'trailing_text' ;
+        - All other parameters should be integer from 0 to 255.
+        """
+
+        if not (0 <= red <= 255):
+            raise RuntimeError('Incorrect range of red color, must be from 0 to 255')
+        if not (0 <= green <= 255):
+            raise RuntimeError('Incorrect range of green color, must be from 0 to 255')
+        if not (0 <= blue <= 255):
+            raise RuntimeError('Incorrect range of blue color, must be from 0 to 255')
+        color = (red << 16) | (green << 8) | blue
+        if place_of_color in self.place_in_calendar:
+            result = self.send_message(win32defines.MCM_SETCOLOR, self.place_in_calendar[place_of_color], color)
+        else:
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+        if result == -1:
+            raise RuntimeError('Incorrect color')
+        return result
+
+    # ----------------------------------------------------------------
+    #TODO create method get_color in future
+    '''
+    def get_color(self, place_of_color):
+        """
+        Return color of place in calendar, which you specify.
+
+        Receive only one parameter, which takes variants below:
+        'background', 'month_background', 'text', 'title_background', 'title_text', 'trailing_text'
+        """
+
+        if place_of_color in self.place_in_calendar:
+            return self.send_message(win32defines.MCM_GETCOLOR, self.place_in_calendar[place_of_color], 0)
+        else:
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+    '''
+
+    def set_today(self, year, month, day):
+        """Set today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_time = win32structures.SYSTEMTIME()
+
+        system_time.wYear = year
+        system_time.wMonth = month
+        system_time.wDay = day
+        system_time.wHour = 0
+        system_time.wMinute = 0
+        system_time.wSecond = 0
+        system_time.wMilliseconds = 0
+
+        remote_mem.Write(system_time)
+
+        res = self.send_message(win32defines.MCM_SETTODAY, 0, remote_mem)
+
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set today date in Calendar')
+
+    # ----------------------------------------------------------------
+    def get_today(self):
+        """Get today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_date = win32structures.SYSTEMTIME()
+        remote_mem.Write(system_date)
+
+        res = self.send_message(win32defines.MCM_GETTODAY, 0, remote_mem)
+        remote_mem.Read(system_date)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to get today date in Calendar')
+        return system_date
+
+    # ----------------------------------------------------------------
+    def set_first_weekday(self, dayNum):
+        """Set first day of the week"""
+        res = self.send_message(win32defines.MCM_SETFIRSTDAYOFWEEK, 0, dayNum)
+
+    # ----------------------------------------------------------------
+    def get_first_weekday(self):
+        """Get is not in current locale and if so first day of the week"""
+        res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
+        return (win32functions.HiWord(res), win32functions.LoWord(res))
 
 #====================================================================
 class PagerWrapper(hwndwrapper.HwndWrapper):

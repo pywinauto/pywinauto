@@ -263,6 +263,12 @@ class KeyAction(object):
         #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE
 
+    def get_key_info(self):
+        """Return virtual_key, scan_code, and flags for the action
+
+        This is one of the methods that will be overridden by sub classes"""
+        return self._get_key_info()
+
     def GetInput(self):
         "Build the INPUT structure for the action"
         actions = 1

@@ -1219,3 +1219,15 @@ class SYSTEMTIME(Structure):
         return self.__repr__()
 
 assert sizeof(SYSTEMTIME) == 16, sizeof(SYSTEMTIME)
+
+class MCHITTESTINFO(Structure):
+    _fields_ = [
+        ('cbSize', UINT),
+        ('pt', POINT),
+        ('uHit', UINT),
+        ('st', SYSTEMTIME),
+        ('rc', RECT),
+        ('iOffset', c_int),
+        ('iRow', c_int),
+        ('iCol', c_int)
+    ]

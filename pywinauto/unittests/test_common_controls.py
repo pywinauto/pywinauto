@@ -1503,5 +1503,102 @@ class UpDownTestCases(unittest.TestCase):
         self.assertEquals (self.ctrl.GetValue(), 22)
 
 
+class TrackbarWrapperTestCases(unittest.TestCase):
+
+    def setUp(self):
+        from pywinauto.application import Application
+        app = Application()
+        app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
+        dlg = app.top_window_()
+        dlg.TabControl.Select(1)
+
+        ctrl = dlg.Trackbar.WrapperObject()
+        self.app = app
+        self.dlg = dlg
+        self.ctrl = ctrl
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.send_message(win32defines.WM_CLOSE)
+
+
+    def test_friendly_class(self):
+        """Make sure the Trackbar friendly class is set correctly"""
+        self.assertEquals(self.ctrl.friendly_class_name(), u"Trackbar")
+
+    def test_get_range_max(self):
+        """Test the get_range_max method"""
+        self.ctrl.set_range_max(100)
+        self.assertEquals(self.ctrl.get_range_max(), 100)
+
+    def test_get_range_min(self):
+        """Test the get_range_min method"""
+        self.ctrl.set_range_min(25)
+        self.assertEquals(self.ctrl.get_range_min(), 25)
+
+    def test_set_range_min_more_then_range_max(self):
+        """Test the set_range_min method with error"""
+        self.assertRaises(ValueError, self.ctrl.set_range_min, self.ctrl.get_range_max()+1)
+
+    def test_set_position_more_than_max_range(self):
+        """Test the set_position method with error"""
+        self.ctrl.set_range_max(100)
+        self.assertRaises(ValueError, self.ctrl.set_position, 110)
+
+    def test_set_position_less_than_min_range(self):
+        """Test the set_position method with error"""
+        self.assertRaises(ValueError, self.ctrl.set_position, self.ctrl.get_range_min()-10)
+
+    def test_set_correct_position(self):
+        """Test the set_position method"""
+        self.ctrl.set_position(23)
+        self.assertEqual(self.ctrl.get_position(), 23)
+
+    def test_get_num_ticks(self):
+        """Test the get_num_ticks method"""
+        self.assertEqual(self.ctrl.get_num_ticks(), 6)
+
+    def test_get_channel_rect(self):
+        """Test the get_channel_rect method"""
+        system_rect = RECT()
+        system_rect.left = 8
+        system_rect.top = 19
+        system_rect.right = 249
+        system_rect.bottom = 23
+        self.assert_channel_rect(self.ctrl.get_channel_rect(), system_rect)
+
+    def assert_channel_rect(self, first_rect, second_rect):
+        """Compare two rect strucrures"""
+        self.assertEqual(first_rect.height(), second_rect.height())
+        self.assertEqual(first_rect.width(), second_rect.width())
+
+    def test_get_line_size(self):
+        """Test the get_line_size method"""
+        self.ctrl.set_line_size(10)
+        self.assertEquals(self.ctrl.get_line_size(), 10)
+
+    def test_get_page_size(self):
+        """Test the set_page_size method"""
+        self.ctrl.set_page_size(14)
+        self.assertEquals(self.ctrl.get_page_size(), 14)
+
+    def test_get_tool_tips_control(self):
+        """Test the get_tooltips_control method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_tooltips_control)
+
+    def test_set_sel(self):
+        """Test the set_sel method"""
+        self.assertRaises(RuntimeError, self.ctrl.set_sel, 22, 55)
+
+    def test_get_sel_start(self):
+        """Test the get_sel_start method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_sel_start)
+
+    def test_get_sel_end(self):
+        """Test the get_sel_end method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_sel_end)
+
+
 if __name__ == "__main__":
     unittest.main()

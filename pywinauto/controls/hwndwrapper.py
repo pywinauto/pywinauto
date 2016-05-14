@@ -42,6 +42,7 @@ import win32process
 
 from .. import win32functions
 from ..actionlogger import ActionLogger
+from .. import keyboard
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -460,11 +461,65 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     SendMessage = send_message
 
+    # -----------------------------------------------------------
+    def send_chars(self,
+                   message,
+                   with_spaces=True,
+                   with_tabs=True,
+                   with_newlines=True):
+        """
+        Silently send a string to the control
+
+        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{Enter}"
+        For more information about Sequences and Modifiers navigate to keyboard.py
+        """
+
+        keys = keyboard.parse_keys(message, with_spaces, with_tabs, with_newlines)
+        for key in keys:
+
+            vk, scan, flags = key.get_key_info()
+
+            lparam = 1 << 0 | scan << 16 | flags << 24
+
+            if isinstance(key, keyboard.VirtualKeyAction):
+
+                if key.down and key.up and (flags == 0):
+                    lparam = 1 << 0 | scan << 16
+                    win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+                elif key.down and key.up and (flags == 1):
+                    # + LEFT, DELETE
+                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
+                elif key.down:
+                    # TODO: {CTRL} (^) modifier doesn't work
+                    # + SHIFT down
+                    # - CTRL down
+                    # print('key', key, 'down')
+                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+                elif key.up:
+                    # + SHIFT up
+                    # - CTRL up
+                    # print('key', key, 'up')
+                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
+                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
+            elif isinstance(key, keyboard.EscapedKeyAction):
+                # An escaped key action e.g. F9 DOWN, etc
+                # And key between Shifts. a -> A
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+            else:
+                # Usual key
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, scan, lparam)
+
+            # time.sleep(Timings.after_sendkeys_key_wait)
+
     #-----------------------------------------------------------
     def send_message_timeout(
         self,
         message,
-        wparam = 0 ,
+        wparam = 0,
         lparam = 0,
         timeout = None,
         timeoutflags = win32defines.SMTO_NORMAL):
@@ -1157,6 +1212,30 @@ class HwndWrapper(BaseWrapper):
 
             # only sleep if we had to change something!
             time.sleep(Timings.after_setfocus_wait)
+
+        return self
+
+    def has_keyboard_focus(self):
+        """Check the keyboard focus on this control."""
+        control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
+        win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
+        focused = win32gui.GetFocus()
+        win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
+
+        win32functions.WaitGuiThreadIdle(self)
+
+        return self.handle == focused
+
+    def set_keyboard_focus(self):
+        """Set the keyboard focus to this control."""
+        control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
+        win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
+        win32gui.SetFocus(self.handle)
+        win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
+
+        win32functions.WaitGuiThreadIdle(self)
+
+        time.sleep(Timings.after_setfocus_wait)
 
         return self
 
