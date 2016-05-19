@@ -28,9 +28,11 @@ class KeyboardEvent(object):
 
 class MouseEvent(object):
     """Is created when mouse event catch"""
-    def __init__(self, current_key=None, event_type=None):
+    def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
         self.current_key = current_key
         self.event_type = event_type
+        self.mouse_x = mouse_x
+        self.mouse_y = mouse_y
 
 
 class Hook(object):
@@ -226,7 +228,8 @@ class Hook(object):
                     current_key = self.MOUSE_ID_TO_KEY[event_code]
                     if current_key != 'Move':
                         event_type = self.MOUSE_ID_TO_EVENT_TYPE[event_code]
-                        event = MouseEvent(current_key, event_type)
+                        #the first two members of kb_data_ptr hold the mouse position, x and y
+                        event = MouseEvent(current_key, event_type, kb_data_ptr[0], kb_data_ptr[1])
 
                         if self.handler != 0:
                             self.handler(event)
@@ -294,7 +297,7 @@ if __name__ == "__main__":
 
         if isinstance(args, MouseEvent):
             if args.current_key == 'RButton' and args.event_type == 'key down':
-                print("Right button pressed")
+                print("Right button pressed at ({}, {})".format(args.mouse_x,args.mouse_y))
 
             if args.current_key == 'WheelButton' and args.event_type == 'key down':
                 print("Wheel button pressed")
