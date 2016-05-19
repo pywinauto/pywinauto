@@ -297,7 +297,7 @@ if __name__ == "__main__":
 
         if isinstance(args, MouseEvent):
             if args.current_key == 'RButton' and args.event_type == 'key down':
-                print("Right button pressed at ({}, {})".format(args.mouse_x,args.mouse_y))
+                print("Right button pressed at ({0}, {1})".format(args.mouse_x,args.mouse_y))
 
             if args.current_key == 'WheelButton' and args.event_type == 'key down':
                 print("Wheel button pressed")
