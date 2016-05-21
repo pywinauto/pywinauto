@@ -31,7 +31,7 @@ if UIA_support:
 
             self.dlg = self.app.WPFSampleApplication
             self.handle = self.dlg.handle
-            self.ctrl = UIAElementInfo(self.dlg.handle)
+            self.ctrl = UIAElementInfo(self.handle)
 
         def tearDown(self):
             """Close the application after tests"""
@@ -59,7 +59,7 @@ if UIA_support:
 
         def testChildren(self):
             """Test whether a list of only immediate children of the element is equal"""
-            self.assertEqual(len(self.ctrl.children()), 18)
+            self.assertEqual(len(self.ctrl.children()), 5)
 
 if __name__ == "__main__":
     if UIA_support:
