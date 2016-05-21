@@ -1,5 +1,64 @@
+# Windows global hooks in pure Python inside pywinauto GUI automation library
+# Copyright (C) 2016 Maxim Samokhvalov
+# Copyright (C) 2016 Vasily Ryabov
+# Copyright (C) 2016 ethanhs
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# * Neither the name of hooks.py nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""
+Windows global hooks in pure Python
+
+The implementation uses foreign function interface (FFI) provided by 
+standard Python module **ctypes** and inspired by pyHook, pyhooked and other 
+similar modules. It tends to be a superset of pyHook but in pure Python only 
+so it doesn't require compilation.
+
+Current set of hooks implemented:
+ * WH_MOUSE_LL
+ * WH_KEYBOARD_LL
+
+More detailed documentation about Windows hooks can be found in MSDN: 
+https://msdn.microsoft.com/en-us/library/windows/desktop/ms632589.aspx
+
+This module can be used as a stand alone or along with pywinauto.
+"""
+
 from ctypes import wintypes
-from ctypes import windll, CFUNCTYPE, POINTER, c_int, c_uint, c_void_p, byref
+from ctypes import windll
+from ctypes import CFUNCTYPE
+from ctypes import POINTER
+from ctypes import c_int
+from ctypes import c_uint
+from ctypes import c_void_p
+from ctypes import byref
 import atexit
 
 cmp_func = CFUNCTYPE(c_int, c_int, wintypes.HINSTANCE, POINTER(c_void_p))
@@ -19,7 +78,9 @@ def _callback_pointer(handler):
 
 
 class KeyboardEvent(object):
-    """Is created when keyboard event catch"""
+
+    """Created when a keyboard event happened"""
+
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
         self.current_key = current_key
         self.event_type = event_type
@@ -27,7 +88,9 @@ class KeyboardEvent(object):
 
 
 class MouseEvent(object):
-    """Is created when mouse event catch"""
+
+    """Created when a mouse event happened"""
+
     def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
         self.current_key = current_key
         self.event_type = event_type
@@ -36,7 +99,9 @@ class MouseEvent(object):
 
 
 class Hook(object):
-    """Allow hook low level keyboard and mouse events"""
+
+    """Hook for low level keyboard and mouse events"""
+
     MOUSE_ID_TO_KEY = {512: 'Move',
                        513: 'LButton',
                        514: 'LButton',
@@ -213,6 +278,8 @@ class Hook(object):
                         self.handler(event)
 
                 finally:
+                    # TODO: think how to resolve Landscape.io warning:
+                    # "return statement in finally block may swallow exception"
                     return windll.user32.CallNextHookEx(self.keyboard_id, code, event_code, kb_data_ptr)
 
             keyboard_pointer = _callback_pointer(keyboard_low_level_handler)
@@ -235,6 +302,8 @@ class Hook(object):
                             self.handler(event)
 
                 finally:
+                    # TODO: think how to resolve Landscape.io warning:
+                    # "return statement in finally block may swallow exception"
                     return windll.user32.CallNextHookEx(self.mouse_id, code, event_code, kb_data_ptr)
 
             mouse_pointer = _callback_pointer(mouse_low_level_handler)
