@@ -175,7 +175,7 @@ class BaseWrapper(object):
         """
         Window text of the element
 
-        Quite  a few contorls have other text that is visible, for example
+        Quite a few contorls have other text that is visible, for example
         Edit controls usually have an empty string for window_text but still
         have text displayed in the edit window.
         """

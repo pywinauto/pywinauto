@@ -444,11 +444,15 @@ class ListViewTestCases32(unittest.TestCase):
 if is_x64_Python():
 
     class ListViewTestCases64(ListViewTestCases32):
+
+        """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
+
         path = os.path.join(mfc_samples_folder, u"RowList.exe")
 
 
 class TreeViewTestCases32(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the TreeViewWrapper class"""
 
     path = os.path.join(controlspy_folder_32, "Tree View.exe")
 
@@ -593,6 +597,9 @@ class TreeViewTestCases32(unittest.TestCase):
 if is_x64_Python():
 
     class TreeViewTestCases64(TreeViewTestCases32):
+
+        """Unit tests for the 64-bit TreeViewWrapper on a 32-bit sample"""
+
         path = os.path.join(controlspy_folder, "Tree View.exe")
 
 
