@@ -298,6 +298,9 @@ if UIA_support:
             friendly_name = self.dlg.Yes.FriendlyClassName()
             self.assertEqual(friendly_name, "RadioButton")
 
+            friendly_name = self.dlg.TabControl.FriendlyClassName()
+            self.assertEqual(friendly_name, "TabControl")
+
         def test_check_box(self):
             """Test 'toggle' and 'toggle_state' for the check box control"""
             # Get a current state of the check box control
@@ -401,6 +404,47 @@ if UIA_support:
             
             collapsed = combo_box.collapse().is_collapsed()
             self.assertEqual(collapsed, True)
+
+
+    class TabControlWrapperTestCases(unittest.TestCase):
+
+        """Unit tests for the TabControlWrapper class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            Timings.window_find_timeout = 20
+
+            # start the application
+            app = Application(backend = 'uia')
+            app = app.start(wpf_app_1)
+            dlg = app.WPFSampleApplication
+
+            self.app = app
+            self.dlg = dlg
+            self.ctrl = dlg.TabControl.WrapperObject()
+            self.texts = [u"General", u"Views"]
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_tab_count(self):
+            """Test the tab count in the Tab control"""
+            self.assertEqual(self.ctrl.tab_count(), len(self.texts));
+
+        def test_get_selected_tab(self):
+            """Test selecting a tab by index or by name and getting an index of the selected tab"""
+            # Select a tab by name, use chaining to get the index of the selected tab
+            idx = self.ctrl.select(u"Views").get_selected_tab()
+            self.assertEqual(idx, 1);
+            # Select a tab by index
+            self.ctrl.select(0)
+            self.assertEqual(self.ctrl.get_selected_tab(), 0);
+
+        def test_texts(self):
+            """Make sure the tabs captions are read correctly"""
+            self.assertEqual (self.ctrl.texts(), self.texts)
 
 
     class EditWrapperTestCases(unittest.TestCase):

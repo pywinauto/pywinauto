@@ -392,6 +392,23 @@ class UIAWrapper(BaseWrapper):
         """
         ptrs_array = self.iface_selection.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
+    
+    def selected_item_index(self):
+        """Return the index of a selected item"""
+        # Go through all children and look for an index 
+        # of an item with the same text.
+        # Maybe there is another and more efficient way to do it
+        selection = self.get_selection()
+        if selection:
+            for i, c in enumerate(self.children()):
+                if c.window_text() == selection[0].name:
+                    return i
+        return None
+
+    def children_texts(self):
+        """Get texts of the control's children"""
+        return [c.window_text() for c in self.children()]
+
 
     #-----------------------------------------------------------
     def can_select_multiple(self):
@@ -422,7 +439,7 @@ class UIAWrapper(BaseWrapper):
         Find a child item by the name or index and select
         
         The action can be applied for dirrent controls with items:
-        ComboBox, TreeView, ListView
+        ComboBox, TreeView, ListView, Tab control
         """
         if isinstance(item, six.integer_types):
             item_index = item

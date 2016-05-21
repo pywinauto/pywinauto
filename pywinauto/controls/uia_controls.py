@@ -195,15 +195,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
-        # Go through all children and look for an index 
-        # of an item with the same text.
-        # Maybe there is another and more efficient way to do it
-        selection = self.get_selection()
-        if selection:
-            for i, c in enumerate(self.children()):
-                if c.window_text() == selection[0].name:
-                    return i
-        return None
+        return self.selected_item_index()
 
     #-----------------------------------------------------------
     def item_count(self):
@@ -394,6 +386,42 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
         # return this control so that actions can be chained.
         return self
+
+
+#====================================================================
+class TabControlWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Tab control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_TabControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(TabControlWrapper, self).__init__(hwnd)
+
+    #----------------------------------------------------------------
+    def get_selected_tab(self):
+        """Return the index of a selected tab"""
+        return self.selected_item_index()
+
+    #----------------------------------------------------------------
+    def tab_count(self):
+        """Return the number of tabs"""
+        return self.control_count()
+
+    #----------------------------------------------------------------
+    def select(self, item):
+        """Select a tab by index or by name"""
+        self._select(item)
+        return self
+
+    #----------------------------------------------------------------
+    def texts(self):
+        """Tabs texts"""
+        return self.children_texts()
 
 
 #====================================================================
