@@ -119,7 +119,7 @@ if UIA_support:
             self.assertEqual(button.is_dialog(), False)
 
         def testParent(self):
-            button = self.dlg.OK.WrapperObject()
+            button = self.dlg.Alpha.WrapperObject()
             self.assertEqual(button.parent(), self.dlg.WrapperObject())
 
         def testTopLevelParent(self):
@@ -135,7 +135,7 @@ if UIA_support:
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
         def testIsChild(self):
-            button = self.dlg.OK.WrapperObject()
+            button = self.dlg.Alpha.WrapperObject()
             self.assertEqual(button.is_child(self.dlg.WrapperObject()), True)
 
         def testEquals(self):
