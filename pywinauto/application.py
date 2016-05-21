@@ -573,22 +573,19 @@ class WindowSpecification(object):
         print("Control Identifiers:")
 
         def print_identifiers(ctrls, current_depth = 1):
-            """
-            Recursive function that prints identifiers for ctrls and
-            theirs descendants in a tree-like format
-            """
+            """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
 
             for ctrl in ctrls:
-                print((current_depth - 1) * "     | ")
+                print((current_depth - 1) * u"     | ")
 
-                print((current_depth - 1) * "     | ", end='')
-                print("{class_name} - '{text}'    {rect}\t".format(
+                print((current_depth - 1) * u"     | ", end='')
+                print(u"{class_name} - '{text}'    {rect}\t".format(
                     class_name=ctrl.friendly_class_name(),
                     text=ctrl.window_text(),
-                    rect=str(ctrl.rectangle())))
-                print((current_depth - 1) * "     | ", end='')
+                    rect=ctrl.rectangle()))
+                print((current_depth - 1) * u"     | ", end='')
                 print(control_name_map[ctrl])
 
                 print_identifiers(ctrl.children(), current_depth + 1)
