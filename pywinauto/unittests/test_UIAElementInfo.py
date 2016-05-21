@@ -26,7 +26,7 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             Timings.Slow()
 
-            self.app = Application(backend="native")
+            self.app = Application(backend="uia")
             self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
