@@ -37,6 +37,7 @@ from .. import six
 
 from . import uiawrapper
 from ..uia_defines import IUIA
+from ..uia_defines import NoPatternInterfaceError
 
 
 #====================================================================
@@ -409,7 +410,7 @@ class TabControlWrapper(uiawrapper.UIAWrapper):
 
     #----------------------------------------------------------------
     def tab_count(self):
-        """Return the number of tabs"""
+        """Return a number of tabs"""
         return self.control_count()
 
     #----------------------------------------------------------------
@@ -492,4 +493,57 @@ class SliderWrapper(uiawrapper.UIAWrapper):
             raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
         self.iface_range_value.SetValue(value_to_set)
+
+
+#====================================================================
+class HeaderWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Header control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_HeaderControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(HeaderWrapper, self).__init__(hwnd)
+
+
+#====================================================================
+class ListViewWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible ListView control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_DataGridControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(ListViewWrapper, self).__init__(hwnd)
+
+    #-----------------------------------------------------------
+    def item_count(self):
+        """A number of items in the ListView"""
+        return self.iface_grid.CurrentRowCount
+
+    #-----------------------------------------------------------
+    def column_count(self):
+        """Return the number of columns"""
+        return self.iface_grid.CurrentColumnCount
+
+    #-----------------------------------------------------------
+    def get_header_control(self):
+        "Returns the Header control associated with the ListView"
+        try:
+            # MSDN: A data grid control that has a header 
+            # should support the Table control pattern
+            if self.iface_table:
+                hdr = self.children()[0]
+        except (IndexError, NoPatternInterfaceError,):
+            hdr = None
+
+        return hdr
 

@@ -85,12 +85,15 @@ for ctrl_type in _control_types:
 #=========================================================================
 _friendly_classes = {
     'Custom': None,
-    'DataGrid': None,
+    'DataGrid': 'ListView',
+    'DataItem': 'ListViewItem',
     'Document': None, # TODO: this is RichTextBox
     'Group': 'GroupBox',
+    'Header': None,
     'Hyperlink': None,
     'Image': None,
     'List': 'ListBox',
+    'ListItem': None,
     'MenuBar': None,
     'Menu': None,
     'Pane': None,
@@ -267,6 +270,20 @@ class UIAWrapper(BaseWrapper):
         """Get the element's RangeValue interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "RangeValue")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_grid(self):
+        """Get the element's ItemContainer interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Grid")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_table(self):
+        """Get the element's ItemContainer interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Table")
 
     #------------------------------------------------------------
     @property

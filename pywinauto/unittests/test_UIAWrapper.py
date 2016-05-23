@@ -18,6 +18,7 @@ from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
+    import pywinauto.controls.uia_controls as uia_ctls
     from pywinauto.controls.uiawrapper import UIAWrapper
 from pywinauto import findwindows
 from pywinauto.timings import Timings
@@ -597,6 +598,57 @@ if UIA_support:
             self.assertRaises(ValueError, self.slider.set_value, 102)
 
             self.assertRaises(ValueError, self.slider.set_value, [50,])
+
+
+    class ListViewWrapperTestCases(unittest.TestCase):
+
+        """Unit tests for the ListViewWrapper class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            Timings.window_find_timeout = 20
+
+            # start the application
+            app = Application(backend = 'uia')
+            app = app.start(wpf_app_1)
+            dlg = app.WPFSampleApplication
+
+            self.app = app
+            self.dlg = dlg
+            dlg.TabControl.select(u'Views')
+            self.ctrl = dlg.ListView.WrapperObject()
+
+            self.texts = [
+                (u"1", u"Tomatoe", u"Red",),
+                (u"2", u"Cucumber", u"Green",),
+                (u"3", u"Reddish", u"Purple",),
+                (u"4", u"Cauliflower", u"White",),
+                (u"5", u"Cupsicum", u"Yellow",),
+                (u"6", u"Cupsicum", u"Red",),
+                (u"7", u"Cupsicum", u"Green",)
+            ]
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_friendly_class_name(self):
+            """Test friendly class name of the ListView control"""
+            self.assertEqual(self.ctrl.friendly_class_name(), "ListView")
+
+        def test_item_count(self):
+            """Test the items count in the ListView control"""
+            self.assertEqual(self.ctrl.item_count(), len(self.texts))
+
+        def test_column_count(self):
+            """Test the columns count in the ListView control"""
+            self.assertEqual(self.ctrl.column_count(), len(self.texts[0]))
+
+        def test_get_header_control(self):
+            """Test getting a Header control of the ListView control"""
+            hdr = self.ctrl.get_header_control()
+            self.assertEqual(isinstance(hdr, uia_ctls.HeaderWrapper), True)
 
 
 if __name__ == "__main__":
