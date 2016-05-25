@@ -90,6 +90,7 @@ _friendly_classes = {
     'Document': None, # TODO: this is RichTextBox
     'Group': 'GroupBox',
     'Header': None,
+    'HeaderItem': None,
     'Hyperlink': None,
     'Image': None,
     'List': 'ListBox',
@@ -274,16 +275,30 @@ class UIAWrapper(BaseWrapper):
     #------------------------------------------------------------
     @lazy_property
     def iface_grid(self):
-        """Get the element's ItemContainer interface pattern"""
+        """Get the element's Grid interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Grid")
 
     #------------------------------------------------------------
     @lazy_property
+    def iface_grid_item(self):
+        """Get the element's GridItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "GridItem")
+
+    #------------------------------------------------------------
+    @lazy_property
     def iface_table(self):
-        """Get the element's ItemContainer interface pattern"""
+        """Get the element's Table interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Table")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_table_item(self):
+        """Get the element's TableItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "TableItem")
 
     #------------------------------------------------------------
     @property

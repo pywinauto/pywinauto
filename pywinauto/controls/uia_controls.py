@@ -32,8 +32,10 @@
 Wrap various UIA windows controls
 """
 import locale
+import comtypes
 
 from .. import six
+from .. import uia_element_info
 
 from . import uiawrapper
 from ..uia_defines import IUIA
@@ -542,8 +544,44 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # should support the Table control pattern
             if self.iface_table:
                 hdr = self.children()[0]
-        except (IndexError, NoPatternInterfaceError,):
+        except(IndexError, NoPatternInterfaceError):
             hdr = None
 
         return hdr
+
+    #-----------------------------------------------------------
+    def _item_idx_by_text(self, txt):
+        """Return the row and the column of a first item found by text"""
+        first_found = self.descendants(title = txt)[0]
+        row = first_found.iface_grid_item.CurrentRow
+        col = first_found.iface_grid_item.CurrentColumn
+        
+        return row, col
+
+    #-----------------------------------------------------------
+    def get_item(self, row, col = 0):
+        """Return the item of the list view"
+
+        * **row** Can be either an index of the row or a string
+          with the text of the first item in the row you want returned.
+        * **col** A zero based index of the item in the row 
+          you want returned. Defaults to 0.
+        """
+        # Verify arguments
+        if not isinstance(col, six.integer_types):
+            raise ValueError
+        if isinstance(row, six.text_type):
+            row, col = self._item_idx_by_text(row)
+        elif not isinstance(row, six.integer_types):
+            raise ValueError
+
+        try:
+            e = self.iface_grid.GetItem(row, col)
+            itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(e))
+        except comtypes.COMError:
+            raise IndexError
+
+        return itm
+
+    item = get_item  # this is an alias to be consistent with other content elements
 

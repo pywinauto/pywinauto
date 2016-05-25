@@ -650,6 +650,40 @@ if UIA_support:
             hdr = self.ctrl.get_header_control()
             self.assertEqual(isinstance(hdr, uia_ctls.HeaderWrapper), True)
 
+        def test_get_item(self):
+            """Test getting an item of the ListView control"""
+            row = 0
+            col = 0
+            i = self.ctrl.get_item(row)
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = 3
+            col = 2
+            i = self.ctrl.get_item(row, col)
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = '3'
+            i = self.ctrl.get_item(row, col)
+            row = 2
+            col = 0
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = 'White'
+            i = self.ctrl.get_item(row, col)
+            row = 3
+            col = 2
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = 9
+            self.assertRaises(IndexError, self.ctrl.get_item, row, col)
+            
+            row = 1.5
+            self.assertRaises(ValueError, self.ctrl.get_item, row, col)
+            
+            row = 1
+            col = None
+            self.assertRaises(ValueError, self.ctrl.get_item, row, col)
+
 
 if __name__ == "__main__":
     if UIA_support:
