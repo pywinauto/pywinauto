@@ -571,7 +571,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def get_header_control(self):
-        "Returns the Header control associated with the ListView"
+        """Return the Header control associated with the ListView"""
         try:
             # MSDN: A data grid control that has a header 
             # should support the Table control pattern
@@ -584,7 +584,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
    
     #-----------------------------------------------------------
     def cell(self, row, column):
-        """Retrun a cell in the ListView control
+        """Return a cell in the ListView control
         
         * **row** is an index of a row in the list.
         * **column** is an index of a column in the specified row.
@@ -607,7 +607,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
    
     #-----------------------------------------------------------
     def get_item(self, row):
-        """Return an item of the ListView control"
+        """Return an item of the ListView control
 
         * **row** Can be either an index of the row or a string
           with the text of a cell in the row you want returned.
