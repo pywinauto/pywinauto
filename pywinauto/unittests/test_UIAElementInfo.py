@@ -26,12 +26,12 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             Timings.Slow()
 
-            self.app = Application(backend="native")
+            self.app = Application(backend="uia")
             self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.handle = self.dlg.handle
-            self.ctrl = UIAElementInfo(self.dlg.handle)
+            self.ctrl = UIAElementInfo(self.handle)
 
         def tearDown(self):
             """Close the application after tests"""
@@ -59,7 +59,7 @@ if UIA_support:
 
         def testChildren(self):
             """Test whether a list of only immediate children of the element is equal"""
-            self.assertEqual(len(self.ctrl.children()), 18)
+            self.assertEqual(len(self.ctrl.children()), 5)
 
 if __name__ == "__main__":
     if UIA_support:

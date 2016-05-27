@@ -175,7 +175,7 @@ class BaseWrapper(object):
         """
         Window text of the element
 
-        Quite  a few contorls have other text that is visible, for example
+        Quite a few contorls have other text that is visible, for example
         Edit controls usually have an empty string for window_text but still
         have text displayed in the edit window.
         """
@@ -360,28 +360,31 @@ class BaseWrapper(object):
     Texts = texts
 
     #-----------------------------------------------------------
-    def children(self, class_name = None):
+    def children(self, class_name = None, title = None):
         """
         Return the children of this element as a list
 
         It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no children.
         """
-        child_elements = self.element_info.children(
-                process = self.process_id(), class_name = class_name)
+        child_elements = self.element_info.children(process = self.process_id(), 
+                                                    class_name = class_name, 
+                                                    title = title)
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
     # Non PEP-8 alias
     Children = children
 
     #-----------------------------------------------------------
-    def descendants(self):
+    def descendants(self, class_name = None, title = None):
         """
         Return the descendants of this element as a list
 
         It returns a list of BaseWrapper (or subclass) instances, it
         returns an empty list if there are no descendants.
         """
-        desc_elements = self.element_info.descendants(process = self.process_id())
+        desc_elements = self.element_info.descendants(process = self.process_id(),
+                                                      class_name = class_name, 
+                                                      title = title)
         return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
 
     #-----------------------------------------------------------

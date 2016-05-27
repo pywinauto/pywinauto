@@ -18,6 +18,7 @@ from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
+    import pywinauto.controls.uia_controls as uia_ctls
     from pywinauto.controls.uiawrapper import UIAWrapper
 from pywinauto import findwindows
 from pywinauto.timings import Timings
@@ -119,7 +120,7 @@ if UIA_support:
             self.assertEqual(button.is_dialog(), False)
 
         def testParent(self):
-            button = self.dlg.OK.WrapperObject()
+            button = self.dlg.Alpha.WrapperObject()
             self.assertEqual(button.parent(), self.dlg.WrapperObject())
 
         def testTopLevelParent(self):
@@ -135,7 +136,7 @@ if UIA_support:
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
         def testIsChild(self):
-            button = self.dlg.OK.WrapperObject()
+            button = self.dlg.Alpha.WrapperObject()
             self.assertEqual(button.is_child(self.dlg.WrapperObject()), True)
 
         def testEquals(self):
@@ -298,6 +299,9 @@ if UIA_support:
             friendly_name = self.dlg.Yes.FriendlyClassName()
             self.assertEqual(friendly_name, "RadioButton")
 
+            friendly_name = self.dlg.TabControl.FriendlyClassName()
+            self.assertEqual(friendly_name, "TabControl")
+
         def test_check_box(self):
             """Test 'toggle' and 'toggle_state' for the check box control"""
             # Get a current state of the check box control
@@ -401,6 +405,47 @@ if UIA_support:
             
             collapsed = combo_box.collapse().is_collapsed()
             self.assertEqual(collapsed, True)
+
+
+    class TabControlWrapperTestCases(unittest.TestCase):
+
+        """Unit tests for the TabControlWrapper class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            Timings.window_find_timeout = 20
+
+            # start the application
+            app = Application(backend = 'uia')
+            app = app.start(wpf_app_1)
+            dlg = app.WPFSampleApplication
+
+            self.app = app
+            self.dlg = dlg
+            self.ctrl = dlg.TabControl.WrapperObject()
+            self.texts = [u"General", u"Views"]
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_tab_count(self):
+            """Test the tab count in the Tab control"""
+            self.assertEqual(self.ctrl.tab_count(), len(self.texts));
+
+        def test_get_selected_tab(self):
+            """Test selecting a tab by index or by name and getting an index of the selected tab"""
+            # Select a tab by name, use chaining to get the index of the selected tab
+            idx = self.ctrl.select(u"Views").get_selected_tab()
+            self.assertEqual(idx, 1);
+            # Select a tab by index
+            self.ctrl.select(0)
+            self.assertEqual(self.ctrl.get_selected_tab(), 0);
+
+        def test_texts(self):
+            """Make sure the tabs captions are read correctly"""
+            self.assertEqual (self.ctrl.texts(), self.texts)
 
 
     class EditWrapperTestCases(unittest.TestCase):
@@ -553,6 +598,112 @@ if UIA_support:
             self.assertRaises(ValueError, self.slider.set_value, 102)
 
             self.assertRaises(ValueError, self.slider.set_value, [50,])
+
+
+    class ListViewWrapperTestCases(unittest.TestCase):
+
+        """Unit tests for the ListViewWrapper class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            Timings.window_find_timeout = 20
+
+            # start the application
+            app = Application(backend = 'uia')
+            app = app.start(wpf_app_1)
+            dlg = app.WPFSampleApplication
+
+            self.app = app
+            self.dlg = dlg
+            dlg.TabControl.select(u'Views')
+            self.ctrl = dlg.ListView.WrapperObject()
+
+            self.texts = [
+                (u"1", u"Tomatoe", u"Red",),
+                (u"2", u"Cucumber", u"Green",),
+                (u"3", u"Reddish", u"Purple",),
+                (u"4", u"Cauliflower", u"White",),
+                (u"5", u"Cupsicum", u"Yellow",),
+                (u"6", u"Cupsicum", u"Red",),
+                (u"7", u"Cupsicum", u"Green",)
+            ]
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_friendly_class_name(self):
+            """Test friendly class name of the ListView control"""
+            self.assertEqual(self.ctrl.friendly_class_name(), "ListView")
+
+        def test_item_count(self):
+            """Test the items count in the ListView control"""
+            self.assertEqual(self.ctrl.item_count(), len(self.texts))
+
+        def test_column_count(self):
+            """Test the columns count in the ListView control"""
+            self.assertEqual(self.ctrl.column_count(), len(self.texts[0]))
+
+        def test_get_header_control(self):
+            """Test getting a Header control of the ListView control"""
+            hdr = self.ctrl.get_header_control()
+            self.assertEqual(isinstance(hdr, uia_ctls.HeaderWrapper), True)
+
+        def test_select(self):
+            """Test selecting an item of the ListView control"""
+            # Select by an index
+            row = 1
+            i = self.ctrl.get_item(row)
+            self.assertEqual(i.is_selected(), False)
+            i.select()
+            self.assertEqual(i.is_selected(), True)
+            i.select()  # de-select it back
+            
+            # Select by text
+            row = '3'
+            i = self.ctrl.get_item(row)
+            i.select()
+            self.assertEqual(i.is_selected(), True)
+            i.select()  # de-select it back
+            row = 'White'
+            i = self.ctrl.get_item(row)
+            i.select()
+            i = self.ctrl.get_item(3)  # re-get the item by a row index
+            self.assertEqual(i.is_selected(), True)
+
+        def test_cell(self):
+            """Test getting a cell of the ListView control"""
+            row = 0
+            col = 0
+            i = self.ctrl.cell(row, col)
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = 3
+            col = 2
+            i = self.ctrl.cell(row, col)
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = 2
+            col = 0
+            i = self.ctrl.cell(row, col)
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = 0
+            col = 2
+            i = self.ctrl.cell(row, col)
+            self.assertEqual(i.window_text(), self.texts[row][col])
+            
+            row = 9
+            self.assertRaises(IndexError, self.ctrl.cell, row, col)
+            
+            row = 1.5
+            #i = self.ctrl.cell(row, col)
+            self.assertRaises(ValueError, self.ctrl.cell, row, col)
+            
+            row = 1
+            col = None
+            self.assertRaises(ValueError, self.ctrl.cell, row, col)
 
 
 if __name__ == "__main__":

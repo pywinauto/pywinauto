@@ -32,11 +32,14 @@
 Wrap various UIA windows controls
 """
 import locale
+import comtypes
 
 from .. import six
+from .. import uia_element_info
 
 from . import uiawrapper
 from ..uia_defines import IUIA
+from ..uia_defines import NoPatternInterfaceError
 
 
 #====================================================================
@@ -195,15 +198,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
-        # Go through all children and look for an index 
-        # of an item with the same text.
-        # Maybe there is another and more efficient way to do it
-        selection = self.get_selection()
-        if selection:
-            for i, c in enumerate(self.children()):
-                if c.window_text() == selection[0].name:
-                    return i
-        return None
+        return self.selected_item_index()
 
     #-----------------------------------------------------------
     def item_count(self):
@@ -397,6 +392,42 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
 
 #====================================================================
+class TabControlWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Tab control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_TabControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(TabControlWrapper, self).__init__(hwnd)
+
+    #----------------------------------------------------------------
+    def get_selected_tab(self):
+        """Return the index of a selected tab"""
+        return self.selected_item_index()
+
+    #----------------------------------------------------------------
+    def tab_count(self):
+        """Return a number of tabs"""
+        return self.control_count()
+
+    #----------------------------------------------------------------
+    def select(self, item):
+        """Select a tab by index or by name"""
+        self._select(item)
+        return self
+
+    #----------------------------------------------------------------
+    def texts(self):
+        """Tabs texts"""
+        return self.children_texts()
+
+
+#====================================================================
 class SliderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Slider control"""
@@ -464,4 +495,136 @@ class SliderWrapper(uiawrapper.UIAWrapper):
             raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
         self.iface_range_value.SetValue(value_to_set)
+
+
+#====================================================================
+class HeaderWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Header control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_HeaderControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(HeaderWrapper, self).__init__(hwnd)
+
+
+#====================================================================
+class ListItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible ListViewItem control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_DataItemControlTypeId,
+        IUIA().UIA_dll.UIA_ListItemControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd, container = None):
+        """Initialize the control"""
+        super(ListItemWrapper, self).__init__(hwnd)
+
+        # Init a pointer to the item's container wrapper. 
+        # It must be set by a container wrapper producing the item.
+        # Notice that the self.parent property isn't the same 
+        # because it results in a different instance of a wrapper.
+        self.container = None
+
+    #-----------------------------------------------------------
+    def select(self):
+        """Select/Deselect all cells in the ListItem"""
+        self.iface_selection_item.Select()
+
+    #-----------------------------------------------------------
+    def is_selected(self):
+        """Return True if the ListItem is selected"""
+        return self.iface_selection_item.CurrentIsSelected
+
+
+#====================================================================
+class ListViewWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible ListView control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_DataGridControlTypeId,
+        IUIA().UIA_dll.UIA_ListControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(ListViewWrapper, self).__init__(hwnd)
+
+    #-----------------------------------------------------------
+    def item_count(self):
+        """A number of items in the ListView"""
+        return self.iface_grid.CurrentRowCount
+
+    #-----------------------------------------------------------
+    def column_count(self):
+        """Return the number of columns"""
+        return self.iface_grid.CurrentColumnCount
+
+    #-----------------------------------------------------------
+    def get_header_control(self):
+        """Return the Header control associated with the ListView"""
+        try:
+            # MSDN: A data grid control that has a header 
+            # should support the Table control pattern
+            if self.iface_table:
+                hdr = self.children()[0]
+        except(IndexError, NoPatternInterfaceError):
+            hdr = None
+
+        return hdr
+   
+    #-----------------------------------------------------------
+    def cell(self, row, column):
+        """Return a cell in the ListView control
+        
+        * **row** is an index of a row in the list.
+        * **column** is an index of a column in the specified row.
+        The returned cell can be of different control types. 
+        Mostly: TextBlock, ImageControl, EditControl, DataItem
+        or even another layer of data items (Group, DataGrid)
+        """
+        if not isinstance(row, six.integer_types) or \
+           not isinstance(column, six.integer_types):
+            raise ValueError
+
+        try:
+            e = self.iface_grid.GetItem(row, column)
+            elem_info = uia_element_info.UIAElementInfo(e)
+            cell = uiawrapper.UIAWrapper(elem_info)
+        except comtypes.COMError:
+            raise IndexError
+
+        return cell
+   
+    #-----------------------------------------------------------
+    def get_item(self, row):
+        """Return an item of the ListView control
+
+        * **row** Can be either an index of the row or a string
+          with the text of a cell in the row you want returned.
+        """
+        # Verify arguments
+        if isinstance(row, six.text_type):
+            # Look for a cell with the text, return the first found item
+            itm = self.descendants(title = row)[0].parent()
+        elif isinstance(row, six.integer_types):
+            # Get the item by a row index of its first cell
+            itm = self.cell(row, 0).parent()
+        else:
+            raise ValueError
+
+        # Give to the item a pointer on its container
+        itm.container = self
+        return itm
+
+    item = get_item  # this is an alias to be consistent with other content elements
 

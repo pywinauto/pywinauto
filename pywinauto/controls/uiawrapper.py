@@ -85,12 +85,16 @@ for ctrl_type in _control_types:
 #=========================================================================
 _friendly_classes = {
     'Custom': None,
-    'DataGrid': None,
+    'DataGrid': 'ListView',
+    'DataItem': 'ListViewItem',
     'Document': None, # TODO: this is RichTextBox
     'Group': 'GroupBox',
+    'Header': None,
+    'HeaderItem': None,
     'Hyperlink': None,
     'Image': None,
     'List': 'ListBox',
+    'ListItem': None,
     'MenuBar': None,
     'Menu': None,
     'Pane': None,
@@ -269,6 +273,34 @@ class UIAWrapper(BaseWrapper):
         return uia_defs.get_elem_interface(elem, "RangeValue")
 
     #------------------------------------------------------------
+    @lazy_property
+    def iface_grid(self):
+        """Get the element's Grid interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Grid")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_grid_item(self):
+        """Get the element's GridItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "GridItem")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_table(self):
+        """Get the element's Table interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Table")
+
+    #------------------------------------------------------------
+    @lazy_property
+    def iface_table_item(self):
+        """Get the element's TableItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "TableItem")
+
+    #------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -392,6 +424,23 @@ class UIAWrapper(BaseWrapper):
         """
         ptrs_array = self.iface_selection.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
+    
+    def selected_item_index(self):
+        """Return the index of a selected item"""
+        # Go through all children and look for an index 
+        # of an item with the same text.
+        # Maybe there is another and more efficient way to do it
+        selection = self.get_selection()
+        if selection:
+            for i, c in enumerate(self.children()):
+                if c.window_text() == selection[0].name:
+                    return i
+        return None
+
+    def children_texts(self):
+        """Get texts of the control's children"""
+        return [c.window_text() for c in self.children()]
+
 
     #-----------------------------------------------------------
     def can_select_multiple(self):
@@ -422,7 +471,7 @@ class UIAWrapper(BaseWrapper):
         Find a child item by the name or index and select
         
         The action can be applied for dirrent controls with items:
-        ComboBox, TreeView, ListView
+        ComboBox, TreeView, Tab control
         """
         if isinstance(item, six.integer_types):
             item_index = item
