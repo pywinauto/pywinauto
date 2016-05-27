@@ -513,12 +513,45 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
 
 
 #====================================================================
+class ListItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible ListViewItem control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_DataItemControlTypeId,
+        IUIA().UIA_dll.UIA_ListItemControlTypeId,
+    ]
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd, container = None):
+        """Initialize the control"""
+        super(ListItemWrapper, self).__init__(hwnd)
+
+        # Init a pointer to the item's container wrapper. 
+        # It must be set by a container wrapper producing the item.
+        # Notice that the self.parent property isn't the same 
+        # because it results in a different instance of a wrapper.
+        self.container = None
+
+    #-----------------------------------------------------------
+    def select(self):
+        """Select/Deselect all cells in the ListItem"""
+        self.iface_selection_item.Select()
+
+    #-----------------------------------------------------------
+    def is_selected(self):
+        """Return True if the ListItem is selected"""
+        return self.iface_selection_item.CurrentIsSelected
+
+
+#====================================================================
 class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
 
     control_types = [
         IUIA().UIA_dll.UIA_DataGridControlTypeId,
+        IUIA().UIA_dll.UIA_ListControlTypeId,
     ]
 
     #-----------------------------------------------------------
@@ -548,39 +581,49 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             hdr = None
 
         return hdr
-
+   
     #-----------------------------------------------------------
-    def _item_idx_by_text(self, txt):
-        """Return the row and the column of a first item found by text"""
-        first_found = self.descendants(title = txt)[0]
-        row = first_found.iface_grid_item.CurrentRow
-        col = first_found.iface_grid_item.CurrentColumn
+    def cell(self, row, column):
+        """Retrun a cell in the ListView control
         
-        return row, col
-
-    #-----------------------------------------------------------
-    def get_item(self, row, col = 0):
-        """Return the item of the list view"
-
-        * **row** Can be either an index of the row or a string
-          with the text of the first item in the row you want returned.
-        * **col** A zero based index of the item in the row 
-          you want returned. Defaults to 0.
+        * **row** is an index of a row in the list.
+        * **column** is an index of a column in the specified row.
+        The returned cell can be of different control types. 
+        Mostly: TextBlock, ImageControl, EditControl, DataItem
+        or even another layer of data items (Group, DataGrid)
         """
-        # Verify arguments
-        if not isinstance(col, six.integer_types):
-            raise ValueError
-        if isinstance(row, six.text_type):
-            row, col = self._item_idx_by_text(row)
-        elif not isinstance(row, six.integer_types):
+        if not isinstance(row, six.integer_types) or \
+           not isinstance(column, six.integer_types):
             raise ValueError
 
         try:
-            e = self.iface_grid.GetItem(row, col)
-            itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(e))
+            e = self.iface_grid.GetItem(row, column)
+            elem_info = uia_element_info.UIAElementInfo(e)
+            cell = uiawrapper.UIAWrapper(elem_info)
         except comtypes.COMError:
             raise IndexError
 
+        return cell
+   
+    #-----------------------------------------------------------
+    def get_item(self, row):
+        """Return an item of the ListView control"
+
+        * **row** Can be either an index of the row or a string
+          with the text of a cell in the row you want returned.
+        """
+        # Verify arguments
+        if isinstance(row, six.text_type):
+            # Look for a cell with the text, return the first found item
+            itm = self.descendants(title = row)[0].parent()
+        elif isinstance(row, six.integer_types):
+            # Get the item by a row index of its first cell
+            itm = self.cell(row, 0).parent()
+        else:
+            raise ValueError
+
+        # Give to the item a pointer on its container
+        itm.container = self
         return itm
 
     item = get_item  # this is an alias to be consistent with other content elements

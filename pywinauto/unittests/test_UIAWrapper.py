@@ -650,39 +650,60 @@ if UIA_support:
             hdr = self.ctrl.get_header_control()
             self.assertEqual(isinstance(hdr, uia_ctls.HeaderWrapper), True)
 
-        def test_get_item(self):
-            """Test getting an item of the ListView control"""
+        def test_select(self):
+            """Test selecting an item of the ListView control"""
+            # Select by an index
+            row = 1
+            i = self.ctrl.get_item(row)
+            self.assertEqual(i.is_selected(), False)
+            i.select()
+            self.assertEqual(i.is_selected(), True)
+            i.select()  # de-select it back
+            
+            # Select by text
+            row = '3'
+            i = self.ctrl.get_item(row)
+            i.select()
+            self.assertEqual(i.is_selected(), True)
+            i.select()  # de-select it back
+            row = 'White'
+            i = self.ctrl.get_item(row)
+            i.select()
+            i = self.ctrl.get_item(3)  # re-get the item by a row index
+            self.assertEqual(i.is_selected(), True)
+
+        def test_cell(self):
+            """Test getting a cell of the ListView control"""
             row = 0
             col = 0
-            i = self.ctrl.get_item(row)
+            i = self.ctrl.cell(row, col)
             self.assertEqual(i.window_text(), self.texts[row][col])
             
             row = 3
             col = 2
-            i = self.ctrl.get_item(row, col)
+            i = self.ctrl.cell(row, col)
             self.assertEqual(i.window_text(), self.texts[row][col])
             
-            row = '3'
-            i = self.ctrl.get_item(row, col)
             row = 2
             col = 0
+            i = self.ctrl.cell(row, col)
             self.assertEqual(i.window_text(), self.texts[row][col])
             
-            row = 'White'
-            i = self.ctrl.get_item(row, col)
-            row = 3
+            row = 0
             col = 2
+            i = self.ctrl.cell(row, col)
             self.assertEqual(i.window_text(), self.texts[row][col])
             
             row = 9
-            self.assertRaises(IndexError, self.ctrl.get_item, row, col)
+            self.assertRaises(IndexError, self.ctrl.cell, row, col)
             
             row = 1.5
-            self.assertRaises(ValueError, self.ctrl.get_item, row, col)
+            #i = self.ctrl.cell(row, col)
+            self.assertRaises(ValueError, self.ctrl.cell, row, col)
             
             row = 1
             col = None
-            self.assertRaises(ValueError, self.ctrl.get_item, row, col)
+            self.assertRaises(ValueError, self.ctrl.cell, row, col)
 
 
 if __name__ == "__main__":

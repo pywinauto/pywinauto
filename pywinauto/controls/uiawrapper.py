@@ -471,7 +471,7 @@ class UIAWrapper(BaseWrapper):
         Find a child item by the name or index and select
         
         The action can be applied for dirrent controls with items:
-        ComboBox, TreeView, ListView, Tab control
+        ComboBox, TreeView, Tab control
         """
         if isinstance(item, six.integer_types):
             item_index = item
