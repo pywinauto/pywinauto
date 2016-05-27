@@ -169,7 +169,8 @@ def find_elements(class_name = None,
         element = backend_obj.element_info_class()
         elements = element.children(process = process, 
                                     class_name = class_name, 
-                                    title = title) # root.children == enum_windows()
+                                    title = title,
+                                    cache_enable = True) # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
@@ -184,7 +185,8 @@ def find_elements(class_name = None,
         # look for ALL children of that parent
         elements = parent.descendants(process = process,
                                       class_name = class_name,
-                                      title = title) # root.children == enum_windows()
+                                      title = title,
+                                      cache_enable = True) # root.children == enum_windows()
 
         # if the ctrl_index has been specified then just return
         # that control
@@ -257,7 +259,6 @@ def find_elements(class_name = None,
     if best_match is not None:
         wrapped_elems = []
         for elem in elements:
-            elem.set_cache_strategy(True)
             try:
                 wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
                 #wrapped_elems.append(BaseWrapper(elem))

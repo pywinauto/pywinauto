@@ -64,20 +64,15 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
-def elements_from_uia_array(ptrs_array):
+def elements_from_uia_array(ptrs, cache_enable = False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
-    elements = []
-    for num in range(ptrs_array.Length):
-        child = ptrs_array.GetElement(num)
-        elements.append(UIAElementInfo(child))
-
-    return elements
+    return [UIAElementInfo(ptrs.GetElement(n), cache_enable) for n in range(ptrs.Length)]
 
 
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
-    def __init__(self, handle_or_elem = None):
+    def __init__(self, handle_or_elem = None, cache_enable = False):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
@@ -96,7 +91,7 @@ class UIAElementInfo(ElementInfo):
         else:
             self._element = IUIA().root
 
-        self.set_cache_strategy(False)
+        self.set_cache_strategy(cache_enable)
 
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
@@ -225,10 +220,10 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond = IUIA().true_condition):
+    def _get_elements(self, tree_scope, cond = IUIA().true_condition, cache_enable = False):
         """Find all elements according to the given tree scope and conditions"""
         ptrs_array = self._element.FindAll(tree_scope, cond)
-        return elements_from_uia_array(ptrs_array)
+        return elements_from_uia_array(ptrs_array, cache_enable)
 
     def children(self, **kwargs):
         """
@@ -237,8 +232,9 @@ class UIAElementInfo(ElementInfo):
         * **kwargs** is a criteria to reduce a list by process, 
         class_name and/or title.
         """
+        cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["children"], cond)
+        return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
         """
@@ -247,8 +243,9 @@ class UIAElementInfo(ElementInfo):
         * **kwargs** is a criteria to reduce a list by process, 
         class_name and/or title.
         """
+        cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["descendants"], cond)
+        return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
 
     @property
     def visible(self):
