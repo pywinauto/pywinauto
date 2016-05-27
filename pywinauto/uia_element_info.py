@@ -90,7 +90,7 @@ class UIAElementInfo(ElementInfo):
                     "with integer or IUIAutomationElement instance only!")
         else:
             self._element = IUIA().root
-
+ 
         self.set_cache_strategy(cache_enable)
 
     def _get_current_class_name(self):
@@ -136,6 +136,9 @@ class UIAElementInfo(ElementInfo):
 
     def set_cache_strategy(self, cached = False):
         """Setup a cache strategy for frequently used attributes"""
+        self.cache_enable = cached
+        self.children_list = None
+        self.descendants_list = None
         if cached:
             # Refresh cached attributes
             self._cached_class_name = self._get_current_class_name()
@@ -232,9 +235,17 @@ class UIAElementInfo(ElementInfo):
         * **kwargs** is a criteria to reduce a list by process, 
         class_name and/or title.
         """
-        cache_enable = kwargs.pop('cache_enable', False)
-        cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
+        def _children():
+            cache_enable = kwargs.pop('cache_enable', False)
+            cond = IUIA().build_condition(**kwargs)
+            return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
+
+        if self.cache_enable:
+            if not self.children:
+                self.children_list = _children()
+            return self.children_list
+        else:
+            return _children()
 
     def descendants(self, **kwargs):
         """
@@ -243,9 +254,17 @@ class UIAElementInfo(ElementInfo):
         * **kwargs** is a criteria to reduce a list by process, 
         class_name and/or title.
         """
-        cache_enable = kwargs.pop('cache_enable', False)
-        cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+        def _descendants():
+            cache_enable = kwargs.pop('cache_enable', False)
+            cond = IUIA().build_condition(**kwargs)
+            return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+
+        if self.cache_enable:
+            if not self.descendants_list:
+                self.descendants_list = _children()
+            return self.descendants_list
+        else:
+            return _descendants()
 
     @property
     def visible(self):
