@@ -193,6 +193,10 @@ def find_elements(class_name = None,
         if ctrl_index is not None:
             return [elements[ctrl_index], ]
 
+    # early stop
+    if not elements:
+        return elements
+
     if framework_id is not None and elements:
         elements = [elem for elem in elements if elem.framework_id == framework_id]
 
@@ -221,10 +225,6 @@ def find_elements(class_name = None,
                 break
         if not found_active:
             elements = []
-
-    # early stop
-    if not elements:
-        return elements
 
     if class_name is not None:
         elements = [elem for elem in elements if elem.class_name == class_name]
@@ -258,15 +258,13 @@ def find_elements(class_name = None,
 
     if best_match is not None:
         wrapped_elems = []
-        for elem in elements:
-            try:
-                wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
-                #wrapped_elems.append(BaseWrapper(elem))
-            except (controls.InvalidWindowHandle,
-                    controls.InvalidElement):
-                # skip invalid handles - they have dissapeared
-                # since the list of elements was retrieved
-                continue
+        try:
+            wrapped_elems = [backend_obj.generic_wrapper_class(e) for e in elements]
+        except (controls.InvalidWindowHandle,
+                controls.InvalidElement):
+            # skip invalid handles - they have dissapeared
+            # since the list of elements was retrieved
+            pass
         elements = findbestmatch.find_best_control_matches(best_match, wrapped_elems)
 
         # convert found elements back to ElementInfo
