@@ -483,11 +483,10 @@ class UIAWrapper(BaseWrapper):
             err_msg = u"unsupported {0} for item {1}".format(type(item), item)
             raise ValueError(err_msg)
 
-        list_ = self.element_info.children(title = title)
+        list_ = self.children(title = title)
         if item_index < len(list_):
-            elem = list_[item_index].element
-            iface = uia_defs.get_elem_interface(elem, "SelectionItem")
-            iface.Select()
+            wrp = list_[item_index]
+            wrp.iface_selection_item.Select()
         else:
             raise IndexError("item not found")
 
