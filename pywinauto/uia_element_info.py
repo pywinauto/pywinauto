@@ -99,6 +99,8 @@ class UIAElementInfo(ElementInfo):
     
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
+        if self._cached_class_name == False:
+            self._cached_class_name = self._get_current_class_name()
         return self._cached_class_name
 
     def _get_current_handle(self):
@@ -107,6 +109,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_handle(self):
         """Return a cached handle of the element"""
+        if self._cached_handle == False:
+            self._cached_handle = self._get_current_handle()
         return self._cached_handle
 
     def _get_current_control_type(self):
@@ -115,6 +119,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_control_type(self):
         """Return a cached control type of the element"""
+        if self._cached_control_type == False:
+            self._cached_control_type = self._get_current_control_type()
         return self._cached_control_type
 
     def _get_current_name(self):
@@ -123,6 +129,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
+        if self._cached_name == False:
+            self._cached_name = self._get_current_name()
         return self._cached_name
 
     def _get_current_visible(self):
@@ -131,6 +139,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_visible(self):
         """Return a cached visible property of the element"""
+        if self._cached_visible == False:
+            self._cached_visible = self._get_current_visible()
         return self._cached_visible
 
 
@@ -141,11 +151,11 @@ class UIAElementInfo(ElementInfo):
         self.descendants_list = None
         if cached:
             # Refresh cached attributes
-            self._cached_class_name = self._get_current_class_name()
-            self._cached_handle = self._get_current_handle()
-            self._cached_control_type = self._get_current_control_type()
-            self._cached_name = self._get_current_name()
-            self._cached_visible = self._get_current_visible()
+            self._cached_class_name = False
+            self._cached_handle = False
+            self._cached_control_type = False
+            self._cached_name = False
+            self._cached_visible = False
 
             # Switch to cached attributes
             self._get_class_name = self._get_cached_class_name
