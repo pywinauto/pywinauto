@@ -193,7 +193,6 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
     for i, c in enumerate(controls):
         if c is ctrl:
             ctrl_index = i
-            print i, len(controls)
             break
     ctrl_friendly_class_name = ctrl.friendly_class_name()
 
