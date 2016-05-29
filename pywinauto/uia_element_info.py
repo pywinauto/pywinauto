@@ -316,6 +316,13 @@ class UIAElementInfo(ElementInfo):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):
             return False;
-        return self.handle == other.handle and self.class_name == other.class_name and self.name == other.name and \
-               self.process_id == other.process_id and self.automation_id == other.automation_id and \
-               self.framework_id == other.framework_id and self.control_type == other.control_type
+        # We put the most frequent attibutes at the top of comparison as
+        # many often the element doesn't have all these attributes.
+        # For example 'handle' exists only for top-level windows.
+        return self.control_type == other.control_type and \
+               self.class_name == other.class_name and \
+               self.process_id == other.process_id and \
+               self.handle == other.handle and \
+               self.name == other.name and \
+               self.automation_id == other.automation_id and \
+               self.framework_id == other.framework_id
