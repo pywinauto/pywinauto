@@ -187,8 +187,15 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
     """
     names = []
 
-    ctrl_index = controls.index(ctrl)
-    ctrl_friendly_class_name =  ctrl.friendly_class_name()
+    # simply look for an instance of the control in the list,
+    # we don't use list.index() method as it invokes __eq__
+    ctrl_index = 0
+    for i, c in enumerate(controls):
+        if c is ctrl:
+            ctrl_index = i
+            print i, len(controls)
+            break
+    ctrl_friendly_class_name = ctrl.friendly_class_name()
 
     if ctrl_index != 0:
         prev_ctrl = controls[ctrl_index-1]
