@@ -317,7 +317,7 @@ class UIAElementInfo(ElementInfo):
         if not isinstance(other, UIAElementInfo):
             return False;
         # We put the most frequent attibutes at the top of comparison as
-        # many often the element doesn't have all these attributes.
+        # quite often the element doesn't have all these attributes.
         # For example 'handle' exists only for top-level windows.
         return self.control_type == other.control_type and \
                self.class_name == other.class_name and \
