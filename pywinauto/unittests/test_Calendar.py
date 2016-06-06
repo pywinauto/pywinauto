@@ -134,8 +134,8 @@ class CalendarWrapperTests(unittest.TestCase):
         self.assertEquals(win32defines.MCHT_CALENDARBK, res)
 
     def test_can_determine_date_is_hit(self):
-        x = int(self.width / 1.14)
-        y = int(self.height / 1.33)
+        x = int(self.width / 1.13)
+        y = int(self.height / 1.62)
 
         res = self.calendar.hit_test(x, y)
 
