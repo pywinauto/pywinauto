@@ -258,13 +258,14 @@ def find_elements(class_name = None,
 
     if best_match is not None:
         wrapped_elems = []
-        try:
-            wrapped_elems = [backend_obj.generic_wrapper_class(e) for e in elements]
-        except (controls.InvalidWindowHandle,
-                controls.InvalidElement):
-            # skip invalid handles - they have dissapeared
-            # since the list of elements was retrieved
-            pass
+        for elem in elements:
+            try:
+                wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
+            except (controls.InvalidWindowHandle,
+                    controls.InvalidElement):
+                # skip invalid handles - they have dissapeared
+                # since the list of elements was retrieved
+                continue
         elements = findbestmatch.find_best_control_matches(best_match, wrapped_elems)
 
         # convert found elements back to ElementInfo
