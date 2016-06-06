@@ -270,7 +270,7 @@ class UIAElementInfo(ElementInfo):
 
         if self.cache_enable:
             if not self.descendants_list:
-                self.descendants_list = _children()
+                self.descendants_list = _descendants()
             return self.descendants_list
         else:
             return _descendants()
