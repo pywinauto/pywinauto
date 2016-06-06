@@ -143,7 +143,6 @@ class UIAElementInfo(ElementInfo):
             self._cached_visible = self._get_current_visible()
         return self._cached_visible
 
-
     def set_cache_strategy(self, cached = False):
         """Setup a cache strategy for frequently used attributes"""
         self.cache_enable = cached
@@ -251,7 +250,7 @@ class UIAElementInfo(ElementInfo):
             return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
         if self.cache_enable:
-            if not self.children:
+            if not self.children_list:
                 self.children_list = _children()
             return self.children_list
         else:
