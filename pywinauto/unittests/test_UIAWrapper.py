@@ -615,9 +615,8 @@ if UIA_support:
             dlg = app.WPFSampleApplication
 
             self.app = app
-            self.dlg = dlg
-            dlg.TabControl.select(u'Views')
-            self.ctrl = dlg.ListView.WrapperObject()
+            tab_item_wrp = dlg.Views.set_focus()
+            self.ctrl = tab_item_wrp.children(class_name="ListView")[0]
 
             self.texts = [
                 (u"1", u"Tomatoe", u"Red",),
