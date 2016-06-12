@@ -257,10 +257,14 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.enabled]
 
     if best_match is not None:
+        # Build a list of wrapped controls.
+        # Speed up the loop by setting up local pointers
         wrapped_elems = []
+        add_to_wrp_elems = wrapped_elems.append
+        wrp_cls = backend_obj.generic_wrapper_class
         for elem in elements:
             try:
-                wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
+                add_to_wrp_elems(wrp_cls(elem))
             except (controls.InvalidWindowHandle,
                     controls.InvalidElement):
                 # skip invalid handles - they have dissapeared
