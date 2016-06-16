@@ -99,7 +99,7 @@ class UIAElementInfo(ElementInfo):
     
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
-        if self._cached_class_name == False:
+        if self._cached_class_name is None:
             self._cached_class_name = self._get_current_class_name()
         return self._cached_class_name
 
@@ -109,7 +109,7 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_handle(self):
         """Return a cached handle of the element"""
-        if self._cached_handle == False:
+        if self._cached_handle is None:
             self._cached_handle = self._get_current_handle()
         return self._cached_handle
 
@@ -119,7 +119,7 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_control_type(self):
         """Return a cached control type of the element"""
-        if self._cached_control_type == False:
+        if self._cached_control_type is None:
             self._cached_control_type = self._get_current_control_type()
         return self._cached_control_type
 
@@ -129,7 +129,7 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
-        if self._cached_name == False:
+        if self._cached_name is None:
             self._cached_name = self._get_current_name()
         return self._cached_name
 
@@ -139,7 +139,7 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_visible(self):
         """Return a cached visible property of the element"""
-        if self._cached_visible == False:
+        if self._cached_visible is None:
             self._cached_visible = self._get_current_visible()
         return self._cached_visible
 
@@ -155,20 +155,20 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_rich_text(self):
         """Return the cached rich_text of the element"""
-        if self._cached_rich_text == False:
+        if self._cached_rich_text is None:
             self._cached_rich_text = self._get_current_rich_text()
         return self._cached_rich_text
 
-    def set_cache_strategy(self, cached = False):
+    def set_cache_strategy(self, cached = None):
         """Setup a cache strategy for frequently used attributes"""
         if cached:
             # Refresh cached attributes
-            self._cached_class_name = False
-            self._cached_handle = False
-            self._cached_control_type = False
-            self._cached_name = False
-            self._cached_visible = False
-            self._cached_rich_text = False
+            self._cached_class_name = None
+            self._cached_handle = None
+            self._cached_control_type = None
+            self._cached_name = None
+            self._cached_visible = None
+            self._cached_rich_text = None
 
             # Switch to cached attributes
             self._get_class_name = self._get_cached_class_name
