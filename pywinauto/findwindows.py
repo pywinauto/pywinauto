@@ -169,7 +169,8 @@ def find_elements(class_name = None,
         element = backend_obj.element_info_class()
         elements = element.children(process = process, 
                                     class_name = class_name, 
-                                    title = title) # root.children == enum_windows()
+                                    title = title,
+                                    cache_enable = True) # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
@@ -184,12 +185,17 @@ def find_elements(class_name = None,
         # look for ALL children of that parent
         elements = parent.descendants(process = process,
                                       class_name = class_name,
-                                      title = title) # root.children == enum_windows()
+                                      title = title,
+                                      cache_enable = True) # root.children == enum_windows()
 
         # if the ctrl_index has been specified then just return
         # that control
         if ctrl_index is not None:
             return [elements[ctrl_index], ]
+
+    # early stop
+    if not elements:
+        return elements
 
     if framework_id is not None and elements:
         elements = [elem for elem in elements if elem.framework_id == framework_id]
@@ -219,10 +225,6 @@ def find_elements(class_name = None,
                 break
         if not found_active:
             elements = []
-
-    # early stop
-    if not elements:
-        return elements
 
     if class_name is not None:
         elements = [elem for elem in elements if elem.class_name == class_name]
@@ -255,12 +257,14 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.enabled]
 
     if best_match is not None:
+        # Build a list of wrapped controls.
+        # Speed up the loop by setting up local pointers
         wrapped_elems = []
+        add_to_wrp_elems = wrapped_elems.append
+        wrp_cls = backend_obj.generic_wrapper_class
         for elem in elements:
-            elem.set_cache_strategy(True)
             try:
-                wrapped_elems.append(backend_obj.generic_wrapper_class(elem))
-                #wrapped_elems.append(BaseWrapper(elem))
+                add_to_wrp_elems(wrp_cls(elem))
             except (controls.InvalidWindowHandle,
                     controls.InvalidElement):
                 # skip invalid handles - they have dissapeared

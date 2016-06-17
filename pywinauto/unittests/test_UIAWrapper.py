@@ -615,9 +615,8 @@ if UIA_support:
             dlg = app.WPFSampleApplication
 
             self.app = app
-            self.dlg = dlg
-            dlg.TabControl.select(u'Views')
-            self.ctrl = dlg.ListView.WrapperObject()
+            tab_item_wrp = dlg.Views.set_focus()
+            self.ctrl = tab_item_wrp.children(class_name="ListView")[0]
 
             self.texts = [
                 (u"1", u"Tomatoe", u"Red",),
@@ -671,6 +670,9 @@ if UIA_support:
             i.select()
             i = self.ctrl.get_item(3)  # re-get the item by a row index
             self.assertEqual(i.is_selected(), True)
+            
+            row = None
+            self.assertRaises(ValueError, self.ctrl.get_item, row)
 
         def test_cell(self):
             """Test getting a cell of the ListView control"""

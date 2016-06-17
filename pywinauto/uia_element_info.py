@@ -64,20 +64,15 @@ CurrentOrientation
 CurrentProviderDescription
 """
 
-def elements_from_uia_array(ptrs_array):
+def elements_from_uia_array(ptrs, cache_enable = False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
-    elements = []
-    for num in range(ptrs_array.Length):
-        child = ptrs_array.GetElement(num)
-        elements.append(UIAElementInfo(child))
-
-    return elements
+    return [UIAElementInfo(ptrs.GetElement(n), cache_enable) for n in range(ptrs.Length)]
 
 
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
-    def __init__(self, handle_or_elem = None):
+    def __init__(self, handle_or_elem = None, cache_enable = False):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
@@ -95,8 +90,8 @@ class UIAElementInfo(ElementInfo):
                     "with integer or IUIAutomationElement instance only!")
         else:
             self._element = IUIA().root
-
-        self.set_cache_strategy(False)
+ 
+        self.set_cache_strategy(cache_enable)
 
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
@@ -104,6 +99,8 @@ class UIAElementInfo(ElementInfo):
     
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
+        if self._cached_class_name is None:
+            self._cached_class_name = self._get_current_class_name()
         return self._cached_class_name
 
     def _get_current_handle(self):
@@ -112,6 +109,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_handle(self):
         """Return a cached handle of the element"""
+        if self._cached_handle is None:
+            self._cached_handle = self._get_current_handle()
         return self._cached_handle
 
     def _get_current_control_type(self):
@@ -120,6 +119,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_control_type(self):
         """Return a cached control type of the element"""
+        if self._cached_control_type is None:
+            self._cached_control_type = self._get_current_control_type()
         return self._cached_control_type
 
     def _get_current_name(self):
@@ -128,6 +129,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
+        if self._cached_name is None:
+            self._cached_name = self._get_current_name()
         return self._cached_name
 
     def _get_current_visible(self):
@@ -136,18 +139,36 @@ class UIAElementInfo(ElementInfo):
 
     def _get_cached_visible(self):
         """Return a cached visible property of the element"""
+        if self._cached_visible is None:
+            self._cached_visible = self._get_current_visible()
         return self._cached_visible
 
+    def _get_current_rich_text(self):
+        """Return the actual rich_text of the element"""
+        if not self.class_name:
+            return self.name
+        try:
+            pattern = get_elem_interface(self._element, "Text")
+            return pattern.DocumentRange.GetText(-1)
+        except Exception:
+            return self.name # TODO: probably we should raise an exception here
 
-    def set_cache_strategy(self, cached = False):
+    def _get_cached_rich_text(self):
+        """Return the cached rich_text of the element"""
+        if self._cached_rich_text is None:
+            self._cached_rich_text = self._get_current_rich_text()
+        return self._cached_rich_text
+
+    def set_cache_strategy(self, cached = None):
         """Setup a cache strategy for frequently used attributes"""
         if cached:
             # Refresh cached attributes
-            self._cached_class_name = self._get_current_class_name()
-            self._cached_handle = self._get_current_handle()
-            self._cached_control_type = self._get_current_control_type()
-            self._cached_name = self._get_current_name()
-            self._cached_visible = self._get_current_visible()
+            self._cached_class_name = None
+            self._cached_handle = None
+            self._cached_control_type = None
+            self._cached_name = None
+            self._cached_visible = None
+            self._cached_rich_text = None
 
             # Switch to cached attributes
             self._get_class_name = self._get_cached_class_name
@@ -155,6 +176,7 @@ class UIAElementInfo(ElementInfo):
             self._get_control_type = self._get_cached_control_type
             self._get_name = self._get_cached_name
             self._get_visible = self._get_cached_visible
+            self._get_rich_text = self._get_cached_rich_text
         else:
             # Switch to actual (non-cached) attributes 
             self._get_class_name = self._get_current_class_name
@@ -162,6 +184,7 @@ class UIAElementInfo(ElementInfo):
             self._get_control_type = self._get_current_control_type
             self._get_name = self._get_current_name
             self._get_visible = self._get_current_visible
+            self._get_rich_text = self._get_current_rich_text
 
     @property
     def element(self):
@@ -225,10 +248,10 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond = IUIA().true_condition):
+    def _get_elements(self, tree_scope, cond = IUIA().true_condition, cache_enable = False):
         """Find all elements according to the given tree scope and conditions"""
         ptrs_array = self._element.FindAll(tree_scope, cond)
-        return elements_from_uia_array(ptrs_array)
+        return elements_from_uia_array(ptrs_array, cache_enable)
 
     def children(self, **kwargs):
         """
@@ -237,8 +260,9 @@ class UIAElementInfo(ElementInfo):
         * **kwargs** is a criteria to reduce a list by process, 
         class_name and/or title.
         """
+        cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["children"], cond)
+        return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
         """
@@ -247,8 +271,9 @@ class UIAElementInfo(ElementInfo):
         * **kwargs** is a criteria to reduce a list by process, 
         class_name and/or title.
         """
+        cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["descendants"], cond)
+        return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
 
     @property
     def visible(self):
@@ -278,18 +303,19 @@ class UIAElementInfo(ElementInfo):
     @property
     def rich_text(self):
         """Return rich_text of the element"""
-        if not self.class_name:
-            return self.name
-        try:
-            pattern = get_elem_interface(self._element, "Text")
-            return pattern.DocumentRange.GetText(-1)
-        except Exception:
-            return self.name # TODO: probably we should raise an exception here
+        return self._get_rich_text()
 
     def __eq__(self, other):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):
             return False;
-        return self.handle == other.handle and self.class_name == other.class_name and self.name == other.name and \
-               self.process_id == other.process_id and self.automation_id == other.automation_id and \
-               self.framework_id == other.framework_id and self.control_type == other.control_type
+        # We put the most frequent attibutes at the top of comparison as
+        # quite often the element doesn't have all these attributes.
+        # For example 'handle' exists only for top-level windows.
+        return self.control_type == other.control_type and \
+               self.class_name == other.class_name and \
+               self.process_id == other.process_id and \
+               self.handle == other.handle and \
+               self.name == other.name and \
+               self.automation_id == other.automation_id and \
+               self.framework_id == other.framework_id
