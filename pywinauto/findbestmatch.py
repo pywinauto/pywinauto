@@ -458,7 +458,7 @@ def build_unique_dict(controls):
     # get the visible text controls so that we can get
     # the closest text if the control has no text
     text_ctrls = [ctrl_ for ctrl_ in controls
-                  if ctrl_.is_visible() and ctrl_.window_text() and ctrl_.can_be_label]
+                  if ctrl_.can_be_label and ctrl_.is_visible() and ctrl_.window_text()]
 
     # collect all the possible names for all controls
     # and build a list of them
