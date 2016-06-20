@@ -161,7 +161,7 @@ class UIAElementInfo(ElementInfo):
 
     def set_cache_strategy(self, cached = None):
         """Setup a cache strategy for frequently used attributes"""
-        if cached == True:
+        if cached is True:
             # Refresh cached attributes
             self._cached_class_name = None
             self._cached_handle = None
