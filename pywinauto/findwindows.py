@@ -277,10 +277,14 @@ def find_elements(class_name = None,
         elements = []
         for elem in backup_elements:
             if hasattr(elem, "element_info"):
-                elem.element_info.set_cache_strategy(False)
+                elem.element_info.set_cache_strategy(cached = False)
                 elements.append(elem.element_info)
             else:
                 elements.append(backend_obj.element_info_class(elem.handle))
+    else:
+        for elem in elements:
+            elem.set_cache_strategy(cached = False)
+
 
     if predicate_func is not None:
         elements = [elem for elem in elements if predicate_func(elem)]
