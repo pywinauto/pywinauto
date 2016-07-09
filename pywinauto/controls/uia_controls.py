@@ -628,3 +628,16 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     item = get_item  # this is an alias to be consistent with other content elements
 
+    #-----------------------------------------------------------
+    def get_selected_count(self):
+        """Return the number of selected items"""
+        # The call can be quite expensieve as we retrieve all 
+        # the selected items in order to count them
+        selection = self.get_selection()
+        if selection:
+            return len(selection)
+        else:
+            return 0
+
+
+

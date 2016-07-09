@@ -666,20 +666,24 @@ if UIA_support:
 
         def test_select(self):
             """Test selecting an item of the ListView control"""
+            # Verify get_selected_count
+            cnt = self.ctrl.get_selected_count()
+            self.assertEqual(cnt, 0)
+
             # Select by an index
             row = 1
             i = self.ctrl.get_item(row)
             self.assertEqual(i.is_selected(), False)
             i.select()
             self.assertEqual(i.is_selected(), True)
-            i.select()  # de-select it back
+            cnt = self.ctrl.get_selected_count()
+            self.assertEqual(cnt, 1)
             
             # Select by text
             row = '3'
             i = self.ctrl.get_item(row)
             i.select()
             self.assertEqual(i.is_selected(), True)
-            i.select()  # de-select it back
             row = 'White'
             i = self.ctrl.get_item(row)
             i.select()
