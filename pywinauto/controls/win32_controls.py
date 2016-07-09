@@ -57,11 +57,6 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         ".*Button",
         r"WindowsForms\d*\.BUTTON\..*",
         ".*CheckBox", ]
-    if sysinfo.UIA_support:
-        controltypes = [
-            IUIA().UIA_dll.UIA_ButtonControlTypeId,
-            IUIA().UIA_dll.UIA_CheckBoxControlTypeId,
-            IUIA().UIA_dll.UIA_RadioButtonControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -275,9 +270,6 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
         "ComboBox",
         "WindowsForms\d*\.COMBOBOX\..*",
         ".*ComboBox", ]
-    if sysinfo.UIA_support:
-        controltypes = [
-            IUIA().UIA_dll.UIA_ComboBoxControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -447,9 +439,6 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         "ListBox",
         r"WindowsForms\d*\.LISTBOX\..*",
         ".*ListBox", ]
-    if sysinfo.UIA_support:
-        controltypes = [
-            IUIA().UIA_dll.UIA_ListControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -667,9 +656,6 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         "ThunderTextBox",
         "ThunderRT6TextBox",
         ]
-    if sysinfo.UIA_support:
-        controltypes = [
-            IUIA().UIA_dll.UIA_EditControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
@@ -878,10 +864,6 @@ class StaticWrapper(hwndwrapper.HwndWrapper):
         r"WindowsForms\d*\.STATIC\..*",
         "TPanel",
         ".*StaticText"]
-    if sysinfo.UIA_support:
-        controltypes = [
-            IUIA().UIA_dll.UIA_ImageControlTypeId,
-            IUIA().UIA_dll.UIA_TextControlTypeId]
     can_be_label = True
 
     def __init__(self, hwnd):
@@ -916,9 +898,6 @@ class DialogWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Dialog"
     #windowclasses = ["#32770", ]
-    if sysinfo.UIA_support:
-        controltypes = [
-            IUIA().UIA_dll.UIA_WindowControlTypeId]
     can_be_label = True
 
     #-----------------------------------------------------------
@@ -1092,9 +1071,6 @@ class PopupMenuWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "PopupMenu"
     windowclasses = ["#32768", ]
-    if sysinfo.UIA_support:
-        controltypes = [
-            IUIA().UIA_dll.UIA_MenuControlTypeId]
     has_title = False
 
     #-----------------------------------------------------------
