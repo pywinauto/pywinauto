@@ -40,6 +40,7 @@ from .. import uia_element_info
 from . import uiawrapper
 from ..uia_defines import IUIA
 from ..uia_defines import NoPatternInterfaceError
+from ..uia_defines import toggle_state_on
 
 
 #====================================================================
@@ -531,7 +532,7 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         # It must be set by a container wrapper producing the item.
         # Notice that the self.parent property isn't the same 
         # because it results in a different instance of a wrapper.
-        self.container = None
+        self.container = container
 
     #-----------------------------------------------------------
     def select(self):
@@ -542,6 +543,16 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
     def is_selected(self):
         """Return True if the ListItem is selected"""
         return self.iface_selection_item.CurrentIsSelected
+
+    #-----------------------------------------------------------
+    def is_checked(self):
+        """Return True if the ListItem is checked"""
+        # Only items supporting Toggle pattern should answer
+        try:
+            res = (self.iface_toggle.ToggleState_On == toggle_state_on)
+        except NoPatternInterfaceError:
+            res = False
+        return res
 
 
 #====================================================================

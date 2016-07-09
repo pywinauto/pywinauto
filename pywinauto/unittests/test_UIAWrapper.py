@@ -674,6 +674,7 @@ if UIA_support:
             row = 1
             i = self.ctrl.get_item(row)
             self.assertEqual(i.is_selected(), False)
+            self.assertEqual(i.is_checked(), False)
             i.select()
             self.assertEqual(i.is_selected(), True)
             cnt = self.ctrl.get_selected_count()
