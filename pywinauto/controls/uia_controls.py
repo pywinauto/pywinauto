@@ -581,7 +581,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             hdr = None
 
         return hdr
-   
+
     #-----------------------------------------------------------
     def cell(self, row, column):
         """Return a cell in the ListView control
@@ -604,7 +604,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             raise IndexError
 
         return cell
-   
+
     #-----------------------------------------------------------
     def get_item(self, row):
         """Return an item of the ListView control
@@ -627,4 +627,11 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         return itm
 
     item = get_item  # this is an alias to be consistent with other content elements
+
+    #-----------------------------------------------------------
+    def texts(self):
+        """Return a list of item texts"""
+        return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
+        # TODO: add is_content() method to UIAWrapper
+
 
