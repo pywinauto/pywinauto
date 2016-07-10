@@ -592,6 +592,23 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             hdr = None
 
         return hdr
+
+    #-----------------------------------------------------------
+    def get_column(self, col_index):
+        """Get the information for a column of the ListView"""
+        col = None
+        try:
+            col = self.columns()[col_index]
+        except comtypes.COMError:
+            raise IndexError
+        return col
+
+    #-----------------------------------------------------------
+    def columns(self):
+        """Get the information on the columns of the ListView"""
+        arr = self.iface_table.GetCurrentColumnHeaders()
+        cols = uia_element_info.elements_from_uia_array(arr)
+        return [uiawrapper.UIAWrapper(e) for e in cols]
    
     #-----------------------------------------------------------
     def cell(self, row, column):
@@ -666,7 +683,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         props = super(ListViewWrapper, self).writable_props
         props.extend(['column_count',
                       'item_count',
-                      #'columns',
+                      'columns',
                       #'items',
                       ])
         return props

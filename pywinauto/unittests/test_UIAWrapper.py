@@ -657,7 +657,11 @@ if UIA_support:
 
         def test_column_count(self):
             """Test the columns count in the ListView control"""
-            self.assertEqual(self.ctrl.column_count(), len(self.texts[0]))
+            num_cols = self.ctrl.column_count()
+            self.assertEqual(num_cols, len(self.texts[0]))
+            col = self.ctrl.get_column(1)
+            col.texts()[0] == u'Name'
+            self.assertRaises(IndexError, self.ctrl.get_column, num_cols + 1)
 
         def test_get_header_control(self):
             """Test getting a Header control of the ListView control"""
