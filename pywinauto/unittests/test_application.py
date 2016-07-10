@@ -37,6 +37,7 @@ import warnings
 
 sys.path.append(".")
 from pywinauto import Desktop
+from pywinauto import win32defines
 from pywinauto import application
 from pywinauto.controls import hwndwrapper
 from pywinauto.application import Application
