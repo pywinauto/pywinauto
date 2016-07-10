@@ -679,6 +679,8 @@ if UIA_support:
             self.assertEqual(i.is_selected(), True)
             cnt = self.ctrl.get_selected_count()
             self.assertEqual(cnt, 1)
+            rect = self.ctrl.get_item_rect(row)
+            self.assertEqual(rect, i.rectangle())
             
             # Select by text
             row = '3'

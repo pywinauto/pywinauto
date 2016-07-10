@@ -360,7 +360,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
         # return this control so that actions can be chained.
         return self
-    # set SetText as an alias to set_edit_text
+    # set set_text as an alias to set_edit_text
     set_text = set_edit_text
 
     #-----------------------------------------------------------
@@ -640,6 +640,15 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     item = get_item  # this is an alias to be consistent with other content elements
 
     #-----------------------------------------------------------
+    def get_item_rect(self, item_index):
+        """Return the bounding rectangle of the list view item
+        
+        The interface is kept mostly for a backward compatibility
+        with the native ListViewWrapper interface"""
+        itm = self.get_item(item_index)
+        return itm.rectangle()
+
+    #-----------------------------------------------------------
     def get_selected_count(self):
         """Return the number of selected items"""
         # The call can be quite expensieve as we retrieve all 
@@ -649,6 +658,18 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             return len(selection)
         else:
             return 0
+
+    #-----------------------------------------------------------
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListViewWrapper, self).writable_props
+        props.extend(['column_count',
+                      'item_count',
+                      #'columns',
+                      #'items',
+                      ])
+        return props
 
 
 
