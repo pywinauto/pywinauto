@@ -631,7 +631,12 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     #-----------------------------------------------------------
     def texts(self):
         """Return a list of item texts"""
-        return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
-        # TODO: add is_content() method to UIAWrapper
+        is_content_element = IUIA().iuia.CreatePropertyCondition(
+                IUIA().UIA_dll.UIA_IsContentElementPropertyId, True)
+        return [ch.name for ch in self.element_info._get_elements(IUIA().tree_scope["children"],
+                is_content_element, cache_enable=False)]
+        # TODO: add is_content_element() method to UIAWrapper
+        # alternative (but slower) implementation:
+        # return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
 
 
