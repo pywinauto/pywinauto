@@ -75,7 +75,7 @@ def element_class():
 
 def wrapper_class():
     """Return BaseWrapper's subclass of the active backend"""
-    return registry.element_class
+    return registry.wrapper_class
 
 def activate(name):
     """

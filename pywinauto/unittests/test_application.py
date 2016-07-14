@@ -36,6 +36,8 @@ import time
 import warnings
 
 sys.path.append(".")
+from pywinauto import Desktop
+from pywinauto import win32defines
 from pywinauto import application
 from pywinauto.controls import hwndwrapper
 from pywinauto.application import Application
@@ -54,6 +56,7 @@ from pywinauto.timings import always_wait_until
 from pywinauto.timings import always_wait_until_passes
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.sysinfo import is_x64_OS
+from pywinauto.sysinfo import UIA_support
 from pywinauto import backend
 
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
@@ -67,6 +70,11 @@ def _notepad_exe():
         return r"C:\Windows\System32\notepad.exe"
     else:
         return r"C:\Windows\SysWOW64\notepad.exe"
+
+mfc_samples_folder_32 = mfc_samples_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
 
 class ApplicationWarningTestCases(unittest.TestCase):
@@ -873,8 +881,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
 #        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
 
-    def testPrintControlIdentifiers(self):
-        """Make sure PrintControlIdentifiers() doesn't crash"""
+    def test_print_control_identifiers(self):
+        """Make sure print_control_identifiers() doesn't crash"""
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()
 
@@ -883,6 +891,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.dlgspec.Wait('visible')
         windows = findwindows.find_elements(title_re = "Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
+
 
 class WaitUntilDecoratorTests(unittest.TestCase):
     """Unit tests for always_wait_until and always_wait_until_passes decorators"""
@@ -918,7 +927,86 @@ class WaitUntilDecoratorTests(unittest.TestCase):
         def foo():
             raise Exception("Unexpected Error in foo")
         self.assertRaises(TimeoutError, foo)
-        
+
+
+class MultiLevelWindowSpecificationTests(unittest.TestCase):
+
+    """Unit tests for multi-level (3+) WindowSpecification objects"""
+
+    if UIA_support:
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Slow()
+            self.app = Application(backend='uia').start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+            self.dlg = self.app.RowListSampleApplication
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.dlg.CloseButton.click()
+            self.dlg.wait_not('visible')
+
+        def test_3level_specification(self):
+            """Test that controls can be accessed by 3 levels of attributes"""
+            self.dlg.Toolbar.About.click()
+            self.dlg.AboutRowList.OK.click()
+            #self.dlg.AboutRowList.wait_not('visible') # XXX: it takes more than 50 seconds!
+
+    else: # Win32
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            self.app = Application(backend='native').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+            self.dlg = self.app.CommonControlsSample
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+        def test_4level_specification(self):
+            """Test that controls can be accessed by 4 levels of attributes"""
+            self.assertEqual(self.dlg.CPagerCtrl.Pager.Toolbar.button_count(), 12)
+
+
+class DesktopWindowSpecificationTests(unittest.TestCase):
+
+    """Unit tests for Desktop object"""
+
+    if UIA_support:
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Slow()
+            self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
+            self.desktop = Desktop(backend='uia')
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.desktop.MFC_samplesDialog.CloseButton.click()
+            self.desktop.MFC_samplesDialog.wait_not('visible')
+
+        def test_folder_list(self):
+            """Test that ListViewWrapper returns correct files list in explorer.exe"""
+            files_list = self.desktop.MFC_samplesDialog.Shell_Folder_View.Items_View.wrapper_object()
+            self.assertEqual(files_list.texts(),
+                             [u'x64', u'BCDialogMenu.exe', u'CmnCtrl1.exe', u'CmnCtrl2.exe', u'CmnCtrl3.exe',
+                              u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
+
+    else: # Win32
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            self.app = Application(backend='native').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+            self.desktop = Desktop()
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.desktop.window(title='Common Controls Sample', process=self.app.process).SendMessage(win32defines.WM_CLOSE)
+
+        def test_simple_access_through_desktop(self):
+            """Test that controls can be accessed by 4 levels of attributes"""
+            dlg = self.desktop.window(title='Common Controls Sample', process=self.app.process)
+            self.assertEqual(dlg.Pager.Toolbar.button_count(), 12)
+
+
 if __name__ == "__main__":
     unittest.main()
 
