@@ -164,26 +164,27 @@ class WindowSpecification(object):
         if 'backend' not in criteria[0]:
             criteria[0]['backend'] = self.backend.name
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
-        #dialog = BaseWrapper(findwindows.find_element(**criteria[0]))
 
-        ctrl = None
+        ctrls = []
         # if there is only criteria for a dialog then return it
         if len(criteria) > 1:
             # so there was criteria for a control, add the extra criteria
             # that are required for child controls
-            ctrl_criteria = criteria[1]
-            ctrl_criteria["top_level_only"] = False
-            if "parent" not in ctrl_criteria:
-                ctrl_criteria["parent"] = dialog.handle
+            previous_parent = dialog.element_info
+            for ctrl_criteria in criteria[1:]:
+                ctrl_criteria["top_level_only"] = False
+                if "parent" not in ctrl_criteria:
+                    ctrl_criteria["parent"] = previous_parent
 
-            # resolve the control and return it
-            if 'backend' not in ctrl_criteria:
-                ctrl_criteria['backend'] = self.backend.name
-            ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
-            #ctrl = BaseWrapper(findwindows.find_element(**ctrl_criteria))
+                # resolve the control and return it
+                if 'backend' not in ctrl_criteria:
+                    ctrl_criteria['backend'] = self.backend.name
+                ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
+                previous_parent = ctrl.element_info
+                ctrls.append(ctrl)
 
-        if ctrl:
-            return (dialog, ctrl)
+        if ctrls:
+            return (dialog, ) + tuple(ctrls)
         else:
             return (dialog, )
 
@@ -244,6 +245,7 @@ class WindowSpecification(object):
             criteria['top_level_only'] = False
 
         new_item = WindowSpecification(self.criteria[0])
+        new_item.criteria.extend(self.criteria[1:])
         new_item.criteria.append(criteria)
 
         return new_item
@@ -277,7 +279,7 @@ class WindowSpecification(object):
         """
         # if we already have 2 levels of criteria (dlg, control)
         # then resolve the control and do a getitem on it for the
-        if len(self.criteria) == 2:
+        if len(self.criteria) >= 2:
 
             ctrls = self.__resolve_control(self.criteria)
 
@@ -330,12 +332,14 @@ class WindowSpecification(object):
         # if we already have 2 levels of criteria (dlg, conrol)
         # this third must be an attribute so resolve and get the
         # attribute and return it
-        if len(self.criteria) == 2:
+        if len(self.criteria) >= 2:
 
             ctrls = self.__resolve_control(self.criteria)
 
-            return getattr(ctrls[-1], attr_name)
-
+            try:
+                return getattr(ctrls[-1], attr_name)
+            except AttributeError:
+                return self.child_window(best_match=attr_name)
         else:
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute

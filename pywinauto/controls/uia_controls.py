@@ -632,7 +632,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             raise IndexError
 
         return cell
-   
+
     #-----------------------------------------------------------
     def get_item(self, row):
         """Return an item of the ListView control
@@ -677,6 +677,17 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             return 0
 
     #-----------------------------------------------------------
+    def texts(self):
+        """Return a list of item texts"""
+        is_content_element = IUIA().iuia.CreatePropertyCondition(
+                IUIA().UIA_dll.UIA_IsContentElementPropertyId, True)
+        return [ch.name for ch in self.element_info._get_elements(IUIA().tree_scope["children"],
+                is_content_element, cache_enable=False)]
+        # TODO: add is_content_element() method to UIAWrapper
+        # alternative (but slower) implementation:
+        # return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
+
+    #-----------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -687,6 +698,5 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                       #'items',
                       ])
         return props
-
 
 

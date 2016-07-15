@@ -31,6 +31,8 @@
 
 """
 
+from comtypes import COMError
+
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
 
@@ -135,7 +137,10 @@ class UIAElementInfo(ElementInfo):
 
     def _get_current_visible(self):
         """Return an actual visible property of the element"""
-        return bool(not self._element.CurrentIsOffscreen)
+        try:
+            return bool(not self._element.CurrentIsOffscreen)
+        except COMError:
+            return False # probably element already doesn't exist
 
     def _get_cached_visible(self):
         """Return a cached visible property of the element"""
