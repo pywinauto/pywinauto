@@ -660,7 +660,7 @@ if UIA_support:
             num_cols = self.ctrl.column_count()
             self.assertEqual(num_cols, len(self.texts[0]))
             col = self.ctrl.get_column(1)
-            col.texts()[0] == u'Name'
+            self.assertEqual(col.texts()[0], u'Name')
             self.assertRaises(IndexError, self.ctrl.get_column, num_cols + 1)
 
         def test_get_header_control(self):
@@ -671,14 +671,13 @@ if UIA_support:
         def test_select(self):
             """Test selecting an item of the ListView control"""
             # Verify get_selected_count
-            cnt = self.ctrl.get_selected_count()
-            self.assertEqual(cnt, 0)
+            self.assertEqual(self.ctrl.get_selected_count(), 0)
 
             # Select by an index
             row = 1
             i = self.ctrl.get_item(row)
             self.assertEqual(i.is_selected(), False)
-            self.assertEqual(i.is_checked(), False)
+            self.assertRaises(uia_defs.NoPatternInterfaceError, i.is_checked)
             i.select()
             self.assertEqual(i.is_selected(), True)
             cnt = self.ctrl.get_selected_count()

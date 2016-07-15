@@ -546,12 +546,12 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
 
     #-----------------------------------------------------------
     def is_checked(self):
-        """Return True if the ListItem is checked"""
-        # Only items supporting Toggle pattern should answer
-        try:
-            res = (self.iface_toggle.ToggleState_On == toggle_state_on)
-        except NoPatternInterfaceError:
-            res = False
+        """Return True if the ListItem is checked
+        
+        Only items supporting Toggle pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+        """
+        res = (self.iface_toggle.ToggleState_On == toggle_state_on)
         return res
 
 
