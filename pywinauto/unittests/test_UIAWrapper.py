@@ -566,7 +566,7 @@ if UIA_support:
             self.app = app
             self.dlg = app.WPFSampleApplication
 
-            self.slider = self.dlg.window_(class_name="Slider").WrapperObject()
+            self.slider = self.dlg.child_window(class_name="Slider").WrapperObject()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -657,7 +657,11 @@ if UIA_support:
 
         def test_column_count(self):
             """Test the columns count in the ListView control"""
-            self.assertEqual(self.ctrl.column_count(), len(self.texts[0]))
+            num_cols = self.ctrl.column_count()
+            self.assertEqual(num_cols, len(self.texts[0]))
+            col = self.ctrl.get_column(1)
+            self.assertEqual(col.texts()[0], u'Name')
+            self.assertRaises(IndexError, self.ctrl.get_column, num_cols + 1)
 
         def test_get_header_control(self):
             """Test getting a Header control of the ListView control"""
@@ -666,20 +670,26 @@ if UIA_support:
 
         def test_select(self):
             """Test selecting an item of the ListView control"""
+            # Verify get_selected_count
+            self.assertEqual(self.ctrl.get_selected_count(), 0)
+
             # Select by an index
             row = 1
             i = self.ctrl.get_item(row)
             self.assertEqual(i.is_selected(), False)
+            self.assertRaises(uia_defs.NoPatternInterfaceError, i.is_checked)
             i.select()
             self.assertEqual(i.is_selected(), True)
-            i.select()  # de-select it back
+            cnt = self.ctrl.get_selected_count()
+            self.assertEqual(cnt, 1)
+            rect = self.ctrl.get_item_rect(row)
+            self.assertEqual(rect, i.rectangle())
             
             # Select by text
             row = '3'
             i = self.ctrl.get_item(row)
             i.select()
             self.assertEqual(i.is_selected(), True)
-            i.select()  # de-select it back
             row = 'White'
             i = self.ctrl.get_item(row)
             i.select()

@@ -40,6 +40,7 @@ from .. import uia_element_info
 from . import uiawrapper
 from ..uia_defines import IUIA
 from ..uia_defines import NoPatternInterfaceError
+from ..uia_defines import toggle_state_on
 
 
 #====================================================================
@@ -359,7 +360,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
         # return this control so that actions can be chained.
         return self
-    # set SetText as an alias to set_edit_text
+    # set set_text as an alias to set_edit_text
     set_text = set_edit_text
 
     #-----------------------------------------------------------
@@ -531,7 +532,7 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         # It must be set by a container wrapper producing the item.
         # Notice that the self.parent property isn't the same 
         # because it results in a different instance of a wrapper.
-        self.container = None
+        self.container = container
 
     #-----------------------------------------------------------
     def select(self):
@@ -542,6 +543,16 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
     def is_selected(self):
         """Return True if the ListItem is selected"""
         return self.iface_selection_item.CurrentIsSelected
+
+    #-----------------------------------------------------------
+    def is_checked(self):
+        """Return True if the ListItem is checked
+        
+        Only items supporting Toggle pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+        """
+        res = (self.iface_toggle.ToggleState_On == toggle_state_on)
+        return res
 
 
 #====================================================================
@@ -583,6 +594,23 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         return hdr
 
     #-----------------------------------------------------------
+    def get_column(self, col_index):
+        """Get the information for a column of the ListView"""
+        col = None
+        try:
+            col = self.columns()[col_index]
+        except comtypes.COMError:
+            raise IndexError
+        return col
+
+    #-----------------------------------------------------------
+    def columns(self):
+        """Get the information on the columns of the ListView"""
+        arr = self.iface_table.GetCurrentColumnHeaders()
+        cols = uia_element_info.elements_from_uia_array(arr)
+        return [uiawrapper.UIAWrapper(e) for e in cols]
+   
+    #-----------------------------------------------------------
     def cell(self, row, column):
         """Return a cell in the ListView control
         
@@ -613,20 +641,49 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
           with the text of a cell in the row you want returned.
         """
         # Verify arguments
-        if isinstance(row, six.text_type):
+        # In py27 six.text_type is unicode so we check for str as well
+        if isinstance(row, six.text_type) or isinstance(row, str):
             # Look for a cell with the text, return the first found item
-            itm = self.descendants(title = row)[0].parent()
+            itm = self.descendants(title = row)[0]
+            
         elif isinstance(row, six.integer_types):
             # Get the item by a row index of its first cell
-            itm = self.cell(row, 0).parent()
+            itm = self.cell(row, 0)
         else:
             raise ValueError
+
+        # Applications like explorer.exe usually return ListItem
+        # directly while other apps can return only a cell.
+        # In this case we need to take its parent - the whole row.
+        if not isinstance(itm, ListItemWrapper):
+            itm = itm.parent()
 
         # Give to the item a pointer on its container
         itm.container = self
         return itm
 
     item = get_item  # this is an alias to be consistent with other content elements
+
+    #-----------------------------------------------------------
+    def get_item_rect(self, item_index):
+        """Return the bounding rectangle of the list view item
+        
+        The interface is kept mostly for a backward compatibility
+        with the native ListViewWrapper interface
+        """
+        itm = self.get_item(item_index)
+        return itm.rectangle()
+
+    #-----------------------------------------------------------
+    def get_selected_count(self):
+        """Return the number of selected items"""
+        # The call can be quite expensieve as we retrieve all 
+        # the selected items in order to count them
+        selection = self.get_selection()
+        if selection:
+            return len(selection)
+        else:
+            return 0
 
     #-----------------------------------------------------------
     def texts(self):
@@ -638,5 +695,17 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         # TODO: add is_content_element() method to UIAWrapper
         # alternative (but slower) implementation:
         # return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
+
+    #-----------------------------------------------------------
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListViewWrapper, self).writable_props
+        props.extend(['column_count',
+                      'item_count',
+                      'columns',
+                      #'items',
+                      ])
+        return props
 
 
