@@ -44,9 +44,6 @@ from .. import controlproperties
 
 from ..timings import Timings
 
-if sysinfo.UIA_support:
-    from ..uia_defines import IUIA
-
 #====================================================================
 class ButtonWrapper(hwndwrapper.HwndWrapper):
     "Wrap a windows Button control"

@@ -661,7 +661,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """Return the bounding rectangle of the list view item
         
         The interface is kept mostly for a backward compatibility
-        with the native ListViewWrapper interface"""
+        with the native ListViewWrapper interface
+        """
         itm = self.get_item(item_index)
         return itm.rectangle()
 
