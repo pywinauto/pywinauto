@@ -566,7 +566,7 @@ if UIA_support:
             self.app = app
             self.dlg = app.WPFSampleApplication
 
-            self.slider = self.dlg.window_(class_name="Slider").WrapperObject()
+            self.slider = self.dlg.child_window(class_name="Slider").WrapperObject()
 
         def tearDown(self):
             """Close the application after tests"""
