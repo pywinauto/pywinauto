@@ -641,14 +641,22 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
           with the text of a cell in the row you want returned.
         """
         # Verify arguments
-        if isinstance(row, six.text_type):
+        # In py27 six.text_type is unicode so we check for str as well
+        if isinstance(row, six.text_type) or isinstance(row, str):
             # Look for a cell with the text, return the first found item
-            itm = self.descendants(title = row)[0].parent()
+            itm = self.descendants(title = row)[0]
+            
         elif isinstance(row, six.integer_types):
             # Get the item by a row index of its first cell
-            itm = self.cell(row, 0).parent()
+            itm = self.cell(row, 0)
         else:
             raise ValueError
+
+        # Applications like explorer.exe usually return ListItem
+        # directly while other apps can return only a cell.
+        # In this case we need to take its parent - the whole row.
+        if not isinstance(itm, ListItemWrapper):
+            itm = itm.parent()
 
         # Give to the item a pointer on its container
         itm.container = self
