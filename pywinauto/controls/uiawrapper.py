@@ -425,6 +425,7 @@ class UIAWrapper(BaseWrapper):
         ptrs_array = self.iface_selection.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
     
+    #-----------------------------------------------------------
     def selected_item_index(self):
         """Return the index of a selected item"""
         # Go through all children and look for an index 
@@ -437,10 +438,10 @@ class UIAWrapper(BaseWrapper):
                     return i
         return None
 
+    #-----------------------------------------------------------
     def children_texts(self):
         """Get texts of the control's children"""
         return [c.window_text() for c in self.children()]
-
 
     #-----------------------------------------------------------
     def can_select_multiple(self):
