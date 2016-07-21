@@ -301,6 +301,13 @@ class UIAWrapper(BaseWrapper):
         return uia_defs.get_elem_interface(elem, "TableItem")
 
     #------------------------------------------------------------
+    @lazy_property
+    def iface_window(self):
+        """Get the element's Window interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Window")
+
+    #------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -353,6 +360,30 @@ class UIAWrapper(BaseWrapper):
             except comtypes.COMError:
                 pass # TODO: add RuntimeWarning here
 
+        return self
+
+    #-----------------------------------------------------------
+    def minimize(self):
+        """
+        Minimize the window
+
+        Only controls supporting Window pattern should answer
+        """
+        iface = self.iface_window
+        if iface.CurrentCanMinimize:
+            iface.SetWindowVisualState(uia_defs.window_visual_state_minimized)
+        return self
+
+    #-----------------------------------------------------------
+    def maximize(self):
+        """
+        Maximize the window
+
+        Only controls supporting Window pattern should answer
+        """
+        iface = self.iface_window
+        if iface.CurrentCanMaximize:
+            iface.SetWindowVisualState(uia_defs.window_visual_state_maximized)
         return self
 
     #-----------------------------------------------------------
@@ -490,6 +521,13 @@ class UIAWrapper(BaseWrapper):
             wrp.iface_selection_item.Select()
         else:
             raise IndexError("item not found")
+
+    #-----------------------------------------------------------
+    def is_active(self):
+        """Whether the window is active or not"""
+        minimized = self.iface_window.CurrentWindowVisualState == \
+                       uia_defs.window_visual_state_minimized
+        return (not minimized and self.is_visible() and self.is_enabled())
 
 
 

@@ -168,10 +168,15 @@ class NoPatternInterfaceError(Exception):
     pass
 
 # values for enumeration 'ExpandCollapseState'
-expand_state_collapsed =IUIA().ui_automation_client.ExpandCollapseState_Collapsed
+expand_state_collapsed = IUIA().ui_automation_client.ExpandCollapseState_Collapsed
 expand_state_expanded = IUIA().ui_automation_client.ExpandCollapseState_Expanded
 expand_state_partially = IUIA().ui_automation_client.ExpandCollapseState_PartiallyExpanded
 expand_state_leaf_node = IUIA().ui_automation_client.ExpandCollapseState_LeafNode
+
+# values for enumeration 'WindowVisualState'
+window_visual_state_normal = IUIA().ui_automation_client.WindowVisualState_Normal
+window_visual_state_maximized = IUIA().ui_automation_client.WindowVisualState_Maximized
+window_visual_state_minimized = IUIA().ui_automation_client.WindowVisualState_Minimized
 
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name

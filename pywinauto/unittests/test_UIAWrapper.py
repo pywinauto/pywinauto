@@ -198,6 +198,16 @@ if UIA_support:
                     elem, 
                     "Selection",
                     )
+        def test_minimize_maximize(self):
+            "Test window minimize/maximize operations"
+            wrp = self.dlg.minimize()
+            self.dlg.WaitNot('active')
+            self.assertEqual(wrp.iface_window.CurrentWindowVisualState, 
+                             uia_defs.window_visual_state_minimized)
+            wrp.maximize()
+            self.dlg.Wait('active')
+            self.assertEqual(wrp.iface_window.CurrentWindowVisualState, 
+                             uia_defs.window_visual_state_maximized)
 
         def testGetProperties(self):
             uia_props = set(['class_name',
