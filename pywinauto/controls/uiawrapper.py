@@ -74,15 +74,6 @@ WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
 #endregion
 
 #=========================================================================
-_control_types = [attr[len('UIA_'):-len('ControlTypeId')] \
-        for attr in dir(IUIA().UIA_dll) if attr.endswith('ControlTypeId')]
-_known_control_types = {}
-for ctrl_type in _control_types:
-    type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
-    type_id = IUIA().UIA_dll.__getattribute__(type_id_name)
-    _known_control_types[type_id] = ctrl_type
-
-#=========================================================================
 _friendly_classes = {
     'Custom': None,
     'DataGrid': 'ListView',
@@ -324,10 +315,10 @@ class UIAWrapper(BaseWrapper):
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            if self.element_info.control_type not in _known_control_types.keys():
+            if self.element_info.control_type not in IUIA().known_control_type_ids.keys():
                 self.friendlyclassname = str(self.element_info.control_type)
             else:
-                ctrl_type = _known_control_types[self.element_info.control_type]
+                ctrl_type = IUIA().known_control_type_ids[self.element_info.control_type]
                 if (ctrl_type not in _friendly_classes) or (_friendly_classes[ctrl_type] is None):
                     self.friendlyclassname = ctrl_type
                 else:

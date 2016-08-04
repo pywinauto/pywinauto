@@ -697,7 +697,7 @@ if UIA_support:
             self.assertEqual(i.is_selected(), True)
             
             row = None
-            self.assertRaises(ValueError, self.ctrl.get_item, row)
+            self.assertRaises(TypeError, self.ctrl.get_item, row)
 
         def test_cell(self):
             """Test getting a cell of the ListView control"""
