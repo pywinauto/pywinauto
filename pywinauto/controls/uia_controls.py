@@ -653,7 +653,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         # Applications like explorer.exe usually return ListItem
         # directly while other apps can return only a cell.
         # In this case we need to take its parent - the whole row.
-        if not isinstance(itm, ListItemWrapper) and isinstance(itm.parent(), ListItemWrapper):
+        if not isinstance(itm, ListItemWrapper):
             itm = itm.parent()
 
         # Give to the item a pointer on its container

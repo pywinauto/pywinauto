@@ -989,6 +989,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             self.assertEqual(files_list.texts(),
                              [u'x64', u'BCDialogMenu.exe', u'CmnCtrl1.exe', u'CmnCtrl2.exe', u'CmnCtrl3.exe',
                               u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
+            self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
 
     else: # Win32
         def setUp(self):
