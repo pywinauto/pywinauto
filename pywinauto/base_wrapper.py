@@ -375,7 +375,7 @@ class BaseWrapper(object):
     Children = children
 
     #-----------------------------------------------------------
-    def descendants(self, class_name = None, title = None):
+    def descendants(self, class_name = None, title = None, control_type = None):
         """
         Return the descendants of this element as a list
 
@@ -384,7 +384,8 @@ class BaseWrapper(object):
         """
         desc_elements = self.element_info.descendants(process = self.process_id(),
                                                       class_name = class_name, 
-                                                      title = title)
+                                                      title = title,
+                                                      control_type = control_type)
         return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
 
     #-----------------------------------------------------------
