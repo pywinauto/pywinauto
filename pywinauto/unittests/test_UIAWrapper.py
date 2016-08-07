@@ -53,7 +53,7 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def testFriendlyClassName(self):
+        def test_friendly_class_name(self):
             """Test getting the friendly classname of the dialog"""
             button = self.dlg.OK.WrapperObject()
             self.assertEqual(button.friendly_class_name(), "Button")
@@ -310,19 +310,19 @@ if UIA_support:
 
         def test_friendly_class_names(self):
             """Test getting friendly class names of button-like controls"""
-            friendly_name = self.dlg.CheckBox.FriendlyClassName()
+            friendly_name = self.dlg.CheckBox.friendly_class_name()
             self.assertEqual(friendly_name, "CheckBox")
 
-            friendly_name = self.dlg.Apply.FriendlyClassName()
+            friendly_name = self.dlg.Apply.friendly_class_name()
             self.assertEqual(friendly_name, "Button")
 
-            friendly_name = self.dlg.ToggleMe.FriendlyClassName()
+            friendly_name = self.dlg.ToggleMe.friendly_class_name()
             self.assertEqual(friendly_name, "Button")
 
-            friendly_name = self.dlg.Yes.FriendlyClassName()
+            friendly_name = self.dlg.Yes.friendly_class_name()
             self.assertEqual(friendly_name, "RadioButton")
 
-            friendly_name = self.dlg.TabControl.FriendlyClassName()
+            friendly_name = self.dlg.TabControl.friendly_class_name()
             self.assertEqual(friendly_name, "TabControl")
 
         def test_check_box(self):
@@ -493,7 +493,7 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def testFriendlyClassNames(self):
+        def test_friendly_class_names(self):
             """Test getting friendly class names of textbox-like controls"""
             self.assertEqual(self.edit.friendly_class_name(), "Edit")
 
@@ -582,7 +582,7 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def testFriendlyClassNames(self):
+        def test_friendly_class_names(self):
             """Test getting a friendly class name"""
             # Find the slider by "best match" look up
             slider = self.dlg.Slider.WrapperObject()
