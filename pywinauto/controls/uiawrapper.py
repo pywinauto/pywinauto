@@ -516,9 +516,10 @@ class UIAWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def is_active(self):
         """Whether the window is active or not"""
-        minimized = self.iface_window.CurrentWindowVisualState == \
-                       uia_defs.window_visual_state_minimized
-        return (not minimized and self.is_visible() and self.is_enabled())
+
+        ae = IUIA().get_focused_element()
+        focused_wrap = UIAWrapper(UIAElementInfo(ae))
+        return (focused_wrap.top_level_parent() == self.top_level_parent())
 
 
 

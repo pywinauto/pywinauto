@@ -72,6 +72,8 @@ class IUIA(object):
                 'subtree': self.UIA_dll.TreeScope_Subtree,
                 }
         self.root = self.iuia.GetRootElement()
+
+        self.get_focused_element = self.iuia.GetFocusedElement
         
         # collect all known control types
         start_len = len('UIA_')
