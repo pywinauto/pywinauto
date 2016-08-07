@@ -1,6 +1,5 @@
 # Copyright (C) 2016 Vasily Ryabov
 # Copyright (C) 2016 airelil
-# Copyright (C) 2010 Mark Mc Mahon
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -73,8 +72,23 @@ class IUIA(object):
                 'subtree': self.UIA_dll.TreeScope_Subtree,
                 }
         self.root = self.iuia.GetRootElement()
+        
+        # collect all known control types
+        start_len = len('UIA_')
+        end_len = len('ControlTypeId')
+        self._control_types = [attr[start_len:-end_len] for attr in dir(self.UIA_dll) if attr.endswith('ControlTypeId')]
+        
+        self.known_control_types = {} # string id: numeric id
+        self.known_control_type_ids = {} # numeric id: string id
+        
+        for ctrl_type in self._control_types:
+            type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
+            type_id = self.UIA_dll.__getattribute__(type_id_name)
+            self.known_control_types[ctrl_type] = type_id
+            self.known_control_type_ids[type_id] = ctrl_type
     
-    def build_condition(self, process = None, class_name = None, title = None):
+    def build_condition(self, process = None, class_name = None, title = None,
+                        control_type = None):
         """Build UIA filtering conditions"""
         conditions = []
         if process:
@@ -84,6 +98,14 @@ class IUIA(object):
         if class_name:
             conditions.append(self.iuia.CreatePropertyCondition(
                                     self.UIA_dll.UIA_ClassNamePropertyId, class_name))
+        
+        if control_type:
+            if isinstance(control_type, six.string_types):
+                control_type = self.known_control_types[control_type]
+            elif not isinstance(control_type, int):
+                raise TypeError('control_type must be string or integer')
+            conditions.append(self.iuia.CreatePropertyCondition(
+                                    self.UIA_dll.UIA_ControlTypePropertyId, control_type))
         
         if title:
             # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
