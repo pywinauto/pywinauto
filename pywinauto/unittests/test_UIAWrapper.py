@@ -53,7 +53,7 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def testFriendlyClassName(self):
+        def test_friendly_class_name(self):
             """Test getting the friendly classname of the dialog"""
             button = self.dlg.OK.WrapperObject()
             self.assertEqual(button.friendly_class_name(), "Button")
@@ -88,66 +88,77 @@ if UIA_support:
             # Verify the caption of the found wrapper
             self.assertEqual(wins[0].texts()[0], caption)
 
-        def testClass(self):
+        def test_class(self):
             """Test getting the classname of the dialog"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(button.class_name(), "Button")
 
-        def testWindowText(self):
+        def test_window_text(self):
             """Test getting the window Text of the dialog"""
             label = self.dlg.TestLabel.WrapperObject()
             self.assertEqual(label.window_text(), u"TestLabel")
 
-        def testControlID(self):
+        def test_control_id(self):
+            """Test getting control ID"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(button.control_id(), None)
 
-        def testIsVisible(self):
+        def test_is_visible(self):
+            """Test is_visible method of a control"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(button.is_visible(), True)
 
-        def testIsEnabled(self):
+        def test_is_enabled(self):
+            """Test is_enabled method of a control"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(button.is_enabled(), True)
 
-        def testProcessID(self):
+        def test_process_id(self):
+            """Test process_id method of a control"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(button.process_id(), self.dlg.process_id())
             self.assertNotEqual(button.process_id(), 0)
 
-        def testIsDialog(self):
+        def test_is_dialog(self):
+            """Test is_dialog method of a control"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(button.is_dialog(), False)
 
-        def testParent(self):
+        def test_parent(self):
+            """Test getting a parent of a control"""
             button = self.dlg.Alpha.WrapperObject()
             self.assertEqual(button.parent(), self.dlg.WrapperObject())
 
-        def testTopLevelParent(self):
+        def test_top_level_parent(self):
+            """Test getting a top-level parent of a control"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(button.top_level_parent(), self.dlg.WrapperObject())
 
-        def testTexts(self):
+        def test_texts(self):
+            """Test getting texts of a control"""
             self.assertEqual(self.dlg.texts(), ['WPF Sample Application'])
 
-        def testChildren(self):
+        def test_children(self):
+            """Test getting children of a control"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertEqual(len(button.children()), 1)
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
-        def testIsChild(self):
+        def test_is_child(self):
+            """Test is_child method of a control"""
             button = self.dlg.Alpha.WrapperObject()
             self.assertEqual(button.is_child(self.dlg.WrapperObject()), True)
 
-        def testEquals(self):
+        def test_equals(self):
+            """Test controls comparisons"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             self.assertNotEqual(button, self.dlg.WrapperObject())
@@ -163,7 +174,8 @@ if UIA_support:
         #def testVerifyVisible(self):
         #    self.assertRaises()
 
-        def testIsKeyboardFocusable(self):
+        def test_is_keyboard_focusable(self):
+            """Test is_keyboard focusable method of several controls"""
             edit = self.dlg.TestLabelEdit.WrapperObject()
             label = self.dlg.TestLabel.WrapperObject()
             button = self.dlg.window_(class_name="Button", 
@@ -172,23 +184,26 @@ if UIA_support:
             self.assertEqual(edit.is_keyboard_focusable(), True)
             self.assertEqual(label.is_keyboard_focusable(), False)
 
-        def testHasKeyboardFocus(self):
+        def test_has_keyboard_focus(self):
+            """Test verifying a keyboard focus on a control"""
             edit = self.dlg.TestLabelEdit.WrapperObject()
             edit.set_focus()
             self.assertEqual(edit.has_keyboard_focus(), True)
 
-        def testSetFocus(self):
+        def test_set_focus(self):
+            """Test setting a keyboard focus on a control"""
             edit = self.dlg.TestLabelEdit.WrapperObject()
             edit.set_focus()
             self.assertEqual(edit.has_keyboard_focus(), True)
 
-        def testTypeKeys(self):
+        def test_type_keys(self):
+            """Test sending key types to a control"""
             edit = self.dlg.TestLabelEdit.WrapperObject()
             edit.type_keys("testTypeKeys")
             self.assertEqual(edit.window_text(), "testTypeKeys")
 
-        def testNoPatternInterfaceError(self):
-            "Test a query interface exception handling"
+        def test_no_pattern_interface_error(self):
+            """Test a query interface exception handling"""
             button = self.dlg.window_(class_name="Button", 
                                       title="OK").WrapperObject()
             elem = button.element_info.element
@@ -199,7 +214,19 @@ if UIA_support:
                     "Selection",
                     )
 
-        def testGetProperties(self):
+        def test_minimize_maximize(self):
+            """Test window minimize/maximize operations"""
+            wrp = self.dlg.minimize()
+            self.dlg.WaitNot('active')
+            self.assertEqual(wrp.iface_window.CurrentWindowVisualState, 
+                             uia_defs.window_visual_state_minimized)
+            wrp.maximize()
+            self.dlg.Wait('active')
+            self.assertEqual(wrp.iface_window.CurrentWindowVisualState, 
+                             uia_defs.window_visual_state_maximized)
+
+        def test_get_properties(self):
+            """Test getting writeble properties of a control"""
             uia_props = set(['class_name',
                          'friendly_class_name',
                          'texts',
@@ -216,7 +243,7 @@ if UIA_support:
             props = set(edit.get_properties().keys())
             self.assertEqual(props, uia_props)
 
-        # def testDrawOutline(self):
+        # def test_draw_outline(self):
         #     """Test the outline was drawn."""
         #     # not sure why, but this extra call makes the test stable
         #     self.dlg.draw_outline()
@@ -254,30 +281,33 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        #def testClick(self):
+        #def test_click(self):
         #    pass
 
-        def testClickInput(self):
+        def test_click_input(self):
+            """Test click_input method of a control"""
             time.sleep(0.5)
             self.button.click_input()
             self.assertEqual(self.label.window_text(), "LeftClick")
 
-        #def testDoubleClick(self):
+        #def test_double_click(self):
         #    pass
 
-        def testDoubleClickInput(self):
+        def test_double_click_input(self):
+            """Test double_click_input method of a control"""
             self.button.double_click_input()
             self.assertEqual(self.label.window_text(), "DoubleClick")
 
-        #def testRightClick(self):
+        #def test_right_click(self):
         #    pass
 
-        def testRightClickInput(self):
+        def test_right_click_input(self):
+            """Test right_click_input method of a control"""
             time.sleep(0.5)
             self.button.right_click_input()
             self.assertEqual(self.label.window_text(), "RightClick")
 
-        #def testPressMoveRelease(self):
+        #def test_press_move_release(self):
         #    pass
 
     class UiaControlsTests(unittest.TestCase):
@@ -300,19 +330,19 @@ if UIA_support:
 
         def test_friendly_class_names(self):
             """Test getting friendly class names of button-like controls"""
-            friendly_name = self.dlg.CheckBox.FriendlyClassName()
+            friendly_name = self.dlg.CheckBox.friendly_class_name()
             self.assertEqual(friendly_name, "CheckBox")
 
-            friendly_name = self.dlg.Apply.FriendlyClassName()
+            friendly_name = self.dlg.Apply.friendly_class_name()
             self.assertEqual(friendly_name, "Button")
 
-            friendly_name = self.dlg.ToggleMe.FriendlyClassName()
+            friendly_name = self.dlg.ToggleMe.friendly_class_name()
             self.assertEqual(friendly_name, "Button")
 
-            friendly_name = self.dlg.Yes.FriendlyClassName()
+            friendly_name = self.dlg.Yes.friendly_class_name()
             self.assertEqual(friendly_name, "RadioButton")
 
-            friendly_name = self.dlg.TabControl.FriendlyClassName()
+            friendly_name = self.dlg.TabControl.friendly_class_name()
             self.assertEqual(friendly_name, "TabControl")
 
         def test_check_box(self):
@@ -483,11 +513,11 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def testFriendlyClassNames(self):
+        def test_friendly_class_names(self):
             """Test getting friendly class names of textbox-like controls"""
             self.assertEqual(self.edit.friendly_class_name(), "Edit")
 
-        def testSetWindowText(self):
+        def test_set_window_text(self):
             """Test setting text value of control (the text in textbox itself)"""
             text_to_set = "This test"
 
@@ -497,7 +527,7 @@ if UIA_support:
             self.assertRaises(UserWarning, self.edit.set_window_text, " is done", True)
             self.assertEqual(self.edit.text_block(), text_to_set + " is done")
 
-        def testSetText(self):
+        def test_set_text(self):
             """Test setting the text of the edit control"""
             self.edit.set_edit_text("Some text")
             self.assertEqual(self.edit.text_block(), "Some text")
@@ -508,27 +538,27 @@ if UIA_support:
             self.edit.set_edit_text(333, pos_start=1, pos_end=2)
             self.assertEqual(self.edit.text_block(), "53339")
 
-        def testLineCount(self):
+        def test_line_count(self):
             """Test getting the line count of the edit control"""
             self.edit.set_edit_text("Here is some text")
 
             self.assertEqual(self.edit.line_count(), 1)
 
-        def testGetLine(self):
+        def test_cet_line(self):
             """Test getting each line of the edit control"""
             test_data = "Here is some text"
             self.edit.set_edit_text(test_data)
 
             self.assertEqual(self.edit.get_line(0), test_data)
 
-        def testTextBlock(self):
+        def test_text_block(self):
             """Test getting the text block of the edit control"""
             test_data = "Here is some text"
             self.edit.set_edit_text(test_data)
 
             self.assertEqual(self.edit.text_block(), test_data)
 
-        def testSelect(self):
+        def test_select(self):
             """Test selecting text in the edit control in various ways"""
             self.edit.set_edit_text("Some text")
 
@@ -572,33 +602,33 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def testFriendlyClassNames(self):
+        def test_friendly_class_names(self):
             """Test getting a friendly class name"""
             # Find the slider by "best match" look up
             slider = self.dlg.Slider.WrapperObject()
             self.assertEqual(slider.friendly_class_name(), "Slider")
 
-        def testMinValue(self):
+        def test_min_value(self):
             """Test getting minimum value of the Slider"""
             self.assertEqual(self.slider.min_value(), 0.0)
 
-        def testMaxValue(self):
+        def test_max_value(self):
             """Test getting maximum value of the Slider"""
             self.assertEqual(self.slider.max_value(), 100.0)
 
-        def testSmallChange(self):
+        def test_small_change(self):
             """Test Getting small change of slider's thumb"""
             self.assertEqual(self.slider.small_change(), 0.1)
 
-        def testLargeChange(self):
+        def test_large_change(self):
             """Test Getting large change of slider's thumb"""
             self.assertEqual(self.slider.large_change(), 1.0)
 
-        def testValue(self):
+        def test_value(self):
             """Test getting current position of slider's thumb"""
             self.assertEqual(self.slider.value(), 70.0)
 
-        def testSetValue(self):
+        def test_set_value(self):
             """Test setting position of slider's thumb"""
             self.slider.set_value(24)
             self.assertEqual(self.slider.value(), 24.0)

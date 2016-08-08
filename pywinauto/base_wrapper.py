@@ -135,8 +135,6 @@ class BaseWrapper(object):
         """Specify whether we need to grab an image of ourselves when asked
         for properties"""
         return False
-    # Non PEP-8 alias
-    _NeedsImageProp = _needs_image_prop
 
     #------------------------------------------------------------
     @property
@@ -160,15 +158,11 @@ class BaseWrapper(object):
         if self.friendlyclassname is None:
             self.friendlyclassname = self.element_info.class_name
         return self.friendlyclassname
-    # Non PEP-8 alias
-    FriendlyClassName = friendly_class_name
 
     #------------------------------------------------------------
     def class_name(self):
         """Return the class name of the elenemt"""
         return self.element_info.class_name
-    # Non PEP-8 alias
-    Class = class_name
 
     #------------------------------------------------------------
     def window_text(self):
@@ -180,8 +174,6 @@ class BaseWrapper(object):
         have text displayed in the edit window.
         """
         return self.element_info.rich_text
-    # Non PEP-8 alias
-    WindowText = window_text
 
     #------------------------------------------------------------
     def control_id(self):
@@ -195,8 +187,6 @@ class BaseWrapper(object):
         ID's.
         """
         return self.element_info.control_id
-    # Non PEP-8 alias
-    ControlID = control_id
 
     #------------------------------------------------------------
     def is_visible(self):
@@ -216,8 +206,6 @@ class BaseWrapper(object):
         visible and enabled.
         """
         return self.element_info.visible #and self.top_level_parent().element_info.visible
-    # Non PEP-8 alias
-    IsVisible = is_visible
 
     #------------------------------------------------------------
     def is_enabled(self):
@@ -237,8 +225,6 @@ class BaseWrapper(object):
         visible and enabled.
         """
         return self.element_info.enabled #and self.top_level_parent().element_info.enabled
-    # Non PEP-8 alias
-    IsEnabled = is_enabled
 
     #------------------------------------------------------------
     def rectangle(self):
@@ -253,8 +239,6 @@ class BaseWrapper(object):
         See win32structures.RECT for more information.
         """
         return self.element_info.rectangle
-    # Non PEP-8 alias
-    Rectangle = rectangle
 
     #------------------------------------------------------------
     def client_to_screen(self, client_point):
@@ -264,15 +248,11 @@ class BaseWrapper(object):
             return (client_point.x + rect.left, client_point.y + rect.top)
         else:
             return (client_point[0] + rect.left, client_point[1] + rect.top)
-    # Non PEP-8 alias
-    ClientToScreen = client_to_screen
 
     #-----------------------------------------------------------
     def process_id(self):
         "Return the ID of process that owns this window"
         return self.element_info.process_id
-    # Non PEP-8 alias
-    ProcessID = process_id
 
     #-----------------------------------------------------------
     def is_dialog(self):
@@ -281,8 +261,6 @@ class BaseWrapper(object):
             return self == self.top_level_parent()
         else:
             return False
-    # Non PEP-8 alias
-    IsDialog = is_dialog
 
     #-----------------------------------------------------------
     def parent(self):
@@ -302,8 +280,6 @@ class BaseWrapper(object):
             return self.backend.generic_wrapper_class(parent_elem)
         else:
             return None
-    # Non PEP-8 alias
-    Parent = parent
 
     #-----------------------------------------------------------
     def root(self):
@@ -337,8 +313,6 @@ class BaseWrapper(object):
                 self._cache["top_level_parent"] = self
 
         return self._cache["top_level_parent"]
-    # Non PEP-8 alias
-    TopLevelParent = top_level_parent
 
     #-----------------------------------------------------------
     def texts(self):
@@ -356,8 +330,6 @@ class BaseWrapper(object):
         """
         texts_list = [self.window_text(), ]
         return texts_list
-    # Non PEP-8 alias
-    Texts = texts
 
     #-----------------------------------------------------------
     def children(self, class_name = None, title = None):
@@ -371,8 +343,6 @@ class BaseWrapper(object):
                                                     class_name = class_name, 
                                                     title = title)
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
-    # Non PEP-8 alias
-    Children = children
 
     #-----------------------------------------------------------
     def descendants(self, class_name = None, title = None, control_type = None):
@@ -392,8 +362,6 @@ class BaseWrapper(object):
     def control_count(self):
         "Return the number of children of this control"
         return len(self.element_info.children(process=self.process_id()))
-    # Non PEP-8 alias
-    ControlCount = control_count
 
     #-----------------------------------------------------------
     def capture_as_image(self, rect=None):
@@ -427,8 +395,6 @@ class BaseWrapper(object):
 
         # grab the image and get raw data as a string
         return ImageGrab.grab(box)
-    # Non PEP-8 alias
-    CaptureAsImage = capture_as_image
 
     #-----------------------------------------------------------
     def get_properties(self):
@@ -444,8 +410,6 @@ class BaseWrapper(object):
             props["image"] = self.capture_as_image()
 
         return props
-    # Non PEP-8 alias
-    GetProperties = get_properties
 
     #-----------------------------------------------------------
     def draw_outline(
@@ -509,8 +473,6 @@ class BaseWrapper(object):
 
         # delete the Display context that we created
         win32functions.DeleteDC(dc)
-    # Non PEP-8 alias
-    DrawOutline = draw_outline
 
     #-----------------------------------------------------------
     def is_child(self, parent):
@@ -523,8 +485,6 @@ class BaseWrapper(object):
         for the child element.
         """
         return self in parent.children(class_name = self.class_name())
-    # Non PEP-8 alias
-    IsChild = is_child
 
     #-----------------------------------------------------------
     def __eq__(self, other):
@@ -554,8 +514,6 @@ class BaseWrapper(object):
             pass
         self.verify_visible()
         self.verify_enabled()
-    # Non PEP-8 alias
-    VerifyActionable = verify_actionable
 
     #-----------------------------------------------------------
     def verify_enabled(self):
@@ -567,8 +525,6 @@ class BaseWrapper(object):
         """
         if not self.is_enabled():
             raise ElementNotEnabled()
-    # Non PEP-8 alias
-    VerifyEnabled = verify_enabled
 
     #-----------------------------------------------------------
     def verify_visible(self):
@@ -580,8 +536,6 @@ class BaseWrapper(object):
         """
         if not self.is_visible():
             raise ElementNotVisible()
-    # Non PEP-8 alias
-    VerifyVisible = verify_visible
 
     #-----------------------------------------------------------
     def click_input(
@@ -652,22 +606,16 @@ class BaseWrapper(object):
                           ' "' + ctrl_text + '" to screen point (x,y=' + \
                           ','.join([str(coord) for coord in coords]) + ')'
             ActionLogger().log(message)
-    # Non PEP-8 alias
-    ClickInput = click_input
 
     #-----------------------------------------------------------
     def double_click_input(self, button ="left", coords = (None, None)):
         "Double click at the specified coordinates"
         self.click_input(button, coords, double=True)
-    # Non PEP-8 alias
-    DoubleClickInput = double_click_input
 
     #-----------------------------------------------------------
     def right_click_input(self, coords = (None, None)):
         "Right click at the specified coords"
         self.click_input(button='right', coords=coords)
-    # Non PEP-8 alias
-    RightClickInput = right_click_input
 
     #-----------------------------------------------------------
     def press_mouse_input(
@@ -690,8 +638,6 @@ class BaseWrapper(object):
             key_down=key_down,
             key_up=key_up
         )
-    # Non PEP-8 alias
-    PressMouseInput = press_mouse_input
 
     #-----------------------------------------------------------
     def release_mouse_input(
@@ -714,8 +660,6 @@ class BaseWrapper(object):
             key_down=key_down,
             key_up=key_up
         )
-    # Non PEP-8 alias
-    ReleaseMouseInput = release_mouse_input
 
     #-----------------------------------------------------------
     def move_mouse_input(self, coords = (0, 0), pressed ="", absolute = False):
@@ -732,8 +676,6 @@ class BaseWrapper(object):
             pass
 
         return self
-    # Non PEP-8 alias
-    MoveMouseInput = move_mouse_input
 
     #-----------------------------------------------------------
     def drag_mouse_input(self,
@@ -760,16 +702,12 @@ class BaseWrapper(object):
         self.release_mouse_input(button, release_coords, pressed, absolute=absolute)
         time.sleep(Timings.after_drag_n_drop_wait)
         return self
-    # Non PEP-8 alias
-    DragMouseInput = drag_mouse_input
 
     #-----------------------------------------------------------
     def wheel_mouse_input(self, coords = (None, None), wheel_dist = 1, pressed =""):
         "Do mouse wheel"
         self.click_input(button='wheel', coords=coords, wheel_dist=wheel_dist, pressed=pressed)
         return self
-    # Non PEP-8 alias
-    WheelMouseInput = wheel_mouse_input
 
     #-----------------------------------------------------------
     def type_keys(
@@ -838,14 +776,10 @@ class BaseWrapper(object):
 
         self.actions.log('Typed text to the ' + self.friendly_class_name() + ': ' + aligned_keys)
         return self
-    # Non PEP-8 alias
-    TypeKeys = type_keys
 
     #-----------------------------------------------------------
     def set_focus(self):
         "Set the focus to this element"
         pass
-    # Non PEP-8 alias
-    SetFocus = set_focus
 
 #====================================================================

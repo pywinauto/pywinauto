@@ -1315,6 +1315,41 @@ class HwndWrapper(BaseWrapper):
         return None
     # Non PEP-8 alias
     GetToolbar = get_toolbar
+    
+    # Non PEP-8 aliases for BaseWrapper methods
+    # We keep them for the backward compatibility in legacy scripts
+    ClickInput = BaseWrapper.click_input
+    DoubleClickInput = BaseWrapper.double_click_input
+    RightClickInput = BaseWrapper.right_click_input
+    VerifyVisible = BaseWrapper.verify_visible
+    _NeedsImageProp = BaseWrapper._needs_image_prop
+    FriendlyClassName = BaseWrapper.friendly_class_name
+    Class = BaseWrapper.class_name
+    WindowText = BaseWrapper.window_text
+    ControlID = BaseWrapper.control_id
+    IsVisible = BaseWrapper.is_visible
+    IsEnabled = BaseWrapper.is_enabled
+    Rectangle = BaseWrapper.rectangle
+    ClientToScreen = BaseWrapper.client_to_screen
+    ProcessID = BaseWrapper.process_id
+    IsDialog = BaseWrapper.is_dialog
+    Parent = BaseWrapper.parent
+    TopLevelParent = BaseWrapper.top_level_parent
+    Texts = BaseWrapper.texts
+    Children = BaseWrapper.children
+    CaptureAsImage = BaseWrapper.capture_as_image
+    GetProperties = BaseWrapper.get_properties
+    DrawOutline = BaseWrapper.draw_outline
+    IsChild = BaseWrapper.is_child
+    VerifyActionable = BaseWrapper.verify_actionable
+    VerifyEnabled = BaseWrapper.verify_enabled
+    PressMouseInput = BaseWrapper.press_mouse_input
+    ReleaseMouseInput = BaseWrapper.release_mouse_input
+    MoveMouseInput = BaseWrapper.move_mouse_input
+    DragMouseInput = BaseWrapper.drag_mouse_input
+    WheelMouseInput = BaseWrapper.wheel_mouse_input
+    TypeKeys = BaseWrapper.type_keys
+    SetFocus = BaseWrapper.set_focus
 
 #====================================================================
 def _perform_click(
