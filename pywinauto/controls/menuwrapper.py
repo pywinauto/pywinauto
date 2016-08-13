@@ -33,12 +33,12 @@ import time
 import win32gui
 import win32gui_struct
 import locale
+import six
 
 from .. import win32structures
 from .. import win32functions
 from .. import win32defines
 from .. import findbestmatch
-from .. import six
 from .. import mouse
 from ..remote_memory_block import RemoteMemoryBlock
 from ..timings import Timings

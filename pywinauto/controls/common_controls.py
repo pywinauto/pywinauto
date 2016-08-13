@@ -42,9 +42,9 @@ import ctypes
 from ctypes import wintypes
 import warnings
 import locale
+import six
 
 from .. import sysinfo
-from .. import six
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures

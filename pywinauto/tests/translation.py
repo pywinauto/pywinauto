@@ -68,17 +68,14 @@ control after the dialog is created.
 **Test Identifier**
 The identifier for this test/bug is "Translation" """
 
-__revision__ = "$Revision$"
-
 testname = "Translation"
 
 import re
-from pywinauto import six
+import six
 
 #-----------------------------------------------------------------------------
 def TranslationTest(windows):
-    "Returns just one bug for each control"
-
+    """Returns just one bug for each control"""
     bugs = []
     for win in windows:
         if not win.ref:
@@ -104,9 +101,8 @@ def TranslationTest(windows):
     return bugs
 
 def _GetUntranslations(win):
-    "Find the text items that are not translated"
+    """Find the text items that are not translated"""
     # remove ampersands and other non translatable bits from the string
-
     nonTransChars = re.compile(
         """(\&(?!\&)|	# ampersand not followed by an ampersand
             \.\.\.$|	# elipsis ...

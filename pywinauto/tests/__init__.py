@@ -23,12 +23,11 @@
 """
 from __future__ import print_function
 
-from .. import six
+import six
 
 
 def run_tests(controls, tests_to_run = None, test_visible_only = True):
-    "Run the tests"
-
+    """Run the tests"""
     # allow either a string or list to be passed
     try:
         tests_to_run = tests_to_run.split()
@@ -84,7 +83,7 @@ def write_bugs(bugs, filename = "BugsOutput.txt"):
 
 
 def print_bugs(bugs):
-    "Print the bugs"
+    """Print the bugs"""
     for (ctrls, info, bug_type, is_in_ref) in bugs:
         print("BugType:", bug_type, is_in_ref)
 
@@ -115,7 +114,7 @@ def print_bugs(bugs):
 # we need to register the modules
 _registered = {}
 def __init_tests():
-    "Initialize each test by loading it and then register it"
+    """Initialize each test by loading it and then register it"""
     global _registered
 
     standard_test_names = (

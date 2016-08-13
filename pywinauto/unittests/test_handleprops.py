@@ -23,16 +23,16 @@
 """Tests for handleprops.py"""
 
 import unittest
-
+import six
 import os
 import sys
 sys.path.append(".")
+
 from pywinauto.handleprops import children, classname, clientrect, contexthelpid, \
     controlid, dumpwindow, exstyle, font, has_exstyle, has_style, is64bitprocess, \
     is_toplevel_window, isenabled, isunicode, isvisible, iswindow, parent, processid, \
     rectangle, style, text, userdata
 from pywinauto.application import Application
-from pywinauto import six
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.timings import Timings

@@ -32,11 +32,11 @@ import win32event
 import win32con
 import win32process
 import locale
+import six
 
 from . import hwndwrapper
 
 from .. import sysinfo
-from .. import six
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures

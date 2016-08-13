@@ -29,6 +29,7 @@ from xml.etree.cElementTree import Element
 from xml.etree.cElementTree import SubElement
 from xml.etree.cElementTree import ElementTree
 
+import six
 import ctypes
 import re
 import bz2, base64
@@ -41,7 +42,6 @@ from . import controls
 
 # reported that they are not used - but in fact they are
 # through a search of globals()
-from . import six
 from .win32structures import LOGFONTW, RECT
 
 class XMLParsingError(RuntimeError):

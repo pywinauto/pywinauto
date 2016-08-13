@@ -1,6 +1,5 @@
 # Copyright (C) 2016 Vasily Ryabov
 # Copyright (C) 2016 airelil
-# Copyright (C) 2010 Mark Mc Mahon
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,8 +32,8 @@ Wrap various UIA windows controls
 """
 import locale
 import comtypes
+import six
 
-from .. import six
 from .. import uia_element_info
 
 from . import uiawrapper

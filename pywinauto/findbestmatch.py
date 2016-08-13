@@ -26,8 +26,7 @@ from __future__ import unicode_literals
 
 import re
 import difflib
-
-from . import six
+import six
 #import ctypes
 #import ldistance
 #levenshtein_distance = ctypes.cdll.levenshtein.levenshtein_distance

@@ -70,11 +70,9 @@ properly.
 The identifier for this test/bug is "CompareToRefFont"
 """
 
-__revision__ = "$Revision$"
-
 testname = "CompareToRefFont"
 
-from pywinauto import six
+import six
 from pywinauto import win32structures
 _font_attribs = [field[0] for field in win32structures.LOGFONTW._fields_]
 

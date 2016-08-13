@@ -23,12 +23,13 @@
 
 import sys
 import unittest
+import six
 sys.path.append(".")
+
 from pywinauto.xml_helpers import WriteDialogToFile
 from pywinauto.xml_helpers import ReadPropertiesFromFile
 from pywinauto.xml_helpers import LOGFONTW
 from pywinauto.xml_helpers import RECT
-from pywinauto import six
 
 
 class XMLHelperTestCases(unittest.TestCase):

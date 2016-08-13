@@ -31,10 +31,11 @@ import sys
 import os
 import locale
 import unittest
+#import six
 sys.path.append(".")
+
 from pywinauto.keyboard import SendKeys, DEBUG, KeySequenceError
 from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
-from pywinauto import six
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 from pywinauto.application import Application
 from pywinauto.actionlogger import ActionLogger

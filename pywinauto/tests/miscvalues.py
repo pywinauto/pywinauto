@@ -57,10 +57,10 @@ and this can change every time the software is run.
 **Test Identifier**
 The identifier for this test/bug is "MiscValues"
 """
-__revision__ = "$Revision$"
 
-from pywinauto import six
 testname = "MiscValues"
+
+import six
 
 def MiscValuesTest(windows):
     "Return the bugs from checking miscelaneous values of a control"

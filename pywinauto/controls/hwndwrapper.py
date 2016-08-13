@@ -35,6 +35,7 @@ import win32api
 import win32gui
 import win32con
 import win32process
+import six
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
@@ -50,7 +51,6 @@ try:
 except ImportError:
     ImageGrab = None
 
-from .. import six
 from .. import win32defines
 from .. import win32structures
 from ..timings import Timings

@@ -23,24 +23,26 @@
 """Definition of Windows structures
 """
 
-from .win32defines import LF_FACESIZE
-from . import six
-from . import sysinfo
-
+import six
 import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t
 
+from .win32defines import LF_FACESIZE
+from . import sysinfo
+
+
 class Structure(ctypes.Structure):
-    "Override the Structure class from ctypes to add printing and comparison"
+
+    """Override the Structure class from ctypes to add printing and comparison"""
+
     #----------------------------------------------------------------
     def __str__(self):
         """Print out the fields of the ctypes Structure
 
         fields in exceptList will not be printed"""
-
         lines = []
         for f in self._fields_:
             name = f[0]
@@ -50,10 +52,8 @@ class Structure(ctypes.Structure):
 
     #----------------------------------------------------------------
     def __eq__(self, other_struct):
-        "return true if the two structures have the same coordinates"
-
+        """Return True if the two structures have the same coordinates"""
         if isinstance(other_struct, ctypes.Structure):
-
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
@@ -161,7 +161,9 @@ assert alignment(POINT) == 4, alignment(POINT)
 
 #====================================================================
 class RECT(Structure):
-    "Wrap the RECT structure and add extra functionality"
+
+    """Wrap the RECT structure and add extra functionality"""
+
     _fields_ = [
         # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
         ('left', LONG),
@@ -211,19 +213,19 @@ class RECT(Structure):
 
     #----------------------------------------------------------------
     def __str__(self):
-        "Return a string representation of the RECT"
+        """Return a string representation of the RECT"""
         return "(L%d, T%d, R%d, B%d)" % (
             self.left, self.top, self.right, self.bottom)
 
     #----------------------------------------------------------------
     def __repr__(self):
-        "Return some representation of the RECT"
+        """Return some representation of the RECT"""
         return "<RECT L%d, T%d, R%d, B%d>" % (
             self.left, self.top, self.right, self.bottom)
 
     #----------------------------------------------------------------
     def __sub__(self, other):
-        "Return a new rectangle which is offset from the one passed in"
+        """Return a new rectangle which is offset from the one passed in"""
         newRect = RECT()
 
         newRect.left = self.left - other.left
@@ -236,7 +238,7 @@ class RECT(Structure):
 
     #----------------------------------------------------------------
     def __add__(self, other):
-        "Allow two rects to be added using +"
+        """Allow two rects to be added using +"""
         newRect = RECT()
 
         newRect.left = self.left + other.left
@@ -249,17 +251,17 @@ class RECT(Structure):
 
     #----------------------------------------------------------------
     def width(self):
-        "Return the width of the  rect"
+        """Return the width of the  rect"""
         return self.right - self.left
 
     #----------------------------------------------------------------
     def height(self):
-        "Return the height of the rect"
+        """Return the height of the rect"""
         return self.bottom - self.top
 
     #----------------------------------------------------------------
     def mid_point(self):
-        "Return a POINT structure representing the mid point"
+        """Return a POINT structure representing the mid point"""
         pt = POINT()
         pt.x = self.left + int(float(self.width())/2.)
         pt.y = self.top + int(float(self.height())/2.)
