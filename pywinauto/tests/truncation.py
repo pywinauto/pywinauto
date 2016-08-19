@@ -145,7 +145,7 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     """Return the minimum rectangle that the text will fit into
 
     Uses font, usableRect and drawFlags information to find how
-    how to do it accurately.
+    to do it accurately.
     """
 
     # try to create the font

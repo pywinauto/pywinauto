@@ -1,7 +1,7 @@
 # Windows global hooks in pure Python inside pywinauto GUI automation library
 # Copyright (C) 2016 Maxim Samokhvalov
 # Copyright (C) 2016 Vasily Ryabov
-# Copyright (C) 2016 ethanhs
+# Copyright (C) 2016 Ethan Smith
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@ Windows global hooks in pure Python
 
 The implementation uses foreign function interface (FFI) provided by 
 standard Python module **ctypes** and inspired by pyHook, pyhooked and other 
-similar modules. It tends to be a superset of pyHook but in pure Python only 
-so it doesn't require compilation.
+similar modules (the code was re-written from scratch). It tends to be 
+a superset of pyHook but in pure Python only so it doesn't require compilation.
 
 Current set of hooks implemented:
  * WH_MOUSE_LL
@@ -49,6 +49,8 @@ More detailed documentation about Windows hooks can be found in MSDN:
 https://msdn.microsoft.com/en-us/library/windows/desktop/ms632589.aspx
 
 This module can be used as a stand alone or along with pywinauto.
+The fork of this code (at some moment) was used in
+standalone library pyhooked 0.8 maintained by Ethan Smith.
 """
 
 from ctypes import wintypes

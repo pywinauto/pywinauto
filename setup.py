@@ -32,9 +32,6 @@
 
 '''Install and build pywinauto distributions'''
 
-
-# to build files:
-# setup.py py2exe
 from __future__ import print_function
 
 try:
