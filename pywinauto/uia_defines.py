@@ -31,7 +31,7 @@
 
 import comtypes
 import comtypes.client
-from . import six
+import six
 
 
 class _Singleton(type):

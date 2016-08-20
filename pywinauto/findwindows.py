@@ -26,8 +26,8 @@ from __future__ import unicode_literals
 
 import re
 import ctypes
+import six
 
-from . import six
 from . import win32functions
 from . import win32structures
 from . import findbestmatch

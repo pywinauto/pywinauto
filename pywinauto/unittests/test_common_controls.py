@@ -32,10 +32,10 @@ from datetime import datetime
 #import pdb
 import os
 import win32api
+import six
 
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto import six
 from pywinauto.win32structures import RECT
 from pywinauto import win32defines
 from pywinauto import findbestmatch

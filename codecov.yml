@@ -1,0 +1,8 @@
+comment:
+  layout: header, changes, diff
+coverage:
+  ignore:
+  - pywinauto/unittests/.*
+  - examples/.*
+  status:
+    patch: false

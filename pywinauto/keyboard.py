@@ -33,8 +33,8 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32api
+import six
 
-from . import six
 from . import win32structures
 
 __all__ = ['KeySequenceError', 'SendKeys']

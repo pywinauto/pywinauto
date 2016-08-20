@@ -33,8 +33,9 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import time
+import six
+import comtypes
 
-from .. import six
 from ..timings import Timings
 from ..actionlogger import ActionLogger
 
@@ -42,7 +43,6 @@ from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
-import comtypes
 from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
 from ..uia_element_info import UIAElementInfo, elements_from_uia_array

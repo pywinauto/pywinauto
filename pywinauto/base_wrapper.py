@@ -7,6 +7,7 @@ import locale
 import re
 import time
 import win32process
+import six
 
 try:
     from PIL import ImageGrab
@@ -14,7 +15,6 @@ except ImportError:
     ImageGrab = None
 
 from . import keyboard
-from . import six
 from . import win32defines, win32structures, win32functions
 from .timings import Timings
 from .actionlogger import ActionLogger

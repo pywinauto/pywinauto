@@ -32,11 +32,11 @@
 """
 
 from comtypes import COMError
+from six import integer_types
 
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
 
-from .six import integer_types
 from .handleprops import dumpwindow, controlid
 from .element_info import ElementInfo
 from .win32structures import RECT
