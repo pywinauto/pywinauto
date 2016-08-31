@@ -1,6 +1,6 @@
-# Copyright (C) 2016 Ivan Magazinnik
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2010 Mark Mc Mahon
+# GUI Application automation and testing library
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"Cross-platform module to emulate mouse events like a real user"
+"""Cross-platform module to emulate mouse events like a real user"""
 
 import sys
 import time

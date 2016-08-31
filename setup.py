@@ -1,8 +1,6 @@
 # GUI Application automation and testing library
-# Copyright (C) 2016 Vasily Ryabov
-# Copyright (C) 2016 airelil
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,7 +28,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Install and build pywinauto distributions'''
+"""Install and build pywinauto distributions"""
 
 from __future__ import print_function
 
@@ -63,7 +61,7 @@ setup(name='pywinauto',
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
     url = "http://pywinauto.github.io/",
-    author = 'Mark McMahon and Contributors',
+    author = 'Mark Mc Mahon and Contributors',
     author_email = 'pywinauto-users@lists.sourceforge.net',
     long_description = """
 At it's simplest it allows you to send mouse and keyboard

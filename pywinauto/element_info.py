@@ -1,5 +1,6 @@
-# Copyright (C) 2016 Alexander Rumyantsev
-# Copyright (C) 2015 Intel Corporation
+# GUI Application automation and testing library
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
