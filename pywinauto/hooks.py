@@ -1,7 +1,7 @@
-# Windows global hooks in pure Python inside pywinauto GUI automation library
-# Copyright (C) 2016 Maxim Samokhvalov
-# Copyright (C) 2016 Vasily Ryabov
-# Copyright (C) 2016 Ethan Smith
+# GUI Application automation and testing library
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -15,10 +15,6 @@
 #   and/or other materials provided with the distribution.
 #
 # * Neither the name of pywinauto nor the names of its
-#   contributors may be used to endorse or promote products derived from
-#   this software without specific prior written permission.
-#
-# * Neither the name of hooks.py nor the names of its
 #   contributors may be used to endorse or promote products derived from
 #   this software without specific prior written permission.
 #

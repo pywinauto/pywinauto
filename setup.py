@@ -1,8 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2016 Vasily Ryabov
-# Copyright (C) 2016 airelil
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,20 +29,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Install and build pywinauto distributions'''
+"""Install and build pywinauto distributions"""
 
 from __future__ import print_function
 
-try:
-    try:
-        from ez_setup import use_setuptools
-        use_setuptools()
-    except ImportError:
-        print('No ez_setup.py. Using plain setuptools...')
-    from setuptools import setup
-except ImportError:
-    print('Using distutils.core for setup...')
-    from distutils.core import setup
+from setuptools import setup
 
 import os.path
 import sys
@@ -56,15 +46,8 @@ def setup_path(path = ""):
 
     return os.path.join(setup_path, path)
 
-
 # add it to the system path
 sys.path.append(setup_path())
-
-try:
-    import win32api
-    requirements = []
-except ImportError:
-    requirements = ["pypiwin32"]
 
 # make sure the documentation is in the correct place for building
 # todo: see how to build the website
@@ -73,15 +56,14 @@ except ImportError:
 #    if not os.path.exists(setup_path("docs")):
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
-
 setup(name='pywinauto',
     version = '0.6.0',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
     url = "http://pywinauto.github.io/",
-    author = 'Mark Mc Mahon',
-    author_email = 'mark.m.mcmahon@gmail.com',
+    author = 'Mark Mc Mahon and Contributors',
+    author_email = 'pywinauto-users@lists.sourceforge.net',
     long_description = """
 At it's simplest it allows you to send mouse and keyboard
 actions to windows dialogs and controls, but It has support for more complex
@@ -110,5 +92,6 @@ controls also.
         'Topic :: Software Development :: User Interfaces',
         'Topic :: Software Development :: Quality Assurance',
         ],
-    install_requires=requirements,
+    install_requires=['six', 'pypiwin32', 'comtypes'],
+    setup_requires=['setuptools-scm'],
     )
