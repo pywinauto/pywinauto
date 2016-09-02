@@ -47,7 +47,7 @@ class BaseMeta(abc.ABCMeta):
     
     @staticmethod
     def find_wrapper(element):
-        "Abstract static method to find appropriate wrapper"
+        "Abstract static method to find an appropriate wrapper"
         raise NotImplementedError()
 
 #=========================================================================
@@ -67,12 +67,15 @@ class BaseWrapper(object):
     can_be_label = False
     has_title = True
 
-    '''
     #------------------------------------------------------------
     def __new__(cls, element_info):
+        return _create_wrapper(cls, element_info, BaseWrapper)
+    
+    def _create_wrapper(cls, element_info, myself):
+        """Create an appropriate wrapper object"""
         # only use the meta class to find the wrapper for BaseWrapper
         # so allow users to force the wrapper if they want
-        if cls != BaseWrapper:
+        if cls != myself:
             obj = object.__new__(cls)
             obj.__init__(element_info)
             return obj
@@ -83,7 +86,6 @@ class BaseWrapper(object):
         obj.__init__(element_info)
 
         return obj
-    '''
 
     #------------------------------------------------------------
     def __init__(self, element_info, active_backend):

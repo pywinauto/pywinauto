@@ -173,22 +173,8 @@ class HwndWrapper(BaseWrapper):
     handle = None
 
     #-----------------------------------------------------------
-    # TODO: can't inherit __new__ function from BaseWrapper?
     def __new__(cls, element):
-        # only use the meta class to find the wrapper for HwndWrapper
-        # so allow users to force the wrapper if they want
-        # thanks to Raghav for finding this.
-        if cls != HwndWrapper:
-            obj = object.__new__(cls)
-            obj.__init__(element)
-            return obj
-
-        new_class = cls.find_wrapper(element)
-
-        obj = object.__new__(new_class)
-        obj.__init__(element)
-
-        return obj
+        return super(HwndWrapper, cls)._create_wrapper(cls, element, HwndWrapper)
 
     #-----------------------------------------------------------
     def __init__(self, element_info):
