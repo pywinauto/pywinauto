@@ -174,7 +174,7 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def __new__(cls, element):
-        return super(HwndWrapper, cls)._create_wrapper(cls, element, HwndWrapper)
+        return super(HwndWrapper, cls)._create_wrapper(element, HwndWrapper)
 
     #-----------------------------------------------------------
     def __init__(self, element_info):

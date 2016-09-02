@@ -178,7 +178,7 @@ class UIAWrapper(BaseWrapper):
     #------------------------------------------------------------
     def __new__(cls, element_info):
         """Create an appropriate wrapper object"""
-        return super(UIAWrapper, cls)._create_wrapper(cls, element_info, UIAWrapper)
+        return super(UIAWrapper, cls)._create_wrapper(element_info, UIAWrapper)
 
     #-----------------------------------------------------------
     def __init__(self, element_info):
