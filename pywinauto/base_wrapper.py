@@ -72,7 +72,7 @@ class BaseWrapper(object):
         return _create_wrapper(cls, element_info, BaseWrapper)
     
     #------------------------------------------------------------
-    @classmethod
+    @staticmethod
     def _create_wrapper(cls, element_info, myself):
         """Create a wrapper object according to the specified element info"""
         # only use the meta class to find the wrapper for BaseWrapper
