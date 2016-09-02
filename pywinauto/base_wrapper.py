@@ -321,14 +321,14 @@ class BaseWrapper(object):
     #-----------------------------------------------------------
     def texts(self):
         """
-        Return the text for each item of this control"
+        Return the text for each item of this control
 
-        It is a list of strings for the control. It is frequently over-ridden
+        It is a list of strings for the control. It is frequently overridden
         to extract all strings from a control with multiple items.
 
         It is always a list with one or more strings:
 
-          * First elemtent is the window text of the control
+          * The first element is the window text of the control
           * Subsequent elements contain the text of any items of the
             control (e.g. items in a listbox/combobox, tabs in a tabcontrol)
         """
@@ -336,16 +336,17 @@ class BaseWrapper(object):
         return texts_list
 
     #-----------------------------------------------------------
-    def children(self, class_name = None, title = None):
+    def children(self, class_name = None, title = None, control_type = None):
         """
         Return the children of this element as a list
 
-        It returns a list of BaseWrapper (or subclass) instances, it
-        returns an empty list if there are no children.
+        It returns a list of BaseWrapper (or subclass) instances.
+        An empty list is returned if there are no children.
         """
         child_elements = self.element_info.children(process = self.process_id(), 
                                                     class_name = class_name, 
-                                                    title = title)
+                                                    title = title,
+                                                    control_type = control_type)
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
 
     #-----------------------------------------------------------
@@ -353,8 +354,8 @@ class BaseWrapper(object):
         """
         Return the descendants of this element as a list
 
-        It returns a list of BaseWrapper (or subclass) instances, it
-        returns an empty list if there are no descendants.
+        It returns a list of BaseWrapper (or subclass) instances.
+        An empty list is returned if there are no descendants.
         """
         desc_elements = self.element_info.descendants(process = self.process_id(),
                                                       class_name = class_name, 
@@ -564,13 +565,13 @@ class BaseWrapper(object):
         * **wheel_dist** The distance to move the mouse wheel (default: 0)
 
         NOTES:
-           This is different from click in that it requires the control to
-           be visible on the screen but performs a more realistic 'click'
+           This is different from click method in that it requires the control
+           to be visible on the screen but performs a more realistic 'click'
            simulation.
 
            This method is also vulnerable if the mouse is moved by the user
            as that could easily move the mouse off the control before the
-           Click has finished.
+           click_input has finished.
         """
         if self.is_dialog():
             self.set_focus()
