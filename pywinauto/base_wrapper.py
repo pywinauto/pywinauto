@@ -69,20 +69,21 @@ class BaseWrapper(object):
 
     #------------------------------------------------------------
     def __new__(cls, element_info):
-        return _create_wrapper(cls, element_info, BaseWrapper)
+        return BaseWrapper._create_wrapper(cls, element_info, BaseWrapper)
     
     #------------------------------------------------------------
     @staticmethod
-    def _create_wrapper(cls, element_info, myself):
+    def _create_wrapper(cls_spec, element_info, myself):
         """Create a wrapper object according to the specified element info"""
         # only use the meta class to find the wrapper for BaseWrapper
         # so allow users to force the wrapper if they want
-        if cls != myself:
-            obj = object.__new__(cls)
+        if cls_spec != myself:
+            import ipdb; ipdb.set_trace()
+            obj = object.__new__(cls_spec)
             obj.__init__(element_info)
             return obj
 
-        new_class = cls.find_wrapper(element_info)
+        new_class = cls_spec.find_wrapper(element_info)
         obj = object.__new__(new_class)
 
         obj.__init__(element_info)
