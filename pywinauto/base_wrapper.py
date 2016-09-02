@@ -78,7 +78,6 @@ class BaseWrapper(object):
         # only use the meta class to find the wrapper for BaseWrapper
         # so allow users to force the wrapper if they want
         if cls_spec != myself:
-            import ipdb; ipdb.set_trace()
             obj = object.__new__(cls_spec)
             obj.__init__(element_info)
             return obj
