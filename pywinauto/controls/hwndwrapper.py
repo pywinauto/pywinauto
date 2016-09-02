@@ -174,6 +174,7 @@ class HwndWrapper(BaseWrapper):
 
     #-----------------------------------------------------------
     def __new__(cls, element):
+        """Construct the control wrapper"""
         return super(HwndWrapper, cls)._create_wrapper(element, HwndWrapper)
 
     #-----------------------------------------------------------

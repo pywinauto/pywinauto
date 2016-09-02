@@ -74,7 +74,7 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     @classmethod
     def _create_wrapper(cls, element_info, myself):
-        """Create an appropriate wrapper object"""
+        """Create a wrapper object according to the specified element info"""
         # only use the meta class to find the wrapper for BaseWrapper
         # so allow users to force the wrapper if they want
         if cls != myself:
