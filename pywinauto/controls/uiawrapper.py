@@ -34,12 +34,8 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import time
 import six
 import comtypes
-
-from ..timings import Timings
-from ..actionlogger import ActionLogger
 
 from .. import backend
 from ..base_wrapper import BaseWrapper
@@ -49,7 +45,7 @@ from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
 from ..uia_element_info import UIAElementInfo, elements_from_uia_array
 
-#region PATTERNS
+# region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
 DockPattern = IUIA().ui_automation_client.IUIAutomationDockPattern
 ExpandCollapsePattern = IUIA().ui_automation_client.IUIAutomationExpandCollapsePattern
@@ -73,7 +69,7 @@ TransformPattern = IUIA().ui_automation_client.IUIAutomationTransformPattern
 ValuePattern = IUIA().ui_automation_client.IUIAutomationValuePattern
 VirtualizedItemPattern = IUIA().ui_automation_client.IUIAutomationVirtualizedItemPattern
 WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
-#endregion
+# endregion
 
 #=========================================================================
 _friendly_classes = {
@@ -160,7 +156,7 @@ class UiaMeta(BaseMeta):
 #=========================================================================
 @six.add_metaclass(UiaMeta)
 class UIAWrapper(BaseWrapper):
-    
+
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -339,7 +335,7 @@ class UIAWrapper(BaseWrapper):
             try:
                 self.element_info.element.SetFocus()
             except comtypes.COMError:
-                pass # TODO: add RuntimeWarning here
+                pass  # TODO: add RuntimeWarning here
 
         return self
 
@@ -371,7 +367,7 @@ class UIAWrapper(BaseWrapper):
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
         self.iface_invoke.Invoke()
-        
+
         # Return itself to allow action chaining
         return self
 
