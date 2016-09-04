@@ -176,21 +176,9 @@ class UIAWrapper(BaseWrapper):
     control_types = []
 
     #------------------------------------------------------------
-    # TODO: can't inherit __new__ function from BaseWrapper?
     def __new__(cls, element_info):
-        # only use the meta class to find the wrapper for BaseWrapper
-        # so allow users to force the wrapper if they want
-        if cls != UIAWrapper:
-            obj = object.__new__(cls)
-            obj.__init__(element_info)
-            return obj
-
-        new_class = cls.find_wrapper(element_info)
-        obj = object.__new__(new_class)
-
-        obj.__init__(element_info)
-
-        return obj
+        """Construct the control wrapper"""
+        return super(UIAWrapper, cls)._create_wrapper(cls, element_info, UIAWrapper)
 
     #-----------------------------------------------------------
     def __init__(self, element_info):
