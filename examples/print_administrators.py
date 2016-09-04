@@ -1,7 +1,7 @@
 """
-Script for display user groups and users in group Administrators
+Script to display all the user groups and all the users in Administrators group
 
-Requirements: Python 2.7 or 3.4, pyWin32, pywinauto 0.5.3+
+Requirements: Python 2.7 or 3.4, pyWin32, pywinauto 0.5.4+
  download the repo: https://github.com/pywinauto/pywinauto
  place the script to the repo root folder
 """
@@ -10,13 +10,13 @@ from pywinauto import application
 from pywinauto.timings import always_wait_until_passes
 
 
-class AccessDeniedError(StandardError):
+class AccessDeniedError(Exception):
     """Raise when current user is not an administrator."""
     def __init__(self, arg):
         self.args = arg
 
 
-class NoExistGroupError(StandardError):
+class NoExistGroupError(Exception):
     """Raise when group Administrators is not exist."""
     def __init__(self, arg):
         self.args = arg
@@ -29,7 +29,7 @@ def is_user_an_admin():
         try:
             # only windows users with admin privileges can read the C:\windows\temp
             os.listdir(os.sep.join([os.environ.get('SystemRoot', 'C:\\windows'), 'temp']))
-        except WindowsError:
+        except Exception:
             return False
         else:
             return True
@@ -67,4 +67,4 @@ if is_user_an_admin():
         print('\nThere is no Administrators group')
     app.kill_()
 else:
-    print('\nYou are not administrator')
+    print('\nYou are not an administrator')
