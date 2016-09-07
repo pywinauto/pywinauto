@@ -290,7 +290,7 @@ assert sizeof(SETTEXTEX) == 8, sizeof(SETTEXTEX)
 
 class LVCOLUMNW(Structure):
 
-    """Main layout for LVCOLUMN on x86 and x64 archs"""
+    """The main layout for LVCOLUMN on x86 and x64 archs"""
 
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes in x64 system and 4 bytes in x86
@@ -312,7 +312,7 @@ class LVCOLUMNW(Structure):
 
 class LVCOLUMNW32(Structure):
 
-    """Special layout for LVCOLUMN for a 32-bit process running on x64"""
+    """A special layout for LVCOLUMN for a 32-bit process running on x64"""
 
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes in x64 system and 4 bytes in x86
@@ -334,7 +334,7 @@ class LVCOLUMNW32(Structure):
 
 class LVITEMW(Structure):
 
-    """Main layout for LVITEM, naturally fits for x86 and x64 archs"""
+    """The main layout for LVITEM, naturally fits for x86 and x64 archs"""
 
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes on x64 system and 4 bytes on x86
@@ -370,7 +370,7 @@ else:
 
 class LVITEMW32(Structure):
 
-    """Special layout for LVITEM for a 32-bit process running on x64"""
+    """A special layout for LVITEM for a 32-bit process running on x64"""
 
     _pack_  = 4
     _fields_ = [
@@ -400,7 +400,7 @@ assert alignment(LVITEMW32) == 4, alignment(LVITEMW32)
 
 class TVITEMW(Structure):
 
-    """Main layout for TVITEM, naturally fits for x86 and x64 archs"""
+    """The main layout for TVITEM, naturally fits for x86 and x64 archs"""
 
     #_pack_ = 1
     _fields_ = [
@@ -426,7 +426,7 @@ else:
 
 class TVITEMW32(Structure):
 
-    """Additional layout for TVITEM, used in combination 64-bit python + 32-bit app"""
+    """An additional layout for TVITEM, used in a combination of 64-bit python and 32-bit app"""
 
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
