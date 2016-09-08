@@ -109,16 +109,12 @@ class Structure(ctypes.Structure):
 # set struct.__reduce__ = _reduce
 # e.g. RECT.__reduce__ = _reduce
 def _construct(typ, buf):
-    #print "construct", (typ, buf)
     obj = typ.__new__(typ)
     ctypes.memmove(ctypes.addressof(obj), buf, len(buf))
     return obj
 
 def _reduce(self):
-    if six.PY2:
-        return (_construct, (self.__class__, str(buffer(self))))
-    else:
-        return (_construct, (self.__class__, bytes(memoryview(self))))
+    return (_construct, (self.__class__, bytes(memoryview(self))))
 
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
@@ -167,7 +163,7 @@ assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 
 
-#====================================================================
+# ====================================================================
 class RECT(Structure):
 
     """Wrap the RECT structure and add extra functionality"""
@@ -180,7 +176,7 @@ class RECT(Structure):
         ('bottom', LONG),
     ]
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
         """Provide a constructor for RECT structures
 
@@ -206,7 +202,7 @@ class RECT(Structure):
             self.bottom = long_int(bottom)
 
 
-#    #----------------------------------------------------------------
+#    # ----------------------------------------------------------------
 #    def __eq__(self, otherRect):
 #        "return true if the two rectangles have the same coordinates"
 #
@@ -219,19 +215,19 @@ class RECT(Structure):
 #        except AttributeError:
 #            return False
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __str__(self):
         """Return a string representation of the RECT"""
         return "(L%d, T%d, R%d, B%d)" % (
             self.left, self.top, self.right, self.bottom)
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __repr__(self):
         """Return some representation of the RECT"""
         return "<RECT L%d, T%d, R%d, B%d>" % (
             self.left, self.top, self.right, self.bottom)
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __sub__(self, other):
         """Return a new rectangle which is offset from the one passed in"""
         newRect = RECT()
@@ -244,7 +240,7 @@ class RECT(Structure):
 
         return newRect
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __add__(self, other):
         """Allow two rects to be added using +"""
         newRect = RECT()
@@ -257,17 +253,17 @@ class RECT(Structure):
 
         return newRect
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def width(self):
         """Return the width of the  rect"""
         return self.right - self.left
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def height(self):
         """Return the height of the rect"""
         return self.bottom - self.top
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def mid_point(self):
         """Return a POINT structure representing the mid point"""
         pt = POINT()
@@ -291,8 +287,11 @@ class SETTEXTEX(Structure):
     ]
 assert sizeof(SETTEXTEX) == 8, sizeof(SETTEXTEX)
 
-# Main layout for LVCOLUMN on x86 and x64 archs
+
 class LVCOLUMNW(Structure):
+
+    """The main layout for LVCOLUMN on x86 and x64 archs"""
+
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes in x64 system and 4 bytes in x86
     _fields_ = [
@@ -310,8 +309,11 @@ class LVCOLUMNW(Structure):
         ('cxIdeal', c_int),
     ]
 
-# this is a special layout for a 32-bit process running on x64
+
 class LVCOLUMNW32(Structure):
+
+    """A special layout for LVCOLUMN for a 32-bit process running on x64"""
+
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes in x64 system and 4 bytes in x86
     _fields_ = [
@@ -329,8 +331,11 @@ class LVCOLUMNW32(Structure):
         ('cxIdeal', c_int),
     ]
 
-# Main layout for LVITEM, naturally fits for x86 and x64 archs
+
 class LVITEMW(Structure):
+
+    """The main layout for LVITEM, naturally fits for x86 and x64 archs"""
+
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes on x64 system and 4 bytes on x86
     _fields_ = [
@@ -362,8 +367,11 @@ else:
     assert sizeof(LVITEMW) == 60, sizeof(LVITEMW)
     assert alignment(LVITEMW) == 4, alignment(LVITEMW)
 
-# this is a special layout for a 32-bit process running on x64
+
 class LVITEMW32(Structure):
+
+    """A special layout for LVITEM for a 32-bit process running on x64"""
+
     _pack_  = 4
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2679
@@ -389,8 +397,11 @@ class LVITEMW32(Structure):
 
 assert alignment(LVITEMW32) == 4, alignment(LVITEMW32)
 
-# Main layout for TVITEM, naturally fits for x86 and x64 archs
+
 class TVITEMW(Structure):
+
+    """The main layout for TVITEM, naturally fits for x86 and x64 archs"""
+
     #_pack_ = 1
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
@@ -413,8 +424,10 @@ else:
     assert alignment(TVITEMW) == 4, alignment(TVITEMW)
 
 
-# Additional layout for TVITEM, used in combination 64-bit python + 32-bit app
 class TVITEMW32(Structure):
+
+    """An additional layout for TVITEM, used in a combination of 64-bit python and 32-bit app"""
+
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
         ('mask', UINT),
