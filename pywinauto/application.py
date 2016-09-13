@@ -805,11 +805,11 @@ class Application(object):
     .. automethod:: __getitem__
     """
 
-    def __init__(self, backend = "native", datafilename = None):
+    def __init__(self, backend = "win32", datafilename = None):
         """
         Initialize the Appliction object
         
-        * **backend** is a name of used back-end (values: "native", "uia").
+        * **backend** is a name of used back-end (values: "win32", "uia").
         * **datafilename** is a file name for reading matching history.
         """
         self.process = None

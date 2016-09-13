@@ -105,7 +105,7 @@ def find_window(**kwargs):
     so please see find_elements for a description of them.
     """
     try:
-        kwargs['backend'] = 'native'
+        kwargs['backend'] = 'win32'
         element = find_element(**kwargs)
         return element.handle
     except ElementNotFoundError:
@@ -316,7 +316,7 @@ def find_windows(**kwargs):
     so please see find_elements for a description of them.
     """
     try:
-        kwargs['backend'] = 'native'
+        kwargs['backend'] = 'win32'
         elements = find_elements(**kwargs)
         return [elem.handle for elem in elements]
     except ElementNotFoundError:
