@@ -706,3 +706,106 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         return props
 
 
+# ====================================================================
+class MenuItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible MenuItem control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_MenuItemControlTypeId,
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, hwnd, container=None):
+        """Initialize the control"""
+        super(MenuItemWrapper, self).__init__(hwnd)
+
+    # -----------------------------------------------------------
+    def _items(self):
+        """Find all items of the menu item"""
+        return self.children()  # control_type = "MenuItem")
+
+    # -----------------------------------------------------------
+    def select(self):
+        """Apply Select pattern"""
+        try:
+            self.iface_selection_item.Select()
+        except(NoPatternInterfaceError):
+            try:
+                self.iface_invoke.Invoke()
+            except(NoPatternInterfaceError):
+                raise AttributeError
+
+
+# ====================================================================
+class MenuWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible MenuBar or Menu control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_MenuBarControlTypeId,
+        IUIA().UIA_dll.UIA_MenuControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, hwnd, container=None):
+        """Initialize the control"""
+        super(MenuWrapper, self).__init__(hwnd)
+
+    # -----------------------------------------------------------
+    def _items(self):
+        """Find all menu items"""
+        return self.children(control_type="MenuItem")
+
+    # -----------------------------------------------------------
+    def item_by_index(self, idx):
+        """Find a menu item specified by the index"""
+        item = self._items()[idx]
+        return item
+
+    # -----------------------------------------------------------
+    def _sub_item_by_idx(self, menu, idx):
+        """Find a menu sub-item by the specified index"""
+        sub_item = None
+        items = menu._items()
+        if items:
+            sub_item = items[idx]
+            if not sub_item.is_active():
+                # self.actions.log("[DEBUG] Set focus on", sub_item.texts())
+                sub_item.set_focus()
+            try:
+                sub_item.expand()
+                # self.actions.log("[DEBUG] Expand ", sub_item.texts())
+            except(NoPatternInterfaceError):
+                pass
+        return sub_item
+
+    # -----------------------------------------------------------
+    def item_by_path(self, path, exact=False):
+        """Find a menu item specified by the path
+
+        The full path syntax is specified in:
+        :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
+        """
+        # Get the path parts
+        part0, parts = path.split("->", 1)
+        if len(part0) == 0:
+            raise ValueError
+
+        # Find a top level menu item and select it. After selecting this item
+        # a new Menu control is created and placed on the dialog. It can be
+        # a direct child or a descendant.
+        # Sometimes we need to re-discover Menu again
+        menu = None
+        if part0.startswith("#"):
+            menu = self._sub_item_by_idx(self, int(part0[1:]))
+
+        items = menu._items()
+        if not items:
+            menu = self.top_level_parent().descendants(control_type="Menu")[0]
+
+        for cur_part in parts.split("->"):
+            if cur_part.startswith("#"):
+                menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
+
+        return menu

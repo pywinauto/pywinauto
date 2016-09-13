@@ -4,25 +4,18 @@ from __future__ import unicode_literals
 """Tests for UIAWrapper"""
 
 import time
-#import pprint
-#import pdb
-#import warnings
-
-import ctypes
-import locale
-import re
-
-import sys, os
+import os
+import sys
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
-    from pywinauto.controls.uiawrapper import UIAWrapper
-from pywinauto import findwindows
+    # from pywinauto.controls.uiawrapper import UIAWrapper
+# from pywinauto import findwindows
 from pywinauto.timings import Timings
-from pywinauto.timings import TimeoutError
+# from pywinauto.timings import TimeoutError
 
 import unittest
 
@@ -762,6 +755,65 @@ if UIA_support:
             col = None
             self.assertRaises(ValueError, self.ctrl.cell, row, col)
 
+    class MenuWrapperWpfTests(unittest.TestCase):
+
+        """Unit tests for the MenuWrapper class on WPF demo"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            Timings.window_find_timeout = 20
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.Start(wpf_app_1)
+
+            self.dlg = self.app.WPFSampleApplication
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_friendly_class_name(self):
+            """Test getting the friendly class name of the menu"""
+            self.assertEqual(self.dlg.MenuBar.friendly_class_name(), "Menu")
+
+        def test_menu_by_index(self):
+            """Test selecting a menu item by index"""
+            path = "#0->#1->#1"  # "File->Close->Later"
+            self.dlg.menu_select(path)
+            label = self.dlg.MenuLaterClickLabel.WrapperObject()
+            self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+    class MenuWrapperNotepadTests(unittest.TestCase):
+
+        """Unit tests for the MenuWrapper class on Notepad"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+            Timings.window_find_timeout = 20
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.Start("notepad.exe")
+
+            self.dlg = self.app.UntitledNotepad
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_friendly_class_name(self):
+            """Test getting the friendly class name of the menu"""
+            menu = self.dlg.descendants(control_type="MenuBar")[0]
+            self.assertEqual(menu.friendly_class_name(), "Menu")
+
+        def test_menu_by_index(self):
+            """Test selecting a menu item by index"""
+            path = "#4->#1"  # "Help->About Notepad"
+            self.dlg.menu_select(path)  # "Help->About Notepad"
+            self.dlg.AboutNotepad.close()
 
 if __name__ == "__main__":
     if UIA_support:
