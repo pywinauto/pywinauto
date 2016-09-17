@@ -765,20 +765,44 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         return item
 
     # -----------------------------------------------------------
+    def _activate(self, item):
+        """Activate the specified item"""
+        if not item:
+            return
+
+        if not item.is_active():
+            # self.actions.log("[DEBUG] Set focus on", tem.texts())
+            item.set_focus()
+        try:
+            item.expand()
+            # self.actions.log("[DEBUG] Expand ", item.texts())
+        except(NoPatternInterfaceError):
+            pass
+
+    # -----------------------------------------------------------
+    def _sub_item_by_text(self, menu, name, exact):
+        """Find a menu sub-item by the specified text"""
+        sub_item = None
+
+        for i in menu._items():
+            text = i.window_text()
+            if exact:
+                if name == text:
+                    sub_item = i
+                    break
+
+        self._activate(sub_item)
+
+        return sub_item
+
+    # -----------------------------------------------------------
     def _sub_item_by_idx(self, menu, idx):
         """Find a menu sub-item by the specified index"""
         sub_item = None
         items = menu._items()
         if items:
             sub_item = items[idx]
-            if not sub_item.is_active():
-                # self.actions.log("[DEBUG] Set focus on", sub_item.texts())
-                sub_item.set_focus()
-            try:
-                sub_item.expand()
-                # self.actions.log("[DEBUG] Expand ", sub_item.texts())
-            except(NoPatternInterfaceError):
-                pass
+            self._activate(sub_item)
         return sub_item
 
     # -----------------------------------------------------------
@@ -791,7 +815,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         # Get the path parts
         part0, parts = path.split("->", 1)
         if len(part0) == 0:
-            raise ValueError
+            raise IndexError()
 
         # Find a top level menu item and select it. After selecting this item
         # a new Menu control is created and placed on the dialog. It can be
@@ -800,6 +824,11 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         menu = None
         if part0.startswith("#"):
             menu = self._sub_item_by_idx(self, int(part0[1:]))
+        else:
+            menu = self._sub_item_by_text(self, part0, exact)
+
+        if not menu:
+            raise IndexError()
 
         items = menu._items()
         if not items:
@@ -808,5 +837,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         for cur_part in parts.split("->"):
             if cur_part.startswith("#"):
                 menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
+            else:
+                menu = self._sub_item_by_text(menu, cur_part, exact)
 
         return menu
