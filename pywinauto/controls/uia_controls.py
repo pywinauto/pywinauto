@@ -767,8 +767,6 @@ class MenuWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def _activate(self, item):
         """Activate the specified item"""
-        if not item:
-            return
 
         if not item.is_active():
             # self.actions.log("[DEBUG] Set focus on", tem.texts())
@@ -784,10 +782,9 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         """Find a menu sub-item by the specified text"""
         sub_item = None
 
-        for i in menu._items():
-            text = i.window_text()
-            if exact:
-                if name == text:
+        if exact:
+            for i in menu._items():
+                if name == i.window_text():
                     sub_item = i
                     break
 
@@ -821,23 +818,22 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         # a new Menu control is created and placed on the dialog. It can be
         # a direct child or a descendant.
         # Sometimes we need to re-discover Menu again
-        menu = None
-        if part0.startswith("#"):
-            menu = self._sub_item_by_idx(self, int(part0[1:]))
-        else:
-            menu = self._sub_item_by_text(self, part0, exact)
-
-        if not menu:
-            raise IndexError()
-
-        items = menu._items()
-        if not items:
-            menu = self.top_level_parent().descendants(control_type="Menu")[0]
-
-        for cur_part in parts.split("->"):
-            if cur_part.startswith("#"):
-                menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
+        try:
+            menu = None
+            if part0.startswith("#"):
+                menu = self._sub_item_by_idx(self, int(part0[1:]))
             else:
-                menu = self._sub_item_by_text(menu, cur_part, exact)
+                menu = self._sub_item_by_text(self, part0, exact)
+
+            if not menu._items():
+                menu = self.top_level_parent().descendants(control_type="Menu")[0]
+
+            for cur_part in parts.split("->"):
+                if cur_part.startswith("#"):
+                    menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
+                else:
+                    menu = self._sub_item_by_text(menu, cur_part, exact)
+        except(AttributeError):
+            raise IndexError()
 
         return menu

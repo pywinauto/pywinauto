@@ -785,9 +785,28 @@ if UIA_support:
             label = self.dlg.MenuLaterClickLabel.WrapperObject()
             self.assertEqual(label.window_text(), u"MenuLaterClick")
 
-            # A non-existing path
+            # Non-existing paths
             path = "#5->#1"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
+            path = "#0->#1->#1->#2->#3"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+            # Bad specifiers
+            path = "#0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+            path = "0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+        def test_menu_by_exact_text(self):
+            """Test selecting a menu item by exact text match"""
+            path = "File->Close->Later"
+            self.dlg.menu_select(path, True)
+            label = self.dlg.MenuLaterClickLabel.WrapperObject()
+            self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+            # A non-exact menu name
+            path = "File->About"
+            self.assertRaises(IndexError, self.dlg.menu_select, path, True)
 
     class MenuWrapperNotepadTests(unittest.TestCase):
 
@@ -816,19 +835,26 @@ if UIA_support:
         def test_menu_by_index(self):
             """Test selecting a menu item by index"""
             path = "#4->#1"  # "Help->About Notepad"
-            self.dlg.menu_select(path)  # "Help->About Notepad"
+            self.dlg.menu_select(path)
             self.dlg.AboutNotepad.close()
 
             # A non-existing path
             path = "#5->#1"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
 
-        def test_menu_by_text(self):
-            """Test selecting a menu item by text"""
+            # Bad specifiers
+            path = "#0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+            path = "0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+        def test_menu_by_exact_text(self):
+            """Test selecting a menu item by exact text match"""
             path = "Help->About Notepad"
             self.dlg.menu_select(path, True)
             self.dlg.AboutNotepad.close()
 
+            # A non-exact menu name
             path = "Help ->About Notepad"
             self.assertRaises(IndexError, self.dlg.menu_select, path, True)
 
