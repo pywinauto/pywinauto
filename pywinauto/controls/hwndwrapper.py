@@ -192,7 +192,7 @@ class HwndWrapper(BaseWrapper):
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['native'])
+        BaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
         if not win32functions.IsWindow(self.handle):
@@ -1517,5 +1517,5 @@ def get_dialog_props_from_handle(hwnd):
 GetDialogPropsFromHandle = get_dialog_props_from_handle
 
 
-backend.register('native', NativeElementInfo, HwndWrapper)
-backend.activate('native') # default
+backend.register('win32', NativeElementInfo, HwndWrapper)
+backend.activate('win32') # default

@@ -442,7 +442,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         WaitUntil(40, 0.5, _cabinetwclass_exist)
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
-        window = WindowSpecification({'handle': handle, 'backend': 'native', })
+        window = WindowSpecification({'handle': handle, 'backend': 'win32', })
         explorer = Application().Connect(process = window.process_id())
         
         try:
@@ -963,7 +963,7 @@ class MultiLevelWindowSpecificationTests(unittest.TestCase):
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
-            self.app = Application(backend='native').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+            self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
             self.dlg = self.app.CommonControlsSample
 
         def tearDown(self):
@@ -1003,7 +1003,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
-            self.app = Application(backend='native').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+            self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
             self.desktop = Desktop()
 
         def tearDown(self):

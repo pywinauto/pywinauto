@@ -73,7 +73,7 @@ class FindWindowsTestCases(unittest.TestCase):
         Timings.Defaults()
 
         # start the application
-        self.app = Application(backend='native')
+        self.app = Application(backend='win32')
         self.app = self.app.Start(mfc_app_1)
 
         self.dlg = self.app.CommonControlsSample

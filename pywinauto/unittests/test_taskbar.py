@@ -79,7 +79,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     WaitUntil(_ready_timeout, _retry_interval, _cabinetwclass_exist)
     handle = findwindows.find_elements(active_only = True,
                                       class_name = class_name)[-1].handle
-    window = WindowSpecification({'handle': handle, 'backend': 'native', })
+    window = WindowSpecification({'handle': handle, 'backend': 'win32', })
     explorer = Application().Connect(process=window.process_id())
     cur_state = None
 
@@ -148,7 +148,7 @@ class TaskbarTestCases(unittest.TestCase):
         Timings.Defaults()
 
         self.tm = _ready_timeout
-        app = Application(backend='native')
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle = False)
         self.app = app
         self.dlg = app.top_window_()
