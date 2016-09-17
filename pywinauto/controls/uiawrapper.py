@@ -107,7 +107,7 @@ _friendly_classes = {
 
 #=========================================================================
 class LazyProperty(object):
-    
+
     """
     A lazy evaluation of an object attribute.
 
@@ -169,7 +169,7 @@ class UIAWrapper(BaseWrapper):
     Most of the methods apply to every single element type. For example
     you can click() on any element.
     """
-    
+
     control_types = []
 
     #------------------------------------------------------------
@@ -181,7 +181,7 @@ class UIAWrapper(BaseWrapper):
     def __init__(self, element_info):
         """
         Initialize the control
-        
+
         * **element_info** is either a valid UIAElementInfo or it can be an
           instance or subclass of UIAWrapper.
         If the handle is not valid then an InvalidWindowHandle error
@@ -345,10 +345,14 @@ class UIAWrapper(BaseWrapper):
         """
         Close the window
 
-        Only controls supporting Window pattern should answer
+        Only a control supporting Window pattern should answer.
+        If it doesn't (menu shadows, tooltips,...), try to send "Esc" key
         """
-        iface = self.iface_window
-        iface.Close()
+        try:
+            iface = self.iface_window
+            iface.Close()
+        except(uia_defs.NoPatternInterfaceError):
+            self.type_keys("{ESC}")
 
     #-----------------------------------------------------------
     def minimize(self):
@@ -438,16 +442,16 @@ class UIAWrapper(BaseWrapper):
         An interface to GetSelection of the SelectionProvider pattern
 
         Retrieves a UI Automation provider for each child element
-        that is selected. Builds a list of UIAElementInfo elements 
+        that is selected. Builds a list of UIAElementInfo elements
         from all retrieved providers.
         """
         ptrs_array = self.iface_selection.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
-    
+
     #-----------------------------------------------------------
     def selected_item_index(self):
         """Return the index of a selected item"""
-        # Go through all children and look for an index 
+        # Go through all children and look for an index
         # of an item with the same text.
         # Maybe there is another and more efficient way to do it
         selection = self.get_selection()
@@ -467,7 +471,7 @@ class UIAWrapper(BaseWrapper):
         """
         An interface to CanSelectMultiple of the SelectionProvider pattern
 
-        Indicates whether the UI Automation provider allows more than one 
+        Indicates whether the UI Automation provider allows more than one
         child element to be selected concurrently.
         """
         return self.iface_selection.CurrentCanSelectMultiple
@@ -477,10 +481,10 @@ class UIAWrapper(BaseWrapper):
         """
         An interface to IsSelectionRequired property of the SelectionProvider pattern.
 
-        This property can be dynamic. For example, the initial state of 
-        a control might not have any items selected by default, 
-        meaning that IsSelectionRequired is FALSE. However, 
-        after an item is selected the control must always have 
+        This property can be dynamic. For example, the initial state of
+        a control might not have any items selected by default,
+        meaning that IsSelectionRequired is FALSE. However,
+        after an item is selected the control must always have
         at least one item selected.
         """
         return self.iface_selection.CurrentIsSelectionRequired
@@ -489,7 +493,7 @@ class UIAWrapper(BaseWrapper):
     def _select(self, item = None):
         """
         Find a child item by the name or index and select
-        
+
         The action can be applied for dirrent controls with items:
         ComboBox, TreeView, Tab control
         """
