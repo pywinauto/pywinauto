@@ -791,12 +791,6 @@ if UIA_support:
             path = "#0->#1->#1->#2->#3"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
 
-            # Bad specifiers
-            path = "#0->#1->1"
-            self.assertRaises(IndexError, self.dlg.menu_select, path)
-            path = "0->#1->1"
-            self.assertRaises(IndexError, self.dlg.menu_select, path)
-
         def test_menu_by_exact_text(self):
             """Test selecting a menu item by exact text match"""
             path = "File->Close->Later"
@@ -807,6 +801,28 @@ if UIA_support:
             # A non-exact menu name
             path = "File->About"
             self.assertRaises(IndexError, self.dlg.menu_select, path, True)
+
+        def test_menu_by_best_match_text(self):
+            """Test selecting a menu item by best match text"""
+            path = "file-> close -> later"
+            self.dlg.menu_select(path, False)
+            label = self.dlg.MenuLaterClickLabel.WrapperObject()
+            self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+        def test_menu_by_mixed_match(self):
+            """Test selecting a menu item by a path with mixed specifiers"""
+            path = "file-> #1 -> later"
+            self.dlg.menu_select(path, False)
+            label = self.dlg.MenuLaterClickLabel.WrapperObject()
+            self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+            # Bad specifiers
+            path = "file-> 1 -> later"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+            path = "#0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+            path = "0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
 
     class MenuWrapperNotepadTests(unittest.TestCase):
 
@@ -842,12 +858,6 @@ if UIA_support:
             path = "#5->#1"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
 
-            # Bad specifiers
-            path = "#0->#1->1"
-            self.assertRaises(IndexError, self.dlg.menu_select, path)
-            path = "0->#1->1"
-            self.assertRaises(IndexError, self.dlg.menu_select, path)
-
         def test_menu_by_exact_text(self):
             """Test selecting a menu item by exact text match"""
             path = "Help->About Notepad"
@@ -855,8 +865,50 @@ if UIA_support:
             self.dlg.AboutNotepad.close()
 
             # A non-exact menu name
-            path = "Help ->About Notepad"
+            path = "help ->About Notepad"
             self.assertRaises(IndexError, self.dlg.menu_select, path, True)
+
+        def test_menu_by_best_match_text(self):
+            """Test selecting a menu item by best match text"""
+            path = "help->aboutnotepad"
+            self.dlg.menu_select(path, False)
+            self.dlg.AboutNotepad.close()
+
+            path = "Help ->about notepad "
+            self.dlg.menu_select(path, False)
+            self.dlg.AboutNotepad.close()
+
+            # Bad match
+            path = "HELP -> About Notepad"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+            path = "help -> ABOUT NOTEPAD"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+            path = "help -> # 2"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+        def test_menu_by_mixed_match(self):
+            """Test selecting a menu item by a path with mixed specifiers"""
+            path = "#4->aboutnotepad"
+            self.dlg.menu_select(path, False)
+            self.dlg.AboutNotepad.close()
+
+            # An index and the exact text match
+            path = "Help->#1"
+            self.dlg.menu_select(path, True)
+            self.dlg.AboutNotepad.close()
+
+            # An index and non-exact text match
+            path = "#4 -> about notepad "
+            self.dlg.menu_select(path, False)
+            self.dlg.AboutNotepad.close()
+
+            # Bad specifiers
+            path = "#0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+            path = "0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,7 @@ import comtypes
 import six
 
 from .. import uia_element_info
+from .. import findbestmatch
 
 from . import uiawrapper
 from ..uia_defines import IUIA
@@ -724,7 +725,7 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def _items(self):
         """Find all items of the menu item"""
-        return self.children()  # control_type = "MenuItem")
+        return self.children(control_type="MenuItem")
 
     # -----------------------------------------------------------
     def select(self):
@@ -787,6 +788,13 @@ class MenuWrapper(uiawrapper.UIAWrapper):
                 if name == i.window_text():
                     sub_item = i
                     break
+        else:
+            items = []
+            texts = []
+            for i in menu._items():
+                items.append(i)
+                texts.append(i.window_text())
+            sub_item = findbestmatch.find_best_match(name, texts, items)
 
         self._activate(sub_item)
 
@@ -811,6 +819,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         """
         # Get the path parts
         part0, parts = path.split("->", 1)
+        part0 = part0.strip()
         if len(part0) == 0:
             raise IndexError()
 
@@ -828,7 +837,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
             if not menu._items():
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
 
-            for cur_part in parts.split("->"):
+            for cur_part in [p.strip() for p in parts.split("->")]:
                 if cur_part.startswith("#"):
                     menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
                 else:
