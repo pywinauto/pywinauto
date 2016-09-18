@@ -34,12 +34,8 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import time
 import six
 import comtypes
-
-from ..timings import Timings
-from ..actionlogger import ActionLogger
 
 from .. import backend
 from ..base_wrapper import BaseWrapper
@@ -49,7 +45,7 @@ from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
 from ..uia_element_info import UIAElementInfo, elements_from_uia_array
 
-#region PATTERNS
+# region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
 DockPattern = IUIA().ui_automation_client.IUIAutomationDockPattern
 ExpandCollapsePattern = IUIA().ui_automation_client.IUIAutomationExpandCollapsePattern
@@ -73,7 +69,7 @@ TransformPattern = IUIA().ui_automation_client.IUIAutomationTransformPattern
 ValuePattern = IUIA().ui_automation_client.IUIAutomationValuePattern
 VirtualizedItemPattern = IUIA().ui_automation_client.IUIAutomationVirtualizedItemPattern
 WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
-#endregion
+# endregion
 
 #=========================================================================
 _friendly_classes = {
@@ -88,8 +84,9 @@ _friendly_classes = {
     'Image': None,
     'List': 'ListBox',
     'ListItem': None,
-    'MenuBar': None,
-    'Menu': None,
+    'MenuBar': 'Menu',
+    'Menu': 'Menu',
+    'MenuItem': 'MenuItem',
     'Pane': None,
     'ProgressBar': 'Progress',
     'ScrollBar': None,
@@ -110,7 +107,7 @@ _friendly_classes = {
 
 #=========================================================================
 class LazyProperty(object):
-    
+
     """
     A lazy evaluation of an object attribute.
 
@@ -160,7 +157,7 @@ class UiaMeta(BaseMeta):
 #=========================================================================
 @six.add_metaclass(UiaMeta)
 class UIAWrapper(BaseWrapper):
-    
+
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -172,7 +169,7 @@ class UIAWrapper(BaseWrapper):
     Most of the methods apply to every single element type. For example
     you can click() on any element.
     """
-    
+
     control_types = []
 
     #------------------------------------------------------------
@@ -184,7 +181,7 @@ class UIAWrapper(BaseWrapper):
     def __init__(self, element_info):
         """
         Initialize the control
-        
+
         * **element_info** is either a valid UIAElementInfo or it can be an
           instance or subclass of UIAWrapper.
         If the handle is not valid then an InvalidWindowHandle error
@@ -339,9 +336,23 @@ class UIAWrapper(BaseWrapper):
             try:
                 self.element_info.element.SetFocus()
             except comtypes.COMError:
-                pass # TODO: add RuntimeWarning here
+                pass  # TODO: add RuntimeWarning here
 
         return self
+
+    # -----------------------------------------------------------
+    def close(self):
+        """
+        Close the window
+
+        Only a control supporting Window pattern should answer.
+        If it doesn't (menu shadows, tooltips,...), try to send "Esc" key
+        """
+        try:
+            iface = self.iface_window
+            iface.Close()
+        except(uia_defs.NoPatternInterfaceError):
+            self.type_keys("{ESC}")
 
     #-----------------------------------------------------------
     def minimize(self):
@@ -371,7 +382,7 @@ class UIAWrapper(BaseWrapper):
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
         self.iface_invoke.Invoke()
-        
+
         # Return itself to allow action chaining
         return self
 
@@ -431,16 +442,16 @@ class UIAWrapper(BaseWrapper):
         An interface to GetSelection of the SelectionProvider pattern
 
         Retrieves a UI Automation provider for each child element
-        that is selected. Builds a list of UIAElementInfo elements 
+        that is selected. Builds a list of UIAElementInfo elements
         from all retrieved providers.
         """
         ptrs_array = self.iface_selection.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
-    
+
     #-----------------------------------------------------------
     def selected_item_index(self):
         """Return the index of a selected item"""
-        # Go through all children and look for an index 
+        # Go through all children and look for an index
         # of an item with the same text.
         # Maybe there is another and more efficient way to do it
         selection = self.get_selection()
@@ -460,7 +471,7 @@ class UIAWrapper(BaseWrapper):
         """
         An interface to CanSelectMultiple of the SelectionProvider pattern
 
-        Indicates whether the UI Automation provider allows more than one 
+        Indicates whether the UI Automation provider allows more than one
         child element to be selected concurrently.
         """
         return self.iface_selection.CurrentCanSelectMultiple
@@ -470,10 +481,10 @@ class UIAWrapper(BaseWrapper):
         """
         An interface to IsSelectionRequired property of the SelectionProvider pattern.
 
-        This property can be dynamic. For example, the initial state of 
-        a control might not have any items selected by default, 
-        meaning that IsSelectionRequired is FALSE. However, 
-        after an item is selected the control must always have 
+        This property can be dynamic. For example, the initial state of
+        a control might not have any items selected by default,
+        meaning that IsSelectionRequired is FALSE. However,
+        after an item is selected the control must always have
         at least one item selected.
         """
         return self.iface_selection.CurrentIsSelectionRequired
@@ -482,7 +493,7 @@ class UIAWrapper(BaseWrapper):
     def _select(self, item = None):
         """
         Find a child item by the name or index and select
-        
+
         The action can be applied for dirrent controls with items:
         ComboBox, TreeView, Tab control
         """
@@ -506,11 +517,39 @@ class UIAWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def is_active(self):
         """Whether the window is active or not"""
-
         ae = IUIA().get_focused_element()
         focused_wrap = UIAWrapper(UIAElementInfo(ae))
         return (focused_wrap.top_level_parent() == self.top_level_parent())
 
+    #-----------------------------------------------------------
+    def menu_select(self, path, exact=False, ):
+        """Select a menu item specified in the path
+
+        The full path syntax is specified in:
+        :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
+
+        There are usually at least two menu bars: "System" and "Application"
+        System menu bar is a standart window menu with items like:
+        'Restore', 'Move', 'Size', 'Minimize', e.t.c.
+        This menu bar usually has a "Title Bar" control as a parent.
+        Application menu bar is often what we look for. In most cases,
+        its parent is the dialog itself so it should be found among the direct
+        children of the dialog. Notice that we don't use "Application"
+        string as a title criteria because it couldn't work on applications
+        with a non-english localization.
+        If there is no menu bar has been found we fall back to look up
+        for Menu control. We try to find the control through all descendants
+        of the dialog
+        """
+        self.verify_actionable()
+
+        cc = self.children(control_type="MenuBar")
+        if not cc:
+            cc = self.descendants(control_type="Menu")
+            if not cc:
+                raise AttributeError
+        menu = cc[0]
+        menu.item_by_path(path, exact).select()
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)
