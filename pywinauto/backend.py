@@ -66,7 +66,7 @@ class BackendsRegistry(object):
 
     @property
     def element_class(self):
-        """ElementInfo's subclass of the active backend"""
+        """Return :py:class:`.element_info.ElementInfo`'s subclass of the active backend"""
         return self.active_backend.element_info_class
 
     @property
@@ -81,7 +81,7 @@ def name():
     return registry.name
 
 def element_class():
-    """Return ElementInfo's subclass of the active backend"""
+    """Return :py:class:`.element_info.ElementInfo`'s subclass of the active backend"""
     return registry.element_class
 
 def wrapper_class():
@@ -90,10 +90,10 @@ def wrapper_class():
 
 def activate(name):
     """
-    Set active back-end by name
+    Set active backend by name
 
-    Possible values of **active_name** are "win32", "uia" or
-    other name registered by the **register** function.
+    Possible values of **name** are "win32", "uia" or
+    other name registered by the :py:func:`register` function.
     """
     if name not in registry.backends:
         raise ValueError('Back-end "{backend}" is not registered!'.format(backend=name))
@@ -101,5 +101,5 @@ def activate(name):
     registry.active_backend = registry.backends[name]
 
 def register(name, element_info_class, generic_wrapper_class):
-    """Register new back-end"""
+    """Register a new backend"""
     registry.backends[name] = BackEnd(name, element_info_class, generic_wrapper_class)
