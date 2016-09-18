@@ -766,7 +766,8 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         return item
 
     # -----------------------------------------------------------
-    def _activate(self, item):
+    @staticmethod
+    def _activate(item):
         """Activate the specified item"""
 
         if not item.is_active():
