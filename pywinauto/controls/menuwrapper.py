@@ -503,7 +503,7 @@ class Menu(object):
     GetProperties = get_properties
 
     @ensure_accessible
-    def get_menu_path(self, path, path_items = None, appdata = None, exact=False):
+    def get_menu_path(self, path, path_items=None, appdata=None, exact=False):
         """
         Walk the items in this menu to find the item specified by path
 
@@ -524,7 +524,7 @@ class Menu(object):
             path_items = []
 
         # get the first part (and remainder)
-        parts = path.split("->", 1)
+        parts = [p.strip() for p in path.split("->", 1)]
         current_part = parts[0]
 
         if current_part.startswith("#"):
@@ -559,7 +559,6 @@ class Menu(object):
                     self.items())
 
         path_items.append(best_item)
-
 
         # if there are more parts - then get the next level
         if parts[1:]:

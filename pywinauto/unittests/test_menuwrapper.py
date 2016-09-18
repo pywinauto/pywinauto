@@ -31,7 +31,8 @@
 
 """Tests for Menu"""
 
-import sys, os
+import sys
+import os
 import unittest
 sys.path.append(".")
 from pywinauto.application import Application
@@ -62,27 +63,25 @@ class MenuWrapperTests(unittest.TestCase):
         "Close the application after tests"
         self.app.kill_()
 
-
     def testInvalidHandle(self):
         "Test that an exception is raised with an invalid menu handle"
-        #self.assertRaises(InvalidWindowHandle, HwndWrapper, -1)
+        # self.assertRaises(InvalidWindowHandle, HwndWrapper, -1)
         pass
 
-
     def testItemCount(self):
-        self.assertEquals(5, self.dlg.Menu().ItemCount())
+        self.assertEqual(5, self.dlg.Menu().ItemCount())
 
     def testItem(self):
-        self.assertEquals(u'&File', self.dlg.Menu().Item(0).Text())
-        self.assertEquals(u'&File', self.dlg.Menu().Item(u'File').Text())
-        self.assertEquals(u'&File', self.dlg.Menu().Item(u'&File', exact=True).Text())
+        self.assertEqual(u'&File', self.dlg.Menu().Item(0).Text())
+        self.assertEqual(u'&File', self.dlg.Menu().Item(u'File').Text())
+        self.assertEqual(u'&File', self.dlg.Menu().Item(u'&File', exact=True).Text())
 
     def testItems(self):
-        self.assertEquals([u'&File', u'&Edit', u'F&ormat', u'&View', u'&Help'],
+        self.assertEqual([u'&File', u'&Edit', u'F&ormat', u'&View', u'&Help'],
                           [item.Text() for item in self.dlg.Menu().Items()])
 
     def testFriendlyClassName(self):
-        self.assertEquals('MenuItem', self.dlg.Menu().Item(0).friendly_class_name())
+        self.assertEqual('MenuItem', self.dlg.Menu().Item(0).friendly_class_name())
 
     def testMenuItemNotEnabled(self):
         self.assertRaises(MenuItemNotEnabled, self.dlg.MenuSelect, 'Edit->Find Next')
@@ -90,16 +89,19 @@ class MenuWrapperTests(unittest.TestCase):
         self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').click_input)
 
     def testGetProperties(self):
-        self.assertEquals({u'menu_items': [{u'index': 0, u'state': 0, u'item_type': 0, u'item_id': 64, u'text': u'View &Help'},
-                                           {u'index': 1, u'state': 3, u'item_type': 2048, u'item_id': 0, u'text': u''},
-                                           {u'index': 2, u'state': 0, u'item_type': 0, u'item_id': 65, u'text': u'&About Notepad'}]},
-                          self.dlg.Menu().GetMenuPath('Help')[0].SubMenu().GetProperties())
+        self.assertEqual(
+            {u'menu_items':
+                [{u'index': 0, u'state': 0, u'item_type': 0, u'item_id': 64, u'text': u'View &Help'},
+                 {u'index': 1, u'state': 3, u'item_type': 2048, u'item_id': 0, u'text': u''},
+                 {u'index': 2, u'state': 0, u'item_type': 0, u'item_id': 65, u'text': u'&About Notepad'}]},
+            self.dlg.Menu().GetMenuPath('Help')[0].SubMenu().GetProperties())
 
     def testGetMenuPath(self):
-        #print('id = ' + str(self.dlg.Menu().GetMenuPath('Help->#3')[0].id()))
-        self.assertEquals(u'&About Notepad', self.dlg.Menu().GetMenuPath('Help->#2')[-1].Text())
-        self.assertEquals(u'&About Notepad', self.dlg.Menu().GetMenuPath('Help->$65')[-1].Text())
-        self.assertEquals(u'&About Notepad', self.dlg.Menu().GetMenuPath('&Help->&About Notepad', exact=True)[-1].Text())
+        # print('id = ' + str(self.dlg.Menu().GetMenuPath('Help->#3')[0].id()))
+        self.assertEqual(u'&About Notepad', self.dlg.Menu().GetMenuPath(' Help -> #2 ')[-1].Text())
+        self.assertEqual(u'&About Notepad', self.dlg.Menu().GetMenuPath('Help->$65')[-1].Text())
+        self.assertEqual(u'&About Notepad',
+                          self.dlg.Menu().GetMenuPath('&Help->&About Notepad', exact=True)[-1].Text())
         self.assertRaises(IndexError, self.dlg.Menu().GetMenuPath, '&Help->About what?', exact=True)
 
     def test__repr__(self):
@@ -137,10 +139,9 @@ class OwnerDrawnMenuTests(unittest.TestCase):
         self.app.kill_()
 
     def testCorrectText(self):
-        self.assertEquals(u'&New', self.dlg.Menu().GetMenuPath('&File->#0')[-1].Text()[:4])
-        self.assertEquals(u'&Open...', self.dlg.Menu().GetMenuPath('&File->#1')[-1].Text()[:8])
+        self.assertEqual(u'&New', self.dlg.Menu().GetMenuPath('&File->#0')[-1].Text()[:4])
+        self.assertEqual(u'&Open...', self.dlg.Menu().GetMenuPath('&File->#1')[-1].Text()[:8])
 
 
 if __name__ == "__main__":
     unittest.main()
-
