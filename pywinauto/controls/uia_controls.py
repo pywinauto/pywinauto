@@ -816,7 +816,8 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         """Find a menu item specified by the path
 
         The full path syntax is specified in:
-        :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
+        :py:meth:`.controls.menuwrapper.Menu.get_menu_path`
+
         Note: $ - specifier is not supported
         """
         # Get the path parts

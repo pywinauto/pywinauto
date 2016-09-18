@@ -45,6 +45,7 @@ import win32gui_struct
 import locale
 import six
 
+from functools import wraps
 from .. import win32structures
 from .. import win32functions
 from .. import win32defines
@@ -87,7 +88,7 @@ class MenuInaccessible(RuntimeError):
 
 def ensure_accessible(method):
     """Decorator for Menu instance methods"""
-
+    @wraps(method)
     def check(instance, *args, **kwargs):
         """Check if the instance is accessible"""
 
@@ -505,19 +506,22 @@ class Menu(object):
     @ensure_accessible
     def get_menu_path(self, path, path_items=None, appdata=None, exact=False):
         """
-        Walk the items in this menu to find the item specified by path
+        Walk the items in this menu to find the item specified by a path
 
-        The path is specified by a list of items separated by '->' each Item
-        can be either a string (can include spaces) e.g. "Save As" or the zero
-        based index of the item to return prefaced by # e.g. #1.
+        The path is specified by a list of items separated by '->'. Each item
+        can be either a string (can include spaces) e.g. "Save As" or a zero
+        based index of the item to return prefaced by # e.g. #1 or an ID of
+        the item prefaced by $ specifier.
 
-        These can be mixed as necessary. For Example:
-            "#0 -> Save As",
-            "$23453 -> Save As",
-            "Tools -> #0 -> Configure"
+        These can be mixed as necessary. For example:
+            - "#0 -> Save As",
+            - "$23453 -> Save As",
+            - "Tools -> #0 -> Configure"
 
         Text matching is done using a 'best match' fuzzy algorithm, so you don't
         have to add all punctuation, ellipses, etc.
+        ID matching is performed against wID field of MENUITEMINFO structure
+        (https://msdn.microsoft.com/en-us/library/windows/desktop/ms647578(v=vs.85).aspx)
         """
 
         if path_items is None:
