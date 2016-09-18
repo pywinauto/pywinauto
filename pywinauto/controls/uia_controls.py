@@ -817,6 +817,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
 
         The full path syntax is specified in:
         :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
+        Note: $ - specifier is not supported
         """
         # Get the path parts
         part0, parts = path.split("->", 1)
