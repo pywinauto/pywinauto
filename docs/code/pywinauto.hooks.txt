@@ -1,0 +1,6 @@
+pywinauto.hooks
+---------------
+ .. automodule:: pywinauto.hooks
+    :members:
+    :undoc-members:
+

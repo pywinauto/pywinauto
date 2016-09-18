@@ -1,0 +1,6 @@
+pywinauto.mouse
+---------------
+ .. automodule:: pywinauto.mouse
+    :members:
+    :undoc-members:
+

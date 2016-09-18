@@ -1,0 +1,6 @@
+pywinauto.base_wrapper
+----------------------
+ .. automodule:: pywinauto.base_wrapper
+    :members:
+    :undoc-members:
+
