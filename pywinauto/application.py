@@ -971,9 +971,7 @@ class Application(object):
     Start = start
 
     def __warn_incorrect_bitness(self):
-        if self.backend.name == 'uia':
-            return
-        if self.is64bit() != is_x64_Python():
+        if self.backend.name == 'win32' and self.is64bit() != is_x64_Python():
             if is_x64_Python():
                 warnings.warn(
                     "32-bit application should be automated using 32-bit Python (you use 64-bit Python)",

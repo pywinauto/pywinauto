@@ -675,9 +675,11 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def get_selected_count(self):
-        """Return the number of selected items"""
-        # The call can be quite expensieve as we retrieve all
-        # the selected items in order to count them
+        """Return a number of selected items
+
+        The call can be quite expensieve as we retrieve all
+        the selected items in order to count them
+        """
         selection = self.get_selection()
         if selection:
             return len(selection)
@@ -770,11 +772,9 @@ class MenuWrapper(uiawrapper.UIAWrapper):
     def _activate(item):
         """Activate the specified item"""
         if not item.is_active():
-            # self.actions.log("[DEBUG] Set focus on", tem.texts())
             item.set_focus()
         try:
             item.expand()
-            # self.actions.log("[DEBUG] Expand ", item.texts())
         except(NoPatternInterfaceError):
             pass
 
