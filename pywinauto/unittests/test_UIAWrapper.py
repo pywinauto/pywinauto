@@ -852,11 +852,25 @@ if UIA_support:
             """Test selecting a menu item by index"""
             path = "#4->#1"  # "Help->About Notepad"
             self.dlg.menu_select(path)
+
+            # 'About Notepad' dialog showed upon execution of menu_select
+            self.assertEqual(self.dlg.AboutNotepad.is_active(), True)
+
+            # menu_select rises the AttributeError when a dialog doesn't have menus
+            self.assertRaises(AttributeError, self.dlg.AboutNotepad.menu_select, "#10->#2")
             self.dlg.AboutNotepad.close()
 
             # A non-existing path
             path = "#5->#1"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+            # Get a menu item by index
+            menu = self.dlg.children(control_type="MenuBar")[0]
+            item = menu.item_by_index(4)
+            self.assertEqual(isinstance(item, uia_ctls.MenuItemWrapper), True)
+            self.assertEqual(item.window_text(), 'Help')
+            item.select()
+            item.close()
 
         def test_menu_by_exact_text(self):
             """Test selecting a menu item by exact text match"""
@@ -908,6 +922,8 @@ if UIA_support:
             path = "#0->#1->1"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
             path = "0->#1->1"
+            self.assertRaises(IndexError, self.dlg.menu_select, path)
+            path = " -> #1 -> #2"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
 
 

@@ -675,9 +675,11 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def get_selected_count(self):
-        """Return the number of selected items"""
-        # The call can be quite expensieve as we retrieve all
-        # the selected items in order to count them
+        """Return a number of selected items
+
+        The call can be quite expensieve as we retrieve all
+        the selected items in order to count them
+        """
         selection = self.get_selection()
         if selection:
             return len(selection)
@@ -718,12 +720,12 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd, container=None):
+    def __init__(self, hwnd):
         """Initialize the control"""
         super(MenuItemWrapper, self).__init__(hwnd)
 
     # -----------------------------------------------------------
-    def _items(self):
+    def items(self):
         """Find all items of the menu item"""
         return self.children(control_type="MenuItem")
 
@@ -750,32 +752,29 @@ class MenuWrapper(uiawrapper.UIAWrapper):
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd, container=None):
+    def __init__(self, hwnd):
         """Initialize the control"""
         super(MenuWrapper, self).__init__(hwnd)
 
     # -----------------------------------------------------------
-    def _items(self):
+    def items(self):
         """Find all menu items"""
         return self.children(control_type="MenuItem")
 
     # -----------------------------------------------------------
     def item_by_index(self, idx):
         """Find a menu item specified by the index"""
-        item = self._items()[idx]
+        item = self.items()[idx]
         return item
 
     # -----------------------------------------------------------
     @staticmethod
     def _activate(item):
         """Activate the specified item"""
-
         if not item.is_active():
-            # self.actions.log("[DEBUG] Set focus on", tem.texts())
             item.set_focus()
         try:
             item.expand()
-            # self.actions.log("[DEBUG] Expand ", item.texts())
         except(NoPatternInterfaceError):
             pass
 
@@ -785,14 +784,14 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         sub_item = None
 
         if exact:
-            for i in menu._items():
+            for i in menu.items():
                 if name == i.window_text():
                     sub_item = i
                     break
         else:
             items = []
             texts = []
-            for i in menu._items():
+            for i in menu.items():
                 items.append(i)
                 texts.append(i.window_text())
             sub_item = findbestmatch.find_best_match(name, texts, items)
@@ -805,7 +804,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
     def _sub_item_by_idx(self, menu, idx):
         """Find a menu sub-item by the specified index"""
         sub_item = None
-        items = menu._items()
+        items = menu.items()
         if items:
             sub_item = items[idx]
             self._activate(sub_item)
@@ -837,7 +836,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
             else:
                 menu = self._sub_item_by_text(self, part0, exact)
 
-            if not menu._items():
+            if not menu.items():
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
 
             for cur_part in [p.strip() for p in parts.split("->")]:
