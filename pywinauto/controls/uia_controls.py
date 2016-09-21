@@ -35,6 +35,7 @@ import comtypes
 import six
 
 from .. import uia_element_info
+from .. import findbestmatch
 
 from . import uiawrapper
 from ..uia_defines import IUIA
@@ -42,7 +43,7 @@ from ..uia_defines import NoPatternInterfaceError
 from ..uia_defines import toggle_state_on
 
 
-#====================================================================
+# ====================================================================
 class ButtonWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
@@ -53,24 +54,24 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         IUIA().UIA_dll.UIA_RadioButtonControlTypeId
         ]
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, hwnd):
         """Initialize the control"""
         super(ButtonWrapper, self).__init__(hwnd)
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def toggle(self):
         """
         An interface to Toggle method of the Toggle control pattern.
-        
-        Control supporting the Toggle pattern cycles through its 
-        toggle states in the following order: 
-        ToggleState_On, ToggleState_Off and, 
+
+        Control supporting the Toggle pattern cycles through its
+        toggle states in the following order:
+        ToggleState_On, ToggleState_Off and,
         if supported, ToggleState_Indeterminate
-        
+
         Usually applied for the check box control.
-        
-        The radio button control does not implement IToggleProvider, 
+
+        The radio button control does not implement IToggleProvider,
         because it is not capable of cycling through its valid states.
         Toggle a state of a check box control. (Use 'select' method instead)
         Notice, a radio button control isn't supported by UIA.
@@ -81,7 +82,7 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         # Return itself so that action can be chained
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_toggle_state(self):
         """
         Get a toggle state of a check box control.
@@ -98,12 +99,12 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         """
         return self.iface_toggle.CurrentToggleState
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_dialog(self):
         """Buttons are never dialogs so return False"""
         return False
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def click(self):
         """Click the Button control by using Invoke pattern"""
         self.invoke()
@@ -111,7 +112,7 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         # Return itself so that action can be chained
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def select(self):
         """
         An interface to Select method of the SelectionItem control pattern.
@@ -122,8 +123,8 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
         # Return itself so that action can be chained
         return self
-        
-    #-----------------------------------------------------------
+
+    # -----------------------------------------------------------
     def is_selected(self):
         """
         An interface to CurrentIsSelected method of the SelectionItem control pattern.
@@ -132,7 +133,8 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         """
         return self.iface_selection_item.CurrentIsSelected
 
-#====================================================================
+
+# ====================================================================
 class ComboBoxWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA CoboBox control"""
@@ -141,12 +143,12 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         IUIA().UIA_dll.UIA_ComboBoxControlTypeId
         ]
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, hwnd):
         """Initialize the control"""
         super(ComboBoxWrapper, self).__init__(hwnd)
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def texts(self):
         """Return the text of the items in the combobox"""
         texts = []
@@ -179,13 +181,13 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             self.collapse()
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     # TODO: add selected_texts for a combobox with a multi-select support
     def selected_text(self):
         """
         Return the selected text or None
-        
-        Notice, that in case of multi-select it will be only the text from 
+
+        Notice, that in case of multi-select it will be only the text from
         a first selected item
         """
         selection = self.get_selection()
@@ -194,24 +196,24 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         else:
             return None
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
         return self.selected_item_index()
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def item_count(self):
         """
         Return the number of items in the combobox
-        
+
         The interface is kept mostly for a backward compatibility with
         the native ComboBox interface
         """
         return self.control_count()
 
 
-#====================================================================
+# ====================================================================
 class EditWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Edit control"""
@@ -223,12 +225,12 @@ class EditWrapper(uiawrapper.UIAWrapper):
     ]
     has_title = False
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, elem_or_handle):
         """Initialize the control"""
         super(EditWrapper, self).__init__(elem_or_handle)
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -236,12 +238,12 @@ class EditWrapper(uiawrapper.UIAWrapper):
         props.extend(['selection_indices'])
         return props
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def line_count(self):
         """Return how many lines there are in the Edit"""
         return self.window_text().count("\n") + 1
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def line_length(self, line_index):
         """Return how many characters there are in the line"""
         # need to first get a character index of that line
@@ -253,7 +255,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
         else:
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_line(self, line_index):
         """Return the line specified"""
         lines = self.window_text().splitlines()
@@ -264,7 +266,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
         else:
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def texts(self):
         """Get the text of the edit control"""
         texts = [self.window_text(), ]
@@ -274,12 +276,12 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
         return texts
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def text_block(self):
         """Get the text of the edit control"""
         return self.window_text()
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def selection_indices(self):
         """The start and end indices of the current selection"""
         selected_text = self.iface_text.GetSelection().GetElement(0).GetText(-1)
@@ -288,8 +290,8 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
         return (start, end)
 
-    #-----------------------------------------------------------
-    def set_window_text(self, text, append = False):
+    # -----------------------------------------------------------
+    def set_window_text(self, text, append=False):
         """Override set_window_text for edit controls because it should not be
         used for Edit controls.
 
@@ -308,8 +310,8 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
         raise UserWarning("set_window_text() should probably not be called for Edit Controls")
 
-    #-----------------------------------------------------------
-    def set_edit_text(self, text, pos_start = None, pos_end = None):
+    # -----------------------------------------------------------
+    def set_edit_text(self, text, pos_start=None, pos_end=None):
         """Set the text of the edit control"""
         self.verify_actionable()
 
@@ -362,8 +364,8 @@ class EditWrapper(uiawrapper.UIAWrapper):
     # set set_text as an alias to set_edit_text
     set_text = set_edit_text
 
-    #-----------------------------------------------------------
-    def select(self, start = 0, end = None):
+    # -----------------------------------------------------------
+    def select(self, start=0, end=None):
         """Set the edit selection of the edit control"""
         self.verify_actionable()
         self.set_focus()
@@ -391,7 +393,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
         return self
 
 
-#====================================================================
+# ====================================================================
 class TabControlWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tab control"""
@@ -400,34 +402,34 @@ class TabControlWrapper(uiawrapper.UIAWrapper):
         IUIA().UIA_dll.UIA_TabControlTypeId,
     ]
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, hwnd):
         """Initialize the control"""
         super(TabControlWrapper, self).__init__(hwnd)
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def get_selected_tab(self):
         """Return the index of a selected tab"""
         return self.selected_item_index()
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def tab_count(self):
         """Return a number of tabs"""
         return self.control_count()
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def select(self, item):
         """Select a tab by index or by name"""
         self._select(item)
         return self
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def texts(self):
         """Tabs texts"""
         return self.children_texts()
 
 
-#====================================================================
+# ====================================================================
 class SliderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Slider control"""
@@ -437,22 +439,22 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     ]
     has_title = False
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, elem_or_handle):
         """Initialize the control"""
         super(SliderWrapper, self).__init__(elem_or_handle)
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def min_value(self):
         """Get minimum value of the Slider"""
         return self.iface_range_value.CurrentMinimum
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def max_value(self):
         """Get maximum value of the Slider"""
         return self.iface_range_value.CurrentMaximum
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def small_change(self):
         """
         Get small change of slider's thumb
@@ -462,7 +464,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
         """
         return self.iface_range_value.CurrentSmallChange
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def large_change(self):
         """
         Get large change of slider's thumb
@@ -472,12 +474,12 @@ class SliderWrapper(uiawrapper.UIAWrapper):
         """
         return self.iface_range_value.CurrentLargeChange
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def value(self):
         """Get current position of slider's thumb"""
         return self.iface_range_value.CurrentValue
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def set_value(self, value):
         """Set position of slider's thumb"""
         if isinstance(value, float):
@@ -497,7 +499,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
         self.iface_range_value.SetValue(value_to_set)
 
 
-#====================================================================
+# ====================================================================
 class HeaderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Header control"""
@@ -506,13 +508,13 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
         IUIA().UIA_dll.UIA_HeaderControlTypeId,
     ]
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, hwnd):
         """Initialize the control"""
         super(HeaderWrapper, self).__init__(hwnd)
 
 
-#====================================================================
+# ====================================================================
 class ListItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListViewItem control"""
@@ -522,31 +524,31 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         IUIA().UIA_dll.UIA_ListItemControlTypeId,
     ]
 
-    #-----------------------------------------------------------
-    def __init__(self, hwnd, container = None):
+    # -----------------------------------------------------------
+    def __init__(self, hwnd, container=None):
         """Initialize the control"""
         super(ListItemWrapper, self).__init__(hwnd)
 
-        # Init a pointer to the item's container wrapper. 
+        # Init a pointer to the item's container wrapper.
         # It must be set by a container wrapper producing the item.
-        # Notice that the self.parent property isn't the same 
+        # Notice that the self.parent property isn't the same
         # because it results in a different instance of a wrapper.
         self.container = container
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def select(self):
         """Select/Deselect all cells in the ListItem"""
         self.iface_selection_item.Select()
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_selected(self):
         """Return True if the ListItem is selected"""
         return self.iface_selection_item.CurrentIsSelected
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_checked(self):
         """Return True if the ListItem is checked
-        
+
         Only items supporting Toggle pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
         """
@@ -554,7 +556,7 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         return res
 
 
-#====================================================================
+# ====================================================================
 class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
@@ -564,26 +566,26 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         IUIA().UIA_dll.UIA_ListControlTypeId,
     ]
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, hwnd):
         """Initialize the control"""
         super(ListViewWrapper, self).__init__(hwnd)
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def item_count(self):
         """A number of items in the ListView"""
         return self.iface_grid.CurrentRowCount
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def column_count(self):
         """Return the number of columns"""
         return self.iface_grid.CurrentColumnCount
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_header_control(self):
         """Return the Header control associated with the ListView"""
         try:
-            # MSDN: A data grid control that has a header 
+            # MSDN: A data grid control that has a header
             # should support the Table control pattern
             if self.iface_table:
                 hdr = self.children()[0]
@@ -592,7 +594,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
         return hdr
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_column(self, col_index):
         """Get the information for a column of the ListView"""
         col = None
@@ -602,20 +604,20 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             raise IndexError
         return col
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def columns(self):
         """Get the information on the columns of the ListView"""
         arr = self.iface_table.GetCurrentColumnHeaders()
         cols = uia_element_info.elements_from_uia_array(arr)
         return [uiawrapper.UIAWrapper(e) for e in cols]
-   
-    #-----------------------------------------------------------
+
+    # -----------------------------------------------------------
     def cell(self, row, column):
         """Return a cell in the ListView control
-        
+
         * **row** is an index of a row in the list.
         * **column** is an index of a column in the specified row.
-        The returned cell can be of different control types. 
+        The returned cell can be of different control types.
         Mostly: TextBlock, ImageControl, EditControl, DataItem
         or even another layer of data items (Group, DataGrid)
         """
@@ -632,7 +634,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
         return cell
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_item(self, row):
         """Return an item of the ListView control
 
@@ -642,7 +644,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         # Verify arguments
         if isinstance(row, six.string_types):
             # Look for a cell with the text, return the first found item
-            itm = self.descendants(title = row)[0]
+            itm = self.descendants(title=row)[0]
         elif isinstance(row, six.integer_types):
             # Get the item by a row index of its first cell
             itm = self.cell(row, 0)
@@ -661,39 +663,41 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     item = get_item  # this is an alias to be consistent with other content elements
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_item_rect(self, item_index):
         """Return the bounding rectangle of the list view item
-        
+
         The interface is kept mostly for a backward compatibility
         with the native ListViewWrapper interface
         """
         itm = self.get_item(item_index)
         return itm.rectangle()
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_selected_count(self):
-        """Return the number of selected items"""
-        # The call can be quite expensieve as we retrieve all 
-        # the selected items in order to count them
+        """Return a number of selected items
+
+        The call can be quite expensieve as we retrieve all
+        the selected items in order to count them
+        """
         selection = self.get_selection()
         if selection:
             return len(selection)
         else:
             return 0
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def texts(self):
         """Return a list of item texts"""
         is_content_element = IUIA().iuia.CreatePropertyCondition(
-                IUIA().UIA_dll.UIA_IsContentElementPropertyId, True)
+            IUIA().UIA_dll.UIA_IsContentElementPropertyId, True)
         return [ch.name for ch in self.element_info._get_elements(IUIA().tree_scope["children"],
                 is_content_element, cache_enable=False)]
         # TODO: add is_content_element() method to UIAWrapper
         # alternative (but slower) implementation:
         # return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -701,8 +705,144 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         props.extend(['column_count',
                       'item_count',
                       'columns',
-                      #'items',
+                      # 'items',
                       ])
         return props
 
 
+# ====================================================================
+class MenuItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible MenuItem control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_MenuItemControlTypeId,
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(MenuItemWrapper, self).__init__(hwnd)
+
+    # -----------------------------------------------------------
+    def items(self):
+        """Find all items of the menu item"""
+        return self.children(control_type="MenuItem")
+
+    # -----------------------------------------------------------
+    def select(self):
+        """Apply Select pattern"""
+        try:
+            self.iface_selection_item.Select()
+        except(NoPatternInterfaceError):
+            try:
+                self.iface_invoke.Invoke()
+            except(NoPatternInterfaceError):
+                raise AttributeError
+
+
+# ====================================================================
+class MenuWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible MenuBar or Menu control"""
+
+    control_types = [
+        IUIA().UIA_dll.UIA_MenuBarControlTypeId,
+        IUIA().UIA_dll.UIA_MenuControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the control"""
+        super(MenuWrapper, self).__init__(hwnd)
+
+    # -----------------------------------------------------------
+    def items(self):
+        """Find all menu items"""
+        return self.children(control_type="MenuItem")
+
+    # -----------------------------------------------------------
+    def item_by_index(self, idx):
+        """Find a menu item specified by the index"""
+        item = self.items()[idx]
+        return item
+
+    # -----------------------------------------------------------
+    @staticmethod
+    def _activate(item):
+        """Activate the specified item"""
+        if not item.is_active():
+            item.set_focus()
+        try:
+            item.expand()
+        except(NoPatternInterfaceError):
+            pass
+
+    # -----------------------------------------------------------
+    def _sub_item_by_text(self, menu, name, exact):
+        """Find a menu sub-item by the specified text"""
+        sub_item = None
+
+        if exact:
+            for i in menu.items():
+                if name == i.window_text():
+                    sub_item = i
+                    break
+        else:
+            items = []
+            texts = []
+            for i in menu.items():
+                items.append(i)
+                texts.append(i.window_text())
+            sub_item = findbestmatch.find_best_match(name, texts, items)
+
+        self._activate(sub_item)
+
+        return sub_item
+
+    # -----------------------------------------------------------
+    def _sub_item_by_idx(self, menu, idx):
+        """Find a menu sub-item by the specified index"""
+        sub_item = None
+        items = menu.items()
+        if items:
+            sub_item = items[idx]
+            self._activate(sub_item)
+        return sub_item
+
+    # -----------------------------------------------------------
+    def item_by_path(self, path, exact=False):
+        """Find a menu item specified by the path
+
+        The full path syntax is specified in:
+        :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
+        """
+        # Get the path parts
+        part0, parts = path.split("->", 1)
+        part0 = part0.strip()
+        if len(part0) == 0:
+            raise IndexError()
+
+        # Find a top level menu item and select it. After selecting this item
+        # a new Menu control is created and placed on the dialog. It can be
+        # a direct child or a descendant.
+        # Sometimes we need to re-discover Menu again
+        try:
+            menu = None
+            if part0.startswith("#"):
+                menu = self._sub_item_by_idx(self, int(part0[1:]))
+            else:
+                menu = self._sub_item_by_text(self, part0, exact)
+
+            if not menu.items():
+                menu = self.top_level_parent().descendants(control_type="Menu")[0]
+
+            for cur_part in [p.strip() for p in parts.split("->")]:
+                if cur_part.startswith("#"):
+                    menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
+                else:
+                    menu = self._sub_item_by_text(menu, cur_part, exact)
+        except(AttributeError):
+            raise IndexError()
+
+        return menu

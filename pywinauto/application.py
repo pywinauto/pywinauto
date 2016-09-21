@@ -122,8 +122,8 @@ class WindowSpecification(object):
     A specification for finding a window or control
 
     Windows are resolved when used.
-    You can also wait for existance or non existance of a window 
- 
+    You can also wait for existance or non existance of a window
+
     .. implicitly document some private functions
     .. automethod:: __getattribute__
     .. automethod:: __getitem__
@@ -799,7 +799,7 @@ class Application(object):
 
     """
     Represents an application
- 
+
     .. implicitly document some private functions
     .. automethod:: __getattribute__
     .. automethod:: __getitem__
@@ -808,7 +808,7 @@ class Application(object):
     def __init__(self, backend = "win32", datafilename = None):
         """
         Initialize the Appliction object
-        
+
         * **backend** is a name of used back-end (values: "win32", "uia").
         * **datafilename** is a file name for reading matching history.
         """
@@ -971,7 +971,7 @@ class Application(object):
     Start = start
 
     def __warn_incorrect_bitness(self):
-        if self.is64bit() != is_x64_Python():
+        if self.backend.name == 'win32' and self.is64bit() != is_x64_Python():
             if is_x64_Python():
                 warnings.warn(
                     "32-bit application should be automated using 32-bit Python (you use 64-bit Python)",
@@ -991,26 +991,26 @@ class Application(object):
     def cpu_usage(self, interval = None):
         """Return CPU usage percent during specified number of seconds"""
         WIN32_PROCESS_TIMES_TICKS_PER_SECOND = 1e7
-        
+
         if interval is None:
             interval = Timings.cpu_usage_interval
-        
+
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
         h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
-        
+
         times_dict = win32process.GetProcessTimes(h_process)
         UserTime_start, KernelTime_start = times_dict['UserTime'], times_dict['KernelTime']
-        
+
         time.sleep(interval)
-        
+
         times_dict = win32process.GetProcessTimes(h_process)
         UserTime_end, KernelTime_end = times_dict['UserTime'], times_dict['KernelTime']
-        
+
         total_time = (UserTime_end - UserTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND + \
                      (KernelTime_end - KernelTime_start) / WIN32_PROCESS_TIMES_TICKS_PER_SECOND
-        
+
         win32api.CloseHandle(h_process)
         return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
 
@@ -1023,13 +1023,13 @@ class Application(object):
             usage_interval = Timings.cpu_usage_interval
         if timeout is None:
             timeout = Timings.cpu_usage_wait_timeout
-        
+
         start_time = time.time()
-        
+
         while self.CPUUsage(usage_interval) > threshold:
             if time.time() - start_time > timeout:
                 raise RuntimeError('Waiting CPU load <= ' + str(threshold) + '% timed out!')
-        
+
         return self
 
     # Non PEP-8 alias
@@ -1189,7 +1189,7 @@ class Application(object):
                 self.process)
         except win32gui.error:
             return True # already closed
-        
+
         # so we have either closed the windows - or the app is hung
         killed = True
         if process_wait_handle:
@@ -1225,7 +1225,7 @@ AssertValidProcess = assert_valid_process # just in case
 def process_get_modules():
     """Return the list of processes as tuples (pid, exe_path)"""
     modules = []
-    
+
     # collect all the running processes
     pids = win32process.EnumProcesses()
     for pid in pids:
@@ -1241,7 +1241,7 @@ def _process_get_modules_wmi():
     """Return the list of processes as tuples (pid, exe_path)"""
     from win32com.client import GetObject
     _wmi = GetObject('winmgmts:')
-    
+
     modules = []
     # collect all the running processes
     processes = _wmi.ExecQuery('Select * from win32_process')
