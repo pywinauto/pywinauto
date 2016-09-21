@@ -71,12 +71,12 @@ VirtualizedItemPattern = IUIA().ui_automation_client.IUIAutomationVirtualizedIte
 WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
 # endregion
 
-#=========================================================================
+# =========================================================================
 _friendly_classes = {
     'Custom': None,
     'DataGrid': 'ListView',
     'DataItem': 'ListViewItem',
-    'Document': None, # TODO: this is RichTextBox
+    'Document': None,  # TODO: this is RichTextBox
     'Group': 'GroupBox',
     'Header': None,
     'HeaderItem': None,
@@ -103,9 +103,10 @@ _friendly_classes = {
     'ToolTip': 'ToolTips',
     'Tree': None,
     'Window': 'Dialog',
-    }
+}
 
-#=========================================================================
+
+# =========================================================================
 class LazyProperty(object):
 
     """
@@ -129,7 +130,8 @@ class LazyProperty(object):
         return value
 lazy_property = LazyProperty
 
-#=========================================================================
+
+# =========================================================================
 class UiaMeta(BaseMeta):
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
@@ -139,7 +141,7 @@ class UiaMeta(BaseMeta):
 
         BaseMeta.__init__(cls, name, bases, attrs)
 
-        for t in cls.control_types:
+        for t in cls._control_types:
             UiaMeta.control_type_to_cls[t] = cls
 
     @staticmethod
@@ -154,7 +156,8 @@ class UiaMeta(BaseMeta):
 
         return wrapper_match
 
-#=========================================================================
+
+# =========================================================================
 @six.add_metaclass(UiaMeta)
 class UIAWrapper(BaseWrapper):
 
@@ -170,14 +173,14 @@ class UIAWrapper(BaseWrapper):
     you can click() on any element.
     """
 
-    control_types = []
+    _control_types = []
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     def __new__(cls, element_info):
         """Construct the control wrapper"""
         return super(UIAWrapper, cls)._create_wrapper(cls, element_info, UIAWrapper)
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def __init__(self, element_info):
         """
         Initialize the control
@@ -189,103 +192,103 @@ class UIAWrapper(BaseWrapper):
         """
         BaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     def __hash__(self):
         """Return a unique hash value based on the element's Runtime ID"""
         return hash(self.element_info.runtime_id)
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_expand_collapse(self):
         """Get the element's ExpandCollapse interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "ExpandCollapse")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_selection(self):
         """Get the element's Selection interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Selection")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_selection_item(self):
         """Get the element's SelectionItem interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "SelectionItem")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_invoke(self):
         """Get the element's Invoke interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Invoke")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_toggle(self):
         """Get the element's Toggle interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Toggle")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_text(self):
         """Get the element's Text interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Text")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_value(self):
         """Get the element's Value interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Value")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_range_value(self):
         """Get the element's RangeValue interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "RangeValue")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_grid(self):
         """Get the element's Grid interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Grid")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_grid_item(self):
         """Get the element's GridItem interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "GridItem")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_table(self):
         """Get the element's Table interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Table")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_table_item(self):
         """Get the element's TableItem interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "TableItem")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @lazy_property
     def iface_window(self):
         """Get the element's Window interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "Window")
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -295,7 +298,7 @@ class UIAWrapper(BaseWrapper):
                       ])
         return props
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     def friendly_class_name(self):
         """
         Return the friendly class name for the control
@@ -319,17 +322,17 @@ class UIAWrapper(BaseWrapper):
                     self.friendlyclassname = _friendly_classes[ctrl_type]
         return self.friendlyclassname
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_keyboard_focusable(self):
         """Return True if the element can be focused with keyboard"""
         return self.element_info.element.CurrentIsKeyboardFocusable == 1
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def has_keyboard_focus(self):
         """Return True if the element is focused with keyboard"""
         return self.element_info.element.CurrentHasKeyboardFocus == 1
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def set_focus(self):
         """Set the focus to this element"""
         if self.is_keyboard_focusable() and not self.has_keyboard_focus():
@@ -354,7 +357,7 @@ class UIAWrapper(BaseWrapper):
         except(uia_defs.NoPatternInterfaceError):
             self.type_keys("{ESC}")
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def minimize(self):
         """
         Minimize the window
@@ -366,7 +369,7 @@ class UIAWrapper(BaseWrapper):
             iface.SetWindowVisualState(uia_defs.window_visual_state_minimized)
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def maximize(self):
         """
         Maximize the window
@@ -378,7 +381,7 @@ class UIAWrapper(BaseWrapper):
             iface.SetWindowVisualState(uia_defs.window_visual_state_maximized)
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
         self.iface_invoke.Invoke()
@@ -386,7 +389,7 @@ class UIAWrapper(BaseWrapper):
         # Return itself to allow action chaining
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def expand(self):
         """
         Displays all child nodes, controls, or content of the control
@@ -398,7 +401,7 @@ class UIAWrapper(BaseWrapper):
         # Return itself to allow action chaining
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def collapse(self):
         """
         Displays all child nodes, controls, or content of the control
@@ -410,7 +413,7 @@ class UIAWrapper(BaseWrapper):
         # Return itself to allow action chaining
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_expand_state(self):
         """
         Indicates the state of the control: expanded or collapsed.
@@ -424,19 +427,19 @@ class UIAWrapper(BaseWrapper):
         """
         return self.iface_expand_collapse.CurrentExpandCollapseState
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_expanded(self):
         """Test if the control is expanded"""
         state = self.get_expand_state()
         return state == uia_defs.expand_state_expanded
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_collapsed(self):
         """Test if the control is collapsed"""
         state = self.get_expand_state()
         return state == uia_defs.expand_state_collapsed
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def get_selection(self):
         """
         An interface to GetSelection of the SelectionProvider pattern
@@ -448,7 +451,7 @@ class UIAWrapper(BaseWrapper):
         ptrs_array = self.iface_selection.GetCurrentSelection()
         return elements_from_uia_array(ptrs_array)
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def selected_item_index(self):
         """Return the index of a selected item"""
         # Go through all children and look for an index
@@ -461,12 +464,12 @@ class UIAWrapper(BaseWrapper):
                     return i
         return None
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def children_texts(self):
         """Get texts of the control's children"""
         return [c.window_text() for c in self.children()]
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def can_select_multiple(self):
         """
         An interface to CanSelectMultiple of the SelectionProvider pattern
@@ -476,7 +479,7 @@ class UIAWrapper(BaseWrapper):
         """
         return self.iface_selection.CurrentCanSelectMultiple
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_selection_required(self):
         """
         An interface to IsSelectionRequired property of the SelectionProvider pattern.
@@ -489,8 +492,8 @@ class UIAWrapper(BaseWrapper):
         """
         return self.iface_selection.CurrentIsSelectionRequired
 
-    #-----------------------------------------------------------
-    def _select(self, item = None):
+    # -----------------------------------------------------------
+    def _select(self, item=None):
         """
         Find a child item by the name or index and select
 
@@ -507,21 +510,21 @@ class UIAWrapper(BaseWrapper):
             err_msg = u"unsupported {0} for item {1}".format(type(item), item)
             raise ValueError(err_msg)
 
-        list_ = self.children(title = title)
+        list_ = self.children(title=title)
         if item_index < len(list_):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()
         else:
             raise IndexError("item not found")
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def is_active(self):
         """Whether the window is active or not"""
         ae = IUIA().get_focused_element()
         focused_wrap = UIAWrapper(UIAElementInfo(ae))
         return (focused_wrap.top_level_parent() == self.top_level_parent())
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def menu_select(self, path, exact=False, ):
         """Select a menu item specified in the path
 

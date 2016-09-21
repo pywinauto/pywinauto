@@ -48,16 +48,16 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_ButtonControlTypeId,
         IUIA().UIA_dll.UIA_CheckBoxControlTypeId,
         IUIA().UIA_dll.UIA_RadioButtonControlTypeId
-        ]
+    ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(ButtonWrapper, self).__init__(hwnd)
+        super(ButtonWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def toggle(self):
@@ -139,14 +139,14 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA CoboBox control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_ComboBoxControlTypeId
-        ]
+    ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(ComboBoxWrapper, self).__init__(hwnd)
+        super(ComboBoxWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def texts(self):
@@ -220,7 +220,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
     # TODO: this class supports only 1-line textboxes so there is no point
     # TODO: in methods such as line_count(), line_length(), get_line(), etc
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_EditControlTypeId,
     ]
     has_title = False
@@ -398,14 +398,14 @@ class TabControlWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tab control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_TabControlTypeId,
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(TabControlWrapper, self).__init__(hwnd)
+        super(TabControlWrapper, self).__init__(elem)
 
     # ----------------------------------------------------------------
     def get_selected_tab(self):
@@ -434,7 +434,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Slider control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_SliderControlTypeId,
     ]
     has_title = False
@@ -504,14 +504,14 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Header control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_HeaderControlTypeId,
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(HeaderWrapper, self).__init__(hwnd)
+        super(HeaderWrapper, self).__init__(elem)
 
 
 # ====================================================================
@@ -519,15 +519,15 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListViewItem control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_DataItemControlTypeId,
         IUIA().UIA_dll.UIA_ListItemControlTypeId,
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd, container=None):
+    def __init__(self, elem, container=None):
         """Initialize the control"""
-        super(ListItemWrapper, self).__init__(hwnd)
+        super(ListItemWrapper, self).__init__(elem)
 
         # Init a pointer to the item's container wrapper.
         # It must be set by a container wrapper producing the item.
@@ -561,15 +561,15 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_DataGridControlTypeId,
         IUIA().UIA_dll.UIA_ListControlTypeId,
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(ListViewWrapper, self).__init__(hwnd)
+        super(ListViewWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def item_count(self):
@@ -715,14 +715,14 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible MenuItem control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_MenuItemControlTypeId,
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(MenuItemWrapper, self).__init__(hwnd)
+        super(MenuItemWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def items(self):
@@ -746,15 +746,15 @@ class MenuWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible MenuBar or Menu control"""
 
-    control_types = [
+    _control_types = [
         IUIA().UIA_dll.UIA_MenuBarControlTypeId,
         IUIA().UIA_dll.UIA_MenuControlTypeId
     ]
 
     # -----------------------------------------------------------
-    def __init__(self, hwnd):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(MenuWrapper, self).__init__(hwnd)
+        super(MenuWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def items(self):
