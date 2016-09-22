@@ -226,9 +226,9 @@ class EditWrapper(uiawrapper.UIAWrapper):
     has_title = False
 
     # -----------------------------------------------------------
-    def __init__(self, elem_or_handle):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(EditWrapper, self).__init__(elem_or_handle)
+        super(EditWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     @property
@@ -440,9 +440,9 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     has_title = False
 
     # -----------------------------------------------------------
-    def __init__(self, elem_or_handle):
+    def __init__(self, elem):
         """Initialize the control"""
-        super(SliderWrapper, self).__init__(elem_or_handle)
+        super(SliderWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def min_value(self):
