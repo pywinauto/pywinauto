@@ -26,6 +26,8 @@ Controls Reference
    pywinauto.controls.HwndWrapper.txt
    pywinauto.controls.menuwrapper.txt
    pywinauto.controls.win32_controls.txt
+   pywinauto.controls.uiawrapper.txt
+   pywinauto.controls.uia_controls.txt
 
 Sendkeys
 ==============================

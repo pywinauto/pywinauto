@@ -47,6 +47,8 @@ if sys.platform.startswith('linux'):
             "win32functions",
             "win32clipboard",
             'win32structures',
+            'comtypes',
+            'comtypes.client',
             ]:
 
         sys.modules[mod_name] = mock.MagicMock()
