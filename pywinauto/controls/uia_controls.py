@@ -848,3 +848,30 @@ class MenuWrapper(uiawrapper.UIAWrapper):
             raise IndexError()
 
         return menu
+
+
+# ====================================================================
+class ToolbarWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible ToolBar control"""
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_ToolBarControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ToolbarWrapper, self).__init__(elem)
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ToolbarWrapper, self).writable_props
+        props.extend(['button_count'])
+        return props
+
+    #----------------------------------------------------------------
+    def button_count(self):
+        """Return a number of buttons on the ToolBar"""
+        return len(self.children())

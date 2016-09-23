@@ -348,6 +348,8 @@ if UIA_support:
 
             self.assertEqual(self.dlg.MenuBar.friendly_class_name(), "Menu")
 
+            self.assertEqual(self.dlg.Toolbar.friendly_class_name(), "Toolbar")
+
         def test_check_box(self):
             """Test 'toggle' and 'toggle_state' for the check box control"""
             # Get a current state of the check box control
@@ -915,6 +917,34 @@ if UIA_support:
             self.assertRaises(IndexError, self.dlg.menu_select, path)
             path = " -> #1 -> #2"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+    class ToolbarWpfTests(unittest.TestCase):
+
+        """Unit tests for ToolbarWrapper class on WPF demo"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.Start(wpf_app_1)
+
+            self.dlg = self.app.WPFSampleApplication
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_button_count(self):
+            """Test getting a number of buttons on Toolbar of WPF demo"""
+            # Read a second toolbar with buttons: "button1, button2"
+            tb = self.dlg.Toolbar2.WrapperObject()
+            self.assertEqual(tb.button_count(), 5)
+
+            # Test if it's in writeble properties
+            props = set(tb.get_properties().keys())
+            self.assertEqual('button_count' in props, True)
 
 
 if __name__ == "__main__":
