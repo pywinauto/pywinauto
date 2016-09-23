@@ -27,17 +27,21 @@ wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
 if UIA_support:
 
+    def _set_timings():
+        """Setup timings for UIA related tests"""
+        Timings.Defaults()
+        Timings.window_find_timeout = 20
+
     class UIAWrapperTests(unittest.TestCase):
 
         """Unit tests for the UIAWrapper class"""
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
-            self.app = Application(backend = 'uia')
+            self.app = Application(backend='uia')
             self.app = self.app.Start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
@@ -258,8 +262,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             self.app = Application(backend = 'uia')
             self.app = self.app.Start(wpf_app_1)
@@ -309,8 +312,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
             app = Application(backend = 'uia')
@@ -337,6 +339,14 @@ if UIA_support:
 
             friendly_name = self.dlg.TabControl.friendly_class_name()
             self.assertEqual(friendly_name, "TabControl")
+
+            edit = self.dlg.window_(class_name="TextBox").WrapperObject()
+            self.assertEqual(edit.friendly_class_name(), "Edit")
+
+            slider = self.dlg.Slider.WrapperObject()
+            self.assertEqual(slider.friendly_class_name(), "Slider")
+
+            self.assertEqual(self.dlg.MenuBar.friendly_class_name(), "Menu")
 
         def test_check_box(self):
             """Test 'toggle' and 'toggle_state' for the check box control"""
@@ -450,8 +460,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
             app = Application(backend = 'uia')
@@ -490,8 +499,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
             app = Application(backend = 'uia')
@@ -505,10 +513,6 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
-
-        def test_friendly_class_names(self):
-            """Test getting friendly class names of textbox-like controls"""
-            self.assertEqual(self.edit.friendly_class_name(), "Edit")
 
         def test_set_window_text(self):
             """Test setting text value of control (the text in textbox itself)"""
@@ -579,8 +583,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
             app = Application(backend='uia')
@@ -594,12 +597,6 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
-
-        def test_friendly_class_names(self):
-            """Test getting a friendly class name"""
-            # Find the slider by "best match" look up
-            slider = self.dlg.Slider.WrapperObject()
-            self.assertEqual(slider.friendly_class_name(), "Slider")
 
         def test_min_value(self):
             """Test getting minimum value of the Slider"""
@@ -644,8 +641,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
             app = Application(backend = 'uia')
@@ -761,8 +757,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
             self.app = Application(backend='uia')
@@ -773,10 +768,6 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
-
-        def test_friendly_class_name(self):
-            """Test getting the friendly class name of the menu"""
-            self.assertEqual(self.dlg.MenuBar.friendly_class_name(), "Menu")
 
         def test_menu_by_index(self):
             """Test selecting a menu item by index"""
@@ -830,8 +821,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            Timings.window_find_timeout = 20
+            _set_timings()
 
             # start the application
             self.app = Application(backend='uia')
