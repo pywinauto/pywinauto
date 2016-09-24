@@ -25,6 +25,11 @@ if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
 wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
+mfc_samples_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
 if UIA_support:
 
     def _set_timings():
@@ -764,7 +769,6 @@ if UIA_support:
             # start the application
             self.app = Application(backend='uia')
             self.app = self.app.Start(wpf_app_1)
-
             self.dlg = self.app.WPFSampleApplication
 
         def tearDown(self):
@@ -823,12 +827,11 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            _set_timings()
+            Timings.Defaults()
 
             # start the application
             self.app = Application(backend='uia')
             self.app = self.app.Start("notepad.exe")
-
             self.dlg = self.app.UntitledNotepad
 
         def tearDown(self):
@@ -929,22 +932,76 @@ if UIA_support:
             # start the application
             self.app = Application(backend='uia')
             self.app = self.app.Start(wpf_app_1)
-
             self.dlg = self.app.WPFSampleApplication
 
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
 
-        def test_button_count(self):
-            """Test getting a number of buttons on Toolbar of WPF demo"""
+        def test_button_access(self):
+            """Test getting access to buttons on Toolbar of WPF demo"""
             # Read a second toolbar with buttons: "button1, button2"
             tb = self.dlg.Toolbar2.WrapperObject()
             self.assertEqual(tb.button_count(), 5)
+            self.assertEqual(len(tb.texts()), 5)
 
             # Test if it's in writeble properties
             props = set(tb.get_properties().keys())
             self.assertEqual('button_count' in props, True)
+
+            expect_txt = "button 1"
+            self.assertEqual(tb.button(3).window_text(), expect_txt)
+
+            found_txt = tb.button(expect_txt, exact=True).window_text()
+            self.assertEqual(found_txt, expect_txt)
+
+            found_txt = tb.button("button ", exact=False).window_text()
+            self.assertEqual(found_txt, expect_txt)
+
+            expect_txt = "button 2"
+            found_txt = tb.button(expect_txt, exact=True).window_text()
+            self.assertEqual(found_txt, expect_txt)
+
+            expect_txt = ""
+            btn = tb.button(expect_txt, exact=True)
+            found_txt = btn.window_text()
+            self.assertEqual(found_txt, expect_txt)
+
+            # Notice that findbestmatch.MatchError is subclassed from IndexError
+            self.assertRaises(IndexError, tb.button, "BaD n_$E ", exact=False)
+
+    class ToolbarNativeTests(unittest.TestCase):
+
+        """Unit tests for ToolbarWrapper class on a native application"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.Defaults()
+
+            self.app = Application(backend='uia')
+            self.app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+            self.dlg = self.app.RowListSampleApplication
+            self.ctrl = self.dlg.ToolBar.WrapperObject()
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_tooltips(self):
+            """Test working with tooltips"""
+            self.ctrl.set_focus()
+            self.ctrl.move_mouse_input(coords=(10, 10))
+
+            # Find a tooltip by class name
+            tt = self.app.window_(top_level_only=False,
+                                  class_name="tooltips_class32").Wait('visible')
+            self.assertEquals(isinstance(tt, uia_ctls.TooltipWrapper), True)
+            self.assertEquals(tt.window_text(), "Large Icons")
+
+            # Find a tooltip window by control type
+            tt = self.app.top_window_().children(control_type='ToolTip')[0]
+            self.assertEquals(isinstance(tt, uia_ctls.TooltipWrapper), True)
+            self.assertEquals(tt.window_text(), "Large Icons")
 
 
 if __name__ == "__main__":

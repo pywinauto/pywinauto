@@ -851,9 +851,30 @@ class MenuWrapper(uiawrapper.UIAWrapper):
 
 
 # ====================================================================
+class TooltipWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Tooltip control"""
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_ToolTipControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TooltipWrapper, self).__init__(elem)
+
+
+# ====================================================================
 class ToolbarWrapper(uiawrapper.UIAWrapper):
 
-    """Wrap an UIA-compatible ToolBar control"""
+    """Wrap an UIA-compatible ToolBar control
+
+    The control's children usually are: Buttons, SplitButton,
+    MenuItems, ThumbControls, TextControls, Separators, CheckBoxes.
+    Notice that ToolTip controls are children of the top window and
+    not of the toolbar.
+    """
 
     _control_types = [
         IUIA().UIA_dll.UIA_ToolBarControlTypeId
@@ -871,7 +892,41 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         props.extend(['button_count'])
         return props
 
+    # ----------------------------------------------------------------
+    def texts(self):
+        """Return texts of the Toolbar"""
+        return self.children_texts()
+
     #----------------------------------------------------------------
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
         return len(self.children())
+
+    # ----------------------------------------------------------------
+    def button(self, button_identifier, exact=True, by_tooltip=False):
+        """Return the button at index button_index"""
+
+        cc = self.children()
+        texts = [c.window_text() for c in cc]
+        if isinstance(button_identifier, six.string_types):
+            self.actions.log('Toolbar buttons: ' + str(texts))
+
+            if by_tooltip:
+                texts = self.tip_texts()
+                self.actions.log('Toolbar tooltips: ' + str(texts))
+
+            if exact:
+                try:
+                    button_index = texts.index(button_identifier)
+                except ValueError:
+                    raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
+            else:
+                # one of these will be returned for the matching text
+                indices = [i for i in range(0, len(texts))]
+
+                # find which index best matches that text
+                button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
+        else:
+            button_index = button_identifier
+
+        return cc[button_index]
