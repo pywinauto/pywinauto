@@ -1003,6 +1003,23 @@ if UIA_support:
             self.assertEquals(isinstance(tt, uia_ctls.TooltipWrapper), True)
             self.assertEquals(tt.window_text(), "Large Icons")
 
+        def test_button_click(self):
+            """Test button click"""
+            # Check the "Full Row Details" button
+            self.ctrl.check_button("Full Row Details", True)
+            lst_ctl = self.dlg.ListBox
+            itm = lst_ctl.children()[1]
+            self.assertEqual(itm.texts()[0], u'Yellow')
+
+            # Check the second time it shouldn't change
+            self.ctrl.check_button("Full Row Details", True)
+            self.assertEqual(itm.texts()[0], u'Yellow')
+
+            # Switch to another view
+            self.ctrl.check_button("Small Icons", True)
+            itm = lst_ctl.children()[1]
+            self.assertEqual(itm.texts()[0], u'Red')
+
 
 if __name__ == "__main__":
     if UIA_support:

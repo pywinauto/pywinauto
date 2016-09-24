@@ -930,3 +930,26 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             button_index = button_identifier
 
         return cc[button_index]
+
+    # ----------------------------------------------------------------
+    def check_button(self, button_identifier, make_checked, exact=True):
+        """Find where the button is and click it if it's unchecked and vice versa"""
+
+        self.actions.logSectionStart('Checking "' + self.window_text() +
+                                     '" toolbar button "' + str(button_identifier) + '"')
+        button = self.button(button_identifier, exact=exact)
+        if make_checked:
+            self.actions.log('Pressing down toolbar button "' + str(button_identifier) + '"')
+        else:
+            self.actions.log('Pressing up toolbar button "' + str(button_identifier) + '"')
+
+        if not button.is_enabled():
+            self.actions.log('Toolbar button is not enabled!')
+            raise RuntimeError("Toolbar button is not enabled!")
+
+        res = (button.get_toggle_state() == toggle_state_on)
+        if res != make_checked:
+            button.toggle()
+
+        self.actions.logSectionEnd()
+        return button
