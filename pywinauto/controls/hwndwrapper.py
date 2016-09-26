@@ -66,7 +66,7 @@ from .. import timings
 
 #from .. import findbestmatch
 from .. import handleprops
-from ..native_element_info import NativeElementInfo
+from ..win32_element_info import NativeElementInfo
 from .. import backend
 
 # also import MenuItemNotEnabled so that it is

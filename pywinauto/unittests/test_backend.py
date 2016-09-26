@@ -33,10 +33,10 @@
 
 import unittest
 
-import os, sys, logging
+import sys
 sys.path.append(".")
 from pywinauto import backend
-from pywinauto.native_element_info import NativeElementInfo
+from pywinauto.win32_element_info import NativeElementInfo
 from pywinauto.controls.hwndwrapper import HwndWrapper
 
 
