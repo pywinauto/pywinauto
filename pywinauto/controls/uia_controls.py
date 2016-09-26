@@ -903,17 +903,19 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         return len(self.children())
 
     # ----------------------------------------------------------------
-    def button(self, button_identifier, exact=True, by_tooltip=False):
-        """Return the button at index button_index"""
+    def button(self, button_identifier, exact=True):
+        """Return the button by the specified identifier
+
+        * **button_identifier** can be either an index of a button or
+          a string with the text of the button.
+        * **exact** flag specifies if the exact match for the text look up
+            has to be applied.
+        """
 
         cc = self.children()
         texts = [c.window_text() for c in cc]
         if isinstance(button_identifier, six.string_types):
             self.actions.log('Toolbar buttons: ' + str(texts))
-
-            if by_tooltip:
-                texts = self.tip_texts()
-                self.actions.log('Toolbar tooltips: ' + str(texts))
 
             if exact:
                 try:
@@ -933,7 +935,15 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
     def check_button(self, button_identifier, make_checked, exact=True):
-        """Find where the button is and click it if it's unchecked and vice versa"""
+        """Find where the button is and toggle it
+
+        * **button_identifier** can be either an index of a button or
+          a string with the text of the button.
+        * **make_checked** specifies the required toggled state of the button.
+          If the button is already in the specified state the state isn't changed.
+        * **exact** flag specifies if the exact match for the text look up
+            has to be applied
+        """
 
         self.actions.logSectionStart('Checking "' + self.window_text() +
                                      '" toolbar button "' + str(button_identifier) + '"')
