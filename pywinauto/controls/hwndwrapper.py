@@ -66,7 +66,7 @@ from .. import timings
 
 #from .. import findbestmatch
 from .. import handleprops
-from ..win32_element_info import NativeElementInfo
+from ..win32_element_info import HwndElementInfo
 from .. import backend
 
 # also import MenuItemNotEnabled so that it is
@@ -122,7 +122,7 @@ class HwndMeta(BaseMeta):
     def find_wrapper(element):
         """Find the correct wrapper for this native element"""
         if isinstance(element, six.integer_types):
-            element = NativeElementInfo(element)
+            element = HwndElementInfo(element)
         class_name = element.class_name
 
         try:
@@ -182,13 +182,13 @@ class HwndWrapper(BaseWrapper):
         """
         Initialize the control
 
-        * **element_info** is either a valid NativeElementInfo or it can be an
+        * **element_info** is either a valid HwndElementInfo or it can be an
           instance or subclass of HwndWrapper.
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
         if isinstance(element_info, six.integer_types):
-            element_info = NativeElementInfo(element_info)
+            element_info = HwndElementInfo(element_info)
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
@@ -1521,5 +1521,5 @@ def get_dialog_props_from_handle(hwnd):
 GetDialogPropsFromHandle = get_dialog_props_from_handle
 
 
-backend.register('win32', NativeElementInfo, HwndWrapper)
+backend.register('win32', HwndElementInfo, HwndWrapper)
 backend.activate('win32') # default

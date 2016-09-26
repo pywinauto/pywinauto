@@ -36,7 +36,7 @@ import unittest
 import sys
 sys.path.append(".")
 from pywinauto import backend
-from pywinauto.win32_element_info import NativeElementInfo
+from pywinauto.win32_element_info import HwndElementInfo
 from pywinauto.controls.hwndwrapper import HwndWrapper
 
 
@@ -50,11 +50,11 @@ class BackendTestCases(unittest.TestCase):
 
     def test_register(self):
         self.assertRaises(TypeError, backend.register, 'dummy', object, HwndWrapper)
-        self.assertRaises(TypeError, backend.register, 'dummy', NativeElementInfo, object)
+        self.assertRaises(TypeError, backend.register, 'dummy', HwndElementInfo, object)
     
     def test_backend_attrs(self):
         self.assertEqual(backend.name(), 'win32')
-        self.assertEqual(backend.element_class(), NativeElementInfo)
+        self.assertEqual(backend.element_class(), HwndElementInfo)
         self.assertEqual(backend.wrapper_class(), HwndWrapper)
     
     def test_activate(self):
