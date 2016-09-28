@@ -1,6 +1,0 @@
-pywinauto.native_element_info
------------------------------
- .. automodule:: pywinauto.native_element_info
-    :members:
-    :undoc-members:
-
