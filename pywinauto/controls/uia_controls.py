@@ -848,3 +848,118 @@ class MenuWrapper(uiawrapper.UIAWrapper):
             raise IndexError()
 
         return menu
+
+
+# ====================================================================
+class TooltipWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Tooltip control"""
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_ToolTipControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TooltipWrapper, self).__init__(elem)
+
+
+# ====================================================================
+class ToolbarWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible ToolBar control
+
+    The control's children usually are: Buttons, SplitButton,
+    MenuItems, ThumbControls, TextControls, Separators, CheckBoxes.
+    Notice that ToolTip controls are children of the top window and
+    not of the toolbar.
+    """
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_ToolBarControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ToolbarWrapper, self).__init__(elem)
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ToolbarWrapper, self).writable_props
+        props.extend(['button_count'])
+        return props
+
+    # ----------------------------------------------------------------
+    def texts(self):
+        """Return texts of the Toolbar"""
+        return self.children_texts()
+
+    #----------------------------------------------------------------
+    def button_count(self):
+        """Return a number of buttons on the ToolBar"""
+        return len(self.children())
+
+    # ----------------------------------------------------------------
+    def button(self, button_identifier, exact=True):
+        """Return the button by the specified identifier
+
+        * **button_identifier** can be either an index of a button or
+          a string with the text of the button.
+        * **exact** flag specifies if the exact match for the text look up
+            has to be applied.
+        """
+
+        cc = self.children()
+        texts = [c.window_text() for c in cc]
+        if isinstance(button_identifier, six.string_types):
+            self.actions.log('Toolbar buttons: ' + str(texts))
+
+            if exact:
+                try:
+                    button_index = texts.index(button_identifier)
+                except ValueError:
+                    raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
+            else:
+                # one of these will be returned for the matching text
+                indices = [i for i in range(0, len(texts))]
+
+                # find which index best matches that text
+                button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
+        else:
+            button_index = button_identifier
+
+        return cc[button_index]
+
+    # ----------------------------------------------------------------
+    def check_button(self, button_identifier, make_checked, exact=True):
+        """Find where the button is and toggle it
+
+        * **button_identifier** can be either an index of a button or
+          a string with the text of the button.
+        * **make_checked** specifies the required toggled state of the button.
+          If the button is already in the specified state the state isn't changed.
+        * **exact** flag specifies if the exact match for the text look up
+            has to be applied
+        """
+
+        self.actions.logSectionStart('Checking "' + self.window_text() +
+                                     '" toolbar button "' + str(button_identifier) + '"')
+        button = self.button(button_identifier, exact=exact)
+        if make_checked:
+            self.actions.log('Pressing down toolbar button "' + str(button_identifier) + '"')
+        else:
+            self.actions.log('Pressing up toolbar button "' + str(button_identifier) + '"')
+
+        if not button.is_enabled():
+            self.actions.log('Toolbar button is not enabled!')
+            raise RuntimeError("Toolbar button is not enabled!")
+
+        res = (button.get_toggle_state() == toggle_state_on)
+        if res != make_checked:
+            button.toggle()
+
+        self.actions.logSectionEnd()
+        return button

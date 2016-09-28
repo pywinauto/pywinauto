@@ -79,7 +79,7 @@ class _listview_item(object):
     def __init__(self, lv_ctrl, item_index, subitem_index = 0):
         "Initialize the item"
         self.listview_ctrl = lv_ctrl
-        
+
         # ensure the item_index is an integer or
         # convert it to one
         self.item_index = self._as_item_index(item_index)
@@ -182,7 +182,7 @@ class _listview_item(object):
         "Return property name"
         warnings.warn('ListView item properties "text", "state", "image" and "indent" are deprecated! ' +
                       'Use methods text(), state(), image() and indent().', DeprecationWarning)
-        
+
         item, text = self._readitem()
         if key == 'text':
             return text
@@ -192,7 +192,7 @@ class _listview_item(object):
             return item.iImage
         if key == 'indent':
             return item.iIndent
-        
+
         raise KeyError('Incorrect property: "' + str(key) + '", can be "text", "state", "image" or "indent".')
 
     #----------------------------------------------------------------
@@ -213,14 +213,14 @@ class _listview_item(object):
     def item_data(self):
         "Return the item data (dictionary)"
         item_data = {}
-        
+
         item, text = self._readitem()
         # and add it to the titles
         item_data['text'] = text
         item_data['state'] = item.state
         item_data['image'] = item.iImage
         item_data['indent'] = item.iIndent
-        
+
         return item_data
     # Non PEP-8 alias
     ItemData = item_data
@@ -592,7 +592,7 @@ class _listview_item(object):
             lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
         lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
-        
+
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
 
@@ -668,8 +668,8 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "ListView"
     windowclasses = [
-        "SysListView32", 
-        r"WindowsForms\d*\.SysListView32\..*", 
+        "SysListView32",
+        r"WindowsForms\d*\.SysListView32\..*",
         "TSysListView",
         "ListView20WndClass"]
     if sysinfo.UIA_support:
@@ -1072,7 +1072,7 @@ class _treeview_element(object):
                     hittest.flags == win32defines.TVHT_ONITEMSTATEICON:
                     found = True
                     break
-                    
+
                 point_to_click.x -= 1
 
             if not found:
@@ -1135,7 +1135,7 @@ class _treeview_element(object):
                     hittest.flags == win32defines.TVHT_ONITEMSTATEICON:
                     found = True
                     break
-                    
+
                 point_to_click.x -= 1
 
             if not found:
@@ -1153,12 +1153,12 @@ class _treeview_element(object):
     #----------------------------------------------------------------
     def start_dragging(self, button='left', pressed=''):
         "Start dragging the item"
-        
+
         #self.ensure_visible()
         # find the text rectangle for the item
         rect = self.rectangle()
         point_to_click = rect.mid_point()
-        
+
         #self.tree_ctrl.set_focus()
         self.tree_ctrl.press_mouse_input(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
         for i in range(5):
@@ -1169,14 +1169,14 @@ class _treeview_element(object):
     #----------------------------------------------------------------
     def drop(self, button='left', pressed=''):
         "Drop at the item"
-        
+
         #self.ensure_visible()
         # find the text rectangle for the item
         point_to_click = self.rectangle().mid_point()
-        
+
         self.tree_ctrl.move_mouse_input(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
         time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        
+
         self.tree_ctrl.release_mouse_input(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
         time.sleep(Timings.after_drag_n_drop_wait)
     # Non PEP-8 alias
@@ -1626,7 +1626,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def print_items(self):
         "Print all items with line indents"
-        
+
         self.text = self.window_text() + "\n"
 
         def print_one_level(item,ident):
@@ -1636,7 +1636,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
 
         for root in self.roots():
             print_one_level(root,0)
-            
+
         return self.text
     # Non PEP-8 alias
     PrintItems = print_items
@@ -2266,7 +2266,7 @@ class _toolbar_button(object):
                                        self.info.idCommand,
                                        remote_mem)
         rect = remote_mem.Read(rect)
-        
+
         if rect == win32structures.RECT(0, 0, 0, 0):
             self.toolbar_ctrl.send_message(win32defines.TB_GETITEMRECT,
                                            self.index,
@@ -2428,8 +2428,6 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
         "ToolbarWindow32",
         r"WindowsForms\d*\.ToolbarWindow32\..*",
         "Afx:ToolBar:.*"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_ToolBarControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2453,7 +2451,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def button(self, button_identifier, exact = True, by_tooltip=False):
         "Return the button at index button_index"
-        
+
         if isinstance(button_identifier, six.string_types):
             texts = self.texts()[1:]
             self.actions.log('Toolbar buttons: ' + str(texts))
@@ -2463,7 +2461,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
             if by_tooltip:
                 texts = self.tip_texts()
                 self.actions.log('Toolbar tooltips: ' + str(texts))
-            
+
             if exact:
                 try:
                     button_index = texts.index(button_identifier)
@@ -2474,7 +2472,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
                 button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
         else:
             button_index = button_identifier
-        
+
         return _toolbar_button(button_index, self)
     # Non PEP-8 alias
     Button = button
@@ -2482,7 +2480,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_button_struct(self, button_index):
         "Return TBBUTTON structure on the Toolbar button"
-        
+
         if button_index >= self.button_count():
             raise IndexError(
                 "0 to %d are acceptiple for button_index"%
@@ -2587,15 +2585,15 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
         "Return the tip texts of the Toolbar (without window text)"
         texts = []
         for i in range(0, self.button_count()):
-            
+
             # it works for MFC
             btn_tooltip_index = self.get_button_struct(i).iString
             # usually iString == -1 for separator
-            
+
             # other cases if any
             if not (-1 <= btn_tooltip_index < self.get_tool_tips_control().tool_count()):
                 btn_tooltip_index = i
-            
+
             btn_text = self.get_tool_tips_control().get_tip_text(btn_tooltip_index + 1)
             texts.append(btn_text)
 
@@ -2730,10 +2728,10 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def menu_bar_click_input(self, path, app):
         """Select menu bar items by path (experimental!)
-        
+
         The path is specified by a list of items separated by '->' each Item
         can be the zero based index of the item to return prefaced by # e.g. #1.
-        
+
         Example:
             "#1 -> #0",
             "#1->#0->#0"
@@ -2756,11 +2754,11 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
                 except Exception:
                     raise TypeError('Path must contain integers only!')
                 indices.append(index)
-        
+
         # circle import doesn't work with current package structure
         # so use the app instance as a method param
         #app = Application().Connect(handle=self.handle)
-        
+
         current_toolbar = self
         for i, index in enumerate(indices):
             windows_before = app.Windows_(visible_only=True)
@@ -3020,8 +3018,6 @@ class ToolTipsWrapper(hwndwrapper.HwndWrapper):
     windowclasses = ["tooltips_class32",
                      ".*ToolTip",
                      "#32774", "MS_WINNOTE", "VBBubble", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_ToolTipControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -3147,7 +3143,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         # I will fake it for now either use click, or get_value() + 1
         rect = self.client_rect()
         self.click_input(coords=(rect.left + 5, rect.top + 5))
-        
+
         #self.set_value(self.get_value() + 1)
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_updownchange_wait)
@@ -3159,7 +3155,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         "Decrement the number in the UpDown control by one"
         rect = self.client_rect()
         self.click_input(coords=(rect.left + 5, rect.bottom - 5))
-        
+
         #self.set_value(self.get_value() - 1)
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_updownchange_wait)
@@ -3305,18 +3301,18 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_time(self):
         "Get the currently selected time"
-        
+
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
         remote_mem.Write(system_time)
-        
+
         res = self.send_message(win32defines.DTM_GETSYSTEMTIME, 0, remote_mem)
         remote_mem.Read(system_time)
         del remote_mem
-        
+
         if res != win32defines.GDT_VALID:
             raise RuntimeError('Failed to get time from Date Time Picker (result = ' + str(res) + ')')
-        
+
         #year = system_time.wYear
         #month = system_time.wMonth
         #day_of_week = system_time.wDayOfWeek
@@ -3333,10 +3329,10 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def set_time(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
         "Get the currently selected time"
-        
+
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
-        
+
         system_time.wYear = year
         system_time.wMonth = month
         system_time.wDayOfWeek = day_of_week
@@ -3345,12 +3341,12 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
         system_time.wMinute = minute
         system_time.wSecond = second
         system_time.wMilliseconds = milliseconds
-        
+
         remote_mem.Write(system_time)
-        
+
         res = self.send_message(win32defines.DTM_SETSYSTEMTIME, win32defines.GDT_VALID, remote_mem)
         del remote_mem
-        
+
         if res == 0:
             raise RuntimeError('Failed to set time in Date Time Picker')
     # Non PEP-8 alias
@@ -3386,7 +3382,7 @@ class IPAddressWrapper(hwndwrapper.HwndWrapper):
 #====================================================================
 
 class CalendarWrapper(hwndwrapper.HwndWrapper):
-    
+
     """Class that wraps Windows Calendar common control"""
 
     friendlyclassname = "Calendar"
@@ -3411,7 +3407,7 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def get_current_date(self):
-        """Get the currently selected date"""        
+        """Get the currently selected date"""
         remote_mem = RemoteMemoryBlock(self)
         system_date = win32structures.SYSTEMTIME()
         remote_mem.Write(system_date)
@@ -3421,7 +3417,7 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         del remote_mem
 
         if res == 0:
-            raise RuntimeError('Failed to get the currently selected date in Calendar')   
+            raise RuntimeError('Failed to get the currently selected date in Calendar')
         return system_date
 
     #----------------------------------------------------------------
@@ -3456,13 +3452,13 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def set_border(self, border):
         """Set the calendar border"""
-        self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)       
+        self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)
 
     #----------------------------------------------------------------
     def count(self):
         """Get the calendars count"""
         return self.send_message(win32defines.MCM_GETCALENDARCOUNT, 0,0)
-    
+
     #----------------------------------------------------------------
     def get_view(self):
         """Get the calendar view"""
@@ -3708,7 +3704,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def set_state(self):
         """Get the state of the progress bar
-        
+
         State will be one of the following constants:
          * PBST_NORMAL
          * PBST_ERROR
