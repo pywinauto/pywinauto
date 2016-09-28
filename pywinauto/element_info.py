@@ -29,10 +29,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Interface for classes which should deal with different back-end elements"""
+"""Interface for classes which should deal with different backend elements"""
 
 class ElementInfo(object):
-    "Wrapper for element"
+
+    """Abstract wrapper for an element"""
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""
@@ -40,67 +41,67 @@ class ElementInfo(object):
 
     @property
     def handle(self):
-        "Return the handle of the element"
+        """Return the handle of the element"""
         raise NotImplementedError()
 
     @property
     def name(self):
-        "Return the name of the element"
+        """Return the name of the element"""
         raise NotImplementedError()
 
     @property
     def rich_text(self):
-        "Return the text of the element"
+        """Return the text of the element"""
         raise NotImplementedError()
 
     @property
     def control_id(self):
-        "Return the ID of the control"
+        """Return the ID of the control"""
         raise NotImplementedError()
 
     @property
     def process_id(self):
-        "Return the ID of process that controls this element"
+        """Return the ID of process that controls this element"""
         raise NotImplementedError()
 
     @property
     def framework_id(self):
-        "Return the framework of the element"
+        """Return the framework of the element"""
         raise NotImplementedError()
     
     @property
     def class_name(self):
-        "Return the class name of the element"
+        """Return the class name of the element"""
         raise NotImplementedError()
 
     @property
     def enabled(self):
-        "Return True if the element is enabled"
+        """Return True if the element is enabled"""
         raise NotImplementedError()
         
     @property
     def visible(self):
-        "Return True if the element is visible"
+        """Return True if the element is visible"""
         raise NotImplementedError()
        
     @property
     def parent(self):
-        "Return the parent of the element"
+        """Return the parent of the element"""
         raise NotImplementedError()
 
     def children(self, **kwargs):
-        "Return children of the element"
+        """Return children of the element"""
         raise NotImplementedError()
 
     def descendants(self, **kwargs):
-        "Return descendants of the element"
+        """Return descendants of the element"""
         raise NotImplementedError()
 
     @property
     def rectangle(self):
-        "Return rectangle of element"
+        """Return rectangle of element"""
         raise NotImplementedError()
 
     def dump_window(self):
-        "Dump an element to a set of properties"
+        """Dump an element to a set of properties"""
         raise NotImplementedError()

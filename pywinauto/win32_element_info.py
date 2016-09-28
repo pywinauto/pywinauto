@@ -37,7 +37,7 @@ from . import win32functions
 from . import handleprops
 from .element_info import ElementInfo
 
-class NativeElementInfo(ElementInfo):
+class HwndElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
 
@@ -97,13 +97,13 @@ class NativeElementInfo(ElementInfo):
         """Return the parent of the window"""
         parent_hwnd = handleprops.parent(self)
         if parent_hwnd:
-            return NativeElementInfo(parent_hwnd)
+            return HwndElementInfo(parent_hwnd)
         else:
             return None
 
     def children(self, **kwargs):
         """Return a list of immediate children of the window"""
-        if self == NativeElementInfo(): # self == root
+        if self == HwndElementInfo(): # self == root
             child_handles = []
 
             # The callback function that will be called for each HWND
@@ -125,12 +125,12 @@ class NativeElementInfo(ElementInfo):
         else:
             # TODO: this code returns the whole sub-tree, we need to re-write it
             child_handles = handleprops.children(self._handle)
-        return [NativeElementInfo(ch) for ch in child_handles]
+        return [HwndElementInfo(ch) for ch in child_handles]
 
     def descendants(self, **kwargs):
         """Return descendants of the window (all children from sub-tree)"""
         child_handles = handleprops.children(self)
-        return [NativeElementInfo(ch) for ch in child_handles]
+        return [HwndElementInfo(ch) for ch in child_handles]
 
     @property
     def rectangle(self):
@@ -142,7 +142,7 @@ class NativeElementInfo(ElementInfo):
         return handleprops.dumpwindow(self)
 
     def __eq__(self, other):
-        """Check if 2 NativeElementInfo objects describe 1 actual element"""
-        if not isinstance(other, NativeElementInfo):
+        """Check if 2 HwndElementInfo objects describe 1 actual element"""
+        if not isinstance(other, HwndElementInfo):
             return self.handle == other
         return self.handle == other.handle
