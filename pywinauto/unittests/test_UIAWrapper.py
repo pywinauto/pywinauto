@@ -995,13 +995,13 @@ if UIA_support:
             # Find a tooltip by class name
             tt = self.app.window_(top_level_only=False,
                                   class_name="tooltips_class32").Wait('visible')
-            self.assertEquals(isinstance(tt, uia_ctls.TooltipWrapper), True)
-            self.assertEquals(tt.window_text(), "Large Icons")
+            self.assertEqual(isinstance(tt, uia_ctls.TooltipWrapper), True)
+            self.assertEqual(tt.window_text(), "Large Icons")
 
             # Find a tooltip window by control type
             tt = self.app.top_window_().children(control_type='ToolTip')[0]
-            self.assertEquals(isinstance(tt, uia_ctls.TooltipWrapper), True)
-            self.assertEquals(tt.window_text(), "Large Icons")
+            self.assertEqual(isinstance(tt, uia_ctls.TooltipWrapper), True)
+            self.assertEqual(tt.window_text(), "Large Icons")
 
         def test_button_click(self):
             """Test button click"""
