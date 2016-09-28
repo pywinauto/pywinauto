@@ -955,7 +955,7 @@ if UIA_support:
             found_txt = tb.button(expect_txt, exact=True).window_text()
             self.assertEqual(found_txt, expect_txt)
 
-            found_txt = tb.button("button ", exact=False).window_text()
+            found_txt = tb.button("b 1", exact=False).window_text()
             self.assertEqual(found_txt, expect_txt)
 
             expect_txt = "button 2"
