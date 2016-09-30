@@ -8,7 +8,7 @@ import os
 import sys
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
+from pywinauto.sysinfo import is_x64_Python, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
@@ -20,13 +20,13 @@ from pywinauto.timings import Timings
 import unittest
 
 wpf_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\WPF_samples")
+    os.path.dirname(__file__), r"..\..\apps\WPF_samples")
 if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
 wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
 mfc_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
@@ -55,19 +55,14 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def test_friendly_class_name(self):
-            """Test getting the friendly classname of the dialog"""
-            button = self.dlg.OK.WrapperObject()
-            self.assertEqual(button.friendly_class_name(), "Button")
-
         def test_find_nontop_ctl_by_class_name_and_title(self):
             """Test getting a non-top control by a class name and a title"""
             # Look up for a non-top button control with 'Apply' caption
             self.dlg.Wait('ready')
             caption = 'Apply'
-            wins = self.app.windows_(top_level_only = False,
-                                     class_name = 'Button',
-                                     title = caption)
+            wins = self.app.windows_(top_level_only=False,
+                                     class_name='Button',
+                                     title=caption)
 
             # Verify the number of found wrappers
             self.assertEqual(len(wins), 1)
@@ -81,8 +76,8 @@ if UIA_support:
             # we don't specify it as a criteria argument
             self.dlg.Wait('ready')
             caption = 'WPF Sample Application'
-            wins = self.app.windows_(class_name = 'Window',
-                                     title = caption)
+            wins = self.app.windows_(class_name='Window',
+                                     title=caption)
 
             # Verify the number of found wrappers
             self.assertEqual(len(wins), 1)
@@ -210,11 +205,11 @@ if UIA_support:
                                       title="OK").WrapperObject()
             elem = button.element_info.element
             self.assertRaises(
-                    uia_defs.NoPatternInterfaceError,
-                    uia_defs.get_elem_interface,
-                    elem,
-                    "Selection",
-                    )
+                uia_defs.NoPatternInterfaceError,
+                uia_defs.get_elem_interface,
+                elem,
+                "Selection",
+            )
 
         def test_minimize_maximize(self):
             """Test window minimize/maximize operations"""
@@ -230,17 +225,17 @@ if UIA_support:
         def test_get_properties(self):
             """Test getting writeble properties of a control"""
             uia_props = set(['class_name',
-                         'friendly_class_name',
-                         'texts',
-                         'control_id',
-                         'rectangle',
-                         'is_visible',
-                         'is_enabled',
-                         'control_count',
-                         'is_keyboard_focusable',
-                         'has_keyboard_focus',
-                         'selection_indices',
-                         ])
+                             'friendly_class_name',
+                             'texts',
+                             'control_id',
+                             'rectangle',
+                             'is_visible',
+                             'is_enabled',
+                             'control_count',
+                             'is_keyboard_focusable',
+                             'has_keyboard_focus',
+                             'selection_indices',
+                             ])
             edit = self.dlg.TestLabelEdit.WrapperObject()
             props = set(edit.get_properties().keys())
             self.assertEqual(props, uia_props)
@@ -269,7 +264,7 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
-            self.app = Application(backend = 'uia')
+            self.app = Application(backend='uia')
             self.app = self.app.Start(wpf_app_1)
 
             dlg = self.app.WPFSampleApplication
@@ -320,7 +315,7 @@ if UIA_support:
             _set_timings()
 
             # start the application
-            app = Application(backend = 'uia')
+            app = Application(backend='uia')
             self.app = app.Start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
 
@@ -330,6 +325,9 @@ if UIA_support:
 
         def test_friendly_class_names(self):
             """Test getting friendly class names of button-like controls"""
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.friendly_class_name(), "Button")
+
             friendly_name = self.dlg.CheckBox.friendly_class_name()
             self.assertEqual(friendly_name, "CheckBox")
 
@@ -460,7 +458,6 @@ if UIA_support:
             collapsed = combo_box.collapse().is_collapsed()
             self.assertEqual(collapsed, True)
 
-
     class TabControlWrapperTestCases(unittest.TestCase):
 
         """Unit tests for the TabControlWrapper class"""
@@ -470,7 +467,7 @@ if UIA_support:
             _set_timings()
 
             # start the application
-            app = Application(backend = 'uia')
+            app = Application(backend='uia')
             app = app.start(wpf_app_1)
             dlg = app.WPFSampleApplication
 
@@ -484,21 +481,20 @@ if UIA_support:
 
         def test_tab_count(self):
             """Test the tab count in the Tab control"""
-            self.assertEqual(self.ctrl.tab_count(), len(self.texts));
+            self.assertEqual(self.ctrl.tab_count(), len(self.texts))
 
         def test_get_selected_tab(self):
             """Test selecting a tab by index or by name and getting an index of the selected tab"""
             # Select a tab by name, use chaining to get the index of the selected tab
             idx = self.ctrl.select(u"Views").get_selected_tab()
-            self.assertEqual(idx, 1);
+            self.assertEqual(idx, 1)
             # Select a tab by index
             self.ctrl.select(0)
-            self.assertEqual(self.ctrl.get_selected_tab(), 0);
+            self.assertEqual(self.ctrl.get_selected_tab(), 0)
 
         def test_texts(self):
             """Make sure the tabs captions are read correctly"""
-            self.assertEqual (self.ctrl.texts(), self.texts)
-
+            self.assertEqual(self.ctrl.texts(), self.texts)
 
     class EditWrapperTestCases(unittest.TestCase):
 
@@ -509,7 +505,7 @@ if UIA_support:
             _set_timings()
 
             # start the application
-            app = Application(backend = 'uia')
+            app = Application(backend='uia')
             app = app.start(wpf_app_1)
 
             self.app = app
@@ -583,7 +579,6 @@ if UIA_support:
 
             self.assertRaises(RuntimeError, self.edit.select, "123")
 
-
     class SliderWrapperTestCases(unittest.TestCase):
 
         """Unit tests for the EditWrapper class"""
@@ -638,9 +633,7 @@ if UIA_support:
 
             self.assertRaises(ValueError, self.slider.set_value, -1)
             self.assertRaises(ValueError, self.slider.set_value, 102)
-
-            self.assertRaises(ValueError, self.slider.set_value, [50,])
-
+            self.assertRaises(ValueError, self.slider.set_value, [50, ])
 
     class ListViewWrapperTestCases(unittest.TestCase):
 
@@ -651,7 +644,7 @@ if UIA_support:
             _set_timings()
 
             # start the application
-            app = Application(backend = 'uia')
+            app = Application(backend='uia')
             app = app.start(wpf_app_1)
             dlg = app.WPFSampleApplication
 
