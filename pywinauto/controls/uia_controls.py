@@ -963,3 +963,33 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         self.actions.logSectionEnd()
         return button
+
+
+# ====================================================================
+class TreeItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible TreeItem control"""
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_TreeItemControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TreeItemWrapper, self).__init__(elem)
+
+
+# ====================================================================
+class TreeViewWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Tree control"""
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_TreeControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TreeViewWrapper, self).__init__(elem)

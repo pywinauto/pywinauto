@@ -101,7 +101,8 @@ _friendly_classes = {
     'TitleBar': None,
     'ToolBar': 'Toolbar',
     'ToolTip': 'ToolTips',
-    'Tree': None,
+    'Tree': 'TreeView',
+    'TreeItem': 'TreeItem',
     'Window': 'Dialog',
 }
 

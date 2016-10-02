@@ -324,7 +324,7 @@ if UIA_support:
             self.app.kill_()
 
         def test_friendly_class_names(self):
-            """Test getting friendly class names of button-like controls"""
+            """Test getting friendly class names of common controls"""
             button = self.dlg.OK.WrapperObject()
             self.assertEqual(button.friendly_class_name(), "Button")
 
@@ -352,6 +352,17 @@ if UIA_support:
             self.assertEqual(self.dlg.MenuBar.friendly_class_name(), "Menu")
 
             self.assertEqual(self.dlg.Toolbar.friendly_class_name(), "Toolbar")
+
+            # Switch tab view
+            tab_item_wrp = self.dlg.Views.set_focus()
+            ctrl = tab_item_wrp.children(control_type="DataGrid")[0]
+            self.assertEqual(ctrl.friendly_class_name(), "ListView")
+
+            ctrl = tab_item_wrp.children(control_type="Tree")[0]
+            self.assertEqual(ctrl.friendly_class_name(), "TreeView")
+
+            ti = self.dlg.ViewsTabItem.DateElements
+            self.assertEqual(ti.friendly_class_name(), "TreeItem")
 
         def test_check_box(self):
             """Test 'toggle' and 'toggle_state' for the check box control"""
