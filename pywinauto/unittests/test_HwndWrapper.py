@@ -41,7 +41,6 @@ import time
 
 import ctypes
 import locale
-import re
 
 import sys, os
 import unittest
@@ -57,17 +56,16 @@ from pywinauto.sysinfo import is_x64_Python
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.remote_memory_block import RemoteMemoryBlock
 from pywinauto.timings import Timings
-from pywinauto.timings import TimeoutError
 from pywinauto import clipboard
 from pywinauto.base_wrapper import ElementNotEnabled
 from pywinauto.base_wrapper import ElementNotVisible
-#from pywinauto import findbestmatch
 
 
 mfc_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+
 
 def _notepad_exe():
     if is_x64_Python() or not is_x64_OS():
@@ -78,7 +76,7 @@ def _notepad_exe():
 
 class HwndWrapperTests(unittest.TestCase):
 
-    """Unit tests for the TreeViewWrapper class"""
+    """Unit tests for the HwndWrapper class"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -172,7 +170,7 @@ class HwndWrapperTests(unittest.TestCase):
     def testRectangle(self):
         "Test getting the rectangle of the dialog"
         rect = self.dlg.rectangle()
-        
+
         self.assertNotEqual(rect.top, None)
         self.assertNotEqual(rect.left, None)
         self.assertNotEqual(rect.bottom, None)
@@ -236,7 +234,7 @@ class HwndWrapperTests(unittest.TestCase):
         ctl = self.dlg.ChildWindow(class_name='Button', found_index=3)
         self.assertEqual(ctl.texts(), [u'Show'])
         ctl.DrawOutline('blue')  # visualize
-        
+
         # Test an out-of-range access
         # Notice:
         # A ChildWindow call only creates a WindowSpecification object.
@@ -503,7 +501,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         Timings.Defaults()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
-        
+
         self.dlg = self.app.RowListSampleApplication
         self.ctrl = self.app.RowListSampleApplication.ListView.WrapperObject()
 
@@ -529,7 +527,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         "Test the Close() method of windows"
         # open about dialog
         self.dlg.MenuSelect('Help->About RowList...')
-        
+
         # make sure it is open and visible
         self.app.AboutRowList.Wait("visible", 20)
         self.assertTrue(self.app.Window_(title='About RowList').is_visible(), True)
@@ -636,7 +634,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
     def testDragMouse(self):
         self.dlg.NoteEdit.DragMouse(press_coords=(0, 5), release_coords=(65, 5))
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,12))
-        
+
         # continue selection with pressed Shift key
         self.dlg.NoteEdit.DragMouse(press_coords=(65, 5), release_coords=(90, 5), pressed='shift')
         self.assertEquals(self.dlg.Edit.SelectionIndices(), (0,17))
@@ -659,6 +657,36 @@ class HwndWrapperMouseTests(unittest.TestCase):
         self.dlg.SetTransparency()
         self.assertRaises(ValueError, self.dlg.SetTransparency, 256)
 
+
+class NonActiveWindowFocusTests(unittest.TestCase):
+
+    """Regression unit tests for setting focus"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
+
+        self.app = Application()
+        self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        self.app2 = Application().start(_notepad_exe())
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill_()
+        self.app2.kill_()
+
+    def test_issue_240(self):
+        """Check HwndWrapper.set_focus for a desktop without a focused window"""
+        ws = self.app.Common_Controls_Sample
+        ws.TabControl.Select('CButton (Command Link)')
+        dlg1 = ws.wrapper_object()
+        dlg2 = self.app2.Notepad.wrapper_object()
+        dlg2.click(coords=(2, 2))
+        dlg2.minimize()
+        # here is the trick: the window is restored but it isn't activated
+        dlg2.restore()
+        dlg1.set_focus()
+        self.assertEqual(ws.GetFocus(), ws.Edit.wrapper_object())
 
 class NotepadRegressionTests(unittest.TestCase):
 
@@ -839,9 +867,9 @@ class RemoteMemoryBlockTests(unittest.TestCase):
     def testGuardSignatureCorruption(self):
         mem = RemoteMemoryBlock(self.ctrl, 16)
         buf = ctypes.create_string_buffer(24)
-        
+
         self.assertRaises(Exception, mem.Write, buf)
-        
+
         mem.size = 24 # test hack
         self.assertRaises(Exception, mem.Write, buf)
 
