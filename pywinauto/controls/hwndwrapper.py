@@ -52,6 +52,7 @@ import six
 from .. import win32functions
 from ..actionlogger import ActionLogger
 from .. import keyboard
+from .. import mouse
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -1158,13 +1159,29 @@ class HwndWrapper(BaseWrapper):
         Set the focus to this control.
 
         Bring the window to the foreground first if necessary.
+        The system restricts which processes can set the foreground window
+        (https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx)
+        so the mouse cursor is removed from the screen to prevent any side effects.
         """
+        # Notice that we need to move the mouse out of the screen
+        # but we don't use the built-in methods of the class:
+        # self.mouse_move doesn't do the job well even with absolute=True
+        # self.move_mouse_input can't be used as it calls click_input->set_focus
+
         # find the current foreground window
         cur_foreground = win32gui.GetForegroundWindow()
 
-        # if it is already foreground then just return
-        if self.handle != cur_foreground:
-            # set the foreground window
+        # if there is no active window bring our window into the foreground
+        if not cur_foreground:
+            mouse.move(coords=(10000, 20000))
+            win32gui.SetForegroundWindow(self.handle)
+            win32functions.WaitGuiThreadIdle(self)
+            time.sleep(Timings.after_setfocus_wait)
+
+        # "steel the focus" if there is another active window
+        # otherwise it is already into the foreground and no action required
+        elif self.handle != cur_foreground:
+            mouse.move(coords=(10000, 20000))
 
             # get the thread of the window that is in the foreground
             cur_fore_thread = win32process.GetWindowThreadProcessId(
@@ -1213,6 +1230,8 @@ class HwndWrapper(BaseWrapper):
             time.sleep(Timings.after_setfocus_wait)
 
         return self
+    # Non PEP-8 alias
+    SetFocus = set_focus
 
     def has_keyboard_focus(self):
         """Check the keyboard focus on this control."""
