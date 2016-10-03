@@ -993,3 +993,18 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(TreeViewWrapper, self).__init__(elem)
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TreeViewWrapper, self).writable_props
+        props.extend(['item_count'])
+        return props
+
+    # -----------------------------------------------------------
+    def item_count(self):
+        """Return a number of items in TreeView"""
+        return len(self.descendants(control_type="TreeItem"))
+
+    # Non PEP-8 alias
+    ItemCount = item_count

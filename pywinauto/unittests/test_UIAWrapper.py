@@ -949,7 +949,7 @@ if UIA_support:
             self.assertEqual(tb.button_count(), 5)
             self.assertEqual(len(tb.texts()), 5)
 
-            # Test if it's in writeble properties
+            # Test if it's in writable properties
             props = set(tb.get_properties().keys())
             self.assertEqual('button_count' in props, True)
 
@@ -1023,6 +1023,35 @@ if UIA_support:
             self.ctrl.check_button("Small Icons", True)
             itm = lst_ctl.children()[1]
             self.assertEqual(itm.texts()[0], u'Red')
+
+    class TreeViewWpfTests(unittest.TestCase):
+
+        """Unit tests for TreeViewWrapper class on WPF demo"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.Start(wpf_app_1)
+            self.dlg = self.app.WPFSampleApplication
+            tab_itm = self.dlg.Views.set_focus()
+            self.ctrl = tab_itm.children(control_type="Tree")[0]
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_item_count(self):
+            """Test getting a number of items in TreeView"""
+            # By default the tree view on WPF demo is partially expanded
+            # with only 12 visible nodes
+            self.assertEqual(self.ctrl.item_count(), 12)
+
+            # Test if it's in writable properties
+            props = set(self.ctrl.get_properties().keys())
+            self.assertEqual('item_count' in props, True)
 
 
 if __name__ == "__main__":
