@@ -23,11 +23,12 @@ Installation
 Manual installation
 ---------------------------
 - Install the following Python packages
+
   - pyWin32_
   - comtypes_
   - six_
   - *(optional)* Pillow_ (fork of PIL)
-  
+
 - Download latest pywinauto from https://github.com/pywinauto/pywinauto/releases
 - Unpack and run ``python setup.py install``
 
@@ -64,10 +65,10 @@ This attribute resolution is delayed (currently a hard coded amount of time) unt
 it succeeds. So for example if you Select a menu option and then look for the
 resulting dialog e.g. ::
 
-  app.UntitledNotepad.MenuSelect("File->SaveAs")
-  app.SaveAs.ComboBox5.Select("UTF-8")
-  app.SaveAs.edit1.SetText("Example-utf8.txt")
-  app.SaveAs.Save.Click()
+  app.UntitledNotepad.menu_select("File->SaveAs")
+  app.SaveAs.ComboBox5.select("UTF-8")
+  app.SaveAs.edit1.set_text("Example-utf8.txt")
+  app.SaveAs.Save.click()
 
 At the 2nd line the SaveAs dialog might not be open by the time this line is
 executed. So what happens is that we wait until we have a control to resolve
@@ -75,15 +76,15 @@ before resolving the dialog. At that point if we can't find a SaveAs dialog with
 a ComboBox5 control then we wait a very short period of time and try again,
 this is repeated up to a maximum time (currently 5 seconds!)
 
-This avoid the user having to use time.sleep or a "Wait" function.
+This avoids the user having to use time.sleep or a "wait" function explicitly.
 
 If your application performs long time operation, new dialog can appear or
 disappear later. You can wait for its new state like so ::
 
-  app.Open.Open.Click() # opening large file
-  app.Open.WaitNot('visible') # make sure "Open" dialog became invisible
+  app.Open.Open.click() # opening large file
+  app.Open.wait_not('visible') # make sure "Open" dialog became invisible
   # wait for up to 30 seconds until data.txt is loaded
-  app.Window(title='data.txt - Notepad').Wait('ready', timeout=30)
+  app.window_(title='data.txt - Notepad').wait('ready', timeout=30)
 
 
 Some similar tools for comparison
@@ -130,15 +131,13 @@ There are loads of reasons :-)
     the translation of above would be::
 
         win = app.UntitledNotepad
-        win.MenuSelect("Format->Font")
-        app.Font.OK.Click()
+        win.menu_select("Format->Font")
+        app.Font.OK.click()
 
 
 **Python makes it easy:**
-    Python is a great programming language, but I didn't find
-    any automation tools that were Pythonic (I only found one
-    that was implemented in python) and I didn't care for it
-    too much.
+    Python is a great programming language, but there are no automation tools
+    that were Pythonic (the very few libraries were implemented in Python).
 
 
 **Localization as a main requirement:**
