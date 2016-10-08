@@ -558,17 +558,12 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
 
     def texts(self):
         """Return a list of item texts"""
-        is_content_element = IUIA().iuia.CreatePropertyCondition(IUIA().UIA_dll.UIA_IsContentElementPropertyId, True)
-        content = [ch.name for ch in self.element_info._get_elements(IUIA().tree_scope["children"],
-                                                                     is_content_element, cache_enable=False)]
+        content = [ch.window_text() for ch in self.children(is_content_element=True)]
         if content:
             return content
         else:
             # For native list with small icons
             return super(ListItemWrapper, self).texts()
-        # TODO: add is_content_element() method to UIAWrapper
-        # alternative (but slower) implementation:
-        # return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
 
 
 # ====================================================================
@@ -619,7 +614,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """Return the Header control associated with the ListView"""
         try:
             # A data grid control may have no header
-            hdr = self.children(control_type=IUIA().UIA_dll.UIA_HeaderControlTypeId)[0]
+            hdr = self.children(control_type="Header")[0]
         except(IndexError, NoPatternInterfaceError):
             hdr = None
 
@@ -710,8 +705,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # Get the item by a row index
             # TODO: Can't get virtualized items that way
             # TODO: See TODO section of item_count() method for details
-            content = [elem for elem in self.children() if elem.element_info.element.CurrentIsContentElement]
-            itm = content[row]
+            list_items = self.children(is_content_element=True)
+            itm = list_items[row]
         else:
             raise TypeError("String type or integer is expected")
 
@@ -723,12 +718,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def get_items(self):
-        """Return an item of the ListView control
-
-        * **row** Can be either an index of the row or a string
-          with the text of a cell in the row you want returned.
-        """
-        return [elem for elem in self.children() if elem.element_info.element.CurrentIsContentElement]
+        """Return all items of the ListView control"""
+        return self.children(is_content_element=True)
 
     items = get_items  # this is an alias to be consistent with other content elements
 
@@ -758,8 +749,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def texts(self):
         """Return a list of item texts"""
-        ll = [elem.texts() for elem in self.children() if elem.element_info.element.CurrentIsContentElement]
-        return [elem.texts() for elem in self.children() if elem.element_info.element.CurrentIsContentElement]
+        return [elem.texts() for elem in self.children(is_content_element=True)]
 
     # -----------------------------------------------------------
     @property
