@@ -1059,10 +1059,12 @@ if UIA_support:
 
         def test_get_item(self):
             """Test getting an item from TreeView"""
+            # Find by a path with indexes
             itm = self.ctrl.get_item((0, 2, 3))
             self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
             self.assertEqual(itm.window_text(), u'April')
 
+            # Find by a path with strings
             itm = self.ctrl.get_item('\\Date Elements\\Months\\April', exact=True)
             self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
             self.assertEqual(itm.window_text(), u'April')
@@ -1074,6 +1076,21 @@ if UIA_support:
             itm = self.ctrl.get_item('\\Date Elements', exact=False)
             self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
             self.assertEqual(itm.window_text(), u'Date Elements')
+
+            # Try to find the last item in the tree hierarchy
+            itm = self.ctrl.get_item('\\Date Elements\\Years\\2018', exact=False)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'2018')
+
+            itm = self.ctrl.get_item((0, 3, 3))
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'2018')
+
+            # Verify errors handling
+            self.assertRaises(RuntimeError,
+                              self.ctrl.get_item,
+                              'Date Elements\\months',
+                              exact=False)
 
             self.assertRaises(IndexError,
                               self.ctrl.get_item,
