@@ -1057,6 +1057,53 @@ if UIA_support:
             self.assertEqual(len(roots), 1)
             self.assertEqual(roots[0].texts()[0], u'Date Elements')
 
+        def test_get_item(self):
+            """Test getting an item from TreeView"""
+            itm = self.ctrl.get_item((0, 2, 3))
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'April')
+
+            itm = self.ctrl.get_item('\\Date Elements\\Months\\April', exact=True)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'April')
+
+            itm = self.ctrl.get_item('\\ Date Elements \\ months \\ april', exact=False)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'April')
+
+            itm = self.ctrl.get_item('\\Date Elements', exact=False)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'Date Elements')
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\_X_- \\months',
+                              exact=False)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\_X_- \\ months',
+                              exact=True)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\Date Elements\\ months \\ aprel',
+                              exact=False)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\Date Elements\\ months \\ april\\',
+                              exact=False)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\Date Elements\\ months \\ aprel',
+                              exact=True)
+
+            self.assertRaises(IndexError, self.ctrl.get_item, (0, 200, 1))
+
+            self.assertRaises(IndexError, self.ctrl.get_item, (130, 2, 1))
+
 
 if __name__ == "__main__":
     if UIA_support:

@@ -979,6 +979,32 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
         """Initialize the control"""
         super(TreeItemWrapper, self).__init__(elem)
 
+    # -----------------------------------------------------------
+    def _get_child(self, child_spec, exact=False):
+        """Return the child item of this item
+
+        Accepts either a string or an index.
+        If a string is passed then it returns the child item
+        with the best match for the string."""
+
+        cc = self.children(control_type='TreeItem')
+        if isinstance(child_spec, six.string_types):
+            texts = [c.window_text() for c in cc]
+            if exact:
+                if child_spec in texts:
+                    index = texts.index(child_spec)
+                else:
+                    raise IndexError('There is no child equal to "' + str(child_spec) + '" in ' + str(texts))
+            else:
+                indices = range(0, len(texts))
+                index = findbestmatch.find_best_match(
+                    child_spec, texts, indices, limit_ratio=.6)
+
+        else:
+            index = child_spec
+
+        return cc[index]
+
 
 # ====================================================================
 class TreeViewWrapper(uiawrapper.UIAWrapper):
@@ -1010,3 +1036,77 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
     def roots(self):
         """Return root elements of TeeView"""
         return self.children(control_type="TreeItem")
+
+    # -----------------------------------------------------------
+    def get_item(self, path, exact=False):
+        """Read a TreeView item
+
+        * **path** a path to the item to return. This can be one of
+          the following:
+
+          * A string separated by \\ characters. The first character must
+            be \\. This string is split on the \\ characters and each of
+            these is used to find the specific child at each level. The
+            \\ represents the root item - so you don't need to specify the
+            root itself.
+          * A list/tuple of strings - The first item should be the root
+            element.
+          * A list/tuple of integers - The first item the index which root
+            to select. Indexing always starts from zero: get_item((0, 2, 3))
+
+        * **exact** a flag to request exact match of strings in the path
+          or apply a fuzzy logic of best_match thus allowing non-exact
+          path specifiers
+        """
+
+        if not self.item_count():
+            return None
+
+        # Ensure the path is absolute
+        if isinstance(path, six.string_types):
+            if not path.startswith("\\"):
+                raise RuntimeError(
+                    "Only absolute paths allowed - "
+                    "please start the path with \\")
+            path = path.split("\\")[1:]
+
+        current_elem = None
+
+        # find the correct root elem
+        if isinstance(path[0], int):
+            current_elem = self.roots()[path[0]]
+        else:
+            roots = self.roots()
+            texts = [r.window_text() for r in roots]
+            if exact:
+                if path[0] in texts:
+                    current_elem = roots[texts.index(path[0])]
+                else:
+                    raise IndexError("There is no root element equal to '%s'" % path[0])
+            else:
+                try:
+                    current_elem = findbestmatch.find_best_match(
+                        path[0], texts, roots, limit_ratio=.6)
+                except IndexError:
+                    raise IndexError("There is no root element similar to '%s'" % path[0])
+
+        # now for each of the lower levels
+        # just index into it's children
+        for child_spec in path[1:]:
+            try:
+                # ensure that the item is expanded as this is sometimes
+                # required for loading tree view branches
+                current_elem.expand()
+                current_elem = current_elem._get_child(child_spec, exact)
+            except IndexError:
+                if isinstance(child_spec, six.string_types):
+                    raise IndexError("Item '%s' does not have a child '%s'" %
+                                     (current_elem.window_text(), child_spec))
+                else:
+                    raise IndexError("Item '%s' does not have %d children" %
+                                     (current_elem.window_text(), child_spec + 1))
+            except comtypes.COMError:
+                    raise IndexError("Item '%s' does not have a child '%s'" %
+                                     (current_elem.window_text(), child_spec))
+
+        return current_elem
