@@ -980,6 +980,16 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
         super(TreeItemWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
+    def is_checked(self):
+        """Return True if the TreeItem is checked
+
+        Only items supporting Toggle pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+        """
+        res = (self.iface_toggle.ToggleState_On == toggle_state_on)
+        return res
+
+    # -----------------------------------------------------------
     def _get_child(self, child_spec, exact=False):
         """Return the child item of this item
 

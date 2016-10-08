@@ -1087,6 +1087,8 @@ if UIA_support:
             self.assertEqual(itm.window_text(), u'2018')
 
             # Verify errors handling
+            self.assertRaises(uia_defs.NoPatternInterfaceError, itm.is_checked)
+
             self.assertRaises(RuntimeError,
                               self.ctrl.get_item,
                               'Date Elements\\months',
