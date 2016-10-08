@@ -1043,8 +1043,8 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        def test_item_count(self):
-            """Test getting a number of items in TreeView"""
+        def test_item_count_and_roots(self):
+            """Test getting roots and a total number of items in TreeView"""
             # By default the tree view on WPF demo is partially expanded
             # with only 12 visible nodes
             self.assertEqual(self.ctrl.item_count(), 12)
@@ -1052,6 +1052,10 @@ if UIA_support:
             # Test if it's in writable properties
             props = set(self.ctrl.get_properties().keys())
             self.assertEqual('item_count' in props, True)
+
+            roots = self.ctrl.roots()
+            self.assertEqual(len(roots), 1)
+            self.assertEqual(roots[0].texts()[0], u'Date Elements')
 
 
 if __name__ == "__main__":

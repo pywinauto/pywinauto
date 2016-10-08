@@ -1006,5 +1006,7 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
         """Return a number of items in TreeView"""
         return len(self.descendants(control_type="TreeItem"))
 
-    # Non PEP-8 alias
-    ItemCount = item_count
+    # -----------------------------------------------------------
+    def roots(self):
+        """Return root elements of TeeView"""
+        return self.children(control_type="TreeItem")
