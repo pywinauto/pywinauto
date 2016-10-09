@@ -397,37 +397,37 @@ def wait_until_passes(
     
     """
     start = time.time()
-    
+
     # keep trying until the timeout is passed
     while True:
         try:
             # Call the function with any arguments
-            func_val = func(*args)      
-            
-            # if this did not raise an exception -then we are finised
-            break    
-            
+            func_val = func(*args)
+
+            # if an exception is not raised then we are finished
+            break
+
         # An exception was raised - so wait and try again
-        except exceptions as e:  
-        
+        except exceptions as e:
+
             # find out how much of the time is left
-            time_left = timeout - ( time.time() - start)      
-            
-            # if we have to wait some more        
+            time_left = timeout - ( time.time() - start)
+
+            # if we have to wait some more
             if time_left > 0:
                 # wait either the retry_interval or else the amount of
                 # time until the timeout expires (whichever is less)
                 time.sleep(min(retry_interval, time_left))
-                
+
             else:
                 # Raise a TimeoutError - and put the original exception
                 # inside it
                 err = TimeoutError()
                 err.original_exception = e
                 raise err    
-                
+
     # return the function value
     return func_val
 
-# Non PEP-8 alias   
+# Non PEP-8 alias
 WaitUntilPasses = wait_until_passes
