@@ -43,7 +43,7 @@ Run Python ::
 
   >>> from pywinauto.application import Application
   >>> app = Application().start("notepad.exe")
-  >>> app.UntitledNotepad.TypeKeys("%FX")
+  >>> app.UntitledNotepad.type_keys("%FX")
 
 
 How does it work
@@ -91,22 +91,41 @@ Some similar tools for comparison
 ---------------------------------
 * Python tools
 
-  - PyAutoGui (https://github.com/asweigart/pyautogui) - it's a cross-platform but there is no windows/controls manipulation at all.
-  - AXUI (https://github.com/xcgspring/AXUI) - this is one of the wrappers around UI Automation API.
-  - winGuiAuto (http://www.brunningonline.net/simon/blog/archives/winGuiAuto.py.html) - another module using Win32 API.
+  - PyAutoGui_ - it's a cross-platform but there is no windows/controls manipulation at all.
+  - Lackey_ - pure Python replacement for Sikuli (based on image pattern search).
+  - AXUI_ - one of the wrappers around MS UI Automation API.
+  - winGuiAuto_ - another module using Win32 API.
+
+.. _PyAutoGui: https://github.com/asweigart/pyautogui
+.. _Lackey: https://github.com/glitchassassin/lackey
+.. _AXUI: https://github.com/xcgspring/AXUI
+.. _winGuiAuto: https://github.com/arkottke/winguiauto
 
 * Other scripting language tools
 
-  - Perl Win32::GuiTest  (http://winguitest.sourceforge.net/)
-  - Ruby Win32-Autogui (https://github.com/robertwahler/win32-autogui)
-  - Ruby RAutomation (https://github.com/jarmo/RAutomation) - there are 3 adapters: Win32 API, UIA, AutoIt.
-  - C# Winium.Desktop (https://github.com/2gis/Winium.Desktop)
-  - others (http://www.opensourcetesting.org/functional.php)
+  - (Perl) Win32::GuiTest_
+  - (Ruby) Win32-Autogui_ - wrapper around Win32 API.
+  - (Ruby) RAutomation_ - there are 3 adapters: Win32 API, UIA, AutoIt.
+
+.. _Win32::GuiTest: http://winguitest.sourceforge.net/
+.. _Win32-Autogui: https://github.com/robertwahler/win32-autogui
+.. _RAutomation: https://github.com/jarmo/RAutomation
 
 * Other free tools
 
-  - AutoIt (http://www.autoitscript.com/)
-  - See collection at: https://github.com/atinfo/awesome-test-automation
+  - (C#) Winium.Desktop_ - young but good MS UI Automation based tool.
+  - (C#) TestStack.White_ - another good MS UI Automation based library with a long history.
+  - AutoIt_ - free tool with its own Basic-like language (Win32 API based, no .NET plans)
+  - AutoHotKey_ - native C++ tool with its own scripting language (.ahk)
+  - "Awesome test automation" list_ on GitHub
+  - Big list of open source tools for functional testing_
+
+.. _Winium.Desktop: https://github.com/2gis/Winium.Desktop
+.. _TestStack.White: https://github.com/TestStack/White
+.. _AutoIt: http://www.autoitscript.com/
+.. _AutoHotKey: https://github.com/Lexikos/AutoHotkey_L/
+.. _"Awesome test automation" list: https://github.com/atinfo/awesome-test-automation
+.. _Big list of open source tools: http://www.opensourcetesting.org/category/functional/
 
 * Commercial tools
 
