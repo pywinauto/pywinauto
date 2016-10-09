@@ -1125,6 +1125,21 @@ if UIA_support:
 
             self.assertRaises(IndexError, self.ctrl.get_item, (130, 2, 1))
 
+        def test_tv_drag_n_drop(self):
+            """Test moving an item with mouse over TreeView"""
+            # Make sure the both nodes are visible
+            self.ctrl.get_item('\\Date Elements\\weeks').collapse()
+            itm_from = self.ctrl.get_item('\\Date Elements\\Years')
+            itm_to = self.ctrl.get_item('\\Date Elements\\Empty Date')
+
+            itm_from.drag_mouse_input(itm_to)
+
+            # Verify that the item and its sub-items are attached to the new node
+            itm = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+            self.assertEqual(itm.window_text(), 'Years')
+            itm = self.ctrl.get_item((0, 0, 0, 0))
+            self.assertEqual(itm.window_text(), '2015')
+
 
 if __name__ == "__main__":
     if UIA_support:

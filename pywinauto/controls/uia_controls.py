@@ -968,7 +968,17 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 # ====================================================================
 class TreeItemWrapper(uiawrapper.UIAWrapper):
 
-    """Wrap an UIA-compatible TreeItem control"""
+    """Wrap an UIA-compatible TreeItem control
+
+    In addition to the provided methods of the wrapper
+    additional inherited methods can be especially helpful:
+    - extend()
+    - collapse()
+    - click_input()
+    - drag_mouse_input()
+    - rectangle()
+    and many others
+    """
 
     _control_types = [
         IUIA().UIA_dll.UIA_TreeItemControlTypeId
@@ -990,7 +1000,12 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
         return res
 
     # -----------------------------------------------------------
-    def _get_child(self, child_spec, exact=False):
+    def ensure_visible(self):
+        """Make sure that the TreeView item is visible"""
+        self.iface_scroll_item.ScrollIntoView()
+
+    # -----------------------------------------------------------
+    def get_child(self, child_spec, exact=False):
         """Return the child item of this item
 
         Accepts either a string or an index.
@@ -1014,6 +1029,24 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
             index = child_spec
 
         return cc[index]
+
+    # -----------------------------------------------------------
+    def drag_mouse_input(self, itm):
+        """Drag-n-drop itself on the specified item"""
+        rect = self.rectangle()
+        coords_from = (rect.left + int(float(rect.width()) / 3.),
+                       rect.top + int(float(rect.height()) / 3.))
+
+        rect = itm.rectangle()
+        coords_to = (rect.left + int(float(rect.width()) / 3.),
+                     rect.top + int(float(rect.height()) / 3.))
+        coords_to = itm.rectangle().mid_point()
+
+        super(TreeItemWrapper, self).drag_mouse_input(
+            press_coords=coords_from,
+            release_coords=coords_to,
+            absolute=True
+        )
 
 
 # ====================================================================
@@ -1107,7 +1140,7 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
                 # ensure that the item is expanded as this is sometimes
                 # required for loading tree view branches
                 current_elem.expand()
-                current_elem = current_elem._get_child(child_spec, exact)
+                current_elem = current_elem.get_child(child_spec, exact)
             except IndexError:
                 if isinstance(child_spec, six.string_types):
                     raise IndexError("Item '%s' does not have a child '%s'" %

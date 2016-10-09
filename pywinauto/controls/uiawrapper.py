@@ -284,6 +284,13 @@ class UIAWrapper(BaseWrapper):
 
     # ------------------------------------------------------------
     @lazy_property
+    def iface_scroll_item(self):
+        """Get the element's ScrollItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "ScrollItem")
+
+    # ------------------------------------------------------------
+    @lazy_property
     def iface_window(self):
         """Get the element's Window interface pattern"""
         elem = self.element_info.element
