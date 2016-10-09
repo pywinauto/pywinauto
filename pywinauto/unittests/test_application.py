@@ -994,7 +994,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
         def test_folder_list(self):
             """Test that ListViewWrapper returns correct files list in explorer.exe"""
             files_list = self.desktop.MFC_samplesDialog.Shell_Folder_View.Items_View.wrapper_object()
-            self.assertEqual(files_list.texts(),
+            self.assertEqual([item.window_text() for item in files_list.get_items()],
                              [u'x64', u'BCDialogMenu.exe', u'CmnCtrl1.exe', u'CmnCtrl2.exe', u'CmnCtrl3.exe',
                               u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
