@@ -103,11 +103,11 @@ Some similar tools for comparison
 
 * Other scripting language tools
 
-  - (Perl) Win32::GuiTest_
+  - (Perl) `Win32::GuiTest`_
   - (Ruby) Win32-Autogui_ - wrapper around Win32 API.
   - (Ruby) RAutomation_ - there are 3 adapters: Win32 API, UIA, AutoIt.
 
-.. _Win32::GuiTest: http://winguitest.sourceforge.net/
+.. _`Win32::GuiTest`: http://winguitest.sourceforge.net/
 .. _Win32-Autogui: https://github.com/robertwahler/win32-autogui
 .. _RAutomation: https://github.com/jarmo/RAutomation
 
@@ -117,14 +117,14 @@ Some similar tools for comparison
   - (C#) TestStack.White_ - another good MS UI Automation based library with a long history.
   - AutoIt_ - free tool with its own Basic-like language (Win32 API based, no .NET plans)
   - AutoHotKey_ - native C++ tool with its own scripting language (.ahk)
-  - "Awesome test automation" list_ on GitHub
+  - `"Awesome test automation" list`_ on GitHub
   - Big list of open source tools for functional testing_
 
 .. _Winium.Desktop: https://github.com/2gis/Winium.Desktop
 .. _TestStack.White: https://github.com/TestStack/White
 .. _AutoIt: http://www.autoitscript.com/
 .. _AutoHotKey: https://github.com/Lexikos/AutoHotkey_L/
-.. _"Awesome test automation" list: https://github.com/atinfo/awesome-test-automation
+.. _`"Awesome test automation" list`: https://github.com/atinfo/awesome-test-automation
 .. _Big list of open source tools: http://www.opensourcetesting.org/category/functional/
 
 * Commercial tools
