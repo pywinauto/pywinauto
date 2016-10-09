@@ -75,7 +75,7 @@ WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
 _friendly_classes = {
     'Custom': None,
     'DataGrid': 'ListView',
-    'DataItem': 'ListViewItem',
+    'DataItem': 'DataItem',
     'Document': None,  # TODO: this is RichTextBox
     'Group': 'GroupBox',
     'Header': None,
@@ -83,7 +83,7 @@ _friendly_classes = {
     'Hyperlink': None,
     'Image': None,
     'List': 'ListBox',
-    'ListItem': None,
+    'ListItem': 'ListItem',
     'MenuBar': 'Menu',
     'Menu': 'Menu',
     'MenuItem': 'MenuItem',
