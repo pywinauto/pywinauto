@@ -1033,14 +1033,22 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def drag_mouse_input(self, itm):
         """Drag-n-drop itself on the specified item"""
-        rect = self.rectangle()
-        coords_from = (rect.left + int(float(rect.width()) / 3.),
-                       rect.top + int(float(rect.height()) / 3.))
+        # A helper function that tries to get
+        # coordinates of a text box inside the item
+        # If no text box found just sets coordinates
+        # close to a left part of the item rectangle
+        def _calc_click_coords(itm):
+            tt = itm.children(control_type="Text")
+            if tt:
+                coords = tt[0].rectangle().mid_point()
+            else:
+                rect = itm.rectangle()
+                coords = (rect.left + int(float(rect.width()) / 4.),
+                          rect.top + int(float(rect.height()) / 2.))
+            return coords
 
-        rect = itm.rectangle()
-        coords_to = (rect.left + int(float(rect.width()) / 3.),
-                     rect.top + int(float(rect.height()) / 3.))
-        coords_to = itm.rectangle().mid_point()
+        coords_from = _calc_click_coords(self)
+        coords_to = _calc_click_coords(itm)
 
         super(TreeItemWrapper, self).drag_mouse_input(
             press_coords=coords_from,
@@ -1153,3 +1161,8 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
                                      (current_elem.window_text(), child_spec))
 
         return current_elem
+
+    # -----------------------------------------------------------
+    def drag_mouse_input(self, src, dst):
+        """Drag-n-drop a source tree item on the specified destination tree item"""
+        src.drag_mouse_input(dst)

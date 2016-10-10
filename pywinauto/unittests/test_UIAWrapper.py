@@ -1140,6 +1140,12 @@ if UIA_support:
             itm = self.ctrl.get_item((0, 0, 0, 0))
             self.assertEqual(itm.window_text(), '2015')
 
+            itm_from = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+            itm_to = self.ctrl.get_item(r'\Date Elements\Months')
+            self.ctrl.drag_mouse_input(itm_from, itm_to)
+            itm = self.ctrl.get_item(r'\Date Elements\Months\Years')
+            self.assertEqual(itm.window_text(), 'Years')
+
 
 if __name__ == "__main__":
     if UIA_support:
