@@ -404,7 +404,7 @@ def wait_until_passes(
             # Call the function with any arguments
             func_val = func(*args)
 
-            # if an exception is not raised then we are finished
+            # if no exception is raised then we are finished
             break
 
         # An exception was raised - so wait and try again

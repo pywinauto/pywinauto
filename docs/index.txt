@@ -61,8 +61,8 @@ dialog or control (respectively).
                     # then it looks for a control on that dialog with a title
                     # like "OK"
 
-This attribute resolution is delayed (currently a hard coded amount of time) until
-it succeeds. So for example if you Select a menu option and then look for the
+This attribute resolution is delayed (with a default timeout) until
+it succeeds. So for example if you select a menu option and then look for the
 resulting dialog e.g. ::
 
   app.UntitledNotepad.menu_select("File->SaveAs")
@@ -76,7 +76,7 @@ before resolving the dialog. At that point if we can't find a SaveAs dialog with
 a ComboBox5 control then we wait a very short period of time and try again,
 this is repeated up to a maximum time (currently 5 seconds!)
 
-This avoids the user having to use time.sleep or a "wait" function explicitly.
+This is to avoid having to use time.sleep or a "wait" function explicitly.
 
 If your application performs long time operation, new dialog can appear or
 disappear later. You can wait for its new state like so ::
@@ -91,8 +91,8 @@ Some similar tools for comparison
 ---------------------------------
 * Python tools
 
-  - PyAutoGui_ - it's a cross-platform but there is no windows/controls manipulation at all.
-  - Lackey_ - pure Python replacement for Sikuli (based on image pattern search).
+  - PyAutoGui_ - a popular cross-platform library (has image-based search, no text-based controls manipulation).
+  - Lackey_ - a pure Python replacement for Sikuli (based on image pattern matching).
   - AXUI_ - one of the wrappers around MS UI Automation API.
   - winGuiAuto_ - another module using Win32 API.
 
@@ -104,7 +104,7 @@ Some similar tools for comparison
 * Other scripting language tools
 
   - (Perl) `Win32::GuiTest`_
-  - (Ruby) Win32-Autogui_ - wrapper around Win32 API.
+  - (Ruby) Win32-Autogui_ - a wrapper around Win32 API.
   - (Ruby) RAutomation_ - there are 3 adapters: Win32 API, UIA, AutoIt.
 
 .. _`Win32::GuiTest`: http://winguitest.sourceforge.net/
@@ -113,19 +113,19 @@ Some similar tools for comparison
 
 * Other free tools
 
-  - (C#) Winium.Desktop_ - young but good MS UI Automation based tool.
+  - (C#) Winium.Desktop_ - a young but good MS UI Automation based tool.
   - (C#) TestStack.White_ - another good MS UI Automation based library with a long history.
   - AutoIt_ - free tool with its own Basic-like language (Win32 API based, no .NET plans)
   - AutoHotKey_ - native C++ tool with its own scripting language (.ahk)
   - `"Awesome test automation" list`_ on GitHub
-  - `Big list of open source tools for functional testing`_
+  - `A big list of open source tools for functional testing`_
 
 .. _Winium.Desktop: https://github.com/2gis/Winium.Desktop
 .. _TestStack.White: https://github.com/TestStack/White
 .. _AutoIt: http://www.autoitscript.com/
 .. _AutoHotKey: https://github.com/Lexikos/AutoHotkey_L/
 .. _`"Awesome test automation" list`: https://github.com/atinfo/awesome-test-automation
-.. _`Big list of open source tools for functional testing`: http://www.opensourcetesting.org/category/functional/
+.. _`A big list of open source tools for functional testing`: http://www.opensourcetesting.org/category/functional/
 
 * Commercial tools
 
