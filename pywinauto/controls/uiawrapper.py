@@ -473,6 +473,33 @@ class UIAWrapper(BaseWrapper):
         return None
 
     # -----------------------------------------------------------
+    def select(self):
+        """Select the item
+
+        Only items supporting SelectionItem pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+
+        Usually applied for controls like: radio button, tree view item
+        or list item.
+        """
+        self.iface_selection_item.Select()
+
+        # Return itself so that action can be chained
+        return self
+
+    # -----------------------------------------------------------
+    def is_selected(self):
+        """Indicate that the item is selected or not.
+
+        Only items supporting SelectionItem pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+
+        Usually applied for controls like: a radio button, a tree view item,
+        a list item.
+        """
+        return self.iface_selection_item.CurrentIsSelected
+
+    # -----------------------------------------------------------
     def children_texts(self):
         """Get texts of the control's children"""
         return [c.window_text() for c in self.children()]

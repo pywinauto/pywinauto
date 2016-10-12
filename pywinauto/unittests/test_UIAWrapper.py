@@ -1059,6 +1059,20 @@ if UIA_support:
             self.assertEqual(len(roots), 1)
             self.assertEqual(roots[0].texts()[0], u'Date Elements')
 
+        def test_tv_item_select(self):
+            """Test selecting an item from TreeView"""
+            # Find by a path with indexes
+            itm = self.ctrl.get_item((0, 2, 3))
+            self.assertEqual(itm.is_selected(), False)
+
+            # Select
+            itm.select()
+            self.assertEqual(itm.is_selected(), True)
+
+            # A second call to Select doesn't remove selection
+            itm.select()
+            self.assertEqual(itm.is_selected(), True)
+
         def test_tv_get_item(self):
             """Test getting an item from TreeView"""
             # Find by a path with indexes

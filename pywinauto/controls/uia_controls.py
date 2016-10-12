@@ -112,27 +112,6 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         # Return itself so that action can be chained
         return self
 
-    # -----------------------------------------------------------
-    def select(self):
-        """
-        An interface to Select method of the SelectionItem control pattern.
-
-        Usually applied for a radio button control
-        """
-        self.iface_selection_item.Select()
-
-        # Return itself so that action can be chained
-        return self
-
-    # -----------------------------------------------------------
-    def is_selected(self):
-        """
-        An interface to CurrentIsSelected method of the SelectionItem control pattern.
-
-        Usually applied for a radio button control
-        """
-        return self.iface_selection_item.CurrentIsSelected
-
 
 # ====================================================================
 class ComboBoxWrapper(uiawrapper.UIAWrapper):
@@ -534,16 +513,6 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         # Notice that the self.parent property isn't the same
         # because it results in a different instance of a wrapper.
         self.container = container
-
-    # -----------------------------------------------------------
-    def select(self):
-        """Select/Deselect all cells in the ListItem"""
-        self.iface_selection_item.Select()
-
-    # -----------------------------------------------------------
-    def is_selected(self):
-        """Return True if the ListItem is selected"""
-        return self.iface_selection_item.CurrentIsSelected
 
     # -----------------------------------------------------------
     def is_checked(self):
