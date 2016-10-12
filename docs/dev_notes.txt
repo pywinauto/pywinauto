@@ -19,7 +19,7 @@ handleprops.py
 # set the friendly class name
 controls\common_controls.py
 controls\controlactions.py
-controls\HwndWrapper.py
+controls\hwndwrapper.py
 controls\win32_controls.py
 
 # currently depends on the Friendly class name 
@@ -46,7 +46,7 @@ tests\truncation.py
 
 controlproperties.py
 
-XMLHelpers.py
+xml_helpers.py
 
 	FindDialog.py
 	PyDlgCheckerWrapper.py

@@ -1,6 +1,0 @@
-pywinauto.clipboard
--------------------
- .. automodule:: pywinauto.clipboard
-    :members:
-    :undoc-members:
-

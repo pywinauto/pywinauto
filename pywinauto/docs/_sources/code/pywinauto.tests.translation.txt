@@ -1,6 +1,0 @@
-pywinauto.tests.translation
----------------------------
- .. automodule:: pywinauto.tests.translation
-    :members:
-    :undoc-members:
-

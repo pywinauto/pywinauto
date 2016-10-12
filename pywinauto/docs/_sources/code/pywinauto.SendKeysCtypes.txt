@@ -1,6 +1,0 @@
-pywinauto.SendKeysCtypes
-------------------------
- .. automodule:: pywinauto.SendKeysCtypes
-    :members:
-    :undoc-members:
-

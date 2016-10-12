@@ -1,6 +1,0 @@
-pywinauto.actionlogger
-----------------------
- .. automodule:: pywinauto.actionlogger
-    :members:
-    :undoc-members:
-
