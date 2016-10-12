@@ -1074,12 +1074,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def restore(self):
-        """Restore the window"""
-
-        # do it twice just in case the window was minimized from being
-        # maximized - because then the window would come up maximized
-        # after the first ShowWindow, and Restored after the 2nd
-        win32functions.ShowWindow(self, win32defines.SW_RESTORE)
+        """Restore the window to its previous state (normal or maximized)"""
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         self.actions.log('Restored window "{0}"'.format(self.window_text()))
     # Non PEP-8 alias
@@ -1112,10 +1107,23 @@ class HwndWrapper(BaseWrapper):
     GetShowState = get_show_state
 
     # -----------------------------------------------------------
+    def is_minimized(self):
+        """Indicate whether the window is minimized or not"""
+        return self.get_show_state() == win32defines.SW_SHOWMINIMIZED
+
+    # -----------------------------------------------------------
+    def is_maximized(self):
+        """Indicate whether the window is maximized or not"""
+        return self.get_show_state() == win32defines.SW_SHOWMAXIMIZED
+
+    # -----------------------------------------------------------
+    def is_normal(self):
+        """Indicate whether the window is normal (i.e. not minimized and not maximized)"""
+        return self.get_show_state() == win32defines.SW_SHOWNORMAL
+
+    # -----------------------------------------------------------
     def get_active(self):
-        """
-        Return a handle to the active window within the process
-        """
+        """Return a handle to the active window within the process"""
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
         window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
@@ -1193,6 +1201,7 @@ class HwndWrapper(BaseWrapper):
 
             # if a different thread owns the active window
             if cur_fore_thread != control_thread:
+
                 # Attach the two threads and set the foreground window
                 win32process.AttachThreadInput(control_thread,
                                                cur_fore_thread,
@@ -1202,7 +1211,7 @@ class HwndWrapper(BaseWrapper):
 
                 # ensure foreground window has changed to the target
                 # or is 0(no foreground window) before the threads detaching
-                timings.WaitUntil(
+                timings.wait_until(
                     Timings.setfocus_timeout,
                     Timings.setfocus_retry,
                     lambda: win32gui.GetForegroundWindow()
