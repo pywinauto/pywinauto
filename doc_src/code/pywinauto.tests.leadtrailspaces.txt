@@ -1,6 +1,0 @@
-pywinauto.tests.leadtrailspaces
--------------------------------
- .. automodule:: pywinauto.tests.leadtrailspaces
-    :members:
-    :undoc-members:
-

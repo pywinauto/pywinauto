@@ -1,0 +1,25 @@
+Credits
+-------
+(listed in reverse chronological order)
+
+Vasily Ryabov, Valentin Kroupkin, Alexander Rumyantsev - MS UI Automation backend implementation
+
+Ivan Magazinnik - mouse/keyboard input emulation on Linux
+
+Maxim Samokhvalov - initial implementation of hooks.py module
+
+Intel Corporation - Vasily Ryabov revived and maintenaned the project during his work at Intel (pywinauto 0.5.x)
+
+Valentin Kroupkin (airelil) - continuous integration (AppVeyor), many unit tests improvements (pywinauto 0.5.x)
+
+Michael Herrmann - bug fixes, project maintenance (0.4.x)
+
+Raghav - idea with using metaclass for finding wrapper
+
+Daisuke Yamashita - Bugs/suggestions for 2.5 that MenuWrapper.GetProperties() returns a list rather then a dict
+
+Dalius Dobravolskas - Help on the forums and prompted major improvements on the wait* functionality
+
+Jeff Winkler - Early encouragement, creation of screencasts
+
+Stefaan Himpe - Lots of speed and stability improvements early on

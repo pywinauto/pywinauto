@@ -39,12 +39,6 @@ function run {
 
     xslt_transform $input $stylesheet $output
 
-    # upload all screen shots in JPEG format
-    $files = Get-ChildItem -Filter *.jpg
-    for ($i=0; $i -lt $files.Count; $i++) {
-        Push-AppveyorArtifact $files[$i].Name
-    }
-
     upload $output
 
     # return exit code of testsuite

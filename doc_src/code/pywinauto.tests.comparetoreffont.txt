@@ -1,6 +1,0 @@
-pywinauto.tests.comparetoreffont
---------------------------------
- .. automodule:: pywinauto.tests.comparetoreffont
-    :members:
-    :undoc-members:
-

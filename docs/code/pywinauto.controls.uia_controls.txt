@@ -1,0 +1,6 @@
+pywinauto.controls.uia_controls
+-------------------------------
+ .. automodule:: pywinauto.controls.uia_controls
+    :members:
+    :undoc-members:
+

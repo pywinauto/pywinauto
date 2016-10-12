@@ -1,0 +1,6 @@
+pywinauto.uia_defines
+---------------------
+ .. automodule:: pywinauto.uia_defines
+    :members:
+    :undoc-members:
+

@@ -42,7 +42,6 @@ function DownloadMiniconda ($python_version, $platform_suffix) {
    return $filepath
 }
 
-
 function InstallMiniconda ($python_version, $architecture, $python_home) {
     Write-Host "Installing Python" $python_version "for" $architecture "bit architecture to" $python_home
     if (Test-Path $python_home) {
@@ -70,7 +69,6 @@ function InstallMiniconda ($python_version, $architecture, $python_home) {
     }
 }
 
-
 function InstallCondaPackages ($python_home, $spec) {
     $conda_path = $python_home + "\Scripts\conda.exe"
     $args = "install --yes " + $spec
@@ -86,6 +84,11 @@ function UpdateConda ($python_home) {
     Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
 }
 
+function InstallComtypes ($python_home) {
+    $pip_path = $python_home + "\Scripts\pip.exe"
+    $args = "install comtypes"
+    Start-Process -FilePath "$pip_path" -ArgumentList $args -Wait -Passthru
+}
 
 function main () {
     try {
@@ -97,19 +100,22 @@ function main () {
     }
 
     # fallback for running the script locally
-    if ( !(Test-Path variable:global:PYTHON_VERSION) ) {
+    if ( !(Test-Path $env:PYTHON) ) {
         Write-Host "No PYTHON vars, setup default values"
         $env:PYTHON="C:\\Python34-x64"
         $env:PYTHON_VERSION="3.4"
         $env:PYTHON_ARCH="64"     
-        Write-Host "PYTHON=" $env:PYTHON
-        Write-Host "PYTHON_VERSION=" $env:PYTHON_VERSION
-        Write-Host "PYTHON_ARCH=" $env:PYTHON_ARCH
-    }        
+    }
+    Write-Host "PYTHON=" $env:PYTHON
+    Write-Host "PYTHON_VERSION=" $env:PYTHON_VERSION
+    Write-Host "PYTHON_ARCH=" $env:PYTHON_ARCH
 
-    InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
-    UpdateConda $env:PYTHON
-    InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage nose"
+    if ($env:UIA_SUPPORT -eq "YES") {
+        InstallComtypes $env:PYTHON
+    }
+    #InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
+    #UpdateConda $env:PYTHON
+    #InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage nose"
 }
 
 main

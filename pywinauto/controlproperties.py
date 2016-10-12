@@ -1,35 +1,42 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2015 airelil
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Wrap"""
-
-__revision__ = "$Rev: 439 $"
 
 
 from .win32structures import RECT, LOGFONTW
 
 
 #====================================================================
-class func_wrapper(object):
+class FuncWrapper(object):
     "Little class to allow attribute access to return a callable object"
     def __init__(self, value):
         self.value = value
@@ -47,42 +54,44 @@ class ControlProps(dict):
         dict.__init__(self, *args, **kwargs)
 
         self.ref = None
-        #self.MenuItems = []
+        #self.menu_items = []
 
     def __getattr__(self, attr):
         # if the key is not in the dictionary but the plural is
         if attr not in self and attr + "s" in self:
             # return the first element of the possible list item
-            return func_wrapper(self[attr+'s'][0])
+            return FuncWrapper(self[attr+'s'][0])
 
-        return func_wrapper(self[attr])
+        return FuncWrapper(self[attr])
 
-    #def FriendlyClassName(self):
+    #def friendly_class_name(self):
     #    print "sdafafasdfafasdfasdf",
     #    try:
-    #        print "---", self['FriendlyClassName']
+    #        print "---", self['friendly_class_name']
     #    except Exception as e:
     #        print "fffffffffffffffffffff"
     #        print `e`
-    #    return self['FriendlyClassName']
+    #    return self['friendly_class_name']
 
-    def WindowText(self):
-        return self['Texts'][0]
+    def window_text(self):
+        return self['texts'][0]
+    # Non PEP-8 alias
+    WindowText = window_text
 
     def HasStyle(self, style):
-        return self['Style'] & style == style
+        return self['style'] & style == style
 
     def HasExStyle(self, exstyle):
-        return self['ExStyle'] & exstyle == exstyle
+        return self['exstyle'] & exstyle == exstyle
 
 
 #====================================================================
 def GetMenuBlocks(ctrls):
     allMenuBlocks = []
     for ctrl in ctrls:
-        if 'MenuItems' in ctrl.keys():
+        if 'menu_items' in ctrl.keys():
             # we need to get all the separate menu blocks!
-            menuBlocks = MenuBlockAsControls(ctrl.MenuItems())
+            menuBlocks = MenuBlockAsControls(ctrl.menu_items())
             allMenuBlocks.extend(menuBlocks)
 
     return allMenuBlocks
@@ -101,28 +110,28 @@ def MenuBlockAsControls(menuItems, parentage = None):
         # do a bit of conversion first :-)
         itemAsCtrl = MenuItemAsControl(item)
 
-        # update the FriendlyClassName to contain the 'path' to
+        # update the friendly_class_name to contain the 'path' to
         # this particular item
         # TODO: CHECK - as itemPath is currently unused!
         if parentage:
-            itemPath = "%s->%s" % ("->".join(parentage), item['Text'])
+            itemPath = "%s->%s" % ("->".join(parentage), item['text'])
         else:
-            itemPath = item['Text']
+            itemPath = item['text']
 
         #append the item to the current menu block
         curBlock.append(itemAsCtrl)
 
         # If the item has a sub menu
-        if 'MenuItems' in item.keys():
+        if 'menu_items' in item.keys():
 
             # add the current item the path
-            parentage.append(item['Text'])
+            parentage.append(item['text'])
 
             # Get the block for the SubMenu, and add it to the list of
             # blocks we have found
             blocks.extend(
                 MenuBlockAsControls(
-                    item['MenuItems']['MenuItems'], parentage))
+                    item['menu_items']['menu_items'], parentage))
 
             # and seeing as we are dong with that sub menu remove the current
             # item from the path
@@ -140,23 +149,23 @@ def MenuItemAsControl(menuItem):
 
     itemAsCtrl = ControlProps()
 
-    itemAsCtrl["Texts"] = [menuItem['Text'], ]
-    itemAsCtrl["ControlID"] = menuItem['ID']
-    itemAsCtrl["Type"] = menuItem['Type']
-    itemAsCtrl["State"] = menuItem['State']
+    itemAsCtrl["texts"] = [menuItem['text'], ]
+    itemAsCtrl["control_id"] = menuItem['id']
+    itemAsCtrl["type"] = menuItem['type']
+    itemAsCtrl["state"] = menuItem['state']
 
-    itemAsCtrl["Class"] = "MenuItem"
-    itemAsCtrl["FriendlyClassName"] = "MenuItem"
+    itemAsCtrl["class_name"] = "MenuItem"
+    itemAsCtrl["friendly_class_name"] = "MenuItem"
 
     # as most of these don't matter - just set them up with default stuff
-    itemAsCtrl["Rectangle"] = RECT(0, 0, 999, 999)
-    itemAsCtrl["Fonts"] = [LOGFONTW(), ]
-    itemAsCtrl["ClientRects"] = [RECT(0, 0, 999, 999), ]
-    itemAsCtrl["ContextHelpID"] = 0
-    itemAsCtrl["UserData"]  = 0
-    itemAsCtrl["Style"] = 0
-    itemAsCtrl["ExStyle"] = 0
-    itemAsCtrl["IsVisible"] = 1
+    itemAsCtrl["rectangle"] = RECT(0, 0, 999, 999)
+    itemAsCtrl["fonts"] = [LOGFONTW(), ]
+    itemAsCtrl["client_rects"] = [RECT(0, 0, 999, 999), ]
+    itemAsCtrl["context_help_id"] = 0
+    itemAsCtrl["user_data"]  = 0
+    itemAsCtrl["style"] = 0
+    itemAsCtrl["exstyle"] = 0
+    itemAsCtrl["is_visible"] = 1
 
     return itemAsCtrl
 
@@ -187,14 +196,14 @@ def SetReferenceControls(controls, refControls):
     allClassesSameFlag = 4
 
     # find if all the control id's match
-    if  [ctrl.ControlID() for ctrl in controls] == \
-        [ctrl.ControlID() for ctrl in refControls]:
+    if  [ctrl.control_id() for ctrl in controls] == \
+            [ctrl.control_id() for ctrl in refControls]:
 
         toRet += allIDsSameFlag
 
     # check if the control classes match
-    if [ctrl.Class() for ctrl in controls] == \
-       [ctrl.Class() for ctrl in refControls]:
+    if [ctrl.class_name() for ctrl in controls] == \
+       [ctrl.class_name() for ctrl in refControls]:
 
         toRet += allClassesSameFlag
 
@@ -207,7 +216,7 @@ def SetReferenceControls(controls, refControls):
 #    #----------------------------------------------------------------
 #    def __init__(self, props = {}):
 #        # default to having menuItems for all things
-#        self.MenuItems = []
+#        self.menu_items = []
 #
 #        self.update(props)
 #        #for x in props:
@@ -222,7 +231,7 @@ def SetReferenceControls(controls, refControls):
 #
 #    #----------------------------------------------------------------
 #    # handles attribute access for dictionary items and
-#    # for plurals (e.g. if self.Fonts = [4, 2] then self.Font = 4)
+#    # for plurals (e.g. if self.fonts = [4, 2] then self.font = 4)
 #    def __getattr__(self, key):
 #
 #        # if the key is not in the dictionary but the plural is
@@ -247,11 +256,11 @@ def SetReferenceControls(controls, refControls):
 #            self[key] = value
 #
 #    #----------------------------------------------------------------
-#    def HasStyle(self, flag):
-#        return self.Style & flag == flag
+#    def has_style(self, flag):
+#        return self.style & flag == flag
 #
 #    #----------------------------------------------------------------
-#    def HasExStyle(self, flag):
-#        return self.ExStyle & flag == flag
+#    def has_exstyle(self, flag):
+#        return self.exstyle & flag == flag
 #
 #

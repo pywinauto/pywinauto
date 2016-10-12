@@ -1,25 +1,35 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"Run some automations to test things"
+"""Run some automations to test things"""
 from __future__ import unicode_literals
 from __future__ import print_function
 
@@ -39,7 +49,7 @@ from pywinauto.timings import Timings
 
 Timings.window_find_timeout = 10
 
-def TestExceptions():
+def test_exceptions():
     "Test some things that should raise exceptions"
 
     # test that trying to connect_ to a non existent app fails
@@ -48,7 +58,7 @@ def TestExceptions():
         app.connect(path=r"No process with this please")
         assert False
     except application.ProcessNotFoundError:
-        pass
+        print('ProcessNotFoundError has been raised. OK.')
 
     # test that trying to connect_ to a non existent app fails
     try:
@@ -56,25 +66,25 @@ def TestExceptions():
         app.start(cmd_line = r"No process with this please")
         assert False
     except application.AppStartError:
-        pass
+        print('AppStartError has been raised. OK.')
 
 #    # try when it isn't connected
 #    try:
 #        app = application.Application()
 #        #app.start_(ur"c:\windows\system32\notepad.exe")
-#        app.Notepad.Click()
+#        app.Notepad.click()
 #        #assert False
 #    except application.AppNotConnected:
 #        pass
 
 
 
-def GetInfo():
+def get_info():
     app = application.Application()
 
     app.start(r"notepad.exe")
 
-    app.Notepad.MenuSelect("File->PageSetup")
+    app.Notepad.menu_select("File->PageSetup")
 
     print("==" * 20)
     print("Windows of this application:", app.windows_())
@@ -87,11 +97,11 @@ def GetInfo():
     app.PageSetup.Edit2.print_control_identifiers()
     print("==" * 20)
 
-    app.PageSetup.OK.CloseClick()
-    app.Notepad.MenuSelect("File->Exit")
+    app.PageSetup.OK.close_click()
+    app.Notepad.menu_select("File->Exit")
 
 
 
 if __name__ == '__main__':
-    TestExceptions()
-    GetInfo()
+    test_exceptions()
+    get_info()

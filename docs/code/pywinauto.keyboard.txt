@@ -1,0 +1,6 @@
+pywinauto.keyboard
+------------------
+ .. automodule:: pywinauto.keyboard
+    :members:
+    :undoc-members:
+

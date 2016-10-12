@@ -1,0 +1,38 @@
+.. pywinauto documentation master file, created by sphinx-quickstart on Wed Apr 02 15:09:06 2008.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+.. _contents-root:
+
+Contents
+=====================================
+
+.. toctree::
+   :maxdepth: 2
+
+   index
+   getting_started
+   HowTo
+   wait_long_operations
+   controls_overview
+   credits
+
+   dev_notes
+   TODO
+   HISTORY
+
+Source code reference
+=====================================
+.. toctree::
+   :maxdepth: 2
+
+   code/code
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

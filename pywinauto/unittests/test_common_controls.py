@@ -1,28 +1,37 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2015 airelil
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
 
-"Tests for classes in controls\common_controls.py"
+"""Tests for classes in controls\common_controls.py"""
 
 import sys
 #import ctypes
@@ -32,22 +41,27 @@ from datetime import datetime
 #import pdb
 import os
 import win32api
+import six
 
 sys.path.append(".")
-from pywinauto import six
+from pywinauto.application import Application
 from pywinauto.win32structures import RECT
 from pywinauto import win32defines
 from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
-from pywinauto.RemoteMemoryBlock import AccessDenied
-from pywinauto.RemoteMemoryBlock import RemoteMemoryBlock
+from pywinauto.remote_memory_block import AccessDenied
+from pywinauto.remote_memory_block import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
+from pywinauto import backend
+from pywinauto.timings import Timings
 
 
 controlspy_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\controlspy0998")
+controlspy_folder_32 = controlspy_folder
 mfc_samples_folder = os.path.join(
    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+mfc_samples_folder_32 = mfc_samples_folder
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
@@ -55,20 +69,20 @@ if is_x64_Python():
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
     def test__init__fail(self):
-        self.assertRaises(AccessDenied, RemoteMemoryBlock, 0)
+        self.assertRaises(AttributeError, RemoteMemoryBlock, 0)
 
 
-class ListViewTestCases(unittest.TestCase):
-    "Unit tests for the ListViewWrapper class"
+class ListViewTestCases32(unittest.TestCase):
+    """Unit tests for the ListViewWrapper class"""
+
+    path = os.path.join(mfc_samples_folder_32, u"RowList.exe")
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
-        app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        app.start(self.path)
 
         self.texts = [
             (u"Yellow",  u"255", u"255", u"0",   u"40",  u"240", u"120", u"Neutral"),
@@ -88,32 +102,30 @@ class ListViewTestCases(unittest.TestCase):
         
 
     def tearDown(self):
-        "Close the application after tests"
-        # close the application
+        """Close the application after tests"""
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
 
     def testFriendlyClass(self):
-        "Make sure the ListView friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), u"ListView")
+        """Make sure the ListView friendly class is set correctly"""
+        self.assertEquals (self.ctrl.friendly_class_name(), u"ListView")
 
     def testColumnCount(self):
-        "Test the ListView ColumnCount method"
+        """Test the ListView ColumnCount method"""
         self.assertEquals (self.ctrl.ColumnCount(), 8)
 
     def testItemCount(self):
-        "Test the ListView ItemCount method"
+        """Test the ListView ItemCount method"""
         self.assertEquals (self.ctrl.ItemCount(), 7)
 
     def testItemText(self):
-        "Test the ListView item.Text property"
+        """Test the ListView item.Text property"""
         item = self.ctrl.GetItem(1)
 
         self.assertEquals(item['text'], u"Red")
 
     def testItems(self):
-        "Test the ListView Items method"
-
+        """Test the ListView Items method"""
         flat_texts = []
         for row in self.texts:
             flat_texts.extend(row)
@@ -124,26 +136,23 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(len(items), len(flat_texts))
 
     def testTexts(self):
-        "Test the ListView Texts method"
-
+        """Test the ListView texts method"""
         flat_texts = []
         for row in self.texts:
             flat_texts.extend(row)
 
-        self.assertEquals(flat_texts, self.ctrl.Texts()[1:])
+        self.assertEquals(flat_texts, self.ctrl.texts()[1:])
 
 
     def testGetItem(self):
-        "Test the ListView GetItem method"
-
+        """Test the ListView GetItem method"""
         for row in range(self.ctrl.ItemCount()):
             for col in range(self.ctrl.ColumnCount()):
                 self.assertEquals(
                     self.ctrl.GetItem(row, col)['text'], self.texts[row][col])
 
     def testGetItemText(self):
-        "Test the ListView GetItem method - with text this time"
-
+        """Test the ListView GetItem method - with text this time"""
         for text in [row[0] for row in self.texts]:
             self.assertEquals(
                 self.ctrl.GetItem(text)['text'], text)
@@ -151,8 +160,7 @@ class ListViewTestCases(unittest.TestCase):
         self.assertRaises(ValueError, self.ctrl.GetItem, "Item not in this list")
 
     def testColumn(self):
-        "Test the ListView Columns method"
-
+        """Test the ListView Columns method"""
         cols = self.ctrl.Columns()
         self.assertEqual (len(cols), self.ctrl.ColumnCount())
 
@@ -162,8 +170,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testGetSelectionCount(self):
-        "Test the ListView GetSelectedCount method"
-
+        """Test the ListView GetSelectedCount method"""
         self.assertEquals(self.ctrl.GetSelectedCount(), 0)
 
         self.ctrl.Select(1)
@@ -184,8 +191,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testIsSelected(self):
-        "Test ListView IsSelected for some items"
-
+        """Test ListView IsSelected for some items"""
         # ensure that the item is not selected
         self.assertEquals(self.ctrl.IsSelected(1), False)
 
@@ -197,8 +203,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def _testFocused(self):
-        "Test checking the focus of some ListView items"
-
+        """Test checking the focus of some ListView items"""
         print("Select something quick!!")
         time.sleep(3)
         #self.ctrl.Select(1)
@@ -214,7 +219,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testSelect(self):
-        "Test ListView Selecting some items"
+        """Test ListView Selecting some items"""
         self.ctrl.Select(1)
         self.ctrl.Select(3)
         self.ctrl.Select(4)
@@ -225,7 +230,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testSelectText(self):
-        "Test ListView Selecting some items"
+        """Test ListView Selecting some items"""
         self.ctrl.Select(u"Green")
         self.ctrl.Select(u"Yellow")
         self.ctrl.Select(u"Gray")
@@ -235,9 +240,8 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetSelectedCount(), 3)
 
 
-
     def testDeselect(self):
-        "Test ListView Selecting some items"
+        """Test ListView Selecting some items"""
         self.ctrl.Select(1)
         self.ctrl.Select(4)
 
@@ -249,28 +253,25 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetSelectedCount(), 1)
 
 
-
-
     def testGetProperties(self):
-        "Test getting the properties for the listview control"
+        """Test getting the properties for the listview control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            "ListView", props['FriendlyClassName'])
+            "ListView", props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props.keys():
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
-        self.assertEquals(props['ColumnCount'], 8)
-        self.assertEquals(props['ItemCount'], 7)
+        self.assertEquals(props['column_count'], 8)
+        self.assertEquals(props['item_count'], 7)
 
 
     def testGetColumnTexts(self):
-        "Test columns titles text"
-
+        """Test columns titles text"""
         self.assertEquals(self.ctrl.GetColumn(0)['text'], u"Color")
         self.assertEquals(self.ctrl.GetColumn(1)['text'], u"Red")
         self.assertEquals(self.ctrl.GetColumn(2)['text'], u"Green")
@@ -278,8 +279,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testItemRectangles(self):
-        "Test getting item rectangles"
-        
+        """Test getting item rectangles"""
         yellow_rect = self.ctrl.GetItemRect('Yellow')
         gold_rect = RECT(13, 0, 61, 53)
         self.assertEquals(yellow_rect.left, gold_rect.left)
@@ -301,7 +301,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testItemCheck(self):
-        "Test checking/unchecking item"
+        """Test checking/unchecking item"""
         if not self.dlg.Toolbar.Button(6).IsChecked():
             self.dlg.Toolbar.Button(6).Click()
         
@@ -321,8 +321,7 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testItemClick(self):
-        "Test clicking item rectangles by Click() method"
-
+        """Test clicking item rectangles by Click() method"""
         self.ctrl.GetItem('Green').Click(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
 
@@ -339,7 +338,7 @@ class ListViewTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
 
-		# Test click on checkboxes
+        # Test click on checkboxes
         if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
             self.dlg.Toolbar.Button(6).Click()
 
@@ -365,51 +364,52 @@ class ListViewTestCases(unittest.TestCase):
 
 
     def testItemClickInput(self):
-        "Test clicking item rectangles by ClickInput() method"
+        """Test clicking item rectangles by click_input() method"""
+        Timings.Defaults()
         
-        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
         
-        self.ctrl.GetItem('Magenta').ClickInput(where='select')
+        self.ctrl.GetItem('Magenta').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
         self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
         self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
         
-        self.ctrl.GetItem('Green').ClickInput(where='select')
+        self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
         self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
         self.assertEquals(self.ctrl.IsFocused('Green'), True) # TODO: deprecated method
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
 
-		# Test click on checkboxes
+        # Test click on checkboxes
         if not self.dlg.Toolbar.Button(6).IsChecked(): # switch on states
             self.dlg.Toolbar.Button(6).Click()
 
         for i in range(1, 6):
             self.dlg.Toolbar.Button(i - 1).Click()
 
-            self.ctrl.GetItem(i).ClickInput(where='check') # check item
+            self.ctrl.GetItem(i).click_input(where='check') # check item
             time.sleep(0.5)
             self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
             self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
 
-            self.ctrl.GetItem(i).ClickInput(where='check') # uncheck item
+            self.ctrl.GetItem(i).click_input(where='check') # uncheck item
             time.sleep(0.5)
             self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
 
-            self.ctrl.GetItem(i).ClickInput(where='check') # recheck item
+            self.ctrl.GetItem(i).click_input(where='check') # recheck item
             time.sleep(0.5)
             self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
 
         self.dlg.Toolbar.Button(6).Click() # switch off states
 
-        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).ClickInput, where="check")
+        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).click_input, where="check")
 
 
     def testItemMethods(self):
-        "Test short item methods like Text(), State() etc"
+        """Test short item methods like Text(), State() etc"""
         self.assertEquals(self.ctrl.GetItem('Green').Text(), 'Green')
         self.assertEquals(self.ctrl.GetItem('Green').Image(), 2)
         self.assertEquals(self.ctrl.GetItem('Green').Indent(), 0)
@@ -420,7 +420,7 @@ class ListViewTestCases(unittest.TestCase):
         # Gray is not selected by click because it's not visible
         self.ctrl.GetItem('Gray').Click()
         self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
-        self.dlg.SetFocus() # just in case
+        self.dlg.set_focus() # just in case
         
         self.ctrl.GetItem('Gray').EnsureVisible()
         self.ctrl.GetItem('Gray').Click()
@@ -450,17 +450,24 @@ class ListViewTestCases(unittest.TestCase):
         self.assertNotEqual(item1, item2)
 
 
-class TreeViewTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+if is_x64_Python():
+
+    class ListViewTestCases64(ListViewTestCases32):
+
+        """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
+
+        path = os.path.join(mfc_samples_folder, u"RowList.exe")
+
+
+class TreeViewTestCases32(unittest.TestCase):
+
+    """Unit tests for the TreeViewWrapper class"""
+
+    path = os.path.join(controlspy_folder_32, "Tree View.exe")
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
-
-        # start the application
-        from pywinauto.application import Application
-        app = Application()
-        app.start(os.path.join(controlspy_folder, "Tree View.exe"))
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
         self.root_text = "The Planets"
         self.texts = [
@@ -475,14 +482,15 @@ class TreeViewTestCases(unittest.TestCase):
             ("Pluto",   '5,913,520,000', '2,274', '1.27e22'),
          ]
 
-        self.app = app
-        self.dlg = app.MicrosoftControlSpy #top_window_()
-        self.ctrl = app.MicrosoftControlSpy.TreeView.WrapperObject()
+        self.app = Application()
+        self.app.start(self.path)
+        self.dlg = self.app.MicrosoftControlSpy
+        self.ctrl = self.app.MicrosoftControlSpy.TreeView.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -493,8 +501,8 @@ class TreeViewTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "TreeView")
+        "Make sure the friendly class is set correctly (TreeView)"
+        self.assertEquals (self.ctrl.friendly_class_name(), "TreeView")
 
     def testItemCount(self):
         "Test the TreeView ItemCount method"
@@ -516,13 +524,12 @@ class TreeViewTestCases(unittest.TestCase):
 
         self.assertEquals(
             self.ctrl.GetItem(
-                ["The Planets", "Venus", "4.869"]).Text(),
+                    ["The Planets", "Venus", "4.869"]).Text(),
             self.texts[1][3] + " kg")
 
 
     def testItemText(self):
         "Test the TreeView item Text() method"
-
         self.assertEquals(self.ctrl.Root().Text(), self.root_text)
 
         self.assertEquals(
@@ -530,6 +537,7 @@ class TreeViewTestCases(unittest.TestCase):
 
     def testSelect(self):
         "Test selecting an item"
+
         self.ctrl.Select((0, 1, 2))
 
         self.ctrl.GetItem((0, 1, 2)).State()
@@ -545,7 +553,7 @@ class TreeViewTestCases(unittest.TestCase):
         self.ctrl.EnsureVisible((0, 8, 2))
 
         # make sure that the item is not hidden
-        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).Rectangle())
+        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).rectangle())
 
 
     def testGetProperties(self):
@@ -553,39 +561,40 @@ class TreeViewTestCases(unittest.TestCase):
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            "TreeView", props['FriendlyClassName'])
+            "TreeView", props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemsClick(self):
         "Test clicking of items and sub-items in the treeview control"
+
         planets_item_path = (0, 0)
         mercury_diam_item_path = (0, 0, 1)
         mars_dist_item_path = (0, 3, 0)
-        
+
         itm = self.ctrl.GetItem(planets_item_path)
         itm.EnsureVisible()
         time.sleep(1)
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
-        
+
         itm = self.ctrl.GetItem(mars_dist_item_path)
         itm.EnsureVisible()
         time.sleep(1)
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(mars_dist_item_path))
-        
+
         itm = self.ctrl.GetItem(mercury_diam_item_path)
         itm.EnsureVisible()
         time.sleep(1)
         itm.Click(button='left')
         self.assertEquals(True, self.ctrl.IsSelected(mercury_diam_item_path))
         self.assertEquals(False, self.ctrl.IsSelected(mars_dist_item_path))
-        
+
         itm = self.ctrl.GetItem(planets_item_path)
         itm.EnsureVisible()
         time.sleep(1)
@@ -594,35 +603,44 @@ class TreeViewTestCases(unittest.TestCase):
         self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
 
 
+if is_x64_Python():
+
+    class TreeViewTestCases64(TreeViewTestCases32):
+
+        """Unit tests for the 64-bit TreeViewWrapper on a 32-bit sample"""
+
+        path = os.path.join(controlspy_folder, "Tree View.exe")
+
+
 class TreeViewAdditionalTestCases(unittest.TestCase):
-    "More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"
+
+    """More unit tests for the TreeViewWrapper class (CmnCtrl1.exe)"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
-        # start the application
-        from pywinauto.application import Application
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.dlg = self.app.CommonControlsSample #top_window_()
         self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
 
     def tearDown(self):
-        "Close the application after tests"
-        self.dlg.Close()
+        """Close the application after tests"""
+        self.dlg.send_message(win32defines.WM_CLOSE)
         self.app.kill_()
 
     def testCheckBoxes(self):
-        "Make sure the friendly class is set correctly"
-        self.dlg.TVS_CHECKBOXES.ClickInput()
+        """Make sure tree view item method IsChecked() works as expected"""
+        self.dlg.TVS_CHECKBOXES.click_input()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
         self.assertEquals (birds.IsChecked(), True)
-        birds.ClickInput(where='check')
+        birds.click_input(where='check')
         self.assertEquals (birds.IsChecked(), False)
 
     def testPrintItems(self):
+        """Test TreeView method PrintItems()"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         items_str = self.ctrl.PrintItems()
@@ -631,6 +649,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
                                      "Fish\n Salmon\n Snapper\n Sole\n")
 
     def testIsSelected(self):
+        """Make sure tree view item method IsSelected() works as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         eagle = self.ctrl.GetItem(r'\Birds\Eagle')
@@ -638,6 +657,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals(eagle.IsSelected(), True)
 
     def testExpandCollapse(self):
+        """Make sure tree view item methods Expand() and Collapse() work as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         self.assertEquals(birds.IsExpanded(), True)
@@ -646,10 +666,10 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertEquals(birds.IsExpanded(), False)
 
     def testCheckBoxes(self):
-        "Make sure correct area is clicked"
-        self.dlg.TVS_HASBUTTONS.ClickInput()
-        self.dlg.TVS_HASLINES.ClickInput()
-        self.dlg.TVS_LINESATROOT.ClickInput()
+        """Make sure correct area is clicked"""
+        self.dlg.TVS_HASBUTTONS.click_input()
+        self.dlg.TVS_HASLINES.click_input()
+        self.dlg.TVS_LINESATROOT.click_input()
         birds = self.ctrl.GetItem(r'\Birds')
         
         birds.Click(where='button')
@@ -657,17 +677,19 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.Click(double=True, where='icon')
         self.assertEquals(birds.IsExpanded(), False)
         
-        birds.ClickInput(where='button')
+        birds.click_input(where='button')
         self.assertEquals(birds.IsExpanded(), True)
-        birds.ClickInput(double=True, where='icon')
+        birds.click_input(double=True, where='icon')
         self.assertEquals(birds.IsExpanded(), False)
 
     def testIncorrectAreas(self):
+        """Make sure incorrect area raises an exception"""
         birds = self.ctrl.GetItem(r'\Birds')
         self.assertRaises(RuntimeError, birds.Click, where='radiob')
-        self.assertRaises(RuntimeError, birds.ClickInput, where='radiob')
+        self.assertRaises(RuntimeError, birds.click_input, where='radiob')
 
     def testStartDraggingAndDrop(self):
+        """Make sure tree view item methods StartDragging() and Drop() work as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         
@@ -683,19 +705,18 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread', exact=True)
         
         new_pigeon = self.ctrl.GetItem(r'\Birds\Eagle\Pigeon')
-        self.assertEquals(len(birds.Children()), 2)
-        self.assertEquals(new_pigeon.Children(), [])
+        self.assertEquals(len(birds.children()), 2)
+        self.assertEquals(new_pigeon.children(), [])
 
 
 class HeaderTestCases(unittest.TestCase):
-    "Unit tests for the Header class"
+
+    """Unit tests for the Header class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
 
@@ -721,22 +742,22 @@ class HeaderTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "Header")
+        "Make sure the friendly class is set correctly (Header)"
+        self.assertEquals (self.ctrl.friendly_class_name(), "Header")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+        self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         "Test getting the properties for the header control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -753,9 +774,9 @@ class HeaderTestCases(unittest.TestCase):
 
     def testClientRects(self):
         test_rects = self.item_rects
-        test_rects.insert(0, self.ctrl.ClientRect())
+        test_rects.insert(0, self.ctrl.client_rect())
 
-        client_rects = self.ctrl.ClientRects()
+        client_rects = self.ctrl.client_rects()
         self.assertEquals(len(test_rects), len(client_rects))
         for i in range(len(test_rects)):
             self.assertEquals(test_rects[i].left, client_rects[i].left)
@@ -773,14 +794,13 @@ class HeaderTestCases(unittest.TestCase):
 
 
 class StatusBarTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the TreeViewWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(controlspy_folder, "Status bar.exe"))
 
@@ -796,7 +816,7 @@ class StatusBarTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -807,22 +827,22 @@ class StatusBarTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "StatusBar")
+        "Make sure the friendly class is set correctly (StatusBar)"
+        self.assertEquals (self.ctrl.friendly_class_name(), "StatusBar")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+        self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         "Test getting the properties for the status bar control"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -882,22 +902,14 @@ class StatusBarTestCases(unittest.TestCase):
             self.assertEquals(text, self.ctrl.GetPartText(i))
 
 
-
-
-
-
-
-
 class TabControlTestCases(unittest.TestCase):
     "Unit tests for the TreeViewWrapper class"
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
         self.screen_w = win32api.GetSystemMetrics(0)
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -920,7 +932,7 @@ class TabControlTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -931,22 +943,22 @@ class TabControlTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "TabControl")
+        "Make sure the friendly class is set correctly (TabControl)"
+        self.assertEquals (self.ctrl.friendly_class_name(), "TabControl")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], self.texts)
+        self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         "Test getting the properties for the tabcontrol"
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -954,8 +966,8 @@ class TabControlTestCases(unittest.TestCase):
     def testRowCount(self):
         self.assertEquals(1, self.ctrl.RowCount())
 
-        dlgClientRect = self.ctrl.Parent().Rectangle() # use the parent as a reference
-        prev_rect = self.ctrl.Rectangle() - dlgClientRect
+        dlgClientRect = self.ctrl.parent().rectangle() # use the parent as a reference
+        prev_rect = self.ctrl.rectangle() - dlgClientRect
 
         # squeeze the tab control to force two rows
         new_rect = RECT(prev_rect)
@@ -1020,8 +1032,8 @@ class TabControlTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.GetTabText, 99)
 
     def testClientRects(self):
-        self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
-        self.assertEquals(self.rects, self.ctrl.ClientRects()[1:])
+        self.assertEquals(self.ctrl.client_rect(), self.ctrl.client_rects()[0])
+        self.assertEquals(self.rects, self.ctrl.client_rects()[1:])
 
     def testSelect(self):
         self.assertEquals(0, self.ctrl.GetSelectedTab())
@@ -1034,19 +1046,13 @@ class TabControlTestCases(unittest.TestCase):
         self.assertRaises(IndexError, self.ctrl.Select, 99)
 
 
-
-
-
-
 class ToolbarTestCases(unittest.TestCase):
     "Unit tests for the ToolbarWrapper class"
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1068,7 +1074,7 @@ class ToolbarTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
@@ -1079,12 +1085,12 @@ class ToolbarTestCases(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "Toolbar")
+        "Make sure the friendly class is set correctly (Toolbar)"
+        self.assertEquals (self.ctrl.friendly_class_name(), "Toolbar")
 
     def testTexts(self):
         "Make sure the texts are set correctly"
-        for txt in self.ctrl.Texts():
+        for txt in self.ctrl.texts():
             self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testGetProperties(self):
@@ -1092,13 +1098,13 @@ class ToolbarTestCases(unittest.TestCase):
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         self.assertEquals(
-            self.ctrl.ButtonCount(), props['ButtonCount'])
+            self.ctrl.ButtonCount(), props['button_count'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
@@ -1134,12 +1140,12 @@ class ToolbarTestCases(unittest.TestCase):
 
     def testGetToolTipsControls(self):
         tips = self.ctrl.GetToolTipsControl()
-        tt = tips.Texts()
+        tt = tips.texts()
         self.assertEquals(u"New" in tt,True)
         self.assertEquals(u"About" in tt,True)
 
         tips = self.ctrl2.GetToolTipsControl()
-        tt = tips.Texts()
+        tt = tips.texts()
         self.assertEquals(u"Pencil" in tt,True)
         self.assertEquals(u"Ellipse" in tt,True)
 
@@ -1148,7 +1154,7 @@ class ToolbarTestCases(unittest.TestCase):
 
         self.ctrl.PressButton(0)
 
-        #print(self.ctrl.Texts())
+        #print(self.ctrl.texts())
         self.assertRaises(
             findbestmatch.MatchError,
             self.ctrl.PressButton,
@@ -1183,11 +1189,11 @@ class ToolbarTestCases(unittest.TestCase):
 
 
 class RebarTestCases(unittest.TestCase):
-    "Unit tests for the UpDownWrapper class"
+
+    """Unit tests for the UpDownWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it.
+        """Start the application, set some data and wait for the state we want
 
         The app title can be tricky. If no document is opened the title is just: "RebarTest"
         However if an document is created/opened in the child frame
@@ -1195,9 +1201,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title 
         even though the app is started with a short title "RebarTest".
         """
-
-        # start the application
-        from pywinauto.application import Application
+        Timings.Fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
 
@@ -1209,35 +1213,35 @@ class RebarTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "ReBar")
+        """Make sure the friendly class is set correctly (ReBar)"""
+        self.assertEquals (self.ctrl.friendly_class_name(), "ReBar")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
-        for txt in self.ctrl.Texts():
+        """Make sure the texts are set correctly"""
+        for txt in self.ctrl.texts():
             self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testBandCount(self):
+        """Make sure BandCount() returns 2"""
         self.assertEquals(self.ctrl.BandCount(), 2)
 
     def testGetBand(self):
-
+        """Check that GetBand() is working corectly"""
         self.assertRaises(IndexError, self.ctrl.GetBand, 99)
         self.assertRaises(IndexError, self.ctrl.GetBand, 2)
 
         band = self.ctrl.GetBand(0)
-
 
         self.assertEquals(band.hwndChild, self.dlg.MenuBar.handle)
 
@@ -1245,16 +1249,18 @@ class RebarTestCases(unittest.TestCase):
         self.assertEquals(self.ctrl.GetBand(0).text, u"Menus band:")
 
     def testGetToolTipsControl(self):
+        """Make sure GetToolTipsControl() returns None"""
         self.assertEquals(self.ctrl.GetToolTipsControl(), None)
 
     def testAfxToolBarButtons(self):
-        "Make sure we can click on Afx ToolBar button by index"
+        """Make sure we can click on Afx ToolBar button by index"""
+        Timings.closeclick_dialog_close_wait = 2.
         self.dlg.StandardToolbar.Button(1).Click()
         self.app.Window_(title='Open').Wait('ready')
-        self.app.Window_(title='Open').Cancel.CloseClick(double=True)
+        self.app.Window_(title='Open').Cancel.CloseClick()
 
     def testMenuBarClickInput(self):
-        "Make sure we can click on Menu Bar items by indexed path"
+        """Make sure we can click on Menu Bar items by indexed path"""
         self.assertRaises(TypeError, self.dlg.MenuBar.MenuBarClickInput, '#one->#0', self.app)
         
         self.dlg.MenuBar.MenuBarClickInput('#1->#0->#0', self.app)
@@ -1267,15 +1273,12 @@ class RebarTestCases(unittest.TestCase):
 
 
 class DatetimeTestCases(unittest.TestCase):
-    "Unit tests for the DateTimePicker class"
+
+    """Unit tests for the DateTimePicker class"""
 
     def setUp(self):
-        """
-        Start the application and get 'Date Time Picker' control.
-        """
-
-        # start the application
-        from pywinauto.application import Application
+        """Start the application and get 'Date Time Picker' control"""
+        Timings.Fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1287,16 +1290,16 @@ class DatetimeTestCases(unittest.TestCase):
         self.ctrl = self.dlg.DateTimePicker
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEqual(self.ctrl.FriendlyClassName(), "DateTimePicker")
+        """Make sure the friendly class is set correctly (DateTimePicker)"""
+        self.assertEqual(self.ctrl.friendly_class_name(), "DateTimePicker")
 
     def testGetTime(self):
-        "Test reading a date from a 'Date Time Picker' control"
+        """Test reading a date from a 'Date Time Picker' control"""
 
         # No check for seconds and milliseconds as it can slip
         # These values are verified in the next 'testSetTime'
@@ -1309,7 +1312,7 @@ class DatetimeTestCases(unittest.TestCase):
         self.assertEqual(test_date_time.wMinute, date_time_now.minute)
 
     def testSetTime(self):
-        "Test setting a date to a 'Date Time Picker' control"
+        """Test setting a date to a 'Date Time Picker' control"""
         year = 2025
         month = 9
         day_of_week = 5
@@ -1342,16 +1345,14 @@ class DatetimeTestCases(unittest.TestCase):
 
 
 class ToolTipsTestCases(unittest.TestCase):
-    "Unit tests for the tooltips class"
+
+    """Unit tests for the tooltips class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
-
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
-        # start the application
-        from pywinauto.application import Application
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
         #app.start_(os.path.join(controlspy_folder, "Tooltip.exe"))
@@ -1361,81 +1362,71 @@ class ToolTipsTestCases(unittest.TestCase):
 
         # Make sure the mouse doesn't hover over tested controls
         # so it won't generate an unexpected tooltip
-        self.dlg.MoveMouseInput(coords=(-100,-100), absolute=True)
+        self.dlg.move_mouse_input(coords=(-100, -100), absolute=True)
         
         self.dlg.TabControl.Select(u'CToolBarCtrl')
 
-        '''
-        tips = app.windows_(
-            visible_only = False,
-            enabled_only = False,
-            top_level_only = False,
-            class_name = "tooltips_class32")
-        '''
-
-        self.ctrl = self.dlg.Toolbar.GetToolTipsControl() #WrapHandle(tips[1])
-        #self.ctrl = HwndWrapper(tips[1])
-
+        self.ctrl = self.dlg.Toolbar.GetToolTipsControl()
 
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.app.kill_()
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "ToolTips")
+        """Make sure the friendly class is set correctly (ToolTips)"""
+        self.assertEquals (self.ctrl.friendly_class_name(), "ToolTips")
 
     def testGetProperties(self):
-        "Test getting the properties for the tooltips control"
+        """Test getting the properties for the tooltips control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testGetTip(self):
+        """Test that GetTip() returns correct ToolTip object"""
         self.assertRaises(IndexError, self.ctrl.GetTip, 99)
         tip = self.ctrl.GetTip(1)
         self.assertEquals(tip.text, self.texts[1])
 
     def testToolCount(self):
+        """Test that ToolCount() returns correct value"""
         self.assertEquals(10, self.ctrl.ToolCount())
 
     def testGetTipText(self):
+        """Test that GetTipText() returns correct text"""
         self.assertEquals(self.texts[1], self.ctrl.GetTipText(1))
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
-        self.dlg.MoveMouseInput(coords=(0, 0)) # just to make sure a tooltip is not shown
-        ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.Texts()))
-        self.assertEquals(self.ctrl.Texts()[0], '')
-        self.assertEquals(self.ctrl.Texts()[1:], self.texts)
-
+        """Make sure the texts are set correctly"""
+        self.dlg.move_mouse_input(coords=(0, 0)) # just to make sure a tooltip is not shown
+        ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.texts()))
+        self.assertEquals(self.ctrl.texts()[0], '')
+        self.assertEquals(self.ctrl.texts()[1:], self.texts)
 
 
 class UpDownTestCases(unittest.TestCase):
-    "Unit tests for the UpDownWrapper class"
+
+    """Unit tests for the UpDownWrapper class"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
-
-        # start the application
-        from pywinauto.application import Application
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
         app = Application()
         app.start(os.path.join(controlspy_folder,  "Up-Down.exe"))
 
@@ -1446,87 +1437,183 @@ class UpDownTestCases(unittest.TestCase):
         #self.dlg.MenuSelect("Styles")
 
         # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.TypeKeys(
+        #app.ControlStyles.ListBox1.type_keys(
         #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
         #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly"
-        self.assertEquals (self.ctrl.FriendlyClassName(), "UpDown")
+        """Make sure the friendly class is set correctly (UpDown)"""
+        self.assertEquals (self.ctrl.friendly_class_name(), "UpDown")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
-        self.assertEquals (self.ctrl.Texts()[1:], [])
+        """Make sure the texts are set correctly"""
+        self.assertEquals (self.ctrl.texts()[1:], [])
 
     def testGetProperties(self):
-        "Test getting the properties for the updown control"
+        """Test getting the properties for the updown control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
-            self.ctrl.FriendlyClassName(), props['FriendlyClassName'])
+            self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
         self.assertEquals(
-            self.ctrl.Texts(), props['Texts'])
+            self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testGetValue(self):
-        "Test getting up-down position"
+        """Test getting up-down position"""
         self.assertEquals (self.ctrl.GetValue(), 0)
 
         self.ctrl.SetValue(23)
         self.assertEquals (self.ctrl.GetValue(), 23)
 
     def testSetValue(self):
-        "Test setting up-down position"
+        """Test setting up-down position"""
         self.assertEquals (self.ctrl.GetValue(), 0)
 
         self.ctrl.SetValue(23)
         self.assertEquals (self.ctrl.GetValue(), 23)
         self.assertEquals(
-            int(self.ctrl.GetBuddyControl().Texts()[1]),
+            int(self.ctrl.GetBuddyControl().texts()[1]),
             23)
 
     def testGetBase(self):
-        "Test getting the base of the up-down control"
+        """Test getting the base of the up-down control"""
         self.assertEquals (self.ctrl.GetBase(), 10)
         #self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
 
         # use CloseClick to allow the control time to respond to the message
-        #self.dlg.Send.ClickInput()
+        #self.dlg.Send.click_input()
         self.ctrl.SetBase(16)
 
         self.assertEquals (self.ctrl.GetBase(), 16)
 
     def testGetRange(self):
-        "Test getting the range of the up-down control"
+        """Test getting the range of the up-down control"""
         self.assertEquals((0, 9999), self.ctrl.GetRange())
 
     def testGetBuddy(self):
-        "Test getting the buddy control"
+        """Test getting the buddy control"""
         self.assertEquals (self.ctrl.GetBuddyControl().handle, self.dlg.Edit6.handle)
 
 
     def testIncrement(self):
-        "Test incremementing up-down position"
+        """Test incremementing up-down position"""
+        Timings.Defaults()
         self.ctrl.Increment()
         self.assertEquals (self.ctrl.GetValue(), 1)
 
     def testDecrement(self):
-        "Test decrementing up-down position"
+        """Test decrementing up-down position"""
+        Timings.Defaults()
         self.ctrl.SetValue(23)
         self.ctrl.Decrement()
         self.assertEquals (self.ctrl.GetValue(), 22)
 
 
+class TrackbarWrapperTestCases(unittest.TestCase):
 
+    def setUp(self):
+        from pywinauto.application import Application
+        app = Application()
+        app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
+        dlg = app.top_window_()
+        dlg.TabControl.Select(1)
+
+        ctrl = dlg.Trackbar.WrapperObject()
+        self.app = app
+        self.dlg = dlg
+        self.ctrl = ctrl
+
+    def tearDown(self):
+        "Close the application after tests"
+        # close the application
+        self.dlg.send_message(win32defines.WM_CLOSE)
+
+
+    def test_friendly_class(self):
+        """Make sure the Trackbar friendly class is set correctly"""
+        self.assertEquals(self.ctrl.friendly_class_name(), u"Trackbar")
+
+    def test_get_range_max(self):
+        """Test the get_range_max method"""
+        self.ctrl.set_range_max(100)
+        self.assertEquals(self.ctrl.get_range_max(), 100)
+
+    def test_get_range_min(self):
+        """Test the get_range_min method"""
+        self.ctrl.set_range_min(25)
+        self.assertEquals(self.ctrl.get_range_min(), 25)
+
+    def test_set_range_min_more_then_range_max(self):
+        """Test the set_range_min method with error"""
+        self.assertRaises(ValueError, self.ctrl.set_range_min, self.ctrl.get_range_max()+1)
+
+    def test_set_position_more_than_max_range(self):
+        """Test the set_position method with error"""
+        self.ctrl.set_range_max(100)
+        self.assertRaises(ValueError, self.ctrl.set_position, 110)
+
+    def test_set_position_less_than_min_range(self):
+        """Test the set_position method with error"""
+        self.assertRaises(ValueError, self.ctrl.set_position, self.ctrl.get_range_min()-10)
+
+    def test_set_correct_position(self):
+        """Test the set_position method"""
+        self.ctrl.set_position(23)
+        self.assertEqual(self.ctrl.get_position(), 23)
+
+    def test_get_num_ticks(self):
+        """Test the get_num_ticks method"""
+        self.assertEqual(self.ctrl.get_num_ticks(), 6)
+
+    def test_get_channel_rect(self):
+        """Test the get_channel_rect method"""
+        system_rect = RECT()
+        system_rect.left = 8
+        system_rect.top = 19
+        system_rect.right = 249
+        system_rect.bottom = 23
+        self.assert_channel_rect(self.ctrl.get_channel_rect(), system_rect)
+
+    def assert_channel_rect(self, first_rect, second_rect):
+        """Compare two rect strucrures"""
+        self.assertEqual(first_rect.height(), second_rect.height())
+        self.assertEqual(first_rect.width(), second_rect.width())
+
+    def test_get_line_size(self):
+        """Test the get_line_size method"""
+        self.ctrl.set_line_size(10)
+        self.assertEquals(self.ctrl.get_line_size(), 10)
+
+    def test_get_page_size(self):
+        """Test the set_page_size method"""
+        self.ctrl.set_page_size(14)
+        self.assertEquals(self.ctrl.get_page_size(), 14)
+
+    def test_get_tool_tips_control(self):
+        """Test the get_tooltips_control method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_tooltips_control)
+
+    def test_set_sel(self):
+        """Test the set_sel method"""
+        self.assertRaises(RuntimeError, self.ctrl.set_sel, 22, 55)
+
+    def test_get_sel_start(self):
+        """Test the get_sel_start method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_sel_start)
+
+    def test_get_sel_end(self):
+        """Test the get_sel_end method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_sel_end)
 
 
 if __name__ == "__main__":

@@ -1,35 +1,45 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2007 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Miscellaneous Control properties Test
 
 **What is checked**
 This checks various values related to a control in windows. The values tested
 are
-Class	The class type of the control
-Style	The Style of the control (GetWindowLong)
-ExStyle	The Extended Style of the control (GetWindowLong)
-HelpID	The Help ID of the control (GetWindowLong)
-ControlID	The Control ID of the control (GetWindowLong)
-UserData	The User Data of the control (GetWindowLong)
+class_name	The class type of the control
+style	The Style of the control (GetWindowLong)
+exstyle	The Extended Style of the control (GetWindowLong)
+help_id	The Help ID of the control (GetWindowLong)
+control_id	The Control ID of the control (GetWindowLong)
+user_data	The User Data of the control (GetWindowLong)
 Visibility	Whether the control is visible or not
 
 **How is it checked**
@@ -57,10 +67,10 @@ and this can change every time the software is run.
 **Test Identifier**
 The identifier for this test/bug is "MiscValues"
 """
-__revision__ = "$Revision$"
 
-from pywinauto import six
 testname = "MiscValues"
+
+import six
 
 def MiscValuesTest(windows):
     "Return the bugs from checking miscelaneous values of a control"
@@ -71,26 +81,26 @@ def MiscValuesTest(windows):
 
         diffs = {}
 
-        if win.Class() != win.ref.Class():
-            diffs[u"Class"] = (win.Class(), win.ref.Class())
+        if win.class_name() != win.ref.class_name():
+            diffs[u"class_name"] = (win.class_name(), win.ref.class_name())
 
-        if win.Style() != win.ref.Style():
-            diffs[u"Style"] = (win.Style(), win.ref.Style())
+        if win.style() != win.ref.style():
+            diffs[u"style"] = (win.style(), win.ref.style())
 
-        if win.ExStyle() != win.ref.ExStyle():
-            diffs[u"ExStyle"] = (win.ExStyle(), win.ref.ExStyle())
+        if win.exstyle() != win.ref.exstyle():
+            diffs[u"exstyle"] = (win.exstyle(), win.ref.exstyle())
 
-        if win.ContextHelpID() != win.ref.ContextHelpID():
-            diffs[u"HelpID"] = (win.ContextHelpID(), win.ref.ContextHelpID())
+        if win.context_help_id() != win.ref.context_help_id():
+            diffs[u"help_id"] = (win.context_help_id(), win.ref.context_help_id())
 
-        if win.ControlID() != win.ref.ControlID():
-            diffs[u"ControlID"] = (win.ControlID(), win.ref.ControlID())
+        if win.control_id() != win.ref.control_id():
+            diffs[u"control_id"] = (win.control_id(), win.ref.control_id())
 
-        if win.IsVisible() != win.ref.IsVisible():
-            diffs[u"Visibility"] = (win.IsVisible(), win.ref.IsVisible())
+        if win.is_visible() != win.ref.is_visible():
+            diffs[u"Visibility"] = (win.is_visible(), win.ref.is_visible())
 
-        if win.UserData() != win.ref.UserData():
-            diffs[u"UserData"] = (win.UserData(), win.ref.UserData())
+        if win.user_data() != win.ref.user_data():
+            diffs[u"user_data"] = (win.user_data(), win.ref.user_data())
 
         for diff, vals in diffs.items():
             bugs.append((

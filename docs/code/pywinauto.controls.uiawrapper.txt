@@ -1,0 +1,6 @@
+pywinauto.controls.uiawrapper
+-----------------------------
+ .. automodule:: pywinauto.controls.uiawrapper
+    :members:
+    :undoc-members:
+

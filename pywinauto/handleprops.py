@@ -1,24 +1,33 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2015 airelil
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Functions to retrieve properties from a window handle
 
@@ -27,31 +36,19 @@ useful to other modules with the least conceptual overhead
 """
 
 import ctypes
+import win32process
+import win32api
+import win32con
 
 from . import win32functions
 from . import win32defines
 from . import win32structures
 from .actionlogger import ActionLogger
 
-if ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) == 8:
-    def g_alloc_pid(): return ctypes.c_ulonglong()
-else:
-    def g_alloc_pid(): return ctypes.c_ulong()
 
 #=========================================================================
 def text(handle):
-    "Return the text of the window"
-
-#    length = ctypes.c_long()
-#    win32functions.SendMessageTimeout(
-#        handle,
-#        win32defines.WM_GETTEXTLENGTH,
-#        0,
-#        0,
-#        win32defines.SMTO_ABORTIFHUNG,
-#        100,  # .1 of a second
-#        ctypes.byref(length))
-#    length = length.value
+    """Return the text of the window"""
     
     class_name = classname(handle)
     if class_name == 'IME':
@@ -63,7 +60,13 @@ def text(handle):
     # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
     # WM_GETTEXTLENGTH may hang even for notepad.exe main window!
     c_length = win32structures.DWORD(0)
-    result = win32functions.SendMessageTimeout(handle, win32defines.WM_GETTEXTLENGTH, 0, 0, win32defines.SMTO_ABORTIFHUNG, 500, ctypes.byref(c_length))
+    result = win32functions.SendMessageTimeout(
+                        handle,
+                        win32defines.WM_GETTEXTLENGTH,
+                        0, 0,
+                        win32defines.SMTO_ABORTIFHUNG,
+                        500,
+                        ctypes.byref(c_length))
     if result == 0:
         ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
         return None
@@ -88,7 +91,7 @@ def text(handle):
 
 #=========================================================================
 def classname(handle):
-    "Return the class name of the window"
+    """Return the class name of the window"""
     class_name = (ctypes.c_wchar * 257)()
     win32functions.GetClassName (handle, ctypes.byref(class_name), 256)
     return class_name.value
@@ -96,95 +99,96 @@ def classname(handle):
 
 #=========================================================================
 def parent(handle):
-    "Return the handle of the parent of the window"
+    """Return the handle of the parent of the window"""
     return win32functions.GetParent(handle)
 
 #=========================================================================
 def style(handle):
-    "Return the style of the window"
+    """Return the style of the window"""
     return win32functions.GetWindowLong (handle, win32defines.GWL_STYLE)
 
 #=========================================================================
 def exstyle(handle):
-    "Return the extended style of the window"
+    """Return the extended style of the window"""
     return win32functions.GetWindowLong (handle, win32defines.GWL_EXSTYLE)
 
 #=========================================================================
 def controlid(handle):
-    "Return the ID of the control"
+    """Return the ID of the control"""
     return win32functions.GetWindowLong (handle, win32defines.GWL_ID)
 
 #=========================================================================
 def userdata(handle):
-    "Return the value of any user data associated with the window"
+    """Return the value of any user data associated with the window"""
     return win32functions.GetWindowLong (handle, win32defines.GWL_USERDATA)
 
 #=========================================================================
 def contexthelpid(handle):
-    "Return the context help id of the window"
+    """Return the context help id of the window"""
     return win32functions.GetWindowContextHelpId (handle)
 
 #=========================================================================
 def iswindow(handle):
-    "Return True if the handle is a window"
+    """Return True if the handle is a window"""
     return bool(win32functions.IsWindow(handle))
 
 #=========================================================================
 def isvisible(handle):
-    "Return True if the window is visible"
+    """Return True if the window is visible"""
     return bool(win32functions.IsWindowVisible(handle))
 
 #=========================================================================
 def isunicode(handle):
-    "Return True if the window is a Unicode window"
+    """Return True if the window is a Unicode window"""
     return bool(win32functions.IsWindowUnicode(handle))
 
 #=========================================================================
 def isenabled(handle):
-    "Return True if the window is enabled"
+    """Return True if the window is enabled"""
     return bool(win32functions.IsWindowEnabled(handle))
 
 #=========================================================================
 def is64bitprocess(process_id):
-    """Return True if the specified process is a 64-bit process on x64
-       and False if it is only a 32-bit process running under Wow64.
-       Always return False for x86"""
-
+    """
+    Return True if the specified process is a 64-bit process on x64
+    
+    Return False if it is only a 32-bit process running under Wow64.
+    Always return False for x86.
+    """
     from .sysinfo import is_x64_OS
     is32 = True
     if is_x64_OS():
-        import win32process, win32api, win32con
         phndl = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
         if phndl:
-          is32 = win32process.IsWow64Process(phndl)
-          #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
+            is32 = win32process.IsWow64Process(phndl)
+            #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
         
     return (not is32)
 
 #=========================================================================
 def is64bitbinary(filename):
+    """Check if the file is 64-bit binary"""
     import win32file
     binary_type = win32file.GetBinaryType(filename)
     return binary_type != win32file.SCS_32BIT_BINARY
 
 #=========================================================================
 def clientrect(handle):
-    "Return the client rectangle of the control"
+    """Return the client rectangle of the control"""
     client_rect = win32structures.RECT()
     win32functions.GetClientRect(handle, ctypes.byref(client_rect))
     return client_rect
 
 #=========================================================================
 def rectangle(handle):
-    "Return the rectangle of the window"
+    """Return the rectangle of the window"""
     rect = win32structures.RECT()
     win32functions.GetWindowRect(handle, ctypes.byref(rect))
     return rect
 
 #=========================================================================
 def font(handle):
-    "Return the font as a LOGFONTW of the window"
-
+    """Return the font as a LOGFONTW of the window"""
     # get the font handle
     font_handle = win32functions.SendMessage(
         handle, win32defines.WM_GETFONT, 0, 0)
@@ -258,21 +262,18 @@ def font(handle):
 
 #=========================================================================
 def processid(handle):
-    "Return the ID of process that controls this window"
-    process_id = g_alloc_pid()
-    win32functions.GetWindowThreadProcessId(handle, ctypes.byref(process_id))
-
-    return process_id.value
+    """Return the ID of process that controls this window"""
+    _, process_id = win32process.GetWindowThreadProcessId(int(handle))
+    return process_id
 
 #=========================================================================
 def children(handle):
-    "Return a list of handles to the children of this window"
-
+    """Return a list of handles to the children of this window"""
     # this will be filled in the callback function
     child_windows = []
 
     # callback function for EnumChildWindows
-    def EnumChildProc(hwnd, lparam):
+    def enum_child_proc(hwnd, lparam):
         "Called for each child - adds child hwnd to list"
 
         # append it to our list
@@ -282,13 +283,13 @@ def children(handle):
         return True
 
     # define the child proc type
-    enum_child_proc = ctypes.WINFUNCTYPE(
+    enum_child_proc_t = ctypes.WINFUNCTYPE(
         ctypes.c_int, 			# return type
         win32structures.HWND, 	# the window handle
         win32structures.LPARAM)	# extra information
 
     # update the proc to the correct type
-    proc = enum_child_proc(EnumChildProc)
+    proc = enum_child_proc_t(enum_child_proc)
 
     # loop over all the children (callback called for each)
     win32functions.EnumChildWindows(handle, proc, 0)
@@ -297,20 +298,19 @@ def children(handle):
 
 #=========================================================================
 def has_style(handle, tocheck):
-    "Return True if the control has style tocheck"
+    """Return True if the control has style tocheck"""
     hwnd_style = style(handle)
     return tocheck & hwnd_style == tocheck
 
 #=========================================================================
 def has_exstyle(handle, tocheck):
-    "Return True if the control has extended style tocheck"
+    """Return True if the control has extended style tocheck"""
     hwnd_exstyle = exstyle(handle)
     return tocheck & hwnd_exstyle == tocheck
 
 #=========================================================================
 def is_toplevel_window(handle):
-    "Return whether the window is a top level window or not"
-
+    """Return whether the window is a top level window or not"""
     # only request the style once - this is an optimization over calling
     # (handle, style) for each style I wan to check!
     style_ = style(handle)
@@ -324,7 +324,7 @@ def is_toplevel_window(handle):
 
 #=========================================================================
 def dumpwindow(handle):
-    "Dump a window to a set of properties"
+    """Dump a window to a set of properties"""
     props = {}
 
     for func in (

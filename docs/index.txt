@@ -1,0 +1,177 @@
+====================
+What is pywinauto
+====================
+© Mark Mc Mahon and Contributors_, 2006-2016
+
+.. _Contributors: https://github.com/pywinauto/pywinauto/graphs/contributors
+
+Released under the BSD 3-clause license
+
+
+What is it?
+-----------
+pywinauto is a set of python modules to automate the Microsoft Windows GUI.
+At it's simplest it allows you to send mouse and keyboard actions to windows
+dialogs and controls.
+
+
+Installation
+------------
+- Just run ``pip install pywinauto``
+
+
+Manual installation
+---------------------------
+- Install the following Python packages
+
+  - pyWin32_
+  - comtypes_
+  - six_
+  - *(optional)* Pillow_ (fork of PIL)
+
+- Download latest pywinauto from https://github.com/pywinauto/pywinauto/releases
+- Unpack and run ``python setup.py install``
+
+
+.. _pyWin32: http://sourceforge.net/projects/pywin32/files/pywin32/Build%20220/
+.. _comtypes: https://github.com/enthought/comtypes/releases
+.. _six: https://pypi.python.org/pypi/six
+.. _Pillow: https://pypi.python.org/pypi/Pillow/2.7.0
+
+To check you have it installed correctly
+Run Python ::
+
+  >>> from pywinauto.application import Application
+  >>> app = Application().start("notepad.exe")
+  >>> app.UntitledNotepad.type_keys("%FX")
+
+
+How does it work
+----------------
+A lot is done through attribute access (``__getattribute__``) for each class. For example
+when you get the attribute of an Application or Dialog object it looks for a
+dialog or control (respectively).
+
+::
+
+ myapp.Notepad # looks for a Window/Dialog of your app that has a title 'similar'
+               # to "Notepad"
+
+ myapp.PageSetup.OK # looks first for a dialog with a title like "PageSetup"
+                    # then it looks for a control on that dialog with a title
+                    # like "OK"
+
+This attribute resolution is delayed (with a default timeout) until
+it succeeds. So for example if you select a menu option and then look for the
+resulting dialog e.g. ::
+
+  app.UntitledNotepad.menu_select("File->SaveAs")
+  app.SaveAs.ComboBox5.select("UTF-8")
+  app.SaveAs.edit1.set_text("Example-utf8.txt")
+  app.SaveAs.Save.click()
+
+At the 2nd line the SaveAs dialog might not be open by the time this line is
+executed. So what happens is that we wait until we have a control to resolve
+before resolving the dialog. At that point if we can't find a SaveAs dialog with
+a ComboBox5 control then we wait a very short period of time and try again,
+this is repeated up to a maximum time (currently 5 seconds!)
+
+This is to avoid having to use time.sleep or a "wait" function explicitly.
+
+If your application performs long time operation, new dialog can appear or
+disappear later. You can wait for its new state like so ::
+
+  app.Open.Open.click() # opening large file
+  app.Open.wait_not('visible') # make sure "Open" dialog became invisible
+  # wait for up to 30 seconds until data.txt is loaded
+  app.window_(title='data.txt - Notepad').wait('ready', timeout=30)
+
+
+Some similar tools for comparison
+---------------------------------
+* Python tools
+
+  - PyAutoGui_ - a popular cross-platform library (has image-based search, no text-based controls manipulation).
+  - Lackey_ - a pure Python replacement for Sikuli (based on image pattern matching).
+  - AXUI_ - one of the wrappers around MS UI Automation API.
+  - winGuiAuto_ - another module using Win32 API.
+
+.. _PyAutoGui: https://github.com/asweigart/pyautogui
+.. _Lackey: https://github.com/glitchassassin/lackey
+.. _AXUI: https://github.com/xcgspring/AXUI
+.. _winGuiAuto: https://github.com/arkottke/winguiauto
+
+* Other scripting language tools
+
+  - (Perl) `Win32::GuiTest`_
+  - (Ruby) Win32-Autogui_ - a wrapper around Win32 API.
+  - (Ruby) RAutomation_ - there are 3 adapters: Win32 API, UIA, AutoIt.
+
+.. _`Win32::GuiTest`: http://winguitest.sourceforge.net/
+.. _Win32-Autogui: https://github.com/robertwahler/win32-autogui
+.. _RAutomation: https://github.com/jarmo/RAutomation
+
+* Other free tools
+
+  - (C#) Winium.Desktop_ - a young but good MS UI Automation based tool.
+  - (C#) TestStack.White_ - another good MS UI Automation based library with a long history.
+  - AutoIt_ - free tool with its own Basic-like language (Win32 API based, no .NET plans)
+  - AutoHotKey_ - native C++ tool with its own scripting language (.ahk)
+  - `"Awesome test automation" list`_ on GitHub
+  - `A big list of open source tools for functional testing`_
+
+.. _Winium.Desktop: https://github.com/2gis/Winium.Desktop
+.. _TestStack.White: https://github.com/TestStack/White
+.. _AutoIt: http://www.autoitscript.com/
+.. _AutoHotKey: https://github.com/Lexikos/AutoHotkey_L/
+.. _`"Awesome test automation" list`: https://github.com/atinfo/awesome-test-automation
+.. _`A big list of open source tools for functional testing`: http://www.opensourcetesting.org/category/functional/
+
+* Commercial tools
+
+  - WinRunner (http://www.mercury.com/us/products/quality-center/functional-testing/winrunner/)
+  - SilkTest (http://www.segue.com/products/functional-regressional-testing/silktest.asp)
+  - Many Others (http://www.testingfaqs.org/t-gui.html)
+
+
+Why write yet another automation tool if there are so many out there?
+---------------------------------------------------------------------
+There are loads of reasons :-)
+
+**Takes a different approach:**
+    Most other tools are not object oriented you end  up writing stuff like::
+
+        window = findwindow(title = "Untitled - Notepad", class = "Notepad")
+        SendKeys(window, "%OF")  # Format -> Font
+        fontdialog  = findwindow("title = "Font")
+        buttonClick(fontdialog, "OK")
+
+    I was hoping to create something more userfriendly (and pythonic). For example
+    the translation of above would be::
+
+        win = app.UntitledNotepad
+        win.menu_select("Format->Font")
+        app.Font.OK.click()
+
+
+**Python makes it easy:**
+    Python is a great programming language, but there are no automation tools
+    that were Pythonic (the very few libraries were implemented in Python).
+
+
+**Localization as a main requirement:**
+    Mark:
+    
+    "I work in the localization industry and GUI
+    automation is used extensively as often all
+    you need to do is ensure that your UI behaves
+    and is correct with respect to the Source
+    UI. This is actually an easier job then for
+    testing the original source UI.
+
+    But most automation tools are based off of coordinates or text of the
+    controls and these can change in the localized software. So my goal (
+    though not yet implemented) is to allow scripts to run unchanged
+    between original source language (often English) and the translated
+    software (Japanese, German, etc)."
+

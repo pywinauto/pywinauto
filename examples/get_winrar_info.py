@@ -65,7 +65,7 @@ t = {
 
     # create profile button
     'CreateDefaultProfile' : (
-        u"Creerleprofilpardéfault",
+        u"Creerleprofilpardï¿½fault",
         "Standardfestlegen",
         "Vytvoritimplicitni"),
 
@@ -97,38 +97,38 @@ t = {
 
 
 def get_winrar_dlgs(rar_dlg, app, lang):
-    rar_dlg.MenuSelect(t["Options->Configure"][lang])
+    rar_dlg.menu_select(t["Options->Configure"][lang])
 
     optionsdlg = app[t['Configure'][lang]]
 
-    optionsdlg.WriteToXML("Options_%d.xml"%lang)
+    optionsdlg.write_to_xml("Options_%d.xml" % lang)
 
-    optionsdlg.CaptureAsImage().save("Options_%d.png"%lang)
-    optionsdlg[t['Buttons'][lang]].Click()
+    optionsdlg.capture_as_image().save("Options_%d.png" % lang)
+    optionsdlg[t['Buttons'][lang]].click()
 
     contextMenuDlg = app[t['PeronnaliseToolbars'][lang]]
-    contextMenuDlg.WriteToXML("PersonaliseToolbars_%d.xml"%lang)
-    contextMenuDlg.CaptureAsImage().save("PersonaliseToolbars_%d.png"%lang)
-    contextMenuDlg.OK.Click()
+    contextMenuDlg.write_to_xml("PersonaliseToolbars_%d.xml" % lang)
+    contextMenuDlg.capture_as_image().save("PersonaliseToolbars_%d.png" % lang)
+    contextMenuDlg.OK.click()
 
-    optionsdlg.TabCtrl.Select(1)
-    optionsdlg[t['CreateDefaultProfile'][lang]].Click()
+    optionsdlg.TabCtrl.select(1)
+    optionsdlg[t['CreateDefaultProfile'][lang]].click()
 
     defaultOptionsDlg = app[t['ConfigureDefaultOptions'][lang]]
-    defaultOptionsDlg.WriteToXML("DefaultOptions_%d.xml"%lang)
-    defaultOptionsDlg.CaptureAsImage().save("DefaultOptions_%d.png"%lang)
-    defaultOptionsDlg.OK.Click()
+    defaultOptionsDlg.write_to_xml("DefaultOptions_%d.xml" % lang)
+    defaultOptionsDlg.capture_as_image().save("DefaultOptions_%d.png" % lang)
+    defaultOptionsDlg.OK.click()
 
-    optionsdlg.TabCtrl.Select(6)
-    optionsdlg[t['ContextMenus'][lang]].Click()
+    optionsdlg.TabCtrl.select(6)
+    optionsdlg[t['ContextMenus'][lang]].click()
 
     anotherMenuDlg = app[t['contextMenuDlg'][lang]]
-    anotherMenuDlg.WriteToXML("2ndMenuDlg_%d.xml"%lang)
-    anotherMenuDlg.CaptureAsImage().save("2ndMenuDlg_%d.png"%lang)
+    anotherMenuDlg.write_to_xml("2ndMenuDlg_%d.xml" % lang)
+    anotherMenuDlg.capture_as_image().save("2ndMenuDlg_%d.png" % lang)
 
-    anotherMenuDlg.OK.Click()
+    anotherMenuDlg.OK.click()
 
-    optionsdlg.OK.Click()
+    optionsdlg.OK.click()
 
 
 # get the languages as an integer
@@ -143,7 +143,7 @@ for lang in langs:
 
     # close the Buy licence dialog box
     licence_dlg = app[t['Buy Licence'][lang]]
-    licence_dlg[t['Close'][lang]].Click()
+    licence_dlg[t['Close'][lang]].click()
 
     # find the WinRar main dialog
     rar_dlg = app.window_(title_re = ".* - WinRAR.*")
@@ -153,4 +153,4 @@ for lang in langs:
 
     # exit WinRar
     time.sleep(.5)
-    rar_dlg.MenuSelect(t['File->Exit'][lang])
+    rar_dlg.menu_select(t['File->Exit'][lang])

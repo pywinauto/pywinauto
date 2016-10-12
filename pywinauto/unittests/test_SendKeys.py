@@ -1,43 +1,53 @@
 # -*- coding: latin-1 -*-
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2015 airelil
-# Copyright (C) 2012 Michael Herrmann
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 from __future__ import unicode_literals
 from __future__ import print_function
 
-"""Module containing tests for SendKeys Module
-"""
+"""Module containing tests for SendKeys Module"""
 
 import sys
-sys.path.append(".")
-from pywinauto.SendKeysCtypes import SendKeys, DEBUG, KeySequenceError
-from pywinauto.SendKeysCtypes import KeyAction, VirtualKeyAction, PauseAction
-from pywinauto import six
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-from pywinauto.application import Application
-from pywinauto.actionlogger import ActionLogger
 import os
 import locale
 import unittest
+#import six
+sys.path.append(".")
+
+from pywinauto.keyboard import SendKeys, DEBUG, KeySequenceError
+from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto.application import Application
+from pywinauto.actionlogger import ActionLogger
+from pywinauto.timings import Timings
 
 
 mfc_samples_folder = os.path.join(
@@ -53,11 +63,12 @@ def _notepad_exe():
 
 
 class SendKeysTests(unittest.TestCase):
-    "Unit tests for the Sendkeys module"
+
+    """Unit tests for the Sendkeys module"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.app = Application()
         self.app.start(_notepad_exe())
         
@@ -234,11 +245,12 @@ class SendKeysTests(unittest.TestCase):
 
 
 class SendKeysModifiersTests(unittest.TestCase):
-    "Unit tests for the Sendkeys module (modifiers)"
+
+    """Unit tests for the Sendkeys module (modifiers)"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CtrlTest.exe"))
 
         self.dlg = self.app.Control_Test_App

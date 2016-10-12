@@ -1,0 +1,6 @@
+pywinauto.element_info
+----------------------
+ .. automodule:: pywinauto.element_info
+    :members:
+    :undoc-members:
+

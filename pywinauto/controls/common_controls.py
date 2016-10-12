@@ -1,24 +1,33 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2015 airelil
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 Classes that wrap the Windows Common controls
 
@@ -39,22 +48,29 @@ from __future__ import print_function
 
 import time
 import ctypes
+from ctypes import wintypes
 import warnings
 import locale
+import six
 
-from .. import six
+from .. import sysinfo
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures
 from .. import findbestmatch
-from ..RemoteMemoryBlock import RemoteMemoryBlock
-from . import HwndWrapper
+from ..remote_memory_block import RemoteMemoryBlock
+from . import hwndwrapper
 
 from ..timings import Timings
 from ..timings import WaitUntil
+from ..handleprops import is64bitprocess
+from ..sysinfo import is_x64_Python
+
+if sysinfo.UIA_support:
+    from ..uia_defines import IUIA
 
 
-# Todo: I should return iterators from things like Items() and Texts()
+# Todo: I should return iterators from things like items() and texts()
 #       to save building full lists all the time
 
 class _listview_item(object):
@@ -63,12 +79,25 @@ class _listview_item(object):
     def __init__(self, lv_ctrl, item_index, subitem_index = 0):
         "Initialize the item"
         self.listview_ctrl = lv_ctrl
-        
+
         # ensure the item_index is an integer or
         # convert it to one
-        self.item_index = self.listview_ctrl._as_item_index(item_index)
+        self.item_index = self._as_item_index(item_index)
         self.subitem_index = subitem_index
         #self._as_parameter_ = self.item_index
+
+    #-----------------------------------------------------------
+    def _as_item_index(self, item):
+        """Ensure that item is an item index
+
+        If a string is passed in then it will be searched for in the
+        list of item titles.
+        """
+        index = item
+        if isinstance(item, six.string_types):
+            index = int((self.listview_ctrl.texts().index(item) - 1) / self.listview_ctrl.column_count())
+
+        return index
 
     #-----------------------------------------------------------
     def __eq__(self, other):
@@ -121,7 +150,7 @@ class _listview_item(object):
         remote_mem.Write(item)
 
         # Fill in the requested item
-        retval = self.listview_ctrl.SendMessage(
+        retval = self.listview_ctrl.send_message(
             self.listview_ctrl.LVM_GETITEM,
             0, # MSDN: wParam for LVM_GETITEM must be zero
             remote_mem)
@@ -140,7 +169,7 @@ class _listview_item(object):
 
         else:
             raise RuntimeError(
-                "We should never get to this part of ListView.GetItem(), retval = " + str(retval) +
+                "We should never get to this part of ListView.get_item(), retval = " + str(retval) +
                 ', GetLastError() = ' + str(ctypes.GetLastError()) +
                 ', item_index = ' + str(self.item_index) + ', subitem_index = ' + str(self.subitem_index))
 
@@ -152,8 +181,8 @@ class _listview_item(object):
     def __getitem__(self, key):
         "Return property name"
         warnings.warn('ListView item properties "text", "state", "image" and "indent" are deprecated! ' +
-                      'Use methods Text(), State(), Image() and Indent().', DeprecationWarning)
-        
+                      'Use methods text(), state(), image() and indent().', DeprecationWarning)
+
         item, text = self._readitem()
         if key == 'text':
             return text
@@ -163,50 +192,62 @@ class _listview_item(object):
             return item.iImage
         if key == 'indent':
             return item.iIndent
-        
+
         raise KeyError('Incorrect property: "' + str(key) + '", can be "text", "state", "image" or "indent".')
 
     #----------------------------------------------------------------
-    def Text(self):
+    def text(self):
         "Return the text of the item"
         return self._readitem()[1]
+    # Non PEP-8 alias
+    Text = text
 
     #----------------------------------------------------------------
-    def Item(self):
+    def item(self):
         "Return the item itself (LVITEM instance)"
         return self._readitem()[0]
+    # Non PEP-8 alias
+    Item = item
 
     #----------------------------------------------------------------
-    def ItemData(self):
+    def item_data(self):
         "Return the item data (dictionary)"
         item_data = {}
-        
+
         item, text = self._readitem()
         # and add it to the titles
         item_data['text'] = text
         item_data['state'] = item.state
         item_data['image'] = item.iImage
         item_data['indent'] = item.iIndent
-        
+
         return item_data
+    # Non PEP-8 alias
+    ItemData = item_data
 
     #----------------------------------------------------------------
-    def State(self):
+    def state(self):
         "Return the state of the item"
-        return self.Item().state
+        return self.item().state
+    # Non PEP-8 alias
+    State = state
 
     #----------------------------------------------------------------
-    def Image(self):
+    def image(self):
         "Return the image index of the item"
-        return self.Item().iImage
+        return self.item().iImage
+    # Non PEP-8 alias
+    Image = image
 
     #----------------------------------------------------------------
-    def Indent(self):
+    def indent(self):
         "Return the indent of the item"
-        return self.Item().iIndent
+        return self.item().iIndent
+    # Non PEP-8 alias
+    Indent = indent
 
     #----------------------------------------------------------------
-    def Rectangle(self, area = "all"):
+    def rectangle(self, area = "all"):
         """Return the rectangle of the item.
 
         Possible ``area`` values:
@@ -235,7 +276,7 @@ class _listview_item(object):
         remote_mem.Write(rect)
 
         # Fill in the requested item
-        retval = self.listview_ctrl.SendMessage(
+        retval = self.listview_ctrl.send_message(
             win32defines.LVM_GETITEMRECT,
             self.item_index,
             remote_mem)
@@ -250,9 +291,11 @@ class _listview_item(object):
         del remote_mem
 
         return rect
+    # Non PEP-8 alias
+    Rectangle = rectangle
 
     #----------------------------------------------------------------
-    def Click(self, button = "left", double = False, where = "text", pressed = ""):
+    def click(self, button ="left", double = False, where ="text", pressed =""):
         """Click on the list view item
 
         where can be any one of "all", "icon", "text", "select", "check"
@@ -260,37 +303,36 @@ class _listview_item(object):
         """
 
         if where.lower() != "check":
-            point_to_click = self.Rectangle(area=where.lower()).mid_point()
-            self.listview_ctrl.Click(
+            point_to_click = self.rectangle(area=where.lower()).mid_point()
+            self.listview_ctrl.click(
                 button,
                 coords = (point_to_click.x, point_to_click.y),
                 double = double,
                 pressed = pressed)
         else:
-            """
-            Click on checkbox
-            """
-            point_to_click = self.Rectangle(area="icon").mid_point()
-            point_to_click.y = self.Rectangle(area="icon").bottom - 3
+            # Click on checkbox
+
+            point_to_click = self.rectangle(area="icon").mid_point()
+            point_to_click.y = self.rectangle(area="icon").bottom - 3
             # Check ListView display mode
             # (to be able to process 'Full Row Details' mode separately
             remote_mem = RemoteMemoryBlock(self.listview_ctrl)
             hittest = win32structures.LVHITTESTINFO()
             hittest.pt = point_to_click
             # Actually, there is no need to set hittest.iItem, because
-            # SendMessage followed by remote_mem.Read always refreshes it
+            # send_message followed by remote_mem.Read always refreshes it
             #hittest.iItem = self.item_index
             hittest.iSubItem = self.subitem_index
             remote_mem.Write(hittest)
-            self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+            self.listview_ctrl.send_message(win32defines.LVM_HITTEST, 0, remote_mem)
             remote_mem.Read(hittest)
 
             # Hittest flag
             checkbox_found = False
             if hittest.flags == win32defines.LVHT_ONITEMICON:
-                """
-                Large Icons, Small Icons, List, Details
-                """
+
+                # Large Icons, Small Icons, List, Details
+
                 while not checkbox_found and point_to_click.x > 0:
                     point_to_click.x -= 1
 
@@ -299,7 +341,7 @@ class _listview_item(object):
                     #hittest.iItem = self.item_index
                     hittest.iSubItem = self.subitem_index
                     remote_mem.Write(hittest)
-                    self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                    self.listview_ctrl.send_message(win32defines.LVM_HITTEST, 0, remote_mem)
                     remote_mem.Read(hittest)
 
                     if hittest.flags == win32defines.LVHT_ONITEMSTATEICON:
@@ -307,18 +349,18 @@ class _listview_item(object):
                         break
 
             elif hittest.flags == win32defines.LVHT_ONITEM:
-                """
-                Full Row Details
-                """
+
+                # Full Row Details
+
                 warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
-                point_to_click.x = self.Rectangle(area="icon").left - 8
+                point_to_click.x = self.rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item
                 hittest = win32structures.LVHITTESTINFO()
                 hittest.pt = point_to_click
                 #hittest.iItem = self.item_index
                 hittest.iSubItem = self.subitem_index
                 remote_mem.Write(hittest)
-                self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                self.listview_ctrl.send_message(win32defines.LVM_HITTEST, 0, remote_mem)
                 remote_mem.Read(hittest)
 
                 if hittest.flags == win32defines.LVHT_ONITEM:
@@ -328,16 +370,18 @@ class _listview_item(object):
 
             # Click on the found checkbox
             if checkbox_found:
-                self.listview_ctrl.Click(
+                self.listview_ctrl.click(
                     button,
                     coords = (point_to_click.x, point_to_click.y),
                     double = double,
                     pressed = pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+    # Non PEP-8 alias
+    Click = click
 
     #----------------------------------------------------------------
-    def ClickInput(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
+    def click_input(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
         """Click on the list view item
 
         where can be any one of "all", "icon", "text", "select", "check"
@@ -345,38 +389,37 @@ class _listview_item(object):
         """
 
         if where.lower() != "check":
-            point_to_click = self.Rectangle(area=where.lower()).mid_point()
-            self.listview_ctrl.ClickInput(
+            point_to_click = self.rectangle(area=where.lower()).mid_point()
+            self.listview_ctrl.click_input(
                 button,
                 coords = (point_to_click.x, point_to_click.y),
                 double = double,
                 wheel_dist = wheel_dist,
                 pressed = pressed)
         else:
-            """
-            Click on checkbox
-            """
-            point_to_click = self.Rectangle(area="icon").mid_point()
-            point_to_click.y = self.Rectangle(area="icon").bottom - 3
+            # Click on checkbox
+
+            point_to_click = self.rectangle(area="icon").mid_point()
+            point_to_click.y = self.rectangle(area="icon").bottom - 3
             # Check ListView display mode
             # (to be able to process 'Full Row Details' mode separately
             remote_mem = RemoteMemoryBlock(self.listview_ctrl)
             hittest = win32structures.LVHITTESTINFO()
             hittest.pt = point_to_click
             # Actually, there is no need to set hittest.iItem, because
-            # SendMessage followed by remote_mem.Read always refreshes it
+            # send_message followed by remote_mem.Read always refreshes it
             #hittest.iItem = self.item_index
             hittest.iSubItem = self.subitem_index
             remote_mem.Write(hittest)
-            self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+            self.listview_ctrl.send_message(win32defines.LVM_HITTEST, 0, remote_mem)
             remote_mem.Read(hittest)
 
             # Hittest flag
             checkbox_found = False
             if hittest.flags == win32defines.LVHT_ONITEMICON:
-                """
-                Large Icons, Small Icons, List, Details
-                """
+
+                # Large Icons, Small Icons, List, Details
+
                 while not checkbox_found and point_to_click.x > 0:
                     point_to_click.x -= 1
 
@@ -385,7 +428,7 @@ class _listview_item(object):
                     #hittest.iItem = self.item_index
                     hittest.iSubItem = self.subitem_index
                     remote_mem.Write(hittest)
-                    self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                    self.listview_ctrl.send_message(win32defines.LVM_HITTEST, 0, remote_mem)
                     remote_mem.Read(hittest)
 
                     if hittest.flags == win32defines.LVHT_ONITEMSTATEICON:
@@ -393,18 +436,18 @@ class _listview_item(object):
                         break
 
             elif hittest.flags == win32defines.LVHT_ONITEM:
-                """
-                Full Row Details
-                """
+
+                # Full Row Details
+
                 warnings.warn("Full Row Details 'check' area is detected in experimental mode. Use carefully!")
-                point_to_click.x = self.Rectangle(area="icon").left - 8
+                point_to_click.x = self.rectangle(area="icon").left - 8
                 # Check if point_to_click is still on item
                 hittest = win32structures.LVHITTESTINFO()
                 hittest.pt = point_to_click
                 #hittest.iItem = self.item_index
                 hittest.iSubItem = self.subitem_index
                 remote_mem.Write(hittest)
-                self.listview_ctrl.SendMessage(win32defines.LVM_HITTEST, 0, remote_mem)
+                self.listview_ctrl.send_message(win32defines.LVM_HITTEST, 0, remote_mem)
                 remote_mem.Read(hittest)
 
                 if hittest.flags == win32defines.LVHT_ONITEM:
@@ -414,7 +457,7 @@ class _listview_item(object):
 
             # Click on the found checkbox
             if checkbox_found:
-                self.listview_ctrl.ClickInput(
+                self.listview_ctrl.click_input(
                     button,
                     coords = (point_to_click.x, point_to_click.y),
                     double = double,
@@ -422,96 +465,110 @@ class _listview_item(object):
                     pressed = pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+    # Non PEP-8 alias
+    ClickInput = click_input
 
     #----------------------------------------------------------------
-    def EnsureVisible(self):
+    def ensure_visible(self):
         "Make sure that the ListView item is visible"
-        if self.State() & win32defines.LVS_NOSCROLL:
+        if self.state() & win32defines.LVS_NOSCROLL:
             return False # scroll is disabled
-        ret = self.listview_ctrl.SendMessage(
+        ret = self.listview_ctrl.send_message(
             win32defines.LVM_ENSUREVISIBLE,
             self.item_index,
             win32defines.FALSE)
         if ret != win32defines.TRUE:
             raise RuntimeError('Fail to make the list view item visible ' +
                                '(item_index = ' + str(self.item_index) + ')')
+    # Non PEP-8 alias
+    EnsureVisible = ensure_visible
 
     #-----------------------------------------------------------
-    def UnCheck(self):
+    def uncheck(self):
         "Uncheck the ListView item"
 
-        def INDEXTOSTATEIMAGEMASK(i):
+        def index_to_state_image_mask(i):
             return i << 12
 
-        self.listview_ctrl.VerifyActionable()
+        self.listview_ctrl.verify_actionable()
 
         lvitem = self.listview_ctrl.LVITEM()
 
         lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(INDEXTOSTATEIMAGEMASK(1)) #win32structures.UINT(0x1000)
+        lvitem.state = win32structures.UINT(index_to_state_image_mask(1)) #win32structures.UINT(0x1000)
         lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
 
-        retval = self.listview_ctrl.SendMessage(
+        retval = self.listview_ctrl.send_message(
             win32defines.LVM_SETITEMSTATE, self.item_index, remote_mem)
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
 
         del remote_mem
+    # Non PEP-8 alias
+    UnCheck = uncheck
 
     #-----------------------------------------------------------
-    def Check(self):
+    def check(self):
         "Check the ListView item"
 
-        def INDEXTOSTATEIMAGEMASK(i):
+        def index_to_state_image_mask(i):
             return i << 12
 
-        self.listview_ctrl.VerifyActionable()
+        self.listview_ctrl.verify_actionable()
 
         lvitem = self.listview_ctrl.LVITEM()
 
         lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(INDEXTOSTATEIMAGEMASK(2)) #win32structures.UINT(0x2000)
+        lvitem.state = win32structures.UINT(index_to_state_image_mask(2)) #win32structures.UINT(0x2000)
         lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
 
-        retval = self.listview_ctrl.SendMessage(
+        retval = self.listview_ctrl.send_message(
             win32defines.LVM_SETITEMSTATE, self.item_index, remote_mem)
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
 
         del remote_mem
+    # Non PEP-8 alias
+    Check = check
 
     #-----------------------------------------------------------
-    def IsChecked(self):
+    def is_checked(self):
         "Return whether the ListView item is checked or not"
 
-        state = self.listview_ctrl.SendMessage(
+        state = self.listview_ctrl.send_message(
             win32defines.LVM_GETITEMSTATE,
             self.item_index,
             win32defines.LVIS_STATEIMAGEMASK)
 
         return state & 0x2000 == 0x2000
+    # Non PEP-8 alias
+    IsChecked = is_checked
 
     #-----------------------------------------------------------
-    def IsSelected(self):
+    def is_selected(self):
         "Return True if the item is selected"
 
-        return win32defines.LVIS_SELECTED == self.listview_ctrl.SendMessage(
+        return win32defines.LVIS_SELECTED == self.listview_ctrl.send_message(
             win32defines.LVM_GETITEMSTATE, self.item_index, win32defines.LVIS_SELECTED)
+    # Non PEP-8 alias
+    IsSelected = is_selected
 
     #-----------------------------------------------------------
-    def IsFocused(self):
+    def is_focused(self):
         "Return True if the item has the focus"
 
-        return win32defines.LVIS_FOCUSED == self.listview_ctrl.SendMessage(
+        return win32defines.LVIS_FOCUSED == self.listview_ctrl.send_message(
             win32defines.LVM_GETITEMSTATE, self.item_index, win32defines.LVIS_FOCUSED)
+    # Non PEP-8 alias
+    IsFocused = is_focused
 
     #-----------------------------------------------------------
     def _modify_selection(self, to_select):
@@ -521,11 +578,11 @@ class _listview_item(object):
         to deselect the item
         """
 
-        self.listview_ctrl.VerifyActionable()
+        self.listview_ctrl.verify_actionable()
 
-        if self.item_index >= self.listview_ctrl.ItemCount():
-            raise IndexError("There are only %d items in the list view not %d"%
-                (self.listview_ctrl.ItemCount(), self.item_index + 1))
+        if self.item_index >= self.listview_ctrl.item_count():
+            raise IndexError("There are only %d items in the list view not %d" %
+                             (self.listview_ctrl.item_count(), self.item_index + 1))
 
         # first we need to change the state of the item
         lvitem = self.listview_ctrl.LVITEM()
@@ -535,11 +592,11 @@ class _listview_item(object):
             lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
         lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
-        
+
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
 
-        retval = self.listview_ctrl.SendMessage(
+        retval = self.listview_ctrl.send_message(
             win32defines.LVM_SETITEMSTATE, self.item_index, remote_mem)
         if retval != win32defines.TRUE:
             raise ctypes.WinError()#('retval = ' + str(retval))
@@ -548,7 +605,7 @@ class _listview_item(object):
         # now we need to notify the parent that the state has changed
         nmlv = win32structures.NMLISTVIEW()
         nmlv.hdr.hwndFrom = self.listview_ctrl.handle
-        nmlv.hdr.idFrom = self.listview_ctrl.ControlID()
+        nmlv.hdr.idFrom = self.listview_ctrl.control_id()
         nmlv.hdr.code = win32defines.LVN_ITEMCHANGING
 
         nmlv.iItem = self.item_index
@@ -561,9 +618,9 @@ class _listview_item(object):
         new_remote_mem = RemoteMemoryBlock(self.listview_ctrl, size=ctypes.sizeof(nmlv))
         new_remote_mem.Write(nmlv, size=ctypes.sizeof(nmlv))
 
-        retval = self.listview_ctrl.Parent().SendMessage(
+        retval = self.listview_ctrl.parent().send_message(
             win32defines.WM_NOTIFY,
-            self.listview_ctrl.ControlID(),
+            self.listview_ctrl.control_id(),
             new_remote_mem)
         #if retval != win32defines.TRUE:
         #    print('retval = ' + str(retval))
@@ -575,95 +632,123 @@ class _listview_item(object):
 
 
     #-----------------------------------------------------------
-    def Select(self):
+    def select(self):
         """Mark the item as selected
 
         The ListView control must be enabled and visible before an
         Item can be selected otherwise an exception is raised"""
         self._modify_selection(True)
+    # Non PEP-8 alias
+    Select = select
 
     #-----------------------------------------------------------
-    def Deselect(self):
+    def deselect(self):
         """Mark the item as not selected
 
         The ListView control must be enabled and visible before an
         Item can be selected otherwise an exception is raised"""
         self._modify_selection(False)
+    # Non PEP-8 alias
+    Deselect = deselect
 
 
 
 #====================================================================
-class ListViewWrapper(HwndWrapper.HwndWrapper):
+class ListViewWrapper(hwndwrapper.HwndWrapper):
     """Class that wraps Windows ListView common control
 
     This class derives from HwndWrapper - so has all the methods o
     that class also
 
-    **see** HwndWrapper.HwndWrapper_
+    **see** hwndwrapper.HwndWrapper_
 
-    .. _HwndWrapper.HwndWrapper: class-pywinauto.controls.HwndWrapper.HwndWrapper.html
+    .. _hwndwrapper.HwndWrapper: class-pywinauto.controls.hwndwrapper.HwndWrapper.html
 
     """
 
     friendlyclassname = "ListView"
     windowclasses = [
-        "SysListView32", 
-        r"WindowsForms\d*\.SysListView32\..*", 
+        "SysListView32",
+        r"WindowsForms\d*\.SysListView32\..*",
         "TSysListView",
         "ListView20WndClass"]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
+        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
         super(ListViewWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'ColumnCount',
-            'ItemCount',
-            'Columns',
-            'Items'])
-        
-        if self.IsUnicode():
+        if self.is_unicode():
             self.create_buffer = ctypes.create_unicode_buffer
-            self.LVCOLUMN       = win32structures.LVCOLUMNW
-            self.LVITEM         = win32structures.LVITEMW
+
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
+                self.LVCOLUMN       = win32structures.LVCOLUMNW
+                self.LVITEM         = win32structures.LVITEMW
+            else:
+                self.LVCOLUMN       = win32structures.LVCOLUMNW32
+                self.LVITEM         = win32structures.LVITEMW32
+
             self.LVM_GETITEM    = win32defines.LVM_GETITEMW
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNW
             self.text_decode    = lambda v: v
         else:
             self.create_buffer = ctypes.create_string_buffer
-            self.LVCOLUMN       = win32structures.LVCOLUMNW
-            self.LVITEM         = win32structures.LVITEMW
+
+            if is64bitprocess(self.process_id()) or not is_x64_Python():
+                self.LVCOLUMN       = win32structures.LVCOLUMNW
+                self.LVITEM         = win32structures.LVITEMW
+            else:
+                self.LVCOLUMN       = win32structures.LVCOLUMNW32
+                self.LVITEM         = win32structures.LVITEMW32
+
             self.LVM_GETCOLUMN  = win32defines.LVM_GETCOLUMNA
-            self.LVM_GETITEM    = win32defines.LVM_GETITEMA            
+            self.LVM_GETITEM    = win32defines.LVM_GETITEMA
             self.text_decode    = lambda v: v.decode(locale.getpreferredencoding())
 
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListViewWrapper, self).writable_props
+        props.extend(['column_count',
+                      'item_count',
+                      'columns',
+                      'items',
+                      ])
+        return props
+
     #-----------------------------------------------------------
-    def ColumnCount(self):
+    def column_count(self):
         """Return the number of columns"""
-        if self.GetHeaderControl() is not None:
-            return self.GetHeaderControl().ItemCount()
+        if self.get_header_control() is not None:
+            return self.get_header_control().ItemCount()
         return 0
+    # Non PEP-8 alias
+    ColumnCount = column_count
 
     #-----------------------------------------------------------
-    def ItemCount(self):
+    def item_count(self):
         "The number of items in the ListView"
-        return self.SendMessage(win32defines.LVM_GETITEMCOUNT)
+        return self.send_message(win32defines.LVM_GETITEMCOUNT)
+    # Non PEP-8 alias
+    ItemCount = item_count
 
     #-----------------------------------------------------------
-    def GetHeaderControl(self):
+    def get_header_control(self):
         "Returns the Header control associated with the ListView"
-        #from wraphandle import WrapHandle
-        #from HwndWrapper import WrapHandle
-
         try:
-            return HwndWrapper.HwndWrapper(
-                self.SendMessage(win32defines.LVM_GETHEADER))
-        except HwndWrapper.InvalidWindowHandle:
+            return hwndwrapper.HwndWrapper(
+                self.send_message(win32defines.LVM_GETHEADER))
+        except hwndwrapper.InvalidWindowHandle:
             return None
+    # Non PEP-8 alias
+    GetHeaderControl = get_header_control
 
     #-----------------------------------------------------------
-    def GetColumn(self, col_index):
+    def get_column(self, col_index):
         "Get the information for a column of the ListView"
 
         col_props = {}
@@ -687,7 +772,7 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(col)
 
         # ask the other process to update the information
-        retval = self.SendMessage(
+        retval = self.send_message(
             self.LVM_GETCOLUMN,
             col_index,
             remote_mem)
@@ -711,43 +796,38 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         return col_props
+    # Non PEP-8 alias
+    GetColumn = get_column
 
     #-----------------------------------------------------------
-    def Columns(self):
+    def columns(self):
         "Get the information on the columns of the ListView"
         cols = []
 
-        for i in range(0,  self.ColumnCount()):
-            cols.append(self.GetColumn(i))
+        for i in range(0, self.column_count()):
+            cols.append(self.get_column(i))
 
         return cols
+    # Non PEP-8 alias
+    Columns = columns
 
     #-----------------------------------------------------------
-    def ColumnWidths(self):
+    def column_widths(self):
         "Return a list of all the column widths"
-        return [col['width'] for col in self.Columns()]
+        return [col['width'] for col in self.columns()]
+    # Non PEP-8 alias
+    ColumnWidths = column_widths
 
     #-----------------------------------------------------------
-    def GetItemRect(self, item_index):
+    def get_item_rect(self, item_index):
         "Return the bounding rectangle of the list view item"
-        warnings.warn("Use GetItem(item).Rectangle() instead", DeprecationWarning)
-        return self.GetItem(item_index).Rectangle()
+        warnings.warn("Use get_item(item).rectangle() instead", DeprecationWarning)
+        return self.get_item(item_index).rectangle()
+    # Non PEP-8 alias
+    GetItemRect = get_item_rect
 
     #-----------------------------------------------------------
-    def _as_item_index(self, item):
-        """Ensure that item is an item index
-
-        If a string is passed in then it will be searched for in the
-        list of item titles.
-        """
-        index = item
-        if isinstance(item, six.string_types):
-            index = int((self.Texts().index(item) - 1) / self.ColumnCount())
-
-        return index
-
-    #-----------------------------------------------------------
-    def GetItem(self, item_index, subitem_index = 0):
+    def get_item(self, item_index, subitem_index = 0):
         """Return the item of the list view"
 
         * **item_index** Can be either an index of the item or a string
@@ -758,12 +838,15 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
 
         return _listview_item(self, item_index, subitem_index)
 
-    Item = GetItem # this is an alias to be consistent with other content elements
+    item = get_item # this is an alias to be consistent with other content elements
+    # Non PEP-8 alias
+    Item = get_item
+    GetItem = get_item
 
     #-----------------------------------------------------------
-    def Items(self):
+    def items(self):
         "Get all the items in the list view"
-        colcount = self.ColumnCount()
+        colcount = self.column_count()
 
         if not colcount:
             colcount = 1
@@ -771,85 +854,103 @@ class ListViewWrapper(HwndWrapper.HwndWrapper):
         items = []
         # now get the item values...
         # for each of the rows
-        for item_index in range(0, self.ItemCount()):
+        for item_index in range(0, self.item_count()):
 
             # and each of the columns for that row
             for subitem_index in range(0, colcount):
 
                 # get the item
-                #yield self.GetItem(item_index, subitem_index) # return iterator
-                items.append(self.GetItem(item_index, subitem_index))
+                #yield self.get_item(item_index, subitem_index) # return iterator
+                items.append(self.get_item(item_index, subitem_index))
 
         return items
+    # Non PEP-8 alias
+    Items = items
 
     #-----------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Get the texts for the ListView control"
-        texts = [self.WindowText()]
-        texts.extend([item['text'] for item in self.Items()])
+        texts = [self.window_text()]
+        texts.extend([item['text'] for item in self.items()])
         return texts
 
     #-----------------------------------------------------------
-    def UnCheck(self, item):
+    def uncheck(self, item):
         "Uncheck the ListView item"
 
-        warnings.warn("Use GetItem(item).UnCheck() instead", DeprecationWarning)
-        return self.GetItem(item).UnCheck()
+        warnings.warn("Use get_item(item).uncheck() instead", DeprecationWarning)
+        return self.get_item(item).uncheck()
+    # Non PEP-8 alias
+    UnCheck = uncheck
 
     #-----------------------------------------------------------
-    def Check(self, item):
+    def check(self, item):
         "Check the ListView item"
 
-        warnings.warn("Use GetItem(item).Check() instead", DeprecationWarning)
-        return self.GetItem(item).Check()
+        warnings.warn("Use get_item(item).check() instead", DeprecationWarning)
+        return self.get_item(item).check()
+    # Non PEP-8 alias
+    Check = check
 
     #-----------------------------------------------------------
-    def IsChecked(self, item):
+    def is_checked(self, item):
         "Return whether the ListView item is checked or not"
 
-        warnings.warn("Use GetItem(item).IsChecked() instead", DeprecationWarning)
-        return self.GetItem(item).IsChecked()
+        warnings.warn("Use get_item(item).is_checked() instead", DeprecationWarning)
+        return self.get_item(item).is_checked()
+    # Non PEP-8 alias
+    IsChecked = is_checked
 
     #-----------------------------------------------------------
-    def IsSelected(self, item):
+    def is_selected(self, item):
         "Return True if the item is selected"
 
-        warnings.warn("Use GetItem(item).IsSelected() instead", DeprecationWarning)
-        return self.GetItem(item).IsSelected()
+        warnings.warn("Use get_item(item).is_selected() instead", DeprecationWarning)
+        return self.get_item(item).is_selected()
+    # Non PEP-8 alias
+    IsSelected = is_selected
 
     #-----------------------------------------------------------
-    def IsFocused(self, item):
+    def is_focused(self, item):
         "Return True if the item has the focus"
 
-        warnings.warn("Use GetItem(item).IsFocused() instead", DeprecationWarning)
-        return self.GetItem(item).IsFocused()
+        warnings.warn("Use get_item(item).is_focused() instead", DeprecationWarning)
+        return self.get_item(item).is_focused()
+    # Non PEP-8 alias
+    IsFocused = is_focused
 
     #-----------------------------------------------------------
-    def Select(self, item):
+    def select(self, item):
         """Mark the item as selected
 
         The ListView control must be enabled and visible before an
         Item can be selected otherwise an exception is raised"""
-        warnings.warn("Use GetItem(item).Select() instead", DeprecationWarning)
-        return self.GetItem(item).Select()
+        warnings.warn("Use get_item(item).select() instead", DeprecationWarning)
+        return self.get_item(item).select()
+    # Non PEP-8 alias
+    Select = select
 
     #-----------------------------------------------------------
-    def Deselect(self, item):
+    def deselect(self, item):
         """Mark the item as not selected
 
         The ListView control must be enabled and visible before an
         Item can be selected otherwise an exception is raised"""
-        warnings.warn("Use GetItem(item).Deselect() instead", DeprecationWarning)
-        return self.GetItem(item).Deselect()
+        warnings.warn("Use get_item(item).deselect() instead", DeprecationWarning)
+        return self.get_item(item).deselect()
 
     # Naming is not clear - so create an alias.
-    #UnSelect = Deselect
+    #UnSelect = deselect
+    # Non PEP-8 alias
+    Deselect = deselect
 
     #-----------------------------------------------------------
-    def GetSelectedCount(self):
+    def get_selected_count(self):
         "Return the number of selected items"
 
-        return self.SendMessage(win32defines.LVM_GETSELECTEDCOUNT)
+        return self.send_message(win32defines.LVM_GETSELECTEDCOUNT)
+    # Non PEP-8 alias
+    GetSelectedCount = get_selected_count
 
 
 
@@ -864,33 +965,41 @@ class _treeview_element(object):
         self._as_parameter_ = self.elem
 
     #----------------------------------------------------------------
-    def Text(self):
+    def text(self):
         "Return the text of the item"
         return self._readitem()[1]
+    # Non PEP-8 alias
+    Text = text
 
     #----------------------------------------------------------------
-    def Item(self):
+    def item(self):
         "Return the item itself"
         return self._readitem()[0]
+    # Non PEP-8 alias
+    Item = item
 
     #----------------------------------------------------------------
-    def State(self):
+    def state(self):
         "Return the state of the item"
-        return self.Item().state
+        return self.item().state
+    # Non PEP-8 alias
+    State = state
 
     #-----------------------------------------------------------
-    def IsChecked(self):
+    def is_checked(self):
         "Return whether the TreeView item is checked or not"
 
-        state = self.tree_ctrl.SendMessage(
+        state = self.tree_ctrl.send_message(
             win32defines.TVM_GETITEMSTATE,
             self.elem,
             win32defines.TVIS_STATEIMAGEMASK)
 
         return state & 0x2000 == 0x2000
+    # Non PEP-8 alias
+    IsChecked = is_checked
 
     #----------------------------------------------------------------
-    def Rectangle(self, text_area_rect = True):
+    def rectangle(self, text_area_rect = True):
         """Return the rectangle of the item
 
         If text_area_rect is set to False then it will return
@@ -902,10 +1011,10 @@ class _treeview_element(object):
 
         # this is a bit weird
         # we have to write the element handle
-        # but we read the Rectangle afterwards!
+        # but we read the rectangle afterwards!
         remote_mem.Write(win32structures.LPARAM(self.elem))
 
-        ret = self.tree_ctrl.SendMessage(
+        ret = self.tree_ctrl.send_message(
             win32defines.TVM_GETITEMRECT, text_area_rect, remote_mem)
 
         # the item is not visible
@@ -918,10 +1027,11 @@ class _treeview_element(object):
 
         del remote_mem
         return rect
-
+    # Non PEP-8 alias
+    Rectangle = rectangle
 
     #----------------------------------------------------------------
-    def Click(self, button = "left", double = False, where = "text", pressed = ""):
+    def click(self, button ="left", double = False, where ="text", pressed =""):
         """Click on the treeview item
 
         where can be any one of "text", "icon", "button", "check"
@@ -929,12 +1039,12 @@ class _treeview_element(object):
         """
 
         # find the text rectangle for the item,
-        point_to_click = self.Rectangle().mid_point()
+        point_to_click = self.rectangle().mid_point()
 
         if where.lower() != "text":
             remote_mem = RemoteMemoryBlock(self.tree_ctrl)
 
-            point_to_click.x = self.Rectangle().left
+            point_to_click.x = self.rectangle().left
 
             found = False
             while not found and point_to_click.x >= 0:
@@ -945,7 +1055,7 @@ class _treeview_element(object):
 
                 remote_mem.Write(hittest)
 
-                self.tree_ctrl.SendMessage(win32defines.TVM_HITTEST, 0, remote_mem)
+                self.tree_ctrl.send_message(win32defines.TVM_HITTEST, 0, remote_mem)
                 remote_mem.Read(hittest)
 
                 if where.lower() == 'button' and \
@@ -962,25 +1072,29 @@ class _treeview_element(object):
                     hittest.flags == win32defines.TVHT_ONITEMSTATEICON:
                     found = True
                     break
-                    
+
                 point_to_click.x -= 1
 
             if not found:
                 raise RuntimeError("Area ('%s') not found for this tree view item" % where)
 
-        self.tree_ctrl.Click(
+        self.tree_ctrl.click(
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
             pressed = pressed) #,
-            #absolute = True) # XXX: somehow it works for 64-bit explorer.exe on Win8.1, but it doesn't work for 32-bit ControlSpyV6.exe
+        # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
+        # but it doesn't work for 32-bit ControlSpyV6.exe
+        #absolute = True)
 
-        # if we use click instead of clickInput - then we need to tell the
+        # TODO: if we use click instead of clickInput - then we need to tell the
         # treeview to update itself
         #self.tree_ctrl.
+    # Non PEP-8 alias
+    Click = click
 
     #----------------------------------------------------------------
-    def ClickInput(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
+    def click_input(self, button = "left", double = False, wheel_dist = 0, where = "text", pressed = ""):
         """Click on the treeview item
 
         where can be any one of "text", "icon", "button", "check"
@@ -988,12 +1102,12 @@ class _treeview_element(object):
         """
 
         # find the text rectangle for the item,
-        point_to_click = self.Rectangle().mid_point()
+        point_to_click = self.rectangle().mid_point()
 
         if where.lower() != "text":
             remote_mem = RemoteMemoryBlock(self.tree_ctrl)
 
-            point_to_click.x = self.Rectangle().left
+            point_to_click.x = self.rectangle().left
 
             found = False
             while not found and point_to_click.x >= 0:
@@ -1004,7 +1118,7 @@ class _treeview_element(object):
 
                 remote_mem.Write(hittest)
 
-                self.tree_ctrl.SendMessage(win32defines.TVM_HITTEST, 0, remote_mem)
+                self.tree_ctrl.send_message(win32defines.TVM_HITTEST, 0, remote_mem)
                 remote_mem.Read(hittest)
 
                 if where.lower() == 'button' and \
@@ -1021,92 +1135,101 @@ class _treeview_element(object):
                     hittest.flags == win32defines.TVHT_ONITEMSTATEICON:
                     found = True
                     break
-                    
+
                 point_to_click.x -= 1
 
             if not found:
                 raise RuntimeError("Area ('%s') not found for this tree view item" % where)
 
-        self.tree_ctrl.ClickInput(
+        self.tree_ctrl.click_input(
             button,
             coords = (point_to_click.x, point_to_click.y),
             double = double,
             wheel_dist = wheel_dist,
             pressed = pressed)
+    # Non PEP-8 alias
+    ClickInput = click_input
 
     #----------------------------------------------------------------
-    def StartDragging(self, button='left', pressed=''):
+    def start_dragging(self, button='left', pressed=''):
         "Start dragging the item"
-        
-        #self.EnsureVisible()
+
+        #self.ensure_visible()
         # find the text rectangle for the item
-        rect = self.Rectangle()
+        rect = self.rectangle()
         point_to_click = rect.mid_point()
-        
-        #self.tree_ctrl.SetFocus()
-        self.tree_ctrl.PressMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
+
+        #self.tree_ctrl.set_focus()
+        self.tree_ctrl.press_mouse_input(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
         for i in range(5):
-            self.tree_ctrl.MoveMouseInput(coords = (rect.left + i, rect.top), pressed=pressed)
+            self.tree_ctrl.move_mouse_input(coords = (rect.left + i, rect.top), pressed=pressed)
+    # Non PEP-8 alias
+    StartDragging = start_dragging
 
     #----------------------------------------------------------------
-    def Drop(self, button='left', pressed=''):
+    def drop(self, button='left', pressed=''):
         "Drop at the item"
-        
-        #self.EnsureVisible()
+
+        #self.ensure_visible()
         # find the text rectangle for the item
-        point_to_click = self.Rectangle().mid_point()
-        
-        self.tree_ctrl.MoveMouseInput(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
+        point_to_click = self.rectangle().mid_point()
+
+        self.tree_ctrl.move_mouse_input(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
         time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        
-        self.tree_ctrl.ReleaseMouseInput(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
+
+        self.tree_ctrl.release_mouse_input(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
         time.sleep(Timings.after_drag_n_drop_wait)
+    # Non PEP-8 alias
+    Drop = drop
 
     #----------------------------------------------------------------
-    def Collapse(self):
+    def collapse(self):
         "Collapse the children of this tree view item"
-        self.tree_ctrl.SendMessage(
+        self.tree_ctrl.send_message(
             win32defines.TVM_EXPAND,
             win32defines.TVE_COLLAPSE,
             self.elem)
+    # Non PEP-8 alias
+    Collapse = collapse
 
     #----------------------------------------------------------------
-    def Expand(self):
+    def expand(self):
         "Expand the children of this tree view item"
-        self.tree_ctrl.SendMessage(
+        self.tree_ctrl.send_message(
             win32defines.TVM_EXPAND,
             win32defines.TVE_EXPAND,
             self.elem)
-
+    # Non PEP-8 alias
+    Expand = expand
 
     #----------------------------------------------------------------
-    def Children(self):
+    def children(self):
         "Return the direct children of this control"
-        if self.Item().cChildren not in (0, 1):
+        if self.item().cChildren not in (0, 1):
             print("##### not dealing with that TVN_GETDISPINFO stuff yet")
 
         ## No children
         #if self.__item.cChildren == 0:
         #    pass
 
-        children = []
-        if self.Item().cChildren == 1:
+        children_elements = []
+        if self.item().cChildren == 1:
 
             # Get the first child of this element
-            child_elem = self.tree_ctrl.SendMessage(
+            child_elem = self.tree_ctrl.send_message(
                 win32defines.TVM_GETNEXTITEM,
                 win32defines.TVGN_CHILD,
                 self.elem)
 
             if child_elem:
-                children.append(_treeview_element(child_elem, self.tree_ctrl))
+                children_elements.append(_treeview_element(child_elem, self.tree_ctrl))
 
                 # now get all the next children
                 while True:
-                    next_child = children[-1].Next()
+                    next_child = children_elements[-1].next_item()
 
                     if next_child is not None:
-                        children.append(next_child)
+                        children_elements.append(next_child)
                     else:
                         break
 
@@ -1114,13 +1237,15 @@ class _treeview_element(object):
                 return []
                 #raise ctypes.WinError()
 
-        return children
+        return children_elements
+    # Non PEP-8 alias
+    Children = children
 
     #----------------------------------------------------------------
-    def Next(self):
+    def next_item(self):
         "Return the next item"
         # get the next element
-        next_elem = self.tree_ctrl.SendMessage(
+        next_elem = self.tree_ctrl.send_message(
             win32defines.TVM_GETNEXTITEM,
             win32defines.TVGN_NEXT,
             self.elem)
@@ -1133,25 +1258,25 @@ class _treeview_element(object):
         # next
         #else:
         #    raise ctypes.WinError()
-
-    #def Click(self):
-    #    print self.Rectangle()
-    #    self.t
+    # Non PEP-8 alias
+    Next = next_item
 
     #----------------------------------------------------------------
-    def SubElements(self):
-        "Return the list of Children of this control"
+    def sub_elements(self):
+        "Return the list of children of this control"
         sub_elems = []
 
-        for child in self.Children():
+        for child in self.children():
             sub_elems.append(child)
 
-            sub_elems.extend(child.SubElements())
+            sub_elems.extend(child.sub_elements())
 
         return sub_elems
+    # Non PEP-8 alias
+    SubElements = sub_elements
 
     #----------------------------------------------------------------
-    def GetChild(self, child_spec, exact = False):
+    def get_child(self, child_spec, exact = False):
         """Return the child item of this item
 
         Accepts either a string or an index.
@@ -1163,7 +1288,7 @@ class _treeview_element(object):
 
         if isinstance(child_spec, six.string_types):
 
-            texts = [c.Text() for c in self.Children()]
+            texts = [c.text() for c in self.children()]
             if exact:
                 if child_spec in texts:
                     index = texts.index(child_spec)
@@ -1182,48 +1307,62 @@ class _treeview_element(object):
         else:
             index = child_spec
 
-        return self.Children()[index]
+        return self.children()[index]
+    # Non PEP-8 alias
+    GetChild = get_child
 
     #----------------------------------------------------------------
-    def EnsureVisible(self):
+    def ensure_visible(self):
         "Make sure that the TreeView item is visible"
-        self.tree_ctrl.SendMessage(
+        self.tree_ctrl.send_message(
             win32defines.TVM_ENSUREVISIBLE,
             win32defines.TVGN_CARET,
             self.elem)
+    # Non PEP-8 alias
+    EnsureVisible = ensure_visible
 
     #----------------------------------------------------------------
-    def Select(self):
+    def select(self):
         "Select the TreeView item"
 
         # http://stackoverflow.com/questions/14111333/treeview-set-default-select-item-and-highlight-blue-this-item
         # non-focused TreeView can ignore TVM_SELECTITEM
-        self.tree_ctrl.SetFocus()
+        self.tree_ctrl.set_focus()
 
-        retval = self.tree_ctrl.SendMessage(
+        retval = self.tree_ctrl.send_message(
             win32defines.TVM_SELECTITEM, # message
             win32defines.TVGN_CARET,     # how to select
             self.elem)                   # item to select
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
+    # Non PEP-8 alias
+    Select = select
 
     #----------------------------------------------------------------
-    def IsSelected(self):
+    def is_selected(self):
         "Indicate that the TreeView item is selected or not"
-        return win32defines.TVIS_SELECTED == (win32defines.TVIS_SELECTED & self.State())
+        return win32defines.TVIS_SELECTED == (win32defines.TVIS_SELECTED & self.state())
+    # Non PEP-8 alias
+    IsSelected = is_selected
 
     #----------------------------------------------------------------
-    def IsExpanded(self):
+    def is_expanded(self):
         "Indicate that the TreeView item is selected or not"
-        return win32defines.TVIS_EXPANDED == (win32defines.TVIS_EXPANDED & self.State())
+        return win32defines.TVIS_EXPANDED == (win32defines.TVIS_EXPANDED & self.state())
+    # Non PEP-8 alias
+    IsExpanded = is_expanded
 
     #----------------------------------------------------------------
     def _readitem(self):
         "Read the treeview item"
         remote_mem = RemoteMemoryBlock(self.tree_ctrl)
 
-        item = win32structures.TVITEMW()
+        if is64bitprocess(self.tree_ctrl.process_id()) or not is_x64_Python():
+            item = win32structures.TVITEMW()
+        else:
+            item = win32structures.TVITEMW32()
+
         item.mask =  win32defines.TVIF_TEXT | \
             win32defines.TVIF_HANDLE | \
             win32defines.TVIF_CHILDREN | \
@@ -1264,40 +1403,51 @@ class _treeview_element(object):
 
 
 #====================================================================
-class TreeViewWrapper(HwndWrapper.HwndWrapper):
+class TreeViewWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows TreeView common control"
 
     friendlyclassname = "TreeView"
     windowclasses = [
         "SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*", "TTreeView", "TreeList.TreeListCtrl"]
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_TreeControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
         super(TreeViewWrapper, self).__init__(hwnd)
 
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TreeViewWrapper, self).writable_props
+        props.extend(['item_count'])
+        return props
+
     #----------------------------------------------------------------
-    def ItemCount(self):
+    def item_count(self):
         "Return the count of the items in the treeview"
-        return self.SendMessage(win32defines.TVM_GETCOUNT)
+        return self.send_message(win32defines.TVM_GETCOUNT)
+    # Non PEP-8 alias
+    ItemCount = item_count
 
     #----------------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return all the text for the tree view"
-        texts = [self.WindowText(), ]
-        if self.ItemCount():
-            texts.append(self.Root().Text())
-            elements = self.Root().SubElements()
+        texts = [self.window_text(), ]
+        if self.item_count():
+            texts.append(self.tree_root().text())
+            elements = self.tree_root().sub_elements()
 
-            texts.extend([elem.Text() for elem in elements])
+            texts.extend([elem.text() for elem in elements])
 
         return texts
 
     #----------------------------------------------------------------
-    def Root(self):
+    def tree_root(self):
         "Return the root element of the tree view"
         # get the root item:
-        root_elem = self.SendMessage(
+        root_elem = self.send_message(
             win32defines.TVM_GETNEXTITEM,
             win32defines.TVGN_ROOT)
 
@@ -1306,30 +1456,34 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
             return None
 
         return _treeview_element(root_elem, self)
+    # Non PEP-8 alias
+    Root = tree_root
 
     #----------------------------------------------------------------
-    def Roots(self):
+    def roots(self):
         roots = []
 
-        cur_elem = self.Root()
+        cur_elem = self.tree_root()
         while cur_elem:
             roots.append(cur_elem)
 
             cur_elem = cur_elem.Next()
 
         return roots
+    # Non PEP-8 alias
+    Roots = roots
 
     #----------------------------------------------------------------
-    def GetProperties(self):
+    def get_properties(self):
         "Get the properties for the control as a dictionary"
-        props = super(TreeViewWrapper, self).GetProperties()
+        props = super(TreeViewWrapper, self).get_properties()
 
-        props['ItemCount'] = self.ItemCount()
+        props['item_count'] = self.item_count()
 
         return props
 
     #----------------------------------------------------------------
-    def GetItem(self, path, exact = False):
+    def get_item(self, path, exact = False):
         """Read the TreeView item
 
         * **path** the path to the item to return. This can be one of
@@ -1348,7 +1502,7 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
         # work just based on integers for now
 
-        if not self.ItemCount():
+        if not self.item_count():
             return None
 
         # Ensure the path is absolute
@@ -1364,11 +1518,11 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
         # find the correct root elem
         if isinstance(path[0], int):
-            current_elem = self.Roots()[path[0]]
+            current_elem = self.roots()[path[0]]
 
         else:
-            roots = self.Roots()
-            texts = [r.Text() for r in roots]
+            roots = self.roots()
+            texts = [r.text() for r in roots]
             #not used var: indices = range(0, len(texts))
             if exact:
                 if path[0] in texts:
@@ -1383,13 +1537,13 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
                     raise IndexError("There is no root element similar to '%s'"% path[0])
 
         # get the correct lowest level item
-#        current_elem.GetChild
+#        current_elem.get_child
 #        for i in range(0, path[0]):
-#            current_elem = current_elem.Next()
+#            current_elem = current_elem.next_item()
 #
 #            if current_elem is None:
 #                raise IndexError("Root Item '%s' does not have %d sibling(s)"%
-#                    (self.Root().WindowText(), i + 1))
+#                    (self.tree_root().window_text(), i + 1))
 #
         # remove the first (empty) item and the root element as we have
         # dealt with it (string or integer)
@@ -1401,93 +1555,99 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
             # ensure that the item is expanded (as this is sometimes required
             # for loading the tree view branches
-            current_elem.Expand()
+            current_elem.expand()
 
             try:
-                current_elem = current_elem.GetChild(child_spec, exact)
+                current_elem = current_elem.get_child(child_spec, exact)
             except IndexError:
                 if isinstance(child_spec, six.string_types):
-                    raise IndexError("Item '%s' does not have a child '%s'"%
-                        (current_elem.Text(), child_spec))
+                    raise IndexError("Item '%s' does not have a child '%s'" %
+                                     (current_elem.text(), child_spec))
                 else:
-                    raise IndexError("Item '%s' does not have %d children"%
-                        (current_elem.Text(), child_spec + 1))
+                    raise IndexError("Item '%s' does not have %d children" %
+                                     (current_elem.text(), child_spec + 1))
 
 
-            #self.SendMessageTimeout(
+            #self.send_message_timeout(
             #    win32defines.TVM_EXPAND,
             #    win32defines.TVE_EXPAND,
             #    current_elem)
 
         return  current_elem
 
-    Item = GetItem # this is an alias to be consistent with other content elements
+    item = get_item # this is an alias to be consistent with other content elements
+    # Non PEP-8 alias
+    Item = get_item
+    GetItem = get_item
 
     #----------------------------------------------------------------
-    def Select(self, path):
+    def select(self, path):
         "Select the treeview item"
 
         # http://stackoverflow.com/questions/14111333/treeview-set-default-select-item-and-highlight-blue-this-item
         # non-focused TreeView can ignore TVM_SELECTITEM
-        self.SetFocus()
+        self.set_focus()
 
-        elem = self.GetItem(path)
-        #result = ctypes.c_long()
-        retval = self.SendMessage(
+        elem = self.get_item(path)
+        retval = self.send_message(
             win32defines.TVM_SELECTITEM, # message
             win32defines.TVGN_CARET,     # how to select
             elem.elem)                   # item to select
-            #win32defines.SMTO_NORMAL,
-            #int(Timings.after_treeviewselect_wait * 1000),
-            #ctypes.byref(result))
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_treeviewselect_wait)
+    # Non PEP-8 alias
+    Select = select
 
     #-----------------------------------------------------------
-    def IsSelected(self, path):
+    def is_selected(self, path):
         "Return True if the item is selected"
         return win32defines.TVIS_SELECTED  == (win32defines.TVIS_SELECTED & \
-            self.GetItem(path).State())
+                                               self.get_item(path).State())
+    # Non PEP-8 alias
+    IsSelected = is_selected
 
     #----------------------------------------------------------------
-    def EnsureVisible(self, path):
+    def ensure_visible(self, path):
         "Make sure that the TreeView item is visible"
-        elem = self.GetItem(path)
-        self.SendMessageTimeout(
+        elem = self.get_item(path)
+        self.send_message_timeout(
             win32defines.TVM_ENSUREVISIBLE, # message
             win32defines.TVGN_CARET,     # how to select
             elem.elem)                 # item to select
 
         win32functions.WaitGuiThreadIdle(self)
+    # Non PEP-8 alias
+    EnsureVisible = ensure_visible
 
     #----------------------------------------------------------------
-    def PrintItems(self):
+    def print_items(self):
         "Print all items with line indents"
-        
-        self.text = self.WindowText() + "\n"
 
-        def PrintOneLevel(item,ident):
-            self.text += " " * ident + item.Text() + "\n"
-            for child in item.Children():
-                PrintOneLevel(child,ident+1)
+        self.text = self.window_text() + "\n"
 
-        for root in self.Roots():
-            PrintOneLevel(root,0)
-            
+        def print_one_level(item,ident):
+            self.text += " " * ident + item.text() + "\n"
+            for child in item.children():
+                print_one_level(child,ident+1)
+
+        for root in self.roots():
+            print_one_level(root,0)
+
         return self.text
+    # Non PEP-8 alias
+    PrintItems = print_items
 
-#
 #   #-----------------------------------------------------------
-#    def UnCheck(self, path):
+#    def uncheck(self, path):
 #        "Uncheck the ListView item"
 #
-#        self.VerifyActionable()
+#        self.verify_actionable()
 #
-#        elem = self.GetItem(path)
+#        elem = self.get_item(path)
 #
 ##        lvitem = win32structures.LVITEMW()
 ##
@@ -1498,19 +1658,19 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 ##        remote_mem = RemoteMemoryBlock(self)
 ##        remote_mem.Write(lvitem)
 ##
-##        self.SendMessage(
+##        self.send_message(
 ##            win32defines.LVM_SETITEMSTATE, item, remote_mem)
 ##
 ##        del remote_mem
 #
 #
 #    #-----------------------------------------------------------
-#    def Check(self, path):
+#    def check(self, path):
 #        "Check the ListView item"
 #
-#        self.VerifyActionable()
+#        self.verify_actionable()
 #
-#        elem = self.GetItem(path)
+#        elem = self.get_item(path)
 #
 #        #lvitem = win32structures.LVITEMW()
 #
@@ -1521,20 +1681,20 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 #        remote_mem = RemoteMemoryBlock(self)
 #        remote_mem.Write(lvitem)
 #
-#        self.SendMessage(
+#        self.send_message(
 #            win32defines.LVM_SETITEMSTATE, item, remote_mem)
 #
 #        del remote_mem
 #
 #    #-----------------------------------------------------------
-#    def IsChecked(self, path):
+#    def is_checked(self, path):
 #        "Return whether the ListView item is checked or not"
 #
-#        elem = self.GetItem(path)
+#        elem = self.get_item(path)
 #
-#        elem.State
+#        elem.state
 #
-#        state = self.SendMessage(
+#        state = self.send_message(
 #            win32defines.LVM_GETITEMSTATE,
 #            item,
 #            win32defines.LVIS_STATEIMAGEMASK)
@@ -1546,11 +1706,13 @@ class TreeViewWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class HeaderWrapper(HwndWrapper.HwndWrapper):
+class HeaderWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ListView Header common control "
 
     friendlyclassname = "Header"
     windowclasses = ["SysHeader32", "msvb_lib_header"]
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_HeaderControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1558,20 +1720,22 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         super(HeaderWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
-    def ItemCount(self):
+    def item_count(self):
         "Return the number of columns in this header"
         # get the number of items in the header...
-        return self.SendMessage(win32defines.HDM_GETITEMCOUNT)
+        return self.send_message(win32defines.HDM_GETITEMCOUNT)
+    # Non PEP-8 alias
+    ItemCount = item_count
 
     #----------------------------------------------------------------
-    def GetColumnRectangle(self, column_index):
+    def get_column_rectangle(self, column_index):
         "Return the rectangle for the column specified by column_index"
 
         remote_mem = RemoteMemoryBlock(self)
         # get the column rect
         rect = win32structures.RECT()
         remote_mem.Write(rect)
-        retval = self.SendMessage(
+        retval = self.send_message(
             win32defines.HDM_GETITEMRECT,
             column_index,
             remote_mem)
@@ -1584,21 +1748,22 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         return rect
+    # Non PEP-8 alias
+    GetColumnRectangle = get_column_rectangle
 
     #----------------------------------------------------------------
-    def ClientRects(self):
+    def client_rects(self):
         "Return all the client rectangles for the header control"
-        rects = [self.ClientRect(), ]
+        rects = [self.client_rect(), ]
 
-        for col_index in range(0, self.ItemCount()):
+        for col_index in range(0, self.item_count()):
 
-            rects.append(self.GetColumnRectangle(col_index))
+            rects.append(self.get_column_rectangle(col_index))
 
         return rects
 
-
     #----------------------------------------------------------------
-    def GetColumnText(self, column_index):
+    def get_column_text(self, column_index):
         "Return the text for the column specified by column_index"
 
         remote_mem = RemoteMemoryBlock(self)
@@ -1618,7 +1783,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(item)
 
         # ask the other process to update the information
-        retval = self.SendMessage(
+        retval = self.send_message(
             win32defines.HDM_GETITEMW,
             column_index,
             remote_mem)
@@ -1632,13 +1797,15 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
             return char_data.value
 
         return None
+    # Non PEP-8 alias
+    GetColumnText = get_column_text
 
     #----------------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the texts of the Header control"
-        texts = [self.WindowText(), ]
-        for i in range(0, self.ItemCount()):
-            texts.append(self.GetColumnText(i))
+        texts = [self.window_text(), ]
+        for i in range(0, self.item_count()):
+            texts.append(self.get_column_text(i))
 
         return texts
 
@@ -1664,7 +1831,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 #            remote_mem.Write(item)
 #
 #            # ask the other process to update the information
-#            retval = self.SendMessage(
+#            retval = self.send_message(
 #                win32defines.HDM_GETITEMW,
 #                col_index,
 #                remote_mem)
@@ -1679,7 +1846,7 @@ class HeaderWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class StatusBarWrapper(HwndWrapper.HwndWrapper):
+class StatusBarWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Status Bar common control "
 
     friendlyclassname = "StatusBar"
@@ -1687,21 +1854,26 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         "msctls_statusbar32",
         ".*StatusBar",
         r"WindowsForms\d*\.msctls_statusbar32\..*"]
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_StatusBarControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
         super(StatusBarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend([
-            'BorderWidths',
-            'PartCount',
-            'PartRightEdges',
-
-        ])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(StatusBarWrapper, self).writable_props
+        props.extend(['border_widths',
+                      'part_count',
+                      'part_right_edges',
+                      ])
+        return props
 
     #----------------------------------------------------------------
-    def BorderWidths(self):
+    def border_widths(self):
         """Return the border widths of the StatusBar
 
         A dictionary of the 3 available widths is returned:
@@ -1714,7 +1886,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         # get the borders for each of the areas there can be a border.
         borders = (ctypes.c_int*3)()
         remote_mem.Write(borders)
-        self.SendMessage(
+        self.send_message(
             win32defines.SB_GETBORDERS,
             0,
             remote_mem
@@ -1728,27 +1900,31 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         return borders_widths
+    # Non PEP-8 alias
+    BorderWidths = border_widths
 
     #----------------------------------------------------------------
-    def PartCount(self):
+    def part_count(self):
         "Return the number of parts"
         # get the number of parts for this status bar
-        return self.SendMessage(
+        return self.send_message(
             win32defines.SB_GETPARTS,
             0,
             0 )
+    # Non PEP-8 alias
+    PartCount = part_count
 
     #----------------------------------------------------------------
-    def PartRightEdges(self):
+    def part_right_edges(self):
         "Return the widths of the parts"
         remote_mem = RemoteMemoryBlock(self)
 
         # get the number of parts for this status bar
-        parts = (ctypes.c_int * self.PartCount())()
+        parts = (ctypes.c_int * self.part_count())()
         remote_mem.Write(parts)
-        self.SendMessage(
+        self.send_message(
             win32defines.SB_GETPARTS,
-            self.PartCount(),
+            self.part_count(),
             remote_mem
         )
 
@@ -1757,15 +1933,17 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         return [int(part) for part in parts]
+    # Non PEP-8 alias
+    PartRightEdges = part_right_edges
 
     #----------------------------------------------------------------
-    def GetPartRect(self, part_index):
+    def get_part_rect(self, part_index):
         "Return the rectangle of the part specified by part_index"
 
-        if part_index >= self.PartCount():
+        if part_index >= self.part_count():
             raise IndexError(
                 "Only %d parts available you asked for part %d (zero based)" % (
-                self.PartCount(),
+                self.part_count(),
                 part_index))
 
 
@@ -1774,7 +1952,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         # get the rectangle for this item
         rect = win32structures.RECT()
         remote_mem.Write(rect)
-        self.SendMessage(
+        self.send_message(
             win32defines.SB_GETRECT,
             part_index,
             remote_mem)
@@ -1782,30 +1960,32 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         rect = remote_mem.Read(rect)
         del remote_mem
         return rect
+    # Non PEP-8 alias
+    GetPartRect = get_part_rect
 
     #----------------------------------------------------------------
-    def ClientRects(self):
+    def client_rects(self):
         "Return the client rectangles for the control"
-        rects = [self.ClientRect()]
+        rects = [self.client_rect()]
 
-        for i in range(self.PartCount()):
-            rects.append(self.GetPartRect(i))
+        for i in range(self.part_count()):
+            rects.append(self.get_part_rect(i))
 
         return rects
 
     #----------------------------------------------------------------
-    def GetPartText(self, part_index):
+    def get_part_text(self, part_index):
         "Return the text of the part specified by part_index"
 
-        if part_index >= self.PartCount():
+        if part_index >= self.part_count():
             raise IndexError(
                 "Only %d parts available you asked for part %d (zero based)" % (
-                self.PartCount(),
+                self.part_count(),
                 part_index))
 
         remote_mem = RemoteMemoryBlock(self)
 
-        textlen = self.SendMessage(
+        textlen = self.send_message(
             win32defines.SB_GETTEXTLENGTHW,
             part_index,
             0
@@ -1817,7 +1997,7 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
         # get the text for this item
         text = ctypes.create_unicode_buffer(textlen + ctypes.sizeof(ctypes.c_wchar))
         remote_mem.Write(text)
-        self.SendMessage(
+        self.send_message(
             win32defines.SB_GETTEXTW,
             part_index,
             remote_mem
@@ -1827,15 +2007,16 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
         del remote_mem
         return text.value
-
+    # Non PEP-8 alias
+    GetPartText = get_part_text
 
     #----------------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the texts for the control"
-        texts = [self.WindowText()]
+        texts = [self.window_text()]
 
-        for i in range(self.PartCount()):
-            texts.append(self.GetPartText(i))
+        for i in range(self.part_count()):
+            texts.append(self.get_part_text(i))
 
         return texts
 
@@ -1843,13 +2024,15 @@ class StatusBarWrapper(HwndWrapper.HwndWrapper):
 
 
 #====================================================================
-class TabControlWrapper(HwndWrapper.HwndWrapper):
+class TabControlWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Tab common control "
 
     friendlyclassname = "TabControl"
     windowclasses = [
         "SysTabControl32",
         r"WindowsForms\d*\.SysTabControl32\..*"]
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_TabControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1858,29 +2041,42 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 
         #self.writable_props.append("TabStates")
 
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TabControlWrapper, self).writable_props
+        props.extend(['tab_count'])
+        return props
+
     #----------------------------------------------------------------
-    def RowCount(self):
+    def row_count(self):
         "Return the number of rows of tabs"
-        return self.SendMessage(win32defines.TCM_GETROWCOUNT)
+        return self.send_message(win32defines.TCM_GETROWCOUNT)
+    # Non PEP-8 alias
+    RowCount = row_count
 
     #----------------------------------------------------------------
-    def GetSelectedTab(self):
+    def get_selected_tab(self):
         "Return the index of the selected tab"
-        return self.SendMessage(win32defines.TCM_GETCURSEL)
+        return self.send_message(win32defines.TCM_GETCURSEL)
+    # Non PEP-8 alias
+    GetSelectedTab = get_selected_tab
 
     #----------------------------------------------------------------
-    def TabCount(self):
+    def tab_count(self):
         "Return the number of tabs"
-        return self.SendMessage(win32defines.TCM_GETITEMCOUNT)
+        return self.send_message(win32defines.TCM_GETITEMCOUNT)
+    # Non PEP-8 alias
+    TabCount = tab_count
 
     #----------------------------------------------------------------
-    def GetTabRect(self, tab_index):
+    def get_tab_rect(self, tab_index):
         "Return the rectangle to the tab specified by tab_index"
 
-        if tab_index >= self.TabCount():
+        if tab_index >= self.tab_count():
             raise IndexError(
                 "Only %d tabs available you asked for tab %d (zero based)" % (
-                self.TabCount(),
+                self.tab_count(),
                 tab_index))
 
         remote_mem = RemoteMemoryBlock(self)
@@ -1888,7 +2084,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         rect = win32structures.RECT()
         remote_mem.Write(rect)
 
-        self.SendMessage(
+        self.send_message(
             win32defines.TCM_GETITEMRECT, tab_index, remote_mem)
 
         remote_mem.Read(rect)
@@ -1896,15 +2092,17 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         return rect
+    # Non PEP-8 alias
+    GetTabRect = get_tab_rect
 
 #    #----------------------------------------------------------------
-#    def GetTabState(self, tab_index):
+#    def get_tab_state(self, tab_index):
 #        "Return the state of the tab"
 #
-#        if tab_index >= self.TabCount():
+#        if tab_index >= self.tab_count():
 #            raise IndexError(
 #                "Only %d tabs available you asked for tab %d (zero based)" % (
-#                self.TabCount(),
+#                self.tab_count(),
 #                tab_index))
 #
 #        remote_mem = RemoteMemoryBlock(self)
@@ -1913,7 +2111,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 #        item.mask = win32defines.TCIF_STATE
 #        remote_mem.Write(item)
 #
-#        ret = self.SendMessage(
+#        ret = self.send_message(
 #            win32defines.TCM_GETITEMW, tab_index, remote_mem)
 #
 #        remote_mem.Read(item)
@@ -1923,15 +2121,17 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
 #            raise ctypes.WinError()
 #
 #        return item.dwState
+#    # Non PEP-8 alias
+#    GetTabState = get_tab_state
 
     #----------------------------------------------------------------
-    def GetTabText(self, tab_index):
+    def get_tab_text(self, tab_index):
         "Return the text of the tab"
 
-        if tab_index >= self.TabCount():
+        if tab_index >= self.tab_count():
             raise IndexError(
                 "Only %d tabs available you asked for tab %d (zero based)" % (
-                self.TabCount(),
+                self.tab_count(),
                 tab_index))
 
         remote_mem = RemoteMemoryBlock(self)
@@ -1942,7 +2142,7 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         item.pszText = remote_mem.Address() + ctypes.sizeof(item)
         remote_mem.Write(item)
 
-        self.SendMessage(
+        self.send_message(
             win32defines.TCM_GETITEMW, tab_index, remote_mem)
 
         remote_mem.Read(item)
@@ -1953,50 +2153,54 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
             ctypes.sizeof(item))
 
         return text.value
+    # Non PEP-8 alias
+    GetTabText = get_tab_text
 
     #----------------------------------------------------------------
-    def GetProperties(self):
+    def get_properties(self):
         "Return the properties of the TabControl as a Dictionary"
-        props = super(TabControlWrapper, self).GetProperties()
+        props = super(TabControlWrapper, self).get_properties()
 
-        props['TabCount'] = self.TabCount()
+        props['tab_count'] = self.tab_count()
 
 
         return props
 
 #    #----------------------------------------------------------------
-#    def TabStates(self):
+#    def tab_states(self):
 #        "Return the tab state for all the tabs"
 #        states = []
-#        for i in range(0, self.TabCount()):
+#        for i in range(0, self.tab_count()):
 #            states.append(self.GetTabState(i))
 #        return states
+#    # Non PEP-8 alias
+#    TabStates = tab_states
 
     #----------------------------------------------------------------
-    def ClientRects(self):
+    def client_rects(self):
         "Return the client rectangles for the Tab Control"
 
-        rects = [self.ClientRect()]
-        for tab_index in range(0, self.TabCount()):
-            rects.append(self.GetTabRect(tab_index))
+        rects = [self.client_rect()]
+        for tab_index in range(0, self.tab_count()):
+            rects.append(self.get_tab_rect(tab_index))
 
         return rects
 
     #----------------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the texts of the Tab Control"
-        texts = [self.WindowText()]
+        texts = [self.window_text()]
 
-        for i in range(0, self.TabCount()):
-            texts.append(self.GetTabText(i))
+        for i in range(0, self.tab_count()):
+            texts.append(self.get_tab_text(i))
 
         return texts
 
     #----------------------------------------------------------------
-    def Select(self, tab):
+    def select(self, tab):
         "Select the specified tab on the tab control"
 
-        self.VerifyActionable()
+        self.verify_actionable()
         logging_tab = tab
 
         # if it's a string then find the index of
@@ -2004,34 +2208,36 @@ class TabControlWrapper(HwndWrapper.HwndWrapper):
         if isinstance(tab, six.string_types):
             # find the string in the tab control
             best_text = findbestmatch.find_best_match(
-                tab, self.Texts(), self.Texts())
-            tab = self.Texts().index(best_text) - 1
+                tab, self.texts(), self.texts())
+            tab = self.texts().index(best_text) - 1
 
-        if tab >= self.TabCount():
+        if tab >= self.tab_count():
             raise IndexError(
                 "Only %d tabs available you asked for tab %d (zero based)" % (
-                self.TabCount(),
+                self.tab_count(),
                 tab))
 
-        if self.HasStyle(win32defines.TCS_BUTTONS):
+        if self.has_style(win32defines.TCS_BUTTONS):
             # workaround for TCS_BUTTONS case
-            self.Click(coords=self.GetTabRect(tab))
+            self.click(coords=self.get_tab_rect(tab))
 
             # TCM_SETCURFOCUS changes focus, but doesn't select the tab
             # TCM_SETCURSEL selects the tab, but tab content is not re-drawn
             # (TODO: need to find a solution without WM_CLICK)
 
             #self.Notify(win32defines.TCN_SELCHANGING)
-            #self.SendMessage(win32defines.TCM_SETCURSEL, tab)
+            #self.send_message(win32defines.TCM_SETCURSEL, tab)
             #self.Notify(win32defines.TCN_SELCHANGE)
         else:
-            self.SendMessage(win32defines.TCM_SETCURFOCUS, tab)
+            self.send_message(win32defines.TCM_SETCURFOCUS, tab)
 
         win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_tabselect_wait)
         self.actions.log('Selected tab "' + str(logging_tab) + '"')
 
         return self
+    # Non PEP-8 alias
+    Select = select
 
 
 
@@ -2045,10 +2251,10 @@ class _toolbar_button(object):
         "Initialize the item"
         self.toolbar_ctrl = tb_handle
         self.index = index_
-        self.info = self.toolbar_ctrl.GetButton(self.index)
+        self.info = self.toolbar_ctrl.get_button(self.index)
 
     #----------------------------------------------------------------
-    def Rectangle(self):
+    def rectangle(self):
         "Get the rectangle of a button on the toolbar"
 
         remote_mem = RemoteMemoryBlock(self.toolbar_ctrl)
@@ -2056,23 +2262,25 @@ class _toolbar_button(object):
         rect = win32structures.RECT()
 
         remote_mem.Write(rect)
-        self.toolbar_ctrl.SendMessage(win32defines.TB_GETRECT,
-                                      self.info.idCommand,
-                                      remote_mem)
+        self.toolbar_ctrl.send_message(win32defines.TB_GETRECT,
+                                       self.info.idCommand,
+                                       remote_mem)
         rect = remote_mem.Read(rect)
-        
+
         if rect == win32structures.RECT(0, 0, 0, 0):
-            self.toolbar_ctrl.SendMessage(win32defines.TB_GETITEMRECT,
-                                          self.index,
-                                          remote_mem)
+            self.toolbar_ctrl.send_message(win32defines.TB_GETITEMRECT,
+                                           self.index,
+                                           remote_mem)
             rect = remote_mem.Read(rect)
 
         del remote_mem
 
         return rect
+    # Non PEP-8 alias
+    Rectangle = rectangle
 
 #    #----------------------------------------------------------------
-#    def Press(self, press = True):
+#    def press(self, press = True):
 #        "Find where the button is and click it"
 #
 #        if press:
@@ -2080,24 +2288,28 @@ class _toolbar_button(object):
 #        else:
 #            press_flag = 0
 #
-#        ret = self.toolbar_ctrl.SendMessageTimeout(
+#        ret = self.toolbar_ctrl.send_message_timeout(
 #            win32defines.TB_PRESSBUTTON,
 #            self.info.idCommand,
 #            press_flag)
 #
 #        # Notify the parent that we are finished selecting
-#        #self.toolbar_ctrl.NotifyParent(win32defines.TBN_TOOLBARCHANGE)
+#        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
 #        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
+#    # Non PEP-8 alias
+#    Press = press
 #
 #    #----------------------------------------------------------------
-#    def Press(self):
+#    def press(self):
 #        "Find where the button is and click it"
 #        self.Press(press = False)
+#    # Non PEP-8 alias
+#    Press = press
 #
 #    #----------------------------------------------------------------
-#    def Check(self, check = True):
+#    def check(self, check = True):
 #        "Find where the button is and click it"
 #
 #        if check:
@@ -2105,88 +2317,110 @@ class _toolbar_button(object):
 #        else:
 #            check_flag = 0
 #
-#        ret = self.toolbar_ctrl.SendMessageTimeout(
+#        ret = self.toolbar_ctrl.send_message_timeout(
 #            win32defines.TB_CHECKBUTTON,
 #            self.info.idCommand,
 #            check_flag)
 #
 #        # Notify the parent that we are finished selecting
-#        #self.toolbar_ctrl.NotifyParent(win32defines.TBN_TOOLBARCHANGE)
+#        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
 #        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #
 #    #----------------------------------------------------------------
-#    def UnCheck(self):
-#        self.Check(check = False)
+#    def uncheck(self):
+#        self.check(check = False)
 
     #----------------------------------------------------------------
-    def Text(self):
+    def text(self):
         "Return the text of the button"
         return self.info.text
+    # Non PEP-8 alias
+    Text = text
 
     #----------------------------------------------------------------
-    def Style(self):
+    def style(self):
         "Return the style of the button"
-        return self.toolbar_ctrl.SendMessage(
+        return self.toolbar_ctrl.send_message(
             win32defines.TB_GETSTYLE, self.info.idCommand)
+    # Non PEP-8 alias
+    Style = style
 
     #----------------------------------------------------------------
-    def HasStyle(self, style):
+    def has_style(self, style):
         "Return True if the button has the specified style"
-        return self.Style() & style == style
+        return self.style() & style == style
+    # Non PEP-8 alias
+    HasStyle = has_style
 
     #----------------------------------------------------------------
-    def State(self):
+    def state(self):
         "Return the state of the button"
-        return self.toolbar_ctrl.SendMessage(
+        return self.toolbar_ctrl.send_message(
             win32defines.TB_GETSTATE, self.info.idCommand)
+    # Non PEP-8 alias
+    State = state
 
     #----------------------------------------------------------------
-    def IsCheckable(self):
+    def is_checkable(self):
         "Return if the button can be checked"
-        return self.HasStyle(win32defines.TBSTYLE_CHECK)
+        return self.has_style(win32defines.TBSTYLE_CHECK)
+    # Non PEP-8 alias
+    IsCheckable = is_checkable
 
     #----------------------------------------------------------------
-    def IsPressable(self):
+    def is_pressable(self):
         "Return if the button can be pressed"
-        return self.HasStyle(win32defines.TBSTYLE_BUTTON)
+        return self.has_style(win32defines.TBSTYLE_BUTTON)
+    # Non PEP-8 alias
+    IsPressable = is_pressable
 
     #----------------------------------------------------------------
-    def IsChecked(self):
+    def is_checked(self):
         "Return if the button is in the checked state"
-        return self.State() & win32defines.TBSTATE_CHECKED == win32defines.TBSTATE_CHECKED
+        return self.state() & win32defines.TBSTATE_CHECKED == win32defines.TBSTATE_CHECKED
+    # Non PEP-8 alias
+    IsChecked = is_checked
 
     #----------------------------------------------------------------
-    def IsPressed(self):
+    def is_pressed(self):
         "Return if the button is in the pressed state"
-        return self.State() & win32defines.TBSTATE_PRESSED == win32defines.TBSTATE_PRESSED
+        return self.state() & win32defines.TBSTATE_PRESSED == win32defines.TBSTATE_PRESSED
+    # Non PEP-8 alias
+    IsPressed = is_pressed
 
     #----------------------------------------------------------------
-    def IsEnabled(self):
+    def is_enabled(self):
         "Return if the button is in the pressed state"
 
         # make sure it has an ID
         if not self.info.idCommand:
             return False
 
-        return self.State() & win32defines.TBSTATE_ENABLED == win32defines.TBSTATE_ENABLED
+        return self.state() & win32defines.TBSTATE_ENABLED == win32defines.TBSTATE_ENABLED
+    # Non PEP-8 alias
+    IsEnabled = is_enabled
 
     #----------------------------------------------------------------
-    def Click(self, button = "left", pressed = ""):
+    def click(self, button ="left", pressed =""):
         "Click on the Toolbar button"
-        self.toolbar_ctrl.Click(button=button, coords = self.Rectangle(), pressed=pressed)
+        self.toolbar_ctrl.click(button=button, coords = self.rectangle(), pressed=pressed)
         time.sleep(Timings.after_toobarpressbutton_wait)
+    # Non PEP-8 alias
+    Click = click
 
     #----------------------------------------------------------------
-    def ClickInput(self, button = "left", double = False, wheel_dist = 0, pressed = ""):
+    def click_input(self, button = "left", double = False, wheel_dist = 0, pressed = ""):
         "Click on the Toolbar button"
-        self.toolbar_ctrl.ClickInput(button=button, coords = self.Rectangle().mid_point(),
-                                     double=double, wheel_dist=wheel_dist, pressed=pressed)
+        self.toolbar_ctrl.click_input(button=button, coords = self.rectangle().mid_point(),
+                                      double=double, wheel_dist=wheel_dist, pressed=pressed)
         time.sleep(Timings.after_toobarpressbutton_wait)
+    # Non PEP-8 alias
+    ClickInput = click_input
 
 #====================================================================
-class ToolbarWrapper(HwndWrapper.HwndWrapper):
+class ToolbarWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Toolbar common control "
 
     friendlyclassname = "Toolbar"
@@ -2200,27 +2434,34 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         "Initialise the instance"
         super(ToolbarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend(['ButtonCount'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ToolbarWrapper, self).writable_props
+        props.extend(['button_count'])
+        return props
 
     #----------------------------------------------------------------
-    def ButtonCount(self):
+    def button_count(self):
         "Return the number of buttons on the ToolBar"
-        return self.SendMessage(win32defines.TB_BUTTONCOUNT)
+        return self.send_message(win32defines.TB_BUTTONCOUNT)
+    # Non PEP-8 alias
+    ButtonCount = button_count
 
     #----------------------------------------------------------------
-    def Button(self, button_identifier, exact = True, by_tooltip=False):
+    def button(self, button_identifier, exact = True, by_tooltip=False):
         "Return the button at index button_index"
-        
+
         if isinstance(button_identifier, six.string_types):
-            texts = self.Texts()[1:]
+            texts = self.texts()[1:]
             self.actions.log('Toolbar buttons: ' + str(texts))
             # one of these will be returned for the matching text
             indices = [i for i in range(0, len(texts))]
 
             if by_tooltip:
-                texts = self.TipTexts()
+                texts = self.tip_texts()
                 self.actions.log('Toolbar tooltips: ' + str(texts))
-            
+
             if exact:
                 try:
                     button_index = texts.index(button_identifier)
@@ -2231,42 +2472,55 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
                 button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
         else:
             button_index = button_identifier
-        
+
         return _toolbar_button(button_index, self)
+    # Non PEP-8 alias
+    Button = button
 
     #----------------------------------------------------------------
-    def GetButtonStruct(self, button_index):
+    def get_button_struct(self, button_index):
         "Return TBBUTTON structure on the Toolbar button"
-        
-        if button_index >= self.ButtonCount():
+
+        if button_index >= self.button_count():
             raise IndexError(
                 "0 to %d are acceptiple for button_index"%
-                self.ButtonCount())
+                self.button_count())
 
         remote_mem = RemoteMemoryBlock(self)
-        button = win32structures.TBBUTTON()
+
+        if is64bitprocess(self.process_id()) or not is_x64_Python():
+            button = win32structures.TBBUTTON()
+        else:
+            button = win32structures.TBBUTTON32()
+
         remote_mem.Write(button)
 
-        ret = self.SendMessage(
+        ret = self.send_message(
             win32defines.TB_GETBUTTON, button_index, remote_mem)
 
         if not ret:
             del remote_mem
             raise RuntimeError(
-                "GetButton failed for button index %d"% button_index)
+                "get_button failed for button index %d"% button_index)
 
         remote_mem.Read(button)
         del remote_mem
 
         return button
+    # Non PEP-8 alias
+    GetButtonStruct = get_button_struct
 
     #----------------------------------------------------------------
-    def GetButton(self, button_index):
+    def get_button(self, button_index):
         "Return information on the Toolbar button"
 
-        button = self.GetButtonStruct(button_index)
+        button = self.get_button_struct(button_index)
 
-        button_info = win32structures.TBBUTTONINFOW()
+        if is64bitprocess(self.process_id()) or not is_x64_Python():
+            button_info = win32structures.TBBUTTONINFOW()
+        else:
+            button_info = win32structures.TBBUTTONINFOW32()
+
         button_info.cbSize = ctypes.sizeof(button_info)
         button_info.dwMask = \
             win32defines.TBIF_COMMAND | \
@@ -2276,7 +2530,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
             win32defines.TBIF_LPARAM | \
             win32defines.TBIF_STATE | \
             win32defines.TBIF_TEXT
-            #win32defines.TBIF_IMAGELABEL | \
+        #win32defines.TBIF_IMAGELABEL | \
 
         button_info.cchText = 2000
 
@@ -2288,7 +2542,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         # fill the button_info structure
         remote_mem.Write(button_info)
-        ret = self.SendMessage(
+        ret = self.send_message(
             win32defines.TB_GETBUTTONINFOW,
             button.idCommand,
             remote_mem)
@@ -2296,9 +2550,8 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 
         if ret == -1:
             del remote_mem
-            raise RuntimeError(
-                "GetButtonInfo failed for button with command id %d"%
-                    button.idCommand)
+            raise RuntimeError('GetButtonInfo failed for button with command' + \
+                               ' id {0}'.format(button.idCommand))
 
         # read the text
         button_info.text = ctypes.create_unicode_buffer(1999)
@@ -2310,13 +2563,15 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         del remote_mem
 
         return button_info
+    # Non PEP-8 alias
+    GetButton = get_button
 
     #----------------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the texts of the Toolbar"
-        texts = [self.WindowText()]
-        for i in range(0, self.ButtonCount()):
-            btn_text = self.GetButton(i).text
+        texts = [self.window_text()]
+        for i in range(0, self.button_count()):
+            btn_text = self.get_button(i).text
             lines = btn_text.split('\n')
             if lines:
                 texts.append(lines[0])
@@ -2326,44 +2581,50 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
         return texts
 
     #----------------------------------------------------------------
-    def TipTexts(self):
+    def tip_texts(self):
         "Return the tip texts of the Toolbar (without window text)"
         texts = []
-        for i in range(0, self.ButtonCount()):
-            
+        for i in range(0, self.button_count()):
+
             # it works for MFC
-            btn_tooltip_index = self.GetButtonStruct(i).iString
+            btn_tooltip_index = self.get_button_struct(i).iString
             # usually iString == -1 for separator
-            
+
             # other cases if any
-            if not (-1 <= btn_tooltip_index < self.GetToolTipsControl().ToolCount()):
+            if not (-1 <= btn_tooltip_index < self.get_tool_tips_control().tool_count()):
                 btn_tooltip_index = i
-            
-            btn_text = self.GetToolTipsControl().GetTipText(btn_tooltip_index + 1)
+
+            btn_text = self.get_tool_tips_control().get_tip_text(btn_tooltip_index + 1)
             texts.append(btn_text)
 
         return texts
+    # Non PEP-8 alias
+    TipTexts = tip_texts
 
     #----------------------------------------------------------------
-    def GetButtonRect(self, button_index):
+    def get_button_rect(self, button_index):
         "Get the rectangle of a button on the toolbar"
 
-        return self.Button(button_index).Rectangle()
+        return self.button(button_index).rectangle()
+    # Non PEP-8 alias
+    GetButtonRect = get_button_rect
 
     #----------------------------------------------------------------
-    def GetToolTipsControl(self):
+    def get_tool_tips_control(self):
         "Return the tooltip control associated with this control"
-        return ToolTipsWrapper(self.SendMessage(win32defines.TB_GETTOOLTIPS))
+        return ToolTipsWrapper(self.send_message(win32defines.TB_GETTOOLTIPS))
+    # Non PEP-8 alias
+    GetToolTipsControl = get_tool_tips_control
 
-#    def Right_Click(self, button_index, **kwargs):
+#    def right_click(self, button_index, **kwargs):
 #        "Right click for Toolbar buttons"
 #
 #        win32functions.SetCapture(self)
 #
-#        button = self.GetButton(button_index)
+#        button = self.get_button(button_index)
 #        #print button.text
 #
-#        rect = self.GetButtonRect(button_index)
+#        rect = self.get_button_rect(button_index)
 #
 #        x = (rect.left + rect.right) /2
 #        y = (rect.top + rect.bottom) /2
@@ -2371,23 +2632,23 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #        #print x, y
 #
 #
-#        self.MoveMouseInput(coords = (x, y))
-#        self.SendMessage(
+#        self.move_mouse_input(coords = (x, y))
+#        self.send_message(
 #            win32defines.WM_MOUSEACTIVATE,
-#            self.Parent().Parent().Parent(),
+#            self.parent().parent().parent(),
 #            win32functions.MakeLong(
 #                win32defines.WM_RBUTTONDOWN,
 #                win32defines.HTCLIENT)
 #            )
 #
-#        self.PressMouse(pressed = "right", button = "right", coords = (x, y))
+#        self.press_mouse(pressed = "right", button = "right", coords = (x, y))
 #
 #        remote_mem = RemoteMemoryBlock(self)
 #
 #        # now we need to notify the parent that the state has changed
 #        nmlv = win32structures.NMMOUSE()
 #        nmlv.hdr.hwndFrom = self.handle
-#        nmlv.hdr.idFrom = self.ControlID()
+#        nmlv.hdr.idFrom = self.control_id()
 #        nmlv.hdr.code = win32defines.NM_RCLICK
 #
 #
@@ -2398,79 +2659,86 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #
 #        remote_mem.Write(nmlv)
 #
-#        self.SendMessage(
+#        self.send_message(
 #            win32defines.WM_NOTIFY,
-#            self.ControlID(),
+#            self.control_id(),
 #            remote_mem)
 #
 #        del remote_mem
 #
 #
-#        self.ReleaseMouse(button = "right", coords = (x, y))
+#        self.release_mouse(button = "right", coords = (x, y))
 #
 #        win32functions.ReleaseCapture()
+#    # Non PEP-8 alias
+#    Right_Click = right_click
 
     #----------------------------------------------------------------
-    def PressButton(self, button_identifier, exact = True):
+    def press_button(self, button_identifier, exact = True):
         "Find where the button is and click it"
 
-        msg = 'Clicking "' + self.WindowText() + '" toolbar button "' + str(button_identifier) + '"'
+        msg = 'Clicking "' + self.window_text() + '" toolbar button "' + str(button_identifier) + '"'
         self.actions.logSectionStart(msg)
         self.actions.log(msg)
-        button = self.Button(button_identifier, exact=exact)
+        button = self.button(button_identifier, exact=exact)
 
         # transliterated from
         # http://source.winehq.org/source/dlls/comctl32/toolbar.c
 
         # if the button is enabled
-        if button.IsEnabled():
-            button.ClickInput()
+        if button.is_enabled():
+            button.click_input()
         else:
             raise RuntimeError('Toolbar button "' + str(button_identifier) + '" is disabled! Cannot click it.')
         self.actions.logSectionEnd()
+    # Non PEP-8 alias
+    PressButton = press_button
 
     #----------------------------------------------------------------
-    def CheckButton(self, button_identifier, make_checked, exact = True):
+    def check_button(self, button_identifier, make_checked, exact = True):
         "Find where the button is and click it if it's unchecked and vice versa"
 
-        self.actions.logSectionStart('Checking "' + self.WindowText() + '" toolbar button "' + str(button_identifier) + '"')
-        button = self.Button(button_identifier, exact=exact)
+        self.actions.logSectionStart('Checking "' + self.window_text() + \
+            '" toolbar button "' + str(button_identifier) + '"')
+        button = self.button(button_identifier, exact=exact)
         if make_checked:
             self.actions.log('Pressing down toolbar button "' + str(button_identifier) + '"')
         else:
             self.actions.log('Pressing up toolbar button "' + str(button_identifier) + '"')
 
         # TODO: add waiting for a button state
-        if not button.IsEnabled():
+        if not button.is_enabled():
             self.actions.log('Toolbar button is not enabled!')
             raise RuntimeError("Toolbar button is not enabled!")
 
-        if button.IsChecked() != make_checked:
-            button.ClickInput()
+        if button.is_checked() != make_checked:
+            button.click_input()
 
             # wait while button has changed check state
             #i = 0
-            #while button.IsChecked() != make_checked:
+            #while button.is_checked() != make_checked:
             #    time.sleep(0.5)
             #    i += 1
             #    if i > 10:
             #        raise RuntimeError("Cannot wait button check state!")
         self.actions.logSectionEnd()
+    # Non PEP-8 alias
+    CheckButton = check_button
 
     #----------------------------------------------------------------
-    def MenuBarClickInput(self, path, app):
+    def menu_bar_click_input(self, path, app):
         """Select menu bar items by path (experimental!)
-        
+
         The path is specified by a list of items separated by '->' each Item
         can be the zero based index of the item to return prefaced by # e.g. #1.
-        
+
         Example:
             "#1 -> #0",
             "#1->#0->#0"
         """
-        warnings.warn("MenuBarClickInput method is experimental. Use carefully!")
+        warnings.warn("menu_bar_click_input method is experimental. Use carefully!")
 
-        self.actions.logSectionStart('Clicking "{0}" menu bar path "{1}"'.format(self.WindowText(), path))
+        self.actions.logSectionStart('Clicking "{0}" menu bar path "{1}"'.format(self.window_text(), path))
         if isinstance(path, list):
             parts = path
         else:
@@ -2486,28 +2754,29 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
                 except Exception:
                     raise TypeError('Path must contain integers only!')
                 indices.append(index)
-        
+
         # circle import doesn't work with current package structure
         # so use the app instance as a method param
         #app = Application().Connect(handle=self.handle)
-        
+
         current_toolbar = self
         for i, index in enumerate(indices):
             windows_before = app.Windows_(visible_only=True)
-            current_toolbar.Button(index).ClickInput()
+            current_toolbar.button(index).click_input()
             if i < len(indices) - 1:
                 WaitUntil(5, 0.1, lambda: len(app.Windows_(visible_only=True)) > len(windows_before))
                 windows_after = app.Windows_(visible_only=True)
                 new_window = set(windows_after) - set(windows_before)
-                current_toolbar = list(new_window)[0].Children()[0]
+                current_toolbar = list(new_window)[0].children()[0]
         self.actions.logSectionEnd()
-
+    # Non PEP-8 alias
+    MenuBarClickInput = menu_bar_click_input
 
 #    #----------------------------------------------------------------
 #    def _fill_toolbar_info(self):
 #        "Get the information from the toolbar"
-#        buttonCount = self.SendMessage(win32defines.TB_BUTTONCOUNT)
-#        self._extra_props['ButtonCount'] = buttonCount
+#        buttonCount = self.send_message(win32defines.TB_BUTTONCOUNT)
+#        self._extra_props['button_count'] = buttonCount
 #
 #        remote_mem = RemoteMemoryBlock(self)
 #
@@ -2517,7 +2786,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #
 #            remote_mem.Write(button)
 #
-#            self.SendMessage(
+#            self.send_message(
 #                win32defines.TB_GETBUTTON, i, remote_mem)
 #
 #            remote_mem.Read(button)
@@ -2539,7 +2808,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #
 #            # fill the buttonInfo structure
 #            remote_mem.Write(buttonInfo)
-#            self.SendMessage(
+#            self.send_message(
 #                win32defines.TB_GETBUTTONINFOW,
 #                button.idCommand,
 #                remote_mem)
@@ -2550,7 +2819,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #            remote_mem.Read(text, remote_mem.Address() + \
 #                ctypes.sizeof(buttonInfo))
 #
-#            extendedStyle = self.SendMessage(win32defines.TB_GETEXTENDEDSTYLE)
+#            extendedStyle = self.send_message(win32defines.TB_GETEXTENDEDSTYLE)
 #
 #            self._extra_props.setdefault('Buttons', []).append(
 #                dict(
@@ -2559,7 +2828,7 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #                    fsState = button.fsState,
 #                    fsStyle = button.fsStyle,
 #                    cx = buttonInfo.cx,
-#                    ExStyle = extendedStyle
+#                    exstyle = extendedStyle
 #                )
 #            )
 #    #        if button.fsStyle & TBSTYLE_DROPDOWN == TBSTYLE_DROPDOWN and \
@@ -2567,11 +2836,11 @@ class ToolbarWrapper(HwndWrapper.HwndWrapper):
 #    #                TBSTYLE_EX_DRAWDDARROWS:
 #    #            props['Buttons'][-1]["DROPDOWNMENU"] = 1
 #    #
-#    #            self.SendMessage(WM_COMMAND, button.idCommand)
+#    #            self.send_message(WM_COMMAND, button.idCommand)
 #    #
 #    #            print "Pressing", text.value
-#    #            handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 1)
-#    #            handle.SendMessage(TB_PRESSBUTTON, button.idCommand, 0)
+#    #            handle.send_message(TB_PRESSBUTTON, button.idCommand, 1)
+#    #            handle.send_message(TB_PRESSBUTTON, button.idCommand, 0)
 #
 #            self._extra_texts.append(text.value)
 #
@@ -2583,32 +2852,42 @@ class BandWrapper(win32structures.REBARBANDINFOW):
     pass
 
 #====================================================================
-class ReBarWrapper(HwndWrapper.HwndWrapper):
+class ReBarWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ReBar common control "
 
     friendlyclassname = "ReBar"
     windowclasses = ["ReBarWindow32", ]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
+        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
         super(ReBarWrapper, self).__init__(hwnd)
 
-        self.writable_props.extend(['BandCount'])
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ReBarWrapper, self).writable_props
+        props.extend(['band_count'])
+        return props
 
     #----------------------------------------------------------------
-    def BandCount(self):
+    def band_count(self):
         "Return the number of bands in the control"
-        return self.SendMessage(win32defines.RB_GETBANDCOUNT)
+        return self.send_message(win32defines.RB_GETBANDCOUNT)
+    # Non PEP-8 alias
+    BandCount = band_count
 
     #----------------------------------------------------------------
-    def GetBand(self, band_index):
+    def get_band(self, band_index):
         "Get a band of the ReBar control"
 
-        if band_index >= self.BandCount():
-            raise IndexError(
-                "band_index %d greater then number of available bands: %d" %
-                    (band_index, self.BandCount()))
+        if band_index >= self.band_count():
+            raise IndexError(('band_index {0} greater then number of' + \
+                ' available bands: {1}').format(band_index, self.band_count()))
 
         remote_mem = RemoteMemoryBlock(self)
 
@@ -2635,7 +2914,7 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
         remote_mem.Write(band_info)
 
         # Fill the structure
-        self.SendMessage(
+        self.send_message(
             win32defines.RB_GETBANDINFOW,
             band_index,
             remote_mem)
@@ -2651,22 +2930,25 @@ class ReBarWrapper(HwndWrapper.HwndWrapper):
 
         del remote_mem
         return band_info
-
+    # Non PEP-8 alias
+    GetBand = get_band
 
     #----------------------------------------------------------------
-    def GetToolTipsControl(self):
+    def get_tool_tips_control(self):
         "Return the tooltip control associated with this control"
-        tips_handle = self.SendMessage(win32defines.RB_GETTOOLTIPS)
+        tips_handle = self.send_message(win32defines.RB_GETTOOLTIPS)
 
         if tips_handle:
             return ToolTipsWrapper(tips_handle)
+    # Non PEP-8 alias
+    GetToolTipsControl = get_tool_tips_control
 
     #----------------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the texts of the Rebar"
-        texts = [self.WindowText()]
-        for i in range(0, self.BandCount()):
-            band = self.GetBand(i)
+        texts = [self.window_text()]
+        for i in range(0, self.band_count()):
+            band = self.get_band(i)
             lines = band.text.split('\n')
             if lines:
                 texts.append(lines[0])
@@ -2693,7 +2975,7 @@ class ToolTip(object):
 
         remote_mem.Write(tipinfo)
 
-        self.ctrl.SendMessage(
+        self.ctrl.send_message(
             win32defines.TTM_ENUMTOOLSW,
             self.index,
             remote_mem)
@@ -2708,7 +2990,7 @@ class ToolTip(object):
 
         remote_mem.Write(self.info)
 
-        self.ctrl.SendMessage(
+        self.ctrl.send_message(
             win32defines.TTM_GETTEXTW, 160, remote_mem)
 
         # There is no way to determine the required buffer size.
@@ -2728,7 +3010,7 @@ class ToolTip(object):
 
 
 #====================================================================
-class ToolTipsWrapper(HwndWrapper.HwndWrapper):
+class ToolTipsWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ToolTips common control (not fully implemented)"
 
     # mask this class as it is not ready for prime time yet!
@@ -2740,91 +3022,104 @@ class ToolTipsWrapper(HwndWrapper.HwndWrapper):
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialize the instance"
-        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(ToolTipsWrapper, self).__init__(hwnd)
 
-
     #----------------------------------------------------------------
-    def GetTip(self, tip_index):
+    def get_tip(self, tip_index):
         "Return the particular tooltip"
-        if tip_index >= self.ToolCount():
-            raise IndexError(
-                "tip_index %d greater then number of available tips: %d" %
-                    (tip_index, self.ToolCount()))
+        if tip_index >= self.tool_count():
+            raise IndexError(('tip_index {0} is greater than number of' + \
+                ' available tips: {1}').format(tip_index, self.tool_count()))
         return ToolTip(self, tip_index)
-
+    # Non PEP-8 alias
+    GetTip = get_tip
 
     #----------------------------------------------------------------
-    def ToolCount(self):
+    def tool_count(self):
         "Return the number of tooltips"
-        return self.SendMessage(win32defines.TTM_GETTOOLCOUNT)
-
+        return self.send_message(win32defines.TTM_GETTOOLCOUNT)
+    # Non PEP-8 alias
+    ToolCount = tool_count
 
     #----------------------------------------------------------------
-    def GetTipText(self, tip_index):
+    def get_tip_text(self, tip_index):
         "Return the text of the tooltip"
 
         return ToolTip(self, tip_index).text
+    # Non PEP-8 alias
+    GetTipText = get_tip_text
 
     #----------------------------------------------------------------
-    def Texts(self):
+    def texts(self):
         "Return the text of all the tooltips"
-        texts = [self.WindowText(), ]
-        for tip_index in range(0, self.ToolCount()):
-            texts.append(self.GetTipText(tip_index))
+        texts = [self.window_text(), ]
+        for tip_index in range(0, self.tool_count()):
+            texts.append(self.get_tip_text(tip_index))
 
         return texts
 
 
 #====================================================================
-class UpDownWrapper(HwndWrapper.HwndWrapper):
+class UpDownWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows UpDown common control "
 
     friendlyclassname = "UpDown"
     windowclasses = ["msctls_updown32", "msctls_updown", ]
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_SpinnerControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
         "Initialise the instance"
-        #HwndWrapper.HwndWrapper.__init__(self, hwnd)
         super(UpDownWrapper, self).__init__(hwnd)
 
     #----------------------------------------------------------------
-    def GetValue(self):
+    def get_value(self):
         "Get the current value of the UpDown control"
-        pos = win32functions.SendMessage(self, win32defines.UDM_GETPOS, win32structures.LPARAM(0), win32structures.WPARAM(0))
+        pos = win32functions.SendMessage(self, win32defines.UDM_GETPOS,
+                    win32structures.LPARAM(0), win32structures.WPARAM(0))
         return win32functions.LoWord(pos)
+    # Non PEP-8 alias
+    GetValue = get_value
 
     #----------------------------------------------------------------
-    def GetBase(self):
+    def get_base(self):
         "Get the base the UpDown control (either 10 or 16)"
-        return self.SendMessage(win32defines.UDM_GETBASE)
+        return self.send_message(win32defines.UDM_GETBASE)
+    # Non PEP-8 alias
+    GetBase = get_base
 
     #----------------------------------------------------------------
-    def SetBase(self, base_value):
+    def set_base(self, base_value):
         "Get the base the UpDown control (either 10 or 16)"
-        return self.SendMessage(win32defines.UDM_SETBASE, base_value)
+        return self.send_message(win32defines.UDM_SETBASE, base_value)
+    # Non PEP-8 alias
+    SetBase = set_base
 
     #----------------------------------------------------------------
-    def GetRange(self):
+    def get_range(self):
         "Return the lower, upper range of the up down control"
-        updown_range = self.SendMessage(win32defines.UDM_GETRANGE)
+        updown_range = self.send_message(win32defines.UDM_GETRANGE)
         updown_range = (
             win32functions.HiWord(updown_range),
             win32functions.LoWord(updown_range)
             )
         return updown_range
+    # Non PEP-8 alias
+    GetRange = get_range
 
     #----------------------------------------------------------------
-    def GetBuddyControl(self):
+    def get_buddy_control(self):
         "Get the buddy control of the updown control"
         #from wraphandle import WrapHandle
         #from HwndWrapper import WrapHandle
-        buddy_handle = self.SendMessage(win32defines.UDM_GETBUDDY)
-        return HwndWrapper.HwndWrapper(buddy_handle)
+        buddy_handle = self.send_message(win32defines.UDM_GETBUDDY)
+        return hwndwrapper.HwndWrapper(buddy_handle)
+    # Non PEP-8 alias
+    GetBuddyControl = get_buddy_control
 
     #----------------------------------------------------------------
-    def SetValue(self, new_pos):
+    def set_value(self, new_pos):
         "Set the value of the of the UpDown control to some integer value"
         for _ in range(3):
             result = ctypes.c_long()
@@ -2835,103 +3130,189 @@ class UpDownWrapper(HwndWrapper.HwndWrapper):
                 ctypes.byref(result))
             win32functions.WaitGuiThreadIdle(self)
             time.sleep(Timings.after_updownchange_wait)
-            if self.GetValue() == new_pos:
+            if self.get_value() == new_pos:
                 break
             # make one more attempt elsewhere
+    # Non PEP-8 alias
+    SetValue = set_value
 
     #----------------------------------------------------------------
-    def Increment(self):
+    def increment(self):
         "Increment the number in the UpDown control by one"
         # hmmm - VM_SCROLL and UDN_DELTAPOS don't seem to be working for me :-(
-        # I will fake it for now either use Click, or GetValue() + 1
-        rect = self.ClientRect()
-        self.ClickInput(coords=(rect.left + 5, rect.top + 5))
-        
-        #self.SetValue(self.GetValue() + 1)
+        # I will fake it for now either use click, or get_value() + 1
+        rect = self.client_rect()
+        self.click_input(coords=(rect.left + 5, rect.top + 5))
+
+        #self.set_value(self.get_value() + 1)
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_updownchange_wait)
+    # Non PEP-8 alias
+    Increment = increment
 
     #----------------------------------------------------------------
-    def Decrement(self):
+    def decrement(self):
         "Decrement the number in the UpDown control by one"
-        rect = self.ClientRect()
-        self.ClickInput(coords=(rect.left + 5, rect.bottom - 5))
-        
-        #self.SetValue(self.GetValue() - 1)
+        rect = self.client_rect()
+        self.click_input(coords=(rect.left + 5, rect.bottom - 5))
+
+        #self.set_value(self.get_value() - 1)
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_updownchange_wait)
+    # Non PEP-8 alias
+    Decrement = decrement
 
 
 #====================================================================
-class TrackbarWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows Trackbar common control "
+class TrackbarWrapper(hwndwrapper.HwndWrapper):
+
+    """Class that wraps Windows Trackbar common control """
 
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
 
-#
-#    #----------------------------------------------------------------
-#    def GetNumTicks(self):
-#        return self.SendMessage(win32defines.TBM_GETNUMTICS)
-#
-#    #----------------------------------------------------------------
-#    def GetPos(self):
-#        return self.SendMessage(win32defines.TBM_GETPOS)
-#
-#    #----------------------------------------------------------------
-#    def GetRangeMax(self):
-#        return self.SendMessage(win32defines.TBM_GETRANGEMAX)
-#
-#    #----------------------------------------------------------------
-#    def GetRangeMin(self):
-#        return self.SendMessage(win32defines.TBM_GETRANGEMIN)
-#
-#    #----------------------------------------------------------------
-#    def GetToolTipsControl(self):
-#        "Return the tooltip control associated with this control"
-#        return ToolTipsWrapper(self.SendMessage(win32defines.TBM_GETTOOLTIPS))
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_SliderControlTypeId]
 
+    def get_range_min(self):
+        """Get min available trackbar value"""
+        return self.send_message(win32defines.TBM_GETRANGEMIN)
+
+    def get_range_max(self):
+        """Get max available trackbar value"""
+        return self.send_message(win32defines.TBM_GETRANGEMAX)
+
+    def get_position(self):
+        """Get trackbar position"""
+        return self.send_message(win32defines.TBM_GETPOS)
+
+    def get_num_ticks(self):
+        """Get trackbar num ticks"""
+        return self.send_message(win32defines.TBM_GETNUMTICS)
+
+    def get_channel_rect(self):
+        """Get position of the bounding rectangle for a Trackbar"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_rect = win32structures.RECT()
+        remote_mem.Write(system_rect)
+
+        self.send_message(win32defines.TBM_GETCHANNELRECT, 0, remote_mem)
+        remote_mem.Read(system_rect)
+        del remote_mem
+
+        return system_rect
+
+    def get_line_size(self):
+        """Get the number of logical positions the trackbar's slider"""
+        return self.send_message(win32defines.TBM_GETLINESIZE)
+
+    def get_tooltips_control(self):
+        """Get trackbar tooltip"""
+        return ToolTipsWrapper(self.send_message(win32defines.TBM_GETTOOLTIPS))
+
+    def get_page_size(self):
+        """Get the number of logical positions for the trackbar's slider"""
+        return self.send_message(win32defines.TBM_GETPAGESIZE)
+
+    def set_range_max(self, range_max):
+        """Set max available trackbar value"""
+        if range_max < self.get_range_min():
+            raise ValueError('Cannot set range max less than range min')
+        self.send_message(win32defines.TBM_SETRANGEMAX, True, range_max)
+
+    def set_range_min(self, range_min):
+        """Set min available trackbar value"""
+        if range_min > self.get_range_max():
+            raise ValueError('Cannot set range min more than range max')
+        self.send_message(win32defines.TBM_SETRANGEMIN, True, range_min)
+
+    def set_position(self, pos):
+        """Set trackbar position"""
+        if not (self.get_range_min() <= pos <= self.get_range_max()):
+            raise ValueError('Cannot set position out of range')
+        self.send_message(win32defines.TBM_SETPOS, True, pos)
+
+    def set_line_size(self, line_size):
+        """Set trackbar line size"""
+        self.send_message(win32defines.TBM_SETLINESIZE, 0, line_size)
+
+    def set_page_size(self, page_size):
+        """Set trackbar page size"""
+        self.send_message(win32defines.TBM_SETPAGESIZE, 0, page_size)
+
+    def set_sel(self, sel_start, sel_end):
+        """Set start and end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        sel_start_val = win32functions.LoWord(sel_start)
+        sel_end_val = win32functions.HiWord(sel_end)
+        sel_val = win32functions.MakeLong(sel_start_val, sel_end_val)
+        self.send_message(win32defines.TBM_SETSAL, 0, sel_val)
+
+    def get_sel_start(self):
+        """Get start of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        return self.send_message(win32defines.TBM_GETSELSTART)
+
+    def get_sel_end(self):
+        """Get end of selection"""
+        if not self.has_style(win32defines.TBS_ENABLESELRANGE):
+            raise RuntimeError('Range selection is not supported for this trackbar')
+        return self.send_message(win32defines.TBM_GETSELEND)
 
 #====================================================================
-class AnimationWrapper(HwndWrapper.HwndWrapper):
+class AnimationWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Animation common control "
 
     friendlyclassname = "Animation"
     windowclasses = ["SysAnimate32", ]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
+        controltypes = []
 
 
 #====================================================================
-class ComboBoxExWrapper(HwndWrapper.HwndWrapper):
+class ComboBoxExWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows ComboBoxEx common control "
 
     friendlyclassname = "ComboBoxEx"
     windowclasses = ["ComboBoxEx32", ]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
+        controltypes = []
     has_title = False
 
 
 #====================================================================
-class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
+class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows DateTimePicker common control "
 
     friendlyclassname = "DateTimePicker"
     windowclasses = ["SysDateTimePick32", ]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
+        controltypes = []
     has_title = False
 
     #----------------------------------------------------------------
-    def GetTime(self):
+    def get_time(self):
         "Get the currently selected time"
-        
+
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
         remote_mem.Write(system_time)
-        
-        res = self.SendMessage(win32defines.DTM_GETSYSTEMTIME, 0, remote_mem)
+
+        res = self.send_message(win32defines.DTM_GETSYSTEMTIME, 0, remote_mem)
         remote_mem.Read(system_time)
         del remote_mem
-        
+
         if res != win32defines.GDT_VALID:
             raise RuntimeError('Failed to get time from Date Time Picker (result = ' + str(res) + ')')
-        
+
         #year = system_time.wYear
         #month = system_time.wMonth
         #day_of_week = system_time.wDayOfWeek
@@ -2941,15 +3322,17 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
         #second = system_time.wSecond
         #milliseconds = system_time.wMilliseconds
         #return (year, month, day_of_week, day, hour, minute, second, milliseconds)
-        return system_time 
+        return system_time
+    # Non PEP-8 alias
+    GetTime = get_time
 
     #----------------------------------------------------------------
-    def SetTime(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
+    def set_time(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
         "Get the currently selected time"
-        
+
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
-        
+
         system_time.wYear = year
         system_time.wMonth = month
         system_time.wDayOfWeek = day_of_week
@@ -2958,97 +3341,396 @@ class DateTimePickerWrapper(HwndWrapper.HwndWrapper):
         system_time.wMinute = minute
         system_time.wSecond = second
         system_time.wMilliseconds = milliseconds
-        
+
         remote_mem.Write(system_time)
-        
-        res = self.SendMessage(win32defines.DTM_SETSYSTEMTIME, win32defines.GDT_VALID, remote_mem)
+
+        res = self.send_message(win32defines.DTM_SETSYSTEMTIME, win32defines.GDT_VALID, remote_mem)
         del remote_mem
-        
+
         if res == 0:
             raise RuntimeError('Failed to set time in Date Time Picker')
+    # Non PEP-8 alias
+    SetTime = set_time
 
 
 #====================================================================
-class HotkeyWrapper(HwndWrapper.HwndWrapper):
+class HotkeyWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Hotkey common control "
 
     friendlyclassname = "Hotkey"
     windowclasses = ["msctls_hotkey32", ]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
+        controltypes = []
     has_title = False
 
 
 #====================================================================
-class IPAddressWrapper(HwndWrapper.HwndWrapper):
+class IPAddressWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows IPAddress common control "
 
     friendlyclassname = "IPAddress"
     windowclasses = ["SysIPAddress32", ]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
+        controltypes = []
     has_title = False
 
 
 #====================================================================
-class CalendarWrapper(HwndWrapper.HwndWrapper):
-    "Class that wraps Windows Calendar common control "
+
+class CalendarWrapper(hwndwrapper.HwndWrapper):
+
+    """Class that wraps Windows Calendar common control"""
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
 
+    place_in_calendar = {
+        'background': win32defines.MCSC_BACKGROUND,
+        'month_background': win32defines.MCSC_MONTHBK,
+        'text': win32defines.MCSC_TEXT,
+        'title_background': win32defines.MCSC_TITLEBK,
+        'title_text': win32defines.MCSC_TITLETEXT,
+        'trailing_text': win32defines.MCSC_TRAILINGTEXT
+    }
+
+    #----------------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialise the instance"""
+        super(CalendarWrapper, self).__init__(hwnd)
+
+    #----------------------------------------------------------------
+    def get_current_date(self):
+        """Get the currently selected date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_date = win32structures.SYSTEMTIME()
+        remote_mem.Write(system_date)
+
+        res = self.send_message(win32defines.MCM_GETCURSEL , 0, remote_mem)
+        remote_mem.Read(system_date)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to get the currently selected date in Calendar')
+        return system_date
+
+    #----------------------------------------------------------------
+    def set_current_date(self, year, month, day_of_week, day):
+        """Set the currently selected date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_time = win32structures.SYSTEMTIME()
+
+        system_time.wYear = year
+        system_time.wMonth = month
+        system_time.wDayOfWeek = day_of_week
+        system_time.wDay = day
+        system_time.wHour = 0
+        system_time.wMinute = 0
+        system_time.wSecond = 0
+        system_time.wMilliseconds = 0
+
+        remote_mem.Write(system_time)
+
+        res = self.send_message(win32defines.MCM_SETCURSEL, win32defines.GDT_VALID, remote_mem)
+
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set the currently selected date in Calendar')
+
+    #----------------------------------------------------------------
+    def get_border(self):
+        """Get the calendar border"""
+        return self.send_message(win32defines.MCM_GETCALENDARBORDER, 0,0)
+
+    #----------------------------------------------------------------
+    def set_border(self, border):
+        """Set the calendar border"""
+        self.send_message(win32defines.MCM_SETCALENDARBORDER, True, border)
+
+    #----------------------------------------------------------------
+    def count(self):
+        """Get the calendars count"""
+        return self.send_message(win32defines.MCM_GETCALENDARCOUNT, 0,0)
+
+    #----------------------------------------------------------------
+    def get_view(self):
+        """Get the calendar view"""
+        return self.send_message(win32defines.MCM_GETCURRENTVIEW, 0,0)
+
+    #----------------------------------------------------------------
+    def set_view(self, viewType):
+        """Set the calendar view"""
+        res = self.send_message(win32defines.MCM_SETCURRENTVIEW, 0, viewType)
+        if res == 0:
+            raise RuntimeError('Failed to set view in Calendar')
+
+    #----------------------------------------------------------------
+    def set_day_states(self, month_states):
+        """Sets the day states for all months that are currently visible"""
+        remote_mem = RemoteMemoryBlock(self)
+        day_states = (wintypes.DWORD * len(month_states))(*month_states)
+
+        remote_mem.Write(day_states)
+        res = self.send_message(win32defines.MCM_SETDAYSTATE, len(day_states), remote_mem)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set the day states in Calendar')
+
+        return res
+
+    #----------------------------------------------------------------
+    def calc_min_rectangle(self, left, top, right, bottom):
+        """Calculates the minimum size that a rectangle needs to be to fit that number of calendars"""
+        remote_mem = RemoteMemoryBlock(self)
+
+        minimized_rect = win32structures.RECT()
+        minimized_rect.left = left
+        minimized_rect.top = top
+        minimized_rect.right = right
+        minimized_rect.bottom = bottom
+
+        remote_mem.Write(minimized_rect)
+        self.send_message(win32defines.MCM_SIZERECTTOMIN, 0, remote_mem)
+
+        remote_mem.Read(minimized_rect)
+        del remote_mem
+
+        return minimized_rect
+
+    #----------------------------------------------------------------
+    def hit_test(self, x, y):
+        """Determines which portion of a month calendar control is at a given point on the screen"""
+        remote_mem = RemoteMemoryBlock(self)
+        hit_test_info = win32structures.MCHITTESTINFO()
+        point = win32structures.POINT()
+        point.x = x
+        point.y = y
+        hit_test_info.pt = point
+        hit_test_info.cbSize = ctypes.sizeof(hit_test_info)
+
+        remote_mem.Write(hit_test_info)
+        res = self.send_message(win32defines.MCM_HITTEST, 0, remote_mem)
+        del remote_mem
+
+        return res
+
+    # ----------------------------------------------------------------
+    def set_id(self, ID):
+        """
+        Set the calendar type.
+
+        Receive only one parameter, which takes variants below:
+        'gregorian', 'gregorian_us', 'japan', 'taiwan', 'korea',
+        'hijri', 'thai', 'hebrew', 'gregorian_me_french',
+        'gregorian_arabic', 'gregorian_english_xlit',
+        'gregorian_french_xlit', 'umalqura'
+        """
+
+        dict_types = {
+            'gregorian': win32defines.CAL_GREGORIAN,
+            'gregorian_us': win32defines.CAL_GREGORIAN_US,
+            'japan': win32defines.CAL_JAPAN,
+            'taiwan': win32defines.CAL_TAIWAN,
+            'korea': win32defines.CAL_KOREA,
+            'hijri': win32defines.CAL_HIJRI,
+            'thai': win32defines.CAL_THAI,
+            'hebrew': win32defines.CAL_HEBREW,
+            'gregorian_me_french': win32defines.CAL_GREGORIAN_ME_FRENCH,
+            'gregorian_arabic': win32defines.CAL_GREGORIAN_ARABIC,
+            'gregorian_english_xlit': win32defines.CAL_GREGORIAN_XLIT_ENGLISH,
+            'gregorian_french_xlit': win32defines.CAL_GREGORIAN_XLIT_FRENCH,
+            'umalqura': win32defines.CAL_UMALQURA
+        }
+        if ID in dict_types:
+            self.send_message(win32defines.MCM_SETCALID, dict_types[ID], 0)
+        else:
+            raise ValueError('Incorrect calendar ID (use one of {0})'.format(dict_types.keys()))
+
+    # ----------------------------------------------------------------
+    def get_id(self):
+        """Get type of calendar"""
+        return self.send_message(win32defines.MCM_GETCALID, 0, 0)
+
+    # ----------------------------------------------------------------
+    def set_color(self, place_of_color, red, green, blue):
+        """
+        Set some color in some place of calendar which you specify.
+
+        Receive four parameters:
+        - The first parameter may take few variants below:
+        'background', 'month_background', 'text', 'title_background',
+        'title_text', 'trailing_text' ;
+        - All other parameters should be integer from 0 to 255.
+        """
+
+        if not (0 <= red <= 255):
+            raise RuntimeError('Incorrect range of red color, must be from 0 to 255')
+        if not (0 <= green <= 255):
+            raise RuntimeError('Incorrect range of green color, must be from 0 to 255')
+        if not (0 <= blue <= 255):
+            raise RuntimeError('Incorrect range of blue color, must be from 0 to 255')
+        color = (red << 16) | (green << 8) | blue
+        if place_of_color in self.place_in_calendar:
+            result = self.send_message(win32defines.MCM_SETCOLOR, self.place_in_calendar[place_of_color], color)
+        else:
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+        if result == -1:
+            raise RuntimeError('Incorrect color')
+        return result
+
+    # ----------------------------------------------------------------
+    #TODO create method get_color in future
+    '''
+    def get_color(self, place_of_color):
+        """
+        Return color of place in calendar, which you specify.
+
+        Receive only one parameter, which takes variants below:
+        'background', 'month_background', 'text', 'title_background', 'title_text', 'trailing_text'
+        """
+
+        if place_of_color in self.place_in_calendar:
+            return self.send_message(win32defines.MCM_GETCOLOR, self.place_in_calendar[place_of_color], 0)
+        else:
+            raise ValueError('Incorrect calendar place ID (use one of {0})'.format(self.place_in_calendar.keys()))
+    '''
+
+    def set_today(self, year, month, day):
+        """Set today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_time = win32structures.SYSTEMTIME()
+
+        system_time.wYear = year
+        system_time.wMonth = month
+        system_time.wDay = day
+        system_time.wHour = 0
+        system_time.wMinute = 0
+        system_time.wSecond = 0
+        system_time.wMilliseconds = 0
+
+        remote_mem.Write(system_time)
+
+        res = self.send_message(win32defines.MCM_SETTODAY, 0, remote_mem)
+
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to set today date in Calendar')
+
+    # ----------------------------------------------------------------
+    def get_today(self):
+        """Get today date"""
+        remote_mem = RemoteMemoryBlock(self)
+        system_date = win32structures.SYSTEMTIME()
+        remote_mem.Write(system_date)
+
+        res = self.send_message(win32defines.MCM_GETTODAY, 0, remote_mem)
+        remote_mem.Read(system_date)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to get today date in Calendar')
+        return system_date
+
+    # ----------------------------------------------------------------
+    def set_first_weekday(self, dayNum):
+        """Set first day of the week"""
+        res = self.send_message(win32defines.MCM_SETFIRSTDAYOFWEEK, 0, dayNum)
+
+    # ----------------------------------------------------------------
+    def get_first_weekday(self):
+        """Get is not in current locale and if so first day of the week"""
+        res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
+        return (win32functions.HiWord(res), win32functions.LoWord(res))
 
 #====================================================================
-class PagerWrapper(HwndWrapper.HwndWrapper):
+class PagerWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Pager common control "
 
     friendlyclassname = "Pager"
     windowclasses = ["SysPager", ]
+    if sysinfo.UIA_support:
+        #controltypes is empty to make wrapper search result unique
+        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
+        controltypes = []
 
-    def GetPosition(self):
+    #----------------------------------------------------------------
+    def get_position(self):
         "Return the current position of the pager"
-        return self.SendMessage(win32defines.PGM_GETPOS)
+        return self.send_message(win32defines.PGM_GETPOS)
+    # Non PEP-8 alias
+    GetPosition = get_position
 
-    def SetPosition(self, pos):
+    #----------------------------------------------------------------
+    def set_position(self, pos):
         "Set the current position of the pager"
-        return self.SendMessage(win32defines.PGM_SETPOS, pos)
+        return self.send_message(win32defines.PGM_SETPOS, pos)
+    # Non PEP-8 alias
+    SetPosition = set_position
 
 
 #====================================================================
-class ProgressWrapper(HwndWrapper.HwndWrapper):
+class ProgressWrapper(hwndwrapper.HwndWrapper):
     "Class that wraps Windows Progress common control "
 
     friendlyclassname = "Progress"
     windowclasses = ["msctls_progress", "msctls_progress32", ]
+    if sysinfo.UIA_support:
+        controltypes = [IUIA().UIA_dll.UIA_ProgressBarControlTypeId]
     has_title = False
 
-
-    def GetPosition(self):
+    #----------------------------------------------------------------
+    def get_position(self):
         "Return the current position of the progress bar"
-        return self.SendMessage(win32defines.PBM_GETPOS)
+        return self.send_message(win32defines.PBM_GETPOS)
+    # Non PEP-8 alias
+    GetPosition = get_position
 
-    def SetPosition(self, pos):
+    #----------------------------------------------------------------
+    def set_position(self, pos):
         "Set the current position of the progress bar"
-        return self.SendMessage(win32defines.PBM_SETPOS, pos)
+        return self.send_message(win32defines.PBM_SETPOS, pos)
+    # Non PEP-8 alias
+    SetPosition = set_position
 
-    def GetState(self):
+    #----------------------------------------------------------------
+    def set_state(self):
         """Get the state of the progress bar
-        
+
         State will be one of the following constants:
          * PBST_NORMAL
          * PBST_ERROR
          * PBST_PAUSED
         """
-        return self.SendMessage(win32defines.PBM_GETSTATE)
+        return self.send_message(win32defines.PBM_GETSTATE)
+    # Non PEP-8 alias
+    GetState = set_state
 
-    def GetStep(self):
+    #----------------------------------------------------------------
+    def get_step(self):
         "Get the step size of the progress bar"
-        return self.SendMessage(win32defines.PBM_GETSTEP)
+        return self.send_message(win32defines.PBM_GETSTEP)
+    # Non PEP-8 alias
+    GetStep = get_step
 
-    def StepIt(self):
+    #----------------------------------------------------------------
+    def step_it(self):
         "Move the progress bar one step size forward"
-        return self.SendMessage(win32defines.PBM_STEPIT)
+        return self.send_message(win32defines.PBM_STEPIT)
+    # Non PEP-8 alias
+    StepIt = step_it
 
 #
 ##
-###HwndWrapper._HwndWrappers["ComboBoxEx32"] = ComboBoxEx
+###hwndwrapper._HwndWrappers["ComboBoxEx32"] = ComboBoxEx
 ##
 
 
@@ -3063,7 +3745,7 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 #        Window.__init__(self, hwndOrXML)
 ##
 #        if isinstance(hwndOrXML, (int, long)):
-##            comboCntrl = SendMessage(
+##            comboCntrl = send_message(
 ##                hwndOrXML,
 ##                CBEM_GETCOMBOCONTROL,
 ##                0,
@@ -3071,19 +3753,19 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 ##
 ##            print "--"*20, comboCntrl
 ##            Controls_Standard.ComboBox.__init__(self, comboCntrl)
-##            print self.DroppedRect
+##            print self.dropped_rect
 ##
 ##
 ##
 ##            droppedRect = win32structures.RECT()
 ##
-##            SendMessage(
+##            send_message(
 ##                self,
 ##                CB_GETDROPPEDCONTROLRECT,
 ##                0,
 ##                ctypes.byref(droppedRect))
 ##
-##            props['DroppedRect'] = droppedRect
+##            props['dropped_rect'] = droppedRect
 #
 #
 #
@@ -3091,7 +3773,7 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 #
 #
 #            # find out how many text items are in the combobox
-#            numItems = SendMessage(
+#            numItems = send_message(
 #                self,
 #                CB_GETCOUNT,
 #                0,
@@ -3111,7 +3793,7 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 ##
 ##                remote_mem.Write(item)
 ##
-##                retval = SendMessage (
+##                retval = send_message (
 ##                    self,
 ##                    CBEM_GETITEMW,
 ##                    0,
@@ -3133,5 +3815,5 @@ class ProgressWrapper(HwndWrapper.HwndWrapper):
 #
 #            # get the dropped Rect form
 #            droppedRect = XMLToRect(hwndOrXML.find("DROPPEDRECT"))
-#            props['DroppedRect'] = droppedRect
+#            props['dropped_rect'] = droppedRect
 

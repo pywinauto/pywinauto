@@ -1,77 +1,108 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2007 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
 
-"Tests for findwindows.py"
+"""Tests for findwindows.py"""
 
 import unittest
 
-import sys
+import sys, os
 sys.path.append(".")
-from pywinauto.findwindows import find_windows, find_window
-from pywinauto.findwindows import WindowNotFoundError, WindowAmbiguousError
+from pywinauto.application import Application
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+from pywinauto.findwindows import find_elements, find_element, find_window, find_windows
+from pywinauto.findwindows import ElementNotFoundError, WindowNotFoundError
+from pywinauto.findwindows import ElementAmbiguousError, WindowAmbiguousError
+from pywinauto.timings import Timings
+
+
+mfc_samples_folder = os.path.join(
+   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+if is_x64_Python():
+    mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+mfc_app_1 = os.path.join(mfc_samples_folder, u"CmnCtrl2.exe")
 
 
 #=========================================================================
 def _unittests():
-    "Do a quick test of finding some windows"
-    windows = find_windows(
+    """Do a quick test of finding some windows"""
+    windows = find_elements(
         class_name_re = "#32770",
         enabled_only = False,
         visible_only = False)
 
     for win in windows:
         print("==" * 20)
-        print(handleprops.dumpwindow(win))
+        print(win.dump_window())
 
-#class ApplicationTestCases(unittest.TestCase):
-#    "Unit tests for the ListViewWrapper class"
-#
-#    def setUp(self):
-#        """Start the application set some data and ensure the application
-#        is in the state we want it."""
-#        pass
-#
-#    def tearDown(self):
-#        "Close the application after tests"
-#        # close the application
-#        #self.dlg.SendMessage(win32defines.WM_CLOSE)
-#        pass
-#
-#    def testNotConnected(self):
-#        "Make sure the friendly class is set correctly"
-#        self.assertRaises (AppNotConnected, Application().__getattr__, 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().window_, title = 'Hiya')
-#        self.assertRaises (AppNotConnected, Application().top_window_,)
-#
-#    def testStartProplem(self):
-#        "Make sure the friendly class is set correctly"
-#        self.assertRaises (AppStartError, Application().start_, 'Hiya')
-#
-#    #def testStartProplem(self):
-#    #    "Make sure the friendly class is set correctly"
-#    #    self.assertRaises (AppStartError, Application().start_, 'Hiya')
-#
+class FindWindowsTestCases(unittest.TestCase):
+
+    """Unit tests for findwindows.py module"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
+
+        # start the application
+        self.app = Application(backend='win32')
+        self.app = self.app.Start(mfc_app_1)
+
+        self.dlg = self.app.CommonControlsSample
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill_()
+
+    def testFindWindow(self):
+        """Test if function find_window() works as expected including raising the exceptions"""
+        ctrl = self.dlg.OK.WrapperObject()
+        handle = find_window(process=self.app.process, best_match='OK', top_level_only=False)
+
+        self.assertEqual(handle, ctrl.handle)
+
+        self.assertRaises(WindowNotFoundError, find_window, process=self.app.process, class_name='OK')
+
+        self.assertRaises(WindowAmbiguousError, find_window,
+                          process=self.app.process, class_name='Button', top_level_only=False)
+
+    def testFindWindows(self):
+        """Test if function find_window() works as expected including raising the exceptions"""
+        ctrl_hwnds = [elem.handle for elem in self.dlg.children() if elem.class_name() == 'Edit']
+        handles = find_windows(process=self.app.process, class_name='Edit', top_level_only=False)
+
+        self.assertEqual(set(handles), set(ctrl_hwnds))
+
+        self.assertRaises(WindowNotFoundError, find_windows,
+                          process=self.app.process, class_name='FakeClassName', found_index=1)
 
 
 if __name__ == "__main__":

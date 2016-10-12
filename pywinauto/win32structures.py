@@ -1,46 +1,56 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2015 airelil
-# Copyright (C) 2006 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Definition of Windows structures
-"""
+"""Definition of Windows structures"""
 
-from .win32defines import LF_FACESIZE
-from . import six
-from . import sysinfo
-
+import six
 import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, \
-    POINTER, sizeof, alignment, Union, c_ulonglong, c_longlong, c_size_t
+    POINTER, sizeof, alignment, Union, c_longlong, c_size_t
+
+from .win32defines import LF_FACESIZE
+from . import sysinfo
+
 
 class Structure(ctypes.Structure):
-    "Override the Structure class from ctypes to add printing and comparison"
+
+    """Override the Structure class from ctypes to add printing and comparison"""
+
     #----------------------------------------------------------------
     def __str__(self):
         """Print out the fields of the ctypes Structure
 
         fields in exceptList will not be printed"""
-
         lines = []
         for f in self._fields_:
             name = f[0]
@@ -50,10 +60,8 @@ class Structure(ctypes.Structure):
 
     #----------------------------------------------------------------
     def __eq__(self, other_struct):
-        "return true if the two structures have the same coordinates"
-
+        """Return True if the two structures have the same coordinates"""
         if isinstance(other_struct, ctypes.Structure):
-
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
@@ -101,13 +109,12 @@ class Structure(ctypes.Structure):
 # set struct.__reduce__ = _reduce
 # e.g. RECT.__reduce__ = _reduce
 def _construct(typ, buf):
-    #print "construct", (typ, buf)
     obj = typ.__new__(typ)
     ctypes.memmove(ctypes.addressof(obj), buf, len(buf))
     return obj
 
 def _reduce(self):
-    return (_construct, (self.__class__, str(buffer(self))))
+    return (_construct, (self.__class__, bytes(memoryview(self))))
 
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
@@ -156,9 +163,11 @@ assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 
 
-#====================================================================
+# ====================================================================
 class RECT(Structure):
-    "Wrap the RECT structure and add extra functionality"
+
+    """Wrap the RECT structure and add extra functionality"""
+
     _fields_ = [
         # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
         ('left', LONG),
@@ -167,7 +176,7 @@ class RECT(Structure):
         ('bottom', LONG),
     ]
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
         """Provide a constructor for RECT structures
 
@@ -186,19 +195,14 @@ class RECT(Structure):
         else:
             #if not isinstance(otherRect_or_left, (int, long)):
             #    print type(self), type(otherRect_or_left), otherRect_or_left
-            if six.PY3:
-                self.left = otherRect_or_left
-                self.right = right
-                self.top = top
-                self.bottom = bottom
-            else:
-                self.left = long(otherRect_or_left)
-                self.right = long(right)
-                self.top = long(top)
-                self.bottom = long(bottom)
+            long_int = six.integer_types[-1]
+            self.left = long_int(otherRect_or_left)
+            self.right = long_int(right)
+            self.top = long_int(top)
+            self.bottom = long_int(bottom)
 
 
-#    #----------------------------------------------------------------
+#    # ----------------------------------------------------------------
 #    def __eq__(self, otherRect):
 #        "return true if the two rectangles have the same coordinates"
 #
@@ -211,21 +215,21 @@ class RECT(Structure):
 #        except AttributeError:
 #            return False
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __str__(self):
-        "Return a string representation of the RECT"
+        """Return a string representation of the RECT"""
         return "(L%d, T%d, R%d, B%d)" % (
             self.left, self.top, self.right, self.bottom)
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __repr__(self):
-        "Return some representation of the RECT"
+        """Return some representation of the RECT"""
         return "<RECT L%d, T%d, R%d, B%d>" % (
             self.left, self.top, self.right, self.bottom)
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __sub__(self, other):
-        "Return a new rectangle which is offset from the one passed in"
+        """Return a new rectangle which is offset from the one passed in"""
         newRect = RECT()
 
         newRect.left = self.left - other.left
@@ -236,9 +240,9 @@ class RECT(Structure):
 
         return newRect
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def __add__(self, other):
-        "Allow two rects to be added using +"
+        """Allow two rects to be added using +"""
         newRect = RECT()
 
         newRect.left = self.left + other.left
@@ -249,19 +253,19 @@ class RECT(Structure):
 
         return newRect
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def width(self):
-        "Return the width of the  rect"
+        """Return the width of the  rect"""
         return self.right - self.left
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def height(self):
-        "Return the height of the rect"
+        """Return the height of the rect"""
         return self.bottom - self.top
 
-    #----------------------------------------------------------------
+    # ----------------------------------------------------------------
     def mid_point(self):
-        "Return a POINT structure representing the mid point"
+        """Return a POINT structure representing the mid point"""
         pt = POINT()
         pt.x = self.left + int(float(self.width())/2.)
         pt.y = self.top + int(float(self.height())/2.)
@@ -283,8 +287,11 @@ class SETTEXTEX(Structure):
     ]
 assert sizeof(SETTEXTEX) == 8, sizeof(SETTEXTEX)
 
-# Main layout for LVCOLUMN on x86 and x64 archs
+
 class LVCOLUMNW(Structure):
+
+    """The main layout for LVCOLUMN on x86 and x64 archs"""
+
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes in x64 system and 4 bytes in x86
     _fields_ = [
@@ -302,8 +309,11 @@ class LVCOLUMNW(Structure):
         ('cxIdeal', c_int),
     ]
 
-# this is a special layout for a 32-bit process running on x64
+
 class LVCOLUMNW32(Structure):
+
+    """A special layout for LVCOLUMN for a 32-bit process running on x64"""
+
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes in x64 system and 4 bytes in x86
     _fields_ = [
@@ -321,8 +331,11 @@ class LVCOLUMNW32(Structure):
         ('cxIdeal', c_int),
     ]
 
-# Main layout for LVITEM, naturally fits for x86 and x64 archs
+
 class LVITEMW(Structure):
+
+    """The main layout for LVITEM, naturally fits for x86 and x64 archs"""
+
     # _pack_ is not specified, we rely on a default alignment:
     # 8 bytes on x64 system and 4 bytes on x86
     _fields_ = [
@@ -354,8 +367,11 @@ else:
     assert sizeof(LVITEMW) == 60, sizeof(LVITEMW)
     assert alignment(LVITEMW) == 4, alignment(LVITEMW)
 
-# this is a special layout for a 32-bit process running on x64
+
 class LVITEMW32(Structure):
+
+    """A special layout for LVITEM for a 32-bit process running on x64"""
+
     _pack_  = 4
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 2679
@@ -383,6 +399,9 @@ assert alignment(LVITEMW32) == 4, alignment(LVITEMW32)
 
 
 class TVITEMW(Structure):
+
+    """The main layout for TVITEM, naturally fits for x86 and x64 archs"""
+
     #_pack_ = 1
     _fields_ = [
         # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
@@ -403,6 +422,28 @@ if sysinfo.is_x64_Python():
 else:
     assert sizeof(TVITEMW) == 40, sizeof(TVITEMW)
     assert alignment(TVITEMW) == 4, alignment(TVITEMW)
+
+
+class TVITEMW32(Structure):
+
+    """An additional layout for TVITEM, used in a combination of 64-bit python and 32-bit app"""
+
+    _fields_ = [
+        # C:/_tools/Python24/Lib/site-packages/ctypes/wrap/test/commctrl.h 3755
+        ('mask', UINT),
+        ('hItem', UINT), # must be 4 bytes in 32-bit app
+        ('state', UINT),
+        ('stateMask', UINT),
+        ('pszText', UINT), # must be 4 bytes in 32-bit app
+        ('cchTextMax', c_int),
+        ('iImage', c_int),
+        ('iSelectedImage', c_int),
+        ('cChildren', c_int),
+        ('lParam', UINT), # must be 4 bytes in 32-bit app
+    ]
+
+assert sizeof(TVITEMW32) == 40, sizeof(TVITEMW32)
+assert alignment(TVITEMW32) == 4, alignment(TVITEMW32)
 
 
 # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 2225
@@ -719,6 +760,25 @@ else:
     assert sizeof(TBBUTTONINFOW) == 32, sizeof(TBBUTTONINFOW)
     assert alignment(TBBUTTONINFOW) == 4, alignment(TBBUTTONINFOW)
 
+
+class TBBUTTONINFOW32(Structure):
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 1308
+        ('cbSize', UINT),
+        ('dwMask', DWORD),
+        ('idCommand', c_int),
+        ('iImage', c_int),
+        ('fsState', BYTE),
+        ('fsStyle', BYTE),
+        ('cx', WORD),
+        ('lParam', UINT), # must be 4 bytes in 32-bit app
+        ('pszText', UINT), # must be 4 bytes in 32-bit app
+        ('cchText', c_int),
+    ]
+assert sizeof(TBBUTTONINFOW32) == 32, sizeof(TBBUTTONINFOW32)
+assert alignment(TBBUTTONINFOW32) == 4, alignment(TBBUTTONINFOW32)
+
+
 # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
 if sysinfo.is_x64_Python():
     class TBBUTTON(Structure):
@@ -753,6 +813,21 @@ else:
     assert sizeof(TBBUTTON) == 20, sizeof(TBBUTTON)
     assert alignment(TBBUTTON) == 4, alignment(TBBUTTON)
 
+
+class TBBUTTON32(Structure):
+    #_pack_ = 1
+    _fields_ = [
+        # C:/PROGRA~1/MICROS~4/VC98/Include/commctrl.h 953
+        ('iBitmap', c_int),
+        ('idCommand', c_int),
+        ('fsState', BYTE),
+        ('fsStyle', BYTE),
+        ('bReserved', BYTE * 2),
+        ('dwData', UINT), # must be 4 bytes in 32-bit app
+        ('iString', UINT), # must be 4 bytes in 32-bit app
+    ]
+assert sizeof(TBBUTTON32) == 20, sizeof(TBBUTTON32)
+assert alignment(TBBUTTON32) == 4, alignment(TBBUTTON32)
 
 
 class REBARBANDINFOW(Structure):
@@ -1154,10 +1229,28 @@ class SYSTEMTIME(Structure):
     ]
     
     def __repr__(self):
-        return '<wYear=' + str(self.wYear) + ', wMonth=' + str(self.wMonth) + ', wDayOfWeek=' + str(self.wDayOfWeek) + ', wDay=' + str(self.wDay) + ', wHour=' + str(self.wHour) + ', wMinute=' + str(self.wMinute) + \
-               ', wSecond=' + str(self.wSecond) + ', wMilliseconds=' + str(self.wMilliseconds) + '>'
+        return '<wYear=' + str(self.wYear) + \
+            ', wMonth=' + str(self.wMonth) + \
+            ', wDayOfWeek=' + str(self.wDayOfWeek) + \
+            ', wDay=' + str(self.wDay) + \
+            ', wHour=' + str(self.wHour) + \
+            ', wMinute=' + str(self.wMinute) + \
+            ', wSecond=' + str(self.wSecond) + \
+            ', wMilliseconds=' + str(self.wMilliseconds) + '>'
     
     def __str__(self):
         return self.__repr__()
 
 assert sizeof(SYSTEMTIME) == 16, sizeof(SYSTEMTIME)
+
+class MCHITTESTINFO(Structure):
+    _fields_ = [
+        ('cbSize', UINT),
+        ('pt', POINT),
+        ('uHit', UINT),
+        ('st', SYSTEMTIME),
+        ('rc', RECT),
+        ('iOffset', c_int),
+        ('iRow', c_int),
+        ('iCol', c_int)
+    ]

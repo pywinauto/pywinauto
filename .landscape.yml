@@ -8,7 +8,5 @@ requirements:
 ignore-paths:
     - apps
     - sandbox
-    - doc_src
+    - docs
     - pywinauto/unittests
-ignore-patterns:
-    - ^pywinauto/six.py$

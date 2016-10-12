@@ -1,23 +1,33 @@
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # pylint: disable-msg=W0611
 
@@ -59,22 +69,19 @@ report that the string is truncated.
 The identifier for this test/bug is "Truncation"
 """
 
-__revision__ = "$Revision$"
-
 testname = "Truncation"
 
 import ctypes
+import six
 
-from pywinauto import six
 from pywinauto import win32defines
 from pywinauto import win32functions
-from pywinauto.win32structures import RECT
+from pywinauto import win32structures
 
 
 #==============================================================================
 def TruncationTest(windows):
-    "Actually do the test"
-
+    """Actually do the test"""
     truncations = []
 
     # for each of the windows in the dialog
@@ -114,7 +121,7 @@ def TruncationTest(windows):
 
 #==============================================================================
 def _FindTruncations(ctrl):
-    "Return the index of the texts that are truncated for this control"
+    """Return the index of the texts that are truncated for this control"""
     truncIdxs = []
     truncStrings = []
 
@@ -148,7 +155,7 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     """Return the minimum rectangle that the text will fit into
 
     Uses font, usableRect and drawFlags information to find how
-    how to do it accurately
+    to do it accurately.
     """
 
     # try to create the font
@@ -180,13 +187,13 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     # put our font into the Device Context
     win32functions.SelectObject (txtDC, hFontGUI)
 
-    modifiedRect = RECT(usableRect)
+    modifiedRect = win32structures.RECT(usableRect)
     # Now write the text to our DC with our font to get the
     # rectangle that the text needs to fit in
     win32functions.DrawText (txtDC, # The DC
         six.text_type(text),		# The Title of the control
         -1,			# -1 because sTitle is NULL terminated
-        ctypes.byref(modifiedRect),	# The Rectangle to be calculated to
+        ctypes.byref(modifiedRect),	# The rectangle to be calculated to
         #truncCtrlData.drawTextFormat |
         win32defines.DT_CALCRECT | drawFlags)
 
@@ -208,7 +215,7 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
 
 #==============================================================================
 def _GroupBoxTruncInfo(win):
-    "Return truncation information specific to Button controls"
+    """Return truncation information specific to Button controls"""
     lineFormat = win32defines.DT_SINGLELINE
 
     heightAdj = 4
@@ -224,16 +231,16 @@ def _GroupBoxTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
     newRect.bottom -=  heightAdj
 
-    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 
 #==============================================================================
 def _RadioButtonTruncInfo(win):
-    "Return truncation information specific to Button controls"
+    """Return truncation information specific to Button controls"""
     lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.BS_MULTILINE):
@@ -251,15 +258,15 @@ def _RadioButtonTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
 
-    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 
 #==============================================================================
 def _CheckBoxTruncInfo(win):
-    "Return truncation information specific to Button controls"
+    """Return truncation information specific to Button controls"""
     lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.BS_MULTILINE):
@@ -277,15 +284,15 @@ def _CheckBoxTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
 
-    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 
 #==============================================================================
 def _ButtonTruncInfo(win):
-    "Return truncation information specific to Button controls"
+    """Return truncation information specific to Button controls"""
     lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.BS_MULTILINE):
@@ -311,15 +318,15 @@ def _ButtonTruncInfo(win):
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
     newRect.right -=  widthAdj
     newRect.bottom -=  heightAdj
 
-    return [(win.WindowText(), newRect, win.Font(), lineFormat), ]
+    return [(win.window_text(), newRect, win.font(), lineFormat), ]
 
 #==============================================================================
 def _ComboBoxTruncInfo(win):
-    "Return truncation information specific to ComboBox controls"
+    """Return truncation information specific to ComboBox controls"""
     # canot wrap and never had a hotkey
     lineFormat = win32defines.DT_SINGLELINE | win32defines.DT_NOPREFIX
 
@@ -330,78 +337,78 @@ def _ComboBoxTruncInfo(win):
         widthAdj = 3
 
     truncData = []
-    for title in win.Texts():
-        newRect = win.ClientRects()[0]
+    for title in win.texts():
+        newRect = win.client_rects()[0]
         newRect.right -= widthAdj
-        truncData.append((title, newRect, win.Font(), lineFormat))
+        truncData.append((title, newRect, win.font(), lineFormat))
 
     return truncData
 
 #==============================================================================
 def _ComboLBoxTruncInfo(win):
-    "Return truncation information specific to ComboLBox controls"
+    """Return truncation information specific to ComboLBox controls"""
     # canot wrap and never had a hotkey
     lineFormat = win32defines.DT_SINGLELINE | win32defines.DT_NOPREFIX
 
     truncData = []
-    for title in win.Texts():
-        newRect = win.ClientRects()[0]
+    for title in win.texts():
+        newRect = win.client_rects()[0]
         newRect.right -= 5
-        truncData.append((title, newRect, win.Font(), lineFormat))
+        truncData.append((title, newRect, win.font(), lineFormat))
 
     return truncData
 
 
 #==============================================================================
 def _ListBoxTruncInfo(win):
-    "Return truncation information specific to ListBox controls"
+    """Return truncation information specific to ListBox controls"""
     # canot wrap and never had a hotkey
     lineFormat = win32defines.DT_SINGLELINE | win32defines.DT_NOPREFIX
 
     truncData = []
-    for title in win.Texts():
-        newRect = win.ClientRects()[0]
+    for title in win.texts():
+        newRect = win.client_rects()[0]
         newRect.right -= 2
         newRect.bottom -= 1
-        truncData.append((title, newRect, win.Font(), lineFormat))
+        truncData.append((title, newRect, win.font(), lineFormat))
 
     return truncData
 
 
 #==============================================================================
 def _StaticTruncInfo(win):
-    "Return truncation information specific to Static controls"
+    """Return truncation information specific to Static controls"""
     lineFormat = win32defines.DT_WORDBREAK
 
     if win.HasStyle(win32defines.SS_CENTERIMAGE) or \
-        win.HasStyle(win32defines.SS_SIMPLE) or \
-        win.HasStyle(win32defines.SS_LEFTNOWORDWRAP):
+            win.HasStyle(win32defines.SS_SIMPLE) or \
+            win.HasStyle(win32defines.SS_LEFTNOWORDWRAP) and \
+            "WindowsForms" not in win.class_name():
 
-        if "WindowsForms" not in win.Class():
-            lineFormat = win32defines.DT_SINGLELINE
+        lineFormat = win32defines.DT_SINGLELINE
 
     if win.HasStyle(win32defines.SS_NOPREFIX):
         lineFormat |= win32defines.DT_NOPREFIX
 
-    return [(win.WindowText(), win.ClientRects()[0], win.Font(), lineFormat), ]
+    return [(win.window_text(), win.client_rects()[0], win.font(), lineFormat), ]
 
 #==============================================================================
 def _EditTruncInfo(win):
-    "Return truncation information specific to Edit controls"
+    """Return truncation information specific to Edit controls"""
     lineFormat = win32defines.DT_WORDBREAK | win32defines.DT_NOPREFIX
 
     if not win.HasStyle(win32defines.ES_MULTILINE):
         lineFormat |= win32defines.DT_SINGLELINE
 
-    return [(win.WindowText(), win.ClientRects()[0], win.Font(), lineFormat), ]
+    return [(win.window_text(), win.client_rects()[0], win.font(), lineFormat), ]
 
 
 #==============================================================================
 def _DialogTruncInfo(win):
-    "Return truncation information specific to Header controls"
+    """Return truncation information specific to Header controls"""
     # move it down more into range
 
-    newRect = win.ClientRects()[0]
+    newRect = win.client_rects()[0]
 
     newRect.top += 5
     newRect.left += 5
@@ -473,12 +480,12 @@ def _DialogTruncInfo(win):
             if 'min' in buttons and 'help' in buttons:
                 diff += 4
 
-    return [(win.WindowText(), newRect, win.Font(), win32defines.DT_SINGLELINE), ]
+    return [(win.window_text(), newRect, win.font(), win32defines.DT_SINGLELINE), ]
 
 
 #==============================================================================
 def _StatusBarTruncInfo(win):
-    "Return truncation information specific to StatusBar controls"
+    """Return truncation information specific to StatusBar controls"""
     truncInfo = _WindowTruncInfo(win)
     for i, (title, rect, font, flag) in enumerate(truncInfo):
 
@@ -492,7 +499,7 @@ def _StatusBarTruncInfo(win):
 
 #==============================================================================
 def _HeaderTruncInfo(win):
-    "Return truncation information specific to Header controls"
+    """Return truncation information specific to Header controls"""
     truncInfo = _WindowTruncInfo(win)
 
     for i, (title, rect, font, flag) in enumerate(truncInfo):
@@ -507,21 +514,21 @@ def _HeaderTruncInfo(win):
 
 #==============================================================================
 def _WindowTruncInfo(win):
-    "Return Default truncation information"
+    """Return Default truncation information"""
     matchedItems = []
 
-    for i, title in enumerate(win.Texts()):
+    for i, title in enumerate(win.texts()):
 
         # Use the client rects for rectangles
-        if i < len(win.ClientRects()):
-            rect = win.ClientRects()[i]
+        if i < len(win.client_rects()):
+            rect = win.client_rects()[i]
         else:
             # until we run out then just use the first 'main' client rectangle
-            rect = win.ClientRects()[0]
+            rect = win.client_rects()[0]
 
         # if we have fewer fonts than titles
         if len(win.Fonts())-1 < i:
-            font = win.Font()
+            font = win.font()
         else:
             font = win.Fonts()[i]
 
@@ -556,9 +563,9 @@ _TruncInfo = {
 
 #==============================================================================
 def _GetTruncationInfo(win):
-    "helper function to hide non special windows"
-    if win.FriendlyClassName() in _TruncInfo:
-        return _TruncInfo[win.FriendlyClassName()](win)
+    """helper function to hide non special windows"""
+    if win.friendly_class_name() in _TruncInfo:
+        return _TruncInfo[win.friendly_class_name()](win)
     else:
         return _WindowTruncInfo(win)
 

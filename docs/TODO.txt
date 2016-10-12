@@ -1,0 +1,174 @@
+
+============================================================================
+PYWINAUTO TODO's
+============================================================================
+
+* Make sure to add documentation strings for all undocumented methods/functions
+
+* Check coverage of the tests and work to increase it.
+
+* Add tests for SendInput click methods
+
+* Implement findbestmatch using FuzzyDict.
+
+* Find a way of doing application data in a better way. Currently if someone
+  even adds a call to print_control_identifiers() it will break the matching
+  algorithm!
+
+* Need to move the checking if a control is a Ownerdrawn/bitmap control out
+  of __init__ methods and into it's own method something like 
+  IsNormallyRendered() (Why?)
+
+* Give example how to work with Tray Window
+
+* Fix ToolbarWrapper.PressButton() which doesn't seem to work (found wile working
+  on IE example script)
+
+* Maybe supply an option so that scripts can be run by using::
+
+   pywinauto.exe yourscript.py
+   
+  This would work by creating a Py2exe wrapper that would import the script 
+  (and optionally call a particular function?)
+  
+  This way pywinauto could be made available to people without python
+  installed (whether this is a big requirement or not I don't know
+  because the automation language is python anyway!.
+
+* Message traps - how to handle unwanted message boxes popping up?
+
+  a) Wait for an Exception then handle it there
+  b) set a trap waiting for a specific dialog
+  c) on calls to window specification, if we fail to find our window then we can 
+     run quickly through the available specified traps to see if any of them apply
+     - then if they do we can run the associated actions - then try our original 
+     dialog again
+
+* Handle adding reference controls (in that they should be the controls used 
+  for finding windows)
+
+* Find the reference name of a variable e.g so that in Dialog._write() we 
+  can know the variable name that called the _write on (this we don't have
+  to repeat the XML file name!)
+
+* If we remove the delay after a button click in controlactions then
+  trying to close two dialogs in a row might fail because the first
+  dialog hasn't closed yet and the 2nd may have similar title and 
+  same closing button e.g PageSetup.OK.Click(), PageSetup2.OK.Click().
+  A possible solution to this might be to keep a cache of windows in the
+  application and no two different dialog identifiers (PageSetup and PageSetup2
+  in this case) can have the same handle - so returning the handle of PageSetup
+  when we call PageSetup2 would fail (and we would do our usual waiting until
+  it succeeds or times out).
+
+* Investigate using any of the following
+
+   - BringWindowToTop: probably necessary before image capture
+   - GetTopWindow: maybe to re-set top window after capture?
+
+   - EnumThreadWindows
+   - GetGUIThreadInfo
+ 
+
+* Make it easy to work with context(right click) menu's
+
+* Further support .NET controls and download/create a test .NET application
+
+* Look at supporting the Sytem Tray (e.g. right click on an icon)
+
+* supply SystemTray class (singleton probably)
+
+* Look at clicking and text input - maybe use SendInput
+
+* Support Up-Down controls and other common controls
+
+* Find out whether control.item.action() or control.action(item) is better
+
+* Create a Recorder to visually create tests
+
+
+**LOW PRIORITY**
+
+* Create a class that makes it easy to deal with a single window  (e.g. no 
+  application)
+
+* Allow apps to be started in a different thread so we don't lock up
+
+  - this is being done already - the problem is that some messages cannot
+    be sent across processes if they have pointers (so we need to send a 
+    synchronous message which waits for the other process to respond 
+    before returning)
+    
+  - But I guess it would be possible to create a thread for sending
+    those messages?
+
+* Liberate the code from HwndWrapper - there is very little this add's beyond
+  what is available in handleprops. The main reason this is required is for 
+  the FriendlyClassName. So I need to look to see if this can be moved 
+  elsewhere.
+  
+  Doing this might flatten the heirarchy quite a bit and reduce the 
+  dependencies on the various packages
+
+
+* Need to make Menu items into classes so instead of Dlg.MenuSelect we should
+  be doing ::
+  
+     dlg.Menu("blah->blah").Select() 
+     
+  or even ::
+  
+     dlg.Menu.Blah.Blah.Select()
+  
+ To do this we need to change how menu's are retrieved - rather than get all 
+ menuitems at the start - then we just get the requested level.
+ 
+ This would also enable things like ::
+ 
+ 	dlg.Menu.Blah.Blah.IsChecked()  IsEnabled(), etc
+
+
+
+
+
+
+----------------------------------
+CLOSED (in some way or the other)
+----------------------------------
+* Allow delay after click to be removed. The main reason that this is needed
+  at the moment is because if you close a dialog and then try an action on 
+  the parent immediately it may not yet be active - so the delay is 
+  needed to allow it to become active.
+  To fix this we may need to add more magic around calling actions on dialogs
+  e.g.
+  on an attribute access for an ActionDialog do the following:
+
+   - Check if it is an Action
+   - If it is not enabled then wait a little bit
+   - If it is then wait a little bit and try again
+   - repeat that until success or timeout
+  
+  The main thing that needs to be resolved is that you don't want two of these
+  waits happening at once (so a wait in a function at 1 level, and another wait
+  in a function called by the other one - because this would mean there would
+  be a VERY long delay while the timeout of the nested function was reached
+  the number of times the calling func tried to succeed!)
+
+* Add referencing by closest static (or surrounding group box?)
+
+* Need to modularize the methods of the common_controls because at the moment
+  they are much too monolithic.
+
+* Finish example of saving a page from IE
+
+* Document that I have not been able to figure out how to reliably check
+  if a menu item is enabled or not before selecting it. (Probably FIXED NOW!)
+  
+  For Example in Media Player if you try and click the View->Choose Columns
+  menu item when it is not enabled it crashes Media Player. Theoretically
+  MF_DISABLED and MF_GRAYED should be used - but I found that these are not
+  updated (at least for Media Player) until they are dropped down.
+
+* Implement an opional timing/config module so that all timing can be 
+  customized
+
