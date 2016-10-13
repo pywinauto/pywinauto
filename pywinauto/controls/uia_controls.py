@@ -388,7 +388,7 @@ class TabControlWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
     def get_selected_tab(self):
-        """Return the index of a selected tab"""
+        """Return an index of a selected tab"""
         return self.selected_item_index()
 
     # ----------------------------------------------------------------
@@ -425,18 +425,18 @@ class SliderWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def min_value(self):
-        """Get minimum value of the Slider"""
+        """Get the minimum value of the Slider"""
         return self.iface_range_value.CurrentMinimum
 
     # -----------------------------------------------------------
     def max_value(self):
-        """Get maximum value of the Slider"""
+        """Get the maximum value of the Slider"""
         return self.iface_range_value.CurrentMaximum
 
     # -----------------------------------------------------------
     def small_change(self):
         """
-        Get small change of slider's thumb
+        Get a small change of slider's thumb
 
         This change is achieved by pressing left and right arrows
         when slider's thumb has keyboard focus.
@@ -446,7 +446,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def large_change(self):
         """
-        Get large change of slider's thumb
+        Get a large change of slider's thumb
 
         This change is achieved by pressing PgUp and PgDown keys
         when slider's thumb has keyboard focus.
@@ -455,7 +455,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def value(self):
-        """Get current position of slider's thumb"""
+        """Get a current position of slider's thumb"""
         return self.iface_range_value.CurrentValue
 
     # -----------------------------------------------------------
@@ -547,12 +547,12 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def column_count(self):
-        """Return the number of columns"""
+        """Return a number of columns"""
         return self.iface_grid.CurrentColumnCount
 
     # -----------------------------------------------------------
     def get_header_control(self):
-        """Return the Header control associated with the ListView"""
+        """Return Header control associated with the ListView"""
         try:
             # MSDN: A data grid control that has a header
             # should support the Table control pattern
@@ -607,7 +607,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     def get_item(self, row):
         """Return an item of the ListView control
 
-        * **row** Can be either an index of the row or a string
+        * **row** can be either an index of the row or a string
           with the text of a cell in the row you want returned.
         """
         # Verify arguments
@@ -636,7 +636,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     def get_item_rect(self, item_index):
         """Return the bounding rectangle of the list view item
 
-        The interface is kept mostly for a backward compatibility
+        The method is kept mostly for a backward compatibility
         with the native ListViewWrapper interface
         """
         itm = self.get_item(item_index)
@@ -873,12 +873,12 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
-        """Return the button by the specified identifier
+        """Return a button by the specified identifier
 
         * **button_identifier** can be either an index of a button or
           a string with the text of the button.
         * **exact** flag specifies if the exact match for the text look up
-            has to be applied.
+          has to be applied.
         """
 
         cc = self.children()
@@ -911,7 +911,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **make_checked** specifies the required toggled state of the button.
           If the button is already in the specified state the state isn't changed.
         * **exact** flag specifies if the exact match for the text look up
-            has to be applied
+          has to be applied
         """
 
         self.actions.logSectionStart('Checking "' + self.window_text() +
@@ -941,11 +941,13 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
 
     In addition to the provided methods of the wrapper
     additional inherited methods can be especially helpful:
-    - extend()
-    - collapse()
-    - click_input()
-    - drag_mouse_input()
-    - rectangle()
+    * select()
+    * extend()
+    * collapse()
+    * is_extended()
+    * is_collapsed()
+    * click_input()
+    * rectangle()
     and many others
     """
 
