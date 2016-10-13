@@ -1025,6 +1025,11 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
             absolute=True
         )
 
+    # -----------------------------------------------------------
+    def sub_elements(self):
+        """Return a list of all visible sub-items of this control"""
+        return self.descendants(control_type="TreeItem")
+
 
 # ====================================================================
 class TreeViewWrapper(uiawrapper.UIAWrapper):

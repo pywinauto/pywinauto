@@ -1059,6 +1059,11 @@ if UIA_support:
             self.assertEqual(len(roots), 1)
             self.assertEqual(roots[0].texts()[0], u'Date Elements')
 
+            sub_items = roots[0].sub_elements()
+            self.assertEqual(len(sub_items), 11)
+            self.assertEqual(sub_items[0].window_text(), u'Empty Date')
+            self.assertEqual(sub_items[-1].window_text(), u'Years')
+
         def test_tv_item_select(self):
             """Test selecting an item from TreeView"""
             # Find by a path with indexes
