@@ -1,6 +1,0 @@
-pywinauto.six
--------------
- .. automodule:: pywinauto.six
-    :members:
-    :undoc-members:
-

@@ -1,7 +1,0 @@
-pywinauto.controls.menuwrapper
-------------------------------
- .. automodule:: pywinauto.controls.menuwrapper
-    :members:
-    :undoc-members:
-    :show-inheritance:
-

@@ -1,6 +1,6 @@
-pywinauto.controls.HwndWrapper
+pywinauto.controls.hwndwrapper
 ------------------------------
- .. automodule:: pywinauto.controls.HwndWrapper
+ .. automodule:: pywinauto.controls.hwndwrapper
     :members:
     :undoc-members:
     :show-inheritance:

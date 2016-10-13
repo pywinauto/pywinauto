@@ -65,7 +65,7 @@ The methods to help you to find a needed control.
 
 
 .. _PrintControlIdentifiers: code/pywinauto.application.html?highlight=PrintControlIdentifiers#pywinauto.application.WindowSpecification.PrintControlIdentifiers
-.. _DrawOutline: code/pywinauto.controls.HwndWrapper.html?highlight=DrawOutline#pywinauto.controls.HwndWrapper.HwndWrapper.DrawOutline
+.. _DrawOutline: code/pywinauto.controls.hwndwrapper.html?highlight=DrawOutline#pywinauto.controls.hwndwrapper.HwndWrapper.DrawOutline
 
 
 How To`s

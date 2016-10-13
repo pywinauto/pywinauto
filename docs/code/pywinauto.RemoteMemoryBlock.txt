@@ -1,6 +1,0 @@
-pywinauto.RemoteMemoryBlock
----------------------------
- .. automodule:: pywinauto.RemoteMemoryBlock
-    :members:
-    :undoc-members:
-

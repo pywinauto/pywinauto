@@ -1,6 +1,0 @@
-pywinauto.fuzzydict
--------------------
- .. automodule:: pywinauto.fuzzydict
-    :members:
-    :undoc-members:
-
