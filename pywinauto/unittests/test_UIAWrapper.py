@@ -1165,6 +1165,8 @@ if UIA_support:
             self.assertEqual(itm.window_text(), 'Years')
             itm = self.ctrl.get_item((0, 0, 0, 0))
             self.assertEqual(itm.window_text(), '2015')
+            itm = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+            itm.collapse()
 
             itm_from = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
             itm_to = self.ctrl.get_item(r'\Date Elements\Months')
