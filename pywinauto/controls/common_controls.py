@@ -999,8 +999,8 @@ class _treeview_element(object):
     IsChecked = is_checked
 
     #----------------------------------------------------------------
-    def rectangle(self, text_area_rect = True):
-        """Return the rectangle of the item
+    def text_rectangle(self, text_area_rect=True):
+        """Return the rectangle of the text area of the item
 
         If text_area_rect is set to False then it will return
         the rectangle for the whole item (usually left is equal to 0).
@@ -1027,8 +1027,20 @@ class _treeview_element(object):
 
         del remote_mem
         return rect
+    rectangle = text_rectangle
     # Non PEP-8 alias
     Rectangle = rectangle
+
+    # -----------------------------------------------------------
+    def _calc_click_coords(self):
+        """Override the BaseWrapper helper method trying to get coordinates
+        of a text box inside the item.
+
+        The returned coordinates are always absolute
+        """
+        rect = self.text_rectangle()
+        coords = rect.mid_point()
+        return self.client_to_screen(coords)
 
     #----------------------------------------------------------------
     def click(self, button ="left", double = False, where ="text", pressed =""):

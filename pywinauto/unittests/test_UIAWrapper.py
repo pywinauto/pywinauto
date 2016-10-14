@@ -1078,6 +1078,13 @@ if UIA_support:
             itm.select()
             self.assertEqual(itm.is_selected(), True)
 
+            itm = self.ctrl.get_item((0, 3, 2))
+            itm.ensure_visible()
+            self.assertEqual(itm.is_selected(), False)
+            coords = itm.children(control_type='Text')[0].rectangle().mid_point()
+            itm.click_input(coords=coords, absolute=True)
+            self.assertEqual(itm.is_selected(), True)
+
         def test_tv_get_item(self):
             """Test getting an item from TreeView"""
             # Find by a path with indexes

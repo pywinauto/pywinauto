@@ -1002,30 +1002,23 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
         return cc[index]
 
     # -----------------------------------------------------------
-    def drag_mouse_input(self, itm):
-        """Drag-n-drop itself on the specified item"""
-        # A helper function that tries to get
-        # coordinates of a text box inside the item
-        # If no text box found just sets coordinates
-        # close to a left part of the item rectangle
-        def _calc_click_coords(itm):
-            tt = itm.children(control_type="Text")
-            if tt:
-                coords = tt[0].rectangle().mid_point()
-            else:
-                rect = itm.rectangle()
-                coords = (rect.left + int(float(rect.width()) / 4.),
-                          rect.top + int(float(rect.height()) / 2.))
-            return coords
+    def _calc_click_coords(self):
+        """Override the BaseWrapper helper method trying to get coordinates of
+        a text box inside the item. If no text box found just set coordinates
+        close to a left part of the item rectangle
 
-        coords_from = _calc_click_coords(self)
-        coords_to = _calc_click_coords(itm)
-
-        super(TreeItemWrapper, self).drag_mouse_input(
-            press_coords=coords_from,
-            release_coords=coords_to,
-            absolute=True
-        )
+        The returned coordinates are always absolute
+        """
+        tt = self.children(control_type="Text")
+        if tt:
+            point = tt[0].rectangle().mid_point()
+            # convert from POINT to a simple tuple
+            coords = (point.x, point.y)
+        else:
+            rect = self.rectangle()
+            coords = (rect.left + int(float(rect.width()) / 4.),
+                      rect.top + int(float(rect.height()) / 2.))
+        return coords
 
     # -----------------------------------------------------------
     def sub_elements(self):
