@@ -44,7 +44,7 @@ class ElementNotVisible(RuntimeError):
 @six.add_metaclass(abc.ABCMeta)
 class BaseMeta(abc.ABCMeta):
     "Abstract metaclass for Wrapper objects"
-    
+
     @staticmethod
     def find_wrapper(element):
         "Abstract static method to find an appropriate wrapper"
@@ -70,7 +70,7 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     def __new__(cls, element_info):
         return BaseWrapper._create_wrapper(cls, element_info, BaseWrapper)
-    
+
     #------------------------------------------------------------
     @staticmethod
     def _create_wrapper(cls_spec, element_info, myself):
@@ -246,8 +246,11 @@ class BaseWrapper(object):
 
     #------------------------------------------------------------
     def client_to_screen(self, client_point):
-        "Maps point from client to screen coordinates"
-        rect = self.rectangle()
+        """Maps point from client to screen coordinates"""
+        # Use a direct call to element_info.rectangle instead of self.rectangle
+        # because the latter can be overriden in one of derived wrappers
+        # (see _treeview_element.rectangle or _listview_item.rectangle)
+        rect = self.element_info.rectangle
         if isinstance(client_point, win32structures.POINT):
             return (client_point.x + rect.left, client_point.y + rect.top)
         else:
@@ -343,8 +346,8 @@ class BaseWrapper(object):
         It returns a list of BaseWrapper (or subclass) instances.
         An empty list is returned if there are no children.
         """
-        child_elements = self.element_info.children(process = self.process_id(), 
-                                                    class_name = class_name, 
+        child_elements = self.element_info.children(process = self.process_id(),
+                                                    class_name = class_name,
                                                     title = title,
                                                     control_type = control_type)
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
@@ -358,7 +361,7 @@ class BaseWrapper(object):
         An empty list is returned if there are no descendants.
         """
         desc_elements = self.element_info.descendants(process = self.process_id(),
-                                                      class_name = class_name, 
+                                                      class_name = class_name,
                                                       title = title,
                                                       control_type = control_type)
         return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
@@ -682,20 +685,54 @@ class BaseWrapper(object):
 
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
+    def _calc_click_coords(self):
+        """A helper that tries to get click coordinates of the control
+
+        The calculated coordinates are absolute and returned as
+        a tuple with x and y values.
+        """
+        coords = self.rectangle().mid_point()
+        return (coords.x, coords.y)
+
+    # -----------------------------------------------------------
     def drag_mouse_input(self,
-                         button = "left",
-                         press_coords = (0, 0),
-                         release_coords = (0, 0),
-                         pressed = "",
-                         absolute = False):
-        "Drag the mouse"
+                         dst=(0, 0),
+                         src=None,
+                         button="left",
+                         pressed="",
+                         absolute=True):
+        """Perform the drag-n-drop mouse operation by clicking on **dst**,
+        dragging it and dropping on **src**
 
-        if isinstance(press_coords, win32structures.POINT):
-            press_coords = (press_coords.x, press_coords.y)
+        * **dst** is a destination wrapper object or just coordinates.
+        * **src** is a source wrapper object or coordinates.
+          If **src** is None the self is used as a source object.
+        * **button** is a mouse button to hold during the drag.
+          It can be "left", "right", "middle" or "x"
+        * **pressed** is a key on the keyboard to press during the drag.
+        * **absolute** specifies whether to use absolute coordinates
+          for the mouse pointer locations
+        """
 
-        if isinstance(release_coords, win32structures.POINT):
-            release_coords = (release_coords.x, release_coords.y)
+        if not src:
+            src = self
+            if dst is src:
+                raise AttributeError("Can't drag-n-drop on itself")
+
+        if isinstance(dst, BaseWrapper):
+            press_coords = self._calc_click_coords()
+        elif isinstance(src, win32structures.POINT):
+            press_coords = (src.x, src.y)
+        else:
+            press_coords = src
+
+        if isinstance(dst, BaseWrapper):
+            release_coords = dst._calc_click_coords()
+        elif isinstance(dst, win32structures.POINT):
+            release_coords = (dst.x, src.y)
+        else:
+            release_coords = dst
 
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)
