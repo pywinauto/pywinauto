@@ -589,6 +589,8 @@ class BaseWrapper(object):
         coords = list(coords)
 
         # set the default coordinates
+        # TODO: buggy if absolute=False (rectangle returns absolute coords!)
+        # A possible fix: if None in coords: calculate coords and force absolute=True
         if coords[0] is None:
             coords[0] = int(self.rectangle().width() / 2)
         if coords[1] is None:
@@ -720,19 +722,21 @@ class BaseWrapper(object):
             if dst is src:
                 raise AttributeError("Can't drag-n-drop on itself")
 
-        if isinstance(dst, BaseWrapper):
-            press_coords = self._calc_click_coords()
+        if isinstance(src, BaseWrapper):
+            press_coords = src._calc_click_coords()
         elif isinstance(src, win32structures.POINT):
             press_coords = (src.x, src.y)
         else:
             press_coords = src
+        self.actions.log('Drag mouse to coordinates ' + str(press_coords).replace('\n', ', '))
 
         if isinstance(dst, BaseWrapper):
             release_coords = dst._calc_click_coords()
         elif isinstance(dst, win32structures.POINT):
-            release_coords = (dst.x, src.y)
+            release_coords = (dst.x, dst.y)
         else:
             release_coords = dst
+        self.actions.log('Drag mouse from coordinates ' + str(release_coords).replace('\n', ', '))
 
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)
