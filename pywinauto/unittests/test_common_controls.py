@@ -1414,7 +1414,8 @@ class ToolTipsTestCases(unittest.TestCase):
 
     def testTexts(self):
         """Make sure the texts are set correctly"""
-        self.dlg.move_mouse_input(coords=(0, 0)) # just to make sure a tooltip is not shown
+        # just to make sure a tooltip is not shown
+        self.dlg.move_mouse_input(coords=(0, 0), absolute=False)
         ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.texts()))
         self.assertEquals(self.ctrl.texts()[0], '')
         self.assertEquals(self.ctrl.texts()[1:], self.texts)

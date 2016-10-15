@@ -996,7 +996,7 @@ if UIA_support:
         def test_tooltips(self):
             """Test working with tooltips"""
             self.ctrl.set_focus()
-            self.ctrl.move_mouse_input(coords=(10, 10))
+            self.ctrl.move_mouse_input(coords=(10, 10), absolute=False)
 
             # Find a tooltip by class name
             tt = self.app.window_(top_level_only=False,

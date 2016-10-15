@@ -1160,9 +1160,9 @@ class _treeview_element(object):
         point_to_click = rect.mid_point()
 
         #self.tree_ctrl.set_focus()
-        self.tree_ctrl.press_mouse_input(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
+        self.tree_ctrl.press_mouse_input(button, coords=(point_to_click.x, point_to_click.y), pressed=pressed, absolute=False)
         for i in range(5):
-            self.tree_ctrl.move_mouse_input(coords = (rect.left + i, rect.top), pressed=pressed)
+            self.tree_ctrl.move_mouse_input(coords=(rect.left + i, rect.top), pressed=pressed, absolute=False)
     # Non PEP-8 alias
     StartDragging = start_dragging
 
@@ -1174,10 +1174,10 @@ class _treeview_element(object):
         # find the text rectangle for the item
         point_to_click = self.client_rect().mid_point()
 
-        self.tree_ctrl.move_mouse_input(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
+        self.tree_ctrl.move_mouse_input(coords=(point_to_click.x, point_to_click.y), pressed=pressed, absolute=False)
         time.sleep(Timings.drag_n_drop_move_mouse_wait)
 
-        self.tree_ctrl.release_mouse_input(button, coords = (point_to_click.x, point_to_click.y), pressed = pressed)
+        self.tree_ctrl.release_mouse_input(button, coords=(point_to_click.x, point_to_click.y), pressed=pressed, absolute=False)
         time.sleep(Timings.after_drag_n_drop_wait)
     # Non PEP-8 alias
     Drop = drop

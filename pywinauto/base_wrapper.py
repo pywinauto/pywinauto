@@ -633,7 +633,7 @@ class BaseWrapper(object):
             button = "left",
             coords = (None, None),
             pressed = "",
-            absolute = False,
+            absolute = True,
             key_down = True,
             key_up = True
     ):
@@ -655,7 +655,7 @@ class BaseWrapper(object):
             button = "left",
             coords = (None, None),
             pressed = "",
-            absolute = False,
+            absolute = True,
             key_down = True,
             key_up = True
     ):
@@ -672,7 +672,7 @@ class BaseWrapper(object):
         )
 
     #-----------------------------------------------------------
-    def move_mouse_input(self, coords = (0, 0), pressed ="", absolute = False):
+    def move_mouse_input(self, coords=(0, 0), pressed="", absolute=True):
         "Move the mouse"
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
