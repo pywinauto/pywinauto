@@ -999,11 +999,11 @@ class _treeview_element(object):
     IsChecked = is_checked
 
     #----------------------------------------------------------------
-    def text_rectangle(self, text_area_rect=True):
-        """Return the rectangle of the text area of the item
+    def client_rect(self, text_area_rect=True):
+        """Return a rectangle of a text area of the item
 
-        If text_area_rect is set to False then it will return
-        the rectangle for the whole item (usually left is equal to 0).
+        If **text_area_rect** is set to False then it will return
+        a rectangle for the whole item (usually left is equal to 0).
         Defaults to True - which returns just the rectangle of the
         text of the item
         """
@@ -1027,23 +1027,11 @@ class _treeview_element(object):
 
         del remote_mem
         return rect
-    rectangle = text_rectangle
     # Non PEP-8 alias
-    Rectangle = rectangle
-
-    # -----------------------------------------------------------
-    def _calc_click_coords(self):
-        """Override the BaseWrapper helper method trying to get coordinates
-        of a text box inside the item.
-
-        The returned coordinates are always absolute
-        """
-        rect = self.text_rectangle()
-        coords = rect.mid_point()
-        return self.client_to_screen(coords)
+    ClientRect = client_rect
 
     #----------------------------------------------------------------
-    def click(self, button ="left", double = False, where ="text", pressed =""):
+    def click(self, button="left", double=False, where="text", pressed=""):
         """Click on the treeview item
 
         where can be any one of "text", "icon", "button", "check"
@@ -1051,12 +1039,12 @@ class _treeview_element(object):
         """
 
         # find the text rectangle for the item,
-        point_to_click = self.rectangle().mid_point()
+        point_to_click = self.client_rect().mid_point()
 
         if where.lower() != "text":
             remote_mem = RemoteMemoryBlock(self.tree_ctrl)
 
-            point_to_click.x = self.rectangle().left
+            point_to_click.x = self.client_rect().left
 
             found = False
             while not found and point_to_click.x >= 0:
@@ -1114,12 +1102,12 @@ class _treeview_element(object):
         """
 
         # find the text rectangle for the item,
-        point_to_click = self.rectangle().mid_point()
+        point_to_click = self.client_rect().mid_point()
 
         if where.lower() != "text":
             remote_mem = RemoteMemoryBlock(self.tree_ctrl)
 
-            point_to_click.x = self.rectangle().left
+            point_to_click.x = self.client_rect().left
 
             found = False
             while not found and point_to_click.x >= 0:
@@ -1168,7 +1156,7 @@ class _treeview_element(object):
 
         #self.ensure_visible()
         # find the text rectangle for the item
-        rect = self.rectangle()
+        rect = self.client_rect()
         point_to_click = rect.mid_point()
 
         #self.tree_ctrl.set_focus()
@@ -1184,7 +1172,7 @@ class _treeview_element(object):
 
         #self.ensure_visible()
         # find the text rectangle for the item
-        point_to_click = self.rectangle().mid_point()
+        point_to_click = self.client_rect().mid_point()
 
         self.tree_ctrl.move_mouse_input(coords = (point_to_click.x, point_to_click.y), pressed=pressed)
         time.sleep(Timings.drag_n_drop_move_mouse_wait)

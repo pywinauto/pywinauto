@@ -782,7 +782,9 @@ class DragAndDropTests(unittest.TestCase):
         #birds.Select()
         birds.click_input()
         time.sleep(5) # enough pause to prevent double click detection
-        self.ctrl.drag_mouse_input("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
+        self.ctrl.drag_mouse_input(dst=dogs.client_rect().mid_point(),
+                                   src=birds.client_rect().mid_point(),
+                                   absolute=False)
         dogs = self.ctrl.GetItem(r'\Dogs')
         self.assertEquals([child.Text() for child in dogs.children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 

@@ -553,7 +553,7 @@ class TreeViewTestCases32(unittest.TestCase):
         self.ctrl.EnsureVisible((0, 8, 2))
 
         # make sure that the item is not hidden
-        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).rectangle())
+        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).client_rect())
 
 
     def testGetProperties(self):
