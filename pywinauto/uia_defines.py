@@ -91,31 +91,31 @@ class IUIA(object):
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
     
-    def build_condition(self, process = None, class_name = None, title = None,
-                        control_type = None):
+    def build_condition(self, process=None, class_name=None, title=None, control_type=None,
+                        is_content_element=None):
         """Build UIA filtering conditions"""
         conditions = []
         if process:
-            conditions.append(self.iuia.CreatePropertyCondition(
-                                    self.UIA_dll.UIA_ProcessIdPropertyId, process))
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ProcessIdPropertyId, process))
         
         if class_name:
-            conditions.append(self.iuia.CreatePropertyCondition(
-                                    self.UIA_dll.UIA_ClassNamePropertyId, class_name))
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ClassNamePropertyId, class_name))
         
         if control_type:
             if isinstance(control_type, six.string_types):
                 control_type = self.known_control_types[control_type]
             elif not isinstance(control_type, int):
                 raise TypeError('control_type must be string or integer')
-            conditions.append(self.iuia.CreatePropertyCondition(
-                                    self.UIA_dll.UIA_ControlTypePropertyId, control_type))
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
         
         if title:
             # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-            conditions.append(self.iuia.CreatePropertyCondition(
-                                    self.UIA_dll.UIA_NamePropertyId, title))
-        
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, title))
+
+        if isinstance(is_content_element, bool):
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,
+                                                                is_content_element))
+
         if len(conditions) > 1:
             return self.iuia.CreateAndConditionFromArray(conditions)
         

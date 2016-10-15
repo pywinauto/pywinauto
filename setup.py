@@ -57,7 +57,7 @@ sys.path.append(setup_path())
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
 setup(name='pywinauto',
-    version = '0.6.0',
+    version = '0.6.0.rc1',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",

@@ -297,6 +297,20 @@ class UIAWrapper(BaseWrapper):
         return uia_defs.get_elem_interface(elem, "Window")
 
     # ------------------------------------------------------------
+    @lazy_property
+    def iface_item_container(self):
+        """Get the element's ItemContainer interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "ItemContainer")
+
+    # ------------------------------------------------------------
+    @lazy_property
+    def iface_virtualized_item(self):
+        """Get the element's VirtualizedItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "VirtualizedItem")
+
+    # ------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""

@@ -105,8 +105,8 @@ master_doc = 'contents'
 
 # General information about the project.
 project = u'pywinauto'
-copyright = u'2015, Mark Mc Mahon'
-author = u'Mark Mc Mahon'
+copyright = u'2016, Mark Mc Mahon and Contributors'
+author = u'Mark Mc Mahon and Contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

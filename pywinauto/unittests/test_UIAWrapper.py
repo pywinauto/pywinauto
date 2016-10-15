@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import time
 import os
 import sys
+
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python, UIA_support
@@ -36,6 +37,7 @@ if UIA_support:
         """Setup timings for UIA related tests"""
         Timings.Defaults()
         Timings.window_find_timeout = 20
+
 
     class UIAWrapperTests(unittest.TestCase):
 
@@ -162,13 +164,13 @@ if UIA_support:
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
 
-        #def testVerifyActionable(self):
+        # def testVerifyActionable(self):
         #    self.assertRaises()
 
-        #def testVerifyEnabled(self):
+        # def testVerifyEnabled(self):
         #    self.assertRaises()
 
-        #def testVerifyVisible(self):
+        # def testVerifyVisible(self):
         #    self.assertRaises()
 
         def test_is_keyboard_focusable(self):
@@ -240,21 +242,22 @@ if UIA_support:
             props = set(edit.get_properties().keys())
             self.assertEqual(props, uia_props)
 
-        # def test_draw_outline(self):
-        #     """Test the outline was drawn."""
-        #     # not sure why, but this extra call makes the test stable
-        #     self.dlg.draw_outline()
-        #
-        #     # outline control
-        #     button = self.dlg.OK.WrapperObject()
-        #     button.draw_outline()
-        #     img1 = button.capture_as_image()
-        #     self.assertEqual(img1.getpixel((0, 0)), (0, 255, 0))  # green
-        #
-        #     # outline window
-        #     self.dlg.draw_outline(colour="blue")
-        #     img2 = self.dlg.capture_as_image()
-        #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
+            # def test_draw_outline(self):
+            #     """Test the outline was drawn."""
+            #     # not sure why, but this extra call makes the test stable
+            #     self.dlg.draw_outline()
+            #
+            #     # outline control
+            #     button = self.dlg.OK.WrapperObject()
+            #     button.draw_outline()
+            #     img1 = button.capture_as_image()
+            #     self.assertEqual(img1.getpixel((0, 0)), (0, 255, 0))  # green
+            #
+            #     # outline window
+            #     self.dlg.draw_outline(colour="blue")
+            #     img2 = self.dlg.capture_as_image()
+            #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
+
 
     class UIAWrapperMouseTests(unittest.TestCase):
 
@@ -277,7 +280,7 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
-        #def test_click(self):
+        # def test_click(self):
         #    pass
 
         def test_click_input(self):
@@ -286,7 +289,7 @@ if UIA_support:
             self.button.click_input()
             self.assertEqual(self.label.window_text(), "LeftClick")
 
-        #def test_double_click(self):
+        # def test_double_click(self):
         #    pass
 
         def test_double_click_input(self):
@@ -294,7 +297,7 @@ if UIA_support:
             self.button.double_click_input()
             self.assertEqual(self.label.window_text(), "DoubleClick")
 
-        #def test_right_click(self):
+        # def test_right_click(self):
         #    pass
 
         def test_right_click_input(self):
@@ -303,8 +306,9 @@ if UIA_support:
             self.button.right_click_input()
             self.assertEqual(self.label.window_text(), "RightClick")
 
-        #def test_press_move_release(self):
-        #    pass
+            # def test_press_move_release(self):
+            #    pass
+
 
     class UiaControlsTests(unittest.TestCase):
 
@@ -354,7 +358,7 @@ if UIA_support:
             self.assertEqual(self.dlg.Toolbar.friendly_class_name(), "Toolbar")
 
             # Switch tab view
-            tab_item_wrp = self.dlg.Views.set_focus()
+            tab_item_wrp = self.dlg.TreeAndListViews.set_focus()
             ctrl = tab_item_wrp.children(control_type="DataGrid")[0]
             self.assertEqual(ctrl.friendly_class_name(), "ListView")
             i = ctrl.get_item(1)
@@ -363,7 +367,7 @@ if UIA_support:
             ctrl = tab_item_wrp.children(control_type="Tree")[0]
             self.assertEqual(ctrl.friendly_class_name(), "TreeView")
 
-            ti = self.dlg.ViewsTabItem.DateElements
+            ti = self.dlg.Tree_and_List_ViewsTabItem.DateElements
             self.assertEqual(ti.friendly_class_name(), "TreeItem")
 
         def test_check_box(self):
@@ -471,7 +475,8 @@ if UIA_support:
             collapsed = combo_box.collapse().is_collapsed()
             self.assertEqual(collapsed, True)
 
-    class TabControlWrapperTestCases(unittest.TestCase):
+
+    class TabControlWrapperTests(unittest.TestCase):
 
         """Unit tests for the TabControlWrapper class"""
 
@@ -486,7 +491,7 @@ if UIA_support:
 
             self.app = app
             self.ctrl = dlg.window_(class_name="TabControl").WrapperObject()
-            self.texts = [u"General", u"Views"]
+            self.texts = [u"General", u"Tree and List Views", u"ListBox and Grid"]
 
         def tearDown(self):
             """Close the application after tests"""
@@ -499,7 +504,7 @@ if UIA_support:
         def test_get_selected_tab(self):
             """Test selecting a tab by index or by name and getting an index of the selected tab"""
             # Select a tab by name, use chaining to get the index of the selected tab
-            idx = self.ctrl.select(u"Views").get_selected_tab()
+            idx = self.ctrl.select(u"Tree and List Views").get_selected_tab()
             self.assertEqual(idx, 1)
             # Select a tab by index
             self.ctrl.select(0)
@@ -509,7 +514,8 @@ if UIA_support:
             """Make sure the tabs captions are read correctly"""
             self.assertEqual(self.ctrl.texts(), self.texts)
 
-    class EditWrapperTestCases(unittest.TestCase):
+
+    class EditWrapperTests(unittest.TestCase):
 
         """Unit tests for the EditWrapper class"""
 
@@ -592,7 +598,8 @@ if UIA_support:
 
             self.assertRaises(RuntimeError, self.edit.select, "123")
 
-    class SliderWrapperTestCases(unittest.TestCase):
+
+    class SliderWrapperTests(unittest.TestCase):
 
         """Unit tests for the EditWrapper class"""
 
@@ -646,9 +653,11 @@ if UIA_support:
 
             self.assertRaises(ValueError, self.slider.set_value, -1)
             self.assertRaises(ValueError, self.slider.set_value, 102)
+
             self.assertRaises(ValueError, self.slider.set_value, [50, ])
 
-    class ListViewWrapperTestCases(unittest.TestCase):
+
+    class ListViewWrapperTests(unittest.TestCase):
 
         """Unit tests for the ListViewWrapper class"""
 
@@ -662,17 +671,38 @@ if UIA_support:
             dlg = app.WPFSampleApplication
 
             self.app = app
-            tab_item_wrp = dlg.Views.set_focus()
-            self.ctrl = tab_item_wrp.children(class_name="ListView")[0]
 
-            self.texts = [
-                (u"1", u"Tomatoe", u"Red",),
-                (u"2", u"Cucumber", u"Green",),
-                (u"3", u"Reddish", u"Purple",),
-                (u"4", u"Cauliflower", u"White",),
-                (u"5", u"Cupsicum", u"Yellow",),
-                (u"6", u"Cupsicum", u"Red",),
-                (u"7", u"Cupsicum", u"Green",)
+            self.listview_tab = dlg.Tree_and_List_Views
+            self.listbox_datagrid_tab = dlg.ListBox_and_Grid
+
+            self.listview_texts = [
+                [u"1", u"Tomatoe", u"Red"],
+                [u"2", u"Cucumber", u"Green", ],
+                [u"3", u"Reddish", u"Purple", ],
+                [u"4", u"Cauliflower", u"White", ],
+                [u"5", u"Cupsicum", u"Yellow", ],
+                [u"6", u"Cupsicum", u"Red", ],
+                [u"7", u"Cupsicum", u"Green", ],
+            ]
+
+            self.listbox_texts = [
+                [u"TextItem 1", ],
+                [u"TextItem 2", ],
+                [u"ButtonItem", ],
+                [u"CheckItem", ],
+                [u"TextItem 3", ],
+                [u"TextItem 4", ],
+                [u"TextItem 5", ],
+                [u"TextItem 6", ],
+                [u"TextItem 7", ],
+                [u"TextItem 8", ],
+            ]
+
+            self.datagrid_texts = [
+                [u"0", u"A0", u"B0", u"C0", u"D0", u"E0", u"", ],
+                [u"1", u"A1", u"B1", u"C1", u"D1", u"E1", u"", ],
+                [u"2", u"A2", u"B2", u"C2", u"D2", u"E2", u"", ],
+                [u"3", u"A3", u"B3", u"C3", u"D3", u"E3", u"", ],
             ]
 
         def tearDown(self):
@@ -680,28 +710,181 @@ if UIA_support:
             self.app.kill_()
 
         def test_friendly_class_name(self):
-            """Test friendly class name of the ListView control"""
-            self.assertEqual(self.ctrl.friendly_class_name(), "ListView")
+            """Test friendly class name of the ListView controls"""
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            self.assertEqual(listview.friendly_class_name(), u"ListView")
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            self.assertEqual(listbox.friendly_class_name(), u"ListBox")
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            self.assertEqual(datagrid.friendly_class_name(), u"ListView")
 
         def test_item_count(self):
-            """Test the items count in the ListView control"""
-            self.assertEqual(self.ctrl.item_count(), len(self.texts))
+            """Test the items count in the ListView controls"""
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            self.assertEqual(listview.item_count(), len(self.listview_texts))
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            #listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            # self.assertEqual(listbox.item_count(), len(self.listbox_texts))
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            self.assertEqual(datagrid.item_count(), len(self.datagrid_texts))
 
         def test_column_count(self):
-            """Test the columns count in the ListView control"""
-            num_cols = self.ctrl.column_count()
-            self.assertEqual(num_cols, len(self.texts[0]))
-            col = self.ctrl.get_column(1)
-            self.assertEqual(col.texts()[0], u'Name')
-            self.assertRaises(IndexError, self.ctrl.get_column, num_cols + 1)
+            """Test the columns count in the ListView controls"""
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            self.assertEqual(listview.column_count(), len(self.listview_texts[0]))
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            self.assertEqual(listbox.column_count(), 0)
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            self.assertEqual(datagrid.column_count(), len(self.datagrid_texts[0]) - 1)
 
         def test_get_header_control(self):
             """Test getting a Header control of the ListView control"""
-            hdr = self.ctrl.get_header_control()
-            self.assertEqual(isinstance(hdr, uia_ctls.HeaderWrapper), True)
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            self.assertTrue(isinstance(listview.get_header_control(), uia_ctls.HeaderWrapper))
 
-        def test_select(self):
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            self.assertEqual(listbox.get_header_control(), None)
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            self.assertTrue(isinstance(datagrid.get_header_control(), uia_ctls.HeaderWrapper))
+
+        def test_get_column(self):
+            """Test get_column() method for the ListView controls"""
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            listview_col = listview.get_column(1)
+            self.assertEqual(listview_col.texts()[0], u"Name")
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            self.assertRaises(IndexError, listbox.get_column, 0)
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            datagrid_col = datagrid.get_column(2)
+            self.assertEqual(datagrid_col.texts()[0], u"B")
+
+            self.assertRaises(IndexError, datagrid.get_column, 10)
+
+        def test_cell(self):
+            """Test getting a cell of the ListView controls"""
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            cell = listview.cell(3, 2)
+            self.assertEqual(cell.window_text(), self.listview_texts[3][2])
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            cell = listbox.cell(10, 10)
+            self.assertEqual(cell, None)
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            cell = datagrid.cell(2, 0)
+            self.assertEqual(cell.window_text(), self.datagrid_texts[2][0])
+
+            self.assertRaises(TypeError, datagrid.cell, 1.5, 1)
+
+            self.assertRaises(IndexError, datagrid.cell, 10, 10)
+
+        def test_get_item(self):
+            """Test getting an item of ListView controls"""
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            item = listview.get_item(u"Reddish")
+            self.assertEqual(item.texts(), self.listview_texts[2])
+
+            self.assertRaises(ValueError, listview.get_item, u"Apple")
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            item = listbox.get_item(u"TextItem 2")
+            self.assertEqual(item.texts(), self.listbox_texts[1])
+
+            item = listbox.get_item(3)
+            self.assertEqual(item.texts(), self.listbox_texts[3])
+
+            item = listbox.get_item(u"TextItem 8")
+            self.assertEqual(item.texts(), self.listbox_texts[9])
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            item = datagrid.get_item(u"B2")
+            self.assertEqual(item.texts(), self.datagrid_texts[2])
+
+            item = datagrid.get_item(3)
+            self.assertEqual(item.texts(), self.datagrid_texts[3])
+
+            self.assertRaises(TypeError, datagrid.get_item, 12.3)
+
+        def test_get_items(self):
+            """Test getting all items of ListView controls"""
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            content = [item.texts() for item in listview.get_items()]
+            self.assertEqual(content, self.listview_texts)
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            content = [item.texts() for item in listbox.get_items()]
+            # self.assertEqual(content, self.listbox_texts)
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            content = [item.texts() for item in datagrid.get_items()]
+            self.assertEqual(content, self.datagrid_texts)
+
+        def test_texts(self):
+            """Test getting all items of ListView controls"""
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            self.assertEqual(listview.texts(), self.listview_texts)
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            #listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            # self.assertEqual(listbox.texts(), self.listbox_texts)
+
+            # DataGrid
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            self.assertEqual(datagrid.texts(), self.datagrid_texts)
+
+        def test_select_and_get_item(self):
             """Test selecting an item of the ListView control"""
+            self.listview_tab.set_focus()
+            self.ctrl = self.listview_tab.children(class_name=u"ListView")[0]
             # Verify get_selected_count
             self.assertEqual(self.ctrl.get_selected_count(), 0)
 
@@ -731,38 +914,65 @@ if UIA_support:
             row = None
             self.assertRaises(TypeError, self.ctrl.get_item, row)
 
-        def test_cell(self):
-            """Test getting a cell of the ListView control"""
-            row = 0
-            col = 0
-            i = self.ctrl.cell(row, col)
-            self.assertEqual(i.window_text(), self.texts[row][col])
+    class ListItemWrapperTests(unittest.TestCase):
 
-            row = 3
-            col = 2
-            i = self.ctrl.cell(row, col)
-            self.assertEqual(i.window_text(), self.texts[row][col])
+        """Unit tests for the ListItemWrapper class"""
 
-            row = 2
-            col = 0
-            i = self.ctrl.cell(row, col)
-            self.assertEqual(i.window_text(), self.texts[row][col])
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
 
-            row = 0
-            col = 2
-            i = self.ctrl.cell(row, col)
-            self.assertEqual(i.window_text(), self.texts[row][col])
+            # start the application
+            app = Application(backend='uia')
+            app = app.start(wpf_app_1)
+            dlg = app.WPFSampleApplication
 
-            row = 9
-            self.assertRaises(IndexError, self.ctrl.cell, row, col)
+            self.app = app
 
-            row = 1.5
-            #i = self.ctrl.cell(row, col)
-            self.assertRaises(ValueError, self.ctrl.cell, row, col)
+            self.listview_tab = dlg.Tree_and_List_Views
+            self.listbox_datagrid_tab = dlg.ListBox_and_Grid
 
-            row = 1
-            col = None
-            self.assertRaises(ValueError, self.ctrl.cell, row, col)
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_friendly_class_name(self):
+            """Test getting friendly class name"""
+            # DataItem
+            self.listview_tab.set_focus()
+            listview_item = self.listview_tab.children(class_name=u"ListView")[0].get_item(2)
+            self.assertEqual(listview_item.friendly_class_name(), u"DataItem")
+
+            # ListBoxItem
+            self.listbox_datagrid_tab.set_focus()
+            listbox_item = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0].get_item(3)
+            self.assertEqual(listbox_item.friendly_class_name(), u"ListItem")
+
+            # DataGridRow
+            datagrid_row = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0].get_item(1)
+            self.assertEqual(datagrid_row.friendly_class_name(), u"DataItem")
+
+        def test_selection(self):
+            """Test selection of ListItem"""
+            self.listview_tab.set_focus()
+            listview_item = self.listview_tab.children(class_name=u"ListView")[0].get_item(2)
+            self.assertFalse(listview_item.is_selected())
+            listview_item.select()
+            self.assertTrue(listview_item.is_selected())
+
+        def test_is_checked(self):
+            """Test is_checked() method of ListItemWrapper"""
+            self.listbox_datagrid_tab.set_focus()
+            listbox_item = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0].get_item(u"CheckItem")
+            self.assertRaises(uia_defs.NoPatternInterfaceError, listbox_item.is_checked)
+
+        def test_texts(self):
+            """Test getting texts of ListItem"""
+            self.listview_tab.set_focus()
+            listview_item = self.listview_tab.children(class_name=u"ListView")[0].get_item(1)
+            texts = [u"2", u"Cucumber", u"Green"]
+            self.assertEqual(listview_item.texts(), texts)
+
 
     class MenuWrapperWpfTests(unittest.TestCase):
 
@@ -826,6 +1036,7 @@ if UIA_support:
             self.assertRaises(IndexError, self.dlg.menu_select, path)
             path = "0->#1->1"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
+
 
     class MenuWrapperNotepadTests(unittest.TestCase):
 
@@ -927,6 +1138,7 @@ if UIA_support:
             path = " -> #1 -> #2"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
 
+
     class ToolbarWpfTests(unittest.TestCase):
 
         """Unit tests for ToolbarWrapper class on WPF demo"""
@@ -975,6 +1187,7 @@ if UIA_support:
 
             # Notice that findbestmatch.MatchError is subclassed from IndexError
             self.assertRaises(IndexError, tb.button, "BaD n_$E ", exact=False)
+
 
     class ToolbarNativeTests(unittest.TestCase):
 
@@ -1038,7 +1251,7 @@ if UIA_support:
             self.app = Application(backend='uia')
             self.app = self.app.Start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
-            tab_itm = self.dlg.Views.set_focus()
+            tab_itm = self.dlg.TreeAndListViews.set_focus()
             self.ctrl = tab_itm.children(control_type="Tree")[0]
 
         def tearDown(self):

@@ -41,6 +41,7 @@ from . import uiawrapper
 from ..uia_defines import IUIA
 from ..uia_defines import NoPatternInterfaceError
 from ..uia_defines import toggle_state_on
+from ..uia_defines import get_elem_interface
 
 
 # ====================================================================
@@ -524,6 +525,15 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         res = (self.iface_toggle.ToggleState_On == toggle_state_on)
         return res
 
+    def texts(self):
+        """Return a list of item texts"""
+        content = [ch.window_text() for ch in self.children(is_content_element=True)]
+        if content:
+            return content
+        else:
+            # For native list with small icons
+            return super(ListItemWrapper, self).texts()
+
 
 # ====================================================================
 class ListViewWrapper(uiawrapper.UIAWrapper):
@@ -540,24 +550,40 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """Initialize the control"""
         super(ListViewWrapper, self).__init__(elem)
 
+        # Check if control supports Grid pattern
+        # Control is actually a DataGrid or a List with Grid pattern support
+        try:
+            if self.iface_grid:
+                self.iface_grid_support = True
+        except NoPatternInterfaceError:
+            self.iface_grid_support = False
+
     # -----------------------------------------------------------
     def item_count(self):
         """A number of items in the ListView"""
-        return self.iface_grid.CurrentRowCount
+        if self.iface_grid_support:
+            return self.iface_grid.CurrentRowCount
+        else:
+            # TODO: This could be implemented by getting custom ItemCount Property using RegisterProperty
+            # TODO: See https://msdn.microsoft.com/ru-ru/library/windows/desktop/ff486373%28v=vs.85%29.aspx for details
+            # TODO: comtypes doesn't seem to support IUIAutomationRegistrar interface
+            return (len(self.children()))
 
     # -----------------------------------------------------------
     def column_count(self):
-        """Return a number of columns"""
-        return self.iface_grid.CurrentColumnCount
+        """Return the number of columns"""
+        if self.iface_grid_support:
+            return self.iface_grid.CurrentColumnCount
+        else:
+            # ListBox doesn't have columns
+            return 0
 
     # -----------------------------------------------------------
     def get_header_control(self):
         """Return Header control associated with the ListView"""
         try:
-            # MSDN: A data grid control that has a header
-            # should support the Table control pattern
-            if self.iface_table:
-                hdr = self.children()[0]
+            # A data grid control may have no header
+            hdr = self.children(control_type="Header")[0]
         except(IndexError, NoPatternInterfaceError):
             hdr = None
 
@@ -576,32 +602,41 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def columns(self):
         """Get the information on the columns of the ListView"""
-        arr = self.iface_table.GetCurrentColumnHeaders()
-        cols = uia_element_info.elements_from_uia_array(arr)
-        return [uiawrapper.UIAWrapper(e) for e in cols]
+        if self.iface_grid_support:
+            arr = self.iface_table.GetCurrentColumnHeaders()
+            cols = uia_element_info.elements_from_uia_array(arr)
+            return [uiawrapper.UIAWrapper(e) for e in cols]
+        else:
+            # ListBox doesn't have columns
+            return []
 
     # -----------------------------------------------------------
     def cell(self, row, column):
         """Return a cell in the ListView control
 
+        Only for controls with Grid pattern support
+
         * **row** is an index of a row in the list.
         * **column** is an index of a column in the specified row.
+
         The returned cell can be of different control types.
         Mostly: TextBlock, ImageControl, EditControl, DataItem
         or even another layer of data items (Group, DataGrid)
         """
-        if not isinstance(row, six.integer_types) or \
-           not isinstance(column, six.integer_types):
-            raise ValueError
+        if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
+            raise TypeError("row and column must be numbers")
+
+        if not self.iface_grid_support:
+            return None
 
         try:
             e = self.iface_grid.GetItem(row, column)
             elem_info = uia_element_info.UIAElementInfo(e)
-            cell = uiawrapper.UIAWrapper(elem_info)
-        except comtypes.COMError:
+            cell_elem = uiawrapper.UIAWrapper(elem_info)
+        except (comtypes.COMError, ValueError):
             raise IndexError
 
-        return cell
+        return cell_elem
 
     # -----------------------------------------------------------
     def get_item(self, row):
@@ -612,25 +647,50 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """
         # Verify arguments
         if isinstance(row, six.string_types):
-            # Look for a cell with the text, return the first found item
-            itm = self.descendants(title=row)[0]
+            # Try to find item using FindItemByProperty
+            # That way we can get access to virtualized (unloaded) items
+            com_elem = self.iface_item_container.FindItemByProperty(0, IUIA().UIA_dll.UIA_NamePropertyId, row)
+            # Try to load element using VirtualizedItem pattern
+            try:
+                get_elem_interface(com_elem, "VirtualizedItem").Realize()
+                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+            except NoPatternInterfaceError:
+                # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
+                try:
+                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                except ValueError:
+                    # com_elem is NULL pointer
+                    # Get DataGrid row
+                    try:
+                        itm = self.descendants(title=row)[0]
+                        # Applications like explorer.exe usually return ListItem
+                        # directly while other apps can return only a cell.
+                        # In this case we need to take its parent - the whole row.
+                        if not isinstance(itm, ListItemWrapper):
+                            itm = itm.parent()
+                    except IndexError:
+                        raise ValueError("Element '{0}' not found".format(row))
         elif isinstance(row, six.integer_types):
-            # Get the item by a row index of its first cell
-            itm = self.cell(row, 0)
+            # Get the item by a row index
+            # TODO: Can't get virtualized items that way
+            # TODO: See TODO section of item_count() method for details
+            list_items = self.children(is_content_element=True)
+            itm = list_items[row]
         else:
-            raise TypeError('String type or integer is expected')
-
-        # Applications like explorer.exe usually return ListItem
-        # directly while other apps can return only a cell.
-        # In this case we need to take its parent - the whole row.
-        if not isinstance(itm, ListItemWrapper):
-            itm = itm.parent()
+            raise TypeError("String type or integer is expected")
 
         # Give to the item a pointer on its container
         itm.container = self
         return itm
 
     item = get_item  # this is an alias to be consistent with other content elements
+
+    # -----------------------------------------------------------
+    def get_items(self):
+        """Return all items of the ListView control"""
+        return self.children(is_content_element=True)
+
+    items = get_items  # this is an alias to be consistent with other content elements
 
     # -----------------------------------------------------------
     def get_item_rect(self, item_index):
@@ -658,13 +718,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def texts(self):
         """Return a list of item texts"""
-        is_content_element = IUIA().iuia.CreatePropertyCondition(
-            IUIA().UIA_dll.UIA_IsContentElementPropertyId, True)
-        return [ch.name for ch in self.element_info._get_elements(IUIA().tree_scope["children"],
-                is_content_element, cache_enable=False)]
-        # TODO: add is_content_element() method to UIAWrapper
-        # alternative (but slower) implementation:
-        # return [ch.window_text() for ch in self.children() if ch.element_info.element.CurrentIsContentElement]
+        return [elem.texts() for elem in self.children(is_content_element=True)]
 
     # -----------------------------------------------------------
     @property

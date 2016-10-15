@@ -1,6 +1,0 @@
-pywinauto.tests.comboboxdroppedheight
--------------------------------------
- .. automodule:: pywinauto.tests.comboboxdroppedheight
-    :members:
-    :undoc-members:
-
