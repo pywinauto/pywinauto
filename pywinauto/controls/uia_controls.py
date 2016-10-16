@@ -1021,8 +1021,7 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
         Only items supporting Toggle pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
         """
-        res = (self.iface_toggle.ToggleState_On == toggle_state_on)
-        return res
+        return (self.iface_toggle.ToggleState_On == toggle_state_on)
 
     # -----------------------------------------------------------
     def ensure_visible(self):
@@ -1184,3 +1183,19 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
                                      (current_elem.window_text(), child_spec))
 
         return current_elem
+
+    # -----------------------------------------------------------
+    def print_items(self):
+        """Print all items with line indents"""
+
+        self.text = ""
+
+        def print_one_level(item, ident):
+            self.text += " " * ident + item.window_text() + "\n"
+            for child in item.children(control_type="TreeItem"):
+                print_one_level(child, ident + 1)
+
+        for root in self.roots():
+            print_one_level(root, 0)
+
+        return self.text

@@ -1277,6 +1277,10 @@ if UIA_support:
             self.assertEqual(sub_items[0].window_text(), u'Empty Date')
             self.assertEqual(sub_items[-1].window_text(), u'Years')
 
+            expected_str = "Date Elements\n Empty Date\n Week\n  Monday\n  Tuesday\n  Wednsday\n"
+            expected_str += "  Thursday\n  Friday\n  Saturday\n  Sunday\n Months\n Years\n"
+            self.assertEqual(self.ctrl.print_items(), expected_str)
+
         def test_tv_item_select(self):
             """Test selecting an item from TreeView"""
             # Find by a path with indexes

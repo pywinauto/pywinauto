@@ -731,7 +731,7 @@ class BaseWrapper(object):
             press_coords = (src.x, src.y)
         else:
             press_coords = src
-        self.actions.log('Drag mouse to coordinates ' + str(press_coords).replace('\n', ', '))
+        self.actions.log('Drag mouse from coordinates ' + str(press_coords).replace('\n', ', '))
 
         if isinstance(dst, BaseWrapper):
             release_coords = dst._calc_click_coords()
@@ -739,7 +739,7 @@ class BaseWrapper(object):
             release_coords = (dst.x, dst.y)
         else:
             release_coords = dst
-        self.actions.log('Drag mouse from coordinates ' + str(release_coords).replace('\n', ', '))
+        self.actions.log('Drop mouse to coordinates ' + str(release_coords).replace('\n', ', '))
 
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)
