@@ -1184,8 +1184,3 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
                                      (current_elem.window_text(), child_spec))
 
         return current_elem
-
-    # -----------------------------------------------------------
-    def drag_mouse_input(self, src, dst):
-        """Drag-n-drop a source tree item on the specified destination tree item"""
-        src.drag_mouse_input(dst)

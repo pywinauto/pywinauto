@@ -721,8 +721,9 @@ class BaseWrapper(object):
 
         if not src:
             src = self
-            if dst is src:
-                raise AttributeError("Can't drag-n-drop on itself")
+
+        if dst is src:
+            raise AttributeError("Can't drag-n-drop on itself")
 
         if isinstance(src, BaseWrapper):
             press_coords = src._calc_click_coords()

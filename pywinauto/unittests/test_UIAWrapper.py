@@ -1383,9 +1383,14 @@ if UIA_support:
 
             itm_from = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
             itm_to = self.ctrl.get_item(r'\Date Elements\Months')
-            self.ctrl.drag_mouse_input(itm_from, itm_to)
+            self.ctrl.drag_mouse_input(itm_to, itm_from)
             itm = self.ctrl.get_item(r'\Date Elements\Months\Years')
             self.assertEqual(itm.window_text(), 'Years')
+
+            # Error handling: drop on itself
+            self.assertRaises(AttributeError,
+                              self.ctrl.drag_mouse_input,
+                              itm_from, itm_from)
 
 
 if __name__ == "__main__":
