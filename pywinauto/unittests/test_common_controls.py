@@ -656,7 +656,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         eagle.Select()
         self.assertEquals(eagle.IsSelected(), True)
 
-    def testExpandCollapse(self):
+    def test_expand_collapse(self):
         """Make sure tree view item methods Expand() and Collapse() work as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
@@ -665,7 +665,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.Collapse()
         self.assertEquals(birds.IsExpanded(), False)
 
-    def testCheckBoxes(self):
+    def test_expand_collapse_buttons(self):
         """Make sure correct area is clicked"""
         self.dlg.TVS_HASBUTTONS.click_input()
         self.dlg.TVS_HASLINES.click_input()

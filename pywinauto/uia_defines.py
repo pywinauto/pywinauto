@@ -218,5 +218,3 @@ def get_elem_interface(element_info, pattern_name):
     except(ValueError):
         raise NoPatternInterfaceError()
     return iface
-    
-    

@@ -170,7 +170,6 @@ class TaskbarTestCases(unittest.TestCase):
                 app.kill_()
         except(ProcessNotFoundError):
             l.log("No more leftovers. All good.")
-            pass
 
     def testTaskbar(self):
         # just make sure it's found

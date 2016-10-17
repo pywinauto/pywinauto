@@ -107,7 +107,10 @@ class UIAElementInfo(ElementInfo):
 
     def _get_current_handle(self):
         """Return an actual handle of the element"""
-        return self._element.CurrentNativeWindowHandle
+        try:
+            return self._element.CurrentNativeWindowHandle
+        except COMError:
+            return None # probably element already doesn't exist
 
     def _get_cached_handle(self):
         """Return a cached handle of the element"""
