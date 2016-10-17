@@ -44,7 +44,7 @@ class ElementNotVisible(RuntimeError):
 @six.add_metaclass(abc.ABCMeta)
 class BaseMeta(abc.ABCMeta):
     "Abstract metaclass for Wrapper objects"
-    
+
     @staticmethod
     def find_wrapper(element):
         "Abstract static method to find an appropriate wrapper"
@@ -70,7 +70,7 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     def __new__(cls, element_info):
         return BaseWrapper._create_wrapper(cls, element_info, BaseWrapper)
-    
+
     #------------------------------------------------------------
     @staticmethod
     def _create_wrapper(cls_spec, element_info, myself):
@@ -246,8 +246,11 @@ class BaseWrapper(object):
 
     #------------------------------------------------------------
     def client_to_screen(self, client_point):
-        "Maps point from client to screen coordinates"
-        rect = self.rectangle()
+        """Maps point from client to screen coordinates"""
+        # Use a direct call to element_info.rectangle instead of self.rectangle
+        # because the latter can be overriden in one of derived wrappers
+        # (see _treeview_element.rectangle or _listview_item.rectangle)
+        rect = self.element_info.rectangle
         if isinstance(client_point, win32structures.POINT):
             return (client_point.x + rect.left, client_point.y + rect.top)
         else:
@@ -588,6 +591,8 @@ class BaseWrapper(object):
         coords = list(coords)
 
         # set the default coordinates
+        # TODO: buggy if absolute=False (rectangle returns absolute coords!)
+        # A possible fix: if None in coords: calculate coords and force absolute=True
         if coords[0] is None:
             coords[0] = int(self.rectangle().width() / 2)
         if coords[1] is None:
@@ -630,7 +635,7 @@ class BaseWrapper(object):
             button = "left",
             coords = (None, None),
             pressed = "",
-            absolute = False,
+            absolute = True,
             key_down = True,
             key_up = True
     ):
@@ -652,7 +657,7 @@ class BaseWrapper(object):
             button = "left",
             coords = (None, None),
             pressed = "",
-            absolute = False,
+            absolute = True,
             key_down = True,
             key_up = True
     ):
@@ -669,8 +674,8 @@ class BaseWrapper(object):
         )
 
     #-----------------------------------------------------------
-    def move_mouse_input(self, coords = (0, 0), pressed ="", absolute = False):
-        "Move the mouse"
+    def move_mouse_input(self, coords=(0, 0), pressed="", absolute=True):
+        """Move the mouse"""
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
 
@@ -684,20 +689,54 @@ class BaseWrapper(object):
 
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
+    def _calc_click_coords(self):
+        """A helper that tries to get click coordinates of the control
+
+        The calculated coordinates are absolute and returned as
+        a tuple with x and y values.
+        """
+        coords = self.rectangle().mid_point()
+        return (coords.x, coords.y)
+
+    # -----------------------------------------------------------
     def drag_mouse_input(self,
-                         button = "left",
-                         press_coords = (0, 0),
-                         release_coords = (0, 0),
-                         pressed = "",
-                         absolute = False):
-        "Drag the mouse"
+                         dst=(0, 0),
+                         src=None,
+                         button="left",
+                         pressed="",
+                         absolute=True):
+        """Click on **src**, drag it and drop on **dst**
 
-        if isinstance(press_coords, win32structures.POINT):
-            press_coords = (press_coords.x, press_coords.y)
+        * **dst** is a destination wrapper object or just coordinates.
+        * **src** is a source wrapper object or coordinates.
+          If **src** is None the self is used as a source object.
+        * **button** is a mouse button to hold during the drag.
+          It can be "left", "right", "middle" or "x"
+        * **pressed** is a key on the keyboard to press during the drag.
+        * **absolute** specifies whether to use absolute coordinates
+          for the mouse pointer locations
+        """
+        if not src:
+            src = self
 
-        if isinstance(release_coords, win32structures.POINT):
-            release_coords = (release_coords.x, release_coords.y)
+        if dst is src:
+            raise AttributeError("Can't drag-n-drop on itself")
+
+        if isinstance(src, BaseWrapper):
+            press_coords = src._calc_click_coords()
+        elif isinstance(src, win32structures.POINT):
+            press_coords = (src.x, src.y)
+        else:
+            press_coords = src
+
+        if isinstance(dst, BaseWrapper):
+            release_coords = dst._calc_click_coords()
+        elif isinstance(dst, win32structures.POINT):
+            release_coords = (dst.x, dst.y)
+        else:
+            release_coords = dst
+        self.actions.log('Drag mouse from coordinates {0} to {1}'.format(press_coords, release_coords))
 
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)

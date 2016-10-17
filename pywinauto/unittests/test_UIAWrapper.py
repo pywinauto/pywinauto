@@ -9,8 +9,7 @@ import sys
 
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS, UIA_support
-
+from pywinauto.sysinfo import is_x64_Python, UIA_support
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
@@ -57,11 +56,6 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
-
-        def test_friendly_class_name(self):
-            """Test getting the friendly classname of the dialog"""
-            button = self.dlg.OK.WrapperObject()
-            self.assertEqual(button.friendly_class_name(), "Button")
 
         def test_find_nontop_ctl_by_class_name_and_title(self):
             """Test getting a non-top control by a class name and a title"""
@@ -334,7 +328,10 @@ if UIA_support:
             self.app.kill_()
 
         def test_friendly_class_names(self):
-            """Test getting friendly class names of button-like controls"""
+            """Test getting friendly class names of common controls"""
+            button = self.dlg.OK.WrapperObject()
+            self.assertEqual(button.friendly_class_name(), "Button")
+
             friendly_name = self.dlg.CheckBox.friendly_class_name()
             self.assertEqual(friendly_name, "CheckBox")
 
@@ -359,6 +356,19 @@ if UIA_support:
             self.assertEqual(self.dlg.MenuBar.friendly_class_name(), "Menu")
 
             self.assertEqual(self.dlg.Toolbar.friendly_class_name(), "Toolbar")
+
+            # Switch tab view
+            tab_item_wrp = self.dlg.TreeAndListViews.set_focus()
+            ctrl = tab_item_wrp.children(control_type="DataGrid")[0]
+            self.assertEqual(ctrl.friendly_class_name(), "ListView")
+            i = ctrl.get_item(1)
+            self.assertEqual(i.friendly_class_name(), "DataItem")
+
+            ctrl = tab_item_wrp.children(control_type="Tree")[0]
+            self.assertEqual(ctrl.friendly_class_name(), "TreeView")
+
+            ti = self.dlg.Tree_and_List_ViewsTabItem.DateElements
+            self.assertEqual(ti.friendly_class_name(), "TreeItem")
 
         def test_check_box(self):
             """Test 'toggle' and 'toggle_state' for the check box control"""
@@ -724,7 +734,7 @@ if UIA_support:
 
             # ListBox
             self.listbox_datagrid_tab.set_focus()
-            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            #listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
             # self.assertEqual(listbox.item_count(), len(self.listbox_texts))
 
             # DataGrid
@@ -864,7 +874,7 @@ if UIA_support:
 
             # ListBox
             self.listbox_datagrid_tab.set_focus()
-            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            #listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
             # self.assertEqual(listbox.texts(), self.listbox_texts)
 
             # DataGrid
@@ -904,7 +914,6 @@ if UIA_support:
             row = None
             self.assertRaises(TypeError, self.ctrl.get_item, row)
 
-
     class ListItemWrapperTests(unittest.TestCase):
 
         """Unit tests for the ListItemWrapper class"""
@@ -929,10 +938,10 @@ if UIA_support:
 
         def test_friendly_class_name(self):
             """Test getting friendly class name"""
-            # ListViewItem
+            # DataItem
             self.listview_tab.set_focus()
             listview_item = self.listview_tab.children(class_name=u"ListView")[0].get_item(2)
-            self.assertEqual(listview_item.friendly_class_name(), u"ListViewItem")
+            self.assertEqual(listview_item.friendly_class_name(), u"DataItem")
 
             # ListBoxItem
             self.listbox_datagrid_tab.set_focus()
@@ -941,7 +950,7 @@ if UIA_support:
 
             # DataGridRow
             datagrid_row = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0].get_item(1)
-            self.assertEqual(datagrid_row.friendly_class_name(), u"ListViewItem")
+            self.assertEqual(datagrid_row.friendly_class_name(), u"DataItem")
 
         def test_selection(self):
             """Test selection of ListItem"""
@@ -961,7 +970,7 @@ if UIA_support:
             """Test getting texts of ListItem"""
             self.listview_tab.set_focus()
             listview_item = self.listview_tab.children(class_name=u"ListView")[0].get_item(1)
-            texts = [ u"2", u"Cucumber", u"Green",  ]
+            texts = [u"2", u"Cucumber", u"Green"]
             self.assertEqual(listview_item.texts(), texts)
 
 
@@ -1154,7 +1163,7 @@ if UIA_support:
             self.assertEqual(tb.button_count(), 5)
             self.assertEqual(len(tb.texts()), 5)
 
-            # Test if it's in writeble properties
+            # Test if it's in writable properties
             props = set(tb.get_properties().keys())
             self.assertEqual('button_count' in props, True)
 
@@ -1200,7 +1209,7 @@ if UIA_support:
         def test_tooltips(self):
             """Test working with tooltips"""
             self.ctrl.set_focus()
-            self.ctrl.move_mouse_input(coords=(10, 10))
+            self.ctrl.move_mouse_input(coords=(10, 10), absolute=False)
 
             # Find a tooltip by class name
             tt = self.app.window_(top_level_only=False,
@@ -1229,6 +1238,178 @@ if UIA_support:
             self.ctrl.check_button("Small Icons", True)
             itm = lst_ctl.children()[1]
             self.assertEqual(itm.texts()[0], u'Red')
+
+    class TreeViewWpfTests(unittest.TestCase):
+
+        """Unit tests for TreeViewWrapper class on WPF demo"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.Start(wpf_app_1)
+            self.dlg = self.app.WPFSampleApplication
+            tab_itm = self.dlg.TreeAndListViews.set_focus()
+            self.ctrl = tab_itm.children(control_type="Tree")[0]
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_tv_item_count_and_roots(self):
+            """Test getting roots and a total number of items in TreeView"""
+            # By default the tree view on WPF demo is partially expanded
+            # with only 12 visible nodes
+            self.assertEqual(self.ctrl.item_count(), 12)
+
+            # Test if it's in writable properties
+            props = set(self.ctrl.get_properties().keys())
+            self.assertEqual('item_count' in props, True)
+
+            roots = self.ctrl.roots()
+            self.assertEqual(len(roots), 1)
+            self.assertEqual(roots[0].texts()[0], u'Date Elements')
+
+            sub_items = roots[0].sub_elements()
+            self.assertEqual(len(sub_items), 11)
+            self.assertEqual(sub_items[0].window_text(), u'Empty Date')
+            self.assertEqual(sub_items[-1].window_text(), u'Years')
+
+            expected_str = "Date Elements\n Empty Date\n Week\n  Monday\n  Tuesday\n  Wednsday\n"
+            expected_str += "  Thursday\n  Friday\n  Saturday\n  Sunday\n Months\n Years\n"
+            self.assertEqual(self.ctrl.print_items(), expected_str)
+
+        def test_tv_item_select(self):
+            """Test selecting an item from TreeView"""
+            # Find by a path with indexes
+            itm = self.ctrl.get_item((0, 2, 3))
+            self.assertEqual(itm.is_selected(), False)
+
+            # Select
+            itm.select()
+            self.assertEqual(itm.is_selected(), True)
+
+            # A second call to Select doesn't remove selection
+            itm.select()
+            self.assertEqual(itm.is_selected(), True)
+
+            itm = self.ctrl.get_item((0, 3, 2))
+            itm.ensure_visible()
+            self.assertEqual(itm.is_selected(), False)
+            coords = itm.children(control_type='Text')[0].rectangle().mid_point()
+            itm.click_input(coords=coords, absolute=True)
+            self.assertEqual(itm.is_selected(), True)
+
+        def test_tv_get_item(self):
+            """Test getting an item from TreeView"""
+            # Find by a path with indexes
+            itm = self.ctrl.get_item((0, 2, 3))
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'April')
+
+            # Find by a path with strings
+            itm = self.ctrl.get_item('\\Date Elements\\Months\\April', exact=True)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'April')
+
+            itm = self.ctrl.get_item('\\ Date Elements \\ months \\ april', exact=False)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'April')
+
+            itm = self.ctrl.get_item('\\Date Elements', exact=False)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'Date Elements')
+
+            # Try to find the last item in the tree hierarchy
+            itm = self.ctrl.get_item('\\Date Elements\\Years\\2018', exact=False)
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'2018')
+
+            itm = self.ctrl.get_item((0, 3, 3))
+            self.assertEqual(isinstance(itm, uia_ctls.TreeItemWrapper), True)
+            self.assertEqual(itm.window_text(), u'2018')
+
+            # Verify errors handling
+            self.assertRaises(uia_defs.NoPatternInterfaceError, itm.is_checked)
+
+            self.assertRaises(RuntimeError,
+                              self.ctrl.get_item,
+                              'Date Elements\\months',
+                              exact=False)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\_X_- \\months',
+                              exact=False)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\_X_- \\ months',
+                              exact=True)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\Date Elements\\ months \\ aprel',
+                              exact=False)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\Date Elements\\ months \\ april\\',
+                              exact=False)
+
+            self.assertRaises(IndexError,
+                              self.ctrl.get_item,
+                              '\\Date Elements\\ months \\ aprel',
+                              exact=True)
+
+            self.assertRaises(IndexError, self.ctrl.get_item, (0, 200, 1))
+
+            self.assertRaises(IndexError, self.ctrl.get_item, (130, 2, 1))
+
+        def test_tv_drag_n_drop(self):
+            """Test moving an item with mouse over TreeView"""
+            # Make sure the both nodes are visible
+            self.ctrl.get_item('\\Date Elements\\weeks').collapse()
+            itm_from = self.ctrl.get_item('\\Date Elements\\Years')
+            itm_to = self.ctrl.get_item('\\Date Elements\\Empty Date')
+
+            itm_from.drag_mouse_input(itm_to)
+
+            # Verify that the item and its sub-items are attached to the new node
+            itm = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+            self.assertEqual(itm.window_text(), 'Years')
+            itm = self.ctrl.get_item((0, 0, 0, 0))
+            self.assertEqual(itm.window_text(), '2015')
+            itm = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+            itm.collapse()
+
+            itm_from = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+            itm_to = self.ctrl.get_item(r'\Date Elements\Months')
+            self.ctrl.drag_mouse_input(itm_to, itm_from)
+            itm = self.ctrl.get_item(r'\Date Elements\Months\Years')
+            self.assertEqual(itm.window_text(), 'Years')
+
+            # Error handling: drop on itself
+            self.assertRaises(AttributeError,
+                              self.ctrl.drag_mouse_input,
+                              itm_from, itm_from)
+
+            # Drag-n-drop by manually calculated absolute coordinates
+            itm_from = self.ctrl.get_item(r'\Date Elements\Months')
+            itm_from.collapse()
+            r = itm_from.rectangle()
+            coords_from = (int(r.left + (r.width() / 4.0)),
+                           int(r.top + (r.height() / 2.0)))
+
+            r = self.ctrl.get_item(r'\Date Elements\Weeks').rectangle()
+            coords_to = (int(r.left + (r.width() / 4.0)),
+                         int(r.top + (r.height() / 2.0)))
+
+            self.ctrl.drag_mouse_input(coords_to, coords_from)
+            itm = self.ctrl.get_item(r'\Date Elements\Weeks\Months')
+            self.assertEqual(itm.window_text(), 'Months')
 
 
 if __name__ == "__main__":

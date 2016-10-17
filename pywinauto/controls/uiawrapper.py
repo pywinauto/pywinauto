@@ -75,7 +75,7 @@ WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
 _friendly_classes = {
     'Custom': None,
     'DataGrid': 'ListView',
-    'DataItem': 'ListViewItem',
+    'DataItem': 'DataItem',
     'Document': None,  # TODO: this is RichTextBox
     'Group': 'GroupBox',
     'Header': None,
@@ -83,7 +83,7 @@ _friendly_classes = {
     'Hyperlink': None,
     'Image': None,
     'List': 'ListBox',
-    'ListItem': None,
+    'ListItem': 'ListItem',
     'MenuBar': 'Menu',
     'Menu': 'Menu',
     'MenuItem': 'MenuItem',
@@ -101,7 +101,8 @@ _friendly_classes = {
     'TitleBar': None,
     'ToolBar': 'Toolbar',
     'ToolTip': 'ToolTips',
-    'Tree': None,
+    'Tree': 'TreeView',
+    'TreeItem': 'TreeItem',
     'Window': 'Dialog',
 }
 
@@ -280,6 +281,13 @@ class UIAWrapper(BaseWrapper):
         """Get the element's TableItem interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "TableItem")
+
+    # ------------------------------------------------------------
+    @lazy_property
+    def iface_scroll_item(self):
+        """Get the element's ScrollItem interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "ScrollItem")
 
     # ------------------------------------------------------------
     @lazy_property
@@ -477,6 +485,33 @@ class UIAWrapper(BaseWrapper):
                 if c.window_text() == selection[0].name:
                     return i
         return None
+
+    # -----------------------------------------------------------
+    def select(self):
+        """Select the item
+
+        Only items supporting SelectionItem pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+
+        Usually applied for controls like: a radio button, a tree view item
+        or a list item.
+        """
+        self.iface_selection_item.Select()
+
+        # Return itself so that action can be chained
+        return self
+
+    # -----------------------------------------------------------
+    def is_selected(self):
+        """Indicate that the item is selected or not.
+
+        Only items supporting SelectionItem pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+
+        Usually applied for controls like: a radio button, a tree view item,
+        a list item.
+        """
+        return self.iface_selection_item.CurrentIsSelected
 
     # -----------------------------------------------------------
     def children_texts(self):

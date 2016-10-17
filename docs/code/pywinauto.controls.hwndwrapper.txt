@@ -4,4 +4,3 @@ pywinauto.controls.hwndwrapper
     :members:
     :undoc-members:
     :show-inheritance:
-

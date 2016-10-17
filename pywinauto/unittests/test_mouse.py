@@ -1,10 +1,6 @@
 """Tests for mouse.py"""
 
 import time
-import ctypes
-import locale
-import re
-import subprocess
 import sys
 import os
 import win32clipboard
@@ -44,7 +40,8 @@ class MouseTests(unittest.TestCase):
 
     def __get_pos(self, shift):
         rect = self.dlg.rectangle()
-        return rect.left + shift, rect.top + shift
+        center = rect.mid_point()
+        return center.x + shift, center.y + shift
 
     def __get_text(self):
         SendKeys('^a')

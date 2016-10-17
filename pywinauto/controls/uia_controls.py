@@ -113,27 +113,6 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         # Return itself so that action can be chained
         return self
 
-    # -----------------------------------------------------------
-    def select(self):
-        """
-        An interface to Select method of the SelectionItem control pattern.
-
-        Usually applied for a radio button control
-        """
-        self.iface_selection_item.Select()
-
-        # Return itself so that action can be chained
-        return self
-
-    # -----------------------------------------------------------
-    def is_selected(self):
-        """
-        An interface to CurrentIsSelected method of the SelectionItem control pattern.
-
-        Usually applied for a radio button control
-        """
-        return self.iface_selection_item.CurrentIsSelected
-
 
 # ====================================================================
 class ComboBoxWrapper(uiawrapper.UIAWrapper):
@@ -410,7 +389,7 @@ class TabControlWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
     def get_selected_tab(self):
-        """Return the index of a selected tab"""
+        """Return an index of a selected tab"""
         return self.selected_item_index()
 
     # ----------------------------------------------------------------
@@ -447,18 +426,18 @@ class SliderWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def min_value(self):
-        """Get minimum value of the Slider"""
+        """Get the minimum value of the Slider"""
         return self.iface_range_value.CurrentMinimum
 
     # -----------------------------------------------------------
     def max_value(self):
-        """Get maximum value of the Slider"""
+        """Get the maximum value of the Slider"""
         return self.iface_range_value.CurrentMaximum
 
     # -----------------------------------------------------------
     def small_change(self):
         """
-        Get small change of slider's thumb
+        Get a small change of slider's thumb
 
         This change is achieved by pressing left and right arrows
         when slider's thumb has keyboard focus.
@@ -468,7 +447,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def large_change(self):
         """
-        Get large change of slider's thumb
+        Get a large change of slider's thumb
 
         This change is achieved by pressing PgUp and PgDown keys
         when slider's thumb has keyboard focus.
@@ -477,7 +456,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def value(self):
-        """Get current position of slider's thumb"""
+        """Get a current position of slider's thumb"""
         return self.iface_range_value.CurrentValue
 
     # -----------------------------------------------------------
@@ -535,16 +514,6 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         # Notice that the self.parent property isn't the same
         # because it results in a different instance of a wrapper.
         self.container = container
-
-    # -----------------------------------------------------------
-    def select(self):
-        """Select/Deselect all cells in the ListItem"""
-        self.iface_selection_item.Select()
-
-    # -----------------------------------------------------------
-    def is_selected(self):
-        """Return True if the ListItem is selected"""
-        return self.iface_selection_item.CurrentIsSelected
 
     # -----------------------------------------------------------
     def is_checked(self):
@@ -611,7 +580,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def get_header_control(self):
-        """Return the Header control associated with the ListView"""
+        """Return Header control associated with the ListView"""
         try:
             # A data grid control may have no header
             hdr = self.children(control_type="Header")[0]
@@ -673,7 +642,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     def get_item(self, row):
         """Return an item of the ListView control
 
-        * **row** Can be either an index of the row or a string
+        * **row** can be either an index of the row or a string
           with the text of a cell in the row you want returned.
         """
         # Verify arguments
@@ -727,7 +696,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     def get_item_rect(self, item_index):
         """Return the bounding rectangle of the list view item
 
-        The interface is kept mostly for a backward compatibility
+        The method is kept mostly for a backward compatibility
         with the native ListViewWrapper interface
         """
         itm = self.get_item(item_index)
@@ -958,12 +927,12 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
-        """Return the button by the specified identifier
+        """Return a button by the specified identifier
 
         * **button_identifier** can be either an index of a button or
           a string with the text of the button.
         * **exact** flag specifies if the exact match for the text look up
-            has to be applied.
+          has to be applied.
         """
 
         cc = self.children()
@@ -996,7 +965,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **make_checked** specifies the required toggled state of the button.
           If the button is already in the specified state the state isn't changed.
         * **exact** flag specifies if the exact match for the text look up
-            has to be applied
+          has to be applied
         """
 
         self.actions.logSectionStart('Checking "' + self.window_text() +
@@ -1017,3 +986,217 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         self.actions.logSectionEnd()
         return button
+
+
+# ====================================================================
+class TreeItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible TreeItem control
+
+    In addition to the provided methods of the wrapper
+    additional inherited methods can be especially helpful:
+    * select()
+    * extend()
+    * collapse()
+    * is_extended()
+    * is_collapsed()
+    * click_input()
+    * rectangle()
+    and many others
+    """
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_TreeItemControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TreeItemWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def is_checked(self):
+        """Return True if the TreeItem is checked
+
+        Only items supporting Toggle pattern should answer.
+        Raise NoPatternInterfaceError if the pattern is not supported
+        """
+        return (self.iface_toggle.ToggleState_On == toggle_state_on)
+
+    # -----------------------------------------------------------
+    def ensure_visible(self):
+        """Make sure that the TreeView item is visible"""
+        self.iface_scroll_item.ScrollIntoView()
+
+    # -----------------------------------------------------------
+    def get_child(self, child_spec, exact=False):
+        """Return the child item of this item
+
+        Accepts either a string or an index.
+        If a string is passed then it returns the child item
+        with the best match for the string.
+        """
+        cc = self.children(control_type='TreeItem')
+        if isinstance(child_spec, six.string_types):
+            texts = [c.window_text() for c in cc]
+            if exact:
+                if child_spec in texts:
+                    index = texts.index(child_spec)
+                else:
+                    raise IndexError('There is no child equal to "' + str(child_spec) + '" in ' + str(texts))
+            else:
+                indices = range(0, len(texts))
+                index = findbestmatch.find_best_match(
+                    child_spec, texts, indices, limit_ratio=.6)
+
+        else:
+            index = child_spec
+
+        return cc[index]
+
+    # -----------------------------------------------------------
+    def _calc_click_coords(self):
+        """Override the BaseWrapper helper method
+
+        Try to get coordinates of a text box inside the item.
+        If no text box found just set coordinates
+        close to a left part of the item rectangle
+
+        The returned coordinates are always absolute
+        """
+        tt = self.children(control_type="Text")
+        if tt:
+            point = tt[0].rectangle().mid_point()
+            # convert from POINT to a simple tuple
+            coords = (point.x, point.y)
+        else:
+            rect = self.rectangle()
+            coords = (rect.left + int(float(rect.width()) / 4.),
+                      rect.top + int(float(rect.height()) / 2.))
+        return coords
+
+    # -----------------------------------------------------------
+    def sub_elements(self):
+        """Return a list of all visible sub-items of this control"""
+        return self.descendants(control_type="TreeItem")
+
+
+# ====================================================================
+class TreeViewWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Tree control"""
+
+    _control_types = [
+        IUIA().UIA_dll.UIA_TreeControlTypeId
+    ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TreeViewWrapper, self).__init__(elem)
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TreeViewWrapper, self).writable_props
+        props.extend(['item_count'])
+        return props
+
+    # -----------------------------------------------------------
+    def item_count(self):
+        """Return a number of items in TreeView"""
+        return len(self.descendants(control_type="TreeItem"))
+
+    # -----------------------------------------------------------
+    def roots(self):
+        """Return root elements of TeeView"""
+        return self.children(control_type="TreeItem")
+
+    # -----------------------------------------------------------
+    def get_item(self, path, exact=False):
+        """Read a TreeView item
+
+        * **path** a path to the item to return. This can be one of
+          the following:
+
+          * A string separated by \\ characters. The first character must
+            be \\. This string is split on the \\ characters and each of
+            these is used to find the specific child at each level. The
+            \\ represents the root item - so you don't need to specify the
+            root itself.
+          * A list/tuple of strings - The first item should be the root
+            element.
+          * A list/tuple of integers - The first item the index which root
+            to select. Indexing always starts from zero: get_item((0, 2, 3))
+
+        * **exact** a flag to request exact match of strings in the path
+          or apply a fuzzy logic of best_match thus allowing non-exact
+          path specifiers
+        """
+        if not self.item_count():
+            return None
+
+        # Ensure the path is absolute
+        if isinstance(path, six.string_types):
+            if not path.startswith("\\"):
+                raise RuntimeError(
+                    "Only absolute paths allowed - "
+                    "please start the path with \\")
+            path = path.split("\\")[1:]
+
+        current_elem = None
+
+        # find the correct root elem
+        if isinstance(path[0], int):
+            current_elem = self.roots()[path[0]]
+        else:
+            roots = self.roots()
+            texts = [r.window_text() for r in roots]
+            if exact:
+                if path[0] in texts:
+                    current_elem = roots[texts.index(path[0])]
+                else:
+                    raise IndexError("There is no root element equal to '{0}'".format(path[0]))
+            else:
+                try:
+                    current_elem = findbestmatch.find_best_match(
+                        path[0], texts, roots, limit_ratio=.6)
+                except IndexError:
+                    raise IndexError("There is no root element similar to '{0}'".format(path[0]))
+
+        # now for each of the lower levels
+        # just index into it's children
+        for child_spec in path[1:]:
+            try:
+                # ensure that the item is expanded as this is sometimes
+                # required for loading tree view branches
+                current_elem.expand()
+                current_elem = current_elem.get_child(child_spec, exact)
+            except IndexError:
+                if isinstance(child_spec, six.string_types):
+                    raise IndexError("Item '{0}' does not have a child '{1}'".format(
+                                     current_elem.window_text(), child_spec))
+                else:
+                    raise IndexError("Item '{0}' does not have {1} children".format(
+                                     current_elem.window_text(), child_spec + 1))
+            except comtypes.COMError:
+                raise IndexError("Item '{0}' does not have a child '{1}'".format(
+                                 current_elem.window_text(), child_spec))
+
+        return current_elem
+
+    # -----------------------------------------------------------
+    def print_items(self):
+        """Print all items with line indents"""
+        self.text = ""
+
+        def _print_one_level(item, ident):
+            """Get texts for the item and its children"""
+            self.text += " " * ident + item.window_text() + "\n"
+            for child in item.children(control_type="TreeItem"):
+                _print_one_level(child, ident + 1)
+
+        for root in self.roots():
+            _print_one_level(root, 0)
+
+        return self.text
