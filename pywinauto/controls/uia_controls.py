@@ -1056,8 +1056,10 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def _calc_click_coords(self):
-        """Override the BaseWrapper helper method trying to get coordinates of
-        a text box inside the item. If no text box found just set coordinates
+        """Override the BaseWrapper helper method
+
+        Try to get coordinates of a text box inside the item.
+        If no text box found just set coordinates
         close to a left part of the item rectangle
 
         The returned coordinates are always absolute
@@ -1131,7 +1133,6 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
           or apply a fuzzy logic of best_match thus allowing non-exact
           path specifiers
         """
-
         if not self.item_count():
             return None
 
@@ -1173,14 +1174,14 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
                 current_elem = current_elem.get_child(child_spec, exact)
             except IndexError:
                 if isinstance(child_spec, six.string_types):
-                    raise IndexError("Item '%s' does not have a child '%s'" %
-                                     (current_elem.window_text(), child_spec))
+                    raise IndexError("Item '{0}' does not have a child '{1}'".format(
+                                     current_elem.window_text(), child_spec))
                 else:
-                    raise IndexError("Item '%s' does not have %d children" %
-                                     (current_elem.window_text(), child_spec + 1))
+                    raise IndexError("Item '{0}' does not have {1} children".format(
+                                     current_elem.window_text(), child_spec + 1))
             except comtypes.COMError:
-                    raise IndexError("Item '%s' does not have a child '%s'" %
-                                     (current_elem.window_text(), child_spec))
+                raise IndexError("Item '{0}' does not have a child '{1}'".format(
+                                 current_elem.window_text(), child_spec))
 
         return current_elem
 
@@ -1189,12 +1190,13 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
         """Print all items with line indents"""
         self.text = ""
 
-        def print_one_level(item, ident):
+        def _print_one_level(item, ident):
+            """Get texts for the item and its children"""
             self.text += " " * ident + item.window_text() + "\n"
             for child in item.children(control_type="TreeItem"):
-                print_one_level(child, ident + 1)
+                _print_one_level(child, ident + 1)
 
         for root in self.roots():
-            print_one_level(root, 0)
+            _print_one_level(root, 0)
 
         return self.text

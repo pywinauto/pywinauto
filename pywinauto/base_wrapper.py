@@ -675,7 +675,7 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def move_mouse_input(self, coords=(0, 0), pressed="", absolute=True):
-        "Move the mouse"
+        """Move the mouse"""
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
 
@@ -706,8 +706,7 @@ class BaseWrapper(object):
                          button="left",
                          pressed="",
                          absolute=True):
-        """Perform the drag-n-drop mouse operation by clicking on **src**,
-        dragging it and dropping on **dst**
+        """Click on **src**, drag it and drop on **dst**
 
         * **dst** is a destination wrapper object or just coordinates.
         * **src** is a source wrapper object or coordinates.
