@@ -863,7 +863,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
             if not menu.items():
                 timings.wait_until(timings.Timings.window_find_timeout,
                     timings.Timings.window_find_retry,
-                    lambda: len(self.top_level_parent().descendants(control_type="Menu") > 0)
+                    lambda: len(self.top_level_parent().descendants(control_type="Menu")) > 0)
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
 
             for cur_part in [p.strip() for p in parts.split("->")]:
