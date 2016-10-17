@@ -45,7 +45,9 @@ from . import win32structures
 from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):
+
     """Raised when we cannot allocate memory in the control's process"""
+
     pass
 
 #====================================================================
@@ -60,7 +62,7 @@ class RemoteMemoryBlock(object):
         self.size = size
         self.process = 0
         self.handle = ctrl.handle
-        
+
         if self.handle == 0xffffffff80000000:
             raise Exception('Incorrect handle: ' + str(self.handle))
 
@@ -97,12 +99,12 @@ class RemoteMemoryBlock(object):
 
         if self.memAddress == 0:
             raise ctypes.WinError()
-        
+
         if hex(self.memAddress) == '0xffffffff80000000' or hex(self.memAddress).upper() == '0xFFFFFFFF00000000':
             raise Exception('Incorrect allocation: ' + hex(self.memAddress))
 
         self._as_parameter_ = self.memAddress
-        
+
         # write guard signature at the end of memory block
         signature = win32structures.LONG(0x66666666)
         ret = win32functions.WriteProcessMemory(
@@ -136,7 +138,7 @@ class RemoteMemoryBlock(object):
             # free up the memory we allocated
             #win32api.SetLastError(0)
             self.CheckGuardSignature()
-            
+
             ret = win32functions.VirtualFreeEx(
                 ctypes.c_void_p(self.process),
                 ctypes.c_void_p(self.memAddress),
@@ -180,14 +182,14 @@ class RemoteMemoryBlock(object):
             nSize = win32structures.ULONG_PTR(size)
         else:
             nSize = win32structures.ULONG_PTR(ctypes.sizeof(data))
-        
+
         if self.size < nSize.value:
             raise Exception(('Write: RemoteMemoryBlock is too small ({0} bytes),' + \
                 ' {1} is required.').format(self.size, nSize.value))
-        
+
         if hex(address).lower().startswith('0xffffff'):
             raise Exception('Write: RemoteMemoryBlock has incorrect address = ' + hex(address))
-        
+
         ret = win32functions.WriteProcessMemory(
             ctypes.c_void_p(self.process),
             ctypes.c_void_p(address),
@@ -220,12 +222,12 @@ class RemoteMemoryBlock(object):
         if self.size < nSize.value:
             raise Exception(('Read: RemoteMemoryBlock is too small ({0} bytes),' + \
                 ' {1} is required.').format(self.size, nSize.value))
-        
+
         if hex(address).lower().startswith('0xffffff'):
             raise Exception('Read: RemoteMemoryBlock has incorrect address =' + hex(address))
-        
+
         lpNumberOfBytesRead = ctypes.c_size_t(0)
-        
+
         ret = win32functions.ReadProcessMemory(
             ctypes.c_void_p(self.process),
             ctypes.c_void_p(address),
@@ -256,7 +258,7 @@ class RemoteMemoryBlock(object):
                     ActionLogger().log('Error: ERROR_PARTIAL_COPY')
                     ActionLogger().log('\nRead: WARNING! self.memAddress =' + \
                         hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
-                
+
                 ActionLogger().log('lpNumberOfBytesRead =' + \
                     str(lpNumberOfBytesRead) + ' nSize =' + str(nSize))
                 raise ctypes.WinError()
@@ -264,7 +266,7 @@ class RemoteMemoryBlock(object):
                 ActionLogger().log('Warning! Read OK: 2nd attempt!')
         #else:
         #    print 'Read OK: lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize
-        
+
         self.CheckGuardSignature()
         return data
 

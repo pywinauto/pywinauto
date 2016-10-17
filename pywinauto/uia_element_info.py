@@ -78,7 +78,7 @@ class UIAElementInfo(ElementInfo):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
-        
+
         If handle_or_elem is None create an instance for UI root element.
         """
         if handle_or_elem is not None:

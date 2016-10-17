@@ -40,7 +40,7 @@ class _Singleton(type):
 
     """
     Singleton metaclass implementation from StackOverflow
-    
+
     http://stackoverflow.com/q/6760685/3648361
     """
 
@@ -76,15 +76,15 @@ class IUIA(object):
         self.root = self.iuia.GetRootElement()
 
         self.get_focused_element = self.iuia.GetFocusedElement
-        
+
         # collect all known control types
         start_len = len('UIA_')
         end_len = len('ControlTypeId')
         self._control_types = [attr[start_len:-end_len] for attr in dir(self.UIA_dll) if attr.endswith('ControlTypeId')]
-        
+
         self.known_control_types = {} # string id: numeric id
         self.known_control_type_ids = {} # numeric id: string id
-        
+
         for ctrl_type in self._control_types:
             type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
             type_id = self.UIA_dll.__getattribute__(type_id_name)
@@ -97,17 +97,17 @@ class IUIA(object):
         conditions = []
         if process:
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ProcessIdPropertyId, process))
-        
+
         if class_name:
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ClassNamePropertyId, class_name))
-        
+
         if control_type:
             if isinstance(control_type, six.string_types):
                 control_type = self.known_control_types[control_type]
             elif not isinstance(control_type, int):
                 raise TypeError('control_type must be string or integer')
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
-        
+
         if title:
             # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, title))
@@ -118,10 +118,10 @@ class IUIA(object):
 
         if len(conditions) > 1:
             return self.iuia.CreateAndConditionFromArray(conditions)
-        
+
         if len(conditions) == 1:
             return conditions[0]
-        
+
         return self.true_condition
 
 # Build a list of named constants that identify Microsoft UI Automation
@@ -152,7 +152,7 @@ def _build_pattern_ids_dic():
         # Windows 10 and later
         'CustomNavigation'
     ]
-    
+
     ptrn_ids_dic = {}
 
     # Loop over the all base names and try to retrieve control patterns
@@ -169,7 +169,7 @@ def _build_pattern_ids_dic():
     
             # Update the registry of known patterns
             ptrn_ids_dic[ptrn_name] = (ptrn_id, klass)
-    
+
     return ptrn_ids_dic
 
 pattern_ids = _build_pattern_ids_dic()
@@ -179,7 +179,7 @@ pattern_ids = _build_pattern_ids_dic()
 #     enum ToggleState {
 #       ToggleState_Off,
 #       ToggleState_On,
-#       ToggleState_Indeterminate 
+#       ToggleState_Indeterminate
 # };
 # The definition can also be found in the comtypes package
 # In a file automatically generated according to UIAutomation GUID:

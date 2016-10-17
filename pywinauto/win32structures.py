@@ -349,13 +349,13 @@ class LVITEMW(Structure):
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('lParam', LPARAM),
-        
+
         ('iIndent', c_int), #if (_WIN32_IE >= 0x0300)
-        
+
         ('iGroupId', c_int), #if (_WIN32_WINNT >= 0x0501)
         ('cColumns', UINT),
         ('puColumns', POINTER(UINT)),
-        
+
         ('piColFmt', POINTER(c_int)), #if (_WIN32_WINNT >= 0x0600)
         ('iGroup', c_int),
     ]
@@ -384,13 +384,13 @@ class LVITEMW32(Structure):
         ('cchTextMax', c_int),
         ('iImage', c_int),
         ('lParam', LPARAM),
-        
+
         ('iIndent', c_int), #if (_WIN32_IE >= 0x0300)
-        
+
         ('iGroupId', c_int), #if (_WIN32_WINNT >= 0x0501)
         ('cColumns', UINT),
         ('puColumns', UINT), # keep 4-byte size
-        
+
         ('piColFmt', c_int), #if (_WIN32_WINNT >= 0x0600), but keep 4-byte size
         ('iGroup', c_int),
     ]

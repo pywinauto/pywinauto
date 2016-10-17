@@ -101,7 +101,6 @@ class FuzzyDict(dict):
         if stop_on_first is True then the method returns as soon
         as it finds the first item.
         """
-
         # if the item is in the dictionary then just return it
         if self._dict_contains(lookfor):
             return True, lookfor, self._dict_getitem(lookfor), 1
@@ -170,9 +169,9 @@ if __name__ == '__main__':
     import unittest
 
     class FuzzyTestCase(unittest.TestCase):
-        
+
         """Perform some tests"""
-        
+
         test_dict = {
             'Hiya'  : 1,
             'hiy\xe4' : 2,
@@ -186,7 +185,7 @@ if __name__ == '__main__':
             self.assertEquals(fd, {})
 
         def test_creation_dict(self):
-            "Test creating a fuzzy dict"
+            """Test creating a fuzzy dict"""
             fd = FuzzyDict(self.test_dict)
             self.assertEquals(fd, self.test_dict)
             self.assertEquals(self.test_dict['Hiya'], fd['hiya'])
@@ -195,9 +194,8 @@ if __name__ == '__main__':
             self.assertEquals(fd, self.test_dict)
             self.assertRaises(KeyError, fd2.__getitem__, 'hiya')
 
-
         def test_contains(self):
-            "Test checking if an item is in a FuzzyDict"
+            """Test checking if an item is in a FuzzyDict"""
             fd = FuzzyDict(self.test_dict)
 
             self.assertEquals(True, fd.__contains__('hiya'))
@@ -212,9 +210,8 @@ if __name__ == '__main__':
 
             self.assertEquals(False, fd.__contains__(23))
 
-
         def test_get_item(self):
-            "Test getting items from a FuzzyDict"
+            """Test getting items from a FuzzyDict"""
             fd = FuzzyDict(self.test_dict)
 
             self.assertEquals(self.test_dict["Hiya"], fd['hiya'])

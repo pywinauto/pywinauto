@@ -74,7 +74,7 @@ def run_notepad():
         print("\nRunning this script so it will load application data and run")
         print("against any lanuguage version of Notepad/Windows")
 
-        # make sure that the app data gets read from the same folder as 
+        # make sure that the app data gets read from the same folder as
         # the script
         app = application.Application(
             os.path.join(scriptdir, "Notepad_fast.pkl"))
@@ -100,7 +100,7 @@ def run_notepad():
         app.PageSetupDlg.SizeComboBox.select("Letter")
     except ValueError:
         app.PageSetupDlg.SizeComboBox.select('Letter (8.5" x 11")')
-                                         
+
     app.PageSetupDlg.SizeComboBox.select(2)
 
     # run some tests on the Dialog. List of available tests:
@@ -150,7 +150,7 @@ def run_notepad():
 
     doc_props = app.window_(title_re = ".*Properties$")
     doc_props.Wait('exists', timeout = 40)
-    
+
 #
 #    # ----- Document Properties Dialog ----
 #    # some tab control selections
@@ -202,8 +202,7 @@ def run_notepad():
     # window does not close cleanly :(
     if doc_props.Cancel.Exists():
         doc_props.OK.close_click()
-        
-    
+
     # ----- 2nd Page Setup Dialog again ----
     app.PageSetupDlg.OK.close_click()
     # ----- Page Setup Dialog ----
@@ -270,8 +269,6 @@ def run_notepad():
 
     if not run_with_appdata:
         app.WriteAppData(os.path.join(scriptdir, "Notepad_fast.pkl"))
-
-
 
     print("That took %.3f to run"% (time.time() - start))
 

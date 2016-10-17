@@ -266,7 +266,7 @@ class KeyAction(object):
 
     def _get_key_info(self):
         """Return virtual_key, scan_code, and flags for the action
-        
+
         This is one of the methods that will be overridden by sub classes"""
         #print(self.key)
         return 0, ord(self.key), KEYEVENTF_UNICODE

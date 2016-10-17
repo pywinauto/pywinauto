@@ -51,7 +51,7 @@ _standard_formats = _get_standard_formats()
 def GetClipboardFormats():
     """Get a list of the formats currently in the clipboard"""
     win32clipboard.OpenClipboard()
-    
+
     available_formats = []
     current_format = 0
     while True:

@@ -148,7 +148,7 @@ def isenabled(handle):
 #=========================================================================
 def is64bitprocess(process_id):
     """Return True if the specified process is a 64-bit process on x64
-    
+
     Return False if it is only a 32-bit process running under Wow64.
     Always return False for x86.
     """

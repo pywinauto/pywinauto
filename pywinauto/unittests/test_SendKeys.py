@@ -217,12 +217,12 @@ class SendKeysTests(unittest.TestCase):
         self.assertRaises(KeySequenceError, SendKeys, "ENTER)")
         self.assertRaises(RuntimeError, SendKeys, "%{Enterius}")
         self.assertRaises(KeySequenceError, SendKeys, "{PAUSE small}")
-        
+
         try:
             SendKeys("{ENTER five}")
         except KeySequenceError as exc:
             self.assertEquals("invalid repetition count five", str(exc))
-        
+
         try:
             SendKeys("ENTER}")
         except KeySequenceError as exc:
@@ -270,7 +270,7 @@ class SendKeysModifiersTests(unittest.TestCase):
         dlg.Wait('ready')
         dlg.Done.CloseClick()
         dlg.WaitNot('visible')
-        
+
         SendKeys("%(H{LEFT}{UP}{ENTER})", pause = .3)
         dlg = self.app.Window_(title='Sample Dialog with spin controls')
         dlg.Wait('ready')

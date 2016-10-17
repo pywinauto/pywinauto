@@ -392,7 +392,7 @@ class ApplicationTestCases(unittest.TestCase):
         Timings.window_find_timeout = 5
         app = Application()
         self.assertRaises(AppNotConnected, app.top_window_)
-        
+
         app.start(_notepad_exe())
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
@@ -431,9 +431,9 @@ class ApplicationTestCases(unittest.TestCase):
         """Test that wait_cpu_usage_lower() works correctly"""
         if is_x64_Python() != is_x64_OS():
             return None
-        
+
         Application().Start(r'explorer.exe')
-        
+
         def _cabinetwclass_exist():
             "Verify if at least one active 'CabinetWClass' window is created"
             l = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')
@@ -443,7 +443,7 @@ class ApplicationTestCases(unittest.TestCase):
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, 'backend': 'win32', })
         explorer = Application().Connect(process = window.process_id())
-        
+
         try:
             explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
             window.AddressBandRoot.ClickInput()

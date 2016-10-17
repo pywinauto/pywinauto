@@ -283,14 +283,14 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(yellow_rect.right, gold_rect.right)
         if yellow_rect.bottom < 53 or yellow_rect.bottom > 55:
             self.assertEquals(yellow_rect.bottom, gold_rect.bottom)
-        
+
         self.ctrl.GetItem('Green').Click(where='text')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        
+
         self.ctrl.GetItem('Magenta').Click(where='icon')
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
-        
+
         self.ctrl.GetItem('Green').Click(where='all')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
@@ -300,18 +300,18 @@ class ListViewTestCases32(unittest.TestCase):
         """Test checking/unchecking item"""
         if not self.dlg.Toolbar.Button(6).IsChecked():
             self.dlg.Toolbar.Button(6).Click()
-        
+
         yellow = self.ctrl.GetItem('Yellow')
         yellow.Check()
         self.assertEquals(yellow.IsChecked(), True)
-        
+
         yellow.UnCheck()
         self.assertEquals(yellow.IsChecked(), False)
 
         # test legacy deprecated methods (TODO: remove later)
         self.ctrl.Check('Yellow')
         self.assertEquals(self.ctrl.IsChecked('Yellow'), True)
-        
+
         self.ctrl.UnCheck('Yellow')
         self.assertEquals(self.ctrl.IsChecked('Yellow'), False)
 
@@ -362,16 +362,16 @@ class ListViewTestCases32(unittest.TestCase):
     def testItemClickInput(self):
         """Test clicking item rectangles by click_input() method"""
         Timings.Defaults()
-        
+
         self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        
+
         self.ctrl.GetItem('Magenta').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
         self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
         self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
-        
+
         self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
         self.assertEquals(self.ctrl.IsSelected('Green'), True) # TODO: deprecated method
@@ -412,12 +412,12 @@ class ListViewTestCases32(unittest.TestCase):
 
     def testEnsureVisible(self):
         self.dlg.MoveWindow(width=300)
-        
+
         # Gray is not selected by click because it's not visible
         self.ctrl.GetItem('Gray').Click()
         self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
         self.dlg.set_focus() # just in case
-        
+
         self.ctrl.GetItem('Gray').EnsureVisible()
         self.ctrl.GetItem('Gray').Click()
         self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), True)
@@ -432,11 +432,9 @@ class ListViewTestCases32(unittest.TestCase):
 #            #self.assertEquals(item.Text, texts[i])
 
     def testEqualsItems(self):
-
         """
         Test __eq__ and __ne__ cases for _listview_item.
         """
-
         item1 = self.ctrl.GetItem(0, 0)
         item1_copy = self.ctrl.GetItem(0, 0)
         item2 = self.ctrl.GetItem(1, 0)
