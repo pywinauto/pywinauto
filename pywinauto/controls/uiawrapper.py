@@ -493,8 +493,8 @@ class UIAWrapper(BaseWrapper):
         Only items supporting SelectionItem pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
 
-        Usually applied for controls like: radio button, tree view item
-        or list item.
+        Usually applied for controls like: a radio button, a tree view item
+        or a list item.
         """
         self.iface_selection_item.Select()
 

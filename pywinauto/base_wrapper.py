@@ -706,8 +706,8 @@ class BaseWrapper(object):
                          button="left",
                          pressed="",
                          absolute=True):
-        """Perform the drag-n-drop mouse operation by clicking on **dst**,
-        dragging it and dropping on **src**
+        """Perform the drag-n-drop mouse operation by clicking on **src**,
+        dragging it and dropping on **dst**
 
         * **dst** is a destination wrapper object or just coordinates.
         * **src** is a source wrapper object or coordinates.
@@ -718,7 +718,6 @@ class BaseWrapper(object):
         * **absolute** specifies whether to use absolute coordinates
           for the mouse pointer locations
         """
-
         if not src:
             src = self
 
@@ -731,7 +730,6 @@ class BaseWrapper(object):
             press_coords = (src.x, src.y)
         else:
             press_coords = src
-        self.actions.log('Drag mouse from coordinates ' + str(press_coords).replace('\n', ', '))
 
         if isinstance(dst, BaseWrapper):
             release_coords = dst._calc_click_coords()
@@ -739,7 +737,7 @@ class BaseWrapper(object):
             release_coords = (dst.x, dst.y)
         else:
             release_coords = dst
-        self.actions.log('Drop mouse to coordinates ' + str(release_coords).replace('\n', ', '))
+        self.actions.log('Drag mouse from coordinates {0} to {1}'.format(press_coords, release_coords))
 
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)

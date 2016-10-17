@@ -1034,8 +1034,8 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
 
         Accepts either a string or an index.
         If a string is passed then it returns the child item
-        with the best match for the string."""
-
+        with the best match for the string.
+        """
         cc = self.children(control_type='TreeItem')
         if isinstance(child_spec, six.string_types):
             texts = [c.window_text() for c in cc]
@@ -1155,13 +1155,13 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
                 if path[0] in texts:
                     current_elem = roots[texts.index(path[0])]
                 else:
-                    raise IndexError("There is no root element equal to '%s'" % path[0])
+                    raise IndexError("There is no root element equal to '{0}'".format(path[0]))
             else:
                 try:
                     current_elem = findbestmatch.find_best_match(
                         path[0], texts, roots, limit_ratio=.6)
                 except IndexError:
-                    raise IndexError("There is no root element similar to '%s'" % path[0])
+                    raise IndexError("There is no root element similar to '{0}'".format(path[0]))
 
         # now for each of the lower levels
         # just index into it's children
@@ -1187,7 +1187,6 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def print_items(self):
         """Print all items with line indents"""
-
         self.text = ""
 
         def print_one_level(item, ident):

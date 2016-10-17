@@ -1396,6 +1396,21 @@ if UIA_support:
                               self.ctrl.drag_mouse_input,
                               itm_from, itm_from)
 
+            # Drag-n-drop by manually calculated absolute coordinates
+            itm_from = self.ctrl.get_item(r'\Date Elements\Months')
+            itm_from.collapse()
+            r = itm_from.rectangle()
+            coords_from = (int(r.left + (r.width() / 4.0)),
+                           int(r.top + (r.height() / 2.0)))
+
+            r = self.ctrl.get_item(r'\Date Elements\Weeks').rectangle()
+            coords_to = (int(r.left + (r.width() / 4.0)),
+                         int(r.top + (r.height() / 2.0)))
+
+            self.ctrl.drag_mouse_input(coords_to, coords_from)
+            itm = self.ctrl.get_item(r'\Date Elements\Weeks\Months')
+            self.assertEqual(itm.window_text(), 'Months')
+
 
 if __name__ == "__main__":
     if UIA_support:
