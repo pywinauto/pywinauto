@@ -133,7 +133,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app2 = Application().connect(path=self.sample_exe_inverted_bitness)
+            Application().connect(path=self.sample_exe_inverted_bitness)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
@@ -147,7 +147,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         with warnings.catch_warnings(record=True) as warns:
             app = Application().start(self.sample_exe)
             for deprecated_method in deprecated_connect_methods:
-                app2 = getattr(Application(),
+                getattr(Application(),
                                deprecated_method)(path=self.sample_exe)
             app.kill_()
 

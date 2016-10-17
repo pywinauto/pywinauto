@@ -41,30 +41,6 @@ from .handleprops import dumpwindow, controlid
 from .element_info import ElementInfo
 from .win32structures import RECT
 
-"""
-Possible properties:
-
-CurrentAcceleratorKey
-CurrentAccessKey
-CurrentAriaProperties
-CurrentAriaRole
-CurrentControllerFor
-CurrentCulture
-CurrentDescribedBy
-CurrentFlowsTo
-CurrentHelpText
-CurrentIsContentElement
-CurrentIsControlElement
-CurrentIsDataValidForForm
-CurrentIsPassword
-CurrentIsRequiredForForm
-CurrentItemStatus
-CurrentItemType
-CurrentLabeledBy
-CurrentLocalizedControlType
-CurrentOrientation
-CurrentProviderDescription
-"""
 
 def elements_from_uia_array(ptrs, cache_enable = False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""

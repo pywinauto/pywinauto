@@ -41,7 +41,6 @@ sys.path.append(".")
 from pywinauto import xml_helpers
 from pywinauto import win32defines
 from pywinauto.sysinfo import is_x64_Python
-from pywinauto.sysinfo import is_x64_OS
 from pywinauto.application import Application
 
 # following imports are not required for the tests

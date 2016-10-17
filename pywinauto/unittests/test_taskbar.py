@@ -33,7 +33,7 @@
 
 import unittest
 import sys
-import time
+#import time
 import os
 sys.path.append(".")
 from pywinauto import taskbar, \

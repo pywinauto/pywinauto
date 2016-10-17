@@ -49,7 +49,6 @@ from pywinauto.win32structures import RECT
 from pywinauto import win32defines
 from pywinauto import findbestmatch
 from pywinauto.sysinfo import is_x64_Python
-from pywinauto.remote_memory_block import AccessDenied
 from pywinauto.remote_memory_block import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
 from pywinauto.timings import Timings
@@ -996,7 +995,7 @@ class TabControlTestCases(unittest.TestCase):
 
     def testGetTabRect(self):
         """Make sure the part rectangles are retrieved correctly"""
-        for i, rect in enumerate(self.rects):
+        for i, _ in enumerate(self.rects):
             self.assertEquals (self.ctrl.GetTabRect(i), self.rects[i])
 
         self.assertRaises(IndexError, self.ctrl.GetTabRect, 99)
