@@ -65,7 +65,6 @@ from pywinauto.timings import always_wait_until_passes
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import UIA_support
-from pywinauto import backend
 
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
 
@@ -433,7 +432,7 @@ class ApplicationTestCases(unittest.TestCase):
         if is_x64_Python() != is_x64_OS():
             return None
         
-        app = Application().Start(r'explorer.exe')
+        Application().Start(r'explorer.exe')
         
         def _cabinetwclass_exist():
             "Verify if at least one active 'CabinetWClass' window is created"

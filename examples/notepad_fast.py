@@ -95,7 +95,7 @@ def run_notepad():
     # Select the 4th combobox item
     app.PageSetupDlg.SizeComboBox.select(4)
 
-    # Select the 'Letter' combobox item or the Letter 
+    # Select the 'Letter' combobox item or the Letter
     try:
         app.PageSetupDlg.SizeComboBox.select("Letter")
     except ValueError:
@@ -198,7 +198,7 @@ def run_notepad():
     # ----- Document Properties Dialog again ----
     doc_props.Cancel.close_click()
     
-    # for some reason my current printer driver 
+    # for some reason my current printer driver
     # window does not close cleanly :(
     if doc_props.Cancel.Exists():
         doc_props.OK.close_click()

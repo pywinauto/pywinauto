@@ -385,7 +385,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.ctrl.Select(2)
         self.assertEquals(self.ctrl.SelectedIndices(), (2, ))
 
-        self.assertTrue(type(self.ctrl.SelectedIndices()) == tuple)
+        self.assertTrue(isinstance(self.ctrl.SelectedIndices(), tuple))
 
     def testSelect(self):
         "Test selecting an item"
@@ -658,7 +658,6 @@ class DialogTestCases(unittest.TestCase):
 
                 self.assertEquals(ctrl_value, expected_value)
 
-        import os
         os.unlink("test_output.xml")
 
     def testClientAreaRect(self):

@@ -44,7 +44,6 @@ import six
 
 from . import hwndwrapper
 
-from .. import sysinfo
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures

@@ -300,13 +300,12 @@ def WaitGuiThreadIdle(handle):
 #====================================================================
 def GetDpiAwarenessByPid(pid):
     """Get DPI awareness properties of a process specified by ID"""
-        
     dpi_awareness = -1
     hProcess = None
     if GetProcessDpiAwareness and pid:
         hProcess = OpenProcess(
-                    win32defines.PROCESS_QUERY_INFORMATION, 
-                    0, 
+                    win32defines.PROCESS_QUERY_INFORMATION,
+                    0,
                     pid)
         if not hProcess:
             # process doesn't exist, exit with a default return value

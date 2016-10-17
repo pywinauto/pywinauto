@@ -71,12 +71,12 @@ class SendKeysTests(unittest.TestCase):
         Timings.Defaults()
         self.app = Application()
         self.app.start(_notepad_exe())
-        
+
         self.dlg = self.app.UntitledNotepad
         self.ctrl = self.dlg.Edit
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         try:
             self.dlg.Close(0.1)
         except Exception: # TimeoutError:
@@ -92,8 +92,7 @@ class SendKeysTests(unittest.TestCase):
                 self.app.kill_()
 
     def __run_NormalCharacters_with_options(self, **args):
-        "Make sure that sending any character in range "
-
+        """Make sure that sending any character in range"""
         #unused var: missed = []
         for i in range(32, 127):
 
@@ -108,21 +107,21 @@ class SendKeysTests(unittest.TestCase):
 
     # Space tests
     def testNormalWithSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_spaces = True)
 
     def testNormalWithoutSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_spaces = False)
 
     def testSpaceWithSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys(" \t \t ", pause = .001, with_spaces = True)
         received = self.ctrl.TextBlock()
         self.assertEquals("   ", received)
 
     def testSpaceWithoutSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys(" \t \t ", pause = .001, with_spaces = False)
         received = self.ctrl.TextBlock()
         self.assertEquals("", received)
@@ -130,28 +129,28 @@ class SendKeysTests(unittest.TestCase):
 
     # Tab tests
     def testNormalWithTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_tabs = True)
 
     def testNormalWithoutTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_tabs = False)
 
     def testTabWithTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys("\t \t \t", pause = .1, with_tabs = True)
         received = self.ctrl.TextBlock()
         self.assertEquals("\t\t\t", received)
 
     def testTabWithoutTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys("\t a\t b\t", pause = .1, with_tabs = False)
         received = self.ctrl.TextBlock()
         self.assertEquals("ab", received)
 
 
     def testTab(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys("{TAB}  {TAB} ", pause = .3)
         received = self.ctrl.TextBlock()
         self.assertEquals("\t\t", received)
@@ -159,21 +158,21 @@ class SendKeysTests(unittest.TestCase):
 
     # Newline tests
     def testNormalWithNewlines(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_newlines = True)
 
     def testNormalWithoutNewlines(self):
-        "Make sure that with_newlines option works"
+        """Make sure that with_newlines option works"""
         self.__run_NormalCharacters_with_options(with_newlines = False)
 
     def testNewlinesWithNewlines(self):
-        "Make sure that with_newlines option works"
+        """Make sure that with_newlines option works"""
         SendKeys("\t \t \t a~\tb\nc", pause = .5, with_newlines = True)
         received = self.ctrl.TextBlock()
         self.assertEquals("a\r\nb\r\nc", received)
 
     def testNewlinesWithoutNewlines(self):
-        "Make sure that with_newlines option works"
+        """Make sure that with_newlines option works"""
         SendKeys("\t \t \t\na", pause = .01, with_newlines = False)
         received = self.ctrl.TextBlock()
         self.assertEquals("a", received)
@@ -206,13 +205,13 @@ class SendKeysTests(unittest.TestCase):
     #    self.assertEquals(matched, len(extended_chars))
 
     def testCharsThatMustBeEscaped(self):
-        "Make sure that escaping characters works"
+        """Make sure that escaping characters works"""
         SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}")
         received = self.ctrl.TextBlock()
         self.assertEquals("%^+(){}~", received)
 
     def testIncorrectCases(self):
-        "Make sure that incorrect key sequences raise an exception"
+        """Make sure that incorrect key sequences raise an exception"""
         DEBUG = 1
         self.assertRaises(KeySequenceError, SendKeys, "{ENTER")
         self.assertRaises(KeySequenceError, SendKeys, "ENTER)")
@@ -230,7 +229,7 @@ class SendKeysTests(unittest.TestCase):
             self.assertEquals("`}` should be preceeded by `{`", str(exc))
 
     def testKeyDescription(self):
-        "Test KeyAction._"
+        """Test KeyAction._"""
         self.assertEquals("<X>", str(KeyAction("X")))
         self.assertEquals("<Y down>", str(KeyAction("Y", up=False)))
         self.assertEquals("<Y up>", str(KeyAction("Y", down=False)))
@@ -238,7 +237,7 @@ class SendKeysTests(unittest.TestCase):
         self.assertEquals("<PAUSE 1.00>", str(PauseAction(1.0)))
 
     def testRepetition(self):
-        "Make sure that repeated action works"
+        """Make sure that repeated action works"""
         SendKeys("{TAB 3}{PAUSE 0.5}{F 2}", pause = .3)
         received = self.ctrl.TextBlock()
         self.assertEquals("\t\t\tFF", received)
@@ -256,7 +255,7 @@ class SendKeysModifiersTests(unittest.TestCase):
         self.dlg = self.app.Control_Test_App
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         try:
             self.dlg.Close(0.5)
         except Exception:
@@ -265,7 +264,7 @@ class SendKeysModifiersTests(unittest.TestCase):
             self.app.kill_()
 
     def testModifiersForFewChars(self):
-        "Make sure that repeated action works"
+        """Make sure that repeated action works"""
         SendKeys("%(SC)", pause = .3)
         dlg = self.app.Window_(title='Using C++ Derived Class')
         dlg.Wait('ready')

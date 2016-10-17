@@ -49,14 +49,13 @@ from .actionlogger import ActionLogger
 #=========================================================================
 def text(handle):
     """Return the text of the window"""
-    
     class_name = classname(handle)
     if class_name == 'IME':
         return 'Default IME'
     if class_name == 'MSCTFIME UI':
         return 'M'
     #length = win32functions.SendMessage(handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
-    
+
     # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
     # WM_GETTEXTLENGTH may hang even for notepad.exe main window!
     c_length = win32structures.DWORD(0)
@@ -72,7 +71,7 @@ def text(handle):
         return None
     else:
         length = c_length.value
-    
+
     textval = ''
     # In some rare cases, the length returned by WM_GETTEXTLENGTH is <0.
     # Guard against this by checking it is >0 (==0 is not of interest):
@@ -95,7 +94,6 @@ def classname(handle):
     class_name = (ctypes.c_wchar * 257)()
     win32functions.GetClassName (handle, ctypes.byref(class_name), 256)
     return class_name.value
-
 
 #=========================================================================
 def parent(handle):
@@ -149,8 +147,7 @@ def isenabled(handle):
 
 #=========================================================================
 def is64bitprocess(process_id):
-    """
-    Return True if the specified process is a 64-bit process on x64
+    """Return True if the specified process is a 64-bit process on x64
     
     Return False if it is only a 32-bit process running under Wow64.
     Always return False for x86.

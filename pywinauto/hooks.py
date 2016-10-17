@@ -41,7 +41,7 @@ Current set of hooks implemented:
  * WH_MOUSE_LL
  * WH_KEYBOARD_LL
 
-More detailed documentation about Windows hooks can be found in MSDN: 
+More detailed documentation about Windows hooks can be found in MSDN:
 https://msdn.microsoft.com/en-us/library/windows/desktop/ms632589.aspx
 
 This module can be used as a stand alone or along with pywinauto.

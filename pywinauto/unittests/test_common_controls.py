@@ -52,7 +52,6 @@ from pywinauto.sysinfo import is_x64_Python
 from pywinauto.remote_memory_block import AccessDenied
 from pywinauto.remote_memory_block import RemoteMemoryBlock
 from pywinauto.actionlogger import ActionLogger
-from pywinauto import backend
 from pywinauto.timings import Timings
 
 
@@ -722,13 +721,13 @@ class HeaderTestCases(unittest.TestCase):
 
         self.texts = [u'Color', u'Red', u'Green', u'Blue', u'Hue', u'Sat', u'Lum', u'Type']
         self.item_rects = [
-            RECT (  0, 0, 150, 19), 
-            RECT (150, 0, 200, 19), 
-            RECT (200, 0, 250, 19), 
-            RECT (250, 0, 300, 19), 
-            RECT (300, 0, 400, 19), 
-            RECT (400, 0, 450, 19), 
-            RECT (450, 0, 500, 19), 
+            RECT (  0, 0, 150, 19),
+            RECT (150, 0, 200, 19),
+            RECT (200, 0, 250, 19),
+            RECT (250, 0, 300, 19),
+            RECT (300, 0, 400, 19),
+            RECT (400, 0, 450, 19),
+            RECT (450, 0, 500, 19),
             RECT (500, 0, 650, 19)]
            
         self.app = app
@@ -971,7 +970,7 @@ class TabControlTestCases(unittest.TestCase):
 
         # squeeze the tab control to force two rows
         new_rect = RECT(prev_rect)
-        new_rect.right = int(new_rect.width() / 2) 
+        new_rect.right = int(new_rect.width() / 2)
 
         self.ctrl.MoveWindow(
             new_rect.left,
@@ -1322,13 +1321,13 @@ class DatetimeTestCases(unittest.TestCase):
         second = 3
         milliseconds = 781
         self.ctrl.SetTime(
-                year=year, 
-                month=month, 
-                day_of_week=day_of_week, 
-                day=day, 
-                hour=hour, 
-                minute=minute, 
-                second=second, 
+                year=year,
+                month=month,
+                day_of_week=day_of_week,
+                day=day,
+                hour=hour,
+                minute=minute,
+                second=second,
                 milliseconds=milliseconds
                 )
 
@@ -1523,7 +1522,7 @@ class UpDownTestCases(unittest.TestCase):
 class TrackbarWrapperTestCases(unittest.TestCase):
 
     def setUp(self):
-        from pywinauto.application import Application
+        """Set some data and ensure the application is in the state we want"""
         app = Application()
         app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
         dlg = app.top_window_()
@@ -1535,7 +1534,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         self.ctrl = ctrl
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.send_message(win32defines.WM_CLOSE)
 
