@@ -207,7 +207,7 @@ except AttributeError:
 # DpiAwareness API funcs are available only from win 8.1 and greater
 # Supported types of DPI awareness described here:
 # https://msdn.microsoft.com/en-us/library/windows/desktop/dn280512(v=vs.85).aspx
-# typedef enum _Process_DPI_Awareness { 
+# typedef enum _Process_DPI_Awareness {
 #   Process_DPI_Unaware            = 0,
 #   Process_System_DPI_Aware       = 1,
 #   Process_Per_Monitor_DPI_Aware  = 2
@@ -279,8 +279,6 @@ def LoWord(value):
 #====================================================================
 def WaitGuiThreadIdle(handle):
     """Wait until the thread of the specified handle is ready"""
-    from . import win32defines
-
     process_id = ctypes.c_int()
     GetWindowThreadProcessId(handle, ctypes.byref(process_id))
 
@@ -314,7 +312,7 @@ def GetDpiAwarenessByPid(pid):
         try:
             dpi_awareness = ctypes.c_int()
             hRes = GetProcessDpiAwareness(
-                    hProcess, 
+                    hProcess,
                     ctypes.byref(dpi_awareness))
             CloseHandle(hProcess)
             if hRes == 0:

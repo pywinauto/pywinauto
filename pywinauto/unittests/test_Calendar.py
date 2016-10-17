@@ -47,13 +47,15 @@ class CalendarWrapperTests(unittest.TestCase):
         date = self.calendar.get_current_date()
         self.assert_system_time_is_equal_to_current_date_time(date,datetime.date.today())
 
-    def test_should_throw_runtime_error_when_try_to_get_current_date_from_calendar_if_calendar_state_is_multiselect(self):
+    def test_runtime_error_when_try_to_get_current_date_from_calendar_if_calendar_state_is_multiselect(self):
         self._set_calendar_state_into_multiselect()
         self.assertRaises(RuntimeError, self.calendar.get_current_date)
 
     def test_can_set_current_date_in_calendar(self):
         self.calendar.set_current_date(2016, 4, 3, 13)
-        self.assert_system_time_is_equal_to_current_date_time(self.calendar.get_current_date(), datetime.date(2016, 4, 13)) 
+        self.assert_system_time_is_equal_to_current_date_time(
+                self.calendar.get_current_date(),
+                datetime.date(2016, 4, 13))
 
     def test_should_throw_runtime_error_when_try_to_set_invalid_date(self):
         self.assertRaises(RuntimeError, self.calendar.set_current_date, -2016, -4, -3, -13)

@@ -313,7 +313,7 @@ def wait_until(
     e.g. ::
 
     try:
-        # wait a maximum of 10.5 seconds for the 
+        # wait a maximum of 10.5 seconds for the
         # the objects item_count() method to return 10
         # in increments of .5 of a second
         wait_until(10.5, .5, self.item_count, 10)
@@ -323,13 +323,13 @@ def wait_until(
     start = time.time()
 
     func_val = func(*args)
-    # while the function hasn't returned what we are waiting for    
-    while not op(func_val, value):      
+    # while the function hasn't returned what we are waiting for
+    while not op(func_val, value):
 
         # find out how much of the time is left
         time_left = timeout - ( time.time() - start)
 
-        # if we have to wait some more        
+        # if we have to wait some more
         if time_left > 0:
             # wait either the retry_interval or else the amount of
             # time until the timeout expires (whichever is less)
@@ -359,16 +359,16 @@ def always_wait_until_passes(
         @wraps(func)
         def wrapper(*args):
             """pre-callback, target function call and post-callback"""
-            return wait_until_passes(timeout, retry_interval, 
+            return wait_until_passes(timeout, retry_interval,
                                      func, exceptions, *args)
         return wrapper
     return wait_until_passes_decorator
 
 #=========================================================================
 def wait_until_passes(
-    timeout, 
-    retry_interval, 
-    func, 
+    timeout,
+    retry_interval,
+    func,
     exceptions = (Exception),
     *args):
     """Wait until ``func(*args)`` does not raise one of the exceptions in exceptions
@@ -386,7 +386,7 @@ def wait_until_passes(
     e.g. ::
 
     try:
-        # wait a maximum of 10.5 seconds for the 
+        # wait a maximum of 10.5 seconds for the
         # window to be found in increments of .5 of a second.
         # P.int a message and re-raise the original exception if never found.
         wait_until_passes(10.5, .5, self.Exists, (ElementNotFoundError))
@@ -422,7 +422,7 @@ def wait_until_passes(
                 # inside it
                 err = TimeoutError()
                 err.original_exception = e
-                raise err    
+                raise err
 
     # return the function value
     return func_val

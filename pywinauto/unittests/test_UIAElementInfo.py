@@ -1,7 +1,7 @@
 import unittest
 import os
 from pywinauto.application import Application
-from pywinauto.handleprops import processid 
+from pywinauto.handleprops import processid
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.sysinfo import UIA_support
 from pywinauto.timings import Timings

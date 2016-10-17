@@ -796,7 +796,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
                 aligned_text = six.text_type(text)
             else:
                 aligned_text = six.binary_type(text)
-        
+
         if isinstance(aligned_text, six.text_type):
             buffer = ctypes.create_unicode_buffer(aligned_text, size=len(aligned_text) + 1)
         else:
@@ -860,7 +860,8 @@ class EditWrapper(hwndwrapper.HwndWrapper):
 
 #====================================================================
 class StaticWrapper(hwndwrapper.HwndWrapper):
-    "Wrap a windows Static control"
+
+    """Wrap a windows Static control"""
 
     friendlyclassname = "Static"
     windowclasses = [
@@ -871,16 +872,12 @@ class StaticWrapper(hwndwrapper.HwndWrapper):
     can_be_label = True
 
     def __init__(self, hwnd):
-
         """Initialize the control"""
-
         super(StaticWrapper, self).__init__(hwnd)
 
     @property
     def _needs_image_prop(self):
-
         """_needs_image_prop=True if it is an image static"""
-
         # if the control is visible - and it shows an image
         if self.is_visible() and (self.has_style(win32defines.SS_ICON) or
                                   self.has_style(win32defines.SS_BITMAP) or
@@ -898,6 +895,7 @@ class StaticWrapper(hwndwrapper.HwndWrapper):
 # a Dialog is a known class - and we don't need to take
 # an image of it (as an unknown control class)
 class DialogWrapper(hwndwrapper.HwndWrapper):
+
     """Wrap a dialog"""
 
     friendlyclassname = "Dialog"
@@ -927,19 +925,19 @@ class DialogWrapper(hwndwrapper.HwndWrapper):
 
         # get all the controls
         controls = [self] + self.children()
-        
+
         # add the reference controls
         if ref_controls is not None:
             matched_flags = controlproperties.SetReferenceControls(
                 controls, ref_controls)
-            
+
             # todo: allow some checking of how well the controls matched
             # matched_flags says how well they matched
             # 1 = same number of controls
             # 2 = ID's matched
             # 4 = control classes matched
             # i.e. 1 + 2 + 4 = perfect match
-        
+
         return tests.run_tests(controls, tests_to_run)
     # Non PEP-8 alias
     RunTests = run_tests
@@ -957,12 +955,11 @@ class DialogWrapper(hwndwrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def client_area_rect(self):
-        """
-        Return the client area rectangle
+        """Return the client area rectangle
 
         From MSDN:
         The client area of a control is the bounds of the control, minus the
-        nonclient elements such as scroll bars, borders, title bars, and 
+        nonclient elements such as scroll bars, borders, title bars, and
         menus.
         """
         rect = win32structures.RECT(self.rectangle())
@@ -995,7 +992,7 @@ class DialogWrapper(hwndwrapper.HwndWrapper):
         """
         Check whether the dialog is shown in the Windows taskbar
         
-        Thanks to David Heffernan for the idea: 
+        Thanks to David Heffernan for the idea:
         http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
         A window is represented in the taskbar if:
         It has no owner and it does not have the WS_EX_TOOLWINDOW extended style,

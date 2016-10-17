@@ -44,16 +44,18 @@ find_best_control_match_cutoff = .6
 
 #====================================================================
 class MatchError(IndexError):
-    "A suitable match could not be found"
+
+    """A suitable match could not be found"""
+
     def __init__(self, items = None, tofind = ''):
-        "Init the parent with the message"
+        """Init the parent with the message"""
         self.tofind = tofind
         self.items = items
         if self.items is None:
             self.items = []
 
         IndexError.__init__(self,
-            "Could not find '%s' in '%s'"% (tofind, self.items))
+            "Could not find '{0}' in '{1}'".format(tofind, self.items))
 
 
 _cache = {}
@@ -62,8 +64,7 @@ _cache = {}
 # and the best score and text with best score
 #====================================================================
 def _get_match_ratios(texts, match_against):
-    "Get the match ratio of how each item in texts compared to match_against"
-
+    """Get the match ratio of how each item in texts compared to match_against"""
     # now time to figure out the matching
     ratio_calc = difflib.SequenceMatcher()
     ratio_calc.set_seq1(match_against)
@@ -105,8 +106,6 @@ def _get_match_ratios(texts, match_against):
     return ratios, best_ratio, best_text
 
 
-
-
 #====================================================================
 def find_best_match(search_text, item_texts, items, limit_ratio = .5):
     """Return the item that best matches the search_text
@@ -136,28 +135,23 @@ def find_best_match(search_text, item_texts, items, limit_ratio = .5):
     return text_item_map[best_text]
 
 
-
-
-
 #====================================================================
 _after_tab = re.compile(r"\t.*", re.UNICODE)
 _after_eol = re.compile(r"\n.*", re.UNICODE)
 _non_word_chars = re.compile(r"\W", re.UNICODE)
 
 def _cut_at_tab(text):
-    "Clean out non characters from the string and return it"
-
+    """Clean out non characters from the string and return it"""
     # remove anything after the first tab
     return  _after_tab.sub("", text)
 
 def _cut_at_eol(text):
-    "Clean out non characters from the string and return it"
-
+    """Clean out non characters from the string and return it"""
     # remove anything after the first EOL
     return  _after_eol.sub("", text)
 
 def _clean_non_chars(text):
-    "Remove non word characters"
+    """Remove non word characters"""
     # should this also remove everything after the first tab?
 
     # remove non alphanumeric characters
@@ -165,7 +159,7 @@ def _clean_non_chars(text):
 
 
 def is_above_or_to_left(ref_control, other_ctrl):
-    "Return true if the other_ctrl is above or to the left of ref_control"
+    """Return true if the other_ctrl is above or to the left of ref_control"""
     text_r = other_ctrl.rectangle()
     ctrl_r = ref_control.rectangle()
 
@@ -241,7 +235,6 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
         #    Bottom-Left of the text control (text control above)
         # then I get the min of these two
 
-
         # We do not actually need to calculate the difference here as we
         # only need a comparative number. As long as we find the closest one
         # the actual distance is not all that important to us.
@@ -263,7 +256,7 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
         distance2 = abs(text_r.right - ctrl_r.left) + abs(text_r.top - ctrl_r.top)
 
         distance = min(distance, distance2)
-        
+
         # UpDown control should use Static text only because edit box text is often useless
         if ctrl_friendly_class_name == "UpDown" and \
                 text_ctrl.friendly_class_name() == "Static" and distance < closest:
@@ -287,7 +280,7 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
 
 #====================================================================
 def get_control_names(control, allcontrols, textcontrols):
-    "Returns a list of names for this control"
+    """Returns a list of names for this control"""
     names = []
 
     # if it has a reference control - then use that
@@ -335,7 +328,9 @@ def get_control_names(control, allcontrols, textcontrols):
 
 #====================================================================
 class UniqueDict(dict):
-    "A dictionary subclass that handles making it's keys unique"
+
+    """A dictionary subclass that handles making it's keys unique"""
+
     def __setitem__(self, text, item):
         "Set an item of the dictionary"
 
@@ -368,14 +363,12 @@ class UniqueDict(dict):
         search_text,
         clean = False,
         ignore_case = False):
-
         """Return the best matches for search_text in the items
 
         * **search_text** the text to look for
         * **clean** whether to clean non text characters out of the strings
         * **ignore_case** compare strings case insensitively
         """
-
         # now time to figure out the matching
         ratio_calc = difflib.SequenceMatcher()
 
@@ -491,9 +484,7 @@ def find_best_control_matches(search_text, controls):
     But if there is a ListView (which do not have visible 'text')
     then it will just add "ListView".
     """
-
     name_control_map = build_unique_dict(controls)
-
 
 #    # collect all the possible names for all controls
 #    # and build a list of them
@@ -535,10 +526,6 @@ def find_best_control_matches(search_text, controls):
         raise MatchError(items = name_control_map.keys(), tofind = search_text)
 
     return [name_control_map[best_text] for best_text in best_texts]
-
-
-
-
 
 
 #

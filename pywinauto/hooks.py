@@ -32,9 +32,9 @@
 """
 Windows global hooks in pure Python
 
-The implementation uses foreign function interface (FFI) provided by 
-standard Python module **ctypes** and inspired by pyHook, pyhooked and other 
-similar modules (the code was re-written from scratch). It tends to be 
+The implementation uses foreign function interface (FFI) provided by
+standard Python module **ctypes** and inspired by pyHook, pyhooked and other
+similar modules (the code was re-written from scratch). It tends to be
 a superset of pyHook but in pure Python only so it doesn't require compilation.
 
 Current set of hooks implemented:

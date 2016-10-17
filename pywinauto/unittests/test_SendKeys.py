@@ -183,7 +183,7 @@ class SendKeysTests(unittest.TestCase):
     #    #self.cmd = Application()
     #    #self.cmd.start("cmd.exe", create_new_console=True, wait_for_idle=False)
     #    ActionLogger().log('Preferred encoding: ' + locale.getpreferredencoding())
-    #    
+    #
     #    #os.system("chcp 850")
     #    matched = 0
     #    extended_chars = b"\x81\x82\x83\xa1\xe1\xff"

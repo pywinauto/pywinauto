@@ -175,8 +175,8 @@ def find_elements(class_name = None,
     if top_level_only:
         # find the top level elements
         element = backend_obj.element_info_class()
-        elements = element.children(process = process, 
-                                    class_name = class_name, 
+        elements = element.children(process = process,
+                                    class_name = class_name,
                                     title = title,
                                     cache_enable = True) # root.children == enum_windows()
 

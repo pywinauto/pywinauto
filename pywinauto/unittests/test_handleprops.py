@@ -226,7 +226,7 @@ class HandlepropsTestCases(unittest.TestCase):
         self.app.Replace.Cancel.Click()
 
     def test_is64bitprocess(self):
-        """Make sure a 64-bit process detection returns correct results""" 
+        """Make sure a 64-bit process detection returns correct results"""
         if is_x64_OS():
             # Test a 32-bit app running on x64
             expected_is64bit = False

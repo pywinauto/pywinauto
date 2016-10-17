@@ -98,12 +98,10 @@ class ListViewTestCases32(unittest.TestCase):
         self.ctrl = app.RowListSampleApplication.ListView.WrapperObject()
         self.dlg.Toolbar.Button(0).Click() # switch to icon view
         self.dlg.Toolbar.Button(6).Click() # switch off states
-        
 
     def tearDown(self):
         """Close the application after tests"""
         self.dlg.SendMessage(win32defines.WM_CLOSE)
-
 
     def testFriendlyClass(self):
         """Make sure the ListView friendly class is set correctly"""
@@ -141,7 +139,6 @@ class ListViewTestCases32(unittest.TestCase):
             flat_texts.extend(row)
 
         self.assertEquals(flat_texts, self.ctrl.texts()[1:])
-
 
     def testGetItem(self):
         """Test the ListView GetItem method"""
@@ -902,7 +899,8 @@ class StatusBarTestCases(unittest.TestCase):
 
 
 class TabControlTestCases(unittest.TestCase):
-    "Unit tests for the TreeViewWrapper class"
+
+    """Unit tests for the TreeViewWrapper class"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -913,20 +911,20 @@ class TabControlTestCases(unittest.TestCase):
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.texts = [
-            u"CTreeCtrl", u"CAnimateCtrl", u"CToolBarCtrl", 
+            u"CTreeCtrl", u"CAnimateCtrl", u"CToolBarCtrl",
             u"CDateTimeCtrl", u"CMonthCalCtrl"]
 
         self.rects = [
-            RECT(2,   2, 58,  20), 
-            RECT(58,  2, 130, 20), 
-            RECT(130, 2, 201, 20), 
-            RECT(201, 2, 281, 20), 
+            RECT(2,   2, 58,  20),
+            RECT(58,  2, 130, 20),
+            RECT(130, 2, 201, 20),
+            RECT(201, 2, 281, 20),
             RECT(281, 2, 360, 20)
         ]
 
         self.app = app
         self.dlg = app.CommonControlsSample
-        self.ctrl = app.CommonControlsSample.TabControl.WrapperObject() 
+        self.ctrl = app.CommonControlsSample.TabControl.WrapperObject()
 
         #self.dlg.MenuSelect("Styles")
 
@@ -937,20 +935,20 @@ class TabControlTestCases(unittest.TestCase):
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (TabControl)"
+        """Make sure the friendly class is set correctly (TabControl)"""
         self.assertEquals (self.ctrl.friendly_class_name(), "TabControl")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
+        """Make sure the texts are set correctly"""
         self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the tabcontrol"
+        """Test getting the properties for the tabcontrol"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -995,12 +993,11 @@ class TabControlTestCases(unittest.TestCase):
         self.assertEquals(4, self.ctrl.GetSelectedTab())
 
     def testTabCount(self):
-        "Make sure the number of parts is retrieved correctly"
+        """Make sure the number of parts is retrieved correctly"""
         self.assertEquals (self.ctrl.TabCount(), 5)
 
     def testGetTabRect(self):
-        "Make sure the part rectangles are retrieved correctly"
-
+        """Make sure the part rectangles are retrieved correctly"""
         for i, rect in enumerate(self.rects):
             self.assertEquals (self.ctrl.GetTabRect(i), self.rects[i])
 
@@ -1046,7 +1043,8 @@ class TabControlTestCases(unittest.TestCase):
 
 
 class ToolbarTestCases(unittest.TestCase):
-    "Unit tests for the ToolbarWrapper class"
+
+    """Unit tests for the ToolbarWrapper class"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -1057,12 +1055,12 @@ class ToolbarTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.CommonControlsSample
-        
+
         # select a tab with toolbar controls
-        self.dlg.SysTabControl.Select(u"CToolBarCtrl") 
+        self.dlg.SysTabControl.Select(u"CToolBarCtrl")
 
         # see identifiers available at that tab
-        #self.dlg.PrintControlIdentifiers() 
+        #self.dlg.PrintControlIdentifiers()
 
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
@@ -1079,21 +1077,21 @@ class ToolbarTestCases(unittest.TestCase):
         #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (Toolbar)"
+        """Make sure the friendly class is set correctly (Toolbar)"""
         self.assertEquals (self.ctrl.friendly_class_name(), "Toolbar")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
+        """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
             self.assertEquals (isinstance(txt, six.string_types), True)
 
     def testGetProperties(self):
-        "Test getting the properties for the toolbar control"
+        """Test getting the properties for the toolbar control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -1109,7 +1107,7 @@ class ToolbarTestCases(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testButtonCount(self):
-        "Test the button count method of the toolbar"
+        """Test the button count method of the toolbar"""
         # TODO: for a some reason the first toolbar returns button count = 12
         # The same as in the second toolbar, even though their handles are different.
         # Maybe the test app itself has to be fixed too.
@@ -1165,13 +1163,13 @@ class ToolbarTestCases(unittest.TestCase):
     def testCheckButton(self):
         self.ctrl2.CheckButton('Erase', True)
         self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), True)
-        
+
         self.ctrl2.CheckButton('Pencil', True)
         self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), False)
-        
+
         self.ctrl2.CheckButton('Erase', False)
         self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), False)
-        
+
         # try to check separator
         self.assertRaises(RuntimeError, self.ctrl.CheckButton, 3, True)
 
@@ -1197,7 +1195,7 @@ class RebarTestCases(unittest.TestCase):
         The app title can be tricky. If no document is opened the title is just: "RebarTest"
         However if an document is created/opened in the child frame
         the title is appended with a document name: "RebarTest - RebarTest1"
-        A findbestmatch proc does well here with guessing the title 
+        A findbestmatch proc does well here with guessing the title
         even though the app is started with a short title "RebarTest".
         """
         Timings.Fast()

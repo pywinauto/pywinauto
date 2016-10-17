@@ -63,12 +63,12 @@ class ActionloggerTestCases(unittest.TestCase):
         self.logger.parent.handlers[0].stream = open('test_logging.txt', 'w')
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         self.logger.parent.handlers[0].stream = self.out
         self.app.kill_()
 
     def __lineCount(self):
-        # hack to get line count from current logger stream
+        """hack to get line count from current logger stream"""
         self.logger = logging.getLogger('pywinauto')
         self.logger.parent.handlers[0].stream.flush(); os.fsync(self.logger.parent.handlers[0].stream.fileno())
         with open(self.logger.parent.handlers[0].stream.name, 'r') as f:
@@ -79,11 +79,11 @@ class ActionloggerTestCases(unittest.TestCase):
         prev_line_count = self.__lineCount()
         self.app.UntitledNotepad.type_keys('Test pywinauto logging', with_spaces=True)
         self.assertEquals(self.__lineCount(), prev_line_count+1)
-        
+
         actionlogger.disable()
         self.app.UntitledNotepad.MenuSelect('Help->About Notepad')
         self.assertEquals(self.__lineCount(), prev_line_count+1)
-        
+
         actionlogger.enable()
         self.app.Window_(title='About Notepad').OK.Click()
         self.assertEquals(self.__lineCount(), prev_line_count+2)

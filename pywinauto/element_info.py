@@ -68,7 +68,7 @@ class ElementInfo(object):
     def framework_id(self):
         """Return the framework of the element"""
         raise NotImplementedError()
-    
+
     @property
     def class_name(self):
         """Return the class name of the element"""
@@ -78,12 +78,12 @@ class ElementInfo(object):
     def enabled(self):
         """Return True if the element is enabled"""
         raise NotImplementedError()
-        
+
     @property
     def visible(self):
         """Return True if the element is visible"""
         raise NotImplementedError()
-       
+
     @property
     def parent(self):
         """Return the parent of the element"""

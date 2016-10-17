@@ -186,7 +186,7 @@ class UIAElementInfo(ElementInfo):
             self._get_visible = self._get_cached_visible
             self._get_rich_text = self._get_cached_rich_text
         else:
-            # Switch to actual (non-cached) attributes 
+            # Switch to actual (non-cached) attributes
             self._get_class_name = self._get_current_class_name
             self._get_handle = self._get_current_handle
             self._get_control_type = self._get_current_control_type
@@ -262,10 +262,9 @@ class UIAElementInfo(ElementInfo):
         return elements_from_uia_array(ptrs_array, cache_enable)
 
     def children(self, **kwargs):
-        """
-        Return a list of only immediate children of the element
-        
-        * **kwargs** is a criteria to reduce a list by process, 
+        """Return a list of only immediate children of the element
+
+        * **kwargs** is a criteria to reduce a list by process,
         class_name and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
@@ -273,10 +272,9 @@ class UIAElementInfo(ElementInfo):
         return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
-        """
-        Return a list of all descendant children of the element 
-        
-        * **kwargs** is a criteria to reduce a list by process, 
+        """Return a list of all descendant children of the element
+
+        * **kwargs** is a criteria to reduce a list by process,
         class_name and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)

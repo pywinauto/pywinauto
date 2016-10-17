@@ -114,7 +114,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         if not is_x64_OS():
             self.defaultTestResult()
             return
-        
+
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -128,7 +128,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         if not is_x64_OS():
             self.defaultTestResult()
             return
-        
+
         app = Application().start(self.sample_exe_inverted_bitness)
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:

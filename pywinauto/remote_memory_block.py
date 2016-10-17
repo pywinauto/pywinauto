@@ -29,7 +29,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Module containing wrapper around VirtualAllocEx/VirtualFreeEx 
+"""Module containing wrapper around VirtualAllocEx/VirtualFreeEx
 Win32 API functions to perform custom marshalling
 """
 from __future__ import print_function
@@ -45,15 +45,17 @@ from . import win32structures
 from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):
-    "Raised when we cannot allocate memory in the control's process"
+    """Raised when we cannot allocate memory in the control's process"""
     pass
 
 #====================================================================
 class RemoteMemoryBlock(object):
-    "Class that enables reading and writing memory in a different process"
+
+    """Class that enables reading and writing memory in a different process"""
+
     #----------------------------------------------------------------
     def __init__(self, ctrl, size = 4096): #4096): #16384):
-        "Allocate the memory"
+        """Allocate the memory"""
         self.memAddress = 0
         self.size = size
         self.process = 0
@@ -119,7 +121,7 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def _CloseHandle(self):
-        "Close the handle to the process."
+        """Close the handle to the process."""
         ret = win32functions.CloseHandle(self.process)
         #win32api.CloseHandle(self.process)
 
@@ -129,7 +131,7 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def CleanUp(self):
-        "Free Memory and the process handle"
+        """Free Memory and the process handle"""
         if self.process != 0 and self.memAddress != 0:
             # free up the memory we allocated
             #win32api.SetLastError(0)
@@ -155,18 +157,18 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def __del__(self):
-        "Ensure that the memory is Freed"
+        """Ensure that the memory is Freed"""
         # Free the memory in the remote process's address space
         self.CleanUp()
 
     #----------------------------------------------------------------
     def Address(self):
-        "Return the address of the memory block"
+        """Return the address of the memory block"""
         return self.memAddress
 
     #----------------------------------------------------------------
     def Write(self, data, address = None, size = None):
-        "Write data into the memory block"
+        """Write data into the memory block"""
         # write the data from this process into the memory allocated
         # from the other process
         if not address:
@@ -204,7 +206,7 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def Read(self, data, address = None, size = None):
-        "Read data from the memory block"
+        """Read data from the memory block"""
         if not address:
             address = self.memAddress
         if hasattr(address, 'value'):
@@ -268,7 +270,7 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def CheckGuardSignature(self):
-        "read guard signature at the end of memory block"
+        """read guard signature at the end of memory block"""
         signature = win32structures.LONG(0)
         lpNumberOfBytesRead = ctypes.c_size_t(0)
         ret = win32functions.ReadProcessMemory(

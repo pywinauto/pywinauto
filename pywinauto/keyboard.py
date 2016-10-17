@@ -357,14 +357,15 @@ class KeyAction(object):
 
 
 class VirtualKeyAction(KeyAction):
+
     """Represents a virtual key action e.g. F9 DOWN, etc
 
-    Overrides necessary methods of KeyAction"""
+    Overrides necessary methods of KeyAction
+    """
 
     def _get_key_info(self):
-        "Virtual keys have extended flag set"
-
-        # copied more or less verbatim from 
+        """Virtual keys have extended flag set"""
+        # copied more or less verbatim from
         # http://www.pinvoke.net/default.aspx/user32.sendinput
         if 33 <= self.key <= 46 or 91 <= self.key <= 93:
             flags = KEYEVENTF_EXTENDEDKEY
@@ -377,46 +378,46 @@ class VirtualKeyAction(KeyAction):
         return self.key, MapVirtualKey(self.key, 0), flags
 
     def Run(self):
-        "Execute the action"
-
+        """Execute the action"""
         # it works more stable for virtual keys than SendInput
         for inp in self.GetInput():
             win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
 
 
 class EscapedKeyAction(KeyAction):
+
     """Represents an escaped key action e.g. F9 DOWN, etc
 
-    Overrides necessary methods of KeyAction"""
+    Overrides necessary methods of KeyAction
+    """
 
     def _get_key_info(self):
-        """EscapedKeyAction doesn't send it as Unicode and the vk and 
+        """EscapedKeyAction doesn't send it as Unicode and the vk and
         scan code are generated differently"""
         vkey_scan = LoByte(VkKeyScan(self.key))
 
         return (vkey_scan, MapVirtualKey(vkey_scan, 0), 0)
 
     def key_description(self):
-        "Return a description of the key"
-        
+        """Return a description of the key"""
         return "KEsc %s"% self.key
 
     def Run(self):
-        "Execute the action"
-
+        """Execute the action"""
         # it works more stable for virtual keys than SendInput
         for inp in self.GetInput():
             win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
 
 
 class PauseAction(KeyAction):
-    "Represents a pause action"
+
+    """Represents a pause action"""
 
     def __init__(self, how_long):
         self.how_long = how_long
 
     def Run(self):
-        "Pause for the lenght of time specified"
+        """Pause for the lenght of time specified"""
         time.sleep(self.how_long)
 
     def __str__(self):
@@ -425,8 +426,7 @@ class PauseAction(KeyAction):
 
 
 def handle_code(code):
-    "Handle a key or sequence of keys in braces"
-
+    """Handle a key or sequence of keys in braces"""
     code_keys = []
     # it is a known code (e.g. {DOWN}, {ENTER}, etc)
     if code in CODES:
@@ -477,8 +477,7 @@ def parse_keys(string,
                 with_tabs = False,
                 with_newlines = False,
                 modifiers = None):
-    "Return the parsed keys"
-
+    """Return the parsed keys"""
     keys = []
     if not modifiers:
         modifiers = []
@@ -534,7 +533,7 @@ def parse_keys(string,
                     c == '\t' and not with_tabs or \
                     c == '\n' and not with_newlines):
                 continue
-            
+
             # output newline
             if c in ('~', '\n'):
                 keys.append(VirtualKeyAction(CODES["ENTER"]))
@@ -543,10 +542,10 @@ def parse_keys(string,
             # use a VirtualKeyAction
             #if ord(c) in CODE_NAMES:
             #    keys.append(VirtualKeyAction(ord(c)))
-                
+
             elif modifiers:
                 keys.append(EscapedKeyAction(c))
-                
+
             else:
                 keys.append(KeyAction(c))
 
@@ -563,11 +562,11 @@ def parse_keys(string,
     return keys
 
 def LoByte(val):
-    "Return the low byte of the value"
+    """Return the low byte of the value"""
     return val & 0xff
 
 def HiByte(val):
-    "Return the high byte of the value"
+    """Return the high byte of the value"""
     return (val & 0xff00) >> 8
 
 def SendKeys(keys,
@@ -576,7 +575,7 @@ def SendKeys(keys,
              with_tabs=False,
              with_newlines=False,
              turn_off_numlock=True):
-    "Parse the keys and type them"
+    """Parse the keys and type them"""
     keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
 
     for k in keys:
@@ -585,8 +584,7 @@ def SendKeys(keys,
 
 
 def main(): #pragma: no cover
-    "Send some test strings"
-
+    """Send some test strings"""
     actions = """
         {LWIN}
         {PAUSE .25}

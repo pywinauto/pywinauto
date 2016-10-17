@@ -133,7 +133,7 @@ class IUIA(object):
 
 def _build_pattern_ids_dic():
     """
-    A helper procedure to build a registry of control patterns 
+    A helper procedure to build a registry of control patterns
     supported on the current system
     """
     base_names = [
@@ -143,7 +143,7 @@ def _build_pattern_ids_dic():
         'Text', 'Toggle', 'VirtualizedItem', 'Value', 'Window',
     
         # Windows 8 and later
-        'Annotation', 'Drag', 'Drop', 'ObjectModel', 'Spreadsheet', 
+        'Annotation', 'Drag', 'Drop', 'ObjectModel', 'Spreadsheet',
         'SpreadsheetItem', 'Styles', 'TextChild', 'TextV2', 'TransformV2',
     
         # Windows 8.1 and later
@@ -176,9 +176,9 @@ pattern_ids = _build_pattern_ids_dic()
 
 
 # Return values for the toggle_state propery
-#     enum ToggleState {  
-#       ToggleState_Off, 
-#       ToggleState_On, 
+#     enum ToggleState {
+#       ToggleState_Off,
+#       ToggleState_On,
 #       ToggleState_Indeterminate 
 # };
 # The definition can also be found in the comtypes package
