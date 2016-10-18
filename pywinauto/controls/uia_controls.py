@@ -964,8 +964,8 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def check_button(self, button_identifier, make_checked, exact=True):
         """Find where the button is and toggle it
 
-        * **button_identifier** can be either an index of a button or
-          a string with the text of the button.
+        * **button_identifier** can be either an index of the button or
+          a string with the text on the button.
         * **make_checked** specifies the required toggled state of the button.
           If the button is already in the specified state the state isn't changed.
         * **exact** flag specifies if the exact match for the text look up
@@ -999,14 +999,8 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
 
     In addition to the provided methods of the wrapper
     additional inherited methods can be especially helpful:
-    * select()
-    * extend()
-    * collapse()
-    * is_extended()
-    * is_collapsed()
-    * click_input()
-    * rectangle()
-    and many others
+    select(), extend(), collapse(), is_extended(), is_collapsed(),
+    click_input(), rectangle() and many others
     """
 
     _control_types = [
@@ -1113,12 +1107,12 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def roots(self):
-        """Return root elements of TeeView"""
+        """Return root elements of TreeView"""
         return self.children(control_type="TreeItem")
 
     # -----------------------------------------------------------
     def get_item(self, path, exact=False):
-        """Read a TreeView item
+        r"""Read a TreeView item
 
         * **path** a path to the item to return. This can be one of
           the following:
