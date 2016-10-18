@@ -55,7 +55,7 @@ The Following are the individual timing settings that can be adjusted:
 * exists_retry   (default .3)
 
 * after_click_wait  (default .09)
-* after_clickinput_wait (default .05)
+* after_clickinput_wait (default .09)
 
 * after_menu_wait   (default .1)
 
@@ -128,7 +128,7 @@ class TimeConfig(object):
         'exists_retry' : .3,
 
         'after_click_wait' : .09,
-        'after_clickinput_wait' : .05,
+        'after_clickinput_wait' : .09,
 
         'after_menu_wait' : .1,
 
