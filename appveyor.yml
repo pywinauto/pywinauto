@@ -96,6 +96,8 @@ test_script:
 after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - codecov
+  - coverage xml
+  - python-codacy-coverage -r coverage.xml
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
