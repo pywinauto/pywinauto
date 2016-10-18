@@ -1463,7 +1463,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def get_item(self, path, exact=False):
-        """Read the TreeView item
+        r"""Read the TreeView item
 
         * **path** the path to the item to return. This can be one of
           the following:
@@ -1605,6 +1605,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         self.text = self.window_text() + "\n"
 
         def print_one_level(item, ident):
+            """Get texts for the item and its children"""
             self.text += " " * ident + item.text() + "\n"
             for child in item.children():
                 print_one_level(child, ident + 1)

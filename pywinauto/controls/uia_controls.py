@@ -1108,7 +1108,7 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def get_item(self, path, exact=False):
-        """Read a TreeView item
+        r"""Read a TreeView item
 
         * **path** a path to the item to return. This can be one of
           the following:
