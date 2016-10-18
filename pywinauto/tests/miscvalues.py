@@ -73,7 +73,7 @@ testname = "MiscValues"
 import six
 
 def MiscValuesTest(windows):
-    "Return the bugs from checking miscelaneous values of a control"
+    """Return the bugs from checking miscelaneous values of a control"""
     bugs = []
     for win in windows:
         if not win.ref:

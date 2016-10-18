@@ -42,7 +42,7 @@ from . import application
 warnings.warn("The taskbar module is still very experimental", FutureWarning)
 
 def TaskBarHandle():
-    "Return the first window that has a class name 'Shell_TrayWnd'"
+    """Return the first window that has a class name 'Shell_TrayWnd'"""
     return findwindows.find_elements(class_name = "Shell_TrayWnd")[0].handle
 
 def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, by_tooltip = False, double = False):
@@ -59,19 +59,19 @@ def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, b
     popup_toolbar.button(button_index).click_input(button=mouse_button, double=double)
 
 def ClickSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
-    "Click on a visible tray icon given by button"
+    """Click on a visible tray icon given by button"""
     SystemTrayIcons.button(button, exact=exact, by_tooltip=by_tooltip).click_input(double=double)
 
 def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
-    "Right click on a visible tray icon given by button"
+    """Right click on a visible tray icon given by button"""
     SystemTrayIcons.button(button, exact=exact, by_tooltip=by_tooltip).click_input(button='right')
 
 def ClickHiddenSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
-    "Click on a hidden tray icon given by button"
+    """Click on a hidden tray icon given by button"""
     _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip, double=double)
 
 def RightClickHiddenSystemTrayIcon(button, exact = False, by_tooltip=False):
-    "Right click on a hidden tray icon given by button"
+    """Right click on a hidden tray icon given by button"""
     _click_hidden_tray_icon(button, mouse_button='right', exact=exact, by_tooltip=by_tooltip)
 
 

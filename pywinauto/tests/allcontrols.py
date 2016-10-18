@@ -54,15 +54,12 @@ Not possible
 **Test Identifier**
 The identifier for this test/bug is "AllControls"
 """
-__revision__ = "$Revision$"
-
 
 testname = "AllControls"
 
 #-----------------------------------------------------------------------------
 def AllControlsTest(windows):
-    "Returns just one bug for each control"
-
+    """Returns just one bug for each control"""
     bugs = []
     for win in windows:
         bugs.append((
@@ -71,7 +68,6 @@ def AllControlsTest(windows):
             testname,
             0
         ))
-
 
     return bugs
 

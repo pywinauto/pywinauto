@@ -52,7 +52,7 @@ from pywinauto import tests
 from pywinauto.timings import Timings
 
 def run_notepad():
-    "Run notepad and do some small stuff with it"
+    """Run notepad and do some small stuff with it"""
     print("Run with option 'language' e.g. notepad_fast.py language to use")
     print("application data. This should work on any language Windows/Notepad")
     print()

@@ -86,16 +86,13 @@ The identifier for this test/bug is "AsianHotkeyTests"
 
 testname = "AsianHotkeyFormat"
 
-
 import re
-
 from .repeatedhotkey import ImplementsHotkey, GetHotkey
 
 
 #-----------------------------------------------------------------------------
 def AsianHotkeyTest(windows):
-    "Return the repeated hotkey errors"
-
+    """Return the repeated hotkey errors"""
     bugs = []
 
     for win in windows:
@@ -132,7 +129,7 @@ _asianHotkeyRE = re.compile (r"""
 
 #-----------------------------------------------------------------------------
 def _IsAsianHotkeyFormatIncorrect(text):
-    "Check if the format of the hotkey is correct or not"
+    """Check if the format of the hotkey is correct or not"""
     # get the hotkey
     pos, char = GetHotkey(text)
 

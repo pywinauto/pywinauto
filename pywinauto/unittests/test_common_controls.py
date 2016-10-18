@@ -626,8 +626,9 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def testCheckBoxes(self):
         """Make sure tree view item method IsChecked() works as expected"""
         self.dlg.set_focus()
-        self.dlg.TVS_CHECKBOXES.check_by_click_input()
-        time.sleep(0.5) # enabling item check boxes might be slow
+        for _ in range(2):
+            # 2 attempts for better reliability
+            self.dlg.TVS_CHECKBOXES.check_by_click_input()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
         self.assertEquals (birds.IsChecked(), True)

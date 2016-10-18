@@ -629,7 +629,6 @@ class HwndWrapper(BaseWrapper):
         The only difference from click is that there are extra delays
         before and after the click action.
         """
-
         time.sleep(Timings.before_closeclick_wait)
 
         _perform_click(self, button, pressed, coords, double)
@@ -663,7 +662,6 @@ class HwndWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def close_alt_f4(self):
         """Close the window by pressing Alt+F4 keys."""
-
         time.sleep(Timings.before_closeclick_wait)
         self.type_keys('%{F4}')
         time.sleep(Timings.after_closeclick_wait)
@@ -675,7 +673,7 @@ class HwndWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def double_click(
         self, button = "left", pressed = "", coords = (0, 0)):
-        "Perform a double click action"
+        """Perform a double click action"""
         _perform_click(self, button, pressed, coords, double = True)
         return self
     # Non PEP-8 alias
@@ -684,8 +682,7 @@ class HwndWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def right_click(
         self, pressed = "", coords = (0, 0)):
-        "Perform a right click action"
-
+        """Perform a right click action"""
         _perform_click(
             self, "right", "right " + pressed, coords, button_up = False)
         _perform_click(self, "right", pressed, coords, button_down = False)
@@ -695,7 +692,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def press_mouse(self, button ="left", coords = (0, 0), pressed =""):
-        "Press the mouse button"
+        """Press the mouse button"""
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
 
         _perform_click(self, button, pressed, coords, button_down=True, button_up=False)
@@ -705,7 +702,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def release_mouse(self, button ="left", coords = (0, 0), pressed =""):
-        "Release the mouse button"
+        """Release the mouse button"""
         #flags, click_point = _calc_flags_and_coords(pressed, coords)
         _perform_click(self, button, pressed, coords, button_down=False, button_up=True)
         return self
@@ -714,8 +711,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def move_mouse(self, coords = (0, 0), pressed ="", absolute = False):
-        "Move the mouse by WM_MOUSEMOVE"
-
+        """Move the mouse by WM_MOUSEMOVE"""
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
 
@@ -731,8 +727,7 @@ class HwndWrapper(BaseWrapper):
                    press_coords = (0, 0),
                    release_coords = (0, 0),
                    pressed = ""):
-        "Drag the mouse"
-
+        """Drag the mouse"""
         if isinstance(press_coords, win32structures.POINT):
             press_coords = (press_coords.x, press_coords.y)
 
@@ -757,8 +752,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def set_window_text(self, text, append = False):
-        "Set the text of the window"
-
+        """Set the text of the window"""
         self.verify_actionable()
 
         if append:
@@ -775,8 +769,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def debug_message(self, text):
-        "Write some debug text over the window"
-
+        """Write some debug text over the window"""
         # don't draw if dialog is not visible
 
         dc = win32functions.CreateDC("DISPLAY", None, None, None )
@@ -807,7 +800,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def set_transparency(self, alpha = 120):
-        "Set the window transparency from 0 to 255 by alpha attribute"
+        """Set the window transparency from 0 to 255 by alpha attribute"""
         if not (0 <= alpha <= 255):
             raise ValueError('alpha should be in [0, 255] interval!')
         # TODO: implement SetExStyle method
@@ -1389,8 +1382,7 @@ def _perform_click(
         button_up = True,
         absolute = False,
         ):
-    "Low level method for performing click operations"
-
+    """Low level method for performing click operations"""
     if ctrl is None:
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     ctrl.verify_actionable()
@@ -1498,7 +1490,7 @@ _mouse_flags = {
 
 #====================================================================
 def _calc_flags_and_coords(pressed, coords):
-    "Calculate the flags to use and the coordinates for mouse actions"
+    """Calculate the flags to use and the coordinates for mouse actions"""
     flags = 0
 
     for key in pressed.split():
@@ -1510,13 +1502,13 @@ def _calc_flags_and_coords(pressed, coords):
 
 #====================================================================
 class _DummyControl(dict):
-    "A subclass of dict so that we can assign attributes"
+
+    """A subclass of dict so that we can assign attributes"""
     pass
 
 #====================================================================
 def get_dialog_props_from_handle(hwnd):
-    "Get the properties of all the controls as a list of dictionaries"
-
+    """Get the properties of all the controls as a list of dictionaries"""
     # wrap the dialog handle and start a new list for the
     # controls on the dialog
     try:

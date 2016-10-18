@@ -109,7 +109,7 @@ class HwndElementInfo(ElementInfo):
             # The callback function that will be called for each HWND
             # all we do is append the wrapped handle
             def enum_window_proc(hwnd, lparam):
-                "Called for each window - adds handles to a list"
+                """Called for each window - adds handles to a list"""
                 child_handles.append(hwnd)
                 return True
 

@@ -94,7 +94,7 @@ CharsToCheck = (
 
 #-----------------------------------------------------------------------------
 def MissingExtraStringTest(windows):
-    "Return the errors from running the test"
+    """Return the errors from running the test"""
     bugs = []
     for win in windows:
         if not win.ref:
@@ -124,9 +124,7 @@ def MissingExtraStringTest(windows):
 MissingExtraStringTest.TestsMenus = True
 
 def _unittests():
-    "Run the unit tests for this test"
-
-
+    """Run the unit tests for this test"""
     # set up some mock controls - (only requires some 'text')
     test_strings = (
         ("Nospecial", "NietherHere", 0),

@@ -605,7 +605,7 @@ class Menu(object):
 
 ##====================================================================
 #def _get_menu_items(menu_handle, ctrl):
-#    "Get the menu items as a list of dictionaries"
+#    """Get the menu items as a list of dictionaries"""
 #    # If it doesn't have a real menu just return
 #    if not win32functions.IsMenu(menu_handle):
 #        return []

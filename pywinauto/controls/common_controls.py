@@ -806,7 +806,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
 
     #-----------------------------------------------------------
     def get_item_rect(self, item_index):
-        "Return the bounding rectangle of the list view item"
+        """Return the bounding rectangle of the list view item"""
         warnings.warn("Use get_item(item).rectangle() instead", DeprecationWarning)
         return self.get_item(item_index).rectangle()
     # Non PEP-8 alias
@@ -940,7 +940,7 @@ class _treeview_element(object):
     """Wrapper around TreeView items"""
     #----------------------------------------------------------------
     def __init__(self, elem, tv_handle):
-        "Initialize the item"
+        """Initialize the item"""
         self.tree_ctrl = tv_handle
         self.elem = elem
         self._as_parameter_ = self.elem

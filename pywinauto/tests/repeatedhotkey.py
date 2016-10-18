@@ -85,8 +85,7 @@ from pywinauto.win32defines import SS_NOPREFIX
 
 #-----------------------------------------------------------------------------
 def RepeatedHotkeyTest(windows):
-    "Return the repeated hotkey errors"
-
+    """Return the repeated hotkey errors"""
     hotkeyControls, allChars, hotkeys = _CollectDialogInfo(windows)
 
     # get the available characters in the dialog
@@ -156,7 +155,7 @@ def RepeatedHotkeyTest(windows):
 
 #-----------------------------------------------------------------------------
 def _CollectDialogInfo(windows):
-    "Collect information on the hotkeys in the dialog"
+    """Collect information on the hotkeys in the dialog"""
     hotkeyControls = {}
     allChars = ''
 
@@ -192,8 +191,7 @@ def _CollectDialogInfo(windows):
 #-----------------------------------------------------------------------------
 # get hokey position
 def GetHotkey(text):
-    "Return the position and character of the hotkey"
-
+    """Return the position and character of the hotkey"""
     # find the last & character that is not followed
     # by & or by the end of the string
 
@@ -222,14 +220,13 @@ def GetHotkey(text):
 
 #-----------------------------------------------------------------------------
 def _SetAsString(settojoin):
-    "Convert the set to a ordered string"
+    """Convert the set to a ordered string"""
     return "".join(sorted(settojoin))
 
 
 #-----------------------------------------------------------------------------
 def ImplementsHotkey(win):
-    "checks whether a control interprets & character to be a hotkey"
-
+    """checks whether a control interprets & character to be a hotkey"""
     # buttons always implement hotkey
     if win.class_name() == "Button":
         return True

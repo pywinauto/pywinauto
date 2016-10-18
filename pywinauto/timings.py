@@ -113,7 +113,9 @@ from functools import wraps
 
 #=========================================================================
 class TimeConfig(object):
-    "Central storage and manipulation of timing values"
+
+    """Central storage and manipulation of timing values"""
+
     __default_timing = {
         'window_find_timeout' : 5.,
         'window_find_retry' : .09,
@@ -184,7 +186,7 @@ class TimeConfig(object):
     _cur_speed = 1
 
     def __getattribute__(self, attr):
-        "Get the value for a particular timing"
+        """Get the value for a particular timing"""
         if attr in ['__dict__', '__members__', '__methods__', '__class__']:
             return object.__getattribute__(self, attr)
 
@@ -197,7 +199,7 @@ class TimeConfig(object):
             raise AttributeError("Unknown timing setting: {0}".format(attr))
 
     def __setattr__(self, attr, value):
-        "Set a particular timing"
+        """Set a particular timing"""
         if attr == '_timings':
             object.__setattr__(self, attr, value)
         elif attr in self.__default_timing:
@@ -261,7 +263,7 @@ class TimeConfig(object):
                 self._timings[setting]= .2
 
     def Defaults(self):
-        "Set all timings to the default time"
+        """Set all timings to the default time"""
         self._timings = self.__default_timing.copy()
 
 

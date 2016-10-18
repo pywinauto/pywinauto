@@ -271,8 +271,7 @@ def children(handle):
 
     # callback function for EnumChildWindows
     def enum_child_proc(hwnd, lparam):
-        "Called for each child - adds child hwnd to list"
-
+        """Called for each child - adds child hwnd to list"""
         # append it to our list
         child_windows.append(hwnd)
 

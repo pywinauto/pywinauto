@@ -96,14 +96,10 @@ The identifier for this test is "Overlapping"
 """
 
 testname = "Overlapping"
-__revision__ = "$Revision$"
-
-#from pywinauto import win32structures
 
 #====================================================================
 def OverlappingTest(windows):
-    "Return the repeated hotkey errors"
-
+    """Return the repeated hotkey errors"""
     bugs = []
 
     for i, first in enumerate(windows[:-1]):
@@ -156,7 +152,7 @@ def OverlappingTest(windows):
 
 #====================================================================
 def _ContainedInOther(rect1, rect2):
-    "Return true if one rectangle completely contains the other"
+    """Return true if one rectangle completely contains the other"""
     # check if rect2 is inside rect1
 
     if rect1.left   >= rect2.left and \
@@ -177,7 +173,7 @@ def _ContainedInOther(rect1, rect2):
 
 
 def _Overlapped(rect1, rect2):
-    "Return true if the two rectangles are overlapped"
+    """Return true if the two rectangles are overlapped"""
     ovlRect = _OverlapRect(rect1, rect2)
 
     # if it is actually a bug
@@ -205,9 +201,8 @@ def _Overlapped(rect1, rect2):
 class OptRect(object): pass
 
 def _OverlapRect (rect1, rect2):
-    "check whether the 2 rectangles are actually overlapped"
-
-    ovlRect = OptRect()#win32structures.RECT()
+    """check whether the 2 rectangles are actually overlapped"""
+    ovlRect = OptRect()
 
     ovlRect.left   = max(rect1.left,   rect2.left)
     ovlRect.right  = min(rect1.right,  rect2.right)

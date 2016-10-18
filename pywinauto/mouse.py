@@ -181,7 +181,7 @@ else:
     def _perform_click_input(button='left', coords=(0, 0),
                              button_down=True, button_up=True, double=False,
                              wheel_dist=0, pressed="", key_down=True, key_up=True):
-        "Perform a click action using Python-xlib"
+        """Perform a click action using Python-xlib"""
         #Move mouse
         x = int(coords[0])
         y = int(coords[1])
@@ -208,41 +208,41 @@ else:
 
 
 def click(button='left', coords=(0, 0)):
-    "Click at the specified coordinates"
+    """Click at the specified coordinates"""
     _perform_click_input(button=button, coords=coords)
 
 
 def double_click(button='left', coords=(0, 0)):
-    "Double click at the specified coordinates"
+    """Double click at the specified coordinates"""
     _perform_click_input(button=button, coords=coords, double=True)
 
 
 def right_click(coords=(0, 0)):
-    "Right click at the specified coords"
+    """Right click at the specified coords"""
     _perform_click_input(button='right', coords=coords)
 
 
 def move(coords=(0, 0)):
-    "Move the mouse"
+    """Move the mouse"""
     _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
 
 
 def press(button='left', coords=(0, 0)):
-    "Press the mouse button"
+    """Press the mouse button"""
     _perform_click_input(button=button, coords=coords, button_down=True, button_up=False)
 
 
 def release(button='left', coords=(0, 0)):
-    "Release the mouse button"
+    """Release the mouse button"""
     _perform_click_input(button=button, coords=coords, button_down=False, button_up=True)
 
 
 def scroll(coords=(0, 0), wheel_dist=1):
-    "Do mouse wheel"
+    """Do mouse wheel"""
     if wheel_dist:
         _perform_click_input(button='wheel', wheel_dist=wheel_dist, coords=coords)
 
 
 def wheel_click(coords=(0, 0)):
-    "Middle mouse button click at the specified coords"
+    """Middle mouse button click at the specified coords"""
     _perform_click_input(button='middle', coords=coords)

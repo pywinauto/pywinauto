@@ -324,13 +324,13 @@ def find_windows(**kwargs):
 
 #=========================================================================
 def enum_windows():
-    "Return a list of handles of all the top level windows"
+    """Return a list of handles of all the top level windows"""
     windows = []
 
     # The callback function that will be called for each HWND
     # all we do is append the wrapped handle
     def enum_window_proc(hwnd, lparam):
-        "Called for each window - adds handles to a list"
+        """Called for each window - adds handles to a list"""
         windows.append(hwnd)
         return True
 

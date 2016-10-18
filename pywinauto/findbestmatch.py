@@ -332,8 +332,7 @@ class UniqueDict(dict):
     """A dictionary subclass that handles making it's keys unique"""
 
     def __setitem__(self, text, item):
-        "Set an item of the dictionary"
-
+        """Set an item of the dictionary"""
         # this text is already in the map
         # so we need to make it unique
         if text in self:

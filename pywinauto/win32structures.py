@@ -1216,7 +1216,9 @@ class GV_ITEM(Structure):
 #assert alignment(LVITEMW) == 1, alignment(LVITEMW)
 
 class SYSTEMTIME(Structure):
-    "Wrap the SYSTEMTIME structure"
+
+    """Wrap the SYSTEMTIME structure"""
+
     _fields_ = [
         ('wYear', WORD),
         ('wMonth', WORD),

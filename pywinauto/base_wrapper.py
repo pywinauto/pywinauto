@@ -1,3 +1,35 @@
+# GUI Application automation and testing library
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""Base class for all wrappers in all backends"""
 from __future__ import unicode_literals
 from __future__ import print_function
 
@@ -22,32 +54,36 @@ from .mouse import _perform_click_input
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
-    "Make text usable for attribute name"
+    """Make text usable for attribute name"""
     return re.sub("\W", "_", s)
 
 #=========================================================================
 class InvalidElement(RuntimeError):
-    "Raises when an invalid element is passed"
+
+    """Raises when an invalid element is passed"""
     pass
 
 #=========================================================================
 class ElementNotEnabled(RuntimeError):
-    "Raised when an element is not enabled"
+
+    """Raised when an element is not enabled"""
     pass
 
 #=========================================================================
 class ElementNotVisible(RuntimeError):
-    "Raised when an element is not visible"
+
+    """Raised when an element is not visible"""
     pass
 
 #=========================================================================
 @six.add_metaclass(abc.ABCMeta)
 class BaseMeta(abc.ABCMeta):
-    "Abstract metaclass for Wrapper objects"
+
+    """Abstract metaclass for Wrapper objects"""
 
     @staticmethod
     def find_wrapper(element):
-        "Abstract static method to find an appropriate wrapper"
+        """Abstract static method to find an appropriate wrapper"""
         raise NotImplementedError()
 
 #=========================================================================
@@ -621,12 +657,12 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def double_click_input(self, button ="left", coords = (None, None)):
-        "Double click at the specified coordinates"
+        """Double click at the specified coordinates"""
         self.click_input(button, coords, double=True)
 
     #-----------------------------------------------------------
     def right_click_input(self, coords = (None, None)):
-        "Right click at the specified coords"
+        """Right click at the specified coords"""
         self.click_input(button='right', coords=coords)
 
     #-----------------------------------------------------------
@@ -639,7 +675,7 @@ class BaseWrapper(object):
             key_down = True,
             key_up = True
     ):
-        "Press a mouse button using SendInput"
+        """Press a mouse button using SendInput"""
         self.click_input(
             button=button,
             coords=coords,
@@ -661,7 +697,7 @@ class BaseWrapper(object):
             key_down = True,
             key_up = True
     ):
-        "Release the mouse button"
+        """Release the mouse button"""
         self.click_input(
             button,
             coords,
@@ -751,7 +787,7 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def wheel_mouse_input(self, coords = (None, None), wheel_dist = 1, pressed =""):
-        "Do mouse wheel"
+        """Do mouse wheel"""
         self.click_input(button='wheel', coords=coords, wheel_dist=wheel_dist, pressed=pressed)
         return self
 
@@ -825,7 +861,7 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def set_focus(self):
-        "Set the focus to this element"
+        """Set the focus to this element"""
         pass
 
 #====================================================================

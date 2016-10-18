@@ -278,7 +278,7 @@ class KeyAction(object):
         return self._get_key_info()
 
     def GetInput(self):
-        "Build the INPUT structure for the action"
+        """Build the INPUT structure for the action"""
         actions = 1
         # if both up and down
         if self.up and self.down:
@@ -306,7 +306,7 @@ class KeyAction(object):
         return inputs
 
     def Run(self):
-        "Execute the action"
+        """Execute the action"""
         inputs = self.GetInput()
 
         # SendInput() supports all Unicode symbols
@@ -332,7 +332,7 @@ class KeyAction(object):
         return down_up
     
     def key_description(self):
-        "Return a description of the key"
+        """Return a description of the key"""
         vk, scan, flags = self._get_key_info()
         desc = ''
         if vk:

@@ -69,15 +69,13 @@ they are not.
 **Test Identifier**
 The identifier for this test/bug is "Missalignment" """
 
-__revision__ = "$Revision$"
-
 testname = "Missalignment"
 
 from pywinauto import win32structures
 
 #====================================================================
 def MissalignmentTest(windows):
-    "Run the test on the windows passed in"
+    """Run the test on the windows passed in"""
     refAlignments = {}
 
     #find the controls alligned along each axis

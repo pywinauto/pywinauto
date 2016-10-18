@@ -30,25 +30,26 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Wrap"""
-
-
 from .win32structures import RECT, LOGFONTW
 
 
 #====================================================================
 class FuncWrapper(object):
-    "Little class to allow attribute access to return a callable object"
+
+    """Little class to allow attribute access to return a callable object"""
+
     def __init__(self, value):
         self.value = value
 
     def __call__(self, *args, **kwargs):
-        "Return the saved value"
+        """Return the saved value"""
         return self.value
 
 
 #====================================================================
 class ControlProps(dict):
-    "Wrap controls read from a file to resemble hwnd controls"
+
+    """Wrap controls read from a file to resemble hwnd controls"""
 
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
@@ -145,8 +146,7 @@ def MenuBlockAsControls(menuItems, parentage = None):
 
 #====================================================================
 def MenuItemAsControl(menuItem):
-    "Make a menu item look like a control for tests"
-
+    """Make a menu item look like a control for tests"""
     itemAsCtrl = ControlProps()
 
     itemAsCtrl["texts"] = [menuItem['text'], ]
