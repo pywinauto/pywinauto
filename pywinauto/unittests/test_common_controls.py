@@ -626,15 +626,9 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def testCheckBoxes(self):
         """Make sure tree view item method IsChecked() works as expected"""
         self.dlg.set_focus()
-        self.dlg.TVS_CHECKBOXES.check_by_click_input()
+        self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.GetItem(r'\Birds')
-        try:
-            birds.Click(where='check')
-        except Exception:
-            # TODO: figure out what is the root cause of the instability
-            time.sleep(0.7)
-            self.dlg.TVS_CHECKBOXES.check_by_click_input()
-            birds.Click(where='check')
+        birds.Click(where='check')
         self.assertEquals (birds.IsChecked(), True)
         birds.click_input(where='check')
         self.assertEquals (birds.IsChecked(), False)
