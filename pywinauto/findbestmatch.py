@@ -329,7 +329,7 @@ def get_control_names(control, allcontrols, textcontrols):
 #====================================================================
 class UniqueDict(dict):
 
-    """A dictionary subclass that handles making it's keys unique"""
+    """A dictionary subclass that handles making its keys unique"""
 
     def __setitem__(self, text, item):
         """Set an item of the dictionary"""

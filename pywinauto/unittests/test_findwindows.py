@@ -38,11 +38,8 @@ import sys, os
 sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python
-#from pywinauto.findwindows import find_elements, find_element
 from pywinauto.findwindows import find_window, find_windows
-#from pywinauto.findwindows import ElementNotFoundError
 from pywinauto.findwindows import WindowNotFoundError
-#from pywinauto.findwindows import ElementAmbiguousError
 from pywinauto.findwindows import WindowAmbiguousError
 from pywinauto.timings import Timings
 
