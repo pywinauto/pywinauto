@@ -87,8 +87,7 @@ from pywinauto import win32structures
 _font_attribs = [field[0] for field in win32structures.LOGFONTW._fields_]
 
 def CompareToRefFontTest(windows):
-    "Compare the font to the font of the reference control"
-
+    """Compare the font to the font of the reference control"""
     bugs = []
     for win in windows:
         # if no reference then skip the control

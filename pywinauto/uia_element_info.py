@@ -41,30 +41,6 @@ from .handleprops import dumpwindow, controlid
 from .element_info import ElementInfo
 from .win32structures import RECT
 
-"""
-Possible properties:
-
-CurrentAcceleratorKey
-CurrentAccessKey
-CurrentAriaProperties
-CurrentAriaRole
-CurrentControllerFor
-CurrentCulture
-CurrentDescribedBy
-CurrentFlowsTo
-CurrentHelpText
-CurrentIsContentElement
-CurrentIsControlElement
-CurrentIsDataValidForForm
-CurrentIsPassword
-CurrentIsRequiredForForm
-CurrentItemStatus
-CurrentItemType
-CurrentLabeledBy
-CurrentLocalizedControlType
-CurrentOrientation
-CurrentProviderDescription
-"""
 
 def elements_from_uia_array(ptrs, cache_enable = False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
@@ -78,7 +54,7 @@ class UIAElementInfo(ElementInfo):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
-        
+
         If handle_or_elem is None create an instance for UI root element.
         """
         if handle_or_elem is not None:
@@ -107,7 +83,10 @@ class UIAElementInfo(ElementInfo):
 
     def _get_current_handle(self):
         """Return an actual handle of the element"""
-        return self._element.CurrentNativeWindowHandle
+        try:
+            return self._element.CurrentNativeWindowHandle
+        except COMError:
+            return None # probably element already doesn't exist
 
     def _get_cached_handle(self):
         """Return a cached handle of the element"""
@@ -183,7 +162,7 @@ class UIAElementInfo(ElementInfo):
             self._get_visible = self._get_cached_visible
             self._get_rich_text = self._get_cached_rich_text
         else:
-            # Switch to actual (non-cached) attributes 
+            # Switch to actual (non-cached) attributes
             self._get_class_name = self._get_current_class_name
             self._get_handle = self._get_current_handle
             self._get_control_type = self._get_current_control_type
@@ -259,22 +238,20 @@ class UIAElementInfo(ElementInfo):
         return elements_from_uia_array(ptrs_array, cache_enable)
 
     def children(self, **kwargs):
-        """
-        Return a list of only immediate children of the element
-        
-        * **kwargs** is a criteria to reduce a list by process, 
-        class_name and/or title.
+        """Return a list of only immediate children of the element
+
+        * **kwargs** is a criteria to reduce a list by process,
+        class_name, control_type, is_content_element and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
         return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
-        """
-        Return a list of all descendant children of the element 
-        
-        * **kwargs** is a criteria to reduce a list by process, 
-        class_name and/or title.
+        """Return a list of all descendant children of the element
+
+        * **kwargs** is a criteria to reduce a list by process,
+        class_name, control_type, is_content_element and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)

@@ -29,7 +29,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Module containing wrapper around VirtualAllocEx/VirtualFreeEx 
+"""Module containing wrapper around VirtualAllocEx/VirtualFreeEx
 Win32 API functions to perform custom marshalling
 """
 from __future__ import print_function
@@ -45,20 +45,24 @@ from . import win32structures
 from .actionlogger import ActionLogger
 
 class AccessDenied(RuntimeError):
-    "Raised when we cannot allocate memory in the control's process"
+
+    """Raised when we cannot allocate memory in the control's process"""
+
     pass
 
 #====================================================================
 class RemoteMemoryBlock(object):
-    "Class that enables reading and writing memory in a different process"
+
+    """Class that enables reading and writing memory in a different process"""
+
     #----------------------------------------------------------------
     def __init__(self, ctrl, size = 4096): #4096): #16384):
-        "Allocate the memory"
+        """Allocate the memory"""
         self.memAddress = 0
         self.size = size
         self.process = 0
         self.handle = ctrl.handle
-        
+
         if self.handle == 0xffffffff80000000:
             raise Exception('Incorrect handle: ' + str(self.handle))
 
@@ -95,12 +99,12 @@ class RemoteMemoryBlock(object):
 
         if self.memAddress == 0:
             raise ctypes.WinError()
-        
+
         if hex(self.memAddress) == '0xffffffff80000000' or hex(self.memAddress).upper() == '0xFFFFFFFF00000000':
             raise Exception('Incorrect allocation: ' + hex(self.memAddress))
 
         self._as_parameter_ = self.memAddress
-        
+
         # write guard signature at the end of memory block
         signature = win32structures.LONG(0x66666666)
         ret = win32functions.WriteProcessMemory(
@@ -119,7 +123,7 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def _CloseHandle(self):
-        "Close the handle to the process."
+        """Close the handle to the process."""
         ret = win32functions.CloseHandle(self.process)
         #win32api.CloseHandle(self.process)
 
@@ -129,12 +133,12 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def CleanUp(self):
-        "Free Memory and the process handle"
+        """Free Memory and the process handle"""
         if self.process != 0 and self.memAddress != 0:
             # free up the memory we allocated
             #win32api.SetLastError(0)
             self.CheckGuardSignature()
-            
+
             ret = win32functions.VirtualFreeEx(
                 ctypes.c_void_p(self.process),
                 ctypes.c_void_p(self.memAddress),
@@ -155,18 +159,18 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def __del__(self):
-        "Ensure that the memory is Freed"
+        """Ensure that the memory is Freed"""
         # Free the memory in the remote process's address space
         self.CleanUp()
 
     #----------------------------------------------------------------
     def Address(self):
-        "Return the address of the memory block"
+        """Return the address of the memory block"""
         return self.memAddress
 
     #----------------------------------------------------------------
     def Write(self, data, address = None, size = None):
-        "Write data into the memory block"
+        """Write data into the memory block"""
         # write the data from this process into the memory allocated
         # from the other process
         if not address:
@@ -178,14 +182,14 @@ class RemoteMemoryBlock(object):
             nSize = win32structures.ULONG_PTR(size)
         else:
             nSize = win32structures.ULONG_PTR(ctypes.sizeof(data))
-        
+
         if self.size < nSize.value:
             raise Exception(('Write: RemoteMemoryBlock is too small ({0} bytes),' + \
                 ' {1} is required.').format(self.size, nSize.value))
-        
+
         if hex(address).lower().startswith('0xffffff'):
             raise Exception('Write: RemoteMemoryBlock has incorrect address = ' + hex(address))
-        
+
         ret = win32functions.WriteProcessMemory(
             ctypes.c_void_p(self.process),
             ctypes.c_void_p(address),
@@ -204,7 +208,7 @@ class RemoteMemoryBlock(object):
 
     #----------------------------------------------------------------
     def Read(self, data, address = None, size = None):
-        "Read data from the memory block"
+        """Read data from the memory block"""
         if not address:
             address = self.memAddress
         if hasattr(address, 'value'):
@@ -218,12 +222,12 @@ class RemoteMemoryBlock(object):
         if self.size < nSize.value:
             raise Exception(('Read: RemoteMemoryBlock is too small ({0} bytes),' + \
                 ' {1} is required.').format(self.size, nSize.value))
-        
+
         if hex(address).lower().startswith('0xffffff'):
             raise Exception('Read: RemoteMemoryBlock has incorrect address =' + hex(address))
-        
+
         lpNumberOfBytesRead = ctypes.c_size_t(0)
-        
+
         ret = win32functions.ReadProcessMemory(
             ctypes.c_void_p(self.process),
             ctypes.c_void_p(address),
@@ -254,7 +258,7 @@ class RemoteMemoryBlock(object):
                     ActionLogger().log('Error: ERROR_PARTIAL_COPY')
                     ActionLogger().log('\nRead: WARNING! self.memAddress =' + \
                         hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
-                
+
                 ActionLogger().log('lpNumberOfBytesRead =' + \
                     str(lpNumberOfBytesRead) + ' nSize =' + str(nSize))
                 raise ctypes.WinError()
@@ -262,13 +266,13 @@ class RemoteMemoryBlock(object):
                 ActionLogger().log('Warning! Read OK: 2nd attempt!')
         #else:
         #    print 'Read OK: lpNumberOfBytesRead =', lpNumberOfBytesRead, ' nSize =', nSize
-        
+
         self.CheckGuardSignature()
         return data
 
     #----------------------------------------------------------------
     def CheckGuardSignature(self):
-        "read guard signature at the end of memory block"
+        """read guard signature at the end of memory block"""
         signature = win32structures.LONG(0)
         lpNumberOfBytesRead = ctypes.c_size_t(0)
         ret = win32functions.ReadProcessMemory(

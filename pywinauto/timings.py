@@ -55,7 +55,7 @@ The Following are the individual timing settings that can be adjusted:
 * exists_retry   (default .3)
 
 * after_click_wait  (default .09)
-* after_clickinput_wait (default .05)
+* after_clickinput_wait (default .09)
 
 * after_menu_wait   (default .1)
 
@@ -113,7 +113,9 @@ from functools import wraps
 
 #=========================================================================
 class TimeConfig(object):
-    "Central storage and manipulation of timing values"
+
+    """Central storage and manipulation of timing values"""
+
     __default_timing = {
         'window_find_timeout' : 5.,
         'window_find_retry' : .09,
@@ -128,7 +130,7 @@ class TimeConfig(object):
         'exists_retry' : .3,
 
         'after_click_wait' : .09,
-        'after_clickinput_wait' : .05,
+        'after_clickinput_wait' : .09,
 
         'after_menu_wait' : .1,
 
@@ -184,7 +186,7 @@ class TimeConfig(object):
     _cur_speed = 1
 
     def __getattribute__(self, attr):
-        "Get the value for a particular timing"
+        """Get the value for a particular timing"""
         if attr in ['__dict__', '__members__', '__methods__', '__class__']:
             return object.__getattribute__(self, attr)
 
@@ -197,7 +199,7 @@ class TimeConfig(object):
             raise AttributeError("Unknown timing setting: {0}".format(attr))
 
     def __setattr__(self, attr, value):
-        "Set a particular timing"
+        """Set a particular timing"""
         if attr == '_timings':
             object.__setattr__(self, attr, value)
         elif attr in self.__default_timing:
@@ -261,7 +263,7 @@ class TimeConfig(object):
                 self._timings[setting]= .2
 
     def Defaults(self):
-        "Set all timings to the default time"
+        """Set all timings to the default time"""
         self._timings = self.__default_timing.copy()
 
 
@@ -274,9 +276,9 @@ class TimeoutError(RuntimeError):
 
 #=========================================================================
 def always_wait_until(
-    timeout, 
-    retry_interval, 
-    value = True, 
+    timeout,
+    retry_interval,
+    value = True,
     op = operator.eq):
     """Decorator to call wait_until(...) every time for a decorated function/method"""
     def wait_until_decorator(func):
@@ -284,53 +286,52 @@ def always_wait_until(
         @wraps(func)
         def wrapper(*args):
             """pre-callback, target function call and post-callback"""
-            return wait_until(timeout, retry_interval, 
+            return wait_until(timeout, retry_interval,
                               func, value, op, *args)
         return wrapper
     return wait_until_decorator
 
 #=========================================================================
 def wait_until(
-    timeout, 
-    retry_interval, 
-    func, 
-    value = True, 
+    timeout,
+    retry_interval,
+    func,
+    value = True,
     op = operator.eq,
     *args):
     r"""Wait until ``op(function(*args), value)`` is True or until timeout expires
-    
+
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
     * **func** the function that will be executed
     * **value**  the value to be compared against (defaults to True)
     * **op** the comparison function (defaults to equality)\
     * **args** optional arguments to be passed to func when called
-    
+
     Returns the return value of the function
-    If the operation times out then the return value of the the function 
+    If the operation times out then the return value of the the function
     is in the 'function_value' attribute of the raised exception.
-    
+
     e.g. ::
-      
+
     try:
-        # wait a maximum of 10.5 seconds for the 
+        # wait a maximum of 10.5 seconds for the
         # the objects item_count() method to return 10
         # in increments of .5 of a second
         wait_until(10.5, .5, self.item_count, 10)
     except TimeoutError as e:
         print("timed out")
-    
     """
     start = time.time()
-    
+
     func_val = func(*args)
-    # while the function hasn't returned what we are waiting for    
-    while not op(func_val, value):      
-            
+    # while the function hasn't returned what we are waiting for
+    while not op(func_val, value):
+
         # find out how much of the time is left
         time_left = timeout - ( time.time() - start)
-        
-        # if we have to wait some more        
+
+        # if we have to wait some more
         if time_left > 0:
             # wait either the retry_interval or else the amount of
             # time until the timeout expires (whichever is less)
@@ -340,7 +341,7 @@ def wait_until(
             err = TimeoutError("timed out")
             err.function_value = func_val
             raise err
-            
+
     return func_val
 
 # Non PEP-8 alias
@@ -360,41 +361,40 @@ def always_wait_until_passes(
         @wraps(func)
         def wrapper(*args):
             """pre-callback, target function call and post-callback"""
-            return wait_until_passes(timeout, retry_interval, 
+            return wait_until_passes(timeout, retry_interval,
                                      func, exceptions, *args)
         return wrapper
     return wait_until_passes_decorator
 
 #=========================================================================
 def wait_until_passes(
-    timeout, 
-    retry_interval, 
-    func, 
+    timeout,
+    retry_interval,
+    func,
     exceptions = (Exception),
     *args):
     """Wait until ``func(*args)`` does not raise one of the exceptions in exceptions
-    
+
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
     * **func** the function that will be executed
     * **exceptions**  list of exceptions to test against (default: Exception)
     * **args** optional arguments to be passed to func when called
-    
+
     Returns the return value of the function
     If the operation times out then the original exception raised is in
     the 'original_exception' attribute of the raised exception.
-    
+
     e.g. ::
-     
+
     try:
-        # wait a maximum of 10.5 seconds for the 
+        # wait a maximum of 10.5 seconds for the
         # window to be found in increments of .5 of a second.
         # P.int a message and re-raise the original exception if never found.
         wait_until_passes(10.5, .5, self.Exists, (ElementNotFoundError))
     except TimeoutError as e:
         print("timed out")
         raise e.
-    
     """
     start = time.time()
 
@@ -424,7 +424,7 @@ def wait_until_passes(
                 # inside it
                 err = TimeoutError()
                 err.original_exception = e
-                raise err    
+                raise err
 
     # return the function value
     return func_val

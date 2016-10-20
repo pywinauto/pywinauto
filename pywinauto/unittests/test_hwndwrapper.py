@@ -29,10 +29,9 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""Tests for HwndWrapper"""
 from __future__ import print_function
 from __future__ import unicode_literals
-
-"""Tests for HwndWrapper"""
 
 import time
 #import pprint
@@ -134,13 +133,13 @@ class HwndWrapperTests(unittest.TestCase):
             win32defines.WS_EX_LTRREADING |
             win32defines.WS_EX_RIGHTSCROLLBAR)
 
-        """self.assertEquals(self.dlg.ExStyle(),
-            win32defines.WS_EX_WINDOWEDGE |
-            win32defines.WS_EX_LEFT |
-            win32defines.WS_EX_LTRREADING |
-            win32defines.WS_EX_RIGHTSCROLLBAR |
-            win32defines.WS_EX_CONTROLPARENT |
-            win32defines.WS_EX_APPWINDOW)"""
+        #self.assertEquals(self.dlg.ExStyle(),
+        #    win32defines.WS_EX_WINDOWEDGE |
+        #    win32defines.WS_EX_LEFT |
+        #    win32defines.WS_EX_LTRREADING |
+        #    win32defines.WS_EX_RIGHTSCROLLBAR |
+        #    win32defines.WS_EX_CONTROLPARENT |
+        #    win32defines.WS_EX_APPWINDOW)
 
     def testControlID(self):
         self.assertEquals(self.ctrl.control_id(), 1037)
@@ -790,21 +789,19 @@ class DragAndDropTests(unittest.TestCase):
         self.ctrl = self.dlg.TreeView.WrapperObject()
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         self.app.kill_()
 
-    '''
-    def testDragMouse(self):
-        "DragMouse works! But CmnCtrl1.exe crashes in infinite recursion."
-        birds = self.ctrl.GetItem(r'\Birds')
-        dogs = self.ctrl.GetItem(r'\Dogs')
-        self.ctrl.DragMouse("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
-        dogs = self.ctrl.GetItem(r'\Dogs')
-        self.assertEquals([child.Text() for child in dogs.children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
-    '''
+    #def testDragMouse(self):
+    #    """DragMouse works! But CmnCtrl1.exe crashes in infinite recursion."""
+    #    birds = self.ctrl.GetItem(r'\Birds')
+    #    dogs = self.ctrl.GetItem(r'\Dogs')
+    #    self.ctrl.DragMouse("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
+    #    dogs = self.ctrl.GetItem(r'\Dogs')
+    #    self.assertEquals([child.Text() for child in dogs.children()], [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 
     def testDragMouseInput(self):
-        "test for drag_mouse_input"
+        """test for drag_mouse_input"""
         birds = self.ctrl.GetItem(r'\Birds')
         dogs = self.ctrl.GetItem(r'\Dogs')
         #birds.Select()

@@ -33,7 +33,7 @@
 
 import unittest
 import sys
-import time
+#import time
 import os
 sys.path.append(".")
 from pywinauto import taskbar, \
@@ -91,7 +91,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
                     r'control /name Microsoft.NotificationAreaIcons',
                     with_spaces=True,
                     set_foreground=True)
-        # Send 'ENTER' separately, this is to make sure 
+        # Send 'ENTER' separately, this is to make sure
         # the window focus hasn't accidentally been lost
         window.type_keys(
                     '{ENTER}',
@@ -126,15 +126,14 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     return cur_state
 
 def _wait_minimized(dlg):
-    '''
-    A helper function to verify that the specified dialog is minimized.
+    """A helper function to verify that the specified dialog is minimized
+
     Basically, WaitNot('visible', timeout=30) would work too, just
     wanted to make sure the dlg is really got to the 'minimized' state
-    because we test hiding the window to the tray
-    '''
-    
+    because we test hiding the window to the tray.
+    """
     WaitUntil(
-        timeout = _ready_timeout, 
+        timeout = _ready_timeout,
         retry_interval = _retry_interval,
         func = lambda: (dlg.GetShowState() == win32defines.SW_SHOWMINIMIZED))
     return True
@@ -170,7 +169,6 @@ class TaskbarTestCases(unittest.TestCase):
                 app.kill_()
         except(ProcessNotFoundError):
             l.log("No more leftovers. All good.")
-            pass
 
     def testTaskbar(self):
         # just make sure it's found

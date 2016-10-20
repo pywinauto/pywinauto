@@ -29,14 +29,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Some clipboard wrapping functions - more to be added later'''
+"""Some clipboard wrapping functions - more to be added later"""
 
 import win32clipboard
 
 
 #====================================================================
 def _get_standard_formats():
-    "Get the known formats by looking in win32clipboard"
+    """Get the known formats by looking in win32clipboard"""
     formats = {}
     for define_name in win32clipboard.__dict__.keys():
         if define_name.startswith("CF_"):
@@ -49,9 +49,9 @@ _standard_formats = _get_standard_formats()
 
 #====================================================================
 def GetClipboardFormats():
-    "Get a list of the formats currently in the clipboard"
+    """Get a list of the formats currently in the clipboard"""
     win32clipboard.OpenClipboard()
-    
+
     available_formats = []
     current_format = 0
     while True:
@@ -72,8 +72,7 @@ def GetClipboardFormats():
 
 #====================================================================
 def GetFormatName(format_id):
-    "Get the string name for a format value"
-
+    """Get the string name for a format value"""
     # standard formats should not be passed to GetClipboardFormatName
     if format_id in _standard_formats:
         return _standard_formats[format_id]
@@ -87,7 +86,7 @@ def GetFormatName(format_id):
 
 #====================================================================
 def GetData(format_id = win32clipboard.CF_UNICODETEXT):
-    "Return the data from the clipboard in the requested format"
+    """Return the data from the clipboard in the requested format"""
     if format_id not in GetClipboardFormats():
         raise RuntimeError("That format is not available")
 
@@ -96,7 +95,6 @@ def GetData(format_id = win32clipboard.CF_UNICODETEXT):
         data = win32clipboard.GetClipboardData(format_id)
     finally:
         win32clipboard.CloseClipboard()
-
 
     return data
 

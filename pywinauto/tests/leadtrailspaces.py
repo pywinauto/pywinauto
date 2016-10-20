@@ -74,12 +74,11 @@ positives then we should consider removing it.
 **Test Identifier**
 The identifier for this test/bug is "LeadTrailSpaces"
 """
-__revision__ = "$Revision$"
-
 
 testname = "LeadTrailSpaces"
+
 def LeadTrailSpacesTest(windows):
-    "Return the leading/trailing space bugs for the windows"
+    """Return the leading/trailing space bugs for the windows"""
     bugs = []
     for win in windows:
         if not win.ref:
@@ -113,7 +112,7 @@ def LeadTrailSpacesTest(windows):
 
 
 def GetLeadSpaces(title):
-    "Return the leading spaces of the string"
+    """Return the leading spaces of the string"""
     spaces = ''
 
     for i in range(0, len(title)):
@@ -126,7 +125,7 @@ def GetLeadSpaces(title):
 
 
 def GetTrailSpaces(title):
-    "Return the trailing spaces of the string"
+    """Return the trailing spaces of the string"""
     rev = "".join(reversed(title))
     spaces = GetLeadSpaces(rev)
     return "".join(reversed(spaces))

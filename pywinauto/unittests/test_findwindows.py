@@ -29,19 +29,18 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import print_function
-
 """Tests for findwindows.py"""
+from __future__ import print_function
 
 import unittest
 
 import sys, os
 sys.path.append(".")
 from pywinauto.application import Application
-from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-from pywinauto.findwindows import find_elements, find_element, find_window, find_windows
-from pywinauto.findwindows import ElementNotFoundError, WindowNotFoundError
-from pywinauto.findwindows import ElementAmbiguousError, WindowAmbiguousError
+from pywinauto.sysinfo import is_x64_Python
+from pywinauto.findwindows import find_window, find_windows
+from pywinauto.findwindows import WindowNotFoundError
+from pywinauto.findwindows import WindowAmbiguousError
 from pywinauto.timings import Timings
 
 
@@ -51,18 +50,6 @@ if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 mfc_app_1 = os.path.join(mfc_samples_folder, u"CmnCtrl2.exe")
 
-
-#=========================================================================
-def _unittests():
-    """Do a quick test of finding some windows"""
-    windows = find_elements(
-        class_name_re = "#32770",
-        enabled_only = False,
-        visible_only = False)
-
-    for win in windows:
-        print("==" * 20)
-        print(win.dump_window())
 
 class FindWindowsTestCases(unittest.TestCase):
 

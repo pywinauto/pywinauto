@@ -36,6 +36,7 @@ import six
 
 from .. import uia_element_info
 from .. import findbestmatch
+from .. import timings
 
 from . import uiawrapper
 from ..uia_defines import IUIA
@@ -860,6 +861,9 @@ class MenuWrapper(uiawrapper.UIAWrapper):
                 menu = self._sub_item_by_text(self, part0, exact)
 
             if not menu.items():
+                timings.wait_until(timings.Timings.window_find_timeout,
+                    timings.Timings.window_find_retry,
+                    lambda: len(self.top_level_parent().descendants(control_type="Menu")) > 0)
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
 
             for cur_part in [p.strip() for p in parts.split("->")]:

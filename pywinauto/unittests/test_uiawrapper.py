@@ -1,7 +1,6 @@
+"""Tests for UIAWrapper"""
 from __future__ import print_function
 from __future__ import unicode_literals
-
-"""Tests for UIAWrapper"""
 
 import time
 import os

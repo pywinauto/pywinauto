@@ -50,8 +50,7 @@ from pywinauto.timings import Timings
 Timings.window_find_timeout = 10
 
 def test_exceptions():
-    "Test some things that should raise exceptions"
-
+    """Test some things that should raise exceptions"""
     # test that trying to connect_ to a non existent app fails
     try:
         app = application.Application()

@@ -47,16 +47,16 @@ def set_level(level):
     logger.level = level
 
 def reset_level():
-    "Reset pywinauto logging level to default one (logging.NOTSET)"
+    """Reset pywinauto logging level to default one (logging.NOTSET)"""
     logger = logging.getLogger(__package__)
     logger.level = logging.NOTSET
 
 def disable():
-    "Disable logging pywinauto actions"
+    """Disable logging pywinauto actions"""
     set_level(logging.WARNING)
 
 def enable():
-    "Enable logging pywinauto actions"
+    """Enable logging pywinauto actions"""
     reset_level()
 
 class CustomLogger(object):

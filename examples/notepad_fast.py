@@ -52,7 +52,7 @@ from pywinauto import tests
 from pywinauto.timings import Timings
 
 def run_notepad():
-    "Run notepad and do some small stuff with it"
+    """Run notepad and do some small stuff with it"""
     print("Run with option 'language' e.g. notepad_fast.py language to use")
     print("application data. This should work on any language Windows/Notepad")
     print()
@@ -74,7 +74,7 @@ def run_notepad():
         print("\nRunning this script so it will load application data and run")
         print("against any lanuguage version of Notepad/Windows")
 
-        # make sure that the app data gets read from the same folder as 
+        # make sure that the app data gets read from the same folder as
         # the script
         app = application.Application(
             os.path.join(scriptdir, "Notepad_fast.pkl"))
@@ -95,12 +95,12 @@ def run_notepad():
     # Select the 4th combobox item
     app.PageSetupDlg.SizeComboBox.select(4)
 
-    # Select the 'Letter' combobox item or the Letter 
+    # Select the 'Letter' combobox item or the Letter
     try:
         app.PageSetupDlg.SizeComboBox.select("Letter")
     except ValueError:
         app.PageSetupDlg.SizeComboBox.select('Letter (8.5" x 11")')
-                                         
+
     app.PageSetupDlg.SizeComboBox.select(2)
 
     # run some tests on the Dialog. List of available tests:
@@ -150,7 +150,7 @@ def run_notepad():
 
     doc_props = app.window_(title_re = ".*Properties$")
     doc_props.Wait('exists', timeout = 40)
-    
+
 #
 #    # ----- Document Properties Dialog ----
 #    # some tab control selections
@@ -198,12 +198,11 @@ def run_notepad():
     # ----- Document Properties Dialog again ----
     doc_props.Cancel.close_click()
     
-    # for some reason my current printer driver 
+    # for some reason my current printer driver
     # window does not close cleanly :(
     if doc_props.Cancel.Exists():
         doc_props.OK.close_click()
-        
-    
+
     # ----- 2nd Page Setup Dialog again ----
     app.PageSetupDlg.OK.close_click()
     # ----- Page Setup Dialog ----
@@ -270,8 +269,6 @@ def run_notepad():
 
     if not run_with_appdata:
         app.WriteAppData(os.path.join(scriptdir, "Notepad_fast.pkl"))
-
-
 
     print("That took %.3f to run"% (time.time() - start))
 

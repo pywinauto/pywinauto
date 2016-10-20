@@ -62,16 +62,16 @@ def run_tests(controls, tests_to_run = None, test_visible_only = True):
 
 def get_bug_as_string(bug):
     ctrls, info, bug_type, is_in_ref = bug
-    
+
     header = ["BugType:", str(bug_type), str(is_in_ref)]
 
     for i in info:
         header.append(six.text_type(i))
         header.append(six.text_type(info[i]))
-    
+
     lines = []
     lines.append(" ".join(header))
-    
+
     for i, ctrl in enumerate(ctrls):
         lines.append(u'\t"%s" "%s" (%d %d %d %d) Vis: %d' % (
             ctrl.window_text(),
@@ -81,7 +81,7 @@ def get_bug_as_string(bug):
             ctrl.rectangle().right,
             ctrl.rectangle().bottom,
             ctrl.is_visible(),))
-    
+
     return u"\n".join(lines)
 
 
@@ -99,7 +99,6 @@ def print_bugs(bugs):
         for i in info:
             print(six.text_type(i).encode('utf-8'), six.text_type(info[i]).encode('utf-8'))
         print()
-
 
         for i, ctrl in enumerate(ctrls):
             print('\t"%s" "%s" (%d %d %d %d) Vis: %d' % (

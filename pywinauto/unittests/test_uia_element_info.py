@@ -1,15 +1,13 @@
 import unittest
 import os
 from pywinauto.application import Application
-from pywinauto.handleprops import processid 
+from pywinauto.handleprops import processid
 from pywinauto.sysinfo import is_x64_Python
-from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import UIA_support
 from pywinauto.timings import Timings
 
 if UIA_support:
     from pywinauto.uia_element_info import UIAElementInfo
-    from pywinauto import backend
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")

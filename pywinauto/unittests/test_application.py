@@ -65,7 +65,6 @@ from pywinauto.timings import always_wait_until_passes
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import UIA_support
-from pywinauto import backend
 
 #application.set_timing(1, .01, 1, .01, .05, 0, 0, .1, 0, .01)
 
@@ -115,7 +114,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         if not is_x64_OS():
             self.defaultTestResult()
             return
-        
+
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -129,12 +128,12 @@ class ApplicationWarningTestCases(unittest.TestCase):
         if not is_x64_OS():
             self.defaultTestResult()
             return
-        
+
         app = Application().start(self.sample_exe_inverted_bitness)
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app2 = Application().connect(path=self.sample_exe_inverted_bitness)
+            Application().connect(path=self.sample_exe_inverted_bitness)
             app.kill_()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
@@ -148,7 +147,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         with warnings.catch_warnings(record=True) as warns:
             app = Application().start(self.sample_exe)
             for deprecated_method in deprecated_connect_methods:
-                app2 = getattr(Application(),
+                getattr(Application(),
                                deprecated_method)(path=self.sample_exe)
             app.kill_()
 
@@ -393,7 +392,7 @@ class ApplicationTestCases(unittest.TestCase):
         Timings.window_find_timeout = 5
         app = Application()
         self.assertRaises(AppNotConnected, app.top_window_)
-        
+
         app.start(_notepad_exe())
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
@@ -432,9 +431,9 @@ class ApplicationTestCases(unittest.TestCase):
         """Test that wait_cpu_usage_lower() works correctly"""
         if is_x64_Python() != is_x64_OS():
             return None
-        
-        app = Application().Start(r'explorer.exe')
-        
+
+        Application().Start(r'explorer.exe')
+
         def _cabinetwclass_exist():
             "Verify if at least one active 'CabinetWClass' window is created"
             l = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')
@@ -444,7 +443,7 @@ class ApplicationTestCases(unittest.TestCase):
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, 'backend': 'win32', })
         explorer = Application().Connect(process = window.process_id())
-        
+
         try:
             explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
             window.AddressBandRoot.ClickInput()

@@ -175,8 +175,8 @@ def find_elements(class_name = None,
     if top_level_only:
         # find the top level elements
         element = backend_obj.element_info_class()
-        elements = element.children(process = process, 
-                                    class_name = class_name, 
+        elements = element.children(process = process,
+                                    class_name = class_name,
                                     title = title,
                                     cache_enable = True) # root.children == enum_windows()
 
@@ -324,13 +324,13 @@ def find_windows(**kwargs):
 
 #=========================================================================
 def enum_windows():
-    "Return a list of handles of all the top level windows"
+    """Return a list of handles of all the top level windows"""
     windows = []
 
     # The callback function that will be called for each HWND
     # all we do is append the wrapped handle
     def enum_window_proc(hwnd, lparam):
-        "Called for each window - adds handles to a list"
+        """Called for each window - adds handles to a list"""
         windows.append(hwnd)
         return True
 
