@@ -528,7 +528,7 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
 
     def texts(self):
         """Return a list of item texts"""
-        content = [ch.window_text() for ch in self.children(is_content_element=True)]
+        content = [ch.window_text() for ch in self.children(content_only=True)]
         if content:
             return content
         else:
@@ -675,7 +675,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # Get the item by a row index
             # TODO: Can't get virtualized items that way
             # TODO: See TODO section of item_count() method for details
-            list_items = self.children(is_content_element=True)
+            list_items = self.children(content_only=True)
             itm = list_items[row]
         else:
             raise TypeError("String type or integer is expected")
@@ -689,7 +689,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_items(self):
         """Return all items of the ListView control"""
-        return self.children(is_content_element=True)
+        return self.children(content_only=True)
 
     items = get_items  # this is an alias to be consistent with other content elements
 
@@ -719,7 +719,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def texts(self):
         """Return a list of item texts"""
-        return [elem.texts() for elem in self.children(is_content_element=True)]
+        return [elem.texts() for elem in self.children(content_only=True)]
 
     # -----------------------------------------------------------
     @property

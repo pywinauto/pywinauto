@@ -92,7 +92,7 @@ class IUIA(object):
             self.known_control_type_ids[type_id] = ctrl_type
     
     def build_condition(self, process=None, class_name=None, title=None, control_type=None,
-                        is_content_element=None):
+                        content_only=None):
         """Build UIA filtering conditions"""
         conditions = []
         if process:
@@ -112,9 +112,9 @@ class IUIA(object):
             # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, title))
 
-        if isinstance(is_content_element, bool):
+        if isinstance(content_only, bool):
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,
-                                                                is_content_element))
+                                                                content_only))
 
         if len(conditions) > 1:
             return self.iuia.CreateAndConditionFromArray(conditions)

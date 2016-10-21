@@ -64,6 +64,7 @@ in almost exactly the same ways. ::
 """
 from __future__ import print_function
 
+import sys
 import os.path
 import pickle
 import time
@@ -91,19 +92,16 @@ from .sysinfo import is_x64_Python
 class AppStartError(Exception):
 
     """There was a problem starting the Application"""
-
     pass    #pragma: no cover
 
 class ProcessNotFoundError(Exception):
 
     """Could not find that process"""
-
     pass    #pragma: no cover
 
 class AppNotConnected(Exception):
 
     """Application has not been connected to a process yet"""
-
     pass    #pragma: no cover
 
 
@@ -148,6 +146,19 @@ class WindowSpecification(object):
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
         self.backend = registry.backends[search_criteria['backend']]
+
+        if self.backend == 'win32':
+            # Non PEP-8 aliases for partial backward compatibility
+            self.WrapperObject = self.wrapper_object
+            self.ChildWindow = self.child_window
+            self.Exists = self.exists
+            self.Wait = self.wait
+            self.WaitNot = self.wait_not
+            self.PrintControlIdentifiers = self.print_control_identifiers
+            
+            self.Window_ = self.window
+            self.window_ = self.window
+            self.Window = self.window
 
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
@@ -238,9 +249,6 @@ class WindowSpecification(object):
         ctrls = self.__resolve_control(self.criteria)
         return ctrls[-1]
 
-    # Non PEP-8 alias
-    WrapperObject = wrapper_object
-
     def child_window(self, **criteria):
         """
         Add criteria for a control
@@ -259,10 +267,7 @@ class WindowSpecification(object):
 
         return new_item
 
-    # Non PEP-8 alias
-    ChildWindow = child_window
-
-    def Window_(self, **criteria):
+    def window(self, **criteria):
         """Deprecated alias of child_window()"""
         warnings.warn(
             "WindowSpecification.Window() WindowSpecification.Window_(), "
@@ -270,8 +275,6 @@ class WindowSpecification(object):
             "are deprecated, please switch to WindowSpecification.child_window()",
             DeprecationWarning)
         return self.child_window(**criteria)
-    window_ = Window_
-    Window = Window_
 
     def __getitem__(self, key):
         """
@@ -398,9 +401,6 @@ class WindowSpecification(object):
             controls.InvalidElement):
             return False
 
-    # Non PEP-8 alias
-    Exists = exists
-
     @classmethod
     def __parse_wait_args(cls, wait_conditions, timeout, retry_interval):
         """Both methods wait & wait_not have the same args handling"""
@@ -490,9 +490,6 @@ class WindowSpecification(object):
         # Return the wrapped control
         return self.wrapper_object()
 
-    # Non PEP-8 alias
-    Wait = wait
-
     def wait_not(self, wait_for_not, timeout=None, retry_interval=None):
         """
         Wait for the window to not be in a particular state/states.
@@ -527,9 +524,6 @@ class WindowSpecification(object):
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
-    # Non PEP-8 alias
-    WaitNot = wait_not
-
     def _ctrl_identifiers(self):
 
         ctrls = self.__resolve_control(self.criteria)
@@ -556,12 +550,12 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth = 2):
+    def print_control_identifiers(self, depth = None):
         """
         Prints the 'identifiers'
 
         Prints identifiers for the control and for its descendants to
-        a depth of **depth**.
+        a depth of **depth** (the whole subtree if **None**).
 
         .. note:: The identifiers printed by this method have been made
                unique. So if you have 2 edit boxes, they won't both have "Edit"
@@ -569,6 +563,8 @@ class WindowSpecification(object):
                referred to as "Edit", "Edit0", "Edit1" and the 2nd should be
                referred to as "Edit2".
         """
+        if depth is None:
+            depth = sys.maxint
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
 
@@ -590,23 +586,35 @@ class WindowSpecification(object):
             if len(ctrls) == 0 or current_depth > depth:
                 return
 
+            indent = (current_depth - 1) * u"   | "
             for ctrl in ctrls:
-                print((current_depth - 1) * u"     | ")
+                output = indent + '\n'
+                output += indent + u"{class_name} - '{text}'    {rect}\t\n"\
+                    "".format(class_name=ctrl.friendly_class_name(),
+                             text=ctrl.window_text(),
+                             rect=ctrl.rectangle())
+                output += indent + '{}\n'.format(control_name_map[ctrl])
+                output += indent
 
-                print((current_depth - 1) * u"     | ", end='')
-                print(u"{class_name} - '{text}'    {rect}\t".format(
-                    class_name=ctrl.friendly_class_name(),
-                    text=ctrl.window_text(),
-                    rect=ctrl.rectangle()))
-                print((current_depth - 1) * u"     | ", end='')
-                print(control_name_map[ctrl])
+                title = ctrl.window_text()
+                class_name = ctrl.class_name()
+                auto_id = ctrl.element_info.automation_id
+                criteria_texts = []
+                if title:
+                    criteria_texts.append('title="{}"'.format(title))
+                if class_name:
+                    criteria_texts.append('class_name="{}"'.format(class_name))
+                if auto_id:
+                    criteria_texts.append('auto_id="{}"'.format(auto_id))
+                #if control_type:
+                #    criteria_texts.append('control_type="{}"'.format(control_type))
+                if title or class_name or auto_id:
+                    output += 'child_window(' + ', '.join(criteria_texts) + ')'
+                print(output)
 
                 print_identifiers(ctrl.children(), current_depth + 1)
 
         print_identifiers([this_ctrl, ])
-
-    # Non PEP-8 alias
-    PrintControlIdentifiers = print_control_identifiers
 
 
 cur_item = 0
@@ -731,7 +739,6 @@ def _resolve_from_appdata(
                 break
 
 
-
     # it is possible that the dialog will not be found - so we
     # should raise an error
     if dialog is None:
@@ -807,7 +814,7 @@ class Application(object):
 
     def __init__(self, backend = "win32", datafilename = None):
         """
-        Initialize the Appliction object
+        Initialize the Application object
 
         * **backend** is a name of used back-end (values: "win32", "uia").
         * **datafilename** is a file name for reading matching history.
@@ -821,6 +828,11 @@ class Application(object):
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
+        if self.backend == 'win32':
+            # Non PEP-8 aliases for partial backward compatibility
+            Start = start
+            CPUUsage = cpu_usage
+            WaitCPUUsageLower = wait_cpu_usage_lower
 
         # load the match history if a file was specifed
         # and it exists
@@ -967,9 +979,6 @@ class Application(object):
 
         return self
 
-    # Non PEP-8 alias
-    Start = start
-
     def __warn_incorrect_bitness(self):
         if self.backend.name == 'win32' and self.is64bit() != is_x64_Python():
             if is_x64_Python():
@@ -1014,9 +1023,6 @@ class Application(object):
         win32api.CloseHandle(h_process)
         return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
 
-    # Non PEP-8 alias
-    CPUUsage = cpu_usage
-
     def wait_cpu_usage_lower(self, threshold = 2.5, timeout = None, usage_interval = None):
         """Wait until process CPU usage percentage is less than specified threshold"""
         if usage_interval is None:
@@ -1031,9 +1037,6 @@ class Application(object):
                 raise RuntimeError('Waiting CPU load <= ' + str(threshold) + '% timed out!')
 
         return self
-
-    # Non PEP-8 alias
-    WaitCPUUsageLower = wait_cpu_usage_lower
 
     def top_window_(self):
         """Return the current top window of the application"""
