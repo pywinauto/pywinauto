@@ -1,5 +1,8 @@
 import unittest
 import os
+import sys
+
+sys.path.append(".")
 from pywinauto.application import Application
 from pywinauto.handleprops import processid
 from pywinauto.sysinfo import is_x64_Python

@@ -96,8 +96,8 @@ test_script:
 after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - codecov
-  #- coverage xml
-  #- python-codacy-coverage -c ${APPVEYOR_REPO_COMMIT} -r coverage.xml
+  - coverage xml
+  - python-codacy-coverage -c $APPVEYOR_REPO_COMMIT -d $APPVEYOR_BUILD_FOLDER -r coverage.xml
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
