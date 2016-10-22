@@ -598,7 +598,9 @@ class WindowSpecification(object):
 
                 title = ctrl.window_text()
                 class_name = ctrl.class_name()
-                auto_id = ctrl.element_info.automation_id
+                auto_id = None
+                if hasattr(ctrl.element_info, automation_id):
+                    auto_id = ctrl.element_info.automation_id
                 criteria_texts = []
                 if title:
                     criteria_texts.append('title="{}"'.format(title))

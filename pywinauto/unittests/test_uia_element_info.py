@@ -25,7 +25,7 @@ if UIA_support:
             Timings.Slow()
 
             self.app = Application(backend="uia")
-            self.app = self.app.Start(wpf_app_1)
+            self.app = self.app.start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
             self.handle = self.dlg.handle
