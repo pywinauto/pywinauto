@@ -147,7 +147,7 @@ class WindowSpecification(object):
         self.actions = ActionLogger()
         self.backend = registry.backends[search_criteria['backend']]
 
-        if self.backend == 'win32':
+        if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
             self.WrapperObject = self.wrapper_object
             self.ChildWindow = self.child_window
@@ -155,7 +155,7 @@ class WindowSpecification(object):
             self.Wait = self.wait
             self.WaitNot = self.wait_not
             self.PrintControlIdentifiers = self.print_control_identifiers
-            
+
             self.Window_ = self.window
             self.window_ = self.window
             self.Window = self.window
@@ -828,7 +828,7 @@ class Application(object):
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
-        if self.backend == 'win32':
+        if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
             Start = start
             CPUUsage = cpu_usage

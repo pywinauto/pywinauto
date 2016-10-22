@@ -48,7 +48,7 @@ if UIA_support:
 
             # start the application
             self.app = Application(backend='uia')
-            self.app = self.app.Start(wpf_app_1)
+            self.app = self.app.start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
 
@@ -88,7 +88,7 @@ if UIA_support:
 
         def test_class(self):
             """Test getting the classname of the dialog"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.class_name(), "Button")
 
@@ -99,32 +99,32 @@ if UIA_support:
 
         def test_control_id(self):
             """Test getting control ID"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.control_id(), None)
 
         def test_is_visible(self):
             """Test is_visible method of a control"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.is_visible(), True)
 
         def test_is_enabled(self):
             """Test is_enabled method of a control"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.is_enabled(), True)
 
         def test_process_id(self):
             """Test process_id method of a control"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.process_id(), self.dlg.process_id())
             self.assertNotEqual(button.process_id(), 0)
 
         def test_is_dialog(self):
             """Test is_dialog method of a control"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.is_dialog(), False)
 
@@ -135,7 +135,7 @@ if UIA_support:
 
         def test_top_level_parent(self):
             """Test getting a top-level parent of a control"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.top_level_parent(), self.dlg.WrapperObject())
 
@@ -145,7 +145,7 @@ if UIA_support:
 
         def test_children(self):
             """Test getting children of a control"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(len(button.children()), 1)
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
@@ -157,7 +157,7 @@ if UIA_support:
 
         def test_equals(self):
             """Test controls comparisons"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertNotEqual(button, self.dlg.WrapperObject())
             self.assertEqual(button, button.element_info)
@@ -176,7 +176,7 @@ if UIA_support:
             """Test is_keyboard focusable method of several controls"""
             edit = self.dlg.TestLabelEdit.WrapperObject()
             label = self.dlg.TestLabel.WrapperObject()
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             self.assertEqual(button.is_keyboard_focusable(), True)
             self.assertEqual(edit.is_keyboard_focusable(), True)
@@ -202,7 +202,7 @@ if UIA_support:
 
         def test_no_pattern_interface_error(self):
             """Test a query interface exception handling"""
-            button = self.dlg.window_(class_name="Button",
+            button = self.dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
             elem = button.element_info.element
             self.assertRaises(
@@ -267,13 +267,13 @@ if UIA_support:
             _set_timings()
 
             self.app = Application(backend='uia')
-            self.app = self.app.Start(wpf_app_1)
+            self.app = self.app.start(wpf_app_1)
 
             dlg = self.app.WPFSampleApplication
-            self.button = dlg.window_(class_name="Button",
+            self.button = dlg.window(class_name="Button",
                                       title="OK").WrapperObject()
 
-            self.label = dlg.window_(class_name="Text", title="TestLabel").WrapperObject()
+            self.label = dlg.window(class_name="Text", title="TestLabel").WrapperObject()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -319,7 +319,7 @@ if UIA_support:
 
             # start the application
             app = Application(backend='uia')
-            self.app = app.Start(wpf_app_1)
+            self.app = app.start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
 
         def tearDown(self):
@@ -346,7 +346,7 @@ if UIA_support:
             friendly_name = self.dlg.TabControl.friendly_class_name()
             self.assertEqual(friendly_name, "TabControl")
 
-            edit = self.dlg.window_(class_name="TextBox").WrapperObject()
+            edit = self.dlg.window(class_name="TextBox").WrapperObject()
             self.assertEqual(edit.friendly_class_name(), "Edit")
 
             slider = self.dlg.Slider.WrapperObject()
@@ -401,7 +401,7 @@ if UIA_support:
 
         def test_button_click(self):
             """Test the click method for the Button control"""
-            label = self.dlg.window_(class_name="Text",
+            label = self.dlg.window(class_name="Text",
                                      title="TestLabel").WrapperObject()
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
@@ -489,7 +489,7 @@ if UIA_support:
             dlg = app.WPFSampleApplication
 
             self.app = app
-            self.ctrl = dlg.window_(class_name="TabControl").WrapperObject()
+            self.ctrl = dlg.window(class_name="TabControl").WrapperObject()
             self.texts = [u"General", u"Tree and List Views", u"ListBox and Grid"]
 
         def tearDown(self):
@@ -529,7 +529,7 @@ if UIA_support:
             self.app = app
             self.dlg = app.WPFSampleApplication
 
-            self.edit = self.dlg.window_(class_name="TextBox").WrapperObject()
+            self.edit = self.dlg.window(class_name="TextBox").WrapperObject()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -983,7 +983,7 @@ if UIA_support:
 
             # start the application
             self.app = Application(backend='uia')
-            self.app = self.app.Start(wpf_app_1)
+            self.app = self.app.start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
 
         def tearDown(self):
@@ -1047,7 +1047,7 @@ if UIA_support:
 
             # start the application
             self.app = Application(backend='uia')
-            self.app = self.app.Start("notepad.exe")
+            self.app = self.app.start("notepad.exe")
             self.dlg = self.app.UntitledNotepad
 
         def tearDown(self):
@@ -1148,7 +1148,7 @@ if UIA_support:
 
             # start the application
             self.app = Application(backend='uia')
-            self.app = self.app.Start(wpf_app_1)
+            self.app = self.app.start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
 
         def tearDown(self):
@@ -1211,7 +1211,7 @@ if UIA_support:
             self.ctrl.move_mouse_input(coords=(10, 10), absolute=False)
 
             # Find a tooltip by class name
-            tt = self.app.window_(top_level_only=False,
+            tt = self.app.window(top_level_only=False,
                                   class_name="tooltips_class32").Wait('visible')
             self.assertEqual(isinstance(tt, uia_ctls.TooltipWrapper), True)
             self.assertEqual(tt.window_text(), "Large Icons")
@@ -1248,7 +1248,7 @@ if UIA_support:
 
             # start the application
             self.app = Application(backend='uia')
-            self.app = self.app.Start(wpf_app_1)
+            self.app = self.app.start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
             tab_itm = self.dlg.TreeAndListViews.set_focus()
             self.ctrl = tab_itm.children(control_type="Tree")[0]
