@@ -599,7 +599,7 @@ class WindowSpecification(object):
                 title = ctrl.window_text()
                 class_name = ctrl.class_name()
                 auto_id = None
-                if hasattr(ctrl.element_info, automation_id):
+                if hasattr(ctrl.element_info, 'automation_id'):
                     auto_id = ctrl.element_info.automation_id
                 criteria_texts = []
                 if title:
@@ -1113,9 +1113,8 @@ class Application(object):
     Windows_ = windows_
 
 
-    def window_(self, **kwargs):
-        """
-        Return a window of the application
+    def window(self, **kwargs):
+        """Return a window of the application
 
         You can specify the same parameters as findwindows.find_windows.
         It will add the process parameter to ensure that the window is from
@@ -1134,12 +1133,12 @@ class Application(object):
             win_spec = WindowSpecification(kwargs)
 
         return win_spec
-    Window_ = window_
+    Window_ = window_ = window
 
     def __getitem__(self, key):
         """Find the specified dialog of the application"""
         # delegate searching functionality to self.window_()
-        return self.window_(best_match = key)
+        return self.window(best_match = key)
 
     def __getattribute__(self, attr_name):
         """Find the specified dialog of the application"""

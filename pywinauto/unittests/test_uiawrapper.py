@@ -59,7 +59,7 @@ if UIA_support:
         def test_find_nontop_ctl_by_class_name_and_title(self):
             """Test getting a non-top control by a class name and a title"""
             # Look up for a non-top button control with 'Apply' caption
-            self.dlg.Wait('ready')
+            self.dlg.wait('ready')
             caption = 'Apply'
             wins = self.app.windows_(top_level_only=False,
                                      class_name='Button',
@@ -75,7 +75,7 @@ if UIA_support:
             """Test getting a top window by a class name and a title"""
             # Since the top_level_only is True by default
             # we don't specify it as a criteria argument
-            self.dlg.Wait('ready')
+            self.dlg.wait('ready')
             caption = 'WPF Sample Application'
             wins = self.app.windows_(class_name='Window',
                                      title=caption)
@@ -215,11 +215,11 @@ if UIA_support:
         def test_minimize_maximize(self):
             """Test window minimize/maximize operations"""
             wrp = self.dlg.minimize()
-            self.dlg.WaitNot('active')
+            self.dlg.wait_not('active')
             self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
                              uia_defs.window_visual_state_minimized)
             wrp.maximize()
-            self.dlg.Wait('active')
+            self.dlg.wait('active')
             self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
                              uia_defs.window_visual_state_maximized)
 
@@ -1212,7 +1212,7 @@ if UIA_support:
 
             # Find a tooltip by class name
             tt = self.app.window(top_level_only=False,
-                                  class_name="tooltips_class32").Wait('visible')
+                                  class_name="tooltips_class32").wait('visible')
             self.assertEqual(isinstance(tt, uia_ctls.TooltipWrapper), True)
             self.assertEqual(tt.window_text(), "Large Icons")
 
