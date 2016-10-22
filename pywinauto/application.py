@@ -830,9 +830,9 @@ class Application(object):
         self.backend = registry.backends[backend]
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
-            Start = start
-            CPUUsage = cpu_usage
-            WaitCPUUsageLower = wait_cpu_usage_lower
+            self.Start = self.start
+            self.CPUUsage = self.cpu_usage
+            self.WaitCPUUsageLower = self.wait_cpu_usage_lower
 
         # load the match history if a file was specifed
         # and it exists
