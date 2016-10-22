@@ -384,7 +384,7 @@ One way to get this is to do the following
   ::
 
    import pywinauto.application
-   app = pywinauto.application.Application().connect_(path="explorer")
+   app = pywinauto.application.Application().connect(path="explorer")
    systray_icons = app.ShellTrayWnd.NotificationAreaToolbar
 
 The taskbar module provides very preliminary access to the System Tray.
