@@ -54,7 +54,7 @@ environment:
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
+      UIA_SUPPORT: "YES"
 
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5"
