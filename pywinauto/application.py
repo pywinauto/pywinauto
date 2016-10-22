@@ -564,7 +564,7 @@ class WindowSpecification(object):
                referred to as "Edit2".
         """
         if depth is None:
-            depth = sys.maxint
+            depth = sys.maxsize
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
 
