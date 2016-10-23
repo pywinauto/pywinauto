@@ -1,0 +1,45 @@
+sudo: required
+dist: trusty
+language: cpp
+notifications:
+  email: false
+
+
+language: python
+
+python:
+  #- "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+os:
+  - linux
+before_install:
+  - sudo add-apt-repository -y ppa:beineri/opt-qt57-trusty
+
+install:
+  - pip install python-xlib
+  - sudo apt-get update
+  - sudo apt-get install -qq qt57base; 
+  - sudo apt-get -y install qt57declarative qt57tools
+  - sudo apt-get install xsel
+  - source /opt/qt57/bin/qt57-env.sh;
+  
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+  - xauth generate :99.0 . trusted
+  # Build test app
+  - cd apps/MouseTester
+  - svn checkout https://github.com/MagazinnikIvan/PywinautoTestapps/trunk/MouseTester/source
+  - cd source
+  - qmake
+  - make
+  - chmod a+x mousebuttons
+  - cd $TRAVIS_BUILD_DIR
+
+script:
+  - python pywinauto/unittests/test_mouse.py
+ # - python pywinauto/unittests/test_SendKeys.py
