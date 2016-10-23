@@ -30,8 +30,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Tests for class FuzzyDict"""
-from __future__ import unicode_literals
-
 import unittest
 import sys
 
@@ -44,9 +42,9 @@ class FuzzyTestCase(unittest.TestCase):
     """Perform some tests"""
 
     test_dict = {
-        'Hiya'  : 1,
-        'hiy\xe4' : 2,
-        'test3' : 3,
+        u'Hiya'  : 1,
+        u'hiy\xe4' : 2,
+        u'test3' : 3,
         1: 324}
 
     def test_creation_empty(self):
@@ -59,23 +57,23 @@ class FuzzyTestCase(unittest.TestCase):
         """Test creating a fuzzy dict"""
         fd = FuzzyDict(self.test_dict)
         self.assertEquals(fd, self.test_dict)
-        self.assertEquals(self.test_dict['Hiya'], fd['hiya'])
+        self.assertEquals(self.test_dict[u'Hiya'], fd[u'hiya'])
 
         fd2 = FuzzyDict(self.test_dict, cutoff = .8)
         self.assertEquals(fd, self.test_dict)
-        self.assertRaises(KeyError, fd2.__getitem__, 'hiya')
+        self.assertRaises(KeyError, fd2.__getitem__, u'hiya')
 
     def test_contains(self):
         """Test checking if an item is in a FuzzyDict"""
         fd = FuzzyDict(self.test_dict)
 
-        self.assertEquals(True, fd.__contains__('hiya'))
+        self.assertEquals(True, fd.__contains__(u'hiya'))
 
-        self.assertEquals(True, fd.__contains__('test3'))
+        self.assertEquals(True, fd.__contains__(u'test3'))
 
-        self.assertEquals(True, fd.__contains__('hiy\xe4'))
+        self.assertEquals(True, fd.__contains__(u'hiy\xe4'))
 
-        self.assertEquals(False, fd.__contains__('FuzzyWuzzy'))
+        self.assertEquals(False, fd.__contains__(u'FuzzyWuzzy'))
 
         self.assertEquals(True, fd.__contains__(1))
 
@@ -85,12 +83,12 @@ class FuzzyTestCase(unittest.TestCase):
         """Test getting items from a FuzzyDict"""
         fd = FuzzyDict(self.test_dict)
 
-        self.assertEquals(self.test_dict["Hiya"], fd['hiya'])
-        self.assertRaises(KeyError, fd.__getitem__, 'FuzzyWuzzy')
+        self.assertEquals(self.test_dict[u"Hiya"], fd[u'hiya'])
+        self.assertRaises(KeyError, fd.__getitem__, u'FuzzyWuzzy')
 
         fd2 = FuzzyDict(self.test_dict, cutoff = .14)
 
-        self.assertEquals(1, fd2['FuzzyWuzzy'])
+        self.assertEquals(1, fd2[u'FuzzyWuzzy'])
         self.assertEquals(324, fd2[1])
         self.assertRaises(KeyError, fd2.__getitem__, 23)
 

@@ -564,6 +564,7 @@ class WindowSpecification(object):
                referred to as "Edit2".
         """
         if depth is None:
+            # TODO: think about marking incomplete subtree for depths like 1 or 2
             depth = sys.maxsize
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
@@ -594,7 +595,6 @@ class WindowSpecification(object):
                              text=ctrl.window_text(),
                              rect=ctrl.rectangle())
                 output += indent + '{}\n'.format(control_name_map[ctrl])
-                output += indent
 
                 title = ctrl.window_text()
                 class_name = ctrl.class_name()
@@ -611,7 +611,7 @@ class WindowSpecification(object):
                 #if control_type:
                 #    criteria_texts.append('control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
-                    output += 'child_window(' + ', '.join(criteria_texts) + ')'
+                    output += indent + 'child_window(' + ', '.join(criteria_texts) + ')'
                 print(output)
 
                 print_identifiers(ctrl.children(), current_depth + 1)
