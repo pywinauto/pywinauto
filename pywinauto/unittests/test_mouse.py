@@ -3,9 +3,9 @@
 import time
 import sys
 import os
-import win32clipboard
 import unittest
 if sys.platform == 'win32':
+    import win32clipboard
     sys.path.append(".")
     from pywinauto.application import Application
     from pywinauto.keyboard import SendKeys
