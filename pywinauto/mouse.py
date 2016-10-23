@@ -46,8 +46,8 @@ else:
     from Xlib.ext.xtest import fake_input
 
 
-BUTTON_MAPPING = {'left': 1, 'middle': 2, 'right': 3, 'up_scroll': 4,
-                  'down_scroll': 5, 'left_scroll': 6, 'right_scroll': 7}
+BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
+                  'down_scroll': 4, 'left_scroll': 5, 'right_scroll': 6}
 
 
 if sys.platform == 'win32':
@@ -214,7 +214,8 @@ def click(button='left', coords=(0, 0)):
 
 def double_click(button='left', coords=(0, 0)):
     """Double click at the specified coordinates"""
-    _perform_click_input(button=button, coords=coords, double=True)
+    _perform_click_input(button=button, coords=coords)
+    _perform_click_input(button=button, coords=coords)
 
 
 def right_click(coords=(0, 0)):
