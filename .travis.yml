@@ -38,6 +38,7 @@ before_script:
   - qmake
   - make
   - chmod a+x mousebuttons
+  - cp mousebuttons ../
   - cd $TRAVIS_BUILD_DIR
 
 script:
