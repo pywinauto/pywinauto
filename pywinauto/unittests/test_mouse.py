@@ -18,7 +18,7 @@ else:
     import mouse
     send_keys_dir = os.path.join(parent_dir, r"Linux/")
     sys.path.insert(0, send_keys_dir)
-    from SendKeys import SendKeys
+    from keyboard import SendKeys
     import clipboard
 
 
