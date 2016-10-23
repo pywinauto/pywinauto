@@ -200,12 +200,16 @@ else:
         else:
             pointer_map = _display.get_pointer_mapping()
             button = pointer_map[BUTTON_MAPPING[button]]
-            if button_down:
-                fake_input(_display, X.ButtonPress, button)
-                _display.sync()
-            if button_up:
-                fake_input(_display, X.ButtonRelease, button)
-                _display.sync()
+            repeat = 1
+            if double:
+                repeat = 2
+            for _ in range(repeat):
+                if button_down:
+                    fake_input(_display, X.ButtonPress, button)
+                    _display.sync()
+                if button_up:
+                    fake_input(_display, X.ButtonRelease, button)
+                    _display.sync()
 
 
 def click(button='left', coords=(0, 0)):
@@ -215,8 +219,7 @@ def click(button='left', coords=(0, 0)):
 
 def double_click(button='left', coords=(0, 0)):
     """Double click at the specified coordinates"""
-    _perform_click_input(button=button, coords=coords)
-    _perform_click_input(button=button, coords=coords)
+    _perform_click_input(button=button, coords=coords, double = True)
 
 
 def right_click(coords=(0, 0)):

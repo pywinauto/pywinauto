@@ -48,9 +48,10 @@ class MouseTests(unittest.TestCase):
         else:
             self.display = Display()
             self.app = subprocess.Popen("exec " + _test_app(), shell=True)
-            time.sleep(1)
+            time.sleep(2)
 
     def tearDown(self):
+        time.sleep(1)
         if sys.platform == 'win32':
             self.app.kill_()
         else:
@@ -69,6 +70,7 @@ class MouseTests(unittest.TestCase):
 
     def __get_text(self):
         data = ''
+        time.sleep(1)
         SendKeys('^a')
         SendKeys('^c')
         if sys.platform == 'win32':
@@ -117,6 +119,7 @@ class MouseTests(unittest.TestCase):
     def test_vertical_scroll(self):
         mouse.scroll((self.__get_pos(50)), 5)
         mouse.scroll((self.__get_pos(50)), -5)
+        
         data = self.__get_text()
         self.assertTrue("UP" in data)
         self.assertTrue("DOWN" in data)
