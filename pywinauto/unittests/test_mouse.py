@@ -48,10 +48,9 @@ class MouseTests(unittest.TestCase):
         else:
             self.display = Display()
             self.app = subprocess.Popen("exec " + _test_app(), shell=True)
-            time.sleep(2)
+            time.sleep(1)
 
     def tearDown(self):
-        time.sleep(1)
         if sys.platform == 'win32':
             self.app.kill_()
         else:
@@ -116,13 +115,17 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("RightButton" in data)
 
-    def test_vertical_scroll(self):
-        mouse.scroll((self.__get_pos(50)), 5)
-        mouse.scroll((self.__get_pos(50)), -5)
-        
+    def test_vertical_scroll_up(self):
+        mouse.click(coords=(self.__get_pos(50)))
+        mouse.scroll((self.__get_pos(50)), 1)
         data = self.__get_text()
         self.assertTrue("UP" in data)
-        self.assertTrue("DOWN" in data)
+
+    def test_vertical_scroll_down(self):
+        mouse.click(coords=(self.__get_pos(50)))
+        mouse.scroll((self.__get_pos(50)), -1)
+        data = self.__get_text()
+        self.assertTrue("DOWN" in data)    
 
     def test_wheel_click(self):
         mouse.wheel_click((self.__get_pos(50)))
