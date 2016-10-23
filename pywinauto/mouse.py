@@ -46,8 +46,8 @@ else:
     from Xlib.ext.xtest import fake_input
 
 
-BUTTON_MAPPING = {'left': 1, 'middle': 2, 'right': 3, 'up_scroll': 4,
-                  'down_scroll': 5, 'left_scroll': 6, 'right_scroll': 7}
+BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
+                  'down_scroll': 4, 'left_scroll': 5, 'right_scroll': 6}
 
 
 if sys.platform == 'win32':
@@ -198,7 +198,8 @@ else:
             for _ in range(abs(wheel_dist)):
                 _perform_click_input(button, coords)
         else:
-            button = BUTTON_MAPPING[button]
+            pointer_map = _display.get_pointer_mapping()
+            button = pointer_map[BUTTON_MAPPING[button]]
             if button_down:
                 fake_input(_display, X.ButtonPress, button)
                 _display.sync()
