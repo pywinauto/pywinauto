@@ -1,6 +1,7 @@
 """Tests for mouse.py"""
 
 import time
+import copy
 import sys
 import os
 import unittest
