@@ -259,7 +259,8 @@ class KeyAction(object):
         self.shift = False
         self.is_shifted = False
 
-    def _key_modifiers(self, ctrl, shift, alt, action = X.KeyPress):
+    @staticmethod
+    def _key_modifiers(ctrl, shift, alt, action = X.KeyPress):
         """Apply key modifiers"""
         if ctrl:
             fake_input(_display, action, CODES['VK_CONTROL'])
@@ -270,7 +271,7 @@ class KeyAction(object):
 
     def Run(self):
         """Do a single 'keybord' action using xlib"""
-        if type(self.key) == str:
+        if isinstance(self.key, str):
             key = self.key
             self.key = Xlib.XK.string_to_keysym(self.key)
             if self.key == 0:
@@ -405,7 +406,6 @@ def parse_keys(string,
         index += 1
         # check if one of CTRL, SHIFT, ALT has been pressed
         if c in MODIFIERS.keys():
-            modifier = MODIFIERS[c]
             # remember that we are currently modified
             modifiers.append(c)
             # hold down the modifier key

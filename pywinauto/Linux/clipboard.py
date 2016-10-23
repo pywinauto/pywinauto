@@ -1,5 +1,4 @@
 # Copyright (c) 2016 Ivan Magazinnik
-import os
 import subprocess
 import sys
 
@@ -40,8 +39,8 @@ def set_up_clipboard(is_input):
 def get_data():
     command = set_up_clipboard(is_input=False)
     process = subprocess.Popen(command,stdout=subprocess.PIPE, close_fds=True)
-    stdout, stderr = process.communicate()
-    return stdout.decode('utf-8')
+    stdout = process.communicate()
+    return stdout[0].decode('utf-8')
 
 def set_data(text):
     command = set_up_clipboard(is_input=True)

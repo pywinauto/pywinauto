@@ -65,7 +65,7 @@ class MouseTests(unittest.TestCase):
             root = self.display.screen().root
             left_pos = root.get_geometry().width / 2
             top_pos = root.get_geometry().height / 2
-            return 300+shift, 300+shift
+            return left_pos-shift, top_pos-shift
 
     def __get_text(self):
         data = ''
@@ -82,10 +82,11 @@ class MouseTests(unittest.TestCase):
 
     def test_position(self):
         left, top = self.__get_pos(50)
+        print(left, top)
         mouse.click(coords=(left, top))
         data = self.__get_text()
-        self.assertTrue(str(top) in data)
-        self.assertTrue(str(left) in data)
+        self.assertTrue(str(int(top)) in data)
+        self.assertTrue(str(int(left)) in data)
 
     def test_click(self):
         mouse.click(coords=(self.__get_pos(50)))
@@ -125,7 +126,7 @@ class MouseTests(unittest.TestCase):
         mouse.click(coords=(self.__get_pos(50)))
         mouse.scroll((self.__get_pos(50)), -1)
         data = self.__get_text()
-        self.assertTrue("DOWN" in data)    
+        self.assertTrue("DOWN" in data)
 
     def test_wheel_click(self):
         mouse.wheel_click((self.__get_pos(50)))
