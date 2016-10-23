@@ -46,8 +46,8 @@ else:
     from Xlib.ext.xtest import fake_input
 
 
-BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
-                  'down_scroll': 4, 'left_scroll': 5, 'right_scroll': 6}
+BUTTON_MAPPING = {'left': 1, 'middle': 2, 'right': 3, 'up_scroll': 4,
+                  'down_scroll': 5, 'left_scroll': 6, 'right_scroll': 7}
 
 
 if sys.platform == 'win32':
