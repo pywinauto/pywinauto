@@ -12,6 +12,7 @@ if sys.platform == 'win32':
     from pywinauto import mouse
     from pywinauto.timings import Timings
 else:
+    import subprocess
     from Xlib.display import Display
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(0, parent_dir)
