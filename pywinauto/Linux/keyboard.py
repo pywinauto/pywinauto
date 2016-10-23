@@ -235,6 +235,7 @@ MODIFIERS = {
 
 
 class KeySequenceError(Exception):
+
     """Exception raised when a key sequence string has a syntax error"""
 
     def __str__(self):
@@ -242,6 +243,7 @@ class KeySequenceError(Exception):
 
 
 class KeyAction(object):
+
     """
     Class that represents a single 'keyboard' action
 
@@ -294,7 +296,6 @@ class KeyAction(object):
                             self.alt, action = X.KeyRelease)
         _display.sync()
 
-
     def _get_down_up_string(self):
         """Return a string that will show whether the string is up or down
 
@@ -326,7 +327,9 @@ class KeyAction(object):
         return "<%s>"% (" ".join(parts))
     __repr__ = __str__
 
+
 class PauseAction(KeyAction):
+
     """Represents a pause action"""
 
     def __init__(self, how_long):
@@ -388,14 +391,12 @@ def handle_code(code):
     return code_keys
 
 
-
 def parse_keys(string,
                 with_spaces = False,
                 with_tabs = False,
                 with_newlines = False,
                 modifiers = None):
     """Return the parsed keys"""
-
     keys = []
     if not modifiers:
         modifiers = []
@@ -478,6 +479,7 @@ def parse_keys(string,
         keys.append(KeyAction(modifiers.pop(), down = False))
     return keys
 
+
 def SendKeys(keys,
              pause=0.05,
              with_spaces=False,
@@ -493,7 +495,6 @@ def SendKeys(keys,
 
 def main(): #pragma: no cover
     """Send some test strings"""
-
     actions = """
         {LWIN}
         {PAUSE .25}
