@@ -6,6 +6,8 @@ from Xlib import X
 from Xlib.ext.xtest import fake_input
 import Xlib.XK
 import time
+import six
+
 _display = Display()
 
 #__all__ = ['KeySequenceError', 'SendKeys']
@@ -274,8 +276,8 @@ class KeyAction(object):
             fake_input(_display, action, CODES['VK_MENU'])
 
     def Run(self):
-        """Do a single 'keybord' action using xlib"""
-        if isinstance(self.key, str):
+        """Do a single keyboard action using xlib"""
+        if isinstance(self.key, six.string_types):
             key = self.key
             self.key = Xlib.XK.string_to_keysym(self.key)
             if self.key == 0:
@@ -284,6 +286,8 @@ class KeyAction(object):
             if self.key == 0:
                 raise RuntimeError('Key {} not found!'.format(self.key))
             self.is_shifted = key.isupper() or key in '~!@#$%^&*()_+{}|:"<>?'
+        else:
+            raise TypeError('self.key = {} is not a string'.format(self.key))
 
         self._key_modifiers(self.ctrl, (self.shift or self.is_shifted),
                             self.alt, action = X.KeyPress)
