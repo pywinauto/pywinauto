@@ -35,8 +35,8 @@ import subprocess
 import time
 sys.path.append(".")
 if sys.platform == 'win32':
-    from pywinauto.SendKeysCtypes import SendKeys, DEBUG, KeySequenceError
-    from pywinauto.SendKeysCtypes import KeyAction, VirtualKeyAction, PauseAction
+    from pywinauto.keyboard import SendKeys, DEBUG, KeySequenceError
+    from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto import six
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
@@ -48,7 +48,7 @@ else:
     import mouse
     send_keys_dir = os.path.join(parent_dir, r"Linux/")
     sys.path.insert(0, send_keys_dir)
-    from SendKeys import SendKeys, KeySequenceError, KeyAction
+    from pywinauto.keyboard import SendKeys, KeySequenceError, KeyAction
     import clipboard
 
 def mfc_samples():
