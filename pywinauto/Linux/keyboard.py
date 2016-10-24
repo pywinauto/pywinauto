@@ -286,8 +286,8 @@ class KeyAction(object):
             if self.key == 0:
                 raise RuntimeError('Key {} not found!'.format(self.key))
             self.is_shifted = key.isupper() or key in '~!@#$%^&*()_+{}|:"<>?'
-        else:
-            raise TypeError('self.key = {} is not a string'.format(self.key))
+        elif not isinstance(self.key, six.integer_types):
+            raise TypeError('self.key = {} is not a string or integer'.format(self.key))
 
         self._key_modifiers(self.ctrl, (self.shift or self.is_shifted),
                             self.alt, action = X.KeyPress)
