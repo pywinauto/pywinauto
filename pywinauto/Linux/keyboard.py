@@ -280,16 +280,15 @@ class KeyAction(object):
                 self.key = Xlib.XK.string_to_keysym(spec_keysyms[key])
             self.key = _display.keysym_to_keycode(self.key)
             if self.key == 0:
-                print("No button found")
-                return
+                raise RuntimeError('Key {} not found!'.format(self.key))
             self.is_shifted = key.isupper() or key in '~!@#$%^&*()_+{}|:"<>?'
 
         self._key_modifiers(self.ctrl, (self.shift or self.is_shifted),
                             self.alt, action = X.KeyPress)
-        if self.up:
+        if self.down:
             fake_input(_display, X.KeyPress, self.key)
             _display.sync()
-        if self.down:
+        if self.up:
             fake_input(_display, X.KeyRelease, self.key)
             _display.sync()
         self._key_modifiers(self.ctrl, (self.shift or self.is_shifted),
@@ -303,18 +302,17 @@ class KeyAction(object):
         return 'up' if the key is up only
         return '' if the key is up & down (as default)
         """
-        down_up = ""
-        if not (self.down and self.up):
-            if self.down:
-                down_up = "down"
-            elif self.up:
-                down_up = "up"
-        return down_up
+        if self.down and self.up:
+            return ""
+        if self.down:
+            return "down"
+        if self.up:
+            return "up"
+        return "" # TODO: raise RuntimeError('Nor "down" or "up" action specified!')
 
     def key_description(self):
         """Return a description of the key"""
-        desc = "%s"% self.key
-        return desc
+        return "{}".format(self.key)
 
     def __str__(self):
         """Return key with modifiers as a string"""
@@ -324,7 +322,7 @@ class KeyAction(object):
         if up_down:
             parts.append(up_down)
 
-        return "<%s>"% (" ".join(parts))
+        return "<{}>".format(" ".join(parts))
     __repr__ = __str__
 
 
