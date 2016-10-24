@@ -8,7 +8,7 @@ import Xlib.XK
 import time
 _display = Display()
 
-__all__ = ['KeySequenceError', 'SendKeys']
+#__all__ = ['KeySequenceError', 'SendKeys']
 
 DEBUG = 0
 
