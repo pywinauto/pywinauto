@@ -58,11 +58,13 @@ class WindowAmbiguousError(Exception):
     """There was more then one window that matched"""
     pass
 
+
 #=========================================================================
 class ElementNotFoundError(Exception):
 
     """No element could be found"""
     pass
+
 
 #=========================================================================
 class ElementAmbiguousError(Exception):
@@ -70,13 +72,14 @@ class ElementAmbiguousError(Exception):
     """There was more then one element that matched"""
     pass
 
+
 #=========================================================================
 def find_element(**kwargs):
     """
     Call find_elements and ensure that only one element is returned
 
     Calls find_elements with exactly the same arguments as it is called with
-    so please see find_elements for a description of them.
+    so please see :py:func:`find_elements` for the full parameters description.
     """
     elements = find_elements(**kwargs)
 
@@ -84,10 +87,10 @@ def find_element(**kwargs):
         raise ElementNotFoundError(kwargs)
 
     if len(elements) > 1:
-        exception =  ElementAmbiguousError(
-            "There are %d elements that match the criteria %s"% (
-            len(elements),
-            six.text_type(kwargs),
+        exception = ElementAmbiguousError(
+            "There are {0} elements that match the criteria {1}".format(
+                len(elements),
+                six.text_type(kwargs),
             )
         )
 
@@ -96,13 +99,14 @@ def find_element(**kwargs):
 
     return elements[0]
 
+
 #=========================================================================
 def find_window(**kwargs):
     """
     Call find_elements and ensure that only handle of one element is returned
 
     Calls find_elements with exactly the same arguments as it is called with
-    so please see find_elements for a description of them.
+    so please see :py:func:`find_elements` for the full parameters description.
     """
     try:
         kwargs['backend'] = 'win32'
@@ -113,38 +117,39 @@ def find_window(**kwargs):
     except ElementAmbiguousError:
         raise WindowAmbiguousError
 
+
 #=========================================================================
-def find_elements(class_name = None,
-                  class_name_re = None,
-                  parent = None,
-                  process = None,
-                  title = None,
-                  title_re = None,
-                  top_level_only = True,
-                  visible_only = True,
-                  enabled_only = False,
-                  best_match = None,
-                  handle = None,
-                  ctrl_index = None,
-                  found_index = None,
-                  predicate_func = None,
-                  active_only = False,
-                  control_id = None,
-                  auto_id = None,
-                  framework_id = None,
-                  backend = None,
-    ):
+def find_elements(class_name=None,
+                  class_name_re=None,
+                  parent=None,
+                  process=None,
+                  title=None,
+                  title_re=None,
+                  top_level_only=True,
+                  visible_only=True,
+                  enabled_only=False,
+                  best_match=None,
+                  handle=None,
+                  ctrl_index=None,
+                  found_index=None,
+                  predicate_func=None,
+                  active_only=False,
+                  control_id=None,
+                  auto_id=None,
+                  framework_id=None,
+                  backend=None,
+                  ):
     """
     Find elements based on criteria passed in
 
     Possible values are:
 
     * **class_name**     Elements with this window class
-    * **class_name_re**  Elements whose class match this regular expression
+    * **class_name_re**  Elements whose class matches this regular expression
     * **parent**         Elements that are children of this
     * **process**        Elements running in this process
     * **title**          Elements with this text
-    * **title_re**       Elements whose text match this regular expression
+    * **title_re**       Elements whose text matches this regular expression
     * **top_level_only** Top level elements only (default=True)
     * **visible_only**   Visible elements only (default=True)
     * **enabled_only**   Enabled elements only (default=False)
@@ -152,6 +157,7 @@ def find_elements(class_name = None,
     * **handle**         The handle of the element to return
     * **ctrl_index**     The index of the child element to return
     * **found_index**    The index of the filtered out child element to return
+    * **predicate_func** A user provided hook for a custom element validation
     * **active_only**    Active elements only (default=False)
     * **control_id**     Elements with this control id
     * **auto_id**        Elements with this automation id (for UIAutomation elements)
@@ -175,10 +181,10 @@ def find_elements(class_name = None,
     if top_level_only:
         # find the top level elements
         element = backend_obj.element_info_class()
-        elements = element.children(process = process,
-                                    class_name = class_name,
-                                    title = title,
-                                    cache_enable = True) # root.children == enum_windows()
+        elements = element.children(process=process,
+                                    class_name=class_name,
+                                    title=title,
+                                    cache_enable=True)  # root.children == enum_windows()
 
         # if we have been given a parent
         if parent:
@@ -191,10 +197,10 @@ def find_elements(class_name = None,
             parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
-        elements = parent.descendants(process = process,
-                                      class_name = class_name,
-                                      title = title,
-                                      cache_enable = True) # root.children == enum_windows()
+        elements = parent.descendants(process=process,
+                                      class_name=class_name,
+                                      title=title,
+                                      cache_enable=True)  # root.children == enum_windows()
 
         # if the ctrl_index has been specified then just return
         # that control
@@ -251,7 +257,9 @@ def find_elements(class_name = None,
         elements = [elem for elem in elements if elem.rich_text == title]
     elif title_re is not None:
         title_regex = re.compile(title_re)
+
         def _title_match(w):
+            """Match a window title to the regexp"""
             t = w.rich_text
             if t is not None:
                 return title_regex.match(t)
@@ -285,14 +293,13 @@ def find_elements(class_name = None,
         elements = []
         for elem in backup_elements:
             if hasattr(elem, "element_info"):
-                elem.element_info.set_cache_strategy(cached = False)
+                elem.element_info.set_cache_strategy(cached=False)
                 elements.append(elem.element_info)
             else:
                 elements.append(backend_obj.element_info_class(elem.handle))
     else:
         for elem in elements:
-            elem.set_cache_strategy(cached = False)
-
+            elem.set_cache_strategy(cached=False)
 
     if predicate_func is not None:
         elements = [elem for elem in elements if predicate_func(elem)]
@@ -302,10 +309,11 @@ def find_elements(class_name = None,
         if found_index < len(elements):
             elements = elements[found_index:found_index + 1]
         else:
-            raise ElementNotFoundError("found_index is specified as {0}, but {1} window/s found".\
-                format(found_index, len(elements)))
+            raise ElementNotFoundError("found_index is specified as {0}, but {1} window/s found".format(
+                found_index, len(elements)))
 
     return elements
+
 
 #=========================================================================
 def find_windows(**kwargs):
@@ -313,7 +321,7 @@ def find_windows(**kwargs):
     Find elements based on criteria passed in and return list of their handles
 
     Calls find_elements with exactly the same arguments as it is called with
-    so please see find_elements for a description of them.
+    so please see :py:func:`find_elements` for the full parameters description.
     """
     try:
         kwargs['backend'] = 'win32'
@@ -321,6 +329,7 @@ def find_windows(**kwargs):
         return [elem.handle for elem in elements]
     except ElementNotFoundError:
         raise WindowNotFoundError
+
 
 #=========================================================================
 def enum_windows():

@@ -48,9 +48,9 @@ Please find below a sample run ::
 	(2)   >>> app = application.Application()
 	(3)   >>> app.start("Notepad.exe")
 	      <pywinauto.application.Application object at 0x00AE0990>
-	(4)   >>> app.Notepad.DrawOutline()
-	(5)   >>> app.Notepad.MenuSelect("Edit -> Replace")
-	(6)   >>> app.Replace.PrintControlIdentifiers()
+	(4)   >>> app.Notepad.draw_outline()
+	(5)   >>> app.Notepad.menu_select("Edit -> Replace")
+	(6)   >>> app.Replace.print_control_identifiers()
 	      Control Identifiers:
 	      Static - 'Fi&nd what:'   (L1018, T159, R1090, B172)
 	              'Fi&nd what:' 'Fi&nd what:Static' 'Static' 'Static0' 'Static1'
@@ -70,11 +70,11 @@ Please find below a sample run ::
 	              'Button3' 'Replace &All' 'Replace &AllButton'
 	      Button - 'Cancel'   (L1273, T233, R1348, B256)
 	              'Button4' 'Cancel' 'CancelButton'
-	(7)   >>> app.Replace.Cancel.Click()
-	(8)   >>> app.Notepad.Edit.TypeKeys("Hi from Python interactive prompt %s" % str(dir()), with_spaces = True)
+	(7)   >>> app.Replace.Cancel.click()
+	(8)   >>> app.Notepad.Edit.type_keys("Hi from Python interactive prompt %s" % str(dir()), with_spaces = True)
 	      <pywinauto.controls.win32_controls.EditWrapper object at 0x00DDC2D0>
-	(9)   >>> app.Notepad.MenuSelect("File -> Exit")
-	(10)  >>> app.Notepad.No.Click()
+	(9)   >>> app.Notepad.menu_select("File -> Exit")
+	(10)  >>> app.Notepad.No.click()
 	      >>>
 
 1. Import the pywinauto.application module (usually the only module you need
@@ -101,12 +101,12 @@ Please find below a sample run ::
 
    The last is the one that gives the user reading the script aftewards the
    best idea of what the script does.
-7. Close the Replace dialog. (In a script file it is safer to use CloseClick()
-   rather than Click() because CloseClick() waits a little longer to give windows
+7. Close the Replace dialog. (In a script file it is safer to use close_click()
+   rather than click() because close_click() waits a little longer to give windows
    time to close the dialog.)
 8. Let's type some text into the Notepad text area. Without the ``with_spaces``
    argument spaces would not be typed. Please see documentation for SendKeys
    for this method as it is a thin wrapper around SendKeys.
 9. Ask to exit Notepad
-10. We will be asked if we want to save - Click on the "No" button.
+10. We will be asked if we want to save - click on the "No" button.
 

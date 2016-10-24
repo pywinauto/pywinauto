@@ -625,8 +625,6 @@ class BaseWrapper(object):
         coords = list(coords)
 
         # set the default coordinates
-        # TODO: buggy if absolute=False (rectangle returns absolute coords!)
-        # A possible fix: if None in coords: calculate coords and force absolute=True
         if coords[0] is None:
             coords[0] = int(self.rectangle().width() / 2)
         if coords[1] is None:

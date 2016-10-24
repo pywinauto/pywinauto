@@ -32,22 +32,22 @@
 """The application module is the main one that users will use first.
 
 When starting to automate an application you must initialize an instance
-of the Application class. Then you must :func:`Application.Start` that
-application or :func:`Application.Connect()` to a running instance of that
+of the Application class. Then you must :func:`Application.start` that
+application or :func:`Application.connect()` to a running instance of that
 application.
 
 Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app.ChildWindow(title = "your title", classname = "your class", ...)
+   dlg = app.child_window(title = "your title", classname = "your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
 in almost exactly the same ways. ::
 
   ctrl = dlg.YourControlTitle
-  ctrl = dlg.ChildWindow(title = "Your control", classname = "Button", ...)
+  ctrl = dlg.child_window(title = "Your control", classname = "Button", ...)
   ctrl = dlg["Your control"]
 
 .. note::
@@ -58,9 +58,9 @@ in almost exactly the same ways. ::
 
 .. seealso::
 
-  :func:`pywinauto.findwindows.find_windows` for the keyword arguments that
-  can be passed to both: :func:`Application.Window_` and
-  :func:`WindowSpecification.Window`
+   :func:`pywinauto.findwindows.find_elements` for the keyword arguments that
+   can be passed to both: :func:`Application.window_` and
+   :func:`WindowSpecification.child_window`
 """
 from __future__ import print_function
 
@@ -177,7 +177,7 @@ class WindowSpecification(object):
 
 
     def __get_ctrl(self, criteria_):
-        """Get the control based on the various criteria"""
+        """Get a control based on the various criteria"""
         # make a copy of the criteria
         criteria = [crit.copy() for crit in criteria_]
         # find the dialog
@@ -217,7 +217,7 @@ class WindowSpecification(object):
 
              1st element is search criteria for the dialog
 
-             2nd element is the search criteria for a control of the dialog
+             2nd element is search criteria for a control of the dialog
 
         * **timeout** -  maximum length of time to try to find the controls (default 5)
         * **retry_interval** - how long to wait between each retry (default .2)
@@ -253,7 +253,7 @@ class WindowSpecification(object):
         """
         Add criteria for a control
 
-        When this window specification is resolved then this will be used
+        When this window specification is resolved it will be used
         to match against a control.
         """
         # default to non top level windows because we are usualy
@@ -861,7 +861,19 @@ class Application(object):
     Connect_ = __connect  # A deprecated name. Should be removed in 0.6.X
 
     def connect(self, **kwargs):
-        """Connects to an already running process"""
+        """Connects to an already running process
+
+        The action is performed according to only one of parameters
+
+        :param process: a process ID of the target
+        :param handle: a window handle of the target
+        :param path: a path used to launch the target
+
+        .. seealso::
+
+           :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
+           are also can be used instead of **process**, **handle** or **path**
+        """
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
@@ -1026,7 +1038,7 @@ class Application(object):
         return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
 
     def wait_cpu_usage_lower(self, threshold = 2.5, timeout = None, usage_interval = None):
-        """Wait until process CPU usage percentage is less than specified threshold"""
+        """Wait until process CPU usage percentage is less than the specified threshold"""
         if usage_interval is None:
             usage_interval = Timings.cpu_usage_interval
         if timeout is None:
@@ -1041,7 +1053,7 @@ class Application(object):
         return self
 
     def top_window_(self):
-        """Return the current top window of the application"""
+        """Return a current top window of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
@@ -1066,7 +1078,7 @@ class Application(object):
         return WindowSpecification(criteria)
 
     def active_(self):
-        """Return the active window of the application"""
+        """Return an active window of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
@@ -1089,7 +1101,7 @@ class Application(object):
 
 
     def windows_(self, **kwargs):
-        """Return list of wrapped top level windows of the application"""
+        """Return a list of wrapped top level windows of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
@@ -1119,6 +1131,8 @@ class Application(object):
         You can specify the same parameters as findwindows.find_windows.
         It will add the process parameter to ensure that the window is from
         the current process.
+
+        See :py:func:`pywinauto.findwindows.find_elements` for the full parameters description.
         """
         if 'backend' in kwargs:
             raise ValueError('Using another backend than set in the app constructor is not allowed!')
@@ -1170,8 +1184,8 @@ class Application(object):
 
         Dialogs may pop up asking to save data - but the application
         will be killed anyway - you will not be able to click the buttons.
-        this should only be used when it is OK to kill the process like you
-        would in task manager.
+        This should only be used when it is OK to kill the process like you
+        would do in task manager.
         """
         windows = self.windows_(visible_only = True)
 
@@ -1263,7 +1277,7 @@ def process_module(process_id):
 
 #=========================================================================
 def _warn_incorrect_binary_bitness(exe_name):
-    """warn if executable is of incorrect bitness"""
+    """Warn if the executable is of incorrect bitness"""
     if os.path.isabs(exe_name) and os.path.isfile(exe_name) and \
             handleprops.is64bitbinary(exe_name) and not is_x64_Python():
         warnings.warn(
