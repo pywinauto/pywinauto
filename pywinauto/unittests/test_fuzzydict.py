@@ -32,6 +32,7 @@
 """Tests for class FuzzyDict"""
 import unittest
 import sys
+from collections import OrderedDict
 
 sys.path.append(".")
 from pywinauto.fuzzydict import FuzzyDict
@@ -41,11 +42,12 @@ class FuzzyTestCase(unittest.TestCase):
 
     """Perform some tests"""
 
-    test_dict = {
-        u'Hiya'  : 1,
-        u'hiy\xe4' : 2,
-        u'test3' : 3,
-        1: 324}
+    test_dict = OrderedDict([
+        (u'Hiya', 1),
+        (u'hiy\xe4', 2),
+        (u'test3', 3),
+        (1, 324),
+        ])
 
     def test_creation_empty(self):
         """Verify that not specifying any values creates an empty dictionary"""
