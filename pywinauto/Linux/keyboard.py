@@ -10,8 +10,6 @@ import six
 
 _display = Display()
 
-#__all__ = ['KeySequenceError', 'SendKeys']
-
 DEBUG = 0
 
 spec_keysyms = {
@@ -549,4 +547,4 @@ def main(): #pragma: no cover
         print()
 
 if __name__ == "__main__": #pragma: no cover
-	main() #pragma: no cover
+    main() #pragma: no cover

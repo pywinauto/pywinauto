@@ -41,7 +41,8 @@ from __future__ import unicode_literals
 import sys
 
 if sys.platform != 'win32':
-    from .Linux.keyboard import *
+    from .Linux.keyboard import KeySequenceError, KeyAction, PauseAction
+    from .Linux.keyboard import handle_code, parse_keys, SendKeys
 else:
     import time
     import ctypes
