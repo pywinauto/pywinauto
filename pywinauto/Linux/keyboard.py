@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 from Xlib.display import Display
 from Xlib import X
 from Xlib.ext.xtest import fake_input
@@ -286,6 +288,7 @@ class KeyAction(object):
         self._key_modifiers(self.ctrl, (self.shift or self.is_shifted),
                             self.alt, action = X.KeyPress)
         if self.down:
+            print('_display = {}, X.KeyPress={}, self.key={}'.format(_display, X.KeyPress, self.key))
             fake_input(_display, X.KeyPress, self.key)
             _display.sync()
         if self.up:
