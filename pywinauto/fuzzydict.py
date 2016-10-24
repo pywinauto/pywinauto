@@ -67,8 +67,9 @@ KeyError: "'There'. closest match: 'hello' with ratio 0.400"
 from __future__ import unicode_literals
 
 import difflib
+from collections import OrderedDict
 
-class FuzzyDict(dict):
+class FuzzyDict(OrderedDict):
 
     """Provides a dictionary that performs fuzzy lookup"""
 
@@ -83,16 +84,16 @@ class FuzzyDict(dict):
         """
         super(FuzzyDict, self).__init__()
 
-        if items:
-            self.update(items)
-        self.cutoff =  cutoff
-
-        # short wrapper around some super (dict) methods
+        # short wrapper around some super (OrderedDict) methods
         self._dict_contains = lambda key: \
-            super(FuzzyDict,self).__contains__(key)
+            super(FuzzyDict, self).__contains__(key)
 
         self._dict_getitem = lambda key: \
-            super(FuzzyDict,self).__getitem__(key)
+            super(FuzzyDict, self).__getitem__(key)
+
+        self.cutoff =  cutoff
+        if items:
+            self.update(items)
 
     def _search(self, lookfor, stop_on_first = False):
         """
@@ -148,14 +149,14 @@ class FuzzyDict(dict):
             best_ratio)
 
     def __contains__(self, item):
-        """Overides Dictionary __contains__ to use fuzzy matching"""
+        """Overides OrderedDict __contains__ to use fuzzy matching"""
         if self._search(item, True)[0]:
             return True
         else:
             return False
 
     def __getitem__(self, lookfor):
-        """Overides Dictionary __getitem__ to use fuzzy matching"""
+        """Overides OrderedDict __getitem__ to use fuzzy matching"""
         matched, key, item, ratio = self._search(lookfor)
 
         if not matched:
