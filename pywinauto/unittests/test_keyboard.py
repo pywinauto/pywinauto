@@ -66,7 +66,7 @@ def _test_app():
                                 (os.path.dirname
                                  (os.path.abspath(__file__)))),
                                r"apps/SendKeysTester")
-    return os.path.join(test_folder, r"source/send_keys_test_app")
+    return os.path.join(test_folder, r"send_keys_test_app")
 
 class SendKeysTests(unittest.TestCase):
     "Unit tests for the Sendkeys module"
