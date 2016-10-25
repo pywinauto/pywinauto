@@ -46,8 +46,8 @@ else:
     from Xlib.ext.xtest import fake_input
 
 
-BUTTON_MAPPING = {'left': 1, 'middle': 2, 'right': 3, 'up_scroll': 4,
-                  'down_scroll': 5, 'left_scroll': 6, 'right_scroll': 7}
+BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
+                  'down_scroll': 4, 'left_scroll': 5, 'right_scroll': 6}
 
 
 if sys.platform == 'win32':
@@ -130,11 +130,11 @@ if sys.platform == 'win32':
 
         keyboard_keys = pressed.lower().split()
         if ('control' in keyboard_keys) and key_down:
-            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, up=False).run()
         if ('shift' in keyboard_keys) and key_down:
-            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, up=False).run()
         if ('alt' in keyboard_keys) and key_down:
-            keyboard.VirtualKeyAction(keyboard.VK_MENU, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_MENU, up=False).run()
 
         dw_flags = 0
         for event in events:
@@ -169,11 +169,11 @@ if sys.platform == 'win32':
         time.sleep(Timings.after_clickinput_wait)
 
         if ('control' in keyboard_keys) and key_up:
-            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, down=False).run()
         if ('shift' in keyboard_keys) and key_up:
-            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, down=False).run()
         if ('alt' in keyboard_keys) and key_up:
-            keyboard.VirtualKeyAction(keyboard.VK_MENU, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_MENU, down=False).run()
 
 
 else:
@@ -198,13 +198,18 @@ else:
             for _ in range(abs(wheel_dist)):
                 _perform_click_input(button, coords)
         else:
-            button = BUTTON_MAPPING[button]
-            if button_down:
-                fake_input(_display, X.ButtonPress, button)
-                _display.sync()
-            if button_up:
-                fake_input(_display, X.ButtonRelease, button)
-                _display.sync()
+            pointer_map = _display.get_pointer_mapping()
+            button = pointer_map[BUTTON_MAPPING[button]]
+            repeat = 1
+            if double:
+                repeat = 2
+            for _ in range(repeat):
+                if button_down:
+                    fake_input(_display, X.ButtonPress, button)
+                    _display.sync()
+                if button_up:
+                    fake_input(_display, X.ButtonRelease, button)
+                    _display.sync()
 
 
 def click(button='left', coords=(0, 0)):

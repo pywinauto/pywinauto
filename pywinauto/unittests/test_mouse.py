@@ -1,16 +1,27 @@
 """Tests for mouse.py"""
 
 import time
+import copy
 import sys
 import os
-import win32clipboard
 import unittest
-
-sys.path.append(".")
-from pywinauto.application import Application
-from pywinauto.keyboard import SendKeys
-from pywinauto import mouse
-from pywinauto.timings import Timings
+if sys.platform == 'win32':
+    import win32clipboard
+    sys.path.append(".")
+    from pywinauto.application import Application
+    from pywinauto.keyboard import SendKeys
+    from pywinauto import mouse
+    from pywinauto.timings import Timings
+else:
+    import subprocess
+    from Xlib.display import Display
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(parent_dir)
+    import mouse
+    send_keys_dir = os.path.join(parent_dir, r"linux")
+    sys.path.insert(0, send_keys_dir)
+    from keyboard import SendKeys
+    import clipboard
 
 
 def _test_app():
@@ -29,34 +40,53 @@ class MouseTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
-        self.app = Application()
-        self.app.start(_test_app())
-        self.dlg = self.app.mousebuttons
+        if sys.platform == 'win32':
+            Timings.Defaults()
+            self.app = Application()
+            self.app.start(_test_app())
+            self.dlg = self.app.mousebuttons
+        else:
+            self.display = Display()
+            self.app = subprocess.Popen("exec " + _test_app(), shell=True)
+            time.sleep(1)
 
     def tearDown(self):
-        time.sleep(1)
-        self.app.kill_()
+        if sys.platform == 'win32':
+            self.app.kill_()
+        else:
+            self.app.kill()
 
     def __get_pos(self, shift):
-        rect = self.dlg.rectangle()
-        center = rect.mid_point()
-        return center.x + shift, center.y + shift
+        if sys.platform == 'win32':
+            rect = self.dlg.rectangle()
+            center = rect.mid_point()
+            return center.x + shift, center.y + shift
+        else:
+            root = self.display.screen().root
+            left_pos = root.get_geometry().width / 2
+            top_pos = root.get_geometry().height / 2
+            return left_pos-shift, top_pos-shift
 
     def __get_text(self):
+        data = ''
+        time.sleep(1)
         SendKeys('^a')
         SendKeys('^c')
-        win32clipboard.OpenClipboard()
-        data = win32clipboard.GetClipboardData()
-        win32clipboard.CloseClipboard()
+        if sys.platform == 'win32':
+            win32clipboard.OpenClipboard()
+            data = win32clipboard.GetClipboardData()
+            win32clipboard.CloseClipboard()
+        else:
+            data = clipboard.get_data()
         return data
 
     def test_position(self):
-        left, top = self.__get_pos(60)
+        left, top = self.__get_pos(50)
+        print(left, top)
         mouse.click(coords=(left, top))
         data = self.__get_text()
-        self.assertTrue(str(top) in data)
-        self.assertTrue(str(left) in data)
+        self.assertTrue(str(int(top)) in data)
+        self.assertTrue(str(int(left)) in data)
 
     def test_click(self):
         mouse.click(coords=(self.__get_pos(50)))
@@ -86,11 +116,16 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("RightButton" in data)
 
-    def test_vertical_scroll(self):
-        mouse.scroll((self.__get_pos(50)), 5)
-        mouse.scroll((self.__get_pos(50)), -5)
+    def test_vertical_scroll_up(self):
+        mouse.click(coords=(self.__get_pos(50)))
+        mouse.scroll(self.__get_pos(50), 1)
         data = self.__get_text()
         self.assertTrue("UP" in data)
+
+    def test_vertical_scroll_down(self):
+        mouse.click(coords=(self.__get_pos(50)))
+        mouse.scroll(self.__get_pos(50), -1)
+        data = self.__get_text()
         self.assertTrue("DOWN" in data)
 
     def test_wheel_click(self):
@@ -99,6 +134,19 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Press" in data)
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
+
+    if sys.platform != 'win32':
+        def test_swapped_buttons(self):
+            current_map = self.display.get_pointer_mapping()
+            swapped_map = copy.copy(current_map)
+            swapped_map[0], swapped_map[2] = swapped_map[2], swapped_map[0]
+            self.display.set_pointer_mapping(swapped_map)
+            try:
+                mouse.right_click((self.__get_pos(50)))
+                data = self.__get_text()
+                self.assertTrue("RightButton" in data)
+            finally:
+                self.display.set_pointer_mapping(current_map)
 
 if __name__ == "__main__":
     unittest.main()
