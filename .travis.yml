@@ -31,14 +31,26 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
   - xauth generate :99.0 . trusted
-  # Build test app
-  - cd apps/MouseTester
-  - svn checkout https://github.com/pywinauto/PywinautoTestapps/trunk/MouseTester/source
-  - cd source
+  # Clone test apps
+  - git init apps
+  - cd apps
+  - git remote add -f origin https://github.com/pywinauto/PywinautoTestapps/
+  - git config core.sparseCheckout true
+  - echo "MouseTester/source" >> .git/info/sparse-checkout
+  - echo "SendKeysTester/source" >> .git/info/sparse-checkout
+  - git pull origin master
+  # Build test apps
+  - cd MouseTester/source
   - qmake
   - make
   - chmod a+x mousebuttons
   - cp mousebuttons ../
+  - cd $TRAVIS_BUILD_DIR
+  - cd apps/SendKeysTester/source
+  - qmake
+  - make
+  - chmod a+x send_keys_test_app
+  - cp send_keys_test_app ../
   - cd $TRAVIS_BUILD_DIR
 
 script:
