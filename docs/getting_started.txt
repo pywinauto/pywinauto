@@ -26,14 +26,14 @@ AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
 GUI Objects Inspection
 --------------------
 If you're still not sure which backend is most appropriate for you, 
-than try using object inspection tools that are free available.
+then try using object inspection tools that are free available.
 
-**Spy++** is included into MS Visual Studio distribution and is available in Start 
-menu. It uses Win32 API. It means if Spy++ can show all the controls the ``"win32"`` 
-backend is what you need. **AutoIt Window Info** tool is a kind of Spy++ clone.
+ * **Spy++** is included into MS Visual Studio distribution and is available in Start
+   menu. It uses Win32 API. It means if Spy++ can show all the controls the ``"win32"``
+   backend is what you need. **AutoIt Window Info** tool is a kind of Spy++ clone.
 
-**Inspect.exe** is another great tool created by Microsoft. It's included into 
-Windows SDK so that can be found in the following location on x64 Windows:
+ * **Inspect.exe** is another great tool created by Microsoft. It's included into
+   Windows SDK so that can be found in the following location on x64 Windows:
 
  ::
 
