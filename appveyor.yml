@@ -54,7 +54,7 @@ environment:
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
+      UIA_SUPPORT: "YES"
 
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5"
@@ -96,8 +96,8 @@ test_script:
 after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - codecov
-  #- coverage xml
-  #- python-codacy-coverage -c ${APPVEYOR_REPO_COMMIT} -r coverage.xml
+  - coverage xml
+  - python-codacy-coverage -d %APPVEYOR_BUILD_FOLDER%  -c %APPVEYOR_REPO_COMMIT% -r coverage.xml
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.

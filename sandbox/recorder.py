@@ -24,7 +24,7 @@ def OnMouseEvent(event):
 
     # wrap the window that is coming from the event
     if event.Window:
-        wrapped = app.window_(handle = event.Window)
+        wrapped = app.window(handle = event.Window)
     else:
         wrapped = None
 
@@ -85,7 +85,7 @@ def OnKeyboardEvent(event):
     app = Application()
 
     if event.Window:
-        wrapped = app.window_(handle = event.Window)
+        wrapped = app.window(handle = event.Window)
     else:
         pass
 

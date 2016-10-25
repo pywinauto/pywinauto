@@ -43,4 +43,4 @@ before_script:
 
 script:
   - python pywinauto/unittests/test_mouse.py
- # - python pywinauto/unittests/test_SendKeys.py
+  - python pywinauto/unittests/test_keyboard.py
