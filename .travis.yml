@@ -56,3 +56,7 @@ before_script:
 script:
   - python pywinauto/unittests/test_mouse.py
   - python pywinauto/unittests/test_keyboard.py
+
+after_success:
+  - codecov
+  
