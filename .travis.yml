@@ -19,7 +19,7 @@ before_install:
   - sudo add-apt-repository -y ppa:beineri/opt-qt57-trusty
 
 install:
-  - pip install python-xlib
+  - pip install python-xlib codecov
   - sudo apt-get update
   - sudo apt-get install -qq qt57base; 
   - sudo apt-get -y install qt57declarative qt57tools
