@@ -833,8 +833,13 @@ class Application(object):
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
             self.Start = self.start
+            self.Connect = self.connect
             self.CPUUsage = self.cpu_usage
             self.WaitCPUUsageLower = self.wait_cpu_usage_lower
+            self.top_window_ = self.top_window
+            self.active_ = self.active
+            self.Windows_ = self.windows_ = self.windows
+            self.Window_ = self.window_ = self.window
 
         # load the match history if a file was specifed
         # and it exists
@@ -843,25 +848,8 @@ class Application(object):
                 self.match_history = pickle.load(datafile)
             self.use_history = True
 
-    def __connect(self, **kwargs):
-        """
-        Deprecated method. Performs PendingDeprecationWarning before calling
-        the .connect().
-        Should be also removed in 0.6.X.
-        """
-        warnings.warn(
-            "connect_()/Connect_() methods are deprecated, "
-            "please switch to instance method connect(). "
-            "Connect() is an alias to the connect() method. "
-            "Please note that both Connect() and connect() "
-            "are instance methods.", PendingDeprecationWarning)
-        return self.connect(**kwargs)
-
-    connect_ = __connect  # A deprecated name. Should be removed in 0.6.X
-    Connect_ = __connect  # A deprecated name. Should be removed in 0.6.X
-
     def connect(self, **kwargs):
-        """Connects to an already running process
+        """Connect to an already running process
 
         The action is performed according to only one of parameters
 
@@ -904,32 +892,14 @@ class Application(object):
             raise RuntimeError(
                 "You must specify one of process, handle or path")
 
-        self.__warn_incorrect_bitness()
+        if self.backend.name == 'win32':
+            self.__warn_incorrect_bitness()
 
         return self
 
-    Connect = connect
-
-    def __start(self, *args, **kwargs):
-        """
-        Deprecated method. Performs PendingDeprecationWarning before
-        calling the .start().
-        Should be also removed in 0.6.X.
-        """
-        warnings.warn(
-            "start_()/Start_() methods are deprecated, "
-            "please switch to instance method start(). "
-            "Start() is an alias to the start() method. "
-            "Please note that both Start() and start() are instance methods.",
-            PendingDeprecationWarning)
-        return self.start(*args, **kwargs)
-
-    start_ = __start  # A deprecated name. Should be removed in 0.6.X
-    Start_ = __start  # A deprecated name. Should be removed in 0.6.X
-
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True):
-        """Starts the application giving in cmd_line"""
+        """Start the application giving in cmd_line"""
         # try to parse executable name and check it has correct bitness
         if '.exe' in cmd_line:
             exe_name = cmd_line.split('.exe')[0] + '.exe'
@@ -970,7 +940,8 @@ class Application(object):
 
         self.process = dw_process_id
 
-        self.__warn_incorrect_bitness()
+        if self.backend.name == 'win32':
+            self.__warn_incorrect_bitness()
 
         def app_idle():
             """Return true when the application is ready to start"""
@@ -985,7 +956,7 @@ class Application(object):
             if result == win32con.WAIT_TIMEOUT:
                 return False
 
-            return bool(self.windows_())
+            return bool(self.windows())
 
         # Wait until the application is ready after starting it
         if wait_for_idle and not app_idle():
@@ -1052,15 +1023,16 @@ class Application(object):
 
         return self
 
-    def top_window_(self):
-        """Return a current top window of the application"""
+    def top_window(self):
+        """Return WindowSpecification for a current top window of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_elements(process = self.process, backend = self.backend.name)
+            windows = findwindows.find_elements(process = self.process,
+                                                backend = self.backend.name)
             if windows:
                 break
             time.sleep(Timings.window_find_retry)
@@ -1077,15 +1049,17 @@ class Application(object):
 
         return WindowSpecification(criteria)
 
-    def active_(self):
-        """Return an active window of the application"""
+    def active(self):
+        """Return WindowSpecification for an active window of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_elements(process = self.process, active_only = True, backend = self.backend.name)
+        windows = findwindows.find_elements(process = self.process,
+                                            active_only = True,
+                                            backend = self.backend.name)
 
         if not windows:
             raise RuntimeError("No Windows of that application are active")
@@ -1100,7 +1074,7 @@ class Application(object):
         return WindowSpecification(criteria)
 
 
-    def windows_(self, **kwargs):
+    def windows(self, **kwargs):
         """Return a list of wrapped top level windows of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
@@ -1120,9 +1094,6 @@ class Application(object):
 
         windows = findwindows.find_elements(**kwargs)
         return [self.backend.generic_wrapper_class(win) for win in windows]
-        #return [BaseWrapper(win) for win in windows]
-
-    Windows_ = windows_
 
 
     def window(self, **kwargs):
@@ -1151,7 +1122,7 @@ class Application(object):
 
     def __getitem__(self, key):
         """Find the specified dialog of the application"""
-        # delegate searching functionality to self.window_()
+        # delegate searching functionality to self.window()
         return self.window(best_match = key)
 
     def __getattribute__(self, attr_name):
@@ -1187,7 +1158,7 @@ class Application(object):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        windows = self.windows_(visible_only = True)
+        windows = self.windows(visible_only = True)
 
         for win in windows:
 

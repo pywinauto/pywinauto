@@ -46,13 +46,13 @@ def TaskBarHandle():
     return findwindows.find_elements(class_name = "Shell_TrayWnd")[0].handle
 
 def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, by_tooltip = False, double = False):
-    popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
+    popup_dlg = explorer_app.window(class_name='NotifyIconOverflowWindow')
     try:
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
         button_index = popup_toolbar.button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
     except Exception:
         ShowHiddenIconsButton.click_input() # may fail from PythonWin when script takes long time
-        popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
+        popup_dlg = explorer_app.window(class_name='NotifyIconOverflowWindow')
         popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
         button_index = popup_toolbar.button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
 
@@ -79,11 +79,11 @@ def RightClickHiddenSystemTrayIcon(button, exact = False, by_tooltip=False):
 explorer_app = application.Application().connect(handle = TaskBarHandle())
 
 # Get the taskbar
-TaskBar = explorer_app.window_(handle = TaskBarHandle())
+TaskBar = explorer_app.window(handle = TaskBarHandle())
 
 # The Start button
 try:
-    StartButton = explorer_app.Window_(title='Start', class_name='Button').Wait('exists', 0.1) # Win7
+    StartButton = explorer_app.window(title='Start', class_name='Button').wait('exists', 0.1) # Win7
 except Exception:
     StartButton = TaskBar.Start # Win8.1
 
@@ -105,7 +105,7 @@ RunningApplications = TaskBar.MSTaskListWClass
 
 # the language bar
 try:
-    LangPanel = TaskBar.CiceroUIWndFrame.Wait('exists', 0.1) # Win7
+    LangPanel = TaskBar.CiceroUIWndFrame.wait('exists', 0.1) # Win7
 except Exception:
     LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 

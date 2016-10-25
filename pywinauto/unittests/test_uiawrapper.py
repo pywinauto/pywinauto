@@ -61,9 +61,9 @@ if UIA_support:
             # Look up for a non-top button control with 'Apply' caption
             self.dlg.wait('ready')
             caption = 'Apply'
-            wins = self.app.windows_(top_level_only=False,
-                                     class_name='Button',
-                                     title=caption)
+            wins = self.app.windows(top_level_only=False,
+                                    class_name='Button',
+                                    title=caption)
 
             # Verify the number of found wrappers
             self.assertEqual(len(wins), 1)
@@ -77,8 +77,7 @@ if UIA_support:
             # we don't specify it as a criteria argument
             self.dlg.wait('ready')
             caption = 'WPF Sample Application'
-            wins = self.app.windows_(class_name='Window',
-                                     title=caption)
+            wins = self.app.windows(class_name='Window', title=caption)
 
             # Verify the number of found wrappers
             self.assertEqual(len(wins), 1)
@@ -1217,7 +1216,7 @@ if UIA_support:
             self.assertEqual(tt.window_text(), "Large Icons")
 
             # Find a tooltip window by control type
-            tt = self.app.top_window_().children(control_type='ToolTip')[0]
+            tt = self.app.top_window().children(control_type='ToolTip')[0]
             self.assertEqual(isinstance(tt, uia_ctls.TooltipWrapper), True)
             self.assertEqual(tt.window_text(), "Large Icons")
 

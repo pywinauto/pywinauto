@@ -20,16 +20,16 @@ while not app.Windows_():
     time.sleep(.5)
 
 # if the trial nag dialog pops up
-if app.window_(title = "Forte Agent Trial").Exists():
+if app.window(title = "Forte Agent Trial").Exists():
     #app.ForteAgentTrial.IdLikeToContinueUsingAgentfor7moredays.click()
     app.ForteAgentTrial.IdliketouseFreeAgent.check()
     app.ForteAgentTrial.OK.click()
 
-if app.window_(title = "Free Agent Registration").Exists():
+if app.window(title = "Free Agent Registration").Exists():
     app.FreeAgentRegistration.ImreallybusyRemindmein30.click()
     app.FreeAgentRegistration.OK.close_click()
 
-if app.window_(title = "What's New Reminder").Exists():
+if app.window(title = "What's New Reminder").Exists():
     app.WhatsNewReminder.ImreallybusyRemindmein90.click()
     app.WhatsNewReminder.OK.close_click()
 

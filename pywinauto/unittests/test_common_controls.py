@@ -93,7 +93,7 @@ class ListViewTestCases32(unittest.TestCase):
         ]
 
         self.app = app
-        self.dlg = app.RowListSampleApplication #top_window_()
+        self.dlg = app.RowListSampleApplication #top_window()
         self.ctrl = app.RowListSampleApplication.ListView.WrapperObject()
         self.dlg.Toolbar.Button(0).Click() # switch to icon view
         self.dlg.Toolbar.Button(6).Click() # switch off states
@@ -615,7 +615,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
-        self.dlg = self.app.CommonControlsSample #top_window_()
+        self.dlg = self.app.CommonControlsSample #top_window()
         self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
 
     def tearDown(self):
@@ -726,7 +726,7 @@ class HeaderTestCases(unittest.TestCase):
             RECT (500, 0, 650, 19)]
            
         self.app = app
-        self.dlg = app.RowListSampleApplication #top_window_()
+        self.dlg = app.RowListSampleApplication #top_window()
         self.ctrl = app.RowListSampleApplication.Header.WrapperObject()
 
 
@@ -1521,7 +1521,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         app = Application()
         app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
-        dlg = app.top_window_()
+        dlg = app.top_window()
         dlg.TabControl.Select(1)
 
         ctrl = dlg.Trackbar.WrapperObject()

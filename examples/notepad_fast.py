@@ -148,7 +148,7 @@ def run_notepad():
     # ----- 2nd Page Setup Dialog again ----
     app.PageSetupDlg.Properties.click()
 
-    doc_props = app.window_(title_re = ".*Properties$")
+    doc_props = app.window(title_re = ".*Properties$")
     doc_props.Wait('exists', timeout = 40)
 
 #
@@ -193,7 +193,7 @@ def run_notepad():
 #    # close the 4 windows
 #
 #    # ----- Advanced Options Dialog ----
-#    app.window_(title_re = ".* Advanced Options").Ok.click()
+#    app.window(title_re = ".* Advanced Options").Ok.click()
 
     # ----- Document Properties Dialog again ----
     doc_props.Cancel.close_click()

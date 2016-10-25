@@ -150,7 +150,7 @@ class TaskbarTestCases(unittest.TestCase):
         app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle = False)
         self.app = app
-        self.dlg = app.top_window_()
+        self.dlg = app.top_window()
         self.dlg.Wait('ready', timeout=self.tm)
 
     def tearDown(self):
@@ -188,7 +188,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         time.sleep(5)
         app = Application.connect(path=sample_app_exe())
-        dlg = app.top_window_()
+        dlg = app.top_window()
         Wait('ready', timeout=self.tm)
     '''
 
@@ -239,10 +239,10 @@ class TaskbarTestCases(unittest.TestCase):
         taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
 
         # verify PopupWindow method
-        menu_window = self.app.top_window_().children()[0]
+        menu_window = self.app.top_window().children()[0]
         WaitUntil(self.tm, _retry_interval, menu_window.is_visible)
         menu_window.MenuBarClickInput("#2", self.app)
-        popup_window = self.app.top_window_()
+        popup_window = self.app.top_window()
         hdl = self.dlg.PopupWindow()
         self.assertEquals(popup_window.handle, hdl)
 
@@ -278,7 +278,7 @@ class TaskbarTestCases(unittest.TestCase):
         # hopefully one of the icons moves into the hidden area
         app2 = Application()
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = app2.top_window_()
+        dlg2 = app2.top_window()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
@@ -311,7 +311,7 @@ class TaskbarTestCases(unittest.TestCase):
         # hopefully one of the icons moves into the hidden area
         app2 = Application()
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = app2.top_window_()
+        dlg2 = app2.top_window()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)

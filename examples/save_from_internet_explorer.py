@@ -29,8 +29,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Run some automations to test things"""
-from __future__ import unicode_literals
 from __future__ import print_function
 
 try:
@@ -43,64 +41,53 @@ except ImportError:
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
-#from pywinauto import tests
-#from pywinauto.findbestmatch import MatchError
-from pywinauto.timings import Timings
+import sys
+import time
+import os.path
 
-Timings.window_find_timeout = 10
+if len(sys.argv) < 2:
+    print("please specify a web address to download")
+    sys.exit()
 
-def test_exceptions():
-    """Test some things that should raise exceptions"""
-    # test that trying to connect_ to a non existent app fails
-    try:
-        app = application.Application()
-        app.connect(path=r"No process with this please")
-        assert False
-    except application.ProcessNotFoundError:
-        print('ProcessNotFoundError has been raised. OK.')
+web_address = sys.argv[1]
 
-    # test that trying to connect_ to a non existent app fails
-    try:
-        app = application.Application()
-        app.start(cmd_line = r"No process with this please")
-        assert False
-    except application.AppStartError:
-        print('AppStartError has been raised. OK.')
+if len(sys.argv) > 2:
+    outputfilename = sys.argv[2]
+else:
+    outputfilename = web_address
+    outputfilename = outputfilename.replace('/', '')
+    outputfilename = outputfilename.replace('\\', '')
+    outputfilename = outputfilename.replace(':', '')
 
-#    # try when it isn't connected
-#    try:
-#        app = application.Application()
-#        #app.start_(ur"c:\windows\system32\notepad.exe")
-#        app.Notepad.click()
-#        #assert False
-#    except application.AppNotConnected:
-#        pass
+outputfilename = os.path.abspath(outputfilename)
 
 
+# start IE with a start URL of what was passed in
+app = application.Application().start(
+    r"c:\program files\internet explorer\iexplore.exe {}".format(web_address))
 
-def get_info():
-    app = application.Application()
+# some pages are slow to open - so wait some seconds
+time.sleep(10)
 
-    app.start(r"notepad.exe")
+ie =  app.window(title_re = ".*Windows Internet Explorer.*")
 
-    app.Notepad.menu_select("File->PageSetup")
+# ie doesn't define it's menus as Menu's but actually as a toolbar!
+print("No Menu's in IE:", ie.menu_items())
+print("They are implemented as a toolbar:", ie.Toolbar3.texts())
 
-    print("==" * 20)
-    print("Windows of this application:", app.windows_())
-
-    print("The list of identifiers for the Page Setup dialog in Notepad")
-    print("==" * 20)
-    app.PageSetup.print_control_identifiers()
-    print("==" * 20)
-    print("The list of identifiers for the 2nd Edit control in the dialog")
-    app.PageSetup.Edit2.print_control_identifiers()
-    print("==" * 20)
-
-    app.PageSetup.OK.close_click()
-    app.Notepad.menu_select("File->Exit")
+ie.type_keys("%FA")
+#ie.Toolbar3.press_button("File")
+app.SaveWebPage.Edit.set_edit_text(os.path.join(r"c:\.temp", outputfilename))
 
 
+app.SaveWebPage.Save.close_click()
 
-if __name__ == '__main__':
-    test_exceptions()
-    get_info()
+# if asked to overwrite say yes
+if app.SaveWebPage.Yes.Exists():
+    app.SaveWebPage.Yes.close_click()
+
+print("saved:", outputfilename)
+
+# quit IE
+ie.type_keys("%FC")
+

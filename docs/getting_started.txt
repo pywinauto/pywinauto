@@ -25,12 +25,12 @@ been programmed for English Software except where highlighted.
 - ``notepad_fast.py``    Use fast timing settings to control Notepad
 - ``notepad_slow.py``    Use slow timing settings to control Notepad
 - ``notepad_item.py``    Use item rather then attribute access to control Notepad.
-- ``MiscExamples.py``    Show some exceptions and how to get control identifiers.
-- ``SaveFromInternetExplorer.py``	Save a Web Page from Internet Explorer -
-- ``SaveFromFirefox.py``			Save a Web Page from Firefox.
+- ``misc_examples.py``    Show some exceptions and how to get control identifiers.
+- ``save_from_internet_explorer.py`` Save a Web Page from Internet Explorer.
+- ``save_from_firefox.py``  Save a Web Page from Firefox.
 - ``get_winrar_info.py``    Example of how to do multilingual automation.
   This is not an ideal example (works on French, Czech and German WinRar)
-- ``ForteAgentSample.py``   Example of dealing with a complex application that
+- ``forte_agent_sample.py``   Example of dealing with a complex application that
   is quite dynamic and gives different dialogs often when starting.
 - ``windowmediaplayer.py``  Just another example - deals with check boxes in a
   ListView.
