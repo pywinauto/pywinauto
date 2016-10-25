@@ -50,7 +50,7 @@ else:
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(0, parent_dir)
     import mouse
-    send_keys_dir = os.path.join(parent_dir, r"linux/")
+    send_keys_dir = os.path.join(parent_dir, r"linux")
     sys.path.insert(0, send_keys_dir)
     from pywinauto.keyboard import SendKeys, KeySequenceError, KeyAction
     import clipboard
@@ -209,7 +209,10 @@ class SendKeysTests(unittest.TestCase):
         """Make sure that with_newlines option works"""
         SendKeys("\t \t \t a~\tb\nc", pause = .5, with_newlines = True)
         received = self.receive_text()
-        self.assertEquals("a\nb\nc", received)
+        if sys.platform == 'win32':
+            self.assertEquals("a\r\nb\r\nc", received)
+        else:
+            self.assertEquals("a\nb\nc", received)
 
     def testNewlinesWithoutNewlines(self):
         """"Make sure that with_newlines option works"""
@@ -289,7 +292,7 @@ if sys.platform == 'win32':
         def setUp(self):
             """Start the application set some data and ensure the application
             is in the state we want it."""
-            self.app = Application().start(os.path.join(mfc_samples_folder, u"CtrlTest.exe"))
+            self.app = Application().start(os.path.join(mfc_samples(), u"CtrlTest.exe"))
 
             self.dlg = self.app.Control_Test_App
 
