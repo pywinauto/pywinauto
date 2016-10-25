@@ -16,9 +16,9 @@ else:
     import subprocess
     from Xlib.display import Display
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(0, parent_dir)
+    sys.path.append(parent_dir)
     import mouse
-    send_keys_dir = os.path.join(parent_dir, r"linux/")
+    send_keys_dir = os.path.join(parent_dir, r"linux")
     sys.path.insert(0, send_keys_dir)
     from keyboard import SendKeys
     import clipboard
@@ -118,13 +118,13 @@ class MouseTests(unittest.TestCase):
 
     def test_vertical_scroll_up(self):
         mouse.click(coords=(self.__get_pos(50)))
-        mouse.scroll((self.__get_pos(50)), 1)
+        mouse.scroll(self.__get_pos(50), 1)
         data = self.__get_text()
         self.assertTrue("UP" in data)
 
     def test_vertical_scroll_down(self):
         mouse.click(coords=(self.__get_pos(50)))
-        mouse.scroll((self.__get_pos(50)), -1)
+        mouse.scroll(self.__get_pos(50), -1)
         data = self.__get_text()
         self.assertTrue("DOWN" in data)
 

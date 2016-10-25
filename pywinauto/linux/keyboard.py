@@ -343,7 +343,7 @@ class PauseAction(KeyAction):
         time.sleep(self.how_long)
 
     def __str__(self):
-        return "<PAUSE %1.2f>"% (self.how_long)
+        return "<PAUSE {}>".format(self.how_long)
     __repr__ = __str__
 
 
@@ -365,7 +365,7 @@ def handle_code(code):
             try:
                 pause_time = float(count)
             except ValueError:
-                raise KeySequenceError('invalid pause time %s'% count)
+                raise KeySequenceError('invalid pause time {}'.format(count))
             code_keys.append(PauseAction(pause_time))
 
         else:
@@ -373,7 +373,7 @@ def handle_code(code):
                 count = int(count)
             except ValueError:
                 raise KeySequenceError(
-                    'invalid repetition count %s'% count)
+                    'invalid repetition count {}'.format(count))
 
             # If the value in to_repeat is a VK e.g. DOWN
             # we need to add the code repeated
@@ -389,7 +389,7 @@ def handle_code(code):
                     keys = [to_repeat] * count
                 code_keys.extend(keys)
     else:
-        raise RuntimeError("Unknown code: %s"% code)
+        raise RuntimeError("Unknown code: {}".format(code))
 
     return code_keys
 
