@@ -73,7 +73,10 @@ class UIAElementInfo(ElementInfo):
 
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
-        return self._element.CurrentClassName
+        try:
+            return self._element.CurrentClassName
+        except COMError:
+            return None # probably element already doesn't exist
     
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
@@ -96,7 +99,10 @@ class UIAElementInfo(ElementInfo):
 
     def _get_current_control_type(self):
         """Return an actual control type of the element"""
-        return self._element.CurrentControlType
+        try:
+            return self._element.CurrentControlType
+        except COMError:
+            return None # probably element already doesn't exist
 
     def _get_cached_control_type(self):
         """Return a cached control type of the element"""
@@ -106,7 +112,10 @@ class UIAElementInfo(ElementInfo):
 
     def _get_current_name(self):
         """Return an actual name of the element"""
-        return self._element.CurrentName
+        try:
+            return self._element.CurrentName
+        except COMError:
+            return None # probably element already doesn't exist
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
@@ -178,7 +187,10 @@ class UIAElementInfo(ElementInfo):
     @property
     def automation_id(self):
         """Return AutomationId of the element"""
-        return self._element.CurrentAutomationId
+        try:
+            return self._element.CurrentAutomationId
+        except COMError:
+            return None # probably element already doesn't exist
 
     @property
     def control_id(self):
@@ -241,7 +253,7 @@ class UIAElementInfo(ElementInfo):
         """Return a list of only immediate children of the element
 
         * **kwargs** is a criteria to reduce a list by process,
-        class_name, control_type, is_content_element and/or title.
+        class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
@@ -251,7 +263,7 @@ class UIAElementInfo(ElementInfo):
         """Return a list of all descendant children of the element
 
         * **kwargs** is a criteria to reduce a list by process,
-        class_name, control_type, is_content_element and/or title.
+        class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
