@@ -30,7 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Module containing tests for keyboard Module"""
+"""Module containing tests for keyboard module"""
 
 from __future__ import unicode_literals
 from __future__ import print_function
@@ -77,15 +77,13 @@ def _test_app():
     return os.path.join(test_folder, r"send_keys_test_app")
 
 class SendKeysTests(unittest.TestCase):
-    "Unit tests for the Sendkeys module"
+    """Unit tests for the Sendkeys module"""
 
     def setUp(self):
-        """Start the application set some data and ensure the application
-        is in the state we want it."""
+        """Start the application set some data and ensure the application is in the state we want it."""
         if sys.platform == 'win32':
             self.app = Application()
             self.app.start(_notepad_exe())
-
             self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
         else:
@@ -111,10 +109,11 @@ class SendKeysTests(unittest.TestCase):
                 if self.dlg.Exists(timeout=0.1):
                     self.app.kill_()
         else:
-            # Subprocess kill() function instead of Application.kill on windows
+            # call Popen.kill() on Linux since Application.kill_() is not implemented yet
             self.app.kill()
 
     def receive_text(self):
+        """Receive data from text field"""
         received = ' '
         if sys.platform == 'win32':
             received = self.ctrl.TextBlock()
@@ -125,13 +124,10 @@ class SendKeysTests(unittest.TestCase):
             SendKeys('^c')
             SendKeys('{RIGHT}')
             received = clipboard.get_data()
-        # if not received:
-        #     received = " "
         return received
 
     def __run_NormalCharacters_with_options(self, **args):
         """Make sure that sending any character in range """
-
         #unused var: missed = []
         for i in range(32, 127):
 
