@@ -19,7 +19,7 @@ before_install:
   - sudo add-apt-repository -y ppa:beineri/opt-qt57-trusty
 
 install:
-  - pip install python-xlib codecov
+  - pip install python-xlib codecov coverage
   - sudo apt-get update
   - sudo apt-get install -qq qt57base; 
   - sudo apt-get -y install qt57declarative qt57tools
@@ -54,8 +54,8 @@ before_script:
   - cd $TRAVIS_BUILD_DIR
 
 script:
-  - python pywinauto/unittests/test_mouse.py
-  - python pywinauto/unittests/test_keyboard.py
+  - coverage run --source=pywinauto/mouse.py pywinauto/unittests/test_mouse.py
+  - coverage run --source=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
 
 after_success:
   - codecov
