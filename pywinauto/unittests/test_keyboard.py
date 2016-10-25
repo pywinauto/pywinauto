@@ -1,28 +1,36 @@
 # -*- coding: latin-1 -*-
 # GUI Application automation and testing library
-# Copyright (C) 2015 Intel Corporation
-# Copyright (C) 2015 airelil
-# Copyright (C) 2012 Michael Herrmann
-# Copyright (C) 2010 Mark Mc Mahon
+# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.github.io/docs/credits.html
+# All rights reserved.
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public License
-# as published by the Free Software Foundation; either version 2.1
-# of the License, or (at your option) any later version.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the
-#    Free Software Foundation, Inc.,
-#    59 Temple Place,
-#    Suite 330,
-#    Boston, MA 02111-1307 USA
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Module containing tests for SendKeys Module"""
+"""Module containing tests for keyboard Module"""
 
 from __future__ import unicode_literals
 from __future__ import print_function
@@ -38,7 +46,6 @@ if sys.platform == 'win32':
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
-    from pywinauto import backend
 else:
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(0, parent_dir)
@@ -76,7 +83,6 @@ class SendKeysTests(unittest.TestCase):
         """Start the application set some data and ensure the application
         is in the state we want it."""
         if sys.platform == 'win32':
-            backend.activate("native")
             self.app = Application()
             self.app.start(_notepad_exe())
 
@@ -89,7 +95,7 @@ class SendKeysTests(unittest.TestCase):
             time.sleep(0.1)
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         if sys.platform == 'win32':
             try:
                 self.dlg.Close(0.1)
@@ -105,10 +111,10 @@ class SendKeysTests(unittest.TestCase):
                 if self.dlg.Exists(timeout=0.1):
                     self.app.kill_()
         else:
+            # Subprocess kill() function instead of Application.kill on windows
             self.app.kill()
 
     def receive_text(self):
-        # this function will be change after clipboard.py changes
         received = ' '
         if sys.platform == 'win32':
             received = self.ctrl.TextBlock()
@@ -124,7 +130,7 @@ class SendKeysTests(unittest.TestCase):
         return received
 
     def __run_NormalCharacters_with_options(self, **args):
-        "Make sure that sending any character in range "
+        """Make sure that sending any character in range """
 
         #unused var: missed = []
         for i in range(32, 127):
@@ -140,22 +146,22 @@ class SendKeysTests(unittest.TestCase):
 
     # Space tests
     def testNormalWithSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_spaces = True)
 
     def testNormalWithoutSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_spaces = False)
 
 
     def testSpaceWithSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys(" \t \t ", pause = .001, with_spaces = True)
         received = self.receive_text()
         self.assertEquals("   ", received)
 
     def testSpaceWithoutSpaces(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys(" \t \t ", pause = .001, with_spaces = False)
         received = self.receive_text()
         self.assertEquals("", received)
@@ -163,28 +169,28 @@ class SendKeysTests(unittest.TestCase):
 
     # Tab tests
     def testNormalWithTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_tabs = True)
 
     def testNormalWithoutTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_tabs = False)
 
     def testTabWithTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys("\t \t \t", pause = .1, with_tabs = True)
         received = self.receive_text()
         self.assertEquals("\t\t\t", received)
 
     def testTabWithoutTabs(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys("\t a\t b\t", pause = .1, with_tabs = False)
         received = self.receive_text()
         self.assertEquals("ab", received)
 
 
     def testTab(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         SendKeys("{TAB}  {TAB} ", pause = .3)
         received = self.receive_text()
         self.assertEquals("\t\t", received)
@@ -192,21 +198,21 @@ class SendKeysTests(unittest.TestCase):
 
     # Newline tests
     def testNormalWithNewlines(self):
-        "Make sure that with spaces option works"
+        """Make sure that with spaces option works"""
         self.__run_NormalCharacters_with_options(with_newlines = True)
 
     def testNormalWithoutNewlines(self):
-        "Make sure that with_newlines option works"
+        """Make sure that with_newlines option works"""
         self.__run_NormalCharacters_with_options(with_newlines = False)
 
     def testNewlinesWithNewlines(self):
-        "Make sure that with_newlines option works"
+        """Make sure that with_newlines option works"""
         SendKeys("\t \t \t a~\tb\nc", pause = .5, with_newlines = True)
         received = self.receive_text()
         self.assertEquals("a\nb\nc", received)
 
     def testNewlinesWithoutNewlines(self):
-        "Make sure that with_newlines option works"
+        """"Make sure that with_newlines option works"""
         SendKeys("\t \t \t\na", pause = .01, with_newlines = False)
         received = self.receive_text()
         self.assertEquals("a", received)
@@ -239,13 +245,13 @@ class SendKeysTests(unittest.TestCase):
     #    self.assertEquals(matched, len(extended_chars))
 
     def testCharsThatMustBeEscaped(self):
-        "Make sure that escaping characters works"
+        """Make sure that escaping characters works"""
         SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}")
         received = self.receive_text()
         self.assertEquals("%^+(){}~", received)
 
     def testIncorrectCases(self):
-        "Make sure that incorrect key sequences raise an exception"
+        """Make sure that incorrect key sequences raise an exception"""
         self.assertRaises(KeySequenceError, SendKeys, "{ENTER")
         self.assertRaises(KeySequenceError, SendKeys, "ENTER)")
         self.assertRaises(RuntimeError, SendKeys, "%{Enterius}")
@@ -262,7 +268,7 @@ class SendKeysTests(unittest.TestCase):
             self.assertEquals("`}` should be preceeded by `{`", str(exc))
 
     def testKeyDescription(self):
-        "Test KeyAction._"
+        """Test KeyAction._"""
         self.assertEquals("<X>", str(KeyAction("X")))
         self.assertEquals("<Y down>", str(KeyAction("Y", up=False)))
         self.assertEquals("<Y up>", str(KeyAction("Y", down=False)))
@@ -271,14 +277,14 @@ class SendKeysTests(unittest.TestCase):
             self.assertEquals("<PAUSE 1.00>", str(PauseAction(1.0)))
 
     def testRepetition(self):
-        "Make sure that repeated action works"
+        """Make sure that repeated action works"""
         SendKeys("{TAB 3}{PAUSE 0.5}{F 3}", pause = .3)
         received = self.receive_text()
         self.assertEquals("\t\t\tFFF", received)
 
 if sys.platform == 'win32':
     class SendKeysModifiersTests(unittest.TestCase):
-        "Unit tests for the Sendkeys module (modifiers)"
+        """Unit tests for the Sendkeys module (modifiers)"""
 
         def setUp(self):
             """Start the application set some data and ensure the application
@@ -288,7 +294,7 @@ if sys.platform == 'win32':
             self.dlg = self.app.Control_Test_App
 
         def tearDown(self):
-            "Close the application after tests"
+            """Close the application after tests"""
             try:
                 self.dlg.Close(0.5)
             except Exception:
@@ -297,7 +303,7 @@ if sys.platform == 'win32':
                 self.app.kill_()
 
         def testModifiersForFewChars(self):
-            "Make sure that repeated action works"
+            """Make sure that repeated action works"""
             SendKeys("%(SC)", pause = .3)
             dlg = self.app.Window_(title='Using C++ Derived Class')
             dlg.Wait('ready')
