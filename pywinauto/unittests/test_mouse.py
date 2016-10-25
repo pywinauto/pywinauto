@@ -18,7 +18,7 @@ else:
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(0, parent_dir)
     import mouse
-    send_keys_dir = os.path.join(parent_dir, r"Linux/")
+    send_keys_dir = os.path.join(parent_dir, r"linux/")
     sys.path.insert(0, send_keys_dir)
     from keyboard import SendKeys
     import clipboard
