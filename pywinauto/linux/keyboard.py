@@ -485,7 +485,7 @@ def parse_keys(string,
         # so it is a normal character
         else:
             # don't output white space unless flags to output have been set
-            if (c == ' ' and not with_spaces or 
+            if (c == ' ' and not with_spaces or
                     c == '\t' and not with_tabs or
                     c == '\n' and not with_newlines):
                 continue
