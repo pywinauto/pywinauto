@@ -250,6 +250,7 @@ else:
 
 
     class KeySequenceError(Exception):
+
         """Exception raised when a key sequence string has a syntax error"""
 
         def __str__(self):
@@ -257,9 +258,10 @@ else:
 
 
     class KeyAction(object):
-        """Class that represents a single 'keyboard' action
 
-        It represents either a PAUSE action (not reallly keyboard) or a keyboard
+        """Class that represents a single keyboard action
+
+        It represents either a PAUSE action (not really keyboard) or a keyboard
         action (press or release or both) of a particular key.
         """
 
@@ -273,14 +275,15 @@ else:
         def _get_key_info(self):
             """Return virtual_key, scan_code, and flags for the action
 
-            This is one of the methods that will be overridden by sub classes"""
-            #print(self.key)
+            This is one of the methods that will be overridden by sub classes.
+            """
             return 0, ord(self.key), KEYEVENTF_UNICODE
 
         def get_key_info(self):
             """Return virtual_key, scan_code, and flags for the action
 
-            This is one of the methods that will be overridden by sub classes"""
+            This is one of the methods that will be overridden by sub classes.
+            """
             return self._get_key_info()
 
         def GetInput(self):
@@ -345,9 +348,9 @@ else:
                 if vk in CODE_NAMES:
                     desc = CODE_NAMES[vk]
                 else:
-                    desc = "VK %d"% vk
+                    desc = "VK {}".format(vk)
             else:
-                desc = "%s"% self.key
+                desc = "{}".format(self.key)
             
             return desc
 
@@ -358,7 +361,7 @@ else:
             if up_down:
                 parts.append(up_down)
 
-            return "<%s>"% (" ".join(parts))
+            return "<{}>".format(" ".join(parts))
         __repr__ = __str__
 
 
@@ -398,15 +401,17 @@ else:
         """
 
         def _get_key_info(self):
-            """EscapedKeyAction doesn't send it as Unicode and the vk and
-            scan code are generated differently"""
+            """EscapedKeyAction doesn't send it as Unicode
+
+            The vk and scan code are generated differently.
+            """
             vkey_scan = LoByte(VkKeyScan(self.key))
 
             return (vkey_scan, MapVirtualKey(vkey_scan, 0), 0)
 
         def key_description(self):
             """Return a description of the key"""
-            return "KEsc %s"% self.key
+            return "KEsc {}".format(self.key)
 
         def run(self):
             """Execute the action"""
@@ -457,7 +462,7 @@ else:
                     count = int(count)
                 except ValueError:
                     raise KeySequenceError(
-                        'invalid repetition count %s'% count)
+                        'invalid repetition count {}'.format(count))
 
                 # If the value in to_repeat is a VK e.g. DOWN
                 # we need to add the code repeated
@@ -473,16 +478,16 @@ else:
                         keys = [to_repeat] * count
                     code_keys.extend(keys)
         else:
-            raise RuntimeError("Unknown code: %s"% code)
+            raise RuntimeError("Unknown code: {}".format(code))
 
         return code_keys
 
 
     def parse_keys(string,
-                    with_spaces = False,
-                    with_tabs = False,
-                    with_newlines = False,
-                    modifiers = None):
+                   with_spaces = False,
+                   with_tabs = False,
+                   with_newlines = False,
+                   modifiers = None):
         """Return the parsed keys"""
         keys = []
         if not modifiers:

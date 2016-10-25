@@ -79,6 +79,7 @@ def test_exceptions():
 
 
 def get_info():
+    """Run Notepad, print some identifiers and exit"""
     app = application.Application()
 
     app.start(r"notepad.exe")
