@@ -24,23 +24,19 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-"""Module containing tests for SendKeys Module
-"""
+"""Module containing tests for SendKeys Module"""
 
 import sys
 import os
-import locale
 import unittest
 import subprocess
 import time
 sys.path.append(".")
 if sys.platform == 'win32':
-    from pywinauto.keyboard import SendKeys, DEBUG, KeySequenceError
+    from pywinauto.keyboard import SendKeys, KeySequenceError
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
-    from pywinauto import six
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
-    from pywinauto.actionlogger import ActionLogger
     from pywinauto import backend
 else:
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -249,7 +245,6 @@ class SendKeysTests(unittest.TestCase):
 
     def testIncorrectCases(self):
         "Make sure that incorrect key sequences raise an exception"
-        DEBUG = 1
         self.assertRaises(KeySequenceError, SendKeys, "{ENTER")
         self.assertRaises(KeySequenceError, SendKeys, "ENTER)")
         self.assertRaises(RuntimeError, SendKeys, "%{Enterius}")
