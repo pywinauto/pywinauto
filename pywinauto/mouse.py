@@ -130,11 +130,11 @@ if sys.platform == 'win32':
 
         keyboard_keys = pressed.lower().split()
         if ('control' in keyboard_keys) and key_down:
-            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, up=False).run()
         if ('shift' in keyboard_keys) and key_down:
-            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, up=False).run()
         if ('alt' in keyboard_keys) and key_down:
-            keyboard.VirtualKeyAction(keyboard.VK_MENU, up=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_MENU, up=False).run()
 
         dw_flags = 0
         for event in events:
@@ -169,11 +169,11 @@ if sys.platform == 'win32':
         time.sleep(Timings.after_clickinput_wait)
 
         if ('control' in keyboard_keys) and key_up:
-            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_CONTROL, down=False).run()
         if ('shift' in keyboard_keys) and key_up:
-            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_SHIFT, down=False).run()
         if ('alt' in keyboard_keys) and key_up:
-            keyboard.VirtualKeyAction(keyboard.VK_MENU, down=False).Run()
+            keyboard.VirtualKeyAction(keyboard.VK_MENU, down=False).run()
 
 
 else:

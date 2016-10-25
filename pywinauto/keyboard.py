@@ -311,7 +311,7 @@ else:
 
             return inputs
 
-        def Run(self):
+        def run(self):
             """Execute the action"""
             inputs = self.GetInput()
 
@@ -383,7 +383,7 @@ else:
             # this works for Tic Tac Toe i.e. +{RIGHT} SHIFT + RIGHT
             return self.key, MapVirtualKey(self.key, 0), flags
 
-        def Run(self):
+        def run(self):
             """Execute the action"""
             # it works more stable for virtual keys than SendInput
             for inp in self.GetInput():
@@ -408,7 +408,7 @@ else:
             """Return a description of the key"""
             return "KEsc %s"% self.key
 
-        def Run(self):
+        def run(self):
             """Execute the action"""
             # it works more stable for virtual keys than SendInput
             for inp in self.GetInput():
@@ -422,7 +422,7 @@ else:
         def __init__(self, how_long):
             self.how_long = how_long
 
-        def Run(self):
+        def run(self):
             """Pause for the lenght of time specified"""
             time.sleep(self.how_long)
 
@@ -585,7 +585,7 @@ else:
         keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
 
         for k in keys:
-            k.Run()
+            k.run()
             time.sleep(pause)
 
 
@@ -609,7 +609,7 @@ def main(): #pragma: no cover
     keys = parse_keys(actions)
     for k in keys:
         print(k)
-        k.Run()
+        k.run()
         time.sleep(.1)
 
     test_strings = [
@@ -636,7 +636,7 @@ def main(): #pragma: no cover
         print(keys)
 
         for k in keys:
-            k.Run()
+            k.run()
             time.sleep(.1)
         print()
 

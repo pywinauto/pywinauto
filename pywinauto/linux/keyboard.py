@@ -274,7 +274,7 @@ class KeyAction(object):
         if alt:
             fake_input(_display, action, CODES['VK_MENU'])
 
-    def Run(self):
+    def run(self):
         """Do a single keyboard action using xlib"""
         if isinstance(self.key, six.string_types):
             key = self.key
@@ -338,7 +338,7 @@ class PauseAction(KeyAction):
     def __init__(self, how_long):
         self.how_long = how_long
 
-    def Run(self):
+    def run(self):
         """Pause for the lenght of time specified"""
         time.sleep(self.how_long)
 
@@ -492,7 +492,7 @@ def SendKeys(keys,
     """Parse the keys and type them"""
     keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
     for k in keys:
-        k.Run()
+        k.run()
         time.sleep(pause)
 
 
@@ -514,7 +514,7 @@ def main(): #pragma: no cover
 
     keys = parse_keys(actions)
     for k in keys:
-        k.Run()
+        k.run()
         time.sleep(.1)
 
     test_strings = [
@@ -542,7 +542,7 @@ def main(): #pragma: no cover
         SendKeys(s,pause=0.05)
 
         for k in keys:
-            k.Run()
+            k.run()
             time.sleep(.1)
         print()
 
