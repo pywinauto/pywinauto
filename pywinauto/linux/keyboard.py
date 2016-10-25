@@ -66,7 +66,7 @@ VK_SHIFT        = _to_keycode('Shift_L')
 VK_CONTROL      = _to_keycode('Control_L')
 VK_MENU         = _to_keycode('Menu')
 
-# 'codes' recognized as {CODe repeat)?}
+# 'codes' recognized as {CODE repeat)?}
 
 
 CODES = {
