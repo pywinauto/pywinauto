@@ -36,7 +36,7 @@ if app.window(title = "What's New Reminder").Exists():
 
 
 # wait until the app is ready
-app.FreeAgent.Wait("ready")
+app.FreeAgent.wait("ready")
 
 # if we get the Agent Setup wizard pops up close it
 if app.AgentSetupWizard.Cancel.Exists(1):

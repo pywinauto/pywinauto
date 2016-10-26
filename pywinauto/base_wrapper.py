@@ -237,8 +237,8 @@ class BaseWrapper(object):
         owns this element and the element itself are both visible.
 
         If you want to wait for an element to become visible (or wait
-        for it to become hidden) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``.
+        for it to become hidden) use ``Application.wait('visible')`` or
+        ``Application.wait_not('visible')``.
 
         If you want to raise an exception immediately if an element is
         not visible then you can use the BaseWrapper.verify_visible().
@@ -256,8 +256,8 @@ class BaseWrapper(object):
         owns this element and the element itself are both enabled.
 
         If you want to wait for an element to become enabled (or wait
-        for it to become disabled) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``.
+        for it to become disabled) use ``Application.wait('visible')`` or
+        ``Application.wait_not('visible')``.
 
         If you want to raise an exception immediately if an element is
         not enabled then you can use the BaseWrapper.verify_enabled().

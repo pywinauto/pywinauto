@@ -347,9 +347,6 @@ def wait_until(
 # Non PEP-8 alias
 WaitUntil = wait_until
 
-#def WaitUntilNot(timeout, retry_interval, func, value = True)
-#    return WaitUntil(timeout, retry_interval, func, value = True)
-
 #=========================================================================
 def always_wait_until_passes(
     timeout,

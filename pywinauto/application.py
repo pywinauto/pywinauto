@@ -85,7 +85,7 @@ from . import handleprops
 from .backend import registry
 
 from .actionlogger import ActionLogger
-from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+from .timings import Timings, wait_until, TimeoutError, wait_until_passes
 from .sysinfo import is_x64_Python
 
 
@@ -109,9 +109,6 @@ class AppNotConnected(Exception):
 for warning in (UserWarning, PendingDeprecationWarning):
     warnings.simplefilter('always', warning)
 
-
-#wait_method_deprecation = "Wait* functions are just simple wrappers around " \
-#    "Wait() or WaitNot(), so they may be removed in the future!"
 
 #=========================================================================
 class WindowSpecification(object):
@@ -228,7 +225,7 @@ class WindowSpecification(object):
             retry_interval = Timings.window_find_retry
 
         try:
-            ctrl = WaitUntilPasses(
+            ctrl = wait_until_passes(
                 timeout,
                 retry_interval,
                 self.__get_ctrl,
@@ -480,12 +477,12 @@ class WindowSpecification(object):
             self.Dlg.wait("exists enabled visible ready")
 
         .. seealso::
-           :func:`WindowSpecification.WaitNot()`
+           :func:`WindowSpecification.wait_not()`
 
            :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
 
         # Return the wrapped control
         return self.wrapper_object()
@@ -520,7 +517,7 @@ class WindowSpecification(object):
         """
         check_method_names, timeout, retry_interval = \
             self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 

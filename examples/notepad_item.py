@@ -43,7 +43,7 @@ from pywinauto import application
 app = application.Application()
 app.start(r"notepad.exe")
 
-app['Notepad'].Wait('ready')
+app['Notepad'].wait('ready')
 
 app['Notepad'].menu_select("File->PageSetup")
 
