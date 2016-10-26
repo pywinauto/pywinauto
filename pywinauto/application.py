@@ -467,19 +467,20 @@ class WindowSpecification(object):
 
         :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
             is not in the appropriate state after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
 
         :param retry_interval: How long to sleep between each retry.
-        Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
         An example to wait until the dialog
-        exists, is ready, enabled and visible::
+        exists, is ready, enabled and visible: ::
 
             self.Dlg.wait("exists enabled visible ready")
 
         .. seealso::
-           :func:`WindowSpecification.wait_not()`
+            :func:`WindowSpecification.wait_not()`
 
-           :func:`pywinauto.timings.TimeoutError`
+            :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
         wait_until(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
@@ -502,18 +503,19 @@ class WindowSpecification(object):
 
         :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is sill in the
             state after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
 
         :param retry_interval: How long to sleep between each retry.
-        Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
-        An example to wait until the dialog is not ready, enabled or visible::
+        An example to wait until the dialog is not ready, enabled or visible: ::
 
             self.Dlg.wait_not("enabled visible ready")
 
         .. seealso::
-           :func:`WindowSpecification.Wait()`
+            :func:`WindowSpecification.wait()`
 
-           :func:`pywinauto.timings.TimeoutError`
+            :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = \
             self.__parse_wait_args(wait_for_not, timeout, retry_interval)

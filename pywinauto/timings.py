@@ -314,13 +314,13 @@ def wait_until(
 
     e.g. ::
 
-    try:
-        # wait a maximum of 10.5 seconds for the
-        # the objects item_count() method to return 10
-        # in increments of .5 of a second
-        wait_until(10.5, .5, self.item_count, 10)
-    except TimeoutError as e:
-        print("timed out")
+        try:
+            # wait a maximum of 10.5 seconds for the
+            # the objects item_count() method to return 10
+            # in increments of .5 of a second
+            wait_until(10.5, .5, self.item_count, 10)
+        except TimeoutError as e:
+            print("timed out")
     """
     start = time.time()
 
@@ -384,14 +384,14 @@ def wait_until_passes(
 
     e.g. ::
 
-    try:
-        # wait a maximum of 10.5 seconds for the
-        # window to be found in increments of .5 of a second.
-        # P.int a message and re-raise the original exception if never found.
-        wait_until_passes(10.5, .5, self.Exists, (ElementNotFoundError))
-    except TimeoutError as e:
-        print("timed out")
-        raise e.
+        try:
+            # wait a maximum of 10.5 seconds for the
+            # window to be found in increments of .5 of a second.
+            # P.int a message and re-raise the original exception if never found.
+            wait_until_passes(10.5, .5, self.Exists, (ElementNotFoundError))
+        except TimeoutError as e:
+            print("timed out")
+            raise e.
     """
     start = time.time()
 

@@ -179,7 +179,7 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     @property
     def element_info(self):
-        """Read-only property to get *ElementInfo object"""
+        """Read-only property to get **ElementInfo** object"""
         return self._element_info
 
     #------------------------------------------------------------
