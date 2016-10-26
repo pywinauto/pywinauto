@@ -252,8 +252,8 @@ class UIAElementInfo(ElementInfo):
     def children(self, **kwargs):
         """Return a list of only immediate children of the element
 
-        * **kwargs** is a criteria to reduce a list by process,
-        class_name, control_type, content_only and/or title.
+         * **kwargs** is a criteria to reduce a list by process,
+           class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
@@ -262,8 +262,8 @@ class UIAElementInfo(ElementInfo):
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
 
-        * **kwargs** is a criteria to reduce a list by process,
-        class_name, control_type, content_only and/or title.
+         * **kwargs** is a criteria to reduce a list by process,
+           class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)

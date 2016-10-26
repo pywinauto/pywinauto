@@ -1,5 +1,5 @@
 pywinauto.remote_memory_block
----------------------------
+-----------------------------
  .. automodule:: pywinauto.remote_memory_block
     :members:
     :undoc-members:
