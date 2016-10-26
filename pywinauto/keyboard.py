@@ -32,8 +32,8 @@
 
 """Keyboard input emulation module
 
-Automate typing keys to an active window by calling ``SendKeys`` method. 
-You can use any Unicode characters (on Windows) and some special keys listed 
+Automate typing keys to an active window by calling ``SendKeys`` method.
+You can use any Unicode characters (on Windows) and some special keys listed
 below. The module is also available on Linux.
 
 **Available key codes:** ::
@@ -74,8 +74,8 @@ Example how to use modifiers: ::
     SendKeys('+{INS}') # insert from clipboard (Shift+Ins)
     SendKeys('%{F4}') # close an active window with Alt+F4
 
-Repetition count can be specified for special keys. ``{ENTER 2}`` says to 
-press Enter twice, for example.
+Repetition count can be specified for special keys. ``{ENTER 2}`` says to
+press Enter twice.
 """
 from __future__ import unicode_literals
 
@@ -633,59 +633,3 @@ else:
         for k in keys:
             k.run()
             time.sleep(pause)
-
-
-def main(): #pragma: no cover
-    """Send some test strings"""
-    actions = """
-        {LWIN}
-        {PAUSE .25}
-        r
-        {PAUSE .25}
-        Notepad.exe{ENTER}
-        {PAUSE 1}
-        Hello{SPACE}World!
-        {PAUSE 1}
-        %{F4}
-        {PAUSE .25}
-        n
-        """
-    SendKeys(actions, pause = .1)
-    
-    keys = parse_keys(actions)
-    for k in keys:
-        print(k)
-        k.run()
-        time.sleep(.1)
-
-    test_strings = [
-        "\n"
-        "(aa)some text\n",
-        "(a)some{ }text\n",
-        "(b)some{{}text\n",
-        "(c)some{+}text\n",
-        "(d)so%me{ab 4}text",
-        "(e)so%me{LEFT 4}text",
-        "(f)so%me{ENTER 4}text",
-        "(g)so%me{^aa 4}text",
-        "(h)some +(asdf)text",
-        "(i)some %^+(asdf)text",
-        "(j)some %^+a text+",
-        "(k)some %^+a tex+{&}",
-        "(l)some %^+a tex+(dsf)",
-        "",
-        ]
-
-    for s in test_strings:
-        print(repr(s))
-        keys = parse_keys(s, with_newlines = True)
-        print(keys)
-
-        for k in keys:
-            k.run()
-            time.sleep(.1)
-        print()
-
-if __name__ == "__main__": #pragma: no cover
-
-    main() #pragma: no cover
