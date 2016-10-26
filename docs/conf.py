@@ -40,6 +40,7 @@ if sys.platform.startswith('linux'):
             'Xlib.display',
             'Xlib.ext.xtest',
             'Xlib.ext',
+            'Xlib.XK',
             'pywintypes',
             'pywinauto.win32structures',
             'pywinauto.win32defines',

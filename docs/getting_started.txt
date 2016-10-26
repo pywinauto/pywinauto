@@ -12,10 +12,10 @@ The list of supported accessibility technologies on Windows:
     - MFC, VB6, VCL, simple WinForms controls and most of the old legacy apps
 
  * **MS UI Automation** (``backend="uia"``)
-    - WinForms, WPF, Store apps, Qt, browsers (Chrome requires 
-    ``--force-renderer-accessibility`` cmd flag before starting)
-
-    Note that custom properties and controls are not supported because of 
+    - WinForms, WPF, Store apps, Qt, browsers
+    
+    Notes: Chrome requires ``--force-renderer-accessibility`` cmd flag before 
+    starting. Custom properties and controls are not supported because of 
     comtypes Python library restrictions.
 
 Not supported: Java AWT/Swing, GTK+, Tkinter.
@@ -24,7 +24,7 @@ AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
 
 
 GUI Objects Inspection
---------------------
+----------------------
 If you're still not sure which backend is most appropriate for you 
 then try using object inspection tools that are available for free.
 
@@ -53,7 +53,7 @@ using basic modules mouse_ and keyboard_.
 
 
 Entry Points for Automation
---------------------
+---------------------------
 
 So you have an application, you know it supports one of the mentioned 
 accessibility technologies. What's the next?
