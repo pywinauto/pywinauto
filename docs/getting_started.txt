@@ -8,15 +8,15 @@ technology (pywinauto's backend) could be used for your application.
 
 The list of supported accessibility technologies on Windows:
 
- * Win32 API (``backend="win32"``)
+ * **Win32 API** (``backend="win32"``) - a default backend for now
     - MFC, VB6, VCL, simple WinForms controls and most of the old legacy apps
 
- * MS UI Automation (``backend="uia"``)
+ * **MS UI Automation** (``backend="uia"``)
     - WinForms, WPF, Store apps, Qt, browsers (Chrome requires 
-    ``--force-renderer-accessibility`` cmd flag before running)
+    ``--force-renderer-accessibility`` cmd flag before starting)
 
-Note that custom properties and controls are not supported because of 
-comtypes Python library restrictions.
+    Note that custom properties and controls are not supported because of 
+    comtypes Python library restrictions.
 
 Not supported: Java AWT/Swing, GTK+, Tkinter.
 
@@ -25,23 +25,25 @@ AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
 
 GUI Objects Inspection
 --------------------
-If you're still not sure which backend is most appropriate for you, 
-then try using object inspection tools that are free available.
+If you're still not sure which backend is most appropriate for you 
+then try using object inspection tools that are available for free.
 
- * **Spy++** is included into MS Visual Studio distribution and is available in Start
-   menu. It uses Win32 API. It means if Spy++ can show all the controls the ``"win32"``
-   backend is what you need. **AutoIt Window Info** tool is a kind of Spy++ clone.
+ * **Spy++** is included into MS Visual Studio distribution (even Express or 
+   Community) and is accessible through Start menu. It uses Win32 API. It means 
+   if Spy++ can show all the controls the ``"win32"`` backend is what you need. 
+   *AutoIt Window Info* tool is a kind of Spy++ clone.
+
 
  * **Inspect.exe** is another great tool created by Microsoft. It's included into
-   Windows SDK so that can be found in the following location on x64 Windows:
+   Windows SDK so that it can be found in the following location on x64 Windows:
 
  ::
 
     C:\Program Files (x86)\Windows Kits\<winver>\bin\x64
 
-Inspect.exe is the most useful in **UIA mode** (using MS UI Automation). If it 
-can show more controls and their properties than Spy++, probably the ``"uia"`` 
-backend is your choice.
+   Switch Inspect.exe into **UIA mode** (using MS UI Automation). If it can 
+   show more controls and their properties than Spy++, probably the ``"uia"`` 
+   backend is your choice.
 
 
 Entry Points for Automation

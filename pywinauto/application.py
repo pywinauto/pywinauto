@@ -40,14 +40,14 @@ Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app.child_window(title = "your title", classname = "your class", ...)
+   dlg = app.child_window(title="your title", classname="your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
 in almost exactly the same ways. ::
 
   ctrl = dlg.YourControlTitle
-  ctrl = dlg.child_window(title = "Your control", classname = "Button", ...)
+  ctrl = dlg.child_window(title="Your control", classname="Button", ...)
   ctrl = dlg["Your control"]
 
 .. note::
@@ -209,7 +209,7 @@ class WindowSpecification(object):
             return (dialog, )
 
 
-    def __resolve_control(self, criteria, timeout = None, retry_interval = None):
+    def __resolve_control(self, criteria, timeout=None, retry_interval=None):
         """
         Find a control using criteria
 
@@ -366,7 +366,7 @@ class WindowSpecification(object):
         return self[attr_name]
 
 
-    def exists(self, timeout = None, retry_interval = None):
+    def exists(self, timeout=None, retry_interval=None):
         """
         Check if the window exists, return True if the control exists
 
@@ -550,7 +550,7 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth = None):
+    def print_control_identifiers(self, depth=None):
         """
         Prints the 'identifiers'
 
@@ -582,7 +582,7 @@ class WindowSpecification(object):
 
         print("Control Identifiers:")
 
-        def print_identifiers(ctrls, current_depth = 1):
+        def print_identifiers(ctrls, current_depth=1):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
@@ -622,7 +622,7 @@ class WindowSpecification(object):
 cur_item = 0
 
 def _resolve_from_appdata(
-    criteria_, app, timeout = None, retry_interval = None):
+    criteria_, app, timeout=None, retry_interval=None):
     """Should not be used at the moment!"""
     # TODO: take a look into this functionality
 
@@ -814,7 +814,7 @@ class Application(object):
     .. automethod:: __getitem__
     """
 
-    def __init__(self, backend = "win32", datafilename = None):
+    def __init__(self, backend="win32", datafilename=None):
         """
         Initialize the Application object
 
@@ -899,9 +899,9 @@ class Application(object):
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True):
-        """Start the application giving in cmd_line"""
+        """Start the application as specified by cmd_line"""
         # try to parse executable name and check it has correct bitness
-        if '.exe' in cmd_line:
+        if '.exe' in cmd_line and self.backend.name == 'win32':
             exe_name = cmd_line.split('.exe')[0] + '.exe'
             _warn_incorrect_binary_bitness(exe_name)
 
@@ -982,7 +982,7 @@ class Application(object):
                                   "anything else")
         return handleprops.is64bitprocess(self.process)
 
-    def cpu_usage(self, interval = None):
+    def cpu_usage(self, interval=None):
         """Return CPU usage percent during specified number of seconds"""
         WIN32_PROCESS_TIMES_TICKS_PER_SECOND = 1e7
 
@@ -1008,7 +1008,7 @@ class Application(object):
         win32api.CloseHandle(h_process)
         return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
 
-    def wait_cpu_usage_lower(self, threshold = 2.5, timeout = None, usage_interval = None):
+    def wait_cpu_usage_lower(self, threshold=2.5, timeout=None, usage_interval=None):
         """Wait until process CPU usage percentage is less than the specified threshold"""
         if usage_interval is None:
             usage_interval = Timings.cpu_usage_interval
@@ -1031,8 +1031,8 @@ class Application(object):
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_elements(process = self.process,
-                                                backend = self.backend.name)
+            windows = findwindows.find_elements(process=self.process,
+                                                backend=self.backend.name)
             if windows:
                 break
             time.sleep(Timings.window_find_retry)
@@ -1057,9 +1057,9 @@ class Application(object):
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_elements(process = self.process,
-                                            active_only = True,
-                                            backend = self.backend.name)
+        windows = findwindows.find_elements(process=self.process,
+                                            active_only=True,
+                                            backend=self.backend.name)
 
         if not windows:
             raise RuntimeError("No Windows of that application are active")
@@ -1123,7 +1123,7 @@ class Application(object):
     def __getitem__(self, key):
         """Find the specified dialog of the application"""
         # delegate searching functionality to self.window()
-        return self.window(best_match = key)
+        return self.window(best_match=key)
 
     def __getattribute__(self, attr_name):
         """Find the specified dialog of the application"""
@@ -1158,7 +1158,7 @@ class Application(object):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        windows = self.windows(visible_only = True)
+        windows = self.windows(visible_only=True)
 
         for win in windows:
 
