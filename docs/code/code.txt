@@ -1,4 +1,12 @@
 
+Basic User Input Modules
+==============================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.mouse.txt
+   pywinauto.keyboard.txt
+
 Main user modules
 ==============================
 .. toctree::
@@ -22,26 +30,13 @@ Controls Reference
 .. toctree::
    :maxdepth: 1
    
-   pywinauto.controls.common_controls.txt
    pywinauto.controls.hwndwrapper.txt
    pywinauto.controls.menuwrapper.txt
+   pywinauto.controls.common_controls.txt
    pywinauto.controls.win32_controls.txt
+   
    pywinauto.controls.uiawrapper.txt
    pywinauto.controls.uia_controls.txt
-
-Sendkeys
-==============================
-.. toctree::
-   :maxdepth: 1
-   
-   pywinauto.keyboard.txt
-
-Included 3rd party modules
-==============================
-.. toctree::
-   :maxdepth: 1
-   
-   pywinauto.six.txt
 
 Pre-supplied tests
 ==============================

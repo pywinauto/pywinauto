@@ -35,19 +35,28 @@ then try using object inspection tools that are available for free.
 
 
  * **Inspect.exe** is another great tool created by Microsoft. It's included into
-   Windows SDK so that it can be found in the following location on x64 Windows:
+   Windows SDK so that it can be found in the following location on x64 Windows: ::
 
- ::
+        C:\Program Files (x86)\Windows Kits\<winver>\bin\x64
 
-    C:\Program Files (x86)\Windows Kits\<winver>\bin\x64
 
    Switch Inspect.exe into **UIA mode** (using MS UI Automation). If it can 
    show more controls and their properties than Spy++, probably the ``"uia"`` 
    backend is your choice.
 
+If some or all controls are not visible to all the inspection tools it's still 
+possible to control the application by generating mouse and keyboard events 
+using basic modules mouse_ and keyboard_.
+
+.. _mouse: pywinauto.mouse.txt
+.. _keyboard: pywinauto.keyboard.txt
+
 
 Entry Points for Automation
 --------------------
+
+So you have an application, you know it supports one of the mentioned 
+accessibility technologies. What's the next?
 
 **Application** and **Desktop** objects are backend-specific.
 
