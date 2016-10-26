@@ -48,8 +48,8 @@ If some or all controls are not visible to all the inspection tools it's still
 possible to control the application by generating mouse and keyboard events 
 using basic modules mouse_ and keyboard_.
 
-.. _mouse: pywinauto.mouse.txt
-.. _keyboard: pywinauto.keyboard.txt
+.. _mouse: code/pywinauto.mouse.html
+.. _keyboard: code/pywinauto.keyboard.html
 
 
 Entry Points for Automation
