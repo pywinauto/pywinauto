@@ -92,11 +92,11 @@ or equivalently
 
    dlg = app['Notepad']
 
-The next easiest method is to ask for the ``top_window_()`` e.g.
+The next easiest method is to ask for the ``top_window()`` e.g.
 
   ::
 
-    dlg = app.top_window_()
+    dlg = app.top_window()
 
 This will return the window that has the highest Z-Order of the top-level
 windows of the application.
@@ -110,13 +110,13 @@ can be passed to ``findwindows.find_windows()`` e.g.
 
   ::
 
-    dlg = app.window_(title_re="Page Setup", class_name="#32770")
+    dlg = app.window(title_re="Page Setup", class_name="#32770")
 
 Finally to have the most control you can use
 
   ::
 
-    dialogs = app.windows_()
+    dialogs = app.windows()
 
 this will return a list of all the visible, enabled, top level windows
 of the application. You can then use some of the methods in ``handleprops``
@@ -125,14 +125,14 @@ then use
 
   ::
 
-    app.window_(handle = win)
+    app.window(handle=win)
 
 **Note**: If the title of the dialog is very long - then attribute access
 might be very long to type, in those cases it is usually easier to use
 
   ::
 
-    app.window_(title_re=".*Part of Title.*")
+    app.window(title_re=".*Part of Title.*")
 
 
 
@@ -279,7 +279,7 @@ How to use pywinauto with application languages other than English
 Because Python does not support unicode identifiers in code
 you cannot use attribute access to reference a control so
 you would either have to use item access or make an explicit
-calls to ``window_()``.
+calls to ``window()``.
 
 So instead of writing
 
@@ -293,13 +293,13 @@ You would have to write
 
     app['dialog_ident']['control_ident'].click()
 
-Or use ``window_()`` explictly
+Or use ``window()`` explictly
 
   ::
 
-    app.window_(title_re="NonAsciiCharacters").window_(title="MoreNonAsciiCharacters").click()
+    app.window(title_re="NonAsciiCharacters").window(title="MoreNonAsciiCharacters").click()
 
-To see an example of this check ``examples\MiscExamples.py get_info()``
+To see an example of this check ``examples\misc_examples.py get_info()``
 
 
 

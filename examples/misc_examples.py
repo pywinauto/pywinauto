@@ -79,6 +79,7 @@ def test_exceptions():
 
 
 def get_info():
+    """Run Notepad, print some identifiers and exit"""
     app = application.Application()
 
     app.start(r"notepad.exe")
@@ -86,7 +87,7 @@ def get_info():
     app.Notepad.menu_select("File->PageSetup")
 
     print("==" * 20)
-    print("Windows of this application:", app.windows_())
+    print("Windows of this application:", app.windows())
 
     print("The list of identifiers for the Page Setup dialog in Notepad")
     print("==" * 20)

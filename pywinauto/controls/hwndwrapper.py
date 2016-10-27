@@ -647,7 +647,7 @@ class HwndWrapper(BaseWrapper):
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
-        timings.WaitUntil(
+        timings.wait_until(
             Timings.closeclick_dialog_close_wait,
             Timings.closeclick_retry,
             has_closed
@@ -1039,7 +1039,7 @@ class HwndWrapper(BaseWrapper):
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
-        timings.WaitUntil(
+        timings.wait_until(
             wait_time,
             Timings.closeclick_retry,
             has_closed

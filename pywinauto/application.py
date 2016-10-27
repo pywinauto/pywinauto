@@ -40,14 +40,14 @@ Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app.child_window(title = "your title", classname = "your class", ...)
+   dlg = app.child_window(title="your title", classname="your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
 in almost exactly the same ways. ::
 
   ctrl = dlg.YourControlTitle
-  ctrl = dlg.child_window(title = "Your control", classname = "Button", ...)
+  ctrl = dlg.child_window(title="Your control", classname="Button", ...)
   ctrl = dlg["Your control"]
 
 .. note::
@@ -85,7 +85,7 @@ from . import handleprops
 from .backend import registry
 
 from .actionlogger import ActionLogger
-from .timings import Timings, WaitUntil, TimeoutError, WaitUntilPasses
+from .timings import Timings, wait_until, TimeoutError, wait_until_passes
 from .sysinfo import is_x64_Python
 
 
@@ -109,9 +109,6 @@ class AppNotConnected(Exception):
 for warning in (UserWarning, PendingDeprecationWarning):
     warnings.simplefilter('always', warning)
 
-
-#wait_method_deprecation = "Wait* functions are just simple wrappers around " \
-#    "Wait() or WaitNot(), so they may be removed in the future!"
 
 #=========================================================================
 class WindowSpecification(object):
@@ -209,7 +206,7 @@ class WindowSpecification(object):
             return (dialog, )
 
 
-    def __resolve_control(self, criteria, timeout = None, retry_interval = None):
+    def __resolve_control(self, criteria, timeout=None, retry_interval=None):
         """
         Find a control using criteria
 
@@ -228,7 +225,7 @@ class WindowSpecification(object):
             retry_interval = Timings.window_find_retry
 
         try:
-            ctrl = WaitUntilPasses(
+            ctrl = wait_until_passes(
                 timeout,
                 retry_interval,
                 self.__get_ctrl,
@@ -366,7 +363,7 @@ class WindowSpecification(object):
         return self[attr_name]
 
 
-    def exists(self, timeout = None, retry_interval = None):
+    def exists(self, timeout=None, retry_interval=None):
         """
         Check if the window exists, return True if the control exists
 
@@ -470,22 +467,23 @@ class WindowSpecification(object):
 
         :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
             is not in the appropriate state after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
 
         :param retry_interval: How long to sleep between each retry.
-        Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
         An example to wait until the dialog
-        exists, is ready, enabled and visible::
+        exists, is ready, enabled and visible: ::
 
             self.Dlg.wait("exists enabled visible ready")
 
         .. seealso::
-           :func:`WindowSpecification.WaitNot()`
+            :func:`WindowSpecification.wait_not()`
 
-           :func:`pywinauto.timings.TimeoutError`
+            :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
 
         # Return the wrapped control
         return self.wrapper_object()
@@ -505,22 +503,23 @@ class WindowSpecification(object):
 
         :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is sill in the
             state after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
 
         :param retry_interval: How long to sleep between each retry.
-        Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
 
-        An example to wait until the dialog is not ready, enabled or visible::
+        An example to wait until the dialog is not ready, enabled or visible: ::
 
             self.Dlg.wait_not("enabled visible ready")
 
         .. seealso::
-           :func:`WindowSpecification.Wait()`
+            :func:`WindowSpecification.wait()`
 
-           :func:`pywinauto.timings.TimeoutError`
+            :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = \
             self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        WaitUntil(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
@@ -550,7 +549,7 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth = None):
+    def print_control_identifiers(self, depth=None):
         """
         Prints the 'identifiers'
 
@@ -582,7 +581,7 @@ class WindowSpecification(object):
 
         print("Control Identifiers:")
 
-        def print_identifiers(ctrls, current_depth = 1):
+        def print_identifiers(ctrls, current_depth=1):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
@@ -622,7 +621,7 @@ class WindowSpecification(object):
 cur_item = 0
 
 def _resolve_from_appdata(
-    criteria_, app, timeout = None, retry_interval = None):
+    criteria_, app, timeout=None, retry_interval=None):
     """Should not be used at the moment!"""
     # TODO: take a look into this functionality
 
@@ -814,7 +813,7 @@ class Application(object):
     .. automethod:: __getitem__
     """
 
-    def __init__(self, backend = "win32", datafilename = None):
+    def __init__(self, backend="win32", datafilename=None):
         """
         Initialize the Application object
 
@@ -833,8 +832,13 @@ class Application(object):
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
             self.Start = self.start
+            self.Connect = self.connect
             self.CPUUsage = self.cpu_usage
             self.WaitCPUUsageLower = self.wait_cpu_usage_lower
+            self.top_window_ = self.top_window
+            self.active_ = self.active
+            self.Windows_ = self.windows_ = self.windows
+            self.Window_ = self.window_ = self.window
 
         # load the match history if a file was specifed
         # and it exists
@@ -843,25 +847,8 @@ class Application(object):
                 self.match_history = pickle.load(datafile)
             self.use_history = True
 
-    def __connect(self, **kwargs):
-        """
-        Deprecated method. Performs PendingDeprecationWarning before calling
-        the .connect().
-        Should be also removed in 0.6.X.
-        """
-        warnings.warn(
-            "connect_()/Connect_() methods are deprecated, "
-            "please switch to instance method connect(). "
-            "Connect() is an alias to the connect() method. "
-            "Please note that both Connect() and connect() "
-            "are instance methods.", PendingDeprecationWarning)
-        return self.connect(**kwargs)
-
-    connect_ = __connect  # A deprecated name. Should be removed in 0.6.X
-    Connect_ = __connect  # A deprecated name. Should be removed in 0.6.X
-
     def connect(self, **kwargs):
-        """Connects to an already running process
+        """Connect to an already running process
 
         The action is performed according to only one of parameters
 
@@ -904,34 +891,16 @@ class Application(object):
             raise RuntimeError(
                 "You must specify one of process, handle or path")
 
-        self.__warn_incorrect_bitness()
+        if self.backend.name == 'win32':
+            self.__warn_incorrect_bitness()
 
         return self
 
-    Connect = connect
-
-    def __start(self, *args, **kwargs):
-        """
-        Deprecated method. Performs PendingDeprecationWarning before
-        calling the .start().
-        Should be also removed in 0.6.X.
-        """
-        warnings.warn(
-            "start_()/Start_() methods are deprecated, "
-            "please switch to instance method start(). "
-            "Start() is an alias to the start() method. "
-            "Please note that both Start() and start() are instance methods.",
-            PendingDeprecationWarning)
-        return self.start(*args, **kwargs)
-
-    start_ = __start  # A deprecated name. Should be removed in 0.6.X
-    Start_ = __start  # A deprecated name. Should be removed in 0.6.X
-
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True):
-        """Starts the application giving in cmd_line"""
+        """Start the application as specified by cmd_line"""
         # try to parse executable name and check it has correct bitness
-        if '.exe' in cmd_line:
+        if '.exe' in cmd_line and self.backend.name == 'win32':
             exe_name = cmd_line.split('.exe')[0] + '.exe'
             _warn_incorrect_binary_bitness(exe_name)
 
@@ -970,7 +939,8 @@ class Application(object):
 
         self.process = dw_process_id
 
-        self.__warn_incorrect_bitness()
+        if self.backend.name == 'win32':
+            self.__warn_incorrect_bitness()
 
         def app_idle():
             """Return true when the application is ready to start"""
@@ -985,7 +955,7 @@ class Application(object):
             if result == win32con.WAIT_TIMEOUT:
                 return False
 
-            return bool(self.windows_())
+            return bool(self.windows())
 
         # Wait until the application is ready after starting it
         if wait_for_idle and not app_idle():
@@ -1011,7 +981,7 @@ class Application(object):
                                   "anything else")
         return handleprops.is64bitprocess(self.process)
 
-    def cpu_usage(self, interval = None):
+    def cpu_usage(self, interval=None):
         """Return CPU usage percent during specified number of seconds"""
         WIN32_PROCESS_TIMES_TICKS_PER_SECOND = 1e7
 
@@ -1037,7 +1007,7 @@ class Application(object):
         win32api.CloseHandle(h_process)
         return 100.0 * (total_time / (float(interval) * multiprocessing.cpu_count()))
 
-    def wait_cpu_usage_lower(self, threshold = 2.5, timeout = None, usage_interval = None):
+    def wait_cpu_usage_lower(self, threshold=2.5, timeout=None, usage_interval=None):
         """Wait until process CPU usage percentage is less than the specified threshold"""
         if usage_interval is None:
             usage_interval = Timings.cpu_usage_interval
@@ -1052,15 +1022,16 @@ class Application(object):
 
         return self
 
-    def top_window_(self):
-        """Return a current top window of the application"""
+    def top_window(self):
+        """Return WindowSpecification for a current top window of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_elements(process = self.process, backend = self.backend.name)
+            windows = findwindows.find_elements(process=self.process,
+                                                backend=self.backend.name)
             if windows:
                 break
             time.sleep(Timings.window_find_retry)
@@ -1077,15 +1048,17 @@ class Application(object):
 
         return WindowSpecification(criteria)
 
-    def active_(self):
-        """Return an active window of the application"""
+    def active(self):
+        """Return WindowSpecification for an active window of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_elements(process = self.process, active_only = True, backend = self.backend.name)
+        windows = findwindows.find_elements(process=self.process,
+                                            active_only=True,
+                                            backend=self.backend.name)
 
         if not windows:
             raise RuntimeError("No Windows of that application are active")
@@ -1100,7 +1073,7 @@ class Application(object):
         return WindowSpecification(criteria)
 
 
-    def windows_(self, **kwargs):
+    def windows(self, **kwargs):
         """Return a list of wrapped top level windows of the application"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
@@ -1120,9 +1093,6 @@ class Application(object):
 
         windows = findwindows.find_elements(**kwargs)
         return [self.backend.generic_wrapper_class(win) for win in windows]
-        #return [BaseWrapper(win) for win in windows]
-
-    Windows_ = windows_
 
 
     def window(self, **kwargs):
@@ -1151,8 +1121,8 @@ class Application(object):
 
     def __getitem__(self, key):
         """Find the specified dialog of the application"""
-        # delegate searching functionality to self.window_()
-        return self.window(best_match = key)
+        # delegate searching functionality to self.window()
+        return self.window(best_match=key)
 
     def __getattribute__(self, attr_name):
         """Find the specified dialog of the application"""
@@ -1187,7 +1157,7 @@ class Application(object):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        windows = self.windows_(visible_only = True)
+        windows = self.windows(visible_only=True)
 
         for win in windows:
 

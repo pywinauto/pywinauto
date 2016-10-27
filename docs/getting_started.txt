@@ -1,16 +1,66 @@
 ==========================
-Automating an application
+Getting Started Guide
 ==========================
 
 Once you have installed pywinauto - how do you get going?
+The very first necessary thing is to determine which accessibility 
+technology (pywinauto's backend) could be used for your application.
 
-Sit back and have a look at a little movie
--------------------------------------------
+The list of supported accessibility technologies on Windows:
 
-Jeff Winkler has created a nice screencast of using pywinauto, you
-can see it at :
+ * **Win32 API** (``backend="win32"``) - a default backend for now
+    - MFC, VB6, VCL, simple WinForms controls and most of the old legacy apps
 
-   http://showmedo.com/videos/video?name=UsingpyWinAutoToControlAWindowsApplication&fromSeriesID=7
+ * **MS UI Automation** (``backend="uia"``)
+    - WinForms, WPF, Store apps, Qt, browsers
+    
+    Notes: Chrome requires ``--force-renderer-accessibility`` cmd flag before 
+    starting. Custom properties and controls are not supported because of 
+    comtypes Python library restrictions.
+
+Not supported: Java AWT/Swing, GTK+, Tkinter.
+
+AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
+
+
+GUI Objects Inspection
+----------------------
+If you're still not sure which backend is most appropriate for you 
+then try using object inspection tools that are available for free.
+
+ * **Spy++** is included into MS Visual Studio distribution (even Express or 
+   Community) and is accessible through Start menu. It uses Win32 API. It means 
+   if Spy++ can show all the controls the ``"win32"`` backend is what you need. 
+   *AutoIt Window Info* tool is a kind of Spy++ clone.
+
+
+ * **Inspect.exe** is another great tool created by Microsoft. It's included into
+   Windows SDK so that it can be found in the following location on x64 Windows: ::
+
+        C:\Program Files (x86)\Windows Kits\<winver>\bin\x64
+
+
+   Switch Inspect.exe into **UIA mode** (using MS UI Automation). If it can 
+   show more controls and their properties than Spy++, probably the ``"uia"`` 
+   backend is your choice.
+
+If some or all controls are not visible to all the inspection tools it's still 
+possible to control the application by generating mouse and keyboard events 
+using basic modules mouse_ and keyboard_.
+
+.. _mouse: code/pywinauto.mouse.html
+.. _keyboard: code/pywinauto.keyboard.html
+
+
+Entry Points for Automation
+---------------------------
+
+So you have an application, you know it supports one of the mentioned 
+accessibility technologies. What's the next?
+
+**Application** and **Desktop** objects are backend-specific.
+
+TODO: continue telling about window specifications and other basic things.
 
 
 Look at the examples
@@ -25,12 +75,12 @@ been programmed for English Software except where highlighted.
 - ``notepad_fast.py``    Use fast timing settings to control Notepad
 - ``notepad_slow.py``    Use slow timing settings to control Notepad
 - ``notepad_item.py``    Use item rather then attribute access to control Notepad.
-- ``MiscExamples.py``    Show some exceptions and how to get control identifiers.
-- ``SaveFromInternetExplorer.py``	Save a Web Page from Internet Explorer -
-- ``SaveFromFirefox.py``			Save a Web Page from Firefox.
+- ``misc_examples.py``    Show some exceptions and how to get control identifiers.
+- ``save_from_internet_explorer.py`` Save a Web Page from Internet Explorer.
+- ``save_from_firefox.py``  Save a Web Page from Firefox.
 - ``get_winrar_info.py``    Example of how to do multilingual automation.
   This is not an ideal example (works on French, Czech and German WinRar)
-- ``ForteAgentSample.py``   Example of dealing with a complex application that
+- ``forte_agent_sample.py``   Example of dealing with a complex application that
   is quite dynamic and gives different dialogs often when starting.
 - ``windowmediaplayer.py``  Just another example - deals with check boxes in a
   ListView.

@@ -139,37 +139,6 @@ class ApplicationWarningTestCases(unittest.TestCase):
             assert issubclass(w[-1].category, UserWarning)
             assert "64-bit" in str(w[-1].message)
 
-    def testDeprecatedConnectWarning(self):
-        warn_text = "connect_()/Connect_() methods are deprecated,"
-        deprecated_connect_methods = ('connect_', 'Connect_')
-        # warnings.filterwarnings('always', category=PendingDeprecationWarning,
-        #                         append=True)
-        with warnings.catch_warnings(record=True) as warns:
-            app = Application().start(self.sample_exe)
-            for deprecated_method in deprecated_connect_methods:
-                getattr(Application(),
-                               deprecated_method)(path=self.sample_exe)
-            app.kill_()
-
-        self.assertEquals(len(deprecated_connect_methods), len(warns))
-        self.assertEquals(warns[-1].category, PendingDeprecationWarning)
-        self.assertEquals(warn_text in str(warns[-1].message), True)
-
-    def testDeprecatedStartWarning(self):
-        warn_text = "start_()/Start_() methods are deprecated,"
-        deprecated_start_methods = ('start_', 'Start_')
-        # warnings.filterwarnings('always', category=PendingDeprecationWarning,
-        #                         append=True)
-        with warnings.catch_warnings(record=True) as warns:
-            for deprecated_method in deprecated_start_methods:
-                app = getattr(Application(),
-                              deprecated_method)(self.sample_exe)
-                app.kill_()
-
-        self.assertEquals(len(deprecated_start_methods), len(warns))
-        self.assertEquals(warns[-1].category, PendingDeprecationWarning)
-        self.assertEquals(warn_text in str(warns[-1].message), True)
-
 
 class ApplicationTestCases(unittest.TestCase):
 
@@ -189,7 +158,6 @@ class ApplicationTestCases(unittest.TestCase):
 
     def tearDown(self):
         """Close the application after tests"""
-        # close the application
         #self.dlg.SendMessage(win32defines.WM_CLOSE)
         warnings.showwarning = self.prev_warn
 
@@ -565,7 +533,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertEqual(
             app.AboutNotepad.handle,
-            app.window_(title = "About Notepad").handle)
+            app.window(title = "About Notepad").handle)
 
         app.AboutNotepad.Ok.Click()
         app.UntitledNotepad.MenuSelect("File->Exit")

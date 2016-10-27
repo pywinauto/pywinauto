@@ -43,7 +43,7 @@ def sakura_test():
     app = application.Application()
     app.start(r"C:\Program Files\sakura\sakura.exe")
 
-    mainwin = app.window_(title_re = u'\(無題\) - sakura .*')
+    mainwin = app.window(title_re = u'\(無題\) - sakura .*')
 
     # menu's from this application are not recovered well
     # but even with Japanese Regional settings they are not
@@ -53,8 +53,8 @@ def sakura_test():
     # open some dialog
     mainwin.type_keys("%OC")
 
-    dlg = app.window_(title = u'共通設定')
-    dlg.window_(title_re = r"フリーカーソル.*").click()
+    dlg = app.window(title = u'共通設定')
+    dlg.window(title_re = r"フリーカーソル.*").click()
     dlg.MSDOS.click()
     dlg.Cancel.click()
 

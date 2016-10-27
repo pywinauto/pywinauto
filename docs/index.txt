@@ -84,7 +84,7 @@ disappear later. You can wait for its new state like so ::
   app.Open.Open.click() # opening large file
   app.Open.wait_not('visible') # make sure "Open" dialog became invisible
   # wait for up to 30 seconds until data.txt is loaded
-  app.window_(title='data.txt - Notepad').wait('ready', timeout=30)
+  app.window(title='data.txt - Notepad').wait('ready', timeout=30)
 
 
 Some similar tools for comparison

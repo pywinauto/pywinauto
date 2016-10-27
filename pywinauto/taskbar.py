@@ -45,45 +45,45 @@ def TaskBarHandle():
     """Return the first window that has a class name 'Shell_TrayWnd'"""
     return findwindows.find_elements(class_name = "Shell_TrayWnd")[0].handle
 
-def _click_hidden_tray_icon(reqd_button, mouse_button = 'left', exact = False, by_tooltip = False, double = False):
-    popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
+def _click_hidden_tray_icon(reqd_button, mouse_button='left', exact=False, by_tooltip=False, double=False):
+    popup_dlg = explorer_app.window(class_name='NotifyIconOverflowWindow')
     try:
-        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.wait('visible')
         button_index = popup_toolbar.button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
     except Exception:
         ShowHiddenIconsButton.click_input() # may fail from PythonWin when script takes long time
-        popup_dlg = explorer_app.Window_(class_name='NotifyIconOverflowWindow')
-        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.Wait('visible')
+        popup_dlg = explorer_app.window(class_name='NotifyIconOverflowWindow')
+        popup_toolbar = popup_dlg.OverflowNotificationAreaToolbar.wait('visible')
         button_index = popup_toolbar.button(reqd_button, exact=exact, by_tooltip=by_tooltip).index
 
     popup_toolbar.button(button_index).click_input(button=mouse_button, double=double)
 
-def ClickSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
+def ClickSystemTrayIcon(button, exact=False, by_tooltip=False, double=False):
     """Click on a visible tray icon given by button"""
     SystemTrayIcons.button(button, exact=exact, by_tooltip=by_tooltip).click_input(double=double)
 
-def RightClickSystemTrayIcon(button, exact = False, by_tooltip = False):
+def RightClickSystemTrayIcon(button, exact=False, by_tooltip=False):
     """Right click on a visible tray icon given by button"""
     SystemTrayIcons.button(button, exact=exact, by_tooltip=by_tooltip).click_input(button='right')
 
-def ClickHiddenSystemTrayIcon(button, exact = False, by_tooltip = False, double=False):
+def ClickHiddenSystemTrayIcon(button, exact=False, by_tooltip=False, double=False):
     """Click on a hidden tray icon given by button"""
     _click_hidden_tray_icon(button, exact=exact, by_tooltip=by_tooltip, double=double)
 
-def RightClickHiddenSystemTrayIcon(button, exact = False, by_tooltip=False):
+def RightClickHiddenSystemTrayIcon(button, exact=False, by_tooltip=False):
     """Right click on a hidden tray icon given by button"""
     _click_hidden_tray_icon(button, mouse_button='right', exact=exact, by_tooltip=by_tooltip)
 
 
 # windows explorer owns all these windows so get that app
-explorer_app = application.Application().connect(handle = TaskBarHandle())
+explorer_app = application.Application().connect(handle=TaskBarHandle())
 
 # Get the taskbar
-TaskBar = explorer_app.window_(handle = TaskBarHandle())
+TaskBar = explorer_app.window(handle=TaskBarHandle())
 
 # The Start button
 try:
-    StartButton = explorer_app.Window_(title='Start', class_name='Button').Wait('exists', 0.1) # Win7
+    StartButton = explorer_app.window(title='Start', class_name='Button').wait('exists', 0.1) # Win7
 except Exception:
     StartButton = TaskBar.Start # Win8.1
 
@@ -105,7 +105,7 @@ RunningApplications = TaskBar.MSTaskListWClass
 
 # the language bar
 try:
-    LangPanel = TaskBar.CiceroUIWndFrame.Wait('exists', 0.1) # Win7
+    LangPanel = TaskBar.CiceroUIWndFrame.wait('exists', 0.1) # Win7
 except Exception:
     LangPanel = TaskBar.TrayInputIndicatorWClass # Win8.1
 

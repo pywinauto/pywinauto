@@ -53,12 +53,12 @@ if len(sys.argv) < 2:
     print("please specify a web address to download")
     sys.exit()
 
-web_addresss = sys.argv[1]
+web_address = sys.argv[1]
 
 if len(sys.argv) > 2:
     outputfilename = sys.argv[2]
 else:
-    outputfilename = web_addresss
+    outputfilename = web_address
     outputfilename = outputfilename.replace('/', '')
     outputfilename = outputfilename.replace('\\', '')
     outputfilename = outputfilename.replace(':', '')
@@ -72,7 +72,7 @@ outputfilename = os.path.abspath(outputfilename)
 
 # start IE with a start URL of what was passed in
 app = application.Application().start(
-    r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe %s"% web_addresss)
+    r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe {}".format(web_address))
 
 # some pages are slow to open - so wait some seconds
 time.sleep(5)
@@ -82,12 +82,12 @@ time.sleep(5)
 # so if we cannot find any window for that process
 #  - find the actual process
 #  - connect to it
-if app.windows_():
-    mozilla =  app.window_(title_re=".*Mozilla Firefox")
+if app.windows():
+    mozilla =  app.window(title_re=".*Mozilla Firefox")
 
 else:
     app = application.Application().connect(title_re=".*Mozilla Firefox")
-    mozilla = app.window_(title_re=".*Mozilla Firefox")
+    mozilla = app.window(title_re=".*Mozilla Firefox")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
 print("No Menu's in FireFox:", mozilla.menu_items())
