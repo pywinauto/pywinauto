@@ -281,6 +281,12 @@ class SendKeysTests(unittest.TestCase):
         received = self.receive_text()
         self.assertEquals("\t\t\tFFF", received)
 
+    def testShiftModifier(self):
+        """Make sure that Shift modifier works"""
+        SendKeys("+a")
+        received = self.receive_text()
+        self.assertEquals("A", received)
+
 if sys.platform == 'win32':
     class SendKeysModifiersTests(unittest.TestCase):
         """Unit tests for the Sendkeys module (modifiers)"""
