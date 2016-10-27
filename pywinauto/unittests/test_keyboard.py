@@ -283,9 +283,20 @@ class SendKeysTests(unittest.TestCase):
 
     def testShiftModifier(self):
         """Make sure that Shift modifier works"""
-        SendKeys("+a")
+        SendKeys("+(a)")
         received = self.receive_text()
         self.assertEquals("A", received)
+
+    if sys.platform != 'win32':
+        def testAltModifier(self):
+            """Make sure that alt modifier works"""
+            clipboard.set_data('abc')
+            # check alt via opening edit menu and paste text from clipboard
+            SendKeys('%(e)')
+            SendKeys('{ENTER}')
+            received = self.receive_text()
+            self.assertEquals('abc', received)
+
 
 if sys.platform == 'win32':
     class SendKeysModifiersTests(unittest.TestCase):
