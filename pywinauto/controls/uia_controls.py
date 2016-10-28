@@ -50,10 +50,9 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ButtonControlTypeId,
-        IUIA().UIA_dll.UIA_CheckBoxControlTypeId,
-        IUIA().UIA_dll.UIA_RadioButtonControlTypeId
+    _control_types = ['Button',
+        'CheckBox',
+        'RadioButton',
     ]
 
     # -----------------------------------------------------------
@@ -120,9 +119,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA CoboBox control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ComboBoxControlTypeId
-    ]
+    _control_types = ['ComboBox']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -201,9 +198,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
     # TODO: this class supports only 1-line textboxes so there is no point
     # TODO: in methods such as line_count(), line_length(), get_line(), etc
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_EditControlTypeId,
-    ]
+    _control_types = ['Edit']
     has_title = False
 
     # -----------------------------------------------------------
@@ -379,9 +374,7 @@ class TabControlWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tab control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_TabControlTypeId,
-    ]
+    _control_types = ['Tab']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -415,9 +408,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Slider control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_SliderControlTypeId,
-    ]
+    _control_types = ['Slider']
     has_title = False
 
     # -----------------------------------------------------------
@@ -485,9 +476,7 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Header control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_HeaderControlTypeId,
-    ]
+    _control_types = ['Header']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -500,10 +489,7 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListViewItem control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_DataItemControlTypeId,
-        IUIA().UIA_dll.UIA_ListItemControlTypeId,
-    ]
+    _control_types = ['DataItem', 'ListItem', ]
 
     # -----------------------------------------------------------
     def __init__(self, elem, container=None):
@@ -541,10 +527,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_DataGridControlTypeId,
-        IUIA().UIA_dll.UIA_ListControlTypeId,
-    ]
+    _control_types = ['DataGrid', 'List', ]
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -739,9 +722,7 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible MenuItem control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_MenuItemControlTypeId,
-    ]
+    _control_types = ['MenuItem']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -770,10 +751,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible MenuBar or Menu control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_MenuBarControlTypeId,
-        IUIA().UIA_dll.UIA_MenuControlTypeId
-    ]
+    _control_types = ['MenuBar', 'Menu', ]
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -882,9 +860,7 @@ class TooltipWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tooltip control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ToolTipControlTypeId
-    ]
+    _control_types = ['ToolTip']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -903,9 +879,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     not of the toolbar.
     """
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ToolBarControlTypeId
-    ]
+    _control_types = ['ToolBar']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -1003,9 +977,7 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
     click_input(), rectangle() and many others
     """
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_TreeItemControlTypeId
-    ]
+    _control_types = ['TreeItem']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -1084,9 +1056,7 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tree control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_TreeControlTypeId
-    ]
+    _control_types = ['Tree']
 
     # -----------------------------------------------------------
     def __init__(self, elem):

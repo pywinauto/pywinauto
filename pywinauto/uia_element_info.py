@@ -100,7 +100,7 @@ class UIAElementInfo(ElementInfo):
     def _get_current_control_type(self):
         """Return an actual control type of the element"""
         try:
-            return self._element.CurrentControlType
+            return IUIA().known_control_type_ids[self._element.CurrentControlType]
         except COMError:
             return None # probably element already doesn't exist
 
