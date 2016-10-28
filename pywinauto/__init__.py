@@ -32,7 +32,7 @@
 
 """Python package for automating GUI manipulation on Windows"""
 
-__version__ = "0.6.0.rc1"
+__version__ = "0.6.0.rc2"
 
 import sys
 
