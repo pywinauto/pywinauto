@@ -588,29 +588,40 @@ class WindowSpecification(object):
 
             indent = (current_depth - 1) * u"   | "
             for ctrl in ctrls:
-                output = indent + '\n'
-                output += indent + u"{class_name} - '{text}'    {rect}\t\n"\
-                    "".format(class_name=ctrl.friendly_class_name(),
-                             text=ctrl.window_text(),
-                             rect=ctrl.rectangle())
-                output += indent + '{}\n'.format(control_name_map[ctrl])
+                if ctrl not in control_name_map.keys():
+                    continue
+                ctrl_text = ctrl.window_text()
+                if ctrl_text:
+                    # transform multi-line text to one liner
+                    ctrl_text = ctrl.window_text().replace('\n', r'\n').replace('\r', r'\r')
 
-                title = ctrl.window_text()
+                output = indent + u'\n'
+                output += indent + u"{class_name} - '{text}'    {rect}\n"\
+                    "".format(class_name=ctrl.friendly_class_name(),
+                             text=ctrl_text,
+                             rect=ctrl.rectangle())
+                output += indent + u'{}\n'.format(control_name_map[ctrl])
+
+                title = ctrl_text
                 class_name = ctrl.class_name()
                 auto_id = None
+                control_type = None
                 if hasattr(ctrl.element_info, 'automation_id'):
                     auto_id = ctrl.element_info.automation_id
+                if hasattr(ctrl.element_info, 'control_type'):
+                    control_type = ctrl.element_info.control_type
+                    class_name = None # no need for class_name if control_type exists
                 criteria_texts = []
                 if title:
-                    criteria_texts.append('title="{}"'.format(title))
+                    criteria_texts.append(u'title="{}"'.format(title))
                 if class_name:
-                    criteria_texts.append('class_name="{}"'.format(class_name))
+                    criteria_texts.append(u'class_name="{}"'.format(class_name))
                 if auto_id:
-                    criteria_texts.append('auto_id="{}"'.format(auto_id))
-                #if control_type:
-                #    criteria_texts.append('control_type="{}"'.format(control_type))
+                    criteria_texts.append(u'auto_id="{}"'.format(auto_id))
+                if control_type:
+                    criteria_texts.append('control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
-                    output += indent + 'child_window(' + ', '.join(criteria_texts) + ')'
+                    output += indent + u'child_window(' + u', '.join(criteria_texts) + u')'
                 print(output)
 
                 print_identifiers(ctrl.children(), current_depth + 1)
