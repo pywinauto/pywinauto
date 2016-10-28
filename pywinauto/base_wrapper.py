@@ -551,11 +551,10 @@ class BaseWrapper(object):
         Raise either ElementNotEnalbed or ElementNotVisible if not
         enabled or visible respectively.
         """
-        if self.element_info.handle:
+        if self.backend.name == 'win32' and self.handle:
             win32functions.WaitGuiThreadIdle(self)
-        else:
-            # TODO: get WaitGuiThreadIdle function for elements without handle
-            pass
+        # TODO: find WaitGuiThreadIdle function for elements without handle
+
         self.verify_visible()
         self.verify_enabled()
 
@@ -800,9 +799,10 @@ class BaseWrapper(object):
         """
         Type keys to the element using keyboard.SendKeys
 
-        This uses the re-written keyboard python module like that
-        http://www.rutherfurd.net/python/sendkeys/ .This is the best place
-        to find documentation on what to use for the **keys**
+        This uses the re-written keyboard_ python module where you can
+        find documentation on what to use for the **keys**.
+
+        .. _keyboard: pywinauto.keyboard.html
         """
         self.verify_actionable()
 
