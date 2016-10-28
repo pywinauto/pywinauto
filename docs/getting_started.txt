@@ -58,9 +58,96 @@ Entry Points for Automation
 So you have an application, you know it supports one of the mentioned 
 accessibility technologies. What's the next?
 
-**Application** and **Desktop** objects are backend-specific.
+First you should start your application or connect to the existing app
+instance. It can be done with an ``Application`` object. This is not just
+a clone of ``subprocess.Popen``, but an entry point for further automation
+limiting all the scope by a process boundaries. It's useful to control
+potentially few instances of an application (you work with one instance
+not bothering another ones).
 
-TODO: continue telling about window specifications and other basic things.
+ ::
+
+    from pywinauto.application import Application
+    app = Application(backend="uia").start('notepad.exe')
+    
+    # describe the window inside Notepad.exe process
+    dlg = app.UntitledNotepad
+    # wait till the window is open
+    dlg.wait('visible')
+
+If you want to navigate across process boundaries (say Win10 Calculator
+surprisingly draws its widgets in more than one process) your entry point
+is a ``Desktop`` object.
+
+ ::
+
+    from subprocess import Popen
+    from pywinauto import Desktop
+    
+    Popen('calc.exe', shell=True)
+    dlg = Desktop(backend="uia").Calculator
+    dlg.wait('visible')
+
+**Application** and **Desktop** objects are both backend-specific. So no need
+to use backend name in further actions explicitly.
+
+
+Window Specification
+--------------------
+
+It's a core concept for the high level pywinauto API. You are able to describe
+any window or control approximately or in more details even if it doesn't exist
+yet or already closed. Window specification also keeps an information about
+matching/search algorithm that will be used to get real window/control.
+
+Let's create detailed window specification for the window:
+
+ ::
+
+    >>> dlg_spec = app.window(title='Untitled - Notepad')
+    
+    >>> dlg_spec
+    <pywinauto.application.WindowSpecification object at 0x0568B790>
+    
+    >>> dlg_spec.wrapper_object()
+    <pywinauto.controls.win32_controls.DialogWrapper object at 0x05639B70>
+
+Actual window lookup is done by ``wrapper_object()`` method. It returns some
+wrapper for the real existing window/control or raises ``ElementNotFound``
+exception. This wrapper can deal with the window/control sending actions or
+retrieving data.
+
+But Python can hide this ``wrapper_object()`` call so that you have more
+compact code in production. The following statements do absolutely the same:
+
+ ::
+
+    dlg_spec.wrapper_object().minimize() # while debugging
+    dlg_spec.minimize() # in production
+
+There are many possible criteria for creating window specifications. These
+are just a few examples.
+
+ ::
+
+    # can be multi-level
+    app.window(title_re='.* - Notepad$').window(class_name='Edit')
+    
+    # can combine criteria
+    dlg = Desktop(backend="uia").Calculator
+    dlg.window(auto_id='num8Button', control_type='Button')
+
+The list of possible criteria can be found in the
+:func:`pywinauto.findwindows.find_elements()` function.
+
+
+Attribute Resolution Magic
+--------------------------
+
+To be done.
+
+Best match algorithm.
+Attribute and dict-like access.
 
 
 Look at the examples

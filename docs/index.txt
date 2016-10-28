@@ -27,7 +27,7 @@ Manual installation
   - pyWin32_
   - comtypes_
   - six_
-  - *(optional)* Pillow_ (fork of PIL)
+  - *(optional)* Pillow_ (to make screenshoots)
 
 - Download latest pywinauto from https://github.com/pywinauto/pywinauto/releases
 - Unpack and run ``python setup.py install``
@@ -42,7 +42,7 @@ To check you have it installed correctly
 Run Python ::
 
   >>> from pywinauto.application import Application
-  >>> app = Application().start("notepad.exe")
+  >>> app = Application(backend="uia").start("notepad.exe")
   >>> app.UntitledNotepad.type_keys("%FX")
 
 
