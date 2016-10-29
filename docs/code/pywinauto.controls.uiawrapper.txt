@@ -2,6 +2,7 @@ pywinauto.controls.uiawrapper
 -----------------------------
  .. automodule:: pywinauto.controls.uiawrapper
     :members:
+    :exclude-members: control_type_to_cls
     :undoc-members:
     :show-inheritance:
 

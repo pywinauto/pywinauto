@@ -2,6 +2,39 @@
 Change Log
 ==========
 
+0.6.0 Introduce MS UI Automation support and many more improvements
+--------------------------------------------------------------------
+30-October-2016
+ * This big release introduces MS UI Automation (UIA) support:
+
+   - Just start from ``app = Application(backend='uia').start('your_app.exe')``.
+
+   - Supported controls: Menu, Button/CheckBox/RadioButton, ComboBox, Edit,
+     Tab control, List (ListView), DataGrid, Tree, Toolbar, Tooltip, Slider.
+
+ * Documentation is built continuously now on ReadTheDocs. See also improved
+   `Getting Started Guide`_.
+
+   .. _`Getting Started Guide`: getting_started.html
+
+ * New multi-backend architecture makes implementation of new platforms support
+   easier in the future. The minimal set for new backend includes its name and
+   two classes inherited from :py:class:`.element_info.ElementInfo` and from
+   :py:class:`pywinauto.base_wrapper.BaseWrapper`. New backend must be
+   registered by function :func:`pywinauto.backend.register()`.
+
+ * Code style is much closer to PEP8: i.e. ``click_input`` should be used
+   instead of ``ClickInput``.
+
+ * Initial implementation of the ``hooks`` module. Keyboard and mouse event
+   handlers can be registered in the system. It was inspired by pyHook, pyhk,
+   pyhooked and similar modules, but re-written from scratch. Thanks for
+   Max Samokhvalov! The fork of the ``hooks`` module is used in pyhooked 0.8
+   by Ethan Smith.
+
+ * A lot of small improvements are not counted here.
+
+
 0.5.4 Bug fixes and partial MFC Menu Bar support
 --------------------------------------------------------------------
 30-October-2015

@@ -52,24 +52,20 @@ one of the following:
 
   ::
 
-          app = Application.connect(path=r"c:\windows\system32\notepad.exe")
+          app = Application().connect(path=r"c:\windows\system32\notepad.exe")
 
 
 or any combination of the parameters that specify a window, these get
-passed to the :func:`pywinauto.findwindows.find_windows()` function.  e.g.
+passed to the :func:`pywinauto.findwindows.find_elements()` function.  e.g.
 
   ::
 
           app = Application.connect(title_re=".*Notepad", class_name="Notepad")
 
 
-**Note**: I have since added static methods Application.start() and
-Application.connect() these can be used the same as above - except that
-you no longer need to instantiate an Application object first.
-
-**Note2**: The application has to be ready before you can use connect*().
+**Note**: The application has to be ready before you can use connect*().
 There is no timeout or retries like there is when finding the application
-after start*(). So if you start the application outside of pywinauto you
+after start(). So if you start the application outside of pywinauto you
 need to either sleep or program a wait loop to wait until the application
 has fully started.
 
@@ -148,7 +144,7 @@ There are a number of ways to specify a control, the simplest are
 
 
 The 2nd is better for non English OS's where you need to pass unicode
-strings e.g. app[u'your dlg title'][u'your ctrl title']
+strings e.g. ``app[u'your dlg title'][u'your ctrl title']``
 
 The code builds up multiple identifiers for each control from the following:
 

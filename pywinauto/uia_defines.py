@@ -87,7 +87,7 @@ class IUIA(object):
 
         for ctrl_type in self._control_types:
             type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
-            type_id = self.UIA_dll.__getattribute__(type_id_name)
+            type_id = getattr(self.UIA_dll, type_id_name)
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
     

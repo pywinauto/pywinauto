@@ -135,6 +135,7 @@ def find_elements(class_name=None,
                   predicate_func=None,
                   active_only=False,
                   control_id=None,
+                  control_type=None,
                   auto_id=None,
                   framework_id=None,
                   backend=None,
@@ -160,6 +161,7 @@ def find_elements(class_name=None,
     * **predicate_func** A user provided hook for a custom element validation
     * **active_only**    Active elements only (default=False)
     * **control_id**     Elements with this control id
+    * **control_type**   Elements with this control type (string; for UIAutomation elements)
     * **auto_id**        Elements with this automation id (for UIAutomation elements)
     * **framework_id**   Elements with this framework id (for UIAutomation elements)
     * **backend**        Back-end name to use while searching (default=None means current active backend)
@@ -184,7 +186,8 @@ def find_elements(class_name=None,
         elements = element.children(process=process,
                                     class_name=class_name,
                                     title=title,
-                                    cache_enable=True)  # root.children == enum_windows()
+                                    control_type=control_type,
+                                    cache_enable=True)
 
         # if we have been given a parent
         if parent:
@@ -200,7 +203,8 @@ def find_elements(class_name=None,
         elements = parent.descendants(process=process,
                                       class_name=class_name,
                                       title=title,
-                                      cache_enable=True)  # root.children == enum_windows()
+                                      control_type=control_type,
+                                      cache_enable=True)
 
         # if the ctrl_index has been specified then just return
         # that control
@@ -216,9 +220,6 @@ def find_elements(class_name=None,
 
     if control_id is not None and elements:
         elements = [elem for elem in elements if elem.control_id == control_id]
-
-    if auto_id is not None and elements:
-        elements = [elem for elem in elements if elem.automation_id == auto_id]
 
     if active_only:
         # TODO: re-write to use ElementInfo interface
@@ -246,6 +247,9 @@ def find_elements(class_name=None,
     if class_name_re is not None:
         class_name_regex = re.compile(class_name_re)
         elements = [elem for elem in elements if class_name_regex.match(elem.class_name)]
+
+    if auto_id is not None and elements:
+        elements = [elem for elem in elements if elem.automation_id == auto_id]
 
     if process is not None:
         elements = [elem for elem in elements if elem.process_id == process]

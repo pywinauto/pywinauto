@@ -134,6 +134,7 @@ lazy_property = LazyProperty
 
 # =========================================================================
 class UiaMeta(BaseMeta):
+
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
@@ -334,10 +335,10 @@ class UIAWrapper(BaseWrapper):
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            if self.element_info.control_type not in IUIA().known_control_type_ids.keys():
-                self.friendlyclassname = str(self.element_info.control_type)
+            if self.element_info.control_type not in IUIA().known_control_types.keys():
+                self.friendlyclassname = self.element_info.control_type
             else:
-                ctrl_type = IUIA().known_control_type_ids[self.element_info.control_type]
+                ctrl_type = self.element_info.control_type
                 if (ctrl_type not in _friendly_classes) or (_friendly_classes[ctrl_type] is None):
                     self.friendlyclassname = ctrl_type
                 else:

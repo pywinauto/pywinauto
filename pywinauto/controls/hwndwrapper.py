@@ -600,6 +600,11 @@ class HwndWrapper(BaseWrapper):
         """Returns the hash value of the handle"""
         return hash(self.handle)
 
+    #-----------------------------------------------------------
+    def wait_for_idle(self):
+        """Backend specific function to wait for idle state of a thread or a window"""
+        win32functions.WaitGuiThreadIdle(self)
+
     # -----------------------------------------------------------
     def click(
         self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
