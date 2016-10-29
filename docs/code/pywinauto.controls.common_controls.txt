@@ -1,7 +1,8 @@
 pywinauto.controls.common_controls
 ----------------------------------
-
- .. automodule:: pywinauto.controls.common_controls
+.. automodule:: pywinauto.controls.common_controls
     :members:
+    :exclude-members: Click, ClickInput, HasStyle, IsCheckable, IsChecked,
+        IsEnabled, IsPressable, IsPressed, Rectangle, State, Style, Text
     :undoc-members:
     :show-inheritance:

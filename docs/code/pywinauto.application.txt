@@ -3,5 +3,6 @@ pywinauto.application module
 
 .. automodule:: pywinauto.application
     :members:
+    :exclude-members: Kill_, kill_, Window_
     :undoc-members:
     :show-inheritance:
