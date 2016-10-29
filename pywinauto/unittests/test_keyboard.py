@@ -47,13 +47,9 @@ if sys.platform == 'win32':
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
 else:
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(0, parent_dir)
-    import mouse
-    send_keys_dir = os.path.join(parent_dir, r"linux")
-    sys.path.insert(0, send_keys_dir)
-    from pywinauto.keyboard import SendKeys, KeySequenceError, KeyAction
-    import clipboard
+    from pywinauto import mouse
+    from pywinauto.linux.keyboard import SendKeys, KeySequenceError, KeyAction
+    from pywinauto.linux import clipboard
 
 def mfc_samples():
     mfc_samples_folder = os.path.join(
@@ -280,6 +276,23 @@ class SendKeysTests(unittest.TestCase):
         SendKeys("{TAB 3}{PAUSE 0.5}{F 3}", pause = .3)
         received = self.receive_text()
         self.assertEquals("\t\t\tFFF", received)
+
+    def testShiftModifier(self):
+        """Make sure that Shift modifier works"""
+        SendKeys("+(a)")
+        received = self.receive_text()
+        self.assertEquals("A", received)
+
+    if sys.platform != 'win32':
+        def testAltModifier(self):
+            """Make sure that alt modifier works"""
+            clipboard.set_data('abc')
+            # check alt via opening edit menu and paste text from clipboard
+            SendKeys('%(e)')
+            SendKeys('{ENTER}')
+            received = self.receive_text()
+            self.assertEquals('abc', received)
+
 
 if sys.platform == 'win32':
     class SendKeysModifiersTests(unittest.TestCase):

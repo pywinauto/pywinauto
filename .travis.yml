@@ -56,6 +56,7 @@ before_script:
 script:
   - coverage run -a --source=pywinauto/mouse.py pywinauto/unittests/test_mouse.py
   - coverage run -a --source=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
+  - coverage run -a --source=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py
 
 after_success:
   - codecov
