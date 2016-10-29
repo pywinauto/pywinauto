@@ -55,17 +55,28 @@ There are also low-level methods useful for any Python code.
 .. _wait_until_passes: code/pywinauto.timings.html?highlight=wait_until_passes#pywinauto.timings.wait_until_passes
 
 
+Decorators :func:`pywinauto.timings.always_wait_until()` and
+:func:`pywinauto.timings.always_wait_until_passes()` can also be used
+if every function call should have timing control. ::
+
+    # call foo() every 2 sec until it's passed or timeout (4 sec) is expired
+    @always_wait_until_passes(4, 2)
+    def ensure_text_changed(ctrl):
+        if previous_text == ctrl.window_text():
+            raise ValueError('The ctrl text remains the same while change is expected')
+
+
 Identify controls
 -----------------
 
 The methods to help you to find a needed control.
 
-  * PrintControlIdentifiers_
-  * DrawOutline_
+  * print_control_identifiers_
+  * draw_outline_
 
 
-.. _PrintControlIdentifiers: code/pywinauto.application.html?highlight=PrintControlIdentifiers#pywinauto.application.WindowSpecification.PrintControlIdentifiers
-.. _DrawOutline: code/pywinauto.controls.hwndwrapper.html?highlight=DrawOutline#pywinauto.controls.hwndwrapper.HwndWrapper.DrawOutline
+.. _print_control_identifiers: code/pywinauto.application.html?highlight=print_control_identifiers#pywinauto.application.WindowSpecification.print_control_identifiers
+.. _draw_outline: code/pywinauto.controls.hwndwrapper.html?highlight=draw_outline#pywinauto.controls.hwndwrapper.HwndWrapper.draw_outline
 
 
 How To`s

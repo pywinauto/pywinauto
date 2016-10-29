@@ -18,7 +18,7 @@ These functions are aviailable to all controls.
   * DoubleClick_
   * DoubleClickInput_
   * DragMouse_
-  * DrawOutline_
+  * draw_outline_
   * GetFocus_
   * GetShowState_
   * Maximize_
@@ -86,7 +86,7 @@ These functions are aviailable to all controls.
 .. _DoubleClick: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DoubleClick
 .. _DoubleClickInput: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DoubleClickInput
 .. _DragMouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DragMouse
-.. _DrawOutline: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DrawOutline
+.. _draw_outline: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.draw_outline
 .. _GetFocus: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.GetFocus
 .. _MenuSelect: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.MenuSelect
 .. _MoveMouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.MoveMouse

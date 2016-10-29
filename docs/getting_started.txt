@@ -172,11 +172,12 @@ There are several principles how "best match" gold names are attached
 to the controls. So if a window specification is close to one of these names
 you will have a successful name matching.
 
- 1. By title (window text, name): ``app.Properties.OK.click()``
- 2. By title and control type: ``app.Properties.OKButton.click()``
- 3. By control type and number: ``app.Properties.Button3.click()``
- 4. By top-left label and control type: ``app.OpenDialog.FileNameEdit.set_text("")``
- 5. By control type and item text: ``app.Properties.TabControlSharing.select("General")``
+1. By title (window text, name): ``app.Properties.OK.click()``
+2. By title and control type: ``app.Properties.OKButton.click()``
+3. By control type and number: ``app.Properties.Button3.click()``
+   (*Note*: Button0 and Button1 match the same button, Button2 is the next etc.)
+4. By top-left label and control type: ``app.OpenDialog.FileNameEdit.set_text("")``
+5. By control type and item text: ``app.Properties.TabControlSharing.select("General")``
 
 Often not all of these matching names are available simultaneously. To check
 these names for specified dialog you can use ``print_control_identifiers()``
