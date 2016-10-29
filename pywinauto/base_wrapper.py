@@ -551,10 +551,7 @@ class BaseWrapper(object):
         Raise either ElementNotEnalbed or ElementNotVisible if not
         enabled or visible respectively.
         """
-        if self.backend.name == 'win32' and self.handle:
-            win32functions.WaitGuiThreadIdle(self)
-        # TODO: find WaitGuiThreadIdle function for elements without handle
-
+        self.wait_for_idle()
         self.verify_visible()
         self.verify_enabled()
 
@@ -712,12 +709,7 @@ class BaseWrapper(object):
 
         self.click_input(button='move', coords=coords, absolute=absolute, pressed=pressed)
 
-        if self.element_info.handle:
-            win32functions.WaitGuiThreadIdle(self)
-        else:
-            # TODO: get WaitGuiThreadIdle function for elements without handle
-            pass
-
+        self.wait_for_idle()
         return self
 
     # -----------------------------------------------------------
@@ -787,6 +779,12 @@ class BaseWrapper(object):
         return self
 
     #-----------------------------------------------------------
+    def wait_for_idle(self):
+        """Backend specific function to wait for idle state of a thread or a window"""
+        pass # do nothing by deafault
+        # TODO: implement wait_for_idle for backend="uia"
+
+    #-----------------------------------------------------------
     def type_keys(
         self,
         keys,
@@ -846,11 +844,7 @@ class BaseWrapper(object):
             # TODO: UIA stuff
             pass
 
-        if self.element_info.handle:
-            win32functions.WaitGuiThreadIdle(self)
-        else:
-            # TODO: get WaitGuiThreadIdle function for elements without handle
-            pass
+        self.wait_for_idle()
 
         self.actions.log('Typed text to the ' + self.friendly_class_name() + ': ' + aligned_keys)
         return self
