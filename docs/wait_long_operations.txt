@@ -59,7 +59,8 @@ Decorators :func:`pywinauto.timings.always_wait_until()` and
 :func:`pywinauto.timings.always_wait_until_passes()` can also be used
 if every function call should have timing control. ::
 
-    # call foo() every 2 sec until it's passed or timeout (4 sec) is expired
+    # call ensure_text_changed(ctrl) every 2 sec until it's passed or timeout (4 sec) is expired
+    
     @always_wait_until_passes(4, 2)
     def ensure_text_changed(ctrl):
         if previous_text == ctrl.window_text():
