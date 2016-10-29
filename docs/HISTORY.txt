@@ -2,6 +2,21 @@
 Change Log
 ==========
 
+0.6.0 Introduce MS UI Automation support and many more improvements
+--------------------------------------------------------------------
+30-October-2016
+ * This big release introduces MS UI Automation (UIA) support:
+
+   - Just start from `app = Application(backend='uia').start('your_app.exe')`.
+
+   - Supported controls: Menu, Button/CheckBox/RadioButton, ComboBox, Edit,
+     Tab control, List (ListView), DataGrid, Tree, Toolbar, Tooltip, Slider.
+
+ * New multi-backend architecture makes new platforms support easier in the future.
+
+ * Code style is much closer to PEP8.
+
+
 0.5.4 Bug fixes and partial MFC Menu Bar support
 --------------------------------------------------------------------
 30-October-2015

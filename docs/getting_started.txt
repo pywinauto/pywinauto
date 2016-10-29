@@ -113,9 +113,8 @@ Let's create a detailed window specification:
     <pywinauto.controls.win32_controls.DialogWrapper object at 0x05639B70>
 
 Actual window lookup is performed by ``wrapper_object()`` method. It returns some
-wrapper for the real existing window/control or raises ``ElementNotFound``
-exception. This wrapper can deal with the window/control sending actions or
-retrieving data.
+wrapper for the real existing window/control or raises ``ElementNotFoundError``.
+This wrapper can deal with the window/control by sending actions or retrieving data.
 
 But Python can hide this ``wrapper_object()`` call so that you have more
 compact code in production. The following statements do absolutely the same:
@@ -144,10 +143,192 @@ The list of possible criteria can be found in the
 Attribute Resolution Magic
 --------------------------
 
-To be done.
+Python simplifies creating window specification by resolving object attributes
+dynamically. But an attibute name has the same limitations as any variable name:
+no spaces, commas and other special symbols. But fortunately pywinauto uses
+"best match" algorithm to make a lookup resistant to typos and small variations.
 
-Best match algorithm.
-Attribute and dict-like access.
+ ::
+
+    app.UntitledNotepad
+    # is equivalent to
+    app.window(best_match='UntitledNotepad')
+
+
+Unicode characters and special symbols usage is possible through an item access
+in a dictionary like manner.
+
+ ::
+
+    app['Untitled - Notepad']
+    # is the same as
+    app.window(best_match='Untitled - Notepad')
+
+
+How to know magic attribute names
+---------------------------------
+
+There are several principles how "best match" gold names are attached
+to the controls. So if a window specification is close to one of these names
+you will have a successful name matching.
+
+ 1. By title (window text, name): ``app.Properties.OK.click()``
+ 2. By title and control type: ``app.Properties.OKButton.click()``
+ 3. By control type and number: ``app.Properties.Button3.click()``
+ 4. By top-left label and control type: ``app.OpenDialog.FileNameEdit.set_text("")``
+ 5. By control type and item text: ``app.Properties.TabControlSharing.select("General")``
+
+Often not all of these matching names are available simultaneously. To check
+these names for specified dialog you can use ``print_control_identifiers()``
+method. Possible "best_match" names are displayed as a Python list for every
+control in a tree. More detailed window specification can also be just copied
+from the method output. Say
+``app.Properties.child_window(title="Contains:", auto_id="13087", control_type="Edit")``.
+
+ ::
+
+    >>> app.Properties.print_control_identifiers()
+    
+    Control Identifiers:
+
+    Dialog - 'Windows NT Properties'    (L688, T518, R1065, B1006)
+    [u'Windows NT PropertiesDialog', u'Dialog', u'Windows NT Properties']
+    child_window(title="Windows NT Properties", control_type="Window")
+       | 
+       | Image - ''    (L717, T589, R749, B622)
+       | [u'', u'0', u'Image1', u'Image0', 'Image', u'1']
+       | child_window(auto_id="13057", control_type="Image")
+       | 
+       | Image - ''    (L717, T630, R1035, B632)
+       | ['Image2', u'2']
+       | child_window(auto_id="13095", control_type="Image")
+       | 
+       | Edit - 'Folder name:'    (L790, T596, R1036, B619)
+       | [u'3', 'Edit', u'Edit1', u'Edit0']
+       | child_window(title="Folder name:", auto_id="13156", control_type="Edit")
+       | 
+       | Static - 'Type:'    (L717, T643, R780, B658)
+       | [u'Type:Static', u'Static', u'Static1', u'Static0', u'Type:']
+       | child_window(title="Type:", auto_id="13080", control_type="Text")
+       | 
+       | Edit - 'Type:'    (L790, T643, R1036, B666)
+       | [u'4', 'Edit2', u'Type:Edit']
+       | child_window(title="Type:", auto_id="13059", control_type="Edit")
+       | 
+       | Static - 'Location:'    (L717, T669, R780, B684)
+       | [u'Location:Static', u'Location:', u'Static2']
+       | child_window(title="Location:", auto_id="13089", control_type="Text")
+       | 
+       | Edit - 'Location:'    (L790, T669, R1036, B692)
+       | ['Edit3', u'Location:Edit', u'5']
+       | child_window(title="Location:", auto_id="13065", control_type="Edit")
+       | 
+       | Static - 'Size:'    (L717, T695, R780, B710)
+       | [u'Size:Static', u'Size:', u'Static3']
+       | child_window(title="Size:", auto_id="13081", control_type="Text")
+       | 
+       | Edit - 'Size:'    (L790, T695, R1036, B718)
+       | ['Edit4', u'6', u'Size:Edit']
+       | child_window(title="Size:", auto_id="13064", control_type="Edit")
+       | 
+       | Static - 'Size on disk:'    (L717, T721, R780, B736)
+       | [u'Size on disk:', u'Size on disk:Static', u'Static4']
+       | child_window(title="Size on disk:", auto_id="13107", control_type="Text")
+       | 
+       | Edit - 'Size on disk:'    (L790, T721, R1036, B744)
+       | ['Edit5', u'7', u'Size on disk:Edit']
+       | child_window(title="Size on disk:", auto_id="13106", control_type="Edit")
+       | 
+       | Static - 'Contains:'    (L717, T747, R780, B762)
+       | [u'Contains:1', u'Contains:0', u'Contains:Static', u'Static5', u'Contains:']
+       | child_window(title="Contains:", auto_id="13088", control_type="Text")
+       | 
+       | Edit - 'Contains:'    (L790, T747, R1036, B770)
+       | [u'8', 'Edit6', u'Contains:Edit']
+       | child_window(title="Contains:", auto_id="13087", control_type="Edit")
+       | 
+       | Image - 'Contains:'    (L717, T773, R1035, B775)
+       | [u'Contains:Image', 'Image3', u'Contains:2']
+       | child_window(title="Contains:", auto_id="13096", control_type="Image")
+       | 
+       | Static - 'Created:'    (L717, T786, R780, B801)
+       | [u'Created:', u'Created:Static', u'Static6', u'Created:1', u'Created:0']
+       | child_window(title="Created:", auto_id="13092", control_type="Text")
+       | 
+       | Edit - 'Created:'    (L790, T786, R1036, B809)
+       | [u'Created:Edit', 'Edit7', u'9']
+       | child_window(title="Created:", auto_id="13072", control_type="Edit")
+       | 
+       | Image - 'Created:'    (L717, T812, R1035, B814)
+       | [u'Created:Image', 'Image4', u'Created:2']
+       | child_window(title="Created:", auto_id="13097", control_type="Image")
+       | 
+       | Static - 'Attributes:'    (L717, T825, R780, B840)
+       | [u'Attributes:Static', u'Static7', u'Attributes:']
+       | child_window(title="Attributes:", auto_id="13091", control_type="Text")
+       | 
+       | CheckBox - 'Read-only (Only applies to files in folder)'    (L790, T825, R1035, B841)
+       | [u'CheckBox0', u'CheckBox1', 'CheckBox', u'Read-only (Only applies to files in folder)CheckBox', u'Read-only (Only applies to files in folder)']
+       | child_window(title="Read-only (Only applies to files in folder)", auto_id="13075", control_type="CheckBox")
+       | 
+       | CheckBox - 'Hidden'    (L790, T848, R865, B864)
+       | ['CheckBox2', u'HiddenCheckBox', u'Hidden']
+       | child_window(title="Hidden", auto_id="13076", control_type="CheckBox")
+       | 
+       | Button - 'Advanced...'    (L930, T845, R1035, B868)
+       | [u'Advanced...', u'Advanced...Button', 'Button', u'Button1', u'Button0']
+       | child_window(title="Advanced...", auto_id="13154", control_type="Button")
+       | 
+       | Button - 'OK'    (L814, T968, R889, B991)
+       | ['Button2', u'OK', u'OKButton']
+       | child_window(title="OK", auto_id="1", control_type="Button")
+       | 
+       | Button - 'Cancel'    (L895, T968, R970, B991)
+       | ['Button3', u'CancelButton', u'Cancel']
+       | child_window(title="Cancel", auto_id="2", control_type="Button")
+       | 
+       | Button - 'Apply'    (L976, T968, R1051, B991)
+       | ['Button4', u'ApplyButton', u'Apply']
+       | child_window(title="Apply", auto_id="12321", control_type="Button")
+       | 
+       | TabControl - ''    (L702, T556, R1051, B962)
+       | [u'10', u'TabControlSharing', u'TabControlPrevious Versions', u'TabControlSecurity', u'TabControl', u'TabControlCustomize']
+       | child_window(auto_id="12320", control_type="Tab")
+       |    | 
+       |    | TabItem - 'General'    (L704, T558, R753, B576)
+       |    | [u'GeneralTabItem', 'TabItem', u'General', u'TabItem0', u'TabItem1']
+       |    | child_window(title="General", control_type="TabItem")
+       |    | 
+       |    | TabItem - 'Sharing'    (L753, T558, R801, B576)
+       |    | [u'Sharing', u'SharingTabItem', 'TabItem2']
+       |    | child_window(title="Sharing", control_type="TabItem")
+       |    | 
+       |    | TabItem - 'Security'    (L801, T558, R851, B576)
+       |    | [u'Security', 'TabItem3', u'SecurityTabItem']
+       |    | child_window(title="Security", control_type="TabItem")
+       |    | 
+       |    | TabItem - 'Previous Versions'    (L851, T558, R947, B576)
+       |    | [u'Previous VersionsTabItem', u'Previous Versions', 'TabItem4']
+       |    | child_window(title="Previous Versions", control_type="TabItem")
+       |    | 
+       |    | TabItem - 'Customize'    (L947, T558, R1007, B576)
+       |    | [u'CustomizeTabItem', 'TabItem5', u'Customize']
+       |    | child_window(title="Customize", control_type="TabItem")
+       | 
+       | TitleBar - 'None'    (L712, T521, R1057, B549)
+       | ['TitleBar', u'11']
+       |    | 
+       |    | Menu - 'System'    (L696, T526, R718, B548)
+       |    | [u'System0', u'System', u'System1', u'Menu', u'SystemMenu']
+       |    | child_window(title="System", auto_id="MenuBar", control_type="MenuBar")
+       |    |    | 
+       |    |    | MenuItem - 'System'    (L696, T526, R718, B548)
+       |    |    | [u'System2', u'MenuItem', u'SystemMenuItem']
+       |    |    | child_window(title="System", control_type="MenuItem")
+       |    | 
+       |    | Button - 'Close'    (L1024, T519, R1058, B549)
+       |    | [u'CloseButton', u'Close', 'Button5']
+       |    | child_window(title="Close", control_type="Button")
 
 
 Look at the examples
