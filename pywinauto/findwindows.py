@@ -221,9 +221,6 @@ def find_elements(class_name=None,
     if control_id is not None and elements:
         elements = [elem for elem in elements if elem.control_id == control_id]
 
-    if auto_id is not None and elements:
-        elements = [elem for elem in elements if elem.automation_id == auto_id]
-
     if active_only:
         # TODO: re-write to use ElementInfo interface
         gui_info = win32structures.GUITHREADINFO()
@@ -250,6 +247,9 @@ def find_elements(class_name=None,
     if class_name_re is not None:
         class_name_regex = re.compile(class_name_re)
         elements = [elem for elem in elements if class_name_regex.match(elem.class_name)]
+
+    if auto_id is not None and elements:
+        elements = [elem for elem in elements if elem.automation_id == auto_id]
 
     if process is not None:
         elements = [elem for elem in elements if elem.process_id == process]

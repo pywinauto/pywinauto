@@ -134,6 +134,7 @@ lazy_property = LazyProperty
 
 # =========================================================================
 class UiaMeta(BaseMeta):
+
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
