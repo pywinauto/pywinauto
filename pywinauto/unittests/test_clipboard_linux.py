@@ -7,14 +7,9 @@ import subprocess
 import time
 if sys.platform != 'win32':
     sys.path.append(".")
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(parent_dir)
-    import mouse
-
-    send_keys_dir = os.path.join(parent_dir, r"linux")
-    sys.path.append(send_keys_dir)
-    from pywinauto.keyboard import SendKeys
-    import clipboard
+    from pywinauto import mouse
+    from pywinauto.linux.keyboard import SendKeys
+    from pywinauto.linux import clipboard
 
 
 def _test_app():

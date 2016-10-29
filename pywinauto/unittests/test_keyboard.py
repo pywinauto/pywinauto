@@ -47,13 +47,9 @@ if sys.platform == 'win32':
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
 else:
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(parent_dir)
-    import mouse
-    send_keys_dir = os.path.join(parent_dir, r"linux")
-    sys.path.append(send_keys_dir)
-    from pywinauto.keyboard import SendKeys, KeySequenceError, KeyAction
-    import clipboard
+    from pywinauto import mouse
+    from pywinauto.linux.keyboard import SendKeys, KeySequenceError, KeyAction
+    from pywinauto.linux import clipboard
 
 def mfc_samples():
     mfc_samples_folder = os.path.join(
