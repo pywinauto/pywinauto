@@ -36,7 +36,8 @@ if sys.platform != 'win32':
             """Close the application after tests"""
             self.app.kill()
 
-        def receive_text(self):
+        @staticmethod
+        def receive_text():
             """Receive data from text field"""
             time.sleep(0.2)
             SendKeys('^a')
