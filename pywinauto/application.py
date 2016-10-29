@@ -59,7 +59,7 @@ in almost exactly the same ways. ::
 .. seealso::
 
    :func:`pywinauto.findwindows.find_elements` for the keyword arguments that
-   can be passed to both: :func:`Application.window_` and
+   can be passed to both: :func:`Application.window` and
    :func:`WindowSpecification.child_window`
 """
 from __future__ import print_function
@@ -1159,7 +1159,7 @@ class Application(object):
         return self.match_history[index]
 
 
-    def Kill_(self):
+    def kill(self):
         """
         Try to close and kill the application
 
@@ -1201,7 +1201,8 @@ class Application(object):
 
         return killed
 
-    kill_ = Kill_
+    # Non PEP-8 aliases
+    kill_ = Kill_ = kill
 
 
 #=========================================================================
