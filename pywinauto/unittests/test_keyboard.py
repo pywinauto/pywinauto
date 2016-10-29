@@ -48,10 +48,10 @@ if sys.platform == 'win32':
     from pywinauto.application import Application
 else:
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(0, parent_dir)
+    sys.path.append(parent_dir)
     import mouse
     send_keys_dir = os.path.join(parent_dir, r"linux")
-    sys.path.insert(0, send_keys_dir)
+    sys.path.append(send_keys_dir)
     from pywinauto.keyboard import SendKeys, KeySequenceError, KeyAction
     import clipboard
 
