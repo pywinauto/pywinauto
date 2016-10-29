@@ -366,8 +366,8 @@ Please find below a sample run ::
 	(2)   >>> app = application.Application()
 	(3)   >>> app.start("Notepad.exe")
 	      <pywinauto.application.Application object at 0x00AE0990>
-	(4)   >>> app.Notepad.draw_outline()
-	(5)   >>> app.Notepad.menu_select("Edit -> Replace")
+	(4)   >>> app.UntitledNotepad.draw_outline()
+	(5)   >>> app.UntitledNotepad.menu_select("Edit -> Replace")
 	(6)   >>> app.Replace.print_control_identifiers()
 	      Control Identifiers:
 	      Static - 'Fi&nd what:'   (L1018, T159, R1090, B172)
@@ -389,9 +389,9 @@ Please find below a sample run ::
 	      Button - 'Cancel'   (L1273, T233, R1348, B256)
 	              'Button4' 'Cancel' 'CancelButton'
 	(7)   >>> app.Replace.Cancel.click()
-	(8)   >>> app.Notepad.Edit.type_keys("Hi from Python interactive prompt %s" % str(dir()), with_spaces = True)
+	(8)   >>> app.UntitledNotepad.Edit.type_keys("Hi from Python interactive prompt %s" % str(dir()), with_spaces = True)
 	      <pywinauto.controls.win32_controls.EditWrapper object at 0x00DDC2D0>
-	(9)   >>> app.Notepad.menu_select("File -> Exit")
+	(9)   >>> app.UntitledNotepad.menu_select("File -> Exit")
 	(10)  >>> app.Notepad.No.click()
 	      >>>
 
