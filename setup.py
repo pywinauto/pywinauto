@@ -56,8 +56,13 @@ sys.path.append(setup_path())
 #    if not os.path.exists(setup_path("docs")):
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
+if sys.platform == 'win32':
+    install_requires = ['six', 'pypiwin32', 'comtypes']
+else:
+    install_requires = ['six', 'python-xlib']
+
 setup(name='pywinauto',
-    version = '0.6.0.rc1',
+    version = '0.6.0',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",
@@ -92,6 +97,6 @@ controls also.
         'Topic :: Software Development :: User Interfaces',
         'Topic :: Software Development :: Quality Assurance',
         ],
-    install_requires=['six', 'pypiwin32', 'comtypes'],
+    install_requires=install_requires,
     setup_requires=['setuptools-scm'],
     )
