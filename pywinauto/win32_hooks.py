@@ -58,6 +58,7 @@ from ctypes import c_uint
 from ctypes import c_void_p
 from ctypes import byref
 import atexit
+import sys
 import time
 
 cmp_func = CFUNCTYPE(c_int, c_int, wintypes.HINSTANCE, POINTER(c_void_p))
@@ -347,9 +348,9 @@ class Hook(object):
                 if not res:
                     break
                 if message.message == WM_QUIT:
-                    hk.unhook_keyboard()
-                    hk.unhook_mouse()
-                    exit(0)
+                    self.unhook_keyboard()
+                    self.unhook_mouse()
+                    sys.exit(0)
                 else:
                     windll.user32.TranslateMessage(byref(message))
                     windll.user32.DispatchMessageW(byref(message))
