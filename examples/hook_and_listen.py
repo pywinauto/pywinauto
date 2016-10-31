@@ -1,9 +1,9 @@
 import win32api
 import win32con
 from threading import Timer
-from pywinauto.hooks import Hook
-from pywinauto.hooks import KeyboardEvent
-from pywinauto.hooks import MouseEvent
+from pywinauto.win32_hooks import Hook
+from pywinauto.win32_hooks import KeyboardEvent
+from pywinauto.win32_hooks import MouseEvent
 
 
 def on_timer():

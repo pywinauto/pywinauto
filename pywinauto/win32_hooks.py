@@ -58,6 +58,8 @@ from ctypes import c_uint
 from ctypes import c_void_p
 from ctypes import byref
 import atexit
+import sys
+import time
 
 cmp_func = CFUNCTYPE(c_int, c_int, wintypes.HINSTANCE, POINTER(c_void_p))
 
@@ -68,6 +70,15 @@ windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, wintypes.HINSTANCE,
 windll.user32.GetMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint]
 windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
 windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
+
+# BOOL WINAPI PeekMessage(
+#  _Out_    LPMSG lpMsg,
+#  _In_opt_ HWND  hWnd,
+#  _In_     UINT  wMsgFilterMin,
+#  _In_     UINT  wMsgFilterMax,
+#  _In_     UINT  wRemoveMsg
+#);
+windll.user32.PeekMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint, c_uint]
 
 
 def _callback_pointer(handler):
@@ -327,20 +338,23 @@ class Hook(object):
         atexit.register(windll.user32.UnhookWindowsHookEx, self.keyboard_id)
         atexit.register(windll.user32.UnhookWindowsHookEx, self.mouse_id)
 
+        WM_QUIT = 0x12
+        PM_REMOVE = 1
         message = wintypes.MSG()
 
         while self.mouse_is_hook or self.keyboard_is_hook:
-            msg = windll.user32.GetMessageW(byref(message), 0, 0, 0)
-            if msg == -1:
-                hk.unhook_keyboard()
-                hk.unhook_mouse()
-                exit(0)
-
-            elif msg == 0:  # GetMessage return 0 only if WM_QUIT
-                exit(0)
-            else:
-                windll.user32.TranslateMessage(byref(message))
-                windll.user32.DispatchMessageW(byref(message))
+            while True:
+                res = windll.user32.PeekMessageW(byref(message), 0, 0, 0, PM_REMOVE)
+                if not res:
+                    break
+                if message.message == WM_QUIT:
+                    self.unhook_keyboard()
+                    self.unhook_mouse()
+                    sys.exit(0)
+                else:
+                    windll.user32.TranslateMessage(byref(message))
+                    windll.user32.DispatchMessageW(byref(message))
+            time.sleep(0.02)
 
 
 if __name__ == "__main__":
@@ -364,11 +378,10 @@ if __name__ == "__main__":
 
         if isinstance(args, MouseEvent):
             if args.current_key == 'RButton' and args.event_type == 'key down':
-                print("Right button pressed at ({0}, {1})".format(args.mouse_x,args.mouse_y))
+                print("Right button pressed at ({0}, {1})".format(args.mouse_x, args.mouse_y))
 
             if args.current_key == 'WheelButton' and args.event_type == 'key down':
                 print("Wheel button pressed")
-
 
     hk = Hook()
     hk.handler = on_event
