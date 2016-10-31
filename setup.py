@@ -58,7 +58,7 @@ sys.path.append(setup_path())
 
 if sys.platform == 'win32':
     install_requires = ['six', 'pypiwin32', 'comtypes']
-    packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"]
+    packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
 else:
     install_requires = ['six', 'python-xlib']
     packages = ["pywinauto", "pywinauto.linux"]
