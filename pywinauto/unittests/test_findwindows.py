@@ -69,7 +69,7 @@ class FindWindowsTestCases(unittest.TestCase):
         """Close the application after tests"""
         self.app.kill_()
 
-    def testFindWindow(self):
+    def test_find_window(self):
         """Test if function find_window() works as expected including raising the exceptions"""
         ctrl = self.dlg.OK.WrapperObject()
         handle = find_window(process=self.app.process, best_match='OK', top_level_only=False)
@@ -81,8 +81,8 @@ class FindWindowsTestCases(unittest.TestCase):
         self.assertRaises(WindowAmbiguousError, find_window,
                           process=self.app.process, class_name='Button', top_level_only=False)
 
-    def testFindWindows(self):
-        """Test if function find_window() works as expected including raising the exceptions"""
+    def test_find_windows(self):
+        """Test if function find_windows() works as expected including raising the exceptions"""
         ctrl_hwnds = [elem.handle for elem in self.dlg.children() if elem.class_name() == 'Edit']
         handles = find_windows(process=self.app.process, class_name='Edit', top_level_only=False)
 
