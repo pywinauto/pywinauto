@@ -60,6 +60,7 @@ from ctypes import byref
 import atexit
 import sys
 import time
+from pywinauto.actionlogger import ActionLogger
 
 cmp_func = CFUNCTYPE(c_int, c_int, wintypes.HINSTANCE, POINTER(c_void_p))
 
@@ -230,6 +231,7 @@ class Hook(object):
                  220: 'Oem_5',
                  221: 'Oem_6',
                  222: 'Oem_7',
+                 231: 'VK_PACKET',
                  1001: 'mouse left',  # mouse hotkeys
                  1002: 'mouse right',
                  1003: 'mouse middle',
@@ -269,11 +271,24 @@ class Hook(object):
 
         if self.keyboard_is_hook:
             def keyboard_low_level_handler(code, event_code, kb_data_ptr):
-                """Execute when keyboard low level event was catched"""
+                """Execute when a keyboard low level event was catched"""
+
                 try:
+                    event_type = None
+                    current_key = None
                     key_code = 0xFFFFFFFF & kb_data_ptr[0]
-                    current_key = self.ID_TO_KEY[key_code]
-                    event_type = self.event_types[0xFFFFFFFF & event_code]
+                    if key_code in self.ID_TO_KEY:
+                        current_key = self.ID_TO_KEY[key_code]
+                    else:
+                        ActionLogger().log(
+                            "keyboard_low_level_handler, bad key_code: {0}".format(key_code))
+
+                    event_code_word = 0xFFFFFFFF & event_code
+                    if event_code_word in self.event_types:
+                        event_type = self.event_types[event_code_word]
+                    else:
+                        ActionLogger().log(
+                            "keyboard_low_level_handler, bad event_type: {0}".format(event_type))
 
                     if event_type == 'key down':
                         self.pressed_keys.append(current_key)
@@ -299,11 +314,18 @@ class Hook(object):
 
         if self.mouse_is_hook:
             def mouse_low_level_handler(code, event_code, kb_data_ptr):
-                """Execute when mouse low level event was catched"""
+                """Execute when a mouse low level event was catched"""
                 try:
-                    current_key = self.MOUSE_ID_TO_KEY[event_code]
+                    current_key = None
+                    event_code_word = 0xFFFFFFFF & event_code
+                    if event_code_word in self.MOUSE_ID_TO_KEY:
+                        current_key = self.MOUSE_ID_TO_KEY[event_code_word]
+
+                    event_type = None
                     if current_key != 'Move':
-                        event_type = self.MOUSE_ID_TO_EVENT_TYPE[event_code]
+                        if event_code in self.MOUSE_ID_TO_EVENT_TYPE:
+                            event_type = self.MOUSE_ID_TO_EVENT_TYPE[event_code]
+
                         #the first two members of kb_data_ptr hold the mouse position, x and y
                         event = MouseEvent(current_key, event_type, kb_data_ptr[0], kb_data_ptr[1])
 
