@@ -61,13 +61,16 @@ import atexit
 import sys
 import time
 from pywinauto.actionlogger import ActionLogger
+from pywinauto.win32structures import KBDLLHOOKSTRUCT
 
 cmp_func = CFUNCTYPE(c_int, c_int, wintypes.HINSTANCE, POINTER(c_void_p))
+LRESULT = wintypes.LPARAM
+HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
 
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
 windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
 windll.user32.SetWindowsHookExA.restype = c_int
-windll.user32.SetWindowsHookExA.argtypes = [c_int, cmp_func, wintypes.HINSTANCE, wintypes.DWORD]
+windll.user32.SetWindowsHookExA.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
 windll.user32.GetMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint]
 windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
 windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
@@ -261,6 +264,52 @@ class Hook(object):
         self.mouse_is_hook = False
         self.keyboard_is_hook = False
 
+    def _keyboard_low_level_handler(self, code, event_code, kb_data_ptr):
+        """Execute when a keyboard low level event was catched"""
+        if code < 0:
+            return windll.user32.CallNextHookEx(self.keyboard_id,
+                                                code,
+                                                event_code,
+                                                kb_data_ptr)
+
+        try:
+            kbd = KBDLLHOOKSTRUCT.from_address(kb_data_ptr)
+            event_type = None
+            current_key = None
+            key_code = kbd.vkCode
+            scan_code = kbd.scanCode
+            ActionLogger().log("keyboard_low_level_handler, scan_code: {0}".format(scan_code))
+            if key_code in self.ID_TO_KEY:
+                current_key = self.ID_TO_KEY[key_code]
+            else:
+                ActionLogger().log(
+                    "keyboard_low_level_handler, bad key_code: {0}".format(key_code))
+
+            event_code_word = 0xFFFFFFFF & event_code
+            if event_code_word in self.event_types:
+                event_type = self.event_types[event_code_word]
+            else:
+                ActionLogger().log(
+                    "keyboard_low_level_handler, bad event_type: {0}".format(event_type))
+
+            if event_type == 'key down':
+                self.pressed_keys.append(current_key)
+
+            if event_type == 'key up':
+                self.pressed_keys.remove(current_key)
+
+            event = KeyboardEvent(current_key, event_type, self.pressed_keys)
+
+            if self.handler != 0:
+                self.handler(event)
+        except:
+            ActionLogger().log("{0}".format(sys.exc_info()[0]))
+
+        finally:
+            # TODO: think how to resolve Landscape.io warning:
+            # "return statement in finally block may swallow exception"
+            return windll.user32.CallNextHookEx(self.keyboard_id, code, event_code, kb_data_ptr)
+
     def hook(self, keyboard=True, mouse=False):
         """Hook mouse and/or keyboard events"""
         self.mouse_is_hook = mouse
@@ -270,45 +319,12 @@ class Hook(object):
             return
 
         if self.keyboard_is_hook:
-            def keyboard_low_level_handler(code, event_code, kb_data_ptr):
-                """Execute when a keyboard low level event was catched"""
+            @HOOKCB
+            def _kbd_ll(ncode, wparam, lparam):
+                return self._keyboard_low_level_handler(ncode, wparam, lparam)
 
-                try:
-                    event_type = None
-                    current_key = None
-                    key_code = 0xFFFFFFFF & kb_data_ptr[0]
-                    if key_code in self.ID_TO_KEY:
-                        current_key = self.ID_TO_KEY[key_code]
-                    else:
-                        ActionLogger().log(
-                            "keyboard_low_level_handler, bad key_code: {0}".format(key_code))
-
-                    event_code_word = 0xFFFFFFFF & event_code
-                    if event_code_word in self.event_types:
-                        event_type = self.event_types[event_code_word]
-                    else:
-                        ActionLogger().log(
-                            "keyboard_low_level_handler, bad event_type: {0}".format(event_type))
-
-                    if event_type == 'key down':
-                        self.pressed_keys.append(current_key)
-
-                    if event_type == 'key up':
-                        self.pressed_keys.remove(current_key)
-
-                    event = KeyboardEvent(current_key, event_type, self.pressed_keys)
-
-                    if self.handler != 0:
-                        self.handler(event)
-
-                finally:
-                    # TODO: think how to resolve Landscape.io warning:
-                    # "return statement in finally block may swallow exception"
-                    return windll.user32.CallNextHookEx(self.keyboard_id, code, event_code, kb_data_ptr)
-
-            keyboard_pointer = _callback_pointer(keyboard_low_level_handler)
-
-            self.keyboard_id = windll.user32.SetWindowsHookExA(self.WH_KEYBOARD_LL, keyboard_pointer,
+            self.keyboard_id = windll.user32.SetWindowsHookExW(self.WH_KEYBOARD_LL,
+                                                               _kbd_ll,
                                                                windll.kernel32.GetModuleHandleA(None),
                                                                0)
 
