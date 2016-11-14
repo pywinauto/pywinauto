@@ -593,7 +593,7 @@ class WindowSpecification(object):
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
                     # transform multi-line text to one liner
-                    ctrl_text = ctrl.window_text().replace('\n', r'\n').replace('\r', r'\r')
+                    ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
 
                 output = indent + u'\n'
                 output += indent + u"{class_name} - '{text}'    {rect}\n"\
