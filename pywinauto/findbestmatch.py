@@ -199,13 +199,14 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
 
     if ctrl_index != 0:
         prev_ctrl = controls[ctrl_index-1]
+        prev_ctrl_text = prev_ctrl.window_text()
 
         if prev_ctrl.friendly_class_name() == "Static" and \
-            prev_ctrl.is_visible() and prev_ctrl.window_text() and \
+            prev_ctrl.is_visible() and prev_ctrl_text and \
             is_above_or_to_left(ctrl, prev_ctrl):
 
             names.append(
-                prev_ctrl.window_text() +
+                prev_ctrl_text +
                 ctrl_friendly_class_name)
 
     best_name = ''
@@ -263,7 +264,11 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
             # TODO: use search in all text controls for all non-text ones
             # (like Dijkstra algorithm vs Floyd one)
             closest = distance
-            best_name = text_ctrl.window_text() + ctrl_friendly_class_name
+            ctrl_text = text_ctrl.window_text()
+            if ctrl_text is None:
+                # the control probably doesn't exist so skip it
+                continue
+            best_name = ctrl_text + ctrl_friendly_class_name
 
         # if this distance was closer than the last one
         elif distance < closest:
@@ -271,7 +276,11 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
             #if text_ctrl.window_text() == '':
             #    best_name = ctrl_friendly_class_name + ' '.join(text_ctrl.texts()[1:2])
             #else:
-            best_name = text_ctrl.window_text() + ctrl_friendly_class_name
+            ctrl_text = text_ctrl.window_text()
+            if ctrl_text is None:
+                # the control probably doesn't exist so skip it
+                continue
+            best_name = ctrl_text + ctrl_friendly_class_name
 
     names.append(best_name)
 
