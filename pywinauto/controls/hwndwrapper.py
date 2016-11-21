@@ -1169,21 +1169,26 @@ class HwndWrapper(BaseWrapper):
         (https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx)
         so the mouse cursor is removed from the screen to prevent any side effects.
         """
-        # Notice that we need to move the mouse out of the screen
-        # but we don't use the built-in methods of the class:
-        # self.mouse_move doesn't do the job well even with absolute=True
-        # self.move_mouse_input can't be used as it calls click_input->set_focus
-        mouse.move(coords=(10000, 20000))
+        # "steal the focus" if there is another active window
+        # otherwise it is already into the foreground and no action required
+        cur_foreground = win32gui.GetForegroundWindow()
 
-        # change active window
-        win32gui.ShowWindow(self.handle, win32con.SW_RESTORE)
-        win32gui.SetForegroundWindow(self.handle)
+        if self.handle != cur_foreground:
+            # Notice that we need to move the mouse out of the screen
+            # but we don't use the built-in methods of the class:
+            # self.mouse_move doesn't do the job well even with absolute=True
+            # self.move_mouse_input can't be used as it calls click_input->set_focus
+            mouse.move(coords=(-10000, 500))  # move the mouse out of screen to the left
 
-        # make sure that we are idle before returning
-        win32functions.WaitGuiThreadIdle(self)
+            # change active window
+            win32gui.ShowWindow(self.handle, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(self.handle)
 
-        # only sleep if we had to change something!
-        time.sleep(Timings.after_setfocus_wait)
+            # make sure that we are idle before returning
+            win32functions.WaitGuiThreadIdle(self)
+
+            # only sleep if we had to change something!
+            time.sleep(Timings.after_setfocus_wait)
 
         return self
     # Non PEP-8 alias
