@@ -5,16 +5,31 @@ from __future__ import unicode_literals
 import sys
 import time
 import unittest
-import win32api
-# import win32con
+import atexit
+import mock
+import win32con
+from ctypes import windll
 from threading import Timer
 
 sys.path.append(".")
 import pywinauto.actionlogger
+from pywinauto import win32structures
 from pywinauto.win32_hooks import Hook
 from pywinauto.win32_hooks import KeyboardEvent
-# from pywinauto.win32_hooks import MouseEvent
-from pywinauto.keyboard import SendKeys, KeyAction, VirtualKeyAction
+from pywinauto.win32_hooks import MouseEvent
+from pywinauto.keyboard import SendKeys
+from pywinauto.mouse import click
+from pywinauto.application import Application
+
+
+def _delete_keys_from_terminal(keys):
+    """Emulate BACK key press
+
+    A helper to remove the keys that has been sent to the terminal during a test.
+    We don't care if BACK is pressed more than required when special codes were used.
+    """
+    if keys:
+        SendKeys('{BACK ' + str(len(keys)) + '}')
 
 
 class Win32HooksTests(unittest.TestCase):
@@ -23,67 +38,291 @@ class Win32HooksTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        pywinauto.actionlogger.enable()
         self.logger = pywinauto.actionlogger.ActionLogger()
         self.hook = Hook()
-        self.hook.handler = self.on_hook_event
-        self.wait_time = 2.0
+        self.hook.handler = self._on_hook_event
+        self.wait_time = 0.4
         self.timer = None
-        self.main_thread_id = win32api.GetCurrentThreadId()
+        self.keybd_events = []
+        self.mouse_events = []
+        self.app = None
+
+        # prevent capturing keyboard keys when launching a test manually
+        time.sleep(self.wait_time / 4.0)
 
     def tearDown(self):
-        """Close the application after tests"""
+        """Close all hooks after tests"""
+        self.keybd_events = []
+        self.mouse_events = []
         if self.timer:
             self.timer.cancel()
-        self.unregister_hooks()
+        self.hook.stop()
+        if self.app:
+            self.app.kill_()
+
+    def setUpNotepad(self):
+        """Run notepad.exe to have a safe area for mouse clicks"""
+        self.app = Application()
+        self.app.start("notepad.exe")
+        self.app.Untitled.wait("ready")
+
+    def _sleep_and_unhook(self):
+        """A helper to remove all hooks after a pause"""
+        time.sleep(self.wait_time / 4.0)
+        self.hook.stop()
 
     def trace(self, msg, *args):
         """Log the specified message"""
         self.logger.log(msg.format(*args))
 
-    def on_hook_event(self, args):
-        """Callback for keyboard and mouse events"""
-        self.trace("Win32hooksTest::on_hook_event")
-        self.trace("{0}", args)
+    def _on_hook_event(self, args):
+        """Callback for keyboard events"""
         if isinstance(args, KeyboardEvent):
-            self.trace("Win32hooksTest::on_hook_event got KeyboardEvnent: key={0} type={1}",
-                       args.current_key,
-                       args.event_type)
-            if args.current_key == 'u' and args.event_type == 'key down':
-                self.trace("u key is down")
+            self.trace(
+                "Win32HooksTests::_on_hook_event got KeyboardEvent: key={0} type={1}",
+                args.current_key,
+                args.event_type)
+            self.keybd_events.append(args)
+        elif isinstance(args, MouseEvent):
+            self.trace(
+                "Win32HooksTests::_on_hook_event got MouseEvent: key={0} type={1}",
+                args.current_key,
+                args.event_type)
+            self.mouse_events.append(args)
 
-    def unregister_hooks(self):
-        """Unregister all hooks"""
-        self.trace("Win32HooksTest::unregister_hooks")
-        self.hook.unhook_keyboard()
-        self.hook.unhook_mouse()
+    def _type_keys_and_unhook(self, key_strokes):
+        """A timer callback to type key strokes and unhook"""
+        SendKeys(key_strokes)
 
-    def type_keys_and_unhook(self):
-        """A timer callback to type keys and unhook"""
-        SendKeys(u'uk')
-        #k = KeyAction('u', down=True, up=False)
-        #k.run()
-        #k = KeyAction('k', down=True, up=False)
-        #k.run()
-        #k = KeyAction('k', down=False, up=True)
-        #k.run()
-        #k = KeyAction('u', down=False, up=True)
-        #k.run()
-        time.sleep(1)
-        self.unregister_hooks()
+        # Give a time to process the keys by the hook
+        self._sleep_and_unhook()
 
-    def test_keyboard_hook(self):
-        """Test setting a keyboard hook"""
-        self.timer = Timer(self.wait_time, self.type_keys_and_unhook)
+    def test_keyboard_hook_unicode_sequence(self):
+        """Test capturing a sequence of unicode keystrokes by a keyboard hook"""
+        keys = u'uk'
+        self.timer = Timer(self.wait_time, self._type_keys_and_unhook, [keys])
         self.timer.start()
         self.hook.hook(keyboard=True, mouse=False)
-        #time.sleep(self.wait_time + 1.2)
-        #print("unhook from test")
-        #hk.unhook_keyboard()
+        # Continue here only when the hook will be removed by the timer
+        _delete_keys_from_terminal(keys)
+        self.assertEqual(len(self.keybd_events), 4)
+        self.assertEqual(self.keybd_events[0].current_key, u'u')
+        self.assertEqual(self.keybd_events[0].event_type, 'key down')
+        self.assertEqual(len(self.keybd_events[0].pressed_key), 0)
+        self.assertEqual(self.keybd_events[1].current_key, u'u')
+        self.assertEqual(self.keybd_events[1].event_type, 'key up')
+        self.assertEqual(len(self.keybd_events[1].pressed_key), 0)
+        self.assertEqual(self.keybd_events[2].current_key, u'k')
+        self.assertEqual(self.keybd_events[2].event_type, 'key down')
+        self.assertEqual(len(self.keybd_events[2].pressed_key), 0)
+        self.assertEqual(self.keybd_events[3].current_key, u'k')
+        self.assertEqual(self.keybd_events[3].event_type, 'key up')
+        self.assertEqual(len(self.keybd_events[3].pressed_key), 0)
 
-    # def test_mouse_hook(self):
-    #     """Test setting a mouse hook"""
-    #     pass
+    def test_keyboard_hook_parallel_pressed_keys(self):
+        """Test capturing parallel pressed keys by a keyboard hook"""
+        keys = u'+a'
+        self.timer = Timer(self.wait_time, self._type_keys_and_unhook, [keys])
+        self.timer.start()
+        self.hook.hook(keyboard=True, mouse=False)
+        # Continue here only when the hook will be removed by the timer
+        _delete_keys_from_terminal(keys)
+        self.assertEqual(len(self.keybd_events), 4)
+        self.assertEqual(self.keybd_events[0].current_key, u'Lshift')
+        self.assertEqual(self.keybd_events[0].event_type, 'key down')
+        self.assertEqual(len(self.keybd_events[0].pressed_key), 0)
+        self.assertEqual(self.keybd_events[1].current_key, u'A')
+        self.assertEqual(self.keybd_events[1].event_type, 'key down')
+        self.assertEqual(len(self.keybd_events[1].pressed_key), 0)
+        self.assertEqual(self.keybd_events[2].current_key, u'A')
+        self.assertEqual(self.keybd_events[2].event_type, 'key up')
+        self.assertEqual(len(self.keybd_events[2].pressed_key), 0)
+        self.assertEqual(self.keybd_events[3].current_key, u'Lshift')
+        self.assertEqual(self.keybd_events[3].event_type, 'key up')
+        self.assertEqual(len(self.keybd_events[3].pressed_key), 0)
+
+    def _mouse_click_and_unhook(self, coords):
+        """A timer callback to to perform mouse clicks and unhook"""
+        click(coords=coords)
+
+        # Give a time to process the mouse clicks by the hook
+        self._sleep_and_unhook()
+
+    def test_mouse_hook(self):
+        """Test capturing a sequence of mouse clicks by hook"""
+
+        # Get a safe point to click
+        self.setUpNotepad()
+        pt = self.app.Untitled.rectangle().mid_point()
+        coords = [(pt.x, pt.y)]
+
+        # Set a timer to perform a click and hook the mouse
+        self.timer = Timer(self.wait_time, self._mouse_click_and_unhook, coords)
+        self.timer.start()
+        self.hook.hook(keyboard=False, mouse=True)
+        # Continue here only when the hook will be removed by the timer
+        self.assertEqual(len(self.mouse_events), 2)
+        self.assertEqual(self.mouse_events[0].current_key, u'LButton')
+        self.assertEqual(self.mouse_events[0].event_type, 'key down')
+        self.assertEqual(self.mouse_events[0].mouse_x, pt.x)
+        self.assertEqual(self.mouse_events[0].mouse_y, pt.y)
+        self.assertEqual(self.mouse_events[1].current_key, u'LButton')
+        self.assertEqual(self.mouse_events[1].event_type, 'key up')
+        self.assertEqual(self.mouse_events[1].mouse_x, pt.x)
+        self.assertEqual(self.mouse_events[1].mouse_y, pt.y)
+
+
+def _on_hook_event_with_exception(args):
+    """Callback for keyboard and mouse events that raises an exception"""
+    raise ValueError()
+
+
+class Win32HooksWithMocksTests(unittest.TestCase):
+
+    """Unit tests for the Win32Hook class with mocks for low level dependencies"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        self.hook = Hook()
+
+        # Save pointers to original system calls before mocking
+        self.CallNextHookEx = windll.user32.CallNextHookEx
+        self.PeekMessageW = windll.user32.PeekMessageW
+        self.TranslateMessage = windll.user32.TranslateMessage
+        self.DispatchMessageW = windll.user32.DispatchMessageW
+        self.atexit_register = atexit.register
+        self.sys_exit = sys.exit
+
+    def tearDown(self):
+        """Cleanups after finishing a test"""
+        self.hook.stop()
+
+        # Restore the pointers to original system calls after mocking
+        windll.user32.CallNextHookEx = self.CallNextHookEx
+        windll.user32.PeekMessageW = self.PeekMessageW
+        windll.user32.TranslateMessage = self.TranslateMessage
+        windll.user32.DispatchMessageW = self.DispatchMessageW
+        atexit.register = self.atexit_register
+        sys.exit = self.sys_exit
+
+    def test_none_hook_handler(self):
+        """Test running a hook without a handler
+
+        The next hook in chain still should be called
+        """
+        self.hook.handler = None
+        windll.user32.CallNextHookEx = mock.Mock(return_value=0)
+        kbd = win32structures.KBDLLHOOKSTRUCT(0, 0, 0, 0, 0)
+        self.hook.keyboard_id = 1
+        res = self.hook._keyboard_ll_hdl(-1, 3, id(kbd))
+        windll.user32.CallNextHookEx.assert_called_with(1, -1, 3, id(kbd))
+        self.assertEqual(res, 0)
+
+        windll.user32.CallNextHookEx = mock.Mock(return_value=0)
+        mouse = win32structures.MSLLHOOKSTRUCT((11, 12), 0, 0, 0, 0)
+        res = self.hook._mouse_ll_hdl(-1, 3, id(mouse))
+        self.hook.mouse_id = 1
+        self.assertEqual(res, 0)
+        windll.user32.CallNextHookEx = mock.Mock(return_value=0)
+
+    def test_keyboard_hook_exception(self):
+        """Test handling an exception in a keyboard hook"""
+        self.hook.handler = _on_hook_event_with_exception
+        windll.user32.CallNextHookEx = mock.Mock(return_value=0)
+        kbd = win32structures.KBDLLHOOKSTRUCT(0, 0, 0, 0, 0)
+        self.hook.keyboard_id = 1
+
+        # Verify CallNextHookEx is called even if there is an exception is raised
+        self.assertRaises(ValueError, self.hook._keyboard_ll_hdl, -1, 3, id(kbd))
+        windll.user32.CallNextHookEx.assert_called()
+        windll.user32.CallNextHookEx.assert_called_with(1, -1, 3, id(kbd))
+        self.assertRaises(ValueError, self.hook._keyboard_ll_hdl, 0, 3, id(kbd))
+        windll.user32.CallNextHookEx.assert_called()
+        windll.user32.CallNextHookEx.assert_called_with(1, 0, 3, id(kbd))
+
+    def test_mouse_hook_exception(self):
+        """Test handling an exception in a mouse hook"""
+        self.hook.handler = _on_hook_event_with_exception
+        windll.user32.CallNextHookEx = mock.Mock(return_value=0)
+        mouse = win32structures.MSLLHOOKSTRUCT((11, 12), 0, 0, 0, 0)
+        self.hook.mouse_id = 1
+
+        # Verify CallNextHookEx is called even if there is an exception is raised
+        self.assertRaises(ValueError, self.hook._mouse_ll_hdl, -1, 3, id(mouse))
+        windll.user32.CallNextHookEx.assert_called()
+        windll.user32.CallNextHookEx.assert_called_with(1, -1, 3, id(mouse))
+        self.assertRaises(ValueError, self.hook._mouse_ll_hdl, 0, 3, id(mouse))
+        windll.user32.CallNextHookEx.assert_called()
+        windll.user32.CallNextHookEx.assert_called_with(1, 0, 3, id(mouse))
+
+    @mock.patch.object(Hook, '_process_win_msgs')
+    @mock.patch.object(Hook, 'is_hooked')
+    def test_listen_loop(self, mock_is_hooked, mock_process_msgs):
+        """Test running the main events loop"""
+        atexit.register = mock.Mock(return_value=0)
+        mock_is_hooked.side_effect = [1, 0]  # exit at a second loop
+        mock_process_msgs.return_value = 0
+
+        # mock hook IDs
+        self.hook.keyboard_id = 22
+        self.hook.mouse_id = 33
+
+        # run the events loop
+        self.hook.listen()
+
+        # verify atexit.register calls
+        atexit.register.assert_called()
+        self.assertEqual(len(atexit.register.mock_calls), 2)
+        name, args, kwargs = atexit.register.mock_calls[0]
+        self.assertEqual(args[1], 22)
+        name, args, kwargs = atexit.register.mock_calls[1]
+        self.assertEqual(args[1], 33)
+
+        # verify is_hooked method calls
+        mock_is_hooked.assert_called()
+        self.assertEqual(len(mock_is_hooked.mock_calls), 2)
+
+        # verify _process_win_msgs method has been called
+        mock_process_msgs.assert_called()
+        self.assertEqual(len(mock_process_msgs.mock_calls), 1)
+
+    @mock.patch.object(Hook, 'stop')
+    def test_process_win_msg(self, mock_stop):
+        """Test Hook._process_win_msgs"""
+        # Mock external API
+        windll.user32.PeekMessageW = mock.Mock(side_effect=[1, 0])
+        windll.user32.TranslateMessage = mock.Mock()
+        windll.user32.DispatchMessageW = mock.Mock()
+
+        # Test processing the normal messages
+        self.hook._process_win_msgs()
+        windll.user32.PeekMessageW.assert_called()
+        windll.user32.TranslateMessage.assert_called()
+        windll.user32.DispatchMessageW.assert_called()
+
+        # Test processing WM_QUIT
+        def side_effect(*args):
+            """Emulate reception of WM_QUIT"""
+            args[0].contents.message = win32con.WM_QUIT
+            return 1
+        windll.user32.PeekMessageW = mock.Mock(side_effect=side_effect)
+        self.assertRaises(SystemExit, self.hook._process_win_msgs)
+        mock_stop.assert_called_once()
+
+    def test_is_hooked(self):
+        """Verify Hook.is_hooked method"""
+        self.assertEqual(self.hook.is_hooked(), False)
+        self.hook.mouse_is_hook = True
+        self.assertEqual(self.hook.is_hooked(), True)
+        self.hook.mouse_is_hook = False
+        self.assertEqual(self.hook.is_hooked(), False)
+        self.hook.keyboard_is_hook = True
+        self.assertEqual(self.hook.is_hooked(), True)
+        self.hook.keyboard_is_hook = False
+        self.assertEqual(self.hook.is_hooked(), False)
+        self.hook.hook(mouse=False, keyboard=False)
+        self.assertEqual(self.hook.is_hooked(), False)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1271,3 +1271,18 @@ class KBDLLHOOKSTRUCT(Structure):
     ]
 
 assert sizeof(KBDLLHOOKSTRUCT) == 20, sizeof(KBDLLHOOKSTRUCT)
+
+
+class MSLLHOOKSTRUCT(Structure):
+
+    """Wrap MSLLHOOKSTRUCT structure"""
+
+    _fields_ = [
+        ('pt', POINT),
+        ('mouseData', DWORD),
+        ('flags', DWORD),
+        ('time', DWORD),
+        ('dwExtraInfo', DWORD),
+    ]
+
+assert sizeof(MSLLHOOKSTRUCT) == 24, sizeof(MSLLHOOKSTRUCT)
