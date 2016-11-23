@@ -687,6 +687,46 @@ class NonActiveWindowFocusTests(unittest.TestCase):
         dlg1.set_focus()
         self.assertEqual(ws.GetFocus(), ws.Edit.wrapper_object())
 
+
+class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
+
+    """
+    Regression unit tests for setting focus when window does not have
+    a message loop.
+    """
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
+
+        self.app1 = Application().start(u"cmd.exe",
+                                        create_new_console=True,
+                                        wait_for_idle=False)
+        self.app2 = Application().start(os.path.join(
+            mfc_samples_folder, u"CmnCtrl2.exe"))
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app1.kill_()
+        self.app2.kill_()
+
+    def test_issue_270(self):
+        """
+        Set focus to a window without a message loop, then switch to a window
+        with one and type in it.
+        """
+        self.app1.window().set_focus()
+        # pywintypes.error:
+        #     (87, 'AttachThreadInput', 'The parameter is incorrect.')
+
+        self.app2.window().edit.type_keys("1")
+        # cmd.exe into python.exe;  pywintypes.error:
+        #     (87, 'AttachThreadInput', 'The parameter is incorrect.')
+        # python.exe on its own;  pywintypes.error:
+        #     (0, 'SetForegroundWindow', 'No error message is available')
+        self.assertTrue(self.app2.window().is_active())
+
+
 class NotepadRegressionTests(unittest.TestCase):
 
     """Regression unit tests for Notepad"""

@@ -1164,71 +1164,25 @@ class HwndWrapper(BaseWrapper):
         """
         Set the focus to this control.
 
-        Bring the window to the foreground first if necessary.
+        Bring the window to the foreground first.
         The system restricts which processes can set the foreground window
         (https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx)
         so the mouse cursor is removed from the screen to prevent any side effects.
         """
-        # Notice that we need to move the mouse out of the screen
-        # but we don't use the built-in methods of the class:
-        # self.mouse_move doesn't do the job well even with absolute=True
-        # self.move_mouse_input can't be used as it calls click_input->set_focus
-
-        # find the current foreground window
+        # "steal the focus" if there is another active window
+        # otherwise it is already into the foreground and no action required
         cur_foreground = win32gui.GetForegroundWindow()
 
-        # if there is no active window bring our window into the foreground
-        if not cur_foreground:
-            mouse.move(coords=(10000, 20000))
+        if self.handle != cur_foreground:
+            # Notice that we need to move the mouse out of the screen
+            # but we don't use the built-in methods of the class:
+            # self.mouse_move doesn't do the job well even with absolute=True
+            # self.move_mouse_input can't be used as it calls click_input->set_focus
+            mouse.move(coords=(-10000, 500))  # move the mouse out of screen to the left
+
+            # change active window
+            win32gui.ShowWindow(self.handle, win32con.SW_RESTORE)
             win32gui.SetForegroundWindow(self.handle)
-            win32functions.WaitGuiThreadIdle(self)
-            time.sleep(Timings.after_setfocus_wait)
-
-        # "steel the focus" if there is another active window
-        # otherwise it is already into the foreground and no action required
-        elif self.handle != cur_foreground:
-            mouse.move(coords=(10000, 20000))
-
-            # get the thread of the window that is in the foreground
-            cur_fore_thread = win32process.GetWindowThreadProcessId(
-                cur_foreground)[0]
-
-            # get the thread of the window that we want to be in the foreground
-            control_thread = win32process.GetWindowThreadProcessId(
-                self.handle)[0]
-
-            # if a different thread owns the active window
-            if cur_fore_thread != control_thread:
-
-                # Attach the two threads and set the foreground window
-                win32process.AttachThreadInput(control_thread,
-                                               cur_fore_thread,
-                                               1)
-
-                win32gui.SetForegroundWindow(self.handle)
-
-                # ensure foreground window has changed to the target
-                # or is 0(no foreground window) before the threads detaching
-                timings.wait_until(
-                    Timings.setfocus_timeout,
-                    Timings.setfocus_retry,
-                    lambda: win32gui.GetForegroundWindow()
-                    in [self.top_level_parent().handle, 0])
-
-                # get the threads again to check they are still valid.
-                cur_fore_thread = win32process.GetWindowThreadProcessId(
-                    cur_foreground)[0]
-                control_thread = win32process.GetWindowThreadProcessId(
-                    self.handle)[0]
-
-                if cur_fore_thread and control_thread:  # both are valid
-                    # Detach the threads
-                    win32process.AttachThreadInput(control_thread,
-                                                   cur_fore_thread,
-                                                   0)
-            else:
-                # same threads - just set the foreground window
-                win32gui.SetForegroundWindow(self.handle)
 
             # make sure that we are idle before returning
             win32functions.WaitGuiThreadIdle(self)
