@@ -86,6 +86,16 @@ windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
 #  _In_     UINT  wRemoveMsg
 #);
 windll.user32.PeekMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint, c_uint]
+windll.user32.PeekMessageW.restypes = wintypes.BOOL
+
+# LRESULT WINAPI CallNextHookEx(
+#   _In_opt_ HHOOK  hhk,
+#   _In_     int    nCode,
+#   _In_     WPARAM wParam,
+#   _In_     LPARAM lParam
+# );
+windll.user32.CallNextHookEx.argtypes = [wintypes.HHOOK, c_int, wintypes.WPARAM, wintypes.LPARAM]
+windll.user32.CallNextHookEx.restypes = LRESULT
 
 
 class KeyboardEvent(object):
