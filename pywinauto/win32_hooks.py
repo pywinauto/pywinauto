@@ -62,10 +62,10 @@ import atexit
 import sys
 import time
 import win32con
-from pywinauto import win32defines
-from pywinauto.actionlogger import ActionLogger
-from pywinauto.win32structures import KBDLLHOOKSTRUCT
-from pywinauto.win32structures import MSLLHOOKSTRUCT
+from .win32defines import VK_PACKET
+from .actionlogger import ActionLogger
+from .win32structures import KBDLLHOOKSTRUCT
+from .win32structures import MSLLHOOKSTRUCT
 
 LRESULT = wintypes.LPARAM
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
@@ -422,11 +422,11 @@ class Hook(object):
         self.keyboard_is_hook = False
 
     def _process_kbd_data(self, kb_data_ptr):
-        """Proces KBDLLHOOKSTRUCT data received from low level keyboard hook calls"""
+        """Process KBDLLHOOKSTRUCT data received from low level keyboard hook calls"""
         kbd = KBDLLHOOKSTRUCT.from_address(kb_data_ptr)
         current_key = None
         key_code = kbd.vkCode
-        if key_code == win32defines.VK_PACKET:
+        if key_code == VK_PACKET:
             scan_code = kbd.scanCode
             current_key = six.unichr(scan_code)
         elif key_code in self.ID_TO_KEY:
@@ -459,7 +459,7 @@ class Hook(object):
         return event_type
 
     def _keyboard_ll_hdl(self, code, event_code, kb_data_ptr):
-        """Execute when a keyboard low level event was catched"""
+        """Execute when a keyboard low level event has been triggered"""
         try:
             # The next hook in chain must be always called
             res = windll.user32.CallNextHookEx(self.keyboard_id,
@@ -483,7 +483,7 @@ class Hook(object):
         return res
 
     def _mouse_ll_hdl(self, code, event_code, mouse_data_ptr):
-        """Execute when a mouse low level event was catched"""
+        """Execute when a mouse low level event has been triggerred"""
         try:
             # The next hook in chain must be always called
             res = windll.user32.CallNextHookEx(self.mouse_id, code, event_code, mouse_data_ptr)

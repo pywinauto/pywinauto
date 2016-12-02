@@ -2,6 +2,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
 import sys
 import time
 import unittest
@@ -20,6 +21,7 @@ from pywinauto.win32_hooks import MouseEvent
 from pywinauto.keyboard import SendKeys
 from pywinauto.mouse import click
 from pywinauto.application import Application
+from pywinauto.sysinfo import is_x64_Python
 
 
 def _delete_keys_from_terminal(keys):
@@ -42,13 +44,14 @@ class Win32HooksTests(unittest.TestCase):
         self.hook = Hook()
         self.hook.handler = self._on_hook_event
         self.wait_time = 0.4
+        self.short_wait_time = self.wait_time / 4.0
         self.timer = None
         self.keybd_events = []
         self.mouse_events = []
         self.app = None
 
         # prevent capturing keyboard keys when launching a test manually
-        time.sleep(self.wait_time / 4.0)
+        time.sleep(self.short_wait_time)
 
     def tearDown(self):
         """Close all hooks after tests"""
@@ -60,15 +63,22 @@ class Win32HooksTests(unittest.TestCase):
         if self.app:
             self.app.kill_()
 
-    def setUpNotepad(self):
+    def _get_safe_point_to_click(self):
         """Run notepad.exe to have a safe area for mouse clicks"""
+
+        mfc_samples_folder = os.path.join(
+            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+        if is_x64_Python():
+            mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+        sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
         self.app = Application()
-        self.app.start("notepad.exe")
-        self.app.Untitled.wait("ready")
+        self.app.start(sample_exe)
+        self.app.CommonControlsSample.wait("ready")
+        return self.app.CommonControlsSample.rectangle().mid_point()
 
     def _sleep_and_unhook(self):
         """A helper to remove all hooks after a pause"""
-        time.sleep(self.wait_time / 4.0)
+        time.sleep(self.short_wait_time)
         self.hook.stop()
 
     def trace(self, msg, *args):
@@ -142,7 +152,7 @@ class Win32HooksTests(unittest.TestCase):
         self.assertEqual(len(self.keybd_events[3].pressed_key), 0)
 
     def _mouse_click_and_unhook(self, coords):
-        """A timer callback to to perform mouse clicks and unhook"""
+        """A timer callback to perform a mouse click and unhook"""
         click(coords=coords)
 
         # Give a time to process the mouse clicks by the hook
@@ -152,8 +162,7 @@ class Win32HooksTests(unittest.TestCase):
         """Test capturing a sequence of mouse clicks by hook"""
 
         # Get a safe point to click
-        self.setUpNotepad()
-        pt = self.app.Untitled.rectangle().mid_point()
+        pt = self._get_safe_point_to_click()
         coords = [(pt.x, pt.y)]
 
         # Set a timer to perform a click and hook the mouse
@@ -192,6 +201,8 @@ class Win32HooksWithMocksTests(unittest.TestCase):
         self.DispatchMessageW = windll.user32.DispatchMessageW
         self.atexit_register = atexit.register
         self.sys_exit = sys.exit
+        self.fake_kbhook_id = 22
+        self.fake_mousehook_id = 33
 
     def tearDown(self):
         """Cleanups after finishing a test"""
@@ -209,51 +220,57 @@ class Win32HooksWithMocksTests(unittest.TestCase):
         """Test running a hook without a handler
 
         The next hook in chain still should be called
+        Simulate an odd situation when we got a hook ID (a hook is inserted)
+        but a handler for the hook processing wasn't supplied by a user
         """
+        self.hook.keyboard_id = self.fake_kbhook_id
+        self.hook.mouse_id = self.fake_mousehook_id
         self.hook.handler = None
+
+        # replace the system API with a mock object
         windll.user32.CallNextHookEx = mock.Mock(return_value=0)
+        # prepare arguments for _keyboard_ll_hdl call
         kbd = win32structures.KBDLLHOOKSTRUCT(0, 0, 0, 0, 0)
-        self.hook.keyboard_id = 1
         res = self.hook._keyboard_ll_hdl(-1, 3, id(kbd))
-        windll.user32.CallNextHookEx.assert_called_with(1, -1, 3, id(kbd))
+        windll.user32.CallNextHookEx.assert_called_with(self.fake_kbhook_id, -1, 3, id(kbd))
         self.assertEqual(res, 0)
 
+        # Setup a fresh mock object and arguments for _mouse_ll_hdl call
         windll.user32.CallNextHookEx = mock.Mock(return_value=0)
         mouse = win32structures.MSLLHOOKSTRUCT((11, 12), 0, 0, 0, 0)
         res = self.hook._mouse_ll_hdl(-1, 3, id(mouse))
-        self.hook.mouse_id = 1
         self.assertEqual(res, 0)
-        windll.user32.CallNextHookEx = mock.Mock(return_value=0)
+        windll.user32.CallNextHookEx.assert_called_with(self.fake_mousehook_id, -1, 3, id(mouse))
 
     def test_keyboard_hook_exception(self):
         """Test handling an exception in a keyboard hook"""
         self.hook.handler = _on_hook_event_with_exception
         windll.user32.CallNextHookEx = mock.Mock(return_value=0)
         kbd = win32structures.KBDLLHOOKSTRUCT(0, 0, 0, 0, 0)
-        self.hook.keyboard_id = 1
+        self.hook.keyboard_id = self.fake_kbhook_id
 
         # Verify CallNextHookEx is called even if there is an exception is raised
         self.assertRaises(ValueError, self.hook._keyboard_ll_hdl, -1, 3, id(kbd))
         windll.user32.CallNextHookEx.assert_called()
-        windll.user32.CallNextHookEx.assert_called_with(1, -1, 3, id(kbd))
+        windll.user32.CallNextHookEx.assert_called_with(self.fake_kbhook_id, -1, 3, id(kbd))
         self.assertRaises(ValueError, self.hook._keyboard_ll_hdl, 0, 3, id(kbd))
         windll.user32.CallNextHookEx.assert_called()
-        windll.user32.CallNextHookEx.assert_called_with(1, 0, 3, id(kbd))
+        windll.user32.CallNextHookEx.assert_called_with(self.fake_kbhook_id, 0, 3, id(kbd))
 
     def test_mouse_hook_exception(self):
         """Test handling an exception in a mouse hook"""
         self.hook.handler = _on_hook_event_with_exception
         windll.user32.CallNextHookEx = mock.Mock(return_value=0)
         mouse = win32structures.MSLLHOOKSTRUCT((11, 12), 0, 0, 0, 0)
-        self.hook.mouse_id = 1
+        self.hook.mouse_id = self.fake_mousehook_id
 
         # Verify CallNextHookEx is called even if there is an exception is raised
         self.assertRaises(ValueError, self.hook._mouse_ll_hdl, -1, 3, id(mouse))
         windll.user32.CallNextHookEx.assert_called()
-        windll.user32.CallNextHookEx.assert_called_with(1, -1, 3, id(mouse))
+        windll.user32.CallNextHookEx.assert_called_with(self.fake_mousehook_id, -1, 3, id(mouse))
         self.assertRaises(ValueError, self.hook._mouse_ll_hdl, 0, 3, id(mouse))
         windll.user32.CallNextHookEx.assert_called()
-        windll.user32.CallNextHookEx.assert_called_with(1, 0, 3, id(mouse))
+        windll.user32.CallNextHookEx.assert_called_with(self.fake_mousehook_id, 0, 3, id(mouse))
 
     @mock.patch.object(Hook, '_process_win_msgs')
     @mock.patch.object(Hook, 'is_hooked')
@@ -264,8 +281,8 @@ class Win32HooksWithMocksTests(unittest.TestCase):
         mock_process_msgs.return_value = 0
 
         # mock hook IDs
-        self.hook.keyboard_id = 22
-        self.hook.mouse_id = 33
+        self.hook.keyboard_id = self.fake_kbhook_id
+        self.hook.mouse_id = self.fake_mousehook_id
 
         # run the events loop
         self.hook.listen()
@@ -274,9 +291,9 @@ class Win32HooksWithMocksTests(unittest.TestCase):
         atexit.register.assert_called()
         self.assertEqual(len(atexit.register.mock_calls), 2)
         name, args, kwargs = atexit.register.mock_calls[0]
-        self.assertEqual(args[1], 22)
+        self.assertEqual(args[1], self.fake_kbhook_id)
         name, args, kwargs = atexit.register.mock_calls[1]
-        self.assertEqual(args[1], 33)
+        self.assertEqual(args[1], self.fake_mousehook_id)
 
         # verify is_hooked method calls
         mock_is_hooked.assert_called()
