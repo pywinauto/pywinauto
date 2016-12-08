@@ -803,11 +803,13 @@ class BaseWrapper(object):
         .. _keyboard: pywinauto.keyboard.html
         """
         self.verify_actionable()
+        friendly_class_name = self.friendly_class_name()
 
         if pause is None:
             pause = Timings.after_sendkeys_key_wait
 
         if set_foreground:
+            # self.top_level_parent().set_focus()
             self.set_focus()
 
         # attach the Python process with the process that self is in
@@ -846,7 +848,7 @@ class BaseWrapper(object):
 
         self.wait_for_idle()
 
-        self.actions.log('Typed text to the ' + self.friendly_class_name() + ': ' + aligned_keys)
+        self.actions.log('Typed text to the ' + friendly_class_name + ': ' + aligned_keys)
         return self
 
     #-----------------------------------------------------------
