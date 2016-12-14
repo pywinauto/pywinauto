@@ -1229,7 +1229,7 @@ class SYSTEMTIME(Structure):
         ('wSecond', WORD),
         ('wMilliseconds', WORD),
     ]
-    
+
     def __repr__(self):
         return '<wYear=' + str(self.wYear) + \
             ', wMonth=' + str(self.wMonth) + \
@@ -1239,7 +1239,7 @@ class SYSTEMTIME(Structure):
             ', wMinute=' + str(self.wMinute) + \
             ', wSecond=' + str(self.wSecond) + \
             ', wMilliseconds=' + str(self.wMilliseconds) + '>'
-    
+
     def __str__(self):
         return self.__repr__()
 
@@ -1256,3 +1256,33 @@ class MCHITTESTINFO(Structure):
         ('iRow', c_int),
         ('iCol', c_int)
     ]
+
+
+class KBDLLHOOKSTRUCT(Structure):
+
+    """Wrap KBDLLHOOKSTRUCT structure"""
+
+    _fields_ = [
+        ('vkCode', DWORD),
+        ('scanCode', DWORD),
+        ('flags', DWORD),
+        ('time', DWORD),
+        ('dwExtraInfo', DWORD),
+    ]
+
+assert sizeof(KBDLLHOOKSTRUCT) == 20, sizeof(KBDLLHOOKSTRUCT)
+
+
+class MSLLHOOKSTRUCT(Structure):
+
+    """Wrap MSLLHOOKSTRUCT structure"""
+
+    _fields_ = [
+        ('pt', POINT),
+        ('mouseData', DWORD),
+        ('flags', DWORD),
+        ('time', DWORD),
+        ('dwExtraInfo', DWORD),
+    ]
+
+assert sizeof(MSLLHOOKSTRUCT) == 24, sizeof(MSLLHOOKSTRUCT)
