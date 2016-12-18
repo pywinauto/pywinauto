@@ -193,6 +193,9 @@ class WindowSpecification(object):
                 if "parent" not in ctrl_criteria:
                     ctrl_criteria["parent"] = previous_parent
 
+                if isinstance(ctrl_criteria["parent"], WindowSpecification):
+                    ctrl_criteria["parent"] = ctrl_criteria["parent"].wrapper_object()
+
                 # resolve the control and return it
                 if 'backend' not in ctrl_criteria:
                     ctrl_criteria['backend'] = self.backend.name

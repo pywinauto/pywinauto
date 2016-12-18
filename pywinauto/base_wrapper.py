@@ -375,31 +375,25 @@ class BaseWrapper(object):
         return texts_list
 
     #-----------------------------------------------------------
-    def children(self, class_name=None, title=None, control_type=None, content_only=None):
+    def children(self, **kwargs):
         """
         Return the children of this element as a list
 
         It returns a list of BaseWrapper (or subclass) instances.
         An empty list is returned if there are no children.
         """
-        child_elements = self.element_info.children(class_name=class_name,
-                                                    title=title,
-                                                    control_type=control_type,
-                                                    content_only=content_only)
+        child_elements = self.element_info.children(**kwargs)
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
 
     #-----------------------------------------------------------
-    def descendants(self, class_name=None, title=None, control_type=None, content_only=None):
+    def descendants(self, **kwargs):
         """
         Return the descendants of this element as a list
 
         It returns a list of BaseWrapper (or subclass) instances.
         An empty list is returned if there are no descendants.
         """
-        desc_elements = self.element_info.descendants(class_name=class_name,
-                                                      title=title,
-                                                      control_type=control_type,
-                                                      content_only=content_only)
+        desc_elements = self.element_info.descendants(**kwargs)
         return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
 
     #-----------------------------------------------------------
