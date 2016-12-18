@@ -60,7 +60,7 @@ passed to the :func:`pywinauto.findwindows.find_elements()` function.  e.g.
 
   ::
 
-          app = Application.connect(title_re=".*Notepad", class_name="Notepad")
+          app = Application().connect(title_re=".*Notepad", class_name="Notepad")
 
 
 **Note**: The application has to be ready before you can use connect*().
