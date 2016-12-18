@@ -440,7 +440,7 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertRaises(AppNotConnected, app.windows_, **{'title' : 'not connected'})
 
         app.start('notepad.exe')
-        
+
         self.assertRaises(ValueError, app.windows_, **{'backend' : 'uia'})
 
         notepad_handle = app.UntitledNotepad.handle
@@ -639,6 +639,9 @@ class WindowSpecificationTestCases(unittest.TestCase):
             "Notepad",
             self.dlgspec.class_name())
 
+        # Check handling 'parent' as a WindowSpecification
+        spec = self.ctrlspec.child_window(parent=self.dlgspec)
+        self.assertEqual(spec.class_name(), "Edit")
 
     def test_exists(self):
         """Check that windows exist"""
@@ -870,34 +873,34 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
 class WaitUntilDecoratorTests(unittest.TestCase):
     """Unit tests for always_wait_until and always_wait_until_passes decorators"""
-    
+
     def test_always_wait_until_decorator_success(self):
         """Test always_wait_until_decorator success"""
-        
+
         @always_wait_until(4, 2)
         def foo():
             return True
         self.assertTrue(foo())
-        
+
     def test_always_wait_until_decorator_failure(self):
         """Test wait_until_decorator failure"""
-        
+
         @always_wait_until(4, 2)
         def foo():
             return False
         self.assertRaises(TimeoutError, foo)
-        
+
     def test_always_wait_until_passes_decorator_success(self):
         """Test always_wait_until_passes_decorator success"""
-        
+
         @always_wait_until_passes(4, 2)
         def foo():
             return True
         self.assertTrue(foo())
-        
+
     def test_always_wait_until_passes_decorator_failure(self):
         """Test always_wait_until_passes_decorator failure"""
-        
+
         @always_wait_until_passes(4, 2)
         def foo():
             raise Exception("Unexpected Error in foo")
