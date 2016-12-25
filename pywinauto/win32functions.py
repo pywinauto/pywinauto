@@ -213,7 +213,7 @@ except AttributeError:
 #   Process_Per_Monitor_DPI_Aware  = 2
 # } Process_DPI_Awareness;
 try:
-    shcore = ctypes.windll.LoadLibrary(u"Shcore.dll")
+    shcore = ctypes.windll.LoadLibrary("Shcore.dll")
     SetProcessDpiAwareness = shcore.SetProcessDpiAwareness
     GetProcessDpiAwareness = shcore.GetProcessDpiAwareness
     Process_DPI_Awareness = {
