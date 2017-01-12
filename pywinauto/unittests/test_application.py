@@ -432,6 +432,15 @@ class ApplicationTestCases(unittest.TestCase):
         finally:
             window.Close(2.0)
 
+    def test_wait_cpu_usage_lower_uia(self):
+        """Test that wait_cpu_usage_lower() works correctly for UIA"""
+        app = Application(backend='uia')
+        app.start('notepad.exe')
+        try:
+            app.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
+        finally:
+            app.kill()
+
     def test_windows(self):
         """Test that windows_() works correctly"""
         Timings.window_find_timeout = 5
