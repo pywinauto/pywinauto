@@ -201,8 +201,6 @@ def find_elements(class_name=None,
         # if not given a parent look for all children of the desktop
         if not parent:
             parent = backend_obj.element_info_class()
-        elif isinstance(parent, BaseWrapper):
-            parent = parent.element_info
 
         # look for ALL children of that parent
         elements = parent.descendants(class_name=class_name,

@@ -803,7 +803,6 @@ class BaseWrapper(object):
             pause = Timings.after_sendkeys_key_wait
 
         if set_foreground:
-            # self.top_level_parent().set_focus()
             self.set_focus()
 
         # attach the Python process with the process that self is in
