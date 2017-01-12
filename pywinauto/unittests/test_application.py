@@ -434,12 +434,12 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_wait_cpu_usage_lower_uia(self):
         """Test that wait_cpu_usage_lower() works correctly for UIA"""
-        app = Application(backend='uia')
-        app.start('notepad.exe')
+        self.app = Application(backend='uia')
+        self.app.start('notepad.exe')
         try:
-            app.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
+            self.app.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
         finally:
-            app.kill()
+            self.app.kill()
 
     def test_windows(self):
         """Test that windows_() works correctly"""

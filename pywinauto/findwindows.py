@@ -40,7 +40,6 @@ from . import win32functions
 from . import win32structures
 from . import findbestmatch
 from . import controls
-from .base_wrapper import BaseWrapper
 from .backend import registry
 
 
