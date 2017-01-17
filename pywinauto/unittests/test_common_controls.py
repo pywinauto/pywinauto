@@ -480,31 +480,21 @@ class TreeViewTestCases32(unittest.TestCase):
         self.dlg = self.app.MicrosoftControlSpy
         self.ctrl = self.app.MicrosoftControlSpy.TreeView.WrapperObject()
 
-        #self.dlg.MenuSelect("Styles")
-
-        # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.type_keys(
-        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
-        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
-        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
-
     def tearDown(self):
-        "Close the application after tests"
-        # close the application
+        """Close the application after tests"""
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
-    def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (TreeView)"
+    def test_friendly_class_name(self):
+        """Make sure the friendly class name is set correctly (TreeView)"""
         self.assertEquals (self.ctrl.friendly_class_name(), "TreeView")
 
     def testItemCount(self):
-        "Test the TreeView ItemCount method"
+        """Test the TreeView ItemCount method"""
         self.assertEquals (self.ctrl.ItemCount(), 37)
 
 
     def testGetItem(self):
-        "Test the GetItem method"
-
+        """Test the GetItem method"""
         self.assertRaises(RuntimeError, self.ctrl.GetItem, "test\here\please")
 
         self.assertRaises(IndexError, self.ctrl.GetItem, r"\test\here\please")
@@ -522,15 +512,14 @@ class TreeViewTestCases32(unittest.TestCase):
 
 
     def testItemText(self):
-        "Test the TreeView item Text() method"
+        """Test the TreeView item Text() method"""
         self.assertEquals(self.ctrl.Root().Text(), self.root_text)
 
         self.assertEquals(
             self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
 
     def testSelect(self):
-        "Test selecting an item"
-
+        """Test selecting an item"""
         self.ctrl.Select((0, 1, 2))
 
         self.ctrl.GetItem((0, 1, 2)).State()
@@ -539,9 +528,8 @@ class TreeViewTestCases32(unittest.TestCase):
 
 
     def testEnsureVisible(self):
-        "make sure that the item is visible"
-
-        # note this is partially a fake test at the moment because
+        """make sure that the item is visible"""
+        # TODO: note this is partially a fake test at the moment because
         # just by getting an item - we usually make it visible
         self.ctrl.EnsureVisible((0, 8, 2))
 
@@ -550,7 +538,7 @@ class TreeViewTestCases32(unittest.TestCase):
 
 
     def testGetProperties(self):
-        "Test getting the properties for the treeview control"
+        """Test getting the properties for the treeview control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -563,8 +551,7 @@ class TreeViewTestCases32(unittest.TestCase):
             self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemsClick(self):
-        "Test clicking of items and sub-items in the treeview control"
-
+        """Test clicking of items and sub-items in the treeview control"""
         planets_item_path = (0, 0)
         mercury_diam_item_path = (0, 0, 1)
         mars_dist_item_path = (0, 3, 0)
@@ -807,29 +794,20 @@ class StatusBarTestCases(unittest.TestCase):
         self.dlg = app.MicrosoftControlSpy
         self.ctrl = app.MicrosoftControlSpy.StatusBar.WrapperObject()
 
-        #self.dlg.MenuSelect("Styles")
-
-        # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.type_keys(
-        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
-        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
-        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
-
     def tearDown(self):
-        "Close the application after tests"
-        # close the application
+        """Close the application after tests"""
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
-    def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (StatusBar)"
+    def test_friendly_class_name(self):
+        """Make sure the friendly class name is set correctly (StatusBar)"""
         self.assertEquals (self.ctrl.friendly_class_name(), "StatusBar")
 
-    def testTexts(self):
-        "Make sure the texts are set correctly"
+    def test_texts(self):
+        """Make sure the texts are set correctly"""
         self.assertEquals (self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the status bar control"
+        """Test getting the properties for the status bar control"""
         props  = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -843,7 +821,7 @@ class StatusBarTestCases(unittest.TestCase):
 
 
     def testBorderWidths(self):
-        "Make sure the border widths are retrieved correctly"
+        """Make sure the border widths are retrieved correctly"""
         self.assertEquals (
             self.ctrl.BorderWidths(),
             dict(
@@ -923,14 +901,6 @@ class TabControlTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.CommonControlsSample
         self.ctrl = app.CommonControlsSample.TabControl.WrapperObject()
-
-        #self.dlg.MenuSelect("Styles")
-
-        # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.type_keys(
-        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
-        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
-        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1066,14 +1036,6 @@ class ToolbarTestCases(unittest.TestCase):
         self.ctrl = app.CommonControlsSample.ToolbarNew.WrapperObject()
         self.ctrl2 = app.CommonControlsSample.ToolbarErase.WrapperObject()
 
-        #self.dlg.MenuSelect("Styles")
-
-        # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.type_keys(
-        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
-        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
-        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
-
     def tearDown(self):
         """Close the application after tests"""
         # close the application
@@ -1204,14 +1166,6 @@ class RebarTestCases(unittest.TestCase):
         self.dlg = app.RebarTest_RebarTest
         self.dlg.Wait('ready', 20)
         self.ctrl = app.RebarTest_RebarTest.Rebar.WrapperObject()
-
-        #self.dlg.MenuSelect("Styles")
-
-        # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.type_keys(
-        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
-        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
-        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1363,14 +1317,6 @@ class ToolTipsTestCases(unittest.TestCase):
 
         self.ctrl = self.dlg.Toolbar.GetToolTipsControl()
 
-        #self.dlg.MenuSelect("Styles")
-
-        # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.type_keys(
-        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
-        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
-        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
-
     def tearDown(self):
         """Close the application after tests"""
         # close the application
@@ -1429,14 +1375,6 @@ class UpDownTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.MicrosoftControlSpy
         self.ctrl = app.MicrosoftControlSpy.UpDown2.WrapperObject()
-
-        #self.dlg.MenuSelect("Styles")
-
-        # select show selection always, and show checkboxes
-        #app.ControlStyles.ListBox1.type_keys(
-        #    "{HOME}{SPACE}" + "{DOWN}"* 12 + "{SPACE}")
-        #self.app.ControlStyles.ApplyStylesSetWindowLong.Click()
-        #self.app.ControlStyles.SendMessage(win32defines.WM_CLOSE)
 
     def tearDown(self):
         """Close the application after tests"""

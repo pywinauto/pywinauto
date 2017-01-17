@@ -1030,9 +1030,9 @@ class Application(object):
 
         start_time = time.time()
 
-        while self.CPUUsage(usage_interval) > threshold:
+        while self.cpu_usage(usage_interval) > threshold:
             if time.time() - start_time > timeout:
-                raise RuntimeError('Waiting CPU load <= ' + str(threshold) + '% timed out!')
+                raise RuntimeError('Waiting CPU load <= {}% timed out!'.format(threshold))
 
         return self
 

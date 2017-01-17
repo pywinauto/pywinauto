@@ -42,6 +42,7 @@ import time
 #import pprint
 #import pdb
 import warnings
+import mock
 
 sys.path.append(".")
 from pywinauto import Desktop
@@ -431,6 +432,27 @@ class ApplicationTestCases(unittest.TestCase):
             self.assertEqual(('Microsoft' in programs_list) or ('Python' in programs_list), True)
         finally:
             window.Close(2.0)
+
+    if UIA_support:
+        def test_wait_cpu_usage_lower_uia(self):
+            """Test that wait_cpu_usage_lower() works correctly for UIA"""
+            app = Application(backend='uia')
+            app.start('notepad.exe')
+            try:
+                app.wait_cpu_usage_lower(threshold = 1.5, timeout = 30, usage_interval = 2)
+            finally:
+                app.kill()
+            app.cpu_usage = mock.Mock(return_value=10)
+            self.assertRaises(
+                RuntimeError, app.wait_cpu_usage_lower,
+                threshold = 9.0, timeout = 5, usage_interval = 0.5
+                )
+
+    # def test_wait_for_idle_exception(self):
+    #    """Test that method start() raises an exception when wait for idle failed"""
+    #    app = Application()
+    #    self.assertRaises(Exception, app.start, 'cmd.exe')
+    #    # TODO: test and fix the case when cmd.exe can't be killed by app.kill()
 
     def test_windows(self):
         """Test that windows_() works correctly"""

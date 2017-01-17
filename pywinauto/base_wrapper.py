@@ -797,6 +797,7 @@ class BaseWrapper(object):
         .. _keyboard: pywinauto.keyboard.html
         """
         self.verify_actionable()
+        friendly_class_name = self.friendly_class_name()
 
         if pause is None:
             pause = Timings.after_sendkeys_key_wait
@@ -840,7 +841,7 @@ class BaseWrapper(object):
 
         self.wait_for_idle()
 
-        self.actions.log('Typed text to the ' + self.friendly_class_name() + ': ' + aligned_keys)
+        self.actions.log('Typed text to the ' + friendly_class_name + ': ' + aligned_keys)
         return self
 
     #-----------------------------------------------------------

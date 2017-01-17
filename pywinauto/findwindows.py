@@ -202,8 +202,7 @@ def find_elements(class_name=None,
             parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
-        elements = parent.descendants(process=process,
-                                      class_name=class_name,
+        elements = parent.descendants(class_name=class_name,
                                       title=title,
                                       control_type=control_type,
                                       cache_enable=True)
@@ -250,11 +249,11 @@ def find_elements(class_name=None,
         class_name_regex = re.compile(class_name_re)
         elements = [elem for elem in elements if class_name_regex.match(elem.class_name)]
 
-    if auto_id is not None and elements:
-        elements = [elem for elem in elements if elem.automation_id == auto_id]
-
     if process is not None:
         elements = [elem for elem in elements if elem.process_id == process]
+
+    if auto_id is not None and elements:
+        elements = [elem for elem in elements if elem.automation_id == auto_id]
 
     if title is not None:
         # TODO: some magic is happenning here
