@@ -448,11 +448,11 @@ class ApplicationTestCases(unittest.TestCase):
                 threshold = 9.0, timeout = 5, usage_interval = 0.5
                 )
 
-    def test_wait_for_idle_exception(self):
-        """Test that method start() raises an exception when wait for idle failed"""
-        app = Application()
-        self.assertRaises(Exception, app.start, 'cmd.exe')
-        # TODO: test and fix the case when cmd.exe can't be killed by app.kill()
+    # def test_wait_for_idle_exception(self):
+    #    """Test that method start() raises an exception when wait for idle failed"""
+    #    app = Application()
+    #    self.assertRaises(Exception, app.start, 'cmd.exe')
+    #    # TODO: test and fix the case when cmd.exe can't be killed by app.kill()
 
     def test_windows(self):
         """Test that windows_() works correctly"""
