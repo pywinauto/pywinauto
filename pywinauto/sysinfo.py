@@ -35,6 +35,10 @@ import platform
 import ctypes
 
 try:
+    # Disable 'INFO' logs from comtypes
+    import logging
+    log = logging.getLogger('comtypes')
+    log.setLevel('WARNING')
     import comtypes
     UIA_support = True
 except ImportError:
