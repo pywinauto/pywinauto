@@ -149,10 +149,10 @@ class RemoteMemoryBlock(object):
                 last_error = win32api.GetLastError()
                 print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
                 sys.stdout.flush()
-                #self._CloseHandle()
+                self._CloseHandle()
                 raise ctypes.WinError()
             self.memAddress = 0
-            #self._CloseHandle()
+            self._CloseHandle()
         else:
             pass #ActionLogger().log('\nWARNING: Cannot call VirtualFreeEx! process_id == 0.')
 
