@@ -9,7 +9,7 @@
 pywinauto
 ============
 pywinauto is a set of python modules to automate the Microsoft Windows GUI. 
-At it’s simplest it allows you to send mouse and keyboard actions to windows 
+At its simplest it allows you to send mouse and keyboard actions to windows 
 dialogs and controls, but it has support for more complex actions like getting text data.
 
 Supported technologies under the hood: Win32 API (`backend="win32"`; used by default),
@@ -68,7 +68,7 @@ Properties.wait_not('visible') # make sure the dialog is closed
   - [python-xlib](https://github.com/python-xlib/python-xlib)
   - [six](https://pypi.python.org/pypi/six)
 * Optional packages:
-  - Install [Pillow](https://pypi.python.org/pypi/Pillow) (by `pip install -U Pillow`) to be able to call `capture_as_image()` method for making control's snapshot.
+  - Install [Pillow](https://pypi.python.org/pypi/Pillow) (by `pip install -U Pillow`) to be able to call `capture_as_image()` method for making a control's snapshot.
 
 ### Packages required for running unit tests
 * [Pillow](https://pypi.python.org/pypi/Pillow)
@@ -77,7 +77,7 @@ Properties.wait_not('visible') # make sure the dialog is closed
 Run all the tests: `python ./pywinauto/unittests/testall.py`
 
 ### Contribution
-Pull requests are very welcome. Read [Contribution Guide](https://github.com/pywinauto/pywinauto/wiki/Contribution-Guide-(draft)) for more details about unit tests, coding style etc.
+Pull requests are very welcome. Read [Contribution Guide](https://github.com/pywinauto/pywinauto/wiki/Contribution-Guide-(draft)) for more details about unit tests, coding conventions, etc.
 
 ### Copyrights
 Pywinauto for native Windows GUI was initially written by **Mark Mc Mahon**. 

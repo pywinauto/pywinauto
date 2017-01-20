@@ -30,31 +30,37 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Simple module for checking whether Python and Windows are 32-bit or 64-bit"""
-import os, sys
+import os
+import sys
 import platform
 import ctypes
+import logging
 
 try:
+    # Disable 'INFO' logs from comtypes
+    log = logging.getLogger('comtypes')
+    log.setLevel('WARNING')
     import comtypes
     UIA_support = True
 except ImportError:
     UIA_support = False
 
+
 def os_arch():
     architectureMap = {
-        'x86':'x86',
-        'i386':'x86',
-        'i486':'x86',
-        'i586':'x86',
-        'i686':'x86',
-        'x64':'x86_64',
-        'AMD64':'x86_64',
-        'amd64':'x86_64',
-        'em64t':'x86_64',
-        'EM64T':'x86_64',
-        'x86_64':'x86_64',
-        'IA64':'ia64',
-        'ia64':'ia64'
+        'x86': 'x86',
+        'i386': 'x86',
+        'i486': 'x86',
+        'i586': 'x86',
+        'i686': 'x86',
+        'x64': 'x86_64',
+        'AMD64': 'x86_64',
+        'amd64': 'x86_64',
+        'em64t': 'x86_64',
+        'EM64T': 'x86_64',
+        'x86_64': 'x86_64',
+        'IA64': 'ia64',
+        'ia64': 'ia64'
     }
     if sys.platform == 'win32':
         architectureVar = os.environ.get('PROCESSOR_ARCHITEW6432', '')
@@ -64,11 +70,14 @@ def os_arch():
     else:
         return architectureMap.get(platform.machine(), '')
 
+
 def python_bitness():
     return ctypes.sizeof(ctypes.POINTER(ctypes.c_int)) * 8
 
+
 def is_x64_Python():
     return python_bitness() == 64
+
 
 def is_x64_OS():
     return os_arch() in ['x86_64', 'ia64']
