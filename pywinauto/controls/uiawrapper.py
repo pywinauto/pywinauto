@@ -405,6 +405,17 @@ class UIAWrapper(BaseWrapper):
         return self
 
     # -----------------------------------------------------------
+    def restore(self):
+        """
+        Restore the window to normal size
+
+        Only controls supporting Window pattern should answer
+        """
+        iface = self.iface_window
+        iface.SetWindowVisualState(uia_defs.window_visual_state_normal)
+        return self
+
+    # -----------------------------------------------------------
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
         self.iface_invoke.Invoke()
