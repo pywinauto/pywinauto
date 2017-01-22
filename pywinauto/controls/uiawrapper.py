@@ -586,6 +586,15 @@ class UIAWrapper(BaseWrapper):
         return (focused_wrap.top_level_parent() == self.top_level_parent())
 
     # -----------------------------------------------------------
+    def is_dialog(self):
+        """Return true if the control is a dialog window (WindowPattern interface is available)"""
+        try:
+            self.iface_window
+            return True
+        except NoPatternInterfaceError:
+            return False
+
+    # -----------------------------------------------------------
     def menu_select(self, path, exact=False, ):
         """Select a menu item specified in the path
 

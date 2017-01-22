@@ -1089,10 +1089,16 @@ if UIA_support:
             item.select()
             item.close()
 
+        def test_is_dialog(self):
+            """Test that method is_dialog() works as expected"""
+            self.assertEqual(self.dlg.is_dialog(), True)
+            self.assertEqual(self.dlg.Edit.is_dialog(), False)
+
         def test_menu_by_exact_text(self):
             """Test selecting a menu item by exact text match"""
             path = "Help->About Notepad"
             self.dlg.menu_select(path, True)
+            self.assertEqual(self.dlg.AboutNotepad.is_dialog(), True)
             self.dlg.AboutNotepad.close()
 
             # A non-exact menu name
