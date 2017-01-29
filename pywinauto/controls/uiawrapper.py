@@ -591,7 +591,7 @@ class UIAWrapper(BaseWrapper):
         try:
             self.iface_window
             return True
-        except NoPatternInterfaceError:
+        except uia_defs.NoPatternInterfaceError:
             return False
 
     # -----------------------------------------------------------
