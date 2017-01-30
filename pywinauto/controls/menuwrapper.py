@@ -131,23 +131,6 @@ class MenuItem(object):
         item_info.fType, item_info.fState, item_info.wID, item_info.hSubMenu, \
         item_info.hbmpChecked, item_info.hbmpUnchecked, item_info.dwItemData, \
         item_info.text, item_info.hbmpItem = win32gui_struct.UnpackMENUITEMINFO(buf)
-        if six.PY2:
-            item_info.text = item_info.text.decode(locale.getpreferredencoding())
-
-        # OWNERDRAW case try to get string from BCMenu
-        if item_info.fType & 256 and not item_info.text:
-            mem = RemoteMemoryBlock(self.ctrl)
-            address = item_info.dwItemData
-            s = win32structures.LPWSTR()
-            mem.Read(s, address)
-            address = s
-            s = ctypes.create_unicode_buffer(100)
-            try:
-                mem.Read(s, address)
-                item_info.text = s.value
-            except Exception:
-                item_info.text = '!! non-supported owner drawn item !!' # TODO: look into Tkinter case
-            del mem
 
         return item_info
 
@@ -219,7 +202,25 @@ class MenuItem(object):
 
     def text(self):
         """Return the text of this menu item"""
-        return self._read_item().text
+        item_info = self._read_item()
+        if six.PY2:
+            item_info.text = item_info.text.decode(locale.getpreferredencoding())
+
+        # OWNERDRAW case try to get string from BCMenu
+        if item_info.fType & 256 and not item_info.text:
+            mem = RemoteMemoryBlock(self.ctrl)
+            address = item_info.dwItemData
+            s = win32structures.LPWSTR()
+            mem.Read(s, address)
+            address = s
+            s = ctypes.create_unicode_buffer(100)
+            try:
+                mem.Read(s, address)
+                item_info.text = s.value
+            except Exception:
+                item_info.text = '!! non-supported owner drawn item !!'  # TODO: look into Tkinter case
+            del mem
+        return item_info.text
     # Non PEP-8 alias
     Text = text
 
