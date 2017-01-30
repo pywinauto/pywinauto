@@ -227,7 +227,6 @@ if UIA_support:
             self.dlg.wait('active')
             self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
                              uia_defs.window_visual_state_normal)
-            
 
         def test_get_properties(self):
             """Test getting writeble properties of a control"""
