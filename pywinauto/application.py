@@ -69,14 +69,14 @@ import os.path
 import pickle
 import time
 import warnings
+import multiprocessing
+import locale
 
 import win32process
 import win32api
 import win32gui
 import win32con
 import win32event
-import multiprocessing
-
 
 from . import controls
 from . import findbestmatch
@@ -622,10 +622,10 @@ class WindowSpecification(object):
                 if auto_id:
                     criteria_texts.append(u'auto_id="{}"'.format(auto_id))
                 if control_type:
-                    criteria_texts.append('control_type="{}"'.format(control_type))
+                    criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
                     output += indent + u'child_window(' + u', '.join(criteria_texts) + u')'
-                print(output)
+                print(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
                 print_identifiers(ctrl.children(), current_depth + 1)
 

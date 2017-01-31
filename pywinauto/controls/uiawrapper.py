@@ -589,7 +589,7 @@ class UIAWrapper(BaseWrapper):
     def is_dialog(self):
         """Return true if the control is a dialog window (WindowPattern interface is available)"""
         try:
-            return self.iface_window != None
+            return self.iface_window is not None
         except uia_defs.NoPatternInterfaceError:
             return False
 
