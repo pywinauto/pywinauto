@@ -340,6 +340,7 @@ class WindowSpecification(object):
             return self.__dict__[attr_name]
 
         from .controls.win32_controls import DialogWrapper
+        from .controls.uiawrapper import UIAWrapper
 
         # if we already have 2 levels of criteria (dlg, conrol)
         # this third must be an attribute so resolve and get the
@@ -355,10 +356,14 @@ class WindowSpecification(object):
         else:
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
-            if len(self.criteria) == 1 and hasattr(DialogWrapper, attr_name):
+            if self.backend.name == 'win32':
+                need_to_resolve = (len(self.criteria) == 1 and hasattr(DialogWrapper, attr_name))
+            else:
+                # there is no DialogWrapper for UIA yet
+                need_to_resolve = (len(self.criteria) == 1 and hasattr(UIAWrapper, attr_name))
 
+            if need_to_resolve:
                 ctrls = self.__resolve_control(self.criteria)
-
                 return getattr(ctrls[-1], attr_name)
 
         # It is a dialog/control criterion so let getitem

@@ -56,6 +56,10 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
+        def test_issue_278(self):
+            """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
+            menu_spec = self.dlg.Menu
+
         def test_find_nontop_ctl_by_class_name_and_title(self):
             """Test getting a non-top control by a class name and a title"""
             # Look up for a non-top button control with 'Apply' caption
