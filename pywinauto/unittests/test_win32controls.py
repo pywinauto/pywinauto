@@ -465,8 +465,6 @@ class EditTestCases(unittest.TestCase):
     def test_print_control_identifiers(self):
         """Test that print_control_identifiers() doesn't crash with the non-English characters"""
         self.dlg.print_control_identifiers()
-        app2 = Application(backend="uia").connect(path='notepad.exe')
-        app2.window(title_re='.*Notepad').print_control_identifiers()
 
     def test_set_text(self):
         """Test setting the text of the edit control"""
