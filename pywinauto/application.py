@@ -1175,14 +1175,16 @@ class Application(object):
 
         for win in windows:
 
-            if hasattr(win, 'force_close') and win.force_close():
-                continue
-
             try:
                 if hasattr(win, 'close'):
                     win.close()
+                    continue
             except TimeoutError:
                 self.actions.log('Failed to close top level window')
+
+            if hasattr(win, 'force_close'):
+                self.actions.log('application.kill: call win.force_close')
+                win.force_close()
 
         try:
             process_wait_handle = win32api.OpenProcess(
