@@ -1011,7 +1011,7 @@ class DialogWrapper(hwndwrapper.HwndWrapper):
             timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
         #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
         #win32defines.SMTO_BLOCK)
-        
+
         # get a handle we can wait on
         _, pid = win32process.GetWindowThreadProcessId(int(self.handle))
         try:
@@ -1021,11 +1021,11 @@ class DialogWrapper(hwndwrapper.HwndWrapper):
                 pid)
         except win32gui.error:
             return True # already closed
-        
+
         result = win32event.WaitForSingleObject(
             process_wait_handle,
             int(Timings.after_windowclose_timeout * 1000))
-        
+
         return result != win32con.WAIT_TIMEOUT
 
 #    #-----------------------------------------------------------

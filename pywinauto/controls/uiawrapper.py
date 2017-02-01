@@ -405,6 +405,17 @@ class UIAWrapper(BaseWrapper):
         return self
 
     # -----------------------------------------------------------
+    def restore(self):
+        """
+        Restore the window to normal size
+
+        Only controls supporting Window pattern should answer
+        """
+        iface = self.iface_window
+        iface.SetWindowVisualState(uia_defs.window_visual_state_normal)
+        return self
+
+    # -----------------------------------------------------------
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
         self.iface_invoke.Invoke()
@@ -573,6 +584,14 @@ class UIAWrapper(BaseWrapper):
         ae = IUIA().get_focused_element()
         focused_wrap = UIAWrapper(UIAElementInfo(ae))
         return (focused_wrap.top_level_parent() == self.top_level_parent())
+
+    # -----------------------------------------------------------
+    def is_dialog(self):
+        """Return true if the control is a dialog window (WindowPattern interface is available)"""
+        try:
+            return self.iface_window != None
+        except uia_defs.NoPatternInterfaceError:
+            return False
 
     # -----------------------------------------------------------
     def menu_select(self, path, exact=False, ):

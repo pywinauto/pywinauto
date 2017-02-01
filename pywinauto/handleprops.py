@@ -159,7 +159,7 @@ def is64bitprocess(process_id):
         if phndl:
             is32 = win32process.IsWow64Process(phndl)
             #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
-        
+
     return (not is32)
 
 #=========================================================================
