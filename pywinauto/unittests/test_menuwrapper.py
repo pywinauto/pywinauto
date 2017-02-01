@@ -133,6 +133,7 @@ class OwnerDrawnMenuTests(unittest.TestCase):
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
         self.dlg = self.app.BCDialogMenu
+        self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=2)
 
     def tearDown(self):
         """Close the application after tests"""
