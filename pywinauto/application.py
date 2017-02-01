@@ -92,17 +92,22 @@ from .sysinfo import is_x64_Python
 class AppStartError(Exception):
 
     """There was a problem starting the Application"""
-    pass    #pragma: no cover
+
+    pass    # pragma: no cover
+
 
 class ProcessNotFoundError(Exception):
 
     """Could not find that process"""
-    pass    #pragma: no cover
+
+    pass    # pragma: no cover
+
 
 class AppNotConnected(Exception):
 
     """Application has not been connected to a process yet"""
-    pass    #pragma: no cover
+
+    pass    # pragma: no cover
 
 
 # Display User and Deprecation warnings every time
@@ -161,8 +166,8 @@ class WindowSpecification(object):
         """No __call__ so return a usefull error"""
         if "best_match" in self.criteria[-1]:
             raise AttributeError(
-                "WindowSpecification class has no '{0}' method".\
-                format(self.criteria[-1]['best_match']) )
+                "WindowSpecification class has no '{0}' method".
+                format(self.criteria[-1]['best_match']))
 
         message = (
             "You tried to execute a function call on a WindowSpecification "
@@ -171,7 +176,6 @@ class WindowSpecification(object):
             "The criteria leading up to this is: " + str(self.criteria))
 
         raise AttributeError(message)
-
 
     def __get_ctrl(self, criteria_):
         """Get a control based on the various criteria"""
@@ -208,7 +212,6 @@ class WindowSpecification(object):
         else:
             return (dialog, )
 
-
     def __resolve_control(self, criteria, timeout=None, retry_interval=None):
         """
         Find a control using criteria
@@ -233,16 +236,15 @@ class WindowSpecification(object):
                 retry_interval,
                 self.__get_ctrl,
                 (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement),
+                 findbestmatch.MatchError,
+                 controls.InvalidWindowHandle,
+                 controls.InvalidElement),
                 criteria)
 
         except TimeoutError as e:
             raise e.original_exception
 
         return ctrl
-
 
     def wrapper_object(self):
         """Allow the calling code to get the HwndWrapper object"""
@@ -311,10 +313,9 @@ class WindowSpecification(object):
         new_item = WindowSpecification(self.criteria[0])
 
         # add our new criteria
-        new_item.criteria.append({"best_match" : key})
+        new_item.criteria.append({"best_match": key})
 
         return new_item
-
 
     def __getattribute__(self, attr_name):
         """
@@ -365,7 +366,6 @@ class WindowSpecification(object):
         # deal with it
         return self[attr_name]
 
-
     def exists(self, timeout=None, retry_interval=None):
         """
         Check if the window exists, return True if the control exists
@@ -382,7 +382,6 @@ class WindowSpecification(object):
         if retry_interval is None:
             retry_interval = Timings.exists_retry
 
-
         # modify the criteria as exists should look for all
         # windows - including not visible and disabled
         exists_criteria = self.criteria[:]
@@ -394,11 +393,10 @@ class WindowSpecification(object):
             self.__resolve_control(exists_criteria, timeout, retry_interval)
 
             return True
-        except (
-            findwindows.ElementNotFoundError,
-            findbestmatch.MatchError,
-            controls.InvalidWindowHandle,
-            controls.InvalidElement):
+        except (findwindows.ElementNotFoundError,
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle,
+                controls.InvalidElement):
             return False
 
     @classmethod
@@ -601,8 +599,8 @@ class WindowSpecification(object):
                 output = indent + u'\n'
                 output += indent + u"{class_name} - '{text}'    {rect}\n"\
                     "".format(class_name=ctrl.friendly_class_name(),
-                             text=ctrl_text,
-                             rect=ctrl.rectangle())
+                              text=ctrl_text,
+                              rect=ctrl.rectangle())
                 output += indent + u'{}\n'.format(control_name_map[ctrl])
 
                 title = ctrl_text
@@ -613,7 +611,7 @@ class WindowSpecification(object):
                     auto_id = ctrl.element_info.automation_id
                 if hasattr(ctrl.element_info, 'control_type'):
                     control_type = ctrl.element_info.control_type
-                    class_name = None # no need for class_name if control_type exists
+                    class_name = None  # no need for class_name if control_type exists
                 criteria_texts = []
                 if title:
                     criteria_texts.append(u'title="{}"'.format(title))
@@ -634,8 +632,9 @@ class WindowSpecification(object):
 
 cur_item = 0
 
+
 def _resolve_from_appdata(
-    criteria_, app, timeout=None, retry_interval=None):
+        criteria_, app, timeout=None, retry_interval=None):
     """Should not be used at the moment!"""
     # TODO: take a look into this functionality
 
@@ -658,7 +657,6 @@ def _resolve_from_appdata(
         for c in criteria:
             if unloc_attrib in c.keys():
                 del c[unloc_attrib]
-
 
     #found_criteria = item[0]
     #for c in found_criteria:
@@ -737,8 +735,7 @@ def _resolve_from_appdata(
                 if len(ctrl_elems) > 1:
                     same_ids = \
                         [elem for elem in ctrl_elems
-                         if elem.control_id == \
-                         matched_control[2]['control_id']]
+                         if elem.control_id == matched_control[2]['control_id']]
 
                     if same_ids:
                         ctrl_elems = same_ids
@@ -752,7 +749,6 @@ def _resolve_from_appdata(
                     raise
 
                 break
-
 
     # it is possible that the dialog will not be found - so we
     # should raise an error
@@ -770,50 +766,48 @@ def _resolve_from_appdata(
     #print process_hwnds
 
 
-##
-##        # if best match was specified for the dialog
-##        # then we need to replace it with other values
-##        # for now we will just use class_name
-##        for crit in ['best_match', 'title', 'title_re']:
-##            if crit in criteria[0]:
-##                del(criteria[0][crit])
-##                criteria[0]['class_name'] = app_data[0].class_name()#['class_name']
-##
-##            if len(criteria) > 1:
-##                # find the best match of the application data
-##                if criteria[1].has_key('best_match'):
-##                    best_match = findbestmatch.find_best_control_matches(
-##                        criteria[1]['best_match'], app_data)[0]
-##
-##                    #visible_controls = [ctrl in app_data if ctrl.is_visible()]
-##
-##                    #find the index of the best match item
-##                    ctrl_index = app_data.index(best_match)
-##                    #print best_match[0].window_text()
-##                    ctrl_index, best_match.window_text()
-##
-##                    criteria[1]['ctrl_index'] = ctrl_index -1
-##                    #criteria[1]['class_name'] = best_match.class_name()
-##                    #del(criteria[1]['best_match'])
-##
-## One idea here would be to run the new criteria on the app_data dialog and
-## if it returns more then one control then you figure out which one would be
-## best - so that you have that info when running on the current dialog
-##
-##            #for criterion in criteria[1:]:
-##                # this part is weird - we now have to go off and find the
-##                # index, class, text of the control in the app_data
-##                # and then find the best match for this control in the
-##                # current dialog
-##            #    pass
-##
-##
+#
+#        # if best match was specified for the dialog
+#        # then we need to replace it with other values
+#        # for now we will just use class_name
+#        for crit in ['best_match', 'title', 'title_re']:
+#            if crit in criteria[0]:
+#                del(criteria[0][crit])
+#                criteria[0]['class_name'] = app_data[0].class_name()#['class_name']
+#
+#            if len(criteria) > 1:
+#                # find the best match of the application data
+#                if criteria[1].has_key('best_match'):
+#                    best_match = findbestmatch.find_best_control_matches(
+#                        criteria[1]['best_match'], app_data)[0]
+#
+#                    #visible_controls = [ctrl in app_data if ctrl.is_visible()]
+#
+#                    #find the index of the best match item
+#                    ctrl_index = app_data.index(best_match)
+#                    #print best_match[0].window_text()
+#                    ctrl_index, best_match.window_text()
+#
+#                    criteria[1]['ctrl_index'] = ctrl_index -1
+#                    #criteria[1]['class_name'] = best_match.class_name()
+#                    #del(criteria[1]['best_match'])
+#
+# One idea here would be to run the new criteria on the app_data dialog and
+# if it returns more then one control then you figure out which one would be
+# best - so that you have that info when running on the current dialog
+#
+#            #for criterion in criteria[1:]:
+#                # this part is weird - we now have to go off and find the
+#                # index, class, text of the control in the app_data
+#                # and then find the best match for this control in the
+#                # current dialog
+#            #    pass
+#
+#
 
 #    dialog = None
 
     #return _resolve_control(criteria_, timeout, retry_interval)
-
-
 
 
 #=========================================================================
@@ -947,8 +941,7 @@ class Application(object):
         except Exception as exc:
             # if it failed for some reason
             message = ('Could not create the process "%s"\n'
-                'Error returned by CreateProcess: %s')% (
-                    cmd_line, str(exc))
+                       'Error returned by CreateProcess: %s') % (cmd_line, str(exc))
             raise AppStartError(message)
 
         self.process = dw_process_id
@@ -1086,7 +1079,6 @@ class Application(object):
 
         return WindowSpecification(criteria)
 
-
     def windows(self, **kwargs):
         """Return a list of wrapped top level windows of the application"""
         if not self.process:
@@ -1107,7 +1099,6 @@ class Application(object):
 
         windows = findwindows.find_elements(**kwargs)
         return [self.backend.generic_wrapper_class(win) for win in windows]
-
 
     def window(self, **kwargs):
         """Return a window of the application
@@ -1161,7 +1152,6 @@ class Application(object):
         """Should not be used - part of application data implementation"""
         return self.match_history[index]
 
-
     def kill(self):
         """
         Try to close and kill the application
@@ -1192,7 +1182,7 @@ class Application(object):
                 0,
                 self.process)
         except win32gui.error:
-            return True # already closed
+            return True  # already closed
 
         # so we have either closed the windows - or the app is hung
         killed = True
@@ -1224,7 +1214,8 @@ def assert_valid_process(process_id):
 
     return process_handle
 
-AssertValidProcess = assert_valid_process # just in case
+AssertValidProcess = assert_valid_process  # just in case
+
 
 #=========================================================================
 def process_get_modules():
@@ -1234,12 +1225,13 @@ def process_get_modules():
     # collect all the running processes
     pids = win32process.EnumProcesses()
     for pid in pids:
-        if pid != 0 and isinstance(pid, int): # skip system process (0x00000000)
+        if pid != 0 and isinstance(pid, int):  # skip system process (0x00000000)
             try:
                 modules.append((pid, process_module(pid), None))
             except (win32gui.error, ProcessNotFoundError):
                 continue
     return modules
+
 
 #=========================================================================
 def _process_get_modules_wmi():
@@ -1252,8 +1244,9 @@ def _process_get_modules_wmi():
     processes = _wmi.ExecQuery('Select * from win32_process')
     for p in processes:
         if isinstance(p.ProcessId, int):
-            modules.append((p.ProcessId, p.ExecutablePath, p.CommandLine)) # p.Name
+            modules.append((p.ProcessId, p.ExecutablePath, p.CommandLine))  # p.Name
     return modules
+
 
 #=========================================================================
 def process_module(process_id):
@@ -1262,15 +1255,17 @@ def process_module(process_id):
 
     return win32process.GetModuleFileNameEx(process_handle, 0)
 
+
 #=========================================================================
 def _warn_incorrect_binary_bitness(exe_name):
     """Warn if the executable is of incorrect bitness"""
     if os.path.isabs(exe_name) and os.path.isfile(exe_name) and \
             handleprops.is64bitbinary(exe_name) and not is_x64_Python():
         warnings.warn(
-            "64-bit binary from 32-bit Python may work incorrectly " \
+            "64-bit binary from 32-bit Python may work incorrectly "
             "(please use 64-bit Python instead)",
             UserWarning, stacklevel=2)
+
 
 #=========================================================================
 def process_from_module(module):
