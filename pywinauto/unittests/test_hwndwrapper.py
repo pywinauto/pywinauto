@@ -704,6 +704,7 @@ class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
                                         wait_for_idle=False)
         self.app2 = Application().start(os.path.join(
             mfc_samples_folder, u"CmnCtrl2.exe"))
+        self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=2)
 
     def tearDown(self):
         """Close the application after tests"""

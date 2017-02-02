@@ -603,6 +603,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
         self.dlg = self.app.CommonControlsSample #top_window()
         self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
+        self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=2)
 
     def tearDown(self):
         """Close the application after tests"""
@@ -641,7 +642,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
         self.assertEquals(birds.IsExpanded(), True)
-        
+
         birds.Collapse()
         self.assertEquals(birds.IsExpanded(), False)
 
@@ -651,12 +652,12 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.dlg.TVS_HASLINES.click_input()
         self.dlg.TVS_LINESATROOT.click_input()
         birds = self.ctrl.GetItem(r'\Birds')
-        
+
         birds.Click(where='button')
         self.assertEquals(birds.IsExpanded(), True)
         birds.Click(double=True, where='icon')
         self.assertEquals(birds.IsExpanded(), False)
-        
+
         birds.click_input(where='button')
         self.assertEquals(birds.IsExpanded(), True)
         birds.click_input(double=True, where='icon')
@@ -672,18 +673,18 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         """Make sure tree view item methods StartDragging() and Drop() work as expected"""
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Expand()
-        
+
         pigeon = self.ctrl.GetItem(r'\Birds\Pigeon')
         pigeon.StartDragging()
-        
+
         eagle = self.ctrl.GetItem(r'\Birds\Eagle')
         eagle.Drop()
-        
+
         self.assertRaises(IndexError, birds.GetChild, 'Pigeon')
         self.assertRaises(IndexError, self.ctrl.GetItem, r'\Birds\Pigeon')
         self.assertRaises(IndexError, self.ctrl.GetItem, [0, 2])
         self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread', exact=True)
-        
+
         new_pigeon = self.ctrl.GetItem(r'\Birds\Eagle\Pigeon')
         self.assertEquals(len(birds.children()), 2)
         self.assertEquals(new_pigeon.children(), [])
@@ -710,7 +711,7 @@ class HeaderTestCases(unittest.TestCase):
             RECT (400, 0, 450, 19),
             RECT (450, 0, 500, 19),
             RECT (500, 0, 650, 19)]
-           
+
         self.app = app
         self.dlg = app.RowListSampleApplication #top_window()
         self.ctrl = app.RowListSampleApplication.Header.WrapperObject()
@@ -1085,7 +1086,7 @@ class ToolbarTestCases(unittest.TestCase):
         self.failIf((rect_ctrl.bottom - rect_ctrl.top) > 38)
         self.failIf((rect_ctrl.bottom - rect_ctrl.top) < 36)
         #self.assertEquals(rect_ctrl, RECT(0, 0, 40, 38))
-        
+
         rect_ctrl2 = self.ctrl2.GetButtonRect(0)
         self.assertEquals((rect_ctrl2.left, rect_ctrl2.top), (0, 0))
         self.failIf((rect_ctrl2.right - rect_ctrl2.left) > 70)
@@ -1210,11 +1211,11 @@ class RebarTestCases(unittest.TestCase):
     def testMenuBarClickInput(self):
         """Make sure we can click on Menu Bar items by indexed path"""
         self.assertRaises(TypeError, self.dlg.MenuBar.MenuBarClickInput, '#one->#0', self.app)
-        
+
         self.dlg.MenuBar.MenuBarClickInput('#1->#0->#0', self.app)
         self.app.Customize.CloseButton.Click()
         self.app.Customize.WaitNot('visible')
-        
+
         self.dlg.MenuBar.MenuBarClickInput([2, 0], self.app)
         self.app.Window_(title='About RebarTest').OK.Click()
         self.app.Window_(title='About RebarTest').WaitNot('visible')
@@ -1311,7 +1312,7 @@ class ToolTipsTestCases(unittest.TestCase):
         # Make sure the mouse doesn't hover over tested controls
         # so it won't generate an unexpected tooltip
         self.dlg.move_mouse_input(coords=(-100, -100), absolute=True)
-        
+
         self.dlg.TabControl.Select(u'CToolBarCtrl')
 
         self.ctrl = self.dlg.Toolbar.GetToolTipsControl()
