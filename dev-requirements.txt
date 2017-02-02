@@ -1,6 +1,6 @@
 pypiwin32
 six
-Pillow==3.0.0
+Pillow==4.0.0
 coverage
 nose
 codecov
