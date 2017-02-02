@@ -340,7 +340,6 @@ class WindowSpecification(object):
             return self.__dict__[attr_name]
 
         from .controls.win32_controls import DialogWrapper
-        from .controls.uiawrapper import UIAWrapper
 
         # if we already have 2 levels of criteria (dlg, conrol)
         # this third must be an attribute so resolve and get the
@@ -359,8 +358,8 @@ class WindowSpecification(object):
             if self.backend.name == 'win32':
                 need_to_resolve = (len(self.criteria) == 1 and hasattr(DialogWrapper, attr_name))
             else:
-                # there is no DialogWrapper for UIA yet
-                need_to_resolve = (len(self.criteria) == 1 and hasattr(UIAWrapper, attr_name))
+                # Probably there is no DialogWrapper for another backend
+                need_to_resolve = (len(self.criteria) == 1 and hasattr(registry.wrapper_class, attr_name))
 
             if need_to_resolve:
                 ctrls = self.__resolve_control(self.criteria)
@@ -715,7 +714,6 @@ def _resolve_from_appdata(
             #print "======", h, h, h
 
             dialog = registry.wrapper_class(e)
-            #dialog = BaseWrapper(e)
 
             # if a control was specified also
             if len(criteria_) > 1:
@@ -750,7 +748,6 @@ def _resolve_from_appdata(
 
                 try:
                     ctrl = registry.wrapper_class(ctrl_elems[0])
-                    #ctrl = BaseWrapper(ctrl_elems[0])
                 except IndexError:
                     print("-+-+=_" * 20)
                     #print(found_criteria)
