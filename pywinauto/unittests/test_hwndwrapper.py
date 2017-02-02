@@ -704,7 +704,7 @@ class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
                                         wait_for_idle=False)
         self.app2 = Application().start(os.path.join(
             mfc_samples_folder, u"CmnCtrl2.exe"))
-        self.app2.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=2)
+        self.app2.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
 
     def tearDown(self):
         """Close the application after tests"""
@@ -717,6 +717,7 @@ class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
         with one and type in it.
         """
         self.app1.window().set_focus()
+        self.app1.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
         # pywintypes.error:
         #     (87, 'AttachThreadInput', 'The parameter is incorrect.')
 
