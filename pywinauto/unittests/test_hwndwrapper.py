@@ -885,6 +885,31 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
         self.assertEquals(props_from_handle, props_from_dialog)
 
 
+class SendEnterKeyTest(unittest.TestCase):
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
+
+        self.app = Application()
+        self.app.start(_notepad_exe())
+
+        self.dlg = self.app.UntitledNotepad
+        self.ctrl = HwndWrapper(self.dlg.Edit.handle)
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.dlg.MenuSelect('File -> Exit')
+        if self.dlg["Do&n't Save"].Exists():
+            self.dlg["Do&n't Save"].Click()
+        self.app.kill_()
+
+
+    def test_sendEnterChar(self):
+        """Test some small stuff regarding GetDialogPropsFromHandle"""
+        self.ctrl.send_chars('Hello{ENTER}World')
+        self.assertEquals(['Hello\r\nWorld'], self.dlg.Edit.Texts())
+
+
 class RemoteMemoryBlockTests(unittest.TestCase):
 
     """Unit tests for RemoteMemoryBlock"""

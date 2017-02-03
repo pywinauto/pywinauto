@@ -477,25 +477,21 @@ class HwndWrapper(BaseWrapper):
 
             lparam = 1 << 0 | scan << 16 | flags << 24
 
-            if isinstance(key, keyboard.VirtualKeyAction):
-
-                if key.down and key.up and (flags == 0):
-                    lparam = 1 << 0 | scan << 16
-                    win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
-                elif key.down and key.up and (flags == 1):
-                    # + LEFT, DELETE
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
-                elif key.down:
+            if isinstance(key, keyboard.VirtualKeyAction):                
+                if key.down:
                     # TODO: {CTRL} (^) modifier doesn't work
                     # + SHIFT down
                     # - CTRL down
                     # print('key', key, 'down')
                     lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
                     win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
-                elif key.up:
+            
+                char = keyboard.MapVirtualKey(vk, 2)    
+                if key.down and key.up and char > 0:
+                    lparam = 1 << 0 | scan << 16
+                    win32api.SendMessage(self.handle, win32con.WM_CHAR, char, lparam)
+
+                if key.up:
                     # + SHIFT up
                     # - CTRL up
                     # print('key', key, 'up')
