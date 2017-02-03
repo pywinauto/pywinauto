@@ -46,6 +46,7 @@ from pywinauto import win32defines  # noqa: E402
 from pywinauto.timings import WaitUntil  # noqa: E402
 import pywinauto.actionlogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
@@ -239,14 +240,19 @@ class TaskbarTestCases(unittest.TestCase):
         self.dlg.Minimize()
         _wait_minimized(self.dlg)
 
-        # click in the visible area
-        taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=self.tm)
-        taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
+        menu_window = [None]
 
-        # verify PopupWindow method
-        menu_window = self.app.top_window().children()[0]
-        WaitUntil(self.tm, _retry_interval, menu_window.is_visible)
-        menu_window.MenuBarClickInput("#2", self.app)
+        # Click in the visible area and wait for a popup menu
+        def _show_popup_menu():
+            taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=self.tm)
+            taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
+            menu = self.app.top_window().children()[0]
+            res = isinstance(menu, ToolbarWrapper) and menu.is_visible()
+            menu_window[0] = menu
+            return res
+
+        WaitUntil(self.tm, _retry_interval, _show_popup_menu)
+        menu_window[0].MenuBarClickInput("#2", self.app)
         popup_window = self.app.top_window()
         hdl = self.dlg.PopupWindow()
         self.assertEquals(popup_window.handle, hdl)
