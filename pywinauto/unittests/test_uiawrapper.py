@@ -11,6 +11,7 @@ sys.path.append(".")
 from pywinauto.application import Application  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.actionlogger import ActionLogger
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
@@ -1041,7 +1042,12 @@ if UIA_support:
             self.app = Application(backend='uia')
             self.app = self.app.start("notepad.exe")
             self.dlg = self.app.UntitledNotepad
-            self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=2)
+            log = ActionLogger()
+            log.log("MenuWrapperNotepadTests::setUp, wait for CPU low")
+            self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
+            log.log("MenuWrapperNotepadTests::setUp, wait for the dialog is ready")
+            self.dlg.wait("ready")
+            log.log("MenuWrapperNotepadTests::setUp, Notepad is ready")
 
         def tearDown(self):
             """Close the application after tests"""
