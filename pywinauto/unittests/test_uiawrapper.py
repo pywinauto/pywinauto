@@ -5,19 +5,16 @@ from __future__ import unicode_literals
 import time
 import os
 import sys
+import unittest
 
 sys.path.append(".")
-from pywinauto.application import Application
-from pywinauto.sysinfo import is_x64_Python, UIA_support
+from pywinauto.application import Application  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
+from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.actionlogger import ActionLogger
 if UIA_support:
     import pywinauto.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
-    # from pywinauto.controls.uiawrapper import UIAWrapper
-# from pywinauto import findwindows
-from pywinauto.timings import Timings
-# from pywinauto.timings import TimeoutError
-
-import unittest
 
 wpf_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -36,7 +33,6 @@ if UIA_support:
         """Setup timings for UIA related tests"""
         Timings.Defaults()
         Timings.window_find_timeout = 20
-
 
     class UIAWrapperTests(unittest.TestCase):
 
@@ -92,7 +88,7 @@ if UIA_support:
         def test_class(self):
             """Test getting the classname of the dialog"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.class_name(), "Button")
 
         def test_window_text(self):
@@ -103,32 +99,32 @@ if UIA_support:
         def test_control_id(self):
             """Test getting control ID"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.control_id(), None)
 
         def test_is_visible(self):
             """Test is_visible method of a control"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.is_visible(), True)
 
         def test_is_enabled(self):
             """Test is_enabled method of a control"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.is_enabled(), True)
 
         def test_process_id(self):
             """Test process_id method of a control"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.process_id(), self.dlg.process_id())
             self.assertNotEqual(button.process_id(), 0)
 
         def test_is_dialog(self):
             """Test is_dialog method of a control"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.is_dialog(), False)
 
         def test_parent(self):
@@ -139,7 +135,7 @@ if UIA_support:
         def test_top_level_parent(self):
             """Test getting a top-level parent of a control"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.top_level_parent(), self.dlg.wrapper_object())
 
         def test_texts(self):
@@ -149,7 +145,7 @@ if UIA_support:
         def test_children(self):
             """Test getting children of a control"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(len(button.children()), 1)
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
@@ -161,7 +157,7 @@ if UIA_support:
         def test_equals(self):
             """Test controls comparisons"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertNotEqual(button, self.dlg.wrapper_object())
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
@@ -180,7 +176,7 @@ if UIA_support:
             edit = self.dlg.TestLabelEdit.wrapper_object()
             label = self.dlg.TestLabel.wrapper_object()
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             self.assertEqual(button.is_keyboard_focusable(), True)
             self.assertEqual(edit.is_keyboard_focusable(), True)
             self.assertEqual(label.is_keyboard_focusable(), False)
@@ -206,7 +202,7 @@ if UIA_support:
         def test_no_pattern_interface_error(self):
             """Test a query interface exception handling"""
             button = self.dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
             elem = button.element_info.element
             self.assertRaises(
                 uia_defs.NoPatternInterfaceError,
@@ -266,7 +262,6 @@ if UIA_support:
             #     img2 = self.dlg.capture_as_image()
             #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
 
-
     class UIAWrapperMouseTests(unittest.TestCase):
 
         """Unit tests for mouse actions of the UIAWrapper class"""
@@ -280,7 +275,7 @@ if UIA_support:
 
             dlg = self.app.WPFSampleApplication
             self.button = dlg.window(class_name="Button",
-                                      title="OK").wrapper_object()
+                                     title="OK").wrapper_object()
 
             self.label = dlg.window(class_name="Text", title="TestLabel").wrapper_object()
 
@@ -316,7 +311,6 @@ if UIA_support:
 
             # def test_press_move_release(self):
             #    pass
-
 
     class UiaControlsTests(unittest.TestCase):
 
@@ -411,7 +405,7 @@ if UIA_support:
         def test_button_click(self):
             """Test the click method for the Button control"""
             label = self.dlg.window(class_name="Text",
-                                     title="TestLabel").wrapper_object()
+                                    title="TestLabel").wrapper_object()
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
 
@@ -483,7 +477,6 @@ if UIA_support:
             collapsed = combo_box.collapse().is_collapsed()
             self.assertEqual(collapsed, True)
 
-
     class TabControlWrapperTests(unittest.TestCase):
 
         """Unit tests for the TabControlWrapper class"""
@@ -521,7 +514,6 @@ if UIA_support:
         def test_texts(self):
             """Make sure the tabs captions are read correctly"""
             self.assertEqual(self.ctrl.texts(), self.texts)
-
 
     class EditWrapperTests(unittest.TestCase):
 
@@ -606,7 +598,6 @@ if UIA_support:
 
             self.assertRaises(RuntimeError, self.edit.select, "123")
 
-
     class SliderWrapperTests(unittest.TestCase):
 
         """Unit tests for the EditWrapper class"""
@@ -663,7 +654,6 @@ if UIA_support:
             self.assertRaises(ValueError, self.slider.set_value, 102)
 
             self.assertRaises(ValueError, self.slider.set_value, [50, ])
-
 
     class ListViewWrapperTests(unittest.TestCase):
 
@@ -981,7 +971,6 @@ if UIA_support:
             texts = [u"2", u"Cucumber", u"Green"]
             self.assertEqual(listview_item.texts(), texts)
 
-
     class MenuWrapperWpfTests(unittest.TestCase):
 
         """Unit tests for the MenuWrapper class on WPF demo"""
@@ -1000,7 +989,7 @@ if UIA_support:
             self.app.kill_()
 
         def test_menu_by_index(self):
-            """Test selecting a menu item by index"""
+            """Test selecting a WPF menu item by index"""
             path = "#0->#1->#1"  # "File->Close->Later"
             self.dlg.menu_select(path)
             label = self.dlg.MenuLaterClickLabel.wrapper_object()
@@ -1013,7 +1002,7 @@ if UIA_support:
             self.assertRaises(IndexError, self.dlg.menu_select, path)
 
         def test_menu_by_exact_text(self):
-            """Test selecting a menu item by exact text match"""
+            """Test selecting a WPF menu item by exact text match"""
             path = "File->Close->Later"
             self.dlg.menu_select(path, True)
             label = self.dlg.MenuLaterClickLabel.wrapper_object()
@@ -1024,14 +1013,14 @@ if UIA_support:
             self.assertRaises(IndexError, self.dlg.menu_select, path, True)
 
         def test_menu_by_best_match_text(self):
-            """Test selecting a menu item by best match text"""
+            """Test selecting a WPF menu item by best match text"""
             path = "file-> close -> later"
             self.dlg.menu_select(path, False)
             label = self.dlg.MenuLaterClickLabel.wrapper_object()
             self.assertEqual(label.window_text(), u"MenuLaterClick")
 
         def test_menu_by_mixed_match(self):
-            """Test selecting a menu item by a path with mixed specifiers"""
+            """Test selecting a WPF menu item by a path with mixed specifiers"""
             path = "file-> #1 -> later"
             self.dlg.menu_select(path, False)
             label = self.dlg.MenuLaterClickLabel.wrapper_object()
@@ -1045,7 +1034,6 @@ if UIA_support:
             path = "0->#1->1"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
 
-
     class MenuWrapperNotepadTests(unittest.TestCase):
 
         """Unit tests for the MenuWrapper class on Notepad"""
@@ -1058,6 +1046,12 @@ if UIA_support:
             self.app = Application(backend='uia')
             self.app = self.app.start("notepad.exe")
             self.dlg = self.app.UntitledNotepad
+            log = ActionLogger()
+            log.log("MenuWrapperNotepadTests::setUp, wait for CPU low")
+            self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
+            log.log("MenuWrapperNotepadTests::setUp, wait for the dialog is ready")
+            self.dlg.wait("ready")
+            log.log("MenuWrapperNotepadTests::setUp, Notepad is ready")
 
         def tearDown(self):
             """Close the application after tests"""
@@ -1109,7 +1103,7 @@ if UIA_support:
             self.assertRaises(IndexError, self.dlg.menu_select, path, True)
 
         def test_menu_by_best_match_text(self):
-            """Test selecting a menu item by best match text"""
+            """Test selecting a Win32 menu item by best match text"""
             path = "help->aboutnotepad"
             self.dlg.menu_select(path, False)
             self.dlg.AboutNotepad.close()
@@ -1151,7 +1145,6 @@ if UIA_support:
             self.assertRaises(IndexError, self.dlg.menu_select, path)
             path = " -> #1 -> #2"
             self.assertRaises(IndexError, self.dlg.menu_select, path)
-
 
     class ToolbarWpfTests(unittest.TestCase):
 
@@ -1202,7 +1195,6 @@ if UIA_support:
             # Notice that findbestmatch.MatchError is subclassed from IndexError
             self.assertRaises(IndexError, tb.button, "BaD n_$E ", exact=False)
 
-
     class ToolbarNativeTests(unittest.TestCase):
 
         """Unit tests for ToolbarWrapper class on a native application"""
@@ -1227,7 +1219,7 @@ if UIA_support:
 
             # Find a tooltip by class name
             tt = self.app.window(top_level_only=False,
-                                  class_name="tooltips_class32").wait('visible')
+                                 class_name="tooltips_class32").wait('visible')
             self.assertEqual(isinstance(tt, uia_ctls.TooltipWrapper), True)
             self.assertEqual(tt.window_text(), "Large Icons")
 
