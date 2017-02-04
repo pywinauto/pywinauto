@@ -355,11 +355,11 @@ class WindowSpecification(object):
         else:
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
+            desktop_wrapper = self.backend.generic_wrapper_class(self.backend.element_info_class())
+            need_to_resolve = (len(self.criteria) == 1 and hasattr(desktop_wrapper, attr_name))
             if self.backend.name == 'win32':
-                need_to_resolve = (len(self.criteria) == 1 and hasattr(DialogWrapper, attr_name))
-            else:
-                # Probably there is no DialogWrapper for another backend
-                need_to_resolve = (len(self.criteria) == 1 and hasattr(registry.wrapper_class, attr_name))
+                need_to_resolve = need_to_resolve and hasattr(DialogWrapper, attr_name)
+            # Probably there is no DialogWrapper for another backend
 
             if need_to_resolve:
                 ctrls = self.__resolve_control(self.criteria)
