@@ -1501,4 +1501,5 @@ GetDialogPropsFromHandle = get_dialog_props_from_handle
 
 
 backend.register('win32', HwndElementInfo, HwndWrapper)
+backend.registry.backends['win32'].dialog_class = win32_controls.DialogWrapper
 backend.activate('win32') # default
