@@ -470,44 +470,39 @@ class HwndWrapper(BaseWrapper):
         For more information about Sequences and Modifiers navigate to keyboard.py
         """
 
+        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+
         keys = keyboard.parse_keys(message, with_spaces, with_tabs, with_newlines)
         for key in keys:
 
             vk, scan, flags = key.get_key_info()
 
-            lparam = 1 << 0 | scan << 16 | flags << 24
-
-            if isinstance(key, keyboard.VirtualKeyAction):
-
-                if key.down and key.up and (flags == 0):
-                    lparam = 1 << 0 | scan << 16
-                    win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
-                elif key.down and key.up and (flags == 1):
-                    # + LEFT, DELETE
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
-                elif key.down:
-                    # TODO: {CTRL} (^) modifier doesn't work
-                    # + SHIFT down
-                    # - CTRL down
-                    # print('key', key, 'down')
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
-                elif key.up:
-                    # + SHIFT up
-                    # - CTRL up
-                    # print('key', key, 'up')
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
-            elif isinstance(key, keyboard.EscapedKeyAction):
-                # An escaped key action e.g. F9 DOWN, etc
-                # And key between Shifts. a -> A
-                win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+            if flags & keyboard.KEYEVENTF_UNICODE == 0:
+                char = keyboard.MapVirtualKey(vk, 2)
             else:
-                # Usual key
-                win32api.SendMessage(self.handle, win32con.WM_CHAR, scan, lparam)
+                # Indicates that we actually just have a unicode codepoint
+                char = scan
+                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF # TODO: use shift state in high order byte
+                scan = keyboard.MapVirtualKey(vk, 0)
+
+            if key.down and vk > 0:
+                # TODO: {CTRL} (^) modifier doesn't work
+                # + SHIFT down
+                # - CTRL down
+                # print('key', key, 'down')
+                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24 | 0 << 29 | 0 << 31
+                win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+
+            if char > 0:
+                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, char, lparam)
+
+            if key.up and vk > 0:
+                # + SHIFT up
+                # - CTRL up
+                # print('key', key, 'up')
+                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24 | 0 << 29 | 1 << 30 | 1 << 31
+                win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
 
             # time.sleep(Timings.after_sendkeys_key_wait)
 
