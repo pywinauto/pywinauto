@@ -73,6 +73,7 @@ from .. import backend
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
+from .win32_controls import DialogWrapper
 
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
@@ -141,8 +142,7 @@ class HwndMeta(BaseMeta):
         # if it is a dialog then override the wrapper we found
         # and make it a DialogWrapper
         if handleprops.is_toplevel_window(element.handle):
-            from . import win32_controls
-            wrapper_match = win32_controls.DialogWrapper
+            wrapper_match = DialogWrapper
 
         if wrapper_match is None:
             wrapper_match = HwndWrapper
@@ -1501,5 +1501,5 @@ GetDialogPropsFromHandle = get_dialog_props_from_handle
 
 
 backend.register('win32', HwndElementInfo, HwndWrapper)
-backend.registry.backends['win32'].dialog_class = win32_controls.DialogWrapper
+backend.registry.backends['win32'].dialog_class = DialogWrapper
 backend.activate('win32') # default
