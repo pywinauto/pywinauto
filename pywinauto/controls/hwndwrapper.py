@@ -478,7 +478,7 @@ class HwndWrapper(BaseWrapper):
             vk, scan, flags = key.get_key_info()
 
             if flags & keyboard.KEYEVENTF_UNICODE == 0:
-                char = keyboard.MapVirtualKey(vk, 2)    
+                char = keyboard.MapVirtualKey(vk, 2)
             else:
                 # Indicates that we actually just have a unicode codepoint
                 char = scan

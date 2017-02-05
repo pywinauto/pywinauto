@@ -897,7 +897,6 @@ class SendEnterKeyTest(unittest.TestCase):
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
 
     def tearDown(self):
-        """Close the application after tests"""
         self.dlg.MenuSelect('File -> Exit')
         if self.dlg["Do&n't Save"].Exists():
             self.dlg["Do&n't Save"].Click()
@@ -905,7 +904,6 @@ class SendEnterKeyTest(unittest.TestCase):
 
 
     def test_sendEnterChar(self):
-        """Test some small stuff regarding GetDialogPropsFromHandle"""
         self.ctrl.send_chars('Hello{ENTER}World')
         self.assertEquals(['Hello\r\nWorld'], self.dlg.Edit.Texts())
 
