@@ -356,7 +356,7 @@ class WindowSpecification(object):
             # then resolve the window and return the attribute
             desktop_wrapper = self.backend.generic_wrapper_class(self.backend.element_info_class())
             need_to_resolve = (len(self.criteria) == 1 and hasattr(desktop_wrapper, attr_name))
-            if has_attr(self.backend, 'dialog_class'):
+            if hasattr(self.backend, 'dialog_class'):
                 need_to_resolve = need_to_resolve and hasattr(self.backend.dialog_class, attr_name)
             # Probably there is no DialogWrapper for another backend
 
