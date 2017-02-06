@@ -69,14 +69,14 @@ import os.path
 import pickle
 import time
 import warnings
+import multiprocessing
+import locale
 
 import win32process
 import win32api
 import win32gui
 import win32con
 import win32event
-import multiprocessing
-
 
 from . import controls
 from . import findbestmatch
@@ -340,8 +340,6 @@ class WindowSpecification(object):
         if attr_name in self.__dict__:
             return self.__dict__[attr_name]
 
-        from .controls.win32_controls import DialogWrapper
-
         # if we already have 2 levels of criteria (dlg, conrol)
         # this third must be an attribute so resolve and get the
         # attribute and return it
@@ -356,10 +354,14 @@ class WindowSpecification(object):
         else:
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
-            if len(self.criteria) == 1 and hasattr(DialogWrapper, attr_name):
+            desktop_wrapper = self.backend.generic_wrapper_class(self.backend.element_info_class())
+            need_to_resolve = (len(self.criteria) == 1 and hasattr(desktop_wrapper, attr_name))
+            if hasattr(self.backend, 'dialog_class'):
+                need_to_resolve = need_to_resolve and hasattr(self.backend.dialog_class, attr_name)
+            # Probably there is no DialogWrapper for another backend
 
+            if need_to_resolve:
                 ctrls = self.__resolve_control(self.criteria)
-
                 return getattr(ctrls[-1], attr_name)
 
         # It is a dialog/control criterion so let getitem
@@ -620,10 +622,10 @@ class WindowSpecification(object):
                 if auto_id:
                     criteria_texts.append(u'auto_id="{}"'.format(auto_id))
                 if control_type:
-                    criteria_texts.append('control_type="{}"'.format(control_type))
+                    criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
                     output += indent + u'child_window(' + u', '.join(criteria_texts) + u')'
-                print(output)
+                print(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
                 print_identifiers(ctrl.children(), current_depth + 1)
 
@@ -708,7 +710,6 @@ def _resolve_from_appdata(
             #print "======", h, h, h
 
             dialog = registry.wrapper_class(e)
-            #dialog = BaseWrapper(e)
 
             # if a control was specified also
             if len(criteria_) > 1:
@@ -742,7 +743,6 @@ def _resolve_from_appdata(
 
                 try:
                     ctrl = registry.wrapper_class(ctrl_elems[0])
-                    #ctrl = BaseWrapper(ctrl_elems[0])
                 except IndexError:
                     print("-+-+=_" * 20)
                     #print(found_criteria)

@@ -8,7 +8,7 @@ import sys
 import unittest
 
 sys.path.append(".")
-from pywinauto.application import Application  # noqa: E402
+from pywinauto.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger
@@ -51,6 +51,11 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
+
+        def test_issue_278(self):
+            """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
+            menu_spec = self.dlg.Menu
+            self.assertTrue(isinstance(menu_spec, WindowSpecification))
 
         def test_find_nontop_ctl_by_class_name_and_title(self):
             """Test getting a non-top control by a class name and a title"""

@@ -61,6 +61,16 @@ environment:
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "NO"
 
+    - PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
+
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+
 #init:
   # Enable RDP.
   #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

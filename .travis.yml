@@ -13,18 +13,19 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
 os:
   - linux
 before_install:
-  - sudo add-apt-repository -y ppa:beineri/opt-qt57-trusty
+  - sudo add-apt-repository -y ppa:beineri/opt-qt58-trusty
 
 install:
   - pip install python-xlib codecov coverage
   - sudo apt-get update
-  - sudo apt-get install -qq qt57base; 
-  - sudo apt-get -y install qt57declarative qt57tools
+  - sudo apt-get install -qq qt58base; 
+  - sudo apt-get -y install qt58declarative qt58tools
   - sudo apt-get install xsel
-  - source /opt/qt57/bin/qt57-env.sh;
+  - source /opt/qt58/bin/qt58-env.sh;
   
 before_script:
   - "export DISPLAY=:99.0"

@@ -462,14 +462,18 @@ class EditTestCases(unittest.TestCase):
         finally:
             self.app.kill_()
 
-    def testSetText(self):
-        "Test setting the text of the edit control"
-        self.ctrl.SetEditText("Here is\r\nsome text")
+    def test_print_control_identifiers(self):
+        """Test that print_control_identifiers() doesn't crash with the non-English characters"""
+        self.dlg.print_control_identifiers()
+
+    def test_set_text(self):
+        """Test setting the text of the edit control"""
+        self.ctrl.set_text("Here is\r\nsome text")
         self.assertEquals(
             "\n".join(self.ctrl.texts()[1:]), "Here is\nsome text")
 
-    def testTypeKeys(self):
-        "Test typing some text into the edit control"
+    def test_type_keys(self):
+        """Test typing some text into the edit control"""
         # typekeys types at the current caret position
         # (start when opening a new file)
         added_text = "Here is some more Text"
@@ -666,10 +670,10 @@ class DialogTestCases(unittest.TestCase):
         area size depends on Windows OS and a current desktop theme"""
         clientarea = self.cmn_ctrl.ClientAreaRect()
         rectangle = self.cmn_ctrl.rectangle()
-        self.failIf((clientarea.left - rectangle.left) > 10)
-        self.failIf((clientarea.top - rectangle.top) > 60)
-        self.failIf((rectangle.right - clientarea.right) > 10)
-        self.failIf((rectangle.bottom - clientarea.bottom) > 10)
+        self.assertFalse((clientarea.left - rectangle.left) > 10)
+        self.assertFalse((clientarea.top - rectangle.top) > 60)
+        self.assertFalse((rectangle.right - clientarea.right) > 10)
+        self.assertFalse((rectangle.bottom - clientarea.bottom) > 10)
 
     def testHideFromTaskbar(self):
         """Test that a dialog can be hidden from the Windows taskbar"""

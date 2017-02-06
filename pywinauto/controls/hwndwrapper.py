@@ -35,7 +35,7 @@ from __future__ import print_function
 
 # pylint:  disable-msg=W0611
 
-#import sys
+# import sys
 import time
 import re
 import ctypes
@@ -43,6 +43,7 @@ import win32api
 import win32gui
 import win32con
 import win32process
+import win32event
 import six
 
 # the wrappers may be used in an environment that does not need
@@ -50,25 +51,23 @@ import six
 # the following makes the import optional.
 
 from .. import win32functions
+from .. import win32defines
+from .. import win32structures
+from .. import controlproperties
 from ..actionlogger import ActionLogger
 from .. import keyboard
 from .. import mouse
+from ..timings import Timings
+from .. import timings
+from .. import handleprops
+from ..win32_element_info import HwndElementInfo
+from .. import backend
 
 # I leave this optional because PIL is a large dependency
 try:
     from PIL import ImageGrab
 except ImportError:
     ImageGrab = None
-
-from .. import win32defines
-from .. import win32structures
-from ..timings import Timings
-from .. import timings
-
-#from .. import findbestmatch
-from .. import handleprops
-from ..win32_element_info import HwndElementInfo
-from .. import backend
 
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
@@ -141,8 +140,7 @@ class HwndMeta(BaseMeta):
         # if it is a dialog then override the wrapper we found
         # and make it a DialogWrapper
         if handleprops.is_toplevel_window(element.handle):
-            from . import win32_controls
-            wrapper_match = win32_controls.DialogWrapper
+            wrapper_match = DialogWrapper
 
         if wrapper_match is None:
             wrapper_match = HwndWrapper
@@ -1325,6 +1323,177 @@ class HwndWrapper(BaseWrapper):
     TypeKeys = BaseWrapper.type_keys
     SetFocus = BaseWrapper.set_focus
 
+
+#====================================================================
+# the main reason for this is just to make sure that
+# a Dialog is a known class - and we don't need to take
+# an image of it (as an unknown control class)
+class DialogWrapper(HwndWrapper):
+
+    """Wrap a dialog"""
+
+    friendlyclassname = "Dialog"
+    #windowclasses = ["#32770", ]
+    can_be_label = True
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the DialogWrapper
+
+        The only extra functionality here is to modify self.friendlyclassname
+        to make it "Dialog" if the class is "#32770" otherwise to leave it
+        the same as the window class.
+        """
+        HwndWrapper.__init__(self, hwnd)
+
+        if self.class_name() == "#32770":
+            self.friendlyclassname = "Dialog"
+        else:
+            self.friendlyclassname = self.class_name()
+
+    #-----------------------------------------------------------
+    def run_tests(self, tests_to_run = None, ref_controls = None):
+        """Run the tests on dialog"""
+        # the tests package is imported only when running unittests
+        from .. import tests
+
+        # get all the controls
+        controls = [self] + self.children()
+
+        # add the reference controls
+        if ref_controls is not None:
+            matched_flags = controlproperties.SetReferenceControls(
+                controls, ref_controls)
+
+            # todo: allow some checking of how well the controls matched
+            # matched_flags says how well they matched
+            # 1 = same number of controls
+            # 2 = ID's matched
+            # 4 = control classes matched
+            # i.e. 1 + 2 + 4 = perfect match
+
+        return tests.run_tests(controls, tests_to_run)
+    # Non PEP-8 alias
+    RunTests = run_tests
+
+    #-----------------------------------------------------------
+    def write_to_xml(self, filename):
+        """Write the dialog an XML file (requires elementtree)"""
+        controls = [self] + self.children()
+        props = [ctrl.get_properties() for ctrl in controls]
+
+        from .. import xml_helpers
+        xml_helpers.WriteDialogToFile(filename, props)
+    # Non PEP-8 alias
+    WriteToXML = write_to_xml
+
+    #-----------------------------------------------------------
+    def client_area_rect(self):
+        """Return the client area rectangle
+
+        From MSDN:
+        The client area of a control is the bounds of the control, minus the
+        nonclient elements such as scroll bars, borders, title bars, and
+        menus.
+        """
+        rect = win32structures.RECT(self.rectangle())
+        self.send_message(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
+        return rect
+    # Non PEP-8 alias
+    ClientAreaRect = client_area_rect
+
+    #-----------------------------------------------------------
+    def hide_from_taskbar(self):
+        """Hide the dialog from the Windows taskbar"""
+        win32functions.ShowWindow(self, win32defines.SW_HIDE)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_TOOLWINDOW)
+        win32functions.ShowWindow(self, win32defines.SW_SHOW)
+    # Non PEP-8 alias
+    HideFromTaskbar = hide_from_taskbar
+
+    #-----------------------------------------------------------
+    def show_in_taskbar(self):
+        """Show the dialog in the Windows taskbar"""
+        win32functions.ShowWindow(self, win32defines.SW_HIDE)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE,
+            self.exstyle() | win32defines.WS_EX_APPWINDOW)
+        win32functions.ShowWindow(self, win32defines.SW_SHOW)
+    # Non PEP-8 alias
+    ShowInTaskbar = show_in_taskbar
+
+    #-----------------------------------------------------------
+    def is_in_taskbar(self):
+        """Check whether the dialog is shown in the Windows taskbar
+
+        Thanks to David Heffernan for the idea:
+        http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
+        A window is represented in the taskbar if:
+        It has no owner and it does not have the WS_EX_TOOLWINDOW extended style,
+        or it has the WS_EX_APPWINDOW extended style.
+        """
+        return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or \
+               (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
+    # Non PEP-8 alias
+    IsInTaskbar = is_in_taskbar
+
+    #-----------------------------------------------------------
+    def force_close(self):
+        """Close the dialog forcefully using WM_QUERYENDSESSION and return the result
+
+        Window has let us know that it doesn't want to die - so we abort
+        this means that the app is not hung - but knows it doesn't want
+        to close yet - e.g. it is asking the user if they want to save.
+        """
+        self.send_message_timeout(
+            win32defines.WM_QUERYENDSESSION,
+            timeout = .5,
+            timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
+        #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+        #win32defines.SMTO_BLOCK)
+
+        # get a handle we can wait on
+        _, pid = win32process.GetWindowThreadProcessId(int(self.handle))
+        try:
+            process_wait_handle = win32api.OpenProcess(
+                win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
+                0,
+                pid)
+        except win32gui.error:
+            return True # already closed
+
+        result = win32event.WaitForSingleObject(
+            process_wait_handle,
+            int(Timings.after_windowclose_timeout * 1000))
+
+        return result != win32con.WAIT_TIMEOUT
+
+#    #-----------------------------------------------------------
+#    def read_controls_from_xml(self, filename):
+#        from pywinauto import xml_helpers
+#        [controlproperties.ControlProps(ctrl) for
+#            ctrl in xml_helpers.ReadPropertiesFromFile(handle)]
+#    # Non PEP-8 alias
+#    ReadControlsFromXML = read_controls_from_xml
+
+#    #-----------------------------------------------------------
+#    def add_reference(self, reference):
+#
+#        if len(self.children() != len(reference)):
+#            raise "different number of reference controls"
+#
+#        for i, ctrl in enumerate(reference):
+#        # loop over each of the controls
+#        # and set the reference
+#            if isinstance(ctrl, dict):
+#                ctrl = CtrlProps(ctrl)
+#
+#            self.
+#            if ctrl.class_name() != self.children()[i+1].class_name():
+#                print "different classes"
+#    # Non PEP-8 alias
+#    AddReference = add_reference
+
+
 #====================================================================
 def _perform_click(
         ctrl,
@@ -1496,4 +1665,5 @@ GetDialogPropsFromHandle = get_dialog_props_from_handle
 
 
 backend.register('win32', HwndElementInfo, HwndWrapper)
+backend.registry.backends['win32'].dialog_class = DialogWrapper
 backend.activate('win32') # default

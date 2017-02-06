@@ -134,7 +134,7 @@ class SendKeysTests(unittest.TestCase):
             SendKeys(chr(i), pause = .001, **args)
             received = self.receive_text()[-1]
 
-            self.assertEquals(i, ord(received))
+            self.assertEqual(i, ord(received))
 
     # Space tests
     def testNormalWithSpaces(self):
@@ -150,13 +150,13 @@ class SendKeysTests(unittest.TestCase):
         """Make sure that with spaces option works"""
         SendKeys(" \t \t ", pause = .001, with_spaces = True)
         received = self.receive_text()
-        self.assertEquals("   ", received)
+        self.assertEqual("   ", received)
 
     def testSpaceWithoutSpaces(self):
         """Make sure that with spaces option works"""
         SendKeys(" \t \t ", pause = .001, with_spaces = False)
         received = self.receive_text()
-        self.assertEquals("", received)
+        self.assertEqual("", received)
 
 
     # Tab tests
@@ -172,20 +172,20 @@ class SendKeysTests(unittest.TestCase):
         """Make sure that with spaces option works"""
         SendKeys("\t \t \t", pause = .1, with_tabs = True)
         received = self.receive_text()
-        self.assertEquals("\t\t\t", received)
+        self.assertEqual("\t\t\t", received)
 
     def testTabWithoutTabs(self):
         """Make sure that with spaces option works"""
         SendKeys("\t a\t b\t", pause = .1, with_tabs = False)
         received = self.receive_text()
-        self.assertEquals("ab", received)
+        self.assertEqual("ab", received)
 
 
     def testTab(self):
         """Make sure that with spaces option works"""
         SendKeys("{TAB}  {TAB} ", pause = .3)
         received = self.receive_text()
-        self.assertEquals("\t\t", received)
+        self.assertEqual("\t\t", received)
 
 
     # Newline tests
@@ -202,15 +202,15 @@ class SendKeysTests(unittest.TestCase):
         SendKeys("\t \t \t a~\tb\nc", pause = .5, with_newlines = True)
         received = self.receive_text()
         if sys.platform == 'win32':
-            self.assertEquals("a\r\nb\r\nc", received)
+            self.assertEqual("a\r\nb\r\nc", received)
         else:
-            self.assertEquals("a\nb\nc", received)
+            self.assertEqual("a\nb\nc", received)
 
     def testNewlinesWithoutNewlines(self):
         """"Make sure that with_newlines option works"""
         SendKeys("\t \t \t\na", pause = .01, with_newlines = False)
         received = self.receive_text()
-        self.assertEquals("a", received)
+        self.assertEqual("a", received)
 
 
     #def testANSIExtendedCharacters(self):
@@ -237,13 +237,13 @@ class SendKeysTests(unittest.TestCase):
     #            print("expected %s, recieved %s"% (
     #                repr(c), repr(received)))
 
-    #    self.assertEquals(matched, len(extended_chars))
+    #    self.assertEqual(matched, len(extended_chars))
 
     def testCharsThatMustBeEscaped(self):
         """Make sure that escaping characters works"""
         SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}")
         received = self.receive_text()
-        self.assertEquals("%^+(){}~", received)
+        self.assertEqual("%^+(){}~", received)
 
     def testIncorrectCases(self):
         """Make sure that incorrect key sequences raise an exception"""
@@ -255,33 +255,33 @@ class SendKeysTests(unittest.TestCase):
         try:
             SendKeys("{ENTER five}")
         except KeySequenceError as exc:
-            self.assertEquals("invalid repetition count five", str(exc))
+            self.assertEqual("invalid repetition count five", str(exc))
 
         try:
             SendKeys("ENTER}")
         except KeySequenceError as exc:
-            self.assertEquals("`}` should be preceeded by `{`", str(exc))
+            self.assertEqual("`}` should be preceeded by `{`", str(exc))
 
     def testKeyDescription(self):
         """Test KeyAction._"""
-        self.assertEquals("<X>", str(KeyAction("X")))
-        self.assertEquals("<Y down>", str(KeyAction("Y", up=False)))
-        self.assertEquals("<Y up>", str(KeyAction("Y", down=False)))
-        #self.assertEquals("<ENTER>", str(VirtualKeyAction(13))) # == "<VK_RETURN>" in Python 2.7 (TODO)
+        self.assertEqual("<X>", str(KeyAction("X")))
+        self.assertEqual("<Y down>", str(KeyAction("Y", up=False)))
+        self.assertEqual("<Y up>", str(KeyAction("Y", down=False)))
+        #self.assertEqual("<ENTER>", str(VirtualKeyAction(13))) # == "<VK_RETURN>" in Python 2.7 (TODO)
         if sys.platform == 'win32':
-            self.assertEquals("<PAUSE 1.00>", str(PauseAction(1.0)))
+            self.assertEqual("<PAUSE 1.00>", str(PauseAction(1.0)))
 
     def testRepetition(self):
         """Make sure that repeated action works"""
         SendKeys("{TAB 3}{PAUSE 0.5}{F 3}", pause = .3)
         received = self.receive_text()
-        self.assertEquals("\t\t\tFFF", received)
+        self.assertEqual("\t\t\tFFF", received)
 
     def testShiftModifier(self):
         """Make sure that Shift modifier works"""
         SendKeys("+(a)")
         received = self.receive_text()
-        self.assertEquals("A", received)
+        self.assertEqual("A", received)
 
     if sys.platform != 'win32':
         def testAltModifier(self):
@@ -291,7 +291,7 @@ class SendKeysTests(unittest.TestCase):
             SendKeys('%(e)')
             SendKeys('{ENTER}')
             received = self.receive_text()
-            self.assertEquals('abc', received)
+            self.assertEqual('abc', received)
 
 
 if sys.platform == 'win32':

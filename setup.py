@@ -93,6 +93,7 @@ controls also.
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',
@@ -100,5 +101,4 @@ controls also.
         'Topic :: Software Development :: Quality Assurance',
         ],
     install_requires=install_requires,
-    setup_requires=['setuptools-scm'],
     )
