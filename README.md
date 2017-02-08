@@ -86,7 +86,7 @@ Further contributors are inspired of the nice API so that the development contin
 
 Starting from 0.6.0 pywinauto is distributed under the BSD 3-clause license.
 Pywinauto 0.5.4 and before was distributed under the LGPL v2.1 or later.
-* (c) [The Open Source Community](https://github.com/pywinauto/pywinauto/graphs/contributors), 2015-2016 (0.6.0+ development)
+* (c) [The Open Source Community](https://github.com/pywinauto/pywinauto/graphs/contributors), 2015-2017 (0.6.0+ development)
 * (c) Intel Corporation, 2015 (led 0.5.x maintenance)
 * (c) Michael Herrmann, 2012-2013 (0.4.2)
 * (c) Mark Mc Mahon, 2006-2010 (0.4.0 and before)
