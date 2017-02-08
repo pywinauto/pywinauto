@@ -288,7 +288,9 @@ class SendKeysTests(unittest.TestCase):
             """Make sure that alt modifier works"""
             clipboard.set_data('abc')
             # check alt via opening edit menu and paste text from clipboard
+            time.sleep(0.3)
             SendKeys('%(e)')
+            time.sleep(0.3)
             SendKeys('{ENTER}')
             received = self.receive_text()
             self.assertEqual('abc', received)
