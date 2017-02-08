@@ -12,11 +12,11 @@ Change Log
 
  * Fixed several bugs and crashes here and there.
 
-   - Possible crash when ctrl.window_text() becomes None at the right moment. Thanks mborus_!
+   - Crash when ctrl.window_text() becomes None at the right moment. Thanks mborus_!
 
    .. _mborus: https://github.com/mborus
 
-   - HwndWrapper.set_focus() fails when used via interpreter. Thanks `Matthew Kennerly`_!
+   - ``HwndWrapper.set_focus()`` fails when used via interpreter. Thanks `Matthew Kennerly`_!
 
    .. _`Matthew Kennerly`: https://github.com/mtkennerly
 
@@ -36,12 +36,12 @@ Change Log
 
    - Bug in resolving attributes: 'UIAWrapper' object has no attribute 'Menu' for ``dlg = app.Custom.Menu``
 
-   - Method ``send_chars()`` can now send ``{ENTER}`` to some application. Thanks `Max Bolingbroke`_!
+   - Method ``send_chars()`` can now send ``{ENTER}`` to some applications. Thanks `Max Bolingbroke`_!
 
    .. _`Max Bolingbroke`: https://github.com/batterseapower
 
  * Searching UI elements is faster now especially if you use ``control_type`` or ``auto_id`` in
-   a WindowSpecification. Method ``Application.kill_()`` is also optimized in many cases.
+   a WindowSpecification. Method ``Application.kill()`` is also optimized in many cases.
 
 
 0.6.0 Introduce MS UI Automation support and many more improvements
