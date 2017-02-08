@@ -2,6 +2,52 @@
 Change Log
 ==========
 
+0.6.1 Bug fixes and optimizations for UI Automation and beyond
+--------------------------------------------------------------------
+08-February-2017
+ * ``win32_hooks`` module is well tested and more reliable now.
+   See `detailed example`_.
+
+   .. _`detailed example`: https://github.com/pywinauto/pywinauto/blob/master/examples/hook_and_listen.py
+
+ * Fixed several bugs and crashes here and there.
+
+   - Crash when ctrl.window_text() becomes None at the right moment. Thanks mborus_!
+
+   .. _mborus: https://github.com/mborus
+
+   - ``HwndWrapper.set_focus()`` fails when used via interpreter. Thanks `Matthew Kennerly`_!
+
+   .. _`Matthew Kennerly`: https://github.com/mtkennerly
+
+   - Fix LoadLibrary call error on just released Python 2.7.13. Thanks `Kirill Moizik`_!
+
+   .. _`Kirill Moizik`: https://github.com/KirillMoizik
+
+   - AttributeError: WindowSpecification class has no 'CPUUsage' method.
+
+   - ``comtypes`` prints a lot of warnings at ``import pywinauto``.
+
+   - Methods ``is_dialog()`` and ``restore()`` are missed for UIA backend.
+
+   - Method ``print_control_identifiers()`` crashes on some applications with Unicode symbols.
+
+   - Installation by ``python setup.py install`` may fail if pyWin32 dependency was installed manually.
+
+   - Bug in resolving attributes: 'UIAWrapper' object has no attribute 'Menu' for ``dlg = app.Custom.Menu``
+
+   - Method ``send_chars()`` can now send ``{ENTER}`` to some applications. Thanks `Max Bolingbroke`_!
+
+   .. _`Max Bolingbroke`: https://github.com/batterseapower
+
+ * Searching UI elements is faster now especially if you use ``control_type`` or ``auto_id`` in
+   a WindowSpecification. Method ``Application.kill()`` is also optimized in many cases.
+
+ * Added an `example for Win10 Calculator`_.
+
+ .. _`example for Win10 Calculator`: https://github.com/pywinauto/pywinauto/blob/master/examples/win10_calculator.py
+
+
 0.6.0 Introduce MS UI Automation support and many more improvements
 --------------------------------------------------------------------
 30-October-2016

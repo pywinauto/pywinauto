@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -57,14 +57,19 @@ sys.path.append(setup_path())
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
 if sys.platform == 'win32':
-    install_requires = ['six', 'pypiwin32', 'comtypes']
+    install_requires = ['six', 'comtypes']
+    try:
+        import win32api # check if it was already installed manually
+    except ImportError:
+        install_requires.append('pypiwin32')
+
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
 else:
     install_requires = ['six', 'python-xlib']
     packages = ["pywinauto", "pywinauto.linux"]
 
 setup(name='pywinauto',
-    version = '0.6.0',
+    version = '0.6.1',
     description = 'pywinauto is a set of python '
         'modules to automate the Microsoft Windows GUI',
     keywords = "windows automation gui GuiAuto",

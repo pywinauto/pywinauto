@@ -106,7 +106,7 @@ master_doc = 'contents'
 
 # General information about the project.
 project = u'pywinauto'
-copyright = u'2016, Mark Mc Mahon and Contributors'
+copyright = u'2017, Mark Mc Mahon and Contributors'
 author = u'Mark Mc Mahon and Contributors'
 
 # The version info for the project you're documenting, acts as replacement for
