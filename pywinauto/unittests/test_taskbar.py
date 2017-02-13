@@ -89,7 +89,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     try:
         # Go to "Control Panel -> Notification Area Icons"
         cmd_str = r'control /name Microsoft.NotificationAreaIcons'
-        for i in range(3):
+        for _ in range(3):
             window.Wait("ready", timeout=_ready_timeout)
             window.AddressBandRoot.click_input()
             explorer.WaitCPUUsageLower(threshold=2, timeout=_ready_timeout)
