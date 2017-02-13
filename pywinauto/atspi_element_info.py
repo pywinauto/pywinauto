@@ -36,7 +36,7 @@ class AtpsiElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return the class name of the element"""
-        raise NotImplementedError()
+        return self._handle.get_toolkit_name()
 
     @property
     def enabled(self):
@@ -51,11 +51,11 @@ class AtpsiElementInfo(ElementInfo):
     @property
     def parent(self):
         """Return the parent of the element"""
-        raise NotImplementedError()
+        return self._handle.parent
 
     def children(self, **kwargs):
         """Return children of the element"""
-        raise NotImplementedError()
+        return [children for children in self._handle]
 
     def descendants(self, **kwargs):
         """Return descendants of the element"""
