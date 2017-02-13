@@ -16,22 +16,22 @@ class AtpsiElementInfo(ElementInfo):
     @property
     def handle(self):
         """Return the handle of the window"""
-        raise NotImplementedError()
+        return self._handle
 
     @property
     def rich_text(self):
         """Return the text of the window"""
-        raise NotImplementedError()
+        return self._handle.get_name()
 
     @property
     def control_id(self):
         """Return the ID of the window"""
-        raise NotImplementedError()
+        return self._handle.get_id()
 
     @property
     def process_id(self):
         """Return the ID of process that controls this window"""
-        raise NotImplementedError()
+        return self._handle.get_process_id()
 
     @property
     def class_name(self):
