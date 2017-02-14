@@ -171,14 +171,14 @@ class AtpsiElementInfo(ElementInfo):
     @property
     def rectangle(self):
         """Return rectangle of element"""
-        component = self._handle.queryComponent()
+        # component = self._handle.queryComponent()
         rect = RECT()
-        position = component.getPosition(pyatspi.CoordType(0))
-        size = component.getSize()
-        rect.left = position[0]
-        rect.top = position[1]
-        rect.right = rect.left + size[0]
-        rect.bottom = rect.top + size[1]
+        position = self._handle.get_position(pyatspi.CoordType(0))
+        size = self._handle.get_size()
+        rect.left = position.x
+        rect.top = position.y
+        rect.right = rect.left + size.x
+        rect.bottom = rect.top + size.y
         return rect
 
     def dump_window(self):
