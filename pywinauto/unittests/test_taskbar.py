@@ -47,6 +47,7 @@ from pywinauto.timings import WaitUntil  # noqa: E402
 import pywinauto.actionlogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
+from pywinauto import mouse  # noqa: E402
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
@@ -87,13 +88,20 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
     try:
         # Go to "Control Panel -> Notification Area Icons"
-        window.Wait("ready", timeout=_ready_timeout)
-        window.AddressBandRoot.click_input()
-        window.type_keys(
-            r'control /name Microsoft.NotificationAreaIcons',
-            with_spaces=True,
-            set_foreground=True
-        )
+        cmd_str = r'control /name Microsoft.NotificationAreaIcons'
+        for _ in range(3):
+            window.Wait("ready", timeout=_ready_timeout)
+            window.AddressBandRoot.click_input()
+            explorer.WaitCPUUsageLower(threshold=2, timeout=_ready_timeout)
+            window.type_keys(cmd_str, with_spaces=True, set_foreground=True)
+            # verfiy the text in the address combobox after type_keys finished
+            if window.AddressBandRoot.ComboBoxEx.texts()[0] == cmd_str:
+                break
+            else:
+                l = pywinauto.actionlogger.ActionLogger()
+                l.log(window.AddressBandRoot.ComboBoxEx.texts())
+                # Send ESCs to remove the invalid text
+                window.type_keys("{ESC}" * 3)
         # Send 'ENTER' separately, this is to make sure
         # the window focus hasn't accidentally been lost
         window.type_keys(
@@ -158,6 +166,7 @@ class TaskbarTestCases(unittest.TestCase):
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle=False)
         self.app = app
         self.dlg = app.top_window()
+        mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
         self.dlg.Wait('ready', timeout=self.tm)
 
     def tearDown(self):
