@@ -2,12 +2,19 @@ import pyatspi
 from .element_info import ElementInfo
 
 
+class POINT():
+    _pack_ = 4
+    _fields_ = [
+        ('x', int),
+        ('y', int),
+    ]
+
+
 class RECT():
 
     """Wrap the RECT structure and add extra functionality"""
 
     _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
         ('left', int),
         ('top', int),
         ('right', int),
@@ -15,7 +22,7 @@ class RECT():
     ]
 
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
         """Provide a constructor for RECT structures
 
         A RECT can be constructed by:
@@ -37,20 +44,6 @@ class RECT():
             self.right = right
             self.top = top
             self.bottom = bottom
-
-
-#    # ----------------------------------------------------------------
-#    def __eq__(self, otherRect):
-#        "return true if the two rectangles have the same coordinates"
-#
-#        try:
-#            return \
-#                self.left == otherRect.left and \
-#                self.top == otherRect.top and \
-#                self.right == otherRect.right and \
-#                self.bottom == otherRect.bottom
-#        except AttributeError:
-#            return False
 
     # ----------------------------------------------------------------
     def __str__(self):
@@ -104,8 +97,8 @@ class RECT():
     def mid_point(self):
         """Return a POINT structure representing the mid point"""
         pt = POINT()
-        pt.x = self.left + int(float(self.width())/2.)
-        pt.y = self.top + int(float(self.height())/2.)
+        pt.x = self.left + int(float(self.width()) / 2.)
+        pt.y = self.top + int(float(self.height()) / 2.)
         return pt
 
 
