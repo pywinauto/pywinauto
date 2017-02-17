@@ -121,7 +121,7 @@ class AtpsiElementInfo(ElementInfo):
         return self._handle
 
     @property
-    def rich_text(self):
+    def name(self):
         """Return the text of the window"""
         return self._handle.get_name()
 
