@@ -136,7 +136,7 @@ class AtpsiElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return the class name of the element"""
-        return self._handle.get_toolkit_name()
+        return self._handle.getRoleName()
 
     @property
     def enabled(self):
