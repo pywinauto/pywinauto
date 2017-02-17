@@ -1,4 +1,6 @@
-import pyatspi
+import gi
+gi.require_version('Atspi', '2.0')
+from gi.repository import Atspi
 from .element_info import ElementInfo
 
 
@@ -109,7 +111,7 @@ class AtpsiElementInfo(ElementInfo):
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
         if handle is None:
-            self._handle = pyatspi.Registry.getDesktop(0)
+            self._handle = Atspi.get_desktop(0)
         else:
             self._handle = handle
 
@@ -136,26 +138,20 @@ class AtpsiElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return the class name of the element"""
-        return self._handle.getRoleName()
-
-    @property
-    def enabled(self):
-        """Return True if the element is enabled"""
-        raise NotImplementedError()
-
-    @property
-    def visible(self):
-        """Return True if the element is visible"""
-        raise NotImplementedError()
+        return self._handle.get_role_name()
 
     @property
     def parent(self):
         """Return the parent of the element"""
-        return self._handle.parent
+        return self._handle.get_parent()
 
     def children(self, **kwargs):
         """Return children of the element"""
-        return [children for children in self._handle]
+        len = self._handle.get_child_count()
+        childrens = []
+        for i in range(len):
+            childrens.append(self._handle.get_child_at_index(i))
+        return childrens
 
     def descendants(self, **kwargs):
         """Return descendants of the element"""
@@ -166,7 +162,7 @@ class AtpsiElementInfo(ElementInfo):
         """Return rectangle of element"""
         # component = self._handle.queryComponent()
         rect = RECT()
-        position = self._handle.get_position(pyatspi.CoordType(0))
+        position = self._handle.get_position(0)
         size = self._handle.get_size()
         rect.left = position.x
         rect.top = position.y
