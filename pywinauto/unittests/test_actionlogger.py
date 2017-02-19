@@ -33,13 +33,15 @@
 
 import unittest
 
-import os, sys, logging
+import os
+import sys
+import logging
 sys.path.append(".")
-from pywinauto import actionlogger
-from pywinauto.application import Application
-from pywinauto.sysinfo import is_x64_Python
-from pywinauto.sysinfo import is_x64_OS
-from pywinauto.timings import Timings
+from pywinauto import actionlogger  # noqa: E402
+from pywinauto.application import Application  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python  # noqa: E402
+from pywinauto.sysinfo import is_x64_OS  # noqa: E402
+from pywinauto.timings import Timings  # noqa: E402
 
 
 def _notepad_exe():
@@ -64,13 +66,15 @@ class ActionloggerTestCases(unittest.TestCase):
 
     def tearDown(self):
         """Close the application after tests"""
+        self.logger.handlers[0].stream.close()
         self.logger.handlers[0].stream = self.out
         self.app.kill_()
 
     def __lineCount(self):
         """hack to get line count from current logger stream"""
         self.logger = logging.getLogger('pywinauto')
-        self.logger.handlers[0].stream.flush(); os.fsync(self.logger.handlers[0].stream.fileno())
+        self.logger.handlers[0].stream.flush()
+        os.fsync(self.logger.handlers[0].stream.fileno())
         with open(self.logger.handlers[0].stream.name, 'r') as f:
             return len(f.readlines())
 
@@ -78,15 +82,15 @@ class ActionloggerTestCases(unittest.TestCase):
         actionlogger.enable()
         prev_line_count = self.__lineCount()
         self.app.UntitledNotepad.type_keys('Test pywinauto logging', with_spaces=True)
-        self.assertEquals(self.__lineCount(), prev_line_count+1)
+        self.assertEqual(self.__lineCount(), prev_line_count + 1)
 
         actionlogger.disable()
         self.app.UntitledNotepad.MenuSelect('Help->About Notepad')
-        self.assertEquals(self.__lineCount(), prev_line_count+1)
+        self.assertEqual(self.__lineCount(), prev_line_count + 1)
 
         actionlogger.enable()
         self.app.window(title='About Notepad').OK.Click()
-        self.assertEquals(self.__lineCount(), prev_line_count+2)
+        self.assertEqual(self.__lineCount(), prev_line_count + 2)
 
 
 if __name__ == "__main__":
