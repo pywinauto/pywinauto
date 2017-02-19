@@ -72,7 +72,7 @@ class _CustomLogger(object):
         """Init the custom logger"""
         self.logger = logger.Logger(logFilePath)
 
-    @classmethod
+    @staticmethod
     def set_log_level(level):
         """Set a logging level"""
         pass
