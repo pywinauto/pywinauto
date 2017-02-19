@@ -59,19 +59,19 @@ class ActionloggerTestCases(unittest.TestCase):
         actionlogger.enable()
         self.app = Application().start(_notepad_exe())
         self.logger = logging.getLogger('pywinauto')
-        self.out = self.logger.parent.handlers[0].stream
-        self.logger.parent.handlers[0].stream = open('test_logging.txt', 'w')
+        self.out = self.logger.handlers[0].stream
+        self.logger.handlers[0].stream = open('test_logging.txt', 'w')
 
     def tearDown(self):
         """Close the application after tests"""
-        self.logger.parent.handlers[0].stream = self.out
+        self.logger.handlers[0].stream = self.out
         self.app.kill_()
 
     def __lineCount(self):
         """hack to get line count from current logger stream"""
         self.logger = logging.getLogger('pywinauto')
-        self.logger.parent.handlers[0].stream.flush(); os.fsync(self.logger.parent.handlers[0].stream.fileno())
-        with open(self.logger.parent.handlers[0].stream.name, 'r') as f:
+        self.logger.handlers[0].stream.flush(); os.fsync(self.logger.handlers[0].stream.fileno())
+        with open(self.logger.handlers[0].stream.name, 'r') as f:
             return len(f.readlines())
 
     def testEnableDisable(self):
