@@ -48,6 +48,7 @@ import pywinauto.actionlogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
 from pywinauto import mouse  # noqa: E402
+from pywinauto import Desktop  # noqa: E402
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
@@ -95,11 +96,12 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
             explorer.WaitCPUUsageLower(threshold=2, timeout=_ready_timeout)
             window.type_keys(cmd_str, with_spaces=True, set_foreground=True)
             # verfiy the text in the address combobox after type_keys finished
-            if window.AddressBandRoot.ComboBoxEx.texts()[0] == cmd_str:
+            texts = window.AddressBandRoot.ComboBoxEx.texts()
+            if texts and texts[0] == cmd_str:
                 break
             else:
                 l = pywinauto.actionlogger.ActionLogger()
-                l.log(window.AddressBandRoot.ComboBoxEx.texts())
+                l.log(texts)
                 # Send ESCs to remove the invalid text
                 window.type_keys("{ESC}" * 3)
         # Send 'ENTER' separately, this is to make sure
@@ -112,7 +114,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
         explorer.WaitCPUUsageLower(threshold=5, timeout=_ready_timeout)
 
         # Get the new opened applet
-        notif_area = explorer.Window_(title="Notification Area Icons",
+        notif_area = Desktop().window(title="Notification Area Icons",
                                       class_name=class_name)
         notif_area.Wait("ready", timeout=_ready_timeout)
         cur_state = notif_area.CheckBox.GetCheckState()
@@ -342,12 +344,11 @@ class TaskbarTestCases(unittest.TestCase):
         niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=self.tm)
         niow_dlg.SysLink.click_input()
 
-        tmp_app = Application().connect(path="explorer.exe")
-        nai = tmp_app.window_(
+        nai = Desktop().window(
             title="Notification Area Icons",
             class_name="CabinetWClass"
         )
-        nai.draw_outline()
+        nai.wait('ready')
         origAlwaysShow = nai.CheckBox.GetCheckState()
         if not origAlwaysShow:
             nai.CheckBox.click_input()
