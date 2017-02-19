@@ -77,7 +77,7 @@ class _CustomLogger(object):
         """Set a logging level"""
         pass
 
-    @classmethod
+    @staticmethod
     def reset_level():
         """Reset a logging level to a default"""
         pass
@@ -94,31 +94,32 @@ class _CustomLogger(object):
         self.logger.sectionEnd()
 
 
+def _setup_standard_logger():
+    """A helper to init the standard logger"""
+    logger = logging.getLogger(__package__)
+
+    # For the meantime we allow only one handler.
+    # This is the simplest way to avoid duplicates.
+    if logger.handlers:
+        return
+
+    # Create a handler with logging.DEBUG as the default logging level,
+    # means - all messages will be processed by the handler
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    ch.setFormatter(formatter)
+    ch.setLevel(logging.DEBUG)
+    logger.addHandler(ch)
+    return logger
+
+
 class _StandardLogger(object):
 
     """
-    Wrapper around the standart python logger
+    Wrapper around the standard python logger
     """
 
-    def _setup():
-        """A helper to init the logger"""
-        logger = logging.getLogger(__package__)
-
-        # For the meantime we allow only one handler.
-        # This is the simplest way to avoid duplicates.
-        if logger.handlers:
-            return
-
-        # Create a handler with logging.DEBUG as the default logging level,
-        # means - all messages will be processed by the handler
-        ch = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
-        ch.setFormatter(formatter)
-        ch.setLevel(logging.DEBUG)
-        logger.addHandler(ch)
-        return logger
-
-    logger = _setup()
+    logger = _setup_standard_logger()
 
     @staticmethod
     def set_level(level):
