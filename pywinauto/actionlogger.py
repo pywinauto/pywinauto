@@ -104,12 +104,12 @@ class _StandardLogger(object):
         """A helper to init the logger"""
         logger = logging.getLogger(__package__)
 
-        # For the meantime we allow only a one handler.
+        # For the meantime we allow only one handler.
         # This is the simplest way to avoid duplicates.
         if logger.handlers:
             return
 
-        # Create a handler with logging.NOTSET as the default logging level,
+        # Create a handler with logging.DEBUG as the default logging level,
         # means - all messages will be processed by the handler
         ch = logging.StreamHandler()
         formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
@@ -130,8 +130,8 @@ class _StandardLogger(object):
         """Reset a logging level to a default one
 
         We use logging.INFO because 'logger.info' is called in 'log' method.
-        Notice that seting to logging.NOTSET delegates the filtering to other
-        active loggers and means if another logger had set a higher level than we need,
+        Notice that setting up the level with logging.NOTSET results in delegating the filtering
+        to other active loggers so that if another logger had set a higher level than we need,
         the messages for pywinauto logger will be dropped even if it was 'enabled'.
         """
         _StandardLogger.logger.level = logging.INFO
