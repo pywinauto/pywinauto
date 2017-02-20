@@ -96,14 +96,14 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
             explorer.WaitCPUUsageLower(threshold=2, timeout=_ready_timeout)
             window.type_keys(cmd_str, with_spaces=True, set_foreground=True)
             # verfiy the text in the address combobox after type_keys finished
-            texts = window.AddressBandRoot.ComboBoxEx.texts()
-            if texts and texts[0] == cmd_str:
-                break
-            else:
-                l = pywinauto.actionlogger.ActionLogger()
-                l.log(texts)
-                # Send ESCs to remove the invalid text
-                window.type_keys("{ESC}" * 3)
+            cmbx_spec = window.AddressBandRoot.ComboBoxEx
+            if cmbx_spec.exists(timeout=_ready_timeout, retry_interval=_retry_interval):
+                texts = cmbx_spec.texts()
+                if texts and texts[0] == cmd_str:
+                    break
+            # Send ESCs to remove the invalid text
+            window.type_keys("{ESC}" * 3)
+
         # Send 'ENTER' separately, this is to make sure
         # the window focus hasn't accidentally been lost
         window.type_keys(
