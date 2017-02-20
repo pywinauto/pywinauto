@@ -1065,7 +1065,7 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
+                raise RuntimeError("Area ('{}') not found for this tree view item".format(where))
 
         self.tree_ctrl.click(
             button,
