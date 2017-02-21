@@ -77,6 +77,7 @@ import win32api
 import win32gui
 import win32con
 import win32event
+import six
 
 from . import controls
 from . import findbestmatch

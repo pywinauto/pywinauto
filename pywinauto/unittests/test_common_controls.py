@@ -404,7 +404,7 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), True)
         self.dlg.set_focus()  # just in case
 
-        self.ctrl.GetItem('Green').EnsureVisible()
+        self.ctrl.GetItem('Gray').EnsureVisible()
         self.ctrl.GetItem('Gray').Click()
         self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
 
