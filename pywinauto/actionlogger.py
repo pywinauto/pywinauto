@@ -28,15 +28,14 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import logging
 
 # Try to find a custom logger
 try:
-    from logger import logger
-    foundLogger = True
-except ImportError:
-    foundLogger = False
-
-import logging
+    import logger
+    _found_logger = (logger.Logger.sectionStart is not None)
+except (ImportError, AttributeError) as exc:
+    _found_logger = False
 
 
 def set_level(level):
@@ -73,13 +72,18 @@ class _CustomLogger(object):
         self.logger = logger.Logger(logFilePath)
 
     @staticmethod
-    def set_log_level(level):
+    def set_level(level):
         """Set a logging level"""
         pass
 
     @staticmethod
     def reset_level():
         """Reset a logging level to a default"""
+        pass
+
+    @staticmethod
+    def disable():
+        """Set a logging level to one above INFO to disable logs emitting"""
         pass
 
     def log(self, *args):
@@ -101,7 +105,7 @@ def _setup_standard_logger():
     # For the meantime we allow only one handler.
     # This is the simplest way to avoid duplicates.
     if logger.handlers:
-        return
+        return logger
 
     # Create a handler with logging.DEBUG as the default logging level,
     # means - all messages will be processed by the handler
@@ -160,7 +164,7 @@ class _StandardLogger(object):
         pass
 
 # Define which logging facilities should be used for pywinauto traces
-if foundLogger:
+if _found_logger:
     ActionLogger = _CustomLogger
 else:
     ActionLogger = _StandardLogger

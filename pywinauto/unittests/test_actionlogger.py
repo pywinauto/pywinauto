@@ -36,6 +36,8 @@ import unittest
 import os
 import sys
 import logging
+import mock
+from six.moves import reload_module
 sys.path.append(".")
 from pywinauto import actionlogger  # noqa: E402
 from pywinauto.application import Application  # noqa: E402
@@ -51,9 +53,9 @@ def _notepad_exe():
         return r"C:\Windows\SysWOW64\notepad.exe"
 
 
-class ActionloggerTestCases(unittest.TestCase):
+class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
 
-    """Unit tests for the actionlogger"""
+    """Unit tests for the actionlogger based on _StandardLogger"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -91,6 +93,60 @@ class ActionloggerTestCases(unittest.TestCase):
         actionlogger.enable()
         self.app.window(title='About Notepad').OK.Click()
         self.assertEqual(self.__lineCount(), prev_line_count + 2)
+
+
+class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
+
+    """Unit tests for the actionlogger based on _CustomLogger"""
+
+    def setUp(self):
+        """Set a mock logger package in modules"""
+
+        # http://www.voidspace.org.uk/python/mock/examples.html#mocking-imports-with-patch-dict
+        self.mock_logger = mock.MagicMock()
+        self.modules = {
+            "logger": self.mock_logger,
+        }
+        self.module_patcher = mock.patch.dict('sys.modules', self.modules)
+        self.module_patcher.start()
+
+    def tearDown(self):
+        """Clean ups"""
+        self.module_patcher.stop()
+        reload_module(actionlogger)
+
+    def test_import_clash(self):
+        """Test a custom logger import clash: issue #315"""
+
+        # Re-patch for this specific test:
+        # we have a module with a name 'logger' and even a 'Logger' object
+        # but there is no 'sectionStart' attribute in the object
+        self.module_patcher.stop()
+        self.mock_logger.Logger.sectionStart = None
+        self.module_patcher = mock.patch.dict('sys.modules', self.modules)
+        self.module_patcher.start()
+
+        reload_module(actionlogger)
+        self.assertEqual(False, actionlogger._found_logger)
+
+        # Verify the fallback to the standard logger
+        active_logger = actionlogger.ActionLogger()
+        self.assertEqual(actionlogger._StandardLogger, type(active_logger))
+
+    def test_import_custom_logger(self):
+        """Test if custom logger class can be imported"""
+        reload_module(actionlogger)
+        self.assertEqual(True, actionlogger._found_logger)
+
+        active_logger = actionlogger.ActionLogger()
+        self.assertEqual(actionlogger._CustomLogger, type(active_logger))
+
+    def test_custom_logger_disable_enable_reset(self):
+        """Test if the custom logger can be disabled, enabled and level reset"""
+        reload_module(actionlogger)
+        actionlogger.disable()
+        actionlogger.enable()
+        actionlogger.reset_level()
 
 
 if __name__ == "__main__":
