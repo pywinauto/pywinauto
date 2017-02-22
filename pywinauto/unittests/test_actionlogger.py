@@ -154,7 +154,7 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         reload_module(actionlogger)
 
         # verify on mock
-        self.logger_patcher = mock.patch('__main__.actionlogger.ActionLogger', spec=True)
+        self.logger_patcher = mock.patch('pywinauto.actionlogger.ActionLogger', spec=True)
         mockLogger = self.logger_patcher.start()
 
         actionlogger.disable()
@@ -168,7 +168,7 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         reload_module(actionlogger)
 
         # verify on mock
-        self.logger_patcher = mock.patch('__main__.actionlogger.ActionLogger', spec=True)
+        self.logger_patcher = mock.patch('pywinauto.actionlogger.ActionLogger', spec=True)
         mockLogger = self.logger_patcher.start()
 
         actionlogger.enable()
