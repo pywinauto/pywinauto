@@ -110,8 +110,13 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         self.module_patcher = mock.patch.dict('sys.modules', self.modules)
         self.module_patcher.start()
 
+        self.logger_patcher = None
+
     def tearDown(self):
         """Clean ups"""
+        if self.logger_patcher:
+            self.logger_patcher.stop()
+
         self.module_patcher.stop()
         reload_module(actionlogger)
 
@@ -138,15 +143,36 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         reload_module(actionlogger)
         self.assertEqual(True, actionlogger._found_logger)
 
+        # Check there is no instance of logger created on import
+        self.mock_logger.Logger.assert_not_called()
+
         active_logger = actionlogger.ActionLogger()
         self.assertEqual(actionlogger._CustomLogger, type(active_logger))
 
-    def test_custom_logger_disable_enable_reset(self):
-        """Test if the custom logger can be disabled, enabled and level reset"""
+    def test_logger_disable_and_reset(self):
+        """Test if the logger can be disabled and level reset"""
         reload_module(actionlogger)
+
+        # verify on mock
+        self.logger_patcher = mock.patch('__main__.actionlogger.ActionLogger', spec=True)
+        mockLogger = self.logger_patcher.start()
+
         actionlogger.disable()
-        actionlogger.enable()
+        mockLogger.disable.assert_called()
+
         actionlogger.reset_level()
+        mockLogger.reset_level.assert_called()
+
+    def test_logger_enable_mapped_to_reset_level(self):
+        """Test if the logger enable is mapped to reset_level"""
+        reload_module(actionlogger)
+
+        # verify on mock
+        self.logger_patcher = mock.patch('__main__.actionlogger.ActionLogger', spec=True)
+        mockLogger = self.logger_patcher.start()
+
+        actionlogger.enable()
+        mockLogger.reset_level.assert_called()
 
 
 if __name__ == "__main__":
