@@ -396,17 +396,18 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEquals(self.ctrl.GetItem('Green').Image(), 2)
         self.assertEquals(self.ctrl.GetItem('Green').Indent(), 0)
 
-    def testEnsureVisible(self):
+    def test_ensure_visible(self):
         self.dlg.MoveWindow(width=300)
 
-        # Gray is not selected by click because it's not visible
-        self.ctrl.GetItem('Gray').Click()
-        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
-        self.dlg.set_focus()  # just in case
-
-        self.ctrl.GetItem('Gray').EnsureVisible()
+        # Gray is selected by click because ensure_visible() is called inside
         self.ctrl.GetItem('Gray').Click()
         self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), True)
+        self.dlg.set_focus()  # just in case
+
+        self.ctrl.GetItem('Green').EnsureVisible()
+        self.ctrl.GetItem('Red').Click()
+        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
+        self.assertEquals(self.ctrl.GetItem('Red').IsSelected(), True)
 
 #
 #    def testSubItems(self):

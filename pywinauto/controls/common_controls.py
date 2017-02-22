@@ -294,6 +294,7 @@ class _listview_item(object):
         where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         if where.lower() != "check":
             point_to_click = self.rectangle(area=where.lower()).mid_point()
             self.listview_ctrl.click(
@@ -369,6 +370,7 @@ class _listview_item(object):
                     pressed=pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+        return self
     # Non PEP-8 alias
     Click = click
 
@@ -379,6 +381,7 @@ class _listview_item(object):
         where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         if where.lower() != "check":
             point_to_click = self.rectangle(area=where.lower()).mid_point()
             self.listview_ctrl.click_input(
@@ -456,6 +459,7 @@ class _listview_item(object):
                     pressed=pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+        return self
     # Non PEP-8 alias
     ClickInput = click_input
 
@@ -463,7 +467,7 @@ class _listview_item(object):
     def ensure_visible(self):
         """Make sure that the ListView item is visible"""
         if self.state() & win32defines.LVS_NOSCROLL:
-            return False  # scroll is disabled
+            return None  # scroll is disabled
         ret = self.listview_ctrl.send_message(
             win32defines.LVM_ENSUREVISIBLE,
             self.item_index,
@@ -471,6 +475,7 @@ class _listview_item(object):
         if ret != win32defines.TRUE:
             raise RuntimeError('Fail to make the list view item visible ' +
                                '(item_index = ' + str(self.item_index) + ')')
+        return self
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -498,6 +503,7 @@ class _listview_item(object):
             raise ctypes.WinError()
 
         del remote_mem
+        return self
     # Non PEP-8 alias
     UnCheck = uncheck
 
@@ -526,6 +532,7 @@ class _listview_item(object):
             raise ctypes.WinError()
 
         del remote_mem
+        return self
     # Non PEP-8 alias
     Check = check
 
@@ -624,6 +631,7 @@ class _listview_item(object):
         Item can be selected otherwise an exception is raised
         """
         self._modify_selection(True)
+        return self
     # Non PEP-8 alias
     Select = select
 
@@ -635,6 +643,7 @@ class _listview_item(object):
         Item can be selected otherwise an exception is raised
         """
         self._modify_selection(False)
+        return self
     # Non PEP-8 alias
     Deselect = deselect
 
@@ -1017,6 +1026,7 @@ class _treeview_element(object):
         where can be any one of "text", "icon", "button", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         # find the text rectangle for the item,
         point_to_click = self.client_rect().mid_point()
 
@@ -1055,13 +1065,14 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
+                raise RuntimeError("Area ('{}') not found for this tree view item".format(where))
 
         self.tree_ctrl.click(
             button,
             coords=(point_to_click.x, point_to_click.y),
             double=double,
-            pressed=pressed)  # ,
+            pressed=pressed)
+        return self
         # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
         # but it doesn't work for 32-bit ControlSpyV6.exe
         #absolute = True)
@@ -1079,6 +1090,7 @@ class _treeview_element(object):
         where can be any one of "text", "icon", "button", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         # find the text rectangle for the item,
         point_to_click = self.client_rect().mid_point()
 
@@ -1125,6 +1137,7 @@ class _treeview_element(object):
             double=double,
             wheel_dist=wheel_dist,
             pressed=pressed)
+        return self
     # Non PEP-8 alias
     ClickInput = click_input
 
@@ -1142,6 +1155,7 @@ class _treeview_element(object):
         for i in range(5):
             self.tree_ctrl.move_mouse_input(
                 coords=(rect.left + i, rect.top), pressed=pressed, absolute=False)
+        return self
     # Non PEP-8 alias
     StartDragging = start_dragging
 
@@ -1159,6 +1173,7 @@ class _treeview_element(object):
         self.tree_ctrl.release_mouse_input(
             button, coords=(point_to_click.x, point_to_click.y), pressed=pressed, absolute=False)
         time.sleep(Timings.after_drag_n_drop_wait)
+        return self
     # Non PEP-8 alias
     Drop = drop
 
@@ -1169,6 +1184,7 @@ class _treeview_element(object):
             win32defines.TVM_EXPAND,
             win32defines.TVE_COLLAPSE,
             self.elem)
+        return self
     # Non PEP-8 alias
     Collapse = collapse
 
@@ -1179,6 +1195,7 @@ class _treeview_element(object):
             win32defines.TVM_EXPAND,
             win32defines.TVE_EXPAND,
             self.elem)
+        return self
     # Non PEP-8 alias
     Expand = expand
 
@@ -1297,6 +1314,8 @@ class _treeview_element(object):
             win32defines.TVM_ENSUREVISIBLE,
             win32defines.TVGN_CARET,
             self.elem)
+        win32functions.WaitGuiThreadIdle(self.tree_ctrl)
+        return self
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -1314,6 +1333,7 @@ class _treeview_element(object):
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
+        return self
     # Non PEP-8 alias
     Select = select
 
@@ -1590,12 +1610,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     def ensure_visible(self, path):
         """Make sure that the TreeView item is visible"""
         elem = self.get_item(path)
-        self.send_message_timeout(
-            win32defines.TVM_ENSUREVISIBLE,  # message
-            win32defines.TVGN_CARET,         # how to select
-            elem.elem)                       # item to select
-
-        win32functions.WaitGuiThreadIdle(self)
+        return elem.ensure_visible()
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 

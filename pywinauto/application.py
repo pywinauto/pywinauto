@@ -77,6 +77,7 @@ import win32api
 import win32gui
 import win32con
 import win32event
+import six
 
 from . import controls
 from . import findbestmatch
@@ -625,7 +626,10 @@ class WindowSpecification(object):
                     criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
                     output += indent + u'child_window(' + u', '.join(criteria_texts) + u')'
-                print(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
+                if six.PY3:
+                    print(output)
+                else:
+                    print(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
                 print_identifiers(ctrl.children(), current_depth + 1)
 
