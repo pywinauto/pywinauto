@@ -36,6 +36,8 @@ import unittest
 import os
 import sys
 import logging
+import mock
+from six.moves import reload_module
 sys.path.append(".")
 from pywinauto import actionlogger  # noqa: E402
 from pywinauto.application import Application  # noqa: E402
@@ -51,9 +53,9 @@ def _notepad_exe():
         return r"C:\Windows\SysWOW64\notepad.exe"
 
 
-class ActionloggerTestCases(unittest.TestCase):
+class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
 
-    """Unit tests for the actionlogger"""
+    """Unit tests for the actionlogger based on _StandardLogger"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -91,6 +93,86 @@ class ActionloggerTestCases(unittest.TestCase):
         actionlogger.enable()
         self.app.window(title='About Notepad').OK.Click()
         self.assertEqual(self.__lineCount(), prev_line_count + 2)
+
+
+class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
+
+    """Unit tests for the actionlogger based on _CustomLogger"""
+
+    def setUp(self):
+        """Set a mock logger package in modules"""
+
+        # http://www.voidspace.org.uk/python/mock/examples.html#mocking-imports-with-patch-dict
+        self.mock_logger = mock.MagicMock()
+        self.modules = {
+            "logger": self.mock_logger,
+        }
+        self.module_patcher = mock.patch.dict('sys.modules', self.modules)
+        self.module_patcher.start()
+
+        self.logger_patcher = None
+
+    def tearDown(self):
+        """Clean ups"""
+        if self.logger_patcher:
+            self.logger_patcher.stop()
+
+        self.module_patcher.stop()
+        reload_module(actionlogger)
+
+    def test_import_clash(self):
+        """Test a custom logger import clash: issue #315"""
+
+        # Re-patch for this specific test:
+        # we have a module with a name 'logger' and even a 'Logger' object
+        # but there is no 'sectionStart' attribute in the object
+        self.module_patcher.stop()
+        self.mock_logger.Logger.sectionStart = None
+        self.module_patcher = mock.patch.dict('sys.modules', self.modules)
+        self.module_patcher.start()
+
+        reload_module(actionlogger)
+        self.assertEqual(False, actionlogger._found_logger)
+
+        # Verify the fallback to the standard logger
+        active_logger = actionlogger.ActionLogger()
+        self.assertEqual(actionlogger._StandardLogger, type(active_logger))
+
+    def test_import_custom_logger(self):
+        """Test if custom logger class can be imported"""
+        reload_module(actionlogger)
+        self.assertEqual(True, actionlogger._found_logger)
+
+        # Check there is no instance of logger created on import
+        self.mock_logger.Logger.assert_not_called()
+
+        active_logger = actionlogger.ActionLogger()
+        self.assertEqual(actionlogger._CustomLogger, type(active_logger))
+
+    def test_logger_disable_and_reset(self):
+        """Test if the logger can be disabled and level reset"""
+        reload_module(actionlogger)
+
+        # verify on mock
+        self.logger_patcher = mock.patch('pywinauto.actionlogger.ActionLogger', spec=True)
+        mockLogger = self.logger_patcher.start()
+
+        actionlogger.disable()
+        mockLogger.disable.assert_called()
+
+        actionlogger.reset_level()
+        mockLogger.reset_level.assert_called()
+
+    def test_logger_enable_mapped_to_reset_level(self):
+        """Test if the logger enable is mapped to reset_level"""
+        reload_module(actionlogger)
+
+        # verify on mock
+        self.logger_patcher = mock.patch('pywinauto.actionlogger.ActionLogger', spec=True)
+        mockLogger = self.logger_patcher.start()
+
+        actionlogger.enable()
+        mockLogger.reset_level.assert_called()
 
 
 if __name__ == "__main__":
