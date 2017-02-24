@@ -1,6 +1,4 @@
-import gi
-gi.require_version('Atspi', '2.0')
-from gi.repository import Atspi
+from . import atspi_functions
 from .element_info import ElementInfo
 
 
@@ -111,7 +109,7 @@ class AtpsiElementInfo(ElementInfo):
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
         if handle is None:
-            self._handle = Atspi.get_desktop(0)
+            self._handle = atspi_functions.get_desktop(0)
         else:
             self._handle = handle
 
@@ -123,34 +121,34 @@ class AtpsiElementInfo(ElementInfo):
     @property
     def name(self):
         """Return the text of the window"""
-        return self._handle.get_name()
+        return atspi_functions.get_name(self._handle)
 
     @property
     def control_id(self):
         """Return the ID of the window"""
-        return self._handle.get_id()
+        return atspi_functions.get_id(self._handle)
 
     @property
     def process_id(self):
         """Return the ID of process that controls this window"""
-        return self._handle.get_process_id()
+        return atspi_functions.get_process_id(self._handle)
 
     @property
     def class_name(self):
         """Return the class name of the element"""
-        return self._handle.get_role_name()
+        return atspi_functions.get_role_name(self._handle)
 
     @property
     def parent(self):
         """Return the parent of the element"""
-        return self._handle.get_parent()
+        return atspi_functions.get_parent(self._handle)
 
     def children(self, **kwargs):
         """Return children of the element"""
-        len = self._handle.get_child_count()
+        len = atspi_functions.get_child_count(self._handle)
         childrens = []
         for i in range(len):
-            childrens.append(self._handle.get_child_at_index(i))
+            childrens.append(atspi_functions.get_child_at_index(self._handle, i))
         return childrens
 
     def descendants(self, **kwargs):
@@ -162,8 +160,8 @@ class AtpsiElementInfo(ElementInfo):
         """Return rectangle of element"""
         # component = self._handle.queryComponent()
         rect = RECT()
-        position = self._handle.get_position(0)
-        size = self._handle.get_size()
+        position = atspi_functions.get_position(0)
+        size = atspi_functions.get_size()
         rect.left = position.x
         rect.top = position.y
         rect.right = rect.left + size.x
