@@ -475,6 +475,20 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.Set.set_focus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
 
+    def test_issue_318(self):
+        self.dlg.restore()
+        self.dlg.minimize()
+        self.dlg.set_focus()
+        self.assertTrue(self.dlg.is_normal())
+        self.assertTrue(self.dlg.is_active())
+
+        self.dlg.maximize()
+        self.dlg.minimize()
+        self.dlg.set_focus()
+        self.assertTrue(self.dlg.is_maximized())
+        self.assertTrue(self.dlg.is_active())
+        self.dlg.restore()
+
     def testSetFocus(self):
         self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
         self.dlg.Set.set_focus()
