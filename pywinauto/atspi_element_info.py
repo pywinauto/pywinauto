@@ -50,7 +50,7 @@ class AtspiElementInfo(ElementInfo):
         childrens = []
         for i in range(len):
             childrens.append(atspi_functions.get_child_at_index(self._handle, i, None))
-        return childrens
+        return [AtspiElementInfo(ch) for ch in childrens]
 
     def descendants(self, **kwargs):
         """Return descendants of the element"""
@@ -61,7 +61,7 @@ class AtspiElementInfo(ElementInfo):
         """Return rectangle of element"""
         component = atspi_functions.get_component(self._handle)
         rect = AtspiRect()
-        rect = atspi_functions.get_rectangle(component)
+        rect = atspi_functions.get_rectangle(component, 0, None)
         return rect
 
     def dump_window(self):
