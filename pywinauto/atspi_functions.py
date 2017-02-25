@@ -1,5 +1,15 @@
 import ctypes
-from ctypes import c_char_p
+from ctypes import c_char_p, c_int
+
+
+class AtspiRect (ctypes.Structure):
+    _fields_ = [
+        ('x', c_int),
+        ('y', c_int),
+        ('width', c_int),
+        ('height', c_int),
+    ]
+
 
 atspi = ctypes.cdll.LoadLibrary("libatspi.so")
 get_desktop = atspi.atspi_get_desktop
@@ -14,3 +24,6 @@ get_child_count = atspi.atspi_accessible_get_child_count
 get_child_at_index = atspi.atspi_accessible_get_child_at_index
 get_position = atspi.atspi_component_get_position
 get_size = atspi.atspi_component_get_size
+get_rectangle = atspi.atspi_component_get_extents
+get_rectangle.restype = AtspiRect
+get_component = atspi.atspi_accessible_get_component_iface
