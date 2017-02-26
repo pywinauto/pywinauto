@@ -1174,7 +1174,10 @@ class HwndWrapper(BaseWrapper):
             mouse.move(coords=(-10000, 500))  # move the mouse out of screen to the left
 
             # change active window
-            win32gui.ShowWindow(self.handle, win32con.SW_RESTORE)
+            if self.is_minimized():
+                win32gui.ShowWindow(self.handle, win32con.SW_RESTORE)
+            else:
+                win32gui.ShowWindow(self.handle, win32con.SW_SHOW)
             win32gui.SetForegroundWindow(self.handle)
 
             # make sure that we are idle before returning
