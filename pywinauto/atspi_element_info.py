@@ -60,9 +60,8 @@ class AtspiElementInfo(ElementInfo):
     def rectangle(self):
         """Return rectangle of element"""
         component = atspi_functions.get_component(self._handle)
-        rect = AtspiRect()
-        rect = atspi_functions.get_rectangle(component, 0, None)
-        return rect
+        prect = atspi_functions.get_rectangle(component, 0, None)
+        return prect.contents
 
     def dump_window(self):
         """Dump an element to a set of properties"""
