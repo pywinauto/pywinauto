@@ -2,6 +2,22 @@
 Change Log
 ==========
 
+0.6.2 More bug fixes
+--------------------------------------------------------------------
+28-February-2017
+ * Several bugs were fixed:
+
+   - Maximized window is always resized (restored) when calling ``set_focus()``.
+   - AttributeError: type object '_CustomLogger' has no attribute 'disable'.
+   - ``print_control_identifiers()`` gets bytes string on Python 3.x.
+   - Importing pywinauto causes debug messages to appear twice.
+
+ * Improved click methods behaviour for Win32 ListView and TreeView:
+   ``ensure_visible()`` is called inside before the click.
+
+ * Made ``taskbar.SystemTrayIcons`` localization friendly.
+
+
 0.6.1 Bug fixes and optimizations for UI Automation and beyond
 --------------------------------------------------------------------
 08-February-2017
