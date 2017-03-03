@@ -6,6 +6,7 @@ import time
 import os
 import sys
 import unittest
+import mock
 
 sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
@@ -329,6 +330,44 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
+
+        def test_pretty_print(self):
+            """Test __str__ method for UIA based controls"""
+            prefix = 'controls\.uia_controls\.'
+            suffix = '  <object 0x.+>$'
+
+            wrp = self.dlg.OK.wrapper_object()
+            self.assertRegexpMatches(wrp.__str__(), prefix + 'ButtonWrapper - "OK"' + suffix)
+
+            wrp = self.dlg.CheckBox.wrapper_object()
+            self.assertRegexpMatches(wrp.__str__(), prefix + 'ButtonWrapper - "CheckBox"' + suffix)
+
+            wrp = self.dlg.window(class_name="TextBox").wrapper_object()
+            self.assertRegexpMatches(wrp.__str__(), prefix + 'EditWrapper - ""' + suffix)
+
+            wrp = self.dlg.TabControl.wrapper_object()
+            self.assertRegexpMatches(wrp.__str__(), prefix + 'TabControlWrapper - "General"' + suffix)
+
+            wrp = self.dlg.MenuBar.wrapper_object()
+            self.assertRegexpMatches(wrp.__str__(), prefix + 'MenuWrapper - "System"' + suffix)
+
+            wrp = self.dlg.Slider.wrapper_object()
+            self.assertRegexpMatches(wrp.__str__(), prefix + 'SliderWrapper - ""' + suffix)
+
+            wrp = self.dlg.wrapper_object()
+            self.assertRegexpMatches(
+                wrp.__str__(),
+                'controls\.uiawrapper\.UIAWrapper - "WPF Sample Application"' + suffix
+            )
+
+            # mock a failure in texts() method
+            orig = wrp.texts
+            wrp.texts = mock.Mock(return_value=[])
+            self.assertRegexpMatches(
+                wrp.__str__(),
+                'controls\.uiawrapper\.UIAWrapper' + suffix
+            )
+            wrp.texts = orig  # restore the original method
 
         def test_friendly_class_names(self):
             """Test getting friendly class names of common controls"""

@@ -147,7 +147,26 @@ class BaseWrapper(object):
             self._cache = {}
             self.actions = ActionLogger()
         else:
-            raise RuntimeError('NULL pointer used to initialize BaseWrapper')
+            raise RuntimeError('NULL pointer was used to initialize BaseWrapper')
+
+    def __str__(self):
+        """Pretty print representation of the wrapper object"""
+        type_name = str(self.__class__)[18:-2]
+        title = ''
+        try:
+            title = ' - "' + self.texts()[0] + '"'
+        except IndexError:
+            self.actions.log("{0}.__str__ () failed to get title of the object"
+                             .format(self.__class__))
+
+        res = "".join([
+            type_name,
+            title,
+            '  <object ',
+            hex(id(self))[:-1],
+            '>'
+        ])
+        return res
 
     #------------------------------------------------------------
     @property
