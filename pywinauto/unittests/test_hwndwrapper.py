@@ -514,12 +514,15 @@ class HwndWrapperTests(unittest.TestCase):
 
         wrp = self.dlg.wrapper_object()
         assert_regex(wrp.__str__(), "^hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog$")
+        assert_regex(wrp.__repr__(), "^hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog, <[0-9-]+>$")
 
         wrp = self.ctrl
         assert_regex(wrp.__str__(), "^win32_controls.ButtonWrapper - 'Command button here', Button$")
+        assert_regex(wrp.__repr__(), "^win32_controls.ButtonWrapper - 'Command button here', Button, <[0-9-]+>$")
 
         wrp = self.dlg.TabControl.wrapper_object()
         assert_regex(wrp.__str__(), "^common_controls.TabControlWrapper - '', TabControl$")
+        assert_regex(wrp.__repr__(), "^common_controls.TabControlWrapper - '', TabControl, <[0-9-]+>$")
 
 
 class HwndWrapperMenuTests(unittest.TestCase):

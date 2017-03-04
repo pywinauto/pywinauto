@@ -36,8 +36,26 @@ class ElementInfo(object):
 
     """Abstract wrapper for an element"""
 
+    def __repr__(self):
+        """Representation of the element info object
+
+        The method prints the following info:
+        * type name as a module name and a class name of the object
+        * title of the control or empty string
+        * class name of the control
+        * unique ID of the control, usually a handle
+        """
+        obj = ', <' + str(self.handle) + '>'
+        return self.__str__() + obj
+
     def __str__(self):
-        """Pretty print representation of the element info object"""
+        """Pretty print representation of the element info object
+
+        The method prints the following info:
+        * type name as a module name and class name of the object
+        * title of the control or empty string
+        * class name of the control
+        """
         module = self.__class__.__module__
         module = module[module.rfind('.') + 1:]
         type_name = module + "." + self.__class__.__name__
