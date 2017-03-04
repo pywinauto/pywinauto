@@ -37,14 +37,15 @@ from . import win32functions
 from . import handleprops
 from .element_info import ElementInfo
 
+
 class HwndElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
 
-    def __init__(self, handle = None):
+    def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
         self._cache = {}
-        if handle is None: # root element
+        if handle is None:  # root element
             self._handle = win32functions.GetDesktopWindow()
         else:
             self._handle = handle
@@ -103,7 +104,7 @@ class HwndElementInfo(ElementInfo):
 
     def children(self, **kwargs):
         """Return a list of immediate children of the window"""
-        if self == HwndElementInfo(): # self == root
+        if self == HwndElementInfo():  # self == root
             child_handles = []
 
             # The callback function that will be called for each HWND
