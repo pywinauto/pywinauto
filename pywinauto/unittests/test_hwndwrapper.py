@@ -33,6 +33,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import six
 import time
 #import pprint
 #import pdb
@@ -503,6 +504,22 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(self.dlg.get_focus(), self.dlg.set.handle)
         self.dlg.set.set_keyboard_focus()
         self.assertEqual(self.dlg.get_focus(), self.dlg.set.handle)
+
+    def test_pretty_print(self):
+        """Test __str__ method for HwndWrapper based controls"""
+        if six.PY3:
+            assert_regex = self.assertRegex
+        else:
+            assert_regex = self.assertRegexpMatches
+
+        wrp = self.dlg.wrapper_object()
+        assert_regex(wrp.__str__(), '^hwndwrapper.DialogWrapper - "Common Controls Sample"$')
+
+        wrp = self.ctrl
+        assert_regex(wrp.__str__(), '^win32_controls.ButtonWrapper - "Command button here"$')
+
+        wrp = self.dlg.TabControl.wrapper_object()
+        assert_regex(wrp.__str__(), '^common_controls.TabControlWrapper - "" <object 0x.+>$')
 
 
 class HwndWrapperMenuTests(unittest.TestCase):
