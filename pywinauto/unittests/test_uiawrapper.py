@@ -340,45 +340,45 @@ if UIA_support:
                 assert_regex = self.assertRegexpMatches
 
             prefix = '^uia_controls\.'
-            suffix = ' <object 0x.+>$'
 
             wrp = self.dlg.OK.wrapper_object()
-            assert_regex(wrp.__str__(), prefix + 'ButtonWrapper - "OK"')
+            assert_regex(wrp.__str__(), prefix + "ButtonWrapper - 'OK', Button$")
 
             wrp = self.dlg.CheckBox.wrapper_object()
-            assert_regex(wrp.__str__(), prefix + 'ButtonWrapper - "CheckBox"')
+            assert_regex(wrp.__str__(), prefix + "ButtonWrapper - 'CheckBox', CheckBox$", )
 
             wrp = self.dlg.child_window(class_name="TextBox").wrapper_object()
-            assert_regex(wrp.__str__(), prefix + 'EditWrapper - ""' + suffix)
-            assert_regex(wrp.element_info.__str__(), 'uia_element_info.UIAElementInfo - ""' + suffix)
+            assert_regex(wrp.__str__(), prefix + "EditWrapper - '', Edit$")
+            assert_regex(wrp.element_info.__str__(), "uia_element_info.UIAElementInfo - '', TextBox$")
 
             wrp = self.dlg.TabControl.wrapper_object()
-            assert_regex(wrp.__str__(), prefix + 'TabControlWrapper - "General"')
+            assert_regex(wrp.__str__(), prefix + "TabControlWrapper - 'General', TabControl$")
 
             wrp = self.dlg.MenuBar.wrapper_object()
-            assert_regex(wrp.__str__(), prefix + 'MenuWrapper - "System"')
+            assert_regex(wrp.__str__(), prefix + "MenuWrapper - 'System', Menu$")
 
             wrp = self.dlg.Slider.wrapper_object()
-            assert_regex(wrp.__str__(), prefix + 'SliderWrapper - ""' + suffix)
+            assert_regex(wrp.__str__(), prefix + "SliderWrapper - '', Slider$")
 
             wrp = self.dlg.wrapper_object()
-            assert_regex(wrp.__str__(), '^uiawrapper\.UIAWrapper - "WPF Sample Application"$')
+            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog$")
 
             # ElementInfo.__str__
-            assert_regex(wrp.element_info.__str__(), '^uia_element_info.UIAElementInfo - "WPF Sample Application"$')
+            assert_regex(wrp.element_info.__str__(),
+                         "^uia_element_info.UIAElementInfo - 'WPF Sample Application', Window$")
 
             # mock a failure in texts() method
             orig = wrp.texts
             wrp.texts = mock.Mock(return_value=[])  # empty texts
-            assert_regex(wrp.__str__(), '^uiawrapper\.UIAWrapper - ""' + suffix)
+            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '', Dialog$")
             wrp.texts.return_value = [u'\xd1\xc1\\\xa1\xb1\ua000']  # unicode string
-            assert_regex(wrp.__str__(), '^uiawrapper\.UIAWrapper - ".+"$')
+            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '.+', Dialog$")
             wrp.texts = orig  # restore the original method
 
             # mock a failure in element_info.name property (it's based on _get_name())
             orig = wrp.element_info._get_name
             wrp.element_info._get_name = mock.Mock(return_value=None)
-            assert_regex(wrp.element_info.__str__(), '^uia_element_info\.UIAElementInfo - ""' + suffix)
+            assert_regex(wrp.element_info.__str__(), "^uia_element_info\.UIAElementInfo - 'None', Window$")
             wrp.element_info._get_name = orig
 
         def test_friendly_class_names(self):

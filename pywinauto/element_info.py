@@ -41,17 +41,13 @@ class ElementInfo(object):
         module = self.__class__.__module__
         module = module[module.rfind('.') + 1:]
         type_name = module + "." + self.__class__.__name__
-        title = ' - "'
+
         try:
-            title += self.name + '"'
+            title = self.name
         except TypeError:
-            title += '"'
+            title = ""
 
-        # Put an ID if no title
-        if title == ' - ""':
-            title += ' <object ' + hex(id(self))[:-1] + '>'
-
-        return type_name + title
+        return "{0} - '{1}', {2}".format(type_name, title, self.class_name)
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""

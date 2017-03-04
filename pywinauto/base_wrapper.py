@@ -154,17 +154,15 @@ class BaseWrapper(object):
         module = self.__class__.__module__
         module = module[module.rfind('.') + 1:]
         type_name = module + "." + self.__class__.__name__
-        title = ' - "'
+
         try:
-            title += self.texts()[0] + '"'
+            title = self.texts()[0]
         except IndexError:
-            title += '"'
+            title = ""
 
-        # Put an ID if no title
-        if title == ' - ""':
-            title += ' <object ' + hex(id(self))[:-1] + '>'
+        class_name = self.friendly_class_name()
 
-        return type_name + title
+        return "{0} - '{1}', {2}".format(type_name, title, class_name)
 
     #------------------------------------------------------------
     @property

@@ -513,13 +513,13 @@ class HwndWrapperTests(unittest.TestCase):
             assert_regex = self.assertRegexpMatches
 
         wrp = self.dlg.wrapper_object()
-        assert_regex(wrp.__str__(), '^hwndwrapper.DialogWrapper - "Common Controls Sample"$')
+        assert_regex(wrp.__str__(), "^hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog$")
 
         wrp = self.ctrl
-        assert_regex(wrp.__str__(), '^win32_controls.ButtonWrapper - "Command button here"$')
+        assert_regex(wrp.__str__(), "^win32_controls.ButtonWrapper - 'Command button here', Button$")
 
         wrp = self.dlg.TabControl.wrapper_object()
-        assert_regex(wrp.__str__(), '^common_controls.TabControlWrapper - "" <object 0x.+>$')
+        assert_regex(wrp.__str__(), "^common_controls.TabControlWrapper - '', TabControl$")
 
 
 class HwndWrapperMenuTests(unittest.TestCase):
