@@ -151,22 +151,20 @@ class BaseWrapper(object):
 
     def __str__(self):
         """Pretty print representation of the wrapper object"""
-        type_name = str(self.__class__)[18:-2]
-        title = ''
+        module = self.__class__.__module__
+        module = module[module.rfind('.') + 1:]
+        type_name = module + "." + self.__class__.__name__
+        title = ' - "'
         try:
-            title = ' - "' + self.texts()[0] + '"'
+            title += self.texts()[0] + '"'
         except IndexError:
-            self.actions.log("{0}.__str__ () failed to get title of the object"
-                             .format(self.__class__))
+            title += '"'
 
-        res = "".join([
-            type_name,
-            title,
-            '  <object ',
-            hex(id(self))[:-1],
-            '>'
-        ])
-        return res
+        # Put an ID if no title
+        if title == ' - ""':
+            title += ' <object ' + hex(id(self))[:-1] + '>'
+
+        return type_name + title
 
     #------------------------------------------------------------
     @property

@@ -7,6 +7,7 @@ import os
 import sys
 import unittest
 import mock
+import six
 
 sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
@@ -333,41 +334,52 @@ if UIA_support:
 
         def test_pretty_print(self):
             """Test __str__ method for UIA based controls"""
-            prefix = 'controls\.uia_controls\.'
-            suffix = '  <object 0x.+>$'
+            if six.PY3:
+                assert_regex = self.assertRegex
+            else:
+                assert_regex = self.assertRegexpMatches
+
+            prefix = '^uia_controls\.'
+            suffix = ' <object 0x.+>$'
 
             wrp = self.dlg.OK.wrapper_object()
-            self.assertRegexpMatches(wrp.__str__(), prefix + 'ButtonWrapper - "OK"' + suffix)
+            assert_regex(wrp.__str__(), prefix + 'ButtonWrapper - "OK"')
 
             wrp = self.dlg.CheckBox.wrapper_object()
-            self.assertRegexpMatches(wrp.__str__(), prefix + 'ButtonWrapper - "CheckBox"' + suffix)
+            assert_regex(wrp.__str__(), prefix + 'ButtonWrapper - "CheckBox"')
 
-            wrp = self.dlg.window(class_name="TextBox").wrapper_object()
-            self.assertRegexpMatches(wrp.__str__(), prefix + 'EditWrapper - ""' + suffix)
+            wrp = self.dlg.child_window(class_name="TextBox").wrapper_object()
+            assert_regex(wrp.__str__(), prefix + 'EditWrapper - ""' + suffix)
+            assert_regex(wrp.element_info.__str__(), 'uia_element_info.UIAElementInfo - ""' + suffix)
 
             wrp = self.dlg.TabControl.wrapper_object()
-            self.assertRegexpMatches(wrp.__str__(), prefix + 'TabControlWrapper - "General"' + suffix)
+            assert_regex(wrp.__str__(), prefix + 'TabControlWrapper - "General"')
 
             wrp = self.dlg.MenuBar.wrapper_object()
-            self.assertRegexpMatches(wrp.__str__(), prefix + 'MenuWrapper - "System"' + suffix)
+            assert_regex(wrp.__str__(), prefix + 'MenuWrapper - "System"')
 
             wrp = self.dlg.Slider.wrapper_object()
-            self.assertRegexpMatches(wrp.__str__(), prefix + 'SliderWrapper - ""' + suffix)
+            assert_regex(wrp.__str__(), prefix + 'SliderWrapper - ""' + suffix)
 
             wrp = self.dlg.wrapper_object()
-            self.assertRegexpMatches(
-                wrp.__str__(),
-                'controls\.uiawrapper\.UIAWrapper - "WPF Sample Application"' + suffix
-            )
+            assert_regex(wrp.__str__(), '^uiawrapper\.UIAWrapper - "WPF Sample Application"$')
+
+            # ElementInfo.__str__
+            assert_regex(wrp.element_info.__str__(), '^uia_element_info.UIAElementInfo - "WPF Sample Application"$')
 
             # mock a failure in texts() method
             orig = wrp.texts
-            wrp.texts = mock.Mock(return_value=[])
-            self.assertRegexpMatches(
-                wrp.__str__(),
-                'controls\.uiawrapper\.UIAWrapper' + suffix
-            )
+            wrp.texts = mock.Mock(return_value=[])  # empty texts
+            assert_regex(wrp.__str__(), '^uiawrapper\.UIAWrapper - ""' + suffix)
+            wrp.texts.return_value = [u'\xd1\xc1\\\xa1\xb1\ua000']  # unicode string
+            assert_regex(wrp.__str__(), '^uiawrapper\.UIAWrapper - ".+"$')
             wrp.texts = orig  # restore the original method
+
+            # mock a failure in element_info.name property (it's based on _get_name())
+            orig = wrp.element_info._get_name
+            wrp.element_info._get_name = mock.Mock(return_value=None)
+            assert_regex(wrp.element_info.__str__(), '^uia_element_info\.UIAElementInfo - ""' + suffix)
+            wrp.element_info._get_name = orig
 
         def test_friendly_class_names(self):
             """Test getting friendly class names of common controls"""
@@ -389,7 +401,7 @@ if UIA_support:
             friendly_name = self.dlg.TabControl.friendly_class_name()
             self.assertEqual(friendly_name, "TabControl")
 
-            edit = self.dlg.window(class_name="TextBox").wrapper_object()
+            edit = self.dlg.child_window(class_name="TextBox").wrapper_object()
             self.assertEqual(edit.friendly_class_name(), "Edit")
 
             slider = self.dlg.Slider.wrapper_object()
