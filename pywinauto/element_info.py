@@ -45,8 +45,7 @@ class ElementInfo(object):
         * class name of the control
         * unique ID of the control, usually a handle
         """
-        obj = ', <' + str(self.handle) + '>'
-        return self.__str__() + obj
+        return '<{0}, {1}>'.format(self.__str__(), self.handle)
 
     def __str__(self):
         """Pretty print representation of the element info object
@@ -60,12 +59,7 @@ class ElementInfo(object):
         module = module[module.rfind('.') + 1:]
         type_name = module + "." + self.__class__.__name__
 
-        try:
-            title = self.name
-        except TypeError:
-            title = ""
-
-        return "{0} - '{1}', {2}".format(type_name, title, self.class_name)
+        return "{0} - '{1}', {2}".format(type_name, self.name, self.class_name)
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""

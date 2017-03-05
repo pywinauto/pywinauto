@@ -162,8 +162,7 @@ class BaseWrapper(object):
         a windows specification to access the control, while the unique ID is more for
         debugging purposes helping to distinguish between the runtime objects.
         """
-        obj = ', <' + str(self.__hash__()) + '>'
-        return self.__str__() + obj
+        return '<{0}, {1}>'.format(self.__str__(), self.__hash__())
 
     def __str__(self):
         """Pretty print representation of the wrapper object
