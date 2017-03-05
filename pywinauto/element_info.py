@@ -31,9 +31,35 @@
 
 """Interface for classes which should deal with different backend elements"""
 
+
 class ElementInfo(object):
 
     """Abstract wrapper for an element"""
+
+    def __repr__(self):
+        """Representation of the element info object
+
+        The method prints the following info:
+        * type name as a module name and a class name of the object
+        * title of the control or empty string
+        * class name of the control
+        * unique ID of the control, usually a handle
+        """
+        return '<{0}, {1}>'.format(self.__str__(), self.handle)
+
+    def __str__(self):
+        """Pretty print representation of the element info object
+
+        The method prints the following info:
+        * type name as a module name and class name of the object
+        * title of the control or empty string
+        * class name of the control
+        """
+        module = self.__class__.__module__
+        module = module[module.rfind('.') + 1:]
+        type_name = module + "." + self.__class__.__name__
+
+        return "{0} - '{1}', {2}".format(type_name, self.name, self.class_name)
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""

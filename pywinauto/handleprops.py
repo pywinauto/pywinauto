@@ -60,12 +60,14 @@ def text(handle):
     # WM_GETTEXTLENGTH may hang even for notepad.exe main window!
     c_length = win32structures.DWORD(0)
     result = win32functions.SendMessageTimeout(
-                        handle,
-                        win32defines.WM_GETTEXTLENGTH,
-                        0, 0,
-                        win32defines.SMTO_ABORTIFHUNG,
-                        500,
-                        ctypes.byref(c_length))
+        handle,
+        win32defines.WM_GETTEXTLENGTH,
+        0,
+        0,
+        win32defines.SMTO_ABORTIFHUNG,
+        500,
+        ctypes.byref(c_length)
+    )
     if result == 0:
         ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
         return None
@@ -88,62 +90,74 @@ def text(handle):
 
     return textval
 
+
 #=========================================================================
 def classname(handle):
     """Return the class name of the window"""
     class_name = (ctypes.c_wchar * 257)()
-    win32functions.GetClassName (handle, ctypes.byref(class_name), 256)
+    win32functions.GetClassName(handle, ctypes.byref(class_name), 256)
     return class_name.value
+
 
 #=========================================================================
 def parent(handle):
     """Return the handle of the parent of the window"""
     return win32functions.GetParent(handle)
 
+
 #=========================================================================
 def style(handle):
     """Return the style of the window"""
-    return win32functions.GetWindowLong (handle, win32defines.GWL_STYLE)
+    return win32functions.GetWindowLong(handle, win32defines.GWL_STYLE)
+
 
 #=========================================================================
 def exstyle(handle):
     """Return the extended style of the window"""
-    return win32functions.GetWindowLong (handle, win32defines.GWL_EXSTYLE)
+    return win32functions.GetWindowLong(handle, win32defines.GWL_EXSTYLE)
+
 
 #=========================================================================
 def controlid(handle):
     """Return the ID of the control"""
-    return win32functions.GetWindowLong (handle, win32defines.GWL_ID)
+    return win32functions.GetWindowLong(handle, win32defines.GWL_ID)
+
 
 #=========================================================================
 def userdata(handle):
     """Return the value of any user data associated with the window"""
-    return win32functions.GetWindowLong (handle, win32defines.GWL_USERDATA)
+    return win32functions.GetWindowLong(handle, win32defines.GWL_USERDATA)
+
 
 #=========================================================================
 def contexthelpid(handle):
     """Return the context help id of the window"""
-    return win32functions.GetWindowContextHelpId (handle)
+    return win32functions.GetWindowContextHelpId(handle)
+
 
 #=========================================================================
 def iswindow(handle):
     """Return True if the handle is a window"""
     return bool(win32functions.IsWindow(handle))
 
+
 #=========================================================================
 def isvisible(handle):
     """Return True if the window is visible"""
     return bool(win32functions.IsWindowVisible(handle))
+
 
 #=========================================================================
 def isunicode(handle):
     """Return True if the window is a Unicode window"""
     return bool(win32functions.IsWindowUnicode(handle))
 
+
 #=========================================================================
 def isenabled(handle):
     """Return True if the window is enabled"""
     return bool(win32functions.IsWindowEnabled(handle))
+
 
 #=========================================================================
 def is64bitprocess(process_id):
@@ -162,12 +176,14 @@ def is64bitprocess(process_id):
 
     return (not is32)
 
+
 #=========================================================================
 def is64bitbinary(filename):
     """Check if the file is 64-bit binary"""
     import win32file
     binary_type = win32file.GetBinaryType(filename)
     return binary_type != win32file.SCS_32BIT_BINARY
+
 
 #=========================================================================
 def clientrect(handle):
@@ -176,12 +192,14 @@ def clientrect(handle):
     win32functions.GetClientRect(handle, ctypes.byref(client_rect))
     return client_rect
 
+
 #=========================================================================
 def rectangle(handle):
     """Return the rectangle of the window"""
     rect = win32structures.RECT()
     win32functions.GetWindowRect(handle, ctypes.byref(rect))
     return rect
+
 
 #=========================================================================
 def font(handle):
@@ -232,7 +250,7 @@ def font(handle):
     if is_toplevel_window(handle):
 
         if "MS Shell Dlg" in fontval.lfFaceName or \
-            fontval.lfFaceName == "System":
+           fontval.lfFaceName == "System":
             # these are not usually the fonts actaully used in for
             # title bars so we need to get the default title bar font
 
@@ -257,11 +275,13 @@ def font(handle):
 
     return fontval
 
+
 #=========================================================================
 def processid(handle):
     """Return the ID of process that controls this window"""
     _, process_id = win32process.GetWindowThreadProcessId(int(handle))
     return process_id
+
 
 #=========================================================================
 def children(handle):
@@ -280,9 +300,9 @@ def children(handle):
 
     # define the child proc type
     enum_child_proc_t = ctypes.WINFUNCTYPE(
-        ctypes.c_int, 			# return type
-        win32structures.HWND, 	# the window handle
-        win32structures.LPARAM)	# extra information
+        ctypes.c_int,            # return type
+        win32structures.HWND,    # the window handle
+        win32structures.LPARAM)  # extra information
 
     # update the proc to the correct type
     proc = enum_child_proc_t(enum_child_proc)
@@ -292,17 +312,20 @@ def children(handle):
 
     return child_windows
 
+
 #=========================================================================
 def has_style(handle, tocheck):
     """Return True if the control has style tocheck"""
     hwnd_style = style(handle)
     return tocheck & hwnd_style == tocheck
 
+
 #=========================================================================
 def has_exstyle(handle, tocheck):
     """Return True if the control has extended style tocheck"""
     hwnd_exstyle = exstyle(handle)
     return tocheck & hwnd_exstyle == tocheck
+
 
 #=========================================================================
 def is_toplevel_window(handle):
@@ -311,36 +334,36 @@ def is_toplevel_window(handle):
     # (handle, style) for each style I wan to check!
     style_ = style(handle)
 
-    if (style_ & win32defines.WS_OVERLAPPED == win32defines.WS_OVERLAPPED or \
+    if (style_ & win32defines.WS_OVERLAPPED == win32defines.WS_OVERLAPPED or
         style_ & win32defines.WS_CAPTION == win32defines.WS_CAPTION) and \
-        not (style_ & win32defines.WS_CHILD == win32defines.WS_CHILD):
+       not (style_ & win32defines.WS_CHILD == win32defines.WS_CHILD):
         return True
     else:
         return False
+
 
 #=========================================================================
 def dumpwindow(handle):
     """Dump a window to a set of properties"""
     props = {}
 
-    for func in (
-        text,
-        classname,
-        rectangle,
-        clientrect,
-        style,
-        exstyle,
-        contexthelpid,
-        controlid,
-        userdata,
-        font,
-        parent,
-        processid,
-        isenabled,
-        isunicode,
-        isvisible,
-        children,
-        ):
+    for func in (text,
+                 classname,
+                 rectangle,
+                 clientrect,
+                 style,
+                 exstyle,
+                 contexthelpid,
+                 controlid,
+                 userdata,
+                 font,
+                 parent,
+                 processid,
+                 isenabled,
+                 isunicode,
+                 isvisible,
+                 children,
+                 ):
 
         props[func.__name__] = func(handle)
 

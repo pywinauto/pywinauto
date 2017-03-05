@@ -147,7 +147,51 @@ class BaseWrapper(object):
             self._cache = {}
             self.actions = ActionLogger()
         else:
-            raise RuntimeError('NULL pointer used to initialize BaseWrapper')
+            raise RuntimeError('NULL pointer was used to initialize BaseWrapper')
+
+    def __repr__(self):
+        """Representation of the wrapper object
+
+        The method prints the following info:
+        * type name as a module name and a class name of the object
+        * title of the control or empty string
+        * friendly class name of the control
+        * unique ID of the control calculated as a hash value from a backend specific ID.
+
+        Notice that the reported title and class name can be used as hints to prepare
+        a windows specification to access the control, while the unique ID is more for
+        debugging purposes helping to distinguish between the runtime objects.
+        """
+        return '<{0}, {1}>'.format(self.__str__(), self.__hash__())
+
+    def __str__(self):
+        """Pretty print representation of the wrapper object
+
+        The method prints the following info:
+        * type name as a module name and class name of the object
+        * title of the wrapped control or empty string
+        * friendly class name of the wrapped control
+
+        Notice that the reported title and class name can be used as hints
+        to prepare a windows specification to access the control
+        """
+        module = self.__class__.__module__
+        module = module[module.rfind('.') + 1:]
+        type_name = module + "." + self.__class__.__name__
+
+        try:
+            title = self.texts()[0]
+        except IndexError:
+            title = ""
+
+        class_name = self.friendly_class_name()
+
+        return "{0} - '{1}', {2}".format(type_name, title, class_name)
+
+    def __hash__(self):
+        """Returns the hash value of the handle"""
+        # Must be implemented in a sub-class
+        raise NotImplementedError()
 
     #------------------------------------------------------------
     @property

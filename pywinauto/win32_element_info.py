@@ -37,19 +37,18 @@ from . import win32functions
 from . import handleprops
 from .element_info import ElementInfo
 
+
 class HwndElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
 
-    def __init__(self, handle = None):
+    def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
         self._cache = {}
-        if handle is None: # root element
+        if handle is None:  # root element
             self._handle = win32functions.GetDesktopWindow()
         else:
             self._handle = handle
-
-        self._as_parameter_ = self._handle
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""
@@ -63,14 +62,14 @@ class HwndElementInfo(ElementInfo):
     @property
     def rich_text(self):
         """Return the text of the window"""
-        return handleprops.text(self)
+        return handleprops.text(self.handle)
 
     name = rich_text
 
     @property
     def control_id(self):
         """Return the ID of the window"""
-        return handleprops.controlid(self)
+        return handleprops.controlid(self.handle)
 
     @property
     def process_id(self):
@@ -80,22 +79,22 @@ class HwndElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return the class name of the window"""
-        return handleprops.classname(self)
+        return handleprops.classname(self.handle)
 
     @property
     def enabled(self):
         """Return True if the window is enabled"""
-        return handleprops.isenabled(self)
+        return handleprops.isenabled(self.handle)
 
     @property
     def visible(self):
         """Return True if the window is visible"""
-        return handleprops.isvisible(self)
+        return handleprops.isvisible(self.handle)
 
     @property
     def parent(self):
         """Return the parent of the window"""
-        parent_hwnd = handleprops.parent(self)
+        parent_hwnd = handleprops.parent(self.handle)
         if parent_hwnd:
             return HwndElementInfo(parent_hwnd)
         else:
@@ -103,7 +102,7 @@ class HwndElementInfo(ElementInfo):
 
     def children(self, **kwargs):
         """Return a list of immediate children of the window"""
-        if self == HwndElementInfo(): # self == root
+        if self == HwndElementInfo():  # self == root
             child_handles = []
 
             # The callback function that will be called for each HWND
@@ -129,17 +128,17 @@ class HwndElementInfo(ElementInfo):
 
     def descendants(self, **kwargs):
         """Return descendants of the window (all children from sub-tree)"""
-        child_handles = handleprops.children(self)
+        child_handles = handleprops.children(self.handle)
         return [HwndElementInfo(ch) for ch in child_handles]
 
     @property
     def rectangle(self):
         """Return rectangle of the element"""
-        return handleprops.rectangle(self)
+        return handleprops.rectangle(self.handle)
 
     def dump_window(self):
         """Dump a window as a set of properties"""
-        return handleprops.dumpwindow(self)
+        return handleprops.dumpwindow(self.handle)
 
     def __eq__(self, other):
         """Check if 2 HwndElementInfo objects describe 1 actual element"""
