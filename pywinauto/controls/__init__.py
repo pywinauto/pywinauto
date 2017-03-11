@@ -33,16 +33,14 @@
 
 from ..sysinfo import UIA_support
 if UIA_support:
-    from . import uiawrapper # register "uia" back-end (at the end of uiawrapper module)
+    from . import uiawrapper  # register "uia" back-end (at the end of uiawrapper module)
     from . import uia_controls
 
 from .hwndwrapper import get_dialog_props_from_handle
 from .hwndwrapper import InvalidWindowHandle
 
-# import the control classes - this will register the classes they
-# contain
+# import the control classes - this will register the classes they contain
 from . import common_controls
 from . import win32_controls
-
 
 from ..base_wrapper import InvalidElement

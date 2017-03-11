@@ -37,7 +37,6 @@ import six
 
 
 class _Singleton(type):
-
     """
     Singleton metaclass implementation from StackOverflow
 
@@ -45,6 +44,7 @@ class _Singleton(type):
     """
 
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
@@ -53,46 +53,66 @@ class _Singleton(type):
 
 @six.add_metaclass(_Singleton)
 class IUIA(object):
-
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
 
     def __init__(self):
         self.UIA_dll = comtypes.client.GetModule('UIAutomationCore.dll')
         self.ui_automation_client = comtypes.gen.UIAutomationClient
         self.iuia = comtypes.CoCreateInstance(
-                self.ui_automation_client.CUIAutomation().IPersist_GetClassID(),
-                interface=self.ui_automation_client.IUIAutomation,
-                clsctx=comtypes.CLSCTX_INPROC_SERVER
-                )
+            self.ui_automation_client.CUIAutomation().IPersist_GetClassID(),
+            interface=self.ui_automation_client.IUIAutomation,
+            clsctx=comtypes.CLSCTX_INPROC_SERVER
+        )
         self.true_condition = self.iuia.CreateTrueCondition()
         self.tree_scope = {
-                'ancestors': self.UIA_dll.TreeScope_Ancestors,
-                'children': self.UIA_dll.TreeScope_Children,
-                'descendants': self.UIA_dll.TreeScope_Descendants,
-                'element': self.UIA_dll.TreeScope_Element,
-                'parent': self.UIA_dll.TreeScope_Parent,
-                'subtree': self.UIA_dll.TreeScope_Subtree,
-                }
-        self.root = self.iuia.GetRootElement()
+            'ancestors': self.UIA_dll.TreeScope_Ancestors,
+            'children': self.UIA_dll.TreeScope_Children,
+            'descendants': self.UIA_dll.TreeScope_Descendants,
+            'element': self.UIA_dll.TreeScope_Element,
+            'parent': self.UIA_dll.TreeScope_Parent,
+            'subtree': self.UIA_dll.TreeScope_Subtree,
+        }
+        self.root = self.iuia.getRootElement()
 
         self.get_focused_element = self.iuia.GetFocusedElement
 
-        # collect all known control types
-        start_len = len('UIA_')
-        end_len = len('ControlTypeId')
-        self._control_types = [attr[start_len:-end_len] for attr in dir(self.UIA_dll) if attr.endswith('ControlTypeId')]
-
-        self.known_control_types = {} # string id: numeric id
-        self.known_control_type_ids = {} # numeric id: string id
+        # Collect all known control types
+        self._control_types = self._get_attrs_ending_with('ControlTypeId')
+        self.known_control_types = {}  # string id: numeric id
+        self.known_control_type_ids = {}  # numeric id: string id
 
         for ctrl_type in self._control_types:
             type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
             type_id = getattr(self.UIA_dll, type_id_name)
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
-    
-    def build_condition(self, process=None, class_name=None, title=None, control_type=None,
-                        content_only=None):
+
+        # Collect all known properties
+        self._properties = self._get_attrs_ending_with('PropertyId')
+        self.known_properties_ids = {}  # numeric id: string id
+
+        for prop in self._properties:
+            property_id_name = 'UIA_' + prop + 'PropertyId'
+            property_id = getattr(self.UIA_dll, property_id_name)
+            self.known_properties_ids[property_id] = prop
+
+        # Collect all known events
+        self._events = self._get_attrs_ending_with('EventId')
+        self.known_events_ids = {}  # numeric id: string id
+
+        for event in self._events:
+            event_id_name = 'UIA_' + event + 'EventId'
+            event_id = getattr(self.UIA_dll, event_id_name)
+            self.known_events_ids[event_id] = event
+
+    def _get_attrs_ending_with(self, endswith):
+        """Collect all known attribute names that end with **endswith**"""
+        start_len = len('UIA_')
+        end_len = len(endswith)
+        attrs = [attr[start_len:-end_len] for attr in dir(self.UIA_dll) if attr.endswith(endswith)]
+        return attrs
+
+    def build_condition(self, process=None, class_name=None, title=None, control_type=None, content_only=None):
         """Build UIA filtering conditions"""
         conditions = []
         if process:
@@ -124,12 +144,14 @@ class IUIA(object):
 
         return self.true_condition
 
+
 # Build a list of named constants that identify Microsoft UI Automation
 # control patterns and their appropriate comtypes classes
 # We'll try to add all patterns available for the given version of Windows OS
 # Reference:
 # https://msdn.microsoft.com/en-us/library/windows/desktop/ee671195(v=vs.85).aspx
 # header: UIAutomationClient.h
+
 
 def _build_pattern_ids_dic():
     """
@@ -141,14 +163,14 @@ def _build_pattern_ids_dic():
         'LegacyIAccessible', 'MulipleView', 'RangeValue', 'ScrollItem', 'Scroll',
         'SelectionItem', 'Selection', 'SynchronizedInput', 'TableItem', 'Table',
         'Text', 'Toggle', 'VirtualizedItem', 'Value', 'Window',
-    
+
         # Windows 8 and later
         'Annotation', 'Drag', 'Drop', 'ObjectModel', 'Spreadsheet',
         'SpreadsheetItem', 'Styles', 'TextChild', 'TextV2', 'TransformV2',
-    
+
         # Windows 8.1 and later
         'TextEdit',
-    
+
         # Windows 10 and later
         'CustomNavigation'
     ]
@@ -162,18 +184,18 @@ def _build_pattern_ids_dic():
         cls_name = ''.join(['IUIAutomation', ptrn_name, 'Pattern'])
         if hasattr(IUIA().ui_automation_client, cls_name):
             klass = getattr(IUIA().ui_automation_client, cls_name)
-            
+
             # Contruct a pattern ID name and get the ID value
             ptrn_id_name = 'UIA_' + ptrn_name + 'PatternId'
             ptrn_id = getattr(IUIA().UIA_dll, ptrn_id_name)
-    
+
             # Update the registry of known patterns
             ptrn_ids_dic[ptrn_name] = (ptrn_id, klass)
 
     return ptrn_ids_dic
 
-pattern_ids = _build_pattern_ids_dic()
 
+pattern_ids = _build_pattern_ids_dic()
 
 # Return values for the toggle_state propery
 #     enum ToggleState {
@@ -188,11 +210,6 @@ toggle_state_off = IUIA().ui_automation_client.ToggleState_Off
 toggle_state_on = IUIA().ui_automation_client.ToggleState_On
 toggle_state_inderteminate = IUIA().ui_automation_client.ToggleState_Indeterminate
 
-class NoPatternInterfaceError(Exception):
-
-    """There is no such interface for the specified pattern"""
-    pass
-
 # values for enumeration 'ExpandCollapseState'
 expand_state_collapsed = IUIA().ui_automation_client.ExpandCollapseState_Collapsed
 expand_state_expanded = IUIA().ui_automation_client.ExpandCollapseState_Expanded
@@ -204,11 +221,23 @@ window_visual_state_normal = IUIA().ui_automation_client.WindowVisualState_Norma
 window_visual_state_maximized = IUIA().ui_automation_client.WindowVisualState_Maximized
 window_visual_state_minimized = IUIA().ui_automation_client.WindowVisualState_Minimized
 
-def get_elem_interface(element_info, pattern_name):
-    """A helper to retrieve an element interface by the specified pattern name
+# values for enumeration 'StructureChangeType'
+structure_change_child_added = IUIA().ui_automation_client.StructureChangeType_ChildAdded
+structure_change_child_removed = IUIA().ui_automation_client.StructureChangeType_ChildRemoved
+structure_change_children_bulk_added = IUIA().ui_automation_client.StructureChangeType_ChildrenBulkAdded
+structure_change_children_bulk_removed = IUIA().ui_automation_client.StructureChangeType_ChildrenBulkRemoved
+structure_change_children_invalidated = IUIA().ui_automation_client.StructureChangeType_ChildrenInvalidated
+structure_change_children_reordered = IUIA().ui_automation_client.StructureChangeType_ChildrenReordered
 
-    TODO: handle a wrong pattern name
-    """
+
+class NoPatternInterfaceError(Exception):
+    """There is no such interface for the specified pattern"""
+    pass
+
+
+def get_elem_interface(element_info, pattern_name):
+    """A helper to retrieve an element interface by the specified pattern name"""
+    # TODO: handle a wrong pattern name
     # Resolve the pattern id and the class to query
     ptrn_id, cls_name = pattern_ids[pattern_name]
     # Get the interface

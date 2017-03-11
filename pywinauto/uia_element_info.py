@@ -42,7 +42,7 @@ from .element_info import ElementInfo
 from .win32structures import RECT
 
 
-def elements_from_uia_array(ptrs, cache_enable = False):
+def elements_from_uia_array(ptrs, cache_enable=False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
     return [UIAElementInfo(ptrs.GetElement(n), cache_enable) for n in range(ptrs.Length)]
 
@@ -50,7 +50,7 @@ def elements_from_uia_array(ptrs, cache_enable = False):
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
-    def __init__(self, handle_or_elem = None, cache_enable = False):
+    def __init__(self, handle_or_elem=None, cache_enable=False):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
         or from an IUIAutomationElement.
@@ -65,19 +65,19 @@ class UIAElementInfo(ElementInfo):
                 self._element = handle_or_elem
             else:
                 raise TypeError("UIAElementInfo object can be initialized " + \
-                    "with integer or IUIAutomationElement instance only!")
+                                "with integer or IUIAutomationElement instance only!")
         else:
             self._element = IUIA().root
- 
-        self.set_cache_strategy(cached = cache_enable)
+
+        self.set_cache_strategy(cached=cache_enable)
 
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
         try:
             return self._element.CurrentClassName
         except COMError:
-            return None # probably element already doesn't exist
-    
+            return None  # probably element already doesn't exist
+
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
         if self._cached_class_name is None:
@@ -89,7 +89,7 @@ class UIAElementInfo(ElementInfo):
         try:
             return self._element.CurrentNativeWindowHandle
         except COMError:
-            return None # probably element already doesn't exist
+            return None  # probably element already doesn't exist
 
     def _get_cached_handle(self):
         """Return a cached handle of the element"""
@@ -102,7 +102,7 @@ class UIAElementInfo(ElementInfo):
         try:
             return IUIA().known_control_type_ids[self._element.CurrentControlType]
         except COMError:
-            return None # probably element already doesn't exist
+            return None  # probably element already doesn't exist
 
     def _get_cached_control_type(self):
         """Return a cached control type of the element"""
@@ -115,7 +115,7 @@ class UIAElementInfo(ElementInfo):
         try:
             return self._element.CurrentName
         except COMError:
-            return None # probably element already doesn't exist
+            return None  # probably element already doesn't exist
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
@@ -128,7 +128,7 @@ class UIAElementInfo(ElementInfo):
         try:
             return bool(not self._element.CurrentIsOffscreen)
         except COMError:
-            return False # probably element already doesn't exist
+            return False  # probably element already doesn't exist
 
     def _get_cached_visible(self):
         """Return a cached visible property of the element"""
@@ -144,7 +144,7 @@ class UIAElementInfo(ElementInfo):
             pattern = get_elem_interface(self._element, "Text")
             return pattern.DocumentRange.GetText(-1)
         except Exception:
-            return self.name # TODO: probably we should raise an exception here
+            return self.name  # TODO: probably we should raise an exception here
 
     def _get_cached_rich_text(self):
         """Return the cached rich_text of the element"""
@@ -152,7 +152,7 @@ class UIAElementInfo(ElementInfo):
             self._cached_rich_text = self._get_current_rich_text()
         return self._cached_rich_text
 
-    def set_cache_strategy(self, cached = None):
+    def set_cache_strategy(self, cached=None):
         """Setup a cache strategy for frequently used attributes"""
         if cached is True:
             # Refresh cached attributes
@@ -190,7 +190,7 @@ class UIAElementInfo(ElementInfo):
         try:
             return self._element.CurrentAutomationId
         except COMError:
-            return None # probably element already doesn't exist
+            return None  # probably element already doesn't exist
 
     @property
     def control_id(self):
@@ -244,7 +244,7 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond = IUIA().true_condition, cache_enable = False):
+    def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
         """Find all elements according to the given tree scope and conditions"""
         ptrs_array = self._element.FindAll(tree_scope, cond)
         return elements_from_uia_array(ptrs_array, cache_enable)
@@ -302,7 +302,7 @@ class UIAElementInfo(ElementInfo):
     def __eq__(self, other):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):
-            return False;
+            return False
         # We put the most frequent attibutes at the top of comparison as
         # quite often the element doesn't have all these attributes.
         # For example 'handle' exists only for top-level windows.

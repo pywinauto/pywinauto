@@ -38,16 +38,19 @@ import sys
 
 if sys.platform == 'win32':
     from . import findwindows
+
     WindowAmbiguousError = findwindows.WindowAmbiguousError
     ElementNotFoundError = findwindows.ElementNotFoundError
 
     from .sysinfo import UIA_support
+
     if UIA_support:
         ElementNotFoundError = findwindows.ElementNotFoundError
         ElementAmbiguousError = findwindows.ElementAmbiguousError
 
     from . import findbestmatch
     from . import backend as backends
+
     MatchError = findbestmatch.MatchError
 
     from .application import Application, WindowSpecification
@@ -81,4 +84,4 @@ if sys.platform == 'win32':
             try:
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
-                return self[attr_name] # delegate it to __get_item__
+                return self[attr_name]  # delegate it to __get_item__
