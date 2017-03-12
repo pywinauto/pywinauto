@@ -66,6 +66,8 @@ class Recorder(COMObject):
         self.recorder_thread = threading.Thread(target=self.run)
         self.recorder_thread.daemon = False
 
+        self._opened_windows = []
+
     def start(self):
         self.recorder_thread.start()
 
@@ -127,7 +129,7 @@ class Recorder(COMObject):
         if not self.recorder_start_event.is_set():
             return
 
-        print('Event: {} - {}, {}'.format(IUIA().known_events_ids[eventID], sender.CachedClassName, sender.CachedName))
+        print('Event: {} - {}, {}: {}'.format(IUIA().known_events_ids[eventID], sender.CachedClassName, sender.CachedName, sender))
 
         if IUIA().known_events_ids[eventID] == 'MenuOpened':
             self._add_handlers(sender)
@@ -150,7 +152,7 @@ class Recorder(COMObject):
         if not self.recorder_start_event.is_set():
             return
 
-        print('Property Changed:', IUIA().known_properties_ids[propertyId], sender.CachedProcessId)
+        print('Property Changed: {} - {}, {}: {}'.format(IUIA().known_properties_ids[propertyId], sender.CachedClassName, sender.CachedName, sender))
 
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
         if not self.recorder_start_event.is_set():
@@ -162,4 +164,4 @@ class Recorder(COMObject):
         if not self.recorder_start_event.is_set():
             return
 
-        print('Structure Changed:', sender, changeType)
+        print('Structure Changed: {} - {}, {}: {}'.format(changeType, sender.CachedClassName, sender.CachedName, sender))
