@@ -283,11 +283,7 @@ class UIAElementInfo(ElementInfo):
     def rectangle(self):
         """Return rectangle of the element"""
         bound_rect = self._element.CurrentBoundingRectangle
-        rect = RECT()
-        rect.left = bound_rect.left
-        rect.top = bound_rect.top
-        rect.right = bound_rect.right
-        rect.bottom = bound_rect.bottom
+        rect = RECT(bound_rect.left, bound_rect.top, bound_rect.right, bound_rect.bottom)
         return rect
 
     def dump_window(self):
