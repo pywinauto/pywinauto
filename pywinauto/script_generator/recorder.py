@@ -1,12 +1,16 @@
+import threading
+from collections import deque
+
+from comtypes import COMObject, COMError
+
 from .. import Application
 from ..uia_defines import IUIA
 from ..uia_element_info import UIAElementInfo
 
 from ..win32_hooks import *
+from ..win32structures import POINT
 
-from comtypes import COMObject, COMError
-
-import threading
+from .control_tree import ControlTree
 
 _ignored_events = [
     # Event which are handled by separate handlers
@@ -39,41 +43,6 @@ _cached_properties = [
     IUIA().UIA_dll.UIA_LocalizedControlTypePropertyId,
     IUIA().UIA_dll.UIA_NamePropertyId,
 ]
-
-active_recorder = None
-hot_output = True
-
-
-def handle_hook_event(args):
-    """Callback for keyboard and mouse events"""
-    if isinstance(args, KeyboardEvent):
-        if args.current_key == 'A' and args.event_type == 'key down' and 'Lcontrol' in args.pressed_key:
-            print("Ctrl + A was pressed")
-
-        if args.current_key == 'M' and args.event_type == 'key down' and 'U' in args.pressed_key:
-            active_recorder.hook.unhook_mouse()
-            print("Unhook mouse")
-
-        if args.current_key == 'K' and args.event_type == 'key down' and 'U' in args.pressed_key:
-            active_recorder.hook.unhook_keyboard()
-            print("Unhook keyboard")
-
-    if isinstance(args, MouseEvent):
-        if args.current_key == 'LButton' and args.event_type == 'key down':
-            if active_recorder:
-                active_recorder.add_to_log("Left button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
-            if hot_output:
-                print('Left mouse button pressed at ({}, {})'.format(args.mouse_x, args.mouse_y))
-
-        if args.current_key == 'RButton' and args.event_type == 'key down':
-            if active_recorder:
-                active_recorder.add_to_log("Left button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
-            if hot_output:
-                print('Right mouse button pressed at ({}, {})'.format(args.mouse_x, args.mouse_y))
-
-        if args.current_key == 'WheelButton' and args.event_type == 'key down':
-            if active_recorder:
-                active_recorder.add_to_log("Left button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
 
 
 def synchronized_method(method):
@@ -120,15 +89,17 @@ class Recorder(COMObject):
                         IUIA().UIA_dll.IUIAutomationFocusChangedEventHandler,
                         IUIA().UIA_dll.IUIAutomationStructureChangedEventHandler]
 
-    def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False):
+    def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True):
         super(Recorder, self).__init__()
 
         if app is not None:
             if not isinstance(app, Application):
                 raise TypeError("app must be a pywinauto.Application object")
-            self.element_info = app.top_window().element_info
+            self.ctrl = app.top_window().wrapper_object()
+            self.element_info = self.ctrl.element_info
         else:
             self.element_info = UIAElementInfo()
+            self.ctrl = None
         self.element = self.element_info.element
 
         self.event_log = []
@@ -137,23 +108,24 @@ class Recorder(COMObject):
         self.record_focus = record_focus
         self.record_struct = record_struct
 
-        self.recorder_start_event = threading.Event()
-        self.recorder_stop_event = threading.Event()
+        self.hot_output = hot_output
 
         self.recorder_thread = threading.Thread(target=self.recorder_run)
         self.recorder_thread.daemon = False
 
+        self.recorder_start_event = threading.Event()
+        self.recorder_stop_event = threading.Event()
+
         self.hook_thread = threading.Thread(target=self.hook_run)
         self.hook_thread.daemon = False
 
-        global active_recorder
-        active_recorder = self
-
-        self._opened_windows = []
+        self.control_tree = None
 
     @synchronized_method
     def add_to_log(self, text):
         self.event_log.append(text)
+        if self.hot_output:
+            print(text)
 
     def start(self):
         self.recorder_thread.start()
@@ -200,6 +172,7 @@ class Recorder(COMObject):
         try:
             # Add event handlers to all app's controls
             self._add_handlers(self.element)
+            self.control_tree = ControlTree(self.ctrl)
         except Exception as exc:
             print(exc)
         finally:
@@ -212,31 +185,57 @@ class Recorder(COMObject):
     def hook_run(self):
         """Target function for hook thread"""
         self.hook = Hook()
-        self.hook.handler = handle_hook_event
+        self.hook.handler = self.handle_hook_event
         self.hook.hook(keyboard=False, mouse=True)
+
+    def handle_hook_event(self, args):
+        """Callback for keyboard and mouse events"""
+        if isinstance(args, KeyboardEvent):
+            if args.current_key == 'A' and args.event_type == 'key down' and 'Lcontrol' in args.pressed_key:
+                print("Ctrl + A was pressed")
+
+            if args.current_key == 'M' and args.event_type == 'key down' and 'U' in args.pressed_key:
+                self.hook.unhook_mouse()
+                print("Unhook mouse")
+
+            if args.current_key == 'K' and args.event_type == 'key down' and 'U' in args.pressed_key:
+                self.hook.unhook_keyboard()
+                print("Unhook keyboard")
+
+        if isinstance(args, MouseEvent):
+            if args.current_key == 'LButton' and args.event_type == 'key down':
+                if self.control_tree:
+                    node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
+                    if node:
+                        self.add_to_log("Left button pressed at {}".format(node))
+                        return
+
+                self.add_to_log("Left button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
+
+            if args.current_key == 'RButton' and args.event_type == 'key down':
+                self.add_to_log("Right button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
+
+            if args.current_key == 'WheelButton' and args.event_type == 'key down':
+                self.add_to_log("Wheel button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
 
     def IUIAutomationEventHandler_HandleAutomationEvent(self, sender, eventID):
         if not self.recorder_start_event.is_set():
             return
 
-        event_name = IUIA().known_events_ids[eventID]
+        event = UIAEvent(event_name=IUIA().known_events_ids[eventID], sender=sender)
+        self.add_to_log(event)
 
-        self.add_to_log(UIAEvent(event_name=event_name, sender=sender))
-        if hot_output:
-            print('Event: {} - {}, {}: {}'.format(IUIA().known_events_ids[eventID], sender.CachedClassName,
-                                                  sender.CachedName, sender))
+        if event.event_name == 'MenuModeStart':
+            self.control_tree.rebuild()
 
-        if event_name == 'MenuOpened':
+        if event.event_name == 'MenuOpened':
             self._add_handlers(sender)
 
-        if event_name == 'MenuClosed':
-            # Handle MenuClosed event (click on menu item)
-            pass
-
-        if event_name == 'Window_WindowOpened':
+        if event.event_name == 'Window_WindowOpened':
             self._add_handlers(sender)
+            self.control_tree.rebuild()
 
-        if event_name == 'Window_WindowClosed':
+        if event.event_name == 'Window_WindowClosed':
             # Detect if top_window is already closed
             try:
                 self.element_info.process_id
@@ -247,25 +246,20 @@ class Recorder(COMObject):
         if not self.recorder_start_event.is_set():
             return
 
-        self.add_to_log(UIAEvent(event_name='AutomationPropertyChanged',
-                                 sender=sender, property_name=IUIA().known_properties_ids[propertyId]))
-        if hot_output:
-            print('Property Changed: {} - {}, {}: {}'.format(IUIA().known_properties_ids[propertyId],
-                                                             sender.CachedClassName, sender.CachedName, sender))
+        event = UIAEvent(event_name='AutomationPropertyChanged', sender=sender,
+                         property_name=IUIA().known_properties_ids[propertyId])
+        self.add_to_log(event)
 
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
         if not self.recorder_start_event.is_set():
             return
 
-        self.add_to_log(UIAEvent(event_name='AutomationFocusChanged', sender=sender))
-        if hot_output:
-            print('Focus Changed: {}'.format(sender))
+        event = UIAEvent(event_name='AutomationFocusChanged', sender=sender)
+        self.add_to_log(event)
 
     def IUIAutomationStructureChangedEventHandler_HandleStructureChangedEvent(self, sender, changeType, runtimeId):
         if not self.recorder_start_event.is_set():
             return
 
-        self.add_to_log(UIAEvent(event_name='StructureChanged', sender=sender, struct_change_type=changeType))
-        if hot_output:
-            print('Structure Changed: {} - {}, {}: {}'.format(changeType, sender.CachedClassName, sender.CachedName,
-                                                              sender))
+        event = UIAEvent(event_name='StructureChanged', sender=sender, struct_change_type=changeType)
+        self.add_to_log(event)
