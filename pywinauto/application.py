@@ -130,7 +130,7 @@ class WindowSpecification(object):
     .. automethod:: __getitem__
     """
 
-    WAIT_CRITERIA_MAP = {'exists': ('Exists',),
+    WAIT_CRITERIA_MAP = {'exists': ('exists',),
                          'visible': ('is_visible',),
                          'enabled': ('is_enabled',),
                          'ready': ('is_visible', 'is_enabled',),
