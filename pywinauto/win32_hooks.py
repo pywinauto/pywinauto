@@ -118,6 +118,11 @@ class MouseEvent(object):
         self.mouse_x = mouse_x
         self.mouse_y = mouse_y
 
+        self.control_tree_node = None
+
+    def __str__(self):
+        return "MouseEvent: {} - {}, ({}, {})".format(self.current_key, self.event_type, self.mouse_x, self.mouse_y)
+
 
 class Hook(object):
 

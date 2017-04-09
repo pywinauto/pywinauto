@@ -24,6 +24,7 @@ class ControlTree(object):
         else:
             raise TypeError('ctrl must be a wrapped control')
         self.root = None
+        self.root_name = ""
         self.rebuild()
 
     def rebuild(self):
@@ -31,7 +32,7 @@ class ControlTree(object):
         # Create a list of this control and all its descendants
         all_ctrls = [self.ctrl, ] + self.ctrl.descendants()
 
-        # Build a list of disambiguated list of control names
+        # Build a disambiguated list of control names
         name_control_map = findbestmatch.build_unique_dict(all_ctrls)
 
         # Swap it around so that we are mapped off the controls
@@ -40,6 +41,7 @@ class ControlTree(object):
             control_name_map.setdefault(control, []).append(name)
 
         self.root = ControlTreeNode(control_name_map[self.ctrl], self.ctrl.rectangle())
+        self.root_name = [name for name in self.root.names if len(name) > 0 and not " " in name][-1]
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
             if len(child_ctrls) == 0:

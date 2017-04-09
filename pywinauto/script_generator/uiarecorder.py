@@ -81,7 +81,7 @@ class UIAEvent(object):
         return description
 
 
-class Recorder(COMObject):
+class UiaRecorder(COMObject):
     """Record UIA, keyboard and mouse events"""
 
     _com_interfaces_ = [IUIA().UIA_dll.IUIAutomationEventHandler,
@@ -90,7 +90,7 @@ class Recorder(COMObject):
                         IUIA().UIA_dll.IUIAutomationStructureChangedEventHandler]
 
     def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True):
-        super(Recorder, self).__init__()
+        super(UiaRecorder, self).__init__()
 
         if app is not None:
             if not isinstance(app, Application):
@@ -121,11 +121,21 @@ class Recorder(COMObject):
 
         self.control_tree = None
 
+        # THE WHOLE POINT OF THIS
+        self.script = "app = pywinauto.Application(backend={}).start('insert cmd here')\n".format(app.backend.name)
+
     @synchronized_method
     def add_to_log(self, text):
         self.event_log.append(text)
         if self.hot_output:
             print(text)
+
+    @synchronized_method
+    def clear_log(self):
+        self.event_log.clear()
+
+    def is_active(self):
+        return self.recorder_thread.is_alive() or self.hook_thread.is_alive()
 
     def start(self):
         self.recorder_thread.start()
@@ -204,13 +214,29 @@ class Recorder(COMObject):
 
         if isinstance(args, MouseEvent):
             if args.current_key == 'LButton' and args.event_type == 'key down':
+                # Add information about clicked item to event
                 if self.control_tree:
                     node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
                     if node:
-                        self.add_to_log("Left button pressed at {}".format(node))
-                        return
+                        args.control_tree_node = node
 
-                self.add_to_log("Left button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
+                # Parse all previous log and clear it
+                for event in self.event_log:
+                    if isinstance(event, MouseEvent):
+                        # TODO:
+                        # How do we approach event parsing
+                        # Menu opening
+                        # Envoke event
+                        # ...
+                        if event.control_tree_node:
+                            item_name = [name for name in event.control_tree_node.names if len(name) > 0 and not " " in name][-1]
+                            self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
+                        else:
+                            self.script += "pywinauto.mouse.click(coords=({}, {}))\n".format(event.mouse_x, event.mouse_y)
+                self.clear_log()
+
+                # Add new event to log
+                self.add_to_log(args)
 
             if args.current_key == 'RButton' and args.event_type == 'key down':
                 self.add_to_log("Right button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
@@ -241,6 +267,7 @@ class Recorder(COMObject):
                 self.element_info.process_id
             except COMError:
                 self.stop()
+                self.script += "app.kill()\n"
 
     def IUIAutomationPropertyChangedEventHandler_HandlePropertyChangedEvent(self, sender, propertyId, newValue):
         if not self.recorder_start_event.is_set():
