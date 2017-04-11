@@ -1,3 +1,4 @@
+from __future__ import print_function
 from pywinauto.application import Application
 import time
 import csv
@@ -103,7 +104,7 @@ def parseFile(file_name):
         count_pack = len(temp_list)
         mean_pack_len = int(sum(temp_list)/len(temp_list))
         traffic_size = sum(temp_list)
-        del prot_dict[key][:]
+        prot_dict[key] = {}
         prot_dict[key].append(count_pack)
         prot_dict[key].append(mean_pack_len)
         prot_dict[key].append(traffic_size)
