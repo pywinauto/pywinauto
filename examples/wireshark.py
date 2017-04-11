@@ -6,7 +6,14 @@ import sys
 
 def generateDataFile(t_interval, interface_name, file_name):
     # start Wireshark
-    app = Application(backend='uia').start(r"C:\Program Files (x86)\Wireshark\Wireshark.exe")
+    if (os.path.exists(r"C:\Program Files (x86)\Wireshark")):
+        app = Application(backend='uia').start(r"C:\Program Files (x86)\Wireshark\Wireshark.exe")
+    else:
+        if (os.path.exists(r"C:\Program Files\Wireshark")):
+            app = Application(backend='uia').start(r"C:\Program Files\Wireshark\Wireshark.exe")
+        else:
+            print("Can't find wireshark on your computer")
+
     win = app['The Wireshark Network Analyzer']
 
     if app.software_update.exists(timeout=10):
@@ -48,7 +55,7 @@ def generateDataFile(t_interval, interface_name, file_name):
     check_file_exist = True
     try:
         open(file_name)
-    except IOError as e:
+    except IOError:
         check_file_exist = False
 
     # input path to temporary file
@@ -96,25 +103,25 @@ def parseFile(file_name):
         count_pack = len(temp_list)
         mean_pack_len = int(sum(temp_list)/len(temp_list))
         traffic_size = sum(temp_list)
-        prot_dict[key].clear()
+        del prot_dict[key][:]
         prot_dict[key].append(count_pack)
         prot_dict[key].append(mean_pack_len)
         prot_dict[key].append(traffic_size)
-    # delete temporary file
     os.remove(file_name)
     return prot_dict
+
 
 def printResult(result):
     print_order = list()
     keys = list(result.keys())
 
-    for i in range(0,len(keys)):
-        max = 0
+    for _ in range(0, len(keys)):
+        max_ = 0
         temp_key = ''
         # find max key
         for key in keys:
-            if result[key][2] > max:
-                max = result[key][2]
+            if result[key][2] > max_:
+                max_ = result[key][2]
                 temp_key = key
         print_order.append(temp_key)
         keys.remove(temp_key)
@@ -123,7 +130,7 @@ def printResult(result):
     for key in print_order:
         string = key + "  " + str(result[key][0]) + "  "\
                  + str(result[key][1]) + "  " + str(result[key][2])
-        print (string)
+        print(string)
 
 if (len(sys.argv) < 3):
     print("Expected time and interface_name")
@@ -132,7 +139,8 @@ else:
     t_interval = int(sys.argv[1])
     interface_name = sys.argv[2]
 
-file_name = os.path.dirname(os.path.abspath(__file__)) + '\\' + r"test.csv"
+file_name = os.path.dirname(os.path.abspath(__file__))
+file_name = os.path.join(file_name, r'test.csv')
 
 generateDataFile(t_interval,interface_name,file_name)
 result = parseFile(file_name)
