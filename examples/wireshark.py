@@ -54,9 +54,9 @@ def generateDataFile(t_interval, interface_name, file_name):
 
     # open menu (File -> Export Packet Dissections -> As CSV)
     win['File Alt+F'].select()
-    win = app.top_window()
+    win = app['']
     win['Export Packet Dissections'].select()
-    win = app.top_window()
+    win = app['']
     win['As CSV...'].click_input()
 
     # Export FileDialog
@@ -76,7 +76,7 @@ def generateDataFile(t_interval, interface_name, file_name):
 
     # Quit
     win['File Alt+F'].select()
-    win = app.top_window()
+    win = app['']
     win['Quit Ctrl+Q'].click_input()
 
     # if window "Quit without Saving" pop up
