@@ -1,3 +1,14 @@
+"""
+Example script captures network traffic using WireShark and prints a short summary for every protocol.
+Requirements:
+  - Wireshark 2.2.5
+  - pywinauto 0.6.1+
+This example opens "Wireshark", navigates to 'network_connection_name',
+captures network traffis for 'capture_time', saves all data to temporary file,
+parses it and shows short summer for every protocol.
+"""
+
+
 from __future__ import print_function
 from pywinauto.application import Application
 import time
@@ -61,11 +72,11 @@ def generateDataFile(t_interval, interface_name, file_name):
 
     # input path to temporary file
     win.type_keys(file_name)
-    child.window(best_match = "Save").click()
+    child.window(best_match="Save").click()
     # child['Save'].click()
 
     # if window "confirm Save As" pop up
-    if (check_file_exist == True):
+    if (check_file_exist is True):
         child = win['Confirm Save As']
         child.window(best_match='yes').click()
         # child['yes'].click()
@@ -102,9 +113,9 @@ def parseFile(file_name):
     for key in prot_dict:
         temp_list = prot_dict[key]
         count_pack = len(temp_list)
-        mean_pack_len = int(sum(temp_list)/len(temp_list))
+        mean_pack_len = int(sum(temp_list) / len(temp_list))
         traffic_size = sum(temp_list)
-        prot_dict[key] = {}
+        del prot_dict[key][:]
         prot_dict[key].append(count_pack)
         prot_dict[key].append(mean_pack_len)
         prot_dict[key].append(traffic_size)
@@ -134,7 +145,10 @@ def printResult(result):
         print(string)
 
 if (len(sys.argv) < 3):
-    print("Expected time and interface_name")
+    print('''This pywinauto example captures network traffic using WireShark and prints a short summary for every protocol.
+Usage: python wireshark.py <capture_time (seconds)> <network_connection_name>
+Example: python wireshark.py 5 Ethernet
+It will capture all the packets from "Ethernet" interface during 5 seconds.''')
     exit()
 else:
     t_interval = int(sys.argv[1])
