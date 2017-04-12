@@ -4,7 +4,7 @@ Requirements:
   - Wireshark 2.2.5
   - pywinauto 0.6.1+
 This example opens "Wireshark", navigates to 'network_connection_name',
-captures network traffic for 'capture_time', saves all data to temporary file,
+captures network traffic for 'capture_time' seconds, saves all the data to a temporary file,
 parses it and shows a short summer for every protocol.
 """
 from __future__ import print_function
