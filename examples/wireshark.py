@@ -1,4 +1,5 @@
 """
+
 Example script captures network traffic using WireShark and prints a short summary for every protocol.
 Requirements:
   - Wireshark 2.2.5
@@ -62,19 +63,13 @@ def generateDataFile(t_interval, interface_name, file_name):
     win = app['Dialog']
     child = win['Export File Dialog']
 
-    check_file_exist = True
-    try:
-        open(file_name)
-    except IOError:
-        check_file_exist = False
-
     # input path to temporary file
     win.type_keys(file_name)
     child.window(best_match="Save").click()
     # child['Save'].click()
 
     # if window "confirm Save As" pop up
-    if (check_file_exist is True):
+    if (os.path.isfile(file_name) is True):
         child = win['Confirm Save As']
         child.window(best_match='yes').click()
         # child['yes'].click()
@@ -85,11 +80,8 @@ def generateDataFile(t_interval, interface_name, file_name):
     win['Quit Ctrl+Q'].click_input()
 
     # if window "Quit without Saving" pop up
-    try:
-        win = app.top_window()
-        win['Quit without Saving Alt+w'].click()
-    except:
-        pass
+    win = app['Unsaved packets...']
+    win['Quit without Saving Alt+w'].click()
 
 def parseFile(file_name):
     # parse csv file
