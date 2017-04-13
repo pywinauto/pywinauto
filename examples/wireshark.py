@@ -17,7 +17,6 @@ import sys
 
 
 def generate_data_file(t_interval, interface_name, file_name):
-
     # start Wireshark
     if (os.path.exists(r"C:\Program Files (x86)\Wireshark")):
         wireshark_file = r"C:\Program Files (x86)\Wireshark\Wireshark.exe"
@@ -89,7 +88,6 @@ def generate_data_file(t_interval, interface_name, file_name):
 
 
 def parse_file(file_name):
-
     # parse csv file
     prot_dict = {}
     with open(file_name) as csvfile:
@@ -120,7 +118,6 @@ def parse_file(file_name):
 
 
 def print_result(result):
-	
     print_order = list()
     keys = list(result.keys())
 
