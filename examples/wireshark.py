@@ -6,7 +6,7 @@ Requirements:
   - pywinauto 0.6.1+
 This example opens "Wireshark", navigates to 'network_connection_name',
 captures network traffic for 'capture_time' seconds, saves all the data to a temporary file,
-parses it and shows a short summer for every protocol.
+parses it and shows a short summary for every protocol.
 """
 from __future__ import print_function
 from pywinauto.application import Application
@@ -15,13 +15,16 @@ import csv
 import os
 import sys
 
-def generateDataFile(t_interval, interface_name, file_name):
+
+def generate_data_file(t_interval, interface_name, file_name):
     # start Wireshark
     if (os.path.exists(r"C:\Program Files (x86)\Wireshark")):
-        app = Application(backend='uia').start(r"C:\Program Files (x86)\Wireshark\Wireshark.exe")
+        wireshark_file = r"C:\Program Files (x86)\Wireshark\Wireshark.exe"
+        app = Application(backend='uia').start(wireshark_file)
     else:
         if (os.path.exists(r"C:\Program Files\Wireshark")):
-            app = Application(backend='uia').start(r"C:\Program Files\Wireshark\Wireshark.exe")
+            wireshark_file = r"C:\Program Files\Wireshark\Wireshark.exe"
+            app = Application(backend='uia').start(wireshark_file)
         else:
             print("Can't find wireshark on your computer")
 
@@ -29,7 +32,7 @@ def generateDataFile(t_interval, interface_name, file_name):
 
     if app.software_update.exists(timeout=10):
         app.software_update.skip_this_version.click()
-        app.software_update.wait_not('visible')  # just to make sure it's closed
+        app.software_update.wait_not('visible')
     win.wait('ready', timeout=15)
 
     # Try to find interface_name in TreeView interfaces list
@@ -83,7 +86,8 @@ def generateDataFile(t_interval, interface_name, file_name):
     win = app['Unsaved packets...']
     win['Quit without Saving Alt+w'].click()
 
-def parseFile(file_name):
+
+def parse_file(file_name):
     # parse csv file
     prot_dict = {}
     with open(file_name) as csvfile:
@@ -113,7 +117,7 @@ def parseFile(file_name):
     return prot_dict
 
 
-def printResult(result):
+def print_result(result):
     print_order = list()
     keys = list(result.keys())
 
@@ -131,8 +135,9 @@ def printResult(result):
     print("Protocol  count protocols  mean length  traffic size")
     for key in print_order:
         string = key + "  " + str(result[key][0]) + "  "\
-                 + str(result[key][1]) + "  " + str(result[key][2])
+            + str(result[key][1]) + "  " + str(result[key][2])
         print(string)
+
 
 if (len(sys.argv) < 3):
     print('''This pywinauto example captures network traffic using WireShark and prints a short summary for every protocol.
@@ -147,6 +152,6 @@ else:
 file_name = os.path.dirname(os.path.abspath(__file__))
 file_name = os.path.join(file_name, r'test.csv')
 
-generateDataFile(t_interval,interface_name,file_name)
-result = parseFile(file_name)
-printResult(result)
+generate_data_file(t_interval, interface_name, file_name)
+result = parse_file(file_name)
+print_result(result)
