@@ -886,6 +886,29 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.dlgspec.print_control_identifiers()
         self.ctrlspec.print_control_identifiers()
 
+    def test_print_control_identifiers_file_output(self):
+        """Make sure print_control_identifiers() creates correct file"""
+        output_filename = "test_print_control_identifiers.txt"
+        self.dlgspec.print_ctrl_ids(filename=output_filename)
+        if os.path.isfile(output_filename):
+            with open(output_filename, "r") as test_log_file:
+                content = str(test_log_file.readlines())
+                self.assertTrue(content.find("['Untitled - NotepadEdit', 'Edit']") != -1)
+                self.assertTrue(content.find("child_window(class_name=\"msctls_statusbar32\")") != -1)
+            os.remove(output_filename)
+        else:
+            self.self.fail("print_control_identifiers can't create a file")
+
+        self.ctrlspec.dump_tree(filename=output_filename)
+        if os.path.isfile(output_filename):
+            with open(output_filename, "r") as test_log_file:
+                content = str(test_log_file.readlines())
+                self.assertTrue(content.find("Edit - ''    (L8, T270, R192, B392)") != -1)
+            os.remove(output_filename)
+        else:
+            self.self.fail("print_control_identifiers can't create a file")
+
+
     def test_find_elements_re(self):
         """Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"""
         self.dlgspec.Wait('visible')
@@ -1010,4 +1033,3 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
