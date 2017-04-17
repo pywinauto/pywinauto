@@ -893,8 +893,9 @@ class WindowSpecificationTestCases(unittest.TestCase):
         if os.path.isfile(output_filename):
             with open(output_filename, "r") as test_log_file:
                 content = str(test_log_file.readlines())
-                self.assertTrue(content.find("['Untitled - NotepadEdit', 'Edit']") != -1)
-                self.assertTrue(content.find("child_window(class_name=\"msctls_statusbar32\")") != -1)
+                self.assertTrue("['Untitled - NotepadEdit', 'Edit']" in content
+                    or "['Edit', 'Untitled - NotepadEdit']" in content)
+                self.assertTrue("child_window(class_name=\"msctls_statusbar32\")" in content)
             os.remove(output_filename)
         else:
             self.self.fail("print_control_identifiers can't create a file")
@@ -903,11 +904,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
         if os.path.isfile(output_filename):
             with open(output_filename, "r") as test_log_file:
                 content = str(test_log_file.readlines())
-                self.assertTrue(content.find("Edit - ''    (L8, T270, R192, B392)") != -1)
+                self.assertTrue("child_window(class_name=\"Edit\")" in content)
             os.remove(output_filename)
         else:
             self.self.fail("print_control_identifiers can't create a file")
-
 
     def test_find_elements_re(self):
         """Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"""
