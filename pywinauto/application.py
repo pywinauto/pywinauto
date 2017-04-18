@@ -587,7 +587,7 @@ class WindowSpecification(object):
         log_file = None
         if filename is not None:
             log_file = open(filename, "w")
-            log_func = log_file.write
+            log_func = lambda arg: log_file.write(str(arg) + os.linesep)
 
         log_func("Control Identifiers:")
 
