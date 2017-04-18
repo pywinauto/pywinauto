@@ -553,6 +553,92 @@ class WindowSpecification(object):
 
         return control_name_map
 
+    def list_control_identifiers(self, depth=None, rectIsObject=True):
+        """
+        Prints the 'identifiers'
+
+        Prints identifiers for the control and for its descendants to
+        a depth of **depth** (the whole subtree if **None**).
+
+        .. note:: The identifiers printed by this method have been made
+               unique. So if you have 2 edit boxes, they won't both have "Edit"
+               listed in their identifiers. In fact the first one can be
+               referred to as "Edit", "Edit0", "Edit1" and the 2nd should be
+               referred to as "Edit2".
+        """
+        if depth is None:
+            # TODO: think about marking incomplete subtree for depths like 1 or 2
+            depth = sys.maxsize
+        # Wrap this control
+        this_ctrl = self.__resolve_control(self.criteria)[-1]
+
+        # Create a list of this control and all its descendants
+        all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
+
+        # build the list of disambiguated list of control names
+        name_control_map = findbestmatch.build_unique_dict(all_ctrls)
+
+        # swap it around so that we are mapped off the controls
+        control_name_map = {}
+        for name, control in name_control_map.items():
+            control_name_map.setdefault(control, []).append(name)
+
+        def list_identifiers(ctrls, current_depth=1):
+            """Recursively print ids for ctrls and their descendants in a tree-like format"""
+            if len(ctrls) == 0 or current_depth > depth:
+                return
+
+            identifiersArray = []
+            indent = (current_depth - 1) * u"   | "
+            for ctrl in ctrls:
+                if ctrl not in control_name_map.keys():
+                    continue
+                ctrl_text = ctrl.window_text()
+                if ctrl_text:
+                    # transform multi-line text to one liner
+                    ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
+
+                outputObject = {}
+                outputObject["class_name"] = ctrl.friendly_class_name()
+                outputObject["text"] = ctrl_text
+                outputObject["path"] = control_name_map[ctrl]
+                if rectIsObject:
+                    outputObject["rect"] = ctrl.rectangle()
+                else:
+                    rectObject = ctrl.rectangle()
+                    outputObject["rect"] = {}
+                    outputObject["rect"]["left"] = rectObject.left
+                    outputObject["rect"]["top"] = rectObject.top
+                    outputObject["rect"]["right"] = rectObject.right
+                    outputObject["rect"]["bottom"] = rectObject.bottom
+
+                title = ctrl_text
+                class_name = ctrl.class_name()
+                auto_id = None
+                control_type = None
+                if hasattr(ctrl.element_info, 'automation_id'):
+                    auto_id = ctrl.element_info.automation_id
+                if hasattr(ctrl.element_info, 'control_type'):
+                    control_type = ctrl.element_info.control_type
+                    class_name = None  # no need for class_name if control_type exists
+                criteria_texts = []
+                if title:
+                    outputObject["title"] = title
+                if class_name:
+                    outputObject["title"] = class_name
+                if auto_id:
+                    outputObject["title"] = auto_id
+                if control_type:
+                    outputObject["title"] = control_type
+                if title or class_name or auto_id:
+                    outputObject["title"] = criteria_texts
+
+                outputObject["child"] = list_identifiers(ctrl.children(), current_depth + 1)
+                identifiersArray.append(outputObject)
+            return identifiersArray
+
+        return list_identifiers([this_ctrl, ])
+
     def print_control_identifiers(self, depth=None):
         """
         Prints the 'identifiers'
