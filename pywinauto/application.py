@@ -625,13 +625,13 @@ class WindowSpecification(object):
                 if title:
                     outputObject["title"] = title
                 if class_name:
-                    outputObject["title"] = class_name
+                    outputObject["calss_name"] = class_name
                 if auto_id:
-                    outputObject["title"] = auto_id
+                    outputObject["auto_id"] = auto_id
                 if control_type:
-                    outputObject["title"] = control_type
+                    outputObject["control_type"] = control_type
                 if title or class_name or auto_id:
-                    outputObject["title"] = criteria_texts
+                    outputObject["criteria_texts"] = criteria_texts
 
                 outputObject["child"] = list_identifiers(ctrl.children(), current_depth + 1)
                 identifiersArray.append(outputObject)
