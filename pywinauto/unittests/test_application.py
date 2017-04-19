@@ -893,8 +893,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
         if os.path.isfile(output_filename):
             with open(output_filename, "r") as test_log_file:
                 content = str(test_log_file.readlines())
-                self.assertTrue("['Untitled - NotepadEdit', 'Edit']" in content
-                    or "['Edit', 'Untitled - NotepadEdit']" in content)
+                self.assertTrue("'Untitled - NotepadEdit'" in content
+                    and "'Edit'" in content)
                 self.assertTrue("child_window(class_name=\"msctls_statusbar32\")" in content)
             os.remove(output_filename)
         else:
