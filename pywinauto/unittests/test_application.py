@@ -898,7 +898,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 self.assertTrue("child_window(class_name=\"msctls_statusbar32\")" in content)
             os.remove(output_filename)
         else:
-            self.self.fail("print_control_identifiers can't create a file")
+            self.fail("print_control_identifiers can't create a file")
 
         self.ctrlspec.dump_tree(filename=output_filename)
         if os.path.isfile(output_filename):
@@ -907,7 +907,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 self.assertTrue("child_window(class_name=\"Edit\")" in content)
             os.remove(output_filename)
         else:
-            self.self.fail("print_control_identifiers can't create a file")
+            self.fail("print_control_identifiers can't create a file")
 
     def test_find_elements_re(self):
         """Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"""
