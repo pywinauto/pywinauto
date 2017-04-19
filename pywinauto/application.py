@@ -583,14 +583,6 @@ class WindowSpecification(object):
         for name, control in name_control_map.items():
             control_name_map.setdefault(control, []).append(name)
 
-        log_func = print
-        log_file = None
-        if filename is not None:
-            log_file = open(filename, "w")
-            log_func = lambda arg: log_file.write(str(arg) + os.linesep)
-
-        log_func("Control Identifiers:")
-
         def print_identifiers(ctrls, current_depth=1, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
@@ -640,9 +632,15 @@ class WindowSpecification(object):
 
                 print_identifiers(ctrl.children(), current_depth + 1, log_func)
 
-        print_identifiers([this_ctrl, ], log_func=log_func)
-
-        if log_file is not None:
+        if filename is None:
+            print("Control Identifiers:")
+            print_identifiers([this_ctrl, ])
+        else:
+            log_file = open(filename, "w")
+            def log_func(msg):
+                log_file.write(str(msg) + os.linesep)
+            log_func("Control Identifiers:")
+            print_identifiers([this_ctrl, ], log_func=log_func)
             log_file.close()
 
     print_ctrl_ids = print_control_identifiers
