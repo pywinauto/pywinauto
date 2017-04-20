@@ -8,29 +8,23 @@ Requirements:
 The example shows how to work with MS Paint application. It opens
 JPEG image and resizes it using "Resize and Skew" dialog.
 """
+
+from __future__ import print_function
 import logging
-import sys
 from pywinauto import actionlogger
 from pywinauto import Application
 
-is_logging_enabled = False
-file_name_log = ''
-if len(sys.argv) >= 2 and len(sys.argv) <= 3:
-    if sys.argv[1] == '--log':
-        is_logging_enabled = True
-        file_name_log = 'log_mspaint.txt'
-        if len(sys.argv) == 3:
-            file_name_log = sys.argv[2]
-    else:
-        print("""Usage: python mspaint.py --log <filename>\n
-             --log - enable logging to a file (an optional parameter)\n
-             <filename> - log file name (an optional parameter, default: """)
-        exit()
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--log", help = "enable logging", type=str, required = False)
+args = parser.parse_args()
 
-if is_logging_enabled:
-    actionlogger.enable()
-    logger = logging.getLogger('pywinauto')
-    logger.handlers[0].stream = open(file_name_log, 'w')
+file_name_log = args.log
+
+actionlogger.enable()
+logger = logging.getLogger('pywinauto')
+if file_name_log:
+    logger.handlers[0] = logging.FileHandler(file_name_log)
 
 app = Application(backend='uia').start(r'mspaint.exe')
 dlg = app.window(title_re='.* - Paint')
@@ -64,5 +58,3 @@ dlg.SaveAs.Save.click()
 
 # Close application
 dlg.close()
-if is_logging_enabled:
-    logger.handlers[0].stream.close()
