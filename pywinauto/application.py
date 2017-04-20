@@ -553,7 +553,7 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth=None):
+    def print_control_identifiers(self, depth=None, filename=None):
         """
         Prints the 'identifiers'
 
@@ -583,9 +583,7 @@ class WindowSpecification(object):
         for name, control in name_control_map.items():
             control_name_map.setdefault(control, []).append(name)
 
-        print("Control Identifiers:")
-
-        def print_identifiers(ctrls, current_depth=1):
+        def print_identifiers(ctrls, current_depth=1, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
@@ -626,15 +624,27 @@ class WindowSpecification(object):
                     criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
                     output += indent + u'child_window(' + u', '.join(criteria_texts) + u')'
+
                 if six.PY3:
-                    print(output)
+                    log_func(output)
                 else:
-                    print(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
+                    log_func(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
-                print_identifiers(ctrl.children(), current_depth + 1)
+                print_identifiers(ctrl.children(), current_depth + 1, log_func)
 
-        print_identifiers([this_ctrl, ])
+        if filename is None:
+            print("Control Identifiers:")
+            print_identifiers([this_ctrl, ])
+        else:
+            log_file = open(filename, "w")
+            def log_func(msg):
+                log_file.write(str(msg) + os.linesep)
+            log_func("Control Identifiers:")
+            print_identifiers([this_ctrl, ], log_func=log_func)
+            log_file.close()
 
+    print_ctrl_ids = print_control_identifiers
+    dump_tree = print_control_identifiers
 
 cur_item = 0
 
