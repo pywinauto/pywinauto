@@ -54,5 +54,8 @@ dlg.child_window(title='PNG picture', found_index=0).invoke()
 dlg.SaveAs.File_name_ComboBox.Edit.set_text('walter_cat_resized.png')
 dlg.SaveAs.Save.click()
 
+if dlg.ConfirmSaveAs.exists():
+    dlg.ConfirmSaveAs.Yes.click()
+
 # Close application
 dlg.close()
