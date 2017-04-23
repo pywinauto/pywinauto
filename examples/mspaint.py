@@ -19,12 +19,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--log", help = "enable logging", type=str, required = False)
 args = parser.parse_args()
 
-file_name_log = args.log
-
 actionlogger.enable()
 logger = logging.getLogger('pywinauto')
-if file_name_log:
-    logger.handlers[0] = logging.FileHandler(file_name_log)
+if args.log:
+    logger.handlers[0] = logging.FileHandler(args.log)
 
 app = Application(backend='uia').start(r'mspaint.exe')
 dlg = app.window(title_re='.* - Paint')
