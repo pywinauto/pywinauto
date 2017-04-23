@@ -420,6 +420,11 @@ class UIAWrapper(BaseWrapper):
         """An interface to the Invoke method of the Invoke control pattern"""
         self.iface_invoke.Invoke()
 
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+        if name and control_type:
+            self.actions.log("Invoked " + name + " " + control_type)
+
         # Return itself to allow action chaining
         return self
 
@@ -509,6 +514,11 @@ class UIAWrapper(BaseWrapper):
         or a list item.
         """
         self.iface_selection_item.Select()
+
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+        if name and control_type:
+            self.actions.log("Selected " + name + " " + control_type)
 
         # Return itself so that action can be chained
         return self
