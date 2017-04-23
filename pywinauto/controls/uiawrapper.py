@@ -374,9 +374,15 @@ class UIAWrapper(BaseWrapper):
         Only a control supporting Window pattern should answer.
         If it doesn't (menu shadows, tooltips,...), try to send "Esc" key
         """
-        try:
+        try:            
+            name = self.element_info.name
+            control_type = self.element_info.control_type
+
             iface = self.iface_window
             iface.Close()
+
+            if name and control_type:
+                self.actions.log("Closed " + name + " " + control_type)
         except(uia_defs.NoPatternInterfaceError):
             self.type_keys("{ESC}")
 
