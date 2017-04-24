@@ -382,7 +382,7 @@ class UIAWrapper(BaseWrapper):
             iface.Close()
 
             if name and control_type:
-                self.actions.log("Closed " + name + " " + control_type)
+                self.actions.log("Closed " + control_type.lower() + ' "' +  name + '"')
         except(uia_defs.NoPatternInterfaceError):
             self.type_keys("{ESC}")
 
@@ -430,7 +430,7 @@ class UIAWrapper(BaseWrapper):
         self.iface_invoke.Invoke()
 
         if name and control_type:
-            self.actions.log("Invoked " + name + " " + control_type)
+            self.actions.log("Invoked " + control_type.lower() + ' "' +  name + '"')
         # Return itself to allow action chaining
         return self
 
@@ -524,7 +524,7 @@ class UIAWrapper(BaseWrapper):
         name = self.element_info.name
         control_type = self.element_info.control_type
         if name and control_type:
-            self.actions.log("Selected " + name + " " + control_type)
+            self.actions.log("Selected " + control_type.lower() + ' "' +  name + '"')
 
         # Return itself so that action can be chained
         return self

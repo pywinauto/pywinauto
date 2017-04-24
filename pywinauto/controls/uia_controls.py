@@ -84,7 +84,7 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         self.iface_toggle.Toggle()
 
         if name and control_type:
-            self.actions.log("Toggled " + name + " " + control_type)
+            self.actions.log('Toggled ' + control_type.lower() + ' "' +  name + '"')
         # Return itself so that action can be chained
         return self
 
