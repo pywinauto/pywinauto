@@ -993,6 +993,8 @@ class Application(object):
         if wait_for_idle and not app_idle():
             warnings.warn('Application is not loaded correctly (WaitForInputIdle failed)', RuntimeWarning)
 
+        self.actions.log("Started " + cmd_line + " application.")
+
         return self
 
     def __warn_incorrect_bitness(self):

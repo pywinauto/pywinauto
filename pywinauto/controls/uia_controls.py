@@ -78,8 +78,13 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         Notice, a radio button control isn't supported by UIA.
         https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+
         self.iface_toggle.Toggle()
 
+        if name and control_type:
+            self.actions.log('Toggled ' + control_type.lower() + ' "' +  name + '"')
         # Return itself so that action can be chained
         return self
 
