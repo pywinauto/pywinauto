@@ -3621,8 +3621,20 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         """Get is not in current locale and if so first day of the week"""
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
         return (win32functions.HiWord(res), win32functions.LoWord(res))
-
-
+        
+    # ----------------------------------------------------------------
+    def get_month_delta(self):
+        """Retrieves the scroll rate for a month calendar control"""
+        return self.send_message(win32defines.MCM_GETMONTHDELTA, 0, 0)
+        
+    # ----------------------------------------------------------------
+    def set_month_delta(self, delta):
+        """Sets the scroll rate for a month calendar control."""
+        if (delta < 0):
+            return
+            
+        self.send_message(win32defines.MCM_SETMONTHDELTA, delta, 0)
+        
 #====================================================================
 class PagerWrapper(hwndwrapper.HwndWrapper):
 

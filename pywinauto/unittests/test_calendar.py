@@ -284,6 +284,24 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def _set_calendar_state_into_multiselect(self):
         self.app['Common Controls Sample']['MCS_MULTISELECT'].Click()
+        
+    def test_can_get_default_scroll_rate(self):
+        actual_rate = 1
+        
+        self.assertEquals(actual_rate, self.calendar.get_month_delta())
+        
+    def test_can_set_scroll_rate(self):
+        actual_rate = 4
+        self.calendar.set_month_delta(actual_rate)
+        
+        self.assertEquals(actual_rate, self.calendar.get_month_delta())
+        
+    def test_can_not_set_incorrect_scroll_rate(self):
+        actual_rate = 1
+        incorrect_rate = -1
+        self.calendar.set_month_delta(incorrect_rate)
+        
+        self.assertEquals(actual_rate, self.calendar.get_month_delta())
 
 if __name__ == "__main__":
     unittest.main()
