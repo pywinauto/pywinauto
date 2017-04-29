@@ -443,13 +443,9 @@ class WindowSpecification(object):
                 check = getattr(self, check_name)
                 return check(retry_interval, float(retry_interval) // 2)
             try:
-                exists_criteria = self.criteria[:]
-                for criterion in exists_criteria:
-                    criterion['enabled_only'] = False
-                    criterion['visible_only'] = False
                 # resolve control explicitly to pass correct timing params
                 # timeout = retry_interval because the timeout is handled at higher level
-                ctrls = self.__resolve_control(exists_criteria, retry_interval, float(retry_interval) // 2)
+                ctrls = self.__resolve_control(self.criteria, retry_interval, float(retry_interval) // 2)
                 check = getattr(ctrls[-1], check_name)
             except (findwindows.ElementNotFoundError,
                     findbestmatch.MatchError,
