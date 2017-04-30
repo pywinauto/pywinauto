@@ -126,10 +126,29 @@ class HwndElementInfo(ElementInfo):
             child_handles = handleprops.children(self._handle)
         return [HwndElementInfo(ch) for ch in child_handles]
 
+    def has_depth(self, root, depth):
+        if self != root:
+            if depth > 0:
+                parent = self.parent
+                return parent.has_depth(root, depth - 1)
+            else:
+                return False
+        else:
+            return True
+
     def descendants(self, **kwargs):
         """Return descendants of the window (all children from sub-tree)"""
         child_handles = handleprops.children(self.handle)
-        return [HwndElementInfo(ch) for ch in child_handles]
+        child_handles = [HwndElementInfo(ch) for ch in child_handles]
+        depth = kwargs.pop('depth', None)
+
+        if depth is not None:
+                if isinstance(depth, int) and depth > 0:
+                    child_handles = [element for element in child_handles if element.has_depth(self, depth)]
+                else:
+                    raise Exception("Depth must be natural number")
+
+        return child_handles
 
     @property
     def rectangle(self):

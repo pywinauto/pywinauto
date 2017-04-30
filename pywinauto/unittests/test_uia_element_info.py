@@ -62,6 +62,22 @@ if UIA_support:
             """Test whether a list of only immediate children of the element is equal"""
             self.assertEqual(len(self.ctrl.children()), 5)
 
+        def testDefaultDepthDescendants(self):
+            """Test whether a list of descendants with default depth of the element is equal"""
+            self.assertEqual(len(self.ctrl.descendants()), 69)
+
+        def testDepthLevelOneDescendants(self):
+            """Test whether a list of descendants with depth=1 of the element is equal to children set"""
+            self.assertEqual(len(self.ctrl.descendants(depth=1)), len(self.ctrl.children()))
+
+        def testDepthLevelThreeDescendants(self):
+            """Test whether a list of descendants with depth=3 of the element is equal"""
+            self.assertEqual(len(self.ctrl.descendants(depth=3)), 49)
+
+        def testInvalidDepthDescendants(self):
+            """Test whether a list of descendants with invalid depth raises exception"""
+            self.assertRaises(Exception, self.ctrl.descendants, depth='qwerty')
+
 if __name__ == "__main__":
     if UIA_support:
         unittest.main()
