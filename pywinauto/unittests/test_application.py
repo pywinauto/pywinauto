@@ -882,11 +882,11 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def test_depth(self):
         """Test that descendants() with depth works correctly"""
-        self.dlgspec.menu_select("Фор&мат -> &Шрифт...")
+        self.dlgspec.menu_select("Format -> Font")
 
         self.assertNotEqual(
-            len(self.app['Шрифт'].descendants(depth=1)),
-            len(self.app['Шрифт'].descendants(depth=2)))
+            len(self.app['Font'].descendants(depth=1)),
+            len(self.app['Font'].descendants(depth=2)))
 
     def test_print_control_identifiers(self):
         """Make sure print_control_identifiers() doesn't crash"""
