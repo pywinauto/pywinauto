@@ -52,7 +52,8 @@ def synchronized_method(method):
 
     def sync_method(self, *args, **kws):
         with outer_lock:
-            if not hasattr(self, lock_name): setattr(self, lock_name, threading.Lock())
+            if not hasattr(self, lock_name):
+                setattr(self, lock_name, threading.Lock())
             lock = getattr(self, lock_name)
             with lock:
                 return method(self, *args, **kws)
@@ -122,30 +123,42 @@ class UiaRecorder(COMObject):
         self.control_tree = None
 
         # THE WHOLE POINT OF THIS
-        self.script = "app = pywinauto.Application(backend={}).start('insert cmd here')\n".format(app.backend.name)
+        self.script = "app = pywinauto.Application(backend='{}').start('INSERT_CMD_HERE')\n".format(app.backend.name)
 
     @synchronized_method
-    def add_to_log(self, text):
-        self.event_log.append(text)
+    def add_to_log(self, item):
+        """
+        Add *item* to event log.
+        This is a synchronized method. 
+        """
+        self.event_log.append(item)
         if self.hot_output:
-            print(text)
+            print(item)
 
     @synchronized_method
     def clear_log(self):
+        """
+        Clear event log.
+        This is a synchronized method. 
+        """
         self.event_log.clear()
 
     def is_active(self):
+        """Returns True if UiaRecorder is active"""
         return self.recorder_thread.is_alive() or self.hook_thread.is_alive()
 
     def start(self):
+        """Start UiaRecorder"""
         self.recorder_thread.start()
         self.hook_thread.start()
 
     def stop(self):
+        """Stop UiaRecorder"""
         self.recorder_stop_event.set()
         self.hook.stop()
 
     def _add_handlers(self, element):
+        """Add UIA handlers to element and all its descendants"""
         cache_request = IUIA().iuia.CreateCacheRequest()
         for prop_id in _cached_properties:
             cache_request.AddProperty(prop_id)
@@ -184,6 +197,7 @@ class UiaRecorder(COMObject):
             self._add_handlers(self.element)
             self.control_tree = ControlTree(self.ctrl)
         except Exception as exc:
+            # Skip exceptions thrown by AddPropertyChangedEventHandler
             print(exc)
         finally:
             self.recorder_start_event.set()
@@ -198,43 +212,42 @@ class UiaRecorder(COMObject):
         self.hook.handler = self.handle_hook_event
         self.hook.hook(keyboard=False, mouse=True)
 
+    def parse_and_clear_log_on_click(self):
+        """Parse current event log and clear it afterwards"""
+        for event in self.event_log:
+            if isinstance(event, MouseEvent):
+                # TODO:
+                # How do we approach event parsing
+                # Menu opening
+                # Envoke event
+                # ...
+                if event.control_tree_node:
+                    item_name = [name for name in event.control_tree_node.names if len(name) > 0 and not " " in name][
+                        -1]
+                    self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
+                else:
+                    self.script += "pywinauto.mouse.click(coords=({}, {}))\n".format(event.mouse_x, event.mouse_y)
+        self.clear_log()
+
     def handle_hook_event(self, args):
         """Callback for keyboard and mouse events"""
+        # Handle keyboard hook events
         if isinstance(args, KeyboardEvent):
-            if args.current_key == 'A' and args.event_type == 'key down' and 'Lcontrol' in args.pressed_key:
-                print("Ctrl + A was pressed")
-
-            if args.current_key == 'M' and args.event_type == 'key down' and 'U' in args.pressed_key:
-                self.hook.unhook_mouse()
-                print("Unhook mouse")
-
             if args.current_key == 'K' and args.event_type == 'key down' and 'U' in args.pressed_key:
-                self.hook.unhook_keyboard()
-                print("Unhook keyboard")
+                pass
 
+        # Handle mouse hook events
         if isinstance(args, MouseEvent):
+            # Left mouse button down
             if args.current_key == 'LButton' and args.event_type == 'key down':
+                # Parse current event log and clear it
+                self.parse_and_clear_log_on_click()
+
                 # Add information about clicked item to event
                 if self.control_tree:
                     node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
                     if node:
                         args.control_tree_node = node
-
-                # Parse all previous log and clear it
-                for event in self.event_log:
-                    if isinstance(event, MouseEvent):
-                        # TODO:
-                        # How do we approach event parsing
-                        # Menu opening
-                        # Envoke event
-                        # ...
-                        if event.control_tree_node:
-                            item_name = [name for name in event.control_tree_node.names if len(name) > 0 and not " " in name][-1]
-                            self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
-                        else:
-                            self.script += "pywinauto.mouse.click(coords=({}, {}))\n".format(event.mouse_x, event.mouse_y)
-                self.clear_log()
-
                 # Add new event to log
                 self.add_to_log(args)
 
