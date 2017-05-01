@@ -120,6 +120,7 @@ class ElementInfo(object):
         raise NotImplementedError()
 
     def has_depth(self, root, depth):
+        """Return True if element has particular depth level relative to the root"""
         if self != root:
             if depth > 0:
                 parent = self.parent
@@ -131,6 +132,7 @@ class ElementInfo(object):
 
     @staticmethod
     def filter_with_depth(elements, root, depth):
+        """Return filtered elements with particular depth level relative to the root"""
         if depth is not None:
                 if isinstance(depth, int) and depth > 0:
                     return [element for element in elements if element.has_depth(root, depth)]
