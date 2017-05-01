@@ -121,7 +121,7 @@ class ElementInfo(object):
 
     def has_depth(self, root, depth):
         """Return True if element has particular depth level relative to the root"""
-        if self != root:
+        if self.control_id != root.control_id:
             if depth > 0:
                 parent = self.parent
                 return parent.has_depth(root, depth - 1)
