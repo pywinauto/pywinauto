@@ -280,6 +280,7 @@ class UiaRecorder(COMObject):
                 self.element_info.process_id
             except COMError:
                 self.stop()
+                self.parse_and_clear_log_on_click()
                 self.script += "app.kill()\n"
 
     def IUIAutomationPropertyChangedEventHandler_HandlePropertyChangedEvent(self, sender, propertyId, newValue):
