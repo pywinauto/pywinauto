@@ -104,6 +104,7 @@ class UiaRecorder(COMObject):
         self.element = self.element_info.element
 
         self.event_log = []
+        self.menu_sequence = []
 
         self.record_props = record_props
         self.record_focus = record_focus
@@ -212,19 +213,29 @@ class UiaRecorder(COMObject):
         self.hook.handler = self.handle_hook_event
         self.hook.hook(keyboard=False, mouse=True)
 
-    def parse_and_clear_log_on_click(self):
+    def parse_and_clear_log(self):
         """Parse current event log and clear it afterwards"""
         for event in self.event_log:
             if isinstance(event, MouseEvent):
-                # TODO:
-                # How do we approach event parsing
-                # Menu opening
-                # Envoke event
-                # ...
                 if event.control_tree_node:
-                    item_name = [name for name in event.control_tree_node.names if len(name) > 0 and not " " in name][
-                        -1]
-                    self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
+                    # Choose appropriate name
+                    item_name = [name for name in event.control_tree_node.names
+                                 if len(name) > 0 and not " " in name][-1]
+
+                    joint_log = "\n".join([str(ev) for ev in self.event_log])
+                    if "Invoke_Invoked" in joint_log:
+                        self.script += "app.{}.{}.invoke()\n".format(self.control_tree.root_name, item_name)
+                    elif "ToggleToggleState" in joint_log:
+                        self.script += "app.{}.{}.toggle()\n".format(self.control_tree.root_name, item_name)
+                    elif "MenuOpened" in joint_log:
+                        self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
+                    elif "MenuClosed" in joint_log:
+                        self.script += "app.{}.menu_select('{}')\n".format(
+                            self.control_tree.root_name,
+                            " -> ".join(self.menu_sequence) + " -> " + event.control_tree_node.ctrl.window_text())
+                        self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
+                    else:
+                        self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
                 else:
                     self.script += "pywinauto.mouse.click(coords=({}, {}))\n".format(event.mouse_x, event.mouse_y)
         self.clear_log()
@@ -241,7 +252,7 @@ class UiaRecorder(COMObject):
             # Left mouse button down
             if args.current_key == 'LButton' and args.event_type == 'key down':
                 # Parse current event log and clear it
-                self.parse_and_clear_log_on_click()
+                self.parse_and_clear_log()
 
                 # Add information about clicked item to event
                 if self.control_tree:
@@ -277,10 +288,12 @@ class UiaRecorder(COMObject):
         if event.event_name == 'Window_WindowClosed':
             # Detect if top_window is already closed
             try:
-                self.element_info.process_id
+                process_id = self.element_info.process_id
             except COMError:
+                process_id = 0
+            if process_id == 0:
                 self.stop()
-                self.parse_and_clear_log_on_click()
+                self.parse_and_clear_log()
                 self.script += "app.kill()\n"
 
     def IUIAutomationPropertyChangedEventHandler_HandlePropertyChangedEvent(self, sender, propertyId, newValue):

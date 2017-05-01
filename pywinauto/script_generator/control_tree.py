@@ -1,11 +1,12 @@
 from collections import deque
 
-from ..base_wrapper import BaseWrapper
 from .. import findbestmatch
+from ..base_wrapper import BaseWrapper
 
 
 class ControlTreeNode(object):
-    def __init__(self, names, rect):
+    def __init__(self, ctrl, names, rect):
+        self.ctrl = ctrl
         self.names = names
         self.rect = rect
 
@@ -40,7 +41,7 @@ class ControlTree(object):
         for name, control in name_control_map.items():
             control_name_map.setdefault(control, []).append(name)
 
-        self.root = ControlTreeNode(control_name_map[self.ctrl], self.ctrl.rectangle())
+        self.root = ControlTreeNode(self.ctrl, control_name_map[self.ctrl], self.ctrl.rectangle())
         self.root_name = [name for name in self.root.names if len(name) > 0 and not " " in name][-1]
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
@@ -54,7 +55,7 @@ class ControlTree(object):
                 ctrl_names = control_name_map[ctrl]
                 ctrl_rect = ctrl.rectangle()
 
-                ctrl_node = ControlTreeNode(ctrl_names, ctrl_rect)
+                ctrl_node = ControlTreeNode(ctrl, ctrl_names, ctrl_rect)
                 ctrl_node.depth = current_depth
                 ctrl_node.parent = parent_node
                 parent_node.children.append(ctrl_node)

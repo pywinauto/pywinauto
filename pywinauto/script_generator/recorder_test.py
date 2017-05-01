@@ -29,7 +29,7 @@ def run_tree_test():
 
 
 def run_test():
-    # app_path = os.path.join(os.path.dirname(__file__), r".\pywinauto_UIA\apps\WPF_samples\WpfApplication1.exe")
+    # app_path = os.path.join(os.path.dirname(__file__), r"..\..\apps\WPF_samples\WpfApplication1.exe")
     app_path = 'notepad.exe'
 
     app = Application(backend="uia").start(app_path)
