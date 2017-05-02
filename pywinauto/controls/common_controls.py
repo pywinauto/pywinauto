@@ -3634,6 +3634,44 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
             return
             
         self.send_message(win32defines.MCM_SETMONTHDELTA, delta, 0)
+    
+    def get_month_range(self):
+        """Retrieves date information that represents the high and low limits of a month calendar control's display."""
+        remote_mem = RemoteMemoryBlock(self)
+        
+        system_date_start = win32structures.SYSTEMTIME()
+        system_date_end =win32structures.SYSTEMTIME()
+        
+#        system_date_file = wintypes.FILETIME()
+#        system_date_file.dwLowDateTime = system_date_start
+#        system_date_file.dwHighDateTime = system_date_end
+        
+        system_date = [system_date_start, system_date_end]
+        
+        print("Sizeof:{0}. Len: {1}".format(win32structures.SYSTEMTIME(), len(system_date)))
+        
+        #system_date_ptr = ctypes.ARRAY(ctypes.c_void_p, 2)
+        #system_date_ptr[0] = system_date_start
+        #system_date_ptr[1] = system_date_end
+        
+        # = (wintypes.DWORD * len(system_date))(*system_date)
+        system_date_ptr = (ctypes.Structure * len(system_date))(*system_date)
+        
+        #system_date_ptr = win32structures.SYSTEMTIME_ARRAY()
+        #system_date_ptr.st1 = system_date_start
+        #system_date_ptr.st2 = system_date_end
+        #system_date_ptr.cbSize = ctypes.sizeof(system_date_ptr)
+
+        
+        remote_mem.Write(system_date_ptr)
+
+        res = self.send_message(win32defines.MCM_GETMONTHRANGE, win32defines.GMR_VISIBLE, remote_mem)
+        remote_mem.Read(system_date_ptr)
+        del remote_mem
+
+        if res == 0:
+            raise RuntimeError('Failed to get month range')
+        return (res, system_date_ptr)
         
 #====================================================================
 class PagerWrapper(hwndwrapper.HwndWrapper):

@@ -302,6 +302,20 @@ class CalendarWrapperTests(unittest.TestCase):
         self.calendar.set_month_delta(incorrect_rate)
         
         self.assertEquals(actual_rate, self.calendar.get_month_delta())
+        
+    def test_can_get_month_range(self):
+        """Test setting up the control's today field"""
+        res = self.calendar.get_month_range()
+        rangeMonths = res[0]
+        systemTime = res[1]
+        
+        start = datetime.date(2017, 4, 1)
+        
+        self.assertEqual(rangeMonths, 1)
+        self.assertEqual(systemTime[0].wYear, start.year)
+        self.assertEqual(systemTime[0].wMonth, start.month)
+        self.assertEqual(systemTime[0].wDay, start.day)
+        self.assertEqual(systemTime[1].wDay, 30)
 
 if __name__ == "__main__":
     unittest.main()
