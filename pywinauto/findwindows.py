@@ -139,6 +139,7 @@ def find_elements(class_name=None,
                   auto_id=None,
                   framework_id=None,
                   backend=None,
+                  depth=None
                   ):
     """
     Find elements based on criteria passed in
@@ -205,7 +206,8 @@ def find_elements(class_name=None,
         elements = parent.descendants(class_name=class_name,
                                       title=title,
                                       control_type=control_type,
-                                      cache_enable=True)
+                                      cache_enable=True,
+                                      depth=depth)
 
         # if the ctrl_index has been specified then just return
         # that control

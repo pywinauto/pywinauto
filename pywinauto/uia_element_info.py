@@ -266,8 +266,13 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
+        depth = kwargs.pop('depth', None)
         cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+        elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+
+        elements = ElementInfo.filter_with_depth(elements, self, depth)
+
+        return elements
 
     @property
     def visible(self):

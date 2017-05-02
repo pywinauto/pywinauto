@@ -129,7 +129,12 @@ class HwndElementInfo(ElementInfo):
     def descendants(self, **kwargs):
         """Return descendants of the window (all children from sub-tree)"""
         child_handles = handleprops.children(self.handle)
-        return [HwndElementInfo(ch) for ch in child_handles]
+        child_handles = [HwndElementInfo(ch) for ch in child_handles]
+        depth = kwargs.pop('depth', None)
+
+        child_handles = ElementInfo.filter_with_depth(child_handles, self, depth)
+
+        return child_handles
 
     @property
     def rectangle(self):

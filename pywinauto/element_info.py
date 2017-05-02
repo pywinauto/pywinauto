@@ -119,6 +119,28 @@ class ElementInfo(object):
         """Return children of the element"""
         raise NotImplementedError()
 
+    def has_depth(self, root, depth):
+        """Return True if element has particular depth level relative to the root"""
+        if self.control_id != root.control_id:
+            if depth > 0:
+                parent = self.parent
+                return parent.has_depth(root, depth - 1)
+            else:
+                return False
+        else:
+            return True
+
+    @staticmethod
+    def filter_with_depth(elements, root, depth):
+        """Return filtered elements with particular depth level relative to the root"""
+        if depth is not None:
+                if isinstance(depth, int) and depth > 0:
+                    return [element for element in elements if element.has_depth(root, depth)]
+                else:
+                    raise Exception("Depth must be natural number")
+        else:
+            return elements
+
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         raise NotImplementedError()
