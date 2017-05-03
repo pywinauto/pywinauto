@@ -300,8 +300,10 @@ class CalendarWrapperTests(unittest.TestCase):
         end_month = datetime.date(2017, 6, 4)
 
         self.assertEquals(range_months, exp_range)
-        self.assert_actual_time_is_equal_to_expect_date_time(system_time[0], start_month)
-        self.assert_actual_time_is_equal_to_expect_date_time(system_time[1], end_month)
+        self.assertEqual(system_time[0].wYear, start_month.year)
+        self.assertEqual(system_time[0].wMonth, start_month.month)
+        self.assertEqual(system_time[1].wYear, end_month.year)
+        self.assertEqual(system_time[1].wMonth, end_month.month)
 
     def test_should_throw_value_error_when_try_to_get_month_range_and_scope_of_range_is_incorrect(self):
         self.assertRaises(ValueError, self.calendar.get_month_range, -1)
