@@ -3621,58 +3621,46 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         """Get is not in current locale and if so first day of the week"""
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
         return (win32functions.HiWord(res), win32functions.LoWord(res))
-        
+
     # ----------------------------------------------------------------
     def get_month_delta(self):
         """Retrieves the scroll rate for a month calendar control"""
         return self.send_message(win32defines.MCM_GETMONTHDELTA, 0, 0)
-        
+
     # ----------------------------------------------------------------
     def set_month_delta(self, delta):
         """Sets the scroll rate for a month calendar control."""
         if (delta < 0):
-            return
+            raise ValueError("Moth delta must be greater than 0")
             
         self.send_message(win32defines.MCM_SETMONTHDELTA, delta, 0)
-    
-    def get_month_range(self):
+
+    # ----------------------------------------------------------------
+    def get_month_range(self, scope_of_range):
         """Retrieves date information that represents the high and low limits of a month calendar control's display."""
+
+        if (scope_of_range != win32defines.GMR_DAYSTATE) \
+        and (scope_of_range != win32defines.GMR_VISIBLE):
+            raise ValueError("scopeOfRange value must be one of the following: GMR_DAYSTATE or GMR_VISIBLE")
+            
         remote_mem = RemoteMemoryBlock(self)
+        system_date_arr = (win32structures.SYSTEMTIME * 2)()
         
-        system_date_start = win32structures.SYSTEMTIME()
-        system_date_end =win32structures.SYSTEMTIME()
-        
-#        system_date_file = wintypes.FILETIME()
-#        system_date_file.dwLowDateTime = system_date_start
-#        system_date_file.dwHighDateTime = system_date_end
-        
-        system_date = [system_date_start, system_date_end]
-        
-        print("Sizeof:{0}. Len: {1}".format(win32structures.SYSTEMTIME(), len(system_date)))
-        
-        #system_date_ptr = ctypes.ARRAY(ctypes.c_void_p, 2)
-        #system_date_ptr[0] = system_date_start
-        #system_date_ptr[1] = system_date_end
-        
-        # = (wintypes.DWORD * len(system_date))(*system_date)
-        system_date_ptr = (ctypes.Structure * len(system_date))(*system_date)
-        
-        #system_date_ptr = win32structures.SYSTEMTIME_ARRAY()
-        #system_date_ptr.st1 = system_date_start
-        #system_date_ptr.st2 = system_date_end
-        #system_date_ptr.cbSize = ctypes.sizeof(system_date_ptr)
+        system_date_arr[0] = win32structures.SYSTEMTIME()
+        system_date_arr[1] = win32structures.SYSTEMTIME()
+                
+        remote_mem.Write(system_date_arr)
 
+        res = self.send_message(win32defines.MCM_GETMONTHRANGE, scope_of_range, remote_mem)
         
-        remote_mem.Write(system_date_ptr)
-
-        res = self.send_message(win32defines.MCM_GETMONTHRANGE, win32defines.GMR_VISIBLE, remote_mem)
-        remote_mem.Read(system_date_ptr)
+        remote_mem.Read(system_date_arr)
         del remote_mem
 
-        if res == 0:
+        if res < 1 or res > 3:
             raise RuntimeError('Failed to get month range')
-        return (res, system_date_ptr)
-        
+            
+        return (res, system_date_arr)
+
 #====================================================================
 class PagerWrapper(hwndwrapper.HwndWrapper):
 
