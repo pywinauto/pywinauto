@@ -329,6 +329,6 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def _set_calendar_state_into_multiselect(self):
         self.app['Common Controls Sample']['MCS_MULTISELECT'].Click()
-        
+
 if __name__ == "__main__":
     unittest.main()

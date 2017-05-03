@@ -3656,7 +3656,7 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
 
         if res < 1 or res > 3:
             raise RuntimeError('Failed to get month range')
- 
+
         return (res, system_date_arr)
 
 #====================================================================
