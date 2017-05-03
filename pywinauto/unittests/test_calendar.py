@@ -279,8 +279,7 @@ class CalendarWrapperTests(unittest.TestCase):
         self.calendar.set_current_date(2017, 5, 2, 2)
         
         res = self.calendar.get_month_range(win32defines.GMR_VISIBLE)
-        range_months = res[0]
-        system_time = res[1]
+        range_months, system_time = res[:2]
         
         exp_range = 1
         start_month = datetime.date(2017, 5, 1)
@@ -294,8 +293,7 @@ class CalendarWrapperTests(unittest.TestCase):
         self.calendar.set_current_date(2017, 5, 2, 2)
         
         res = self.calendar.get_month_range(win32defines.GMR_DAYSTATE)
-        range_months = res[0]
-        system_time = res[1]
+        range_months, system_time = res[:2]
         
         exp_range = 3
         start_month = datetime.date(2017, 4, 24)
