@@ -260,7 +260,7 @@ class CalendarWrapperTests(unittest.TestCase):
         """Test can set and get first day of the week"""
         self.calendar.set_first_weekday(4)
         self.assertEqual((True,4), self.calendar.get_first_weekday())
-    
+
     def test_can_get_default_scroll_rate(self):
         actual_rate = 1
         

@@ -3632,13 +3632,12 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         """Sets the scroll rate for a month calendar control."""
         if (delta < 0):
             raise ValueError("Month delta must be greater than 0")
-            
+
         self.send_message(win32defines.MCM_SETMONTHDELTA, delta, 0)
 
     # ----------------------------------------------------------------
     def get_month_range(self, scope_of_range):
         """Retrieves date information that represents the high and low limits of a month calendar control's display."""
-
         if scope_of_range not in [win32defines.GMR_DAYSTATE, win32defines.GMR_VISIBLE]:
             raise ValueError("scope_of_range value must be one of the following: GMR_DAYSTATE or GMR_VISIBLE")
             
