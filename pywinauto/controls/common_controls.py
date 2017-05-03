@@ -3640,23 +3640,23 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         """Retrieves date information that represents the high and low limits of a month calendar control's display."""
         if scope_of_range not in [win32defines.GMR_DAYSTATE, win32defines.GMR_VISIBLE]:
             raise ValueError("scope_of_range value must be one of the following: GMR_DAYSTATE or GMR_VISIBLE")
-            
+
         remote_mem = RemoteMemoryBlock(self)
         system_date_arr = (win32structures.SYSTEMTIME * 2)()
-        
+
         system_date_arr[0] = win32structures.SYSTEMTIME()
         system_date_arr[1] = win32structures.SYSTEMTIME()
-                
+
         remote_mem.Write(system_date_arr)
 
         res = self.send_message(win32defines.MCM_GETMONTHRANGE, scope_of_range, remote_mem)
-        
+
         remote_mem.Read(system_date_arr)
         del remote_mem
 
         if res < 1 or res > 3:
             raise RuntimeError('Failed to get month range')
-            
+ 
         return (res, system_date_arr)
 
 #====================================================================
