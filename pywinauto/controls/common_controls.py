@@ -3654,9 +3654,6 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         remote_mem.Read(system_date_arr)
         del remote_mem
 
-        if res < 1 or res > 3:
-            raise RuntimeError('Failed to get month range')
-
         return (res, system_date_arr)
 
 #====================================================================

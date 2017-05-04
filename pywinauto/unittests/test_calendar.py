@@ -275,19 +275,23 @@ class CalendarWrapperTests(unittest.TestCase):
     def test_should_throw_value_error_when_try_to_set_incorrect_scroll_rate(self):
         self.assertRaises(ValueError, self.calendar.set_month_delta, -1)
 
-    def test_can_get_month_range(self):
+    def test_can_get_month_range_when_calendars_view_into_month(self):
         self.calendar.set_current_date(2017, 5, 2, 2)
-
-        res = self.calendar.get_month_range(win32defines.GMR_VISIBLE)
-        range_months, system_time = res[:2]
-
         exp_range = 1
         start_month = datetime.date(2017, 5, 1)
         end_month = datetime.date(2017, 5, 31)
 
-        self.assertEquals(range_months, exp_range)
-        self.assert_actual_time_is_equal_to_expect_date_time(system_time[0], start_month)
-        self.assert_actual_time_is_equal_to_expect_date_time(system_time[1], end_month)
+        self._check_month_range(exp_range, start_month, end_month)
+
+    def test_can_get_month_range_when_calendars_view_into_years(self):
+        self.calendar.set_current_date(2017, 5, 2, 2)
+        self.calendar.set_view(win32defines.MCMV_YEAR)
+
+        exp_range = 12
+        start_month = datetime.date(2017, 1, 1)
+        end_month = datetime.date(2017, 12, 31)
+
+        self._check_month_range(exp_range, start_month, end_month)
 
     def test_can_get_month_range_with_include_preceding_and_trailing_months(self):
         self.calendar.set_current_date(2017, 5, 2, 2)
@@ -307,6 +311,14 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def test_should_throw_value_error_when_try_to_get_month_range_and_scope_of_range_is_incorrect(self):
         self.assertRaises(ValueError, self.calendar.get_month_range, -1)
+
+    def _check_month_range(self, exp_range, start_month, end_month):
+        res = self.calendar.get_month_range(win32defines.GMR_VISIBLE)
+        range_months, system_time = res[:2]
+
+        self.assertEquals(range_months, exp_range)
+        self.assert_actual_time_is_equal_to_expect_date_time(system_time[0], start_month)
+        self.assert_actual_time_is_equal_to_expect_date_time(system_time[1], end_month)    
 
     def assert_actual_time_is_equal_to_expect_date_time(self, actual_date, expect_date):
         self.assertEqual(actual_date.wYear, expect_date.year)
