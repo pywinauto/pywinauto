@@ -318,7 +318,7 @@ class CalendarWrapperTests(unittest.TestCase):
 
         self.assertEquals(range_months, exp_range)
         self.assert_actual_time_is_equal_to_expect_date_time(system_time[0], start_month)
-        self.assert_actual_time_is_equal_to_expect_date_time(system_time[1], end_month)    
+        self.assert_actual_time_is_equal_to_expect_date_time(system_time[1], end_month)
 
     def assert_actual_time_is_equal_to_expect_date_time(self, actual_date, expect_date):
         self.assertEqual(actual_date.wYear, expect_date.year)
