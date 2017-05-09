@@ -10,7 +10,6 @@ import mock
 import six
 
 sys.path.append(".")
-
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
