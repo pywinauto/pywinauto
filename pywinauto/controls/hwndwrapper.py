@@ -36,6 +36,7 @@ from __future__ import print_function
 # pylint:  disable-msg=W0611
 
 # import sys
+import copy
 import time
 import re
 import ctypes
@@ -45,6 +46,8 @@ import win32con
 import win32process
 import win32event
 import six
+import pywintypes
+import warnings
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
@@ -457,52 +460,142 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def send_chars(self,
-                   message,
+                   chars,
                    with_spaces=True,
                    with_tabs=True,
                    with_newlines=True):
         """
-        Silently send a string to the control
+        Silently send a character string to the control
 
-        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{Enter}"
-        For more information about Sequences and Modifiers navigate to keyboard.py
+        If a virtual key with no corresponding character is encountered
+        (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised.
         """
 
         input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        keys = keyboard.parse_keys(chars, with_spaces, with_tabs, with_newlines)
 
-        keys = keyboard.parse_keys(message, with_spaces, with_tabs, with_newlines)
         for key in keys:
+            key_info = key.get_key_info()
+            flags = key_info[2]
 
-            vk, scan, flags = key.get_key_info()
+            unicode_char = (
+                flags & keyboard.KEYEVENTF_UNICODE ==
+                keyboard.KEYEVENTF_UNICODE)
 
-            if flags & keyboard.KEYEVENTF_UNICODE == 0:
-                char = keyboard.MapVirtualKey(vk, 2)
-            else:
-                # Indicates that we actually just have a unicode codepoint
-                char = scan
+            if unicode_char:
+                _, char = key_info[:2]
                 vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF # TODO: use shift state in high order byte
                 scan = keyboard.MapVirtualKey(vk, 0)
-
-            if key.down and vk > 0:
-                # TODO: {CTRL} (^) modifier doesn't work
-                # + SHIFT down
-                # - CTRL down
-                # print('key', key, 'down')
-                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24 | 0 << 29 | 0 << 31
-                win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+            else:
+                vk, scan = key_info[:2]
+                char = keyboard.MapVirtualKey(vk, 2)
 
             if char > 0:
                 lparam = 1 << 0 | scan << 16 | (flags & 1) << 24
                 win32api.SendMessage(self.handle, win32con.WM_CHAR, char, lparam)
+            else:
+                raise keyboard.KeySequenceError('no corresponding char for ' +
+                                                str(key))
 
-            if key.up and vk > 0:
-                # + SHIFT up
-                # - CTRL up
-                # print('key', key, 'up')
-                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24 | 0 << 29 | 1 << 30 | 1 << 31
-                win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
+    # -----------------------------------------------------------
+    def send_keystrokes(self,
+                   keystrokes,
+                   with_spaces=True,
+                   with_tabs=True,
+                   with_newlines=True):
+        """
+        Silently send keystrokes to the control
 
-            # time.sleep(Timings.after_sendkeys_key_wait)
+        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
+        For more information about Sequences and Modifiers navigate to keyboard.py
+
+        Characters typed with multiple keystrokes (e.g. $, @, capital letters) are mapped
+        to their main keys (4 for $, 2 for @ and letter keys for capital letters). To send
+        them use HwndWrapper.send_chars() or pass whole key sequences with modifiers
+        (e.g. "+4" for $, "+2" for @).
+        """
+        user32 = ctypes.windll.User32
+        PBYTE256 = ctypes.c_ubyte * 256
+
+        win32gui.SendMessage(self.handle, win32con.WM_ACTIVATE,
+                             win32con.WA_ACTIVE, 0)
+        target_thread_id = user32.GetWindowThreadProcessId(self.handle, None)
+        current_thread_id = win32api.GetCurrentThreadId()
+        user32.AttachThreadInput(current_thread_id, target_thread_id, True)
+
+        keyboard_state_stack = [PBYTE256()]
+        user32.GetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+
+        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        context_code = 0
+
+        keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs,
+                                   with_newlines)
+
+        try:
+            for key in keys:
+                vk, scan, flags = key.get_key_info()
+
+                if vk == keyboard.VK_MENU or context_code == 1:
+                    down_msg, up_msg = win32con.WM_SYSKEYDOWN, win32con.WM_SYSKEYUP
+                else:
+                    down_msg, up_msg = win32con.WM_KEYDOWN, win32con.WM_KEYUP
+
+                repeat = 1
+                unicode_codepoint = flags & keyboard.KEYEVENTF_UNICODE != 0
+                if unicode_codepoint:
+                    char = scan
+                    vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF # TODO: use shift state in high order byte
+                    scan = keyboard.MapVirtualKey(vk, 0)
+
+                if key.down and vk > 0:
+                    new_keyboard_state = copy.deepcopy(keyboard_state_stack[-1])
+                    new_keyboard_state[vk] |= 128
+                    keyboard_state_stack.append(new_keyboard_state)
+
+                    lparam = (
+                        repeat << 0 |
+                        scan << 16 |
+                        (flags & 1) << 24 |
+                        context_code << 29 |
+                        0 << 31)
+
+                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+                    win32api.PostMessage(self.handle, down_msg, vk, lparam)
+                    if vk == keyboard.VK_MENU:
+                        context_code = 1
+
+                    # a delay for keyboard state to take effect
+                    time.sleep(0.01)
+
+                if key.up and vk > 0:
+                    keyboard_state_stack.pop()
+
+                    lparam = (
+                        repeat << 0 |
+                        scan << 16 |
+                        (flags & 1) << 24 |
+                        context_code << 29 |
+                        1 << 30 |
+                        1 << 31)
+
+                    win32api.PostMessage(self.handle, up_msg, vk, lparam)
+                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+
+                    if vk == keyboard.VK_MENU:
+                        context_code = 0
+
+                    # a delay for keyboard state to take effect
+                    time.sleep(0.01)
+
+        except pywintypes.error as e:
+            if e.winerror == 1400:
+                warnings.warn("Application exited before the end of keystrokes")
+            else:
+                warnings.warn(e.strerror)
+            user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[0]))
+
+        user32.AttachThreadInput(current_thread_id, target_thread_id, False)
 
     # -----------------------------------------------------------
     def send_message_timeout(

@@ -59,6 +59,8 @@ from pywinauto.timings import Timings
 from pywinauto import clipboard
 from pywinauto.base_wrapper import ElementNotEnabled
 from pywinauto.base_wrapper import ElementNotVisible
+from pywinauto import findbestmatch
+from pywinauto import keyboard
 
 
 mfc_samples_folder = os.path.join(
@@ -288,7 +290,7 @@ class HwndWrapperTests(unittest.TestCase):
         expected = 0x89 # 0x2000 + 0x40
         self.assertEqual(expected, code)
 
-    def test_send_chars_simple(self):
+    def test_send_chars(self):
         testString = "Hello World"
 
         self.dlg.Minimize()
@@ -298,44 +300,51 @@ class HwndWrapperTests(unittest.TestCase):
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
-    # def test_send_chars_enter(self):
-    #     with self.assertRaises(findbestmatch.MatchError):
-    #         testString = "{ENTER}"
-    #
-    #         self.dlg.Minimize()
-    #         self.dlg.Edit.send_chars(testString)
-    #
-    #         actual = self.dlg.Edit.Texts()[0]
+    def test_send_chars_invalid(self):
+        with self.assertRaises(keyboard.KeySequenceError):
+            testString = "Hello{LEFT 2}{DEL 2}"
 
-    def test_send_chars_virtual_keys_left_del_back(self):
-        testString = "Hello123{LEFT 2}{DEL 2}{BACKSPACE} World"
+            self.dlg.Minimize()
+            self.dlg.Edit.send_chars(testString)
+
+    def test_send_keystrokes_enter(self):
+        with self.assertRaises(findbestmatch.MatchError):
+            testString = "{ENTER}"
+
+            self.dlg.Minimize()
+            self.dlg.Edit.send_keystrokes(testString)
+
+            actual = self.dlg.Edit.Texts()[0]
+
+    def test_send_keystrokes_virtual_keys_left_del_back(self):
+        testString = "+hello123{LEFT 2}{DEL 2}{BACKSPACE} +world"
 
         self.dlg.Minimize()
-        self.dlg.Edit.send_chars(testString)
+        self.dlg.Edit.send_keystrokes(testString)
 
         actual = self.dlg.Edit.Texts()[0]
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
-    def test_send_chars_virtual_keys_shift(self):
+    def test_send_keystrokes_virtual_keys_shift(self):
         testString = "+hello +world"
 
         self.dlg.Minimize()
-        self.dlg.Edit.send_chars(testString)
+        self.dlg.Edit.send_keystrokes(testString)
 
         actual = self.dlg.Edit.Texts()[0]
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
-    # def test_send_chars_virtual_keys_ctrl(self):
-    #     testString = "^a^c{RIGHT}^v"
-    #
-    #     self.dlg.Minimize()
-    #     self.dlg.Edit.send_chars(testString)
-    #
-    #     actual = self.dlg.Edit.Texts()[0]
-    #     expected = "and the note goes here ...and the note goes here ..."
-    #     self.assertEqual(expected, actual)
+    def test_send_keystrokes_virtual_keys_ctrl(self):
+        testString = "^a^c{RIGHT}^v"
+
+        self.dlg.Minimize()
+        self.dlg.Edit.send_keystrokes(testString)
+
+        actual = self.dlg.Edit.Texts()[0]
+        expected = "and the note goes here ...and the note goes here ..."
+        self.assertEqual(expected, actual)
 
     def testSendMessageTimeout(self):
         default_timeout = Timings.sendmessagetimeout_timeout
@@ -974,4 +983,3 @@ class RemoteMemoryBlockTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
