@@ -10,6 +10,7 @@ import mock
 import six
 
 sys.path.append(".")
+
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
@@ -264,6 +265,24 @@ if UIA_support:
             #     self.dlg.draw_outline(colour="blue")
             #     img2 = self.dlg.capture_as_image()
             #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
+
+        def test_get_legacy_properties(self):
+            """Test getting legacy properties of a control"""
+            expected_properties = {'Value' : '',
+                                   'DefaultAction': 'Press',
+                                   'Description': '',
+                                   'Name': 'OK',
+                                   'Help': '',
+                                   'ChildId': 0,
+                                   'KeyboardShortcut': '',
+                                   'State': 1048576,
+                                   'Role': 43}
+            button_wrp = self.dlg.window(class_name="Button",
+                                       title="OK").wrapper_object()
+
+            actual_properties = button_wrp.legacy_properties()
+
+            self.assertEqual(actual_properties, expected_properties)
 
     class UIAWrapperMouseTests(unittest.TestCase):
 
