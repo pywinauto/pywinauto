@@ -1,2 +1,0 @@
-2017-05-09 12:47:06,817 INFO: Typed text to the Notepad: Test pywinauto logging
-2017-05-09 12:47:08,063 INFO: Clicked Button "OK" by left button event (x,y=0,0)
