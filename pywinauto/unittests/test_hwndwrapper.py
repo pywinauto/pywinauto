@@ -307,6 +307,16 @@ class HwndWrapperTests(unittest.TestCase):
             self.dlg.Minimize()
             self.dlg.Edit.send_chars(testString)
 
+    def test_send_keystrokes_multikey_characters(self):
+        testString = "Hawaii#{%}@$"
+
+        self.dlg.Minimize()
+        self.dlg.Edit.send_keystrokes(testString)
+
+        actual = self.dlg.Edit.Texts()[0]
+        expected = "Hawaii#%@$"
+        self.assertEqual(expected, actual)
+
     def test_send_keystrokes_enter(self):
         with self.assertRaises(findbestmatch.MatchError):
             testString = "{ENTER}"
@@ -314,7 +324,7 @@ class HwndWrapperTests(unittest.TestCase):
             self.dlg.Minimize()
             self.dlg.Edit.send_keystrokes(testString)
 
-            actual = self.dlg.Edit.Texts()[0]
+            self.dlg.Restore()
 
     def test_send_keystrokes_virtual_keys_left_del_back(self):
         testString = "+hello123{LEFT 2}{DEL 2}{BACKSPACE} +world"

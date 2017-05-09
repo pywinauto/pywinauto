@@ -470,7 +470,6 @@ class HwndWrapper(BaseWrapper):
         If a virtual key with no corresponding character is encountered
         (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised.
         """
-
         input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
         keys = keyboard.parse_keys(chars, with_spaces, with_tabs, with_newlines)
 
@@ -484,7 +483,7 @@ class HwndWrapper(BaseWrapper):
 
             if unicode_char:
                 _, char = key_info[:2]
-                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF # TODO: use shift state in high order byte
+                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF
                 scan = keyboard.MapVirtualKey(vk, 0)
             else:
                 vk, scan = key_info[:2]
@@ -508,11 +507,6 @@ class HwndWrapper(BaseWrapper):
 
         Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
         For more information about Sequences and Modifiers navigate to keyboard.py
-
-        Characters typed with multiple keystrokes (e.g. $, @, capital letters) are mapped
-        to their main keys (4 for $, 2 for @ and letter keys for capital letters). To send
-        them use HwndWrapper.send_chars() or pass whole key sequences with modifiers
-        (e.g. "+4" for $, "+2" for @).
         """
         user32 = ctypes.windll.User32
         PBYTE256 = ctypes.c_ubyte * 256
@@ -542,15 +536,26 @@ class HwndWrapper(BaseWrapper):
                     down_msg, up_msg = win32con.WM_KEYDOWN, win32con.WM_KEYUP
 
                 repeat = 1
+                shift_state = 0
                 unicode_codepoint = flags & keyboard.KEYEVENTF_UNICODE != 0
                 if unicode_codepoint:
                     char = scan
-                    vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF # TODO: use shift state in high order byte
+                    vk_with_flags = user32.VkKeyScanExW(char, input_locale_id)
+                    vk = vk_with_flags & 0xFF
+                    shift_state = (vk_with_flags & 0xFF00) >> 8
                     scan = keyboard.MapVirtualKey(vk, 0)
 
                 if key.down and vk > 0:
                     new_keyboard_state = copy.deepcopy(keyboard_state_stack[-1])
+
                     new_keyboard_state[vk] |= 128
+                    if shift_state & 1 == 1:
+                        new_keyboard_state[keyboard.VK_SHIFT] |= 128
+                    if shift_state & 2 == 2:
+                        new_keyboard_state[keyboard.VK_CONTROL] |= 128
+                    if shift_state & 4 == 4:
+                        new_keyboard_state[keyboard.VK_MENU] |= 128
+
                     keyboard_state_stack.append(new_keyboard_state)
 
                     lparam = (
