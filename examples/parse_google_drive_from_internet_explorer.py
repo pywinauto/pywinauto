@@ -1,5 +1,6 @@
 """
 Example script for parce Google Drive files and folders with IE11
+
 Requirements:
   - Internet Explorer 11 (tested on IE 11.0.9600.18537)
   - tested on Windows 7 SP1 (should work on Win7+)
@@ -7,6 +8,7 @@ Requirements:
 The example shows how to work with IE 11. It login to
 Google Drive and parse files and folders names, then
 saves them to file listdir.txt
+
 """
 
 import os
@@ -68,7 +70,7 @@ def parseObjectsNames(filepath):
     pos = 0
     names = []
     while eol == False:
-        for i in range(1, 9, 1):
+        for _ in range(1, 9, 1):
             pos = lineWithNames.find("[", pos + 1)
             if pos < 0:
                 eol = True
