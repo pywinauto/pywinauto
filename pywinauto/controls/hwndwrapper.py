@@ -515,7 +515,9 @@ class HwndWrapper(BaseWrapper):
                              win32con.WA_ACTIVE, 0)
         target_thread_id = user32.GetWindowThreadProcessId(self.handle, None)
         current_thread_id = win32api.GetCurrentThreadId()
-        user32.AttachThreadInput(current_thread_id, target_thread_id, True)
+        attach_success = user32.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
+        if not attach_success:
+            warnings.warn('Failed to attach app\'s thread to the current thread\'s message queue')
 
         keyboard_state_stack = [PBYTE256()]
         user32.GetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
@@ -523,8 +525,7 @@ class HwndWrapper(BaseWrapper):
         input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
         context_code = 0
 
-        keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs,
-                                   with_newlines)
+        keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs, with_newlines)
 
         try:
             for key in keys:
@@ -551,10 +552,8 @@ class HwndWrapper(BaseWrapper):
                     new_keyboard_state[vk] |= 128
                     if shift_state & 1 == 1:
                         new_keyboard_state[keyboard.VK_SHIFT] |= 128
-                    if shift_state & 2 == 2:
-                        new_keyboard_state[keyboard.VK_CONTROL] |= 128
-                    if shift_state & 4 == 4:
-                        new_keyboard_state[keyboard.VK_MENU] |= 128
+                    # NOTE: if there are characters with CTRL or ALT in the shift
+                    # state, make sure to add these keys to new_keyboard_state
 
                     keyboard_state_stack.append(new_keyboard_state)
 
@@ -600,7 +599,8 @@ class HwndWrapper(BaseWrapper):
                 warnings.warn(e.strerror)
             user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[0]))
 
-        user32.AttachThreadInput(current_thread_id, target_thread_id, False)
+        if attach_success:
+            user32.AttachThreadInput(target_thread_id, current_thread_id, False)
 
     # -----------------------------------------------------------
     def send_message_timeout(

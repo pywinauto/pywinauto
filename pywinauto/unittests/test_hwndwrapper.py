@@ -963,6 +963,27 @@ class SendEnterKeyTest(unittest.TestCase):
         self.assertEquals(['Hello\r\nWorld'], self.dlg.Edit.Texts())
 
 
+class SendKeystrokesAltComboTests(unittest.TestCase):
+
+    """Unit test for Alt- combos sent via send_keystrokes"""
+
+    def setUp(self):
+        Timings.Fast()
+
+        self.app = Application().start(os.path.join(mfc_samples_folder, u'CtrlTest.exe'))
+        self.dlg = self.app.Control_Test_App
+
+
+    def tearDown(self):
+        self.app.kill_()
+
+
+    def test_send_keystrokes_alt_combo(self):
+        self.dlg.send_keystrokes('%(sc)')
+
+        self.assertTrue(self.app['Using C++ Derived Class'].Exists())
+
+
 class RemoteMemoryBlockTests(unittest.TestCase):
 
     """Unit tests for RemoteMemoryBlock"""
