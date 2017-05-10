@@ -1044,10 +1044,10 @@ class Application(object):
         if timeout is None:
             timeout = Timings.cpu_usage_wait_timeout
 
-        start_time = time.time()
+        start_time = time.clock()
 
         while self.cpu_usage(usage_interval) > threshold:
-            if time.time() - start_time > timeout:
+            if time.clock() - start_time > timeout:
                 raise RuntimeError('Waiting CPU load <= {}% timed out!'.format(threshold))
 
         return self
