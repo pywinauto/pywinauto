@@ -913,7 +913,7 @@ class Application(object):
             raise RuntimeError(
                 "You must specify one of process, handle or path")
         else:
-            if not 'path' in kwargs:
+            if 'path' not in kwargs:
                 if timeout is not None:
                     message = "Timeout work only for call connect() with path"
                     raise RuntimeError(message)
@@ -1295,8 +1295,11 @@ def process_from_module(module, timeout=None):
     module_path = os.path.normpath(module)
 
     _warn_incorrect_binary_bitness(module_path)
+
+    if timeout is None:
+        timeout = 0
     start = time.time()
-    while time.time() - start < timeout:
+    while time.time() - start < timeout or timeout == 0:
         try:
             modules = _process_get_modules_wmi()
         except Exception:
@@ -1311,6 +1314,8 @@ def process_from_module(module, timeout=None):
                 continue
             if module_path.lower() in name.lower():
                 return process
+        if timeout == 0:
+            break
 
     message = "Could not find any accessible process with a module of '{0}'".format(module)
     raise ProcessNotFoundError(message)

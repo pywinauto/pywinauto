@@ -275,10 +275,10 @@ class ApplicationTestCases(unittest.TestCase):
     def test_connect_path_timeout(self):
         """Test that connect_() works with a path with timeout"""
         app1 = Application()
-        def threaded_function():
+        def delayed_launch():
             time.sleep(2)
             app1.start(_notepad_exe())
-        thread = Thread(target=threaded_function)
+        thread = Thread(target=delayed_launch)
         thread.start()
 
         app_conn = Application()
@@ -290,7 +290,7 @@ class ApplicationTestCases(unittest.TestCase):
         accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
         self.assertEquals('notepad.exe' in accessible_process_names, True)
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+        app1.UntitledNotepad.MenuSelect('File->Exit')
 
 #    def test_Connect(self):
 #        """Test that connect_() works with a path"""
