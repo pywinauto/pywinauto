@@ -968,7 +968,7 @@ class SendKeystrokesAltComboTests(unittest.TestCase):
     """Unit test for Alt- combos sent via send_keystrokes"""
 
     def setUp(self):
-        Timings.Fast()
+        Timings.Defaults()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u'CtrlTest.exe'))
         self.dlg = self.app.Control_Test_App

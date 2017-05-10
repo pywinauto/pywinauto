@@ -465,10 +465,11 @@ class HwndWrapper(BaseWrapper):
                    with_tabs=True,
                    with_newlines=True):
         """
-        Silently send a character string to the control
+        Silently send a character string to the control in an inactive window
 
         If a virtual key with no corresponding character is encountered
-        (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised.
+        (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised. Consider using
+        the method send_keystrokes for such input.
         """
         input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
         keys = keyboard.parse_keys(chars, with_spaces, with_tabs, with_newlines)
@@ -493,8 +494,9 @@ class HwndWrapper(BaseWrapper):
                 lparam = 1 << 0 | scan << 16 | (flags & 1) << 24
                 win32api.SendMessage(self.handle, win32con.WM_CHAR, char, lparam)
             else:
-                raise keyboard.KeySequenceError('no corresponding char for ' +
-                                                str(key))
+                raise keyboard.KeySequenceError(
+                    'no WM_CHAR code for {key}, use method send_keystrokes instead'.
+                    format(key=key))
 
     # -----------------------------------------------------------
     def send_keystrokes(self,
@@ -503,10 +505,15 @@ class HwndWrapper(BaseWrapper):
                    with_tabs=True,
                    with_newlines=True):
         """
-        Silently send keystrokes to the control
+        Silently send keystrokes to the control in an inactive window
 
         Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
         For more information about Sequences and Modifiers navigate to keyboard.py
+
+        Due to the fact that each application handles input differently and this method
+        is meant to be used on inactive windows, it may work only partially depending
+        on the target app. If the window being inactive is not essential, use the robust
+        type_keys method.
         """
         user32 = ctypes.windll.User32
         PBYTE256 = ctypes.c_ubyte * 256
@@ -517,7 +524,8 @@ class HwndWrapper(BaseWrapper):
         current_thread_id = win32api.GetCurrentThreadId()
         attach_success = user32.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
         if not attach_success:
-            warnings.warn('Failed to attach app\'s thread to the current thread\'s message queue')
+            warnings.warn('Failed to attach app\'s thread to the current thread\'s message queue',
+                          UserWarning, stacklevel=2)
 
         keyboard_state_stack = [PBYTE256()]
         user32.GetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
@@ -526,6 +534,10 @@ class HwndWrapper(BaseWrapper):
         context_code = 0
 
         keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs, with_newlines)
+        key_combos_present = any([isinstance(k, keyboard.EscapedKeyAction) for k in keys])
+        if key_combos_present:
+            warnings.warn('Key combinations may or may not work depending on the target app',
+                          UserWarning, stacklevel=2)
 
         try:
             for key in keys:
@@ -594,9 +606,10 @@ class HwndWrapper(BaseWrapper):
 
         except pywintypes.error as e:
             if e.winerror == 1400:
-                warnings.warn("Application exited before the end of keystrokes")
+                warnings.warn('Application exited before the end of keystrokes',
+                              UserWarning, stacklevel=2)
             else:
-                warnings.warn(e.strerror)
+                warnings.warn(e.strerror, UserWarning, stacklevel=2)
             user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[0]))
 
         if attach_success:
