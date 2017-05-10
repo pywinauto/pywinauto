@@ -743,8 +743,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
         allowable_error = .2
 
         start = time.clock()
-        self.assertRaises(findwindows.ElementNotFoundError, self.app.BlahBlah.wait, 'exists')
-        expected = Timings.exists_timeout
+        self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'exists')
+        expected = Timings.window_find_timeout
         self.assertEqual(True, expected - allowable_error <= (time.clock() - start) < expected + allowable_error)
 
     def test_wait_invisible(self):
@@ -752,7 +752,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         allowable_error = .2
 
         start = time.clock()
-        self.assertRaises(findwindows.ElementNotFoundError, self.app.BlahBlah.wait, 'visible')
+        self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'visible')
         expected = Timings.window_find_timeout
         self.assertEqual(True, expected - allowable_error <= (time.clock() - start) < expected + allowable_error)
 
