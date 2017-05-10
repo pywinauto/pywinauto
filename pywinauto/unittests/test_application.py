@@ -42,6 +42,8 @@ import time
 #import pprint
 #import pdb
 import warnings
+from threading import Thread
+
 import mock
 
 sys.path.append(".")
@@ -262,6 +264,26 @@ class ApplicationTestCases(unittest.TestCase):
             app_conn.connect(path=r"c:\windows\system32\notepad.exe")
         else:
             app_conn.connect(path=r"c:\windows\syswow64\notepad.exe")
+        self.assertEqual(app1.process, app_conn.process)
+
+        accessible_modules = process_get_modules()
+        accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
+        self.assertEquals('notepad.exe' in accessible_process_names, True)
+
+        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+
+    def test_connect_path_timeout(self):
+        """Test that connect_() works with a path with timeout"""
+        app1 = Application()
+        def threaded_function():
+            time.sleep(2)
+            app1.start(_notepad_exe())
+        thread = Thread(target=threaded_function)
+        thread.start()
+
+        app_conn = Application()
+        app_conn.connect(path=_notepad_exe(), timeout=3)
+
         self.assertEqual(app1.process, app_conn.process)
 
         accessible_modules = process_get_modules()

@@ -869,7 +869,7 @@ class Application(object):
                 self.match_history = pickle.load(datafile)
             self.use_history = True
 
-    def connect(self, **kwargs):
+    def connect(self, timeout=None, **kwargs):
         """Connect to an already running process
 
         The action is performed according to only one of parameters
@@ -901,7 +901,7 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'])
+            self.process = process_from_module(kwargs['path'], timeout=timeout)
             connected = True
 
         elif kwargs:
@@ -912,6 +912,11 @@ class Application(object):
         if not connected:
             raise RuntimeError(
                 "You must specify one of process, handle or path")
+        else:
+            if not 'path' in kwargs:
+                if timeout is not None:
+                    message = "Timeout work only for call connect() with path"
+                    raise RuntimeError(message)
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()
@@ -1284,26 +1289,28 @@ def _warn_incorrect_binary_bitness(exe_name):
 
 
 #=========================================================================
-def process_from_module(module):
+def process_from_module(module, timeout=None):
     """Return the running process with path module"""
     # normalize . or .. relative parts of absolute path
     module_path = os.path.normpath(module)
 
     _warn_incorrect_binary_bitness(module_path)
-    try:
-        modules = _process_get_modules_wmi()
-    except Exception:
-        modules = process_get_modules()
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            modules = _process_get_modules_wmi()
+        except Exception:
+            modules = process_get_modules()
 
-    # check for a module with a matching name in reverse order
-    # as we are most likely to want to connect to the last
-    # run instance
-    modules.reverse()
-    for process, name, cmdline in modules:
-        if name is None:
-            continue
-        if module_path.lower() in name.lower():
-            return process
+        # check for a module with a matching name in reverse order
+        # as we are most likely to want to connect to the last
+        # run instance
+        modules.reverse()
+        for process, name, cmdline in modules:
+            if name is None:
+                continue
+            if module_path.lower() in name.lower():
+                return process
 
     message = "Could not find any accessible process with a module of '{0}'".format(module)
     raise ProcessNotFoundError(message)
