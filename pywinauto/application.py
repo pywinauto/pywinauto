@@ -79,6 +79,7 @@ import win32con
 import win32event
 import six
 
+from pywinauto import timings
 from . import controls
 from . import findbestmatch
 from . import findwindows
@@ -869,7 +870,7 @@ class Application(object):
                 self.match_history = pickle.load(datafile)
             self.use_history = True
 
-    def connect(self, timeout=None, **kwargs):
+    def connect(self, **kwargs):
         """Connect to an already running process
 
         The action is performed according to only one of parameters
@@ -877,12 +878,18 @@ class Application(object):
         :param process: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
+        :param timeout: a timeout for wait process start
 
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
            are also can be used instead of **process**, **handle** or **path**
         """
+
+        timeout = 0
+        if 'timeout' in kwargs:
+            timeout = kwargs['timeout']
+
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
@@ -901,7 +908,10 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'], timeout=timeout)
+            if timeout == 0:
+                self.process = process_from_module(kwargs['path'])
+            else:
+                self.process = timings.wait_until_passes(timeout,0,process_from_module,ProcessNotFoundError,kwargs['path'])
             connected = True
 
         elif kwargs:
@@ -913,10 +923,9 @@ class Application(object):
             raise RuntimeError(
                 "You must specify one of process, handle or path")
         else:
-            if 'path' not in kwargs:
-                if timeout is not None:
-                    message = "Timeout work only for call connect() with path"
-                    raise RuntimeError(message)
+            if 'path' not in kwargs and 'timeout' in kwargs:
+                message = "Timeout work only for call connect() with path"
+                raise RuntimeError(message)
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()
@@ -1289,33 +1298,27 @@ def _warn_incorrect_binary_bitness(exe_name):
 
 
 #=========================================================================
-def process_from_module(module, timeout=None):
+def process_from_module(module):
     """Return the running process with path module"""
     # normalize . or .. relative parts of absolute path
     module_path = os.path.normpath(module)
 
     _warn_incorrect_binary_bitness(module_path)
 
-    if timeout is None:
-        timeout = 0
-    start = time.time()
-    while time.time() - start < timeout or timeout == 0:
-        try:
-            modules = _process_get_modules_wmi()
-        except Exception:
-            modules = process_get_modules()
+    try:
+        modules = _process_get_modules_wmi()
+    except Exception:
+        modules = process_get_modules()
 
-        # check for a module with a matching name in reverse order
-        # as we are most likely to want to connect to the last
-        # run instance
-        modules.reverse()
-        for process, name, cmdline in modules:
-            if name is None:
-                continue
-            if module_path.lower() in name.lower():
-                return process
-        if timeout == 0:
-            break
+    # check for a module with a matching name in reverse order
+    # as we are most likely to want to connect to the last
+    # run instance
+    modules.reverse()
+    for process, name, cmdline in modules:
+        if name is None:
+            continue
+        if module_path.lower() in name.lower():
+            return process
 
     message = "Could not find any accessible process with a module of '{0}'".format(module)
     raise ProcessNotFoundError(message)
