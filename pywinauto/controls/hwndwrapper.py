@@ -36,6 +36,7 @@ from __future__ import print_function
 # pylint:  disable-msg=W0611
 
 # import sys
+import copy
 import time
 import re
 import ctypes
@@ -45,6 +46,8 @@ import win32con
 import win32process
 import win32event
 import six
+import pywintypes
+import warnings
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
@@ -457,52 +460,160 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def send_chars(self,
-                   message,
+                   chars,
                    with_spaces=True,
                    with_tabs=True,
                    with_newlines=True):
         """
-        Silently send a string to the control
+        Silently send a character string to the control in an inactive window
 
-        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{Enter}"
-        For more information about Sequences and Modifiers navigate to keyboard.py
+        If a virtual key with no corresponding character is encountered
+        (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised. Consider using
+        the method send_keystrokes for such input.
         """
-
         input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        keys = keyboard.parse_keys(chars, with_spaces, with_tabs, with_newlines)
 
-        keys = keyboard.parse_keys(message, with_spaces, with_tabs, with_newlines)
         for key in keys:
+            key_info = key.get_key_info()
+            flags = key_info[2]
 
-            vk, scan, flags = key.get_key_info()
+            unicode_char = (
+                flags & keyboard.KEYEVENTF_UNICODE ==
+                keyboard.KEYEVENTF_UNICODE)
 
-            if flags & keyboard.KEYEVENTF_UNICODE == 0:
-                char = keyboard.MapVirtualKey(vk, 2)
-            else:
-                # Indicates that we actually just have a unicode codepoint
-                char = scan
-                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF # TODO: use shift state in high order byte
+            if unicode_char:
+                _, char = key_info[:2]
+                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF
                 scan = keyboard.MapVirtualKey(vk, 0)
-
-            if key.down and vk > 0:
-                # TODO: {CTRL} (^) modifier doesn't work
-                # + SHIFT down
-                # - CTRL down
-                # print('key', key, 'down')
-                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24 | 0 << 29 | 0 << 31
-                win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
+            else:
+                vk, scan = key_info[:2]
+                char = keyboard.MapVirtualKey(vk, 2)
 
             if char > 0:
                 lparam = 1 << 0 | scan << 16 | (flags & 1) << 24
                 win32api.SendMessage(self.handle, win32con.WM_CHAR, char, lparam)
+            else:
+                raise keyboard.KeySequenceError(
+                    'no WM_CHAR code for {key}, use method send_keystrokes instead'.
+                    format(key=key))
 
-            if key.up and vk > 0:
-                # + SHIFT up
-                # - CTRL up
-                # print('key', key, 'up')
-                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24 | 0 << 29 | 1 << 30 | 1 << 31
-                win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
+    # -----------------------------------------------------------
+    def send_keystrokes(self,
+                   keystrokes,
+                   with_spaces=True,
+                   with_tabs=True,
+                   with_newlines=True):
+        """
+        Silently send keystrokes to the control in an inactive window
 
-            # time.sleep(Timings.after_sendkeys_key_wait)
+        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
+        For more information about Sequences and Modifiers navigate to keyboard.py
+
+        Due to the fact that each application handles input differently and this method
+        is meant to be used on inactive windows, it may work only partially depending
+        on the target app. If the window being inactive is not essential, use the robust
+        type_keys method.
+        """
+        user32 = ctypes.windll.User32
+        PBYTE256 = ctypes.c_ubyte * 256
+
+        win32gui.SendMessage(self.handle, win32con.WM_ACTIVATE,
+                             win32con.WA_ACTIVE, 0)
+        target_thread_id = user32.GetWindowThreadProcessId(self.handle, None)
+        current_thread_id = win32api.GetCurrentThreadId()
+        attach_success = user32.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
+        if not attach_success:
+            warnings.warn('Failed to attach app\'s thread to the current thread\'s message queue',
+                          UserWarning, stacklevel=2)
+
+        keyboard_state_stack = [PBYTE256()]
+        user32.GetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+
+        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        context_code = 0
+
+        keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs, with_newlines)
+        key_combos_present = any([isinstance(k, keyboard.EscapedKeyAction) for k in keys])
+        if key_combos_present:
+            warnings.warn('Key combinations may or may not work depending on the target app',
+                          UserWarning, stacklevel=2)
+
+        try:
+            for key in keys:
+                vk, scan, flags = key.get_key_info()
+
+                if vk == keyboard.VK_MENU or context_code == 1:
+                    down_msg, up_msg = win32con.WM_SYSKEYDOWN, win32con.WM_SYSKEYUP
+                else:
+                    down_msg, up_msg = win32con.WM_KEYDOWN, win32con.WM_KEYUP
+
+                repeat = 1
+                shift_state = 0
+                unicode_codepoint = flags & keyboard.KEYEVENTF_UNICODE != 0
+                if unicode_codepoint:
+                    char = scan
+                    vk_with_flags = user32.VkKeyScanExW(char, input_locale_id)
+                    vk = vk_with_flags & 0xFF
+                    shift_state = (vk_with_flags & 0xFF00) >> 8
+                    scan = keyboard.MapVirtualKey(vk, 0)
+
+                if key.down and vk > 0:
+                    new_keyboard_state = copy.deepcopy(keyboard_state_stack[-1])
+
+                    new_keyboard_state[vk] |= 128
+                    if shift_state & 1 == 1:
+                        new_keyboard_state[keyboard.VK_SHIFT] |= 128
+                    # NOTE: if there are characters with CTRL or ALT in the shift
+                    # state, make sure to add these keys to new_keyboard_state
+
+                    keyboard_state_stack.append(new_keyboard_state)
+
+                    lparam = (
+                        repeat << 0 |
+                        scan << 16 |
+                        (flags & 1) << 24 |
+                        context_code << 29 |
+                        0 << 31)
+
+                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+                    win32api.PostMessage(self.handle, down_msg, vk, lparam)
+                    if vk == keyboard.VK_MENU:
+                        context_code = 1
+
+                    # a delay for keyboard state to take effect
+                    time.sleep(0.01)
+
+                if key.up and vk > 0:
+                    keyboard_state_stack.pop()
+
+                    lparam = (
+                        repeat << 0 |
+                        scan << 16 |
+                        (flags & 1) << 24 |
+                        context_code << 29 |
+                        1 << 30 |
+                        1 << 31)
+
+                    win32api.PostMessage(self.handle, up_msg, vk, lparam)
+                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+
+                    if vk == keyboard.VK_MENU:
+                        context_code = 0
+
+                    # a delay for keyboard state to take effect
+                    time.sleep(0.01)
+
+        except pywintypes.error as e:
+            if e.winerror == 1400:
+                warnings.warn('Application exited before the end of keystrokes',
+                              UserWarning, stacklevel=2)
+            else:
+                warnings.warn(e.strerror, UserWarning, stacklevel=2)
+            user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[0]))
+
+        if attach_success:
+            user32.AttachThreadInput(target_thread_id, current_thread_id, False)
 
     # -----------------------------------------------------------
     def send_message_timeout(

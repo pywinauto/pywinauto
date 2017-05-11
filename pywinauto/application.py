@@ -79,6 +79,7 @@ import win32con
 import win32event
 import six
 
+from pywinauto import timings
 from . import controls
 from . import findbestmatch
 from . import findwindows
@@ -884,12 +885,18 @@ class Application(object):
         :param process: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
+        :param timeout: a timeout for process start (relevant if path is specified)
 
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
            are also can be used instead of **process**, **handle** or **path**
         """
+
+        timeout = None
+        if 'timeout' in kwargs:
+            timeout = kwargs['timeout']
+
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
@@ -908,7 +915,11 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'])
+            if timeout is None:
+                self.process = process_from_module(kwargs['path'])
+            else:
+                self.process = timings.wait_until_passes(
+                    timeout, 0, process_from_module, ProcessNotFoundError, kwargs['path'])
             connected = True
 
         elif kwargs:
@@ -919,6 +930,9 @@ class Application(object):
         if not connected:
             raise RuntimeError(
                 "You must specify one of process, handle or path")
+        else:
+            if 'path' not in kwargs and 'timeout' in kwargs:
+                raise ValueError('Timeout could be specified with path param only')
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()
@@ -1297,6 +1311,7 @@ def process_from_module(module):
     module_path = os.path.normpath(module)
 
     _warn_incorrect_binary_bitness(module_path)
+
     try:
         modules = _process_get_modules_wmi()
     except Exception:
