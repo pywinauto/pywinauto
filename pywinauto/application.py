@@ -878,7 +878,7 @@ class Application(object):
         :param process: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
-        :param timeout: a timeout for wait process start
+        :param timeout: a timeout for process start (relevant if path is specified)
 
         .. seealso::
 
@@ -886,7 +886,7 @@ class Application(object):
            are also can be used instead of **process**, **handle** or **path**
         """
 
-        timeout = 0
+        timeout = None
         if 'timeout' in kwargs:
             timeout = kwargs['timeout']
 
@@ -908,11 +908,11 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            if timeout == 0:
+            if timeout is None:
                 self.process = process_from_module(kwargs['path'])
             else:
-                self.process = \
-                    timings.wait_until_passes(timeout,0,process_from_module,ProcessNotFoundError,kwargs['path'])
+                self.process = timings.wait_until_passes(
+                    timeout, 0, process_from_module, ProcessNotFoundError, kwargs['path'])
             connected = True
 
         elif kwargs:
@@ -925,8 +925,7 @@ class Application(object):
                 "You must specify one of process, handle or path")
         else:
             if 'path' not in kwargs and 'timeout' in kwargs:
-                message = "Timeout work only for call connect() with path"
-                raise RuntimeError(message)
+                raise ValueError('Timeout could be specified with path param only')
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()

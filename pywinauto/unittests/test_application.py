@@ -311,7 +311,7 @@ class ApplicationTestCases(unittest.TestCase):
         """Test that connect_(process=...) raise error when set timeout"""
         app1 = Application()
         app1.start(_notepad_exe())
-        self.assertRaises(RuntimeError, Application().connect, process=app1.process, timeout=0.5)
+        self.assertRaises(ValueError, Application().connect, process=app1.process, timeout=0.5)
         app1.UntitledNotepad.MenuSelect('File->Exit')
 
 #    def test_Connect(self):
