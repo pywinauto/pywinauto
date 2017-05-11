@@ -911,7 +911,8 @@ class Application(object):
             if timeout == 0:
                 self.process = process_from_module(kwargs['path'])
             else:
-                self.process = timings.wait_until_passes(timeout,0,process_from_module,ProcessNotFoundError,kwargs['path'])
+                self.process = \
+                    timings.wait_until_passes(timeout,0,process_from_module,ProcessNotFoundError,kwargs['path'])
             connected = True
 
         elif kwargs:
