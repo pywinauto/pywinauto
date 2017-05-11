@@ -19,6 +19,12 @@ MS UI Automation (`backend="uia"`). User input emulation modules
 ### Setup
 * run `pip install -U pywinauto` (dependencies will be installed automatically)
 
+### Documentation / Help
+* [Intro on ReadTheDocs](http://pywinauto.readthedocs.io/en/latest/)
+* [Getting Started Guide](http://pywinauto.readthedocs.io/en/latest/getting_started.html) (core concept, Spy tools etc.)
+* [StackOverflow tag](http://stackoverflow.com/questions/tagged/pywinauto)
+* [Mailing list](https://sourceforge.net/p/pywinauto/mailman/)
+
 ### Examples
 It is simple and the resulting scripts are very readable. How simple?
 
@@ -52,12 +58,6 @@ Properties.print_control_identifiers()
 Properties.Cancel.click()
 Properties.wait_not('visible') # make sure the dialog is closed
 ```
-
-### Documentation
-* [Latest documentation on ReadTheDocs](http://pywinauto.readthedocs.io/en/latest/)
-* [Getting Started Guide](http://pywinauto.readthedocs.io/en/latest/getting_started.html)
-* [Code examples (gists) on gist.github.com](https://gist.github.com/vasily-v-ryabov)
-* [Mailing list](https://sourceforge.net/p/pywinauto/mailman/)
 
 ### Dependencies (if install manually)
 * Windows:
