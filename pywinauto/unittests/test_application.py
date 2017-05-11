@@ -42,6 +42,8 @@ import time
 #import pprint
 #import pdb
 import warnings
+from threading import Thread
+
 import mock
 
 sys.path.append(".")
@@ -269,6 +271,48 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertEquals('notepad.exe' in accessible_process_names, True)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
+
+    def test_connect_path_timeout(self):
+        """Test that connect_() works with a path with timeout"""
+        app1 = Application()
+        def delayed_launch():
+            time.sleep(2)
+            app1.start(_notepad_exe())
+        thread = Thread(target=delayed_launch)
+        thread.start()
+
+        app_conn = Application()
+        app_conn.connect(path=_notepad_exe(), timeout=3)
+
+        self.assertEqual(app1.process, app_conn.process)
+
+        accessible_modules = process_get_modules()
+        accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
+        self.assertEquals('notepad.exe' in accessible_process_names, True)
+
+        app1.UntitledNotepad.MenuSelect('File->Exit')
+
+    def test_connect_path_timeout_problem(self):
+        """Test that connect_() raise error when no process start"""
+        app1 = Application()
+        def delayed_launch():
+            time.sleep(1)
+            app1.start(_notepad_exe())
+        thread = Thread(target=delayed_launch)
+        thread.start()
+
+        self.assertRaises(TimeoutError, Application().connect, path=_notepad_exe(), timeout=0.5)
+
+        time.sleep(0.7)
+
+        app1.UntitledNotepad.MenuSelect('File->Exit')
+
+    def test_connect_process_timeout_failed(self):
+        """Test that connect_(process=...) raise error when set timeout"""
+        app1 = Application()
+        app1.start(_notepad_exe())
+        self.assertRaises(ValueError, Application().connect, process=app1.process, timeout=0.5)
+        app1.UntitledNotepad.MenuSelect('File->Exit')
 
 #    def test_Connect(self):
 #        """Test that connect_() works with a path"""
