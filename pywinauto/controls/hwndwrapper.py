@@ -1133,7 +1133,6 @@ class HwndWrapper(BaseWrapper):
         # tell the window it must close
         self.post_message(win32defines.WM_CLOSE)
 
-        #unused var: start = time.time()
         # Keeps trying while
         #    we have not timed out and
         #    window is still a valid handle and

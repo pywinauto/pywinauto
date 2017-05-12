@@ -203,12 +203,18 @@ class UIAElementInfo(ElementInfo):
     @property
     def process_id(self):
         """Return ProcessId of the element"""
-        return self._element.CurrentProcessId
+        try:
+            return self._element.CurrentProcessId
+        except COMError:
+            return None # probably element already doesn't exist
 
     @property
     def framework_id(self):
         """Return FrameworkId of the element"""
-        return self._element.CurrentFrameworkId
+        try:
+            return self._element.CurrentFrameworkId
+        except COMError:
+            return None # probably element already doesn't exist
 
     @property
     def runtime_id(self):
