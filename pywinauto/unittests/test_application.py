@@ -193,20 +193,6 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-#    def test_start(self):
-#        "test start() works correctly"
-#        app = Application()
-#        self.assertEqual(app.process, None)
-#        app._start("notepad.exe")
-#        self.assertNotEqual(app.process, None)
-#
-#        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
-#
-#        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
-#        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
-#
-#        app.UntitledNotepad.MenuSelect("File->Exit")
-
     def testStart_bug01(self):
         """On SourceForge forum AppStartError forgot to include %s for application name"""
         app = Application()
