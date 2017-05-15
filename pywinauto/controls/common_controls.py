@@ -667,7 +667,8 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         "SysListView32",
         r"WindowsForms\d*\.SysListView32\..*",
         "TSysListView",
-        "ListView20WndClass"]
+        "ListView.*WndClass",
+        ]
     if sysinfo.UIA_support:
         #controltypes is empty to make wrapper search result unique
         #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
