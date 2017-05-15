@@ -193,20 +193,6 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-#    def test_start(self):
-#        "test start() works correctly"
-#        app = Application()
-#        self.assertEqual(app.process, None)
-#        app._start("notepad.exe")
-#        self.assertNotEqual(app.process, None)
-#
-#        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
-#
-#        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
-#        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
-#
-#        app.UntitledNotepad.MenuSelect("File->Exit")
-
     def testStart_bug01(self):
         """On SourceForge forum AppStartError forgot to include %s for application name"""
         app = Application()
@@ -717,7 +703,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # TODO: test a control that is not visible but exists
         #self.assertEquals(True, self.app.DefaultIME.Exists())
 
-        self.assertEquals(False, self.app.BlahBlah.Exists(.1))
+        start = time.time()
+        self.assertEquals(False, self.app.BlahBlah.Exists(timeout=.1))
+        self.assertEquals(True, time.time() - start < .3)
+
+        start = time.time()
+        self.assertEquals(False, self.app.BlahBlah.exists(timeout=3))
+        self.assertEquals(True, 2.7 < time.time() - start < 3.3)
 
     def test_exists_timing(self):
         """test the timing of the exists method"""
@@ -775,6 +767,39 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
+
+    def test_wait_non_existing(self):
+        """test timing of the wait method for non-existing element"""
+        allowable_error = .2
+
+        start = time.time()
+        self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'exists')
+        expected = Timings.window_find_timeout
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+
+    def test_wait_invisible(self):
+        """test timing of the wait method for non-existing element"""
+        # TODO: re-use an MFC sample for this test
+        allowable_error = .2
+
+        start = time.time()
+        self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'visible')
+        expected = Timings.window_find_timeout
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+
+        # make sure Status Bar is not visible
+        status_bar_menu = self.app.UntitledNotepad.menu().item('&View').sub_menu().item('&Status Bar')
+        if status_bar_menu.is_checked():
+            status_bar_menu.select()
+
+        # check that existing invisible control is still found with 'exists' criterion
+        status_bar_spec = self.app.UntitledNotepad.child_window(class_name="msctls_statusbar32", visible_only=False)
+        self.assertEqual('StatusBar', status_bar_spec.wait('exists').friendly_class_name())
+
+        start = time.time()
+        self.assertRaises(TimeoutError, status_bar_spec.wait, 'exists visible')
+        expected = Timings.window_find_timeout
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
 
     def test_wait_not(self):
         """
