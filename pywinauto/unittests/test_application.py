@@ -778,7 +778,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
 
     def test_wait_invisible(self):
-        """test timing of the wait method for non-existing element"""
+        """test timing of the wait method for non-existing element and existing invisible one"""
         # TODO: re-use an MFC sample for this test
         allowable_error = .2
 
