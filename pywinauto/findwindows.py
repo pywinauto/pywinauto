@@ -144,6 +144,10 @@ def find_elements(class_name=None,
     """
     Find elements based on criteria passed in
 
+    WARNING! Direct usage of this function is not recommended! It's a very low level API.
+    Better use Application and WindowSpecification objects described in the
+    Getting Started Guide.
+
     Possible values are:
 
     * **class_name**     Elements with this window class
@@ -152,8 +156,8 @@ def find_elements(class_name=None,
     * **process**        Elements running in this process
     * **title**          Elements with this text
     * **title_re**       Elements whose text matches this regular expression
-    * **top_level_only** Top level elements only (default=True)
-    * **visible_only**   Visible elements only (default=True)
+    * **top_level_only** Top level elements only (default=**True**)
+    * **visible_only**   Visible elements only (default=**True**)
     * **enabled_only**   Enabled elements only (default=False)
     * **best_match**     Elements with a title similar to this
     * **handle**         The handle of the element to return
