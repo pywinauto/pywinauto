@@ -798,7 +798,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         start = time.time()
         self.assertRaises(TimeoutError, status_bar_spec.wait, 'exists visible')
-        expected = Timings.window_find_timeout
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+
+        start = time.time()
+        self.assertRaises(TimeoutError, status_bar_spec.wait, 'visible exists')
         self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
 
     def test_wait_not(self):

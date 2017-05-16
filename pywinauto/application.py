@@ -443,7 +443,8 @@ class WindowSpecification(object):
             # timeout = retry_interval because the timeout is handled at higher level
             if check_name == 'exists':
                 check = getattr(self, check_name)
-                return check(retry_interval, float(retry_interval) // 2)
+                if not check(retry_interval, float(retry_interval) // 2):
+                    return False
             try:
                 # resolve control explicitly to pass correct timing params
                 ctrls = self.__resolve_control(self.criteria, retry_interval, float(retry_interval) // 2)
