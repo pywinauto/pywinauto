@@ -445,6 +445,8 @@ class WindowSpecification(object):
                 check = getattr(self, check_name)
                 if not check(retry_interval, float(retry_interval) // 2):
                     return False
+                else:
+                    continue
             try:
                 # resolve control explicitly to pass correct timing params
                 ctrls = self.__resolve_control(self.criteria, retry_interval, float(retry_interval) // 2)
