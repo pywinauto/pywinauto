@@ -432,7 +432,7 @@ class WindowSpecification(object):
         # unique_check_names = set(['is_enabled', 'is_active', 'is_visible', 'Exists'])
         return unique_check_names, timeout, retry_interval
 
-    def __check_all_conditions(self, check_names):
+    def __check_all_conditions(self, check_names, retry_interval):
         """
         Checks for all conditions
 
@@ -440,9 +440,17 @@ class WindowSpecification(object):
         True will be returned when all checks passed and all of them equal True.
         """
         for check_name in check_names:
-            try:
-                # Hidden __resolve_control call, handle the exceptions.
+            # timeout = retry_interval because the timeout is handled at higher level
+            if check_name == 'exists':
                 check = getattr(self, check_name)
+                if not check(retry_interval, float(retry_interval) // 2):
+                    return False
+                else:
+                    continue
+            try:
+                # resolve control explicitly to pass correct timing params
+                ctrls = self.__resolve_control(self.criteria, retry_interval, float(retry_interval) // 2)
+                check = getattr(ctrls[-1], check_name)
             except (findwindows.ElementNotFoundError,
                     findbestmatch.MatchError,
                     controls.InvalidWindowHandle,
@@ -488,7 +496,8 @@ class WindowSpecification(object):
             :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        wait_until(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval,
+                   lambda: self.__check_all_conditions(check_method_names, retry_interval))
 
         # Return the wrapped control
         return self.wrapper_object()
@@ -524,7 +533,8 @@ class WindowSpecification(object):
         """
         check_method_names, timeout, retry_interval = \
             self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        wait_until(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval,
+                   lambda: not self.__check_all_conditions(check_method_names, retry_interval))
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
