@@ -79,7 +79,7 @@ import win32con
 import win32event
 import six
 
-from pywinauto import timings
+from . import timings
 from . import controls
 from . import findbestmatch
 from . import findwindows
