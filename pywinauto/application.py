@@ -578,7 +578,6 @@ class WindowSpecification(object):
                referred to as "Edit2".
         """
         if depth is None:
-            # TODO: think about marking incomplete subtree for depths like 1 or 2
             depth = sys.maxsize
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
@@ -586,13 +585,9 @@ class WindowSpecification(object):
         # Create a list of this control and all its descendants
         all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
 
-        # build the list of disambiguated list of control names
-        name_control_map = findbestmatch.build_unique_dict(all_ctrls)
-
-        # swap it around so that we are mapped off the controls
-        control_name_map = {}
-        for name, control in name_control_map.items():
-            control_name_map.setdefault(control, []).append(name)
+        # Create a list of all visible text controls so that we can get
+        # the closest text if the control has no text
+        txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
 
         def print_identifiers(ctrls, current_depth=1, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
@@ -601,7 +596,7 @@ class WindowSpecification(object):
 
             indent = (current_depth - 1) * u"   | "
             for ctrl in ctrls:
-                if ctrl not in control_name_map.keys():
+                if ctrl not in all_ctrls:
                     continue
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
@@ -613,7 +608,7 @@ class WindowSpecification(object):
                     "".format(class_name=ctrl.friendly_class_name(),
                               text=ctrl_text,
                               rect=ctrl.rectangle())
-                output += indent + u'{}\n'.format(control_name_map[ctrl])
+                output += indent + u'{}'.format(findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls))
 
                 title = ctrl_text
                 class_name = ctrl.class_name()
@@ -634,7 +629,7 @@ class WindowSpecification(object):
                 if control_type:
                     criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
-                    output += indent + u'child_window(' + u', '.join(criteria_texts) + u')'
+                    output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
 
                 if six.PY3:
                     log_func(output)
