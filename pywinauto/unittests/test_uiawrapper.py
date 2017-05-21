@@ -510,6 +510,10 @@ if UIA_support:
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
 
+            # Mock a combobox without "ExpandCollapse" pattern
+            combo_box.expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())  # empty texts
+            self.assertEqual(combo_box.texts(), [])
+
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
             combo_box = self.dlg.ComboBox.wrapper_object()
