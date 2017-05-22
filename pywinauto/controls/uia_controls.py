@@ -140,8 +140,10 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             self.expand()
             for c in self.children():
                 texts.append(c.window_text())
-        finally:
-            # Make sure we collapse back in any case
+        except NoPatternInterfaceError:
+            return texts
+        else:
+            # Make sure we collapse back
             self.collapse()
         return texts
 
