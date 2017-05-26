@@ -15,7 +15,7 @@ class ControlTreeNode(object):
         self.children = []
 
     def __str__(self):
-        return '{}, {}, depth={}'.format(self.names, self.rect, self.depth)
+        return "{}, {}, depth={}".format(self.names, self.rect, self.depth)
 
 
 class ControlTree(object):
@@ -23,7 +23,7 @@ class ControlTree(object):
         if isinstance(ctrl, BaseWrapper):
             self.ctrl = ctrl
         else:
-            raise TypeError('ctrl must be a wrapped control')
+            raise TypeError("ctrl must be a wrapped control")
         self.root = None
         self.root_name = ""
         self.rebuild()
@@ -32,27 +32,35 @@ class ControlTree(object):
         """Create tree structure"""
         # Create a list of this control and all its descendants
         all_ctrls = [self.ctrl, ] + self.ctrl.descendants()
+        txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
 
-        # Build a disambiguated list of control names
-        name_control_map = findbestmatch.build_unique_dict(all_ctrls)
+        # Build unique control names map
+        name_ctrl_id_map = findbestmatch.UniqueDict()
+        for id, ctrl in enumerate(all_ctrls):
+            unique_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
+            for name in unique_names:
+                name_ctrl_id_map[name] = id
 
-        # Swap it around so that we are mapped off the controls
-        control_name_map = {}
-        for name, control in name_control_map.items():
-            control_name_map.setdefault(control, []).append(name)
+        # Swap map around
+        ctrl_id_names_map = {}
+        for name, id in name_ctrl_id_map.items():
+            ctrl_id_names_map.setdefault(id, []).append(name)
 
-        self.root = ControlTreeNode(self.ctrl, control_name_map[self.ctrl], self.ctrl.rectangle())
-        self.root_name = [name for name in self.root.names if len(name) > 0 and not " " in name][-1]
+        # root_names = findbestmatch.get_control_names(self.ctrl, all_ctrls, txt_ctrls)
+        self.root = ControlTreeNode(self.ctrl, ctrl_id_names_map[0], self.ctrl.rectangle())
+        self.root_name = [name for name in self.root.names if len(name) > 0 and " " not in name][-1]
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
             if len(child_ctrls) == 0:
                 return
 
             for ctrl in child_ctrls:
-                if ctrl not in control_name_map.keys():
+                try:
+                    ctrl_id = all_ctrls.index(ctrl)
+                except ValueError:
                     continue
 
-                ctrl_names = control_name_map[ctrl]
+                ctrl_names = ctrl_id_names_map[ctrl_id]
                 ctrl_rect = ctrl.rectangle()
 
                 ctrl_node = ControlTreeNode(ctrl, ctrl_names, ctrl_rect)
@@ -86,7 +94,7 @@ class ControlTree(object):
 
     def print_tree(self):
         for node in self.iterate_dfs():
-            print('{0}{1}'.format("   | " * node.depth, node))
+            print("{0}{1}".format("   | " * node.depth, node))
 
     def node_from_point(self, point):
         res = None

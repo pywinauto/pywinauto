@@ -93,14 +93,11 @@ class UiaRecorder(COMObject):
     def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True):
         super(UiaRecorder, self).__init__()
 
-        if app is not None:
-            if not isinstance(app, Application):
-                raise TypeError("app must be a pywinauto.Application object")
+        if app is not None and isinstance(app, Application) and app.backend.name == "uia":
             self.ctrl = app.top_window().wrapper_object()
             self.element_info = self.ctrl.element_info
         else:
-            self.element_info = UIAElementInfo()
-            self.ctrl = None
+            raise TypeError("app must be a pywinauto.Application object ('uia' backend)")
         self.element = self.element_info.element
 
         self.event_log = []
@@ -123,8 +120,7 @@ class UiaRecorder(COMObject):
 
         self.control_tree = None
 
-        # THE WHOLE POINT OF THIS
-        self.script = "app = pywinauto.Application(backend='{}').start('INSERT_CMD_HERE')\n".format(app.backend.name)
+        self.script = "app = pywinauto.Application(backend='uia').start('INSERT_CMD_HERE')\n"
 
     @synchronized_method
     def add_to_log(self, item):
@@ -199,7 +195,7 @@ class UiaRecorder(COMObject):
             self.control_tree = ControlTree(self.ctrl)
         except Exception as exc:
             # Skip exceptions thrown by AddPropertyChangedEventHandler
-            print(exc)
+            print("Exception: {}".format(exc))
         finally:
             self.recorder_start_event.set()
 
