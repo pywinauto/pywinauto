@@ -1,16 +1,13 @@
 import threading
-from collections import deque
 
 from comtypes import COMObject, COMError
 
+from .control_tree import ControlTree
 from .. import Application
 from ..uia_defines import IUIA
 from ..uia_element_info import UIAElementInfo
-
 from ..win32_hooks import *
 from ..win32structures import POINT
-
-from .control_tree import ControlTree
 
 _ignored_events = [
     # Event which are handled by separate handlers

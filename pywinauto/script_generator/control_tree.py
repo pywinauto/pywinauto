@@ -15,7 +15,7 @@ class ControlTreeNode(object):
         self.children = []
 
     def __str__(self):
-        return '{}, {}, depth={}'.format(self.names, self.rect, self.depth)
+        return "{}, {}, depth={}".format(self.names, self.rect, self.depth)
 
     def get_python_compatible_name(self):
         name = [name for name in self.names if len(name) > 0 and " " not in name][-1]
@@ -27,7 +27,7 @@ class ControlTree(object):
         if isinstance(ctrl, BaseWrapper):
             self.ctrl = ctrl
         else:
-            raise TypeError('ctrl must be a wrapped control')
+            raise TypeError("ctrl must be a wrapped control")
         self.root = None
         self.root_name = ""
         self.rebuild()
@@ -98,7 +98,7 @@ class ControlTree(object):
 
     def print_tree(self):
         for node in self.iterate_dfs():
-            print('{0}{1}'.format("   | " * node.depth, node))
+            print("{0}{1}".format("   | " * node.depth, node))
 
     def node_from_point(self, point):
         res = None
