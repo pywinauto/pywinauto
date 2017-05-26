@@ -584,10 +584,20 @@ class WindowSpecification(object):
 
         # Create a list of this control and all its descendants
         all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
-
-        # Create a list of all visible text controls so that we can get
-        # the closest text if the control has no text
+        # Create a list of all visible text controls
         txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
+
+        # Build a dictionary of disambiguated list of control names
+        name_ctrl_id_map = findbestmatch.UniqueDict()
+        for index, ctrl in enumerate(all_ctrls):
+            ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
+            for name in ctrl_names:
+                name_ctrl_id_map[name] = index
+
+        # Swap it around so that we are mapped off the control indices
+        ctrl_id_name_map = {}
+        for name, index in name_ctrl_id_map.items():
+            ctrl_id_name_map.setdefault(index, []).append(name)
 
         def print_identifiers(ctrls, current_depth=1, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
@@ -596,7 +606,9 @@ class WindowSpecification(object):
 
             indent = (current_depth - 1) * u"   | "
             for ctrl in ctrls:
-                if ctrl not in all_ctrls:
+                try:
+                    ctrl_id = all_ctrls.index(ctrl)
+                except ValueError:
                     continue
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
@@ -608,7 +620,7 @@ class WindowSpecification(object):
                     "".format(class_name=ctrl.friendly_class_name(),
                               text=ctrl_text,
                               rect=ctrl.rectangle())
-                output += indent + u'{}'.format(findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls))
+                output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
 
                 title = ctrl_text
                 class_name = ctrl.class_name()
