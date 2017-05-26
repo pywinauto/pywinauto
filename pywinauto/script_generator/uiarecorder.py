@@ -5,7 +5,6 @@ from comtypes import COMObject, COMError
 from .control_tree import ControlTree
 from .. import Application
 from ..uia_defines import IUIA
-from ..uia_element_info import UIAElementInfo
 from ..win32_hooks import *
 from ..win32structures import POINT
 
@@ -90,14 +89,12 @@ class UiaRecorder(COMObject):
     def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True):
         super(UiaRecorder, self).__init__()
 
-        if app is not None:
-            if not isinstance(app, Application):
-                raise TypeError("app must be a pywinauto.Application object")
+        if app is not None and isinstance(app, Application) and app.backend.name == "uia":
             self.ctrl = app.top_window().wrapper_object()
             self.element_info = self.ctrl.element_info
         else:
-            self.element_info = UIAElementInfo()
-            self.ctrl = None
+            raise TypeError("app must be a pywinauto.Application object ('uia' backend)")
+
         self.element = self.element_info.element
 
         self.event_log = []
@@ -118,10 +115,10 @@ class UiaRecorder(COMObject):
         self.hook_thread = threading.Thread(target=self.hook_run)
         self.hook_thread.daemon = False
 
-        self.control_tree = None
+        # Create control tree with pywinauto control names
+        self.control_tree = ControlTree(self.ctrl)
 
-        # THE WHOLE POINT OF THIS
-        self.script = "app = pywinauto.Application(backend='{}').start('INSERT_CMD_HERE')\n".format(app.backend.name)
+        self.script = "app = pywinauto.Application(backend='uia').start('INSERT_CMD_HERE')\n"
 
     @synchronized_method
     def add_to_log(self, item):
@@ -193,10 +190,9 @@ class UiaRecorder(COMObject):
         try:
             # Add event handlers to all app's controls
             self._add_handlers(self.element)
-            self.control_tree = ControlTree(self.ctrl)
         except Exception as exc:
             # Skip exceptions thrown by AddPropertyChangedEventHandler
-            print(exc)
+            print("Exception: {}".format(exc))
         finally:
             self.recorder_start_event.set()
 
@@ -252,10 +248,9 @@ class UiaRecorder(COMObject):
                 self.parse_and_clear_log()
 
                 # Add information about clicked item to event
-                if self.control_tree:
-                    node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
-                    if node:
-                        args.control_tree_node = node
+                node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
+                if node:
+                    args.control_tree_node = node
                 # Add new event to log
                 self.add_to_log(args)
 
