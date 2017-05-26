@@ -1,16 +1,12 @@
 import threading
-from collections import deque
 
 from comtypes import COMObject, COMError
 
+from .control_tree import ControlTree
 from .. import Application
 from ..uia_defines import IUIA
-from ..uia_element_info import UIAElementInfo
-
 from ..win32_hooks import *
 from ..win32structures import POINT
-
-from .control_tree import ControlTree
 
 _ignored_events = [
     # Event which are handled by separate handlers
@@ -98,6 +94,7 @@ class UiaRecorder(COMObject):
             self.element_info = self.ctrl.element_info
         else:
             raise TypeError("app must be a pywinauto.Application object ('uia' backend)")
+
         self.element = self.element_info.element
 
         self.event_log = []
@@ -118,7 +115,8 @@ class UiaRecorder(COMObject):
         self.hook_thread = threading.Thread(target=self.hook_run)
         self.hook_thread.daemon = False
 
-        self.control_tree = None
+        # Create control tree with pywinauto control names
+        self.control_tree = ControlTree(self.ctrl)
 
         self.script = "app = pywinauto.Application(backend='uia').start('INSERT_CMD_HERE')\n"
 
@@ -192,7 +190,6 @@ class UiaRecorder(COMObject):
         try:
             # Add event handlers to all app's controls
             self._add_handlers(self.element)
-            self.control_tree = ControlTree(self.ctrl)
         except Exception as exc:
             # Skip exceptions thrown by AddPropertyChangedEventHandler
             print("Exception: {}".format(exc))
@@ -251,10 +248,9 @@ class UiaRecorder(COMObject):
                 self.parse_and_clear_log()
 
                 # Add information about clicked item to event
-                if self.control_tree:
-                    node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
-                    if node:
-                        args.control_tree_node = node
+                node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
+                if node:
+                    args.control_tree_node = node
                 # Add new event to log
                 self.add_to_log(args)
 

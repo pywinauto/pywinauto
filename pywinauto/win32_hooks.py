@@ -49,21 +49,23 @@ The fork of this code (at some moment) was used in
 standalone library pyhooked 0.8 maintained by Ethan Smith.
 """
 
-import six
-from ctypes import wintypes
-from ctypes import windll
-from ctypes import CFUNCTYPE
-from ctypes import POINTER
-from ctypes import c_int
-from ctypes import c_uint
-from ctypes import byref
-from ctypes import pointer
 import atexit
 import sys
 import time
+from ctypes import CFUNCTYPE
+from ctypes import POINTER
+from ctypes import byref
+from ctypes import c_int
+from ctypes import c_uint
+from ctypes import pointer
+from ctypes import windll
+from ctypes import wintypes
+
+import six
 import win32con
-from .win32defines import VK_PACKET
+
 from .actionlogger import ActionLogger
+from .win32defines import VK_PACKET
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
 
@@ -84,7 +86,7 @@ windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
 #  _In_     UINT  wMsgFilterMin,
 #  _In_     UINT  wMsgFilterMax,
 #  _In_     UINT  wRemoveMsg
-#);
+# );
 windll.user32.PeekMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint, c_uint]
 windll.user32.PeekMessageW.restypes = wintypes.BOOL
 
@@ -99,7 +101,6 @@ windll.user32.CallNextHookEx.restypes = LRESULT
 
 
 class KeyboardEvent(object):
-
     """Created when a keyboard event happened"""
 
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
@@ -109,7 +110,6 @@ class KeyboardEvent(object):
 
 
 class MouseEvent(object):
-
     """Created when a mouse event happened"""
 
     def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
@@ -125,7 +125,6 @@ class MouseEvent(object):
 
 
 class Hook(object):
-
     """Hook for low level keyboard and mouse events"""
 
     MOUSE_ID_TO_KEY = {win32con.WM_MOUSEMOVE: 'Move',
@@ -151,7 +150,7 @@ class Hook(object):
                  2: 'RButton',  # win32con.VK_RBUTTON
                  3: 'Cancel',  # win32con.VK_CANCEL
                  4: 'MButton',  # win32con.VK_MBUTTON
-                 5: 'XButton1',   # win32con.VK_XBUTTON1
+                 5: 'XButton1',  # win32con.VK_XBUTTON1
                  6: 'XButton2',  # win32con.VK_XBUTTON2
                  7: 'Undefined1',
                  8: 'Back',
@@ -412,10 +411,10 @@ class Hook(object):
                  1012: 'Shift',
                  1013: 'Win'}
 
-    event_types = {win32con.WM_KEYDOWN: 'key down',     # WM_KEYDOWN for normal keys
-                   win32con.WM_KEYUP: 'key up',         # WM_KEYUP for normal keys
+    event_types = {win32con.WM_KEYDOWN: 'key down',  # WM_KEYDOWN for normal keys
+                   win32con.WM_KEYUP: 'key up',  # WM_KEYUP for normal keys
                    win32con.WM_SYSKEYDOWN: 'key down',  # WM_SYSKEYDOWN, is used for Alt key.
-                   win32con.WM_SYSKEYUP: 'key up',      # WM_SYSKEYUP, is used for Alt key.
+                   win32con.WM_SYSKEYUP: 'key up',  # WM_SYSKEYUP, is used for Alt key.
                    }
 
     def __init__(self):
@@ -622,6 +621,7 @@ if __name__ == "__main__":
 
             if args.current_key == 'WheelButton' and args.event_type == 'key down':
                 print("Wheel button pressed")
+
 
     hk = Hook()
     hk.handler = on_event
