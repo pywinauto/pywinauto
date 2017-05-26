@@ -17,10 +17,6 @@ class ControlTreeNode(object):
     def __str__(self):
         return "{}, {}, depth={}".format(self.names, self.rect, self.depth)
 
-    def get_python_compatible_name(self):
-        name = [name for name in self.names if len(name) > 0 and " " not in name][-1]
-        return name
-
 
 class ControlTree(object):
     def __init__(self, ctrl):
@@ -36,23 +32,23 @@ class ControlTree(object):
         """Create tree structure"""
         # Create a list of this control and all its descendants
         all_ctrls = [self.ctrl, ] + self.ctrl.descendants()
-        # Create a list of all visible text controls
         txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
 
-        # Build a dictionary of disambiguated list of control names
+        # Build unique control names map
         name_ctrl_id_map = findbestmatch.UniqueDict()
-        for index, ctrl in enumerate(all_ctrls):
-            ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
-            for name in ctrl_names:
-                name_ctrl_id_map[name] = index
+        for id, ctrl in enumerate(all_ctrls):
+            unique_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
+            for name in unique_names:
+                name_ctrl_id_map[name] = id
 
-        # Swap it around so that we are mapped off the control indices
-        ctrl_id_name_map = {}
-        for name, index in name_ctrl_id_map.items():
-            ctrl_id_name_map.setdefault(index, []).append(name)
+        # Swap map around
+        ctrl_id_names_map = {}
+        for name, id in name_ctrl_id_map.items():
+            ctrl_id_names_map.setdefault(id, []).append(name)
 
-        self.root = ControlTreeNode(self.ctrl, ctrl_id_name_map[0], self.ctrl.rectangle())
-        self.root_name = self.root.get_python_compatible_name()
+        # root_names = findbestmatch.get_control_names(self.ctrl, all_ctrls, txt_ctrls)
+        self.root = ControlTreeNode(self.ctrl, ctrl_id_names_map[0], self.ctrl.rectangle())
+        self.root_name = [name for name in self.root.names if len(name) > 0 and " " not in name][-1]
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
             if len(child_ctrls) == 0:
@@ -64,7 +60,7 @@ class ControlTree(object):
                 except ValueError:
                     continue
 
-                ctrl_names = ctrl_id_name_map[ctrl_id]
+                ctrl_names = ctrl_id_names_map[ctrl_id]
                 ctrl_rect = ctrl.rectangle()
 
                 ctrl_node = ControlTreeNode(ctrl, ctrl_names, ctrl_rect)
@@ -77,7 +73,7 @@ class ControlTree(object):
         go_deep_down_the_tree(self.root, self.ctrl.children())
 
     def iterate_dfs(self, node=None):
-        """Iterate tree nodes in pre-order depth-first search order"""
+        """Iterate tree in pre-order depth-first search order"""
         if node is None:
             node = self.root
         yield node
@@ -86,7 +82,7 @@ class ControlTree(object):
                 yield n
 
     def iterate_bfs(self, node=None):
-        """Iterate tree nodes in pre-order breadth-first search order"""
+        """Iterate tree in pre-order breadth-first search order"""
         if node is None:
             node = self.root
         queue = deque([node])
