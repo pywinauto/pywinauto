@@ -317,10 +317,12 @@ class UIAElementInfo(ElementInfo):
         # We put the most frequent attibutes at the top of comparison as
         # quite often the element doesn't have all these attributes.
         # For example 'handle' exists only for top-level windows.
+        # TODO: remove some of this properties
         return self.control_type == other.control_type and \
                self.class_name == other.class_name and \
                self.process_id == other.process_id and \
                self.handle == other.handle and \
                self.name == other.name and \
                self.automation_id == other.automation_id and \
-               self.framework_id == other.framework_id
+               self.framework_id == other.framework_id and \
+               self.rectangle == other.rectangle
