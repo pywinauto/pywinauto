@@ -1,5 +1,5 @@
 from . import atspi_functions
-from .atspi_functions import AtspiRect
+from .atspi_functions import AtspiRect, AtspiCoordType
 from .element_info import ElementInfo
 
 
@@ -60,9 +60,5 @@ class AtspiElementInfo(ElementInfo):
     def rectangle(self):
         """Return rectangle of element"""
         component = atspi_functions.get_component(self._handle)
-        prect = atspi_functions.get_rectangle(component, 0, None)
+        prect = atspi_functions.get_rectangle(component, AtspiCoordType.ATSPI_COORD_TYPE_SCREEN, None)
         return prect.contents
-
-    def dump_window(self):
-        """Dump an element to a set of properties"""
-        raise NotImplementedError()
