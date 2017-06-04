@@ -1,9 +1,8 @@
 import ctypes
 from ctypes import Structure, c_char_p, c_int, POINTER
-from enum import IntEnum
 
 
-class CtypesEnum(IntEnum):
+class CtypesEnum:
     @classmethod
     def from_param(cls, obj):
         return int(obj)
