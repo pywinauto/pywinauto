@@ -22,11 +22,13 @@ if sys.platform != 'win32':
 
         """Unit tests for the AtspiElementInfo class"""
 
+        def get_app(self, name):
+            return [children for children in self.desktop_info.children() if children.name == app_name][0]
+
         def setUp(self):
             self.desktop_info = AtspiElementInfo()
             self.app = subprocess.Popen(['python', _test_app()], stdout=subprocess.PIPE, shell=False)
             time.sleep(1)
-            self.app_info = [children for children in self.desktop_info.children() if children.name == app_name][0]
 
         def tearDown(self):
             self.app.kill()
@@ -34,21 +36,29 @@ if sys.platform != 'win32':
         def test_can_get_desktop(self):
             self.assertEqual(self.desktop_info.class_name, "desktop frame")
 
+        def test_can_get_childrens(self):
+            apps = [children.name for children in self.desktop_info.children()]
+            self.assertTrue(app_name in apps)
+
         def test_can_get_name(self):
             self.assertEqual(self.desktop_info.name, "main")
 
         def test_can_get_parent(self):
-            parent = self.app_info.parent
+            app_info = self.get_app(app_name)
+            parent = app_info.parent
             self.assertEqual(parent.class_name, "desktop frame")
 
         def test_can_get_process_id(self):
-            self.assertEqual(self.app_info.process_id, self.app.pid)
+            app_info = self.get_app(app_name)
+            self.assertEqual(app_info.process_id, self.app.pid)
 
         def test_can_get_class_name(self):
-            self.assertEqual(self.app_info.class_name, "application")
+            app_info = self.get_app(app_name)
+            self.assertEqual(app_info.class_name, "application")
 
         def test_can_get_rectangle(self):
-            rectangle = self.app_info.children()[0].children()[0].rectangle
+            app_info = self.get_app(app_name)
+            rectangle = app_info.children()[0].children()[0].rectangle
             width = int(self.app.stdout.readline().decode(encoding='UTF-8'))
             height = int(self.app.stdout.readline().decode(encoding='UTF-8'))
             self.assertEqual(rectangle.width, width)
