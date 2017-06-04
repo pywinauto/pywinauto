@@ -4,7 +4,9 @@ import subprocess
 import time
 import unittest
 
-from pywinauto.atspi_element_info import AtspiElementInfo
+if sys.platform != 'win32':
+    sys.path.append(".")
+    from pywinauto.atspi_element_info import AtspiElementInfo
 
 app_name = r"gtk_example.py"
 
