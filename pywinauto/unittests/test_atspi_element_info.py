@@ -65,3 +65,7 @@ if sys.platform != 'win32':
             height = int(self.app.stdout.readline().decode(encoding='UTF-8'))
             self.assertEqual(rectangle.width, width)
             self.assertEqual(rectangle.height, height)
+
+
+if __name__ == "__main__":
+    unittest.main()
