@@ -21,10 +21,12 @@ before_install:
 
 install:
   - pip install python-xlib codecov coverage
+  - pip install git+https://git.gnome.org/browse/pygobject
   - sudo apt-get update
   - sudo apt-get install -qq qt58base; 
   - sudo apt-get -y install qt58declarative qt58tools
   - sudo apt-get install xsel
+  #- sudo aptitude install libgtk2.0-dev
   - source /opt/qt58/bin/qt58-env.sh;
   
 before_script:
@@ -58,6 +60,7 @@ script:
   - coverage run -a --source=pywinauto/mouse.py pywinauto/unittests/test_mouse.py
   - coverage run -a --source=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
   - coverage run -a --source=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py
+  - coverage run -a --source=pywinauto/linux/clipboard.py pywinauto/unittests/test_atspi_element_info.py
 
 after_success:
   - codecov
