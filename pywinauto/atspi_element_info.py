@@ -22,7 +22,7 @@ class AtspiElementInfo(ElementInfo):
     @property
     def name(self):
         """Return the text of the window"""
-        return atspi_functions.get_name(self._handle, None)
+        return atspi_functions.get_name(self._handle, None).decode(encoding='UTF-8')
 
     @property
     def control_id(self):
@@ -37,12 +37,12 @@ class AtspiElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return the class name of the element"""
-        return atspi_functions.get_role_name(self._handle, None)
+        return atspi_functions.get_role_name(self._handle, None).decode(encoding='UTF-8')
 
     @property
     def parent(self):
         """Return the parent of the element"""
-        return atspi_functions.get_parent(self._handle, None)
+        return AtspiElementInfo(atspi_functions.get_parent(self._handle, None))
 
     def children(self, **kwargs):
         """Return children of the element"""
