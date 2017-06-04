@@ -21,11 +21,12 @@ before_install:
 
 install:
   - pip install python-xlib codecov coverage
-  - pip install git+https://git.gnome.org/browse/pygobject
   - sudo apt-get update
   - sudo apt-get install -qq qt58base; 
   - sudo apt-get -y install qt58declarative qt58tools
   - sudo apt-get install xsel
+  - sudo apt-get install python3-gi
+  - sudo apt-get install python-gi
   #- sudo aptitude install libgtk2.0-dev
   - source /opt/qt58/bin/qt58-env.sh;
   
