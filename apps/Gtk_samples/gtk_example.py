@@ -1,6 +1,6 @@
-import gi
 import os
-gi.require_version("Gtk", "3.0")
+from gi import require_version
+require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
 
@@ -37,8 +37,7 @@ if __name__ == '__main__':
     builder.add_from_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ExampleUi.glade"))
 
     window = builder.get_object('MainWindow')
-    print(window.get_size().width)
-    print(window.get_size().height)
+    print(window.get_size())
     builder.connect_signals(Handler())
     window.show_all()
     Gtk.main()
