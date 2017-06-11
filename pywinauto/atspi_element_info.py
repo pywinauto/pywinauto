@@ -14,6 +14,11 @@ class AtspiElementInfo(ElementInfo):
         else:
             self._handle = handle
 
+    def _get_elements(self, root, tree):
+        tree.append(root)
+        for el in root.children():
+            self._get_elements(el, tree)
+
     @property
     def handle(self):
         """Return the handle of the window"""
@@ -54,7 +59,10 @@ class AtspiElementInfo(ElementInfo):
 
     def descendants(self, **kwargs):
         """Return descendants of the element"""
-        raise NotImplementedError()
+        tree = []
+        for obj in self.children():
+            self._get_elements(obj, tree)
+        return tree
 
     @property
     def rectangle(self):
