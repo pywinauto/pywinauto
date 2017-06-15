@@ -35,6 +35,7 @@ import ctypes
 from . import win32defines, win32structures
 from .actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
+from ctypes import wintypes
 
 import sys
 if sys.platform == "cygwin":
@@ -44,6 +45,7 @@ if sys.platform == "cygwin":
 
 UINT = c_uint
 SHORT = c_short
+LRESULT = wintypes.LPARAM
 
 
 CreateBrushIndirect	=	ctypes.windll.gdi32.CreateBrushIndirect
@@ -137,6 +139,8 @@ GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
 SendMessage			=	ctypes.windll.user32.SendMessageW
+SendMessage.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+SendMessage.restype = LRESULT
 SendMessageTimeout  =   ctypes.windll.user32.SendMessageTimeoutW
 SendMessageA		=	ctypes.windll.user32.SendMessageA
 PostMessage			=	ctypes.windll.user32.PostMessageW
