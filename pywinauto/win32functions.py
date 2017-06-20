@@ -35,7 +35,6 @@ import ctypes
 from . import win32defines, win32structures
 from .actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
-from ctypes import wintypes
 
 import sys
 if sys.platform == "cygwin":
@@ -45,7 +44,6 @@ if sys.platform == "cygwin":
 
 UINT = c_uint
 SHORT = c_short
-LRESULT = wintypes.LPARAM
 
 
 CreateBrushIndirect	=	ctypes.windll.gdi32.CreateBrushIndirect
