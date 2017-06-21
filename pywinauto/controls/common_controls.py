@@ -1377,8 +1377,7 @@ class _treeview_element(object):
         remote_mem.Write(item)
 
         # read the entry
-        retval = win32functions.SendMessage(
-            self.tree_ctrl,
+        retval = self.tree_ctrl.send_message(
             win32defines.TVM_GETITEMW,
             0,
             remote_mem)
@@ -3042,10 +3041,10 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_value(self):
         """Get the current value of the UpDown control"""
-        pos = win32functions.SendMessage(
-            self, win32defines.UDM_GETPOS,
+        pos = self.send_message(
+            win32defines.UDM_GETPOS,
             win32structures.LPARAM(0),
-            win32structures.WPARAM(0)
+            win32structures.WPARAM(0),
         )
         return win32functions.LoWord(pos)
     # Non PEP-8 alias
