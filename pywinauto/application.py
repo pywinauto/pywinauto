@@ -950,7 +950,7 @@ class Application(object):
         return self
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
-              create_new_console=False, wait_for_idle=True):
+              create_new_console=False, wait_for_idle=True, work_dir=None):
         """Start the application as specified by cmd_line"""
         # try to parse executable name and check it has correct bitness
         if '.exe' in cmd_line and self.backend.name == 'win32':
@@ -981,7 +981,7 @@ class Application(object):
                 0, 						# Set handle inheritance to FALSE.
                 dw_creation_flags,		# Creation flags.
                 None, 					# Use parent's environment block.
-                None, 					# Use parent's starting directory.
+                work_dir,				# If None - use parent's starting directory.
                 start_info)				# STARTUPINFO structure.
         except Exception as exc:
             # if it failed for some reason
