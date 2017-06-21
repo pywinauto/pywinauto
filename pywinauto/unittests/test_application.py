@@ -607,14 +607,14 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
 
     class TestInheritedApp(Application):
-        """ Our inherited version of class """
+        """Our inherited version of class"""
+
         def test_method(self):
-            """ This method should be called without any issues """
+            """This method should be called without any issues"""
             return True
 
     def test_application_inheritance(self):
-        """test that Application class can be inherited and has it's own methods"""
-
+        """Test that Application class can be inherited and has it's own methods"""
         app = ApplicationTestCases.TestInheritedApp()
         self.assertTrue(app.test_method())
 
