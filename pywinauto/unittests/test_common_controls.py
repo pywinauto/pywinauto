@@ -51,6 +51,7 @@ from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.timings import wait_until  # noqa: E402
 from pywinauto import mouse  # noqa: E402
 
 
@@ -601,9 +602,9 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
-        self.assertEquals(birds.IsChecked(), True)
+        self.assertEqual(birds.IsChecked(), True)
         birds.click_input(where='check')
-        self.assertEquals(birds.IsChecked(), False)
+        wait_until(3, 0.4, lambda: birds.IsChecked(), value=False)
 
     def testPrintItems(self):
         """Test TreeView method PrintItems()"""
