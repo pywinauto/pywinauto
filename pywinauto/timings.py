@@ -106,6 +106,7 @@ The Following are the individual timing settings that can be adjusted:
 
 """
 
+import six
 import time
 import operator
 from functools import wraps
@@ -275,6 +276,20 @@ class TimeoutError(RuntimeError):
 
 
 #=========================================================================
+if six.PY3:
+    _clock_func = time.perf_counter
+else:
+    _clock_func = time.clock
+
+
+def timestamp():
+    """
+    Get a precise timestamp
+    """
+    return _clock_func()
+
+
+#=========================================================================
 def always_wait_until(timeout,
                       retry_interval,
                       value=True,
@@ -322,14 +337,14 @@ def wait_until(timeout,
         except TimeoutError as e:
             print("timed out")
     """
-    start = time.time()
+    start = timestamp()
 
     func_val = func(*args)
     # while the function hasn't returned what we are waiting for
     while not op(func_val, value):
 
         # find out how much of the time is left
-        time_left = timeout - (time.time() - start)
+        time_left = timeout - (timestamp() - start)
 
         # if we have to wait some more
         if time_left > 0:
@@ -394,7 +409,7 @@ def wait_until_passes(timeout,
             print("timed out")
             raise e.
     """
-    start = time.time()
+    start = timestamp()
 
     # keep trying until the timeout is passed
     while True:
@@ -409,7 +424,7 @@ def wait_until_passes(timeout,
         except exceptions as e:
 
             # find out how much of the time is left
-            time_left = timeout - (time.time() - start)
+            time_left = timeout - (timestamp() - start)
 
             # if we have to wait some more
             if time_left > 0:
