@@ -283,9 +283,7 @@ else:
 
 
 def timestamp():
-    """
-    Get a precise timestamp
-    """
+    """ Get a precise timestamp"""
     return _clock_func()
 
 
