@@ -655,6 +655,7 @@ class WindowSpecification(object):
             print_identifiers([this_ctrl, ])
         else:
             log_file = open(filename, "w")
+
             def log_func(msg):
                 log_file.write(str(msg) + os.linesep)
             log_func("Control Identifiers:")
@@ -1068,10 +1069,10 @@ class Application(object):
         if timeout is None:
             timeout = Timings.cpu_usage_wait_timeout
 
-        start_time = time.time()
+        start_time = timings.timestamp()
 
         while self.cpu_usage(usage_interval) > threshold:
-            if time.time() - start_time > timeout:
+            if timings.timestamp() - start_time > timeout:
                 raise RuntimeError('Waiting CPU load <= {}% timed out!'.format(threshold))
 
         return self
