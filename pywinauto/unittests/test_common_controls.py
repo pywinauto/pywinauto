@@ -51,6 +51,7 @@ from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.timings import wait_until  # noqa: E402
 from pywinauto import mouse  # noqa: E402
 
 
@@ -601,9 +602,9 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
-        self.assertEquals(birds.IsChecked(), True)
+        self.assertEqual(birds.IsChecked(), True)
         birds.click_input(where='check')
-        self.assertEquals(birds.IsChecked(), False)
+        wait_until(3, 0.4, birds.IsChecked, value=False)
 
     def testPrintItems(self):
         """Test TreeView method PrintItems()"""
@@ -743,11 +744,11 @@ class HeaderTestCases(unittest.TestCase):
 
         client_rects = self.ctrl.client_rects()
         self.assertEquals(len(test_rects), len(client_rects))
-        for i in range(len(test_rects)):
-            self.assertEquals(test_rects[i].left, client_rects[i].left)
-            self.assertEquals(test_rects[i].right, client_rects[i].right)
-            self.assertEquals(test_rects[i].top, client_rects[i].top)
-            self.failIf(abs(test_rects[i].bottom - client_rects[i].bottom) > 2)  # may be equal to 17 or 19
+        for i, r in enumerate(test_rects):
+            self.assertEquals(r.left, client_rects[i].left)
+            self.assertEquals(r.right, client_rects[i].right)
+            self.assertEquals(r.top, client_rects[i].top)
+            self.failIf(abs(r.bottom - client_rects[i].bottom) > 2)  # may be equal to 17 or 19
 
     def testGetColumnText(self):
         for i in range(0, 3):
@@ -840,8 +841,7 @@ class StatusBarTestCases(unittest.TestCase):
     def testClientRects(self):
         self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
         client_rects = self.ctrl.ClientRects()[1:]
-        for i in range(len(client_rects)):
-            client_rect = client_rects[i]
+        for i, client_rect in enumerate(client_rects):
             self.assertEquals(self.part_rects[i].left, client_rect.left)
             if i != len(client_rects) - 1:
                 self.assertEquals(self.part_rects[i].right, client_rect.right)

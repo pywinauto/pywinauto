@@ -106,6 +106,7 @@ The Following are the individual timing settings that can be adjusted:
 
 """
 
+import six
 import time
 import operator
 from functools import wraps
@@ -117,42 +118,42 @@ class TimeConfig(object):
     """Central storage and manipulation of timing values"""
 
     __default_timing = {
-        'window_find_timeout' : 5.,
-        'window_find_retry' : .09,
+        'window_find_timeout': 5.,
+        'window_find_retry': .09,
 
-        'app_start_timeout' : 10.,
-        'app_start_retry' : .90,
+        'app_start_timeout': 10.,
+        'app_start_retry': .90,
 
-        'cpu_usage_interval' : .5,
-        'cpu_usage_wait_timeout' : 20.,
+        'cpu_usage_interval': .5,
+        'cpu_usage_wait_timeout': 20.,
 
-        'exists_timeout' : .5,
-        'exists_retry' : .3,
+        'exists_timeout': .5,
+        'exists_retry': .3,
 
-        'after_click_wait' : .09,
-        'after_clickinput_wait' : .09,
+        'after_click_wait': .09,
+        'after_clickinput_wait': .09,
 
-        'after_menu_wait' : .1,
+        'after_menu_wait': .1,
 
-        'after_sendkeys_key_wait' : .01,
+        'after_sendkeys_key_wait': .01,
 
-        'after_button_click_wait' : 0,
+        'after_button_click_wait': 0,
 
-        'before_closeclick_wait' : .1,
-        'closeclick_retry' : .05,
-        'closeclick_dialog_close_wait' : 2.,
-        'after_closeclick_wait' : .2,
+        'before_closeclick_wait': .1,
+        'closeclick_retry': .05,
+        'closeclick_dialog_close_wait': 2.,
+        'after_closeclick_wait': .2,
 
         'after_windowclose_timeout': 2,
-        'after_windowclose_retry':  .5,
+        'after_windowclose_retry': .5,
 
         'after_setfocus_wait': .06,
         'setfocus_timeout': 2,
         'setfocus_retry': .1,
 
-        'after_setcursorpos_wait' : .01,
+        'after_setcursorpos_wait': .01,
 
-        'sendmessagetimeout_timeout' : .01,
+        'sendmessagetimeout_timeout': .01,
 
         'after_tabselect_wait': .05,
 
@@ -179,7 +180,7 @@ class TimeConfig(object):
         'scroll_step_wait': 0.1,
     }
 
-    assert(__default_timing['window_find_timeout'] >=\
+    assert(__default_timing['window_find_timeout'] >=
            __default_timing['window_find_retry'] * 2)
 
     _timings = __default_timing.copy()
@@ -232,7 +233,6 @@ class TimeConfig(object):
 
             #self._timings['app_start_timeout'] = .5
 
-
     def Slow(self):
         """Set slow timing values
 
@@ -260,7 +260,7 @@ class TimeConfig(object):
                     self._timings[setting])
 
             if self._timings[setting] < .2:
-                self._timings[setting]= .2
+                self._timings[setting] = .2
 
     def Defaults(self):
         """Set all timings to the default time"""
@@ -274,12 +274,24 @@ Timings = TimeConfig()
 class TimeoutError(RuntimeError):
     pass
 
+
 #=========================================================================
-def always_wait_until(
-    timeout,
-    retry_interval,
-    value = True,
-    op = operator.eq):
+if six.PY3:
+    _clock_func = time.perf_counter
+else:
+    _clock_func = time.clock
+
+
+def timestamp():
+    """Get a precise timestamp"""
+    return _clock_func()
+
+
+#=========================================================================
+def always_wait_until(timeout,
+                      retry_interval,
+                      value=True,
+                      op=operator.eq):
     """Decorator to call wait_until(...) every time for a decorated function/method"""
     def wait_until_decorator(func):
         """Callable object that must be returned by the @always_wait_until decorator"""
@@ -291,15 +303,16 @@ def always_wait_until(
         return wrapper
     return wait_until_decorator
 
+
 #=========================================================================
-def wait_until(
-    timeout,
-    retry_interval,
-    func,
-    value = True,
-    op = operator.eq,
-    *args):
-    r"""Wait until ``op(function(*args), value)`` is True or until timeout expires
+def wait_until(timeout,
+               retry_interval,
+               func,
+               value=True,
+               op=operator.eq,
+               *args):
+    r"""
+    Wait until ``op(function(*args), value)`` is True or until timeout expires
 
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
@@ -322,14 +335,14 @@ def wait_until(
         except TimeoutError as e:
             print("timed out")
     """
-    start = time.time()
+    start = timestamp()
 
     func_val = func(*args)
     # while the function hasn't returned what we are waiting for
     while not op(func_val, value):
 
         # find out how much of the time is left
-        time_left = timeout - ( time.time() - start)
+        time_left = timeout - (timestamp() - start)
 
         # if we have to wait some more
         if time_left > 0:
@@ -347,11 +360,11 @@ def wait_until(
 # Non PEP-8 alias
 WaitUntil = wait_until
 
+
 #=========================================================================
-def always_wait_until_passes(
-    timeout,
-    retry_interval,
-    exceptions = (Exception)):
+def always_wait_until_passes(timeout,
+                             retry_interval,
+                             exceptions=(Exception)):
     """Decorator to call wait_until_passes(...) every time for a decorated function/method"""
     def wait_until_passes_decorator(func):
         """Callable object that must be returned by the @always_wait_until_passes decorator"""
@@ -363,14 +376,15 @@ def always_wait_until_passes(
         return wrapper
     return wait_until_passes_decorator
 
+
 #=========================================================================
-def wait_until_passes(
-    timeout,
-    retry_interval,
-    func,
-    exceptions = (Exception),
-    *args):
-    """Wait until ``func(*args)`` does not raise one of the exceptions in exceptions
+def wait_until_passes(timeout,
+                      retry_interval,
+                      func,
+                      exceptions=(Exception),
+                      *args):
+    """
+    Wait until ``func(*args)`` does not raise one of the exceptions in exceptions
 
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
@@ -393,7 +407,7 @@ def wait_until_passes(
             print("timed out")
             raise e.
     """
-    start = time.time()
+    start = timestamp()
 
     # keep trying until the timeout is passed
     while True:
@@ -408,7 +422,7 @@ def wait_until_passes(
         except exceptions as e:
 
             # find out how much of the time is left
-            time_left = timeout - ( time.time() - start)
+            time_left = timeout - (timestamp() - start)
 
             # if we have to wait some more
             if time_left > 0:
