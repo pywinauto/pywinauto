@@ -607,6 +607,7 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
 
     class TestInheritedApp(Application):
+
         """Our inherited version of class"""
 
         def test_method(self):
