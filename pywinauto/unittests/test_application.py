@@ -607,6 +607,26 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
 
+    def test_process_is_running(self):
+        """Tests process is running function"""
+        app = Application()
+        app.start(_notepad_exe())
+        self.assertTrue(app.is_process_running())
+        app.kill()
+        self.assertFalse(app.is_process_running())
+
+    def test_wait_process_exit(self):
+        """Tests wait process to exit"""
+        app = Application()
+        app.start(_notepad_exe())
+        app.UntitledNotepad.Edit.type_keys("hello")
+        app.UntitledNotepad.menu_select("File->Exit")
+
+        self.assertRaises(TimeoutError, lambda: app.wait_for_process_exit(timeout=5, retry_interval=1))
+        app.Notepad.DontSave.close_click()
+        app.wait_for_process_exit(timeout=10, retry_interval=1)
+        self.assertFalse(app.is_process_running())
+
 
 class WindowSpecificationTestCases(unittest.TestCase):
 
