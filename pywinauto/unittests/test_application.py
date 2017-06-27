@@ -43,6 +43,8 @@ import time
 #import pdb
 import warnings
 from threading import Thread
+import win32api
+import pywintypes
 
 import mock
 
@@ -626,6 +628,26 @@ class ApplicationTestCases(unittest.TestCase):
         app.Notepad.DontSave.close_click()
         app.wait_for_process_exit(timeout=10, retry_interval=1)
         self.assertFalse(app.is_process_running())
+
+    def test_should_return_not_running_if_not_started(self):
+        """Tests that is_process_running and wait_for_process_exit can be
+           called on not started/disconnected instance
+        """
+        app = Application()
+        app.wait_for_process_exit(timeout=10, retry_interval=1)
+        self.assertFalse(app.is_process_running())
+
+    @mock.patch.object(win32api, 'OpenProcess')
+    def test_should_return_not_running_if_failed_to_open_process(self, func_open_process):
+        """Tests that is_process_running and wait_for_process_exit works even if
+           OpenProcess returns NULL handle without exception
+        """
+        func_open_process.return_value = pywintypes.HANDLE(0)
+        app = Application()
+        app.start(_notepad_exe())
+        app.wait_for_process_exit(timeout=10, retry_interval=1)
+        self.assertFalse(app.is_process_running())
+        app.kill()
 
 
 class WindowSpecificationTestCases(unittest.TestCase):

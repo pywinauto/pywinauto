@@ -1250,9 +1250,10 @@ class Application(object):
 
     def is_process_running(self):
         """
-        Checks that process is still running
+        Checks that process is running.
+        Can be called before start/connect.
 
-        Returns True if process is still running otherwise - False
+        Returns True if process is running otherwise - False
         """
         is_running = False
         try:
@@ -1262,7 +1263,7 @@ class Application(object):
                 self.process)
             is_running = win32process.GetExitCodeProcess(
                 h_process) == win32defines.PROCESS_STILL_ACTIVE
-        except win32gui.error:
+        except (win32gui.error, TypeError):
             is_running = False
         return is_running
 
@@ -1272,7 +1273,7 @@ class Application(object):
 
         Raises TimeoutError exception if timeout was reached
         """
-        wait_until(timeout, retry_interval, lambda: not self.is_process_running())
+        wait_until(timeout, retry_interval, self.is_process_running, value=False)
 
 
 #=========================================================================
