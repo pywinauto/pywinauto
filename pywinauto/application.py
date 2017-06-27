@@ -1183,7 +1183,7 @@ class Application(object):
         if attr_name in ['__dict__', '__members__', '__methods__', '__class__']:
             return object.__getattribute__(self, attr_name)
 
-        if attr_name in dir(Application):
+        if attr_name in dir(self.__class__):
             return object.__getattribute__(self, attr_name)
 
         if attr_name in self.__dict__:

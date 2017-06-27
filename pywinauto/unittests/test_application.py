@@ -651,6 +651,18 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertFalse(app.is_process_running())
         app.kill()
 
+    class TestInheritedApp(Application):
+
+        """Our inherited version of class"""
+
+        def test_method(self):
+            """This method should be called without any issues"""
+            return self is not None
+
+    def test_application_inheritance(self):
+        """Test that Application class can be inherited and has it's own methods"""
+        app = ApplicationTestCases.TestInheritedApp()
+        self.assertTrue(app.test_method())
 
 class WindowSpecificationTestCases(unittest.TestCase):
 
