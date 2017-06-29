@@ -1274,7 +1274,6 @@ class Application(object):
 
         Raises TimeoutError exception if timeout was reached
         """
-
         if timeout is None:
             timeout = Timings.app_exit_timeout
         if retry_interval is None:
