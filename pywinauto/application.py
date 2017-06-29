@@ -1251,6 +1251,7 @@ class Application(object):
     def is_process_running(self):
         """
         Checks that process is running.
+
         Can be called before start/connect.
 
         Returns True if process is running otherwise - False
@@ -1267,12 +1268,18 @@ class Application(object):
             is_running = False
         return is_running
 
-    def wait_for_process_exit(self, timeout=10, retry_interval=1):
+    def wait_for_process_exit(self, timeout=None, retry_interval=None):
         """
         Waits for process to exit until timeout reaches
 
         Raises TimeoutError exception if timeout was reached
         """
+
+        if timeout is None:
+            timeout = Timings.app_exit_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_exit_retry
+
         wait_until(timeout, retry_interval, self.is_process_running, value=False)
 
 
