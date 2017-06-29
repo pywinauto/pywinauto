@@ -178,6 +178,9 @@ class TimeConfig(object):
         'before_drop_wait': 0.1,
         'after_drag_n_drop_wait': 0.1,
         'scroll_step_wait': 0.1,
+
+        'app_exit_timeout': 10.,
+        'app_exit_retry': .1,
     }
 
     assert(__default_timing['window_find_timeout'] >=

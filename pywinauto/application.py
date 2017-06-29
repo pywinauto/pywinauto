@@ -84,6 +84,7 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 from . import handleprops
+from . import win32defines
 from .backend import registry
 
 from .actionlogger import ActionLogger
@@ -1246,6 +1247,39 @@ class Application(object):
 
     # Non PEP-8 aliases
     kill_ = Kill_ = kill
+
+    def is_process_running(self):
+        """
+        Checks that process is running.
+
+        Can be called before start/connect.
+
+        Returns True if process is running otherwise - False
+        """
+        is_running = False
+        try:
+            h_process = win32api.OpenProcess(
+                win32con.PROCESS_QUERY_INFORMATION,
+                0,
+                self.process)
+            is_running = win32process.GetExitCodeProcess(
+                h_process) == win32defines.PROCESS_STILL_ACTIVE
+        except (win32gui.error, TypeError):
+            is_running = False
+        return is_running
+
+    def wait_for_process_exit(self, timeout=None, retry_interval=None):
+        """
+        Waits for process to exit until timeout reaches
+
+        Raises TimeoutError exception if timeout was reached
+        """
+        if timeout is None:
+            timeout = Timings.app_exit_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_exit_retry
+
+        wait_until(timeout, retry_interval, self.is_process_running, value=False)
 
 
 #=========================================================================
