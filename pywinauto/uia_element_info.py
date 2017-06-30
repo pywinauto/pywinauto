@@ -44,7 +44,13 @@ from .win32structures import RECT
 
 def elements_from_uia_array(ptrs, cache_enable = False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
-    return [UIAElementInfo(ptrs.GetElement(n), cache_enable) for n in range(ptrs.Length)]
+    elements = []
+    for n in range(ptrs.Length):
+        try:
+            elements.append(UIAElementInfo(ptrs.GetElement(n), cache_enable))
+        except COMError:
+            continue
+    return elements
 
 
 class UIAElementInfo(ElementInfo):
