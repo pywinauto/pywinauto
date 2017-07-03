@@ -585,6 +585,7 @@ class WindowSpecification(object):
 
         # Create a list of this control and all its descendants
         all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
+
         # Create a list of all visible text controls
         txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
 
@@ -905,9 +906,12 @@ class Application(object):
            are also can be used instead of **process**, **handle** or **path**
         """
 
-        timeout = None
-        if 'timeout' in kwargs:
+        timeout = Timings.app_connect_timeout
+        retry_interval = Timings.app_connect_retry
+        if 'timeout' in kwargs and kwargs['timeout'] is not None:
             timeout = kwargs['timeout']
+        if 'retry_interval' in kwargs and kwargs['retry_interval'] is not None:
+            retry_interval = kwargs['retry_interval']
 
         connected = False
         if 'process' in kwargs:
@@ -927,11 +931,10 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            if timeout is None:
-                self.process = process_from_module(kwargs['path'])
-            else:
-                self.process = timings.wait_until_passes(
-                    timeout, 0, process_from_module, ProcessNotFoundError, kwargs['path'])
+            self.process = timings.wait_until_passes(
+                    timeout, retry_interval, process_from_module,
+                    ProcessNotFoundError, kwargs['path'],
+                )
             connected = True
 
         elif kwargs:
