@@ -3541,7 +3541,6 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         'title_text', 'trailing_text' ;
         - All other parameters should be integer from 0 to 255.
         """
-
         if not (0 <= red <= 255):
             raise RuntimeError('Incorrect range of red color, must be from 0 to 255')
         if not (0 <= green <= 255):

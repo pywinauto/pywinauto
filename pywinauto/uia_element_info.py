@@ -74,7 +74,7 @@ class UIAElementInfo(ElementInfo):
                     "with integer or IUIAutomationElement instance only!")
         else:
             self._element = IUIA().root
- 
+
         self.set_cache_strategy(cached = cache_enable)
 
     def _get_current_class_name(self):

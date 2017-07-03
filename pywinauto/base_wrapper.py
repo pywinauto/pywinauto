@@ -387,7 +387,6 @@ class BaseWrapper(object):
         no top level parent then the control itself is returned - as it is
         a top level window already!)
         """
-
         if not ("top_level_parent" in self._cache.keys()):
             parent = self.parent()
 

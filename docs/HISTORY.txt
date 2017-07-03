@@ -2,6 +2,71 @@
 Change Log
 ==========
 
+0.6.3 A lot of improvements and some optimizations
+--------------------------------------------------------------------
+03-July-2017
+ * Improved string representation for all wrapper objects. Thanks airelil_!
+
+ * Fixed several sporadic crashes for ``backend="uia"``.
+
+ * Fixed several bugs in ``wait/wait_not`` methods:
+
+   - Method ``wait('exists')`` doesn't work for ``backend="uia"``. Thanks maollm_!
+   - Methods ``wait/wait_not`` take ~ default time (5 sec.) instead of customized timeout like 1 sec.
+
+ * ``depth`` param can used in a ``WindowSpecification`` now. ``depth=1`` means this control,
+   ``depth=2`` means immediate children only and so on (aligned with ``print_control_identifiers`` method). Thanks dmitrykazanbaev_!
+
+ * Significantly improved sending keys to an inactive window silently. Special thanks for antonlarin_! Now 2 methods are available:
+
+   - ``send_chars`` is supposed to send character input (this includes ``{Enter}``, ``{Tab}``, ``{Backspace}``) without Alt/Shift/Ctrl modifiers.
+   - ``send_keystrokes`` is for key input (including key combinations with Alt/Shift/Ctrl modifiers).
+
+ * Method ``Application().connect(path='your.exe')`` uses default timeout ``Timings.app_connect_timeout``.
+   It can accept ``timeout`` and ``retry_interval`` keyword arguments. Thanks daniil-kukushkin_!
+
+ * Method ``print_control_identifiers`` is more consistent and minimum 2x faster now! Thanks cetygamer_!
+
+ * Fixed subclassing ``Application`` with your own methods. Thanks efremovd_!
+
+ * Param ``work_dir`` can be used in ``Application().start(...)``. Thanks efremovd_!
+
+ * Class ``Application`` has been enriched with methods ``is_process_running()`` and ``wait_for_process_exit()``. Thanks efremovd_!
+
+ * Module ``timings`` uses ``time.clock()`` for Python 2.x and ``time.perf_counter()`` for Python 3.x
+   so that accident system time change can't affect on your script behavior. Thanks airelil_!
+
+ * Added WireShark example. Thanks ViktorRoy94_!
+
+ * Now ``print_control_identifiers()`` can dump UI elements tree to a file. Thanks sovrasov_!
+
+ * Improved logging actions for ``backend="uia"``, extended example for MS Paint. Thanks ArtemSkrebkov_!
+
+ * Extended ``CalendarWrapper`` for ``backend="win32"`` with these methods: ``get_month_delta``,
+   ``set_month_delta`` and ``get_month_range``. Thanks Nikita-K_!
+
+ * Added method ``legacy_properties()`` to ``UIAWrapper``. Thanks AsyaPronina_!
+
+ * Improved VB6 ListView detection for ``backend="win32"``. Thanks KirillMoizik_!
+
+ * Fixed 64-bit specific bug in ``TreeViewWrapper`` for ``backend="win32"``
+   (``argument 4: <type 'exceptions.OverflowError'>: long int too long to convert``).
+
+ .. _airelil: https://github.com/airelil
+ .. _maollm: https://github.com/maollm
+ .. _dmitrykazanbaev: https://github.com/dmitrykazanbaev
+ .. _antonlarin: https://github.com/antonlarin
+ .. _daniil-kukushkin: https://github.com/daniil-kukushkin
+ .. _cetygamer: https://github.com/cetygamer
+ .. _efremovd: https://github.com/efremovd
+ .. _ViktorRoy94: https://github.com/ViktorRoy94
+ .. _sovrasov: https://github.com/sovrasov
+ .. _ArtemSkrebkov: https://github.com/ArtemSkrebkov
+ .. _Nikita-K: https://github.com/Nikita-K
+ .. _AsyaPronina: https://github.com/AsyaPronina
+ .. _KirillMoizik: https://github.com/KirillMoizik
+
+
 0.6.2 More bug fixes
 --------------------------------------------------------------------
 28-February-2017

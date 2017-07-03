@@ -290,7 +290,7 @@ class ApplicationTestCases(unittest.TestCase):
         thread = Thread(target=delayed_launch)
         thread.start()
 
-        self.assertRaises(TimeoutError, Application().connect, path=_notepad_exe(), timeout=0.5)
+        self.assertRaises(ProcessNotFoundError, Application().connect, path=_notepad_exe(), timeout=0.5)
 
         time.sleep(0.7)
 
@@ -387,7 +387,7 @@ class ApplicationTestCases(unittest.TestCase):
         # try to pass an invalid path
         self.assertRaises(
             ProcessNotFoundError,
-            Application().connect, **{'path': "no app here"})
+            Application().connect, **{'path': "no app here", 'timeout': 0.0})
 
     def test_top_window(self):
         """Test that top_window_() works correctly"""

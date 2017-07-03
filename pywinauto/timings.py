@@ -48,6 +48,9 @@ The Following are the individual timing settings that can be adjusted:
 * app_start_timeout (default 10)
 * app_start_retry   (default .90)
 
+* app_connect_timeout (default 5.)
+* app_connect_retry (default .1)
+
 * cpu_usage_interval (default .5)
 * cpu_usage_wait_timeout (default 20)
 
@@ -123,6 +126,9 @@ class TimeConfig(object):
 
         'app_start_timeout': 10.,
         'app_start_retry': .90,
+
+        'app_connect_timeout': 5.,
+        'app_connect_retry': .1,
 
         'cpu_usage_interval': .5,
         'cpu_usage_wait_timeout': 20.,

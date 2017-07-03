@@ -101,33 +101,30 @@ class HwndWrapperTests(unittest.TestCase):
         self.app.kill_()
 
     def testInvalidHandle(self):
-        "Test that an exception is raised with an invalid window handle"
+        """Test that an exception is raised with an invalid window handle"""
         self.assertRaises(InvalidWindowHandle, HwndWrapper, -1)
 
     def testFriendlyClassName(self):
-        "Test getting the friendly classname of the control"
+        """Test getting the friendly classname of the control"""
         self.assertEquals(self.ctrl.friendly_class_name(), "Button")
 
 
     def testClass(self):
-        "Test getting the classname of the control"
+        """Test getting the classname of the control"""
         self.assertEquals(self.ctrl.class_name(), "Button")
 
     def testWindowText(self):
-        "Test getting the window Text of the control"
+        """Test getting the window Text of the control"""
         self.assertEquals(
             HwndWrapper(self.dlg.Set.handle).window_text(), u'Set')
 
     def testStyle(self):
-
         self.dlg.Style()
-
         self.assertEquals(self.ctrl.Style(),
             win32defines.WS_CHILD |
             win32defines.WS_VISIBLE |
             win32defines.WS_TABSTOP |
             win32defines.BS_COMMANDLINK)
-
 
     def testExStyle(self):
         self.assertEquals(self.ctrl.ExStyle(),
