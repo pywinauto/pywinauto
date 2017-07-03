@@ -24,15 +24,17 @@ run Python
 >>> app = Application.start("notepad.exe")
 >>> app.UntitledNotepad.TypeKeys("%FX")
 
-Installation in silent mode (Python 2.7, 3.1-3.5)
+Installation in silent mode (Python 2.7, 3.3+)
 ------------
- Just run "pip install pywinauto"
+ Just run "pip install -U pywinauto"
 
 
 Where to start
 --------------
-Look at the examples provided in test_application.py
-There are examples in there to work with Notepad and MSPaint.
+The Getting Started Guide: https://pywinauto.readthedocs.io/en/latest/getting_started.html
+It explains the core concept, how to choose appropriate backend, spy tool and many other things.
+
+Also there are examples in there to work with Notepad, MSPaint, WireShark, explorer.exe etc.
 
 Note: These examples currently only work on English.
 
@@ -71,9 +73,9 @@ If your application performs long time operation, new dialog can appear or
 disappear later. You can wait for its new state like so ::
 
   app.Open.Open.Click() # opening large file
-  app.Open.WaitNot('visible') # make sure "Open" dialog became invisible
+  app.Open.wait_not('visible') # make sure "Open" dialog became invisible
   # wait for up to 30 seconds until data.txt is loaded
-  app.Window(title='data.txt - Notepad').Wait('ready', timeout=30)
+  app.window(title='data.txt - Notepad').wait('ready', timeout=30)
 
 
 Some similar tools for comparison
