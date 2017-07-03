@@ -386,7 +386,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         # try to pass an invalid path
         self.assertRaises(
-            TimeoutError,
+            ProcessNotFoundError,
             Application().connect, **{'path': "no app here", 'timeout': 0.0})
 
     def test_top_window(self):

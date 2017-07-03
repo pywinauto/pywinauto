@@ -930,10 +930,13 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            self.process = timings.wait_until_passes(
-                    timeout, retry_interval, process_from_module,
-                    ProcessNotFoundError, kwargs['path'],
-                )
+            try:
+                self.process = timings.wait_until_passes(
+                        timeout, retry_interval, process_from_module,
+                        ProcessNotFoundError, kwargs['path'],
+                    )
+            except TimeoutError:
+                raise ProcessNotFoundError('Process "{}" not found!'.format(kwargs['path']))
             connected = True
 
         elif kwargs:
