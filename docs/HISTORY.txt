@@ -5,49 +5,49 @@ Change Log
 0.6.3 A lot of improvements and some optimizations
 --------------------------------------------------------------------
 03-July-2017
- * Improved string representation for all wrapper objects. Thanks <a href="https://github.com/airelil">airelil</a>!
+ * Improved string representation for all wrapper objects. Thanks [airelil](https://github.com/airelil)!
 
  * Fixed several sporadic crashes for ``backend="uia"``.
 
  * Fixed several bugs in ``wait/wait_not`` methods:
 
-   - Method ``wait('exists')`` doesn't work for ``backend="uia"``. Thanks <a href="https://github.com/maollm">maollm</a>!
+   - Method ``wait('exists')`` doesn't work for ``backend="uia"``. Thanks [maollm](https://github.com/maollm)!
    - Methods ``wait/wait_not`` take ~ default time (5 sec.) instead of customized timeout like 1 sec.
 
  * ``depth`` param can used in a ``WindowSpecification`` now. ``depth=1`` means this control,
-   ``depth=2`` means immediate children only and so on (aligned with ``print_control_identifiers`` method). Thanks <a href="https://github.com/dmitrykazanbaev">dmitrykazanbaev</a>!
+   ``depth=2`` means immediate children only and so on (aligned with ``print_control_identifiers`` method). Thanks [dmitrykazanbaev](https://github.com/dmitrykazanbaev)!
 
- * Significantly improved sending keys to an inactive window silently. Special thanks for <a href="https://github.com/antonlarin">antonlarin</a>! Now 2 methods are available:
+ * Significantly improved sending keys to an inactive window silently. Special thanks for [antonlarin](https://github.com/antonlarin)! Now 2 methods are available:
 
    - ``send_chars`` is supposed to send character input (this includes ``{Enter}``, ``{Tab}``, ``{Backspace}``) without Alt/Shift/Ctrl modifiers.
    - ``send_keystrokes`` is for key input (including key combinations with Alt/Shift/Ctrl modifiers).
 
  * Method ``Application().connect(path='your.exe')`` uses default timeout ``Timings.app_connect_timeout``.
-   It can accept ``timeout`` and ``retry_interval`` keyword arguments. Thanks <a href="https://github.com/daniil-kukushkin">daniil-kukushkin</a>!
+   It can accept ``timeout`` and ``retry_interval`` keyword arguments. Thanks [daniil-kukushkin](https://github.com/daniil-kukushkin)!
 
- * Method ``print_control_identifiers`` is more consistent and minimum 2x faster now! Thanks <a href="https://github.com/cetygamer">cetygamer</a>!
+ * Method ``print_control_identifiers`` is more consistent and minimum 2x faster now! Thanks [cetygamer](https://github.com/cetygamer)!
 
- * Fixed subclassing ``Application`` with your own methods. Thanks <a href="https://github.com/efremovd">efremovd</a>!
+ * Fixed subclassing ``Application`` with your own methods. Thanks [efremovd](https://github.com/efremovd)!
 
- * Param ``work_dir`` can be used in ``Application().start(...)``. Thanks <a href="https://github.com/efremovd">efremovd</a>!
+ * Param ``work_dir`` can be used in ``Application().start(...)``. Thanks [efremovd](https://github.com/efremovd)!
 
- * Class ``Application`` has been enriched with methods ``is_process_running()`` and ``wait_for_process_exit()``. Thanks <a href="https://github.com/efremovd">efremovd</a>!
+ * Class ``Application`` has been enriched with methods ``is_process_running()`` and ``wait_for_process_exit()``. Thanks [efremovd](https://github.com/efremovd)!
 
  * Module ``timings`` uses ``time.clock()`` for Python 2.x and ``time.perf_counter()`` for Python 3.x
-   so that accident system time change can't affect on your script behavior. Thanks <a href="https://github.com/airelil">airelil</a>!
+   so that accident system time change can't affect on your script behavior. Thanks [airelil](https://github.com/airelil)!
 
- * Added WireShark example. Thanks <a href="https://github.com/ViktorRoy94">ViktorRoy94</a>!
+ * Added WireShark example. Thanks [ViktorRoy94](https://github.com/ViktorRoy94)!
 
- * Now ``print_control_identifiers()`` can dump UI elements tree to a file. Thanks <a href="https://github.com/sovrasov">sovrasov</a>!
+ * Now ``print_control_identifiers()`` can dump UI elements tree to a file. Thanks [sovrasov](https://github.com/sovrasov)!
 
- * Improved logging actions for ``backend="uia"``, extended example for MS Paint. Thanks <a href="https://github.com/ArtemSkrebkov">ArtemSkrebkov</a>!
+ * Improved logging actions for ``backend="uia"``, extended example for MS Paint. Thanks [ArtemSkrebkov](https://github.com/ArtemSkrebkov)!
 
  * Extended ``CalendarWrapper`` for ``backend="win32"`` with these methods: ``get_month_delta``,
-   ``set_month_delta`` and ``get_month_range``. Thanks <a href="https://github.com/Nikita-K">Nikita-K</a>!
+   ``set_month_delta`` and ``get_month_range``. Thanks [Nikita-K](https://github.com/Nikita-K)!
 
- * Added method ``legacy_properties()`` to ``UIAWrapper``. Thanks <a href="https://github.com/AsyaPronina">AsyaPronina</a>!
+ * Added method ``legacy_properties()`` to ``UIAWrapper``. Thanks [AsyaPronina](https://github.com/AsyaPronina)!
 
- * Improved VB6 ListView detection for ``backend="win32"``. Thanks <a href="https://github.com/KirillMoizik">KirillMoizik</a>!
+ * Improved VB6 ListView detection for ``backend="win32"``. Thanks [KirillMoizik](https://github.com/KirillMoizik)!
 
  * Fixed 64-bit specific bug in ``TreeViewWrapper`` for ``backend="win32"``
    (``argument 4: <type 'exceptions.OverflowError'>: long int too long to convert``).
