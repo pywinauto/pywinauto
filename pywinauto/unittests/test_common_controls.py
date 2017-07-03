@@ -703,20 +703,20 @@ class HeaderTestCases(unittest.TestCase):
         self.ctrl = app.RowListSampleApplication.Header.WrapperObject()
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (Header)"
+        """Make sure the friendly class is set correctly (Header)"""
         self.assertEquals(self.ctrl.friendly_class_name(), "Header")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
+        """Make sure the texts are set correctly"""
         self.assertEquals(self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the header control"
+        """Test getting the properties for the header control"""
         props = self.ctrl.GetProperties()
 
         self.assertEquals(

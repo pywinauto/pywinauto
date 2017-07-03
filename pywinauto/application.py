@@ -905,7 +905,6 @@ class Application(object):
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
            are also can be used instead of **process**, **handle** or **path**
         """
-
         timeout = Timings.app_connect_timeout
         retry_interval = Timings.app_connect_retry
         if 'timeout' in kwargs and kwargs['timeout'] is not None:
