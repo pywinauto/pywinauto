@@ -185,7 +185,7 @@ class TaskbarTestCases(unittest.TestCase):
                 app.connect(path="TrayMenu.exe")
                 l.log("Forse closing a leftover app: {0}".format(app))
                 app.kill_()
-        except(ProcessNotFoundError):
+        except(TimeoutError):
             l.log("No more leftovers. All good.")
 
     def testTaskbar(self):
