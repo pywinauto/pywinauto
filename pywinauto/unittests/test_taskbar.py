@@ -45,7 +45,7 @@ from pywinauto.sysinfo import is_x64_Python, is_x64_OS  # noqa: E402
 from pywinauto import win32defines  # noqa: E402
 from pywinauto.timings import WaitUntil  # noqa: E402
 import pywinauto.actionlogger  # noqa: E402
-from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.timings import Timings, TimeoutError  # noqa: E402
 from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
 from pywinauto import mouse  # noqa: E402
 from pywinauto import Desktop  # noqa: E402
