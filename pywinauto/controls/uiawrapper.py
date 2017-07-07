@@ -630,7 +630,7 @@ class UIAWrapper(BaseWrapper):
         :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
 
         There are usually at least two menu bars: "System" and "Application"
-        System menu bar is a standart window menu with items like:
+        System menu bar is a standard window menu with items like:
         'Restore', 'Move', 'Size', 'Minimize', e.t.c.
         This menu bar usually has a "Title Bar" control as a parent.
         Application menu bar is often what we look for. In most cases,
