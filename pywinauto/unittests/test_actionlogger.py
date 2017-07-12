@@ -158,10 +158,10 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         mockLogger = self.logger_patcher.start()
 
         actionlogger.disable()
-        mockLogger.disable.assert_called()
+        self.assertTrue(mockLogger.disable.called)
 
         actionlogger.reset_level()
-        mockLogger.reset_level.assert_called()
+        self.assertTrue(mockLogger.reset_level.called)
 
     def test_logger_enable_mapped_to_reset_level(self):
         """Test if the logger enable is mapped to reset_level"""
@@ -172,7 +172,7 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         mockLogger = self.logger_patcher.start()
 
         actionlogger.enable()
-        mockLogger.reset_level.assert_called()
+        self.assertTrue(mockLogger.reset_level.called)
 
 
 if __name__ == "__main__":
