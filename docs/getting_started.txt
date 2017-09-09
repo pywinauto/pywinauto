@@ -26,7 +26,10 @@ AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
 GUI Objects Inspection / Spy Tools
 ----------------------
 If you're still not sure which backend is most appropriate for you 
-then try using object inspection tools that are available for free.
+then try using object inspection / spy tools that are available for free:
+download them from GitHub repo gui-inspect-tool_.
+
+.. _gui-inspect-tool: https://github.com/blackrosezy/gui-inspect-tool
 
  * **Spy++** is included into MS Visual Studio distribution (even Express or 
    Community) and is accessible through Start menu. It uses Win32 API. It means 
@@ -39,10 +42,6 @@ then try using object inspection tools that are available for free.
 
         C:\Program Files (x86)\Windows Kits\<winver>\bin\x64
 
-
-   Almost all known Spy/Inspect tools can be downloaded from the repository gui-inspect-tool_.
-   
-.. _gui-inspect-tool: https://github.com/blackrosezy/gui-inspect-tool
 
    Switch Inspect.exe into **UIA mode** (using MS UI Automation). If it can 
    show more controls and their properties than Spy++, probably the ``"uia"`` 
