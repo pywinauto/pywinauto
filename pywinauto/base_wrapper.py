@@ -666,14 +666,10 @@ class BaseWrapper(object):
         if not absolute:
             coords = self.client_to_screen(coords)
 
-        _perform_click_input(button, coords, double, button_down, button_up,
-                             wheel_dist=wheel_dist, pressed=pressed,
-                             key_down=key_down, key_up=key_up)
-
         if use_log:
             if ctrl_text is None:
                 ctrl_text = six.text_type(ctrl_text)
-            message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
+            message = 'Click ' + self.friendly_class_name() + ' "' + ctrl_text + \
                       '" by ' + str(button) + ' button mouse click (x,y=' + \
                       ','.join([str(coord) for coord in coords]) + ')'
             if double:
@@ -683,6 +679,10 @@ class BaseWrapper(object):
                           ' "' + ctrl_text + '" to screen point (x,y=' + \
                           ','.join([str(coord) for coord in coords]) + ')'
             ActionLogger().log(message)
+
+        _perform_click_input(button, coords, double, button_down, button_up,
+                             wheel_dist=wheel_dist, pressed=pressed,
+                             key_down=key_down, key_up=key_up)
 
     #-----------------------------------------------------------
     def double_click_input(self, button ="left", coords = (None, None)):
