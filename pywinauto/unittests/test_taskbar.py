@@ -43,10 +43,12 @@ from pywinauto.application import ProcessNotFoundError  # noqa: E402
 from pywinauto.application import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS  # noqa: E402
 from pywinauto import win32defines  # noqa: E402
-from pywinauto.timings import WaitUntil  # noqa: E402
+from pywinauto.timings import wait_until  # noqa: E402
 import pywinauto.actionlogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
+from pywinauto import mouse  # noqa: E402
+from pywinauto import Desktop  # noqa: E402
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
@@ -78,7 +80,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
         l = findwindows.find_elements(active_only=True, class_name=class_name)
         return (len(l) > 0)
 
-    WaitUntil(_ready_timeout, _retry_interval, _cabinetwclass_exist)
+    wait_until(_ready_timeout, _retry_interval, _cabinetwclass_exist)
     handle = findwindows.find_elements(active_only=True,
                                        class_name=class_name)[-1].handle
     window = WindowSpecification({'handle': handle, 'backend': 'win32', })
@@ -87,13 +89,21 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
     try:
         # Go to "Control Panel -> Notification Area Icons"
-        window.Wait("ready", timeout=_ready_timeout)
-        window.AddressBandRoot.click_input()
-        window.type_keys(
-            r'control /name Microsoft.NotificationAreaIcons',
-            with_spaces=True,
-            set_foreground=True
-        )
+        cmd_str = r'control /name Microsoft.NotificationAreaIcons'
+        for _ in range(3):
+            window.Wait("ready", timeout=_ready_timeout)
+            window.AddressBandRoot.click_input()
+            explorer.WaitCPUUsageLower(threshold=2, timeout=_ready_timeout)
+            window.type_keys(cmd_str, with_spaces=True, set_foreground=True)
+            # verfiy the text in the address combobox after type_keys finished
+            cmbx_spec = window.AddressBandRoot.ComboBoxEx
+            if cmbx_spec.exists(timeout=_ready_timeout, retry_interval=_retry_interval):
+                texts = cmbx_spec.texts()
+                if texts and texts[0] == cmd_str:
+                    break
+            # Send ESCs to remove the invalid text
+            window.type_keys("{ESC}" * 3)
+
         # Send 'ENTER' separately, this is to make sure
         # the window focus hasn't accidentally been lost
         window.type_keys(
@@ -104,7 +114,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
         explorer.WaitCPUUsageLower(threshold=5, timeout=_ready_timeout)
 
         # Get the new opened applet
-        notif_area = explorer.Window_(title="Notification Area Icons",
+        notif_area = Desktop().window(title="Notification Area Icons",
                                       class_name=class_name)
         notif_area.Wait("ready", timeout=_ready_timeout)
         cur_state = notif_area.CheckBox.GetCheckState()
@@ -137,7 +147,7 @@ def _wait_minimized(dlg):
     wanted to make sure the dlg is really got to the 'minimized' state
     because we test hiding the window to the tray.
     """
-    WaitUntil(
+    wait_until(
         timeout=_ready_timeout,
         retry_interval=_retry_interval,
         func=lambda: (dlg.GetShowState() == win32defines.SW_SHOWMINIMIZED)
@@ -158,6 +168,7 @@ class TaskbarTestCases(unittest.TestCase):
         app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle=False)
         self.app = app
         self.dlg = app.top_window()
+        mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
         self.dlg.Wait('ready', timeout=self.tm)
 
     def tearDown(self):
@@ -251,7 +262,7 @@ class TaskbarTestCases(unittest.TestCase):
             menu_window[0] = menu
             return res
 
-        WaitUntil(self.tm, _retry_interval, _show_popup_menu)
+        wait_until(self.tm, _retry_interval, _show_popup_menu)
         menu_window[0].MenuBarClickInput("#2", self.app)
         popup_window = self.app.top_window()
         hdl = self.dlg.PopupWindow()
@@ -333,12 +344,11 @@ class TaskbarTestCases(unittest.TestCase):
         niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=self.tm)
         niow_dlg.SysLink.click_input()
 
-        tmp_app = Application().connect(path="explorer.exe")
-        nai = tmp_app.window_(
+        nai = Desktop().window(
             title="Notification Area Icons",
             class_name="CabinetWClass"
         )
-        nai.draw_outline()
+        nai.wait('ready')
         origAlwaysShow = nai.CheckBox.GetCheckState()
         if not origAlwaysShow:
             nai.CheckBox.click_input()

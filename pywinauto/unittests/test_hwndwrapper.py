@@ -33,6 +33,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import six
 import time
 #import pprint
 #import pdb
@@ -58,6 +59,8 @@ from pywinauto.timings import Timings
 from pywinauto import clipboard
 from pywinauto.base_wrapper import ElementNotEnabled
 from pywinauto.base_wrapper import ElementNotVisible
+from pywinauto import findbestmatch
+from pywinauto import keyboard
 
 
 mfc_samples_folder = os.path.join(
@@ -98,33 +101,30 @@ class HwndWrapperTests(unittest.TestCase):
         self.app.kill_()
 
     def testInvalidHandle(self):
-        "Test that an exception is raised with an invalid window handle"
+        """Test that an exception is raised with an invalid window handle"""
         self.assertRaises(InvalidWindowHandle, HwndWrapper, -1)
 
     def testFriendlyClassName(self):
-        "Test getting the friendly classname of the control"
+        """Test getting the friendly classname of the control"""
         self.assertEquals(self.ctrl.friendly_class_name(), "Button")
 
 
     def testClass(self):
-        "Test getting the classname of the control"
+        """Test getting the classname of the control"""
         self.assertEquals(self.ctrl.class_name(), "Button")
 
     def testWindowText(self):
-        "Test getting the window Text of the control"
+        """Test getting the window Text of the control"""
         self.assertEquals(
             HwndWrapper(self.dlg.Set.handle).window_text(), u'Set')
 
     def testStyle(self):
-
         self.dlg.Style()
-
         self.assertEquals(self.ctrl.Style(),
             win32defines.WS_CHILD |
             win32defines.WS_VISIBLE |
             win32defines.WS_TABSTOP |
             win32defines.BS_COMMANDLINK)
-
 
     def testExStyle(self):
         self.assertEquals(self.ctrl.ExStyle(),
@@ -287,7 +287,7 @@ class HwndWrapperTests(unittest.TestCase):
         expected = 0x89 # 0x2000 + 0x40
         self.assertEqual(expected, code)
 
-    def test_send_chars_simple(self):
+    def test_send_chars(self):
         testString = "Hello World"
 
         self.dlg.Minimize()
@@ -297,44 +297,61 @@ class HwndWrapperTests(unittest.TestCase):
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
-    # def test_send_chars_enter(self):
-    #     with self.assertRaises(findbestmatch.MatchError):
-    #         testString = "{ENTER}"
-    #
-    #         self.dlg.Minimize()
-    #         self.dlg.Edit.send_chars(testString)
-    #
-    #         actual = self.dlg.Edit.Texts()[0]
+    def test_send_chars_invalid(self):
+        with self.assertRaises(keyboard.KeySequenceError):
+            testString = "Hello{LEFT 2}{DEL 2}"
 
-    def test_send_chars_virtual_keys_left_del_back(self):
-        testString = "Hello123{LEFT 2}{DEL 2}{BACKSPACE} World"
+            self.dlg.Minimize()
+            self.dlg.Edit.send_chars(testString)
+
+    def test_send_keystrokes_multikey_characters(self):
+        testString = "Hawaii#{%}@$"
 
         self.dlg.Minimize()
-        self.dlg.Edit.send_chars(testString)
+        self.dlg.Edit.send_keystrokes(testString)
+
+        actual = self.dlg.Edit.Texts()[0]
+        expected = "Hawaii#%@$"
+        self.assertEqual(expected, actual)
+
+    def test_send_keystrokes_enter(self):
+        with self.assertRaises(findbestmatch.MatchError):
+            testString = "{ENTER}"
+
+            self.dlg.Minimize()
+            self.dlg.Edit.send_keystrokes(testString)
+
+            self.dlg.Restore()
+
+    def test_send_keystrokes_virtual_keys_left_del_back(self):
+        testString = "+hello123{LEFT 2}{DEL 2}{BACKSPACE} +world"
+
+        self.dlg.Minimize()
+        self.dlg.Edit.send_keystrokes(testString)
 
         actual = self.dlg.Edit.Texts()[0]
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
-    def test_send_chars_virtual_keys_shift(self):
+    def test_send_keystrokes_virtual_keys_shift(self):
         testString = "+hello +world"
 
         self.dlg.Minimize()
-        self.dlg.Edit.send_chars(testString)
+        self.dlg.Edit.send_keystrokes(testString)
 
         actual = self.dlg.Edit.Texts()[0]
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
-    # def test_send_chars_virtual_keys_ctrl(self):
-    #     testString = "^a^c{RIGHT}^v"
-    #
-    #     self.dlg.Minimize()
-    #     self.dlg.Edit.send_chars(testString)
-    #
-    #     actual = self.dlg.Edit.Texts()[0]
-    #     expected = "and the note goes here ...and the note goes here ..."
-    #     self.assertEqual(expected, actual)
+    def test_send_keystrokes_virtual_keys_ctrl(self):
+        testString = "^a^c{RIGHT}^v"
+
+        self.dlg.Minimize()
+        self.dlg.Edit.send_keystrokes(testString)
+
+        actual = self.dlg.Edit.Texts()[0]
+        expected = "and the note goes here ...and the note goes here ..."
+        self.assertEqual(expected, actual)
 
     def testSendMessageTimeout(self):
         default_timeout = Timings.sendmessagetimeout_timeout
@@ -475,6 +492,20 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.Set.set_focus()
         self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
 
+    def test_issue_318(self):
+        self.dlg.restore()
+        self.dlg.minimize()
+        self.dlg.set_focus()
+        self.assertTrue(self.dlg.is_normal())
+        self.assertTrue(self.dlg.is_active())
+
+        self.dlg.maximize()
+        self.dlg.minimize()
+        self.dlg.set_focus()
+        self.assertTrue(self.dlg.is_maximized())
+        self.assertTrue(self.dlg.is_active())
+        self.dlg.restore()
+
     def testSetFocus(self):
         self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
         self.dlg.Set.set_focus()
@@ -489,6 +520,25 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(self.dlg.get_focus(), self.dlg.set.handle)
         self.dlg.set.set_keyboard_focus()
         self.assertEqual(self.dlg.get_focus(), self.dlg.set.handle)
+
+    def test_pretty_print(self):
+        """Test __str__ method for HwndWrapper based controls"""
+        if six.PY3:
+            assert_regex = self.assertRegex
+        else:
+            assert_regex = self.assertRegexpMatches
+
+        wrp = self.dlg.wrapper_object()
+        assert_regex(wrp.__str__(), "^hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog$")
+        assert_regex(wrp.__repr__(), "^<hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog, [0-9-]+>$")
+
+        wrp = self.ctrl
+        assert_regex(wrp.__str__(), "^win32_controls.ButtonWrapper - 'Command button here', Button$")
+        assert_regex(wrp.__repr__(), "^<win32_controls.ButtonWrapper - 'Command button here', Button, [0-9-]+>$")
+
+        wrp = self.dlg.TabControl.wrapper_object()
+        assert_regex(wrp.__str__(), "^common_controls.TabControlWrapper - '', TabControl$")
+        assert_regex(wrp.__repr__(), "^<common_controls.TabControlWrapper - '', TabControl, [0-9-]+>$")
 
 
 class HwndWrapperMenuTests(unittest.TestCase):
@@ -910,6 +960,27 @@ class SendEnterKeyTest(unittest.TestCase):
         self.assertEquals(['Hello\r\nWorld'], self.dlg.Edit.Texts())
 
 
+class SendKeystrokesAltComboTests(unittest.TestCase):
+
+    """Unit test for Alt- combos sent via send_keystrokes"""
+
+    def setUp(self):
+        Timings.Defaults()
+
+        self.app = Application().start(os.path.join(mfc_samples_folder, u'CtrlTest.exe'))
+        self.dlg = self.app.Control_Test_App
+
+
+    def tearDown(self):
+        self.app.kill_()
+
+
+    def test_send_keystrokes_alt_combo(self):
+        self.dlg.send_keystrokes('%(sc)')
+
+        self.assertTrue(self.app['Using C++ Derived Class'].Exists())
+
+
 class RemoteMemoryBlockTests(unittest.TestCase):
 
     """Unit tests for RemoteMemoryBlock"""
@@ -940,4 +1011,3 @@ class RemoteMemoryBlockTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

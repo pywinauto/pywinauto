@@ -78,8 +78,13 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         Notice, a radio button control isn't supported by UIA.
         https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+
         self.iface_toggle.Toggle()
 
+        if name and control_type:
+            self.actions.log('Toggled ' + control_type.lower() + ' "' +  name + '"')
         # Return itself so that action can be chained
         return self
 
@@ -135,8 +140,10 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             self.expand()
             for c in self.children():
                 texts.append(c.window_text())
-        finally:
-            # Make sure we collapse back in any case
+        except NoPatternInterfaceError:
+            return texts
+        else:
+            # Make sure we collapse back
             self.collapse()
         return texts
 
@@ -783,19 +790,18 @@ class MenuWrapper(uiawrapper.UIAWrapper):
     def _sub_item_by_text(self, menu, name, exact):
         """Find a menu sub-item by the specified text"""
         sub_item = None
-
-        if exact:
-            for i in menu.items():
-                if name == i.window_text():
-                    sub_item = i
-                    break
-        else:
-            items = []
-            texts = []
-            for i in menu.items():
-                items.append(i)
-                texts.append(i.window_text())
-            sub_item = findbestmatch.find_best_match(name, texts, items)
+        items = menu.items()
+        if items:
+            if exact:
+                for i in items:
+                    if name == i.window_text():
+                        sub_item = i
+                        break
+            else:
+                texts = []
+                for i in items:
+                    texts.append(i.window_text())
+                sub_item = findbestmatch.find_best_match(name, texts, items)
 
         self._activate(sub_item)
 
@@ -808,7 +814,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         items = menu.items()
         if items:
             sub_item = items[idx]
-            self._activate(sub_item)
+        self._activate(sub_item)
         return sub_item
 
     # -----------------------------------------------------------
@@ -838,7 +844,9 @@ class MenuWrapper(uiawrapper.UIAWrapper):
                 menu = self._sub_item_by_text(self, part0, exact)
 
             if not menu.items():
-                timings.wait_until(timings.Timings.window_find_timeout,
+                self._activate(menu)
+                timings.wait_until(
+                    timings.Timings.window_find_timeout,
                     timings.Timings.window_find_retry,
                     lambda: len(self.top_level_parent().descendants(control_type="Menu")) > 0)
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]

@@ -6,6 +6,8 @@ import time
 import os
 import sys
 import unittest
+import mock
+import six
 
 sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
@@ -263,6 +265,24 @@ if UIA_support:
             #     img2 = self.dlg.capture_as_image()
             #     self.assertEqual(img2.getpixel((0, 0)), (0, 0, 255))  # blue
 
+        def test_get_legacy_properties(self):
+            """Test getting legacy properties of a control"""
+            expected_properties = {'Value' : '',
+                                   'DefaultAction': 'Press',
+                                   'Description': '',
+                                   'Name': 'OK',
+                                   'Help': '',
+                                   'ChildId': 0,
+                                   'KeyboardShortcut': '',
+                                   'State': 1048576,
+                                   'Role': 43}
+            button_wrp = self.dlg.window(class_name="Button",
+                                       title="OK").wrapper_object()
+
+            actual_properties = button_wrp.legacy_properties()
+
+            self.assertEqual(actual_properties, expected_properties)
+
     class UIAWrapperMouseTests(unittest.TestCase):
 
         """Unit tests for mouse actions of the UIAWrapper class"""
@@ -330,6 +350,65 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill_()
 
+        def test_pretty_print(self):
+            """Test __str__ method for UIA based controls"""
+            if six.PY3:
+                assert_regex = self.assertRegex
+            else:
+                assert_regex = self.assertRegexpMatches
+
+            wrp = self.dlg.OK.wrapper_object()
+            assert_regex(wrp.__str__(), "^uia_controls\.ButtonWrapper - 'OK', Button$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.ButtonWrapper - 'OK', Button, [0-9-]+>$")
+
+            wrp = self.dlg.CheckBox.wrapper_object()
+            assert_regex(wrp.__str__(), "^uia_controls\.ButtonWrapper - 'CheckBox', CheckBox$", )
+            assert_regex(wrp.__repr__(), "^<uia_controls\.ButtonWrapper - 'CheckBox', CheckBox, [0-9-]+>$", )
+
+            wrp = self.dlg.child_window(class_name="TextBox").wrapper_object()
+            assert_regex(wrp.__str__(), "^uia_controls\.EditWrapper - '', Edit$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.EditWrapper - '', Edit, [0-9-]+>$")
+            assert_regex(wrp.element_info.__str__(), "^uia_element_info.UIAElementInfo - '', TextBox$")
+            assert_regex(wrp.element_info.__repr__(), "^<uia_element_info.UIAElementInfo - '', TextBox, None>$")
+
+            wrp = self.dlg.TabControl.wrapper_object()
+            assert_regex(wrp.__str__(), "^uia_controls\.TabControlWrapper - 'General', TabControl$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.TabControlWrapper - 'General', TabControl, [0-9-]+>$")
+
+            wrp = self.dlg.MenuBar.wrapper_object()
+            assert_regex(wrp.__str__(), "^uia_controls\.MenuWrapper - 'System', Menu$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.MenuWrapper - 'System', Menu, [0-9-]+>$")
+
+            wrp = self.dlg.Slider.wrapper_object()
+            assert_regex(wrp.__str__(), "^uia_controls\.SliderWrapper - '', Slider$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.SliderWrapper - '', Slider, [0-9-]+>$")
+
+            wrp = self.dlg.wrapper_object()
+            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog$")
+            assert_regex(wrp.__repr__(), "^<uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog, [0-9-]+>$")
+
+            # ElementInfo.__str__
+            assert_regex(wrp.element_info.__str__(),
+                         "^uia_element_info.UIAElementInfo - 'WPF Sample Application', Window$")
+            assert_regex(wrp.element_info.__repr__(),
+                         "^<uia_element_info.UIAElementInfo - 'WPF Sample Application', Window, [0-9-]+>$")
+
+            # mock a failure in texts() method
+            orig = wrp.texts
+            wrp.texts = mock.Mock(return_value=[])  # empty texts
+            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '', Dialog$")
+            assert_regex(wrp.__repr__(), "^<uiawrapper\.UIAWrapper - '', Dialog, [0-9-]+>$")
+            wrp.texts.return_value = [u'\xd1\xc1\\\xa1\xb1\ua000']  # unicode string
+            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '.+', Dialog$")
+            wrp.texts = orig  # restore the original method
+
+            # mock a failure in element_info.name property (it's based on _get_name())
+            orig = wrp.element_info._get_name
+            wrp.element_info._get_name = mock.Mock(return_value=None)
+            assert_regex(wrp.element_info.__str__(), "^uia_element_info\.UIAElementInfo - 'None', Window$")
+            assert_regex(wrp.element_info.__repr__(), "^<uia_element_info\.UIAElementInfo - 'None', Window, [0-9-]+>$")
+            wrp.element_info._get_name = orig
+
         def test_friendly_class_names(self):
             """Test getting friendly class names of common controls"""
             button = self.dlg.OK.wrapper_object()
@@ -350,7 +429,7 @@ if UIA_support:
             friendly_name = self.dlg.TabControl.friendly_class_name()
             self.assertEqual(friendly_name, "TabControl")
 
-            edit = self.dlg.window(class_name="TextBox").wrapper_object()
+            edit = self.dlg.child_window(class_name="TextBox").wrapper_object()
             self.assertEqual(edit.friendly_class_name(), "Edit")
 
             slider = self.dlg.Slider.wrapper_object()
@@ -430,6 +509,10 @@ if UIA_support:
             self.assertEqual(combo_box.item_count(), len(ref_texts))
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
+
+            # Mock a combobox without "ExpandCollapse" pattern
+            combo_box.expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())  # empty texts
+            self.assertEqual(combo_box.texts(), [])
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
@@ -1047,12 +1130,8 @@ if UIA_support:
             self.app = Application(backend='uia')
             self.app = self.app.start("notepad.exe")
             self.dlg = self.app.UntitledNotepad
-            log = ActionLogger()
-            log.log("MenuWrapperNotepadTests::setUp, wait for CPU low")
-            self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
-            log.log("MenuWrapperNotepadTests::setUp, wait for the dialog is ready")
+            ActionLogger().log("MenuWrapperNotepadTests::setUp, wait till Notepad dialog is ready")
             self.dlg.wait("ready")
-            log.log("MenuWrapperNotepadTests::setUp, Notepad is ready")
 
         def tearDown(self):
             """Close the application after tests"""

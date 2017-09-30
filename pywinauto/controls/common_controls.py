@@ -294,6 +294,7 @@ class _listview_item(object):
         where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         if where.lower() != "check":
             point_to_click = self.rectangle(area=where.lower()).mid_point()
             self.listview_ctrl.click(
@@ -369,6 +370,7 @@ class _listview_item(object):
                     pressed=pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+        return self
     # Non PEP-8 alias
     Click = click
 
@@ -379,6 +381,7 @@ class _listview_item(object):
         where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         if where.lower() != "check":
             point_to_click = self.rectangle(area=where.lower()).mid_point()
             self.listview_ctrl.click_input(
@@ -456,6 +459,7 @@ class _listview_item(object):
                     pressed=pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+        return self
     # Non PEP-8 alias
     ClickInput = click_input
 
@@ -463,7 +467,7 @@ class _listview_item(object):
     def ensure_visible(self):
         """Make sure that the ListView item is visible"""
         if self.state() & win32defines.LVS_NOSCROLL:
-            return False  # scroll is disabled
+            return None  # scroll is disabled
         ret = self.listview_ctrl.send_message(
             win32defines.LVM_ENSUREVISIBLE,
             self.item_index,
@@ -471,6 +475,7 @@ class _listview_item(object):
         if ret != win32defines.TRUE:
             raise RuntimeError('Fail to make the list view item visible ' +
                                '(item_index = ' + str(self.item_index) + ')')
+        return self
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -498,6 +503,7 @@ class _listview_item(object):
             raise ctypes.WinError()
 
         del remote_mem
+        return self
     # Non PEP-8 alias
     UnCheck = uncheck
 
@@ -526,6 +532,7 @@ class _listview_item(object):
             raise ctypes.WinError()
 
         del remote_mem
+        return self
     # Non PEP-8 alias
     Check = check
 
@@ -624,6 +631,7 @@ class _listview_item(object):
         Item can be selected otherwise an exception is raised
         """
         self._modify_selection(True)
+        return self
     # Non PEP-8 alias
     Select = select
 
@@ -635,6 +643,7 @@ class _listview_item(object):
         Item can be selected otherwise an exception is raised
         """
         self._modify_selection(False)
+        return self
     # Non PEP-8 alias
     Deselect = deselect
 
@@ -658,7 +667,8 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         "SysListView32",
         r"WindowsForms\d*\.SysListView32\..*",
         "TSysListView",
-        "ListView20WndClass"]
+        "ListView.*WndClass",
+        ]
     if sysinfo.UIA_support:
         #controltypes is empty to make wrapper search result unique
         #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
@@ -1017,6 +1027,7 @@ class _treeview_element(object):
         where can be any one of "text", "icon", "button", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         # find the text rectangle for the item,
         point_to_click = self.client_rect().mid_point()
 
@@ -1055,13 +1066,14 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
+                raise RuntimeError("Area ('{}') not found for this tree view item".format(where))
 
         self.tree_ctrl.click(
             button,
             coords=(point_to_click.x, point_to_click.y),
             double=double,
-            pressed=pressed)  # ,
+            pressed=pressed)
+        return self
         # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
         # but it doesn't work for 32-bit ControlSpyV6.exe
         #absolute = True)
@@ -1079,6 +1091,7 @@ class _treeview_element(object):
         where can be any one of "text", "icon", "button", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         # find the text rectangle for the item,
         point_to_click = self.client_rect().mid_point()
 
@@ -1125,6 +1138,7 @@ class _treeview_element(object):
             double=double,
             wheel_dist=wheel_dist,
             pressed=pressed)
+        return self
     # Non PEP-8 alias
     ClickInput = click_input
 
@@ -1142,6 +1156,7 @@ class _treeview_element(object):
         for i in range(5):
             self.tree_ctrl.move_mouse_input(
                 coords=(rect.left + i, rect.top), pressed=pressed, absolute=False)
+        return self
     # Non PEP-8 alias
     StartDragging = start_dragging
 
@@ -1159,6 +1174,7 @@ class _treeview_element(object):
         self.tree_ctrl.release_mouse_input(
             button, coords=(point_to_click.x, point_to_click.y), pressed=pressed, absolute=False)
         time.sleep(Timings.after_drag_n_drop_wait)
+        return self
     # Non PEP-8 alias
     Drop = drop
 
@@ -1169,6 +1185,7 @@ class _treeview_element(object):
             win32defines.TVM_EXPAND,
             win32defines.TVE_COLLAPSE,
             self.elem)
+        return self
     # Non PEP-8 alias
     Collapse = collapse
 
@@ -1179,6 +1196,7 @@ class _treeview_element(object):
             win32defines.TVM_EXPAND,
             win32defines.TVE_EXPAND,
             self.elem)
+        return self
     # Non PEP-8 alias
     Expand = expand
 
@@ -1297,6 +1315,8 @@ class _treeview_element(object):
             win32defines.TVM_ENSUREVISIBLE,
             win32defines.TVGN_CARET,
             self.elem)
+        win32functions.WaitGuiThreadIdle(self.tree_ctrl)
+        return self
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -1314,6 +1334,7 @@ class _treeview_element(object):
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
+        return self
     # Non PEP-8 alias
     Select = select
 
@@ -1356,8 +1377,7 @@ class _treeview_element(object):
         remote_mem.Write(item)
 
         # read the entry
-        retval = win32functions.SendMessage(
-            self.tree_ctrl,
+        retval = self.tree_ctrl.send_message(
             win32defines.TVM_GETITEMW,
             0,
             remote_mem)
@@ -1590,12 +1610,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     def ensure_visible(self, path):
         """Make sure that the TreeView item is visible"""
         elem = self.get_item(path)
-        self.send_message_timeout(
-            win32defines.TVM_ENSUREVISIBLE,  # message
-            win32defines.TVGN_CARET,         # how to select
-            elem.elem)                       # item to select
-
-        win32functions.WaitGuiThreadIdle(self)
+        return elem.ensure_visible()
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -3026,10 +3041,10 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_value(self):
         """Get the current value of the UpDown control"""
-        pos = win32functions.SendMessage(
-            self, win32defines.UDM_GETPOS,
+        pos = self.send_message(
+            win32defines.UDM_GETPOS,
             win32structures.LPARAM(0),
-            win32structures.WPARAM(0)
+            win32structures.WPARAM(0),
         )
         return win32functions.LoWord(pos)
     # Non PEP-8 alias
@@ -3526,7 +3541,6 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         'title_text', 'trailing_text' ;
         - All other parameters should be integer from 0 to 255.
         """
-
         if not (0 <= red <= 255):
             raise RuntimeError('Incorrect range of red color, must be from 0 to 255')
         if not (0 <= green <= 255):
@@ -3607,6 +3621,39 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
         return (win32functions.HiWord(res), win32functions.LoWord(res))
 
+    # ----------------------------------------------------------------
+    def get_month_delta(self):
+        """Retrieves the scroll rate for a month calendar control"""
+        return self.send_message(win32defines.MCM_GETMONTHDELTA, 0, 0)
+
+    # ----------------------------------------------------------------
+    def set_month_delta(self, delta):
+        """Sets the scroll rate for a month calendar control."""
+        if (delta < 0):
+            raise ValueError("Month delta must be greater than 0")
+
+        self.send_message(win32defines.MCM_SETMONTHDELTA, delta, 0)
+
+    # ----------------------------------------------------------------
+    def get_month_range(self, scope_of_range):
+        """Retrieves date information that represents the high and low limits of a month calendar control's display."""
+        if scope_of_range not in [win32defines.GMR_DAYSTATE, win32defines.GMR_VISIBLE]:
+            raise ValueError("scope_of_range value must be one of the following: GMR_DAYSTATE or GMR_VISIBLE")
+
+        remote_mem = RemoteMemoryBlock(self)
+        system_date_arr = (win32structures.SYSTEMTIME * 2)()
+
+        system_date_arr[0] = win32structures.SYSTEMTIME()
+        system_date_arr[1] = win32structures.SYSTEMTIME()
+
+        remote_mem.Write(system_date_arr)
+
+        res = self.send_message(win32defines.MCM_GETMONTHRANGE, scope_of_range, remote_mem)
+
+        remote_mem.Read(system_date_arr)
+        del remote_mem
+
+        return (res, system_date_arr)
 
 #====================================================================
 class PagerWrapper(hwndwrapper.HwndWrapper):

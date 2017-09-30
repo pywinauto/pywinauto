@@ -44,7 +44,13 @@ from .win32structures import RECT
 
 def elements_from_uia_array(ptrs, cache_enable = False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
-    return [UIAElementInfo(ptrs.GetElement(n), cache_enable) for n in range(ptrs.Length)]
+    elements = []
+    for n in range(ptrs.Length):
+        try:
+            elements.append(UIAElementInfo(ptrs.GetElement(n), cache_enable))
+        except COMError:
+            continue
+    return elements
 
 
 class UIAElementInfo(ElementInfo):
@@ -68,7 +74,7 @@ class UIAElementInfo(ElementInfo):
                     "with integer or IUIAutomationElement instance only!")
         else:
             self._element = IUIA().root
- 
+
         self.set_cache_strategy(cached = cache_enable)
 
     def _get_current_class_name(self):
@@ -203,12 +209,18 @@ class UIAElementInfo(ElementInfo):
     @property
     def process_id(self):
         """Return ProcessId of the element"""
-        return self._element.CurrentProcessId
+        try:
+            return self._element.CurrentProcessId
+        except COMError:
+            return None # probably element already doesn't exist
 
     @property
     def framework_id(self):
         """Return FrameworkId of the element"""
-        return self._element.CurrentFrameworkId
+        try:
+            return self._element.CurrentFrameworkId
+        except COMError:
+            return None # probably element already doesn't exist
 
     @property
     def runtime_id(self):
@@ -266,8 +278,13 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
+        depth = kwargs.pop('depth', None)
         cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+        elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+
+        elements = ElementInfo.filter_with_depth(elements, self, depth)
+
+        return elements
 
     @property
     def visible(self):
@@ -302,14 +319,5 @@ class UIAElementInfo(ElementInfo):
     def __eq__(self, other):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):
-            return False;
-        # We put the most frequent attibutes at the top of comparison as
-        # quite often the element doesn't have all these attributes.
-        # For example 'handle' exists only for top-level windows.
-        return self.control_type == other.control_type and \
-               self.class_name == other.class_name and \
-               self.process_id == other.process_id and \
-               self.handle == other.handle and \
-               self.name == other.name and \
-               self.automation_id == other.automation_id and \
-               self.framework_id == other.framework_id
+            return False
+        return bool(IUIA().iuia.CompareElements(self.element, other.element))

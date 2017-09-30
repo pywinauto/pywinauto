@@ -77,11 +77,14 @@ import win32api
 import win32gui
 import win32con
 import win32event
+import six
 
+from . import timings
 from . import controls
 from . import findbestmatch
 from . import findwindows
 from . import handleprops
+from . import win32defines
 from .backend import registry
 
 from .actionlogger import ActionLogger
@@ -129,7 +132,7 @@ class WindowSpecification(object):
     .. automethod:: __getitem__
     """
 
-    WAIT_CRITERIA_MAP = {'exists': ('Exists',),
+    WAIT_CRITERIA_MAP = {'exists': ('exists',),
                          'visible': ('is_visible',),
                          'enabled': ('is_enabled',),
                          'ready': ('is_visible', 'is_enabled',),
@@ -430,7 +433,7 @@ class WindowSpecification(object):
         # unique_check_names = set(['is_enabled', 'is_active', 'is_visible', 'Exists'])
         return unique_check_names, timeout, retry_interval
 
-    def __check_all_conditions(self, check_names):
+    def __check_all_conditions(self, check_names, retry_interval):
         """
         Checks for all conditions
 
@@ -438,9 +441,17 @@ class WindowSpecification(object):
         True will be returned when all checks passed and all of them equal True.
         """
         for check_name in check_names:
-            try:
-                # Hidden __resolve_control call, handle the exceptions.
+            # timeout = retry_interval because the timeout is handled at higher level
+            if check_name == 'exists':
                 check = getattr(self, check_name)
+                if not check(retry_interval, float(retry_interval) // 2):
+                    return False
+                else:
+                    continue
+            try:
+                # resolve control explicitly to pass correct timing params
+                ctrls = self.__resolve_control(self.criteria, retry_interval, float(retry_interval) // 2)
+                check = getattr(ctrls[-1], check_name)
             except (findwindows.ElementNotFoundError,
                     findbestmatch.MatchError,
                     controls.InvalidWindowHandle,
@@ -486,7 +497,8 @@ class WindowSpecification(object):
             :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        wait_until(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval,
+                   lambda: self.__check_all_conditions(check_method_names, retry_interval))
 
         # Return the wrapped control
         return self.wrapper_object()
@@ -522,7 +534,8 @@ class WindowSpecification(object):
         """
         check_method_names, timeout, retry_interval = \
             self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        wait_until(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval,
+                   lambda: not self.__check_all_conditions(check_method_names, retry_interval))
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
@@ -552,7 +565,7 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth=None):
+    def print_control_identifiers(self, depth=None, filename=None):
         """
         Prints the 'identifiers'
 
@@ -566,7 +579,6 @@ class WindowSpecification(object):
                referred to as "Edit2".
         """
         if depth is None:
-            # TODO: think about marking incomplete subtree for depths like 1 or 2
             depth = sys.maxsize
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
@@ -574,24 +586,31 @@ class WindowSpecification(object):
         # Create a list of this control and all its descendants
         all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
 
-        # build the list of disambiguated list of control names
-        name_control_map = findbestmatch.build_unique_dict(all_ctrls)
+        # Create a list of all visible text controls
+        txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
 
-        # swap it around so that we are mapped off the controls
-        control_name_map = {}
-        for name, control in name_control_map.items():
-            control_name_map.setdefault(control, []).append(name)
+        # Build a dictionary of disambiguated list of control names
+        name_ctrl_id_map = findbestmatch.UniqueDict()
+        for index, ctrl in enumerate(all_ctrls):
+            ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
+            for name in ctrl_names:
+                name_ctrl_id_map[name] = index
 
-        print("Control Identifiers:")
+        # Swap it around so that we are mapped off the control indices
+        ctrl_id_name_map = {}
+        for name, index in name_ctrl_id_map.items():
+            ctrl_id_name_map.setdefault(index, []).append(name)
 
-        def print_identifiers(ctrls, current_depth=1):
+        def print_identifiers(ctrls, current_depth=1, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
 
             indent = (current_depth - 1) * u"   | "
             for ctrl in ctrls:
-                if ctrl not in control_name_map.keys():
+                try:
+                    ctrl_id = all_ctrls.index(ctrl)
+                except ValueError:
                     continue
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
@@ -603,7 +622,7 @@ class WindowSpecification(object):
                     "".format(class_name=ctrl.friendly_class_name(),
                               text=ctrl_text,
                               rect=ctrl.rectangle())
-                output += indent + u'{}\n'.format(control_name_map[ctrl])
+                output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
 
                 title = ctrl_text
                 class_name = ctrl.class_name()
@@ -624,13 +643,29 @@ class WindowSpecification(object):
                 if control_type:
                     criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if title or class_name or auto_id:
-                    output += indent + u'child_window(' + u', '.join(criteria_texts) + u')'
-                print(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
+                    output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
 
-                print_identifiers(ctrl.children(), current_depth + 1)
+                if six.PY3:
+                    log_func(output)
+                else:
+                    log_func(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
-        print_identifiers([this_ctrl, ])
+                print_identifiers(ctrl.children(), current_depth + 1, log_func)
 
+        if filename is None:
+            print("Control Identifiers:")
+            print_identifiers([this_ctrl, ])
+        else:
+            log_file = open(filename, "w")
+
+            def log_func(msg):
+                log_file.write(str(msg) + os.linesep)
+            log_func("Control Identifiers:")
+            print_identifiers([this_ctrl, ], log_func=log_func)
+            log_file.close()
+
+    print_ctrl_ids = print_control_identifiers
+    dump_tree = print_control_identifiers
 
 cur_item = 0
 
@@ -863,12 +898,20 @@ class Application(object):
         :param process: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
+        :param timeout: a timeout for process start (relevant if path is specified)
 
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
            are also can be used instead of **process**, **handle** or **path**
         """
+        timeout = Timings.app_connect_timeout
+        retry_interval = Timings.app_connect_retry
+        if 'timeout' in kwargs and kwargs['timeout'] is not None:
+            timeout = kwargs['timeout']
+        if 'retry_interval' in kwargs and kwargs['retry_interval'] is not None:
+            retry_interval = kwargs['retry_interval']
+
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
@@ -887,7 +930,13 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'])
+            try:
+                self.process = timings.wait_until_passes(
+                        timeout, retry_interval, process_from_module,
+                        ProcessNotFoundError, kwargs['path'],
+                    )
+            except TimeoutError:
+                raise ProcessNotFoundError('Process "{}" not found!'.format(kwargs['path']))
             connected = True
 
         elif kwargs:
@@ -898,6 +947,9 @@ class Application(object):
         if not connected:
             raise RuntimeError(
                 "You must specify one of process, handle or path")
+        else:
+            if 'path' not in kwargs and 'timeout' in kwargs:
+                raise ValueError('Timeout could be specified with path param only')
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()
@@ -905,7 +957,7 @@ class Application(object):
         return self
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
-              create_new_console=False, wait_for_idle=True):
+              create_new_console=False, wait_for_idle=True, work_dir=None):
         """Start the application as specified by cmd_line"""
         # try to parse executable name and check it has correct bitness
         if '.exe' in cmd_line and self.backend.name == 'win32':
@@ -936,7 +988,7 @@ class Application(object):
                 0, 						# Set handle inheritance to FALSE.
                 dw_creation_flags,		# Creation flags.
                 None, 					# Use parent's environment block.
-                None, 					# Use parent's starting directory.
+                work_dir,				# If None - use parent's starting directory.
                 start_info)				# STARTUPINFO structure.
         except Exception as exc:
             # if it failed for some reason
@@ -967,6 +1019,8 @@ class Application(object):
         # Wait until the application is ready after starting it
         if wait_for_idle and not app_idle():
             warnings.warn('Application is not loaded correctly (WaitForInputIdle failed)', RuntimeWarning)
+
+        self.actions.log("Started " + cmd_line + " application.")
 
         return self
 
@@ -1021,10 +1075,10 @@ class Application(object):
         if timeout is None:
             timeout = Timings.cpu_usage_wait_timeout
 
-        start_time = time.time()
+        start_time = timings.timestamp()
 
         while self.cpu_usage(usage_interval) > threshold:
-            if time.time() - start_time > timeout:
+            if timings.timestamp() - start_time > timeout:
                 raise RuntimeError('Waiting CPU load <= {}% timed out!'.format(threshold))
 
         return self
@@ -1134,7 +1188,7 @@ class Application(object):
         if attr_name in ['__dict__', '__members__', '__methods__', '__class__']:
             return object.__getattribute__(self, attr_name)
 
-        if attr_name in dir(Application):
+        if attr_name in dir(self.__class__):
             return object.__getattribute__(self, attr_name)
 
         if attr_name in self.__dict__:
@@ -1198,6 +1252,39 @@ class Application(object):
 
     # Non PEP-8 aliases
     kill_ = Kill_ = kill
+
+    def is_process_running(self):
+        """
+        Checks that process is running.
+
+        Can be called before start/connect.
+
+        Returns True if process is running otherwise - False
+        """
+        is_running = False
+        try:
+            h_process = win32api.OpenProcess(
+                win32con.PROCESS_QUERY_INFORMATION,
+                0,
+                self.process)
+            is_running = win32process.GetExitCodeProcess(
+                h_process) == win32defines.PROCESS_STILL_ACTIVE
+        except (win32gui.error, TypeError):
+            is_running = False
+        return is_running
+
+    def wait_for_process_exit(self, timeout=None, retry_interval=None):
+        """
+        Waits for process to exit until timeout reaches
+
+        Raises TimeoutError exception if timeout was reached
+        """
+        if timeout is None:
+            timeout = Timings.app_exit_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_exit_retry
+
+        wait_until(timeout, retry_interval, self.is_process_running, value=False)
 
 
 #=========================================================================
@@ -1274,6 +1361,7 @@ def process_from_module(module):
     module_path = os.path.normpath(module)
 
     _warn_incorrect_binary_bitness(module_path)
+
     try:
         modules = _process_get_modules_wmi()
     except Exception:

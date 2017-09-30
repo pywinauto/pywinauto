@@ -12,7 +12,7 @@ The list of supported accessibility technologies on Windows:
     - MFC, VB6, VCL, simple WinForms controls and most of the old legacy apps
 
  * **MS UI Automation** (``backend="uia"``)
-    - WinForms, WPF, Store apps, Qt, browsers
+    - WinForms, WPF, Store apps, Qt5, browsers
     
     Notes: Chrome requires ``--force-renderer-accessibility`` cmd flag before 
     starting. Custom properties and controls are not supported because of 
@@ -23,10 +23,13 @@ Not supported: Java AWT/Swing, GTK+, Tkinter.
 AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
 
 
-GUI Objects Inspection
+GUI Objects Inspection / Spy Tools
 ----------------------
 If you're still not sure which backend is most appropriate for you 
-then try using object inspection tools that are available for free.
+then try using object inspection / spy tools that are available for free:
+download them from GitHub repo gui-inspect-tool_.
+
+.. _gui-inspect-tool: https://github.com/blackrosezy/gui-inspect-tool
 
  * **Spy++** is included into MS Visual Studio distribution (even Express or 
    Community) and is accessible through Start menu. It uses Win32 API. It means 
@@ -88,7 +91,7 @@ is a ``Desktop`` object.
     dlg = Desktop(backend="uia").Calculator
     dlg.wait('visible')
 
-**Application** and **Desktop** objects are both backend-specific. So no need
+**Application** and **Desktop** objects are both backend-specific. No need
 to use backend name in further actions explicitly.
 
 
