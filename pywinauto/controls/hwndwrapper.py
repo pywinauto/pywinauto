@@ -437,8 +437,23 @@ class HwndWrapper(BaseWrapper):
     #Notify = notify
 
     # -----------------------------------------------------------
+    def _check_not_enough_privileges(self, message_name):
+        pid = handleprops.processid(self.handle)
+        if not handleprops.has_enough_privileges(pid):
+            raise OSError('No enough rights to send {} message to target process ' \
+                '(to resolve it run the script as Administrator)'.format(message_name))
+
+    # -----------------------------------------------------------
     def send_message(self, message, wparam = 0, lparam = 0):
         """Send a message to the control and wait for it to return"""
+        # TODO: import ctypes; ctypes.windll.shell32.IsUserAnAdmin()
+        # import win32api, win32con, win32security
+        # win32security.CheckTokenMembership
+        
+        # h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, 11928) # app.process)
+        # token = win32security.OpenProcessToken(h_process, win32security.TOKEN_QUERY)
+        # win32security.GetTokenInformation(token, win32security.TokenUIAccess)
+        
         #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
         if hasattr(wparam, 'memAddress'):
@@ -958,14 +973,13 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def _menu_handle(self):
-        "Simple Overridable method to get the menu handle"
-        #return win32functions.GetMenu(self) # vvryabov: it doesn't work in 64-bit Python for x64 applications
+        """Simple overridable method to get the menu handle"""
         hMenu = win32gui.GetMenu(self.handle)
         is_main_menu = True
         if not hMenu:
             hMenu = self.send_message(self.handle, win32defines.MN_GETHMENU);
             is_main_menu = False
-        return (hMenu, is_main_menu) #win32gui.GetMenu(self.handle)
+        return (hMenu, is_main_menu)
 
     # -----------------------------------------------------------
     def menu(self):
@@ -1367,6 +1381,7 @@ class HwndWrapper(BaseWrapper):
         **amount** can be one of "line", "page", "end"
         **count** (optional) the number of times to scroll
         """
+        self._check_not_enough_privileges('WM_HSCROLL/WM_VSCROLL')
 
         # check which message we want to send
         if direction.lower() in ("left", "right"):

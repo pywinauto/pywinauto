@@ -39,6 +39,7 @@ import ctypes
 import win32process
 import win32api
 import win32con
+import win32gui
 
 from . import win32functions
 from . import win32defines
@@ -281,6 +282,17 @@ def processid(handle):
     """Return the ID of process that controls this window"""
     _, process_id = win32process.GetWindowThreadProcessId(int(handle))
     return process_id
+
+
+#=========================================================================
+def has_enough_privileges(process_id):
+    """Check if target process has enough rights to query GUI actions"""
+    try:
+        access_level = win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ
+        process_handle = win32api.OpenProcess(access_level, 0, process_id)
+        return True
+    except win32gui.error as exc:
+        return False
 
 
 #=========================================================================
