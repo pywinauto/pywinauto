@@ -675,7 +675,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def line_count(self):
         """Return how many lines there are in the Edit"""
-        self._check_not_enough_privileges('EM_GETLINECOUNT')
+        self._ensure_enough_privileges('EM_GETLINECOUNT')
         return  self.send_message(win32defines.EM_GETLINECOUNT)
     # Non PEP-8 alias
     LineCount = line_count
@@ -683,7 +683,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def line_length(self, line_index):
         """Return how many characters there are in the line"""
-        self._check_not_enough_privileges('EM_LINEINDEX')
+        self._ensure_enough_privileges('EM_LINEINDEX')
         # need to first get a character index of that line
         char_index = self.send_message(win32defines.EM_LINEINDEX, line_index)
 
@@ -734,7 +734,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def selection_indices(self):
         """The start and end indices of the current selection"""
-        self._check_not_enough_privileges('EM_GETSEL')
+        self._ensure_enough_privileges('EM_GETSEL')
         start = ctypes.c_int()
         end = ctypes.c_int()
         self.send_message(
@@ -758,7 +758,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def set_edit_text(self, text, pos_start = None, pos_end = None):
         """Set the text of the edit control"""
-        self._check_not_enough_privileges('EM_REPLACESEL')
+        self._ensure_enough_privileges('EM_REPLACESEL')
         self.verify_actionable()
 
         # allow one or both of pos_start and pos_end to be None
@@ -824,7 +824,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def select(self, start = 0, end = None):
         """Set the edit selection of the edit control"""
-        self._check_not_enough_privileges('EM_SETSEL')
+        self._ensure_enough_privileges('EM_SETSEL')
         self.verify_actionable()
         win32functions.SetFocus(self)
 

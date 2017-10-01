@@ -290,7 +290,10 @@ def has_enough_privileges(process_id):
     try:
         access_level = win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ
         process_handle = win32api.OpenProcess(access_level, 0, process_id)
-        return True
+        if process_handle:
+            win32api.CloseHandle(process_handle)
+            return True
+        return False
     except win32gui.error as exc:
         return False
 

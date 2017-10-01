@@ -437,7 +437,8 @@ class HwndWrapper(BaseWrapper):
     #Notify = notify
 
     # -----------------------------------------------------------
-    def _check_not_enough_privileges(self, message_name):
+    def _ensure_enough_privileges(self, message_name):
+        """Ensure the Python process has enough rights to send some window messages"""
         pid = handleprops.processid(self.handle)
         if not handleprops.has_enough_privileges(pid):
             raise OSError('No enough rights to send {} message to target process ' \
@@ -1381,7 +1382,7 @@ class HwndWrapper(BaseWrapper):
         **amount** can be one of "line", "page", "end"
         **count** (optional) the number of times to scroll
         """
-        self._check_not_enough_privileges('WM_HSCROLL/WM_VSCROLL')
+        self._ensure_enough_privileges('WM_HSCROLL/WM_VSCROLL')
 
         # check which message we want to send
         if direction.lower() in ("left", "right"):
