@@ -1630,7 +1630,7 @@ def _perform_click(
     ctrl_friendly_class_name = ctrl.friendly_class_name()
 
     if isinstance(coords, win32structures.RECT):
-        coords = [coords.left, coords.top]
+        coords = coords.mid_point()
     # allow points objects to be passed as the coords
     elif isinstance(coords, win32structures.POINT):
         coords = [coords.x, coords.y]
@@ -1687,7 +1687,6 @@ def _perform_click(
     # figure out the flags and pack coordinates
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
-
     #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
     # TODO: check return value of AttachThreadInput properly
@@ -1712,10 +1711,10 @@ def _perform_click(
 
     if button.lower() == 'move':
         message = 'Moved mouse over ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
-                  '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ') by WM_MOUSEMOVE'
+                  '" to screen point ' + str(tuple(coords)) + ' by WM_MOUSEMOVE'
     else:
         message = 'Clicked ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
-                  '" by ' + str(button) + ' button event (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
+                  '" by ' + str(button) + ' button event ' + str(tuple(coords))
         if double:
             message = 'Double-c' + message[1:]
     ActionLogger().log(message)

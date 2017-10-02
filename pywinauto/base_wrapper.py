@@ -649,7 +649,7 @@ class BaseWrapper(object):
             self.set_focus()
 
         if isinstance(coords, win32structures.RECT):
-            coords = [coords.left, coords.top]
+            coords = coords.mid_point()
         # allow points objects to be passed as the coords
         elif isinstance(coords, win32structures.POINT):
             coords = [coords.x, coords.y]
@@ -672,13 +672,13 @@ class BaseWrapper(object):
                 ctrl_text = six.text_type(ctrl_text)
             if button.lower() == 'move':
                 message = 'Moved mouse over ' + self.friendly_class_name() + \
-                          ' "' + ctrl_text + '" to screen point (x,y='
+                          ' "' + ctrl_text + '" to screen point ('
             else:
                 message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                          '" by ' + str(button) + ' button mouse click (x,y='
+                          '" by ' + str(button) + ' button mouse click at '
                 if double:
                     message = 'Double-c' + message[1:]
-            message += ','.join([str(coord) for coord in coords]) + ')'
+            message += str(tuple(coords))
 
         _perform_click_input(button, coords, double, button_down, button_up,
                              wheel_dist=wheel_dist, pressed=pressed,
