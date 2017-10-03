@@ -631,8 +631,8 @@ class BaseWrapper(object):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
-          'middle' or 'x' (Default: 'left')
-        * **coords** The coordinates to click at.(Default: center of control)
+          'middle' or 'x' (Default: 'left', 'move' is a special case)
+        * **coords** The coordinates to click at.(Default: the center of the control)
         * **double** Whether to perform a double click or not (Default: False)
         * **wheel_dist** The distance to move the mouse wheel (default: 0)
 
@@ -647,15 +647,14 @@ class BaseWrapper(object):
         """
         if self.is_dialog():
             self.set_focus()
-        ctrl_text = self.window_text()
-        if isinstance(coords, win32structures.RECT):
-            coords = [coords.left, coords.top]
 
+        if isinstance(coords, win32structures.RECT):
+            coords = coords.mid_point()
         # allow points objects to be passed as the coords
-        if isinstance(coords, win32structures.POINT):
+        elif isinstance(coords, win32structures.POINT):
             coords = [coords.x, coords.y]
-        #else:
-        coords = list(coords)
+        else:
+            coords = list(coords)
 
         # set the default coordinates
         if coords[0] is None:
@@ -666,23 +665,27 @@ class BaseWrapper(object):
         if not absolute:
             coords = self.client_to_screen(coords)
 
+        message = None
+        if use_log:
+            ctrl_text = self.window_text()
+            if ctrl_text is None:
+                ctrl_text = six.text_type(ctrl_text)
+            if button.lower() == 'move':
+                message = 'Moved mouse over ' + self.friendly_class_name() + \
+                          ' "' + ctrl_text + '" to screen point ('
+            else:
+                message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
+                          '" by ' + str(button) + ' button mouse click at '
+                if double:
+                    message = 'Double-c' + message[1:]
+            message += str(tuple(coords))
+
         _perform_click_input(button, coords, double, button_down, button_up,
                              wheel_dist=wheel_dist, pressed=pressed,
                              key_down=key_down, key_up=key_up)
 
-        if use_log:
-            if ctrl_text is None:
-                ctrl_text = six.text_type(ctrl_text)
-            message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                      '" by ' + str(button) + ' button mouse click (x,y=' + \
-                      ','.join([str(coord) for coord in coords]) + ')'
-            if double:
-                message = 'Double-c' + message[1:]
-            if button.lower() == 'move':
-                message = 'Moved mouse over ' + self.friendly_class_name() + \
-                          ' "' + ctrl_text + '" to screen point (x,y=' + \
-                          ','.join([str(coord) for coord in coords]) + ')'
-            ActionLogger().log(message)
+        if message:
+            self.actions.log(message)
 
     #-----------------------------------------------------------
     def double_click_input(self, button ="left", coords = (None, None)):
