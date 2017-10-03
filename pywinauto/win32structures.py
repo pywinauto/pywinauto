@@ -167,9 +167,9 @@ class POINT(Structure):
 
     def __getitem__(self, key):
         """Allow indexing of coordinates"""
-        if key == 0:
+        if key == 0 or key == -2:
             return self.x
-        elif key == 1:
+        elif key == 1 or key == -1:
             return self.y
         else:
             raise IndexError("Illegal index")
