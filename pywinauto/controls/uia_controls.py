@@ -250,6 +250,11 @@ class EditWrapper(uiawrapper.UIAWrapper):
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     # -----------------------------------------------------------
+    def get_value(self):
+        """Return the current value of the element"""
+        return self.iface_value.CurrentValue
+
+    # -----------------------------------------------------------
     def texts(self):
         """Get the text of the edit control"""
         texts = [self.window_text(), ]
