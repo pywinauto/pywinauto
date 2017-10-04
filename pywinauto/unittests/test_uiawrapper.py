@@ -667,6 +667,13 @@ if UIA_support:
 
             self.assertEqual(self.edit.get_line(0), test_data)
 
+        def test_get_value(self):
+            """Test getting value of the edit control"""
+            test_data = "Some value"
+            self.edit.set_edit_text(test_data)
+
+            self.assertEqual(self.edit.get_value(), test_data)
+
         def test_text_block(self):
             """Test getting the text block of the edit control"""
             test_data = "Here is some text"
