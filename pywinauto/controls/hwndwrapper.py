@@ -447,15 +447,6 @@ class HwndWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def send_message(self, message, wparam = 0, lparam = 0):
         """Send a message to the control and wait for it to return"""
-        # TODO: import ctypes; ctypes.windll.shell32.IsUserAnAdmin()
-        # import win32api, win32con, win32security
-        # win32security.CheckTokenMembership
-        
-        # h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, 11928) # app.process)
-        # token = win32security.OpenProcessToken(h_process, win32security.TOKEN_QUERY)
-        # win32security.GetTokenInformation(token, win32security.TokenUIAccess)
-        
-        #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
         if hasattr(wparam, 'memAddress'):
             wParamAddress = wparam.memAddress
