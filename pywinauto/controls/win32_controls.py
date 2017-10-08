@@ -801,8 +801,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
             buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
 
         # replace the selection with
-        return_val = self.send_message(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
-        print 'return_val =', return_val
+        self.send_message(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
 
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
