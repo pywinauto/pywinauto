@@ -197,9 +197,8 @@ def clientrect(handle):
 #=========================================================================
 def rectangle(handle):
     """Return the rectangle of the window"""
-    rect = win32structures.RECT()
-    win32functions.GetWindowRect(handle, ctypes.byref(rect))
-    return rect
+    # GetWindowRect returns 4-tuple
+    return win32structures.RECT(win32gui.GetWindowRect(handle))
 
 
 #=========================================================================
