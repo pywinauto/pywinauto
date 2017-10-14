@@ -31,10 +31,6 @@
 
 """Simple module for checking whether Python and Windows are 32-bit or 64-bit"""
 import sys
-if sys.platform == 'win32':
-    # Set up COM client MTA mode as early as possible as it affects not only
-    # an optional comtypes package but the standart pythoncom module as well.
-    sys.coinit_flags = 0   # COINIT_MULTITHREADED = 0x0
 import os  # noqa: E402
 import platform  # noqa: E402
 import ctypes  # noqa: E402
