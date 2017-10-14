@@ -2,15 +2,20 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import time
-import os
 import sys
-import unittest
-import mock
-import six
-
 sys.path.append(".")
+# We want to import pywinauto as early as possible. This is
+# to apply identical settings on all affected modules.
+# The global var: sys.coinit_flags is customized in pywinauto.sysinfo
+# and affects the behavior of pythoncom and comtypes
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
+
+import time  # noqa: E402
+import os  # noqa: E402
+import unittest  # noqa: E402
+import mock  # noqa: E402
+import six  # noqa: E402
+
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
