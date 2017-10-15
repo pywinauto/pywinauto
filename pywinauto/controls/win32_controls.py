@@ -311,6 +311,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_count(self):
         """Return the number of items in the combobox"""
+        self._ensure_enough_privileges('CB_GETCOUNT')
         return self.send_message(win32defines.CB_GETCOUNT)
     # Non PEP-8 alias
     ItemCount = item_count
@@ -318,6 +319,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def selected_index(self):
         """Return the selected index"""
+        self._ensure_enough_privileges('CB_GETCURSEL')
         return self.send_message(win32defines.CB_GETCURSEL)
     # Non PEP-8 alias
     SelectedIndex = selected_index
@@ -462,6 +464,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def is_single_selection(self):
         """Check whether the listbox has single selection mode."""
+        self._ensure_enough_privileges('LB_GETSELCOUNT')
         num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
@@ -472,6 +475,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def selected_indices(self):
         """The currently selected indices of the listbox"""
+        self._ensure_enough_privileges('LB_GETSELCOUNT')
         num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
@@ -515,6 +519,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_count(self):
         """Return the number of items in the ListBox"""
+        self._ensure_enough_privileges('LB_GETCOUNT')
         return self.send_message(win32defines.LB_GETCOUNT)
     # Non PEP-8 alias
     ItemCount = item_count
@@ -637,8 +642,10 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         # if it is a multiple selection dialog
         if self.has_style(win32defines.LBS_EXTENDEDSEL) or \
             self.has_style(win32defines.LBS_MULTIPLESEL):
+            self._ensure_enough_privileges('LB_GETCARETINDEX')
             return self.send_message(win32defines.LB_GETCARETINDEX)
         else:
+            self._ensure_enough_privileges('LB_GETCURSEL')
             return self.send_message(win32defines.LB_GETCURSEL)
     # Non PEP-8 alias
     GetItemFocus = get_item_focus
