@@ -647,6 +647,7 @@ class BaseWrapper(object):
         """
         if self.is_dialog():
             self.set_focus()
+        self._ensure_enough_privileges('win32api.SetCursorPos(x, y) function')
 
         if isinstance(coords, win32structures.RECT):
             coords = coords.mid_point()
