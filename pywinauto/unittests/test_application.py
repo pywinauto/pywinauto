@@ -136,11 +136,12 @@ class ApplicationWarningTestCases(unittest.TestCase):
             return
 
         app = Application().start(self.sample_exe_inverted_bitness)
-        app.kill_()
-        if not app.is_process_running():
+        attempt = 0
+        while not app.is_process_running() and attempt < 4:
             # Appveyor misteries...
             app.actions.log("App process does not run (crashed ?). Try launch again.")
             app = Application().start(self.sample_exe_inverted_bitness)
+            attempt += 1
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
