@@ -135,12 +135,12 @@ class ApplicationWarningTestCases(unittest.TestCase):
             self.defaultTestResult()
             return
 
-        app = Application().start(self.sample_exe_inverted_bitness)
-        # Appveyor misteries...
-        self.assertEqual(app.is_process_running(), True)
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
+            app = Application().start(self.sample_exe_inverted_bitness)
+            # Appveyor misteries...
+            self.assertEqual(app.is_process_running(), True)
             Application().connect(process=app.process)
             app.kill_()
             assert len(w) >= 1
