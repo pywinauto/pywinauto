@@ -13,8 +13,9 @@ sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
-from pywinauto.actionlogger import ActionLogger
+from pywinauto.actionlogger import ActionLogger  # noqa: E402
 if UIA_support:
+    import comtypes
     import pywinauto.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
 
@@ -53,6 +54,18 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
+
+        def test_issue_296(self):
+            """Test handling of disappered descendants"""
+            wrp = self.dlg.wrapper_object()
+            orig = wrp.element_info._element.FindAll
+            wrp.element_info._element.FindAll = mock.Mock(side_effect=ValueError("Mocked value error"),
+                                                          return_value=[])  # empty list
+            self.assertEqual([], wrp.descendants())
+            wrp.element_info._element.FindAll = mock.Mock(side_effect=comtypes.COMError("Mocked COM error", 0, 0),
+                                                          return_value=[])  # empty list
+            self.assertEqual([], wrp.descendants())
+            wrp.element_info._element = orig  # restore the original method
 
         def test_issue_278(self):
             """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
@@ -653,6 +666,13 @@ if UIA_support:
             self.edit.set_edit_text(test_data)
 
             self.assertEqual(self.edit.get_line(0), test_data)
+
+        def test_get_value(self):
+            """Test getting value of the edit control"""
+            test_data = "Some value"
+            self.edit.set_edit_text(test_data)
+
+            self.assertEqual(self.edit.get_value(), test_data)
 
         def test_text_block(self):
             """Test getting the text block of the edit control"""

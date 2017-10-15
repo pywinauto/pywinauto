@@ -40,9 +40,10 @@ from .uia_defines import get_elem_interface
 from .handleprops import dumpwindow, controlid
 from .element_info import ElementInfo
 from .win32structures import RECT
+from .actionlogger import ActionLogger
 
 
-def elements_from_uia_array(ptrs, cache_enable = False):
+def elements_from_uia_array(ptrs, cache_enable=False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
     elements = []
     for n in range(ptrs.Length):
@@ -83,7 +84,7 @@ class UIAElementInfo(ElementInfo):
             return self._element.CurrentClassName
         except COMError:
             return None # probably element already doesn't exist
-    
+
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
         if self._cached_class_name is None:
@@ -256,10 +257,14 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond = IUIA().true_condition, cache_enable = False):
+    def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
         """Find all elements according to the given tree scope and conditions"""
-        ptrs_array = self._element.FindAll(tree_scope, cond)
-        return elements_from_uia_array(ptrs_array, cache_enable)
+        try:
+            ptrs_array = self._element.FindAll(tree_scope, cond)
+            return elements_from_uia_array(ptrs_array, cache_enable)
+        except(COMError, ValueError):
+            ActionLogger().log("COM error: can't get elements")
+            return []
 
     def children(self, **kwargs):
         """Return a list of only immediate children of the element
