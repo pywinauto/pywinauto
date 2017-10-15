@@ -143,9 +143,9 @@ class ApplicationWarningTestCases(unittest.TestCase):
             self.assertEqual(app.is_process_running(), True)
             Application().connect(process=app.process)
             app.kill_()
-            assert len(w) >= 2
-            assert issubclass(w[-1].category, UserWarning)
-            assert "64-bit" in str(w[-1].message)
+        assert len(w) >= 2
+        assert issubclass(w[-1].category, UserWarning)
+        assert "64-bit" in str(w[-1].message)
 
 
 class ApplicationTestCases(unittest.TestCase):
