@@ -135,17 +135,19 @@ class ApplicationWarningTestCases(unittest.TestCase):
             self.defaultTestResult()
             return
 
-        warnings.filterwarnings('always', category=UserWarning, append=True)
+        app = Application().start(self.sample_exe_inverted_bitness)
+        # Appveyor misteries...
+        self.assertEqual(app.is_process_running(), True)
+
+        # Make sure the filter is the first in the list
+        warnings.filterwarnings('always', category=UserWarning, append=False)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app = Application().start(self.sample_exe_inverted_bitness)
-            # Appveyor misteries...
-            self.assertEqual(app.is_process_running(), True)
             Application().connect(process=app.process)
             app.kill_()
-        assert len(w) >= 2
-        assert issubclass(w[-1].category, UserWarning)
-        assert "64-bit" in str(w[-1].message)
+            assert len(w) >= 1
+            assert issubclass(w[-1].category, UserWarning)
+            assert "64-bit" in str(w[-1].message)
 
 
 class ApplicationTestCases(unittest.TestCase):
