@@ -139,15 +139,13 @@ class ApplicationWarningTestCases(unittest.TestCase):
         # Appveyor misteries...
         self.assertEqual(app.is_process_running(), True)
 
-        # Make sure the filter is the first in the list
-        warnings.filterwarnings('always', category=UserWarning, append=False)
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+        with mock.patch("warnings.warn") as mockWarn:
             Application().connect(process=app.process)
             app.kill_()
-            assert len(w) >= 1
-            assert issubclass(w[-1].category, UserWarning)
-            assert "64-bit" in str(w[-1].message)
+            args, kw = mockWarn.call_args
+            assert len(args) == 2
+            assert "64-bit" in args[0]
+            assert args[1].__name__ == 'UserWarning'
 
 
 class ApplicationTestCases(unittest.TestCase):
