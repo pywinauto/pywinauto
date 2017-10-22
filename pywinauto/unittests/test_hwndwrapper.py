@@ -167,7 +167,7 @@ class HwndWrapperTests(unittest.TestCase):
         #self.assertEqual(self.dlg.Note.is_enabled(), False); # Button26 = '%'
 
     def testRectangle(self):
-        "Test getting the rectangle of the dialog"
+        """Test getting the rectangle of the dialog"""
         rect = self.dlg.rectangle()
 
         self.assertNotEqual(rect.top, None)
@@ -228,7 +228,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertEqual(self.dlg.ChildWindow(class_name='Button', found_index=2).texts(), [u'Elevation Icon'])
 
     def testFoundIndex(self):
-        "test an access to a control by found_index"
+        """Test an access to a control by found_index"""
 
         ctl = self.dlg.ChildWindow(class_name='Button', found_index=3)
         self.assertEqual(ctl.texts(), [u'Show'])
@@ -244,7 +244,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertRaises(ElementNotFoundError, ctl.WrapperObject)
 
     def testSearchWithPredicateFunc(self):
-        "test an access to a control by filtering with a predicate function"
+        """Test an access to a control by filtering with a predicate function"""
 
         def is_checkbox(elem):
             res = False
@@ -373,12 +373,12 @@ class HwndWrapperTests(unittest.TestCase):
 #        self.dlg.NotifyMenuSelect(1234)
 
     def testNotifyParent(self):
-        "Call NotifyParent to ensure it does not raise"
+        """Call NotifyParent to ensure it does not raise"""
         self.ctrl.NotifyParent(1234)
         #self.dlg.NotifyParent(1234)
 
     def testGetProperties(self):
-        "Test getting the properties for the HwndWrapped control"
+        """Test getting the properties for the HwndWrapped control"""
         props = self.dlg.GetProperties()
 
         self.assertEquals(
@@ -421,13 +421,13 @@ class HwndWrapperTests(unittest.TestCase):
 #    def testVerifyActionable(self):
 
     def testMoveWindow_same(self):
-        "Test calling movewindow without any parameters"
+        """Test calling movewindow without any parameters"""
         prevRect = self.dlg.rectangle()
         self.dlg.MoveWindow()
         self.assertEquals(prevRect, self.dlg.rectangle())
 
     def testMoveWindow(self):
-        "Test moving the window"
+        """Test moving the window"""
 
         dlgClientRect = self.ctrl.parent().rectangle()  # use the parent as a reference
 
@@ -555,11 +555,12 @@ class HwndWrapperMenuTests(unittest.TestCase):
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testMenuItems(self):
+        """Test getting menu items"""
         self.assertEqual(self.ctrl.MenuItems(), [])
         self.assertEqual(self.dlg.MenuItems()[1]['text'], '&View')
 
     def testMenuSelect(self):
-        "Test selecting a menu item"
+        """Test selecting a menu item"""
 
         if self.dlg.MenuItem("View -> Toolbar").IsChecked():
             self.dlg.MenuSelect("View -> Toolbar")
@@ -569,7 +570,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         self.assertEquals(self.dlg.MenuItem("View -> Toolbar").IsChecked(), True)
 
     def testClose(self):
-        "Test the Close() method of windows"
+        """Test the Close() method of windows"""
         # open about dialog
         self.dlg.MenuSelect('Help->About RowList...')
 
@@ -838,7 +839,8 @@ class ControlStateTests(unittest.TestCase):
 
     def setUp(self):
         """Start the application set some data and ensure the application
-        is in the state we want it."""
+        is in the state we want it.
+        """
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
@@ -852,11 +854,11 @@ class ControlStateTests(unittest.TestCase):
         self.app.kill_()
 
     def test_VerifyEnabled(self):
-        """test for verify_enabled"""
+        """Test for verify_enabled"""
         self.assertRaises(ElementNotEnabled, self.ctrl.verify_enabled)
 
     def test_VerifyVisible(self):
-        """test for verify_visible"""
+        """Test for verify_visible"""
         self.dlg.TabControl.Select(3)
         self.assertRaises(ElementNotVisible, self.ctrl.verify_visible)
 
@@ -889,7 +891,7 @@ class DragAndDropTests(unittest.TestCase):
     #                      [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 
     def testDragMouseInput(self):
-        """test for drag_mouse_input"""
+        """Test for drag_mouse_input"""
         birds = self.ctrl.GetItem(r'\Birds')
         dogs = self.ctrl.GetItem(r'\Dogs')
         #birds.Select()
@@ -989,7 +991,7 @@ class RemoteMemoryBlockTests(unittest.TestCase):
         self.ctrl = self.dlg.TreeView.WrapperObject()
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         self.app.kill_()
 
     def testGuardSignatureCorruption(self):
