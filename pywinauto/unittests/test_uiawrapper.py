@@ -860,11 +860,17 @@ if UIA_support:
             self.assertEqual(datagrid.column_count(), len(self.datagrid_texts[0]) - 1)
 
         def test_get_header_control(self):
-            """Test getting a Header control of the ListView control"""
+            """Test getting a Header control and Header Item control of ListView controls"""
             # ListView
             self.listview_tab.set_focus()
             listview = self.listview_tab.children(class_name=u"ListView")[0]
-            self.assertTrue(isinstance(listview.get_header_control(), uia_ctls.HeaderWrapper))
+            hdr_ctl = listview.get_header_control()
+            self.assertTrue(isinstance(hdr_ctl, uia_ctls.HeaderWrapper))
+
+            # HeaderItem of ListView
+            hdr_itm = hdr_ctl.children()[2]
+            self.assertTrue(isinstance(hdr_itm, uia_ctls.HeaderItemWrapper))
+            self.assertTrue(hdr_itm.iface_transform.CurrentCanResize, True)
 
             # ListBox
             self.listbox_datagrid_tab.set_focus()
