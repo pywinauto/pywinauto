@@ -292,6 +292,27 @@ class UIAWrapper(BaseWrapper):
 
     # ------------------------------------------------------------
     @lazy_property
+    def iface_scroll(self):
+        """Get the element's Scroll interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Scroll")
+
+    # ------------------------------------------------------------
+    @lazy_property
+    def iface_transform(self):
+        """Get the element's Transform interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Transform")
+
+    # ------------------------------------------------------------
+    @lazy_property
+    def iface_transformV2(self):
+        """Get the element's TransformV2 interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "TransformV2")
+
+    # ------------------------------------------------------------
+    @lazy_property
     def iface_window(self):
         """Get the element's Window interface pattern"""
         elem = self.element_info.element
@@ -537,7 +558,7 @@ class UIAWrapper(BaseWrapper):
         name = self.element_info.name
         control_type = self.element_info.control_type
         if name and control_type:
-            self.actions.log("Selected " + control_type.lower() + ' "' +  name + '"')
+            self.actions.log("Selected " + control_type.lower() + ' "' + name + '"')
 
         # Return itself so that action can be chained
         return self
