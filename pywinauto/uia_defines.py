@@ -211,6 +211,14 @@ window_visual_state_normal = IUIA().ui_automation_client.WindowVisualState_Norma
 window_visual_state_maximized = IUIA().ui_automation_client.WindowVisualState_Maximized
 window_visual_state_minimized = IUIA().ui_automation_client.WindowVisualState_Minimized
 
+# values for enumeration 'ScrollAmount'
+scroll_large_decrement = IUIA().ui_automation_client.ScrollAmount_LargeDecrement
+scroll_small_decrement = IUIA().ui_automation_client.ScrollAmount_SmallDecrement
+scroll_no_amount = IUIA().ui_automation_client.ScrollAmount_NoAmount
+scroll_large_increment = IUIA().ui_automation_client.ScrollAmount_LargeIncrement
+scroll_small_increment = IUIA().ui_automation_client.ScrollAmount_SmallIncrement
+
+
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name
 
