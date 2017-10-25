@@ -178,6 +178,40 @@ if UIA_support:
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
 
+        def test_scroll(self):
+            """Test scroll"""
+
+            # Check an exception on a non-scrollable control
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
+            self.assertRaisesRegexp(AttributeError, "not scrollable",
+                                    button.scroll, "left", "page")
+
+            # Check an exception on a control without horizontal scroll bar
+            tab = self.dlg.Tree_and_List_Views.set_focus()
+            listview = tab.children(class_name=u"ListView")[0]
+            self.assertRaisesRegexp(AttributeError, "not horizontally scrollable",
+                                    listview.scroll, "right", "line")
+
+            # Store a cell position
+            cell = listview.cell(3, 0)
+            orig_rect = cell.rectangle()
+            self.assertEqual(orig_rect.left > 0, True)
+
+            # Trigger a horizontal scroll bar on the control
+            hdr = listview.get_header_control()
+            hdr_itm = hdr.children()[1]
+            trf = hdr_itm.iface_transform
+            trf.resize(1000, 20)
+            listview.scroll("right", "page", 2)
+            self.assertEqual(cell.rectangle().left < 0, True)
+
+            # Check an exception on a control without vertical scroll bar
+            tab = self.dlg.ListBox_and_Grid.set_focus()
+            datagrid = tab.children(class_name=u"DataGrid")[0]
+            self.assertRaisesRegexp(AttributeError, "not vertically scrollable",
+                                    datagrid.scroll, "down", "page")
+
         # def testVerifyActionable(self):
         #    self.assertRaises()
 

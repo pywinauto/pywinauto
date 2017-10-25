@@ -36,8 +36,10 @@ from __future__ import print_function
 
 import six
 import comtypes
+import time
 
 from .. import backend
+from ..timings import Timings
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
@@ -672,6 +674,64 @@ class UIAWrapper(BaseWrapper):
                 raise AttributeError
         menu = cc[0]
         menu.item_by_path(path, exact).select()
+
+    # -----------------------------------------------------------
+    _scroll_types = {
+        "left": {
+            "line": (uia_defs.scroll_small_decrement, uia_defs.scroll_no_amount),
+            "page": (uia_defs.scroll_large_decrement, uia_defs.scroll_no_amount),
+        },
+        "right": {
+            "line": (uia_defs.scroll_small_increment, uia_defs.scroll_no_amount),
+            "page": (uia_defs.scroll_large_increment, uia_defs.scroll_no_amount),
+        },
+        "up": {
+            "line": (uia_defs.scroll_no_amount, uia_defs.scroll_small_decrement),
+            "page": (uia_defs.scroll_no_amount, uia_defs.scroll_large_decrement),
+        },
+        "down": {
+            "line": (uia_defs.scroll_no_amount, uia_defs.scroll_small_increment),
+            "page": (uia_defs.scroll_no_amount, uia_defs.scroll_large_increment),
+        },
+    }
+
+    def scroll(self, direction, amount, count=1, retry_interval=None):
+        """Ask the control to scroll itself
+
+        **direction** can be any of "up", "down", "left", "right"
+        **amount** can be one of "line", "page"
+        **count** (optional) the number of times to scroll
+        **retry_interval** (optional) interval between scroll actions
+        """
+
+        def _raise_attrib_err(details):
+            control_type = self.element_info.control_type
+            name = self.element_info.name
+            msg = "".join([control_type.lower(), ' "', name, '" ', details])
+            raise AttributeError(msg)
+
+        try:
+            scroll_if = self.iface_scroll
+            if direction.lower() in ("up", "down"):
+                if not scroll_if.CurrentVerticallyScrollable:
+                    _raise_attrib_err('is not vertically scrollable')
+            elif direction.lower() in ("left", "right"):
+                if not scroll_if.CurrentHorizontallyScrollable:
+                    _raise_attrib_err('is not horizontally scrollable')
+
+            h, v = self._scroll_types[direction][amount]
+
+            # Scroll as often as we have been asked to
+            if retry_interval is None:
+                retry_interval = Timings.scroll_step_wait
+            for _ in range(count, 0, -1):
+                scroll_if.Scroll(h, v)
+                time.sleep(retry_interval)
+
+        except uia_defs.NoPatternInterfaceError:
+            _raise_attrib_err('is not scrollable')
+
+        return self
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)
