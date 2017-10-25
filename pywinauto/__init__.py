@@ -34,9 +34,21 @@
 
 __version__ = "0.6.3"
 
-import sys
+import sys  # noqa: E402
 
 if sys.platform == 'win32':
+    # Set up COM client MTA mode as early as possible as it affects not only
+    # the optional comtypes package we use, but pywin32.pythoncom module as well.
+    sys.coinit_flags = 0   # COINIT_MULTITHREADED = 0x0
+
+    # Also try to un-initialze pythoncom if it's already been loaded.
+    # However, importing only pythoncom can fail with the errors like:
+    #     ImportError: No system module 'pywintypes' (pywintypes27.dll)
+    # So try to facilitate pywintypes*.dll loading with implicit import of win32api
+    import win32api  # noqa: E402
+    import pythoncom  # noqa: E402
+    pythoncom.CoUninitialize()
+
     from . import findwindows
     WindowAmbiguousError = findwindows.WindowAmbiguousError
     ElementNotFoundError = findwindows.ElementNotFoundError
@@ -51,7 +63,6 @@ if sys.platform == 'win32':
     MatchError = findbestmatch.MatchError
 
     from .application import Application, WindowSpecification
-
 
     class Desktop(object):
 

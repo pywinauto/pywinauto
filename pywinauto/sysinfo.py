@@ -30,17 +30,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Simple module for checking whether Python and Windows are 32-bit or 64-bit"""
-import os
 import sys
-import platform
-import ctypes
-import logging
+import os  # noqa: E402
+import platform  # noqa: E402
+import ctypes  # noqa: E402
+import logging  # noqa: E402
+
 
 try:
     # Disable 'INFO' logs from comtypes
     log = logging.getLogger('comtypes')
     log.setLevel('WARNING')
-    import comtypes
+    import comtypes  # noqa: E402
     UIA_support = True
 except ImportError:
     UIA_support = False
