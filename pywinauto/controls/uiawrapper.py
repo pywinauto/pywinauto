@@ -703,7 +703,6 @@ class UIAWrapper(BaseWrapper):
         **count** (optional) the number of times to scroll
         **retry_interval** (optional) interval between scroll actions
         """
-
         def _raise_attrib_err(details):
             control_type = self.element_info.control_type
             name = self.element_info.name

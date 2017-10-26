@@ -180,7 +180,6 @@ if UIA_support:
 
         def test_scroll(self):
             """Test scroll"""
-
             # Check an exception on a non-scrollable control
             button = self.dlg.child_window(class_name="Button",
                                            title="OK").wrapper_object()
