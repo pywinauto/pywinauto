@@ -695,11 +695,11 @@ class UIAWrapper(BaseWrapper):
         },
     }
 
-    def scroll(self, direction, amount, count=1, retry_interval=None):
+    def scroll(self, direction, amount, count=1, retry_interval=Timings.scroll_step_wait):
         """Ask the control to scroll itself
 
         **direction** can be any of "up", "down", "left", "right"
-        **amount** can be one of "line", "page"
+        **amount** can be only "line" or "page"
         **count** (optional) the number of times to scroll
         **retry_interval** (optional) interval between scroll actions
         """
@@ -718,17 +718,20 @@ class UIAWrapper(BaseWrapper):
                 if not scroll_if.CurrentHorizontallyScrollable:
                     _raise_attrib_err('is not horizontally scrollable')
 
-            h, v = self._scroll_types[direction][amount]
+            h, v = self._scroll_types[direction.lower()][amount.lower()]
 
             # Scroll as often as we have been asked to
-            if retry_interval is None:
-                retry_interval = Timings.scroll_step_wait
             for _ in range(count, 0, -1):
                 scroll_if.Scroll(h, v)
                 time.sleep(retry_interval)
 
         except uia_defs.NoPatternInterfaceError:
             _raise_attrib_err('is not scrollable')
+        except KeyError:
+            raise ValueError("""Wrong arguments:
+                direction can be any of "up", "down", "left", "right"
+                amount can be only "line" or "page"
+                """)
 
         return self
 
