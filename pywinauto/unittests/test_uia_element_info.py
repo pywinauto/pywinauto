@@ -3,11 +3,11 @@ import os
 import sys
 
 sys.path.append(".")
-from pywinauto.application import Application
-from pywinauto.handleprops import processid
-from pywinauto.sysinfo import is_x64_Python
-from pywinauto.sysinfo import UIA_support
-from pywinauto.timings import Timings
+from pywinauto.application import Application  # noqa: E402
+from pywinauto.handleprops import processid  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python  # noqa: E402
+from pywinauto.sysinfo import UIA_support  # noqa: E402
+from pywinauto.timings import Timings  # noqa: E402
 
 if UIA_support:
     from pywinauto.uia_element_info import UIAElementInfo

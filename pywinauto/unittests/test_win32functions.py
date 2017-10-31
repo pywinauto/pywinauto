@@ -35,6 +35,7 @@ import unittest
 
 import sys
 sys.path.append(".")
+from pywinauto.win32structures import POINT
 from pywinauto.win32functions import MakeLong, HiWord, LoWord
 
 
@@ -81,7 +82,6 @@ class Win32FunctionsTestCases(unittest.TestCase):
         "Make sure MakeLong() function works with big numders in 2 words"
         self.assertEquals(0xffffffff, MakeLong(0xffff, 0xffff))
 
-
     def testLowWord_zero(self):
         self.assertEquals(0, LoWord(0))
 
@@ -93,7 +93,6 @@ class Win32FunctionsTestCases(unittest.TestCase):
 
     def testLowWord_vbig(self):
         self.assertEquals(0xffff, LoWord(MakeLong(0xffff, 0xffff)))
-
 
     def testHiWord_zero(self):
         self.assertEquals(0, HiWord(0))
@@ -109,6 +108,20 @@ class Win32FunctionsTestCases(unittest.TestCase):
 
     def testHiWord_vbig(self):
         self.assertEquals(0xffff, HiWord(MakeLong(0xffff, 0xffff)))
+
+    def testPOINTindexation(self):
+        p = POINT(1, 2)
+        self.assertEqual(p[0], p.x)
+        self.assertEqual(p[1], p.y)
+        self.assertEqual(p[-2], p.x)
+        self.assertEqual(p[-1], p.y)
+        self.assertRaises(IndexError, lambda: p[2])
+        self.assertRaises(IndexError, lambda: p[-3])
+
+    def testPOINTiteration(self):
+        p = POINT(1, 2)
+        self.assertEquals([1, 2], [i for i in p])
+
 
 if __name__ == "__main__":
     unittest.main()

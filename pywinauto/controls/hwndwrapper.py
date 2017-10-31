@@ -1624,20 +1624,24 @@ def _perform_click(
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     ctrl.verify_actionable()
     ctrl_text = ctrl.window_text()
+    if ctrl_text is None:
+        ctrl_text = six.text_type(ctrl_text)
+
+    ctrl_friendly_class_name = ctrl.friendly_class_name()
 
     if isinstance(coords, win32structures.RECT):
-        coords = [coords.left, coords.top]
+        coords = coords.mid_point()
     # allow points objects to be passed as the coords
-    if isinstance(coords, win32structures.POINT):
+    elif isinstance(coords, win32structures.POINT):
         coords = [coords.x, coords.y]
-    #else:
-    coords = list(coords)
+    else:
+        coords = list(coords)
 
     if absolute:
         coords = ctrl.client_to_screen(coords)
 
     # figure out the messages for click/press
-    msgs  = []
+    msgs = []
     if not double:
         if button.lower() == 'left':
             if button_down:
@@ -1683,7 +1687,6 @@ def _perform_click(
     # figure out the flags and pack coordinates
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
-
     #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
     # TODO: check return value of AttachThreadInput properly
@@ -1706,16 +1709,15 @@ def _perform_click(
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)
 
-    message = 'Clicked ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
-              '" by ' + str(button) + ' button event (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
-    if double:
-        message = 'Double-c' + message[1:]
     if button.lower() == 'move':
-        message = 'Moved mouse over ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
-              '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ') by WM_MOUSEMOVE'
+        message = 'Moved mouse over ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
+                  '" to screen point ' + str(tuple(coords)) + ' by WM_MOUSEMOVE'
+    else:
+        message = 'Clicked ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
+                  '" by ' + str(button) + ' button event ' + str(tuple(coords))
+        if double:
+            message = 'Double-c' + message[1:]
     ActionLogger().log(message)
-
-
 
 _mouse_flags = {
     "left": win32defines.MK_LBUTTON,
