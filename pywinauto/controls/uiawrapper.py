@@ -458,6 +458,36 @@ class UIAWrapper(BaseWrapper):
         return self
 
     # -----------------------------------------------------------
+    def get_show_state(self):
+        """Get the show state and Maximized/minimzed/restored state
+
+        Returns values as following
+
+        window_visual_state_normal = 0
+        window_visual_state_maximized = 1
+        window_visual_state_minimized = 2
+        """
+        iface = self.iface_window
+        ret = iface.CurrentWindowVisualState
+
+        return ret
+
+    # -----------------------------------------------------------
+    def is_minimized(self):
+        """Indicate whether the window is minimized or not"""
+        return self.get_show_state() == uia_defs.window_visual_state_minimized
+
+    # -----------------------------------------------------------
+    def is_maximized(self):
+        """Indicate whether the window is maximized or not"""
+        return self.get_show_state() == uia_defs.window_visual_state_maximized
+
+    # -----------------------------------------------------------
+    def is_normal(self):
+        """Indicate whether the window is normal (i.e. not minimized and not maximized)"""
+        return self.get_show_state() == uia_defs.window_visual_state_normal
+
+    # -----------------------------------------------------------
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
         name = self.element_info.name
@@ -466,7 +496,7 @@ class UIAWrapper(BaseWrapper):
         self.iface_invoke.Invoke()
 
         if name and control_type:
-            self.actions.log("Invoked " + control_type.lower() + ' "' +  name + '"')
+            self.actions.log("Invoked " + control_type.lower() + ' "' + name + '"')
         # Return itself to allow action chaining
         return self
 

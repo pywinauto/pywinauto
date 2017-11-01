@@ -268,18 +268,15 @@ if UIA_support:
             """Test window minimize/maximize operations"""
             wrp = self.dlg.minimize()
             self.dlg.wait_not('active')
-            self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
-                             uia_defs.window_visual_state_minimized)
+            self.assertEqual(wrp.is_minimized(), True)
             wrp.maximize()
             self.dlg.wait('active')
-            self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
-                             uia_defs.window_visual_state_maximized)
+            self.assertEqual(wrp.is_maximized(), True)
             wrp.minimize()
             self.dlg.wait_not('active')
             wrp.restore()
             self.dlg.wait('active')
-            self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
-                             uia_defs.window_visual_state_normal)
+            self.assertEqual(wrp.is_normal(), True)
 
         def test_get_properties(self):
             """Test getting writeble properties of a control"""
