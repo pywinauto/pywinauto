@@ -101,6 +101,19 @@ class HwndWrapperTests(unittest.TestCase):
         #self.dlg.Close()
         self.app.kill_()
 
+    def test_scroll(self):
+        """Test control scrolling"""
+        self.dlg.TabControl.Select('CNetworkAddressCtrl')
+        ctrl = HwndWrapper(self.dlg.TypeListBox.handle)
+
+        # Check exceptions on wrong arguments
+        self.assertRaises(ValueError, ctrl.scroll, "bbbb", "line")
+        self.assertRaises(ValueError, ctrl.scroll, "left", "aaaa")
+
+        self.assertEqual(ctrl.item_rect(0).top, 0)
+        ctrl.scroll('down', 'page', 2)
+        self.assertEqual(ctrl.item_rect(0).top < -10, True)
+
     def testInvalidHandle(self):
         """Test that an exception is raised with an invalid window handle"""
         self.assertRaises(InvalidWindowHandle, HwndWrapper, -1)
