@@ -183,14 +183,14 @@ if UIA_support:
             # Check an exception on a non-scrollable control
             button = self.dlg.child_window(class_name="Button",
                                            title="OK").wrapper_object()
-            self.assertRaisesRegex(AttributeError, "not scrollable",
-                                   button.scroll, "left", "page")
+            six.assertRaisesRegex(self, AttributeError, "not scrollable",
+                                  button.scroll, "left", "page")
 
             # Check an exception on a control without horizontal scroll bar
             tab = self.dlg.Tree_and_List_Views.set_focus()
             listview = tab.children(class_name=u"ListView")[0]
-            self.assertRaisesRegex(AttributeError, "not horizontally scrollable",
-                                   listview.scroll, "right", "line")
+            six.assertRaisesRegex(self, AttributeError, "not horizontally scrollable",
+                                  listview.scroll, "right", "line")
 
             # Check exceptions on wrong arguments
             self.assertRaises(ValueError, listview.scroll, "bbbb", "line")
@@ -212,8 +212,8 @@ if UIA_support:
             # Check an exception on a control without vertical scroll bar
             tab = self.dlg.ListBox_and_Grid.set_focus()
             datagrid = tab.children(class_name=u"DataGrid")[0]
-            self.assertRaisesRegex(AttributeError, "not vertically scrollable",
-                                   datagrid.scroll, "down", "page")
+            six.assertRaisesRegex(self, AttributeError, "not vertically scrollable",
+                                  datagrid.scroll, "down", "page")
 
         # def testVerifyActionable(self):
         #    self.assertRaises()
