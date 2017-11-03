@@ -512,6 +512,14 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         self.ctrl.get_item(0,3).click_input(double=False, where="text")
         self.assertEqual(str(self.ctrl.get_item(0,2).text()), u"Clicked!")
 
+if is_x64_Python():
+
+    class ListViewWinFormTestCases64(ListViewWinFormTestCases32):
+
+        """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
+
+        path = os.path.join(winform_folder, u"ListView_TestApp.exe")
+
 
 class TreeViewTestCases32(unittest.TestCase):
 
