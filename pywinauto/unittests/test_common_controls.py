@@ -61,9 +61,13 @@ controlspy_folder_32 = controlspy_folder
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 mfc_samples_folder_32 = mfc_samples_folder
+winform_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\WinForm_samples")
+winform_folder_32 = winform_folder
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+    winform_folder = os.path.join(winform_folder, 'x64')
 
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
@@ -466,6 +470,47 @@ if is_x64_Python():
         """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
 
         path = os.path.join(mfc_samples_folder, u"RowList.exe")
+
+
+class ListViewWinFormTestCases32(unittest.TestCase):
+
+    """Unit tests for the ListViewWrapper class with WinForm applications"""
+
+    path = os.path.join(winform_folder_32, u"ListView_TestApp.exe")
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
+
+        app = Application()
+        app.start(self.path)
+
+        self.dlg = app.ListViewEx
+        self.ctrl = app.ListViewEx.ListView.WrapperObject()
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testCellInput(self):
+        """Test the ListView GetItem click_input method"""
+        self.ctrl.get_item(0,2).click_input(double=True, where="text")
+        text = "Sometext";
+        self.dlg.TypeKeys(text + "{ENTER}")
+        #to be sure what input is end
+        self.ctrl.get_item(0,3).click_input(double=False, where="text")
+        self.assertEqual(str(self.ctrl.get_item(1,2).text()), u"Hates sushi")
+        self.assertEqual(self.ctrl.get_item(0,2).rectangle().left, 130)
+        self.assertEqual(self.ctrl.get_item(0,2).rectangle().right, 210)
+        self.assertEqual(str(self.ctrl.get_item(0,2).text()), text)
+
+    def testCellClickInput(self):
+        """Test the ListView GetItem click_input method"""
+        self.ctrl.get_item(0,2).click_input(double=True, where="text")
+        self.dlg.TypeKeys("{ENTER}")
+        #to be sure what input is end
+        self.ctrl.get_item(0,3).click_input(double=False, where="text")
+        self.assertEqual(str(self.ctrl.get_item(0,2).text()), u"Clicked!")
 
 
 class TreeViewTestCases32(unittest.TestCase):
