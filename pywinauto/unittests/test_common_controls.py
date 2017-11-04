@@ -61,9 +61,13 @@ controlspy_folder_32 = controlspy_folder
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 mfc_samples_folder_32 = mfc_samples_folder
+winform_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\WinForm_samples")
+winform_folder_32 = winform_folder
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+    winform_folder = os.path.join(winform_folder, 'x64')
 
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
@@ -431,6 +435,33 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertNotEqual(item1, "Not _listview_item")
         self.assertNotEqual(item1, item2)
 
+    def testSubItemsRectangles(self):
+        """Test the ListView GetItem rectangle method"""
+        if not self.dlg.Toolbar.Button(4).IsChecked():
+            self.dlg.Toolbar.Button(4).Click()
+
+        for row in range(self.ctrl.ItemCount() - 1):
+            for col in range(self.ctrl.ColumnCount() - 1):
+                self.assertEquals(
+                    self.ctrl.GetItem(row, col).rectangle(area="text").right,
+                    self.ctrl.GetItem(row, col + 1).rectangle(area="text").left)
+                self.assertEquals(
+                    self.ctrl.GetItem(row, col).rectangle(area="text").bottom,
+                    self.ctrl.GetItem(row + 1, col).rectangle(area="text").top)
+
+        simple_rect = RECT(200, 36, 250, 53);
+        subitem_rect = self.ctrl.GetItem(1, 2).rectangle(area="text");
+        self.assertEquals(subitem_rect.left, simple_rect.left)
+        self.assertEquals(subitem_rect.right, simple_rect.right)
+        self.assertEquals(subitem_rect.top, simple_rect.top)
+        self.assertEquals(subitem_rect.bottom, simple_rect.bottom)
+        simple_rect = RECT(300, 70, 400, 87);
+        subitem_rect = self.ctrl.GetItem(3, 4).rectangle(area="text");
+        self.assertEquals(subitem_rect.left, simple_rect.left)
+        self.assertEquals(subitem_rect.right, simple_rect.right)
+        self.assertEquals(subitem_rect.top, simple_rect.top)
+        self.assertEquals(subitem_rect.bottom, simple_rect.bottom)
+
 
 if is_x64_Python():
 
@@ -439,6 +470,55 @@ if is_x64_Python():
         """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
 
         path = os.path.join(mfc_samples_folder, u"RowList.exe")
+
+
+class ListViewWinFormTestCases32(unittest.TestCase):
+
+    """Unit tests for the ListViewWrapper class with WinForm applications"""
+
+    path = os.path.join(winform_folder_32, u"ListView_TestApp.exe")
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Fast()
+
+        app = Application()
+        app.start(self.path)
+
+        self.dlg = app.ListViewEx
+        self.ctrl = app.ListViewEx.ListView.WrapperObject()
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.dlg.SendMessage(win32defines.WM_CLOSE)
+
+    def testCellInput(self):
+        """Test the ListView GetItem click_input method"""
+        self.ctrl.get_item(0,2).click_input(double=True, where="text")
+        text = "Sometext";
+        self.dlg.TypeKeys(text + "{ENTER}")
+        #to be sure what input is end
+        self.ctrl.get_item(0,3).click_input(double=False, where="text")
+        self.assertEqual(str(self.ctrl.get_item(1,2).text()), u"Hates sushi")
+        self.assertEqual(self.ctrl.get_item(0,2).rectangle().left, 130)
+        self.assertEqual(self.ctrl.get_item(0,2).rectangle().right, 210)
+        self.assertEqual(str(self.ctrl.get_item(0,2).text()), text)
+
+    def testCellClickInput(self):
+        """Test the ListView GetItem click_input method"""
+        self.ctrl.get_item(0,2).click_input(double=True, where="text")
+        self.dlg.TypeKeys("{ENTER}")
+        #to be sure what input is end
+        self.ctrl.get_item(0,3).click_input(double=False, where="text")
+        self.assertEqual(str(self.ctrl.get_item(0,2).text()), u"Clicked!")
+
+if is_x64_Python():
+
+    class ListViewWinFormTestCases64(ListViewWinFormTestCases32):
+
+        """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
+
+        path = os.path.join(winform_folder, u"ListView_TestApp.exe")
 
 
 class TreeViewTestCases32(unittest.TestCase):
