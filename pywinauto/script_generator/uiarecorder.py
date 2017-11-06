@@ -138,7 +138,7 @@ class UiaRecorder(COMObject):
         Clear event log.
         This is a synchronized method. 
         """
-        self.event_log.clear()
+        self.event_log = []
 
     def is_active(self):
         """Returns True if UiaRecorder is active"""
