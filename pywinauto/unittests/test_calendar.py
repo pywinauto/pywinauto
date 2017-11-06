@@ -45,7 +45,7 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def test_can_get_current_date_from_calendar(self):
         date = self.calendar.get_current_date()
-        self.assert_system_time_is_equal_to_current_date_time(date,datetime.date.today())
+        self.assert_actual_time_is_equal_to_expect_date_time(date,datetime.date.today())
 
     def test_runtime_error_when_try_to_get_current_date_from_calendar_if_calendar_state_is_multiselect(self):
         self._set_calendar_state_into_multiselect()
@@ -53,7 +53,7 @@ class CalendarWrapperTests(unittest.TestCase):
 
     def test_can_set_current_date_in_calendar(self):
         self.calendar.set_current_date(2016, 4, 3, 13)
-        self.assert_system_time_is_equal_to_current_date_time(
+        self.assert_actual_time_is_equal_to_expect_date_time(
                 self.calendar.get_current_date(),
                 datetime.date(2016, 4, 13))
 
@@ -248,12 +248,12 @@ class CalendarWrapperTests(unittest.TestCase):
     def test_can_get_today(self):
         """Test getting the control's today field"""
         date = self.calendar.get_today()
-        self.assert_system_time_is_equal_to_current_date_time(date, datetime.date.today())
+        self.assert_actual_time_is_equal_to_expect_date_time(date, datetime.date.today())
 
     def test_can_set_today(self):
         """Test setting up the control's today field"""
         self.calendar.set_today(2016, 5, 1)
-        self.assert_system_time_is_equal_to_current_date_time(self.calendar.get_today(),
+        self.assert_actual_time_is_equal_to_expect_date_time(self.calendar.get_today(),
                                                               datetime.date(2016, 5, 1))
 
     def test_can_set_and_get_first_day_of_week(self):
@@ -261,10 +261,69 @@ class CalendarWrapperTests(unittest.TestCase):
         self.calendar.set_first_weekday(4)
         self.assertEqual((True,4), self.calendar.get_first_weekday())
 
-    def assert_system_time_is_equal_to_current_date_time(self,systemTime, now):
-        self.assertEqual(systemTime.wYear, now.year)
-        self.assertEqual(systemTime.wMonth, now.month)
-        self.assertEqual(systemTime.wDay, now.day)
+    def test_can_get_default_scroll_rate(self):
+        actual_rate = 1
+
+        self.assertEquals(actual_rate, self.calendar.get_month_delta())
+
+    def test_can_set_scroll_rate(self):
+        actual_rate = 4
+        self.calendar.set_month_delta(actual_rate)
+
+        self.assertEquals(actual_rate, self.calendar.get_month_delta())
+
+    def test_should_throw_value_error_when_try_to_set_incorrect_scroll_rate(self):
+        self.assertRaises(ValueError, self.calendar.set_month_delta, -1)
+
+    def test_can_get_month_range_when_calendars_view_into_month(self):
+        self.calendar.set_current_date(2017, 5, 2, 2)
+        exp_range = 1
+        start_month = datetime.date(2017, 5, 1)
+        end_month = datetime.date(2017, 5, 31)
+
+        self._check_month_range(exp_range, start_month, end_month)
+
+    def test_can_get_month_range_when_calendars_view_into_years(self):
+        self.calendar.set_current_date(2017, 5, 2, 2)
+        self.calendar.set_view(win32defines.MCMV_YEAR)
+
+        exp_range = 12
+        start_month = datetime.date(2017, 1, 1)
+        end_month = datetime.date(2017, 12, 31)
+
+        self._check_month_range(exp_range, start_month, end_month)
+
+    def test_can_get_month_range_with_include_preceding_and_trailing_months(self):
+        self.calendar.set_current_date(2017, 5, 2, 2)
+
+        res = self.calendar.get_month_range(win32defines.GMR_DAYSTATE)
+        range_months, system_time = res[:2]
+
+        exp_range = 3
+        start_month = datetime.date(2017, 4, 24)
+        end_month = datetime.date(2017, 6, 4)
+
+        self.assertEquals(range_months, exp_range)
+        self.assertEqual(system_time[0].wYear, start_month.year)
+        self.assertEqual(system_time[0].wMonth, start_month.month)
+        self.assertEqual(system_time[1].wYear, end_month.year)
+        self.assertEqual(system_time[1].wMonth, end_month.month)
+
+    def test_should_throw_value_error_when_try_to_get_month_range_and_scope_of_range_is_incorrect(self):
+        self.assertRaises(ValueError, self.calendar.get_month_range, -1)
+
+    def _check_month_range(self, exp_range, start_month, end_month):
+        res = self.calendar.get_month_range(win32defines.GMR_VISIBLE)
+        range_months, system_time = res[:2]
+
+        self.assertEquals(range_months, exp_range)
+        self.assert_actual_time_is_equal_to_expect_date_time(system_time[0], start_month)
+        self.assert_actual_time_is_equal_to_expect_date_time(system_time[1], end_month)
+
+    def assert_actual_time_is_equal_to_expect_date_time(self, actual_date, expect_date):
+        self.assertEqual(actual_date.wYear, expect_date.year)
+        self.assertEqual(actual_date.wMonth, expect_date.month)
+        self.assertEqual(actual_date.wDay, expect_date.day)
 
     def _get_expected_minimized_rectangle(self):
         expected_rect = win32structures.RECT()

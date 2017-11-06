@@ -79,6 +79,7 @@ import win32con
 import win32event
 import six
 
+from pywinauto import timings
 from . import controls
 from . import findbestmatch
 from . import findwindows
@@ -431,7 +432,7 @@ class WindowSpecification(object):
         # unique_check_names = set(['is_enabled', 'is_active', 'is_visible', 'Exists'])
         return unique_check_names, timeout, retry_interval
 
-    def __check_all_conditions(self, check_names):
+    def __check_all_conditions(self, check_names, retry_interval):
         """
         Checks for all conditions
 
@@ -439,9 +440,17 @@ class WindowSpecification(object):
         True will be returned when all checks passed and all of them equal True.
         """
         for check_name in check_names:
-            try:
-                # Hidden __resolve_control call, handle the exceptions.
+            # timeout = retry_interval because the timeout is handled at higher level
+            if check_name == 'exists':
                 check = getattr(self, check_name)
+                if not check(retry_interval, float(retry_interval) // 2):
+                    return False
+                else:
+                    continue
+            try:
+                # resolve control explicitly to pass correct timing params
+                ctrls = self.__resolve_control(self.criteria, retry_interval, float(retry_interval) // 2)
+                check = getattr(ctrls[-1], check_name)
             except (findwindows.ElementNotFoundError,
                     findbestmatch.MatchError,
                     controls.InvalidWindowHandle,
@@ -487,7 +496,8 @@ class WindowSpecification(object):
             :func:`pywinauto.timings.TimeoutError`
         """
         check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        wait_until(timeout, retry_interval, lambda: self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval,
+                   lambda: self.__check_all_conditions(check_method_names, retry_interval))
 
         # Return the wrapped control
         return self.wrapper_object()
@@ -523,7 +533,8 @@ class WindowSpecification(object):
         """
         check_method_names, timeout, retry_interval = \
             self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        wait_until(timeout, retry_interval, lambda: not self.__check_all_conditions(check_method_names))
+        wait_until(timeout, retry_interval,
+                   lambda: not self.__check_all_conditions(check_method_names, retry_interval))
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
@@ -877,12 +888,18 @@ class Application(object):
         :param process: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
+        :param timeout: a timeout for process start (relevant if path is specified)
 
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
            are also can be used instead of **process**, **handle** or **path**
         """
+
+        timeout = None
+        if 'timeout' in kwargs:
+            timeout = kwargs['timeout']
+
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
@@ -901,7 +918,11 @@ class Application(object):
             connected = True
 
         elif 'path' in kwargs:
-            self.process = process_from_module(kwargs['path'])
+            if timeout is None:
+                self.process = process_from_module(kwargs['path'])
+            else:
+                self.process = timings.wait_until_passes(
+                    timeout, 0, process_from_module, ProcessNotFoundError, kwargs['path'])
             connected = True
 
         elif kwargs:
@@ -912,6 +933,9 @@ class Application(object):
         if not connected:
             raise RuntimeError(
                 "You must specify one of process, handle or path")
+        else:
+            if 'path' not in kwargs and 'timeout' in kwargs:
+                raise ValueError('Timeout could be specified with path param only')
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()
@@ -1290,6 +1314,7 @@ def process_from_module(module):
     module_path = os.path.normpath(module)
 
     _warn_incorrect_binary_bitness(module_path)
+
     try:
         modules = _process_get_modules_wmi()
     except Exception:

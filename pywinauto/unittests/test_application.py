@@ -42,6 +42,8 @@ import time
 #import pprint
 #import pdb
 import warnings
+from threading import Thread
+
 import mock
 
 sys.path.append(".")
@@ -191,20 +193,6 @@ class ApplicationTestCases(unittest.TestCase):
 
         app.UntitledNotepad.MenuSelect("File->Exit")
 
-#    def test_start(self):
-#        "test start() works correctly"
-#        app = Application()
-#        self.assertEqual(app.process, None)
-#        app._start("notepad.exe")
-#        self.assertNotEqual(app.process, None)
-#
-#        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
-#
-#        notepadpath = os.path.join(os.environ['systemroot'], r"system32\notepad.exe")
-#        self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
-#
-#        app.UntitledNotepad.MenuSelect("File->Exit")
-
     def testStart_bug01(self):
         """On SourceForge forum AppStartError forgot to include %s for application name"""
         app = Application()
@@ -269,6 +257,48 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertEquals('notepad.exe' in accessible_process_names, True)
 
         app_conn.UntitledNotepad.MenuSelect('File->Exit')
+
+    def test_connect_path_timeout(self):
+        """Test that connect_() works with a path with timeout"""
+        app1 = Application()
+        def delayed_launch():
+            time.sleep(2)
+            app1.start(_notepad_exe())
+        thread = Thread(target=delayed_launch)
+        thread.start()
+
+        app_conn = Application()
+        app_conn.connect(path=_notepad_exe(), timeout=3)
+
+        self.assertEqual(app1.process, app_conn.process)
+
+        accessible_modules = process_get_modules()
+        accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
+        self.assertEquals('notepad.exe' in accessible_process_names, True)
+
+        app1.UntitledNotepad.MenuSelect('File->Exit')
+
+    def test_connect_path_timeout_problem(self):
+        """Test that connect_() raise error when no process start"""
+        app1 = Application()
+        def delayed_launch():
+            time.sleep(1)
+            app1.start(_notepad_exe())
+        thread = Thread(target=delayed_launch)
+        thread.start()
+
+        self.assertRaises(TimeoutError, Application().connect, path=_notepad_exe(), timeout=0.5)
+
+        time.sleep(0.7)
+
+        app1.UntitledNotepad.MenuSelect('File->Exit')
+
+    def test_connect_process_timeout_failed(self):
+        """Test that connect_(process=...) raise error when set timeout"""
+        app1 = Application()
+        app1.start(_notepad_exe())
+        self.assertRaises(ValueError, Application().connect, process=app1.process, timeout=0.5)
+        app1.UntitledNotepad.MenuSelect('File->Exit')
 
 #    def test_Connect(self):
 #        """Test that connect_() works with a path"""
@@ -673,7 +703,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # TODO: test a control that is not visible but exists
         #self.assertEquals(True, self.app.DefaultIME.Exists())
 
-        self.assertEquals(False, self.app.BlahBlah.Exists(.1))
+        start = time.time()
+        self.assertEquals(False, self.app.BlahBlah.Exists(timeout=.1))
+        self.assertEquals(True, time.time() - start < .3)
+
+        start = time.time()
+        self.assertEquals(False, self.app.BlahBlah.exists(timeout=3))
+        self.assertEquals(True, 2.7 < time.time() - start < 3.3)
 
     def test_exists_timing(self):
         """test the timing of the exists method"""
@@ -731,6 +767,42 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
+
+    def test_wait_non_existing(self):
+        """test timing of the wait method for non-existing element"""
+        allowable_error = .2
+
+        start = time.time()
+        self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'exists')
+        expected = Timings.window_find_timeout
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+
+    def test_wait_invisible(self):
+        """test timing of the wait method for non-existing element and existing invisible one"""
+        # TODO: re-use an MFC sample for this test
+        allowable_error = .2
+
+        start = time.time()
+        self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'visible')
+        expected = Timings.window_find_timeout
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+
+        # make sure Status Bar is not visible
+        status_bar_menu = self.app.UntitledNotepad.menu().item('&View').sub_menu().item('&Status Bar')
+        if status_bar_menu.is_checked():
+            status_bar_menu.select()
+
+        # check that existing invisible control is still found with 'exists' criterion
+        status_bar_spec = self.app.UntitledNotepad.child_window(class_name="msctls_statusbar32", visible_only=False)
+        self.assertEqual('StatusBar', status_bar_spec.wait('exists').friendly_class_name())
+
+        start = time.time()
+        self.assertRaises(TimeoutError, status_bar_spec.wait, 'exists visible')
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+
+        start = time.time()
+        self.assertRaises(TimeoutError, status_bar_spec.wait, 'visible exists')
+        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
 
     def test_wait_not(self):
         """
@@ -880,6 +952,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
 #            self.assertEqual(.1, time.time() - start)
 #        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
 
+    def test_depth(self):
+        """Test that descendants() with depth works correctly"""
+        self.dlgspec.menu_select("Format -> Font")
+
+        self.assertNotEqual(
+            len(self.app['Font'].descendants(depth=1)),
+            len(self.app['Font'].descendants(depth=2)))
 
     def test_print_control_identifiers(self):
         """Make sure print_control_identifiers() doesn't crash"""

@@ -203,12 +203,18 @@ class UIAElementInfo(ElementInfo):
     @property
     def process_id(self):
         """Return ProcessId of the element"""
-        return self._element.CurrentProcessId
+        try:
+            return self._element.CurrentProcessId
+        except COMError:
+            return None # probably element already doesn't exist
 
     @property
     def framework_id(self):
         """Return FrameworkId of the element"""
-        return self._element.CurrentFrameworkId
+        try:
+            return self._element.CurrentFrameworkId
+        except COMError:
+            return None # probably element already doesn't exist
 
     @property
     def runtime_id(self):
@@ -266,8 +272,13 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
+        depth = kwargs.pop('depth', None)
         cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+        elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+
+        elements = ElementInfo.filter_with_depth(elements, self, depth)
+
+        return elements
 
     @property
     def visible(self):

@@ -59,7 +59,8 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         "Button",
         ".*Button",
         r"WindowsForms\d*\.BUTTON\..*",
-        ".*CheckBox", ]
+        ".*CheckBox",
+        ]
     can_be_label = True
 
     #-----------------------------------------------------------

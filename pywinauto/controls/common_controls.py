@@ -667,7 +667,8 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         "SysListView32",
         r"WindowsForms\d*\.SysListView32\..*",
         "TSysListView",
-        "ListView20WndClass"]
+        "ListView.*WndClass",
+        ]
     if sysinfo.UIA_support:
         #controltypes is empty to make wrapper search result unique
         #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
@@ -3622,6 +3623,39 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
         return (win32functions.HiWord(res), win32functions.LoWord(res))
 
+    # ----------------------------------------------------------------
+    def get_month_delta(self):
+        """Retrieves the scroll rate for a month calendar control"""
+        return self.send_message(win32defines.MCM_GETMONTHDELTA, 0, 0)
+
+    # ----------------------------------------------------------------
+    def set_month_delta(self, delta):
+        """Sets the scroll rate for a month calendar control."""
+        if (delta < 0):
+            raise ValueError("Month delta must be greater than 0")
+
+        self.send_message(win32defines.MCM_SETMONTHDELTA, delta, 0)
+
+    # ----------------------------------------------------------------
+    def get_month_range(self, scope_of_range):
+        """Retrieves date information that represents the high and low limits of a month calendar control's display."""
+        if scope_of_range not in [win32defines.GMR_DAYSTATE, win32defines.GMR_VISIBLE]:
+            raise ValueError("scope_of_range value must be one of the following: GMR_DAYSTATE or GMR_VISIBLE")
+
+        remote_mem = RemoteMemoryBlock(self)
+        system_date_arr = (win32structures.SYSTEMTIME * 2)()
+
+        system_date_arr[0] = win32structures.SYSTEMTIME()
+        system_date_arr[1] = win32structures.SYSTEMTIME()
+
+        remote_mem.Write(system_date_arr)
+
+        res = self.send_message(win32defines.MCM_GETMONTHRANGE, scope_of_range, remote_mem)
+
+        remote_mem.Read(system_date_arr)
+        del remote_mem
+
+        return (res, system_date_arr)
 
 #====================================================================
 class PagerWrapper(hwndwrapper.HwndWrapper):
