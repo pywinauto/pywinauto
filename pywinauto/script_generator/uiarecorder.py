@@ -287,7 +287,7 @@ class UiaRecorder(COMObject):
                 process_id = self.element_info.process_id
             except COMError:
                 process_id = 0
-            if process_id == 0:
+            if not process_id:
                 self.stop()
                 self.parse_and_clear_log()
                 self.script += "app.kill()\n"
