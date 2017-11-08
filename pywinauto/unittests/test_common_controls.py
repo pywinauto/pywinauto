@@ -431,6 +431,25 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertNotEqual(item1, "Not _listview_item")
         self.assertNotEqual(item1, item2)
 
+    def testSubItemsRectangles(self):
+        """Test the ListView get_item rectangle method for cells"""
+        if not self.dlg.Toolbar.Button(4).is_checked():
+            self.dlg.Toolbar.Button(4).click()
+
+        for row in range(self.ctrl.item_count() - 1):
+            for col in range(self.ctrl.column_count() - 1):
+                self.assertEqual(
+                    self.ctrl.get_item(row, col).rectangle(area="text").right,
+                    self.ctrl.get_item(row, col + 1).rectangle(area="text").left)
+                self.assertEqual(
+                    self.ctrl.get_item(row, col).rectangle(area="text").bottom,
+                    self.ctrl.get_item(row + 1, col).rectangle(area="text").top)
+
+        self.assertEqual(self.ctrl.get_item(1, 2).rectangle(area="text"),
+                                RECT(200, 36, 250, 53))
+        self.assertEqual(self.ctrl.get_item(3, 4).rectangle(area="text"),
+                                RECT(300, 70, 400, 87))
+
 
 if is_x64_Python():
 
