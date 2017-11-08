@@ -487,7 +487,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
     def testCellClickInput(self):
         """Test the ListView get_item click_input method"""
         self.ctrl.get_item(0,2).click_input(double=True, where="text")
-        self.ctrl.type_keys("{ENTER}")
+        self.dlg.type_keys("{ENTER}")
         # For make sure the input is finished, click to another place
         self.ctrl.get_item(0,3).click_input(double=False, where="text")
         self.assertEqual(str(self.ctrl.get_item(0,2).text()), u"Clicked!")
