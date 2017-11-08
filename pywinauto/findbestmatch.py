@@ -474,12 +474,7 @@ def build_unique_dict(controls):
 
         # for each of the names
         for name in ctrl_names:
-            if name:
-                name_control_map[name] = ctrl
-            else:
-                from .actionlogger import ActionLogger
-                ActionLogger().log('Warning! Cannot get a name from: {0}'.format(ctrl_names))
-
+            name_control_map[name] = ctrl
     return name_control_map
 
 
