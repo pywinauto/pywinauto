@@ -81,7 +81,8 @@ class UIAElementInfo(ElementInfo):
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
         try:
-            return self._element.CurrentClassName
+            cn = self._element.CurrentClassName
+            return text_type('') if cn is None else cn
         except COMError:
             return text_type('')  # probably element already doesn't exist
 
@@ -120,7 +121,8 @@ class UIAElementInfo(ElementInfo):
     def _get_current_name(self):
         """Return an actual name of the element"""
         try:
-            return self._element.CurrentName
+            n = self._element.CurrentName
+            return text_type('') if n is None else n
         except COMError:
             return text_type('')  # probably element already doesn't exist
 
