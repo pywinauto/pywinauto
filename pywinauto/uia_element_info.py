@@ -32,7 +32,7 @@
 """Implementation of the class to deal with an UI element (based on UI Automation API)"""
 
 from comtypes import COMError
-from six import integer_types
+from six import integer_types, text_type
 
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
@@ -81,9 +81,10 @@ class UIAElementInfo(ElementInfo):
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
         try:
-            return self._element.CurrentClassName
+            cn = self._element.CurrentClassName
+            return text_type('') if cn is None else cn
         except COMError:
-            return None # probably element already doesn't exist
+            return text_type('')  # probably element already doesn't exist
 
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
@@ -120,9 +121,10 @@ class UIAElementInfo(ElementInfo):
     def _get_current_name(self):
         """Return an actual name of the element"""
         try:
-            return self._element.CurrentName
+            n = self._element.CurrentName
+            return text_type('') if n is None else n
         except COMError:
-            return None # probably element already doesn't exist
+            return text_type('')  # probably element already doesn't exist
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
