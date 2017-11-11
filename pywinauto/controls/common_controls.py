@@ -284,7 +284,7 @@ class _listview_item(object):
             self.item_index,
             remote_mem)
 
-        # If it not succeeded
+        # If it's not succeeded
         if not retval:
             del remote_mem
             raise RuntimeError("Did not succeed in getting rectangle")
