@@ -62,7 +62,7 @@ mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 mfc_samples_folder_32 = mfc_samples_folder
 winform_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\WinForm_samples")
+    os.path.dirname(__file__), r"..\..\apps\WinForms_samples")
 winform_folder_32 = winform_folder
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
@@ -465,7 +465,6 @@ if is_x64_Python():
 
 
 class ListViewWinFormTestCases32(unittest.TestCase):
-
     """Unit tests for the ListViewWrapper class with WinForm applications"""
 
     path = os.path.join(winform_folder_32, u"ListView_TestApp.exe")
@@ -484,7 +483,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         """Close the application after tests"""
         self.dlg.send_message(win32defines.WM_CLOSE)
 
-    def testCellClickInput(self):
+    def test_cell_click_input(self):
         """Test the ListView get_item click_input method"""
         self.ctrl.get_item(0,2).click_input(double=True, where="text")
         self.dlg.type_keys("{ENTER}")
@@ -495,7 +494,6 @@ class ListViewWinFormTestCases32(unittest.TestCase):
 if is_x64_Python():
 
     class ListViewWinFormTestCases64(ListViewWinFormTestCases32):
-
         """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
 
         path = os.path.join(winform_folder, u"ListView_TestApp.exe")
