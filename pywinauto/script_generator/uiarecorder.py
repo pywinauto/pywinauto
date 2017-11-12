@@ -154,6 +154,11 @@ class UiaRecorder(COMObject):
         self.recorder_stop_event.set()
         self.hook.stop()
 
+    def wait(self):
+        """Wait for recorder to finish"""
+        if self.is_active():
+            self.recorder_thread.join()
+
     def _add_handlers(self, element):
         """Add UIA handlers to element and all its descendants"""
         cache_request = IUIA().iuia.CreateCacheRequest()

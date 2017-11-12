@@ -593,7 +593,8 @@ class Hook(object):
 
         while self.is_hooked():
             self._process_win_msgs()
-            time.sleep(0.02)
+            # TODO: investigate CPU usage on this
+            # time.sleep(0.02)
 
 
 if __name__ == "__main__":
