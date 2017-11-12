@@ -28,24 +28,21 @@ def run_tree_test():
     element = IUIA().iuia.ElementFromPoint(ctypes.wintypes.POINT(10, 10))
 
 
-def run_test():
+def run_recorder_test():
     # app_path = os.path.join(os.path.dirname(__file__), r"..\..\apps\WPF_samples\WpfApplication1.exe")
     app_path = 'notepad.exe'
 
     app = Application(backend="uia").start(app_path)
-    time.sleep(0.3)
 
     rec = UiaRecorder(app=app, record_props=True, record_focus=False, record_struct=False, hot_output=True)
     rec.start()
 
-    while rec.is_active():
-        time.sleep(1)
+    rec.wait()
 
     if not rec.hot_output:
-        time.sleep(1)
-        print('\n===========================================\n')
+        print("\n===========================================\n")
         for event in rec.event_log:
             print(event)
 
-    print('\n===========================================\n')
+    print("\n===========================================\n")
     print(rec.script)
