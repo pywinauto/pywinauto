@@ -254,6 +254,9 @@ class _listview_item(object):
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         rect = win32structures.RECT()
 
+        # If listview_ctrl has LVS_REPORT we can get access to subitems rectangles
+        is_table = self.listview_ctrl.has_style(win32defines.LVS_REPORT)
+
         if area.lower() == "all" or not area:
             rect.left = win32defines.LVIR_BOUNDS
         elif area.lower() == "icon":
@@ -261,20 +264,27 @@ class _listview_item(object):
         elif area.lower() == "text":
             rect.left = win32defines.LVIR_LABEL
         elif area.lower() == "select":
-            rect.left = win32defines.LVIR_SELECTBOUNDS
+            rect.left = win32defines.LVIR_BOUNDS if is_table else win32defines.LVIR_SELECTBOUNDS
         else:
             raise ValueError('Incorrect rectangle area of the list view item: "' + str(area) + '"')
+
+        if is_table:
+            # The one-based index of the subitem.
+            rect.top = self.subitem_index
 
         # Write the local RECT structure to the remote memory block
         remote_mem.Write(rect)
 
+        # Depends on subitems rectangles availability
+        message = win32defines.LVM_GETSUBITEMRECT if is_table else win32defines.LVM_GETITEMRECT
+
         # Fill in the requested item
         retval = self.listview_ctrl.send_message(
-            win32defines.LVM_GETITEMRECT,
+            message,
             self.item_index,
             remote_mem)
 
-        # if it succeeded
+        # If it's not succeeded
         if not retval:
             del remote_mem
             raise RuntimeError("Did not succeed in getting rectangle")

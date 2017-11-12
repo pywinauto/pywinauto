@@ -1382,8 +1382,14 @@ class HwndWrapper(BaseWrapper):
             message = win32defines.WM_VSCROLL
 
         # the constant that matches direction, and how much
-        scroll_type = \
-            self._scroll_types[direction.lower()][amount.lower()]
+        try:
+            scroll_type = \
+                self._scroll_types[direction.lower()][amount.lower()]
+        except KeyError:
+            raise ValueError("""Wrong arguments:
+                direction can be any of "up", "down", "left", "right"
+                amount can be any of "line", "page", "end"
+                """)
 
         # Scroll as often as we have been asked to
         if retry_interval is None:

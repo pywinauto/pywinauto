@@ -497,6 +497,19 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
 
 
 # ====================================================================
+class HeaderItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Header Item control"""
+
+    _control_types = ['HeaderItem']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(HeaderItemWrapper, self).__init__(elem)
+
+
+# ====================================================================
 class ListItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListViewItem control"""
