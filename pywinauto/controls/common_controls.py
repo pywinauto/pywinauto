@@ -63,6 +63,7 @@ from . import hwndwrapper
 
 from ..timings import Timings
 from ..timings import wait_until
+from ..timings import TimeoutError
 from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
 
@@ -656,6 +657,46 @@ class _listview_item(object):
         return self
     # Non PEP-8 alias
     Deselect = deselect
+
+    #-----------------------------------------------------------
+    def inplace_control(self, friendly_class_name=""):
+        """Return the editor HwndWrapper of the item
+
+        Possible ``friendly_class_name`` values:
+
+        * ``""``  Return the first appeared in-place control
+        * ``"friendlyclassname"``  Returns editor with particular friendlyclassname
+        """
+        # If currently editing in this item or some other
+        self.listview_ctrl.type_keys("{ENTER}")
+
+        # Get a list of visible controls
+        parent_dlg = self.listview_ctrl.top_level_parent()
+        list_before_click = [w.handle for w in parent_dlg.element_info.descendants() if w.visible]
+
+        # After a click on the visible list an editable element should appear
+        self.click_input(double=True)
+        def get_list_after_click():
+            return [w.handle for w in parent_dlg.element_info.descendants() if w.visible]
+
+        try:
+            def check_func():
+                return len(get_list_after_click()) > len(list_before_click)
+            wait_until(Timings.listviewitemcontrol_timeout, 0.05, check_func)
+        except TimeoutError:
+            raise TimeoutError(("In-place-edit control for item ({0},{1}) not visible, possible it not editable, " +
+                                "try to set slower timings").format(self.item_index, self.subitem_index));
+
+        possible_inplace_ctrls = set(get_list_after_click()) - set(list_before_click)
+
+        for handle in possible_inplace_ctrls:
+            hwnd_friendly_class = hwndwrapper.HwndWrapper(handle).friendlyclassname
+            if (friendly_class_name == "" or hwnd_friendly_class == friendly_class_name):
+                return hwndwrapper.HwndWrapper(handle)
+
+        names_list = [hwndwrapper.HwndWrapper(handle).friendlyclassname for handle in possible_inplace_ctrls]
+        raise RuntimeError('In-place-edit control "{2}" for item ({0},{1}) not found in list {3}'.format(
+                           self.item_index, self.subitem_index, friendly_class_name, names_list));
 
 
 #====================================================================
@@ -3273,7 +3314,8 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     """Class that wraps Windows DateTimePicker common control"""
 
     friendlyclassname = "DateTimePicker"
-    windowclasses = ["SysDateTimePick32", ]
+    windowclasses = ["SysDateTimePick32",
+                     r"WindowsForms\d*\.SysDateTimePick32\..*", ]
     if sysinfo.UIA_support:
         #controltypes is empty to make wrapper search result unique
         #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
@@ -3308,7 +3350,7 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     GetTime = get_time
 
     #----------------------------------------------------------------
-    def set_time(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
+    def set_time(self, year=0, month=0, day_of_week=0, day=0, hour=0, minute=0, second=0, milliseconds=0):
         """Get the currently selected time"""
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()

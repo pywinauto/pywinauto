@@ -454,6 +454,13 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertEqual(self.ctrl.get_item(3, 4).rectangle(area="text"),
                                 RECT(300, 70, 400, 87))
 
+    def test_inplace_control(self):
+        """Test the ListView inplace_control method for item"""
+        # Item is not editable so it will raise timeout error
+        with self.assertRaises(Exception) as context:
+            self.ctrl.get_item(0).inplace_control()
+        self.assertTrue('In-place-edit control for item' in str(context.exception))
+
 
 if is_x64_Python():
 
@@ -491,6 +498,33 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         # For make sure the input is finished, click to another place
         self.ctrl.get_item(0,3).click_input(double=False, where="text")
         self.assertEqual(str(self.ctrl.get_item(0,2).text()), u"Clicked!")
+
+    def test_get_editor_of_datetimepicker(self):
+        """Test the ListView inplace_control method using DateTimePicker"""
+        dt_picker = self.ctrl.get_item(2,0).inplace_control("DateTimePicker")
+        dt_picker.set_time(year=2017, month=5, day=23)
+        cur_time = dt_picker.get_time();
+        self.assertEqual(cur_time.wYear, 2017)
+        self.assertEqual(cur_time.wMonth, 5)
+        self.assertEqual(cur_time.wDay, 23)
+
+    def test_get_editor_of_combobox(self):
+        """Test the ListView inplace_control method using ComboBox"""
+        combo_box = self.ctrl.get_item(1,1).inplace_control("ComboBox")
+        combo_box.select(combo_box.selected_index() - 1)
+        self.assertEqual(combo_box.selected_index(), 2)
+
+    def test_get_editor_of_editwrapper(self):
+        """Test the ListView inplace_control method using EditWrapper"""
+        dt_picker = self.ctrl.get_item(3,4).inplace_control("Edit")
+        dt_picker.set_text("201")
+        self.assertEqual(dt_picker.text_block(), u"201")
+
+    def test_get_editor_wrong_args(self):
+        """Test the ListView inplace_control case when used wrong friendly class name"""
+        with self.assertRaises(Exception) as context:
+            self.ctrl.get_item(1,1).inplace_control("Edit")
+        self.assertTrue('In-place-edit control "Edit"' in str(context.exception))
 
 if is_x64_Python():
 
