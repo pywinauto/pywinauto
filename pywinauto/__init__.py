@@ -45,7 +45,9 @@ if sys.platform == 'win32':
     import pythoncom  # noqa: E402
 
     def _get_com_threading_mode(module_sys):
-        """Set up COM client MTA mode or adapt our threading model
+        """Set up COM threading model
+
+        The ultimate goal is MTA, but the mode is adjusted
         if it was already defined prior to pywinauto import.
         """
         com_init_mode = 0   # COINIT_MULTITHREADED = 0x0
@@ -58,8 +60,8 @@ if sys.platform == 'win32':
             # Probe the selected COM threading mode
             pythoncom.CoInitializeEx(com_init_mode)
             pythoncom.CoUninitialize()
-        except pythoncom.com_error as comexc:
-            warnings.warn("Revert to STA COM threading mode")
+        except pythoncom.com_error:
+            warnings.warn("Revert to STA COM threading mode", UserWarning)
             com_init_mode = 2  # revert back to STA
 
         return com_init_mode
