@@ -94,7 +94,7 @@ class ComInitTestCases(unittest.TestCase):
             external = 3
             mock_sys.coinit_flags = external
             self.assertEqual(external, _get_com_threading_mode(mock_sys))
-            args, kw = mockWarn.call_args
+            args, _ = mockWarn.call_args
             assert len(args) == 2
             assert "Apply externally defined coinit_flags: 3" in args[0]
             assert args[1].__name__ == 'UserWarning'
@@ -116,7 +116,7 @@ class ComInitTestCases(unittest.TestCase):
         pythoncom.CoInitializeEx.side_effect = pythoncom.com_error
         with mock.patch("warnings.warn") as mockWarn:
             self.assertEqual(expected, _get_com_threading_mode(local_sys))
-            args, kw = mockWarn.call_args
+            args, _ = mockWarn.call_args
             assert len(args) == 2
             assert "Revert to STA COM threading mode" in args[0]
             assert args[1].__name__ == 'UserWarning'
@@ -125,7 +125,6 @@ class ComInitTestCases(unittest.TestCase):
 
     def test_init_mta(self):
         """Test init MTA"""
-
         local_sys = None
         external = 0  # MTA
         self.assertEqual(external, _get_com_threading_mode(local_sys))
