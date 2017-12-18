@@ -35,25 +35,44 @@
 __version__ = "0.6.3"
 
 import sys  # noqa: E402
+import warnings  # noqa: E402
 
 if sys.platform == 'win32':
-    # Set up COM client MTA mode as early as possible as it affects not only
-    # the optional comtypes package we use, but pywin32.pythoncom module as well.
-    sys.coinit_flags = 0   # COINIT_MULTITHREADED = 0x0
-
-    # Also try to un-initialze pythoncom if it's already been loaded.
-    # However, importing only pythoncom can fail with the errors like:
+    # Importing only pythoncom can fail with the errors like:
     #     ImportError: No system module 'pywintypes' (pywintypes27.dll)
     # So try to facilitate pywintypes*.dll loading with implicit import of win32api
     import win32api  # noqa: E402
     import pythoncom  # noqa: E402
-    pythoncom.CoUninitialize()
+
+    def _get_com_threading_mode(module_sys):
+        """Set up COM threading model
+
+        The ultimate goal is MTA, but the mode is adjusted
+        if it was already defined prior to pywinauto import.
+        """
+        com_init_mode = 0   # COINIT_MULTITHREADED = 0x0
+        if hasattr(module_sys, "coinit_flags"):
+            warnings.warn("Apply externally defined coinit_flags: {0}"
+                          .format(module_sys.coinit_flags), UserWarning)
+            com_init_mode = module_sys.coinit_flags
+
+        try:
+            # Probe the selected COM threading mode
+            pythoncom.CoInitializeEx(com_init_mode)
+            pythoncom.CoUninitialize()
+        except pythoncom.com_error:
+            warnings.warn("Revert to STA COM threading mode", UserWarning)
+            com_init_mode = 2  # revert back to STA
+
+        return com_init_mode
+
+    sys.coinit_flags = _get_com_threading_mode(sys)
+    from .sysinfo import UIA_support
 
     from . import findwindows
     WindowAmbiguousError = findwindows.WindowAmbiguousError
     ElementNotFoundError = findwindows.ElementNotFoundError
 
-    from .sysinfo import UIA_support
     if UIA_support:
         ElementNotFoundError = findwindows.ElementNotFoundError
         ElementAmbiguousError = findwindows.ElementAmbiguousError
