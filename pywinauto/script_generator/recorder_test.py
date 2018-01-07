@@ -1,8 +1,9 @@
-import os, time
+import os
+import time
 
 from .. import Application
 
-from .uiarecorder import UiaRecorder, ControlTree
+from .uia_recorder import UiaRecorder, ControlTree
 from ..uia_defines import IUIA
 from ..win32structures import POINT
 

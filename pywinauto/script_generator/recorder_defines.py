@@ -1,5 +1,10 @@
 from pywinauto_UIA.pywinauto.uia_defines import IUIA
 
+# Avoid hardcoded values
+PROPERTY_EVENT_NAME = "AutomationPropertyChanged"
+FOCUS_EVENT_NAME = "AutomationFocusChanged"
+STRUCTURE_EVENT_NAME = "StructureChanged"
+
 """For research purposes"""
 
 all_uia_events = {

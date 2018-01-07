@@ -1,20 +1,22 @@
 import threading
-from collections import deque
 
 from comtypes import COMObject, COMError
 
 from .. import Application
 from ..uia_defines import IUIA
-from ..uia_element_info import UIAElementInfo
 
-from ..win32_hooks import *
+from .. import win32_hooks
 from ..win32structures import POINT
 
 from .control_tree import ControlTree
+from .recorder_events import RecorderEvent, RecorderMouseEvent, RecorderKeyboardEvent, UIAEvent, PropertyEvent, \
+    FocusEvent, StructureEvent
 
 _ignored_events = [
-    # Event which are handled by separate handlers
-    'AutomationFocusChanged', 'AutomationPropertyChanged', 'StructureChanged',
+    # Events which are handled by separate handlers
+    IUIA().known_events_ids[IUIA().UIA_dll.UIA_AutomationPropertyChangedEventId],  # AutomationPropertyChanged
+    IUIA().known_events_ids[IUIA().UIA_dll.UIA_AutomationFocusChangedEventId],  # AutomationFocusChanged
+    IUIA().known_events_ids[IUIA().UIA_dll.UIA_StructureChangedEventId],  # StructureChanged
 
     # Events which produce a lot of noise in output
 
@@ -61,27 +63,6 @@ def synchronized_method(method):
     return sync_method
 
 
-class UIAEvent(object):
-    """Created when an UIA event happened"""
-
-    def __init__(self, event_name=None, sender=None, property_name=None, struct_change_type=None):
-        self.event_name = event_name
-        self.sender = sender
-        self.property_name = property_name
-        self.struct_change_type = struct_change_type
-
-    def __str__(self):
-        """Representation of the event"""
-        description = '{} - {} | {} | {}'.format(self.event_name, self.sender, self.sender.CachedClassName,
-                                                 self.sender.CachedName)
-        if self.event_name == 'AutomationPropertyChanged':
-            description += '; Property: {}'.format(self.property_name)
-        if self.event_name == 'StructureChanged':
-            description += '; Structure change type: {}'.format(self.struct_change_type)
-
-        return description
-
-
 class UiaRecorder(COMObject):
     """Record UIA, keyboard and mouse events"""
 
@@ -97,29 +78,39 @@ class UiaRecorder(COMObject):
             self.ctrl = app.top_window().wrapper_object()
             self.element_info = self.ctrl.element_info
         else:
-            raise TypeError("app must be a pywinauto.Application object ('uia' backend)")
+            raise TypeError("app must be a pywinauto.Application object of 'uia' backend")
         self.element = self.element_info.element
 
+        # List of RecordEvent objects
         self.event_log = []
+
+        # Menu history
         self.menu_sequence = []
 
+        # Turn on or off capturing different kinds of properties
         self.record_props = record_props
         self.record_focus = record_focus
         self.record_struct = record_struct
 
+        # Output events straight away (for debug purposes)
         self.hot_output = hot_output
 
+        # Main recorder thread
         self.recorder_thread = threading.Thread(target=self.recorder_run)
-        self.recorder_thread.daemon = False
+        self.recorder_thread.daemon = True
 
+        # Thread events to indicate recorder status (used as an alternative to an infinite loop)
         self.recorder_start_event = threading.Event()
         self.recorder_stop_event = threading.Event()
 
+        # Hook event thread
         self.hook_thread = threading.Thread(target=self.hook_run)
-        self.hook_thread.daemon = False
+        self.hook_thread.daemon = True
 
+        # Application controls tree
         self.control_tree = None
 
+        # Generated script
         self.script = "app = pywinauto.Application(backend='uia').start('INSERT_CMD_HERE')\n"
 
     @synchronized_method
@@ -138,7 +129,8 @@ class UiaRecorder(COMObject):
         Clear event log.
         This is a synchronized method. 
         """
-        self.event_log = []
+        # Clear instead of new empty list initialization to keep the link alive
+        self.event_log.clear()
 
     def is_active(self):
         """Returns True if UiaRecorder is active"""
@@ -210,64 +202,62 @@ class UiaRecorder(COMObject):
 
     def hook_run(self):
         """Target function for hook thread"""
-        self.hook = Hook()
+        self.hook = win32_hooks.Hook()
         self.hook.handler = self.handle_hook_event
-        self.hook.hook(keyboard=False, mouse=True)
+        self.hook.hook(keyboard=True, mouse=True)
 
     def parse_and_clear_log(self):
         """Parse current event log and clear it afterwards"""
         for event in self.event_log:
-            if isinstance(event, MouseEvent):
-                if event.control_tree_node:
-                    # Choose appropriate name
-                    item_name = [name for name in event.control_tree_node.names
-                                 if len(name) > 0 and not " " in name][-1]
+            if isinstance(event, RecorderEvent):
+                if isinstance(event, RecorderMouseEvent):
+                    if event.control_tree_node:
+                        # Choose appropriate name
+                        item_name = [name for name in event.control_tree_node.names
+                                     if len(name) > 0 and not " " in name][-1]
 
-                    joint_log = "\n".join([str(ev) for ev in self.event_log])
-                    if "Invoke_Invoked" in joint_log:
-                        self.script += "app.{}.{}.invoke()\n".format(self.control_tree.root_name, item_name)
-                    elif "ToggleToggleState" in joint_log:
-                        self.script += "app.{}.{}.toggle()\n".format(self.control_tree.root_name, item_name)
-                    elif "MenuOpened" in joint_log:
-                        self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
-                    elif "MenuClosed" in joint_log:
-                        self.script += "app.{}.menu_select('{}')\n".format(
-                            self.control_tree.root_name,
-                            " -> ".join(self.menu_sequence) + " -> " + event.control_tree_node.ctrl.window_text())
-                        self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
+                        joint_log = "\n".join([str(ev) for ev in self.event_log])
+                        if "Invoke_Invoked" in joint_log:
+                            self.script += "app.{}.{}.invoke()\n".format(self.control_tree.root_name, item_name)
+                        elif "ToggleToggleState" in joint_log:
+                            self.script += "app.{}.{}.toggle()\n".format(self.control_tree.root_name, item_name)
+                        elif "MenuOpened" in joint_log:
+                            self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
+                        elif "MenuClosed" in joint_log:
+                            self.script += "app.{}.menu_select('{}')\n".format(
+                                self.control_tree.root_name,
+                                " -> ".join(self.menu_sequence) + " -> " + event.control_tree_node.ctrl.window_text())
+                            self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
+                        else:
+                            self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
                     else:
-                        self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
-                else:
-                    self.script += "pywinauto.mouse.click(coords=({}, {}))\n".format(event.mouse_x, event.mouse_y)
+                        self.script += "pywinauto.mouse.click(coords=({}, {}))\n".format(event.mouse_x, event.mouse_y)
+            else:
+                self.script += "print('{}')\n".format(event)
         self.clear_log()
 
-    def handle_hook_event(self, args):
+    def handle_hook_event(self, hook_event):
         """Callback for keyboard and mouse events"""
-        # Handle keyboard hook events
-        if isinstance(args, KeyboardEvent):
-            if args.current_key == 'K' and args.event_type == 'key down' and 'U' in args.pressed_key:
-                pass
-
-        # Handle mouse hook events
-        if isinstance(args, MouseEvent):
+        if isinstance(hook_event, win32_hooks.KeyboardEvent):  # Handle keyboard hook events
+            keyboard_event = RecorderKeyboardEvent(hook_event.current_key, hook_event.event_type,
+                                                   hook_event.pressed_key)
+            self.add_to_log(keyboard_event)
+        elif isinstance(hook_event, win32_hooks.MouseEvent):  # Handle mouse hook events
+            mouse_event = RecorderMouseEvent(hook_event.current_key, hook_event.event_type, hook_event.mouse_x,
+                                             hook_event.mouse_y)
             # Left mouse button down
-            if args.current_key == 'LButton' and args.event_type == 'key down':
+            if mouse_event.current_key == 'LButton' and mouse_event.event_type == 'key down':
                 # Parse current event log and clear it
                 self.parse_and_clear_log()
 
                 # Add information about clicked item to event
                 if self.control_tree:
-                    node = self.control_tree.node_from_point(POINT(args.mouse_x, args.mouse_y))
+                    node = self.control_tree.node_from_point(POINT(mouse_event.mouse_x, mouse_event.mouse_y))
                     if node:
-                        args.control_tree_node = node
+                        mouse_event.control_tree_node = node
+
                 # Add new event to log
-                self.add_to_log(args)
-
-            if args.current_key == 'RButton' and args.event_type == 'key down':
-                self.add_to_log("Right button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
-
-            if args.current_key == 'WheelButton' and args.event_type == 'key down':
-                self.add_to_log("Wheel button pressed at ({}, {})".format(args.mouse_x, args.mouse_y))
+                self.add_to_log(mouse_event)
 
     def IUIAutomationEventHandler_HandleAutomationEvent(self, sender, eventID):
         if not self.recorder_start_event.is_set():
@@ -276,6 +266,7 @@ class UiaRecorder(COMObject):
         event = UIAEvent(event_name=IUIA().known_events_ids[eventID], sender=sender)
         self.add_to_log(event)
 
+        # TODO: remove hardcoded values
         if event.event_name == 'MenuModeStart':
             self.control_tree.rebuild()
 
@@ -301,20 +292,19 @@ class UiaRecorder(COMObject):
         if not self.recorder_start_event.is_set():
             return
 
-        event = UIAEvent(event_name='AutomationPropertyChanged', sender=sender,
-                         property_name=IUIA().known_properties_ids[propertyId])
+        event = PropertyEvent(sender=sender, property_name=IUIA().known_properties_ids[propertyId], new_value=newValue)
         self.add_to_log(event)
 
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
         if not self.recorder_start_event.is_set():
             return
 
-        event = UIAEvent(event_name='AutomationFocusChanged', sender=sender)
+        event = FocusEvent(sender=sender)
         self.add_to_log(event)
 
     def IUIAutomationStructureChangedEventHandler_HandleStructureChangedEvent(self, sender, changeType, runtimeId):
         if not self.recorder_start_event.is_set():
             return
 
-        event = UIAEvent(event_name='StructureChanged', sender=sender, struct_change_type=changeType)
+        event = StructureEvent(sender=sender, change_type=changeType, runtime_id=runtimeId)
         self.add_to_log(event)
