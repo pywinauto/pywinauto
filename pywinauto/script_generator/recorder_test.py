@@ -42,8 +42,7 @@ def run_recorder_test():
 
     if not rec.hot_output:
         print("\n===========================================\n")
-        for event in rec.event_log:
-            print(event)
+        print("\n".join(rec.event_log))
 
     print("\n===========================================\n")
     print(rec.script)
