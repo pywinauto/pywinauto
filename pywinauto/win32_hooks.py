@@ -452,7 +452,8 @@ class Hook(object):
             al.log("_process_kbd_msg_type, bad event_type: {0}".format(event_type))
 
         if event_type == 'key down':
-            self.pressed_keys.append(current_key)
+            if current_key not in self.pressed_keys:
+                self.pressed_keys.append(current_key)
         elif event_type == 'key up':
             if current_key in self.pressed_keys:
                 self.pressed_keys.remove(current_key)

@@ -30,9 +30,13 @@ class RecorderMouseEvent(RecorderEvent, win32_hooks.MouseEvent):
 
 
 class RecorderKeyboardEvent(RecorderEvent, win32_hooks.KeyboardEvent):
+    def __init__(self, current_key=None, event_type=None, pressed_key=None):
+        super(RecorderKeyboardEvent, self).__init__(current_key, event_type, pressed_key)
+        self.control_tree_node = None
+
     def __str__(self):
-        description = "<RecorderKeyboardEvent - '{}' - '{}' to '{}'>".format(self.current_key, self.event_type,
-                                                                             self.pressed_key)
+        description = "<RecorderKeyboardEvent - '{}' - '{}', pressed = {}>".format(self.current_key, self.event_type,
+                                                                                   self.pressed_key)
         return description
 
 

@@ -2,6 +2,7 @@ from collections import deque
 
 from .. import findbestmatch
 from ..base_wrapper import BaseWrapper
+from ..element_info import ElementInfo
 
 
 class ControlTreeNode(object):
@@ -102,3 +103,13 @@ class ControlTree(object):
             if node.rect.contains(point):
                 res = node
         return res
+
+    def node_from_element_info(self, element_info):
+        if isinstance(element_info, ElementInfo):
+            for node in self.iterate_bfs():
+                if node.ctrl.element_info == element_info:
+                    print("FOUND CORRESPONDING ELEMENT")
+                    return node
+        else:
+            print("Warning: 'element' must be an ElementInfo instance")
+        return None

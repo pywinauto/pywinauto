@@ -7,8 +7,10 @@ from ..uia_defines import IUIA
 
 from .. import win32_hooks
 from ..win32structures import POINT
+from ..uia_element_info import UIAElementInfo
 
 from .control_tree import ControlTree
+from .log_parser import LogParser
 from .recorder_events import RecorderEvent, RecorderMouseEvent, RecorderKeyboardEvent, UIAEvent, PropertyEvent, \
     FocusEvent, StructureEvent
 
@@ -81,12 +83,6 @@ class UiaRecorder(COMObject):
             raise TypeError("app must be a pywinauto.Application object of 'uia' backend")
         self.element = self.element_info.element
 
-        # List of RecordEvent objects
-        self.event_log = []
-
-        # Menu history
-        self.menu_sequence = []
-
         # Turn on or off capturing different kinds of properties
         self.record_props = record_props
         self.record_focus = record_focus
@@ -107,8 +103,10 @@ class UiaRecorder(COMObject):
         self.hook_thread = threading.Thread(target=self.hook_run)
         self.hook_thread.daemon = True
 
-        # Application controls tree
+        # Log parser
+        self.event_log = []
         self.control_tree = None
+        self.log_parser = LogParser(self)
 
         # Generated script
         self.script = "app = pywinauto.Application(backend='uia').start('INSERT_CMD_HERE')\n"
@@ -208,32 +206,7 @@ class UiaRecorder(COMObject):
 
     def parse_and_clear_log(self):
         """Parse current event log and clear it afterwards"""
-        for event in self.event_log:
-            if isinstance(event, RecorderEvent):
-                if isinstance(event, RecorderMouseEvent):
-                    if event.control_tree_node:
-                        # Choose appropriate name
-                        item_name = [name for name in event.control_tree_node.names
-                                     if len(name) > 0 and not " " in name][-1]
-
-                        joint_log = "\n".join([str(ev) for ev in self.event_log])
-                        if "Invoke_Invoked" in joint_log:
-                            self.script += "app.{}.{}.invoke()\n".format(self.control_tree.root_name, item_name)
-                        elif "ToggleToggleState" in joint_log:
-                            self.script += "app.{}.{}.toggle()\n".format(self.control_tree.root_name, item_name)
-                        elif "MenuOpened" in joint_log:
-                            self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
-                        elif "MenuClosed" in joint_log:
-                            self.script += "app.{}.menu_select('{}')\n".format(
-                                self.control_tree.root_name,
-                                " -> ".join(self.menu_sequence) + " -> " + event.control_tree_node.ctrl.window_text())
-                            self.menu_sequence = [event.control_tree_node.ctrl.window_text(), ]
-                        else:
-                            self.script += "app.{}.{}.click_input()\n".format(self.control_tree.root_name, item_name)
-                    else:
-                        self.script += "pywinauto.mouse.click(coords=({}, {}))\n".format(event.mouse_x, event.mouse_y)
-            else:
-                self.script += "print('{}')\n".format(event)
+        self.script += self.log_parser.parse_current_log()
         self.clear_log()
 
     def handle_hook_event(self, hook_event):
@@ -241,23 +214,24 @@ class UiaRecorder(COMObject):
         if isinstance(hook_event, win32_hooks.KeyboardEvent):  # Handle keyboard hook events
             keyboard_event = RecorderKeyboardEvent(hook_event.current_key, hook_event.event_type,
                                                    hook_event.pressed_key)
+            # Add information about focused element to event
+            if self.control_tree:
+                focused_element_info = UIAElementInfo(IUIA().get_focused_element())
+                keyboard_event.control_tree_node = self.control_tree.node_from_element_info(focused_element_info)
             self.add_to_log(keyboard_event)
         elif isinstance(hook_event, win32_hooks.MouseEvent):  # Handle mouse hook events
             mouse_event = RecorderMouseEvent(hook_event.current_key, hook_event.event_type, hook_event.mouse_x,
                                              hook_event.mouse_y)
+            # Add information about clicked item to event
+            if self.control_tree:
+                mouse_event.control_tree_node = self.control_tree.node_from_point(POINT(mouse_event.mouse_x,
+                                                                                        mouse_event.mouse_y))
+
             # Left mouse button down
             if mouse_event.current_key == 'LButton' and mouse_event.event_type == 'key down':
-                # Parse current event log and clear it
                 self.parse_and_clear_log()
 
-                # Add information about clicked item to event
-                if self.control_tree:
-                    node = self.control_tree.node_from_point(POINT(mouse_event.mouse_x, mouse_event.mouse_y))
-                    if node:
-                        mouse_event.control_tree_node = node
-
-                # Add new event to log
-                self.add_to_log(mouse_event)
+            self.add_to_log(mouse_event)
 
     def IUIAutomationEventHandler_HandleAutomationEvent(self, sender, eventID):
         if not self.recorder_start_event.is_set():
