@@ -119,7 +119,10 @@ class UiaRecorder(COMObject):
         """
         self.event_log.append(item)
         if self.hot_output:
-            print(item)
+            if isinstance(item, UIAEvent):
+                print("    {}".format(item))
+            else:
+                print(item)
 
     @synchronized_method
     def clear_log(self):
@@ -227,8 +230,8 @@ class UiaRecorder(COMObject):
                 mouse_event.control_tree_node = self.control_tree.node_from_point(POINT(mouse_event.mouse_x,
                                                                                         mouse_event.mouse_y))
 
-            # Parse and log on mouse click
-            if mouse_event.event_type == 'key down':
+            # TODO: choose when to parse log
+            if mouse_event.event_type == "key down":
                 self.parse_and_clear_log()
 
             self.add_to_log(mouse_event)

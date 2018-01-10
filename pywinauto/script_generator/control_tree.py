@@ -18,6 +18,20 @@ class ControlTreeNode(object):
     def __str__(self):
         return "{}, {}, depth={}".format(self.names, self.rect, self.depth)
 
+    def __eq__(self, other):
+        if not isinstance(other, ControlTreeNode):
+            return False
+        return self.rect.top == other.rect.top and \
+               self.rect.left == other.rect.left and \
+               self.rect.bottom == other.rect.bottom and \
+               self.rect.right == other.rect.right and \
+               self.depth == other.depth
+
+    def __hash__(self):
+        width = self.rect.width()
+        height = self.rect.height()
+        return width * height + width - height
+
 
 class ControlTree(object):
     def __init__(self, ctrl):
@@ -108,7 +122,6 @@ class ControlTree(object):
         if isinstance(element_info, ElementInfo):
             for node in self.iterate_bfs():
                 if node.ctrl.element_info == element_info:
-                    print("FOUND CORRESPONDING ELEMENT")
                     return node
         else:
             print("Warning: 'element' must be an ElementInfo instance")

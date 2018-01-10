@@ -17,6 +17,9 @@ from .recorder_defines import PROPERTY_EVENT_NAME, FOCUS_EVENT_NAME, STRUCTURE_E
 class RecorderEvent(object):
     __metaclass__ = ABCMeta
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class RecorderMouseEvent(RecorderEvent, win32_hooks.MouseEvent):
     def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
@@ -24,8 +27,12 @@ class RecorderMouseEvent(RecorderEvent, win32_hooks.MouseEvent):
         self.control_tree_node = None
 
     def __str__(self):
-        description = "<RecorderMouseEvent - '{}' - '{}' at ({}, {})>".format(self.current_key, self.event_type,
-                                                                              self.mouse_x, self.mouse_y)
+        if self.control_tree_node:
+            elem = " - {}".format(self.control_tree_node)
+        else:
+            elem = ""
+        description = "<RecorderMouseEvent - '{}' - '{}' at ({}, {}){}>".format(self.current_key, self.event_type,
+                                                                              self.mouse_x, self.mouse_y, elem)
         return description
 
 
