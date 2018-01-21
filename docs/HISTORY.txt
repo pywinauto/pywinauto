@@ -2,6 +2,37 @@
 Change Log
 ==========
 
+0.6.4 NULL pointer access fix and enhancements
+--------------------------------------------------------------------
+21-January-2018
+Bug Fixes:
+ * Final fix for `ValueError: NULL COM pointer access`.
+
+Enhancements:
+ * Multi-threading mode (MTA) for comtypes is enabled by default, if it's not initialized
+   by another library before importing pywinauto.
+
+ * Method ``get_value()`` has been added to EditWrapper in UIA backend.
+
+ * Method ``scroll()`` has been added for all UIA controls which have ScrollPattern implemented.
+
+ * Added methods ``is_minimized/is_maximized/is_normal/get_show_state`` for UIAWrapper.
+
+ * Added handling in-place controls inside ListView control and (row, column) indexing
+   in a grid-like table mode. Examples ::
+
+       auto_detected_ctrl = list_view.get_item(0).inplace_control()
+
+       combo = list_view.get_item(1,1).inplace_control("ComboBox")
+       combo.select("Item name")
+
+       edit = list_view.get_item(3,4).inplace_control("Edit")
+       edit.type_keys("some text{ENTER}", set_foreground=False)
+
+       dt_picker = list_view.get_item(2,0).inplace_control("DateTimePicker")
+
+
+
 0.6.3 A lot of improvements and some optimizations
 --------------------------------------------------------------------
 03-July-2017
