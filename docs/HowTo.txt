@@ -152,9 +152,9 @@ The code builds up multiple identifiers for each control from the following:
  - friendly class
  - title + friendly class
 
-If the control's text is empty (after removing non char characters) text is
-not used. Instead we look for the closest control above and to the right fo
-the contol. And append the friendly class. So the list becomes
+If the control's title text is empty (after removing non char characters) this text is
+not used. Instead we look for the closest title text above and to the right of
+the control. And append the friendly class. So the list becomes
 
  - friendly class
  - closest text + friendly class
