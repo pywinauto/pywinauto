@@ -1,7 +1,7 @@
 ====================
 What is pywinauto
 ====================
-© Mark Mc Mahon and Contributors_, 2006-2017
+© Mark Mc Mahon and Contributors_, 2006-2018
 
 .. _Contributors: https://github.com/pywinauto/pywinauto/graphs/contributors
 
