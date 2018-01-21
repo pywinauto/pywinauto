@@ -5,8 +5,9 @@ Change Log
 0.6.4 NULL pointer access fix and enhancements
 --------------------------------------------------------------------
 21-January-2018
+
 Bug Fixes:
- * Final fix for `ValueError: NULL COM pointer access`.
+ * Final fix for ``ValueError: NULL COM pointer access``.
 
 Enhancements:
  * Multi-threading mode (MTA) for comtypes is enabled by default, if it's not initialized
@@ -19,7 +20,7 @@ Enhancements:
  * Added methods ``is_minimized/is_maximized/is_normal/get_show_state`` for UIAWrapper.
 
  * Added handling in-place controls inside ListView control and (row, column) indexing
-   in a grid-like table mode. Examples ::
+   in a grid-like table mode. Examples: ::
 
        auto_detected_ctrl = list_view.get_item(0).inplace_control()
 
