@@ -1,11 +1,9 @@
-import os
 import time
 
-from .. import Application
+from ....pywinauto import Application
+from ....pywinauto.uia_defines import IUIA
 
 from .uia_recorder import UiaRecorder, ControlTree
-from ..uia_defines import IUIA
-from ..win32structures import POINT
 
 import ctypes
 

@@ -1,18 +1,12 @@
-import threading
-
 from comtypes import COMObject, COMError
 
-from .. import Application
-from ..uia_defines import IUIA
+from ....pywinauto import win32_hooks
+from ....pywinauto.win32structures import POINT
+from ....pywinauto.uia_element_info import UIAElementInfo
 
-from .. import win32_hooks
-from ..win32structures import POINT
-from ..uia_element_info import UIAElementInfo
-
-from .control_tree import ControlTree
-from .log_parser import LogParser
-from .recorder_events import RecorderEvent, RecorderMouseEvent, RecorderKeyboardEvent, UIAEvent, PropertyEvent, \
-    FocusEvent, StructureEvent
+from ....pywinauto.script_generator.control_tree import ControlTree
+from ....pywinauto.script_generator.recorder import Recorder
+from ....pywinauto.script_generator.UIARecorder.uia_recorder_defines import *
 
 _ignored_events = [
     # Events which are handled by separate handlers
@@ -49,23 +43,7 @@ _cached_properties = [
 ]
 
 
-def synchronized_method(method):
-    """Decorator for a synchronized class method"""
-    outer_lock = threading.Lock()
-    lock_name = "__" + method.__name__ + "_lock" + "__"
-
-    def sync_method(self, *args, **kws):
-        with outer_lock:
-            if not hasattr(self, lock_name):
-                setattr(self, lock_name, threading.Lock())
-            lock = getattr(self, lock_name)
-            with lock:
-                return method(self, *args, **kws)
-
-    return sync_method
-
-
-class UiaRecorder(COMObject):
+class UiaRecorder(COMObject, Recorder):
     """Record UIA, keyboard and mouse events"""
 
     _com_interfaces_ = [IUIA().UIA_dll.IUIAutomationEventHandler,
@@ -74,83 +52,15 @@ class UiaRecorder(COMObject):
                         IUIA().UIA_dll.IUIAutomationStructureChangedEventHandler]
 
     def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True):
-        super(UiaRecorder, self).__init__()
+        super(UiaRecorder, self).__init__(app=app, hot_output=hot_output)
 
-        if app is not None and isinstance(app, Application) and app.backend.name == "uia":
-            self.ctrl = app.top_window().wrapper_object()
-            self.element_info = self.ctrl.element_info
-        else:
+        if app.backend.name != "uia":
             raise TypeError("app must be a pywinauto.Application object of 'uia' backend")
-        self.element = self.element_info.element
 
         # Turn on or off capturing different kinds of properties
         self.record_props = record_props
         self.record_focus = record_focus
         self.record_struct = record_struct
-
-        # Output events straight away (for debug purposes)
-        self.hot_output = hot_output
-
-        # Main recorder thread
-        self.recorder_thread = threading.Thread(target=self.recorder_run)
-        self.recorder_thread.daemon = True
-
-        # Thread events to indicate recorder status (used as an alternative to an infinite loop)
-        self.recorder_start_event = threading.Event()
-        self.recorder_stop_event = threading.Event()
-
-        # Hook event thread
-        self.hook_thread = threading.Thread(target=self.hook_run)
-        self.hook_thread.daemon = True
-
-        # Log parser
-        self.event_log = []
-        self.control_tree = None
-        self.log_parser = LogParser(self)
-
-        # Generated script
-        self.script = "app = pywinauto.Application(backend='uia').start('INSERT_CMD_HERE')\n"
-
-    @synchronized_method
-    def add_to_log(self, item):
-        """
-        Add *item* to event log.
-        This is a synchronized method. 
-        """
-        self.event_log.append(item)
-        if self.hot_output:
-            if isinstance(item, UIAEvent):
-                print("    {}".format(item))
-            else:
-                print(item)
-
-    @synchronized_method
-    def clear_log(self):
-        """
-        Clear event log.
-        This is a synchronized method. 
-        """
-        # Clear instead of new empty list initialization to keep the link alive
-        self.event_log.clear()
-
-    def is_active(self):
-        """Returns True if UiaRecorder is active"""
-        return self.recorder_thread.is_alive() or self.hook_thread.is_alive()
-
-    def start(self):
-        """Start UiaRecorder"""
-        self.recorder_thread.start()
-        self.hook_thread.start()
-
-    def stop(self):
-        """Stop UiaRecorder"""
-        self.recorder_stop_event.set()
-        self.hook.stop()
-
-    def wait(self):
-        """Wait for recorder to finish"""
-        if self.is_active():
-            self.recorder_thread.join()
 
     def _add_handlers(self, element):
         """Add UIA handlers to element and all its descendants"""
@@ -160,57 +70,40 @@ class UiaRecorder(COMObject):
 
         for event_id, event in IUIA().known_events_ids.items():
             if event not in _ignored_events:
-                IUIA().iuia.AddAutomationEventHandler(event_id,
-                                                      element,
-                                                      IUIA().tree_scope['subtree'],
-                                                      cache_request,
+                IUIA().iuia.AddAutomationEventHandler(event_id, element, IUIA().tree_scope['subtree'], cache_request,
                                                       self)
 
         # TODO: output gets a lot of 'Exception ignored in:' after terminating thread if next method is used
         if self.record_props:
             properties_ids = [p for p in IUIA().known_properties_ids.keys() if p not in _ignored_properties_ids]
-            IUIA().iuia.AddPropertyChangedEventHandler(element,
-                                                       IUIA().tree_scope['subtree'],
-                                                       cache_request,
-                                                       self,
+            IUIA().iuia.AddPropertyChangedEventHandler(element, IUIA().tree_scope['subtree'], cache_request, self,
                                                        properties_ids)
 
         if self.record_focus:
-            IUIA().iuia.AddFocusChangedEventHandler(cache_request,
-                                                    self)
+            IUIA().iuia.AddFocusChangedEventHandler(cache_request, self)
 
         if self.record_struct:
-            IUIA().iuia.AddStructureChangedEventHandler(element,
-                                                        IUIA().tree_scope['subtree'],
-                                                        cache_request,
-                                                        self)
+            IUIA().iuia.AddStructureChangedEventHandler(element, IUIA().tree_scope['subtree'], cache_request, self)
 
-    def recorder_run(self):
-        """Target function for recorder thread"""
+    def _setup(self):
         try:
             # Add event handlers to all app's controls
-            self._add_handlers(self.element)
+            self._add_handlers(self.ctrl.element_info.element)
             self.control_tree = ControlTree(self.ctrl)
         except Exception as exc:
             # Skip exceptions thrown by AddPropertyChangedEventHandler
             print("Exception: {}".format(exc))
-        finally:
-            self.recorder_start_event.set()
 
-        # Wait until app closes and then remove all handlers
-        self.recorder_stop_event.wait()
+    def _cleanup(self):
         IUIA().iuia.RemoveAllEventHandlers()
+        # Stop Hook
+        self.hook.stop()
 
-    def hook_run(self):
+    def hook_target(self):
         """Target function for hook thread"""
         self.hook = win32_hooks.Hook()
         self.hook.handler = self.handle_hook_event
         self.hook.hook(keyboard=True, mouse=True)
-
-    def parse_and_clear_log(self):
-        """Parse current event log and clear it afterwards"""
-        self.script += self.log_parser.parse_current_log()
-        self.clear_log()
 
     def handle_hook_event(self, hook_event):
         """Callback for keyboard and mouse events"""
@@ -232,7 +125,7 @@ class UiaRecorder(COMObject):
 
             # TODO: choose when to parse log
             if mouse_event.event_type == "key down":
-                self.parse_and_clear_log()
+                self._parse_and_clear_log()
 
             self.add_to_log(mouse_event)
 
@@ -240,29 +133,25 @@ class UiaRecorder(COMObject):
         if not self.recorder_start_event.is_set():
             return
 
-        event = UIAEvent(event_name=IUIA().known_events_ids[eventID], sender=sender)
+        event = ApplicationEvent(name=EVENT_ID_EVENT_NAME_MAP[eventID], sender=sender)
         self.add_to_log(event)
 
-        # TODO: remove hardcoded values
-        if event.event_name == 'MenuModeStart':
+        if event.name == EVENT_MENU_START:
             self.control_tree.rebuild()
-
-        if event.event_name == 'MenuOpened':
+        elif event.name == EVENT_MENU_OPENED:
             self._add_handlers(sender)
-
-        if event.event_name == 'Window_WindowOpened':
+        elif event.name == EVENT_WINDOW_OPENED:
             self._add_handlers(sender)
             self.control_tree.rebuild()
-
-        if event.event_name == 'Window_WindowClosed':
+        elif event.name == EVENT_WINDOW_CLOSED:
             # Detect if top_window is already closed
             try:
-                process_id = self.element_info.process_id
+                process_id = self.ctrl.element_info.process_id
             except COMError:
                 process_id = 0
             if not process_id:
                 self.stop()
-                self.parse_and_clear_log()
+                self._parse_and_clear_log()
                 self.script += "app.kill()\n"
 
     def IUIAutomationPropertyChangedEventHandler_HandlePropertyChangedEvent(self, sender, propertyId, newValue):
