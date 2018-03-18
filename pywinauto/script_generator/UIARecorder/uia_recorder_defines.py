@@ -1,48 +1,84 @@
-from pywinauto_UIA.pywinauto.uia_defines import IUIA
+from ....pywinauto.script_generator.recorder_defines import *
 
-# Avoid hardcoded values
-PROPERTY_EVENT_NAME = "AutomationPropertyChanged"
-FOCUS_EVENT_NAME = "AutomationFocusChanged"
-STRUCTURE_EVENT_NAME = "StructureChanged"
+from ....pywinauto.uia_defines import IUIA
+
+EVENT_ID_EVENT_NAME_MAP = {
+    IUIA().UIA_dll.UIA_AsyncContentLoadedEventId: EVENT_ASYNC_CONTENT_LOADED,
+    IUIA().UIA_dll.UIA_Drag_DragCancelEventId: EVENT_DRAG_CANCEL,
+    IUIA().UIA_dll.UIA_Drag_DragCompleteEventId: EVENT_DRAG_COMPLETE,
+    IUIA().UIA_dll.UIA_DropTarget_DroppedEventId: EVENT_DRAG_DROPPED,
+    IUIA().UIA_dll.UIA_DropTarget_DragEnterEventId: EVENT_DRAG_ENTER,
+    IUIA().UIA_dll.UIA_DropTarget_DragLeaveEventId: EVENT_DRAG_LEAVE,
+    IUIA().UIA_dll.UIA_Drag_DragStartEventId: EVENT_DRAG_START,
+    IUIA().UIA_dll.UIA_TextEdit_ConversionTargetChangedEventId: EVENT_EDIT_CONVERSION_TARGET_CHANGED,
+    IUIA().UIA_dll.UIA_TextEdit_TextChangedEventId: EVENT_EDIT_TEXT_CHANGED,
+    IUIA().UIA_dll.UIA_AutomationFocusChangedEventId: EVENT_FOCUS_CHANGED,
+    IUIA().UIA_dll.UIA_HostedFragmentRootsInvalidatedEventId: EVENT_HOSTED_FRAGMENT_ROOTS_INVALIDATED,
+    IUIA().UIA_dll.UIA_InputDiscardedEventId: EVENT_INPUT_DISCARDED,
+    IUIA().UIA_dll.UIA_InputReachedOtherElementEventId: EVENT_INPUT_REACHED_OTHER_ELEMENT,
+    IUIA().UIA_dll.UIA_InputReachedTargetEventId: EVENT_INPUT_REACHED_TARGET,
+    IUIA().UIA_dll.UIA_Invoke_InvokedEventId: EVENT_INVOKED,
+    IUIA().UIA_dll.UIA_LayoutInvalidatedEventId: EVENT_LAYOUT_INVALIDATED,
+    IUIA().UIA_dll.UIA_LiveRegionChangedEventId: EVENT_LIVE_REGION_CHANGED,
+    IUIA().UIA_dll.UIA_MenuClosedEventId: EVENT_MENU_CLOSED,
+    IUIA().UIA_dll.UIA_MenuModeEndEventId: EVENT_MENU_END,
+    IUIA().UIA_dll.UIA_MenuOpenedEventId: EVENT_MENU_OPENED,
+    IUIA().UIA_dll.UIA_MenuModeStartEventId: EVENT_MENU_START,
+    IUIA().UIA_dll.UIA_AutomationPropertyChangedEventId: EVENT_PROPERTY_CHANGED,
+    IUIA().UIA_dll.UIA_SelectionItem_ElementAddedToSelectionEventId: EVENT_SELECTION_ELEMENT_ADDED,
+    IUIA().UIA_dll.UIA_SelectionItem_ElementRemovedFromSelectionEventId: EVENT_SELECTION_ELEMENT_REMOVED,
+    IUIA().UIA_dll.UIA_SelectionItem_ElementSelectedEventId: EVENT_SELECTION_ELEMENT_SELECTED,
+    IUIA().UIA_dll.UIA_Selection_InvalidatedEventId: EVENT_SELECTION_INVALIDATED,
+    IUIA().UIA_dll.UIA_StructureChangedEventId: EVENT_STRUCTURE_CHANGED,
+    IUIA().UIA_dll.UIA_SystemAlertEventId: EVENT_SYSTEM_ALERT,
+    IUIA().UIA_dll.UIA_Text_TextChangedEventId: EVENT_TEXT_CHANGED,
+    IUIA().UIA_dll.UIA_Text_TextSelectionChangedEventId: EVENT_TEXT_SELECTION_CHANGED,
+    IUIA().UIA_dll.UIA_ToolTipClosedEventId: EVENT_TOOLTIP_CLOSED,
+    IUIA().UIA_dll.UIA_ToolTipOpenedEventId: EVENT_TOOLTIP_OPENED,
+    IUIA().UIA_dll.UIA_Window_WindowClosedEventId: EVENT_WINDOW_CLOSED,
+    IUIA().UIA_dll.UIA_Window_WindowOpenedEventId: EVENT_WINDOW_OPENED
+}
+
+
+class PropertyEvent(ApplicationEvent):
+    def __init__(self, sender, property_name, new_value):
+        super(PropertyEvent, self).__init__(EVENT_PROPERTY_CHANGED, sender)
+        self.property_name = property_name
+        self.new_value = new_value
+
+    def __repr__(self):
+        description = "<PropertyEvent - Change '{}' to '{}' from {} ({}, {})>".format(self.property_name,
+                                                                                      self.new_value, self.sender,
+                                                                                      self.sender.CachedClassName,
+                                                                                      self.sender.CachedName)
+        return description
+
+
+class FocusEvent(ApplicationEvent):
+    def __init__(self, sender):
+        super(FocusEvent, self).__init__(EVENT_FOCUS_CHANGED, sender)
+
+    def __repr__(self):
+        description = "<FocusEvent - Change focus to {} ({}, {})>".format(self.sender,
+                                                                          self.sender.CachedClassName,
+                                                                          self.sender.CachedName)
+        return description
+
+
+class StructureEvent(ApplicationEvent):
+    def __init__(self, sender, change_type, runtime_id):
+        super(StructureEvent, self).__init__(EVENT_STRUCTURE_CHANGED, sender)
+        self.change_type = change_type
+        self.runtime_id = runtime_id
+
+    def __repr__(self):
+        description = "<StructureEvent - '{}' from {} ({}, {})>".format(self.change_type, self.sender,
+                                                                        self.sender.CachedClassName,
+                                                                        self.sender.CachedName)
+        return description
+
 
 """For research purposes"""
-
-all_uia_events = {
-    'AsyncContentLoaded': IUIA().UIA_dll.UIA_AsyncContentLoadedEventId,
-    # 'AutomationFocusChanged': IUIA().UIA_dll.UIA_AutomationFocusChangedEventId,
-    # 'AutomationPropertyChanged': IUIA().UIA_dll.UIA_AutomationPropertyChangedEventId,
-    'Drag_DragCancel': IUIA().UIA_dll.UIA_Drag_DragCancelEventId,
-    'Drag_DragComplete': IUIA().UIA_dll.UIA_Drag_DragCompleteEventId,
-    'Drag_DragStart': IUIA().UIA_dll.UIA_Drag_DragStartEventId,
-    'DropTarget_DragEnter': IUIA().UIA_dll.UIA_DropTarget_DragEnterEventId,
-    'DropTarget_DragLeave': IUIA().UIA_dll.UIA_DropTarget_DragLeaveEventId,
-    'DropTarget_Dropped': IUIA().UIA_dll.UIA_DropTarget_DroppedEventId,
-    'HostedFragmentRootsInvalidated': IUIA().UIA_dll.UIA_HostedFragmentRootsInvalidatedEventId,
-    'InputDiscarded': IUIA().UIA_dll.UIA_InputDiscardedEventId,
-    'InputReachedOtherElement': IUIA().UIA_dll.UIA_InputReachedOtherElementEventId,
-    'InputReachedTarget': IUIA().UIA_dll.UIA_InputReachedTargetEventId,
-    'Invoke_Invoked': IUIA().UIA_dll.UIA_Invoke_InvokedEventId,
-    'LayoutInvalidated': IUIA().UIA_dll.UIA_LayoutInvalidatedEventId,
-    'LiveRegionChanged': IUIA().UIA_dll.UIA_LiveRegionChangedEventId,
-    'MenuClosed': IUIA().UIA_dll.UIA_MenuClosedEventId,
-    'MenuModeEnd': IUIA().UIA_dll.UIA_MenuModeEndEventId,
-    'MenuModeStart': IUIA().UIA_dll.UIA_MenuModeStartEventId,
-    'MenuOpened': IUIA().UIA_dll.UIA_MenuOpenedEventId,
-    'SelectionItem_ElementAddedToSelection': IUIA().UIA_dll.UIA_SelectionItem_ElementAddedToSelectionEventId,
-    'SelectionItem_ElementRemovedFromSelection': IUIA().UIA_dll.UIA_SelectionItem_ElementRemovedFromSelectionEventId,
-    'SelectionItem_ElementSelected': IUIA().UIA_dll.UIA_SelectionItem_ElementSelectedEventId,
-    'Selection_Invalidated': IUIA().UIA_dll.UIA_Selection_InvalidatedEventId,
-    # 'StructureChanged': IUIA().UIA_dll.UIA_StructureChangedEventId,
-    'SystemAlert': IUIA().UIA_dll.UIA_SystemAlertEventId,
-    'TextEdit_ConversionTargetChanged': IUIA().UIA_dll.UIA_TextEdit_ConversionTargetChangedEventId,
-    'TextEdit_TextChanged': IUIA().UIA_dll.UIA_TextEdit_TextChangedEventId,
-    'Text_TextChanged': IUIA().UIA_dll.UIA_Text_TextChangedEventId,
-    'Text_TextSelectionChanged': IUIA().UIA_dll.UIA_Text_TextSelectionChangedEventId,
-    'ToolTipClosed': IUIA().UIA_dll.UIA_ToolTipClosedEventId,
-    'ToolTipOpened': IUIA().UIA_dll.UIA_ToolTipOpenedEventId,
-    'Window_WindowClosed': IUIA().UIA_dll.UIA_Window_WindowClosedEventId,
-    'Window_WindowOpened': IUIA().UIA_dll.UIA_Window_WindowOpenedEventId,
-}
 
 all_uia_properties = {
     'AcceleratorKey': IUIA().UIA_dll.UIA_AcceleratorKeyPropertyId,
