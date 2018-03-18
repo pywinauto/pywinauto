@@ -1,6 +1,6 @@
 # -*- coding: latin-1 -*-
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -301,10 +301,8 @@ if sys.platform == 'win32':
         """Unit tests for the Sendkeys module (modifiers)"""
 
         def setUp(self):
-            """Start the application set some data and ensure the application
-            is in the state we want it."""
+            """Start the application and ensure it's in the state we want"""
             self.app = Application().start(os.path.join(mfc_samples(), u"CtrlTest.exe"))
-
             self.dlg = self.app.Control_Test_App
 
         def tearDown(self):

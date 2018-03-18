@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -43,7 +43,7 @@ from pywinauto.application import ProcessNotFoundError  # noqa: E402
 from pywinauto.application import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS  # noqa: E402
 from pywinauto import win32defines  # noqa: E402
-from pywinauto.timings import WaitUntil  # noqa: E402
+from pywinauto.timings import wait_until  # noqa: E402
 import pywinauto.actionlogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
@@ -80,7 +80,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
         l = findwindows.find_elements(active_only=True, class_name=class_name)
         return (len(l) > 0)
 
-    WaitUntil(_ready_timeout, _retry_interval, _cabinetwclass_exist)
+    wait_until(_ready_timeout, _retry_interval, _cabinetwclass_exist)
     handle = findwindows.find_elements(active_only=True,
                                        class_name=class_name)[-1].handle
     window = WindowSpecification({'handle': handle, 'backend': 'win32', })
@@ -147,7 +147,7 @@ def _wait_minimized(dlg):
     wanted to make sure the dlg is really got to the 'minimized' state
     because we test hiding the window to the tray.
     """
-    WaitUntil(
+    wait_until(
         timeout=_ready_timeout,
         retry_interval=_retry_interval,
         func=lambda: (dlg.GetShowState() == win32defines.SW_SHOWMINIMIZED)
@@ -262,7 +262,7 @@ class TaskbarTestCases(unittest.TestCase):
             menu_window[0] = menu
             return res
 
-        WaitUntil(self.tm, _retry_interval, _show_popup_menu)
+        wait_until(self.tm, _retry_interval, _show_popup_menu)
         menu_window[0].MenuBarClickInput("#2", self.app)
         popup_window = self.app.top_window()
         hdl = self.dlg.PopupWindow()

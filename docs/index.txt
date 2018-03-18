@@ -1,7 +1,7 @@
 ====================
 What is pywinauto
 ====================
-© Mark Mc Mahon and Contributors_, 2006-2016
+© Mark Mc Mahon and Contributors_, 2006-2018
 
 .. _Contributors: https://github.com/pywinauto/pywinauto/graphs/contributors
 
@@ -48,6 +48,11 @@ Run Python ::
 
 How does it work
 ----------------
+The core concept is described in the `Getting Started Guide`_.
+
+.. _`Getting Started Guide`: getting_started.html
+
+
 A lot is done through attribute access (``__getattribute__``) for each class. For example
 when you get the attribute of an Application or Dialog object it looks for a
 dialog or control (respectively).

@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -43,6 +43,8 @@ import time
 #import pdb
 import warnings
 from threading import Thread
+import win32api
+import pywintypes
 
 import mock
 
@@ -65,6 +67,7 @@ from pywinauto.timings import TimeoutError
 from pywinauto.timings import WaitUntil
 from pywinauto.timings import always_wait_until
 from pywinauto.timings import always_wait_until_passes
+from pywinauto.timings import timestamp  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import UIA_support
@@ -133,14 +136,16 @@ class ApplicationWarningTestCases(unittest.TestCase):
             return
 
         app = Application().start(self.sample_exe_inverted_bitness)
-        warnings.filterwarnings('always', category=UserWarning, append=True)
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            Application().connect(path=self.sample_exe_inverted_bitness)
+        # Appveyor misteries...
+        self.assertEqual(app.is_process_running(), True)
+
+        with mock.patch("warnings.warn") as mockWarn:
+            Application().connect(process=app.process)
             app.kill_()
-            assert len(w) >= 1
-            assert issubclass(w[-1].category, UserWarning)
-            assert "64-bit" in str(w[-1].message)
+            args, kw = mockWarn.call_args
+            assert len(args) == 2
+            assert "64-bit" in args[0]
+            assert args[1].__name__ == 'UserWarning'
 
 
 class ApplicationTestCases(unittest.TestCase):
@@ -287,7 +292,7 @@ class ApplicationTestCases(unittest.TestCase):
         thread = Thread(target=delayed_launch)
         thread.start()
 
-        self.assertRaises(TimeoutError, Application().connect, path=_notepad_exe(), timeout=0.5)
+        self.assertRaises(ProcessNotFoundError, Application().connect, path=_notepad_exe(), timeout=0.5)
 
         time.sleep(0.7)
 
@@ -384,7 +389,7 @@ class ApplicationTestCases(unittest.TestCase):
         # try to pass an invalid path
         self.assertRaises(
             ProcessNotFoundError,
-            Application().connect, **{'path': "no app here"})
+            Application().connect, **{'path': "no app here", 'timeout': 0.0})
 
     def test_top_window(self):
         """Test that top_window_() works correctly"""
@@ -606,6 +611,38 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
 
+    def test_process_is_running(self):
+        """Tests process is running and wait for exit function"""
+        app = Application()
+        app.start(_notepad_exe())
+        app.UntitledNotepad.wait("ready")
+        self.assertTrue(app.is_process_running())
+        self.assertRaises(TimeoutError, lambda: app.wait_for_process_exit(timeout=5, retry_interval=1))
+        app.kill()
+        app.wait_for_process_exit()
+        self.assertFalse(app.is_process_running())
+
+    def test_should_return_not_running_if_not_started(self):
+        """Tests that works on new instance
+
+        is_process_running/wait_for_process_exit can be called on not started/disconnected instance
+        """
+        app = Application()
+        app.wait_for_process_exit(timeout=10, retry_interval=1)
+        self.assertFalse(app.is_process_running())
+
+    class TestInheritedApp(Application):
+
+        """Our inherited version of class"""
+
+        def test_method(self):
+            """This method should be called without any issues"""
+            return self is not None
+
+    def test_application_inheritance(self):
+        """Test that Application class can be inherited and has it's own methods"""
+        app = ApplicationTestCases.TestInheritedApp()
+        self.assertTrue(app.test_method())
 
 class WindowSpecificationTestCases(unittest.TestCase):
 
@@ -703,68 +740,68 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # TODO: test a control that is not visible but exists
         #self.assertEquals(True, self.app.DefaultIME.Exists())
 
-        start = time.time()
+        start = timestamp()
         self.assertEquals(False, self.app.BlahBlah.Exists(timeout=.1))
-        self.assertEquals(True, time.time() - start < .3)
+        self.assertEquals(True, timestamp() - start < .3)
 
-        start = time.time()
+        start = timestamp()
         self.assertEquals(False, self.app.BlahBlah.exists(timeout=3))
-        self.assertEquals(True, 2.7 < time.time() - start < 3.3)
+        self.assertEquals(True, 2.7 < timestamp() - start < 3.3)
 
     def test_exists_timing(self):
         """test the timing of the exists method"""
         # try ones that should be found immediately
-        start = time.time()
+        start = timestamp()
         self.assertEquals(True, self.dlgspec.Exists())
-        self.assertEquals(True, time.time() - start < .3)
+        self.assertEquals(True, timestamp() - start < .3)
 
-        start = time.time()
+        start = timestamp()
         self.assertEquals(True, self.ctrlspec.Exists())
-        self.assertEquals(True, time.time() - start < .3)
+        self.assertEquals(True, timestamp() - start < .3)
 
         # try one that should not be found
-        start = time.time()
+        start = timestamp()
         self.assertEquals(True, self.dlgspec.Exists(.5))
-        timedif =  time.time() - start
+        timedif =  timestamp() - start
         self.assertEquals(True, .49 > timedif < .6)
 
     def test_wait(self):
         """test the functionality and timing of the wait method"""
         allowable_error = .2
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))
-        time_taken = (time.time() - start)
+        time_taken = (timestamp() - start)
         if not 0 <= time_taken < (0 + 2 * allowable_error):
             self.assertEqual(.02,  time_taken)
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("  ready"))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" exiSTS"))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" VISIBLE "))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" ready enabled"))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("visible exists "))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("actIve "))
-        self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+        self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
 
@@ -772,20 +809,20 @@ class WindowSpecificationTestCases(unittest.TestCase):
         """test timing of the wait method for non-existing element"""
         allowable_error = .2
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'exists')
         expected = Timings.window_find_timeout
-        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+        self.assertEqual(True, expected - allowable_error <= (timestamp() - start) < expected + allowable_error)
 
     def test_wait_invisible(self):
         """test timing of the wait method for non-existing element and existing invisible one"""
         # TODO: re-use an MFC sample for this test
         allowable_error = .2
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.app.BlahBlah.wait, 'visible')
         expected = Timings.window_find_timeout
-        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+        self.assertEqual(True, expected - allowable_error <= (timestamp() - start) < expected + allowable_error)
 
         # make sure Status Bar is not visible
         status_bar_menu = self.app.UntitledNotepad.menu().item('&View').sub_menu().item('&Status Bar')
@@ -796,13 +833,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
         status_bar_spec = self.app.UntitledNotepad.child_window(class_name="msctls_statusbar32", visible_only=False)
         self.assertEqual('StatusBar', status_bar_spec.wait('exists').friendly_class_name())
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, status_bar_spec.wait, 'exists visible')
-        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+        self.assertEqual(True, expected - allowable_error <= (timestamp() - start) < expected + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, status_bar_spec.wait, 'visible exists')
-        self.assertEqual(True, expected - allowable_error <= (time.time() - start) < expected + allowable_error)
+        self.assertEqual(True, expected - allowable_error <= (timestamp() - start) < expected + allowable_error)
 
     def test_wait_not(self):
         """
@@ -813,39 +850,39 @@ class WindowSpecificationTestCases(unittest.TestCase):
         """
         allowable_error = .16
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
-        taken = time.time() - start
+        taken = timestamp() - start
         if .1 < (taken)  > .1 + allowable_error:
             self.assertEqual(.12, taken)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "  ready", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " exiSTS", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " VISIBLE ", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " ready enabled", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "visible exists ", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "exists ", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
-        start = time.time()
+        start = timestamp()
         self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "actIve ", .1, .05)
-        self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+        self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.WaitNot, "Invalid_criteria")
 
@@ -853,15 +890,15 @@ class WindowSpecificationTestCases(unittest.TestCase):
 #        """Make sure the friendly class is set correctly"""
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitReady(.1, .05))
 #
 #        # it it didn't finish in the allocated time then raise an error
 #        # we assertEqual to something that we know is not right - to get a
 #        # better error report
-#        if not 0 <= (time.time() - start) < 0 + allowable_error:
-#            self.assertEqual(0, time.time() - start)
-#        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+#        if not 0 <= (timestamp() - start) < 0 + allowable_error:
+#            self.assertEqual(0, timestamp() - start)
+#        #self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 #
 #
 #    def testWaitNotReady(self):
@@ -869,13 +906,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
 #
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertRaises(RuntimeError, self.dlgspec.WaitNotReady, .1, .05)
 #
-#        if not .1 <= (time.time() - start) < .1 + allowable_error:
-#            self.assertEqual(.1, time.time() - start)
+#        if not .1 <= (timestamp() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, timestamp() - start)
 #
-#        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+#        #self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 #
 #
 #    def testWaitEnabled(self):
@@ -883,13 +920,13 @@ class WindowSpecificationTestCases(unittest.TestCase):
 #
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitEnabled(.1, .05))
 #
-#        if not 0 <= (time.time() - start) < 0 + allowable_error:
-#            self.assertEqual(0, time.time() - start)
+#        if not 0 <= (timestamp() - start) < 0 + allowable_error:
+#            self.assertEqual(0, timestamp() - start)
 #
-#        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+#        #self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 #
 #
 #    def testWaitNotEnabled(self):
@@ -897,60 +934,60 @@ class WindowSpecificationTestCases(unittest.TestCase):
 #
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertRaises(RuntimeError, self.dlgspec.WaitNotEnabled, .1, .05)
-#        if not .1 <= (time.time() - start) < .1 + allowable_error:
-#            self.assertEqual(.1, time.time() - start)
-#        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+#        if not .1 <= (timestamp() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, timestamp() - start)
+#        #self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 #
 #    def testWaitVisible(self):
 #        "Make sure the friendly class is set correctly"
 #
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitVisible(.1, .05))
-#        if not 0 <= (time.time() - start) < 0 + allowable_error:
-#            self.assertEqual(0, time.time() - start)
-#        #self.assertEqual(True, 0 <= (time.time() - start) < 0 + allowable_error)
+#        if not 0 <= (timestamp() - start) < 0 + allowable_error:
+#            self.assertEqual(0, timestamp() - start)
+#        #self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 #
 #    def testWaitNotVisible(self):
 #        "Make sure the friendly class is set correctly"
 #
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertRaises(RuntimeError, self.dlgspec.WaitNotVisible, .1, .05)
 #        # it it didn't finish in the allocated time then raise an error
 #        # we assertEqual to something that we know is not right - to get a
 #        # better error report
-#        if not .1 <= (time.time() - start) < .1 + allowable_error:
-#            self.assertEqual(.1, time.time() - start)
+#        if not .1 <= (timestamp() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, timestamp() - start)
 #
 #    def testWaitExists(self):
 #        "Make sure the friendly class is set correctly"
 #
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertEqual(self.dlgspec.ctrl_(), self.dlgspec.WaitExists(.1, .05))
 #
 #        # it it didn't finish in the allocated time then raise an error
 #        # we assertEqual to something that we know is not right - to get a
 #        # better error report
-#        if not 0 <= (time.time() - start) < 0 + allowable_error:
-#            self.assertEqual(.1, time.time() - start)
+#        if not 0 <= (timestamp() - start) < 0 + allowable_error:
+#            self.assertEqual(.1, timestamp() - start)
 #
 #    def testWaitNotExists(self):
 #        "Make sure the friendly class is set correctly"
 #
 #        allowable_error = .02
 #
-#        start = time.time()
+#        start = timestamp()
 #        self.assertRaises(RuntimeError, self.dlgspec.WaitNotExists, .1, .05)
-#        if not .1 <= (time.time() - start) < .1 + allowable_error:
-#            self.assertEqual(.1, time.time() - start)
-#        #self.assertEqual(True, .1 <= (time.time() - start) < .1 + allowable_error)
+#        if not .1 <= (timestamp() - start) < .1 + allowable_error:
+#            self.assertEqual(.1, timestamp() - start)
+#        #self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
     def test_depth(self):
         """Test that descendants() with depth works correctly"""

@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -158,10 +158,10 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         mockLogger = self.logger_patcher.start()
 
         actionlogger.disable()
-        mockLogger.disable.assert_called()
+        self.assertTrue(mockLogger.disable.called)
 
         actionlogger.reset_level()
-        mockLogger.reset_level.assert_called()
+        self.assertTrue(mockLogger.reset_level.called)
 
     def test_logger_enable_mapped_to_reset_level(self):
         """Test if the logger enable is mapped to reset_level"""
@@ -172,7 +172,7 @@ class ActionLoggerOnCustomLoggerTestCases(unittest.TestCase):
         mockLogger = self.logger_patcher.start()
 
         actionlogger.enable()
-        mockLogger.reset_level.assert_called()
+        self.assertTrue(mockLogger.reset_level.called)
 
 
 if __name__ == "__main__":

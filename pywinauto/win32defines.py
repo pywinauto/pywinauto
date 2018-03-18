@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -12049,3 +12049,4 @@ WM_PSD_YAFULLPAGERECT = 1030  # Variable c_int
 WM_CHOOSEFONT_SETLOGFONT = 1125  # Variable c_int
 WM_CHOOSEFONT_SETFLAGS = 1126  # Variable c_int
 WM_APP = 32768  # Variable c_int
+PROCESS_STILL_ACTIVE = 259 # Variable c_int

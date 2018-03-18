@@ -13,8 +13,9 @@ sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
-from pywinauto.actionlogger import ActionLogger
+from pywinauto.actionlogger import ActionLogger  # noqa: E402
 if UIA_support:
+    import comtypes
     import pywinauto.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
 
@@ -53,6 +54,18 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()
+
+        def test_issue_296(self):
+            """Test handling of disappered descendants"""
+            wrp = self.dlg.wrapper_object()
+            orig = wrp.element_info._element.FindAll
+            wrp.element_info._element.FindAll = mock.Mock(side_effect=ValueError("Mocked value error"),
+                                                          return_value=[])  # empty list
+            self.assertEqual([], wrp.descendants())
+            wrp.element_info._element.FindAll = mock.Mock(side_effect=comtypes.COMError("Mocked COM error", 0, 0),
+                                                          return_value=[])  # empty list
+            self.assertEqual([], wrp.descendants())
+            wrp.element_info._element = orig  # restore the original method
 
         def test_issue_278(self):
             """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
@@ -165,6 +178,43 @@ if UIA_support:
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
 
+        def test_scroll(self):
+            """Test scroll"""
+            # Check an exception on a non-scrollable control
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
+            six.assertRaisesRegex(self, AttributeError, "not scrollable",
+                                  button.scroll, "left", "page")
+
+            # Check an exception on a control without horizontal scroll bar
+            tab = self.dlg.Tree_and_List_Views.set_focus()
+            listview = tab.children(class_name=u"ListView")[0]
+            six.assertRaisesRegex(self, AttributeError, "not horizontally scrollable",
+                                  listview.scroll, "right", "line")
+
+            # Check exceptions on wrong arguments
+            self.assertRaises(ValueError, listview.scroll, "bbbb", "line")
+            self.assertRaises(ValueError, listview.scroll, "up", "aaaa")
+
+            # Store a cell position
+            cell = listview.cell(3, 0)
+            orig_rect = cell.rectangle()
+            self.assertEqual(orig_rect.left > 0, True)
+
+            # Trigger a horizontal scroll bar on the control
+            hdr = listview.get_header_control()
+            hdr_itm = hdr.children()[1]
+            trf = hdr_itm.iface_transform
+            trf.resize(1000, 20)
+            listview.scroll("right", "page", 2)
+            self.assertEqual(cell.rectangle().left < 0, True)
+
+            # Check an exception on a control without vertical scroll bar
+            tab = self.dlg.ListBox_and_Grid.set_focus()
+            datagrid = tab.children(class_name=u"DataGrid")[0]
+            six.assertRaisesRegex(self, AttributeError, "not vertically scrollable",
+                                  datagrid.scroll, "down", "page")
+
         # def testVerifyActionable(self):
         #    self.assertRaises()
 
@@ -218,18 +268,15 @@ if UIA_support:
             """Test window minimize/maximize operations"""
             wrp = self.dlg.minimize()
             self.dlg.wait_not('active')
-            self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
-                             uia_defs.window_visual_state_minimized)
+            self.assertEqual(wrp.is_minimized(), True)
             wrp.maximize()
             self.dlg.wait('active')
-            self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
-                             uia_defs.window_visual_state_maximized)
+            self.assertEqual(wrp.is_maximized(), True)
             wrp.minimize()
             self.dlg.wait_not('active')
             wrp.restore()
             self.dlg.wait('active')
-            self.assertEqual(wrp.iface_window.CurrentWindowVisualState,
-                             uia_defs.window_visual_state_normal)
+            self.assertEqual(wrp.is_normal(), True)
 
         def test_get_properties(self):
             """Test getting writeble properties of a control"""
@@ -510,6 +557,10 @@ if UIA_support:
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
 
+            # Mock a combobox without "ExpandCollapse" pattern
+            combo_box.expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())  # empty texts
+            self.assertEqual(combo_box.texts(), [])
+
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
             combo_box = self.dlg.ComboBox.wrapper_object()
@@ -649,6 +700,13 @@ if UIA_support:
             self.edit.set_edit_text(test_data)
 
             self.assertEqual(self.edit.get_line(0), test_data)
+
+        def test_get_value(self):
+            """Test getting value of the edit control"""
+            test_data = "Some value"
+            self.edit.set_edit_text(test_data)
+
+            self.assertEqual(self.edit.get_value(), test_data)
 
         def test_text_block(self):
             """Test getting the text block of the edit control"""
@@ -836,11 +894,17 @@ if UIA_support:
             self.assertEqual(datagrid.column_count(), len(self.datagrid_texts[0]) - 1)
 
         def test_get_header_control(self):
-            """Test getting a Header control of the ListView control"""
+            """Test getting a Header control and Header Item control of ListView controls"""
             # ListView
             self.listview_tab.set_focus()
             listview = self.listview_tab.children(class_name=u"ListView")[0]
-            self.assertTrue(isinstance(listview.get_header_control(), uia_ctls.HeaderWrapper))
+            hdr_ctl = listview.get_header_control()
+            self.assertTrue(isinstance(hdr_ctl, uia_ctls.HeaderWrapper))
+
+            # HeaderItem of ListView
+            hdr_itm = hdr_ctl.children()[2]
+            self.assertTrue(isinstance(hdr_itm, uia_ctls.HeaderItemWrapper))
+            self.assertTrue(hdr_itm.iface_transform.CurrentCanResize, True)
 
             # ListBox
             self.listbox_datagrid_tab.set_focus()

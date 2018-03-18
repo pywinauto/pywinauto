@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -51,6 +51,7 @@ from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.timings import wait_until  # noqa: E402
 from pywinauto import mouse  # noqa: E402
 
 
@@ -60,9 +61,13 @@ controlspy_folder_32 = controlspy_folder
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 mfc_samples_folder_32 = mfc_samples_folder
+winforms_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\WinForms_samples")
+winforms_folder_32 = winforms_folder
 if is_x64_Python():
     controlspy_folder = os.path.join(controlspy_folder, 'x64')
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+    winforms_folder = os.path.join(winforms_folder, 'x64')
 
 
 class RemoteMemoryBlockTestCases(unittest.TestCase):
@@ -430,6 +435,32 @@ class ListViewTestCases32(unittest.TestCase):
         self.assertNotEqual(item1, "Not _listview_item")
         self.assertNotEqual(item1, item2)
 
+    def test_cells_rectangles(self):
+        """Test the ListView get_item rectangle method for cells"""
+        if not self.dlg.Toolbar.Button(4).is_checked():
+            self.dlg.Toolbar.Button(4).click()
+
+        for row in range(self.ctrl.item_count() - 1):
+            for col in range(self.ctrl.column_count() - 1):
+                self.assertEqual(
+                    self.ctrl.get_item(row, col).rectangle(area="text").right,
+                    self.ctrl.get_item(row, col + 1).rectangle(area="text").left)
+                self.assertEqual(
+                    self.ctrl.get_item(row, col).rectangle(area="text").bottom,
+                    self.ctrl.get_item(row + 1, col).rectangle(area="text").top)
+
+        self.assertEqual(self.ctrl.get_item(1, 2).rectangle(area="text"),
+                                RECT(200, 36, 250, 53))
+        self.assertEqual(self.ctrl.get_item(3, 4).rectangle(area="text"),
+                                RECT(300, 70, 400, 87))
+
+    def test_inplace_control(self):
+        """Test the ListView inplace_control method for item"""
+        # Item is not editable so it will raise timeout error
+        with self.assertRaises(Exception) as context:
+            self.ctrl.get_item(0).inplace_control()
+        self.assertTrue('In-place-edit control for item' in str(context.exception))
+
 
 if is_x64_Python():
 
@@ -438,6 +469,70 @@ if is_x64_Python():
         """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
 
         path = os.path.join(mfc_samples_folder, u"RowList.exe")
+
+
+class ListViewWinFormTestCases32(unittest.TestCase):
+
+    """Unit tests for the ListViewWrapper class with WinForm applications"""
+
+    path = os.path.join(winforms_folder_32, u"ListView_TestApp.exe")
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.Defaults()
+
+        app = Application()
+        app.start(self.path)
+
+        self.dlg = app.ListViewEx
+        self.ctrl = app.ListViewEx.ListView.wrapper_object()
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.dlg.send_message(win32defines.WM_CLOSE)
+
+    def test_cell_click_input(self):
+        """Test the ListView get_item click_input method"""
+        self.ctrl.get_item(0,2).click_input(double=True, where="text")
+        self.dlg.type_keys("{ENTER}")
+        # For make sure the input is finished, click to another place
+        self.ctrl.get_item(0,3).click_input(double=False, where="text")
+        self.assertEqual(str(self.ctrl.get_item(0,2).text()), u"Clicked!")
+
+    def test_get_editor_of_datetimepicker(self):
+        """Test the ListView inplace_control method using DateTimePicker"""
+        dt_picker = self.ctrl.get_item(2,0).inplace_control("DateTimePicker")
+        dt_picker.set_time(year=2017, month=5, day=23)
+        cur_time = dt_picker.get_time();
+        self.assertEqual(cur_time.wYear, 2017)
+        self.assertEqual(cur_time.wMonth, 5)
+        self.assertEqual(cur_time.wDay, 23)
+
+    def test_get_editor_of_combobox(self):
+        """Test the ListView inplace_control method using ComboBox"""
+        combo_box = self.ctrl.get_item(1,1).inplace_control("ComboBox")
+        combo_box.select(combo_box.selected_index() - 1)
+        self.assertEqual(combo_box.selected_index(), 2)
+
+    def test_get_editor_of_editwrapper(self):
+        """Test the ListView inplace_control method using EditWrapper"""
+        dt_picker = self.ctrl.get_item(3,4).inplace_control("Edit")
+        dt_picker.set_text("201")
+        self.assertEqual(dt_picker.text_block(), u"201")
+
+    def test_get_editor_wrong_args(self):
+        """Test the ListView inplace_control case when used wrong friendly class name"""
+        with self.assertRaises(Exception) as context:
+            self.ctrl.get_item(1,1).inplace_control("Edit")
+        self.assertTrue('In-place-edit control "Edit"' in str(context.exception))
+
+if is_x64_Python():
+
+    class ListViewWinFormTestCases64(ListViewWinFormTestCases32):
+
+        """Unit tests for the 64-bit ListViewWrapper on a 32-bit sample"""
+
+        path = os.path.join(winforms_folder, u"ListView_TestApp.exe")
 
 
 class TreeViewTestCases32(unittest.TestCase):
@@ -601,9 +696,9 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.GetItem(r'\Birds')
         birds.Click(where='check')
-        self.assertEquals(birds.IsChecked(), True)
+        self.assertEqual(birds.IsChecked(), True)
         birds.click_input(where='check')
-        self.assertEquals(birds.IsChecked(), False)
+        wait_until(3, 0.4, birds.IsChecked, value=False)
 
     def testPrintItems(self):
         """Test TreeView method PrintItems()"""
@@ -702,20 +797,20 @@ class HeaderTestCases(unittest.TestCase):
         self.ctrl = app.RowListSampleApplication.Header.WrapperObject()
 
     def tearDown(self):
-        "Close the application after tests"
+        """Close the application after tests"""
         # close the application
         self.dlg.SendMessage(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
-        "Make sure the friendly class is set correctly (Header)"
+        """Make sure the friendly class is set correctly (Header)"""
         self.assertEquals(self.ctrl.friendly_class_name(), "Header")
 
     def testTexts(self):
-        "Make sure the texts are set correctly"
+        """Make sure the texts are set correctly"""
         self.assertEquals(self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
-        "Test getting the properties for the header control"
+        """Test getting the properties for the header control"""
         props = self.ctrl.GetProperties()
 
         self.assertEquals(
@@ -743,11 +838,11 @@ class HeaderTestCases(unittest.TestCase):
 
         client_rects = self.ctrl.client_rects()
         self.assertEquals(len(test_rects), len(client_rects))
-        for i in range(len(test_rects)):
-            self.assertEquals(test_rects[i].left, client_rects[i].left)
-            self.assertEquals(test_rects[i].right, client_rects[i].right)
-            self.assertEquals(test_rects[i].top, client_rects[i].top)
-            self.failIf(abs(test_rects[i].bottom - client_rects[i].bottom) > 2)  # may be equal to 17 or 19
+        for i, r in enumerate(test_rects):
+            self.assertEquals(r.left, client_rects[i].left)
+            self.assertEquals(r.right, client_rects[i].right)
+            self.assertEquals(r.top, client_rects[i].top)
+            self.failIf(abs(r.bottom - client_rects[i].bottom) > 2)  # may be equal to 17 or 19
 
     def testGetColumnText(self):
         for i in range(0, 3):
@@ -840,8 +935,7 @@ class StatusBarTestCases(unittest.TestCase):
     def testClientRects(self):
         self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
         client_rects = self.ctrl.ClientRects()[1:]
-        for i in range(len(client_rects)):
-            client_rect = client_rects[i]
+        for i, client_rect in enumerate(client_rects):
             self.assertEquals(self.part_rects[i].left, client_rect.left)
             if i != len(client_rects) - 1:
                 self.assertEquals(self.part_rects[i].right, client_rect.right)

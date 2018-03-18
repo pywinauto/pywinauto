@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -32,7 +32,7 @@
 """Implementation of the class to deal with an UI element (based on UI Automation API)"""
 
 from comtypes import COMError
-from six import integer_types
+from six import integer_types, text_type
 
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
@@ -40,11 +40,18 @@ from .uia_defines import get_elem_interface
 from .handleprops import dumpwindow, controlid
 from .element_info import ElementInfo
 from .win32structures import RECT
+from .actionlogger import ActionLogger
 
 
 def elements_from_uia_array(ptrs, cache_enable=False):
     """Build a list of UIAElementInfo elements from IUIAutomationElementArray"""
-    return [UIAElementInfo(ptrs.GetElement(n), cache_enable) for n in range(ptrs.Length)]
+    elements = []
+    for n in range(ptrs.Length):
+        try:
+            elements.append(UIAElementInfo(ptrs.GetElement(n), cache_enable))
+        except COMError:
+            continue
+    return elements
 
 
 class UIAElementInfo(ElementInfo):
@@ -71,12 +78,15 @@ class UIAElementInfo(ElementInfo):
 
         self.set_cache_strategy(cached=cache_enable)
 
+        self.set_cache_strategy(cached=cache_enable)
+
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
         try:
-            return self._element.CurrentClassName
+            cn = self._element.CurrentClassName
+            return text_type('') if cn is None else cn
         except COMError:
-            return None  # probably element already doesn't exist
+            return text_type('')  # probably element already doesn't exist
 
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
@@ -113,9 +123,10 @@ class UIAElementInfo(ElementInfo):
     def _get_current_name(self):
         """Return an actual name of the element"""
         try:
-            return self._element.CurrentName
+            n = self._element.CurrentName
+            return text_type('') if n is None else n
         except COMError:
-            return None  # probably element already doesn't exist
+            return text_type('')  # probably element already doesn't exist
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
@@ -252,8 +263,12 @@ class UIAElementInfo(ElementInfo):
 
     def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
         """Find all elements according to the given tree scope and conditions"""
-        ptrs_array = self._element.FindAll(tree_scope, cond)
-        return elements_from_uia_array(ptrs_array, cache_enable)
+        try:
+            ptrs_array = self._element.FindAll(tree_scope, cond)
+            return elements_from_uia_array(ptrs_array, cache_enable)
+        except(COMError, ValueError):
+            ActionLogger().log("COM error: can't get elements")
+            return []
 
     def children(self, **kwargs):
         """Return a list of only immediate children of the element

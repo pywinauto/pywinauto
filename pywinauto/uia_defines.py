@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -163,6 +163,7 @@ def _build_pattern_ids_dic():
         'LegacyIAccessible', 'MulipleView', 'RangeValue', 'ScrollItem', 'Scroll',
         'SelectionItem', 'Selection', 'SynchronizedInput', 'TableItem', 'Table',
         'Text', 'Toggle', 'VirtualizedItem', 'Value', 'Window',
+        'Transform',
 
         # Windows 8 and later
         'Annotation', 'Drag', 'Drop', 'ObjectModel', 'Spreadsheet',
@@ -181,12 +182,17 @@ def _build_pattern_ids_dic():
     for ptrn_name in base_names:
 
         # Construct a class name and check if it is supported by comtypes
-        cls_name = ''.join(['IUIAutomation', ptrn_name, 'Pattern'])
+        v2 = ""
+        name = ptrn_name
+        if ptrn_name.endswith("V2"):
+            name = ptrn_name[:-2]
+            v2 = "2"
+        cls_name = ''.join(['IUIAutomation', name, 'Pattern', v2])
         if hasattr(IUIA().ui_automation_client, cls_name):
             klass = getattr(IUIA().ui_automation_client, cls_name)
 
             # Contruct a pattern ID name and get the ID value
-            ptrn_id_name = 'UIA_' + ptrn_name + 'PatternId'
+            ptrn_id_name = 'UIA_' + name + 'Pattern' + v2 + 'Id'
             ptrn_id = getattr(IUIA().UIA_dll, ptrn_id_name)
 
             # Update the registry of known patterns
@@ -220,6 +226,13 @@ expand_state_leaf_node = IUIA().ui_automation_client.ExpandCollapseState_LeafNod
 window_visual_state_normal = IUIA().ui_automation_client.WindowVisualState_Normal
 window_visual_state_maximized = IUIA().ui_automation_client.WindowVisualState_Maximized
 window_visual_state_minimized = IUIA().ui_automation_client.WindowVisualState_Minimized
+
+# values for enumeration 'ScrollAmount'
+scroll_large_decrement = IUIA().ui_automation_client.ScrollAmount_LargeDecrement
+scroll_small_decrement = IUIA().ui_automation_client.ScrollAmount_SmallDecrement
+scroll_no_amount = IUIA().ui_automation_client.ScrollAmount_NoAmount
+scroll_large_increment = IUIA().ui_automation_client.ScrollAmount_LargeIncrement
+scroll_small_increment = IUIA().ui_automation_client.ScrollAmount_SmallIncrement
 
 # values for enumeration 'StructureChangeType'
 structure_change_child_added = IUIA().ui_automation_client.StructureChangeType_ChildAdded

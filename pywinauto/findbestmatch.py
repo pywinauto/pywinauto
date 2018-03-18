@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -365,8 +365,7 @@ class UniqueDict(dict):
         # add our current item
         dict.__setitem__(self, text, item)
 
-
-    def FindBestMatches(
+    def find_best_matches(
         self,
         search_text,
         clean = False,
@@ -505,16 +504,16 @@ def find_best_control_matches(search_text, controls):
 
     search_text = six.text_type(search_text)
 
-    best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
+    best_ratio, best_texts = name_control_map.find_best_matches(search_text)
 
     best_ratio_ci, best_texts_ci = \
-        name_control_map.FindBestMatches(search_text, ignore_case = True)
+        name_control_map.find_best_matches(search_text, ignore_case = True)
 
     best_ratio_clean, best_texts_clean = \
-        name_control_map.FindBestMatches(search_text, clean = True)
+        name_control_map.find_best_matches(search_text, clean = True)
 
     best_ratio_clean_ci, best_texts_clean_ci = \
-        name_control_map.FindBestMatches(
+        name_control_map.find_best_matches(
             search_text, clean = True, ignore_case = True)
 
 
@@ -546,7 +545,7 @@ def find_best_control_matches(search_text, controls):
 #    for name in ctrl_names:
 #        matcher[name] = ctrl
 #
-#    best_ratio, unused = matcher.FindBestMatches(text)
+#    best_ratio, unused = matcher.find_best_matches(text)
 #
 #    return best_ratio
 #
