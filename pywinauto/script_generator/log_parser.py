@@ -1,5 +1,4 @@
-from .recorder_events import RecorderEvent, RecorderMouseEvent, RecorderKeyboardEvent, UIAEvent, PropertyEvent, \
-    FocusEvent, StructureEvent
+from .recorder_defines import *
 
 
 class LogParser(object):
@@ -17,7 +16,7 @@ class LogParser(object):
         action_log = []
         iter = 0
         for event in self.recorder.event_log:
-            if isinstance(event, UIAEvent):
+            if isinstance(event, ApplicationEvent):
                 # Only add events if hook event has been met
                 if iter > 0:
                     action_log[iter - 1].append(event)
@@ -38,16 +37,18 @@ class LogParser(object):
         # Main parser loop
         for action in action_log:
             hook_event = action[0]
-            uia_log = action[1:]
+            application_events = action[1:]
             print("================================================================================\n"
-                  "Hook event: {}\n    UIA events: {}\n"
-                  "".format(hook_event, uia_log))
+                  "Hook event: {}\n    Application events: {}\n"
+                  "".format(hook_event, application_events))
 
             if isinstance(hook_event, RecorderMouseEvent):
                 # What happened after click (lbutton down-up)
                 if hook_event.current_key == "LButton" and hook_event.event_type == "key down":
                     # Check if text has been typed
                     for k, v in self.text_sequence.items():
+                        item_name = next(name for name in k.names)
+
                         item_name = [name for name in k.names if len(name) > 0 and not " " in name][-1]
                         script += "app.{}.{}.DO_SOMETHING_WITH_TEXT('{}')\n".format(
                             self.recorder.control_tree.root_name, item_name, v)
@@ -57,14 +58,12 @@ class LogParser(object):
                         item_name = [name for name in hook_event.control_tree_node.names
                                      if len(name) > 0 and not " " in name][-1]
 
-                        joint_log = "\n".join([str(ev) for ev in uia_log])
-                        if "Invoke_Invoked" in joint_log:
+                        joint_log = "\n".join([str(ev) for ev in application_events])
+                        if any(e for e in application_events if e.name == EVENT_INVOKED):
                             script += "app.{}.{}.invoke()\n".format(self.recorder.control_tree.root_name, item_name)
-                        elif "ToggleToggleState" in joint_log:
-                            script += "app.{}.{}.toggle()\n".format(self.recorder.control_tree.root_name, item_name)
-                        elif "MenuOpened" in joint_log:
+                        elif any(e for e in application_events if e.name == EVENT_MENU_OPENED):
                             self.menu_sequence = [hook_event.control_tree_node.ctrl.window_text(), ]
-                        elif "MenuClosed" in joint_log:
+                        elif any(e for e in application_events if e.name == EVENT_MENU_CLOSED):
                             menu_item_text = hook_event.control_tree_node.ctrl.window_text()
                             script += "app.{}.menu_select('{}')\n".format(
                                 self.recorder.control_tree.root_name,
