@@ -549,6 +549,11 @@ class HwndWrapperTests(unittest.TestCase):
         assert_regex(wrp.__str__(), "^common_controls.TabControlWrapper - '', TabControl$")
         assert_regex(wrp.__repr__(), "^<common_controls.TabControlWrapper - '', TabControl, [0-9-]+>$")
 
+    def test_children_generator(self):
+        dlg = self.dlg.wrapper_object()
+        children = [child for child in dlg.iter_children()]
+        self.assertSequenceEqual(dlg.children(), children)
+
 
 class HwndWrapperMenuTests(unittest.TestCase):
 

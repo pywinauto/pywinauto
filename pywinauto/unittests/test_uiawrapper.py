@@ -165,6 +165,24 @@ if UIA_support:
             self.assertEqual(len(button.children()), 1)
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
+        def test_children_generator(self):
+            """Test iterating children of a control"""
+            button = self.dlg.window(class_name="Button", title="OK").wrapper_object()
+            children = [child for child in button.iter_children()]
+            self.assertEqual(len(children), 1)
+            self.assertEqual(children[0].class_name(), "TextBlock")
+
+        def test_descendants(self):
+            """Test iterating descendants of a control"""
+            toolbar = self.dlg.window(title="Alpha", control_type="ToolBar").wrapper_object()
+            descendants = toolbar.descendants()
+            self.assertEqual(len(descendants), 7)
+
+        def test_descendants_generator(self):
+            toolbar = self.dlg.window(title="Alpha", control_type="ToolBar").wrapper_object()
+            descendants = [desc for desc in toolbar.iter_descendants()]
+            self.assertSequenceEqual(toolbar.descendants(), descendants)
+
         def test_is_child(self):
             """Test is_child method of a control"""
             button = self.dlg.Alpha.wrapper_object()
