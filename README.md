@@ -20,10 +20,21 @@ MS UI Automation (`backend="uia"`). User input emulation modules
 * run `pip install -U pywinauto` (dependencies will be installed automatically)
 
 ### Documentation / Help
-* [Intro on ReadTheDocs](https://pywinauto.readthedocs.io/en/latest/)
-* [Getting Started Guide](https://pywinauto.readthedocs.io/en/latest/getting_started.html) (core concept, Spy tools etc.)
-* [StackOverflow tag](https://stackoverflow.com/questions/tagged/pywinauto)
+* [Short Intro on ReadTheDocs](https://pywinauto.readthedocs.io/en/latest/)
+* [Getting Started Guide](https://pywinauto.readthedocs.io/en/latest/getting_started.html) (core concept, Spy/Inspect tools etc.)
+* [StackOverflow tag](https://stackoverflow.com/questions/tagged/pywinauto) for questions
 * [Mailing list](https://sourceforge.net/p/pywinauto/mailman/)
+
+### Enjoying this?
+Just star the repo or make a donation.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2NSZ347MSQ3RC)
+
+This is a hobby project for all of us, we do 
+[the new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
+In general the library tends to be cross-platform in the near future (Linux in 2018, macOS in 2019).
+One more potential killer feature is a reliable text based "record-replay" generator (the prototype is under development).
+More feature requests and discusions are welcome in the project issues.
 
 ### Examples
 It is simple and the resulting scripts are very readable. How simple?
