@@ -31,11 +31,11 @@ Just star the repo or make a donation.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UGXPL6AD29PHW)
 
-This is a hobby project for all of us, we do 
-[the new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
+Your help is valuable since this is a hobby project for all of us: we do 
+[new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
 In general the library tends to be cross-platform in the near future (Linux in 2018, macOS in 2019).
-One more potential killer feature is a reliable text based "record-replay" generator (the prototype is under development).
-More feature requests and discusions are welcome in the project issues.
+Reliable text based "record-replay" generator is one more feature under development.
+More feature requests and discusions are welcome in [the issues](https://github.com/pywinauto/pywinauto/issues).
 
 ### Examples
 It is simple and the resulting scripts are very readable. How simple?
