@@ -1,4 +1,4 @@
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/vvryabov)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UGXPL6AD29PHW)
 [![Join the chat at https://gitter.im/pywinauto/pywinauto](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pywinauto/pywinauto?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Documentation Status](https://readthedocs.org/projects/pywinauto/badge/?version=latest)](http://pywinauto.readthedocs.org/en/latest/?badge=latest)
 [![Windows Tests](https://ci.appveyor.com/api/projects/status/ykk30v7vcvkmpnoq/branch/master?svg=true&passingText=Windows%20tests%20-%20OK&pendingText=Windows%20tests%20-%20running&failingText=Windows%20tests%20-%20fail)](https://ci.appveyor.com/project/pywinauto/pywinauto)
@@ -29,7 +29,7 @@ MS UI Automation (`backend="uia"`). User input emulation modules
 ### Enjoying this?
 Just star the repo or make a donation.
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=2NSZ347MSQ3RC)
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UGXPL6AD29PHW)
 
 This is a hobby project for all of us, we do 
 [the new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
