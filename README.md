@@ -17,6 +17,17 @@ Supported technologies under the hood: Win32 API (`backend="win32"`; used by def
 MS UI Automation (`backend="uia"`). User input emulation modules
  `mouse` and `keyboard` work on both Windows and Linux.
 
+### Enjoying this?
+Just star the repo or make a donation.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UGXPL6AD29PHW)
+
+Your help is valuable since this is a hobby project for all of us: we do 
+[new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
+ * In general the library **tends to be cross-platform** in the near future (Linux in 2018, macOS in 2019).
+ * Reliable text based **"record-replay"** generator is also a high priority feature under development.
+ * More feature requests and discusions are welcome in [the issues](https://github.com/pywinauto/pywinauto/issues).
+
 ### Setup
 * run `pip install -U pywinauto` (dependencies will be installed automatically)
 
@@ -37,17 +48,6 @@ app.UntitledNotepad.menu_select("Help->About Notepad")
 app.AboutNotepad.OK.click()
 app.UntitledNotepad.Edit.type_keys("pywinauto Works!", with_spaces = True)
 ```
-
-### Enjoying this?
-Just star the repo or make a donation.
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UGXPL6AD29PHW)
-
-Your help is valuable since this is a hobby project for all of us: we do 
-[new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
- * In general the library **tends to be cross-platform** in the near future (Linux in 2018, macOS in 2019).
- * Reliable text based **"record-replay"** generator is also a high priority feature under development.
- * More feature requests and discusions are welcome in [the issues](https://github.com/pywinauto/pywinauto/issues).
 
 ### MS UI Automation Example
 More detailed example for `explorer.exe`:
