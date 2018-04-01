@@ -26,18 +26,7 @@ MS UI Automation (`backend="uia"`). User input emulation modules
 * [StackOverflow tag](https://stackoverflow.com/questions/tagged/pywinauto) for questions
 * [Mailing list](https://sourceforge.net/p/pywinauto/mailman/)
 
-### Enjoying this?
-Just star the repo or make a donation.
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UGXPL6AD29PHW)
-
-Your help is valuable since this is a hobby project for all of us: we do 
-[new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
- * In general the library **tends to be cross-platform** in the near future (Linux in 2018, macOS in 2019).
- * Reliable text based **"record-replay"** generator is also a high priority feature under development.
- * More feature requests and discusions are welcome in [the issues](https://github.com/pywinauto/pywinauto/issues).
-
-### Examples
+### Simple Example
 It is simple and the resulting scripts are very readable. How simple?
 
 ```python
@@ -49,7 +38,19 @@ app.AboutNotepad.OK.click()
 app.UntitledNotepad.Edit.type_keys("pywinauto Works!", with_spaces = True)
 ```
 
-More detailed example for `explorer.exe` (using **MS UI Automation**):
+### Enjoying this?
+Just star the repo or make a donation.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UGXPL6AD29PHW)
+
+Your help is valuable since this is a hobby project for all of us: we do 
+[new features](https://github.com/pywinauto/pywinauto/issues?q=is%3Aissue+is%3Aopen+label%3A%22New+Feature%22) development during out-of-office hours.
+ * In general the library **tends to be cross-platform** in the near future (Linux in 2018, macOS in 2019).
+ * Reliable text based **"record-replay"** generator is also a high priority feature under development.
+ * More feature requests and discusions are welcome in [the issues](https://github.com/pywinauto/pywinauto/issues).
+
+### MS UI Automation Example
+More detailed example for `explorer.exe`:
 
 ```python
 from pywinauto import Desktop, Application
@@ -57,6 +58,7 @@ from pywinauto import Desktop, Application
 Application().start('explorer.exe "C:\\Program Files"')
 
 # connect to another process spawned by explorer.exe
+# Note: make sure the script is running as Administrator!
 app = Application(backend="uia").connect(path="explorer.exe", title="Program Files")
 
 app.ProgramFiles.set_focus()
