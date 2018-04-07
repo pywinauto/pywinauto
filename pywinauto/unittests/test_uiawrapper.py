@@ -291,6 +291,7 @@ if UIA_support:
                              'is_keyboard_focusable',
                              'has_keyboard_focus',
                              'selection_indices',
+                             'automation_id',
                              ])
             edit = self.dlg.TestLabelEdit.wrapper_object()
             props = set(edit.get_properties().keys())
