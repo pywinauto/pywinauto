@@ -61,7 +61,7 @@ if sys.platform == 'win32':
     try:
         import win32api # check if it was already installed manually
     except ImportError:
-        install_requires.append('pypiwin32')
+        install_requires.append('pywin32')
 
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
 else:
@@ -69,7 +69,7 @@ else:
     packages = ["pywinauto", "pywinauto.linux"]
 
 setup(name='pywinauto',
-    version = '0.6.4',
+    version = '0.6.5',
     description = 'A set of Python modules to automate the Microsoft Windows GUI',
     keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
     url = "http://pywinauto.github.io/",
@@ -99,12 +99,10 @@ Useful links
         'License :: OSI Approved :: BSD License',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',

@@ -1,10 +1,10 @@
-pypiwin32
+pywin32
 six
 Pillow==4.0.0
 coverage
 nose
 codecov
 rst2pdf
-Sphinx==1.7.1
+Sphinx
 mock==2.0.0
 codacy-coverage
