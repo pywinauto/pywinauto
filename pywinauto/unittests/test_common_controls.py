@@ -527,13 +527,13 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         self.assertTrue('In-place-edit control "Edit"' in str(context.exception))
 
     def test_automation_id_by_win32(self):
-        list_view_spec = self.app.ListViewEx_Demo.child_window(auto_id="listViewEx1")
+        list_view_spec = self.dlg.child_window(auto_id="listViewEx1")
         self.assertEqual(list_view_spec.automation_id(), "listViewEx1")
         
-        check_box_spec = self.app.ListViewEx_Demo.child_window(auto_id="checkBoxDoubleClickActivation")
+        check_box_spec = self.dlg.child_window(auto_id="checkBoxDoubleClickActivation")
         self.assertEqual(check_box_spec.automation_id(), "checkBoxDoubleClickActivation")
         
-        check_box_spec = self.app.ListViewEx_Demo.checkBoxDoubleClickActivation
+        check_box_spec = self.dlg.checkBoxDoubleClickActivation
         self.assertEqual(check_box_spec.automation_id(), "checkBoxDoubleClickActivation")
 
 if is_x64_Python():
