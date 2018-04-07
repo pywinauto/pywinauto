@@ -5,6 +5,6 @@ coverage
 nose
 codecov
 rst2pdf
-Sphinx
+Sphinx==1.7.1
 mock==2.0.0
 codacy-coverage
