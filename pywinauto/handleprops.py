@@ -93,7 +93,7 @@ def text(handle):
 
 
 #=========================================================================
-def dotnetname(handle):
+def dotnetname(ctrl):
     """Return the .NET name of the control"""
     textval = ''
 
@@ -101,10 +101,10 @@ def dotnetname(handle):
     if wm_gcn > 0:
         length = 1024
 
-        remote_mem = RemoteMemoryBlock(handle, size=length)
+        remote_mem = RemoteMemoryBlock(ctrl, size=length)
 
         ret = win32functions.SendMessage(
-            handle, wm_gcn, length, remote_mem)
+            ctrl.handle, wm_gcn, length, remote_mem)
 
         if ret:
             text = ctypes.create_unicode_buffer(length)
