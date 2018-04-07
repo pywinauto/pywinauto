@@ -150,3 +150,8 @@ class HwndElementInfo(ElementInfo):
         if not isinstance(other, HwndElementInfo):
             return self.handle == other
         return self.handle == other.handle
+
+    @property
+    def automation_id(self):
+        """Return AutomationId of the element"""
+        return handleprops.dotnetname(self.handle)

@@ -171,7 +171,6 @@ class HwndWrapper(BaseWrapper):
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_).
     """
-
     handle = None
 
     # -----------------------------------------------------------
@@ -215,6 +214,7 @@ class HwndWrapper(BaseWrapper):
                       'client_rects',
                       'is_unicode',
                       'menu_items',
+                      'automation_id',
                       ])
         return props
 
@@ -247,6 +247,11 @@ class HwndWrapper(BaseWrapper):
         return handleprops.exstyle(self)
     # Non PEP-8 alias
     ExStyle = exstyle
+
+    #------------------------------------------------------------
+    def automation_id(self):
+        """Return the .NET name of the control"""
+        return self.element_info.automation_id
 
     # -----------------------------------------------------------
     def user_data(self):
