@@ -39,6 +39,7 @@ import ctypes
 import win32process
 import win32api
 import win32con
+import win32gui
 
 from . import win32functions
 from . import win32defines
@@ -100,11 +101,9 @@ def dotnetname(ctrl):
     wm_gcn = win32functions.RegisterWindowMessage('WM_GETCONTROLNAME')
     if wm_gcn > 0:
         length = 1024
+        remote_mem = RemoteMemoryBlock(ctrl, size=length*2)
 
-        remote_mem = RemoteMemoryBlock(ctrl, size=length)
-
-        ret = win32functions.SendMessage(
-            ctrl.handle, wm_gcn, length, remote_mem.memAddress)
+        ret = win32gui.SendMessage(ctrl.handle, wm_gcn, length, remote_mem.mem_address)
 
         if ret:
             text = ctypes.create_unicode_buffer(length)

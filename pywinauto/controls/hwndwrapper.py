@@ -446,11 +446,11 @@ class HwndWrapper(BaseWrapper):
         """Send a message to the control and wait for it to return"""
         #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
-        if hasattr(wparam, 'memAddress'):
-            wParamAddress = wparam.memAddress
+        if hasattr(wparam, 'mem_address'):
+            wParamAddress = wparam.mem_address
         lParamAddress = lparam
-        if hasattr(lparam, 'memAddress'):
-            lParamAddress = lparam.memAddress
+        if hasattr(lparam, 'mem_address'):
+            lParamAddress = lparam.mem_address
 
         CArgObject = type(ctypes.byref(ctypes.c_int(0)))
         if isinstance(wparam, CArgObject):
