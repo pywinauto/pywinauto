@@ -104,7 +104,7 @@ def dotnetname(ctrl):
         remote_mem = RemoteMemoryBlock(ctrl, size=length)
 
         ret = win32functions.SendMessage(
-            ctrl.handle, wm_gcn, length, remote_mem)
+            ctrl.handle, wm_gcn, length, remote_mem.memAddress)
 
         if ret:
             text = ctypes.create_unicode_buffer(length)
