@@ -3,3 +3,4 @@ mock==2.0.0
 rst2pdf
 six==1.10.0
 Sphinx==1.4.1
+pywin32
