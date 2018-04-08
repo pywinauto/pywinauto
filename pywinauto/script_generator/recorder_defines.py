@@ -185,7 +185,7 @@ class PROPERTY(object):
     TABLE_ITEM_ROW_HEADER_ITEMS = "TableItemRowHeaderItems"
     TABLE_ROW_HEADERS = "TableRowHeaders"
     TABLE_ROW_OR_COLUMN_MAJOR = "TableRowOrColumnMajor"
-    TOGGLE_TOGGLE_STATE = "ToggleToggleState"
+    TOGGLE_STATE = "ToggleState"
     TRANSFORM2_CAN_ZOOM = "Transform2CanZoom"
     TRANSFORM2_ZOOM_LEVEL = "Transform2ZoomLevel"
     TRANSFORM2_ZOOM_MAXIMUM = "Transform2ZoomMaximum"

@@ -58,7 +58,7 @@ class LogParser(object):
                         item_name = [name for name in hook_event.control_tree_node.names
                                      if len(name) > 0 and not " " in name][-1]
 
-                        joint_log = "\n".join([str(ev) for ev in application_events])
+                        # Handle simple events
                         if any(e for e in application_events if e.name == EVENT.INVOKED):
                             script += "app.{}.{}.invoke()\n".format(self.recorder.control_tree.root_name, item_name)
                         elif any(e for e in application_events if e.name == EVENT.MENU_OPENED):
@@ -69,6 +69,20 @@ class LogParser(object):
                                 self.recorder.control_tree.root_name,
                                 " -> ".join(self.menu_sequence + [menu_item_text, ]))
                             self.menu_sequence = [menu_item_text, ]
+                        # Handle PropertyEvent
+                        elif any(e for e in application_events if isinstance(e, PropertyEvent)):
+                            def prop_gen():
+                                for e in application_events:
+                                    if isinstance(e, PropertyEvent):
+                                        yield e
+
+                            prop1 = next(prop_gen())
+                            if prop1.property_name == PROPERTY.EXPAND_COLLAPSE_STATE and hasattr(prop1.new_value,
+                                                                                                 "value"):
+                                script += "app.{}.{}.{}()\n".format(self.recorder.control_tree.root_name, item_name,
+                                                                    "expand" if prop1.new_value.value else "collapse")
+                            elif prop1.property_name == PROPERTY.TOGGLE_STATE:
+                                script += "app.{}.{}.toggle()\n".format(self.recorder.control_tree.root_name, item_name)
                         else:
                             script += "app.{}.{}.click_input()\n".format(self.recorder.control_tree.root_name,
                                                                          item_name)

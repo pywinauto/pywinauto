@@ -186,7 +186,7 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_TableItemRowHeaderItemsPropertyId: PROPERTY.TABLE_ITEM_ROW_HEADER_ITEMS,
     IUIA().UIA_dll.UIA_TableRowHeadersPropertyId: PROPERTY.TABLE_ROW_HEADERS,
     IUIA().UIA_dll.UIA_TableRowOrColumnMajorPropertyId: PROPERTY.TABLE_ROW_OR_COLUMN_MAJOR,
-    IUIA().UIA_dll.UIA_ToggleToggleStatePropertyId: PROPERTY.TOGGLE_TOGGLE_STATE,
+    IUIA().UIA_dll.UIA_ToggleToggleStatePropertyId: PROPERTY.TOGGLE_STATE,
     IUIA().UIA_dll.UIA_Transform2CanZoomPropertyId: PROPERTY.TRANSFORM2_CAN_ZOOM,
     IUIA().UIA_dll.UIA_Transform2ZoomLevelPropertyId: PROPERTY.TRANSFORM2_ZOOM_LEVEL,
     IUIA().UIA_dll.UIA_Transform2ZoomMaximumPropertyId: PROPERTY.TRANSFORM2_ZOOM_MAXIMUM,

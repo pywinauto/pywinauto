@@ -91,8 +91,11 @@ class UiaRecorder(COMObject, Recorder):
             self._add_handlers(self.ctrl.element_info.element)
             self.control_tree = ControlTree(self.ctrl)
         except Exception as exc:
+            # TODO: Sometime we can't catch WindowClosed event in WPF applications
+            self.stop()
+            self.script += "app.kill()\n"
             # Skip exceptions thrown by AddPropertyChangedEventHandler
-            print("Exception: {}".format(exc))
+            # print("Exception: {}".format(exc))
 
     def _cleanup(self):
         IUIA().iuia.RemoveAllEventHandlers()
@@ -158,7 +161,7 @@ class UiaRecorder(COMObject, Recorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = PropertyEvent(sender=sender, property_name=IUIA().known_properties_ids[propertyId], new_value=newValue)
+        event = PropertyEvent(sender=sender, property_name=PROPERTY_ID_TO_NAME_MAP[propertyId], new_value=newValue)
         self.add_to_log(event)
 
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
