@@ -133,17 +133,17 @@ class UiaRecorder(COMObject, Recorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = ApplicationEvent(name=EVENT_ID_EVENT_NAME_MAP[eventID], sender=sender)
+        event = ApplicationEvent(name=EVENT_ID_TO_NAME_MAP[eventID], sender=sender)
         self.add_to_log(event)
 
-        if event.name == EVENT_MENU_START:
+        if event.name == EVENT.MENU_START:
             self.control_tree.rebuild()
-        elif event.name == EVENT_MENU_OPENED:
+        elif event.name == EVENT.MENU_OPENED:
             self._add_handlers(sender)
-        elif event.name == EVENT_WINDOW_OPENED:
+        elif event.name == EVENT.WINDOW_OPENED:
             self._add_handlers(sender)
             self.control_tree.rebuild()
-        elif event.name == EVENT_WINDOW_CLOSED:
+        elif event.name == EVENT.WINDOW_CLOSED:
             # Detect if top_window is already closed
             try:
                 process_id = self.ctrl.element_info.process_id
@@ -165,7 +165,7 @@ class UiaRecorder(COMObject, Recorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = FocusEvent(sender=sender)
+        event = ApplicationEvent(name=EVENT.FOCUS_CHANGED, sender=sender)
         self.add_to_log(event)
 
     def IUIAutomationStructureChangedEventHandler_HandleStructureChangedEvent(self, sender, changeType, runtimeId):

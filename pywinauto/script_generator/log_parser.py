@@ -59,11 +59,11 @@ class LogParser(object):
                                      if len(name) > 0 and not " " in name][-1]
 
                         joint_log = "\n".join([str(ev) for ev in application_events])
-                        if any(e for e in application_events if e.name == EVENT_INVOKED):
+                        if any(e for e in application_events if e.name == EVENT.INVOKED):
                             script += "app.{}.{}.invoke()\n".format(self.recorder.control_tree.root_name, item_name)
-                        elif any(e for e in application_events if e.name == EVENT_MENU_OPENED):
+                        elif any(e for e in application_events if e.name == EVENT.MENU_OPENED):
                             self.menu_sequence = [hook_event.control_tree_node.ctrl.window_text(), ]
-                        elif any(e for e in application_events if e.name == EVENT_MENU_CLOSED):
+                        elif any(e for e in application_events if e.name == EVENT.MENU_CLOSED):
                             menu_item_text = hook_event.control_tree_node.ctrl.window_text()
                             script += "app.{}.menu_select('{}')\n".format(
                                 self.recorder.control_tree.root_name,
