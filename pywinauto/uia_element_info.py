@@ -290,8 +290,6 @@ class UIAElementInfo(ElementInfo):
         while element:
             yield UIAElementInfo(element)
             element = tree_walker.GetNextSiblingElement(element)
-        else:
-            return
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
