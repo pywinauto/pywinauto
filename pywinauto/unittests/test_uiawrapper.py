@@ -118,6 +118,13 @@ if UIA_support:
                                      title="OK").wrapper_object()
             self.assertEqual(button.control_id(), None)
 
+        def test_automation_id(self):
+            """Test getting automation ID"""
+            alpha_toolbar = self.dlg.child_window(title="Alpha", control_type="ToolBar")
+            button = alpha_toolbar.child_window(control_type="Button",
+                                                auto_id="OverflowButton").wrapper_object()
+            self.assertEqual(button.automation_id(), "OverflowButton")
+
         def test_is_visible(self):
             """Test is_visible method of a control"""
             button = self.dlg.window(class_name="Button",
