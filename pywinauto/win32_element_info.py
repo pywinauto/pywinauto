@@ -154,4 +154,9 @@ class HwndElementInfo(ElementInfo):
     @property
     def automation_id(self):
         """Return AutomationId of the element"""
-        return handleprops.dotnetname(self)
+        return handleprops.automation_id(self)
+
+    @property
+    def control_type(self):
+        """Return ControlType property of the element"""
+        return handleprops.control_type(self)

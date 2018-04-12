@@ -141,7 +141,7 @@ SendMessageTimeout  =   ctypes.windll.user32.SendMessageTimeoutW
 SendMessageA		=	ctypes.windll.user32.SendMessageA
 PostMessage			=	ctypes.windll.user32.PostMessageW
 GetMessage          =   ctypes.windll.user32.GetMessageW
-RegisterWindowMessage = ctypes.windll.user32.RegisterWindowMessageA
+RegisterWindowMessage = ctypes.windll.user32.RegisterWindowMessageW
 
 MoveWindow          =   ctypes.windll.user32.MoveWindow
 EnableWindow        =   ctypes.windll.user32.EnableWindow
