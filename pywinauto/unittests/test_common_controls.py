@@ -527,14 +527,21 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         self.assertTrue('In-place-edit control "Edit"' in str(context.exception))
 
     def test_automation_id_by_win32(self):
-        list_view = self.dlg.child_window(auto_id="listViewEx1").wait('visible', timeout=50)
+        list_view = self.dlg.child_window(auto_id="listViewEx1").wait('visible')
         self.assertEqual(list_view.automation_id(), "listViewEx1")
 
-        check_box = self.dlg.child_window(auto_id="checkBoxDoubleClickActivation").wait('visible', timeout=50)
+        check_box = self.dlg.child_window(auto_id="checkBoxDoubleClickActivation").wait('visible')
         self.assertEqual(check_box.automation_id(), "checkBoxDoubleClickActivation")
 
-        check_box = self.dlg.checkBoxDoubleClickActivation.wait('visible', timeout=50)
+        check_box = self.dlg.checkBoxDoubleClickActivation.wait('visible')
         self.assertEqual(check_box.automation_id(), "checkBoxDoubleClickActivation")
+
+    def test_win32_control_type(self):
+        list_view = self.dlg.child_window(control_type="ListViewEx.ListViewEx").wait('visible')
+        self.assertEqual(list_view.control_type(), "ListViewEx.ListViewEx")
+
+        check_box = self.dlg.child_window(control_type="System.Windows.Forms.CheckBox").wait('visible')
+        self.assertEqual(check_box.control_type(), "System.Windows.Forms.CheckBox")
 
 if is_x64_Python():
 
@@ -1288,7 +1295,7 @@ class RebarTestCases(unittest.TestCase):
         """Make sure we can click on Afx ToolBar button by index"""
         Timings.closeclick_dialog_close_wait = 2.
         self.dlg.StandardToolbar.Button(1).Click()
-        self.app.Window_(title='Open').Wait('ready')
+        self.app.Window_(title='Open').Wait('ready', timeout=30)
         self.app.Window_(title='Open').Cancel.CloseClick()
 
     def testMenuBarClickInput(self):

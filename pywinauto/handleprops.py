@@ -139,6 +139,10 @@ def control_type(ctrl):
     else:
         raise Exception("Cannot register WM_GETCONTROLTYPE")
 
+    # simplify control type for WinForms controls
+    if "PublicKeyToken" in textval:
+        textval = textval.split(", ")[0]
+
     return textval
 
 
