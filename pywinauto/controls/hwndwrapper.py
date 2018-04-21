@@ -65,6 +65,7 @@ from .. import timings
 from .. import handleprops
 from ..win32_element_info import HwndElementInfo
 from .. import backend
+from ..remote_memory_block import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -257,6 +258,24 @@ class HwndWrapper(BaseWrapper):
     def control_type(self):
         """Return the .NET name of the control"""
         return self.element_info.control_type
+
+    #------------------------------------------------------------
+    def full_control_type(self):
+        """Return the .NET type of the control"""
+        textval = ''
+
+        length = 1024
+        remote_mem = RemoteMemoryBlock(self, size=length*2)
+
+        ret = win32gui.SendMessage(self.handle, self.element_info.wm_get_ctrl_type, length, remote_mem.mem_address)
+
+        if ret:
+            text = ctypes.create_unicode_buffer(length)
+            remote_mem.Read(text)
+            textval = text.value
+
+        del remote_mem
+        return textval
 
     # -----------------------------------------------------------
     def user_data(self):

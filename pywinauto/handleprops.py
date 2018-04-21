@@ -40,13 +40,11 @@ import win32process
 import win32api
 import win32con
 import win32gui
-import six
 
 from . import win32functions
 from . import win32defines
 from . import win32structures
 from .actionlogger import ActionLogger
-from .remote_memory_block import RemoteMemoryBlock
 
 
 #=========================================================================
@@ -90,58 +88,6 @@ def text(handle):
 
         if ret:
             textval = buffer_.value
-
-    return textval
-
-
-#=========================================================================
-def automation_id(ctrl):
-    """Return the automation ID property of the control"""
-    textval = ''
-
-    wm_gcn = win32functions.RegisterWindowMessage(six.text_type('WM_GETCONTROLNAME'))
-    if wm_gcn > 0:
-        length = 1024
-        remote_mem = RemoteMemoryBlock(ctrl, size=length*2)
-
-        ret = win32gui.SendMessage(ctrl.handle, wm_gcn, length, remote_mem.mem_address)
-
-        if ret:
-            text = ctypes.create_unicode_buffer(length)
-            remote_mem.Read(text)
-            textval = text.value
-
-        del remote_mem
-    else:
-        raise Exception("Cannot register WM_GETCONTROLNAME")
-
-    return textval
-
-
-#=========================================================================
-def control_type(ctrl):
-    """Return the control type property of the control"""
-    textval = ''
-
-    wm_gcn = win32functions.RegisterWindowMessage(six.text_type('WM_GETCONTROLTYPE'))
-    if wm_gcn > 0:
-        length = 1024
-        remote_mem = RemoteMemoryBlock(ctrl, size=length*2)
-
-        ret = win32gui.SendMessage(ctrl.handle, wm_gcn, length, remote_mem.mem_address)
-
-        if ret:
-            text = ctypes.create_unicode_buffer(length)
-            remote_mem.Read(text)
-            textval = text.value
-
-        del remote_mem
-    else:
-        raise Exception("Cannot register WM_GETCONTROLTYPE")
-
-    # simplify control type for WinForms controls
-    if "PublicKeyToken" in textval:
-        textval = textval.split(", ")[0]
 
     return textval
 

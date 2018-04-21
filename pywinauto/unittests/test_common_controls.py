@@ -539,9 +539,15 @@ class ListViewWinFormTestCases32(unittest.TestCase):
     def test_win32_control_type(self):
         list_view = self.dlg.child_window(control_type="ListViewEx.ListViewEx").wait('visible')
         self.assertEqual(list_view.control_type(), "ListViewEx.ListViewEx")
+        self.assertEqual(list_view.full_control_type(),
+                         "ListViewEx.ListViewEx, ListViewEx, Version=1.0.6520.42612, " \
+                         "Culture=neutral, PublicKeyToken=null")
 
         check_box = self.dlg.child_window(control_type="System.Windows.Forms.CheckBox").wait('visible')
         self.assertEqual(check_box.control_type(), "System.Windows.Forms.CheckBox")
+        self.assertEqual(check_box.full_control_type(),
+                         "System.Windows.Forms.CheckBox, System.Windows.Forms, " \
+                         "Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
 
 if is_x64_Python():
 
