@@ -39,7 +39,6 @@ import ctypes
 import win32process
 import win32api
 import win32con
-import win32gui
 
 from . import win32functions
 from . import win32defines
