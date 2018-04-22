@@ -117,9 +117,9 @@ class HwndElementInfo(ElementInfo):
 
     def children(self, **kwargs):
         """Return a list of immediate children of the window"""
-        class_name = kwargs.get('class_name')
-        title = kwargs.get('title')
-        control_type = kwargs.get('control_type')
+        class_name = kwargs.get('class_name', None)
+        title = kwargs.get('title', None)
+        control_type = kwargs.get('control_type', None)
         # TODO: 'cache_enable' and 'depth' are ignored so far
         
         # this will be filled in the callback function
@@ -130,11 +130,11 @@ class HwndElementInfo(ElementInfo):
         def enum_window_proc(hwnd, lparam):
             """Called for each window - adds wrapped elements to a list"""
             element = HwndElementInfo(hwnd)
-            if class_name and class_name != element.class_name:
+            if class_name is not None and class_name != element.class_name:
                 return True
-            if title and title != element.rich_text:
+            if title is not None and title != element.rich_text:
                 return True
-            if control_type and control_type != element.control_type:
+            if control_type is not None and control_type != element.control_type:
                 return True
             child_elements.append(element)
             return True
@@ -157,11 +157,16 @@ class HwndElementInfo(ElementInfo):
 
     def descendants(self, **kwargs):
         """Return descendants of the window (all children from sub-tree)"""
-        child_elements = self.children(**kwargs)
+        if self == HwndElementInfo(): # root
+            top_elements = self.children()
+            child_elements = self.children(**kwargs)
+            for child in top_elements:
+                child_elements.extend(child.children(**kwargs))
+        else:
+            child_elements = self.children(**kwargs)
         depth = kwargs.pop('depth', None)
 
         child_elements = ElementInfo.filter_with_depth(child_elements, self, depth)
-
         return child_elements
 
     @property
