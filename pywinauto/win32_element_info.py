@@ -53,7 +53,7 @@ def _register_win_msg(msg_name):
 class HwndElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
-    
+
     wm_get_ctrl_name = _register_win_msg('WM_GETCONTROLNAME')
     wm_get_ctrl_type = _register_win_msg('WM_GETCONTROLTYPE')
 
