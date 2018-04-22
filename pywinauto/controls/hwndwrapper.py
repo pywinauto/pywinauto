@@ -256,12 +256,12 @@ class HwndWrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def control_type(self):
-        """Return the .NET name of the control"""
+        """Return the .NET type of the control"""
         return self.element_info.control_type
 
     #------------------------------------------------------------
     def full_control_type(self):
-        """Return the .NET type of the control"""
+        """Return the .NET type of the control (full, uncut)"""
         textval = ''
 
         length = 1024
