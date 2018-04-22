@@ -126,6 +126,12 @@ class HwndElementInfo(ElementInfo):
             child_handles = handleprops.children(self._handle)
         return [HwndElementInfo(ch) for ch in child_handles]
 
+    def iter_children(self, **kwargs):
+        """Return a generator of immediate children of the window"""
+        # TODO: Iterate over children using Win32 API
+        for child in self.children(**kwargs):
+            yield child
+
     def descendants(self, **kwargs):
         """Return descendants of the window (all children from sub-tree)"""
         child_handles = handleprops.children(self.handle)
