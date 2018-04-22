@@ -121,7 +121,7 @@ class HwndElementInfo(ElementInfo):
         title = kwargs.get('title', None)
         control_type = kwargs.get('control_type', None)
         # TODO: 'cache_enable' and 'depth' are ignored so far
-        
+
         # this will be filled in the callback function
         child_elements = []
 
