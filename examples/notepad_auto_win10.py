@@ -31,7 +31,7 @@
 
 
 #OS Supported : Windows 10 only
-#Goal :: Automating few Notepad operations to
+#Goal :: Automating few Notepad operations to test things
 #For debug purpose I have put some print statements also
 #NOTE : To make the things little slow I have given 1secs of sleep time. You can remove that if you don't want the delay.
 
