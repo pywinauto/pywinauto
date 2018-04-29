@@ -65,7 +65,6 @@ from .. import timings
 from .. import handleprops
 from ..win32_element_info import HwndElementInfo
 from .. import backend
-from ..remote_memory_block import RemoteMemoryBlock
 
 # I leave this optional because PIL is a large dependency
 try:
