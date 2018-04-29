@@ -32,6 +32,7 @@
 """Implementation of the class to deal with a native element (window with a handle)"""
 
 import ctypes
+from ctypes import wintypes
 
 import six
 import win32gui
@@ -140,8 +141,7 @@ class HwndElementInfo(ElementInfo):
             return True
 
         # define the type of the child procedure
-        enum_win_proc_t = ctypes.WINFUNCTYPE(
-            ctypes.c_int, ctypes.c_long, ctypes.c_long)
+        enum_win_proc_t = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
         # 'construct' the callback with our function
         proc = enum_win_proc_t(enum_window_proc)
@@ -202,9 +202,8 @@ class HwndElementInfo(ElementInfo):
         del remote_mem
         return textval
 
-    @property
-    def control_type(self):
-        """Return control type of the element"""
+    def __get_control_type(self, full=False):
+        """Internal parameterized method to distinguish control_type and full_control_type properties"""
         textval = ''
 
         length = 1024
@@ -220,6 +219,16 @@ class HwndElementInfo(ElementInfo):
         del remote_mem
 
         # simplify control type for WinForms controls
-        if "PublicKeyToken" in textval:
+        if (not full) and ("PublicKeyToken" in textval):
             textval = textval.split(", ")[0]
         return textval
+
+    @property
+    def control_type(self):
+        """Return control type of the element"""
+        return self.__get_control_type(full=False)
+
+    @property
+    def full_control_type(self):
+        """Return full string of control type of the element"""
+        return self.__get_control_type(full=True)
