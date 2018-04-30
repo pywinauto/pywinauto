@@ -1011,7 +1011,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 content = str(test_log_file.readlines())
                 self.assertTrue("'Untitled - NotepadEdit'" in content
                     and "'Edit'" in content)
-                self.assertTrue("child_window(class_name=\"msctls_statusbar32\")" in content)
+                self.assertTrue("child_window(class_name=\"msctls_statusbar32\"" in content)
             os.remove(output_filename)
         else:
             self.fail("print_control_identifiers can't create a file")

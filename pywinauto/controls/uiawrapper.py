@@ -341,6 +341,7 @@ class UIAWrapper(BaseWrapper):
         props = super(UIAWrapper, self).writable_props
         props.extend(['is_keyboard_focusable',
                       'has_keyboard_focus',
+                      'automation_id',
                       ])
         return props
 
@@ -380,6 +381,11 @@ class UIAWrapper(BaseWrapper):
                 else:
                     self.friendlyclassname = _friendly_classes[ctrl_type]
         return self.friendlyclassname
+
+    #------------------------------------------------------------
+    def automation_id(self):
+        """Return the Automation ID of the control"""
+        return self.element_info.automation_id
 
     # -----------------------------------------------------------
     def is_keyboard_focusable(self):

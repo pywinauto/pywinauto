@@ -32,15 +32,31 @@
 """Implementation of the class to deal with a native element (window with a handle)"""
 
 import ctypes
+from ctypes import wintypes
+
+import six
+import win32gui
 
 from . import win32functions
 from . import handleprops
 from .element_info import ElementInfo
+from .remote_memory_block import RemoteMemoryBlock
+
+
+def _register_win_msg(msg_name):
+    msg_id = win32functions.RegisterWindowMessage(six.text_type(msg_name))
+    if msg_id > 0:
+        return msg_id
+    else:
+        raise Exception("Cannot register {}".format(msg_name))
 
 
 class HwndElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
+
+    wm_get_ctrl_name = _register_win_msg('WM_GETCONTROLNAME')
+    wm_get_ctrl_type = _register_win_msg('WM_GETCONTROLTYPE')
 
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
@@ -102,29 +118,42 @@ class HwndElementInfo(ElementInfo):
 
     def children(self, **kwargs):
         """Return a list of immediate children of the window"""
-        if self == HwndElementInfo():  # self == root
-            child_handles = []
+        class_name = kwargs.get('class_name', None)
+        title = kwargs.get('title', None)
+        control_type = kwargs.get('control_type', None)
+        # TODO: 'cache_enable' and 'depth' are ignored so far
 
-            # The callback function that will be called for each HWND
-            # all we do is append the wrapped handle
-            def enum_window_proc(hwnd, lparam):
-                """Called for each window - adds handles to a list"""
-                child_handles.append(hwnd)
+        # this will be filled in the callback function
+        child_elements = []
+
+        # The callback function that will be called for each HWND
+        # all we do is append the wrapped handle
+        def enum_window_proc(hwnd, lparam):
+            """Called for each window - adds wrapped elements to a list"""
+            element = HwndElementInfo(hwnd)
+            if class_name is not None and class_name != element.class_name:
                 return True
+            if title is not None and title != element.rich_text:
+                return True
+            if control_type is not None and control_type != element.control_type:
+                return True
+            child_elements.append(element)
+            return True
 
-            # define the type of the child procedure
-            enum_win_proc_t = ctypes.WINFUNCTYPE(
-                ctypes.c_int, ctypes.c_long, ctypes.c_long)
+        # define the type of the child procedure
+        enum_win_proc_t = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 
-            # 'construct' the callback with our function
-            proc = enum_win_proc_t(enum_window_proc)
+        # 'construct' the callback with our function
+        proc = enum_win_proc_t(enum_window_proc)
 
+        if self == HwndElementInfo():  # self == root
             # loop over all the top level windows (callback called for each)
             win32functions.EnumWindows(proc, 0)
         else:
-            # TODO: this code returns the whole sub-tree, we need to re-write it
-            child_handles = handleprops.children(self._handle)
-        return [HwndElementInfo(ch) for ch in child_handles]
+            # loop over all the children (callback called for each)
+            win32functions.EnumChildWindows(self.handle, proc, 0)
+
+        return child_elements
 
     def iter_children(self, **kwargs):
         """Return a generator of immediate children of the window"""
@@ -134,13 +163,17 @@ class HwndElementInfo(ElementInfo):
 
     def descendants(self, **kwargs):
         """Return descendants of the window (all children from sub-tree)"""
-        child_handles = handleprops.children(self.handle)
-        child_handles = [HwndElementInfo(ch) for ch in child_handles]
+        if self == HwndElementInfo(): # root
+            top_elements = self.children()
+            child_elements = self.children(**kwargs)
+            for child in top_elements:
+                child_elements.extend(child.children(**kwargs))
+        else:
+            child_elements = self.children(**kwargs)
         depth = kwargs.pop('depth', None)
 
-        child_handles = ElementInfo.filter_with_depth(child_handles, self, depth)
-
-        return child_handles
+        child_elements = ElementInfo.filter_with_depth(child_elements, self, depth)
+        return child_elements
 
     @property
     def rectangle(self):
@@ -156,3 +189,52 @@ class HwndElementInfo(ElementInfo):
         if not isinstance(other, HwndElementInfo):
             return self.handle == other
         return self.handle == other.handle
+
+    @property
+    def automation_id(self):
+        """Return AutomationId of the element"""
+        textval = ''
+
+        length = 1024
+        remote_mem = RemoteMemoryBlock(self, size=length*2)
+
+        ret = win32gui.SendMessage(self.handle, self.wm_get_ctrl_name, length, remote_mem.mem_address)
+
+        if ret:
+            text = ctypes.create_unicode_buffer(length)
+            remote_mem.Read(text)
+            textval = text.value
+
+        del remote_mem
+        return textval
+
+    def __get_control_type(self, full=False):
+        """Internal parameterized method to distinguish control_type and full_control_type properties"""
+        textval = ''
+
+        length = 1024
+        remote_mem = RemoteMemoryBlock(self, size=length*2)
+
+        ret = win32gui.SendMessage(self.handle, self.wm_get_ctrl_type, length, remote_mem.mem_address)
+
+        if ret:
+            text = ctypes.create_unicode_buffer(length)
+            remote_mem.Read(text)
+            textval = text.value
+
+        del remote_mem
+
+        # simplify control type for WinForms controls
+        if (not full) and ("PublicKeyToken" in textval):
+            textval = textval.split(", ")[0]
+        return textval
+
+    @property
+    def control_type(self):
+        """Return control type of the element"""
+        return self.__get_control_type(full=False)
+
+    @property
+    def full_control_type(self):
+        """Return full string of control type of the element"""
+        return self.__get_control_type(full=True)
