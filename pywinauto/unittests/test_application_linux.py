@@ -23,6 +23,11 @@ def _test_app():
     sys.path.append(test_folder)
     return os.path.join(test_folder, app_name)
 
+
+def _test_app_cmd_line():
+    return "python {}".format(_test_app())
+
+
 sys.path.append(".")
 
 class ApplicationTestCases(unittest.TestCase):
@@ -56,7 +61,7 @@ class ApplicationTestCases(unittest.TestCase):
         """test start() works correctly"""
         app = Application()
         self.assertEqual(app.process, None)
-        app.start(_test_app())
+        app.start(_test_app_cmd_line())
         self.assertNotEqual(app.process, None)
 
         self.assertEqual(app.UntitledNotepad.process_id(), app.process)
