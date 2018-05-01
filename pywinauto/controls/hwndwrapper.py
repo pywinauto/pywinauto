@@ -76,7 +76,7 @@ except ImportError:
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from ..base_wrapper import BaseWrapper
+from .win32_wrapper import Win32Wrapper
 from ..base_wrapper import BaseMeta
 from .. import deprecated
 
@@ -152,7 +152,7 @@ class HwndMeta(BaseMeta):
 
 #====================================================================
 @six.add_metaclass(HwndMeta)
-class HwndWrapper(BaseWrapper):
+class HwndWrapper(Win32Wrapper):
 
     """
     Default wrapper for controls.
@@ -194,7 +194,7 @@ class HwndWrapper(BaseWrapper):
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
+        Win32Wrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
         if not handleprops.iswindow(self.handle):
@@ -1438,39 +1438,40 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     GetToolbar = deprecated(get_toolbar)
 
-    # Non PEP-8 aliases for BaseWrapper methods
+    # Non PEP-8 aliases for Win32Wrapper methods
     # We keep them for the backward compatibility in legacy scripts
-    ClickInput = deprecated(BaseWrapper.click_input)
-    DoubleClickInput = deprecated(BaseWrapper.double_click_input)
-    RightClickInput = deprecated(BaseWrapper.right_click_input)
-    VerifyVisible = deprecated(BaseWrapper.verify_visible)
-    _NeedsImageProp = deprecated(BaseWrapper._needs_image_prop, deprecated_name='_NeedsImageProp')
-    FriendlyClassName = deprecated(BaseWrapper.friendly_class_name)
-    Class = deprecated(BaseWrapper.class_name, deprecated_name='Class')
-    WindowText = deprecated(BaseWrapper.window_text)
-    ControlID = deprecated(BaseWrapper.control_id, deprecated_name='ControlID')
-    IsVisible = deprecated(BaseWrapper.is_visible)
-    IsEnabled = deprecated(BaseWrapper.is_enabled)
-    Rectangle = deprecated(BaseWrapper.rectangle)
-    ClientToScreen = deprecated(BaseWrapper.client_to_screen)
-    ProcessID = deprecated(BaseWrapper.process_id, deprecated_name='ProcessID')
-    IsDialog = deprecated(BaseWrapper.is_dialog)
-    Parent = deprecated(BaseWrapper.parent)
-    TopLevelParent = deprecated(BaseWrapper.top_level_parent)
-    Texts = deprecated(BaseWrapper.texts)
-    Children = deprecated(BaseWrapper.children)
-    CaptureAsImage = deprecated(BaseWrapper.capture_as_image)
-    GetProperties = deprecated(BaseWrapper.get_properties)
-    DrawOutline = deprecated(BaseWrapper.draw_outline)
-    IsChild = deprecated(BaseWrapper.is_child)
-    VerifyActionable = deprecated(BaseWrapper.verify_actionable)
-    VerifyEnabled = deprecated(BaseWrapper.verify_enabled)
-    PressMouseInput = deprecated(BaseWrapper.press_mouse_input)
-    ReleaseMouseInput = deprecated(BaseWrapper.release_mouse_input)
-    MoveMouseInput = deprecated(BaseWrapper.move_mouse_input)
-    DragMouseInput = deprecated(BaseWrapper.drag_mouse_input)
-    WheelMouseInput = deprecated(BaseWrapper.wheel_mouse_input)
-    TypeKeys = deprecated(BaseWrapper.type_keys)
+    ClickInput = Win32Wrapper.click_input
+    DoubleClickInput = Win32Wrapper.double_click_input
+    RightClickInput = Win32Wrapper.right_click_input
+    VerifyVisible = Win32Wrapper.verify_visible
+    _NeedsImageProp = Win32Wrapper._needs_image_prop
+    FriendlyClassName = Win32Wrapper.friendly_class_name
+    Class = Win32Wrapper.class_name
+    WindowText = Win32Wrapper.window_text
+    ControlID = Win32Wrapper.control_id
+    IsVisible = Win32Wrapper.is_visible
+    IsEnabled = Win32Wrapper.is_enabled
+    Rectangle = Win32Wrapper.rectangle
+    ClientToScreen = Win32Wrapper.client_to_screen
+    ProcessID = Win32Wrapper.process_id
+    IsDialog = Win32Wrapper.is_dialog
+    Parent = Win32Wrapper.parent
+    TopLevelParent = Win32Wrapper.top_level_parent
+    Texts = Win32Wrapper.texts
+    Children = Win32Wrapper.children
+    CaptureAsImage = Win32Wrapper.capture_as_image
+    GetProperties = Win32Wrapper.get_properties
+    DrawOutline = Win32Wrapper.draw_outline
+    IsChild = Win32Wrapper.is_child
+    VerifyActionable = Win32Wrapper.verify_actionable
+    VerifyEnabled = Win32Wrapper.verify_enabled
+    PressMouseInput = Win32Wrapper.press_mouse_input
+    ReleaseMouseInput = Win32Wrapper.release_mouse_input
+    MoveMouseInput = Win32Wrapper.move_mouse_input
+    DragMouseInput = Win32Wrapper.drag_mouse_input
+    WheelMouseInput = Win32Wrapper.wheel_mouse_input
+    TypeKeys = Win32Wrapper.type_keys
+    SetFocus = Win32Wrapper.set_focus
 
 
 #====================================================================
