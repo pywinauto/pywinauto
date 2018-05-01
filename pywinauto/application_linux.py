@@ -44,6 +44,27 @@ class Application(object):
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
 
+    def __getitem__(self, key):
+        """Find the specified dialog of the application"""
+        # delegate searching functionality to self.window()
+        # return self.window(best_match=key)
+        return None
+
+    def __getattribute__(self, attr_name):
+        """Find the specified dialog of the application"""
+        # if attr_name in ['__dict__', '__members__', '__methods__', '__class__']:
+        #     return object.__getattribute__(self, attr_name)
+        #
+        # if attr_name in dir(self.__class__):
+        #     return object.__getattribute__(self, attr_name)
+        #
+        # if attr_name in self.__dict__:
+        #     return self.__dict__[attr_name]
+        #
+        # # delegate all functionality to item access
+        # return self[attr_name]
+        return None
+
 
 if __name__ == "__main__":
     app = Application()
