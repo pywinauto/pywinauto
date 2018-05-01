@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -136,14 +136,16 @@ class ApplicationWarningTestCases(unittest.TestCase):
             return
 
         app = Application().start(self.sample_exe_inverted_bitness)
-        warnings.filterwarnings('always', category=UserWarning, append=True)
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            Application().connect(path=self.sample_exe_inverted_bitness)
+        # Appveyor misteries...
+        self.assertEqual(app.is_process_running(), True)
+
+        with mock.patch("warnings.warn") as mockWarn:
+            Application().connect(process=app.process)
             app.kill_()
-            assert len(w) >= 1
-            assert issubclass(w[-1].category, UserWarning)
-            assert "64-bit" in str(w[-1].message)
+            args, kw = mockWarn.call_args
+            assert len(args) == 2
+            assert "64-bit" in args[0]
+            assert args[1].__name__ == 'UserWarning'
 
 
 class ApplicationTestCases(unittest.TestCase):
@@ -1009,7 +1011,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 content = str(test_log_file.readlines())
                 self.assertTrue("'Untitled - NotepadEdit'" in content
                     and "'Edit'" in content)
-                self.assertTrue("child_window(class_name=\"msctls_statusbar32\")" in content)
+                self.assertTrue("child_window(class_name=\"msctls_statusbar32\"" in content)
             os.remove(output_filename)
         else:
             self.fail("print_control_identifiers can't create a file")

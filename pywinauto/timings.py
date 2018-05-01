@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -86,6 +86,7 @@ The Following are the individual timing settings that can be adjusted:
 
 * after_listviewselect_wait   (default .01)
 * after_listviewcheck_wait  default(.001)
+* listviewitemcontrol_timeout default(1.5)
 
 * after_treeviewselect_wait  default(.1)
 
@@ -165,6 +166,7 @@ class TimeConfig(object):
 
         'after_listviewselect_wait': .01,
         'after_listviewcheck_wait': .001,
+        'listviewitemcontrol_timeout': 1.5,
 
         'after_treeviewselect_wait': .1,
 

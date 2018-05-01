@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -171,7 +171,6 @@ def find_elements(class_name=None,
     * **framework_id**   Elements with this framework id (for UIAutomation elements)
     * **backend**        Back-end name to use while searching (default=None means current active backend)
     """
-
     if backend is None:
         backend = registry.active_backend.name
     backend_obj = registry.backends[backend]
@@ -220,6 +219,10 @@ def find_elements(class_name=None,
 
     # early stop
     if not elements:
+        if found_index is not None:
+            if found_index > 0:
+                raise ElementNotFoundError("found_index is specified as {0}, but no windows found".format(
+                    found_index))
         return elements
 
     if framework_id is not None and elements:

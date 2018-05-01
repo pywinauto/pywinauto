@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -63,6 +63,7 @@ from . import hwndwrapper
 
 from ..timings import Timings
 from ..timings import wait_until
+from ..timings import TimeoutError
 from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
 
@@ -254,6 +255,9 @@ class _listview_item(object):
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         rect = win32structures.RECT()
 
+        # If listview_ctrl has LVS_REPORT we can get access to subitems rectangles
+        is_table = self.listview_ctrl.has_style(win32defines.LVS_REPORT)
+
         if area.lower() == "all" or not area:
             rect.left = win32defines.LVIR_BOUNDS
         elif area.lower() == "icon":
@@ -261,20 +265,27 @@ class _listview_item(object):
         elif area.lower() == "text":
             rect.left = win32defines.LVIR_LABEL
         elif area.lower() == "select":
-            rect.left = win32defines.LVIR_SELECTBOUNDS
+            rect.left = win32defines.LVIR_BOUNDS if is_table else win32defines.LVIR_SELECTBOUNDS
         else:
             raise ValueError('Incorrect rectangle area of the list view item: "' + str(area) + '"')
+
+        if is_table:
+            # The one-based index of the subitem.
+            rect.top = self.subitem_index
 
         # Write the local RECT structure to the remote memory block
         remote_mem.Write(rect)
 
+        # Depends on subitems rectangles availability
+        message = win32defines.LVM_GETSUBITEMRECT if is_table else win32defines.LVM_GETITEMRECT
+
         # Fill in the requested item
         retval = self.listview_ctrl.send_message(
-            win32defines.LVM_GETITEMRECT,
+            message,
             self.item_index,
             remote_mem)
 
-        # if it succeeded
+        # If it's not succeeded
         if not retval:
             del remote_mem
             raise RuntimeError("Did not succeed in getting rectangle")
@@ -646,6 +657,46 @@ class _listview_item(object):
         return self
     # Non PEP-8 alias
     Deselect = deselect
+
+    #-----------------------------------------------------------
+    def inplace_control(self, friendly_class_name=""):
+        """Return the editor HwndWrapper of the item
+
+        Possible ``friendly_class_name`` values:
+
+        * ``""``  Return the first appeared in-place control
+        * ``"friendlyclassname"``  Returns editor with particular friendlyclassname
+        """
+        # If currently editing in this item or some other
+        self.listview_ctrl.type_keys("{ENTER}")
+
+        # Get a list of visible controls
+        parent_dlg = self.listview_ctrl.top_level_parent()
+        list_before_click = [w.handle for w in parent_dlg.element_info.descendants() if w.visible]
+
+        # After a click on the visible list an editable element should appear
+        self.click_input(double=True)
+        def get_list_after_click():
+            return [w.handle for w in parent_dlg.element_info.descendants() if w.visible]
+
+        try:
+            def check_func():
+                return len(get_list_after_click()) > len(list_before_click)
+            wait_until(Timings.listviewitemcontrol_timeout, 0.05, check_func)
+        except TimeoutError:
+            raise TimeoutError(("In-place-edit control for item ({0},{1}) not visible, possible it not editable, " +
+                                "try to set slower timings").format(self.item_index, self.subitem_index));
+
+        possible_inplace_ctrls = set(get_list_after_click()) - set(list_before_click)
+
+        for handle in possible_inplace_ctrls:
+            hwnd_friendly_class = hwndwrapper.HwndWrapper(handle).friendlyclassname
+            if (friendly_class_name == "" or hwnd_friendly_class == friendly_class_name):
+                return hwndwrapper.HwndWrapper(handle)
+
+        names_list = [hwndwrapper.HwndWrapper(handle).friendlyclassname for handle in possible_inplace_ctrls]
+        raise RuntimeError('In-place-edit control "{2}" for item ({0},{1}) not found in list {3}'.format(
+                           self.item_index, self.subitem_index, friendly_class_name, names_list));
 
 
 #====================================================================
@@ -3263,7 +3314,8 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     """Class that wraps Windows DateTimePicker common control"""
 
     friendlyclassname = "DateTimePicker"
-    windowclasses = ["SysDateTimePick32", ]
+    windowclasses = ["SysDateTimePick32",
+                     r"WindowsForms\d*\.SysDateTimePick32\..*", ]
     if sysinfo.UIA_support:
         #controltypes is empty to make wrapper search result unique
         #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
@@ -3298,7 +3350,7 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     GetTime = get_time
 
     #----------------------------------------------------------------
-    def set_time(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
+    def set_time(self, year=0, month=0, day_of_week=0, day=0, hour=0, minute=0, second=0, milliseconds=0):
         """Get the currently selected time"""
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()

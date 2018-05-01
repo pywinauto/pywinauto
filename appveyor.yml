@@ -31,26 +31,6 @@ environment:
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "NO"
 
-    - PYTHON: "C:\\Python33"
-      PYTHON_VERSION: "3.3"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "YES"
-
-    - PYTHON: "C:\\Python33-x64"
-      PYTHON_VERSION: "3.3"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "NO"
-
-    - PYTHON: "C:\\Python34"
-      PYTHON_VERSION: "3.4"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
-
-    - PYTHON: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
-
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
@@ -68,6 +48,16 @@ environment:
 
     - PYTHON: "C:\\Python36-x64"
       PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+
+    - PYTHON: "C:\\Python37"
+      PYTHON_VERSION: "3.7"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
+
+    - PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
 

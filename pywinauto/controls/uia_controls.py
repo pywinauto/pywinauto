@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -250,6 +250,11 @@ class EditWrapper(uiawrapper.UIAWrapper):
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     # -----------------------------------------------------------
+    def get_value(self):
+        """Return the current value of the element"""
+        return self.iface_value.CurrentValue
+
+    # -----------------------------------------------------------
     def texts(self):
         """Get the text of the edit control"""
         texts = [self.window_text(), ]
@@ -489,6 +494,19 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(HeaderWrapper, self).__init__(elem)
+
+
+# ====================================================================
+class HeaderItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Header Item control"""
+
+    _control_types = ['HeaderItem']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(HeaderItemWrapper, self).__init__(elem)
 
 
 # ====================================================================

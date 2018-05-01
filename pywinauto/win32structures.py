@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -159,6 +159,21 @@ class POINT(Structure):
         ('x', LONG),
         ('y', LONG),
     ]
+
+    def __iter__(self):
+        """Allow iteration through coordinates"""
+        yield self.x
+        yield self.y
+
+    def __getitem__(self, key):
+        """Allow indexing of coordinates"""
+        if key == 0 or key == -2:
+            return self.x
+        elif key == 1 or key == -1:
+            return self.y
+        else:
+            raise IndexError("Illegal index")
+
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 

@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -171,7 +171,6 @@ class HwndWrapper(Win32Wrapper):
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_).
     """
-
     handle = None
 
     # -----------------------------------------------------------
@@ -215,6 +214,7 @@ class HwndWrapper(Win32Wrapper):
                       'client_rects',
                       'is_unicode',
                       'menu_items',
+                      'automation_id',
                       ])
         return props
 
@@ -247,6 +247,21 @@ class HwndWrapper(Win32Wrapper):
         return handleprops.exstyle(self)
     # Non PEP-8 alias
     ExStyle = exstyle
+
+    #------------------------------------------------------------
+    def automation_id(self):
+        """Return the .NET name of the control"""
+        return self.element_info.automation_id
+
+    #------------------------------------------------------------
+    def control_type(self):
+        """Return the .NET type of the control"""
+        return self.element_info.control_type
+
+    #------------------------------------------------------------
+    def full_control_type(self):
+        """Return the .NET type of the control (full, uncut)"""
+        return self.element_info.full_control_type
 
     # -----------------------------------------------------------
     def user_data(self):
@@ -441,11 +456,11 @@ class HwndWrapper(Win32Wrapper):
         """Send a message to the control and wait for it to return"""
         #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
-        if hasattr(wparam, 'memAddress'):
-            wParamAddress = wparam.memAddress
+        if hasattr(wparam, 'mem_address'):
+            wParamAddress = wparam.mem_address
         lParamAddress = lparam
-        if hasattr(lparam, 'memAddress'):
-            lParamAddress = lparam.memAddress
+        if hasattr(lparam, 'mem_address'):
+            lParamAddress = lparam.mem_address
 
         CArgObject = type(ctypes.byref(ctypes.c_int(0)))
         if isinstance(wparam, CArgObject):
@@ -1375,8 +1390,14 @@ class HwndWrapper(Win32Wrapper):
             message = win32defines.WM_VSCROLL
 
         # the constant that matches direction, and how much
-        scroll_type = \
-            self._scroll_types[direction.lower()][amount.lower()]
+        try:
+            scroll_type = \
+                self._scroll_types[direction.lower()][amount.lower()]
+        except KeyError:
+            raise ValueError("""Wrong arguments:
+                direction can be any of "up", "down", "left", "right"
+                amount can be any of "line", "page", "end"
+                """)
 
         # Scroll as often as we have been asked to
         if retry_interval is None:
@@ -1624,20 +1645,24 @@ def _perform_click(
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     ctrl.verify_actionable()
     ctrl_text = ctrl.window_text()
+    if ctrl_text is None:
+        ctrl_text = six.text_type(ctrl_text)
+
+    ctrl_friendly_class_name = ctrl.friendly_class_name()
 
     if isinstance(coords, win32structures.RECT):
-        coords = [coords.left, coords.top]
+        coords = coords.mid_point()
     # allow points objects to be passed as the coords
-    if isinstance(coords, win32structures.POINT):
+    elif isinstance(coords, win32structures.POINT):
         coords = [coords.x, coords.y]
-    #else:
-    coords = list(coords)
+    else:
+        coords = list(coords)
 
     if absolute:
         coords = ctrl.client_to_screen(coords)
 
     # figure out the messages for click/press
-    msgs  = []
+    msgs = []
     if not double:
         if button.lower() == 'left':
             if button_down:
@@ -1683,7 +1708,6 @@ def _perform_click(
     # figure out the flags and pack coordinates
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
-
     #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
     # TODO: check return value of AttachThreadInput properly
@@ -1706,16 +1730,15 @@ def _perform_click(
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)
 
-    message = 'Clicked ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
-              '" by ' + str(button) + ' button event (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
-    if double:
-        message = 'Double-c' + message[1:]
     if button.lower() == 'move':
-        message = 'Moved mouse over ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
-              '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ') by WM_MOUSEMOVE'
+        message = 'Moved mouse over ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
+                  '" to screen point ' + str(tuple(coords)) + ' by WM_MOUSEMOVE'
+    else:
+        message = 'Clicked ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
+                  '" by ' + str(button) + ' button event ' + str(tuple(coords))
+        if double:
+            message = 'Double-c' + message[1:]
     ActionLogger().log(message)
-
-
 
 _mouse_flags = {
     "left": win32defines.MK_LBUTTON,

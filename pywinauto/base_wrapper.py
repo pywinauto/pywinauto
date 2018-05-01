@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -425,6 +425,17 @@ class BaseWrapper(object):
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
 
     #-----------------------------------------------------------
+    def iter_children(self, **kwargs):
+        """
+        Iterate over the children of this element
+
+        It returns a generator of BaseWrapper (or subclass) instances.
+        """
+        child_elements = self.element_info.iter_children(**kwargs)
+        for element_info in child_elements:
+            yield self.backend.generic_wrapper_class(element_info)
+
+    #-----------------------------------------------------------
     def descendants(self, **kwargs):
         """
         Return the descendants of this element as a list
@@ -434,6 +445,17 @@ class BaseWrapper(object):
         """
         desc_elements = self.element_info.descendants(**kwargs)
         return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
+
+    #-----------------------------------------------------------
+    def iter_descendants(self, **kwargs):
+        """
+        Iterate over the descendants of this element
+
+        It returns a generator of BaseWrapper (or subclass) instances.
+        """
+        desc_elements = self.element_info.iter_descendants(**kwargs)
+        for element_info in desc_elements:
+            yield self.backend.generic_wrapper_class(element_info)
 
     #-----------------------------------------------------------
     def control_count(self):
@@ -583,8 +605,8 @@ class BaseWrapper(object):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
-          'middle' or 'x' (Default: 'left')
-        * **coords** The coordinates to click at.(Default: center of control)
+          'middle' or 'x' (Default: 'left', 'move' is a special case)
+        * **coords** The coordinates to click at.(Default: the center of the control)
         * **double** Whether to perform a double click or not (Default: False)
         * **wheel_dist** The distance to move the mouse wheel (default: 0)
 

@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -632,7 +632,10 @@ class WindowSpecification(object):
                     auto_id = ctrl.element_info.automation_id
                 if hasattr(ctrl.element_info, 'control_type'):
                     control_type = ctrl.element_info.control_type
-                    class_name = None  # no need for class_name if control_type exists
+                    if control_type:
+                        class_name = None  # no need for class_name if control_type exists
+                    else:
+                        control_type = None # if control_type is empty, still use class_name instead
                 criteria_texts = []
                 if title:
                     criteria_texts.append(u'title="{}"'.format(title))
