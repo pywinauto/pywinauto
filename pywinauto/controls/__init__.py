@@ -28,21 +28,23 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+import sys
 """Controls package"""
+if sys.platform != 'win32':
+    pass
+else:
+    from ..sysinfo import UIA_support
+    if UIA_support:
+        from . import uiawrapper # register "uia" back-end (at the end of uiawrapper module)
+        from . import uia_controls
 
-from ..sysinfo import UIA_support
-if UIA_support:
-    from . import uiawrapper # register "uia" back-end (at the end of uiawrapper module)
-    from . import uia_controls
+    from .hwndwrapper import get_dialog_props_from_handle
+    from .hwndwrapper import InvalidWindowHandle
 
-from .hwndwrapper import get_dialog_props_from_handle
-from .hwndwrapper import InvalidWindowHandle
-
-# import the control classes - this will register the classes they
-# contain
-from . import common_controls
-from . import win32_controls
+    # import the control classes - this will register the classes they
+    # contain
+    from . import common_controls
+    from . import win32_controls
 
 
 from ..base_wrapper import InvalidElement
