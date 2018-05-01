@@ -38,7 +38,7 @@ import six
 import comtypes
 
 from .. import backend
-from ..base_wrapper import BaseWrapper
+from .win32_wrapper import Win32Wrapper
 from ..base_wrapper import BaseMeta
 
 from ..uia_defines import IUIA
@@ -161,7 +161,7 @@ class UiaMeta(BaseMeta):
 
 # =========================================================================
 @six.add_metaclass(UiaMeta)
-class UIAWrapper(BaseWrapper):
+class UIAWrapper(Win32Wrapper):
 
     """
     Default wrapper for User Interface Automation (UIA) controls.
@@ -192,7 +192,7 @@ class UIAWrapper(BaseWrapper):
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
+        Win32Wrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     # ------------------------------------------------------------
     def __hash__(self):

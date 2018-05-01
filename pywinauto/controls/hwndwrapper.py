@@ -76,7 +76,7 @@ except ImportError:
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from ..base_wrapper import BaseWrapper
+from .win32_wrapper import Win32Wrapper
 from ..base_wrapper import BaseMeta
 
 
@@ -151,7 +151,7 @@ class HwndMeta(BaseMeta):
 
 #====================================================================
 @six.add_metaclass(HwndMeta)
-class HwndWrapper(BaseWrapper):
+class HwndWrapper(Win32Wrapper):
 
     """
     Default wrapper for controls.
@@ -194,7 +194,7 @@ class HwndWrapper(BaseWrapper):
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
+        Win32Wrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
         if not win32functions.IsWindow(self.handle):
@@ -1402,40 +1402,40 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     GetToolbar = get_toolbar
 
-    # Non PEP-8 aliases for BaseWrapper methods
+    # Non PEP-8 aliases for Win32Wrapper methods
     # We keep them for the backward compatibility in legacy scripts
-    ClickInput = BaseWrapper.click_input
-    DoubleClickInput = BaseWrapper.double_click_input
-    RightClickInput = BaseWrapper.right_click_input
-    VerifyVisible = BaseWrapper.verify_visible
-    _NeedsImageProp = BaseWrapper._needs_image_prop
-    FriendlyClassName = BaseWrapper.friendly_class_name
-    Class = BaseWrapper.class_name
-    WindowText = BaseWrapper.window_text
-    ControlID = BaseWrapper.control_id
-    IsVisible = BaseWrapper.is_visible
-    IsEnabled = BaseWrapper.is_enabled
-    Rectangle = BaseWrapper.rectangle
-    ClientToScreen = BaseWrapper.client_to_screen
-    ProcessID = BaseWrapper.process_id
-    IsDialog = BaseWrapper.is_dialog
-    Parent = BaseWrapper.parent
-    TopLevelParent = BaseWrapper.top_level_parent
-    Texts = BaseWrapper.texts
-    Children = BaseWrapper.children
-    CaptureAsImage = BaseWrapper.capture_as_image
-    GetProperties = BaseWrapper.get_properties
-    DrawOutline = BaseWrapper.draw_outline
-    IsChild = BaseWrapper.is_child
-    VerifyActionable = BaseWrapper.verify_actionable
-    VerifyEnabled = BaseWrapper.verify_enabled
-    PressMouseInput = BaseWrapper.press_mouse_input
-    ReleaseMouseInput = BaseWrapper.release_mouse_input
-    MoveMouseInput = BaseWrapper.move_mouse_input
-    DragMouseInput = BaseWrapper.drag_mouse_input
-    WheelMouseInput = BaseWrapper.wheel_mouse_input
-    TypeKeys = BaseWrapper.type_keys
-    SetFocus = BaseWrapper.set_focus
+    ClickInput = Win32Wrapper.click_input
+    DoubleClickInput = Win32Wrapper.double_click_input
+    RightClickInput = Win32Wrapper.right_click_input
+    VerifyVisible = Win32Wrapper.verify_visible
+    _NeedsImageProp = Win32Wrapper._needs_image_prop
+    FriendlyClassName = Win32Wrapper.friendly_class_name
+    Class = Win32Wrapper.class_name
+    WindowText = Win32Wrapper.window_text
+    ControlID = Win32Wrapper.control_id
+    IsVisible = Win32Wrapper.is_visible
+    IsEnabled = Win32Wrapper.is_enabled
+    Rectangle = Win32Wrapper.rectangle
+    ClientToScreen = Win32Wrapper.client_to_screen
+    ProcessID = Win32Wrapper.process_id
+    IsDialog = Win32Wrapper.is_dialog
+    Parent = Win32Wrapper.parent
+    TopLevelParent = Win32Wrapper.top_level_parent
+    Texts = Win32Wrapper.texts
+    Children = Win32Wrapper.children
+    CaptureAsImage = Win32Wrapper.capture_as_image
+    GetProperties = Win32Wrapper.get_properties
+    DrawOutline = Win32Wrapper.draw_outline
+    IsChild = Win32Wrapper.is_child
+    VerifyActionable = Win32Wrapper.verify_actionable
+    VerifyEnabled = Win32Wrapper.verify_enabled
+    PressMouseInput = Win32Wrapper.press_mouse_input
+    ReleaseMouseInput = Win32Wrapper.release_mouse_input
+    MoveMouseInput = Win32Wrapper.move_mouse_input
+    DragMouseInput = Win32Wrapper.drag_mouse_input
+    WheelMouseInput = Win32Wrapper.wheel_mouse_input
+    TypeKeys = Win32Wrapper.type_keys
+    SetFocus = Win32Wrapper.set_focus
 
 
 #====================================================================
