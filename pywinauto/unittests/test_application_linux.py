@@ -8,6 +8,7 @@ import time
 import warnings
 from threading import Thread
 
+from pywinauto.controls import atspiwrapper
 from pywinauto.application_linux import Application, AppStartError, AppNotConnected
 
 app_name = r"gtk_example.py"
