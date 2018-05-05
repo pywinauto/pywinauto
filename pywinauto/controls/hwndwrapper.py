@@ -969,6 +969,7 @@ class HwndWrapper(BaseWrapper):
         hMenu = win32gui.GetMenu(self.handle)
         is_main_menu = True
         if not hMenu:
+            self._ensure_enough_privileges('MN_GETHMENU')
             hMenu = self.send_message(self.handle, win32defines.MN_GETHMENU);
             is_main_menu = False
         return (hMenu, is_main_menu)

@@ -145,6 +145,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         BST_CHECKED = 1
         BST_INDETERMINATE = 2
         """
+        self._ensure_enough_privileges('BM_GETCHECK')
         return self.send_message(win32defines.BM_GETCHECK)
     # Non PEP-8 alias
     GetCheckState = get_check_state
@@ -152,6 +153,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def check(self):
         """Check a checkbox"""
+        self._ensure_enough_privileges('BM_SETCHECK')
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_CHECKED)
 
@@ -166,6 +168,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def uncheck(self):
         """Uncheck a checkbox"""
+        self._ensure_enough_privileges('BM_SETCHECK')
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_UNCHECKED)
 
@@ -180,6 +183,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def set_check_indeterminate(self):
         """Set the checkbox to indeterminate"""
+        self._ensure_enough_privileges('BM_SETCHECK')
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_INDETERMINATE)
 
@@ -363,6 +367,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_texts(self):
         """Return the text of the items of the combobox"""
+        self._ensure_enough_privileges('CB_GETCOUNT')
         return _get_multiple_text_items(
             self,
             win32defines.CB_GETCOUNT,
@@ -535,6 +540,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_texts(self):
         """Return the text of the items of the listbox"""
+        self._ensure_enough_privileges('LB_GETCOUNT')
         return _get_multiple_text_items(
             self,
             win32defines.LB_GETCOUNT,
@@ -642,10 +648,8 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         # if it is a multiple selection dialog
         if self.has_style(win32defines.LBS_EXTENDEDSEL) or \
             self.has_style(win32defines.LBS_MULTIPLESEL):
-            self._ensure_enough_privileges('LB_GETCARETINDEX')
             return self.send_message(win32defines.LB_GETCARETINDEX)
         else:
-            self._ensure_enough_privileges('LB_GETCURSEL')
             return self.send_message(win32defines.LB_GETCURSEL)
     # Non PEP-8 alias
     GetItemFocus = get_item_focus
