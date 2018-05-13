@@ -280,6 +280,19 @@ class UIAElementInfo(ElementInfo):
         cond = IUIA().build_condition(**kwargs)
         return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
+    def iter_children(self, **kwargs):
+        """Return a generator of only immediate children of the element
+
+         * **kwargs** is a criteria to reduce a list by process,
+           class_name, control_type, content_only and/or title.
+        """
+        cond = IUIA().build_condition(**kwargs)
+        tree_walker = IUIA().iuia.CreateTreeWalker(cond)
+        element = tree_walker.GetFirstChildElement(self._element)
+        while element:
+            yield UIAElementInfo(element)
+            element = tree_walker.GetNextSiblingElement(element)
+
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
 

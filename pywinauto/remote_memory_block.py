@@ -60,7 +60,7 @@ class RemoteMemoryBlock(object):
     #----------------------------------------------------------------
     def __init__(self, ctrl, size=4096):
         """Allocate the memory"""
-        self.memAddress = 0
+        self.mem_address = 0
         self.size = size
         self.process = 0
         self.handle = ctrl.handle
@@ -68,7 +68,7 @@ class RemoteMemoryBlock(object):
         if self.handle == 0xffffffff80000000:
             raise Exception('Incorrect handle: ' + str(self.handle))
 
-        self._as_parameter_ = self.memAddress
+        self._as_parameter_ = self.mem_address
 
         _, process_id = win32process.GetWindowThreadProcessId(self.handle)
         if not process_id:
@@ -88,7 +88,7 @@ class RemoteMemoryBlock(object):
                 str(ctypes.WinError()) + "process: %d",
                 process_id)
 
-        self.memAddress = win32functions.VirtualAllocEx(
+        self.mem_address = win32functions.VirtualAllocEx(
             ctypes.c_void_p(self.process),  # remote process
             ctypes.c_void_p(0),             # let Valloc decide where
             win32structures.ULONG_PTR(self.size + 4),  # how much to allocate
@@ -96,29 +96,29 @@ class RemoteMemoryBlock(object):
             win32defines.MEM_COMMIT,  # allocation type
             win32defines.PAGE_READWRITE  # protection
         )
-        if hasattr(self.memAddress, 'value'):
-            self.memAddress = self.memAddress.value
+        if hasattr(self.mem_address, 'value'):
+            self.mem_address = self.mem_address.value
 
-        if self.memAddress == 0:
+        if self.mem_address == 0:
             raise ctypes.WinError()
 
-        if hex(self.memAddress) == '0xffffffff80000000' or hex(self.memAddress).upper() == '0xFFFFFFFF00000000':
-            raise Exception('Incorrect allocation: ' + hex(self.memAddress))
+        if hex(self.mem_address) == '0xffffffff80000000' or hex(self.mem_address).upper() == '0xFFFFFFFF00000000':
+            raise Exception('Incorrect allocation: ' + hex(self.mem_address))
 
-        self._as_parameter_ = self.memAddress
+        self._as_parameter_ = self.mem_address
 
         # write guard signature at the end of memory block
         signature = win32structures.LONG(0x66666666)
         ret = win32functions.WriteProcessMemory(
             ctypes.c_void_p(self.process),
-            ctypes.c_void_p(self.memAddress + self.size),
+            ctypes.c_void_p(self.mem_address + self.size),
             ctypes.pointer(signature),
             win32structures.ULONG_PTR(4),
             win32structures.ULONG_PTR(0)
         )
         if ret == 0:
             ActionLogger().log('================== Error: Failed to write guard signature: address = ' +
-                               hex(self.memAddress) + ', size = ' + str(self.size))
+                               hex(self.mem_address) + ', size = ' + str(self.size))
             last_error = win32api.GetLastError()
             ActionLogger().log('LastError = ' + str(last_error) + ': ' + win32api.FormatMessage(last_error).rstrip())
 
@@ -134,24 +134,24 @@ class RemoteMemoryBlock(object):
     #----------------------------------------------------------------
     def CleanUp(self):
         """Free Memory and the process handle"""
-        if self.process != 0 and self.memAddress != 0:
+        if self.process != 0 and self.mem_address != 0:
             # free up the memory we allocated
             #win32api.SetLastError(0)
             self.CheckGuardSignature()
 
             ret = win32functions.VirtualFreeEx(
                 ctypes.c_void_p(self.process),
-                ctypes.c_void_p(self.memAddress),
+                ctypes.c_void_p(self.mem_address),
                 win32structures.ULONG_PTR(0),
                 win32structures.DWORD(win32defines.MEM_RELEASE))
             if ret == 0:
-                print('Error: CleanUp: VirtualFreeEx() returned zero for address ', hex(self.memAddress))
+                print('Error: CleanUp: VirtualFreeEx() returned zero for address ', hex(self.mem_address))
                 last_error = win32api.GetLastError()
                 print('LastError = ', last_error, ': ', win32api.FormatMessage(last_error).rstrip())
                 sys.stdout.flush()
                 self._CloseHandle()
                 raise ctypes.WinError()
-            self.memAddress = 0
+            self.mem_address = 0
             self._CloseHandle()
         else:
             pass  # ActionLogger().log('\nWARNING: Cannot call VirtualFreeEx! process_id == 0.')
@@ -165,7 +165,7 @@ class RemoteMemoryBlock(object):
     #----------------------------------------------------------------
     def Address(self):
         """Return the address of the memory block"""
-        return self.memAddress
+        return self.mem_address
 
     #----------------------------------------------------------------
     def Write(self, data, address=None, size=None):
@@ -173,7 +173,7 @@ class RemoteMemoryBlock(object):
         # write the data from this process into the memory allocated
         # from the other process
         if not address:
-            address = self.memAddress
+            address = self.mem_address
         if hasattr(address, 'value'):
             address = address.value
 
@@ -209,7 +209,7 @@ class RemoteMemoryBlock(object):
     def Read(self, data, address=None, size=None):
         """Read data from the memory block"""
         if not address:
-            address = self.memAddress
+            address = self.mem_address
         if hasattr(address, 'value'):
             address = address.value
 
@@ -249,14 +249,14 @@ class RemoteMemoryBlock(object):
             if ret == 0:
                 last_error = win32api.GetLastError()
                 if last_error != win32defines.ERROR_PARTIAL_COPY:
-                    ActionLogger().log('Read: WARNING! self.memAddress =' +
-                                       hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
+                    ActionLogger().log('Read: WARNING! self.mem_address =' +
+                                       hex(self.mem_address) + ' data address =' + str(ctypes.byref(data)))
                     ActionLogger().log('LastError = ' + str(last_error) +
                                        ': ' + win32api.FormatMessage(last_error).rstrip())
                 else:
                     ActionLogger().log('Error: ERROR_PARTIAL_COPY')
-                    ActionLogger().log('\nRead: WARNING! self.memAddress =' +
-                                       hex(self.memAddress) + ' data address =' + str(ctypes.byref(data)))
+                    ActionLogger().log('\nRead: WARNING! self.mem_address =' +
+                                       hex(self.mem_address) + ' data address =' + str(ctypes.byref(data)))
 
                 ActionLogger().log('lpNumberOfBytesRead =' +
                                    str(lpNumberOfBytesRead) + ' nSize =' + str(nSize))
@@ -276,13 +276,13 @@ class RemoteMemoryBlock(object):
         lpNumberOfBytesRead = ctypes.c_size_t(0)
         ret = win32functions.ReadProcessMemory(
             ctypes.c_void_p(self.process),
-            ctypes.c_void_p(self.memAddress + self.size),
+            ctypes.c_void_p(self.mem_address + self.size),
             ctypes.pointer(signature),  # 0x66666666
             win32structures.ULONG_PTR(4),
             ctypes.byref(lpNumberOfBytesRead))
         if ret == 0:
             ActionLogger().log('Error: Failed to read guard signature: address = ' +
-                               hex(self.memAddress) + ', size = ' + str(self.size) +
+                               hex(self.mem_address) + ', size = ' + str(self.size) +
                                ', lpNumberOfBytesRead = ' + str(lpNumberOfBytesRead))
             raise ctypes.WinError()
         else:
