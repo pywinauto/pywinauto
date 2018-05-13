@@ -1,5 +1,5 @@
-from ....pywinauto.script_generator.recorder_defines import EVENT, PROPERTY
-from ....pywinauto.script_generator.recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
+from ....pywinauto.recorder.recorder_defines import EVENT, PROPERTY
+from ....pywinauto.recorder.recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
     ApplicationEvent, PropertyEvent
 
 from ....pywinauto.uia_defines import IUIA

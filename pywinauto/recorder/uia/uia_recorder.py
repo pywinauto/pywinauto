@@ -4,9 +4,9 @@ from ....pywinauto import win32_hooks
 from ....pywinauto.win32structures import POINT
 from ....pywinauto.uia_element_info import UIAElementInfo
 
-from ....pywinauto.script_generator.control_tree import ControlTree
-from ....pywinauto.script_generator.recorder import Recorder
-from ....pywinauto.script_generator.UIARecorder.uia_recorder_defines import *
+from ....pywinauto.recorder.control_tree import ControlTree
+from ....pywinauto.recorder.recorder import Recorder
+from ....pywinauto.recorder.uia.uia_recorder_defines import *
 
 _ignored_events = [
     # Events which are handled by separate handlers
