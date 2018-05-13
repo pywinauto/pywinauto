@@ -53,7 +53,7 @@ from .. import findbestmatch
 from .. import mouse
 from ..remote_memory_block import RemoteMemoryBlock
 from ..timings import Timings
-from ..base_wrapper import deprecated
+from .. import deprecated
 
 
 class MenuItemInfo(object):

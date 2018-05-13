@@ -48,7 +48,7 @@ from .. import win32defines
 from .. import win32structures
 
 from ..timings import Timings
-from ..base_wrapper import deprecated
+from .. import deprecated
 
 #====================================================================
 class ButtonWrapper(hwndwrapper.HwndWrapper):

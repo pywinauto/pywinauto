@@ -78,7 +78,7 @@ from .menuwrapper import Menu #, MenuItemNotEnabled
 
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
-from ..base_wrapper import deprecated
+from .. import deprecated
 
 
 #====================================================================

@@ -115,7 +115,7 @@ import time
 import operator
 from functools import wraps
 
-from .base_wrapper import deprecated
+from . import deprecated
 
 
 #=========================================================================

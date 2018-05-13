@@ -31,7 +31,7 @@
 
 """Wrap"""
 from .win32structures import RECT, LOGFONTW
-from .base_wrapper import deprecated
+from . import deprecated
 
 
 #====================================================================

@@ -66,7 +66,7 @@ from ..timings import wait_until
 from ..timings import TimeoutError
 from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
-from ..base_wrapper import deprecated
+from .. import deprecated
 
 if sysinfo.UIA_support:
     from ..uia_defines import IUIA

@@ -90,7 +90,7 @@ from .backend import registry
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes
 from .sysinfo import is_x64_Python
-from .base_wrapper import deprecated
+from . import deprecated
 
 
 class AppStartError(Exception):

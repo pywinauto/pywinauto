@@ -40,7 +40,6 @@ import re
 import time
 import win32process
 import six
-import warnings
 
 try:
     from PIL import ImageGrab
@@ -53,16 +52,6 @@ from .timings import Timings
 from .actionlogger import ActionLogger
 from .mouse import _perform_click_input
 
-
-#=========================================================================
-def deprecated(method):
-    """Decorator for deprecated methods"""
-    def wrap(*args, **kwargs):
-        warnings.simplefilter("default", DeprecationWarning)
-        warnings.warn("Non PEP-8 compliant methods are deprecated", DeprecationWarning, stacklevel=2)
-        return method(*args, **kwargs)
-
-    return wrap
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
