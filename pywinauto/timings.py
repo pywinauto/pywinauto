@@ -115,6 +115,8 @@ import time
 import operator
 from functools import wraps
 
+from .base_wrapper import deprecated
+
 
 #=========================================================================
 class TimeConfig(object):
@@ -369,7 +371,7 @@ def wait_until(timeout,
     return func_val
 
 # Non PEP-8 alias
-WaitUntil = wait_until
+WaitUntil = deprecated(wait_until)
 
 
 #=========================================================================
@@ -452,4 +454,4 @@ def wait_until_passes(timeout,
     return func_val
 
 # Non PEP-8 alias
-WaitUntilPasses = wait_until_passes
+WaitUntilPasses = deprecated(wait_until_passes)
