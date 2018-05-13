@@ -1,12 +1,12 @@
 from comtypes import COMObject, COMError
 
-from ....pywinauto import win32_hooks
-from ....pywinauto.win32structures import POINT
-from ....pywinauto.uia_element_info import UIAElementInfo
+from ... import win32_hooks
+from ...win32structures import POINT
+from ...uia_element_info import UIAElementInfo
 
-from ....pywinauto.recorder.control_tree import ControlTree
-from ....pywinauto.recorder.recorder import Recorder
-from ....pywinauto.recorder.uia.uia_recorder_defines import *
+from ..control_tree import ControlTree
+from ..recorder import Recorder
+from .uia_recorder_defines import *
 
 _ignored_events = [
     # Events which are handled by separate handlers

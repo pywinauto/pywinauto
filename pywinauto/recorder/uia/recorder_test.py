@@ -1,9 +1,20 @@
 import time
 
-from ....pywinauto import Application
-from ....pywinauto.uia_defines import IUIA
+if __package__ is None:
+    import sys
+    import os
 
-from .uia_recorder import UiaRecorder, ControlTree
+    sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
+
+    from pywinauto.application import Application
+    from pywinauto.uia_defines import IUIA
+
+    from pywinauto.recorder.uia.uia_recorder import UiaRecorder, ControlTree
+else:
+    from ...application import Application
+    from ...uia_defines import IUIA
+
+    from .uia_recorder import UiaRecorder, ControlTree
 
 import ctypes
 
@@ -28,8 +39,8 @@ def run_tree_test():
 
 
 def run_recorder_test():
-    # app_path = os.path.join(os.path.dirname(__file__), r"..\..\apps\WPF_samples\WpfApplication1.exe")
-    app_path = 'notepad.exe'
+    app_path = os.path.join(os.path.dirname(__file__), r"..\..\..\apps\WPF_samples\WpfApplication1.exe")
+    # app_path = 'notepad.exe'
 
     app = Application(backend="uia").start(app_path)
 
@@ -44,3 +55,7 @@ def run_recorder_test():
 
     print("\n===========================================\n")
     print(rec.script)
+
+
+if __name__ == "__main__":
+    run_recorder_test()

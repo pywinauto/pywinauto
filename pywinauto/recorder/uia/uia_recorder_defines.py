@@ -1,8 +1,8 @@
-from ....pywinauto.recorder.recorder_defines import EVENT, PROPERTY
-from ....pywinauto.recorder.recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
+from ..recorder_defines import EVENT, PROPERTY
+from ..recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
     ApplicationEvent, PropertyEvent
 
-from ....pywinauto.uia_defines import IUIA
+from ...uia_defines import IUIA
 
 EVENT_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_AsyncContentLoadedEventId: EVENT.ASYNC_CONTENT_LOADED,
