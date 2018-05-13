@@ -78,8 +78,6 @@ class UIAElementInfo(ElementInfo):
 
         self.set_cache_strategy(cached=cache_enable)
 
-        self.set_cache_strategy(cached=cache_enable)
-
     def _get_current_class_name(self):
         """Return an actual class name of the element"""
         try:

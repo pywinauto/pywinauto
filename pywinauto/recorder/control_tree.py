@@ -114,7 +114,7 @@ class ControlTree(object):
     def node_from_point(self, point):
         res = None
         for node in self.iterate_bfs():
-            if node.rect.contains(point):
+            if point in node.rect:
                 res = node
         return res
 

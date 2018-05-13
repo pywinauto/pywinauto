@@ -75,8 +75,7 @@ class Recorder(object):
         Clear event log.
         This is a synchronized method.
         """
-        # Clear instead of new empty list initialization to keep the link alive
-        self.event_log.clear()
+        self.event_log = []
 
     def is_active(self):
         """Returns True if Recorder is active"""

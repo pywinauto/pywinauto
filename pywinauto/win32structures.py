@@ -192,7 +192,7 @@ class RECT(Structure):
     ]
 
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
         """Provide a constructor for RECT structures
 
         A RECT can be constructed by:
@@ -202,6 +202,7 @@ class RECT(Structure):
         e.g. my_rect = RECT(otherRect)
         or   my_rect = RECT(10, 20, 34, 100)
         """
+        super(RECT, self).__init__()
         if isinstance(otherRect_or_left, RECT):
             self.left = otherRect_or_left.left
             self.right = otherRect_or_left.right
@@ -287,10 +288,10 @@ class RECT(Structure):
         return pt
 
     # ----------------------------------------------------------------
-    def contains(self, point):
+    def __contains__(self, point):
         """Return True if point is inside this rectangle"""
         if not isinstance(point, POINT):
-            raise TypeError("point must be an instance POINT")
+            raise TypeError("point must be an instance of POINT")
 
         return self.left <= point.x <= self.right and self.top <= point.y <= self.bottom
 
