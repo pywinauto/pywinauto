@@ -293,7 +293,7 @@ def has_enough_privileges(process_id):
             win32api.CloseHandle(process_handle)
             return True
         return False
-    except win32gui.error as exc:
+    except win32gui.error:
         return False
 
 
