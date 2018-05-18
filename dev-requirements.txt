@@ -1,4 +1,4 @@
-pypiwin32
+pywin32
 six
 Pillow==4.0.0
 coverage

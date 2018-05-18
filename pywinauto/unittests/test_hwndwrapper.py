@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -548,6 +548,11 @@ class HwndWrapperTests(unittest.TestCase):
         wrp = self.dlg.TabControl.wrapper_object()
         assert_regex(wrp.__str__(), "^common_controls.TabControlWrapper - '', TabControl$")
         assert_regex(wrp.__repr__(), "^<common_controls.TabControlWrapper - '', TabControl, [0-9-]+>$")
+
+    def test_children_generator(self):
+        dlg = self.dlg.wrapper_object()
+        children = [child for child in dlg.iter_children()]
+        self.assertSequenceEqual(dlg.children(), children)
 
 
 class HwndWrapperMenuTests(unittest.TestCase):

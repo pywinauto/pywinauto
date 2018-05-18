@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -1011,7 +1011,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 content = str(test_log_file.readlines())
                 self.assertTrue("'Untitled - NotepadEdit'" in content
                     and "'Edit'" in content)
-                self.assertTrue("child_window(class_name=\"msctls_statusbar32\")" in content)
+                self.assertTrue("child_window(class_name=\"msctls_statusbar32\"" in content)
             os.remove(output_filename)
         else:
             self.fail("print_control_identifiers can't create a file")

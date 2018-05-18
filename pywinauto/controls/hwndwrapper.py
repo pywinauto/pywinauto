@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -171,7 +171,6 @@ class HwndWrapper(BaseWrapper):
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_).
     """
-
     handle = None
 
     # -----------------------------------------------------------
@@ -215,6 +214,7 @@ class HwndWrapper(BaseWrapper):
                       'client_rects',
                       'is_unicode',
                       'menu_items',
+                      'automation_id',
                       ])
         return props
 
@@ -247,6 +247,21 @@ class HwndWrapper(BaseWrapper):
         return handleprops.exstyle(self)
     # Non PEP-8 alias
     ExStyle = exstyle
+
+    #------------------------------------------------------------
+    def automation_id(self):
+        """Return the .NET name of the control"""
+        return self.element_info.automation_id
+
+    #------------------------------------------------------------
+    def control_type(self):
+        """Return the .NET type of the control"""
+        return self.element_info.control_type
+
+    #------------------------------------------------------------
+    def full_control_type(self):
+        """Return the .NET type of the control (full, uncut)"""
+        return self.element_info.full_control_type
 
     # -----------------------------------------------------------
     def user_data(self):
@@ -448,11 +463,11 @@ class HwndWrapper(BaseWrapper):
     def send_message(self, message, wparam = 0, lparam = 0):
         """Send a message to the control and wait for it to return"""
         wParamAddress = wparam
-        if hasattr(wparam, 'memAddress'):
-            wParamAddress = wparam.memAddress
+        if hasattr(wparam, 'mem_address'):
+            wParamAddress = wparam.mem_address
         lParamAddress = lparam
-        if hasattr(lparam, 'memAddress'):
-            lParamAddress = lparam.memAddress
+        if hasattr(lparam, 'mem_address'):
+            lParamAddress = lparam.mem_address
 
         CArgObject = type(ctypes.byref(ctypes.c_int(0)))
         if isinstance(wparam, CArgObject):

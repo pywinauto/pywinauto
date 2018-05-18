@@ -55,9 +55,9 @@ before_script:
   - cd $TRAVIS_BUILD_DIR
 
 script:
-  - coverage run -a --source=pywinauto/mouse.py pywinauto/unittests/test_mouse.py
-  - coverage run -a --source=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
-  - coverage run -a --source=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py
+  - coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py
+  - coverage run -a --include=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
+  - coverage run -a --include=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py
 
 after_success:
   - codecov
