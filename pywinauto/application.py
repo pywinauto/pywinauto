@@ -168,8 +168,8 @@ class WindowSpecification(object):
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
         if "best_match" in self.criteria[-1]:
-            raise AttributeError(
-                "WindowSpecification class has no '{0}' method".
+            raise AttributeError("GUI element (wrapper) is not found " \
+                "or WindowSpecification has no '{0}' method (typo?)".
                 format(self.criteria[-1]['best_match']))
 
         message = (
@@ -956,6 +956,11 @@ class Application(object):
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()
+
+            if not handleprops.has_enough_privileges(self.process):
+                warning_text = "Python process has no rights to make changes " \
+                    "in the target GUI (run the script as Administrator)"
+                warnings.warn(warning_text, UserWarning)
 
         return self
 

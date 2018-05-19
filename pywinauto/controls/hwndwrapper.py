@@ -452,9 +452,16 @@ class HwndWrapper(BaseWrapper):
     #Notify = notify
 
     # -----------------------------------------------------------
+    def _ensure_enough_privileges(self, message_name):
+        """Ensure the Python process has enough rights to send some window messages"""
+        pid = handleprops.processid(self.handle)
+        if not handleprops.has_enough_privileges(pid):
+            raise OSError('No enough rights to send {} message to target process ' \
+                '(to resolve it run the script as Administrator)'.format(message_name))
+
+    # -----------------------------------------------------------
     def send_message(self, message, wparam = 0, lparam = 0):
         """Send a message to the control and wait for it to return"""
-        #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
         if hasattr(wparam, 'mem_address'):
             wParamAddress = wparam.mem_address
@@ -973,14 +980,14 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def _menu_handle(self):
-        "Simple Overridable method to get the menu handle"
-        #return win32functions.GetMenu(self) # vvryabov: it doesn't work in 64-bit Python for x64 applications
+        """Simple overridable method to get the menu handle"""
         hMenu = win32gui.GetMenu(self.handle)
         is_main_menu = True
         if not hMenu:
+            self._ensure_enough_privileges('MN_GETHMENU')
             hMenu = self.send_message(self.handle, win32defines.MN_GETHMENU);
             is_main_menu = False
-        return (hMenu, is_main_menu) #win32gui.GetMenu(self.handle)
+        return (hMenu, is_main_menu)
 
     # -----------------------------------------------------------
     def menu(self):
@@ -1382,6 +1389,7 @@ class HwndWrapper(BaseWrapper):
         **amount** can be one of "line", "page", "end"
         **count** (optional) the number of times to scroll
         """
+        self._ensure_enough_privileges('WM_HSCROLL/WM_VSCROLL')
 
         # check which message we want to send
         if direction.lower() in ("left", "right"):
