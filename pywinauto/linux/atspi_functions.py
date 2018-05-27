@@ -3,7 +3,7 @@ import subprocess
 from ctypes import Structure, c_char_p, c_int, POINTER
 
 
-class CtypesEnum:
+class CtypesEnum(object):
     @classmethod
     def from_param(cls, obj):
         return int(obj)
@@ -158,18 +158,19 @@ class AtspiFunctions:
     LIB = "libatspi"
     DEFAULT_LIB_NAME = "libatspi.so"
 
-    def __find_library(self):
+    @classmethod
+    def __find_library(cls):
         try:
             process = subprocess.Popen(["ldconfig", "-p"], stdout=subprocess.PIPE, universal_newlines=True)
             stdout = process.communicate()
             libraries = stdout[0]
             for lib in libraries.split("\n"):
-                if self.LIB in lib:
+                if cls.LIB in lib:
                     return lib.split()[0]
 
         except FileNotFoundError:
             # ldconfig not installed will use default lib name
-            return self.DEFAULT_LIB_NAME
+            return cls.DEFAULT_LIB_NAME
 
     def __init__(self):
         try:
@@ -222,7 +223,7 @@ class AtspiFunctions:
             self.get_component.argtypes = [POINTER(AtspiAccessible)]
             self.get_component.restype = POINTER(AtspiComponent)
 
-        except Exception as e:
+        except Exception:
             message = "atspi library not installed. Please install at-spi2 library or choose another backend"
             raise Exception(message)
 
