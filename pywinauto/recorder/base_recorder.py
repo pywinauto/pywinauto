@@ -1,9 +1,8 @@
 import threading
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 
-from .. import Application
-
+from ..application import Application, get_process_command_line_wmi
 from .log_parser import LogParser
 
 
@@ -23,21 +22,23 @@ def synchronized_method(method):
     return sync_method
 
 
-class Recorder(object):
+class BaseRecorder(object):
     """Record hook (keyboard, mouse) and back-end events"""
 
-    __metaclass__ = ABCMeta
-
-    def __init__(self, app=None, hot_output=True):
-        super(Recorder, self).__init__()
+    def __init__(self, app, **kwargs):
+        super(BaseRecorder, self).__init__()
 
         if not isinstance(app, Application):
             raise TypeError("app must be a pywinauto.Application object")
 
+        if not app.is_process_running():
+            raise TypeError("Application must be already running")
+
         self.ctrl = app.top_window().wrapper_object()
 
+        self.verbose = kwargs.get("verbose", False)
         # Output events straight away (for debug purposes)
-        self.hot_output = hot_output
+        self.hot_output = kwargs.get("hot_output", False)
 
         # Main recorder thread
         self.recorder_thread = threading.Thread(target=self.recorder_target)
@@ -54,10 +55,16 @@ class Recorder(object):
         # Log parser
         self.event_log = []
         self.control_tree = None
-        self.log_parser = LogParser(self)
+        self.log_parser = LogParser(self, self.verbose)
 
         # Generated script
-        self.script = "app = pywinauto.Application(backend='{}').start('INSERT_CMD_HERE')\n".format(app.backend.name)
+        try:
+            cmd = get_process_command_line_wmi(app.process)
+        except Exception:
+            cmd = "INSERT_CMD_HERE"
+        self.script = "app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
+        if self.hot_output:
+            print(self.script)
 
     @synchronized_method
     def add_to_log(self, item):
@@ -66,7 +73,7 @@ class Recorder(object):
         This is a synchronized method.
         """
         self.event_log.append(item)
-        if self.hot_output:
+        if self.verbose:
             print(item)
 
     @synchronized_method
@@ -97,12 +104,15 @@ class Recorder(object):
 
     def _parse_and_clear_log(self):
         """Parse current event log and clear it afterwards"""
-        self.script += self.log_parser.parse_current_log()
+        new_script = self.log_parser.parse_current_log()
+        if self.hot_output:
+            print(new_script)
+        self.script += new_script
         self.clear_log()
 
     @abstractmethod
     def _setup(self):
-        """Setup Recorder (initialize hook, subscrive to events, etc.)"""
+        """Setup Recorder (initialize hook, subscribe to events, etc.)"""
         pass
 
     @abstractmethod

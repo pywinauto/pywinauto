@@ -5,7 +5,7 @@ from ...win32structures import POINT
 from ...uia_element_info import UIAElementInfo
 
 from ..control_tree import ControlTree
-from ..recorder import Recorder
+from ..base_recorder import BaseRecorder
 from .uia_recorder_defines import *
 
 _ignored_events = [
@@ -43,7 +43,7 @@ _cached_properties = [
 ]
 
 
-class UiaRecorder(COMObject, Recorder):
+class UiaRecorder(COMObject, BaseRecorder):
     """Record UIA, keyboard and mouse events"""
 
     _com_interfaces_ = [IUIA().UIA_dll.IUIAutomationEventHandler,
@@ -51,8 +51,9 @@ class UiaRecorder(COMObject, Recorder):
                         IUIA().UIA_dll.IUIAutomationFocusChangedEventHandler,
                         IUIA().UIA_dll.IUIAutomationStructureChangedEventHandler]
 
-    def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True):
-        super(UiaRecorder, self).__init__(app=app, hot_output=hot_output)
+    def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True,
+                 verbose=False):
+        super(UiaRecorder, self).__init__(app=app, hot_output=hot_output, verbose=verbose)
 
         if app.backend.name != "uia":
             raise TypeError("app must be a pywinauto.Application object of 'uia' backend")

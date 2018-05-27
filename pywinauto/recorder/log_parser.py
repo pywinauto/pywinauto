@@ -2,8 +2,9 @@ from .recorder_defines import *
 
 
 class LogParser(object):
-    def __init__(self, recorder):
+    def __init__(self, recorder, verbose=False):
         self.recorder = recorder
+        self.verbose = verbose
 
         self.menu_sequence = []
         self.text_sequence = {}
@@ -38,9 +39,10 @@ class LogParser(object):
         for action in action_log:
             hook_event = action[0]
             application_events = action[1:]
-            print("================================================================================\n"
-                  "Hook event: {}\n    Application events: {}\n"
-                  "".format(hook_event, application_events))
+            if self.verbose:
+                print("================================================================================\n"
+                      "Hook event: {}\n    Application events: {}\n"
+                      "".format(hook_event, application_events))
 
             if isinstance(hook_event, RecorderMouseEvent):
                 # What happened after click (lbutton down-up)
@@ -104,6 +106,7 @@ class LogParser(object):
                     self.text_sequence.setdefault(uia_ctrl, "")
                     self.text_sequence[uia_ctrl] += hook_event.current_key
 
-            print("================================================================================\n")
+            if self.verbose:
+                print("================================================================================\n")
 
         return script
