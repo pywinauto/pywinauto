@@ -1,5 +1,5 @@
 from pywinauto import timings
-from pywinauto.timings import Timings
+from pywinauto.timings import Timings, wait_until
 
 
 class AppStartError(Exception):
@@ -148,4 +148,9 @@ class BaseApplication(object):
 
         Raises TimeoutError exception if timeout was reached
         """
-        raise NotImplementedError()
+        if timeout is None:
+            timeout = Timings.app_exit_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_exit_retry
+
+        wait_until(timeout, retry_interval, self.is_process_running, value=False)
