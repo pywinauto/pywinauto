@@ -34,19 +34,16 @@ import locale
 import comtypes
 import six
 
-from .. import uia_element_info
+from pywinauto.windows import uia_element_info
 from .. import findbestmatch
 from .. import timings
 
 from .. import uia_defines as uia_defs
 from . import uiawrapper
-from . import win32_controls
-from . import common_controls
-from ..uia_element_info import UIAElementInfo
-from ..uia_defines import IUIA
-from ..uia_defines import NoPatternInterfaceError
-from ..uia_defines import toggle_state_on
-from ..uia_defines import get_elem_interface
+from pywinauto.windows.uia_defines import IUIA
+from pywinauto.windows.uia_defines import NoPatternInterfaceError
+from pywinauto.windows.uia_defines import toggle_state_on
+from pywinauto.windows.uia_defines import get_elem_interface
 
 
 # ====================================================================

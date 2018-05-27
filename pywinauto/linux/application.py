@@ -8,31 +8,11 @@ import locale
 import subprocess
 import shlex
 
-from .backend import registry
-
-class AppStartError(Exception):
-
-    """There was a problem starting the Application"""
-
-    pass    # pragma: no cover
+from pywinauto.backend import registry
+from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 
 
-class ProcessNotFoundError(Exception):
-
-    """Could not find that process"""
-
-    pass    # pragma: no cover
-
-
-class AppNotConnected(Exception):
-
-    """Application has not been connected to a process yet"""
-
-    pass    # pragma: no cover
-
-
-
-class Application(object):
+class Application(BaseApplication):
 
     def __init__(self, backend="atspi"):
         self.process = None
@@ -78,5 +58,6 @@ class Application(object):
         self.process = process.pid
         return self
 
+
 if __name__ == "__main__":
-    app = Application()
+    app = BaseApplication()

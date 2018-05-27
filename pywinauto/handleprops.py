@@ -36,10 +36,6 @@ useful to other modules with the least conceptual overhead
 """
 
 import warnings
-import win32process
-import win32api
-import win32con
-import win32gui
 
 from ctypes import wintypes
 from ctypes import WINFUNCTYPE
@@ -47,9 +43,13 @@ from ctypes import c_int
 from ctypes import byref
 from ctypes import sizeof
 from ctypes import create_unicode_buffer
-from . import win32functions
-from . import win32defines
-from . import win32structures
+
+import win32process
+import win32api
+import win32con
+import win32gui
+
+from pywinauto.windows import win32defines, win32functions, win32structures
 from .actionlogger import ActionLogger
 
 

@@ -34,8 +34,8 @@
 from ctypes import LibraryLoader
 from ctypes import WinDLL
 from ctypes import wintypes
-from . import win32defines, win32structures
-from .actionlogger import ActionLogger
+from pywinauto.windows import win32defines, win32structures
+from pywinauto.actionlogger import ActionLogger
 from ctypes import c_short
 from ctypes import WINFUNCTYPE
 from ctypes import c_void_p

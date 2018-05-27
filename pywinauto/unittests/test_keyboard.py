@@ -43,9 +43,9 @@ import time
 sys.path.append(".")
 if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError
-    from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
+    from pywinauto.keyboard import KeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-    from pywinauto.application import Application
+    from pywinauto.windows.application import Application
 else:
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction

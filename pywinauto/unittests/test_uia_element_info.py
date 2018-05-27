@@ -10,7 +10,7 @@ from pywinauto.sysinfo import UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 
 if UIA_support:
-    from pywinauto.uia_element_info import UIAElementInfo
+    from pywinauto.windows.uia_element_info import UIAElementInfo
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")

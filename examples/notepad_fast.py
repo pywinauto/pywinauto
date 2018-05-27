@@ -38,7 +38,7 @@ import os.path
 import time
 
 try:
-    from pywinauto import application
+    from pywinauto.windows import application
 except ImportError:
     pywinauto_path = os.path.abspath(__file__)
     pywinauto_path = os.path.split(os.path.split(pywinauto_path)[0])[0]

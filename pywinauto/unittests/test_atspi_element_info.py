@@ -6,7 +6,7 @@ import unittest
 
 if sys.platform != 'win32':
     sys.path.append(".")
-    from pywinauto.atspi_element_info import AtspiElementInfo
+    from pywinauto.linux.atspi_element_info import AtspiElementInfo
 
 app_name = r"gtk_example.py"
 

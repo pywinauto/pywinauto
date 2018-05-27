@@ -80,39 +80,19 @@ import win32con
 import win32event
 import six
 
-from . import timings
-from . import controls
-from . import findbestmatch
-from . import findwindows
-from . import handleprops
-from . import win32defines
-from .backend import registry
+from .. import timings
+from .. import controls
+from .. import findbestmatch
+from .. import findwindows
+from .. import handleprops
+from pywinauto.windows import win32defines
+from ..backend import registry
 
-from .actionlogger import ActionLogger
-from .timings import Timings, wait_until, TimeoutError, wait_until_passes
-from .sysinfo import is_x64_Python
+from ..actionlogger import ActionLogger
+from ..timings import Timings, wait_until, TimeoutError, wait_until_passes
+from ..sysinfo import is_x64_Python
+from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 from . import deprecated
-
-
-class AppStartError(Exception):
-
-    """There was a problem starting the Application"""
-
-    pass    # pragma: no cover
-
-
-class ProcessNotFoundError(Exception):
-
-    """Could not find that process"""
-
-    pass    # pragma: no cover
-
-
-class AppNotConnected(Exception):
-
-    """Application has not been connected to a process yet"""
-
-    pass    # pragma: no cover
 
 
 # Display User and Deprecation warnings every time
@@ -878,7 +858,7 @@ def _resolve_from_appdata(
 
 
 #=========================================================================
-class Application(object):
+class Application(BaseApplication):
 
     """
     Represents an application
