@@ -1,3 +1,6 @@
+from pywinauto import timings
+from pywinauto.timings import Timings
+
 
 class AppStartError(Exception):
 
@@ -60,7 +63,18 @@ class BaseApplication(object):
 
     def wait_cpu_usage_lower(self, threshold=2.5, timeout=None, usage_interval=None):
         """Wait until process CPU usage percentage is less than the specified threshold"""
-        raise NotImplementedError()
+        if usage_interval is None:
+            usage_interval = Timings.cpu_usage_interval
+        if timeout is None:
+            timeout = Timings.cpu_usage_wait_timeout
+
+        start_time = timings.timestamp()
+
+        while self.cpu_usage(usage_interval) > threshold:
+            if timings.timestamp() - start_time > timeout:
+                raise RuntimeError('Waiting CPU load <= {}% timed out!'.format(threshold))
+
+        return self
 
     def top_window(self):
         """Return WindowSpecification for a current top window of the application"""

@@ -74,6 +74,17 @@ class Application(BaseApplication):
             raise RuntimeError(
                 "You must specify one of process, handle or path")
 
+    def cpu_usage(self, interval=None):
+        """Return CPU usage percent during specified number of seconds"""
+        if not self.process:
+            raise AppNotConnected("Please use start or connect before trying "
+                                  "anything else")
+        if interval:
+            time.sleep(interval)
+        proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
+        proc_info = proc_info.split("\n")
+        return float(proc_info[1])
+
 
 def assert_valid_process(process_id):
     if process_id not in os.listdir('/proc'):
