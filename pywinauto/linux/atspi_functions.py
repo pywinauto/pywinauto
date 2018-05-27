@@ -14,7 +14,6 @@ class RECT(Structure):
     """Wrap the RECT structure and add extra functionality"""
 
     _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
         ('left', c_int),
         ('top', c_int),
         ('right', c_int),
