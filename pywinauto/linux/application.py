@@ -81,13 +81,46 @@ class Application(BaseApplication):
                                   "anything else")
         if interval:
             time.sleep(interval)
-        proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
-        proc_info = proc_info.split("\n")
-        return float(proc_info[1])
+        try:
+            proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
+            proc_info = proc_info.split("\n")
+            return float(proc_info[1])
+        except Exception:
+            raise ProcessNotFoundError()
+
+    def kill(self):
+        """
+        Try to close and kill the application
+
+        Dialogs may pop up asking to save data - but the application
+        will be killed anyway - you will not be able to click the buttons.
+        This should only be used when it is OK to kill the process like you
+        would do in task manager.
+        """
+        if str(self.process) not in os.listdir('/proc'):
+            return True # already closed
+        status = subprocess.check_output(["kill", "-9", self.process], universal_newlines=True)
+        if "Operation not permitted" in status:
+            raise Exception("Cannot kill process: {}".format(status))
+        else:
+            return True
+
+    # Non PEP-8 aliases
+    kill_ = Kill_ = kill
+
+    def is_process_running(self):
+        """
+        Checks that process is running.
+
+        Can be called before start/connect.
+
+        Returns True if process is running otherwise - False
+        """
+        return str(self.process) in os.listdir('/proc')
 
 
 def assert_valid_process(process_id):
-    if process_id not in os.listdir('/proc'):
+    if str(process_id) not in os.listdir('/proc'):
         raise ProcessNotFoundError('pid = ' + str(process_id))
 
 
