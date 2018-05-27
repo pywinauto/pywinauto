@@ -50,6 +50,7 @@ from . import controls
 
 # reported that they are not used - but in fact they are
 # through a search of globals()
+from .windows.win32structures import LOGFONTW, RECT
 
 class XMLParsingError(RuntimeError):
     """Wrap parsing Exceptions"""
