@@ -1339,6 +1339,15 @@ def _process_get_modules_wmi():
 
 
 #=========================================================================
+def get_process_command_line_wmi(process_id):
+    """Return full command line of process"""
+    from win32com.client import GetObject
+    _wmi = GetObject('winmgmts:')
+    proc = _wmi.ExecQuery("Select CommandLine from Win32_Process where ProcessId={}".format(process_id))[0]
+    return proc.CommandLine
+
+
+#=========================================================================
 def process_module(process_id):
     """Return the string module name of this process"""
     process_handle = assert_valid_process(process_id)
