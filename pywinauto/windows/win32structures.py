@@ -38,7 +38,7 @@ from ctypes import \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
 from .win32defines import LF_FACESIZE
-from . import sysinfo
+from pywinauto import sysinfo
 
 
 class StructureMixIn(object):

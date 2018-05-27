@@ -36,8 +36,8 @@ import unittest
 import sys
 import ctypes
 sys.path.append(".")
-from pywinauto.win32structures import Structure, POINT, RECT  # noqa: E402
-from pywinauto.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
+from pywinauto.windows.win32structures import Structure, POINT, RECT  # noqa: E402
+from pywinauto.windows.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
 
 
 class Win32FunctionsTestCases(unittest.TestCase):

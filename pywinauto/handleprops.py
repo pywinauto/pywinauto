@@ -47,9 +47,7 @@ from ctypes import c_int
 from ctypes import byref
 from ctypes import sizeof
 from ctypes import create_unicode_buffer
-from . import win32functions
-from . import win32defines
-from . import win32structures
+from pywinauto.windows import win32defines, win32functions, win32structures
 from .actionlogger import ActionLogger
 
 

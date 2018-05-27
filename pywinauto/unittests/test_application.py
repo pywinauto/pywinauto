@@ -49,16 +49,15 @@ import six
 
 sys.path.append(".")
 from pywinauto import Desktop
-from pywinauto import win32defines
-from pywinauto import application
+from pywinauto.windows import application, win32defines
 from pywinauto.controls import hwndwrapper
-from pywinauto.application import Application
-from pywinauto.application import WindowSpecification
-from pywinauto.application import process_module
-from pywinauto.application import process_get_modules
-from pywinauto.application import ProcessNotFoundError
-from pywinauto.application import AppStartError
-from pywinauto.application import AppNotConnected
+from pywinauto.windows.application import Application
+from pywinauto.windows.application import WindowSpecification
+from pywinauto.windows.application import process_module
+from pywinauto.windows.application import process_get_modules
+from pywinauto.windows.application import ProcessNotFoundError
+from pywinauto.windows.application import AppStartError
+from pywinauto.windows.application import AppNotConnected
 from pywinauto.controls.common_controls import TrackbarWrapper
 from pywinauto import findwindows
 from pywinauto import findbestmatch
@@ -302,8 +301,8 @@ class ApplicationTestCases(unittest.TestCase):
         """Verify that it raises when the app is not connected"""
         self.assertRaises (AppNotConnected, Application().__getattribute__, 'Hiya')
         self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
-        self.assertRaises (AppNotConnected, Application().window_, title = 'Hiya')
-        self.assertRaises (AppNotConnected, Application().top_window_,)
+        self.assertRaises (AppNotConnected, Application().window_, title ='Hiya')
+        self.assertRaises (AppNotConnected, Application().top_window_, )
 
     def test_start_problem(self):
         """Verify start_ raises on unknown command"""
@@ -1307,10 +1306,10 @@ if UIA_support:
             with self.assertRaises(ValueError):
                 self.desktop.window(backend='win32', title='MFC_samplesDialog')
 
-        def test_get_list_of_windows_uia(self):
-            """Test that method .windows() returns a non-empty list of windows"""
-            dlgs = self.desktop.windows()
-            self.assertTrue(len(dlgs) > 1)
+        def tearDown(self):
+            """Close the application after tests"""
+            self.desktop.window(title='Common Controls Sample', process=self.app.process).SendMessage(
+                win32defines.WM_CLOSE)
 
         def test_set_backend_to_windows_uia(self):
             """Set backend to method windows, except exception ValueError"""

@@ -40,7 +40,7 @@ from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
-from ..atspi_element_info import AtspiElementInfo
+from pywinauto.linux.atspi_element_info import AtspiElementInfo
 
 # region PATTERNS
 

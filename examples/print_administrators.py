@@ -6,7 +6,7 @@ Requirements: Python 2.7 or 3.4, pyWin32, pywinauto 0.5.4+
  place the script to the repo root folder
 """
 from subprocess import Popen
-from pywinauto import application
+from pywinauto.windows import application
 from pywinauto.timings import always_wait_until_passes
 
 

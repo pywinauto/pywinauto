@@ -34,7 +34,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 try:
-    from pywinauto import application
+    from pywinauto.windows import application
 except ImportError:
     import os.path
     pywinauto_path = os.path.abspath(__file__)

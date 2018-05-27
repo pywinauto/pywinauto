@@ -14,13 +14,13 @@ from threading import Timer
 
 sys.path.append(".")
 import pywinauto.actionlogger
-from pywinauto import win32structures
-from pywinauto.win32_hooks import Hook
-from pywinauto.win32_hooks import KeyboardEvent
-from pywinauto.win32_hooks import MouseEvent
+from pywinauto.windows import win32structures
+from pywinauto.windows.win32_hooks import Hook
+from pywinauto.windows.win32_hooks import KeyboardEvent
+from pywinauto.windows.win32_hooks import MouseEvent
 from pywinauto.keyboard import send_keys
 from pywinauto.mouse import click
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 
 

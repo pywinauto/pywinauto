@@ -35,7 +35,7 @@ from __future__ import print_function
 
 import time
 
-from pywinauto import application
+from pywinauto.windows import application
 
 
 def sakura_test():

@@ -39,9 +39,9 @@ import codecs
 import unittest
 sys.path.append(".")
 from pywinauto import xml_helpers
-from pywinauto import win32defines
+from pywinauto.windows import win32defines
 from pywinauto.sysinfo import is_x64_Python
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 
 # following imports are not required for the tests
 # but are useful for debugging

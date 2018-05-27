@@ -16,7 +16,7 @@ __revision__ = "$Revision$"
 
 import sys
 
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 import time
 
 folders = ['wrar351cz', 'wrar351d', 'wrar351fr']
