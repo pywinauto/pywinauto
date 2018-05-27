@@ -26,43 +26,44 @@ def _test_app_cmd_line():
 
 sys.path.append(".")
 
-class ApplicationTestCases(unittest.TestCase):
+if sys.platform != 'win32':
+    class ApplicationTestCases(unittest.TestCase):
 
-    """Unit tests for the application.Application class"""
+        """Unit tests for the application.Application class"""
 
-    def setUp(self):
-        """Set some data and ensure the application is in the state we want"""
-        pass
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            pass
 
-    def tearDown(self):
-        """Close the application after tests"""
-        pass
+        def tearDown(self):
+            """Close the application after tests"""
+            pass
 
-    def test__init__(self):
-        """Verify that Application instance is initialized or not"""
-        self.assertRaises(ValueError, BaseApplication, backend='unregistered')
+        def test__init__(self):
+            """Verify that Application instance is initialized or not"""
+            self.assertRaises(ValueError, BaseApplication, backend='unregistered')
 
-    def test_not_connected(self):
-        """Verify that it raises when the app is not connected"""
-        self.assertRaises(AppNotConnected, BaseApplication().__getattribute__, 'Hiya')
-        self.assertRaises(AppNotConnected, BaseApplication().__getitem__, 'Hiya')
-        self.assertRaises(AppNotConnected, BaseApplication().window_, title='Hiya')
-        self.assertRaises(AppNotConnected, BaseApplication().top_window_, )
+        def test_not_connected(self):
+            """Verify that it raises when the app is not connected"""
+            self.assertRaises(AppNotConnected, BaseApplication().__getattribute__, 'Hiya')
+            self.assertRaises(AppNotConnected, BaseApplication().__getitem__, 'Hiya')
+            self.assertRaises(AppNotConnected, BaseApplication().window_, title='Hiya')
+            self.assertRaises(AppNotConnected, BaseApplication().top_window_, )
 
-    def test_start_problem(self):
-        """Verify start_ raises on unknown command"""
-        self.assertRaises(AppStartError, BaseApplication().start, 'Hiya')
+        def test_start_problem(self):
+            """Verify start_ raises on unknown command"""
+            self.assertRaises(AppStartError, BaseApplication().start, 'Hiya')
 
-    def test_start(self):
-        """test start() works correctly"""
-        app = BaseApplication()
-        self.assertEqual(app.process, None)
-        app.start(_test_app_cmd_line())
-        self.assertNotEqual(app.process, None)
+        def test_start(self):
+            """test start() works correctly"""
+            app = BaseApplication()
+            self.assertEqual(app.process, None)
+            app.start(_test_app_cmd_line())
+            self.assertNotEqual(app.process, None)
 
-        self.assertEqual(app.UntitledNotepad.process_id(), app.process)
+            self.assertEqual(app.UntitledNotepad.process_id(), app.process)
 
-        notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
-        # self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
+            notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
+            # self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
 
-        app.UntitledNotepad.MenuSelect("File->Exit")
+            app.UntitledNotepad.MenuSelect("File->Exit")
