@@ -36,8 +36,7 @@ import re
 import ctypes
 import six
 
-from . import win32functions
-from . import win32structures
+from pywinauto.windows import win32functions, win32structures
 from . import findbestmatch
 from . import controls
 from .backend import registry

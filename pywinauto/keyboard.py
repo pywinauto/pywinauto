@@ -90,7 +90,7 @@ else:
     import win32api
     import six
 
-    from . import win32structures
+    from pywinauto.windows import win32structures
 
     __all__ = ['KeySequenceError', 'SendKeys']
 

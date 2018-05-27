@@ -37,8 +37,8 @@ import sys
 import time
 sys.path.append(".")
 from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard
-from pywinauto.application import Application
-from pywinauto.win32structures import RECT
+from pywinauto.windows.application import Application
+from pywinauto.windows.win32structures import RECT
 from pywinauto.timings import Timings
 
 

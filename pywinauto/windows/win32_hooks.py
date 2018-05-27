@@ -63,7 +63,7 @@ import sys
 import time
 import win32con
 from .win32defines import VK_PACKET
-from .actionlogger import ActionLogger
+from pywinauto.actionlogger import ActionLogger
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
 

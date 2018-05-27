@@ -43,9 +43,9 @@ import win32api
 import six
 
 sys.path.append(".")
-from pywinauto.application import Application  # noqa: E402
-from pywinauto.win32structures import RECT  # noqa: E402
-from pywinauto import win32defines  # noqa: E402
+from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.windows.win32structures import RECT  # noqa: E402
+from pywinauto.windows import win32defines
 from pywinauto import findbestmatch  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa: E402

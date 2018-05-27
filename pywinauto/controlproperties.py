@@ -30,7 +30,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Wrap"""
-from .win32structures import RECT, LOGFONTW
+from pywinauto.windows.win32structures import RECT, LOGFONTW
 
 
 #====================================================================

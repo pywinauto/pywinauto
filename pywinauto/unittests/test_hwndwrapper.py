@@ -50,8 +50,7 @@ from pywinauto.application import Application  # noqa E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa E402
 from pywinauto.controls.hwndwrapper import InvalidWindowHandle  # noqa E402
 from pywinauto.controls.hwndwrapper import GetDialogPropsFromHandle  # noqa E402
-from pywinauto import win32structures  # noqa E402
-from pywinauto import win32defines  # noqa E402
+from pywinauto.windows import win32defines, win32structures
 from pywinauto.findwindows import ElementNotFoundError  # noqa E402
 from pywinauto.sysinfo import is_x64_Python  # noqa E402
 from pywinauto.sysinfo import is_x64_OS  # noqa E402

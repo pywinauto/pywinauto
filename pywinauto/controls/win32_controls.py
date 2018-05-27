@@ -35,17 +35,12 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32gui
-import win32api
-import win32con
-import win32process
 import locale
 import six
 
 from . import hwndwrapper
 
-from .. import win32functions
-from .. import win32defines
-from .. import win32structures
+from pywinauto.windows import win32defines, win32functions, win32structures
 
 from ..timings import Timings
 
@@ -115,12 +110,12 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
             f_class_name = vb_buttons[self.class_name()]
 
         if style_lsb in [win32defines.BS_3STATE,
-                        win32defines.BS_AUTO3STATE,
-                        win32defines.BS_AUTOCHECKBOX,
-                        win32defines.BS_CHECKBOX, ]:
+                         win32defines.BS_AUTO3STATE,
+                         win32defines.BS_AUTOCHECKBOX,
+                         win32defines.BS_CHECKBOX, ]:
             f_class_name = "CheckBox"
         elif style_lsb in [win32defines.BS_RADIOBUTTON,
-                        win32defines.BS_AUTORADIOBUTTON, ]:
+                           win32defines.BS_AUTORADIOBUTTON, ]:
             f_class_name = "RadioButton"
         elif style_lsb == win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"

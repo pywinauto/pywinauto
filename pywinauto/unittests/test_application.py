@@ -43,23 +43,20 @@ import time
 #import pdb
 import warnings
 from threading import Thread
-import win32api
-import pywintypes
 
 import mock
 
 sys.path.append(".")
 from pywinauto import Desktop
-from pywinauto import win32defines
-from pywinauto import application
+from pywinauto.windows import application, win32defines
 from pywinauto.controls import hwndwrapper
-from pywinauto.application import Application
-from pywinauto.application import WindowSpecification
-from pywinauto.application import process_module
-from pywinauto.application import process_get_modules
-from pywinauto.application import ProcessNotFoundError
-from pywinauto.application import AppStartError
-from pywinauto.application import AppNotConnected
+from pywinauto.windows.application import Application
+from pywinauto.windows.application import WindowSpecification
+from pywinauto.windows.application import process_module
+from pywinauto.windows.application import process_get_modules
+from pywinauto.windows.application import ProcessNotFoundError
+from pywinauto.windows.application import AppStartError
+from pywinauto.windows.application import AppNotConnected
 from pywinauto import findwindows
 from pywinauto import findbestmatch
 from pywinauto.timings import Timings
@@ -177,8 +174,8 @@ class ApplicationTestCases(unittest.TestCase):
         """Verify that it raises when the app is not connected"""
         self.assertRaises (AppNotConnected, Application().__getattribute__, 'Hiya')
         self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
-        self.assertRaises (AppNotConnected, Application().window_, title = 'Hiya')
-        self.assertRaises (AppNotConnected, Application().top_window_,)
+        self.assertRaises (AppNotConnected, Application().window_, title ='Hiya')
+        self.assertRaises (AppNotConnected, Application().top_window_, )
 
     def test_start_problem(self):
         """Verify start_ raises on unknown command"""
@@ -1139,7 +1136,8 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
 
         def tearDown(self):
             """Close the application after tests"""
-            self.desktop.window(title='Common Controls Sample', process=self.app.process).SendMessage(win32defines.WM_CLOSE)
+            self.desktop.window(title='Common Controls Sample', process=self.app.process).SendMessage(
+                win32defines.WM_CLOSE)
 
         def test_simple_access_through_desktop(self):
             """Test that controls can be accessed by 4 levels of attributes"""

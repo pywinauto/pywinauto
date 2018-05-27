@@ -43,9 +43,9 @@ from ..timings import Timings
 from .win32_wrapper import Win32Wrapper
 from ..base_wrapper import BaseMeta
 
-from ..uia_defines import IUIA
-from .. import uia_defines as uia_defs
-from ..uia_element_info import UIAElementInfo, elements_from_uia_array
+from pywinauto.windows.uia_defines import IUIA
+from pywinauto.windows import uia_defines as uia_defs
+from pywinauto.windows.uia_element_info import UIAElementInfo, elements_from_uia_array
 
 # region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement

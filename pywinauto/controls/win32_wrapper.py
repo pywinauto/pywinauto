@@ -33,10 +33,8 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import abc
 import ctypes
 import locale
-import re
 import time
 import win32process
 import six
@@ -47,14 +45,13 @@ except ImportError:
     ImageGrab = None
 
 from .. import keyboard
-from .. import win32defines, win32structures, win32functions
+from pywinauto.windows import win32defines, win32functions, win32structures
 from ..timings import Timings
-from ..actionlogger import ActionLogger
 from ..mouse import _perform_click_input
 
 from ..base_wrapper import BaseWrapper
-from ..base_wrapper import BaseMeta, InvalidElement, ElementNotEnabled, ElementNotVisible, \
-    remove_non_alphanumeric_symbols
+from ..base_wrapper import BaseMeta
+
 
 #=========================================================================
 @six.add_metaclass(BaseMeta)
@@ -135,7 +132,7 @@ class Win32Wrapper(BaseWrapper):
         brush_handle = win32functions.CreateBrushIndirect(ctypes.byref(brush))
 
         # get the Device Context
-        dc = win32functions.CreateDC("DISPLAY", None, None, None )
+        dc = win32functions.CreateDC("DISPLAY", None, None, None)
 
         # push our objects into it
         win32functions.SelectObject(dc, brush_handle)

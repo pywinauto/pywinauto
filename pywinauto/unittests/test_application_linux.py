@@ -2,14 +2,10 @@
 import sys
 import os
 import unittest
-import time
 #import pprint
 #import pdb
-import warnings
-from threading import Thread
 
-from pywinauto.controls import atspiwrapper
-from pywinauto.application_linux import Application, AppStartError, AppNotConnected
+from pywinauto.linux.application import BaseApplication, AppStartError, AppNotConnected
 
 app_name = r"gtk_example.py"
 
@@ -44,22 +40,22 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test__init__(self):
         """Verify that Application instance is initialized or not"""
-        self.assertRaises(ValueError, Application, backend='unregistered')
+        self.assertRaises(ValueError, BaseApplication, backend='unregistered')
 
     def test_not_connected(self):
         """Verify that it raises when the app is not connected"""
-        self.assertRaises(AppNotConnected, Application().__getattribute__, 'Hiya')
-        self.assertRaises(AppNotConnected, Application().__getitem__, 'Hiya')
-        self.assertRaises(AppNotConnected, Application().window_, title='Hiya')
-        self.assertRaises(AppNotConnected, Application().top_window_,)
+        self.assertRaises(AppNotConnected, BaseApplication().__getattribute__, 'Hiya')
+        self.assertRaises(AppNotConnected, BaseApplication().__getitem__, 'Hiya')
+        self.assertRaises(AppNotConnected, BaseApplication().window_, title='Hiya')
+        self.assertRaises(AppNotConnected, BaseApplication().top_window_, )
 
     def test_start_problem(self):
         """Verify start_ raises on unknown command"""
-        self.assertRaises(AppStartError, Application().start, 'Hiya')
+        self.assertRaises(AppStartError, BaseApplication().start, 'Hiya')
 
     def test_start(self):
         """test start() works correctly"""
-        app = Application()
+        app = BaseApplication()
         self.assertEqual(app.process, None)
         app.start(_test_app_cmd_line())
         self.assertNotEqual(app.process, None)

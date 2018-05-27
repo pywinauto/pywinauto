@@ -53,9 +53,7 @@ import warnings
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
-from .. import win32functions
-from .. import win32defines
-from .. import win32structures
+from pywinauto.windows import win32defines, win32functions, win32structures
 from .. import controlproperties
 from ..actionlogger import ActionLogger
 from .. import keyboard
@@ -63,7 +61,7 @@ from .. import mouse
 from ..timings import Timings
 from .. import timings
 from .. import handleprops
-from ..win32_element_info import HwndElementInfo
+from pywinauto.windows.win32_element_info import HwndElementInfo
 from .. import backend
 
 # I leave this optional because PIL is a large dependency
@@ -896,7 +894,7 @@ class HwndWrapper(Win32Wrapper):
         """Write some debug text over the window"""
         # don't draw if dialog is not visible
 
-        dc = win32functions.CreateDC("DISPLAY", None, None, None )
+        dc = win32functions.CreateDC("DISPLAY", None, None, None)
 
         if not dc:
             raise ctypes.WinError()
@@ -1551,7 +1549,7 @@ class DialogWrapper(HwndWrapper):
         """Show the dialog in the Windows taskbar"""
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE,
-            self.exstyle() | win32defines.WS_EX_APPWINDOW)
+                                        self.exstyle() | win32defines.WS_EX_APPWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
     # Non PEP-8 alias
     ShowInTaskbar = show_in_taskbar

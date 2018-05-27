@@ -39,7 +39,7 @@ import sys
 sys.path.append(".")
 from pywinauto import backend  # noqa: E402
 from pywinauto import _get_com_threading_mode  # noqa: E402
-from pywinauto.win32_element_info import HwndElementInfo  # noqa: E402
+from pywinauto.windows.win32_element_info import HwndElementInfo  # noqa: E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa: E402
 
 

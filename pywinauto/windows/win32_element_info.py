@@ -37,10 +37,10 @@ from ctypes import wintypes
 import six
 import win32gui
 
-from . import win32functions
-from . import handleprops
-from .element_info import ElementInfo
-from .remote_memory_block import RemoteMemoryBlock
+from pywinauto.windows import win32functions
+from pywinauto import handleprops
+from pywinauto.element_info import ElementInfo
+from pywinauto.remote_memory_block import RemoteMemoryBlock
 
 
 def _register_win_msg(msg_name):

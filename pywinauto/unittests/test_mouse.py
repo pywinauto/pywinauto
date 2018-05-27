@@ -8,7 +8,7 @@ import unittest
 if sys.platform == 'win32':
     import win32clipboard
     sys.path.append(".")
-    from pywinauto.application import Application
+    from pywinauto.windows.application import Application
     from pywinauto.keyboard import SendKeys
     from pywinauto import mouse
     from pywinauto.timings import Timings
