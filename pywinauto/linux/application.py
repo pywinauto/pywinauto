@@ -38,6 +38,47 @@ class Application(BaseApplication):
         self.process = process.pid
         return self
 
+    def connect(self, **kwargs):
+        """Connect to an already running process
+
+        The action is performed according to only one of parameters
+
+        :param process: a process ID of the target
+        :param path: a path used to launch the target
+
+        .. seealso::
+
+           :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
+           are also can be used instead of **process**, **handle** or **path**
+        """
+        connected = False
+        if 'process' in kwargs:
+            self.process = kwargs['process']
+            assert_valid_process(self.process)
+            connected = True
+        elif 'path' in kwargs:
+            for proc_id in os.listdir('/proc'):
+                if proc_id == 'curproc':
+                    continue
+                try:
+                    with open('/proc/{}/cmdline'.format(proc_id), mode='rb') as fd:
+                        content = fd.read().decode().split('\x00')
+                except Exception:
+                    continue
+
+                if kwargs['path'] in content[0]:
+                    self.process = int(proc_id)
+                    connected = True
+
+        if not connected:
+            raise RuntimeError(
+                "You must specify one of process, handle or path")
+
+
+def assert_valid_process(process_id):
+    if process_id not in os.listdir('/proc'):
+        raise ProcessNotFoundError('pid = ' + str(process_id))
+
 
 if __name__ == "__main__":
     app = BaseApplication()
