@@ -5,7 +5,7 @@ import unittest
 #import pprint
 #import pdb
 
-from pywinauto.linux.application import BaseApplication, AppStartError, AppNotConnected
+from pywinauto.linux.application import Application, AppStartError, AppNotConnected
 
 app_name = r"gtk_example.py"
 
@@ -41,22 +41,22 @@ if sys.platform != 'win32':
 
         def test__init__(self):
             """Verify that Application instance is initialized or not"""
-            self.assertRaises(ValueError, BaseApplication, backend='unregistered')
+            self.assertRaises(ValueError, Application, backend='unregistered')
 
         def test_not_connected(self):
             """Verify that it raises when the app is not connected"""
-            self.assertRaises(AppNotConnected, BaseApplication().__getattribute__, 'Hiya')
-            self.assertRaises(AppNotConnected, BaseApplication().__getitem__, 'Hiya')
-            self.assertRaises(AppNotConnected, BaseApplication().window_, title='Hiya')
-            self.assertRaises(AppNotConnected, BaseApplication().top_window_, )
+            self.assertRaises(AppNotConnected, Application().__getattribute__, 'Hiya')
+            self.assertRaises(AppNotConnected, Application().__getitem__, 'Hiya')
+            self.assertRaises(AppNotConnected, Application().window_, title='Hiya')
+            self.assertRaises(AppNotConnected, Application().top_window_, )
 
         def test_start_problem(self):
             """Verify start_ raises on unknown command"""
-            self.assertRaises(AppStartError, BaseApplication().start, 'Hiya')
+            self.assertRaises(AppStartError, Application().start, 'Hiya')
 
         def test_start(self):
             """test start() works correctly"""
-            app = BaseApplication()
+            app = Application()
             self.assertEqual(app.process, None)
             app.start(_test_app_cmd_line())
             self.assertNotEqual(app.process, None)
