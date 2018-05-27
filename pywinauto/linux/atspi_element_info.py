@@ -1,23 +1,23 @@
-from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions
+from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions, RECT
 from pywinauto.element_info import ElementInfo
 
 
 class AtspiElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
+    atspi_functions = AtspiFunctions()
 
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
-        self.atspi_functions = AtspiFunctions()
         if handle is None:
             self._handle = self.atspi_functions.get_desktop(0, None)
         else:
             self._handle = handle
 
-    def _get_elements(self, root, tree):
+    def __get_elements(self, root, tree):
         tree.append(root)
         for el in root.children():
-            self._get_elements(el, tree)
+            self.__get_elements(el, tree)
 
     @property
     def handle(self):
@@ -61,7 +61,7 @@ class AtspiElementInfo(ElementInfo):
         """Return descendants of the element"""
         tree = []
         for obj in self.children():
-            self._get_elements(obj, tree)
+            self.__get_elements(obj, tree)
         return tree
 
     @property
@@ -69,4 +69,4 @@ class AtspiElementInfo(ElementInfo):
         """Return rectangle of element"""
         component = self.atspi_functions.get_component(self._handle)
         prect = self.atspi_functions.get_rectangle(component, AtspiCoordType.ATSPI_COORD_TYPE_SCREEN, None)
-        return prect.contents
+        return RECT(prect.contents)
