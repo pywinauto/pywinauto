@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 import os.path
 import pickle
@@ -26,7 +28,30 @@ from .timings import Timings, wait_until, TimeoutError, wait_until_passes
 from .sysinfo import is_x64_Python
 
 
+class AppStartError(Exception):
+
+    """There was a problem starting the Application"""
+
+    pass    # pragma: no cover
+
+
+class ProcessNotFoundError(Exception):
+
+    """Could not find that process"""
+
+    pass    # pragma: no cover
+
+
+class AppNotConnected(Exception):
+
+    """Application has not been connected to a process yet"""
+
+    pass    # pragma: no cover
+
+
+
 # TODO problem with if active_only: in findwindows to use on linux
+#=========================================================================
 class WindowSpecification(object):
 
     """
@@ -510,7 +535,6 @@ class WindowSpecification(object):
             ctrl_id_name_map.setdefault(index, []).append(name)
 
         def print_identifiers(ctrls, current_depth=1, log_func=print):
-            # TODO problem with print on linux
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
@@ -578,27 +602,6 @@ class WindowSpecification(object):
 
     print_ctrl_ids = print_control_identifiers
     dump_tree = print_control_identifiers
-
-
-class AppStartError(Exception):
-
-    """There was a problem starting the Application"""
-
-    pass    # pragma: no cover
-
-
-class ProcessNotFoundError(Exception):
-
-    """Could not find that process"""
-
-    pass    # pragma: no cover
-
-
-class AppNotConnected(Exception):
-
-    """Application has not been connected to a process yet"""
-
-    pass    # pragma: no cover
 
 
 #=========================================================================
