@@ -43,8 +43,7 @@ import time
 #import pdb
 import warnings
 from threading import Thread
-import win32api
-import pywintypes
+import ctypes
 
 import mock
 
@@ -162,6 +161,7 @@ class AdminTestCases(ApplicationWarningTestCases):
         super(AdminTestCases, self).tearDown()
 
     def test_non_admin_warning(self):
+        print('ctypes.windll.shell32.IsUserAnAdmin() = {}'.format(ctypes.windll.shell32.IsUserAnAdmin()))
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
