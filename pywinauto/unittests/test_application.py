@@ -165,13 +165,13 @@ class AdminTestCases(ApplicationWarningTestCases):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            self.app = Application().connect(title="Common Controls Sample", timeout=5)
+            self.app = Application().connect(title="Common Controls Sample", timeout=20)
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
             assert "process has no rights" in str(w[-1].message)
 
     def test_non_admin_click(self):
-        self.app = Application().connect(title="Common Controls Sample", timeout=5)
+        self.app = Application().connect(title="Common Controls Sample", timeout=20)
         with self.assertRaises(RuntimeError):
             self.app.CommonControlsSample.OK.click()
         with self.assertRaises(RuntimeError):

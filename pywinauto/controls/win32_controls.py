@@ -150,6 +150,16 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     # Non PEP-8 alias
     GetCheckState = get_check_state
 
+    __check_states = {
+        win32defines.BST_UNCHECKED: False,
+        win32defines.BST_CHECKED: True,
+        win32defines.BST_INDETERMINATE: None,
+        }
+    #-----------------------------------------------------------
+    def is_checked(self):
+        """Return True if checked, False if not checked, None if indeterminate"""
+        return self.__check_states[self.get_check_state()]
+
     #-----------------------------------------------------------
     def check(self):
         """Check a checkbox"""
