@@ -153,7 +153,8 @@ class AdminTestCases(ApplicationWarningTestCases):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         super(AdminTestCases, self).setUp()
-        self.app = Application().start('powershell -Command "Start-Process {} -Verb RunAs"'.format(self.sample_exe), wait_for_idle=False)
+        cmd = 'powershell -Command "Start-Process {} -Verb RunAs"'.format(self.sample_exe)
+        self.app = Application().start(cmd, wait_for_idle=False)
 
     def tearDown(self):
         """Close the application after tests"""
@@ -195,7 +196,7 @@ class NonAdminTestCases(ApplicationWarningTestCases):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            Application().connect(title="Common Controls Sample", timeout=5)
+            self.app = Application().connect(title="Common Controls Sample", timeout=5)
             assert len(w) == 0
 
     def test_both_non_admin_click(self):
