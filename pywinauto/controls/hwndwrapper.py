@@ -456,7 +456,7 @@ class HwndWrapper(BaseWrapper):
         """Ensure the Python process has enough rights to send some window messages"""
         pid = handleprops.processid(self.handle)
         if not handleprops.has_enough_privileges(pid):
-            raise OSError('No enough rights to send {} message to target process ' \
+            raise RuntimeError('Not enough rights to use {} message/function for target process ' \
                 '(to resolve it run the script as Administrator)'.format(message_name))
 
     # -----------------------------------------------------------
@@ -745,6 +745,7 @@ class HwndWrapper(BaseWrapper):
         (i.e. it can be hidden beneath another window and it will still work).
         """
         self.verify_actionable()
+        self._ensure_enough_privileges('WM_*BUTTONDOWN/UP')
 
         _perform_click(self, button, pressed, coords, double, absolute=absolute)
         return self
@@ -1185,6 +1186,7 @@ class HwndWrapper(BaseWrapper):
         """Maximize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MAXIMIZE)
         self.actions.log('Maximized window "{0}"'.format(self.window_text()))
+        return self
     # Non PEP-8 alias
     Maximize = maximize
 
@@ -1193,6 +1195,7 @@ class HwndWrapper(BaseWrapper):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
         self.actions.log('Minimized window "{0}"'.format(self.window_text()))
+        return self
     # Non PEP-8 alias
     Minimize = minimize
 
@@ -1201,6 +1204,7 @@ class HwndWrapper(BaseWrapper):
         """Restore the window to its previous state (normal or maximized)"""
         win32functions.ShowWindow(self, win32defines.SW_RESTORE)
         self.actions.log('Restored window "{0}"'.format(self.window_text()))
+        return self
     # Non PEP-8 alias
     Restore = restore
 
@@ -1344,7 +1348,6 @@ class HwndWrapper(BaseWrapper):
         win32functions.WaitGuiThreadIdle(self)
 
         time.sleep(Timings.after_setfocus_wait)
-
         return self
 
     # -----------------------------------------------------------
