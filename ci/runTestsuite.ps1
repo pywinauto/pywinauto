@@ -33,7 +33,7 @@ function run {
     $output = "transformed.xml"
     
     #nosetests  --all-modules --with-xunit pywinauto/unittests
-    Start-Process -FilePath psexec -ArgumentList "-accepteula -l -d nosetests --nologcapture --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests" -Wait -Passthru -WindowStyle Hidden
+    nosetests --nologcapture --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests
     $success = $?
     Write-Host "result code of nosetests:" $success
 
