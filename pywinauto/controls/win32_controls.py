@@ -145,13 +145,25 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         BST_CHECKED = 1
         BST_INDETERMINATE = 2
         """
+        self._ensure_enough_privileges('BM_GETCHECK')
         return self.send_message(win32defines.BM_GETCHECK)
     # Non PEP-8 alias
     GetCheckState = get_check_state
 
+    __check_states = {
+        win32defines.BST_UNCHECKED: False,
+        win32defines.BST_CHECKED: True,
+        win32defines.BST_INDETERMINATE: None,
+        }
+    #-----------------------------------------------------------
+    def is_checked(self):
+        """Return True if checked, False if not checked, None if indeterminate"""
+        return self.__check_states[self.get_check_state()]
+
     #-----------------------------------------------------------
     def check(self):
         """Check a checkbox"""
+        self._ensure_enough_privileges('BM_SETCHECK')
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_CHECKED)
 
@@ -166,6 +178,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def uncheck(self):
         """Uncheck a checkbox"""
+        self._ensure_enough_privileges('BM_SETCHECK')
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_UNCHECKED)
 
@@ -180,6 +193,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def set_check_indeterminate(self):
         """Set the checkbox to indeterminate"""
+        self._ensure_enough_privileges('BM_SETCHECK')
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_INDETERMINATE)
 
@@ -311,6 +325,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_count(self):
         """Return the number of items in the combobox"""
+        self._ensure_enough_privileges('CB_GETCOUNT')
         return self.send_message(win32defines.CB_GETCOUNT)
     # Non PEP-8 alias
     ItemCount = item_count
@@ -318,6 +333,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def selected_index(self):
         """Return the selected index"""
+        self._ensure_enough_privileges('CB_GETCURSEL')
         return self.send_message(win32defines.CB_GETCURSEL)
     # Non PEP-8 alias
     SelectedIndex = selected_index
@@ -361,6 +377,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_texts(self):
         """Return the text of the items of the combobox"""
+        self._ensure_enough_privileges('CB_GETCOUNT')
         return _get_multiple_text_items(
             self,
             win32defines.CB_GETCOUNT,
@@ -462,6 +479,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def is_single_selection(self):
         """Check whether the listbox has single selection mode."""
+        self._ensure_enough_privileges('LB_GETSELCOUNT')
         num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
@@ -472,6 +490,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def selected_indices(self):
         """The currently selected indices of the listbox"""
+        self._ensure_enough_privileges('LB_GETSELCOUNT')
         num_selected = self.send_message(win32defines.LB_GETSELCOUNT)
 
         # if we got LB_ERR then it is a single selection list box
@@ -515,6 +534,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_count(self):
         """Return the number of items in the ListBox"""
+        self._ensure_enough_privileges('LB_GETCOUNT')
         return self.send_message(win32defines.LB_GETCOUNT)
     # Non PEP-8 alias
     ItemCount = item_count
@@ -530,6 +550,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def item_texts(self):
         """Return the text of the items of the listbox"""
+        self._ensure_enough_privileges('LB_GETCOUNT')
         return _get_multiple_text_items(
             self,
             win32defines.LB_GETCOUNT,
@@ -675,6 +696,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def line_count(self):
         """Return how many lines there are in the Edit"""
+        self._ensure_enough_privileges('EM_GETLINECOUNT')
         return  self.send_message(win32defines.EM_GETLINECOUNT)
     # Non PEP-8 alias
     LineCount = line_count
@@ -682,6 +704,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def line_length(self, line_index):
         """Return how many characters there are in the line"""
+        self._ensure_enough_privileges('EM_LINEINDEX')
         # need to first get a character index of that line
         char_index = self.send_message(win32defines.EM_LINEINDEX, line_index)
 
@@ -732,6 +755,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def selection_indices(self):
         """The start and end indices of the current selection"""
+        self._ensure_enough_privileges('EM_GETSEL')
         start = ctypes.c_int()
         end = ctypes.c_int()
         self.send_message(
@@ -755,6 +779,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def set_edit_text(self, text, pos_start = None, pos_end = None):
         """Set the text of the edit control"""
+        self._ensure_enough_privileges('EM_REPLACESEL')
         self.verify_actionable()
 
         # allow one or both of pos_start and pos_end to be None
@@ -819,6 +844,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def select(self, start = 0, end = None):
         """Set the edit selection of the edit control"""
+        self._ensure_enough_privileges('EM_SETSEL')
         self.verify_actionable()
         win32functions.SetFocus(self)
 

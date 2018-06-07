@@ -669,6 +669,9 @@ class BaseWrapper(object):
         """
         if self.is_dialog():
             self.set_focus()
+        if self.backend.name == "win32":
+            self._ensure_enough_privileges('win32api.SetCursorPos(x, y)')
+        # TODO: check it in more general way for both backends
 
         if isinstance(coords, win32structures.RECT):
             coords = coords.mid_point()

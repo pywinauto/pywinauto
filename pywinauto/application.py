@@ -168,8 +168,8 @@ class WindowSpecification(object):
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
         if "best_match" in self.criteria[-1]:
-            raise AttributeError(
-                "WindowSpecification class has no '{0}' method".
+            raise AttributeError("Neither GUI element (wrapper) " \
+                "nor wrapper method '{0}' were found (typo?)".
                 format(self.criteria[-1]['best_match']))
 
         message = (
@@ -918,7 +918,13 @@ class Application(object):
         connected = False
         if 'process' in kwargs:
             self.process = kwargs['process']
-            assert_valid_process(self.process)
+            try:
+                timings.wait_until_passes(
+                        timeout, retry_interval, assert_valid_process,
+                        ProcessNotFoundError, self.process
+                    )
+            except TimeoutError:
+                raise ProcessNotFoundError('Process with PID={} not found!'.format(self.process))
             connected = True
 
         elif 'handle' in kwargs:
@@ -944,18 +950,29 @@ class Application(object):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
-            self.process = findwindows.find_element(**kwargs).process_id
+            if 'timeout' in kwargs:
+                del kwargs['timeout']
+                self.process = timings.wait_until_passes(
+                        timeout, retry_interval, findwindows.find_element,
+                        exceptions=(findwindows.ElementNotFoundError, findbestmatch.MatchError,
+                                    controls.InvalidWindowHandle, controls.InvalidElement),
+                        *(), **kwargs
+                    ).process_id
+            else:
+                self.process = findwindows.find_element(**kwargs).process_id
             connected = True
 
         if not connected:
             raise RuntimeError(
-                "You must specify one of process, handle or path")
-        else:
-            if 'path' not in kwargs and 'timeout' in kwargs:
-                raise ValueError('Timeout could be specified with path param only')
+                "You must specify some of process, handle, path or window search criteria.")
 
         if self.backend.name == 'win32':
             self.__warn_incorrect_bitness()
+
+            if not handleprops.has_enough_privileges(self.process):
+                warning_text = "Python process has no rights to make changes " \
+                    "in the target GUI (run the script as Administrator)"
+                warnings.warn(warning_text, UserWarning)
 
         return self
 

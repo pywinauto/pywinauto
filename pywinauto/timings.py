@@ -307,10 +307,10 @@ def always_wait_until(timeout,
     def wait_until_decorator(func):
         """Callable object that must be returned by the @always_wait_until decorator"""
         @wraps(func)
-        def wrapper(*args):
+        def wrapper(*args, **kwargs):
             """pre-callback, target function call and post-callback"""
             return wait_until(timeout, retry_interval,
-                              func, value, op, *args)
+                              func, value, op, *args, **kwargs)
         return wrapper
     return wait_until_decorator
 
@@ -321,9 +321,9 @@ def wait_until(timeout,
                func,
                value=True,
                op=operator.eq,
-               *args):
+               *args, **kwargs):
     r"""
-    Wait until ``op(function(*args), value)`` is True or until timeout expires
+    Wait until ``op(function(*args, **kwargs), value)`` is True or until timeout expires
 
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
@@ -331,6 +331,7 @@ def wait_until(timeout,
     * **value**  the value to be compared against (defaults to True)
     * **op** the comparison function (defaults to equality)\
     * **args** optional arguments to be passed to func when called
+    * **kwargs** optional keyword arguments to be passed to func when called
 
     Returns the return value of the function
     If the operation times out then the return value of the the function
@@ -348,7 +349,7 @@ def wait_until(timeout,
     """
     start = timestamp()
 
-    func_val = func(*args)
+    func_val = func(*args, **kwargs)
     # while the function hasn't returned what we are waiting for
     while not op(func_val, value):
 
@@ -360,7 +361,7 @@ def wait_until(timeout,
             # wait either the retry_interval or else the amount of
             # time until the timeout expires (whichever is less)
             time.sleep(min(retry_interval, time_left))
-            func_val = func(*args)
+            func_val = func(*args, **kwargs)
         else:
             err = TimeoutError("timed out")
             err.function_value = func_val
@@ -380,10 +381,10 @@ def always_wait_until_passes(timeout,
     def wait_until_passes_decorator(func):
         """Callable object that must be returned by the @always_wait_until_passes decorator"""
         @wraps(func)
-        def wrapper(*args):
+        def wrapper(*args, **kwargs):
             """pre-callback, target function call and post-callback"""
             return wait_until_passes(timeout, retry_interval,
-                                     func, exceptions, *args)
+                                     func, exceptions, *args, **kwargs)
         return wrapper
     return wait_until_passes_decorator
 
@@ -393,15 +394,16 @@ def wait_until_passes(timeout,
                       retry_interval,
                       func,
                       exceptions=(Exception),
-                      *args):
+                      *args, **kwargs):
     """
-    Wait until ``func(*args)`` does not raise one of the exceptions in exceptions
+    Wait until ``func(*args, **kwargs)`` does not raise one of the exceptions
 
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
     * **func** the function that will be executed
     * **exceptions**  list of exceptions to test against (default: Exception)
     * **args** optional arguments to be passed to func when called
+    * **kwargs** optional keyword arguments to be passed to func when called
 
     Returns the return value of the function
     If the operation times out then the original exception raised is in
@@ -424,7 +426,7 @@ def wait_until_passes(timeout,
     while True:
         try:
             # Call the function with any arguments
-            func_val = func(*args)
+            func_val = func(*args, **kwargs)
 
             # if no exception is raised then we are finished
             break
