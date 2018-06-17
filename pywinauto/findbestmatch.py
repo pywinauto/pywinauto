@@ -107,7 +107,7 @@ def _get_match_ratios(texts, match_against):
 
 
 #====================================================================
-def find_best_match(search_text, item_texts, items, limit_ratio = .5):
+def find_best_match(search_text, item_texts, items, limit_ratio=.5):
     """Return the item that best matches the search_text
 
     * **search_text** The text to search for
@@ -126,11 +126,10 @@ def find_best_match(search_text, item_texts, items, limit_ratio = .5):
     for text, item in zip(item_texts, items):
         text_item_map[_cut_at_eol(_cut_at_tab(text))] = item
 
-    ratios, best_ratio, best_text = \
-        _get_match_ratios(text_item_map.keys(), search_text)
+    ratios, best_ratio, best_text = _get_match_ratios(text_item_map.keys(), search_text)
 
     if best_ratio < limit_ratio:
-        raise MatchError(items = text_item_map.keys(), tofind = search_text)
+        raise MatchError(items=text_item_map.keys(), tofind=search_text)
 
     return text_item_map[best_text]
 
@@ -288,54 +287,6 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
 
 
 #====================================================================
-def get_control_names(control, allcontrols, textcontrols):
-    """Returns a list of names for this control"""
-    names = []
-
-    # if it has a reference control - then use that
-    #if hasattr(control, 'ref') and control.ref:
-    #    control = control.ref
-
-    # Add the control based on it's friendly class name
-    friendly_class_name = control.friendly_class_name()
-    names.append(friendly_class_name)
-
-    # if it has some character text then add it base on that
-    # and based on that with friendly class name appended
-    cleaned = control.window_text()
-    # Todo - I don't like the hardcoded classnames here!
-    if cleaned and control.has_title:
-        names.append(cleaned)
-        names.append(cleaned + friendly_class_name)
-    elif control.has_title and friendly_class_name != 'TreeView':
-        try:
-            for text in control.texts()[1:]:
-                names.append(friendly_class_name + text)
-        except Exception:
-            #import traceback
-            #from .actionlogger import ActionLogger
-            pass #ActionLogger().log('Warning! Cannot get control.texts()') #\nTraceback:\n' + traceback.format_exc())
-
-        # so find the text of the nearest text visible control
-        non_text_names = get_non_text_control_name(control, allcontrols, textcontrols)
-
-        # and if one was found - add it
-        if non_text_names:
-            names.extend(non_text_names)
-    # it didn't have visible text
-    else:
-        # so find the text of the nearest text visible control
-        non_text_names = get_non_text_control_name(control, allcontrols, textcontrols)
-
-        # and if one was found - add it
-        if non_text_names:
-            names.extend(non_text_names)
-
-    # return the names - and make sure there are no duplicates
-    return set(names)
-
-
-#====================================================================
 class UniqueDict(dict):
 
     """A dictionary subclass that handles making its keys unique"""
@@ -365,117 +316,224 @@ class UniqueDict(dict):
         # add our current item
         dict.__setitem__(self, text, item)
 
-    def find_best_matches(
-        self,
-        search_text,
-        clean = False,
-        ignore_case = False):
-        """Return the best matches for search_text in the items
 
-        * **search_text** the text to look for
-        * **clean** whether to clean non text characters out of the strings
-        * **ignore_case** compare strings case insensitively
-        """
-        # now time to figure out the matching
-        ratio_calc = difflib.SequenceMatcher()
+#====================================================================
+class ControlNames(object):
+    def __init__(self):
+        self.ctrl = None
+        self.text_names = []
+        self.class_names = []
+        self.text_class_names = []
+        self.nearest_text_names = []
 
-        if ignore_case:
-            search_text = search_text.lower()
+    def iter_names(self):
+        for n in self.text_names:
+            yield n
+        for n in self.class_names:
+            yield n
+        for n in self.text_class_names:
+            yield n
+        for n in self.nearest_text_names:
+            yield n
 
-        ratio_calc.set_seq1(search_text)
+    def get_containing_list(self, name):
+        if name in self.text_names:
+            return self.text_names
+        elif name in self.class_names:
+            return self.class_names
+        elif name in self.text_class_names:
+            return self.text_class_names
+        elif name in self.nearest_text_names:
+            return self.nearest_text_names
+        else:
+            return []
 
-        ratios = {}
-        best_ratio = 0
-        best_texts = []
+    def to_list(self):
+        return [name for name in self.iter_names()]
 
-        ratio_offset = 1
-        if clean:
-            ratio_offset *= .9
+    def get_preferred_name(self):
+        get_correct_name = lambda name_list: next((name for name in name_list if name and " " not in name), None)
+        name = get_correct_name(self.text_class_names)
+        if name:
+            return name
+        name = get_correct_name(self.text_names)
+        if name:
+            return name
+        name = get_correct_name(self.class_names)
+        if name:
+            return name
+        name = get_correct_name(self.nearest_text_names)
+        if name:
+            return name
 
-        if ignore_case:
-            ratio_offset *= .9
+    def __contains__(self, item):
+        for n in self.iter_names():
+            if n == item:
+                return True
+        return False
 
-        for text_ in self:
+    def __repr__(self):
+        return "<ControlNames for <{}>: text = {}, class = {}, text_class = {}, nearest_test = {}>".format(
+            self.ctrl, self.text_names, self.class_names, self.text_class_names, self.nearest_text_names)
 
-            # make a copy of the text as we need the original later
-            text = text_
+    def make_names_unique(self, ctrl_names_list):
+        name_exists = lambda n: next((ctrl_names for ctrl_names in ctrl_names_list if n in ctrl_names), None)
 
-            if clean:
-                text = _clean_non_chars(text)
+        def _make_names_unique_in_list(current_list):
+            for i, name in enumerate(current_list):
+                existed = name_exists(name)
+                if existed:
+                    # Change name to name + 'counter'
+                    counter = 2
+                    unique_name = name + str(counter)
+                    while name_exists(unique_name):
+                        counter += 1
+                        unique_name = name + str(counter)
 
-            if ignore_case:
-                text = text.lower()
+                    current_list[i] = unique_name
 
-            # check if this item is in the cache - if yes, then retrieve it
-            if (text, search_text) in _cache:
-                ratios[text_] = _cache[(text, search_text)]
+                    # We also need to make sure the original item is under name0 and name1
+                    if (name + "0") not in existed:
+                        original_list = existed.get_containing_list(name)
+                        original_list.append(name + "0")
+                        original_list.append(name + "1")
 
-            elif(search_text, text) in _cache:
-                ratios[text_] = _cache[(search_text, text)]
 
-            # not in the cache - calculate it and add it to the cache
-            else:
-                # set up the SequenceMatcher with other text
-                ratio_calc.set_seq2(text)
-
-                # if a very quick check reveals that this is not going
-                # to match then
-                ratio = ratio_calc.real_quick_ratio() * ratio_offset
-
-                if ratio  >=  find_best_control_match_cutoff:
-                    ratio = ratio_calc.quick_ratio() * ratio_offset
-
-                    if ratio >= find_best_control_match_cutoff:
-                        ratio = ratio_calc.ratio() * ratio_offset
-
-                # save the match we got and store it in the cache
-                ratios[text_] = ratio
-                _cache[(text, search_text)] = ratio
-
-            # try using the levenshtein distance instead
-            #lev_dist = levenshtein_distance(six.text_type(search_text), six.text_type(text))
-            #ratio = 1 - lev_dist / 10.0
-            #ratios[text_] = ratio
-            #print "%5s" %("%0.2f"% ratio), search_text, `text`
-
-            # if this is the best so far then update best stats
-            if ratios[text_] > best_ratio and \
-                ratios[text_] >= find_best_control_match_cutoff:
-
-                best_ratio = ratios[text_]
-                best_texts = [text_]
-
-            elif ratios[text_] == best_ratio:
-                best_texts.append(text_)
-
-        #best_ratio *= ratio_offset
-
-        return best_ratio, best_texts
+        _make_names_unique_in_list(self.text_names)
+        _make_names_unique_in_list(self.class_names)
+        _make_names_unique_in_list(self.text_class_names)
+        _make_names_unique_in_list(self.nearest_text_names)
 
 
 #====================================================================
-def build_unique_dict(controls):
-    """Build the disambiguated list of controls
+def get_control_names(control, all_controls, text_controls):
+    """Returns a list of names for this control"""
+    ctrl_names = ControlNames()
+    ctrl_names.ctrl = control
 
-    Separated out to a different function so that we can get
-    the control identifiers for printing.
+    # Add the control based on it's friendly class name
+    friendly_class_name = control.friendly_class_name()
+    if friendly_class_name not in ctrl_names:
+        ctrl_names.class_names.append(friendly_class_name)
+    # ctrl_names.append("class", friendly_class_name)
+
+    # If it has some character text then add it base on that and based on that with friendly class name appended
+    cleaned = control.window_text()
+    # Todo - I don't like the hardcoded classnames here!
+    if cleaned and control.has_title:
+        if cleaned not in ctrl_names:
+            ctrl_names.text_names.append(cleaned)
+        if cleaned + friendly_class_name not in ctrl_names:
+            ctrl_names.text_class_names.append(cleaned + friendly_class_name)
+        non_text_names = []
+    elif control.has_title and friendly_class_name != 'TreeView':
+        try:
+            for text in control.texts()[1:]:
+                if (friendly_class_name + text) not in ctrl_names:
+                    ctrl_names.text_class_names.append(friendly_class_name + text)
+        except Exception:
+            pass
+
+        # so find the text of the nearest text visible control
+        non_text_names = get_non_text_control_name(control, all_controls, text_controls)
+    # it didn't have visible text
+    else:
+        # so find the text of the nearest text visible control
+        non_text_names = get_non_text_control_name(control, all_controls, text_controls)
+
+    for name in non_text_names:
+        if name and name not in ctrl_names:
+            ctrl_names.nearest_text_names.append(name)
+
+    return ctrl_names
+
+
+#====================================================================
+def build_names_list(wrapped_ctrls):
+    """Return list of ControlNames objects where each item corresponds to wrapped_controls item (order is preserved)"""
+    ctrl_names_list = []
+
+    # Get the visible text controls so that we can get the closest text if the control's text is empty
+    text_ctrls = [c for c in wrapped_ctrls if c.can_be_label and c.is_visible() and c.window_text()]
+
+    # Collect all the possible names for all controls and build a list of them
+    for ctrl in wrapped_ctrls:
+        ctrl_names = get_control_names(ctrl, wrapped_ctrls, text_ctrls)
+        ctrl_names.make_names_unique(ctrl_names_list)
+        ctrl_names_list.append(ctrl_names)
+
+    return ctrl_names_list
+
+
+#====================================================================
+def find_best_matches(items, search_text, clean=False, ignore_case=False):
+    """Return the best matches for search_text in the items
+
+    * **search_text** the text to look for
+    * **clean** whether to clean non text characters out of the strings
+    * **ignore_case** compare strings case insensitively
     """
-    name_control_map = UniqueDict()
+    # now time to figure out the matching
+    ratio_calc = difflib.SequenceMatcher()
 
-    # get the visible text controls so that we can get
-    # the closest text if the control has no text
-    text_ctrls = [ctrl_ for ctrl_ in controls
-                  if ctrl_.can_be_label and ctrl_.is_visible() and ctrl_.window_text()]
+    if ignore_case:
+        search_text = search_text.lower()
 
-    # collect all the possible names for all controls
-    # and build a list of them
-    for ctrl in controls:
-        ctrl_names = get_control_names(ctrl, controls, text_ctrls)
+    ratio_calc.set_seq1(search_text)
 
-        # for each of the names
-        for name in ctrl_names:
-            name_control_map[name] = ctrl
-    return name_control_map
+    ratios = {}
+    best_ratio = 0
+    best_texts = []
+
+    ratio_offset = 1
+    if clean:
+        ratio_offset *= .9
+
+    if ignore_case:
+        ratio_offset *= .9
+
+    for text_ in items:
+        # make a copy of the text as we need the original later
+        text = text_
+
+        if clean:
+            text = _clean_non_chars(text)
+
+        if ignore_case:
+            text = text.lower()
+
+        # check if this item is in the cache - if yes, then retrieve it
+        if (text, search_text) in _cache:
+            ratios[text_] = _cache[(text, search_text)]
+        elif(search_text, text) in _cache:
+            ratios[text_] = _cache[(search_text, text)]
+        # not in the cache - calculate it and add it to the cache
+        else:
+            # set up the SequenceMatcher with other text
+            ratio_calc.set_seq2(text)
+
+            # if a very quick check reveals that this is not going
+            # to match then
+            ratio = ratio_calc.real_quick_ratio() * ratio_offset
+
+            if ratio  >=  find_best_control_match_cutoff:
+                ratio = ratio_calc.quick_ratio() * ratio_offset
+
+                if ratio >= find_best_control_match_cutoff:
+                    ratio = ratio_calc.ratio() * ratio_offset
+
+            # save the match we got and store it in the cache
+            ratios[text_] = ratio
+            _cache[(text, search_text)] = ratio
+
+        # if this is the best so far then update best stats
+        if ratios[text_] > best_ratio and ratios[text_] >= find_best_control_match_cutoff:
+            best_ratio = ratios[text_]
+            best_texts = [text_]
+        elif ratios[text_] == best_ratio:
+            best_texts.append(text_)
+
+    return best_ratio, best_texts
 
 
 #====================================================================
@@ -491,31 +549,17 @@ def find_best_control_matches(search_text, controls):
     But if there is a ListView (which do not have visible 'text')
     then it will just add "ListView".
     """
-    name_control_map = build_unique_dict(controls)
-
-#    # collect all the possible names for all controls
-#    # and build a list of them
-#    for ctrl in controls:
-#        ctrl_names = get_control_names(ctrl, controls)
-#
-#        # for each of the names
-#        for name in ctrl_names:
-#            name_control_map[name] = ctrl
+    ctrls_names_list = build_names_list(controls)
+    all_names = []
+    for ctrl_names in ctrls_names_list:
+        all_names.extend(ctrl_names.to_list())
 
     search_text = six.text_type(search_text)
 
-    best_ratio, best_texts = name_control_map.find_best_matches(search_text)
-
-    best_ratio_ci, best_texts_ci = \
-        name_control_map.find_best_matches(search_text, ignore_case = True)
-
-    best_ratio_clean, best_texts_clean = \
-        name_control_map.find_best_matches(search_text, clean = True)
-
-    best_ratio_clean_ci, best_texts_clean_ci = \
-        name_control_map.find_best_matches(
-            search_text, clean = True, ignore_case = True)
-
+    best_ratio, best_texts = find_best_matches(all_names, search_text)
+    best_ratio_ci, best_texts_ci = find_best_matches(all_names, search_text, ignore_case=True)
+    best_ratio_clean, best_texts_clean = find_best_matches(all_names, search_text, clean=True)
+    best_ratio_clean_ci, best_texts_clean_ci = find_best_matches(all_names, search_text, clean=True, ignore_case=True)
 
     if best_ratio_ci > best_ratio:
         best_ratio = best_ratio_ci
@@ -530,40 +574,11 @@ def find_best_control_matches(search_text, controls):
         best_texts = best_texts_clean_ci
 
     if best_ratio < find_best_control_match_cutoff:
-        raise MatchError(items = name_control_map.keys(), tofind = search_text)
+        raise MatchError(items=all_names, tofind=search_text)
 
-    return [name_control_map[best_text] for best_text in best_texts]
+    best_ctrls = []
+    for best_text in best_texts:
+        ctrl = next(ctrl_names.ctrl for ctrl_names in ctrls_names_list if best_text in ctrl_names)
+        best_ctrls.append(ctrl)
 
-
-#
-#def GetControlMatchRatio(text, ctrl):
-#    # get the texts for the control
-#    ctrl_names = get_control_names(ctrl)
-#
-#    #get the best match for these
-#    matcher = UniqueDict()
-#    for name in ctrl_names:
-#        matcher[name] = ctrl
-#
-#    best_ratio, unused = matcher.find_best_matches(text)
-#
-#    return best_ratio
-#
-#
-#
-#def get_controls_ratios(search_text, controls):
-#    name_control_map = UniqueDict()
-#
-#    # collect all the possible names for all controls
-#    # and build a list of them
-#    for ctrl in controls:
-#        ctrl_names = get_control_names(ctrl)
-#
-#        # for each of the names
-#        for name in ctrl_names:
-#            name_control_map[name] = ctrl
-#
-#    match_ratios, best_ratio, best_text = \
-#        _get_match_ratios(name_control_map.keys(), search_text)
-#
-#    return match_ratios, best_ratio, best_text,
+    return best_ctrls
