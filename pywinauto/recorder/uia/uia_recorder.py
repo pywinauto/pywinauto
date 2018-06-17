@@ -1,3 +1,5 @@
+import timeit
+
 from comtypes import COMObject, COMError
 
 from ... import win32_hooks
@@ -65,6 +67,10 @@ class UiaRecorder(COMObject, BaseRecorder):
 
     def _add_handlers(self, element):
         """Add UIA handlers to element and all its descendants"""
+        if self.verbose:
+            start_time = timeit.default_timer()
+            print("[_add_handlers] Subscribing to events")
+
         cache_request = IUIA().iuia.CreateCacheRequest()
         for prop_id in _cached_properties:
             cache_request.AddProperty(prop_id)
@@ -86,11 +92,25 @@ class UiaRecorder(COMObject, BaseRecorder):
         if self.record_struct:
             IUIA().iuia.AddStructureChangedEventHandler(element, IUIA().tree_scope['subtree'], cache_request, self)
 
+        if self.verbose:
+            print("[_add_handlers] Finished subscribing to events. Time = {}".format(
+                timeit.default_timer() - start_time))
+
+    def _rebuild_control_tree(self):
+        if self.verbose:
+            start_time = timeit.default_timer()
+            print("[_rebuilt_control_tree] Rebuilding control tree")
+        self.control_tree.rebuild()
+        if self.verbose:
+            print("[_rebuilt_control_tree] Finished rebuilding control tree. Time = {}".format(
+                timeit.default_timer() - start_time))
+
     def _setup(self):
         try:
             # Add event handlers to all app's controls
             self._add_handlers(self.ctrl.element_info.element)
-            self.control_tree = ControlTree(self.ctrl)
+            self.control_tree = ControlTree(self.ctrl, skip_rebuild=True)
+            self._rebuild_control_tree()
         except Exception as exc:
             # TODO: Sometime we can't catch WindowClosed event in WPF applications
             self.stop()
@@ -141,12 +161,12 @@ class UiaRecorder(COMObject, BaseRecorder):
         self.add_to_log(event)
 
         if event.name == EVENT.MENU_START:
-            self.control_tree.rebuild()
+            self._rebuild_control_tree()
         elif event.name == EVENT.MENU_OPENED:
             self._add_handlers(sender)
         elif event.name == EVENT.WINDOW_OPENED:
             self._add_handlers(sender)
-            self.control_tree.rebuild()
+            self._rebuild_control_tree()
         elif event.name == EVENT.WINDOW_CLOSED:
             # Detect if top_window is already closed
             try:
@@ -157,6 +177,8 @@ class UiaRecorder(COMObject, BaseRecorder):
                 self.stop()
                 self._parse_and_clear_log()
                 self.script += "app.kill()\n"
+            else:
+                self._rebuild_control_tree()
 
     def IUIAutomationPropertyChangedEventHandler_HandlePropertyChangedEvent(self, sender, propertyId, newValue):
         if not self.recorder_start_event.is_set():
