@@ -34,36 +34,26 @@ class ControlTreeNode(object):
 
 
 class ControlTree(object):
-    def __init__(self, ctrl):
+    def __init__(self, ctrl, skip_rebuild=False):
         if isinstance(ctrl, BaseWrapper):
             self.ctrl = ctrl
         else:
             raise TypeError("ctrl must be a wrapped control")
         self.root = None
         self.root_name = ""
-        self.rebuild()
+        if not skip_rebuild:
+            self.rebuild()
 
     def rebuild(self):
         """Create tree structure"""
         # Create a list of this control and all its descendants
         all_ctrls = [self.ctrl, ] + self.ctrl.descendants()
-        txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
 
         # Build unique control names map
-        name_ctrl_id_map = findbestmatch.UniqueDict()
-        for id, ctrl in enumerate(all_ctrls):
-            unique_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
-            for name in unique_names:
-                name_ctrl_id_map[name] = id
+        ctrls_names = findbestmatch.build_names_list(all_ctrls)
 
-        # Swap map around
-        ctrl_id_names_map = {}
-        for name, id in name_ctrl_id_map.items():
-            ctrl_id_names_map.setdefault(id, []).append(name)
-
-        # root_names = findbestmatch.get_control_names(self.ctrl, all_ctrls, txt_ctrls)
-        self.root = ControlTreeNode(self.ctrl, ctrl_id_names_map[0], self.ctrl.rectangle())
-        self.root_name = [name for name in self.root.names if len(name) > 0 and " " not in name][-1]
+        self.root = ControlTreeNode(self.ctrl, ctrls_names[0], self.ctrl.rectangle())
+        self.root_name = self.root.names.get_preferred_name()
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
             if len(child_ctrls) == 0:
@@ -75,10 +65,7 @@ class ControlTree(object):
                 except ValueError:
                     continue
 
-                ctrl_names = ctrl_id_names_map[ctrl_id]
-                ctrl_rect = ctrl.rectangle()
-
-                ctrl_node = ControlTreeNode(ctrl, ctrl_names, ctrl_rect)
+                ctrl_node = ControlTreeNode(ctrl, ctrls_names[ctrl_id], ctrl.rectangle())
                 ctrl_node.depth = current_depth
                 ctrl_node.parent = parent_node
                 parent_node.children.append(ctrl_node)

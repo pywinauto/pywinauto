@@ -49,16 +49,13 @@ class LogParser(object):
                 if hook_event.current_key == "LButton" and hook_event.event_type == "key down":
                     # Check if text has been typed
                     for k, v in self.text_sequence.items():
-                        item_name = next(name for name in k.names)
-
-                        item_name = [name for name in k.names if len(name) > 0 and not " " in name][-1]
+                        item_name = k.names.get_preferred_name()
                         script += "app.{}.{}.DO_SOMETHING_WITH_TEXT('{}')\n".format(
                             self.recorder.control_tree.root_name, item_name, v)
                     self.text_sequence = {}
 
                     if hook_event.control_tree_node:
-                        item_name = [name for name in hook_event.control_tree_node.names
-                                     if len(name) > 0 and not " " in name][-1]
+                        item_name = hook_event.control_tree_node.names.get_preferred_name()
 
                         # Handle simple events
                         if any(e for e in application_events if e.name == EVENT.INVOKED):
