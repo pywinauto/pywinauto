@@ -47,6 +47,8 @@ from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
 from ..uia_element_info import UIAElementInfo, elements_from_uia_array
 
+from ..recorder.recorder_defines import EVENT, PROPERTY
+
 # =========================================================================
 _friendly_classes = {
     'Custom': None,
@@ -152,6 +154,11 @@ class UIAWrapper(BaseWrapper):
     """
 
     _control_types = []
+
+    possible_handlers = {
+        EVENT.MENU_OPENED: None,
+        EVENT.MENU_CLOSED: None
+    }
 
     # ------------------------------------------------------------
     def __new__(cls, element_info):

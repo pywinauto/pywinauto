@@ -354,7 +354,7 @@ class ControlNames(object):
 
     def get_preferred_name(self):
         def get_correct_name(name_list):
-            return next((name for name in name_list if name and " " not in name), None)
+            return next((_clean_non_chars(name) for name in name_list if name), None)
 
         name = get_correct_name(self.text_class_names)
         if name:

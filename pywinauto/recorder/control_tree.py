@@ -105,6 +105,14 @@ class ControlTree(object):
                 res = node
         return res
 
+    def sub_tree_from_node(self, node):
+        result = []
+        curr_node = node
+        while curr_node:
+            result.append(curr_node)
+            curr_node = curr_node.parent
+        return result
+
     def node_from_element_info(self, element_info):
         if isinstance(element_info, ElementInfo):
             for node in self.iterate_bfs():

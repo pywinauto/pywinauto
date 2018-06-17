@@ -22,7 +22,7 @@ class LogParser(object):
                 if iter > 0:
                     action_log[iter - 1].append(event)
             elif isinstance(event, RecorderMouseEvent):
-                # TODO: only add key down events, assume that user down only clicks
+                # TODO: only add key down events, assume that user performs only clicks
                 if event.event_type == "key down":
                     action_log.append([event, ])
                     iter += 1
@@ -40,8 +40,8 @@ class LogParser(object):
             hook_event = action[0]
             application_events = action[1:]
             if self.verbose:
-                print("================================================================================\n"
-                      "Hook event: {}\n    Application events: {}\n"
+                print("\n================================================================================\n"
+                      "Hook event: {}\n    Application events: {}"
                       "".format(hook_event, application_events))
 
             if isinstance(hook_event, RecorderMouseEvent):
@@ -55,19 +55,41 @@ class LogParser(object):
                     self.text_sequence = {}
 
                     if hook_event.control_tree_node:
-                        item_name = hook_event.control_tree_node.names.get_preferred_name()
+                        subtree = self.recorder.control_tree.sub_tree_from_node(hook_event.control_tree_node)
+                        root_name = subtree[-1].names.get_preferred_name()
+                        # print("Subtree: {}".format([node.ctrl for node in subtree]))
+
+                        def get_node_sender(subtree, event_name):
+                            for elem in subtree:
+                                possible_handlers = getattr(elem.ctrl, "possible_handlers", {})
+                                if event_name in possible_handlers:
+                                    return elem, possible_handlers[event_name]
+                            return None, None
+
+                        event_handled = False
 
                         # Handle simple events
                         if any(e for e in application_events if e.name == EVENT.INVOKED):
-                            script += "app.{}.{}.invoke()\n".format(self.recorder.control_tree.root_name, item_name)
+                            node, handler = get_node_sender(subtree, EVENT.INVOKED)
+                            if node:
+                                item_name = node.names.get_preferred_name()
+                                script += "app.{}.{}.{}()\n".format(root_name, item_name,
+                                                                    handler if handler else "invoke")
+                                event_handled = True
                         elif any(e for e in application_events if e.name == EVENT.MENU_OPENED):
-                            self.menu_sequence = [hook_event.control_tree_node.ctrl.window_text(), ]
+                            node, handler = get_node_sender(subtree, EVENT.MENU_OPENED)
+                            if node:
+                                menu_item_text = node.names.text_names[0]
+                                self.menu_sequence = [menu_item_text, ]
+                                event_handled = True
                         elif any(e for e in application_events if e.name == EVENT.MENU_CLOSED):
-                            menu_item_text = hook_event.control_tree_node.ctrl.window_text()
-                            script += "app.{}.menu_select('{}')\n".format(
-                                self.recorder.control_tree.root_name,
-                                " -> ".join(self.menu_sequence + [menu_item_text, ]))
-                            self.menu_sequence = [menu_item_text, ]
+                            node, handler = get_node_sender(subtree, EVENT.MENU_CLOSED)
+                            if node:
+                                menu_item_text = node.names.text_names[0]
+                                script += "app.{}.menu_select('{}')\n".format(
+                                    root_name, " -> ".join(self.menu_sequence + [menu_item_text, ]))
+                                self.menu_sequence = []
+                                event_handled = True
                         # Handle PropertyEvent
                         elif any(e for e in application_events if isinstance(e, PropertyEvent)):
                             def prop_gen():
@@ -78,13 +100,26 @@ class LogParser(object):
                             prop1 = next(prop_gen())
                             if prop1.property_name == PROPERTY.EXPAND_COLLAPSE_STATE and hasattr(prop1.new_value,
                                                                                                  "value"):
-                                script += "app.{}.{}.{}()\n".format(self.recorder.control_tree.root_name, item_name,
-                                                                    "expand" if prop1.new_value.value else "collapse")
+                                node, handler = get_node_sender(subtree, PROPERTY.EXPAND_COLLAPSE_STATE)
+                                if node:
+                                    item_name = node.names.get_preferred_name()
+                                    script += "app.{}.{}.{}()\n".format(
+                                        root_name, item_name, "expand" if prop1.new_value.value else "collapse")
+                                    event_handled = True
                             elif prop1.property_name == PROPERTY.TOGGLE_STATE:
-                                script += "app.{}.{}.toggle()\n".format(self.recorder.control_tree.root_name, item_name)
-                        else:
-                            script += "app.{}.{}.click_input()\n".format(self.recorder.control_tree.root_name,
-                                                                         item_name)
+                                node, handler = get_node_sender(subtree, PROPERTY.TOGGLE_STATE)
+                                if node:
+                                    item_name = node.names.get_preferred_name()
+                                    script += "app.{}.{}.{}()\n".format(root_name, item_name,
+                                                                        handler if handler else "toggle")
+                                    event_handled = True
+
+                        if not event_handled:
+                            item_name = subtree[0].names.get_preferred_name()
+                            script += "app.{}.{}.click_input()\n".format(root_name, item_name)
+                    else:
+                        script += "app.{}.click_input(coords=({}, {}), absolute=True)".format(
+                            root_name, hook_event.mouse_x, hook_event.mouse_y)
                 elif hook_event.event_type == "key down":
                     if hook_event.current_key == "RButton":
                         button = "right"
