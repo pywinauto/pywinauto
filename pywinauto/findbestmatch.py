@@ -258,6 +258,7 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
         distance = min(distance, distance2)
 
         # UpDown control should use Static text only because edit box text is often useless
+        # TODO: I don't like the hardcoded classnames here!
         if ctrl_friendly_class_name == "UpDown" and \
                 text_ctrl.friendly_class_name() == "Static" and distance < closest:
             # TODO: use search in all text controls for all non-text ones
@@ -352,7 +353,9 @@ class ControlNames(object):
         return [name for name in self.iter_names()]
 
     def get_preferred_name(self):
-        get_correct_name = lambda name_list: next((name for name in name_list if name and " " not in name), None)
+        def get_correct_name(name_list):
+            return next((name for name in name_list if name and " " not in name), None)
+
         name = get_correct_name(self.text_class_names)
         if name:
             return name
@@ -373,11 +376,12 @@ class ControlNames(object):
         return False
 
     def __repr__(self):
-        return "<ControlNames for <{}>: text = {}, class = {}, text_class = {}, nearest_test = {}>".format(
+        return "<ControlNames for <{}>: text = {}, class = {}, text_class = {}, nearest_text = {}>".format(
             self.ctrl, self.text_names, self.class_names, self.text_class_names, self.nearest_text_names)
 
     def make_names_unique(self, ctrl_names_list):
-        name_exists = lambda n: next((ctrl_names for ctrl_names in ctrl_names_list if n in ctrl_names), None)
+        def name_exists(n):
+            return next((ctrl_names for ctrl_names in ctrl_names_list if n in ctrl_names), None)
 
         def _make_names_unique_in_list(current_list):
             for i, name in enumerate(current_list):
@@ -415,11 +419,10 @@ def get_control_names(control, all_controls, text_controls):
     friendly_class_name = control.friendly_class_name()
     if friendly_class_name not in ctrl_names:
         ctrl_names.class_names.append(friendly_class_name)
-    # ctrl_names.append("class", friendly_class_name)
 
     # If it has some character text then add it base on that and based on that with friendly class name appended
     cleaned = control.window_text()
-    # Todo - I don't like the hardcoded classnames here!
+    # TODO: I don't like the hardcoded classnames here!
     if cleaned and control.has_title:
         if cleaned not in ctrl_names:
             ctrl_names.text_names.append(cleaned)
