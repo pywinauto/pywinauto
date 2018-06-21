@@ -65,7 +65,7 @@ in almost exactly the same ways. ::
 from __future__ import print_function
 
 import sys
-import os.path
+import os
 import pickle
 import time
 import warnings
@@ -90,6 +90,7 @@ from .backend import registry
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes
 from .sysinfo import is_x64_Python
+from . import deprecated
 
 
 class AppStartError(Exception):
@@ -154,16 +155,14 @@ class WindowSpecification(object):
 
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
-            self.WrapperObject = self.wrapper_object
-            self.ChildWindow = self.child_window
-            self.Exists = self.exists
-            self.Wait = self.wait
-            self.WaitNot = self.wait_not
-            self.PrintControlIdentifiers = self.print_control_identifiers
+            self.WrapperObject = deprecated(self.wrapper_object)
+            self.ChildWindow = deprecated(self.child_window)
+            self.Exists = deprecated(self.exists)
+            self.Wait = deprecated(self.wait)
+            self.WaitNot = deprecated(self.wait_not)
+            self.PrintControlIdentifiers = deprecated(self.print_control_identifiers)
 
-            self.Window_ = self.window
-            self.window_ = self.window
-            self.Window = self.window
+            self.Window_ = self.window_ = self.Window = deprecated(self.child_window)
 
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
@@ -877,14 +876,14 @@ class Application(object):
         self.backend = registry.backends[backend]
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
-            self.Start = self.start
-            self.Connect = self.connect
-            self.CPUUsage = self.cpu_usage
-            self.WaitCPUUsageLower = self.wait_cpu_usage_lower
-            self.top_window_ = self.top_window
-            self.active_ = self.active
-            self.Windows_ = self.windows_ = self.windows
-            self.Window_ = self.window_ = self.window
+            self.Start = deprecated(self.start)
+            self.Connect = deprecated(self.connect)
+            self.CPUUsage = deprecated(self.cpu_usage)
+            self.WaitCPUUsageLower = deprecated(self.wait_cpu_usage_lower)
+            self.top_window_ = deprecated(self.top_window)
+            self.active_ = deprecated(self.active)
+            self.Windows_ = self.windows_ = deprecated(self.windows)
+            self.Window_ = self.window_ = deprecated(self.window)
 
         # load the match history if a file was specifed
         # and it exists
@@ -1271,7 +1270,7 @@ class Application(object):
         return killed
 
     # Non PEP-8 aliases
-    kill_ = Kill_ = kill
+    kill_ = Kill_ = deprecated(kill)
 
     def is_process_running(self):
         """

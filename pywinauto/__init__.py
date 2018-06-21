@@ -37,6 +37,18 @@ __version__ = "0.6.5"
 import sys  # noqa: E402
 import warnings  # noqa: E402
 
+
+def deprecated(method):
+    """Decorator for deprecated methods"""
+
+    def wrap(*args, **kwargs):
+        warnings.simplefilter("default", DeprecationWarning)
+        warnings.warn("Non PEP-8 compliant methods are deprecated", DeprecationWarning, stacklevel=2)
+        return method(*args, **kwargs)
+
+    return wrap
+
+
 if sys.platform == 'win32':
     # Importing only pythoncom can fail with the errors like:
     #     ImportError: No system module 'pywintypes' (pywintypes27.dll)
@@ -44,13 +56,14 @@ if sys.platform == 'win32':
     import win32api  # noqa: E402
     import pythoncom  # noqa: E402
 
+
     def _get_com_threading_mode(module_sys):
         """Set up COM threading model
 
         The ultimate goal is MTA, but the mode is adjusted
         if it was already defined prior to pywinauto import.
         """
-        com_init_mode = 0   # COINIT_MULTITHREADED = 0x0
+        com_init_mode = 0  # COINIT_MULTITHREADED = 0x0
         if hasattr(module_sys, "coinit_flags"):
             warnings.warn("Apply externally defined coinit_flags: {0}"
                           .format(module_sys.coinit_flags), UserWarning)
@@ -66,10 +79,12 @@ if sys.platform == 'win32':
 
         return com_init_mode
 
+
     sys.coinit_flags = _get_com_threading_mode(sys)
     from .sysinfo import UIA_support
 
     from . import findwindows
+
     WindowAmbiguousError = findwindows.WindowAmbiguousError
     ElementNotFoundError = findwindows.ElementNotFoundError
 
@@ -79,9 +94,11 @@ if sys.platform == 'win32':
 
     from . import findbestmatch
     from . import backend as backends
+
     MatchError = findbestmatch.MatchError
 
     from .application import Application, WindowSpecification
+
 
     class Desktop(object):
 
@@ -111,4 +128,4 @@ if sys.platform == 'win32':
             try:
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
-                return self[attr_name] # delegate it to __get_item__
+                return self[attr_name]  # delegate it to __get_item__
