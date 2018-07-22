@@ -162,7 +162,9 @@ class WindowSpecification(object):
             self.WaitNot = deprecated(self.wait_not)
             self.PrintControlIdentifiers = deprecated(self.print_control_identifiers)
 
-            self.Window_ = self.window_ = self.Window = deprecated(self.child_window)
+            self.Window = deprecated(self.child_window, deprecated_name='Window')
+            self.Window_ = deprecated(self.child_window, deprecated_name='Window_')
+            self.window_ = deprecated(self.child_window, deprecated_name='window_')
 
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
@@ -877,10 +879,12 @@ class Application(object):
             self.Connect = deprecated(self.connect)
             self.CPUUsage = deprecated(self.cpu_usage)
             self.WaitCPUUsageLower = deprecated(self.wait_cpu_usage_lower)
-            self.top_window_ = deprecated(self.top_window)
-            self.active_ = deprecated(self.active)
-            self.Windows_ = self.windows_ = deprecated(self.windows)
-            self.Window_ = self.window_ = deprecated(self.window)
+            self.top_window_ = deprecated(self.top_window, deprecated_name='top_window_')
+            self.active_ = deprecated(self.active, deprecated_name='active_')
+            self.Windows_ = deprecated(self.windows, deprecated_name='Windows_')
+            self.windows_ = deprecated(self.windows, deprecated_name='windows_')
+            self.Window_ = deprecated(self.window, deprecated_name='Window_')
+            self.window_ = deprecated(self.window, deprecated_name='window_')
 
         # load the match history if a file was specifed
         # and it exists
@@ -1250,7 +1254,8 @@ class Application(object):
         return killed
 
     # Non PEP-8 aliases
-    kill_ = Kill_ = deprecated(kill)
+    kill_ = deprecated(kill, deprecated_name='kill_')
+    Kill_ = deprecated(kill, deprecated_name='Kill_')
 
     def is_process_running(self):
         """

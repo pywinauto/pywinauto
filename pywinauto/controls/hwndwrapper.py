@@ -247,7 +247,7 @@ class HwndWrapper(BaseWrapper):
         """
         return handleprops.exstyle(self)
     # Non PEP-8 alias
-    ExStyle = deprecated(exstyle)
+    ExStyle = deprecated(exstyle, deprecated_name='ExStyle')
 
     # -----------------------------------------------------------
     def user_data(self):
@@ -267,7 +267,7 @@ class HwndWrapper(BaseWrapper):
         """Return the Context Help ID of the window"""
         return handleprops.contexthelpid(self)
     # Non PEP-8 alias
-    ContextHelpID = deprecated(context_help_id)
+    ContextHelpID = deprecated(context_help_id, deprecated_name='ContextHelpID')
 
     # -----------------------------------------------------------
     def is_active(self):
@@ -349,7 +349,7 @@ class HwndWrapper(BaseWrapper):
         """Return True if the control has the specified extended style"""
         return handleprops.has_exstyle(self, exstyle)
     # Non PEP-8 alias
-    HasExStyle = deprecated(has_exstyle)
+    HasExStyle = deprecated(has_exstyle, deprecated_name='HasExStyle')
 
     # -----------------------------------------------------------
     def is_dialog(self):
@@ -1415,16 +1415,16 @@ class HwndWrapper(BaseWrapper):
     DoubleClickInput = deprecated(BaseWrapper.double_click_input)
     RightClickInput = deprecated(BaseWrapper.right_click_input)
     VerifyVisible = deprecated(BaseWrapper.verify_visible)
-    _NeedsImageProp = deprecated(BaseWrapper._needs_image_prop)
+    _NeedsImageProp = deprecated(BaseWrapper._needs_image_prop, deprecated_name='_NeedsImageProp')
     FriendlyClassName = deprecated(BaseWrapper.friendly_class_name)
-    Class = deprecated(BaseWrapper.class_name)
+    Class = deprecated(BaseWrapper.class_name, deprecated_name='Class')
     WindowText = deprecated(BaseWrapper.window_text)
-    ControlID = deprecated(BaseWrapper.control_id)
+    ControlID = deprecated(BaseWrapper.control_id, deprecated_name='ControlID')
     IsVisible = deprecated(BaseWrapper.is_visible)
     IsEnabled = deprecated(BaseWrapper.is_enabled)
     Rectangle = deprecated(BaseWrapper.rectangle)
     ClientToScreen = deprecated(BaseWrapper.client_to_screen)
-    ProcessID = deprecated(BaseWrapper.process_id)
+    ProcessID = deprecated(BaseWrapper.process_id, deprecated_name='ProcessID')
     IsDialog = deprecated(BaseWrapper.is_dialog)
     Parent = deprecated(BaseWrapper.parent)
     TopLevelParent = deprecated(BaseWrapper.top_level_parent)

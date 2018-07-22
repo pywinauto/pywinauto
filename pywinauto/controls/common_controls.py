@@ -887,7 +887,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
 
     item = get_item  # this is an alias to be consistent with other content elements
     # Non PEP-8 alias
-    Item = deprecated(get_item)
+    Item = deprecated(item)
     # Non PEP-8 alias
     GetItem = deprecated(get_item)
 
@@ -1310,7 +1310,7 @@ class _treeview_element(object):
         #else:
         #    raise ctypes.WinError()
     # Non PEP-8 alias
-    Next = deprecated(next_item)
+    Next = deprecated(next_item, deprecated_name='Next')
 
     #----------------------------------------------------------------
     def sub_elements(self):
@@ -1508,7 +1508,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
 
         return _treeview_element(root_elem, self)
     # Non PEP-8 alias
-    Root = deprecated(tree_root)
+    Root = deprecated(tree_root, deprecated_name='Root')
 
     #----------------------------------------------------------------
     def roots(self):
@@ -1627,7 +1627,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
 
     item = get_item  # this is an alias to be consistent with other content elements
     # Non PEP-8 alias
-    Item = deprecated(get_item)
+    Item = deprecated(item)
     # Non PEP-8 alias
     GetItem = deprecated(get_item)
 
@@ -3763,7 +3763,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
     SetPosition = deprecated(set_position)
 
     #----------------------------------------------------------------
-    def set_state(self):
+    def get_state(self):
         """Get the state of the progress bar
 
         State will be one of the following constants:
@@ -3773,7 +3773,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
         """
         return self.send_message(win32defines.PBM_GETSTATE)
     # Non PEP-8 alias
-    GetState = deprecated(set_state)
+    GetState = deprecated(get_state)
 
     #----------------------------------------------------------------
     def get_step(self):

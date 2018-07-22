@@ -195,7 +195,7 @@ class MenuItem(object):
         """Return the ID of this menu item"""
         return self._read_item().wID
     # Non PEP-8 alias
-    ID = deprecated(item_id)
+    ID = deprecated(item_id, deprecated_name='ID')
 
     def item_type(self):
         """
@@ -208,7 +208,7 @@ class MenuItem(object):
         """
         return self._read_item().fType
     # Non PEP-8 alias
-    Type = deprecated(item_type)
+    Type = deprecated(item_type, deprecated_name='Type')
 
     def text(self):
         """Return the text of this menu item"""
@@ -330,7 +330,7 @@ class MenuItem(object):
     # _perform_click() doesn't work for MenuItem, so let's call select() method
     click = select
     # Non PEP-8 alias
-    Click = deprecated(select)
+    Click = deprecated(click)
     # Non PEP-8 alias
     Select = deprecated(select)
 

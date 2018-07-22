@@ -85,7 +85,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         else:
             return False
     # Non PEP-8 alias
-    _NeedsImageProp = deprecated(_needs_image_prop)
+    _NeedsImageProp = deprecated(_needs_image_prop, deprecated_name='_NeedsImageProp')
 
     #-----------------------------------------------------------
     def friendly_class_name(self):
@@ -814,7 +814,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     # set SetText as an alias to set_edit_text
     set_text = set_edit_text
     # Non PEP-8 alias
-    SetText = deprecated(set_edit_text)
+    SetText = deprecated(set_text)
     # Non PEP-8 alias
     SetEditText = deprecated(set_edit_text)
 
@@ -884,7 +884,7 @@ class StaticWrapper(hwndwrapper.HwndWrapper):
         else:
             return False
     # Non PEP-8 alias
-    _NeedsImageProp = deprecated(_needs_image_prop)
+    _NeedsImageProp = deprecated(_needs_image_prop, deprecated_name='_NeedsImageProp')
 
 
 #====================================================================

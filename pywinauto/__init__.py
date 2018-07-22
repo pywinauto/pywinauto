@@ -38,12 +38,13 @@ import sys  # noqa: E402
 import warnings  # noqa: E402
 
 
-def deprecated(method):
+def deprecated(method, deprecated_name=None):
     """Decorator for deprecated methods"""
-
     def wrap(*args, **kwargs):
         warnings.simplefilter("default", DeprecationWarning)
-        warnings.warn("Non PEP-8 compliant methods are deprecated", DeprecationWarning, stacklevel=2)
+        if deprecated_name is None:
+            deprecated_name = ''.join([subname.capitalize() for subname in method.__name__.split('_')])
+        warnings.warn("Method .{}() is deprecated, use .{}() instead.".format(deprecated_name, method.__name__), DeprecationWarning, stacklevel=2)
         return method(*args, **kwargs)
 
     return wrap
