@@ -40,10 +40,11 @@ import warnings  # noqa: E402
 
 def deprecated(method, deprecated_name=None):
     """Decorator for deprecated methods"""
+    if deprecated_name is None:
+        deprecated_name = ''.join([subname.capitalize() for subname in method.__name__.split('_')])
+
     def wrap(*args, **kwargs):
         warnings.simplefilter("default", DeprecationWarning)
-        if deprecated_name is None:
-            deprecated_name = ''.join([subname.capitalize() for subname in method.__name__.split('_')])
         warnings.warn("Method .{}() is deprecated, use .{}() instead.".format(deprecated_name, method.__name__), DeprecationWarning, stacklevel=2)
         return method(*args, **kwargs)
 
