@@ -878,7 +878,7 @@ class Application(object):
             self.Start = deprecated(self.start)
             self.Connect = deprecated(self.connect)
             self.CPUUsage = deprecated(self.cpu_usage)
-            self.WaitCPUUsageLower = deprecated(self.wait_cpu_usage_lower)
+            self.WaitCPUUsageLower = deprecated(self.wait_cpu_usage_lower, deprecated_name='WaitCPUUsageLower')
             self.top_window_ = deprecated(self.top_window, deprecated_name='top_window_')
             self.active_ = deprecated(self.active, deprecated_name='active_')
             self.Windows_ = deprecated(self.windows, deprecated_name='Windows_')

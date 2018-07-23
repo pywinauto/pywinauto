@@ -517,7 +517,7 @@ class _listview_item(object):
         del remote_mem
         return self
     # Non PEP-8 alias
-    UnCheck = deprecated(uncheck)
+    UnCheck = deprecated(uncheck, deprecated_name='UnCheck')
 
     #-----------------------------------------------------------
     def check(self):
@@ -928,7 +928,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).uncheck() instead", DeprecationWarning)
         return self.get_item(item).uncheck()
     # Non PEP-8 alias
-    UnCheck = deprecated(uncheck)
+    UnCheck = deprecated(uncheck, deprecated_name='UnCheck')
 
     #-----------------------------------------------------------
     def check(self, item):

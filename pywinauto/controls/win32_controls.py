@@ -176,7 +176,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
     # Non PEP-8 alias
-    UnCheck = deprecated(uncheck)
+    UnCheck = deprecated(uncheck, deprecated_name='UnCheck')
 
     #-----------------------------------------------------------
     def set_check_indeterminate(self):
