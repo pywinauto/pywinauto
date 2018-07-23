@@ -36,6 +36,7 @@ useful to other modules with the least conceptual overhead
 """
 
 import ctypes
+import warnings
 import win32process
 import win32api
 import win32con
@@ -182,8 +183,13 @@ def is64bitprocess(process_id):
 def is64bitbinary(filename):
     """Check if the file is 64-bit binary"""
     import win32file
-    binary_type = win32file.GetBinaryType(filename)
-    return binary_type != win32file.SCS_32BIT_BINARY
+    try:
+        binary_type = win32file.GetBinaryType(filename)
+        return binary_type != win32file.SCS_32BIT_BINARY
+    except Exception as exc:
+        warnings.warn('Cannot get binary type for file "{}". Error: {}' \
+            ''.format(filename, exc), RuntimeWarning, stacklevel=2)
+        return None
 
 
 #=========================================================================
