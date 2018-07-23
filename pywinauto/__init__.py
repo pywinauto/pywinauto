@@ -45,7 +45,8 @@ def deprecated(method, deprecated_name=None):
 
     def wrap(*args, **kwargs):
         warnings.simplefilter("default", DeprecationWarning)
-        warnings.warn("Method .{}() is deprecated, use .{}() instead.".format(deprecated_name, method.__name__), DeprecationWarning, stacklevel=2)
+        warnings.warn("Method .{}() is deprecated, use .{}() instead." \
+            "".format(deprecated_name, method.__name__), DeprecationWarning, stacklevel=2)
         return method(*args, **kwargs)
 
     return wrap
