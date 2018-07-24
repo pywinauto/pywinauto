@@ -400,11 +400,14 @@ class UIAWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def set_focus(self):
         """Set the focus to this element"""
-        if self.is_minimized():
-            if self.was_maximized():
-                self.maximize()
-            else:
-                self.restore()
+        try:
+            if self.is_minimized():
+                if self.was_maximized():
+                    self.maximize()
+                else:
+                    self.restore()
+        except uia_defs.NoPatternInterfaceError:
+            pass
         try:
             self.element_info.element.SetFocus()
         except comtypes.COMError as exc:
