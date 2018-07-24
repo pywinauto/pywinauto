@@ -35,8 +35,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import six
-import comtypes
 import time
+import comtypes
 
 from .. import backend
 from ..timings import Timings
@@ -400,13 +400,20 @@ class UIAWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def set_focus(self):
         """Set the focus to this element"""
-        if self.is_keyboard_focusable() and not self.has_keyboard_focus():
-            try:
-                self.element_info.element.SetFocus()
-            except comtypes.COMError:
-                pass  # TODO: add RuntimeWarning here
+        if self.is_minimized():
+            if self.was_maximized():
+                self.maximize()
+            else:
+                self.restore()
+        try:
+            self.element_info.element.SetFocus()
+        except comtypes.COMError as exc:
+            warnings.warn('The window has not been focused due to ' \
+                'COMError: {}'.format(exc), RuntimeWarning)
 
         return self
+
+    # TODO: figure out how to implement .has_focus() method (if no handle available)
 
     # -----------------------------------------------------------
     def close(self):
