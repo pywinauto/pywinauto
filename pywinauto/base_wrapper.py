@@ -241,7 +241,7 @@ class BaseWrapper(object):
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            self.friendlyclassname = self.element_info.class_name
+            self.friendlyclassname = self.class_name()
         return self.friendlyclassname
 
     #------------------------------------------------------------
@@ -697,11 +697,11 @@ class BaseWrapper(object):
             if ctrl_text is None:
                 ctrl_text = six.text_type(ctrl_text)
             if button.lower() == 'move':
-                message = 'Moved mouse over ' + self.friendly_class_name() + \
-                          ' "' + ctrl_text + '" to screen point ('
+                message = 'Moved mouse over {} "{}" to screen point ('.format(
+                    self.friendly_class_name(), ctrl_text)
             else:
-                message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                          '" by ' + str(button) + ' button mouse click at '
+                message = 'Clicked {} "{}" by {} button mouse click at '.format(
+                    self.friendly_class_name(), ctrl_text, button)
                 if double:
                     message = 'Double-c' + message[1:]
             message += str(tuple(coords))

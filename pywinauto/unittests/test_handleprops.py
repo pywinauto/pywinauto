@@ -35,12 +35,13 @@ import unittest
 import six
 import os
 import sys
+import warnings
 sys.path.append(".")
 
 from pywinauto.handleprops import children, classname, clientrect, contexthelpid, \
     controlid, dumpwindow, exstyle, font, has_exstyle, has_style, is64bitprocess, \
     is_toplevel_window, isenabled, isunicode, isvisible, iswindow, parent, processid, \
-    rectangle, style, text, userdata
+    rectangle, style, text, userdata, is64bitbinary
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import is_x64_Python
@@ -251,6 +252,23 @@ class HandlepropsTestCases(unittest.TestCase):
         # test native Notepad app
         res_is64bit = is64bitprocess(self.app.UntitledNotepad.process_id())
         self.assertEquals(expected_is64bit, res_is64bit)
+
+    def test_is64bitbinary(self):
+        exe32bit = os.path.join(os.path.dirname(__file__),
+            r"..\..\apps\MFC_samples\RowList.exe")
+        dll32bit = os.path.join(os.path.dirname(__file__),
+            r"..\..\apps\MFC_samples\mfc100u.dll")
+        self.assertEqual(is64bitbinary(exe32bit), False)
+        self.assertEqual(is64bitbinary(dll32bit), None)
+
+        warnings.filterwarnings('always', category=RuntimeWarning, append=True)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            is64bitbinary(dll32bit)
+            assert len(w) >= 1
+            assert issubclass(w[-1].category, RuntimeWarning)
+            assert "Cannot get binary type for file" in str(w[-1].message)
+
 
     def test_dumpwindow(self):
         """Make sure dumpwindow() function works"""
