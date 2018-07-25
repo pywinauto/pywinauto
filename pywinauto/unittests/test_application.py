@@ -124,7 +124,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             app = Application().start(self.sample_exe_inverted_bitness)
-            app.kill_()
+            app.kill()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
             assert "64-bit" in str(w[-1].message)
@@ -140,7 +140,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
 
         with mock.patch("warnings.warn") as mockWarn:
             Application().connect(process=app.process)
-            app.kill_()
+            app.kill()
             args, kw = mockWarn.call_args
             assert len(args) == 2
             assert "64-bit" in args[0]

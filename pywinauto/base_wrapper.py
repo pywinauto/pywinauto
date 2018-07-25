@@ -52,6 +52,7 @@ from .timings import Timings
 from .actionlogger import ActionLogger
 from .mouse import _perform_click_input
 
+
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
     """Make text usable for attribute name"""
@@ -104,7 +105,7 @@ class BaseWrapper(object):
     has_title = True
 
     #------------------------------------------------------------
-    def __new__(cls, element_info):
+    def __new__(cls, element_info, active_backend):
         return BaseWrapper._create_wrapper(cls, element_info, BaseWrapper)
 
     #------------------------------------------------------------

@@ -48,6 +48,7 @@ from .. import win32defines
 from .. import win32structures
 
 from ..timings import Timings
+from .. import deprecated
 
 #====================================================================
 class ButtonWrapper(hwndwrapper.HwndWrapper):
@@ -84,7 +85,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         else:
             return False
     # Non PEP-8 alias
-    _NeedsImageProp = _needs_image_prop
+    _NeedsImageProp = deprecated(_needs_image_prop, deprecated_name='_NeedsImageProp')
 
     #-----------------------------------------------------------
     def friendly_class_name(self):
@@ -148,7 +149,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         self._ensure_enough_privileges('BM_GETCHECK')
         return self.send_message(win32defines.BM_GETCHECK)
     # Non PEP-8 alias
-    GetCheckState = get_check_state
+    GetCheckState = deprecated(get_check_state)
 
     __check_states = {
         win32defines.BST_UNCHECKED: False,
@@ -173,7 +174,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
     # Non PEP-8 alias
-    Check = check
+    Check = deprecated(check)
 
     #-----------------------------------------------------------
     def uncheck(self):
@@ -188,7 +189,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
     # Non PEP-8 alias
-    UnCheck = uncheck
+    UnCheck = deprecated(uncheck, deprecated_name='UnCheck')
 
     #-----------------------------------------------------------
     def set_check_indeterminate(self):
@@ -203,7 +204,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
     # Non PEP-8 alias
-    SetCheckIndeterminate = set_check_indeterminate
+    SetCheckIndeterminate = deprecated(set_check_indeterminate)
 
     #-----------------------------------------------------------
     def is_dialog(self):
@@ -226,7 +227,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         if self.get_check_state() != win32defines.BST_CHECKED:
             self.click()
     # Non PEP-8 alias
-    CheckByClick = check_by_click
+    CheckByClick = deprecated(check_by_click)
 
     #-----------------------------------------------------------
     def uncheck_by_click(self):
@@ -234,7 +235,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click()
     # Non PEP-8 alias
-    UncheckByClick = uncheck_by_click
+    UncheckByClick = deprecated(uncheck_by_click)
 
     #-----------------------------------------------------------
     def check_by_click_input(self):
@@ -242,7 +243,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         if self.get_check_state() != win32defines.BST_CHECKED:
             self.click_input()
     # Non PEP-8 alias
-    CheckByClickInput = check_by_click_input
+    CheckByClickInput = deprecated(check_by_click_input)
 
     #-----------------------------------------------------------
     def uncheck_by_click_input(self):
@@ -250,7 +251,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         if self.get_check_state() != win32defines.BST_UNCHECKED:
             self.click_input()
     # Non PEP-8 alias
-    UncheckByClickInput = uncheck_by_click_input
+    UncheckByClickInput = deprecated(uncheck_by_click_input)
 
 #====================================================================
 def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
@@ -320,7 +321,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
 
         return dropped_rect
     # Non PEP-8 alias
-    DroppedRect = dropped_rect
+    DroppedRect = deprecated(dropped_rect)
 
     #-----------------------------------------------------------
     def item_count(self):
@@ -328,7 +329,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
         self._ensure_enough_privileges('CB_GETCOUNT')
         return self.send_message(win32defines.CB_GETCOUNT)
     # Non PEP-8 alias
-    ItemCount = item_count
+    ItemCount = deprecated(item_count)
 
     #-----------------------------------------------------------
     def selected_index(self):
@@ -336,14 +337,14 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
         self._ensure_enough_privileges('CB_GETCURSEL')
         return self.send_message(win32defines.CB_GETCURSEL)
     # Non PEP-8 alias
-    SelectedIndex = selected_index
+    SelectedIndex = deprecated(selected_index)
 
     #-----------------------------------------------------------
     def selected_text(self):
         """Return the selected text"""
         return self.item_texts()[self.selected_index()]
     # Non PEP-8 alias
-    SelectedText = selected_text
+    SelectedText = deprecated(selected_text)
 
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
@@ -372,7 +373,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
         index = self._get_item_index(item)
         return self.send_message(win32defines.CB_GETITEMDATA, index)
     # Non PEP-8 alias
-    ItemData = item_data
+    ItemData = deprecated(item_data)
 
     #-----------------------------------------------------------
     def item_texts(self):
@@ -384,7 +385,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
             win32defines.CB_GETLBTEXTLEN,
             win32defines.CB_GETLBTEXT)
     # Non PEP-8 alias
-    ItemTexts = item_texts
+    ItemTexts = deprecated(item_texts)
 
     #-----------------------------------------------------------
     def texts(self):
@@ -437,7 +438,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
     #-----------------------------------------------------------
     #def deselect(self, item):
@@ -485,7 +486,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         # if we got LB_ERR then it is a single selection list box
         return (num_selected == win32defines.LB_ERR)
     # Non PEP-8 alias
-    IsSingleSelection = is_single_selection
+    IsSingleSelection = deprecated(is_single_selection)
 
     #-----------------------------------------------------------
     def selected_indices(self):
@@ -509,7 +510,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
 
         return items
     # Non PEP-8 alias
-    SelectedIndices = selected_indices
+    SelectedIndices = deprecated(selected_indices)
 
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
@@ -537,7 +538,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         self._ensure_enough_privileges('LB_GETCOUNT')
         return self.send_message(win32defines.LB_GETCOUNT)
     # Non PEP-8 alias
-    ItemCount = item_count
+    ItemCount = deprecated(item_count)
 
     #-----------------------------------------------------------
     def item_data(self, i):
@@ -545,7 +546,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         index = self._get_item_index(i)
         return self.send_message(win32defines.LB_GETITEMDATA, index)
     # Non PEP-8 alias
-    ItemData = item_data
+    ItemData = deprecated(item_data)
 
     #-----------------------------------------------------------
     def item_texts(self):
@@ -557,7 +558,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
             win32defines.LB_GETTEXTLEN,
             win32defines.LB_GETTEXT)
     # Non PEP-8 alias
-    ItemTexts = item_texts
+    ItemTexts = deprecated(item_texts)
 
     #-----------------------------------------------------------
     def item_rect(self, item):
@@ -569,7 +570,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
             raise RuntimeError("LB_GETITEMRECT failed")
         return rect
     # Non PEP-8 alias
-    ItemRect = item_rect
+    ItemRect = deprecated(item_rect)
 
     #-----------------------------------------------------------
     def texts(self):
@@ -630,7 +631,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
 
         return self
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
     #-----------------------------------------------------------
     def set_item_focus(self, item):
@@ -650,7 +651,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
     # Non PEP-8 alias
-    SetItemFocus = set_item_focus
+    SetItemFocus = deprecated(set_item_focus)
 
     #-----------------------------------------------------------
     def get_item_focus(self):
@@ -662,7 +663,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         else:
             return self.send_message(win32defines.LB_GETCURSEL)
     # Non PEP-8 alias
-    GetItemFocus = get_item_focus
+    GetItemFocus = deprecated(get_item_focus)
 
 
 #====================================================================
@@ -699,7 +700,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         self._ensure_enough_privileges('EM_GETLINECOUNT')
         return  self.send_message(win32defines.EM_GETLINECOUNT)
     # Non PEP-8 alias
-    LineCount = line_count
+    LineCount = deprecated(line_count)
 
     #-----------------------------------------------------------
     def line_length(self, line_index):
@@ -712,7 +713,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         return self.send_message (
             win32defines.EM_LINELENGTH, char_index, 0)
     # Non PEP-8 alias
-    LineLength = line_length
+    LineLength = deprecated(line_length)
 
     #-----------------------------------------------------------
     def get_line(self, line_index):
@@ -727,7 +728,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
 
         return text.value
     # Non PEP-8 alias
-    GetLine = get_line
+    GetLine = deprecated(get_line)
 
     #-----------------------------------------------------------
     def texts(self):
@@ -750,7 +751,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
 
         return text.value
     # Non PEP-8 alias
-    TextBlock = text_block
+    TextBlock = deprecated(text_block)
 
     #-----------------------------------------------------------
     def selection_indices(self):
@@ -763,7 +764,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
 
         return (start.value, end.value)
     # Non PEP-8 alias
-    SelectionIndices = selection_indices
+    SelectionIndices = deprecated(selection_indices)
 
     #-----------------------------------------------------------
     def set_window_text(self, text, append = False):
@@ -838,8 +839,9 @@ class EditWrapper(hwndwrapper.HwndWrapper):
     # set SetText as an alias to set_edit_text
     set_text = set_edit_text
     # Non PEP-8 alias
-    SetText = set_edit_text
-    SetEditText = set_edit_text
+    SetText = deprecated(set_text)
+    # Non PEP-8 alias
+    SetEditText = deprecated(set_edit_text)
 
     #-----------------------------------------------------------
     def select(self, start = 0, end = None):
@@ -875,7 +877,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         # return this control so that actions can be chained.
         return self
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
 
 #====================================================================
@@ -908,7 +910,7 @@ class StaticWrapper(hwndwrapper.HwndWrapper):
         else:
             return False
     # Non PEP-8 alias
-    _NeedsImageProp = _needs_image_prop
+    _NeedsImageProp = deprecated(_needs_image_prop, deprecated_name='_NeedsImageProp')
 
 
 #====================================================================
