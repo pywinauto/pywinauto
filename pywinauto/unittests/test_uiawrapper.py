@@ -1591,7 +1591,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
-            
+
             test_folder = os.path.join(os.path.dirname(os.path.dirname(
                 os.path.dirname(os.path.abspath(__file__)))), r"apps/MouseTester")
             self.qt5_app = os.path.join(test_folder, "mousebuttons.exe")
