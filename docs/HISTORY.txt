@@ -4,7 +4,7 @@ Change Log
 
 0.6.5 Handling Privileges, AutomationID for Win32 etc.
 --------------------------------------------------------------------
-27-July-2018
+30-July-2018
 
 Enhancements:
  * Check admin privileges for both target app and Python process. This
