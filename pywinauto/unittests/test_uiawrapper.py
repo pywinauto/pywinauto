@@ -1584,6 +1584,54 @@ if UIA_support:
             self.assertEqual(itm.window_text(), 'Months')
 
 
+    class WindowWrapperTests(unittest.TestCase):
+
+        """Unit tests for the UIAWrapper class for Window elements"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            test_folder = os.path.join(os.path.dirname(os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__)))), r"apps/MouseTester")
+            self.qt5_app = os.path.join(test_folder, "mousebuttons.exe")
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.start(self.qt5_app)
+
+            self.dlg = self.app.MouseButtonTester.wrapper_object()
+            self.another_app = None
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+            if self.another_app:
+                self.another_app.kill()
+                self.another_app = None
+
+        def test_issue_443(self):
+            """Test .set_focus() for window that is not keyboard focusable"""
+            self.dlg.minimize()
+            self.assertEqual(self.dlg.is_minimized(), True)
+            self.dlg.set_focus()
+            self.assertEqual(self.dlg.is_minimized(), False)
+            self.assertEqual(self.dlg.is_normal(), True)
+
+            # run another app instance (in focus now)
+            self.another_app = Application(backend="win32").start(self.qt5_app)
+            # eliminate clickable point at original app by maximizing second window
+            self.another_app.MouseButtonTester.maximize()
+            self.another_app.MouseButtonTester.set_focus()
+            self.assertEqual(self.another_app.MouseButtonTester.has_focus(), True)
+
+            self.dlg.set_focus()
+            # another app instance has lost focus
+            self.assertEqual(self.another_app.MouseButtonTester.has_focus(), False)
+            # our window has been brought to the focus (clickable point exists)
+            self.assertEqual(self.dlg.element_info.element.GetClickablePoint()[-1], 1)
+
+
 if __name__ == "__main__":
     if UIA_support:
         unittest.main()

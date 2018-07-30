@@ -2,6 +2,34 @@
 Change Log
 ==========
 
+0.6.5 Handling Privileges, AutomationID for Win32 etc.
+--------------------------------------------------------------------
+30-July-2018
+
+Enhancements:
+ * Check admin privileges for both target app and Python process. This
+   allows detecting cases when window messages won't work.
+ * Add ``automation_id`` and ``control_type`` properties
+   for "win32" backend (the most useful for WinForms). Correct
+   child_window() keywords are ``auto_id`` and ``control_type``.
+ * Switch pypiwin32 dependency to pywin32 which became official again.
+ * New generators ``iter_children()`` and ``iter_descendants()``.
+ * Add method ``is_checked()`` to "win32" check box.
+
+Bug Fixes:
+ * Method ``Application().connect(...)`` works better with ``timeout``
+   argument.
+ * Fix ``.set_focus()`` for "uia" backend including minimized window case
+   (issue #443).
+ * ``maximize()/minimize()`` methods can be chained now.
+ * Fix passing keyword arguments to a function for decorators
+   ``@always_wait_until_passes`` and ``@always_wait_until``.
+ * Use correct types conversion for WaitGuiThreadIdle (issue #497).
+ * Fix reporting code coverage on Linux.
+ * Use .format() for logging BaseWrapper actions (issue #471).
+ * Print warning in case binary type is not determined (issue #387).
+
+
 0.6.4 NULL pointer access fix and enhancements
 --------------------------------------------------------------------
 21-January-2018

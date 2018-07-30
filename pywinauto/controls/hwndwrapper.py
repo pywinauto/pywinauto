@@ -1302,9 +1302,7 @@ class HwndWrapper(BaseWrapper):
         """
         # "steal the focus" if there is another active window
         # otherwise it is already into the foreground and no action required
-        cur_foreground = win32gui.GetForegroundWindow()
-
-        if self.handle != cur_foreground:
+        if not self.has_focus():
             # Notice that we need to move the mouse out of the screen
             # but we don't use the built-in methods of the class:
             # self.mouse_move doesn't do the job well even with absolute=True
@@ -1313,7 +1311,10 @@ class HwndWrapper(BaseWrapper):
 
             # change active window
             if self.is_minimized():
-                win32gui.ShowWindow(self.handle, win32con.SW_RESTORE)
+                if self.was_maximized():
+                    self.maximize()
+                else:
+                    self.restore()
             else:
                 win32gui.ShowWindow(self.handle, win32con.SW_SHOW)
             win32gui.SetForegroundWindow(self.handle)
@@ -1327,6 +1328,10 @@ class HwndWrapper(BaseWrapper):
         return self
     # Non PEP-8 alias
     SetFocus = deprecated(set_focus)
+
+    def has_focus(self):
+        """Check the window is in focus (foreground)"""
+        return self.handle == win32gui.GetForegroundWindow()
 
     def has_keyboard_focus(self):
         """Check the keyboard focus on this control."""

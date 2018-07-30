@@ -39,6 +39,8 @@ import locale
 import re
 import time
 import win32process
+import win32gui
+import win32con
 import six
 
 try:
@@ -310,6 +312,15 @@ class BaseWrapper(object):
         visible and enabled.
         """
         return self.element_info.enabled #and self.top_level_parent().element_info.enabled
+
+    # -----------------------------------------------------------
+    def was_maximized(self):
+        """Indicate whether the window was maximized before minimizing or not"""
+        if self.handle:
+            (flags, _, _, _, _) = win32gui.GetWindowPlacement(self.handle)
+            return (flags & win32con.WPF_RESTORETOMAXIMIZED == win32con.WPF_RESTORETOMAXIMIZED)
+        else:
+            return None
 
     #------------------------------------------------------------
     def rectangle(self):
