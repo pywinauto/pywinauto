@@ -6,8 +6,8 @@ from ..element_info import ElementInfo
 
 
 class ControlTreeNode(object):
-    def __init__(self, ctrl, names, rect):
-        self.ctrl = ctrl
+    def __init__(self, wrapper, names, rect):
+        self.wrapper = wrapper
         self.names = names
         self.rect = rect
 
@@ -16,7 +16,7 @@ class ControlTreeNode(object):
         self.children = []
 
     def __str__(self):
-        return "{}, {}, depth={}".format(self.names, self.rect, self.depth)
+        return "{}, {}, depth={}".format(repr(self.names), self.rect, self.depth)
 
     def __eq__(self, other):
         if not isinstance(other, ControlTreeNode):
@@ -34,11 +34,11 @@ class ControlTreeNode(object):
 
 
 class ControlTree(object):
-    def __init__(self, ctrl, skip_rebuild=False):
-        if isinstance(ctrl, BaseWrapper):
-            self.ctrl = ctrl
+    def __init__(self, wrapper, skip_rebuild=False):
+        if isinstance(wrapper, BaseWrapper):
+            self.wrapper = wrapper
         else:
-            raise TypeError("ctrl must be a wrapped control")
+            raise TypeError("wrapper must be a wrapped control")
         self.root = None
         self.root_name = ""
         if not skip_rebuild:
@@ -47,12 +47,12 @@ class ControlTree(object):
     def rebuild(self):
         """Create tree structure"""
         # Create a list of this control and all its descendants
-        all_ctrls = [self.ctrl, ] + self.ctrl.descendants()
+        all_ctrls = [self.wrapper, ] + self.wrapper.descendants()
 
         # Build unique control names map
         ctrls_names = findbestmatch.build_names_list(all_ctrls)
 
-        self.root = ControlTreeNode(self.ctrl, ctrls_names[0], self.ctrl.rectangle())
+        self.root = ControlTreeNode(self.wrapper, ctrls_names[0], self.wrapper.rectangle())
         self.root_name = self.root.names.get_preferred_name()
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
@@ -72,7 +72,7 @@ class ControlTree(object):
 
                 go_deep_down_the_tree(ctrl_node, ctrl.children(), current_depth + 1)
 
-        go_deep_down_the_tree(self.root, self.ctrl.children())
+        go_deep_down_the_tree(self.root, self.wrapper.children())
 
     def iterate_dfs(self, node=None):
         """Iterate tree in pre-order depth-first search order"""
@@ -116,7 +116,7 @@ class ControlTree(object):
     def node_from_element_info(self, element_info):
         if isinstance(element_info, ElementInfo):
             for node in self.iterate_bfs():
-                if node.ctrl.element_info == element_info:
+                if node.wrapper.element_info == element_info:
                     return node
         else:
             print("Warning: 'element' must be an ElementInfo instance")
