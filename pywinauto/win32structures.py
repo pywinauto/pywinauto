@@ -290,10 +290,12 @@ class RECT(Structure):
     # ----------------------------------------------------------------
     def __contains__(self, point):
         """Return True if point is inside this rectangle"""
-        if not isinstance(point, POINT):
-            raise TypeError("point must be an instance of POINT")
+        if not isinstance(point, (POINT, tuple)):
+            raise TypeError("point must be an instance of POINT or 2-tuple")
+        elif isinstance(point, tuple) and len(point) != 2:
+            raise ValueError("point tuple length must be 2")
 
-        return self.left <= point.x <= self.right and self.top <= point.y <= self.bottom
+        return self.left <= point[0] <= self.right and self.top <= point[1] <= self.bottom
 
     #def __hash__(self):
     #	return hash (self.left, self.top, self.right, self.bottom)
