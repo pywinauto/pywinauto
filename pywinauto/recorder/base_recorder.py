@@ -1,5 +1,5 @@
 import threading
-
+import pkg_resources
 from abc import abstractmethod
 
 from .. import __version__ as recorded_version
@@ -64,10 +64,13 @@ class BaseRecorder(object):
         except Exception:
             cmd = "INSERT_CMD_HERE"
 
-        # TODO: detect if pywinauto imported from custom location
-        self.script = "import os, sys\n"
-        self.script += "script_dir = os.path.dirname(__file__)\n"
-        self.script += "sys.path.append(script_dir)\n"
+        try:
+            pkg_resources.get_distribution('pywinauto')
+        except pkg_resources.DistributionNotFound:
+            # import pywinauto from the script folder
+            self.script = "import os, sys\n"
+            self.script += "script_dir = os.path.dirname(__file__)\n"
+            self.script += "sys.path.append(script_dir)\n"
         self.script += "import pywinauto\n"
         # TODO: check version: to int: if tuple(pywinauto.__version__.split('.')) > tuple(recorded_version.split('.')):
         self.script += "recorded_version = {}\n".format(repr(recorded_version))
