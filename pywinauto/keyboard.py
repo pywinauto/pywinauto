@@ -448,7 +448,7 @@ else:
             """
             vkey_scan = LoByte(VkKeyScan(self.key))
 
-            return (vkey_scan, MapVirtualKey(vkey_scan, 0), 0)
+            return vkey_scan, MapVirtualKey(vkey_scan, 0), 0
 
         def key_description(self):
             """Return a description of the key"""

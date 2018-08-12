@@ -424,6 +424,7 @@ class Hook(object):
         self.mouse_id = None
         self.mouse_is_hook = False
         self.keyboard_is_hook = False
+        self.actions = ActionLogger()
 
     def _process_kbd_data(self, kb_data_ptr):
         """Process KBDLLHOOKSTRUCT data received from low level keyboard hook calls"""
@@ -436,8 +437,7 @@ class Hook(object):
         elif key_code in self.ID_TO_KEY:
             current_key = six.u(self.ID_TO_KEY[key_code])
         else:
-            al = ActionLogger()
-            al.log("_process_kbd_data, bad key_code: {0}".format(key_code))
+            self.actions.log("_process_kbd_data, bad key_code: {0}".format(key_code))
 
         return current_key
 
@@ -448,8 +448,7 @@ class Hook(object):
         if event_code_word in self.event_types:
             event_type = self.event_types[event_code_word]
         else:
-            al = ActionLogger()
-            al.log("_process_kbd_msg_type, bad event_type: {0}".format(event_type))
+            self.actions.log("_process_kbd_msg_type, bad event_type: {0}".format(event_type))
 
         if event_type == 'key down':
             if current_key not in self.pressed_keys:
@@ -458,12 +457,11 @@ class Hook(object):
             if current_key in self.pressed_keys:
                 self.pressed_keys.remove(current_key)
             else:
-                al = ActionLogger()
-                al.log("_process_kbd_msg_type, can't remove a key: {0}".format(current_key))
+                self.actions.log("_process_kbd_msg_type, can't remove a key: {0}".format(current_key))
 
         return event_type
 
-    def _keyboard_ll_hdl(self, code, event_code, kb_data_ptr):
+    def _keyboard_low_level_handler(self, code, event_code, kb_data_ptr):
         """Execute when a keyboard low level event has been triggered"""
         try:
             # The next hook in chain must be always called
@@ -480,14 +478,13 @@ class Hook(object):
             self.handler(event)
 
         except Exception:
-            al = ActionLogger()
-            al.log("_keyboard_ll_hdl, {0}".format(sys.exc_info()[0]))
-            al.log("_keyboard_ll_hdl, code {0}, event_code {1}".format(code, event_code))
+            self.actions.log("_keyboard_low_level_handler, {0}".format(sys.exc_info()[0]))
+            self.actions.log("_keyboard_low_level_handler, code {0}, event_code {1}".format(code, event_code))
             raise
 
         return res
 
-    def _mouse_ll_hdl(self, code, event_code, mouse_data_ptr):
+    def _mouse_low_level_handler(self, code, event_code, mouse_data_ptr):
         """Execute when a mouse low level event has been triggerred"""
         try:
             # The next hook in chain must be always called
@@ -511,9 +508,8 @@ class Hook(object):
                 self.handler(event)
 
         except Exception:
-            al = ActionLogger()
-            al.log("_mouse_ll_hdl, {0}".format(sys.exc_info()[0]))
-            al.log("_mouse_ll_hdl, code {0}, event_code {1}".format(code, event_code))
+            self.actions.log("_mouse_low_level_handler, {0}".format(sys.exc_info()[0]))
+            self.actions.log("_mouse_low_level_handler, code {0}, event_code {1}".format(code, event_code))
             raise
 
         return res
@@ -530,7 +526,7 @@ class Hook(object):
             @HOOKCB
             def _kbd_ll_cb(ncode, wparam, lparam):
                 """Forward the hook event to ourselves"""
-                return self._keyboard_ll_hdl(ncode, wparam, lparam)
+                return self._keyboard_low_level_handler(ncode, wparam, lparam)
 
             self.keyboard_id = windll.user32.SetWindowsHookExW(
                 win32con.WH_KEYBOARD_LL,
@@ -542,7 +538,7 @@ class Hook(object):
             @HOOKCB
             def _mouse_ll_cb(code, event_code, mouse_data_ptr):
                 """Forward the hook event to ourselves"""
-                return self._mouse_ll_hdl(code, event_code, mouse_data_ptr)
+                return self._mouse_low_level_handler(code, event_code, mouse_data_ptr)
 
             self.mouse_id = windll.user32.SetWindowsHookExA(
                 win32con.WH_MOUSE_LL,
