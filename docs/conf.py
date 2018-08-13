@@ -48,6 +48,7 @@ if sys.platform.startswith('linux'):
             "win32functions",
             "win32clipboard",
             'win32structures',
+            'win32_element_info',
             'comtypes',
             'comtypes.client',
             ]:
