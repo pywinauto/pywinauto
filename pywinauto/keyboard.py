@@ -280,7 +280,7 @@ else:
         'ZOOM':          251,
     }
     # reverse the CODES dict to make it easy to look up a particular code name
-    CODE_NAMES = dict((entry[1], entry[0]) for entry in CODES.items())
+    CODE_NAMES = dict((scan_code, vk_name) for vk_name, scan_code in CODES.items())
 
     # modifier keys
     MODIFIERS = {

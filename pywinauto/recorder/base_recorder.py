@@ -1,5 +1,4 @@
 import threading
-
 from abc import abstractmethod
 
 from .. import __version__ as recorded_version
@@ -65,7 +64,8 @@ class BaseRecorder(object):
             cmd = "INSERT_CMD_HERE"
 
         # TODO: detect if pywinauto imported from custom location
-        self.script = "import os, sys\n"
+        self.script = "# encoding: utf-16\n"
+        self.script += "import os, sys\n"
         self.script += "script_dir = os.path.dirname(__file__)\n"
         self.script += "sys.path.append(script_dir)\n"
         self.script += "import pywinauto\n"

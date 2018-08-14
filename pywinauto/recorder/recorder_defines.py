@@ -1,5 +1,6 @@
+# encoding: utf-8
 import time
-
+import sys
 from abc import ABCMeta
 
 
@@ -237,9 +238,9 @@ class RecorderMouseEvent(HookEvent):
             elem = " - {}".format(self.control_tree_node)
         else:
             elem = ""
-        description = "<RecorderMouseEvent - '{}' - '{}' at ({}, {}){} [{}]>".format(self.current_key, self.event_type,
+        description = u"<RecorderMouseEvent - '{}' - '{}' at ({}, {}){} [{}]>".format(self.current_key, self.event_type,
                                                                                      self.mouse_x, self.mouse_y, elem,
-                                                                                     self.timestamp)
+                                                                                     self.timestamp).encode(sys.stdout.encoding)
         return description
 
 
@@ -251,10 +252,9 @@ class RecorderKeyboardEvent(HookEvent):
         self.pressed_key = pressed_key
 
     def __repr__(self):
-        description = "<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(self.current_key,
-                                                                                        self.event_type,
-                                                                                        self.pressed_key,
-                                                                                        self.timestamp)
+        print(self.current_key)
+        description = u"<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(
+            self.current_key, self.event_type, self.pressed_key, self.timestamp).encode(sys.stdout.encoding)
         return description
 
 
@@ -265,7 +265,8 @@ class ApplicationEvent(RecorderEvent):
         self.sender = sender
 
     def __repr__(self):
-        description = "<ApplicationEvent - '{}' from '{}'>".format(self.name, self.sender)
+        description = u"<ApplicationEvent - '{}' from '{}'>".format(self.name,
+            self.sender).encode(sys.stdout.encoding)
         return description
 
 
@@ -276,6 +277,6 @@ class PropertyEvent(ApplicationEvent):
         self.new_value = new_value
 
     def __repr__(self):
-        description = "<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name, self.new_value,
-                                                                             self.sender)
+        description = u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name,
+            self.new_value, self.sender).encode(sys.stdout.encoding)
         return description
