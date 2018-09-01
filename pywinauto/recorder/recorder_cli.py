@@ -42,7 +42,7 @@ def main(args):
     rec.wait()
 
     if args.out:
-        with codecs.open(args.out, "w", encoding="utf-16") as f:
+        with codecs.open(args.out, "w", encoding=sys.getdefaultencoding()) as f:
             f.write(rec.script)
     else:
         print(rec.script)

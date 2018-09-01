@@ -50,7 +50,7 @@ class LogParser(object):
                     # Check if text has been typed
                     for k, v in self.text_sequence.items():
                         item_name = k.names.get_preferred_name()
-                        script += u"app.{}.{}.type_keys('{}')\n".format(
+                        script += u"app.{}.{}.type_keys(u'{}')\n".format(
                             self.recorder.control_tree.root_name, item_name, v)
                     self.text_sequence = {}
 

@@ -447,19 +447,20 @@ class Hook(object):
             scan_code = kbd.scanCode
             current_key = six.unichr(scan_code)
         elif key_code in self.ID_TO_KEY:
-            # TODO: MapVirtualKeyEx
-            [thread_id, pid] = win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow())
-            print('thread_id = {}'.format(thread_id))
-            input_locale_id = win32api.GetKeyboardLayout(thread_id) # (thread_id) # TODO: need thread_id (main thread of the app?)
-            print('input_locale_id = {}'.format(input_locale_id))
-            #MAPVK_VSC_TO_VK = 1 # TODO: move to win32defines
-            #vk = ctypes.windll.user32.MapVirtualKeyExW(key_code, MAPVK_VSC_TO_VK, wintypes.HKL(input_locale_id))
-            keybd_state = ctypes.create_string_buffer(256)
-            buf = ctypes.create_unicode_buffer(5)
-            if ToUnicodeEx(key_code, key_code, keybd_state, buf, 5, 0, input_locale_id) > 0:
-                current_key = buf.value
+            [thread_id, _] = win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow())
+            input_locale_id = win32api.GetKeyboardLayout(thread_id)
+            if key_code in keyboard.CODE_NAMES:
+                current_key = u'{' + keyboard.CODE_NAMES[key_code] + u'}'
             else:
-                current_key = six.u(self.ID_TO_KEY[key_code])
+                #MAPVK_VSC_TO_VK = 1 # TODO: move to win32defines
+                #vk = ctypes.windll.user32.MapVirtualKeyExW(key_code, MAPVK_VSC_TO_VK, wintypes.HKL(input_locale_id))
+                keybd_state = ctypes.create_string_buffer(256)
+                buf = ctypes.create_unicode_buffer(5)
+                if ToUnicodeEx(key_code, key_code, keybd_state, buf, 5, 0, input_locale_id) > 0:
+                    current_key = buf.value
+                else:
+                    print("__________ it shouldn't happen !!! __________")
+                    current_key = six.u(self.ID_TO_KEY[key_code])
         else:
             self.actions.log("_process_kbd_data, bad key_code: {0}".format(key_code))
 
