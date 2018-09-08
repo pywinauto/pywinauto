@@ -660,7 +660,7 @@ class WindowSpecification(object):
             print("Control Identifiers:")
             print_identifiers([this_ctrl, ])
         else:
-            log_file = open(filename, "w")
+            log_file = open(filename, "w", encoding="utf8")
 
             def log_func(msg):
                 log_file.write(str(msg) + os.linesep)
