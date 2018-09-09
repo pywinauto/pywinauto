@@ -3,6 +3,8 @@ import time
 import sys
 from abc import ABCMeta
 
+import six
+
 
 class EVENT(object):
     ASYNC_CONTENT_LOADED = "AsyncContentLoaded"
@@ -240,8 +242,11 @@ class RecorderMouseEvent(HookEvent):
             elem = ""
         description = u"<RecorderMouseEvent - '{}' - '{}' at ({}, {}){} [{}]>".format(self.current_key, self.event_type,
                                                                                      self.mouse_x, self.mouse_y, elem,
-                                                                                     self.timestamp).encode(sys.stdout.encoding)
-        return description
+                                                                                     self.timestamp)
+        if six.PY2:
+            return description.encode(sys.stdout.encoding)
+        else:
+            return description
 
 
 class RecorderKeyboardEvent(HookEvent):
@@ -254,8 +259,11 @@ class RecorderKeyboardEvent(HookEvent):
     def __repr__(self):
         print(self.current_key)
         description = u"<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(
-            self.current_key, self.event_type, self.pressed_key, self.timestamp).encode(sys.stdout.encoding)
-        return description
+            self.current_key, self.event_type, self.pressed_key, self.timestamp)
+        if six.PY2:
+            return description.encode(sys.stdout.encoding)
+        else:
+            return description
 
 
 class ApplicationEvent(RecorderEvent):
@@ -266,8 +274,11 @@ class ApplicationEvent(RecorderEvent):
 
     def __repr__(self):
         description = u"<ApplicationEvent - '{}' from '{}'>".format(self.name,
-            self.sender).encode(sys.stdout.encoding)
-        return description
+            self.sender)
+        if six.PY2:
+            return description.encode(sys.stdout.encoding)
+        else:
+            return description
 
 
 class PropertyEvent(ApplicationEvent):
@@ -278,5 +289,8 @@ class PropertyEvent(ApplicationEvent):
 
     def __repr__(self):
         description = u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name,
-            self.new_value, self.sender).encode(sys.stdout.encoding)
-        return description
+            self.new_value, self.sender)
+        if six.PY2:
+            return description.encode(sys.stdout.encoding)
+        else:
+            return description
