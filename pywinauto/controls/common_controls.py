@@ -1519,7 +1519,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         while cur_elem:
             roots.append(cur_elem)
 
-            cur_elem = cur_elem.Next()
+            cur_elem = cur_elem.next_item()
 
         return roots
     # Non PEP-8 alias
