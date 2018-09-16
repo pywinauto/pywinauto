@@ -773,7 +773,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
     def column_count(self):
         """Return the number of columns"""
         if self.get_header_control() is not None:
-            return self.get_header_control().ItemCount()
+            return self.get_header_control().item_count()
         return 0
     # Non PEP-8 alias
     ColumnCount = deprecated(column_count)
