@@ -41,10 +41,12 @@ import time
 import win32process
 import win32gui
 import win32con
+import win32api
+import win32ui
 import six
 
 try:
-    from PIL import ImageGrab
+    from PIL import ImageGrab, Image
 except ImportError:
     ImageGrab = None
 
@@ -499,17 +501,38 @@ class BaseWrapper(object):
                              "PIL is required for capture_as_image")
             return None
 
-        # get the control rectangle in a way that PIL likes it
         if rect:
-            box = (rect.left, rect.top, rect.right, rect.bottom)
-        else:
-            box = (control_rectangle.left,
-                   control_rectangle.top,
-                   control_rectangle.right,
-                   control_rectangle.bottom)
+            control_rectangle = rect
 
-        # grab the image and get raw data as a string
-        return ImageGrab.grab(box)
+        # get the control rectangle in a way that PIL likes it
+        width = control_rectangle.width()
+        height = control_rectangle.height()
+        left = control_rectangle.left
+        right = control_rectangle.right
+        top = control_rectangle.top
+        bottom = control_rectangle.bottom
+        box = (left, top, right, bottom)
+
+        # check the number of monitors connected
+        if len(win32api.EnumDisplayMonitors()) > 1:
+            hwin = win32gui.GetDesktopWindow()
+            hwindc = win32gui.GetWindowDC(hwin)
+            srcdc = win32ui.CreateDCFromHandle(hwindc)
+            memdc = srcdc.CreateCompatibleDC()
+            bmp = win32ui.CreateBitmap()
+            bmp.CreateCompatibleBitmap(srcdc, width, height)
+            memdc.SelectObject(bmp)
+            memdc.BitBlt((0, 0), (width, height), srcdc, (left, top), win32con.SRCCOPY)
+
+            bmpinfo = bmp.GetInfo()
+            bmpstr = bmp.GetBitmapBits(True)
+            pil_img_obj = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']), bmpstr, 'raw', 'BGRX', 0,
+                                           1)
+        else:
+            # grab the image and get raw data as a string
+            pil_img_obj = ImageGrab.grab(box)
+
+        return pil_img_obj
 
     #-----------------------------------------------------------
     def get_properties(self):
