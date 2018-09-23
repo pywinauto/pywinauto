@@ -108,8 +108,8 @@ class UiaRecorder(COMObject, BaseRecorder):
     def _setup(self):
         try:
             # Add event handlers to all app's controls
-            self._add_handlers(self.ctrl.element_info.element)
-            self.control_tree = ControlTree(self.ctrl, skip_rebuild=True)
+            self._add_handlers(self.wrapper.element_info.element)
+            self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
             self._rebuild_control_tree()
         except Exception as exc:
             # TODO: Sometime we can't catch WindowClosed event in WPF applications
@@ -170,7 +170,7 @@ class UiaRecorder(COMObject, BaseRecorder):
         elif event.name == EVENT.WINDOW_CLOSED:
             # Detect if top_window is already closed
             try:
-                process_id = self.ctrl.element_info.process_id
+                process_id = self.wrapper.element_info.process_id
             except COMError:
                 process_id = 0
             if not process_id:

@@ -72,7 +72,6 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_FlowsFromPropertyId: PROPERTY.FLOWS_FROM,
     IUIA().UIA_dll.UIA_FlowsToPropertyId: PROPERTY.FLOWS_TO,
     IUIA().UIA_dll.UIA_FrameworkIdPropertyId: PROPERTY.FRAMEWORK_ID,
-    IUIA().UIA_dll.UIA_FullDescriptionPropertyId: PROPERTY.FULL_DESCRIPTION,
     IUIA().UIA_dll.UIA_GridColumnCountPropertyId: PROPERTY.GRID_COLUMN_COUNT,
     IUIA().UIA_dll.UIA_GridItemColumnPropertyId: PROPERTY.GRID_ITEM_COLUMN,
     IUIA().UIA_dll.UIA_GridItemColumnSpanPropertyId: PROPERTY.GRID_ITEM_COLUMN_SPAN,
@@ -203,6 +202,9 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_WindowWindowInteractionStatePropertyId: PROPERTY.WINDOW_WINDOW_INTERACTION_STATE,
     IUIA().UIA_dll.UIA_WindowWindowVisualStatePropertyId: PROPERTY.WINDOW_WINDOW_VISUAL_STATE
 }
+
+if hasattr(IUIA().UIA_dll, 'UIA_FullDescriptionPropertyId'):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_FullDescriptionPropertyId] = PROPERTY.FULL_DESCRIPTION
 
 
 class StructureEvent(ApplicationEvent):

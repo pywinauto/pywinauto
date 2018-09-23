@@ -1,7 +1,8 @@
 import threading
-
+import pkg_resources
 from abc import abstractmethod
 
+from .. import __version__ as recorded_version
 from ..application import Application, get_process_command_line_wmi
 from .log_parser import LogParser
 
@@ -34,7 +35,7 @@ class BaseRecorder(object):
         if not app.is_process_running():
             raise TypeError("Application must be already running")
 
-        self.ctrl = app.top_window().wrapper_object()
+        self.wrapper = app.top_window().wrapper_object()
 
         self.verbose = kwargs.get("verbose", False)
         # Output events straight away (for debug purposes)
@@ -62,7 +63,20 @@ class BaseRecorder(object):
             cmd = get_process_command_line_wmi(app.process)
         except Exception:
             cmd = "INSERT_CMD_HERE"
-        self.script = "app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
+
+        try:
+            pkg_resources.get_distribution('pywinauto')
+        except pkg_resources.DistributionNotFound:
+            # import pywinauto from the script folder
+            self.script = "import os, sys\n"
+            self.script += "script_dir = os.path.dirname(__file__)\n"
+            self.script += "sys.path.append(script_dir)\n"
+        self.script += "import pywinauto\n"
+        # TODO: check version: to int: if tuple(pywinauto.__version__.split('.')) > tuple(recorded_version.split('.')):
+        self.script += "recorded_version = {}\n".format(repr(recorded_version))
+        self.script += "print('Recorded with pywinauto-{}'.format(recorded_version))\n"
+        self.script += "print('Running with pywinauto-{}'.format(pywinauto.__version__))\n\n"
+        self.script += "app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
         if self.hot_output:
             print(self.script)
 

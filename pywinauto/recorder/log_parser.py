@@ -50,18 +50,18 @@ class LogParser(object):
                     # Check if text has been typed
                     for k, v in self.text_sequence.items():
                         item_name = k.names.get_preferred_name()
-                        script += "app.{}.{}.DO_SOMETHING_WITH_TEXT('{}')\n".format(
+                        script += "app.{}.{}.type_keys('{}')\n".format(
                             self.recorder.control_tree.root_name, item_name, v)
                     self.text_sequence = {}
 
                     if hook_event.control_tree_node:
                         subtree = self.recorder.control_tree.sub_tree_from_node(hook_event.control_tree_node)
                         root_name = subtree[-1].names.get_preferred_name()
-                        # print("Subtree: {}".format([node.ctrl for node in subtree]))
+                        # print("Subtree: {}".format([node.wrapper for node in subtree]))
 
                         def get_node_sender(subtree, event_name):
                             for elem in subtree:
-                                possible_handlers = getattr(elem.ctrl, "possible_handlers", {})
+                                possible_handlers = getattr(elem.wrapper, "possible_handlers", {})
                                 if event_name in possible_handlers:
                                     return elem, possible_handlers[event_name]
                             return None, None
@@ -86,8 +86,8 @@ class LogParser(object):
                             node, handler = get_node_sender(subtree, EVENT.MENU_CLOSED)
                             if node:
                                 menu_item_text = node.names.text_names[0]
-                                script += "app.{}.menu_select('{}')\n".format(
-                                    root_name, " -> ".join(self.menu_sequence + [menu_item_text, ]))
+                                script += "app.{}.menu_select({})\n".format(
+                                    root_name, repr(" -> ".join(self.menu_sequence + [menu_item_text, ])))
                                 self.menu_sequence = []
                                 event_handled = True
                         # Handle PropertyEvent
@@ -115,11 +115,21 @@ class LogParser(object):
                                     event_handled = True
 
                         if not event_handled:
-                            item_name = subtree[0].names.get_preferred_name()
+                            min_rect_elem = None
+                            for elem in subtree:
+                                if (hook_event.mouse_x, hook_event.mouse_y) in elem.rect:
+                                    if min_rect_elem is None:
+                                        min_rect_elem = elem
+                                    elif elem.rect.width() < min_rect_elem.rect.width() and \
+                                            elem.rect.height() < min_rect_elem.rect.height():
+                                        min_rect_elem = elem
+                            item_name = min_rect_elem.names.get_preferred_name()
                             script += "app.{}.{}.click_input()\n".format(root_name, item_name)
                     else:
-                        script += "app.{}.click_input(coords=({}, {}), absolute=True)".format(
-                            root_name, hook_event.mouse_x, hook_event.mouse_y)
+                        script += "pywinauto.mouse.click(button='left', coords=({}, {}))\n" \
+                            "".format(hook_event.mouse_x, hook_event.mouse_y)
+                        # script += "app.{}.click_input(coords=({}, {}), absolute=True)".format(
+                        #     root_name, hook_event.mouse_x, hook_event.mouse_y)
                 elif hook_event.event_type == "key down":
                     if hook_event.current_key == "RButton":
                         button = "right"
@@ -127,8 +137,8 @@ class LogParser(object):
                         button = "wheel"
                     else:
                         button = "left"
-                    script += "pywinauto.mouse.click(button='{}', coords=({}, {}))\n".format(button, hook_event.mouse_x,
-                                                                                             hook_event.mouse_y)
+                    script += "pywinauto.mouse.click(button='{}', coords=({}, {}))\n" \
+                        "".format(button, hook_event.mouse_x, hook_event.mouse_y)
             elif isinstance(hook_event, RecorderKeyboardEvent):
                 if hook_event.event_type == "key down":
                     if hook_event.control_tree_node:
