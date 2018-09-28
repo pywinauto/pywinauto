@@ -44,6 +44,7 @@ import win32con
 import win32api
 import win32ui
 import six
+import sys
 
 try:
     from PIL import ImageGrab, Image
@@ -514,20 +515,20 @@ class BaseWrapper(object):
         box = (left, top, right, bottom)
 
         # check the number of monitors connected
-        if len(win32api.EnumDisplayMonitors()) > 1:
-            hwin = win32gui.GetDesktopWindow()
-            hwindc = win32gui.GetWindowDC(hwin)
-            srcdc = win32ui.CreateDCFromHandle(hwindc)
-            memdc = srcdc.CreateCompatibleDC()
-            bmp = win32ui.CreateBitmap()
-            bmp.CreateCompatibleBitmap(srcdc, width, height)
-            memdc.SelectObject(bmp)
-            memdc.BitBlt((0, 0), (width, height), srcdc, (left, top), win32con.SRCCOPY)
+        if (sys.platform == 'win32') and (len(win32api.EnumDisplayMonitors()) > 1):
+                hwin = win32gui.GetDesktopWindow()
+                hwindc = win32gui.GetWindowDC(hwin)
+                srcdc = win32ui.CreateDCFromHandle(hwindc)
+                memdc = srcdc.CreateCompatibleDC()
+                bmp = win32ui.CreateBitmap()
+                bmp.CreateCompatibleBitmap(srcdc, width, height)
+                memdc.SelectObject(bmp)
+                memdc.BitBlt((0, 0), (width, height), srcdc, (left, top), win32con.SRCCOPY)
 
-            bmpinfo = bmp.GetInfo()
-            bmpstr = bmp.GetBitmapBits(True)
-            pil_img_obj = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']), bmpstr, 'raw', 'BGRX', 0,
-                                           1)
+                bmpinfo = bmp.GetInfo()
+                bmpstr = bmp.GetBitmapBits(True)
+                pil_img_obj = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']), bmpstr, 'raw', 'BGRX', 0,
+                                               1)
         else:
             # grab the image and get raw data as a string
             pil_img_obj = ImageGrab.grab(box)
