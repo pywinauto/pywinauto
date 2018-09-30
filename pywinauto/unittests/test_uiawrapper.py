@@ -8,6 +8,7 @@ import sys
 import unittest
 import mock
 import six
+from unittest.mock import patch
 
 sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
@@ -355,6 +356,14 @@ if UIA_support:
             actual_properties = button_wrp.legacy_properties()
 
             self.assertEqual(actual_properties, expected_properties)
+
+        def test_capture_as_image(self):
+            with patch('win32api.EnumDisplayMonitors') as mon_device:
+                mon_device.return_value = (1, 2)
+                rect = self.dlg.rectangle()
+                expected = rect.width(), rect.height()
+                result = self.dlg.capture_as_image()
+                self.assertEqual(expected, result.size())
 
     class UIAWrapperMouseTests(unittest.TestCase):
 
