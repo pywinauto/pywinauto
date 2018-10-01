@@ -364,9 +364,9 @@ if UIA_support:
             with patch('win32api.EnumDisplayMonitors') as mon_device:
                 mon_device.return_value = (1, 2)
                 rect = self.dlg.rectangle()
-                expected = rect.width(), rect.height()
                 result = self.dlg.capture_as_image()
-                self.assertEqual(expected, result.size())
+                self.assertEqual(rect.width(), result.size()[0])
+                self.assertEqual(rect.height(), result.size()[1])
 
     class UIAWrapperMouseTests(unittest.TestCase):
 
