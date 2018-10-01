@@ -46,7 +46,10 @@ import sys
 import os
 import unittest
 sys.path.append(".")
-from unittest.mock import patch
+if sys.version_info.major > 2:
+    from unittest.mock import patch
+else:
+    from mock import patch
 from pywinauto.application import Application  # noqa E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa E402
 from pywinauto.controls.hwndwrapper import InvalidWindowHandle  # noqa E402

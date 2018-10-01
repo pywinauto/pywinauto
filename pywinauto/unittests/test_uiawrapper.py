@@ -8,7 +8,10 @@ import sys
 import unittest
 import mock
 import six
-from unittest.mock import patch
+if sys.version_info.major > 2:
+    from unittest.mock import patch
+else:
+    from mock import patch
 
 sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
