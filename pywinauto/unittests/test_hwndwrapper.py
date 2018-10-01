@@ -46,10 +46,8 @@ import sys
 import os
 import unittest
 sys.path.append(".")
-if sys.version_info.major > 2:
-    from unittest.mock import patch
-else:
-    from mock import patch
+
+import mock
 from pywinauto.application import Application  # noqa E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa E402
 from pywinauto.controls.hwndwrapper import InvalidWindowHandle  # noqa E402
@@ -408,12 +406,12 @@ class HwndWrapperTests(unittest.TestCase):
             self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
 
     def testCaptureAsImage(self):
-        with patch('win32api.EnumDisplayMonitors') as mon_device:
+        with mock.patch('win32api.EnumDisplayMonitors') as mon_device:
             mon_device.return_value = (1, 2)
             rect = self.dlg.rectangle()
-            result = self.dlg.capture_as_image()
-            self.assertEqual(rect.width(), result.size()[0])
-            self.assertEqual(rect.height(), result.size()[1])
+            expected = (rect.width(), rect.height())
+            result = self.dlg.capture_as_image().size
+            self.assertEqual(expected, result)
 
     # def testDrawOutline(self):
     #     """Test the outline was drawn."""
