@@ -861,32 +861,22 @@ class BaseWrapper(object):
         pass # do nothing by deafault
         # TODO: implement wait_for_idle for backend="uia"
 
-    #-----------------------------------------------------------
-    def type_keys(
-        self,
-        keys,
-        pause = None,
-        with_spaces = False,
-        with_tabs = False,
-        with_newlines = False,
-        turn_off_numlock = True,
-        set_foreground = True):
-        """
-        Type keys to the element using keyboard.SendKeys
-
-        This uses the re-written keyboard_ python module where you can
-        find documentation on what to use for the **keys**.
-
-        .. _keyboard: pywinauto.keyboard.html
-        """
+    # -----------------------------------------------------------
+    def _type_keys(
+            self,
+            keys,
+            func_to_call,
+            **kwargs):
         self.verify_actionable()
         friendly_class_name = self.friendly_class_name()
+        try:
+            kwargs['pause'] = kwargs['pause'] or Timings.after_sendkeys_key_wait
+        except KeyError:
+            pass
 
-        if pause is None:
-            pause = Timings.after_sendkeys_key_wait
-
-        if set_foreground:
+        if kwargs['set_foreground']:
             self.set_focus()
+            del kwargs['set_foreground']
 
         # attach the Python process with the process that self is in
         if self.element_info.handle:
@@ -906,13 +896,7 @@ class BaseWrapper(object):
             aligned_keys = six.text_type(keys)
 
         # Play the keys to the active window
-        keyboard.SendKeys(
-            aligned_keys,
-            pause,
-            with_spaces,
-            with_tabs,
-            with_newlines,
-            turn_off_numlock)
+        func_to_call(aligned_keys, **kwargs)
 
         # detach the python process from the window's process
         if self.element_info.handle:
@@ -927,9 +911,47 @@ class BaseWrapper(object):
         self.actions.log('Typed text to the ' + friendly_class_name + ': ' + aligned_keys)
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
+    def type_keys(
+            self,
+            keys,
+            pause=None,
+            with_spaces=False,
+            with_tabs=False,
+            with_newlines=False,
+            turn_off_numlock=True,
+            set_foreground=True):
+        """
+          Type keys to the element using keyboard.SendKeys
+
+          This uses the re-written keyboard_ python module where you can
+          find documentation on what to use for the **keys**.
+
+          .. _keyboard: pywinauto.keyboard.html
+          """
+        return self._type_keys(keys, keyboard.SendKeys, pause=pause, with_spaces=with_spaces, with_tabs=with_tabs,
+                               with_newlines=with_newlines,
+                               turn_off_numlock=turn_off_numlock, set_foreground=set_foreground)
+
+    # -----------------------------------------------------------
+    def key_up(self, key, set_foreground=True):
+        """
+          Releases the given key  in context of an application using keyboard.key_up
+        """
+        return self._type_keys(keys=key, func_to_call=keyboard.key_up, set_foreground=set_foreground)
+
+    # -----------------------------------------------------------
+    def key_down(self, key, set_foreground=True):
+        """
+          Presses and holds the given key  in context of an application using keyboard.key_down, should be used
+          in conjunction with key_up
+
+        """
+        return self._type_keys(keys=key, func_to_call=keyboard.key_down, set_foreground=set_foreground)
+
+    # -----------------------------------------------------------
     def set_focus(self):
         """Set the focus to this element"""
         pass
 
-#====================================================================
+# ====================================================================

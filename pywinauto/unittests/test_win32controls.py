@@ -482,6 +482,26 @@ class EditTestCases(unittest.TestCase):
 
         self.assertEquals(self.ctrl.TextBlock(), expected_text)
 
+    def test_key_up_down(self):
+        """Test typing some text into the edit control"""
+        self.ctrl.key_down('{VK_SHIFT}')
+        self.ctrl.key_down('a')
+        self.ctrl.key_up('a')
+        self.ctrl.key_down('b')
+        self.ctrl.key_up('b')
+        self.ctrl.key_down('c')
+        self.ctrl.key_up('c')
+        self.ctrl.key_down('7')
+        self.ctrl.key_up('7')
+        self.ctrl.key_up('{VK_SHIFT}')
+        self.ctrl.key_down('d')
+        self.ctrl.key_up('d')
+        self.ctrl.key_down('7')
+        self.ctrl.key_up('7')
+        expected_text = 'ABC&d7' + self.test_data
+
+        self.assertEquals(self.ctrl.TextBlock(), expected_text)
+
     def testSelect(self):
         "Test selecting some text of the edit control"
         self.ctrl.Select(10, 50)
