@@ -874,9 +874,8 @@ class BaseWrapper(object):
         except KeyError:
             pass
 
-        if kwargs['set_foreground']:
+        if kwargs.pop('set_foreground', None):
             self.set_focus()
-            del kwargs['set_foreground']
 
         # attach the Python process with the process that self is in
         if self.element_info.handle:

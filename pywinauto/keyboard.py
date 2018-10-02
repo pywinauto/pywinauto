@@ -624,12 +624,10 @@ else:
         """Return the high byte of the value"""
         return (val & 0xff00) >> 8
 
-
     def _run(keys, pause):
         for k in keys:
             k.run()
             time.sleep(pause)
-
 
     def SendKeys(keys,
                  pause=0.05,
@@ -642,20 +640,17 @@ else:
 
         _run(keys, pause)
 
-
     def _key_up_or_down(key, up, down):
         keys = parse_keys(key)
         if isinstance(keys[0].key, six.string_types):
             keys[0] = EscapedKeyAction(keys[0].key)
         keys[0].down = down
         keys[0].up = up
-        _run(keys, pause=0.05)
-
+        _run(keys, pause=0.01)
 
     def key_up(key):
         """Parses the given key and releases it"""
         _key_up_or_down(key, up=True, down=False)
-
 
     def key_down(key):
         """Parses the given key and presses and holds it"""
