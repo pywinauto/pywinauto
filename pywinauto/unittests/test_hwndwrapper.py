@@ -405,7 +405,7 @@ class HwndWrapperTests(unittest.TestCase):
         for prop_name in props:
             self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
 
-    def testCaptureAsImage(self):
+    def test_capture_as_image_multi_monitor(self):
         with mock.patch('win32api.EnumDisplayMonitors') as mon_device:
             mon_device.return_value = (1, 2)
             rect = self.dlg.rectangle()

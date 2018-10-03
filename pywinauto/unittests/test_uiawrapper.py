@@ -356,7 +356,7 @@ if UIA_support:
 
             self.assertEqual(actual_properties, expected_properties)
 
-        def test_capture_as_image(self):
+        def test_capture_as_image_multi_monitor(self):
             with mock.patch('win32api.EnumDisplayMonitors') as mon_device:
                 mon_device.return_value = (1, 2)
                 rect = self.dlg.rectangle()
