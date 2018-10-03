@@ -527,8 +527,13 @@ class BaseWrapper(object):
 
                 bmpinfo = bmp.GetInfo()
                 bmpstr = bmp.GetBitmapBits(True)
-                pil_img_obj = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-                                               bmpstr, 'raw', 'BGRX', 0, 1)
+                pil_img_obj = Image.frombuffer('RGB',
+                                               (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
+                                               bmpstr,
+                                               'raw',
+                                               'BGRX',
+                                               0,
+                                               1)
         else:
             # grab the image and get raw data as a string
             pil_img_obj = ImageGrab.grab(box)
