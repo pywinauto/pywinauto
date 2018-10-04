@@ -356,6 +356,14 @@ if UIA_support:
 
             self.assertEqual(actual_properties, expected_properties)
 
+        def test_capture_as_image_multi_monitor(self):
+            with mock.patch('win32api.EnumDisplayMonitors') as mon_device:
+                mon_device.return_value = (1, 2)
+                rect = self.dlg.rectangle()
+                expected = (rect.width(), rect.height())
+                result = self.dlg.capture_as_image().size
+                self.assertEqual(expected, result)
+
     class UIAWrapperMouseTests(unittest.TestCase):
 
         """Unit tests for mouse actions of the UIAWrapper class"""

@@ -46,6 +46,8 @@ import sys
 import os
 import unittest
 sys.path.append(".")
+
+import mock
 from pywinauto.application import Application  # noqa E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa E402
 from pywinauto.controls.hwndwrapper import InvalidWindowHandle  # noqa E402
@@ -403,8 +405,13 @@ class HwndWrapperTests(unittest.TestCase):
         for prop_name in props:
             self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
 
-#    def testCaptureAsImage(self):
-#        pass
+    def test_capture_as_image_multi_monitor(self):
+        with mock.patch('win32api.EnumDisplayMonitors') as mon_device:
+            mon_device.return_value = (1, 2)
+            rect = self.dlg.rectangle()
+            expected = (rect.width(), rect.height())
+            result = self.dlg.capture_as_image().size
+            self.assertEqual(expected, result)
 
     # def testDrawOutline(self):
     #     """Test the outline was drawn."""
