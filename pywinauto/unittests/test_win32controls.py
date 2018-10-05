@@ -482,23 +482,10 @@ class EditTestCases(unittest.TestCase):
 
         self.assertEquals(self.ctrl.TextBlock(), expected_text)
 
-    def test_key_up_down(self):
+    def test_type_keys_up_down_group_of_keys(self):
         """Test typing some text into the edit control"""
-        self.ctrl.key_down('{VK_SHIFT}')
-        self.ctrl.key_down('a')
-        self.ctrl.key_up('a')
-        self.ctrl.key_down('b')
-        self.ctrl.key_up('b')
-        self.ctrl.key_down('c')
-        self.ctrl.key_up('c')
-        self.ctrl.key_down('7')
-        self.ctrl.key_up('7')
-        self.ctrl.key_up('{VK_SHIFT}')
-        self.ctrl.key_down('d')
-        self.ctrl.key_up('d')
-        self.ctrl.key_down('7')
-        self.ctrl.key_up('7')
-        expected_text = 'ABC&d7' + self.test_data
+        self.ctrl.type_keys("{VK_SHIFT down}12345{VK_SHIFT up}12345 {VK_SPACE} {h down}{e down}{h up} {e up}llo")
+        expected_text = "!@#$%12345 hello" + self.test_data
 
         self.assertEquals(self.ctrl.TextBlock(), expected_text)
 

@@ -81,6 +81,8 @@ from __future__ import unicode_literals
 
 import sys
 
+from . import deprecated
+
 if sys.platform != 'win32':
     from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
     from .linux.keyboard import handle_code, parse_keys, SendKeys
@@ -496,7 +498,7 @@ else:
                 try:
                     pause_time = float(count)
                 except ValueError:
-                    raise KeySequenceError('invalid pause time %s' % count)
+                    raise KeySequenceError('invalid pause time %s'% count)
                 code_keys.append(PauseAction(pause_time))
 
             else:
@@ -524,7 +526,6 @@ else:
 
         return code_keys
 
-
     def parse_keys(string,
                    with_spaces=False,
                    with_tabs=False,
@@ -534,6 +535,8 @@ else:
         keys = []
         if not modifiers:
             modifiers = []
+
+        should_escape_next_keys = False
         index = 0
         while index < len(string):
 
@@ -563,13 +566,27 @@ else:
             # Escape or named key
             elif c == "{":
                 # We start searching from index + 1 to account for the case {}}
-                end_pos = string.find("}", index + 1)
+                end_pos = string.find("}", index+1)
                 if end_pos == -1:
                     raise KeySequenceError('`}` not found')
 
                 code = string[index:end_pos]
                 index = end_pos + 1
-                keys.extend(handle_code(code))
+                key_events = [' up', ' down']
+                current_key_event = None
+                if any(key_event in code.lower() for key_event in key_events):
+                    code, current_key_event = code.split(' ')
+                    should_escape_next_keys = True
+                current_keys = handle_code(code)
+                if current_key_event is not None:
+                    if isinstance(current_keys[0].key, six.string_types):
+                        current_keys[0] = EscapedKeyAction(current_keys[0].key)
+
+                    if current_key_event.strip() == 'up':
+                        current_keys[0].down = False
+                    else:
+                        current_keys[0].up = False
+                keys.extend(current_keys)
 
             # unmatched ")"
             elif c == ')':
@@ -596,7 +613,7 @@ else:
                 # if ord(c) in CODE_NAMES:
                 #    keys.append(VirtualKeyAction(ord(c)))
 
-                elif modifiers:
+                elif modifiers or should_escape_next_keys:
                     keys.append(EscapedKeyAction(c))
 
                 else:
@@ -624,12 +641,8 @@ else:
         """Return the high byte of the value"""
         return (val & 0xff00) >> 8
 
-    def _run(keys, pause):
-        for k in keys:
-            k.run()
-            time.sleep(pause)
 
-    def SendKeys(keys,
+    def send_keys(keys,
                  pause=0.05,
                  with_spaces=False,
                  with_tabs=False,
@@ -638,20 +651,8 @@ else:
         """Parse the keys and type them"""
         keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
 
-        _run(keys, pause)
+        for k in keys:
+            k.run()
+            time.sleep(pause)
 
-    def _key_up_or_down(key, up, down):
-        keys = parse_keys(key)
-        if isinstance(keys[0].key, six.string_types):
-            keys[0] = EscapedKeyAction(keys[0].key)
-        keys[0].down = down
-        keys[0].up = up
-        _run(keys, pause=0.01)
-
-    def key_up(key):
-        """Parses the given key and releases it"""
-        _key_up_or_down(key, up=True, down=False)
-
-    def key_down(key):
-        """Parses the given key and presses and holds it"""
-        _key_up_or_down(key, up=False, down=True)
+    SendKeys = deprecated(send_keys)
