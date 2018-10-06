@@ -32,7 +32,7 @@
 
 """Keyboard input emulation module
 
-Automate typing keys to an active window by calling ``SendKeys`` method.
+Automate typing keys to an active window by calling ``send_keys`` method.
 You can use any Unicode characters (on Windows) and some special keys listed
 below. The module is also available on Linux.
 
@@ -70,9 +70,9 @@ below. The module is also available on Linux.
 
 Example how to use modifiers: ::
 
-    SendKeys('^a^c') # select all (Ctrl+A) and copy to clipboard (Ctrl+C)
-    SendKeys('+{INS}') # insert from clipboard (Shift+Ins)
-    SendKeys('%{F4}') # close an active window with Alt+F4
+    send_keys('^a^c') # select all (Ctrl+A) and copy to clipboard (Ctrl+C)
+    send_keys('+{INS}') # insert from clipboard (Shift+Ins)
+    send_keys('%{F4}') # close an active window with Alt+F4
 
 Repetition count can be specified for special keys. ``{ENTER 2}`` says to
 press Enter twice.
@@ -85,7 +85,7 @@ from . import deprecated
 
 if sys.platform != 'win32':
     from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
-    from .linux.keyboard import handle_code, parse_keys, SendKeys
+    from .linux.keyboard import handle_code, parse_keys, send_keys
 else:
     import time
     import ctypes
@@ -94,7 +94,7 @@ else:
 
     from . import win32structures
 
-    __all__ = ['KeySequenceError', 'SendKeys']
+    __all__ = ['KeySequenceError', 'send_keys']
 
     # pylint: disable-msg=R0903
 
@@ -643,11 +643,11 @@ else:
 
 
     def send_keys(keys,
-                 pause=0.05,
-                 with_spaces=False,
-                 with_tabs=False,
-                 with_newlines=False,
-                 turn_off_numlock=True):
+                  pause=0.05,
+                  with_spaces=False,
+                  with_tabs=False,
+                  with_newlines=False,
+                  turn_off_numlock=True):
         """Parse the keys and type them"""
         keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
 

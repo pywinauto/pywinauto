@@ -8,7 +8,7 @@ import time
 if sys.platform != 'win32':
     sys.path.append(".")
     from pywinauto import mouse
-    from pywinauto.linux.keyboard import SendKeys
+    from pywinauto.linux.keyboard import send_keys
     from pywinauto.linux import clipboard
 
 
@@ -40,16 +40,16 @@ if sys.platform != 'win32':
         def receive_text():
             """Receive data from text field"""
             time.sleep(0.2)
-            SendKeys('^a')
+            send_keys('^a')
             time.sleep(0.2)
-            SendKeys('^c')
-            SendKeys('{RIGHT}')
+            send_keys('^c')
+            send_keys('{RIGHT}')
             received = clipboard.get_data()
             return received
 
         def test_get_data(self):
             """Make sure that get text from clipboard works"""
-            SendKeys('abc')
+            send_keys('abc')
             received = self.receive_text()
             self.assertEquals('abc', received)
 
