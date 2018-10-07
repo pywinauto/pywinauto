@@ -901,7 +901,7 @@ class BaseWrapper(object):
         turn_off_numlock = True,
         set_foreground = True):
         """
-        Type keys to the element using keyboard.SendKeys
+        Type keys to the element using keyboard.send_keys
 
         This uses the re-written keyboard_ python module where you can
         find documentation on what to use for the **keys**.
@@ -935,7 +935,7 @@ class BaseWrapper(object):
             aligned_keys = six.text_type(keys)
 
         # Play the keys to the active window
-        keyboard.SendKeys(
+        keyboard.send_keys(
             aligned_keys,
             pause,
             with_spaces,

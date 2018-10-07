@@ -482,6 +482,13 @@ class EditTestCases(unittest.TestCase):
 
         self.assertEquals(self.ctrl.TextBlock(), expected_text)
 
+    def test_type_keys_up_down_group_of_keys(self):
+        """Test typing some text into the edit control"""
+        self.ctrl.type_keys("{VK_SHIFT down}12345{VK_SHIFT up}12345 {VK_SPACE} {h down}{e down}{h up} {e up}llo")
+        expected_text = "!@#$%12345 hello" + self.test_data
+
+        self.assertEquals(self.ctrl.TextBlock(), expected_text)
+
     def testSelect(self):
         "Test selecting some text of the edit control"
         self.ctrl.Select(10, 50)
