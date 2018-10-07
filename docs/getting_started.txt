@@ -24,7 +24,7 @@ AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
 
 
 GUI Objects Inspection / Spy Tools
-----------------------
+----------------------------------
 If you're still not sure which backend is most appropriate for you 
 then try using object inspection / spy tools that are available for free:
 download them from GitHub repo gui-inspect-tool_.

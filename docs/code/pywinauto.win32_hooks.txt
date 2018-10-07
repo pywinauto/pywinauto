@@ -1,6 +1,6 @@
-pywinauto.hooks
----------------
- .. automodule:: pywinauto.hooks
+pywinauto.win32_hooks
+---------------------
+ .. automodule:: pywinauto.win32_hooks
     :members:
     :undoc-members:
 
