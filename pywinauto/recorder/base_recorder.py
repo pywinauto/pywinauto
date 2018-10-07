@@ -1,5 +1,5 @@
+import sys
 import threading
-import pkg_resources
 from abc import abstractmethod
 
 from .. import __version__ as recorded_version
@@ -64,19 +64,17 @@ class BaseRecorder(object):
         except Exception:
             cmd = "INSERT_CMD_HERE"
 
-        try:
-            pkg_resources.get_distribution('pywinauto')
-        except pkg_resources.DistributionNotFound:
-            # import pywinauto from the script folder
-            self.script = "import os, sys\n"
-            self.script += "script_dir = os.path.dirname(__file__)\n"
-            self.script += "sys.path.append(script_dir)\n"
-        self.script += "import pywinauto\n"
+        # TODO: detect if pywinauto imported from custom location
+        self.script = u"# encoding: {}\n".format(sys.getdefaultencoding())
+        self.script += u"import os, sys\n"
+        self.script += u"script_dir = os.path.dirname(__file__)\n"
+        self.script += u"sys.path.append(script_dir)\n"
+        self.script += u"import pywinauto\n"
         # TODO: check version: to int: if tuple(pywinauto.__version__.split('.')) > tuple(recorded_version.split('.')):
-        self.script += "recorded_version = {}\n".format(repr(recorded_version))
-        self.script += "print('Recorded with pywinauto-{}'.format(recorded_version))\n"
-        self.script += "print('Running with pywinauto-{}'.format(pywinauto.__version__))\n\n"
-        self.script += "app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
+        self.script += u"recorded_version = {}\n".format(repr(recorded_version))
+        self.script += u"print('Recorded with pywinauto-{}'.format(recorded_version))\n"
+        self.script += u"print('Running with pywinauto-{}'.format(pywinauto.__version__))\n\n"
+        self.script += u"app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
         if self.hot_output:
             print(self.script)
 

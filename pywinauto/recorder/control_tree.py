@@ -16,7 +16,7 @@ class ControlTreeNode(object):
         self.children = []
 
     def __str__(self):
-        return "{}, {}, depth={}".format(repr(self.names), self.rect, self.depth)
+        return u"{}, {}, depth={}".format(repr(self.names), self.rect, self.depth)
 
     def __eq__(self, other):
         if not isinstance(other, ControlTreeNode):

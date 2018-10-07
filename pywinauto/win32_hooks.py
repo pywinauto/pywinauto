@@ -52,25 +52,37 @@ standalone library pyhooked 0.8 maintained by Ethan Smith.
 import atexit
 import sys
 import time
+import ctypes
 from ctypes import CFUNCTYPE
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_int
 from ctypes import c_uint
+from ctypes import c_char
+from ctypes import c_wchar
 from ctypes import pointer
 from ctypes import windll
 from ctypes import wintypes
+from ctypes import WinDLL
 
 import six
 import win32con
+import win32process
+import win32gui
+import win32api
 
 from .actionlogger import ActionLogger
 from .win32defines import VK_PACKET
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
+from . import keyboard
 
 LRESULT = wintypes.LPARAM
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
+
+ToUnicodeEx = WinDLL('user32').ToUnicodeEx
+ToUnicodeEx.argtypes = [wintypes.UINT,wintypes.UINT,POINTER(c_char),POINTER(c_wchar),c_int,wintypes.UINT,wintypes.HKL]
+ToUnicodeEx.restype = c_int
 
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
 windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
@@ -424,6 +436,7 @@ class Hook(object):
         self.mouse_id = None
         self.mouse_is_hook = False
         self.keyboard_is_hook = False
+        self.actions = ActionLogger()
 
     def _process_kbd_data(self, kb_data_ptr):
         """Process KBDLLHOOKSTRUCT data received from low level keyboard hook calls"""
@@ -434,10 +447,22 @@ class Hook(object):
             scan_code = kbd.scanCode
             current_key = six.unichr(scan_code)
         elif key_code in self.ID_TO_KEY:
-            current_key = six.u(self.ID_TO_KEY[key_code])
+            [thread_id, _] = win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow())
+            input_locale_id = win32api.GetKeyboardLayout(thread_id)
+            if key_code in keyboard.CODE_NAMES:
+                current_key = u'{' + keyboard.CODE_NAMES[key_code] + u'}'
+            else:
+                #MAPVK_VSC_TO_VK = 1 # TODO: move to win32defines
+                #vk = ctypes.windll.user32.MapVirtualKeyExW(key_code, MAPVK_VSC_TO_VK, wintypes.HKL(input_locale_id))
+                keybd_state = ctypes.create_string_buffer(256)
+                buf = ctypes.create_unicode_buffer(5)
+                if ToUnicodeEx(key_code, key_code, keybd_state, buf, 5, 0, input_locale_id) > 0:
+                    current_key = buf.value
+                else:
+                    print("__________ it shouldn't happen !!! __________")
+                    current_key = six.u(self.ID_TO_KEY[key_code])
         else:
-            al = ActionLogger()
-            al.log("_process_kbd_data, bad key_code: {0}".format(key_code))
+            self.actions.log("_process_kbd_data, bad key_code: {0}".format(key_code))
 
         return current_key
 
@@ -448,8 +473,7 @@ class Hook(object):
         if event_code_word in self.event_types:
             event_type = self.event_types[event_code_word]
         else:
-            al = ActionLogger()
-            al.log("_process_kbd_msg_type, bad event_type: {0}".format(event_type))
+            self.actions.log("_process_kbd_msg_type, bad event_type: {0}".format(event_type))
 
         if event_type == 'key down':
             if current_key not in self.pressed_keys:
@@ -458,12 +482,11 @@ class Hook(object):
             if current_key in self.pressed_keys:
                 self.pressed_keys.remove(current_key)
             else:
-                al = ActionLogger()
-                al.log("_process_kbd_msg_type, can't remove a key: {0}".format(current_key))
+                self.actions.log("_process_kbd_msg_type, can't remove a key: {0}".format(current_key))
 
         return event_type
 
-    def _keyboard_ll_hdl(self, code, event_code, kb_data_ptr):
+    def _keyboard_low_level_handler(self, code, event_code, kb_data_ptr):
         """Execute when a keyboard low level event has been triggered"""
         try:
             # The next hook in chain must be always called
@@ -480,14 +503,13 @@ class Hook(object):
             self.handler(event)
 
         except Exception:
-            al = ActionLogger()
-            al.log("_keyboard_ll_hdl, {0}".format(sys.exc_info()[0]))
-            al.log("_keyboard_ll_hdl, code {0}, event_code {1}".format(code, event_code))
+            self.actions.log("_keyboard_low_level_handler, {0}".format(sys.exc_info()[0]))
+            self.actions.log("_keyboard_low_level_handler, code {0}, event_code {1}".format(code, event_code))
             raise
 
         return res
 
-    def _mouse_ll_hdl(self, code, event_code, mouse_data_ptr):
+    def _mouse_low_level_handler(self, code, event_code, mouse_data_ptr):
         """Execute when a mouse low level event has been triggerred"""
         try:
             # The next hook in chain must be always called
@@ -511,9 +533,8 @@ class Hook(object):
                 self.handler(event)
 
         except Exception:
-            al = ActionLogger()
-            al.log("_mouse_ll_hdl, {0}".format(sys.exc_info()[0]))
-            al.log("_mouse_ll_hdl, code {0}, event_code {1}".format(code, event_code))
+            self.actions.log("_mouse_low_level_handler, {0}".format(sys.exc_info()[0]))
+            self.actions.log("_mouse_low_level_handler, code {0}, event_code {1}".format(code, event_code))
             raise
 
         return res
@@ -530,7 +551,7 @@ class Hook(object):
             @HOOKCB
             def _kbd_ll_cb(ncode, wparam, lparam):
                 """Forward the hook event to ourselves"""
-                return self._keyboard_ll_hdl(ncode, wparam, lparam)
+                return self._keyboard_low_level_handler(ncode, wparam, lparam)
 
             self.keyboard_id = windll.user32.SetWindowsHookExW(
                 win32con.WH_KEYBOARD_LL,
@@ -542,7 +563,7 @@ class Hook(object):
             @HOOKCB
             def _mouse_ll_cb(code, event_code, mouse_data_ptr):
                 """Forward the hook event to ourselves"""
-                return self._mouse_ll_hdl(code, event_code, mouse_data_ptr)
+                return self._mouse_low_level_handler(code, event_code, mouse_data_ptr)
 
             self.mouse_id = windll.user32.SetWindowsHookExA(
                 win32con.WH_MOUSE_LL,

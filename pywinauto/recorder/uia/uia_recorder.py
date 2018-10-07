@@ -145,7 +145,7 @@ class UiaRecorder(COMObject, BaseRecorder):
         except Exception as exc:
             # TODO: Sometime we can't catch WindowClosed event in WPF applications
             self.stop()
-            self.script += "app.kill()\n"
+            self.script += u"app.kill()\n"
             # Skip exceptions thrown by AddPropertyChangedEventHandler
             # print("Exception: {}".format(exc))
 
@@ -232,7 +232,7 @@ class UiaRecorder(COMObject, BaseRecorder):
             if not process_id:
                 self.stop()
                 self._parse_and_clear_log()
-                self.script += "app.kill()\n"
+                self.script += u"app.kill()\n"
             else:
                 self._update(rebuild_tree=True, add_handlers_to=None)
 

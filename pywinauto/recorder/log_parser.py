@@ -50,7 +50,7 @@ class LogParser(object):
                     # Check if text has been typed
                     for k, v in self.text_sequence.items():
                         item_name = k.names.get_preferred_name()
-                        script += "app.{}.{}.type_keys('{}')\n".format(
+                        script += u"app.{}.{}.type_keys(u'{}')\n".format(
                             self.recorder.control_tree.root_name, item_name, v)
                     self.text_sequence = {}
 
@@ -73,7 +73,7 @@ class LogParser(object):
                             node, handler = get_node_sender(subtree, EVENT.INVOKED)
                             if node:
                                 item_name = node.names.get_preferred_name()
-                                script += "app.{}.{}.{}()\n".format(root_name, item_name,
+                                script += u"app.{}.{}.{}()\n".format(root_name, item_name,
                                                                     handler if handler else "invoke")
                                 event_handled = True
                         elif any(e for e in application_events if e.name == EVENT.MENU_OPENED):
@@ -86,7 +86,7 @@ class LogParser(object):
                             node, handler = get_node_sender(subtree, EVENT.MENU_CLOSED)
                             if node:
                                 menu_item_text = node.names.text_names[0]
-                                script += "app.{}.menu_select({})\n".format(
+                                script += u"app.{}.menu_select({})\n".format(
                                     root_name, repr(" -> ".join(self.menu_sequence + [menu_item_text, ])))
                                 self.menu_sequence = []
                                 event_handled = True
@@ -103,14 +103,14 @@ class LogParser(object):
                                 node, handler = get_node_sender(subtree, PROPERTY.EXPAND_COLLAPSE_STATE)
                                 if node:
                                     item_name = node.names.get_preferred_name()
-                                    script += "app.{}.{}.{}()\n".format(
+                                    script += u"app.{}.{}.{}()\n".format(
                                         root_name, item_name, "expand" if prop1.new_value.value else "collapse")
                                     event_handled = True
                             elif prop1.property_name == PROPERTY.TOGGLE_STATE:
                                 node, handler = get_node_sender(subtree, PROPERTY.TOGGLE_STATE)
                                 if node:
                                     item_name = node.names.get_preferred_name()
-                                    script += "app.{}.{}.{}()\n".format(root_name, item_name,
+                                    script += u"app.{}.{}.{}()\n".format(root_name, item_name,
                                                                         handler if handler else "toggle")
                                     event_handled = True
 
@@ -124,9 +124,9 @@ class LogParser(object):
                                             elem.rect.height() < min_rect_elem.rect.height():
                                         min_rect_elem = elem
                             item_name = min_rect_elem.names.get_preferred_name()
-                            script += "app.{}.{}.click_input()\n".format(root_name, item_name)
+                            script += u"app.{}.{}.click_input()\n".format(root_name, item_name)
                     else:
-                        script += "pywinauto.mouse.click(button='left', coords=({}, {}))\n" \
+                        script += u"pywinauto.mouse.click(button='left', coords=({}, {}))\n" \
                             "".format(hook_event.mouse_x, hook_event.mouse_y)
                         # script += "app.{}.click_input(coords=({}, {}), absolute=True)".format(
                         #     root_name, hook_event.mouse_x, hook_event.mouse_y)
@@ -137,7 +137,7 @@ class LogParser(object):
                         button = "wheel"
                     else:
                         button = "left"
-                    script += "pywinauto.mouse.click(button='{}', coords=({}, {}))\n" \
+                    script += u"pywinauto.mouse.click(button='{}', coords=({}, {}))\n" \
                         "".format(button, hook_event.mouse_x, hook_event.mouse_y)
             elif isinstance(hook_event, RecorderKeyboardEvent):
                 if hook_event.event_type == "key down":

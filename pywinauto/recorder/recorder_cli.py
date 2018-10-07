@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import codecs
 
 if __package__ is None:
     sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -41,7 +42,7 @@ def main(args):
     rec.wait()
 
     if args.out:
-        with open(args.out, "wt") as f:
+        with codecs.open(args.out, "w", encoding=sys.getdefaultencoding()) as f:
             f.write(rec.script)
     else:
         print(rec.script)
