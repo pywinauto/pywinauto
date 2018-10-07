@@ -36,9 +36,9 @@ This module has one object that should be used for all timing adjustments
 
 There are a couple of predefined settings
 
-timings.Timings.Fast()
-timings.Timings.Defaults()
-timings.Timings.Slow()
+ * ``timings.Timings.Fast()``
+ * ``timings.Timings.Defaults()``
+ * ``timings.Timings.Slow()``
 
 The Following are the individual timing settings that can be adjusted:
 
