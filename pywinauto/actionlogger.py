@@ -154,6 +154,9 @@ class _StandardLogger(object):
     def log(self, *args):
         """Process a log message"""
         self.logger.info(*args)
+        for handler in logger.handlers:
+            if hasattr(handler, 'flush'):
+                handler.flush()
 
     def logSectionStart(self, msg):
         """Empty for now, just to conform with _CustomLogger"""
