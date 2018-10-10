@@ -36,6 +36,7 @@ __version__ = "0.6.5"
 
 import sys  # noqa: E402
 import warnings  # noqa: E402
+from .backend import registry
 
 
 def deprecated(method, deprecated_name=None):
@@ -104,23 +105,38 @@ if sys.platform == 'win32':
 
 
     class Desktop(object):
-
         """Simple class to call something like ``Desktop().WindowName.ControlName.method()``"""
 
-        def __init__(self, backend=None):
+        def __init__(self, backend="win32"):
             """Create desktop element description"""
-            if backend:
-                self.backend = backend
-            else:
-                self.backend = backends.registry.name
+            if backend not in registry.backends:
+                raise ValueError('Backend "{0}" is not registered!'.format(backend))
+            self.backend = registry.backends[backend]
 
         def window(self, **criterion):
             """Create WindowSpecification object for top-level window"""
             if 'top_level_only' not in criterion:
                 criterion['top_level_only'] = True
             if 'backend' not in criterion:
-                criterion['backend'] = self.backend
+                criterion['backend'] = self.backend.name
             return WindowSpecification(criterion)
+
+        def windows(self, **criterion):
+            """Return a list of wrapped top level windows"""
+
+            if 'backend' in criterion:
+                raise ValueError('Do not override backend!')
+
+            if 'visible_only' not in criterion:
+                criterion['visible_only'] = False
+
+            if 'enabled_only' not in criterion:
+                criterion['enabled_only'] = False
+
+            criterion['backend'] = self.backend.name
+
+            windows = findwindows.find_elements(**criterion)
+            return [self.backend.generic_wrapper_class(win) for win in windows]
 
         def __getitem__(self, key):
             """Allow describe top-level window as Desktop()['Window Caption']"""
@@ -132,3 +148,6 @@ if sys.platform == 'win32':
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
                 return self[attr_name]  # delegate it to __get_item__
+
+if __name__ == '__main__':
+    dlg = Desktop(backend="uia").windows()
