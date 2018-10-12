@@ -154,7 +154,7 @@ class _StandardLogger(object):
     def log(self, *args):
         """Process a log message"""
         self.logger.info(*args)
-        for handler in logger.handlers:
+        for handler in self.logger.handlers:
             if hasattr(handler, 'flush'):
                 handler.flush()
 

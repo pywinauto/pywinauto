@@ -1195,6 +1195,7 @@ class HwndWrapper(BaseWrapper):
     def minimize(self):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
+        # TODO: wait while window is minimized
         self.actions.log('Minimized window "{0}"'.format(self.window_text()))
         return self
     # Non PEP-8 alias
