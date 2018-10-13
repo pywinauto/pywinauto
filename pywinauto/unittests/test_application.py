@@ -1175,6 +1175,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             Timings.Slow()
             self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
             self.desktop = Desktop(backend='uia')
+            self.window_title = 'Common Controls Sample'
 
         def tearDown(self):
             """Close the application after tests"""
@@ -1189,21 +1190,48 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
                               u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
 
+        def test_get_list_of_windows_uia(self):
+            """Test that method return list of windows"""
+            dlgs = self.desktop.windows()
+            win_title_result = False
+
+            self.assertTrue(len(dlgs) > 1)
+
+            for win_obj in dlgs:
+                if win_obj.window_text() == self.window_title:
+                    win_title_result = True
+
+            self.assertEqual(win_title_result, True)
+
     else: # Win32
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
             self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
             self.desktop = Desktop()
+            self.window_title = 'Common Controls Sample'
 
         def tearDown(self):
             """Close the application after tests"""
-            self.desktop.window(title='Common Controls Sample', process=self.app.process).SendMessage(win32defines.WM_CLOSE)
+            self.desktop.window(title=self.window_title, process=self.app.process).SendMessage(win32defines.WM_CLOSE)
 
         def test_simple_access_through_desktop(self):
             """Test that controls can be accessed by 4 levels of attributes"""
-            dlg = self.desktop.window(title='Common Controls Sample', process=self.app.process)
+            dlg = self.desktop.window(title=self.window_title, process=self.app.process)
             self.assertEqual(dlg.Pager.Toolbar.button_count(), 12)
+
+        def test_get_list_of_windows_win32(self):
+            """Test that method return list of windows"""
+            dlgs = self.desktop.windows()
+            win_title_result = False
+
+            self.assertTrue(len(dlgs) > 1)
+
+            for win_obj in dlgs:
+                if win_obj.window_text() == self.window_title:
+                    win_title_result = True
+
+            self.assertEqual(win_title_result, True)
 
 
 if __name__ == "__main__":
