@@ -1174,7 +1174,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             Timings.Slow()
             self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
             self.desktop = Desktop(backend='uia')
-            self.window_title = 'Common Controls Sample'
+            self.window_title = 'MFC_samplesDialog'
 
         def tearDown(self):
             """Close the application after tests"""
