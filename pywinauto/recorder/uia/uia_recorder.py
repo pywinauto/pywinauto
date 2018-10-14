@@ -159,6 +159,10 @@ class UiaRecorder(COMObject, BaseRecorder):
         pbar_dlg = ProgressBarDialog()
         pbar_dlg.show()
 
+        # Temporary disable mouse and keyboard event processing
+        self.hook.stop()
+        self.hook_thread.join(1)
+
         # Subscribe to events and rebuild control tree in separate threads to speed up the process
         if add_handlers_to:
             add_handlers_thr = threading.Thread(target=self._add_handlers, args=(add_handlers_to,))
@@ -179,6 +183,10 @@ class UiaRecorder(COMObject, BaseRecorder):
         # Close progress window
         pbar_dlg.pbar.SetPos(100)
         pbar_dlg.close()
+
+        # Enable mouse and keyboard event processing back
+        self.hook_thread = threading.Thread(target=self.hook_target)
+        self.hook_thread.start()
 
     def hook_target(self):
         """Target function for hook thread"""

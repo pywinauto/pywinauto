@@ -129,6 +129,7 @@ class BaseRecorder(object):
 
     @abstractmethod
     def _cleanup(self):
+        """Perform cleaning (close threads, unsubscribe to events, etc.)"""
         pass
 
     """
