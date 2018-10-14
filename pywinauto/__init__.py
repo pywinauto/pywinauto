@@ -36,7 +36,6 @@ __version__ = "0.6.5"
 
 import sys  # noqa: E402
 import warnings  # noqa: E402
-from .backend import registry
 
 
 def deprecated(method, deprecated_name=None):
@@ -109,9 +108,9 @@ if sys.platform == 'win32':
 
         def __init__(self, backend="win32"):
             """Create desktop element description"""
-            if backend not in registry.backends:
+            if backend not in backends.registry.backends:
                 raise ValueError('Backend "{0}" is not registered!'.format(backend))
-            self.backend = registry.backends[backend]
+            self.backend = backends.registry.backends[backend]
 
         def window(self, **criterion):
             """Create WindowSpecification object for top-level window"""
@@ -148,6 +147,3 @@ if sys.platform == 'win32':
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
                 return self[attr_name]  # delegate it to __get_item__
-
-if __name__ == '__main__':
-    dlg = Desktop(backend="uia").windows()

@@ -44,7 +44,6 @@ import time
 import warnings
 from threading import Thread
 import ctypes
-
 import mock
 
 sys.path.append(".")
