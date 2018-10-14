@@ -1174,7 +1174,6 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             Timings.Slow()
             self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
             self.desktop = Desktop(backend='uia')
-            self.window_class_name = 'CabinetWClass'
 
         def tearDown(self):
             """Close the application after tests"""
@@ -1192,15 +1191,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
         def test_get_list_of_windows_uia(self):
             """Test that method return list of windows"""
             dlgs = self.desktop.windows()
-            win_title_result = False
-
             self.assertTrue(len(dlgs) > 1)
-
-            for win_obj in dlgs:
-                if win_obj.class_name() == self.window_class_name:
-                    win_title_result = True
-
-            self.assertEqual(win_title_result, True)
 
     else: # Win32
         def setUp(self):
