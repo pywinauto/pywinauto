@@ -45,6 +45,8 @@ from .remote_memory_block import RemoteMemoryBlock
 
 def _register_win_msg(msg_name):
     msg_id = win32functions.RegisterWindowMessage(six.text_type(msg_name))
+    if not isinstance(msg_id, six.integer_types):
+        return -1 # return dummy value if win32functions is mocked (on ReadTheDocs)
     if msg_id > 0:
         return msg_id
     else:

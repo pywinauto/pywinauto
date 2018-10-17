@@ -29,16 +29,17 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Timing settings for all of pywinauto
+"""Global timing settings for all of pywinauto
 
-This module has one object that should be used for all timing adjustments
-  timings.Timings
+This module has one object that should be used for all timing adjustments:
 
-There are a couple of predefined settings
+ * timings.Timings
 
-timings.Timings.Fast()
-timings.Timings.Defaults()
-timings.Timings.Slow()
+There are a couple of predefined settings:
+
+ * ``timings.Timings.Fast()``
+ * ``timings.Timings.Defaults()``
+ * ``timings.Timings.Slow()``
 
 The Following are the individual timing settings that can be adjusted:
 
