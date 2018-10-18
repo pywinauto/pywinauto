@@ -106,35 +106,36 @@ if sys.platform == 'win32':
     class Desktop(object):
         """Simple class to call something like ``Desktop().WindowName.ControlName.method()``"""
 
-        def __init__(self, backend="win32"):
+        def __init__(self, backend=None):
             """Create desktop element description"""
+            if not backend:
+                raise ValueError('You should set backend, win32 or uia.')
             if backend not in backends.registry.backends:
                 raise ValueError('Backend "{0}" is not registered!'.format(backend))
             self.backend = backends.registry.backends[backend]
 
-        def window(self, **criterion):
+        def window(self, **kwargs):
             """Create WindowSpecification object for top-level window"""
-            if 'top_level_only' not in criterion:
-                criterion['top_level_only'] = True
-            if 'backend' not in criterion:
-                criterion['backend'] = self.backend.name
-            return WindowSpecification(criterion)
+            if 'top_level_only' not in kwargs:
+                kwargs['top_level_only'] = True
+            if 'backend' not in kwargs:
+                kwargs['backend'] = self.backend.name
+            return WindowSpecification(kwargs)
 
-        def windows(self, **criterion):
+        def windows(self, **kwargs):
             """Return a list of wrapped top level windows"""
-
-            if 'backend' in criterion:
+            if 'backend' in kwargs:
                 raise ValueError('Do not override backend!')
 
-            if 'visible_only' not in criterion:
-                criterion['visible_only'] = False
+            if 'visible_only' not in kwargs:
+                kwargs['visible_only'] = False
 
-            if 'enabled_only' not in criterion:
-                criterion['enabled_only'] = False
+            if 'enabled_only' not in kwargs:
+                kwargs['enabled_only'] = False
 
-            criterion['backend'] = self.backend.name
+            kwargs['backend'] = self.backend.name
 
-            windows = findwindows.find_elements(**criterion)
+            windows = findwindows.find_elements(**kwargs)
             return [self.backend.generic_wrapper_class(win) for win in windows]
 
         def __getitem__(self, key):
