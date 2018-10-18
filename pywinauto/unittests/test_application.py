@@ -1193,6 +1193,23 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             dlgs = self.desktop.windows()
             self.assertTrue(len(dlgs) > 1)
 
+        def test_set_backend_to_windows_uia(self):
+            """Set backend to method windows, except exception ValueError"""
+            with self.assertRaises(ValueError):
+                self.desktop.windows(backend='win32')
+            with self.assertRaises(ValueError):
+                self.desktop.windows(backend='uia')
+
+        def test_only_visible_windows_uia(self):
+            """Set visible_only to the method windows"""
+            dlgs = self.desktop.windows(visible_only=True)
+            self.assertTrue(all([win.is_visible() for win in dlgs]))
+
+        def test_only_enable_windows_uia(self):
+            """Set enable_only to the method windows"""
+            dlgs = self.desktop.windows(enabled_only=True)
+            self.assertTrue(all([win.is_enabled() for win in dlgs]))
+
     else: # Win32
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
@@ -1213,15 +1230,27 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
         def test_get_list_of_windows_win32(self):
             """Test that method return list of windows"""
             dlgs = self.desktop.windows()
-            win_title_result = False
 
             self.assertTrue(len(dlgs) > 1)
+            window_titles = [win_obj.window_text() for win_obj in dlgs]
+            self.assertTrue(self.window_title in window_titles)
 
-            for win_obj in dlgs:
-                if win_obj.window_text() == self.window_title:
-                    win_title_result = True
+        def test_set_backend_to_windows_win32(self):
+            """Set backend to method windows, except exception ValueError"""
+            with self.assertRaises(ValueError):
+                self.desktop.windows(backend='win32')
+            with self.assertRaises(ValueError):
+                self.desktop.windows(backend='uia')
 
-            self.assertEqual(win_title_result, True)
+        def test_only_visible_windows_win32(self):
+            """Set visible_only to the method windows"""
+            dlgs = self.desktop.windows(visible_only=True)
+            self.assertTrue(all([win.is_visible() for win in dlgs]))
+
+        def test_only_enable_windows_win32(self):
+            """Set enable_only to the method windows"""
+            dlgs = self.desktop.windows(enabled_only=True)
+            self.assertTrue(all([win.is_enabled() for win in dlgs]))
 
 
 if __name__ == "__main__":
