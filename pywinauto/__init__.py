@@ -110,7 +110,7 @@ if sys.platform == 'win32':
             """Create desktop element description"""
             if not backend:
                 self.backend = backends.registry.name
-            if backend not in backends.registry.backends:
+            if self.backend not in backends.registry.backends:
                 raise ValueError('Backend "{0}" is not registered!'.format(backend))
             self.backend = backends.registry.backends[backend]
 
