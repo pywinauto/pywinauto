@@ -1215,7 +1215,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             """Set some data and ensure the application is in the state we want"""
             Timings.Defaults()
             self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
-            self.desktop = Desktop()
+            self.desktop = Desktop(backend='win32')
             self.window_title = 'Common Controls Sample'
 
         def tearDown(self):

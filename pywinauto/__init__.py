@@ -109,7 +109,7 @@ if sys.platform == 'win32':
         def __init__(self, backend=None):
             """Create desktop element description"""
             if not backend:
-                raise ValueError('You should set backend, win32 or uia.')
+                self.backend = backends.registry.name
             if backend not in backends.registry.backends:
                 raise ValueError('Backend "{0}" is not registered!'.format(backend))
             self.backend = backends.registry.backends[backend]
