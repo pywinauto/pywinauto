@@ -1190,12 +1190,10 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
 
         def test_set_backend_to_window_uia(self):
             """Set backend to method window(), except exception ValueError"""
-            dlg = self.desktop.MFC_samplesDialog
             with self.assertRaises(ValueError):
-                close_btn = dlg.window(backend='win32', title='Close', control_type='Button')
+                self.desktop.window(backend='win32', title='MFC_samplesDialog')
             with self.assertRaises(ValueError):
-                self.desktop.windows(backend='uia')
-                close_btn = dlg.window(backend='win32', title='Close', control_type='Button')
+                self.desktop.window(backend='win32', title='MFC_samplesDialog')
 
         def test_get_list_of_windows_uia(self):
             """Test that method .windows() returns a non-empty list of windows"""
