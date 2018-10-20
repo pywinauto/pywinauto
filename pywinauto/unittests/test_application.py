@@ -1191,7 +1191,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
         def test_set_backend_to_window_uia(self):
             """Set backend to method window(), except exception ValueError"""
             with self.assertRaises(ValueError):
-                self.desktop.window(backend='win32', title='MFC_samplesDialog')
+                self.desktop.window(backend='uia', title='MFC_samplesDialog')
             with self.assertRaises(ValueError):
                 self.desktop.window(backend='win32', title='MFC_samplesDialog')
 
