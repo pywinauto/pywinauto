@@ -1,3 +1,4 @@
+import threading
 import timeit
 
 from comtypes import COMObject, COMError
@@ -9,6 +10,37 @@ from ...uia_element_info import UIAElementInfo
 from ..control_tree import ControlTree
 from ..base_recorder import BaseRecorder
 from .uia_recorder_defines import *
+
+from pywin.mfc import dialog
+import win32ui
+import win32con
+
+
+class ProgressBarDialog(dialog.Dialog):
+    title = "Updating..."
+    style = (win32con.DS_MODALFRAME | win32con.WS_POPUP | win32con.WS_VISIBLE | win32con.WS_CAPTION |
+             win32con.WS_SYSMENU | win32con.DS_SETFONT | win32con.WS_EX_TOPMOST)
+    cs = (win32con.WS_CHILD | win32con.WS_VISIBLE)
+    dimensions = (0, 0, 215, 20)
+    title_font = (8, "MS Sans Serif")
+
+    def __init__(self, *args, **kwargs):
+        super(ProgressBarDialog, self).__init__([[self.title, self.dimensions, self.style, None, self.title_font], ])
+        self.pbar = win32ui.CreateProgressCtrl()
+
+    def OnInitDialog(self):
+        rc = super(ProgressBarDialog, self).OnInitDialog()
+        self.pbar.CreateWindow(self.cs, (10, 10, 310, 24), self, 1001)
+        return rc
+
+    def show(self):
+        self.CreateWindow()
+        self.SetWindowPos(win32con.HWND_TOPMOST, self.dimensions,
+                          win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_SHOWWINDOW)
+
+    def close(self):
+        self.OnCancel()
+
 
 _ignored_events = [
     # Events which are handled by separate handlers
@@ -99,18 +131,17 @@ class UiaRecorder(COMObject, BaseRecorder):
     def _rebuild_control_tree(self):
         if self.verbose:
             start_time = timeit.default_timer()
-            print("[_rebuilt_control_tree] Rebuilding control tree")
+            print("[_rebuild_control_tree] Rebuilding control tree")
         self.control_tree.rebuild()
         if self.verbose:
-            print("[_rebuilt_control_tree] Finished rebuilding control tree. Time = {}".format(
+            print("[_rebuild_control_tree] Finished rebuilding control tree. Time = {}".format(
                 timeit.default_timer() - start_time))
 
     def _setup(self):
         try:
             # Add event handlers to all app's controls
-            self._add_handlers(self.wrapper.element_info.element)
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
-            self._rebuild_control_tree()
+            self._update(rebuild_tree=True, add_handlers_to=self.wrapper.element_info.element)
         except Exception as exc:
             # TODO: Sometime we can't catch WindowClosed event in WPF applications
             self.stop()
@@ -122,6 +153,32 @@ class UiaRecorder(COMObject, BaseRecorder):
         IUIA().iuia.RemoveAllEventHandlers()
         # Stop Hook
         self.hook.stop()
+
+    def _update(self, rebuild_tree=False, add_handlers_to=None):
+        # Draw progress window
+        pbar_dlg = ProgressBarDialog()
+        pbar_dlg.show()
+
+        # Subscribe to events and rebuild control tree in separate threads to speed up the process
+        if add_handlers_to:
+            add_handlers_thr = threading.Thread(target=self._add_handlers, args=(add_handlers_to,))
+            add_handlers_thr.start()
+        if rebuild_tree:
+            rebuild_tree_thr = threading.Thread(target=self._rebuild_control_tree)
+            rebuild_tree_thr.start()
+
+        if add_handlers_to:
+            add_handlers_thr.join()
+
+        # 50% progress
+        pbar_dlg.pbar.SetPos(50)
+
+        if rebuild_tree:
+            rebuild_tree_thr.join()
+
+        # Close progress window
+        pbar_dlg.pbar.SetPos(100)
+        pbar_dlg.close()
 
     def hook_target(self):
         """Target function for hook thread"""
@@ -161,12 +218,11 @@ class UiaRecorder(COMObject, BaseRecorder):
         self.add_to_log(event)
 
         if event.name == EVENT.MENU_START:
-            self._rebuild_control_tree()
+            self._update(rebuild_tree=True, add_handlers_to=None)
         elif event.name == EVENT.MENU_OPENED:
-            self._add_handlers(sender)
+            self._update(rebuild_tree=False, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_OPENED:
-            self._add_handlers(sender)
-            self._rebuild_control_tree()
+            self._update(rebuild_tree=True, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_CLOSED:
             # Detect if top_window is already closed
             try:
@@ -178,7 +234,7 @@ class UiaRecorder(COMObject, BaseRecorder):
                 self._parse_and_clear_log()
                 self.script += u"app.kill()\n"
             else:
-                self._rebuild_control_tree()
+                self._update(rebuild_tree=True, add_handlers_to=None)
 
     def IUIAutomationPropertyChangedEventHandler_HandlePropertyChangedEvent(self, sender, propertyId, newValue):
         if not self.recorder_start_event.is_set():

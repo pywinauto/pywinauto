@@ -48,7 +48,7 @@ if sys.platform == 'win32':
     def _get_com_threading_mode(module_sys):
         """Set up COM threading model
 
-        The ultimate goal is MTA, but the mode is adjusted
+        The ultimate goal is MTA, but the mode is adjusted
         if it was already defined prior to pywinauto import.
         """
         com_init_mode = 0  # COINIT_MULTITHREADED = 0x0
