@@ -118,14 +118,15 @@ if sys.platform == 'win32':
             """Create WindowSpecification object for top-level window"""
             if 'top_level_only' not in kwargs:
                 kwargs['top_level_only'] = True
-            if 'backend' not in kwargs:
-                kwargs['backend'] = self.backend.name
+            if 'backend' in kwargs:
+                raise ValueError('Using another backend than set in Desktop constructor is not allowed!')
+            kwargs['backend'] = self.backend.name
             return WindowSpecification(kwargs)
 
         def windows(self, **kwargs):
             """Return a list of wrapped top level windows"""
             if 'backend' in kwargs:
-                raise ValueError('Do not override backend!')
+                raise ValueError('Using another backend than set in Desktop constructor is not allowed!!')
 
             if 'visible_only' not in kwargs:
                 kwargs['visible_only'] = False

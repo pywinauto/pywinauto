@@ -1188,8 +1188,17 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
                               u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
 
+        def test_set_backend_to_window_uia(self):
+            """Set backend to method window(), except exception ValueError"""
+            dlg = self.desktop.MFC_samplesDialog
+            with self.assertRaises(ValueError):
+                close_btn = dlg.window(backend='win32', title='Close', control_type='Button')
+            with self.assertRaises(ValueError):
+                self.desktop.windows(backend='uia')
+                close_btn = dlg.window(backend='win32', title='Close', control_type='Button')
+
         def test_get_list_of_windows_uia(self):
-            """Test that method return list of windows"""
+            """Test that method .windows() returns a non-empty list of windows"""
             dlgs = self.desktop.windows()
             self.assertTrue(len(dlgs) > 1)
 
@@ -1227,8 +1236,15 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             dlg = self.desktop.window(title=self.window_title, process=self.app.process)
             self.assertEqual(dlg.Pager.Toolbar.button_count(), 12)
 
+        def test_set_backend_to_window_win32(self):
+            """Set backend to method window(), except exception ValueError"""
+            with self.assertRaises(ValueError):
+                dlg = self.desktop.window(backend='uia', title=self.window_title, process=self.app.process)
+            with self.assertRaises(ValueError):
+                dlg = self.desktop.window(backend='win32', title=self.window_title, process=self.app.process)
+
         def test_get_list_of_windows_win32(self):
-            """Test that method return list of windows"""
+            """Test that method .windows() returns a non-empty list of windows """
             dlgs = self.desktop.windows()
 
             self.assertTrue(len(dlgs) > 1)
