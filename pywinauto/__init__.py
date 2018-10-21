@@ -121,7 +121,7 @@ if sys.platform == 'win32':
             if 'backend' in kwargs:
                 raise ValueError('Using another backend than set in Desktop constructor is not allowed!')
             kwargs['backend'] = self.backend.name
-            return WindowSpecification(**kwargs)
+            return WindowSpecification(kwargs)
 
         def windows(self, **kwargs):
             """Return a list of wrapped top level windows"""
