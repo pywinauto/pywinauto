@@ -1196,7 +1196,7 @@ class Application(object):
         else:
             # add the restriction for this particular process
             kwargs['process'] = self.process
-            win_spec = WindowSpecification(**kwargs)
+            win_spec = WindowSpecification(kwargs)
 
         return win_spec
     Window_ = window_ = window
