@@ -1237,12 +1237,12 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
         def test_set_backend_to_window_win32(self):
             """Set backend to method window(), except exception ValueError"""
             with self.assertRaises(ValueError):
-                dlg = self.desktop.window(backend='uia', title=self.window_title, process=self.app.process)
+                self.desktop.window(backend='uia', title=self.window_title, process=self.app.process)
             with self.assertRaises(ValueError):
-                dlg = self.desktop.window(backend='win32', title=self.window_title, process=self.app.process)
+                self.desktop.window(backend='win32', title=self.window_title, process=self.app.process)
 
         def test_get_list_of_windows_win32(self):
-            """Test that method .windows() returns a non-empty list of windows """
+            """Test that method .windows() returns a non-empty list of windows"""
             dlgs = self.desktop.windows()
 
             self.assertTrue(len(dlgs) > 1)
