@@ -143,6 +143,7 @@ SendMessageA		=	ctypes.windll.user32.SendMessageA
 PostMessage			=	ctypes.windll.user32.PostMessageW
 GetMessage          =   ctypes.windll.user32.GetMessageW
 RegisterWindowMessage = ctypes.windll.user32.RegisterWindowMessageW
+RegisterWindowMessage.restype = UINT
 
 MoveWindow          =   ctypes.windll.user32.MoveWindow
 EnableWindow        =   ctypes.windll.user32.EnableWindow
