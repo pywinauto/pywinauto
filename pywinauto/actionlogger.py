@@ -128,7 +128,7 @@ class _StandardLogger(object):
     @staticmethod
     def set_level(level):
         """Set a logging level"""
-        _StandardLogger.logger.level = level
+        _StandardLogger.logger.setLevel(level)
 
     @staticmethod
     def reset_level():
@@ -139,7 +139,7 @@ class _StandardLogger(object):
         to other active loggers so that if another logger had set a higher level than we need,
         the messages for pywinauto logger will be dropped even if it was 'enabled'.
         """
-        _StandardLogger.logger.level = logging.INFO
+        _StandardLogger.logger.setLevel(logging.INFO)
 
     @staticmethod
     def disable():
