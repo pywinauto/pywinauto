@@ -32,7 +32,9 @@
 
 """Keyboard input emulation module
 
-Automate typing keys to an active window by calling ``send_keys`` method.
+Automate typing keys or individual key actions (viz. press and hold, release) to
+an active window by calling ``send_keys`` method.
+
 You can use any Unicode characters (on Windows) and some special keys listed
 below. The module is also available on Linux.
 
@@ -76,6 +78,18 @@ Example how to use modifiers: ::
 
 Repetition count can be specified for special keys. ``{ENTER 2}`` says to
 press Enter twice.
+
+Example which shows how to press and hold or release a key on the keyboard: ::
+
+    send_keys("{VK_SHIFT down}"
+              "pywinauto"
+              "{VK_SHIFT up}") # to type PYWINAUTO
+
+    send_keys("{h down}"
+              "{e down}"
+              "{h up}"
+              "{e up}"
+              "llo") # to type hello
 """
 from __future__ import unicode_literals
 
