@@ -39,6 +39,7 @@ import ctypes
 import win32process
 import win32api
 import win32con
+import win32gui
 
 from pywinauto.windows import win32defines, win32functions, win32structures
 from .actionlogger import ActionLogger
@@ -194,9 +195,8 @@ def clientrect(handle):
 #=========================================================================
 def rectangle(handle):
     """Return the rectangle of the window"""
-    rect = win32structures.RECT()
-    win32functions.GetWindowRect(handle, ctypes.byref(rect))
-    return rect
+    # GetWindowRect returns 4-tuple
+    return win32structures.RECT(*win32gui.GetWindowRect(handle))
 
 
 #=========================================================================
@@ -279,6 +279,20 @@ def processid(handle):
     """Return the ID of process that controls this window"""
     _, process_id = win32process.GetWindowThreadProcessId(int(handle))
     return process_id
+
+
+#=========================================================================
+def has_enough_privileges(process_id):
+    """Check if target process has enough rights to query GUI actions"""
+    try:
+        access_level = win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ
+        process_handle = win32api.OpenProcess(access_level, 0, process_id)
+        if process_handle:
+            win32api.CloseHandle(process_handle)
+            return True
+        return False
+    except win32gui.error:
+        return False
 
 
 #=========================================================================

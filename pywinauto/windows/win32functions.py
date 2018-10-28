@@ -32,8 +32,9 @@
 """Defines Windows(tm) functions"""
 
 import ctypes
-from pywinauto.windows import win32defines, win32structures
-from pywinauto.actionlogger import ActionLogger
+from ctypes import wintypes
+from . import win32defines, win32structures
+from .actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
 
 import sys
@@ -280,8 +281,8 @@ def LoWord(value):
 #====================================================================
 def WaitGuiThreadIdle(handle):
     """Wait until the thread of the specified handle is ready"""
-    process_id = ctypes.c_int()
-    GetWindowThreadProcessId(handle, ctypes.byref(process_id))
+    process_id = wintypes.DWORD(0)
+    GetWindowThreadProcessId(handle, ctypes.POINTER(wintypes.DWORD)(process_id))
 
     # ask the control if it has finished processing the message
     hprocess = OpenProcess(

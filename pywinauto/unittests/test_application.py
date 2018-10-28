@@ -43,6 +43,7 @@ import time
 #import pdb
 import warnings
 from threading import Thread
+import ctypes
 
 import mock
 
@@ -143,6 +144,66 @@ class ApplicationWarningTestCases(unittest.TestCase):
             assert len(args) == 2
             assert "64-bit" in args[0]
             assert args[1].__name__ == 'UserWarning'
+
+
+if ctypes.windll.shell32.IsUserAnAdmin() == 0:
+    class AdminTestCases(ApplicationWarningTestCases):
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            super(AdminTestCases, self).setUp()
+            cmd = 'powershell -Command "Start-Process {} -Verb RunAs"'.format(self.sample_exe)
+            self.app = Application().start(cmd, wait_for_idle=False)
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+            super(AdminTestCases, self).tearDown()
+
+        def test_non_admin_warning(self):
+            warnings.filterwarnings('always', category=UserWarning, append=True)
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                self.app = Application().connect(title="Common Controls Sample", timeout=20)
+                assert len(w) >= 1
+                assert issubclass(w[-1].category, UserWarning)
+                assert "process has no rights" in str(w[-1].message)
+
+        def test_non_admin_click(self):
+            self.app = Application().connect(title="Common Controls Sample", timeout=20)
+            with self.assertRaises(RuntimeError):
+                self.app.CommonControlsSample.OK.click()
+            with self.assertRaises(RuntimeError):
+                self.app.CommonControlsSample.OK.click_input()
+            with self.assertRaises(RuntimeError):
+                self.app.CommonControlsSample.TVS_HASBUTTON.check()
+
+
+class NonAdminTestCases(ApplicationWarningTestCases):
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        super(NonAdminTestCases, self).setUp()
+        self.app = Application().start(self.sample_exe)
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+        super(NonAdminTestCases, self).tearDown()
+
+    def test_both_non_admin(self):
+        warnings.filterwarnings('always', category=UserWarning, append=True)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.app = Application().connect(title="Common Controls Sample", timeout=5)
+            assert len(w) == 0
+
+    def test_both_non_admin_click(self):
+        self.app = Application().connect(title="Common Controls Sample", timeout=5)
+        self.app.CommonControlsSample.TVS_HASBUTTON.check()
+        self.assertEqual(self.app.CommonControlsSample.TVS_HASBUTTON.is_checked(), True)
+        self.app.CommonControlsSample.OK.click()
+        self.app.CommonControlsSample.wait_not('visible')
 
 
 class ApplicationTestCases(unittest.TestCase):
@@ -299,7 +360,7 @@ class ApplicationTestCases(unittest.TestCase):
         """Test that connect_(process=...) raise error when set timeout"""
         app1 = Application()
         app1.start(_notepad_exe())
-        self.assertRaises(ValueError, Application().connect, process=app1.process, timeout=0.5)
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=0, timeout=0.5)
         app1.UntitledNotepad.MenuSelect('File->Exit')
 
 #    def test_Connect(self):
