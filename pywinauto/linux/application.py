@@ -99,7 +99,7 @@ class Application(BaseApplication):
         """
         if str(self.process) not in os.listdir('/proc'):
             return True # already closed
-        status = subprocess.check_output(["kill", "-9", self.process], universal_newlines=True)
+        status = subprocess.check_output(["kill", "-9", str(self.process)], universal_newlines=True)
         if "Operation not permitted" in status:
             raise Exception("Cannot kill process: {}".format(status))
         else:
