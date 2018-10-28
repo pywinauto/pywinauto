@@ -1,0 +1,97 @@
+============================================================
+Remote Execution Guide
+============================================================
+
+Desktop GUI tests usually require active desktop to move mouse cursor 
+and type some keys into a focused window. That completely blocks local 
+machine from normal usage.
+
+But running tests on a remote machine is a challenge. This guide collected 
+known issues and solutions to control a remote machine with GUI tests.
+
+Windows Remote Desktop features
+-------------------------------
+
+Remote Desktop (RDP) provides virtual active desktop to remote machine with Windows OS. 
+There are 2 potential issues:
+
+  * If RDP window is minimized, there is no active desktop on remote PC by default.
+  * If RDP is disconnected, the desktop is locked out.
+
+In both cases any GUI automation jobs will fail (if you don't use some tricks described below).
+The workarounds are well described in TestComplete documetation:
+
+  * `Running Tests in Minimized Remote Desktop Windows`_
+  * `Disconnecting From Remote Desktop While Running Automated Tests`_
+
+.. _`Running Tests in Minimized Remote Desktop Windows`: https://support.smartbear.com/testcomplete/docs/testing-with/running/via-rdp/in-minimized-window.html
+.. _`Disconnecting From Remote Desktop While Running Automated Tests`: https://support.smartbear.com/testcomplete/docs/testing-with/running/via-rdp/keeping-computer-unlocked.html
+
+
+VNC Server software
+-------------------
+
+There is more simple way to avoid above issues: using VNC server software 
+(for example, Tight VNC). It works as a pair of client and server. VNC server 
+also provides active desktop on a remote machine.
+
+  * This is a non-virtual desktop so working with native screen resolution
+    on a remote PC may require updating video drivers.
+  * Minimizing or disconnecting VNC client doesn't destroy active desktop (by default!).
+  * This is a cross-platform solution (VNC server is a native part of macOS 
+    and available on Linux).
+
+The only problem you may face with:
+
+  * Using Remote Desktop (RDP) may break VNC server benefits and you have 
+    to restart remote PC or apply RDP workarounds described above.
+
+
+Other remote access software
+----------------------------
+
+If anyone tried to run GUI tests/automation remotely using Team Viewer, 
+PowerBI desktop or any other virtual desktop software, feel free to add 
+more details into this guide.
+
+Tricks to run automation on a locked machine
+--------------------------------------------
+
+For some applications it's possible to run GUI automation on a locked 
+machine, but it requires using special methods. First it's worth listing 
+methods that don't work on a locked machine:
+
+  * ``click_input`` and all other mouse click and press methods ending with ``_input``.
+  * ``set_focus`` as it uses ``SetCursorPos``.
+  * ``type_keys`` for native keyboard input.
+  * Direct usage of modules ``mouse`` and ``keyboard``.
+
+Some other methods may not work also, but it depends on application. 
+There are few methods for silent text input in ``backend="win32"``:
+
+  * ``send_chars`` TODO: add link to the docs of these methods
+  * ``send_keystrokes``
+
+
+Start remote script from local machine
+--------------------------------------
+
+When your script is ready and you can run it on a remote machine manually, 
+it's time to automate the last step: trigger running the script from local 
+machine or from CI server.
+
+If you have internal hosted CI (for example, Jenkins), probably target 
+machine is already connected to Jenkins master using an agent. There are 
+three ways to connect agent:
+
+  * Run agent as a service: GUI tests won't work in this case because 
+    GUI can't be even created when running as a service.
+  * Run agent through SSH: GUI tests won't work.
+  * Run agent as a normal application. This is the only working case!
+
+TODO: how to run using psexec and Ansible.
+
+
+How To`s
+==================
+* :doc:`HowTo`
