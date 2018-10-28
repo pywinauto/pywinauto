@@ -22,6 +22,7 @@ before_install:
 install:
   - pip install python-xlib codecov coverage
   - sudo apt-get update
+  - sudo apt-get -y install at-spi2-core
   - sudo apt-get install -qq qt58base; 
   - sudo apt-get -y install qt58declarative qt58tools
   - sudo apt-get install xsel
