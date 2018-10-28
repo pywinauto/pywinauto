@@ -98,7 +98,7 @@ if sys.platform == 'win32':
 
     MatchError = findbestmatch.MatchError
 
-    from pywinauto.windows.application import Application, WindowSpecification
+    from pywinauto.application import Application, WindowSpecification
 
 
     class Desktop(object):
