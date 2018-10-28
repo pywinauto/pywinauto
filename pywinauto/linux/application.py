@@ -105,9 +105,6 @@ class Application(BaseApplication):
         else:
             return True
 
-    # Non PEP-8 aliases
-    kill_ = Kill_ = kill
-
     def is_process_running(self):
         """
         Checks that process is running.
