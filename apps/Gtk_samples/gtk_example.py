@@ -4,14 +4,14 @@ require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
 
-class Handler:
-    def onDeleteWindow(self, *args):
+class Handler(object):
+    def on_delete_window(self, *args):
         Gtk.main_quit(*args)
 
     def delete_event(self, *args):
         Gtk.main_quit(*args)
 
-    def ClickButtonPress(self, button, event):
+    def click_button_press(self, button, event):
         print("ClickButton pressed!")
         label = builder.get_object("ClickButtonLabel")
         if event.type == Gdk.EventType.BUTTON_PRESS:
@@ -21,12 +21,12 @@ class Handler:
             print("Double click")
             label.set_text("Double click")
 
-    def ToggleButtonAction(self, button):
+    def toggle_button_action(self, button):
         print("Toggled: {}".format(button.get_active()))
         label = builder.get_object("ToggleButtonLabel")
         label.set_text("Toggled: {}".format(button.get_active()))
 
-    def CheckButtonAction(self, button):
+    def check_button_action(self, button):
         print("Checked: {}".format(button.get_active()))
         label = builder.get_object("CheckButtonLabel")
         label.set_text("Checked: {}".format(button.get_active()))

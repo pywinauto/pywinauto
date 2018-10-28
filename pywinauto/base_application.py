@@ -776,9 +776,6 @@ class BaseApplication(object):
         """
         raise NotImplementedError()
 
-    # Non PEP-8 aliases
-    kill_ = Kill_ = kill
-
     def is_process_running(self):
         """
         Checks that process is running.
