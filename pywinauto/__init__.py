@@ -81,7 +81,7 @@ if sys.platform == 'win32':
     from . import backend as backends
     MatchError = findbestmatch.MatchError
 
-    from pywinauto.windows.application import Application, WindowSpecification
+    from pywinauto.application import Application, WindowSpecification
 
     class Desktop(object):
 
