@@ -29,7 +29,7 @@ if sys.platform != 'win32':
 
         def setUp(self):
             self.desktop_info = AtspiElementInfo()
-            self.app = subprocess.Popen(['python', _test_app()], stdout=subprocess.PIPE, shell=False)
+            self.app = subprocess.Popen(['python3', _test_app()], stdout=subprocess.PIPE, shell=False)
             time.sleep(1)
 
         def tearDown(self):
