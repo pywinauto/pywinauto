@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -127,8 +127,8 @@ def run_notepad():
     # ----- 2nd Page Setup Dialog again ----
     app.PageSetupDlg.Properties.click()
 
-    doc_props = app.window_(title_re = ".*Properties$")
-    doc_props.Wait('exists', timeout = 40)
+    doc_props = app.window(title_re = ".*Properties$")
+    doc_props.wait('exists', timeout=40)
 
     # ----- Document Properties Dialog ----
     # some tab control selections
@@ -168,7 +168,7 @@ def run_notepad():
 #    # close the 4 windows
 #
 #    # ----- Advanced Options Dialog ----
-#    app.window_(title_re = ".* Advanced Options").Ok.click()
+#    app.window(title_re = ".* Advanced Options").Ok.click()
 
     # ----- Document Properties Dialog again ----
     doc_props.Cancel.close_click()
@@ -229,11 +229,11 @@ def run_notepad():
 
     # while the dialog exists wait upto 30 seconds (and yes it can
     # take that long on my computer sometimes :-( )
-    app.SaveAsDialog2.Cancel.WaitNot('enabled')
+    app.SaveAsDialog2.Cancel.wait_not('enabled')
 
     # If file exists - it asks you if you want to overwrite
     try:
-        app.SaveAs.Yes.Wait('exists').close_click()
+        app.SaveAs.Yes.wait('exists').close_click()
     except MatchError:
         print('Skip overwriting...')
 

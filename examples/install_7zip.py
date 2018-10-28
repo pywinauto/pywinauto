@@ -17,17 +17,17 @@ app = pywinauto.Application().Start(r'msiexec.exe /i 7z920-x64.msi')
 Wizard = app['7-Zip 9.20 (x64 edition) Setup']
 Wizard.NextButton.click()
 
-Wizard['I &accept the terms in the License Agreement'].Wait('enabled').check_by_click()
+Wizard['I &accept the terms in the License Agreement'].wait('enabled').check_by_click()
 Wizard.NextButton.click()
 
-Wizard['Custom Setup'].Wait('enabled')
+Wizard['Custom Setup'].wait('enabled')
 Wizard.NextButton.click()
 
 Wizard.Install.click()
 
-Wizard.Finish.Wait('enabled', timeout=30)
+Wizard.Finish.wait('enabled', timeout=30)
 Wizard.Finish.click()
-Wizard.WaitNot('visible')
+Wizard.wait_not('visible')
 
 # final check
 if os.path.exists(r"C:\Program Files\7-Zip\7zFM.exe"):

@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ from pywinauto.handleprops import children, classname, clientrect, contexthelpid
     controlid, dumpwindow, exstyle, font, has_exstyle, has_style, is64bitprocess, \
     is_toplevel_window, isenabled, isunicode, isvisible, iswindow, parent, processid, \
     rectangle, style, text, userdata
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.timings import Timings

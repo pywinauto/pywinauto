@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,12 @@ from __future__ import unicode_literals
 
 import re
 import ctypes
+import sys
 import six
 
-from . import win32functions
-from . import win32structures
+if sys.platform == 'win32':
+    # TODO remove it after rewrite if active_only in find_elements
+    from pywinauto.windows import win32functions, win32structures
 from . import findbestmatch
 from . import controls
 from .backend import registry
@@ -135,12 +137,18 @@ def find_elements(class_name=None,
                   predicate_func=None,
                   active_only=False,
                   control_id=None,
+                  control_type=None,
                   auto_id=None,
                   framework_id=None,
                   backend=None,
+                  depth=None
                   ):
     """
     Find elements based on criteria passed in
+
+    WARNING! Direct usage of this function is not recommended! It's a very low level API.
+    Better use Application and WindowSpecification objects described in the
+    Getting Started Guide.
 
     Possible values are:
 
@@ -150,8 +158,8 @@ def find_elements(class_name=None,
     * **process**        Elements running in this process
     * **title**          Elements with this text
     * **title_re**       Elements whose text matches this regular expression
-    * **top_level_only** Top level elements only (default=True)
-    * **visible_only**   Visible elements only (default=True)
+    * **top_level_only** Top level elements only (default=**True**)
+    * **visible_only**   Visible elements only (default=**True**)
     * **enabled_only**   Enabled elements only (default=False)
     * **best_match**     Elements with a title similar to this
     * **handle**         The handle of the element to return
@@ -160,11 +168,11 @@ def find_elements(class_name=None,
     * **predicate_func** A user provided hook for a custom element validation
     * **active_only**    Active elements only (default=False)
     * **control_id**     Elements with this control id
+    * **control_type**   Elements with this control type (string; for UIAutomation elements)
     * **auto_id**        Elements with this automation id (for UIAutomation elements)
     * **framework_id**   Elements with this framework id (for UIAutomation elements)
     * **backend**        Back-end name to use while searching (default=None means current active backend)
     """
-
     if backend is None:
         backend = registry.active_backend.name
     backend_obj = registry.backends[backend]
@@ -174,8 +182,10 @@ def find_elements(class_name=None,
     if handle is not None:
         return [backend_obj.element_info_class(handle), ]
 
-    # check if parent is a handle of element (in case of searching native controls)
-    if parent and isinstance(parent, six.integer_types):
+    if isinstance(parent, backend_obj.generic_wrapper_class):
+        parent = parent.element_info
+    elif isinstance(parent, six.integer_types):
+        # check if parent is a handle of element (in case of searching native controls)
         parent = backend_obj.element_info_class(parent)
 
     if top_level_only:
@@ -184,7 +194,8 @@ def find_elements(class_name=None,
         elements = element.children(process=process,
                                     class_name=class_name,
                                     title=title,
-                                    cache_enable=True)  # root.children == enum_windows()
+                                    control_type=control_type,
+                                    cache_enable=True)
 
         # if we have been given a parent
         if parent:
@@ -197,10 +208,11 @@ def find_elements(class_name=None,
             parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
-        elements = parent.descendants(process=process,
-                                      class_name=class_name,
+        elements = parent.descendants(class_name=class_name,
                                       title=title,
-                                      cache_enable=True)  # root.children == enum_windows()
+                                      control_type=control_type,
+                                      cache_enable=True,
+                                      depth=depth)
 
         # if the ctrl_index has been specified then just return
         # that control
@@ -209,6 +221,10 @@ def find_elements(class_name=None,
 
     # early stop
     if not elements:
+        if found_index is not None:
+            if found_index > 0:
+                raise ElementNotFoundError("found_index is specified as {0}, but no windows found".format(
+                    found_index))
         return elements
 
     if framework_id is not None and elements:
@@ -216,9 +232,6 @@ def find_elements(class_name=None,
 
     if control_id is not None and elements:
         elements = [elem for elem in elements if elem.control_id == control_id]
-
-    if auto_id is not None and elements:
-        elements = [elem for elem in elements if elem.automation_id == auto_id]
 
     if active_only:
         # TODO: re-write to use ElementInfo interface
@@ -249,6 +262,9 @@ def find_elements(class_name=None,
 
     if process is not None:
         elements = [elem for elem in elements if elem.process_id == process]
+
+    if auto_id is not None and elements:
+        elements = [elem for elem in elements if elem.automation_id == auto_id]
 
     if title is not None:
         # TODO: some magic is happenning here

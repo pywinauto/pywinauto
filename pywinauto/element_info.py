@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,35 @@
 
 """Interface for classes which should deal with different backend elements"""
 
+
 class ElementInfo(object):
 
     """Abstract wrapper for an element"""
+
+    def __repr__(self):
+        """Representation of the element info object
+
+        The method prints the following info:
+        * type name as a module name and a class name of the object
+        * title of the control or empty string
+        * class name of the control
+        * unique ID of the control, usually a handle
+        """
+        return '<{0}, {1}>'.format(self.__str__(), self.handle)
+
+    def __str__(self):
+        """Pretty print representation of the element info object
+
+        The method prints the following info:
+        * type name as a module name and class name of the object
+        * title of the control or empty string
+        * class name of the control
+        """
+        module = self.__class__.__module__
+        module = module[module.rfind('.') + 1:]
+        type_name = module + "." + self.__class__.__name__
+
+        return "{0} - '{1}', {2}".format(type_name, self.name, self.class_name)
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""
@@ -93,9 +119,47 @@ class ElementInfo(object):
         """Return children of the element"""
         raise NotImplementedError()
 
+    def iter_children(self, **kwargs):
+        """Iterate over children of element"""
+        raise NotImplementedError()
+
+    def has_depth(self, root, depth):
+        """Return True if element has particular depth level relative to the root"""
+        if self.control_id != root.control_id:
+            if depth > 0:
+                parent = self.parent
+                return parent.has_depth(root, depth - 1)
+            else:
+                return False
+        else:
+            return True
+
+    @staticmethod
+    def filter_with_depth(elements, root, depth):
+        """Return filtered elements with particular depth level relative to the root"""
+        if depth is not None:
+                if isinstance(depth, int) and depth > 0:
+                    return [element for element in elements if element.has_depth(root, depth)]
+                else:
+                    raise Exception("Depth must be natural number")
+        else:
+            return elements
+
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         raise NotImplementedError()
+
+    def iter_descendants(self, **kwargs):
+        """Iterate over descendants of the element"""
+        depth = kwargs.pop("depth", None)
+        if depth == 0:
+            return
+        for child in self.iter_children(**kwargs):
+            yield child
+            if depth is not None:
+                kwargs["depth"] = depth - 1
+            for c in child.iter_descendants(**kwargs):
+                yield c
 
     @property
     def rectangle(self):

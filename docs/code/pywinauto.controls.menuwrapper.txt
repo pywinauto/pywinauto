@@ -2,6 +2,9 @@ pywinauto.controls.menuwrapper
 ------------------------------
  .. automodule:: pywinauto.controls.menuwrapper
     :members:
+    :exclude-members: GetMenuPath, GetProperties, Item, ItemCount, Items,
+        Click, ClickInput, FriendlyClassName, GetProperties, ID, Index,
+        IsChecked, IsEnabled, Rectangle, Select, State, SubMenu, Text, Type
     :undoc-members:
     :show-inheritance:
 

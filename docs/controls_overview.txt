@@ -9,38 +9,37 @@ All Controls
 ------------
 These functions are aviailable to all controls.
 
-  * CaptureAsImage_
-  * Click_
-  * ClickInput_
-  * Close_
-  * CloseClick_
-  * DebugMessage_
-  * DoubleClick_
-  * DoubleClickInput_
-  * DragMouse_
-  * DrawOutline_
-  * GetFocus_
-  * GetShowState_
-  * Maximize_
-  * MenuSelect_
-  * Minimize_
-  * MoveMouse_
-  * MoveWindow_
-  * NotifyMenuSelect_
-  * NotifyParent_
-  * PressMouse_
-  * PressMouseInput_
-  * ReleaseMouse_
-  * ReleaseMouseInput_
-  * Restore_
-  * RightClick_
-  * RightClickInput_
-  * RightClickInput_
-  * SendMessage_
-  * SendMessageTimeout_
-  * SetFocus_
-  * SetWindowText_
-  * TypeKeys_
+  * capture_as_image_
+  * click_
+  * click_input_
+  * close_
+  * close_click_
+  * debug_message_
+  * double_click_
+  * double_click_input_
+  * drag_mouse_
+  * draw_outline_
+  * get_focus_
+  * get_show_state_
+  * maximize_
+  * menu_select_
+  * minimize_
+  * move_mouse_
+  * move_window_
+  * notify_menu_select_
+  * notify_parent_
+  * press_mouse_
+  * press_mouse_input_
+  * release_mouse_
+  * release_mouse_input_
+  * restore_
+  * right_click_
+  * right_click_input_
+  * send_message_
+  * send_message_timeout_
+  * set_focus_
+  * set_window_text_
+  * type_keys_
 
   * Children_
   * Class_
@@ -78,38 +77,37 @@ These functions are aviailable to all controls.
   * WindowText_
 
 
-.. _CaptureAsImage: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.CaptureAsImage
-.. _Click: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.Click
-.. _ClickInput: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.ClickInput
-.. _CloseClick: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.CloseClick
-.. _DebugMessage: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DebugMessage
-.. _DoubleClick: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DoubleClick
-.. _DoubleClickInput: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DoubleClickInput
-.. _DragMouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DragMouse
-.. _DrawOutline: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.DrawOutline
-.. _GetFocus: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.GetFocus
-.. _MenuSelect: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.MenuSelect
-.. _MoveMouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.MoveMouse
-.. _MoveWindow: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.MoveWindow
-.. _NotifyMenuSelect: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.NotifyMenuSelect
-.. _NotifyParent: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.NotifyParent
-.. _PressMouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.PressMouse
-.. _PressMouseInput: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.PressMouseInput
-.. _ReleaseMouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.ReleaseMouse
-.. _ReleaseMouseInput: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.ReleaseMouseInput
-.. _RightClick: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.RightClick
-.. _RightClickInput: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.RightClickInput
-.. _RightClickInput: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.RightClickInput
-.. _SendMessage: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.SendMessage
-.. _SendMessageTimeout: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.SendMessageTimeout
-.. _SetFocus: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.SetFocus
-.. _SetWindowText: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.SetWindowText
-.. _TypeKeys: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.TypeKeys
-.. _Close: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.Close
-.. _Restore: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.Restore
-.. _GetShowState: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.GetShowState
-.. _Maximize: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.Maximize
-.. _Minimize: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.Minimize
+.. _capture_as_image: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.capture_as_image
+.. _click: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.click
+.. _click_input: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.click_input
+.. _close_click: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.close_click
+.. _debug_message: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.debug_message
+.. _double_click: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.double_click
+.. _double_click_input: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.double_click_input
+.. _drag_mouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.drag_mouse
+.. _draw_outline: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.draw_outline
+.. _get_focus: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.get_focus
+.. _menu_select: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.menu_select
+.. _move_mouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.move_mouse
+.. _move_window: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.move_window
+.. _notify_menu_select: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.notify_menu_select
+.. _notify_parent: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.notify_parent
+.. _press_mouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.press_mouse
+.. _press_mouse_input: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.press_mouse_input
+.. _release_mouse: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.release_mouse
+.. _release_mouse_input: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.release_mouse_input
+.. _right_click: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.right_click
+.. _right_click_input: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.right_click_input
+.. _send_message: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.send_message
+.. _send_message_timeout: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.send_message_timeout
+.. _set_focus: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.set_focus
+.. _set_window_text: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.set_window_text
+.. _type_keys: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.type_keys
+.. _close: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.close
+.. _restore: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.restore
+.. _get_show_state: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.get_show_state
+.. _maximize: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.maximize
+.. _minimize: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.minimize
 
 .. _Children: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.Children
 .. _Class: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.Class
@@ -200,7 +198,7 @@ Edit
   * EditWrapper.Select_
   * EditWrapper.SelectionIndices_
   * EditWrapper.SetEditText_
-  * EditWrapper.SetWindowText_
+  * EditWrapper.set_window_text_
   * EditWrapper.TextBlock_
 
 .. _EditWrapper.GetLine: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.GetLine
@@ -209,7 +207,7 @@ Edit
 .. _EditWrapper.Select: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.Select
 .. _EditWrapper.SelectionIndices: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.SelectionIndices
 .. _EditWrapper.SetEditText: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.SetEditText
-.. _EditWrapper.SetWindowText: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.SetWindowText
+.. _EditWrapper.set_window_text: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.set_window_text
 .. _EditWrapper.TextBlock: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.TextBlock
 
 Header
@@ -357,7 +355,7 @@ Toolbar
 
       * ToolbarButton.Rectangle_
       * ToolbarButton.Style_
-      * ToolbarButton.ClickInput_
+      * ToolbarButton.click_input_
       * ToolbarButton.Click_
       * ToolbarButton.IsCheckable_
       * ToolbarButton.IsChecked_
@@ -368,7 +366,7 @@ Toolbar
 
 .. _ToolbarButton.Rectangle: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.Rectangle
 .. _ToolbarButton.Style: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.Style
-.. _ToolbarButton.ClickInput: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.ClickInput
+.. _ToolbarButton.click_input: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.click_input
 .. _ToolbarButton.Click: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.Click
 .. _ToolbarButton.IsCheckable: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.IsCheckable
 .. _ToolbarButton.IsChecked: code/pywinauto.controls.common_controls.html#pywinauto.controls.common_controls._toolbar_button.IsChecked

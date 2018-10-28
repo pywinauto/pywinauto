@@ -1,6 +1,14 @@
 
-Main user modules
-==============================
+Basic User Input Modules
+========================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.mouse.txt
+   pywinauto.keyboard.txt
+
+Main User Modules
+=================
 .. toctree::
    :maxdepth: 1
    
@@ -9,8 +17,8 @@ Main user modules
    pywinauto.findwindows.txt
    pywinauto.timings.txt
 
-Specific functionality
-==============================
+Specific Functionality
+======================
 .. toctree::
    :maxdepth: 1
    
@@ -18,33 +26,21 @@ Specific functionality
 
 
 Controls Reference
-==============================
+==================
 .. toctree::
    :maxdepth: 1
    
-   pywinauto.controls.common_controls.txt
+   pywinauto.base_wrapper.txt
    pywinauto.controls.hwndwrapper.txt
    pywinauto.controls.menuwrapper.txt
+   pywinauto.controls.common_controls.txt
    pywinauto.controls.win32_controls.txt
+   
    pywinauto.controls.uiawrapper.txt
    pywinauto.controls.uia_controls.txt
 
-Sendkeys
-==============================
-.. toctree::
-   :maxdepth: 1
-   
-   pywinauto.keyboard.txt
-
-Included 3rd party modules
-==============================
-.. toctree::
-   :maxdepth: 1
-   
-   pywinauto.six.txt
-
-Pre-supplied tests
-==============================
+Pre-supplied Tests
+==================
 .. toctree::
    :maxdepth: 1
    
@@ -61,16 +57,28 @@ Pre-supplied tests
    pywinauto.tests.translation.txt
    pywinauto.tests.truncation.txt
 
-Internal modules
-==============================
+Backend Internal Implementation modules
+=======================================
+.. toctree::
+   :maxdepth: 1
+   
+   pywinauto.backend.txt
+   pywinauto.element_info.txt
+   pywinauto.win32_element_info.txt
+   pywinauto.uia_element_info.txt
+
+   pywinauto.uia_defines.txt
+   pywinauto.hooks.txt
+
+Internal Modules
+================
 .. toctree::
    :maxdepth: 1
    
    pywinauto.controlproperties.txt
    pywinauto.handleprops.txt
-   pywinauto.XMLHelpers.txt
+   pywinauto.xml_helpers.txt
    pywinauto.fuzzydict.txt
    pywinauto.actionlogger.txt
    pywinauto.sysinfo.txt
    pywinauto.remote_memory_block.txt
-

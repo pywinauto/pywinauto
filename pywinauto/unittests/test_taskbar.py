@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,29 +33,34 @@
 
 import unittest
 import sys
-#import time
 import os
+
 sys.path.append(".")
-from pywinauto import taskbar, \
-                      findwindows
-from pywinauto.application import Application, \
-                                  ProcessNotFoundError, \
-                                  WindowSpecification
-from pywinauto.sysinfo import is_x64_Python, \
-                              is_x64_OS
-from pywinauto import win32defines
-from pywinauto.timings import WaitUntil
-import pywinauto.actionlogger
-from pywinauto.timings import Timings
+from pywinauto import taskbar  # noqa: E402
+from pywinauto import findwindows  # noqa: E402
+from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.windows.application import ProcessNotFoundError  # noqa: E402
+from pywinauto.windows.application import WindowSpecification  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python, is_x64_OS  # noqa: E402
+from pywinauto.windows import win32defines
+from pywinauto.timings import wait_until  # noqa: E402
+import pywinauto.actionlogger  # noqa: E402
+from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
+from pywinauto import mouse  # noqa: E402
+from pywinauto import Desktop  # noqa: E402
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\apps\MFC_samples"
+)
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
 _ready_timeout = 60
 _retry_interval = 0.5
+
+
 def _toggle_notification_area_icons(show_all=True, debug_img=None):
     """
     A helper function to change 'Show All Icons' settings.
@@ -67,40 +72,49 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     window should be accessed with a localized title"
     """
 
-    app = Application()
-    starter = app.start(r'explorer.exe')
+    Application().start(r'explorer.exe')
     class_name = 'CabinetWClass'
 
     def _cabinetwclass_exist():
         "Verify if at least one active 'CabinetWClass' window is created"
-        l = findwindows.find_elements(active_only = True, class_name = class_name)
+        l = findwindows.find_elements(active_only=True, class_name=class_name)
         return (len(l) > 0)
 
-    WaitUntil(_ready_timeout, _retry_interval, _cabinetwclass_exist)
-    handle = findwindows.find_elements(active_only = True,
-                                      class_name = class_name)[-1].handle
+    wait_until(_ready_timeout, _retry_interval, _cabinetwclass_exist)
+    handle = findwindows.find_elements(active_only=True,
+                                       class_name=class_name)[-1].handle
     window = WindowSpecification({'handle': handle, 'backend': 'win32', })
     explorer = Application().Connect(process=window.process_id())
     cur_state = None
 
     try:
         # Go to "Control Panel -> Notification Area Icons"
-        window.Wait("ready", timeout=_ready_timeout)
-        window.AddressBandRoot.click_input()
-        window.type_keys(
-                    r'control /name Microsoft.NotificationAreaIcons',
-                    with_spaces=True,
-                    set_foreground=True)
+        cmd_str = r'control /name Microsoft.NotificationAreaIcons'
+        for _ in range(3):
+            window.Wait("ready", timeout=_ready_timeout)
+            window.AddressBandRoot.click_input()
+            explorer.WaitCPUUsageLower(threshold=2, timeout=_ready_timeout)
+            window.type_keys(cmd_str, with_spaces=True, set_foreground=True)
+            # verfiy the text in the address combobox after type_keys finished
+            cmbx_spec = window.AddressBandRoot.ComboBoxEx
+            if cmbx_spec.exists(timeout=_ready_timeout, retry_interval=_retry_interval):
+                texts = cmbx_spec.texts()
+                if texts and texts[0] == cmd_str:
+                    break
+            # Send ESCs to remove the invalid text
+            window.type_keys("{ESC}" * 3)
+
         # Send 'ENTER' separately, this is to make sure
         # the window focus hasn't accidentally been lost
         window.type_keys(
-                    '{ENTER}',
-                    with_spaces=True,
-                    set_foreground=True)
+            '{ENTER}',
+            with_spaces=True,
+            set_foreground=True
+        )
         explorer.WaitCPUUsageLower(threshold=5, timeout=_ready_timeout)
 
         # Get the new opened applet
-        notif_area = explorer.Window_(title="Notification Area Icons",
+        notif_area = Desktop().window(title="Notification Area Icons",
                                       class_name=class_name)
         notif_area.Wait("ready", timeout=_ready_timeout)
         cur_state = notif_area.CheckBox.GetCheckState()
@@ -125,6 +139,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
     return cur_state
 
+
 def _wait_minimized(dlg):
     """A helper function to verify that the specified dialog is minimized
 
@@ -132,11 +147,13 @@ def _wait_minimized(dlg):
     wanted to make sure the dlg is really got to the 'minimized' state
     because we test hiding the window to the tray.
     """
-    WaitUntil(
-        timeout = _ready_timeout,
-        retry_interval = _retry_interval,
-        func = lambda: (dlg.GetShowState() == win32defines.SW_SHOWMINIMIZED))
+    wait_until(
+        timeout=_ready_timeout,
+        retry_interval=_retry_interval,
+        func=lambda: (dlg.GetShowState() == win32defines.SW_SHOWMINIMIZED)
+    )
     return True
+
 
 class TaskbarTestCases(unittest.TestCase):
 
@@ -148,9 +165,10 @@ class TaskbarTestCases(unittest.TestCase):
 
         self.tm = _ready_timeout
         app = Application(backend='win32')
-        app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle = False)
+        app.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"), wait_for_idle=False)
         self.app = app
-        self.dlg = app.top_window_()
+        self.dlg = app.top_window()
+        mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
         self.dlg.Wait('ready', timeout=self.tm)
 
     def tearDown(self):
@@ -188,7 +206,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         time.sleep(5)
         app = Application.connect(path=sample_app_exe())
-        dlg = app.top_window_()
+        dlg = app.top_window()
         Wait('ready', timeout=self.tm)
     '''
 
@@ -204,8 +222,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Launch Clock applet
         taskbar.Clock.click_input()
-        ClockWindow = taskbar.explorer_app.Window_(
-                               class_name='ClockFlyoutWindow')
+        ClockWindow = taskbar.explorer_app.Window_(class_name='ClockFlyoutWindow')
         ClockWindow.Wait('visible', timeout=self.tm)
 
         # Close the applet with Esc, we don't click again on it because
@@ -227,22 +244,27 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Make sure that the hidden icons area is disabled
         orig_hid_state = _toggle_notification_area_icons(
-                show_all=True,
-                debug_img="%s_01" % (self.id())
-                )
+            show_all=True,
+            debug_img="%s_01" % (self.id())
+        )
 
         self.dlg.Minimize()
         _wait_minimized(self.dlg)
 
-        # click in the visible area
-        taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=self.tm)
-        taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
+        menu_window = [None]
 
-        # verify PopupWindow method
-        menu_window = self.app.top_window_().children()[0]
-        WaitUntil(self.tm, _retry_interval, menu_window.is_visible)
-        menu_window.MenuBarClickInput("#2", self.app)
-        popup_window = self.app.top_window_()
+        # Click in the visible area and wait for a popup menu
+        def _show_popup_menu():
+            taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=self.tm)
+            taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
+            menu = self.app.top_window().children()[0]
+            res = isinstance(menu, ToolbarWrapper) and menu.is_visible()
+            menu_window[0] = menu
+            return res
+
+        wait_until(self.tm, _retry_interval, _show_popup_menu)
+        menu_window[0].MenuBarClickInput("#2", self.app)
+        popup_window = self.app.top_window()
         hdl = self.dlg.PopupWindow()
         self.assertEquals(popup_window.handle, hdl)
 
@@ -267,9 +289,9 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Make sure that the hidden icons area is enabled
         orig_hid_state = _toggle_notification_area_icons(
-                show_all=False,
-                debug_img="%s_01" % (self.id())
-                )
+            show_all=False,
+            debug_img="%s_01" % (self.id())
+        )
 
         self.dlg.Minimize()
         _wait_minimized(self.dlg)
@@ -278,7 +300,7 @@ class TaskbarTestCases(unittest.TestCase):
         # hopefully one of the icons moves into the hidden area
         app2 = Application()
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = app2.top_window_()
+        dlg2 = app2.top_window()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
@@ -303,29 +325,30 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Make sure that the hidden icons area is enabled
         orig_hid_state = _toggle_notification_area_icons(
-                show_all=False,
-                debug_img="%s_01" % (self.id())
-                )
+            show_all=False,
+            debug_img="%s_01" % (self.id())
+        )
 
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
         app2 = Application()
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
-        dlg2 = app2.top_window_()
+        dlg2 = app2.top_window()
         dlg2.Wait('visible', timeout=self.tm)
         dlg2.Minimize()
         _wait_minimized(dlg2)
 
         # Test click on "Show Hidden Icons" button
         taskbar.ShowHiddenIconsButton.click_input()
-        niow_dlg = taskbar.explorer_app.Window_(
-                class_name='NotifyIconOverflowWindow')
+        niow_dlg = taskbar.explorer_app.Window_(class_name='NotifyIconOverflowWindow')
         niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=self.tm)
         niow_dlg.SysLink.click_input()
-        nai = taskbar.explorer_app.Window_(
-                title="Notification Area Icons",
-                class_name="CabinetWClass"
-                )
+
+        nai = Desktop().window(
+            title="Notification Area Icons",
+            class_name="CabinetWClass"
+        )
+        nai.wait('ready')
         origAlwaysShow = nai.CheckBox.GetCheckState()
         if not origAlwaysShow:
             nai.CheckBox.click_input()
@@ -340,4 +363,3 @@ class TaskbarTestCases(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

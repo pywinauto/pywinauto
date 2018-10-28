@@ -1,8 +1,8 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,47 @@
 
 """Python package for automating GUI manipulation on Windows"""
 
-__version__ = "0.6.0.rc1"
+__version__ = "0.6.5"
 
-import sys
+import sys  # noqa: E402
+import warnings  # noqa: E402
 
 if sys.platform == 'win32':
+    # Importing only pythoncom can fail with the errors like:
+    #     ImportError: No system module 'pywintypes' (pywintypes27.dll)
+    # So try to facilitate pywintypes*.dll loading with implicit import of win32api
+    import win32api  # noqa: E402
+    import pythoncom  # noqa: E402
+
+    def _get_com_threading_mode(module_sys):
+        """Set up COM threading model
+
+        The ultimate goal is MTA, but the mode is adjusted
+        if it was already defined prior to pywinauto import.
+        """
+        com_init_mode = 0   # COINIT_MULTITHREADED = 0x0
+        if hasattr(module_sys, "coinit_flags"):
+            warnings.warn("Apply externally defined coinit_flags: {0}"
+                          .format(module_sys.coinit_flags), UserWarning)
+            com_init_mode = module_sys.coinit_flags
+
+        try:
+            # Probe the selected COM threading mode
+            pythoncom.CoInitializeEx(com_init_mode)
+            pythoncom.CoUninitialize()
+        except pythoncom.com_error:
+            warnings.warn("Revert to STA COM threading mode", UserWarning)
+            com_init_mode = 2  # revert back to STA
+
+        return com_init_mode
+
+    sys.coinit_flags = _get_com_threading_mode(sys)
+    from .sysinfo import UIA_support
+
     from . import findwindows
     WindowAmbiguousError = findwindows.WindowAmbiguousError
     ElementNotFoundError = findwindows.ElementNotFoundError
 
-    from .sysinfo import UIA_support
     if UIA_support:
         ElementNotFoundError = findwindows.ElementNotFoundError
         ElementAmbiguousError = findwindows.ElementAmbiguousError
@@ -50,8 +81,7 @@ if sys.platform == 'win32':
     from . import backend as backends
     MatchError = findbestmatch.MatchError
 
-    from .application import Application, WindowSpecification
-
+    from pywinauto.application import Application, WindowSpecification
 
     class Desktop(object):
 

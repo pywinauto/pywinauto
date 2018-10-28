@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,76 +41,53 @@ except ImportError:
     sys.path.append(pywinauto_path)
     from pywinauto import application
 
-from pywinauto.controls.hwndwrapper import HwndWrapper
-
 import sys
 import time
 import os.path
-
-from pywinauto import WindowAmbiguousError
 
 if len(sys.argv) < 2:
     print("please specify a web address to download")
     sys.exit()
 
-web_addresss = sys.argv[1]
+web_address = sys.argv[1]
 
 if len(sys.argv) > 2:
     outputfilename = sys.argv[2]
 else:
-    outputfilename = web_addresss
+    outputfilename = web_address
     outputfilename = outputfilename.replace('/', '')
     outputfilename = outputfilename.replace('\\', '')
     outputfilename = outputfilename.replace(':', '')
-    if not (outputfilename.lower().endswith("htm") or
-        outputfilename.lower().endswith("html")):
-        outputfilename += ".html"
 
-# make sure that we have an absolute path - otherwise it is
-# hard to know where firefox might save the file!
 outputfilename = os.path.abspath(outputfilename)
+
 
 # start IE with a start URL of what was passed in
 app = application.Application().start(
-    r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe %s"% web_addresss)
+    r"c:\program files\internet explorer\iexplore.exe {}".format(web_address))
 
 # some pages are slow to open - so wait some seconds
-time.sleep(5)
+time.sleep(10)
 
-# mozilla is one of thos applications that use existing windows
-# if they exist (at least on my machine!)
-# so if we cannot find any window for that process
-#  - find the actual process
-#  - connect to it
-if app.windows_():
-    mozilla =  app.window_(title_re=".*Mozilla Firefox")
-
-else:
-    app = application.Application().connect(title_re=".*Mozilla Firefox")
-    mozilla = app.window_(title_re=".*Mozilla Firefox")
+ie =  app.window(title_re = ".*Windows Internet Explorer.*")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
-print("No Menu's in FireFox:", mozilla.menu_items())
+print("No Menu's in IE:", ie.menu_items())
+print("They are implemented as a toolbar:", ie.Toolbar3.texts())
 
-# File -> Save As
-mozilla.type_keys("%FA")
+ie.type_keys("%FA")
 #ie.Toolbar3.press_button("File")
-app.SaveAs.Edit.set_edit_text(outputfilename)
+app.SaveWebPage.Edit.set_edit_text(os.path.join(r"c:\.temp", outputfilename))
 
-app.SaveAs.Save.close_click()
 
-try:
-    # if asked to overwrite say yes
-    if app.SaveAs.Yes.Exists():
-        app.SaveAs.Yes.close_click()
-except WindowAmbiguousError as e:
-    for w in e.windows:
-        w = HwndWrapper(w)
-        print(w.window_text(), w.class_name())
+app.SaveWebPage.Save.close_click()
+
+# if asked to overwrite say yes
+if app.SaveWebPage.Yes.Exists():
+    app.SaveWebPage.Yes.close_click()
 
 print("saved:", outputfilename)
 
-# File close tab or close
-#(Firefox makes it easy for us having the same shortcut for both!
-mozilla.type_keys("%FC")
+# quit IE
+ie.type_keys("%FC")
 

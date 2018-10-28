@@ -11,7 +11,7 @@ your code easier and more reliable.
 Application methods
 -------------------
 
-  * WaitCPUUsageLower_ (new in pywinauto 0.5.2)
+  * wait_cpu_usage_lower_ (new in pywinauto 0.5.2, renamed in 0.6.0)
 
 This method is useful for multi-threaded interfaces that allow a lazy 
 initialization in another thread while GUI is responsive and all controls 
@@ -21,7 +21,7 @@ calculation is not finished yet.
 
 Example: ::
 
-    app.WaitCPUUsageLower(threshold=5) # wait until CPU usage is lower than 5%
+    app.wait_cpu_usage_lower(threshold=5) # wait until CPU usage is lower than 5%
 
 
 WindowSpecification methods
@@ -29,14 +29,14 @@ WindowSpecification methods
 
 These methods are available to all controls.
 
-  * Wait_
-  * WaitNot_
+  * wait_
+  * wait_not_
 
 There is an example containing long waits: `install script for 7zip 9.20 x64
 <https://gist.github.com/vasily-v-ryabov/7a04717af4584cbb840f>`_.
 
 A ``WindowSpecification`` object isn't necessarily related to an existing window/control.
-It's just a description namely a couple of criteria to search the window. The ``Wait`` method (if no any exception is raised) 
+It's just a description namely a couple of criteria to search the window. The ``wait`` method (if no any exception is raised) 
 can guarantee that the target control exists or even visible, enabled and/or active.
 
 Functions in ``timings`` module
@@ -44,15 +44,27 @@ Functions in ``timings`` module
 
 There are also low-level methods useful for any Python code.
 
-  * WaitUntil_
-  * WaitUntilPasses_
+  * wait_until_
+  * wait_until_passes_
 
 
-.. _Wait: code/pywinauto.application.html?highlight=Wait#pywinauto.application.WindowSpecification.Wait
-.. _WaitNot: code/pywinauto.application.html?highlight=WaitNot#pywinauto.application.WindowSpecification.WaitNot
-.. _WaitCPUUsageLower: code/pywinauto.application.html?highlight=WaitCPUUsageLower#pywinauto.application.Application.WaitCPUUsageLower
-.. _WaitUntil: code/pywinauto.timings.html?highlight=WaitUntil#pywinauto.timings.WaitUntil
-.. _WaitUntilPasses: code/pywinauto.timings.html?highlight=WaitUntilPasses#pywinauto.timings.WaitUntilPasses
+.. _wait: code/pywinauto.application.html?highlight=wait#pywinauto.application.WindowSpecification.wait
+.. _wait_not: code/pywinauto.application.html?highlight=wait_not#pywinauto.application.WindowSpecification.wait_not
+.. _wait_cpu_usage_lower: code/pywinauto.application.html?highlight=wait_cpu_usage_lower#pywinauto.application.Application.wait_cpu_usage_lower
+.. _wait_until: code/pywinauto.timings.html?highlight=wait_until#pywinauto.timings.wait_until
+.. _wait_until_passes: code/pywinauto.timings.html?highlight=wait_until_passes#pywinauto.timings.wait_until_passes
+
+
+Decorators :func:`pywinauto.timings.always_wait_until()` and
+:func:`pywinauto.timings.always_wait_until_passes()` can also be used
+if every function call should have timing control. ::
+
+    # call ensure_text_changed(ctrl) every 2 sec until it's passed or timeout (4 sec) is expired
+    
+    @always_wait_until_passes(4, 2)
+    def ensure_text_changed(ctrl):
+        if previous_text == ctrl.window_text():
+            raise ValueError('The ctrl text remains the same while change is expected')
 
 
 Identify controls
@@ -60,12 +72,12 @@ Identify controls
 
 The methods to help you to find a needed control.
 
-  * PrintControlIdentifiers_
-  * DrawOutline_
+  * print_control_identifiers_
+  * draw_outline_
 
 
-.. _PrintControlIdentifiers: code/pywinauto.application.html?highlight=PrintControlIdentifiers#pywinauto.application.WindowSpecification.PrintControlIdentifiers
-.. _DrawOutline: code/pywinauto.controls.hwndwrapper.html?highlight=DrawOutline#pywinauto.controls.hwndwrapper.HwndWrapper.DrawOutline
+.. _print_control_identifiers: code/pywinauto.application.html?highlight=print_control_identifiers#pywinauto.application.WindowSpecification.print_control_identifiers
+.. _draw_outline: code/pywinauto.controls.hwndwrapper.html?highlight=draw_outline#pywinauto.controls.hwndwrapper.HwndWrapper.draw_outline
 
 
 How To`s

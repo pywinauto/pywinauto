@@ -146,7 +146,7 @@ for lang in langs:
     licence_dlg[t['Close'][lang]].click()
 
     # find the WinRar main dialog
-    rar_dlg = app.window_(title_re = ".* - WinRAR.*")
+    rar_dlg = app.window(title_re = ".* - WinRAR.*")
 
     # dump and capture some dialogs
     get_winrar_dlgs(rar_dlg, app,  lang)

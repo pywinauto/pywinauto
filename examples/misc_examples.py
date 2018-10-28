@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@ def test_exceptions():
 
 
 def get_info():
+    """Run Notepad, print some identifiers and exit"""
     app = application.Application()
 
     app.start(r"notepad.exe")
@@ -86,7 +87,7 @@ def get_info():
     app.Notepad.menu_select("File->PageSetup")
 
     print("==" * 20)
-    print("Windows of this application:", app.windows_())
+    print("Windows of this application:", app.windows())
 
     print("The list of identifiers for the Page Setup dialog in Notepad")
     print("==" * 20)

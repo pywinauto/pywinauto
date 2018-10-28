@@ -52,24 +52,20 @@ one of the following:
 
   ::
 
-          app = Application.connect(path=r"c:\windows\system32\notepad.exe")
+          app = Application().connect(path=r"c:\windows\system32\notepad.exe")
 
 
 or any combination of the parameters that specify a window, these get
-passed to the :func:`pywinauto.findwindows.find_windows()` function.  e.g.
+passed to the :func:`pywinauto.findwindows.find_elements()` function.  e.g.
 
   ::
 
-          app = Application.connect(title_re=".*Notepad", class_name="Notepad")
+          app = Application().connect(title_re=".*Notepad", class_name="Notepad")
 
 
-**Note**: I have since added static methods Application.start() and
-Application.connect() these can be used the same as above - except that
-you no longer need to instantiate an Application object first.
-
-**Note2**: The application has to be ready before you can use connect*().
+**Note**: The application has to be ready before you can use connect*().
 There is no timeout or retries like there is when finding the application
-after start*(). So if you start the application outside of pywinauto you
+after start(). So if you start the application outside of pywinauto you
 need to either sleep or program a wait loop to wait until the application
 has fully started.
 
@@ -92,11 +88,11 @@ or equivalently
 
    dlg = app['Notepad']
 
-The next easiest method is to ask for the ``top_window_()`` e.g.
+The next easiest method is to ask for the ``top_window()`` e.g.
 
   ::
 
-    dlg = app.top_window_()
+    dlg = app.top_window()
 
 This will return the window that has the highest Z-Order of the top-level
 windows of the application.
@@ -110,13 +106,13 @@ can be passed to ``findwindows.find_windows()`` e.g.
 
   ::
 
-    dlg = app.window_(title_re="Page Setup", class_name="#32770")
+    dlg = app.window(title_re="Page Setup", class_name="#32770")
 
 Finally to have the most control you can use
 
   ::
 
-    dialogs = app.windows_()
+    dialogs = app.windows()
 
 this will return a list of all the visible, enabled, top level windows
 of the application. You can then use some of the methods in ``handleprops``
@@ -125,14 +121,14 @@ then use
 
   ::
 
-    app.window_(handle = win)
+    app.window(handle=win)
 
 **Note**: If the title of the dialog is very long - then attribute access
 might be very long to type, in those cases it is usually easier to use
 
   ::
 
-    app.window_(title_re=".*Part of Title.*")
+    app.window(title_re=".*Part of Title.*")
 
 
 
@@ -148,7 +144,7 @@ There are a number of ways to specify a control, the simplest are
 
 
 The 2nd is better for non English OS's where you need to pass unicode
-strings e.g. app[u'your dlg title'][u'your ctrl title']
+strings e.g. ``app[u'your dlg title'][u'your ctrl title']``
 
 The code builds up multiple identifiers for each control from the following:
 
@@ -156,9 +152,9 @@ The code builds up multiple identifiers for each control from the following:
  - friendly class
  - title + friendly class
 
-If the control's text is empty (after removing non char characters) text is
-not used. Instead we look for the closest control above and to the right fo
-the contol. And append the friendly class. So the list becomes
+If the control's title text is empty (after removing non char characters) this text is
+not used. Instead we look for the closest title text above and to the right of
+the control. And append the friendly class. So the list becomes
 
  - friendly class
  - closest text + friendly class
@@ -279,7 +275,7 @@ How to use pywinauto with application languages other than English
 Because Python does not support unicode identifiers in code
 you cannot use attribute access to reference a control so
 you would either have to use item access or make an explicit
-calls to ``window_()``.
+calls to ``window()``.
 
 So instead of writing
 
@@ -293,13 +289,13 @@ You would have to write
 
     app['dialog_ident']['control_ident'].click()
 
-Or use ``window_()`` explictly
+Or use ``window()`` explictly
 
   ::
 
-    app.window_(title_re="NonAsciiCharacters").window_(title="MoreNonAsciiCharacters").click()
+    app.window(title_re="NonAsciiCharacters").window(title="MoreNonAsciiCharacters").click()
 
-To see an example of this check ``examples\MiscExamples.py get_info()``
+To see an example of this check ``examples\misc_examples.py get_info()``
 
 
 

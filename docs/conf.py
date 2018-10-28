@@ -40,6 +40,7 @@ if sys.platform.startswith('linux'):
             'Xlib.display',
             'Xlib.ext.xtest',
             'Xlib.ext',
+            'Xlib.XK',
             'pywintypes',
             'pywinauto.win32structures',
             'pywinauto.win32defines',
@@ -105,7 +106,7 @@ master_doc = 'contents'
 
 # General information about the project.
 project = u'pywinauto'
-copyright = u'2016, Mark Mc Mahon and Contributors'
+copyright = u'2018, Mark Mc Mahon and Contributors'
 author = u'Mark Mc Mahon and Contributors'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -205,7 +206,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied

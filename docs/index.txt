@@ -1,7 +1,7 @@
 ====================
 What is pywinauto
 ====================
-© Mark Mc Mahon and Contributors_, 2006-2016
+© Mark Mc Mahon and Contributors_, 2006-2018
 
 .. _Contributors: https://github.com/pywinauto/pywinauto/graphs/contributors
 
@@ -27,7 +27,7 @@ Manual installation
   - pyWin32_
   - comtypes_
   - six_
-  - *(optional)* Pillow_ (fork of PIL)
+  - *(optional)* Pillow_ (to make screenshoots)
 
 - Download latest pywinauto from https://github.com/pywinauto/pywinauto/releases
 - Unpack and run ``python setup.py install``
@@ -42,12 +42,17 @@ To check you have it installed correctly
 Run Python ::
 
   >>> from pywinauto.application import Application
-  >>> app = Application().start("notepad.exe")
+  >>> app = Application(backend="uia").start("notepad.exe")
   >>> app.UntitledNotepad.type_keys("%FX")
 
 
 How does it work
 ----------------
+The core concept is described in the `Getting Started Guide`_.
+
+.. _`Getting Started Guide`: getting_started.html
+
+
 A lot is done through attribute access (``__getattribute__``) for each class. For example
 when you get the attribute of an Application or Dialog object it looks for a
 dialog or control (respectively).
@@ -84,7 +89,7 @@ disappear later. You can wait for its new state like so ::
   app.Open.Open.click() # opening large file
   app.Open.wait_not('visible') # make sure "Open" dialog became invisible
   # wait for up to 30 seconds until data.txt is loaded
-  app.window_(title='data.txt - Notepad').wait('ready', timeout=30)
+  app.window(title='data.txt - Notepad').wait('ready', timeout=30)
 
 
 Some similar tools for comparison

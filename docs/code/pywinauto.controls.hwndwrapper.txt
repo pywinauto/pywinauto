@@ -2,5 +2,20 @@ pywinauto.controls.hwndwrapper
 ------------------------------
  .. automodule:: pywinauto.controls.hwndwrapper
     :members:
+    :exclude-members: re_wrappers, str_wrappers, CaptureAsImage, Children,
+        Class, Click, ClickInput, ClientRect, ClientRects, ClientToScreen,
+        Close, CloseAltF4, CloseClick, ContextHelpID, ControlID, DebugMessage,
+        DoubleClick, DoubleClickInput, DragMouse, DragMouseInput, DrawOutline,
+        ExStyle, Font, Fonts, FriendlyClassName, GetActive, GetFocus,
+        GetProperties, GetShowState, GetToolbar, HasExStyle, HasStyle,
+        IsActive, IsChild, IsDialog, IsEnabled, IsUnicode, IsVisible,
+        Maximize, Menu, MenuItem, MenuItems, MenuSelect, Minimize, MoveMouse,
+        MoveMouseInput, MoveWindow, NotifyParent, Owner, Parent, PopupWindow,
+        PostCommand, PostMessage, PressMouse, PressMouseInput, ProcessID,
+        Rectangle, ReleaseMouse, ReleaseMouseInput, Restore, RightClick,
+        RightClickInput, Scroll, SendCommand, SendMessage, SendMessageTimeout,
+        SetApplicationData, SetFocus, SetTransparency, SetWindowText, Style,
+        Texts, TopLevelParent, TypeKeys, UserData, VerifyActionable,
+        VerifyEnabled, VerifyVisible, WheelMouseInput, WindowText
     :undoc-members:
     :show-inheritance:

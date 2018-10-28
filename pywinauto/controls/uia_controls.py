@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,15 @@ import locale
 import comtypes
 import six
 
-from .. import uia_element_info
+from pywinauto.windows import uia_element_info
 from .. import findbestmatch
 from .. import timings
 
 from . import uiawrapper
-from ..uia_defines import IUIA
-from ..uia_defines import NoPatternInterfaceError
-from ..uia_defines import toggle_state_on
-from ..uia_defines import get_elem_interface
+from pywinauto.windows.uia_defines import IUIA
+from pywinauto.windows.uia_defines import NoPatternInterfaceError
+from pywinauto.windows.uia_defines import toggle_state_on
+from pywinauto.windows.uia_defines import get_elem_interface
 
 
 # ====================================================================
@@ -50,10 +50,9 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ButtonControlTypeId,
-        IUIA().UIA_dll.UIA_CheckBoxControlTypeId,
-        IUIA().UIA_dll.UIA_RadioButtonControlTypeId
+    _control_types = ['Button',
+        'CheckBox',
+        'RadioButton',
     ]
 
     # -----------------------------------------------------------
@@ -79,8 +78,13 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         Notice, a radio button control isn't supported by UIA.
         https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+
         self.iface_toggle.Toggle()
 
+        if name and control_type:
+            self.actions.log('Toggled ' + control_type.lower() + ' "' +  name + '"')
         # Return itself so that action can be chained
         return self
 
@@ -120,9 +124,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
 
     """Wrap a UIA CoboBox control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ComboBoxControlTypeId
-    ]
+    _control_types = ['ComboBox']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -138,8 +140,10 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             self.expand()
             for c in self.children():
                 texts.append(c.window_text())
-        finally:
-            # Make sure we collapse back in any case
+        except NoPatternInterfaceError:
+            return texts
+        else:
+            # Make sure we collapse back
             self.collapse()
         return texts
 
@@ -201,9 +205,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
     # TODO: this class supports only 1-line textboxes so there is no point
     # TODO: in methods such as line_count(), line_length(), get_line(), etc
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_EditControlTypeId,
-    ]
+    _control_types = ['Edit']
     has_title = False
 
     # -----------------------------------------------------------
@@ -246,6 +248,11 @@ class EditWrapper(uiawrapper.UIAWrapper):
             return ""
         else:
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
+
+    # -----------------------------------------------------------
+    def get_value(self):
+        """Return the current value of the element"""
+        return self.iface_value.CurrentValue
 
     # -----------------------------------------------------------
     def texts(self):
@@ -379,9 +386,7 @@ class TabControlWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tab control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_TabControlTypeId,
-    ]
+    _control_types = ['Tab']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -415,9 +420,7 @@ class SliderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Slider control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_SliderControlTypeId,
-    ]
+    _control_types = ['Slider']
     has_title = False
 
     # -----------------------------------------------------------
@@ -485,9 +488,7 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Header control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_HeaderControlTypeId,
-    ]
+    _control_types = ['Header']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -496,14 +497,24 @@ class HeaderWrapper(uiawrapper.UIAWrapper):
 
 
 # ====================================================================
+class HeaderItemWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Header Item control"""
+
+    _control_types = ['HeaderItem']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(HeaderItemWrapper, self).__init__(elem)
+
+
+# ====================================================================
 class ListItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListViewItem control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_DataItemControlTypeId,
-        IUIA().UIA_dll.UIA_ListItemControlTypeId,
-    ]
+    _control_types = ['DataItem', 'ListItem', ]
 
     # -----------------------------------------------------------
     def __init__(self, elem, container=None):
@@ -523,8 +534,7 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         Only items supporting Toggle pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
         """
-        res = (self.iface_toggle.ToggleState_On == toggle_state_on)
-        return res
+        return self.iface_toggle.ToggleState_On == toggle_state_on
 
     def texts(self):
         """Return a list of item texts"""
@@ -541,10 +551,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_DataGridControlTypeId,
-        IUIA().UIA_dll.UIA_ListControlTypeId,
-    ]
+    _control_types = ['DataGrid', 'List', ]
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -739,9 +746,7 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible MenuItem control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_MenuItemControlTypeId,
-    ]
+    _control_types = ['MenuItem']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -770,10 +775,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible MenuBar or Menu control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_MenuBarControlTypeId,
-        IUIA().UIA_dll.UIA_MenuControlTypeId
-    ]
+    _control_types = ['MenuBar', 'Menu', ]
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -806,19 +808,18 @@ class MenuWrapper(uiawrapper.UIAWrapper):
     def _sub_item_by_text(self, menu, name, exact):
         """Find a menu sub-item by the specified text"""
         sub_item = None
-
-        if exact:
-            for i in menu.items():
-                if name == i.window_text():
-                    sub_item = i
-                    break
-        else:
-            items = []
-            texts = []
-            for i in menu.items():
-                items.append(i)
-                texts.append(i.window_text())
-            sub_item = findbestmatch.find_best_match(name, texts, items)
+        items = menu.items()
+        if items:
+            if exact:
+                for i in items:
+                    if name == i.window_text():
+                        sub_item = i
+                        break
+            else:
+                texts = []
+                for i in items:
+                    texts.append(i.window_text())
+                sub_item = findbestmatch.find_best_match(name, texts, items)
 
         self._activate(sub_item)
 
@@ -831,7 +832,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         items = menu.items()
         if items:
             sub_item = items[idx]
-            self._activate(sub_item)
+        self._activate(sub_item)
         return sub_item
 
     # -----------------------------------------------------------
@@ -861,7 +862,9 @@ class MenuWrapper(uiawrapper.UIAWrapper):
                 menu = self._sub_item_by_text(self, part0, exact)
 
             if not menu.items():
-                timings.wait_until(timings.Timings.window_find_timeout,
+                self._activate(menu)
+                timings.wait_until(
+                    timings.Timings.window_find_timeout,
                     timings.Timings.window_find_retry,
                     lambda: len(self.top_level_parent().descendants(control_type="Menu")) > 0)
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
@@ -882,9 +885,7 @@ class TooltipWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tooltip control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ToolTipControlTypeId
-    ]
+    _control_types = ['ToolTip']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -903,9 +904,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     not of the toolbar.
     """
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_ToolBarControlTypeId
-    ]
+    _control_types = ['ToolBar']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -1003,9 +1002,7 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
     click_input(), rectangle() and many others
     """
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_TreeItemControlTypeId
-    ]
+    _control_types = ['TreeItem']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -1084,9 +1081,7 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible Tree control"""
 
-    _control_types = [
-        IUIA().UIA_dll.UIA_TreeControlTypeId
-    ]
+    _control_types = ['Tree']
 
     # -----------------------------------------------------------
     def __init__(self, elem):

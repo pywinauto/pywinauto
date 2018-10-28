@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,16 @@ from __future__ import print_function
 
 import six
 import comtypes
+import time
 
 from .. import backend
-from ..base_wrapper import BaseWrapper
+from ..timings import Timings
+from .win32_wrapper import Win32Wrapper
 from ..base_wrapper import BaseMeta
 
-from ..uia_defines import IUIA
-from .. import uia_defines as uia_defs
-from ..uia_element_info import UIAElementInfo, elements_from_uia_array
+from pywinauto.windows.uia_defines import IUIA
+from pywinauto.windows import uia_defines as uia_defs
+from pywinauto.windows.uia_element_info import UIAElementInfo, elements_from_uia_array
 
 # region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
@@ -134,6 +136,7 @@ lazy_property = LazyProperty
 
 # =========================================================================
 class UiaMeta(BaseMeta):
+
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
@@ -160,7 +163,7 @@ class UiaMeta(BaseMeta):
 
 # =========================================================================
 @six.add_metaclass(UiaMeta)
-class UIAWrapper(BaseWrapper):
+class UIAWrapper(Win32Wrapper):
 
     """
     Default wrapper for User Interface Automation (UIA) controls.
@@ -191,7 +194,7 @@ class UIAWrapper(BaseWrapper):
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
+        Win32Wrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     # ------------------------------------------------------------
     def __hash__(self):
@@ -291,6 +294,27 @@ class UIAWrapper(BaseWrapper):
 
     # ------------------------------------------------------------
     @lazy_property
+    def iface_scroll(self):
+        """Get the element's Scroll interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Scroll")
+
+    # ------------------------------------------------------------
+    @lazy_property
+    def iface_transform(self):
+        """Get the element's Transform interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "Transform")
+
+    # ------------------------------------------------------------
+    @lazy_property
+    def iface_transformV2(self):
+        """Get the element's TransformV2 interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "TransformV2")
+
+    # ------------------------------------------------------------
+    @lazy_property
     def iface_window(self):
         """Get the element's Window interface pattern"""
         elem = self.element_info.element
@@ -317,8 +341,22 @@ class UIAWrapper(BaseWrapper):
         props = super(UIAWrapper, self).writable_props
         props.extend(['is_keyboard_focusable',
                       'has_keyboard_focus',
+                      'automation_id',
                       ])
         return props
+
+    # ------------------------------------------------------------
+    def legacy_properties(self):
+        """Get the element's LegacyIAccessible control pattern interface properties"""
+        elem = self.element_info.element
+        impl = uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+        property_name_identifier = 'Current'
+
+        interface_properties = [prop for prop in dir(LegacyIAccessiblePattern)
+                                if (isinstance(getattr(LegacyIAccessiblePattern, prop), property)
+                                and property_name_identifier in prop)]
+
+        return {prop.replace(property_name_identifier, '') : getattr(impl, prop) for prop in interface_properties}
 
     # ------------------------------------------------------------
     def friendly_class_name(self):
@@ -334,15 +372,20 @@ class UIAWrapper(BaseWrapper):
         of a CheckBox is "Button" - but the friendly class is "CheckBox"
         """
         if self.friendlyclassname is None:
-            if self.element_info.control_type not in IUIA().known_control_type_ids.keys():
-                self.friendlyclassname = str(self.element_info.control_type)
+            if self.element_info.control_type not in IUIA().known_control_types.keys():
+                self.friendlyclassname = self.element_info.control_type
             else:
-                ctrl_type = IUIA().known_control_type_ids[self.element_info.control_type]
+                ctrl_type = self.element_info.control_type
                 if (ctrl_type not in _friendly_classes) or (_friendly_classes[ctrl_type] is None):
                     self.friendlyclassname = ctrl_type
                 else:
                     self.friendlyclassname = _friendly_classes[ctrl_type]
         return self.friendlyclassname
+
+    #------------------------------------------------------------
+    def automation_id(self):
+        """Return the Automation ID of the control"""
+        return self.element_info.automation_id
 
     # -----------------------------------------------------------
     def is_keyboard_focusable(self):
@@ -374,8 +417,14 @@ class UIAWrapper(BaseWrapper):
         If it doesn't (menu shadows, tooltips,...), try to send "Esc" key
         """
         try:
+            name = self.element_info.name
+            control_type = self.element_info.control_type
+
             iface = self.iface_window
             iface.Close()
+
+            if name and control_type:
+                self.actions.log("Closed " + control_type.lower() + ' "' +  name + '"')
         except(uia_defs.NoPatternInterfaceError):
             self.type_keys("{ESC}")
 
@@ -404,10 +453,56 @@ class UIAWrapper(BaseWrapper):
         return self
 
     # -----------------------------------------------------------
+    def restore(self):
+        """
+        Restore the window to normal size
+
+        Only controls supporting Window pattern should answer
+        """
+        iface = self.iface_window
+        iface.SetWindowVisualState(uia_defs.window_visual_state_normal)
+        return self
+
+    # -----------------------------------------------------------
+    def get_show_state(self):
+        """Get the show state and Maximized/minimzed/restored state
+
+        Returns values as following
+
+        window_visual_state_normal = 0
+        window_visual_state_maximized = 1
+        window_visual_state_minimized = 2
+        """
+        iface = self.iface_window
+        ret = iface.CurrentWindowVisualState
+
+        return ret
+
+    # -----------------------------------------------------------
+    def is_minimized(self):
+        """Indicate whether the window is minimized or not"""
+        return self.get_show_state() == uia_defs.window_visual_state_minimized
+
+    # -----------------------------------------------------------
+    def is_maximized(self):
+        """Indicate whether the window is maximized or not"""
+        return self.get_show_state() == uia_defs.window_visual_state_maximized
+
+    # -----------------------------------------------------------
+    def is_normal(self):
+        """Indicate whether the window is normal (i.e. not minimized and not maximized)"""
+        return self.get_show_state() == uia_defs.window_visual_state_normal
+
+    # -----------------------------------------------------------
     def invoke(self):
         """An interface to the Invoke method of the Invoke control pattern"""
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+
         self.iface_invoke.Invoke()
 
+        if name and control_type:
+            self.actions.log("Invoked " + control_type.lower() + ' "' + name + '"')
         # Return itself to allow action chaining
         return self
 
@@ -498,6 +593,11 @@ class UIAWrapper(BaseWrapper):
         """
         self.iface_selection_item.Select()
 
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+        if name and control_type:
+            self.actions.log("Selected " + control_type.lower() + ' "' + name + '"')
+
         # Return itself so that action can be chained
         return self
 
@@ -574,6 +674,14 @@ class UIAWrapper(BaseWrapper):
         return (focused_wrap.top_level_parent() == self.top_level_parent())
 
     # -----------------------------------------------------------
+    def is_dialog(self):
+        """Return true if the control is a dialog window (WindowPattern interface is available)"""
+        try:
+            return self.iface_window is not None
+        except uia_defs.NoPatternInterfaceError:
+            return False
+
+    # -----------------------------------------------------------
     def menu_select(self, path, exact=False, ):
         """Select a menu item specified in the path
 
@@ -581,7 +689,7 @@ class UIAWrapper(BaseWrapper):
         :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
 
         There are usually at least two menu bars: "System" and "Application"
-        System menu bar is a standart window menu with items like:
+        System menu bar is a standard window menu with items like:
         'Restore', 'Move', 'Size', 'Minimize', e.t.c.
         This menu bar usually has a "Title Bar" control as a parent.
         Application menu bar is often what we look for. In most cases,
@@ -602,6 +710,66 @@ class UIAWrapper(BaseWrapper):
                 raise AttributeError
         menu = cc[0]
         menu.item_by_path(path, exact).select()
+
+    # -----------------------------------------------------------
+    _scroll_types = {
+        "left": {
+            "line": (uia_defs.scroll_small_decrement, uia_defs.scroll_no_amount),
+            "page": (uia_defs.scroll_large_decrement, uia_defs.scroll_no_amount),
+        },
+        "right": {
+            "line": (uia_defs.scroll_small_increment, uia_defs.scroll_no_amount),
+            "page": (uia_defs.scroll_large_increment, uia_defs.scroll_no_amount),
+        },
+        "up": {
+            "line": (uia_defs.scroll_no_amount, uia_defs.scroll_small_decrement),
+            "page": (uia_defs.scroll_no_amount, uia_defs.scroll_large_decrement),
+        },
+        "down": {
+            "line": (uia_defs.scroll_no_amount, uia_defs.scroll_small_increment),
+            "page": (uia_defs.scroll_no_amount, uia_defs.scroll_large_increment),
+        },
+    }
+
+    def scroll(self, direction, amount, count=1, retry_interval=Timings.scroll_step_wait):
+        """Ask the control to scroll itself
+
+        **direction** can be any of "up", "down", "left", "right"
+        **amount** can be only "line" or "page"
+        **count** (optional) the number of times to scroll
+        **retry_interval** (optional) interval between scroll actions
+        """
+        def _raise_attrib_err(details):
+            control_type = self.element_info.control_type
+            name = self.element_info.name
+            msg = "".join([control_type.lower(), ' "', name, '" ', details])
+            raise AttributeError(msg)
+
+        try:
+            scroll_if = self.iface_scroll
+            if direction.lower() in ("up", "down"):
+                if not scroll_if.CurrentVerticallyScrollable:
+                    _raise_attrib_err('is not vertically scrollable')
+            elif direction.lower() in ("left", "right"):
+                if not scroll_if.CurrentHorizontallyScrollable:
+                    _raise_attrib_err('is not horizontally scrollable')
+
+            h, v = self._scroll_types[direction.lower()][amount.lower()]
+
+            # Scroll as often as we have been asked to
+            for _ in range(count, 0, -1):
+                scroll_if.Scroll(h, v)
+                time.sleep(retry_interval)
+
+        except uia_defs.NoPatternInterfaceError:
+            _raise_attrib_err('is not scrollable')
+        except KeyError:
+            raise ValueError("""Wrong arguments:
+                direction can be any of "up", "down", "left", "right"
+                amount can be only "line" or "page"
+                """)
+
+        return self
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

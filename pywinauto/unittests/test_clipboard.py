@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@ import sys
 import time
 sys.path.append(".")
 from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard
-from pywinauto.application import Application
-from pywinauto.win32structures import RECT
+from pywinauto.windows.application import Application
+from pywinauto.windows.win32structures import RECT
 from pywinauto.timings import Timings
 
 

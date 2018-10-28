@@ -3,14 +3,14 @@ import os
 import sys
 
 sys.path.append(".")
-from pywinauto.application import Application
-from pywinauto.handleprops import processid
-from pywinauto.sysinfo import is_x64_Python
-from pywinauto.sysinfo import UIA_support
-from pywinauto.timings import Timings
+from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.handleprops import processid  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python  # noqa: E402
+from pywinauto.sysinfo import UIA_support  # noqa: E402
+from pywinauto.timings import Timings  # noqa: E402
 
 if UIA_support:
-    from pywinauto.uia_element_info import UIAElementInfo
+    from pywinauto.windows.uia_element_info import UIAElementInfo
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -61,6 +61,44 @@ if UIA_support:
         def testChildren(self):
             """Test whether a list of only immediate children of the element is equal"""
             self.assertEqual(len(self.ctrl.children()), 5)
+
+        def test_children_generator(self):
+            """Test whether children generator iterates over correct elements"""
+            children = [child for child in self.ctrl.iter_children()]
+            self.assertSequenceEqual(self.ctrl.children(), children)
+
+        def test_default_depth_descendants(self):
+            """Test whether a list of descendants with default depth of the element is equal"""
+            self.assertEqual(len(self.ctrl.descendants(depth=None)), len(self.ctrl.descendants()))
+
+        def test_depth_level_one_descendants(self):
+            """Test whether a list of descendants with depth=1 of the element is equal to children set"""
+            self.assertEqual(len(self.ctrl.descendants(depth=1)), len(self.ctrl.children()))
+
+        def test_depth_level_three_descendants(self):
+            """Test whether a list of descendants with depth=3 of the element is equal"""
+            descendants = self.ctrl.children()
+
+            level_two_children = []
+            for element in descendants:
+                level_two_children.extend(element.children())
+            descendants.extend(level_two_children)
+
+            level_three_children = []
+            for element in level_two_children:
+                level_three_children.extend(element.children())
+            descendants.extend(level_three_children)
+
+            self.assertEqual(len(self.ctrl.descendants(depth=3)), len(descendants))
+
+        def test_invalid_depth_descendants(self):
+            """Test whether a list of descendants with invalid depth raises exception"""
+            self.assertRaises(Exception, self.ctrl.descendants, depth='qwerty')
+
+        def test_descendants_generator(self):
+            """Test whether descendant generator iterates over correct elements"""
+            descendants = [desc for desc in self.ctrl.iter_descendants(depth=3)]
+            self.assertSequenceEqual(self.ctrl.descendants(depth=3), descendants)
 
 if __name__ == "__main__":
     if UIA_support:

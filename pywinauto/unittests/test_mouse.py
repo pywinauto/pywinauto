@@ -51,10 +51,7 @@ class MouseTests(unittest.TestCase):
             time.sleep(1)
 
     def tearDown(self):
-        if sys.platform == 'win32':
-            self.app.kill_()
-        else:
-            self.app.kill()
+        self.app.kill()
 
     def __get_pos(self, shift):
         if sys.platform == 'win32':
@@ -65,13 +62,12 @@ class MouseTests(unittest.TestCase):
             root = self.display.screen().root
             left_pos = root.get_geometry().width / 2
             top_pos = root.get_geometry().height / 2
-            return left_pos-shift, top_pos-shift
+            return left_pos - shift, top_pos - shift
 
     def __get_text(self):
         data = ''
         time.sleep(1)
-        SendKeys('^a')
-        SendKeys('^c')
+        SendKeys('^a^c', pause=0.2)
         if sys.platform == 'win32':
             win32clipboard.OpenClipboard()
             data = win32clipboard.GetClipboardData()
@@ -80,17 +76,14 @@ class MouseTests(unittest.TestCase):
             data = clipboard.get_data()
         return data
 
-    def test_position(self):
+    def test_left_click(self):
         left, top = self.__get_pos(50)
-        print(left, top)
         mouse.click(coords=(left, top))
+        print(left, top)
         data = self.__get_text()
+        print(data)
         self.assertTrue(str(int(top)) in data)
         self.assertTrue(str(int(left)) in data)
-
-    def test_click(self):
-        mouse.click(coords=(self.__get_pos(50)))
-        data = self.__get_text()
         self.assertTrue("LeftButton" in data)
         self.assertTrue("Mouse Press" in data)
         self.assertTrue("Mouse Release" in data)

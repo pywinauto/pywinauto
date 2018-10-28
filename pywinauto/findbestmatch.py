@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -199,13 +199,14 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
 
     if ctrl_index != 0:
         prev_ctrl = controls[ctrl_index-1]
+        prev_ctrl_text = prev_ctrl.window_text()
 
         if prev_ctrl.friendly_class_name() == "Static" and \
-            prev_ctrl.is_visible() and prev_ctrl.window_text() and \
+            prev_ctrl.is_visible() and prev_ctrl_text and \
             is_above_or_to_left(ctrl, prev_ctrl):
 
             names.append(
-                prev_ctrl.window_text() +
+                prev_ctrl_text +
                 ctrl_friendly_class_name)
 
     best_name = ''
@@ -263,7 +264,11 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
             # TODO: use search in all text controls for all non-text ones
             # (like Dijkstra algorithm vs Floyd one)
             closest = distance
-            best_name = text_ctrl.window_text() + ctrl_friendly_class_name
+            ctrl_text = text_ctrl.window_text()
+            if ctrl_text is None:
+                # the control probably doesn't exist so skip it
+                continue
+            best_name = ctrl_text + ctrl_friendly_class_name
 
         # if this distance was closer than the last one
         elif distance < closest:
@@ -271,7 +276,11 @@ def get_non_text_control_name(ctrl, controls, text_ctrls):
             #if text_ctrl.window_text() == '':
             #    best_name = ctrl_friendly_class_name + ' '.join(text_ctrl.texts()[1:2])
             #else:
-            best_name = text_ctrl.window_text() + ctrl_friendly_class_name
+            ctrl_text = text_ctrl.window_text()
+            if ctrl_text is None:
+                # the control probably doesn't exist so skip it
+                continue
+            best_name = ctrl_text + ctrl_friendly_class_name
 
     names.append(best_name)
 
@@ -356,8 +365,7 @@ class UniqueDict(dict):
         # add our current item
         dict.__setitem__(self, text, item)
 
-
-    def FindBestMatches(
+    def find_best_matches(
         self,
         search_text,
         clean = False,
@@ -496,16 +504,16 @@ def find_best_control_matches(search_text, controls):
 
     search_text = six.text_type(search_text)
 
-    best_ratio, best_texts = name_control_map.FindBestMatches(search_text)
+    best_ratio, best_texts = name_control_map.find_best_matches(search_text)
 
     best_ratio_ci, best_texts_ci = \
-        name_control_map.FindBestMatches(search_text, ignore_case = True)
+        name_control_map.find_best_matches(search_text, ignore_case = True)
 
     best_ratio_clean, best_texts_clean = \
-        name_control_map.FindBestMatches(search_text, clean = True)
+        name_control_map.find_best_matches(search_text, clean = True)
 
     best_ratio_clean_ci, best_texts_clean_ci = \
-        name_control_map.FindBestMatches(
+        name_control_map.find_best_matches(
             search_text, clean = True, ignore_case = True)
 
 
@@ -537,7 +545,7 @@ def find_best_control_matches(search_text, controls):
 #    for name in ctrl_names:
 #        matcher[name] = ctrl
 #
-#    best_ratio, unused = matcher.FindBestMatches(text)
+#    best_ratio, unused = matcher.find_best_matches(text)
 #
 #    return best_ratio
 #

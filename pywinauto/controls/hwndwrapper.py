@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,8 @@ from __future__ import print_function
 
 # pylint:  disable-msg=W0611
 
-#import sys
+# import sys
+import copy
 import time
 import re
 import ctypes
@@ -43,16 +44,25 @@ import win32api
 import win32gui
 import win32con
 import win32process
+import win32event
 import six
+import pywintypes
+import warnings
 
 # the wrappers may be used in an environment that does not need
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
-from .. import win32functions
+from pywinauto.windows import win32defines, win32functions, win32structures
+from .. import controlproperties
 from ..actionlogger import ActionLogger
 from .. import keyboard
 from .. import mouse
+from ..timings import Timings
+from .. import timings
+from .. import handleprops
+from pywinauto.windows.win32_element_info import HwndElementInfo
+from .. import backend
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -60,21 +70,11 @@ try:
 except ImportError:
     ImageGrab = None
 
-from .. import win32defines
-from .. import win32structures
-from ..timings import Timings
-from .. import timings
-
-#from .. import findbestmatch
-from .. import handleprops
-from ..win32_element_info import HwndElementInfo
-from .. import backend
-
 # also import MenuItemNotEnabled so that it is
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from ..base_wrapper import BaseWrapper
+from .win32_wrapper import Win32Wrapper
 from ..base_wrapper import BaseMeta
 
 
@@ -141,8 +141,7 @@ class HwndMeta(BaseMeta):
         # if it is a dialog then override the wrapper we found
         # and make it a DialogWrapper
         if handleprops.is_toplevel_window(element.handle):
-            from . import win32_controls
-            wrapper_match = win32_controls.DialogWrapper
+            wrapper_match = DialogWrapper
 
         if wrapper_match is None:
             wrapper_match = HwndWrapper
@@ -150,7 +149,7 @@ class HwndMeta(BaseMeta):
 
 #====================================================================
 @six.add_metaclass(HwndMeta)
-class HwndWrapper(BaseWrapper):
+class HwndWrapper(Win32Wrapper):
 
     """
     Default wrapper for controls.
@@ -170,7 +169,6 @@ class HwndWrapper(BaseWrapper):
     C function - and it will get converted to a Long with the value of
     it's handle (see ctypes, _as_parameter_).
     """
-
     handle = None
 
     # -----------------------------------------------------------
@@ -193,7 +191,7 @@ class HwndWrapper(BaseWrapper):
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
+        Win32Wrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
         if not win32functions.IsWindow(self.handle):
@@ -214,6 +212,7 @@ class HwndWrapper(BaseWrapper):
                       'client_rects',
                       'is_unicode',
                       'menu_items',
+                      'automation_id',
                       ])
         return props
 
@@ -246,6 +245,21 @@ class HwndWrapper(BaseWrapper):
         return handleprops.exstyle(self)
     # Non PEP-8 alias
     ExStyle = exstyle
+
+    #------------------------------------------------------------
+    def automation_id(self):
+        """Return the .NET name of the control"""
+        return self.element_info.automation_id
+
+    #------------------------------------------------------------
+    def control_type(self):
+        """Return the .NET type of the control"""
+        return self.element_info.control_type
+
+    #------------------------------------------------------------
+    def full_control_type(self):
+        """Return the .NET type of the control (full, uncut)"""
+        return self.element_info.full_control_type
 
     # -----------------------------------------------------------
     def user_data(self):
@@ -440,11 +454,11 @@ class HwndWrapper(BaseWrapper):
         """Send a message to the control and wait for it to return"""
         #return win32functions.SendMessage(self, message, wparam, lparam)
         wParamAddress = wparam
-        if hasattr(wparam, 'memAddress'):
-            wParamAddress = wparam.memAddress
+        if hasattr(wparam, 'mem_address'):
+            wParamAddress = wparam.mem_address
         lParamAddress = lparam
-        if hasattr(lparam, 'memAddress'):
-            lParamAddress = lparam.memAddress
+        if hasattr(lparam, 'mem_address'):
+            lParamAddress = lparam.mem_address
 
         CArgObject = type(ctypes.byref(ctypes.c_int(0)))
         if isinstance(wparam, CArgObject):
@@ -459,57 +473,160 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def send_chars(self,
-                   message,
+                   chars,
                    with_spaces=True,
                    with_tabs=True,
                    with_newlines=True):
         """
-        Silently send a string to the control
+        Silently send a character string to the control in an inactive window
 
-        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{Enter}"
-        For more information about Sequences and Modifiers navigate to keyboard.py
+        If a virtual key with no corresponding character is encountered
+        (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised. Consider using
+        the method send_keystrokes for such input.
         """
+        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        keys = keyboard.parse_keys(chars, with_spaces, with_tabs, with_newlines)
 
-        keys = keyboard.parse_keys(message, with_spaces, with_tabs, with_newlines)
         for key in keys:
+            key_info = key.get_key_info()
+            flags = key_info[2]
 
-            vk, scan, flags = key.get_key_info()
+            unicode_char = (
+                flags & keyboard.KEYEVENTF_UNICODE ==
+                keyboard.KEYEVENTF_UNICODE)
 
-            lparam = 1 << 0 | scan << 16 | flags << 24
-
-            if isinstance(key, keyboard.VirtualKeyAction):
-
-                if key.down and key.up and (flags == 0):
-                    lparam = 1 << 0 | scan << 16
-                    win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
-                elif key.down and key.up and (flags == 1):
-                    # + LEFT, DELETE
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
-                elif key.down:
-                    # TODO: {CTRL} (^) modifier doesn't work
-                    # + SHIFT down
-                    # - CTRL down
-                    # print('key', key, 'down')
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 0 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYDOWN, vk, lparam)
-                elif key.up:
-                    # + SHIFT up
-                    # - CTRL up
-                    # print('key', key, 'up')
-                    lparam = 1 << 0 | scan << 16 | flags << 24 | 0 << 29 | 1 << 30 | 1 << 31
-                    win32api.SendMessage(self.handle, win32con.WM_KEYUP, vk, lparam)
-            elif isinstance(key, keyboard.EscapedKeyAction):
-                # An escaped key action e.g. F9 DOWN, etc
-                # And key between Shifts. a -> A
-                win32api.SendMessage(self.handle, win32con.WM_CHAR, vk, lparam)
+            if unicode_char:
+                _, char = key_info[:2]
+                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF
+                scan = keyboard.MapVirtualKey(vk, 0)
             else:
-                # Usual key
-                win32api.SendMessage(self.handle, win32con.WM_CHAR, scan, lparam)
+                vk, scan = key_info[:2]
+                char = keyboard.MapVirtualKey(vk, 2)
 
-            # time.sleep(Timings.after_sendkeys_key_wait)
+            if char > 0:
+                lparam = 1 << 0 | scan << 16 | (flags & 1) << 24
+                win32api.SendMessage(self.handle, win32con.WM_CHAR, char, lparam)
+            else:
+                raise keyboard.KeySequenceError(
+                    'no WM_CHAR code for {key}, use method send_keystrokes instead'.
+                    format(key=key))
+
+    # -----------------------------------------------------------
+    def send_keystrokes(self,
+                   keystrokes,
+                   with_spaces=True,
+                   with_tabs=True,
+                   with_newlines=True):
+        """
+        Silently send keystrokes to the control in an inactive window
+
+        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
+        For more information about Sequences and Modifiers navigate to keyboard.py
+
+        Due to the fact that each application handles input differently and this method
+        is meant to be used on inactive windows, it may work only partially depending
+        on the target app. If the window being inactive is not essential, use the robust
+        type_keys method.
+        """
+        user32 = ctypes.windll.User32
+        PBYTE256 = ctypes.c_ubyte * 256
+
+        win32gui.SendMessage(self.handle, win32con.WM_ACTIVATE,
+                             win32con.WA_ACTIVE, 0)
+        target_thread_id = user32.GetWindowThreadProcessId(self.handle, None)
+        current_thread_id = win32api.GetCurrentThreadId()
+        attach_success = user32.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
+        if not attach_success:
+            warnings.warn('Failed to attach app\'s thread to the current thread\'s message queue',
+                          UserWarning, stacklevel=2)
+
+        keyboard_state_stack = [PBYTE256()]
+        user32.GetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+
+        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        context_code = 0
+
+        keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs, with_newlines)
+        key_combos_present = any([isinstance(k, keyboard.EscapedKeyAction) for k in keys])
+        if key_combos_present:
+            warnings.warn('Key combinations may or may not work depending on the target app',
+                          UserWarning, stacklevel=2)
+
+        try:
+            for key in keys:
+                vk, scan, flags = key.get_key_info()
+
+                if vk == keyboard.VK_MENU or context_code == 1:
+                    down_msg, up_msg = win32con.WM_SYSKEYDOWN, win32con.WM_SYSKEYUP
+                else:
+                    down_msg, up_msg = win32con.WM_KEYDOWN, win32con.WM_KEYUP
+
+                repeat = 1
+                shift_state = 0
+                unicode_codepoint = flags & keyboard.KEYEVENTF_UNICODE != 0
+                if unicode_codepoint:
+                    char = scan
+                    vk_with_flags = user32.VkKeyScanExW(char, input_locale_id)
+                    vk = vk_with_flags & 0xFF
+                    shift_state = (vk_with_flags & 0xFF00) >> 8
+                    scan = keyboard.MapVirtualKey(vk, 0)
+
+                if key.down and vk > 0:
+                    new_keyboard_state = copy.deepcopy(keyboard_state_stack[-1])
+
+                    new_keyboard_state[vk] |= 128
+                    if shift_state & 1 == 1:
+                        new_keyboard_state[keyboard.VK_SHIFT] |= 128
+                    # NOTE: if there are characters with CTRL or ALT in the shift
+                    # state, make sure to add these keys to new_keyboard_state
+
+                    keyboard_state_stack.append(new_keyboard_state)
+
+                    lparam = (
+                        repeat << 0 |
+                        scan << 16 |
+                        (flags & 1) << 24 |
+                        context_code << 29 |
+                        0 << 31)
+
+                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+                    win32api.PostMessage(self.handle, down_msg, vk, lparam)
+                    if vk == keyboard.VK_MENU:
+                        context_code = 1
+
+                    # a delay for keyboard state to take effect
+                    time.sleep(0.01)
+
+                if key.up and vk > 0:
+                    keyboard_state_stack.pop()
+
+                    lparam = (
+                        repeat << 0 |
+                        scan << 16 |
+                        (flags & 1) << 24 |
+                        context_code << 29 |
+                        1 << 30 |
+                        1 << 31)
+
+                    win32api.PostMessage(self.handle, up_msg, vk, lparam)
+                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+
+                    if vk == keyboard.VK_MENU:
+                        context_code = 0
+
+                    # a delay for keyboard state to take effect
+                    time.sleep(0.01)
+
+        except pywintypes.error as e:
+            if e.winerror == 1400:
+                warnings.warn('Application exited before the end of keystrokes',
+                              UserWarning, stacklevel=2)
+            else:
+                warnings.warn(e.strerror, UserWarning, stacklevel=2)
+            user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[0]))
+
+        if attach_success:
+            user32.AttachThreadInput(target_thread_id, current_thread_id, False)
 
     # -----------------------------------------------------------
     def send_message_timeout(
@@ -600,6 +717,11 @@ class HwndWrapper(BaseWrapper):
         """Returns the hash value of the handle"""
         return hash(self.handle)
 
+    #-----------------------------------------------------------
+    def wait_for_idle(self):
+        """Backend specific function to wait for idle state of a thread or a window"""
+        win32functions.WaitGuiThreadIdle(self)
+
     # -----------------------------------------------------------
     def click(
         self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
@@ -647,7 +769,7 @@ class HwndWrapper(BaseWrapper):
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
-        timings.WaitUntil(
+        timings.wait_until(
             Timings.closeclick_dialog_close_wait,
             Timings.closeclick_retry,
             has_closed
@@ -772,7 +894,7 @@ class HwndWrapper(BaseWrapper):
         """Write some debug text over the window"""
         # don't draw if dialog is not visible
 
-        dc = win32functions.CreateDC("DISPLAY", None, None, None )
+        dc = win32functions.CreateDC("DISPLAY", None, None, None)
 
         if not dc:
             raise ctypes.WinError()
@@ -1039,7 +1161,7 @@ class HwndWrapper(BaseWrapper):
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
-        timings.WaitUntil(
+        timings.wait_until(
             wait_time,
             Timings.closeclick_retry,
             has_closed
@@ -1159,71 +1281,28 @@ class HwndWrapper(BaseWrapper):
         """
         Set the focus to this control.
 
-        Bring the window to the foreground first if necessary.
+        Bring the window to the foreground first.
         The system restricts which processes can set the foreground window
         (https://msdn.microsoft.com/en-us/library/windows/desktop/ms633539(v=vs.85).aspx)
         so the mouse cursor is removed from the screen to prevent any side effects.
         """
-        # Notice that we need to move the mouse out of the screen
-        # but we don't use the built-in methods of the class:
-        # self.mouse_move doesn't do the job well even with absolute=True
-        # self.move_mouse_input can't be used as it calls click_input->set_focus
-
-        # find the current foreground window
+        # "steal the focus" if there is another active window
+        # otherwise it is already into the foreground and no action required
         cur_foreground = win32gui.GetForegroundWindow()
 
-        # if there is no active window bring our window into the foreground
-        if not cur_foreground:
-            mouse.move(coords=(10000, 20000))
-            win32gui.SetForegroundWindow(self.handle)
-            win32functions.WaitGuiThreadIdle(self)
-            time.sleep(Timings.after_setfocus_wait)
+        if self.handle != cur_foreground:
+            # Notice that we need to move the mouse out of the screen
+            # but we don't use the built-in methods of the class:
+            # self.mouse_move doesn't do the job well even with absolute=True
+            # self.move_mouse_input can't be used as it calls click_input->set_focus
+            mouse.move(coords=(-10000, 500))  # move the mouse out of screen to the left
 
-        # "steel the focus" if there is another active window
-        # otherwise it is already into the foreground and no action required
-        elif self.handle != cur_foreground:
-            mouse.move(coords=(10000, 20000))
-
-            # get the thread of the window that is in the foreground
-            cur_fore_thread = win32process.GetWindowThreadProcessId(
-                cur_foreground)[0]
-
-            # get the thread of the window that we want to be in the foreground
-            control_thread = win32process.GetWindowThreadProcessId(
-                self.handle)[0]
-
-            # if a different thread owns the active window
-            if cur_fore_thread != control_thread:
-
-                # Attach the two threads and set the foreground window
-                win32process.AttachThreadInput(control_thread,
-                                               cur_fore_thread,
-                                               1)
-
-                win32gui.SetForegroundWindow(self.handle)
-
-                # ensure foreground window has changed to the target
-                # or is 0(no foreground window) before the threads detaching
-                timings.wait_until(
-                    Timings.setfocus_timeout,
-                    Timings.setfocus_retry,
-                    lambda: win32gui.GetForegroundWindow()
-                    in [self.top_level_parent().handle, 0])
-
-                # get the threads again to check they are still valid.
-                cur_fore_thread = win32process.GetWindowThreadProcessId(
-                    cur_foreground)[0]
-                control_thread = win32process.GetWindowThreadProcessId(
-                    self.handle)[0]
-
-                if cur_fore_thread and control_thread:  # both are valid
-                    # Detach the threads
-                    win32process.AttachThreadInput(control_thread,
-                                                   cur_fore_thread,
-                                                   0)
+            # change active window
+            if self.is_minimized():
+                win32gui.ShowWindow(self.handle, win32con.SW_RESTORE)
             else:
-                # same threads - just set the foreground window
-                win32gui.SetForegroundWindow(self.handle)
+                win32gui.ShowWindow(self.handle, win32con.SW_SHOW)
+            win32gui.SetForegroundWindow(self.handle)
 
             # make sure that we are idle before returning
             win32functions.WaitGuiThreadIdle(self)
@@ -1309,8 +1388,14 @@ class HwndWrapper(BaseWrapper):
             message = win32defines.WM_VSCROLL
 
         # the constant that matches direction, and how much
-        scroll_type = \
-            self._scroll_types[direction.lower()][amount.lower()]
+        try:
+            scroll_type = \
+                self._scroll_types[direction.lower()][amount.lower()]
+        except KeyError:
+            raise ValueError("""Wrong arguments:
+                direction can be any of "up", "down", "left", "right"
+                amount can be any of "line", "page", "end"
+                """)
 
         # Scroll as often as we have been asked to
         if retry_interval is None:
@@ -1336,40 +1421,211 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     GetToolbar = get_toolbar
 
-    # Non PEP-8 aliases for BaseWrapper methods
+    # Non PEP-8 aliases for Win32Wrapper methods
     # We keep them for the backward compatibility in legacy scripts
-    ClickInput = BaseWrapper.click_input
-    DoubleClickInput = BaseWrapper.double_click_input
-    RightClickInput = BaseWrapper.right_click_input
-    VerifyVisible = BaseWrapper.verify_visible
-    _NeedsImageProp = BaseWrapper._needs_image_prop
-    FriendlyClassName = BaseWrapper.friendly_class_name
-    Class = BaseWrapper.class_name
-    WindowText = BaseWrapper.window_text
-    ControlID = BaseWrapper.control_id
-    IsVisible = BaseWrapper.is_visible
-    IsEnabled = BaseWrapper.is_enabled
-    Rectangle = BaseWrapper.rectangle
-    ClientToScreen = BaseWrapper.client_to_screen
-    ProcessID = BaseWrapper.process_id
-    IsDialog = BaseWrapper.is_dialog
-    Parent = BaseWrapper.parent
-    TopLevelParent = BaseWrapper.top_level_parent
-    Texts = BaseWrapper.texts
-    Children = BaseWrapper.children
-    CaptureAsImage = BaseWrapper.capture_as_image
-    GetProperties = BaseWrapper.get_properties
-    DrawOutline = BaseWrapper.draw_outline
-    IsChild = BaseWrapper.is_child
-    VerifyActionable = BaseWrapper.verify_actionable
-    VerifyEnabled = BaseWrapper.verify_enabled
-    PressMouseInput = BaseWrapper.press_mouse_input
-    ReleaseMouseInput = BaseWrapper.release_mouse_input
-    MoveMouseInput = BaseWrapper.move_mouse_input
-    DragMouseInput = BaseWrapper.drag_mouse_input
-    WheelMouseInput = BaseWrapper.wheel_mouse_input
-    TypeKeys = BaseWrapper.type_keys
-    SetFocus = BaseWrapper.set_focus
+    ClickInput = Win32Wrapper.click_input
+    DoubleClickInput = Win32Wrapper.double_click_input
+    RightClickInput = Win32Wrapper.right_click_input
+    VerifyVisible = Win32Wrapper.verify_visible
+    _NeedsImageProp = Win32Wrapper._needs_image_prop
+    FriendlyClassName = Win32Wrapper.friendly_class_name
+    Class = Win32Wrapper.class_name
+    WindowText = Win32Wrapper.window_text
+    ControlID = Win32Wrapper.control_id
+    IsVisible = Win32Wrapper.is_visible
+    IsEnabled = Win32Wrapper.is_enabled
+    Rectangle = Win32Wrapper.rectangle
+    ClientToScreen = Win32Wrapper.client_to_screen
+    ProcessID = Win32Wrapper.process_id
+    IsDialog = Win32Wrapper.is_dialog
+    Parent = Win32Wrapper.parent
+    TopLevelParent = Win32Wrapper.top_level_parent
+    Texts = Win32Wrapper.texts
+    Children = Win32Wrapper.children
+    CaptureAsImage = Win32Wrapper.capture_as_image
+    GetProperties = Win32Wrapper.get_properties
+    DrawOutline = Win32Wrapper.draw_outline
+    IsChild = Win32Wrapper.is_child
+    VerifyActionable = Win32Wrapper.verify_actionable
+    VerifyEnabled = Win32Wrapper.verify_enabled
+    PressMouseInput = Win32Wrapper.press_mouse_input
+    ReleaseMouseInput = Win32Wrapper.release_mouse_input
+    MoveMouseInput = Win32Wrapper.move_mouse_input
+    DragMouseInput = Win32Wrapper.drag_mouse_input
+    WheelMouseInput = Win32Wrapper.wheel_mouse_input
+    TypeKeys = Win32Wrapper.type_keys
+    SetFocus = Win32Wrapper.set_focus
+
+
+#====================================================================
+# the main reason for this is just to make sure that
+# a Dialog is a known class - and we don't need to take
+# an image of it (as an unknown control class)
+class DialogWrapper(HwndWrapper):
+
+    """Wrap a dialog"""
+
+    friendlyclassname = "Dialog"
+    #windowclasses = ["#32770", ]
+    can_be_label = True
+
+    #-----------------------------------------------------------
+    def __init__(self, hwnd):
+        """Initialize the DialogWrapper
+
+        The only extra functionality here is to modify self.friendlyclassname
+        to make it "Dialog" if the class is "#32770" otherwise to leave it
+        the same as the window class.
+        """
+        HwndWrapper.__init__(self, hwnd)
+
+        if self.class_name() == "#32770":
+            self.friendlyclassname = "Dialog"
+        else:
+            self.friendlyclassname = self.class_name()
+
+    #-----------------------------------------------------------
+    def run_tests(self, tests_to_run = None, ref_controls = None):
+        """Run the tests on dialog"""
+        # the tests package is imported only when running unittests
+        from .. import tests
+
+        # get all the controls
+        controls = [self] + self.children()
+
+        # add the reference controls
+        if ref_controls is not None:
+            matched_flags = controlproperties.SetReferenceControls(
+                controls, ref_controls)
+
+            # todo: allow some checking of how well the controls matched
+            # matched_flags says how well they matched
+            # 1 = same number of controls
+            # 2 = ID's matched
+            # 4 = control classes matched
+            # i.e. 1 + 2 + 4 = perfect match
+
+        return tests.run_tests(controls, tests_to_run)
+    # Non PEP-8 alias
+    RunTests = run_tests
+
+    #-----------------------------------------------------------
+    def write_to_xml(self, filename):
+        """Write the dialog an XML file (requires elementtree)"""
+        controls = [self] + self.children()
+        props = [ctrl.get_properties() for ctrl in controls]
+
+        from .. import xml_helpers
+        xml_helpers.WriteDialogToFile(filename, props)
+    # Non PEP-8 alias
+    WriteToXML = write_to_xml
+
+    #-----------------------------------------------------------
+    def client_area_rect(self):
+        """Return the client area rectangle
+
+        From MSDN:
+        The client area of a control is the bounds of the control, minus the
+        nonclient elements such as scroll bars, borders, title bars, and
+        menus.
+        """
+        rect = win32structures.RECT(self.rectangle())
+        self.send_message(win32defines.WM_NCCALCSIZE, 0, ctypes.byref(rect))
+        return rect
+    # Non PEP-8 alias
+    ClientAreaRect = client_area_rect
+
+    #-----------------------------------------------------------
+    def hide_from_taskbar(self):
+        """Hide the dialog from the Windows taskbar"""
+        win32functions.ShowWindow(self, win32defines.SW_HIDE)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE, self.exstyle() | win32defines.WS_EX_TOOLWINDOW)
+        win32functions.ShowWindow(self, win32defines.SW_SHOW)
+    # Non PEP-8 alias
+    HideFromTaskbar = hide_from_taskbar
+
+    #-----------------------------------------------------------
+    def show_in_taskbar(self):
+        """Show the dialog in the Windows taskbar"""
+        win32functions.ShowWindow(self, win32defines.SW_HIDE)
+        win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE,
+                                        self.exstyle() | win32defines.WS_EX_APPWINDOW)
+        win32functions.ShowWindow(self, win32defines.SW_SHOW)
+    # Non PEP-8 alias
+    ShowInTaskbar = show_in_taskbar
+
+    #-----------------------------------------------------------
+    def is_in_taskbar(self):
+        """Check whether the dialog is shown in the Windows taskbar
+
+        Thanks to David Heffernan for the idea:
+        http://stackoverflow.com/questions/30933219/hide-window-from-taskbar-without-using-ws-ex-toolwindow
+        A window is represented in the taskbar if:
+        It has no owner and it does not have the WS_EX_TOOLWINDOW extended style,
+        or it has the WS_EX_APPWINDOW extended style.
+        """
+        return self.has_exstyle(win32defines.WS_EX_APPWINDOW) or \
+               (self.owner() is None and not self.has_exstyle(win32defines.WS_EX_TOOLWINDOW))
+    # Non PEP-8 alias
+    IsInTaskbar = is_in_taskbar
+
+    #-----------------------------------------------------------
+    def force_close(self):
+        """Close the dialog forcefully using WM_QUERYENDSESSION and return the result
+
+        Window has let us know that it doesn't want to die - so we abort
+        this means that the app is not hung - but knows it doesn't want
+        to close yet - e.g. it is asking the user if they want to save.
+        """
+        self.send_message_timeout(
+            win32defines.WM_QUERYENDSESSION,
+            timeout = .5,
+            timeoutflags = (win32defines.SMTO_ABORTIFHUNG)) # |
+        #win32defines.SMTO_NOTIMEOUTIFNOTHUNG)) # |
+        #win32defines.SMTO_BLOCK)
+
+        # get a handle we can wait on
+        _, pid = win32process.GetWindowThreadProcessId(int(self.handle))
+        try:
+            process_wait_handle = win32api.OpenProcess(
+                win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
+                0,
+                pid)
+        except win32gui.error:
+            return True # already closed
+
+        result = win32event.WaitForSingleObject(
+            process_wait_handle,
+            int(Timings.after_windowclose_timeout * 1000))
+
+        return result != win32con.WAIT_TIMEOUT
+
+#    #-----------------------------------------------------------
+#    def read_controls_from_xml(self, filename):
+#        from pywinauto import xml_helpers
+#        [controlproperties.ControlProps(ctrl) for
+#            ctrl in xml_helpers.ReadPropertiesFromFile(handle)]
+#    # Non PEP-8 alias
+#    ReadControlsFromXML = read_controls_from_xml
+
+#    #-----------------------------------------------------------
+#    def add_reference(self, reference):
+#
+#        if len(self.children() != len(reference)):
+#            raise "different number of reference controls"
+#
+#        for i, ctrl in enumerate(reference):
+#        # loop over each of the controls
+#        # and set the reference
+#            if isinstance(ctrl, dict):
+#                ctrl = CtrlProps(ctrl)
+#
+#            self.
+#            if ctrl.class_name() != self.children()[i+1].class_name():
+#                print "different classes"
+#    # Non PEP-8 alias
+#    AddReference = add_reference
+
 
 #====================================================================
 def _perform_click(
@@ -1387,20 +1643,24 @@ def _perform_click(
         ctrl = HwndWrapper(win32functions.GetDesktopWindow())
     ctrl.verify_actionable()
     ctrl_text = ctrl.window_text()
+    if ctrl_text is None:
+        ctrl_text = six.text_type(ctrl_text)
+
+    ctrl_friendly_class_name = ctrl.friendly_class_name()
 
     if isinstance(coords, win32structures.RECT):
-        coords = [coords.left, coords.top]
+        coords = coords.mid_point()
     # allow points objects to be passed as the coords
-    if isinstance(coords, win32structures.POINT):
+    elif isinstance(coords, win32structures.POINT):
         coords = [coords.x, coords.y]
-    #else:
-    coords = list(coords)
+    else:
+        coords = list(coords)
 
     if absolute:
         coords = ctrl.client_to_screen(coords)
 
     # figure out the messages for click/press
-    msgs  = []
+    msgs = []
     if not double:
         if button.lower() == 'left':
             if button_down:
@@ -1446,7 +1706,6 @@ def _perform_click(
     # figure out the flags and pack coordinates
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
-
     #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
     # TODO: check return value of AttachThreadInput properly
@@ -1469,16 +1728,15 @@ def _perform_click(
     # wait a certain(short) time after the click
     time.sleep(Timings.after_click_wait)
 
-    message = 'Clicked ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
-              '" by ' + str(button) + ' button event (x,y=' + ','.join([str(coord) for coord in coords]) + ')'
-    if double:
-        message = 'Double-c' + message[1:]
     if button.lower() == 'move':
-        message = 'Moved mouse over ' + ctrl.friendly_class_name() + ' "' + ctrl_text + \
-              '" to screen point (x,y=' + ','.join([str(coord) for coord in coords]) + ') by WM_MOUSEMOVE'
+        message = 'Moved mouse over ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
+                  '" to screen point ' + str(tuple(coords)) + ' by WM_MOUSEMOVE'
+    else:
+        message = 'Clicked ' + ctrl_friendly_class_name + ' "' + ctrl_text + \
+                  '" by ' + str(button) + ' button event ' + str(tuple(coords))
+        if double:
+            message = 'Double-c' + message[1:]
     ActionLogger().log(message)
-
-
 
 _mouse_flags = {
     "left": win32defines.MK_LBUTTON,
@@ -1542,4 +1800,5 @@ GetDialogPropsFromHandle = get_dialog_props_from_handle
 
 
 backend.register('win32', HwndElementInfo, HwndWrapper)
+backend.registry.backends['win32'].dialog_class = DialogWrapper
 backend.activate('win32') # default

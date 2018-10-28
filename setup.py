@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,11 +56,22 @@ sys.path.append(setup_path())
 #    if not os.path.exists(setup_path("docs")):
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
+if sys.platform == 'win32':
+    install_requires = ['six', 'comtypes']
+    try:
+        import win32api # check if it was already installed manually
+    except ImportError:
+        install_requires.append('pywin32')
+
+    packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
+else:
+    install_requires = ['six', 'python-xlib']
+    packages = ["pywinauto", "pywinauto.linux"]
+
 setup(name='pywinauto',
-    version = '0.6.0.rc1',
-    description = 'pywinauto is a set of python '
-        'modules to automate the Microsoft Windows GUI',
-    keywords = "windows automation gui GuiAuto",
+    version = '0.6.5',
+    description = 'A set of Python modules to automate the Microsoft Windows GUI',
+    keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
     url = "http://pywinauto.github.io/",
     author = 'Mark Mc Mahon and Contributors',
     author_email = 'pywinauto-users@lists.sourceforge.net',
@@ -68,30 +79,35 @@ setup(name='pywinauto',
 At it's simplest it allows you to send mouse and keyboard
 actions to windows dialogs and controls, but It has support for more complex
 controls also.
+
+Useful links
+-------------
+- Home page: http://pywinauto.github.io/
+- Docs Intro: https://pywinauto.readthedocs.io/en/latest/
+- Getting Started Guide: https://pywinauto.readthedocs.io/en/latest/getting_started.html
+- StackOverflow tag: https://stackoverflow.com/questions/tagged/pywinauto
 """,
     platforms=['win32'],
 
-    packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls"],
+    packages = packages,
 
     license = "BSD 3-clause",
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: User Interfaces',
         'Topic :: Software Development :: Quality Assurance',
         ],
-    install_requires=['six', 'pypiwin32', 'comtypes'],
-    setup_requires=['setuptools-scm'],
+    install_requires=install_requires,
     )

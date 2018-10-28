@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -87,10 +87,10 @@ class IUIA(object):
 
         for ctrl_type in self._control_types:
             type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
-            type_id = self.UIA_dll.__getattribute__(type_id_name)
+            type_id = getattr(self.UIA_dll, type_id_name)
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
-    
+
     def build_condition(self, process=None, class_name=None, title=None, control_type=None,
                         content_only=None):
         """Build UIA filtering conditions"""
@@ -141,14 +141,15 @@ def _build_pattern_ids_dic():
         'LegacyIAccessible', 'MulipleView', 'RangeValue', 'ScrollItem', 'Scroll',
         'SelectionItem', 'Selection', 'SynchronizedInput', 'TableItem', 'Table',
         'Text', 'Toggle', 'VirtualizedItem', 'Value', 'Window',
-    
+        'Transform',
+
         # Windows 8 and later
         'Annotation', 'Drag', 'Drop', 'ObjectModel', 'Spreadsheet',
         'SpreadsheetItem', 'Styles', 'TextChild', 'TextV2', 'TransformV2',
-    
+
         # Windows 8.1 and later
         'TextEdit',
-    
+
         # Windows 10 and later
         'CustomNavigation'
     ]
@@ -159,14 +160,19 @@ def _build_pattern_ids_dic():
     for ptrn_name in base_names:
 
         # Construct a class name and check if it is supported by comtypes
-        cls_name = ''.join(['IUIAutomation', ptrn_name, 'Pattern'])
+        v2 = ""
+        name = ptrn_name
+        if ptrn_name.endswith("V2"):
+            name = ptrn_name[:-2]
+            v2 = "2"
+        cls_name = ''.join(['IUIAutomation', name, 'Pattern', v2])
         if hasattr(IUIA().ui_automation_client, cls_name):
             klass = getattr(IUIA().ui_automation_client, cls_name)
-            
+
             # Contruct a pattern ID name and get the ID value
-            ptrn_id_name = 'UIA_' + ptrn_name + 'PatternId'
+            ptrn_id_name = 'UIA_' + name + 'Pattern' + v2 + 'Id'
             ptrn_id = getattr(IUIA().UIA_dll, ptrn_id_name)
-    
+
             # Update the registry of known patterns
             ptrn_ids_dic[ptrn_name] = (ptrn_id, klass)
 
@@ -188,6 +194,7 @@ toggle_state_off = IUIA().ui_automation_client.ToggleState_Off
 toggle_state_on = IUIA().ui_automation_client.ToggleState_On
 toggle_state_inderteminate = IUIA().ui_automation_client.ToggleState_Indeterminate
 
+
 class NoPatternInterfaceError(Exception):
 
     """There is no such interface for the specified pattern"""
@@ -203,6 +210,14 @@ expand_state_leaf_node = IUIA().ui_automation_client.ExpandCollapseState_LeafNod
 window_visual_state_normal = IUIA().ui_automation_client.WindowVisualState_Normal
 window_visual_state_maximized = IUIA().ui_automation_client.WindowVisualState_Maximized
 window_visual_state_minimized = IUIA().ui_automation_client.WindowVisualState_Minimized
+
+# values for enumeration 'ScrollAmount'
+scroll_large_decrement = IUIA().ui_automation_client.ScrollAmount_LargeDecrement
+scroll_small_decrement = IUIA().ui_automation_client.ScrollAmount_SmallDecrement
+scroll_no_amount = IUIA().ui_automation_client.ScrollAmount_NoAmount
+scroll_large_increment = IUIA().ui_automation_client.ScrollAmount_LargeIncrement
+scroll_small_increment = IUIA().ui_automation_client.ScrollAmount_SmallIncrement
+
 
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name

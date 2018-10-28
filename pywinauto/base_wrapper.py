@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import ctypes
 import locale
 import re
 import time
-import win32process
+# import win32process
 import six
 
 try:
@@ -47,7 +47,7 @@ except ImportError:
     ImageGrab = None
 
 from . import keyboard
-from . import win32defines, win32structures, win32functions
+# from . import win32defines, win32structures, win32functions
 from .timings import Timings
 from .actionlogger import ActionLogger
 from .mouse import _perform_click_input
@@ -147,7 +147,51 @@ class BaseWrapper(object):
             self._cache = {}
             self.actions = ActionLogger()
         else:
-            raise RuntimeError('NULL pointer used to initialize BaseWrapper')
+            raise RuntimeError('NULL pointer was used to initialize BaseWrapper')
+
+    def __repr__(self):
+        """Representation of the wrapper object
+
+        The method prints the following info:
+        * type name as a module name and a class name of the object
+        * title of the control or empty string
+        * friendly class name of the control
+        * unique ID of the control calculated as a hash value from a backend specific ID.
+
+        Notice that the reported title and class name can be used as hints to prepare
+        a windows specification to access the control, while the unique ID is more for
+        debugging purposes helping to distinguish between the runtime objects.
+        """
+        return '<{0}, {1}>'.format(self.__str__(), self.__hash__())
+
+    def __str__(self):
+        """Pretty print representation of the wrapper object
+
+        The method prints the following info:
+        * type name as a module name and class name of the object
+        * title of the wrapped control or empty string
+        * friendly class name of the wrapped control
+
+        Notice that the reported title and class name can be used as hints
+        to prepare a windows specification to access the control
+        """
+        module = self.__class__.__module__
+        module = module[module.rfind('.') + 1:]
+        type_name = module + "." + self.__class__.__name__
+
+        try:
+            title = self.texts()[0]
+        except IndexError:
+            title = ""
+
+        class_name = self.friendly_class_name()
+
+        return "{0} - '{1}', {2}".format(type_name, title, class_name)
+
+    def __hash__(self):
+        """Returns the hash value of the handle"""
+        # Must be implemented in a sub-class
+        raise NotImplementedError()
 
     #------------------------------------------------------------
     @property
@@ -179,7 +223,7 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     @property
     def element_info(self):
-        """Read-only property to get *ElementInfo object"""
+        """Read-only property to get **ElementInfo** object"""
         return self._element_info
 
     #------------------------------------------------------------
@@ -237,8 +281,8 @@ class BaseWrapper(object):
         owns this element and the element itself are both visible.
 
         If you want to wait for an element to become visible (or wait
-        for it to become hidden) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``.
+        for it to become hidden) use ``Application.wait('visible')`` or
+        ``Application.wait_not('visible')``.
 
         If you want to raise an exception immediately if an element is
         not visible then you can use the BaseWrapper.verify_visible().
@@ -256,8 +300,8 @@ class BaseWrapper(object):
         owns this element and the element itself are both enabled.
 
         If you want to wait for an element to become enabled (or wait
-        for it to become disabled) use ``Application.Wait('visible')`` or
-        ``Application.WaitNot('visible')``.
+        for it to become disabled) use ``Application.wait('visible')`` or
+        ``Application.wait_not('visible')``.
 
         If you want to raise an exception immediately if an element is
         not enabled then you can use the BaseWrapper.verify_enabled().
@@ -286,11 +330,7 @@ class BaseWrapper(object):
         # Use a direct call to element_info.rectangle instead of self.rectangle
         # because the latter can be overriden in one of derived wrappers
         # (see _treeview_element.rectangle or _listview_item.rectangle)
-        rect = self.element_info.rectangle
-        if isinstance(client_point, win32structures.POINT):
-            return (client_point.x + rect.left, client_point.y + rect.top)
-        else:
-            return (client_point[0] + rect.left, client_point[1] + rect.top)
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def process_id(self):
@@ -343,7 +383,6 @@ class BaseWrapper(object):
         no top level parent then the control itself is returned - as it is
         a top level window already!)
         """
-
         if not ("top_level_parent" in self._cache.keys()):
             parent = self.parent()
 
@@ -375,32 +414,48 @@ class BaseWrapper(object):
         return texts_list
 
     #-----------------------------------------------------------
-    def children(self, class_name=None, title=None, control_type=None, content_only=None):
+    def children(self, **kwargs):
         """
         Return the children of this element as a list
 
         It returns a list of BaseWrapper (or subclass) instances.
         An empty list is returned if there are no children.
         """
-        child_elements = self.element_info.children(class_name=class_name,
-                                                    title=title,
-                                                    control_type=control_type,
-                                                    content_only=content_only)
+        child_elements = self.element_info.children(**kwargs)
         return [self.backend.generic_wrapper_class(element_info) for element_info in child_elements]
 
     #-----------------------------------------------------------
-    def descendants(self, class_name=None, title=None, control_type=None, content_only=None):
+    def iter_children(self, **kwargs):
+        """
+        Iterate over the children of this element
+
+        It returns a generator of BaseWrapper (or subclass) instances.
+        """
+        child_elements = self.element_info.iter_children(**kwargs)
+        for element_info in child_elements:
+            yield self.backend.generic_wrapper_class(element_info)
+
+    #-----------------------------------------------------------
+    def descendants(self, **kwargs):
         """
         Return the descendants of this element as a list
 
         It returns a list of BaseWrapper (or subclass) instances.
         An empty list is returned if there are no descendants.
         """
-        desc_elements = self.element_info.descendants(class_name=class_name,
-                                                      title=title,
-                                                      control_type=control_type,
-                                                      content_only=content_only)
+        desc_elements = self.element_info.descendants(**kwargs)
         return [self.backend.generic_wrapper_class(element_info) for element_info in desc_elements]
+
+    #-----------------------------------------------------------
+    def iter_descendants(self, **kwargs):
+        """
+        Iterate over the descendants of this element
+
+        It returns a generator of BaseWrapper (or subclass) instances.
+        """
+        desc_elements = self.element_info.iter_descendants(**kwargs)
+        for element_info in desc_elements:
+            yield self.backend.generic_wrapper_class(element_info)
 
     #-----------------------------------------------------------
     def control_count(self):
@@ -460,7 +515,7 @@ class BaseWrapper(object):
         self,
         colour='green',
         thickness=2,
-        fill=win32defines.BS_NULL,
+        fill=None,
         rect=None):
         """
         Draw an outline around the window.
@@ -472,51 +527,7 @@ class BaseWrapper(object):
         * **rect** the coordinates of the rectangle to draw (defaults to
           the rectangle of the control)
         """
-
-        # don't draw if dialog is not visible
-        if not self.is_visible():
-            return
-
-        colours = {
-            "green": 0x00ff00,
-            "blue": 0xff0000,
-            "red": 0x0000ff,
-        }
-
-        # if it's a known colour
-        if colour in colours:
-            colour = colours[colour]
-
-        if rect is None:
-            rect = self.rectangle()
-
-        # create the pen(outline)
-        pen_handle = win32functions.CreatePen(
-                win32defines.PS_SOLID, thickness, colour)
-
-        # create the brush (inside)
-        brush = win32structures.LOGBRUSH()
-        brush.lbStyle = fill
-        brush.lbHatch = win32defines.HS_DIAGCROSS
-        brush_handle = win32functions.CreateBrushIndirect(ctypes.byref(brush))
-
-        # get the Device Context
-        dc = win32functions.CreateDC("DISPLAY", None, None, None )
-
-        # push our objects into it
-        win32functions.SelectObject(dc, brush_handle)
-        win32functions.SelectObject(dc, pen_handle)
-
-        # draw the rectangle to the DC
-        win32functions.Rectangle(
-            dc, rect.left, rect.top, rect.right, rect.bottom)
-
-        # Delete the brush and pen we created
-        win32functions.DeleteObject(brush_handle)
-        win32functions.DeleteObject(pen_handle)
-
-        # delete the Display context that we created
-        win32functions.DeleteDC(dc)
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def is_child(self, parent):
@@ -551,11 +562,7 @@ class BaseWrapper(object):
         Raise either ElementNotEnalbed or ElementNotVisible if not
         enabled or visible respectively.
         """
-        if self.element_info.handle:
-            win32functions.WaitGuiThreadIdle(self)
-        else:
-            # TODO: get WaitGuiThreadIdle function for elements without handle
-            pass
+        self.wait_for_idle()
         self.verify_visible()
         self.verify_enabled()
 
@@ -598,8 +605,8 @@ class BaseWrapper(object):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
-          'middle' or 'x' (Default: 'left')
-        * **coords** The coordinates to click at.(Default: center of control)
+          'middle' or 'x' (Default: 'left', 'move' is a special case)
+        * **coords** The coordinates to click at.(Default: the center of the control)
         * **double** Whether to perform a double click or not (Default: False)
         * **wheel_dist** The distance to move the mouse wheel (default: 0)
 
@@ -612,44 +619,7 @@ class BaseWrapper(object):
            as that could easily move the mouse off the control before the
            click_input has finished.
         """
-        if self.is_dialog():
-            self.set_focus()
-        ctrl_text = self.window_text()
-        if isinstance(coords, win32structures.RECT):
-            coords = [coords.left, coords.top]
-
-        # allow points objects to be passed as the coords
-        if isinstance(coords, win32structures.POINT):
-            coords = [coords.x, coords.y]
-        #else:
-        coords = list(coords)
-
-        # set the default coordinates
-        if coords[0] is None:
-            coords[0] = int(self.rectangle().width() / 2)
-        if coords[1] is None:
-            coords[1] = int(self.rectangle().height() / 2)
-
-        if not absolute:
-            coords = self.client_to_screen(coords)
-
-        _perform_click_input(button, coords, double, button_down, button_up,
-                             wheel_dist=wheel_dist, pressed=pressed,
-                             key_down=key_down, key_up=key_up)
-
-        if use_log:
-            if ctrl_text is None:
-                ctrl_text = six.text_type(ctrl_text)
-            message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
-                      '" by ' + str(button) + ' button mouse click (x,y=' + \
-                      ','.join([str(coord) for coord in coords]) + ')'
-            if double:
-                message = 'Double-c' + message[1:]
-            if button.lower() == 'move':
-                message = 'Moved mouse over ' + self.friendly_class_name() + \
-                          ' "' + ctrl_text + '" to screen point (x,y=' + \
-                          ','.join([str(coord) for coord in coords]) + ')'
-            ActionLogger().log(message)
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def double_click_input(self, button ="left", coords = (None, None)):
@@ -713,12 +683,7 @@ class BaseWrapper(object):
 
         self.click_input(button='move', coords=coords, absolute=absolute, pressed=pressed)
 
-        if self.element_info.handle:
-            win32functions.WaitGuiThreadIdle(self)
-        else:
-            # TODO: get WaitGuiThreadIdle function for elements without handle
-            pass
-
+        self.wait_for_idle()
         return self
 
     # -----------------------------------------------------------
@@ -749,43 +714,19 @@ class BaseWrapper(object):
         * **absolute** specifies whether to use absolute coordinates
           for the mouse pointer locations
         """
-        if not src:
-            src = self
-
-        if dst is src:
-            raise AttributeError("Can't drag-n-drop on itself")
-
-        if isinstance(src, BaseWrapper):
-            press_coords = src._calc_click_coords()
-        elif isinstance(src, win32structures.POINT):
-            press_coords = (src.x, src.y)
-        else:
-            press_coords = src
-
-        if isinstance(dst, BaseWrapper):
-            release_coords = dst._calc_click_coords()
-        elif isinstance(dst, win32structures.POINT):
-            release_coords = (dst.x, dst.y)
-        else:
-            release_coords = dst
-        self.actions.log('Drag mouse from coordinates {0} to {1}'.format(press_coords, release_coords))
-
-        self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
-        time.sleep(Timings.before_drag_wait)
-        for i in range(5):
-            self.move_mouse_input((press_coords[0] + i, press_coords[1]), pressed=pressed, absolute=absolute) # "left"
-            time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute) # "left"
-        time.sleep(Timings.before_drop_wait)
-        self.release_mouse_input(button, release_coords, pressed, absolute=absolute)
-        time.sleep(Timings.after_drag_n_drop_wait)
-        return self
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def wheel_mouse_input(self, coords = (None, None), wheel_dist = 1, pressed =""):
         """Do mouse wheel"""
         self.click_input(button='wheel', coords=coords, wheel_dist=wheel_dist, pressed=pressed)
         return self
+
+    #-----------------------------------------------------------
+    def wait_for_idle(self):
+        """Backend specific function to wait for idle state of a thread or a window"""
+        pass # do nothing by deafault
+        # TODO: implement wait_for_idle for backend="uia"
 
     #-----------------------------------------------------------
     def type_keys(
@@ -800,60 +741,12 @@ class BaseWrapper(object):
         """
         Type keys to the element using keyboard.SendKeys
 
-        This uses the re-written keyboard python module like that
-        http://www.rutherfurd.net/python/sendkeys/ .This is the best place
-        to find documentation on what to use for the **keys**
+        This uses the re-written keyboard_ python module where you can
+        find documentation on what to use for the **keys**.
+
+        .. _keyboard: pywinauto.keyboard.html
         """
-        self.verify_actionable()
-
-        if pause is None:
-            pause = Timings.after_sendkeys_key_wait
-
-        if set_foreground:
-            self.set_focus()
-
-        # attach the Python process with the process that self is in
-        if self.element_info.handle:
-            window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
-            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
-            # TODO: check return value of AttachThreadInput properly
-        else:
-            # TODO: UIA stuff maybe
-            pass
-
-        if isinstance(keys, six.text_type):
-            aligned_keys = keys
-        elif isinstance(keys, six.binary_type):
-            aligned_keys = keys.decode(locale.getpreferredencoding())
-        else:
-            # convert a non-string input
-            aligned_keys = six.text_type(keys)
-
-        # Play the keys to the active window
-        keyboard.SendKeys(
-            aligned_keys,
-            pause,
-            with_spaces,
-            with_tabs,
-            with_newlines,
-            turn_off_numlock)
-
-        # detach the python process from the window's process
-        if self.element_info.handle:
-            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
-            # TODO: check return value of AttachThreadInput properly
-        else:
-            # TODO: UIA stuff
-            pass
-
-        if self.element_info.handle:
-            win32functions.WaitGuiThreadIdle(self)
-        else:
-            # TODO: get WaitGuiThreadIdle function for elements without handle
-            pass
-
-        self.actions.log('Typed text to the ' + self.friendly_class_name() + ': ' + aligned_keys)
-        return self
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def set_focus(self):

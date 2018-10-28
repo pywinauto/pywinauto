@@ -1,3 +1,8 @@
+codecov:
+  notify:
+    require_ci_to_pass: no
+coverage:
+  precision: 1
 comment:
   layout: header, changes, diff
 coverage:

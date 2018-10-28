@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -54,20 +54,19 @@ import locale
 import six
 
 from .. import sysinfo
-from .. import win32functions
-from .. import win32defines
-from .. import win32structures
+from pywinauto.windows import win32defines, win32functions, win32structures
 from .. import findbestmatch
 from ..remote_memory_block import RemoteMemoryBlock
 from . import hwndwrapper
 
 from ..timings import Timings
-from ..timings import WaitUntil
+from ..timings import wait_until
+from ..timings import TimeoutError
 from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
 
 if sysinfo.UIA_support:
-    from ..uia_defines import IUIA
+    from pywinauto.windows.uia_defines import IUIA
 
 
 # Todo: I should return iterators from things like items() and texts()
@@ -254,6 +253,9 @@ class _listview_item(object):
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         rect = win32structures.RECT()
 
+        # If listview_ctrl has LVS_REPORT we can get access to subitems rectangles
+        is_table = self.listview_ctrl.has_style(win32defines.LVS_REPORT)
+
         if area.lower() == "all" or not area:
             rect.left = win32defines.LVIR_BOUNDS
         elif area.lower() == "icon":
@@ -261,20 +263,27 @@ class _listview_item(object):
         elif area.lower() == "text":
             rect.left = win32defines.LVIR_LABEL
         elif area.lower() == "select":
-            rect.left = win32defines.LVIR_SELECTBOUNDS
+            rect.left = win32defines.LVIR_BOUNDS if is_table else win32defines.LVIR_SELECTBOUNDS
         else:
             raise ValueError('Incorrect rectangle area of the list view item: "' + str(area) + '"')
+
+        if is_table:
+            # The one-based index of the subitem.
+            rect.top = self.subitem_index
 
         # Write the local RECT structure to the remote memory block
         remote_mem.Write(rect)
 
+        # Depends on subitems rectangles availability
+        message = win32defines.LVM_GETSUBITEMRECT if is_table else win32defines.LVM_GETITEMRECT
+
         # Fill in the requested item
         retval = self.listview_ctrl.send_message(
-            win32defines.LVM_GETITEMRECT,
+            message,
             self.item_index,
             remote_mem)
 
-        # if it succeeded
+        # If it's not succeeded
         if not retval:
             del remote_mem
             raise RuntimeError("Did not succeed in getting rectangle")
@@ -294,6 +303,7 @@ class _listview_item(object):
         where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         if where.lower() != "check":
             point_to_click = self.rectangle(area=where.lower()).mid_point()
             self.listview_ctrl.click(
@@ -369,6 +379,7 @@ class _listview_item(object):
                     pressed=pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+        return self
     # Non PEP-8 alias
     Click = click
 
@@ -379,6 +390,7 @@ class _listview_item(object):
         where can be any one of "all", "icon", "text", "select", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         if where.lower() != "check":
             point_to_click = self.rectangle(area=where.lower()).mid_point()
             self.listview_ctrl.click_input(
@@ -456,6 +468,7 @@ class _listview_item(object):
                     pressed=pressed)
             else:
                 raise RuntimeError("Area ('check') not found for this list view item")
+        return self
     # Non PEP-8 alias
     ClickInput = click_input
 
@@ -463,7 +476,7 @@ class _listview_item(object):
     def ensure_visible(self):
         """Make sure that the ListView item is visible"""
         if self.state() & win32defines.LVS_NOSCROLL:
-            return False  # scroll is disabled
+            return None  # scroll is disabled
         ret = self.listview_ctrl.send_message(
             win32defines.LVM_ENSUREVISIBLE,
             self.item_index,
@@ -471,6 +484,7 @@ class _listview_item(object):
         if ret != win32defines.TRUE:
             raise RuntimeError('Fail to make the list view item visible ' +
                                '(item_index = ' + str(self.item_index) + ')')
+        return self
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -498,6 +512,7 @@ class _listview_item(object):
             raise ctypes.WinError()
 
         del remote_mem
+        return self
     # Non PEP-8 alias
     UnCheck = uncheck
 
@@ -526,6 +541,7 @@ class _listview_item(object):
             raise ctypes.WinError()
 
         del remote_mem
+        return self
     # Non PEP-8 alias
     Check = check
 
@@ -624,6 +640,7 @@ class _listview_item(object):
         Item can be selected otherwise an exception is raised
         """
         self._modify_selection(True)
+        return self
     # Non PEP-8 alias
     Select = select
 
@@ -635,8 +652,49 @@ class _listview_item(object):
         Item can be selected otherwise an exception is raised
         """
         self._modify_selection(False)
+        return self
     # Non PEP-8 alias
     Deselect = deselect
+
+    #-----------------------------------------------------------
+    def inplace_control(self, friendly_class_name=""):
+        """Return the editor HwndWrapper of the item
+
+        Possible ``friendly_class_name`` values:
+
+        * ``""``  Return the first appeared in-place control
+        * ``"friendlyclassname"``  Returns editor with particular friendlyclassname
+        """
+        # If currently editing in this item or some other
+        self.listview_ctrl.type_keys("{ENTER}")
+
+        # Get a list of visible controls
+        parent_dlg = self.listview_ctrl.top_level_parent()
+        list_before_click = [w.handle for w in parent_dlg.element_info.descendants() if w.visible]
+
+        # After a click on the visible list an editable element should appear
+        self.click_input(double=True)
+        def get_list_after_click():
+            return [w.handle for w in parent_dlg.element_info.descendants() if w.visible]
+
+        try:
+            def check_func():
+                return len(get_list_after_click()) > len(list_before_click)
+            wait_until(Timings.listviewitemcontrol_timeout, 0.05, check_func)
+        except TimeoutError:
+            raise TimeoutError(("In-place-edit control for item ({0},{1}) not visible, possible it not editable, " +
+                                "try to set slower timings").format(self.item_index, self.subitem_index));
+
+        possible_inplace_ctrls = set(get_list_after_click()) - set(list_before_click)
+
+        for handle in possible_inplace_ctrls:
+            hwnd_friendly_class = hwndwrapper.HwndWrapper(handle).friendlyclassname
+            if (friendly_class_name == "" or hwnd_friendly_class == friendly_class_name):
+                return hwndwrapper.HwndWrapper(handle)
+
+        names_list = [hwndwrapper.HwndWrapper(handle).friendlyclassname for handle in possible_inplace_ctrls]
+        raise RuntimeError('In-place-edit control "{2}" for item ({0},{1}) not found in list {3}'.format(
+                           self.item_index, self.subitem_index, friendly_class_name, names_list));
 
 
 #====================================================================
@@ -658,7 +716,8 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         "SysListView32",
         r"WindowsForms\d*\.SysListView32\..*",
         "TSysListView",
-        "ListView20WndClass"]
+        "ListView.*WndClass",
+        ]
     if sysinfo.UIA_support:
         #controltypes is empty to make wrapper search result unique
         #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
@@ -1017,6 +1076,7 @@ class _treeview_element(object):
         where can be any one of "text", "icon", "button", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         # find the text rectangle for the item,
         point_to_click = self.client_rect().mid_point()
 
@@ -1055,13 +1115,14 @@ class _treeview_element(object):
                 point_to_click.x -= 1
 
             if not found:
-                raise RuntimeError("Area ('%s') not found for this tree view item" % where)
+                raise RuntimeError("Area ('{}') not found for this tree view item".format(where))
 
         self.tree_ctrl.click(
             button,
             coords=(point_to_click.x, point_to_click.y),
             double=double,
-            pressed=pressed)  # ,
+            pressed=pressed)
+        return self
         # XXX: somehow it works for 64-bit explorer.exe on Win8.1,
         # but it doesn't work for 32-bit ControlSpyV6.exe
         #absolute = True)
@@ -1079,6 +1140,7 @@ class _treeview_element(object):
         where can be any one of "text", "icon", "button", "check"
         defaults to "text"
         """
+        self.ensure_visible()
         # find the text rectangle for the item,
         point_to_click = self.client_rect().mid_point()
 
@@ -1125,6 +1187,7 @@ class _treeview_element(object):
             double=double,
             wheel_dist=wheel_dist,
             pressed=pressed)
+        return self
     # Non PEP-8 alias
     ClickInput = click_input
 
@@ -1142,6 +1205,7 @@ class _treeview_element(object):
         for i in range(5):
             self.tree_ctrl.move_mouse_input(
                 coords=(rect.left + i, rect.top), pressed=pressed, absolute=False)
+        return self
     # Non PEP-8 alias
     StartDragging = start_dragging
 
@@ -1159,6 +1223,7 @@ class _treeview_element(object):
         self.tree_ctrl.release_mouse_input(
             button, coords=(point_to_click.x, point_to_click.y), pressed=pressed, absolute=False)
         time.sleep(Timings.after_drag_n_drop_wait)
+        return self
     # Non PEP-8 alias
     Drop = drop
 
@@ -1169,6 +1234,7 @@ class _treeview_element(object):
             win32defines.TVM_EXPAND,
             win32defines.TVE_COLLAPSE,
             self.elem)
+        return self
     # Non PEP-8 alias
     Collapse = collapse
 
@@ -1179,6 +1245,7 @@ class _treeview_element(object):
             win32defines.TVM_EXPAND,
             win32defines.TVE_EXPAND,
             self.elem)
+        return self
     # Non PEP-8 alias
     Expand = expand
 
@@ -1297,6 +1364,8 @@ class _treeview_element(object):
             win32defines.TVM_ENSUREVISIBLE,
             win32defines.TVGN_CARET,
             self.elem)
+        win32functions.WaitGuiThreadIdle(self.tree_ctrl)
+        return self
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -1314,6 +1383,7 @@ class _treeview_element(object):
 
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
+        return self
     # Non PEP-8 alias
     Select = select
 
@@ -1342,9 +1412,9 @@ class _treeview_element(object):
             item = win32structures.TVITEMW32()
 
         item.mask = win32defines.TVIF_TEXT | \
-            win32defines.TVIF_HANDLE | \
-            win32defines.TVIF_CHILDREN | \
-            win32defines.TVIF_STATE
+                    win32defines.TVIF_HANDLE | \
+                    win32defines.TVIF_CHILDREN | \
+                    win32defines.TVIF_STATE
 
         # set the address for the text
         item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 16
@@ -1356,8 +1426,7 @@ class _treeview_element(object):
         remote_mem.Write(item)
 
         # read the entry
-        retval = win32functions.SendMessage(
-            self.tree_ctrl,
+        retval = self.tree_ctrl.send_message(
             win32defines.TVM_GETITEMW,
             0,
             remote_mem)
@@ -1590,12 +1659,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     def ensure_visible(self, path):
         """Make sure that the TreeView item is visible"""
         elem = self.get_item(path)
-        self.send_message_timeout(
-            win32defines.TVM_ENSUREVISIBLE,  # message
-            win32defines.TVGN_CARET,         # how to select
-            elem.elem)                       # item to select
-
-        win32functions.WaitGuiThreadIdle(self)
+        return elem.ensure_visible()
     # Non PEP-8 alias
     EnsureVisible = ensure_visible
 
@@ -1740,8 +1804,8 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
 
         item = win32structures.HDITEMW()
         item.mask = win32defines.HDI_FORMAT | \
-            win32defines.HDI_WIDTH | \
-            win32defines.HDI_TEXT  # | HDI_ORDER
+                    win32defines.HDI_WIDTH | \
+                    win32defines.HDI_TEXT  # | HDI_ORDER
         item.cchTextMax = 2000
 
         # set up the pointer to the text
@@ -2709,7 +2773,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
             windows_before = app.Windows_(visible_only=True)
             current_toolbar.button(index).click_input()
             if i < len(indices) - 1:
-                WaitUntil(5, 0.1, lambda: len(app.Windows_(visible_only=True)) > len(windows_before))
+                wait_until(5, 0.1, lambda: len(app.Windows_(visible_only=True)) > len(windows_before))
                 windows_after = app.Windows_(visible_only=True)
                 new_window = set(windows_after) - set(windows_before)
                 current_toolbar = list(new_window)[0].children()[0]
@@ -3026,10 +3090,10 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_value(self):
         """Get the current value of the UpDown control"""
-        pos = win32functions.SendMessage(
-            self, win32defines.UDM_GETPOS,
+        pos = self.send_message(
+            win32defines.UDM_GETPOS,
             win32structures.LPARAM(0),
-            win32structures.WPARAM(0)
+            win32structures.WPARAM(0),
         )
         return win32functions.LoWord(pos)
     # Non PEP-8 alias
@@ -3077,10 +3141,10 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         for _ in range(3):
             result = ctypes.c_long()
             win32functions.SendMessageTimeout(self,
-                win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
-                win32defines.SMTO_NORMAL,
-                int(Timings.after_updownchange_wait * 1000),
-                ctypes.byref(result))
+                                              win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
+                                              win32defines.SMTO_NORMAL,
+                                              int(Timings.after_updownchange_wait * 1000),
+                                              ctypes.byref(result))
             win32functions.WaitGuiThreadIdle(self)
             time.sleep(Timings.after_updownchange_wait)
             if self.get_value() == new_pos:
@@ -3248,7 +3312,8 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     """Class that wraps Windows DateTimePicker common control"""
 
     friendlyclassname = "DateTimePicker"
-    windowclasses = ["SysDateTimePick32", ]
+    windowclasses = ["SysDateTimePick32",
+                     r"WindowsForms\d*\.SysDateTimePick32\..*", ]
     if sysinfo.UIA_support:
         #controltypes is empty to make wrapper search result unique
         #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
@@ -3283,7 +3348,7 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     GetTime = get_time
 
     #----------------------------------------------------------------
-    def set_time(self, year, month, day_of_week, day, hour, minute, second, milliseconds):
+    def set_time(self, year=0, month=0, day_of_week=0, day=0, hour=0, minute=0, second=0, milliseconds=0):
         """Get the currently selected time"""
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
@@ -3368,7 +3433,7 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         system_date = win32structures.SYSTEMTIME()
         remote_mem.Write(system_date)
 
-        res = self.send_message(win32defines.MCM_GETCURSEL , 0, remote_mem)
+        res = self.send_message(win32defines.MCM_GETCURSEL, 0, remote_mem)
         remote_mem.Read(system_date)
         del remote_mem
 
@@ -3526,7 +3591,6 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         'title_text', 'trailing_text' ;
         - All other parameters should be integer from 0 to 255.
         """
-
         if not (0 <= red <= 255):
             raise RuntimeError('Incorrect range of red color, must be from 0 to 255')
         if not (0 <= green <= 255):
@@ -3607,6 +3671,39 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         res = self.send_message(win32defines.MCM_GETFIRSTDAYOFWEEK, 0, 0)
         return (win32functions.HiWord(res), win32functions.LoWord(res))
 
+    # ----------------------------------------------------------------
+    def get_month_delta(self):
+        """Retrieves the scroll rate for a month calendar control"""
+        return self.send_message(win32defines.MCM_GETMONTHDELTA, 0, 0)
+
+    # ----------------------------------------------------------------
+    def set_month_delta(self, delta):
+        """Sets the scroll rate for a month calendar control."""
+        if (delta < 0):
+            raise ValueError("Month delta must be greater than 0")
+
+        self.send_message(win32defines.MCM_SETMONTHDELTA, delta, 0)
+
+    # ----------------------------------------------------------------
+    def get_month_range(self, scope_of_range):
+        """Retrieves date information that represents the high and low limits of a month calendar control's display."""
+        if scope_of_range not in [win32defines.GMR_DAYSTATE, win32defines.GMR_VISIBLE]:
+            raise ValueError("scope_of_range value must be one of the following: GMR_DAYSTATE or GMR_VISIBLE")
+
+        remote_mem = RemoteMemoryBlock(self)
+        system_date_arr = (win32structures.SYSTEMTIME * 2)()
+
+        system_date_arr[0] = win32structures.SYSTEMTIME()
+        system_date_arr[1] = win32structures.SYSTEMTIME()
+
+        remote_mem.Write(system_date_arr)
+
+        res = self.send_message(win32defines.MCM_GETMONTHRANGE, scope_of_range, remote_mem)
+
+        remote_mem.Read(system_date_arr)
+        del remote_mem
+
+        return (res, system_date_arr)
 
 #====================================================================
 class PagerWrapper(hwndwrapper.HwndWrapper):

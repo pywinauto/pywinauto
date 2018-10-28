@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from pywinauto import application
+
 #from pywinauto import tests
 #from pywinauto.findbestmatch import MatchError
 
@@ -43,7 +44,7 @@ from pywinauto import application
 app = application.Application()
 app.start(r"notepad.exe")
 
-app['Notepad'].Wait('ready')
+app['Notepad'].wait('ready')
 
 app['Notepad'].menu_select("File->PageSetup")
 
@@ -71,7 +72,7 @@ app['ConnectToPrinter']['OK'].close_click()
 app['PageSetupDlg2']['Properties'].click()
 
 # ----- Document Properties Dialog ----
-doc_props = app.window_(title_re = ".*Document Properties")
+doc_props = app.window(title_re = ".*Document Properties")
 
 # Two ways of selecting tabs
 doc_props['TabCtrl'].select(2)
@@ -87,7 +88,7 @@ advbutton.click()
 
 # ----- Advanced Options Dialog ----
 # close the 4 windows
-app.window_(title_re = ".* Advanced Options")['Ok'].click()
+app.window(title_re = ".* Advanced Options")['Ok'].click()
 
 # ----- Document Properties Dialog again ----
 doc_props['Cancel'].close_click()

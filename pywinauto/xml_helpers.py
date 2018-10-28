@@ -1,7 +1,7 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2016 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
-# http://pywinauto.github.io/docs/credits.html
+# http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ from . import controls
 
 # reported that they are not used - but in fact they are
 # through a search of globals()
-from .win32structures import LOGFONTW, RECT
+from .windows.win32structures import LOGFONTW, RECT
 
 class XMLParsingError(RuntimeError):
     """Wrap parsing Exceptions"""
