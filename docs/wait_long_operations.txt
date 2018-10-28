@@ -4,9 +4,10 @@ Waiting for Long Operations
 
 A GUI application behaviour is often unstable and your script needs 
 waiting until a new window appears or an existing window is closed/hidden. 
-pywinauto can wait for a dialog initialization implicitly (with the default 
-timeout). There are few methods/functions that could help you to make 
-your code easier and more reliable.
+pywinauto can flexibly wait for a dialog initialization implicitly 
+(with the default timeout) or explicitly using dedicated 
+methods/functions that could help you to make your code easier 
+and more reliable.
 
 Application methods
 -------------------
@@ -15,7 +16,7 @@ Application methods
 
 This method is useful for multi-threaded interfaces that allow a lazy 
 initialization in another thread while GUI is responsive and all controls 
-already exist and ready to use. So waiting for a specific window existence/state 
+already exist and seems ready to use. So waiting for a specific window existence/state 
 is useless. In such case the CPU usage for the whole process indicates that a task 
 calculation is not finished yet.
 
@@ -23,6 +24,7 @@ Example: ::
 
     app.wait_cpu_usage_lower(threshold=5) # wait until CPU usage is lower than 5%
 
+NOTE: this method is available for the whole application process only, not for a window/element.
 
 WindowSpecification methods
 ---------------------------
@@ -65,6 +67,23 @@ if every function call should have timing control. ::
     def ensure_text_changed(ctrl):
         if previous_text == ctrl.window_text():
             raise ValueError('The ctrl text remains the same while change is expected')
+
+
+Global timings for all actions
+------------------------------
+
+Many actions require some pause before, after and in-between. There are several 
+global constants in module ``timings`` defining such pauses. It can be aligned 
+for your needs individually by setting global static variables in object 
+``timings.Timings``.
+
+All global timings can be set to default at once, or doubled, or divided by two: ::
+
+    from timings import Timings
+    
+    Timings.defaults()
+    Timings.slow() # double all timings (~2x slower script execution)
+    Timings.fast() # divide all timings by two (~2x faster)
 
 
 Identify controls

@@ -82,7 +82,7 @@ class ListViewTestCases32(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(self.path)
@@ -353,7 +353,7 @@ class ListViewTestCases32(unittest.TestCase):
 
     def testItemClickInput(self):
         """Test clicking item rectangles by click_input() method"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.ctrl.GetItem('Green').click_input(where='select')
         self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
@@ -479,7 +479,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         app = Application()
         app.start(self.path)
@@ -566,7 +566,7 @@ class TreeViewTestCases32(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.root_text = "The Planets"
         self.texts = [
@@ -700,7 +700,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -799,7 +799,7 @@ class HeaderTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
@@ -880,7 +880,7 @@ class StatusBarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(os.path.join(controlspy_folder, "Status bar.exe"))
@@ -978,7 +978,7 @@ class TabControlTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         self.screen_w = win32api.GetSystemMetrics(0)
 
         app = Application()
@@ -1113,7 +1113,7 @@ class ToolbarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
@@ -1254,7 +1254,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title
         even though the app is started with a short title "RebarTest".
         """
-        Timings.Fast()
+        Timings.fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
         mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
@@ -1323,7 +1323,7 @@ class DatetimeTestCases(unittest.TestCase):
 
     def setUp(self):
         """Start the application and get 'Date Time Picker' control"""
-        Timings.Fast()
+        Timings.fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -1395,7 +1395,7 @@ class ToolTipsTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
         app = Application()
@@ -1464,7 +1464,7 @@ class UpDownTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         app = Application()
         app.start(os.path.join(controlspy_folder, "Up-Down.exe"))
 
@@ -1536,13 +1536,13 @@ class UpDownTestCases(unittest.TestCase):
 
     def testIncrement(self):
         """Test incremementing up-down position"""
-        Timings.Defaults()
+        Timings.defaults()
         self.ctrl.Increment()
         self.assertEquals(self.ctrl.GetValue(), 1)
 
     def testDecrement(self):
         """Test decrementing up-down position"""
-        Timings.Defaults()
+        Timings.defaults()
         self.ctrl.SetValue(23)
         self.ctrl.Decrement()
         self.assertEquals(self.ctrl.GetValue(), 22)

@@ -54,7 +54,7 @@ class HandlepropsTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
         self.app = Application().start("notepad")
         self.dlghandle = self.app.UntitledNotepad.handle
         self.edit_handle = self.app.UntitledNotepad.Edit.handle

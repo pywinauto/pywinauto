@@ -51,7 +51,7 @@ from pywinauto.timings import Timings
 
 print("Setting timings to slow settings, may be necessary for")
 print("slow applications or slow machines.")
-Timings.Slow()
+Timings.slow()
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 

@@ -57,7 +57,7 @@ class FindWindowsTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         # start the application
         self.app = Application(backend='win32')
