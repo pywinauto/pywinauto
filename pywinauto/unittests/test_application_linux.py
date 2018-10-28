@@ -60,10 +60,4 @@ if sys.platform != 'win32':
             self.assertEqual(app.process, None)
             app.start(_test_app_cmd_line())
             self.assertNotEqual(app.process, None)
-
-            self.assertEqual(app.UntitledNotepad.process_id(), app.process)
-
-            notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
-            # self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
-
-            app.UntitledNotepad.MenuSelect("File->Exit")
+            app.kill()
