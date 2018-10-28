@@ -22,6 +22,7 @@ before_install:
 install:
   - pip install python-xlib codecov coverage
   - sudo apt-get update
+  - sudo apt-get -y install at-spi2-core
   - sudo apt-get install -qq qt58base; 
   - sudo apt-get -y install qt58declarative qt58tools
   - sudo apt-get install xsel
@@ -61,7 +62,7 @@ script:
   - coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py
   - coverage run -a --include=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
   - coverage run -a --include=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py
-  - coverage run -a --source=pywinauto/linux/atspi_element_info.py pywinauto/unittests/test_atspi_element_info.py
+  - coverage run -a --include=pywinauto/linux/atspi_element_info.py pywinauto/unittests/test_atspi_element_info.py
 
 after_success:
   - codecov
