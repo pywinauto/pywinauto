@@ -34,6 +34,7 @@
 import sys
 import time
 if sys.platform == 'win32':
+    import pywintypes
     from . import win32functions
     from . import win32defines
     from .timings import Timings
