@@ -9,7 +9,7 @@ captures network traffic for 'capture_time' seconds, saves all the data to a tem
 parses it and shows a short summary for every protocol.
 """
 from __future__ import print_function
-from pywinauto.windows.application import Application
+from pywinauto.application import Application
 import time
 import csv
 import os

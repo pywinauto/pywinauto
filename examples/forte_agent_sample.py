@@ -11,7 +11,7 @@ print(__doc__)
 import time
 from pprint import pprint
 
-from pywinauto.windows.application import Application
+from pywinauto.application import Application
 
 # start the application and wait for the Agent Dialog to be ready
 app = Application().start(r"c:\program files\agent\agent.exe")

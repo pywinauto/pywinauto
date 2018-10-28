@@ -1,4 +1,4 @@
-from pywinauto.windows.application import Application
+from pywinauto.application import Application
 
 
 import pythoncom, pyHook

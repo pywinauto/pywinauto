@@ -8,24 +8,18 @@ import warnings
 import multiprocessing
 import locale
 
-import win32process
-import win32api
-import win32gui
-import win32con
-import win32event
+
 import six
 
 from . import timings
 from . import controls
 from . import findbestmatch
 from . import findwindows
-from . import handleprops
-from pywinauto.windows import win32defines
+
 from .backend import registry
 
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes
-from .sysinfo import is_x64_Python
 
 
 class AppStartError(Exception):
