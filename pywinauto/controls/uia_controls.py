@@ -566,6 +566,31 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         except NoPatternInterfaceError:
             self.iface_grid_support = False
 
+        self.is_table = self.element_info.control_type == "Table"
+        if not self.is_table:
+            return
+        try:
+            self.row_header = False
+            for row in self.children():
+                if isinstance(row.children()[0], HeaderWrapper):
+                    self.row_header = True;
+                else:
+                    raise IndexError
+        except IndexError:
+            self.row_header = False
+
+        try:
+            self.col_header = len(self.children()[0].children(control_type="Header")) > 0 and \
+                              len(self.children()[0].children(control_type="DataItem")) == 0
+        except IndexError:
+            self.col_header = False
+
+    def __resolve_row_index(self, ind):
+        return ind + 1 if self.col_header else ind
+
+    def __resolve_col_index(self, ind):
+        return ind + 1 if self.row_header else ind
+
     # -----------------------------------------------------------
     def item_count(self):
         """A number of items in the ListView"""
@@ -575,7 +600,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: This could be implemented by getting custom ItemCount Property using RegisterProperty
             # TODO: See https://msdn.microsoft.com/ru-ru/library/windows/desktop/ff486373%28v=vs.85%29.aspx for details
             # TODO: comtypes doesn't seem to support IUIAutomationRegistrar interface
-            return (len(self.children()))
+            cnt = len(self.children())
+            return cnt if not self.col_header else cnt - 1
 
     # -----------------------------------------------------------
     def column_count(self):
@@ -583,8 +609,26 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if self.iface_grid_support:
             return self.iface_grid.CurrentColumnCount
         else:
+            if self.row_header:
+                return len(self.children()[0].children()) - 1
+            elif self.is_table and item_count() > 0:
+                return len(self.children()[0].children())
             # ListBox doesn't have columns
             return 0
+
+    # -----------------------------------------------------------
+    def get_column_header_items(self):
+        """Return Headers of each column (top of DataGrid)"""
+        if self.col_header:
+            return self.children()[0].children(control_type="Header")
+        return []
+
+    # -----------------------------------------------------------
+    def get_row_header_items(self):
+        """Return Headers of each row (left of DataGrid)"""
+        if self.row_header:
+            return get_column(0).children(control_type="Header")
+        return []
 
     # -----------------------------------------------------------
     def get_header_control(self):
@@ -600,9 +644,10 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_column(self, col_index):
         """Get the information for a column of the ListView"""
+
         col = None
         try:
-            col = self.columns()[col_index]
+            col = self.columns()[self.__resolve_col_index(col_index)]
         except comtypes.COMError:
             raise IndexError
         return col
@@ -614,8 +659,17 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             arr = self.iface_table.GetCurrentColumnHeaders()
             cols = uia_element_info.elements_from_uia_array(arr)
             return [uiawrapper.UIAWrapper(e) for e in cols]
+        elif self.is_table:
+            cols = []
+            for j in range(0, self.item_count()):
+                row = self.children()[self.__resolve_row_index(j)]
+                cells = row.children()
+                for i in range(0, self.column_count()):
+                    if i >= len(cols):
+                        cols.append([])
+                    cols[i].append(cells[self.__resolve_col_index(i)])
+            return cols
         else:
-            # ListBox doesn't have columns
             return []
 
     # -----------------------------------------------------------
@@ -641,9 +695,12 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 cell_elem = uiawrapper.UIAWrapper(elem_info)
             except (comtypes.COMError, ValueError):
                 raise IndexError
-        else:
+        elif self.is_table:
             # Workaround for WinForms, DataGrid equals list of lists
-            cell_elem = self.get_item(row).children()[column]
+            _row = self.get_item(self.__resolve_row_index(row))
+            cell_elem = _row.children()[self.__resolve_col_index(column)]
+        else:
+            return None
 
         return cell_elem
 
@@ -684,7 +741,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: Can't get virtualized items that way
             # TODO: See TODO section of item_count() method for details
             list_items = self.children(content_only=True)
-            itm = list_items[row]
+            itm = list_items[self.__resolve_row_index(row)]
         else:
             raise TypeError("String type or integer is expected")
 
@@ -697,6 +754,11 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_items(self):
         """Return all items of the ListView control"""
+        if self.row_header:
+            if not self.col_header:
+                return self.children(content_only=True)[1:]
+            else:
+                return [a.children()[1:] for a in self.children(content_only=True)[1:]]
         return self.children(content_only=True)
 
     items = get_items  # this is an alias to be consistent with other content elements
