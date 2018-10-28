@@ -551,7 +551,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
 
-    _control_types = ['DataGrid', 'List', ]
+    _control_types = ['DataGrid', 'List', 'Table']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -634,15 +634,16 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
             raise TypeError("row and column must be numbers")
 
-        if not self.iface_grid_support:
-            return None
-
-        try:
-            e = self.iface_grid.GetItem(row, column)
-            elem_info = uia_element_info.UIAElementInfo(e)
-            cell_elem = uiawrapper.UIAWrapper(elem_info)
-        except (comtypes.COMError, ValueError):
-            raise IndexError
+        if self.iface_grid_support:
+            try:
+                e = self.iface_grid.GetItem(row, column)
+                elem_info = uia_element_info.UIAElementInfo(e)
+                cell_elem = uiawrapper.UIAWrapper(elem_info)
+            except (comtypes.COMError, ValueError):
+                raise IndexError
+        else:
+            # Workaround for WinForms, DataGrid equals list of lists
+            cell_elem = self.get_item(row).children()[column]
 
         return cell_elem
 
