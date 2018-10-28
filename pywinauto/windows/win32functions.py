@@ -34,7 +34,7 @@
 import ctypes
 from ctypes import wintypes
 from . import win32defines, win32structures
-from .actionlogger import ActionLogger
+from ..actionlogger import ActionLogger
 from ctypes import c_uint, c_short, c_long
 
 import sys
