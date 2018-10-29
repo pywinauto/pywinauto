@@ -1,11 +1,11 @@
 import sys
 
 if sys.version_info > (3, 0):
-    import pgi
-    pgi.install_as_gi()
-else:
-    from gi import require_version
-    require_version("Gtk", "3.0")
+    import pgi as gi
+    gi.install_as_gi()
+
+from gi import require_version
+require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
 
