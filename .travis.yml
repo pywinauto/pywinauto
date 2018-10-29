@@ -63,6 +63,7 @@ script:
   - coverage run -a --include=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
   - coverage run -a --include=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py
   - coverage run -a --include=pywinauto/linux/atspi_element_info.py pywinauto/unittests/test_atspi_element_info.py
+  - coverage run -a --include=pywinauto/linux/application.py pywinauto/unittests/test_application_linux.py
 
 after_success:
   - codecov

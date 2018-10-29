@@ -5,6 +5,7 @@ import unittest
 #import pprint
 #import pdb
 
+sys.path.append(".")
 from pywinauto.linux.application import Application, AppStartError, AppNotConnected
 
 app_name = r"gtk_example.py"
@@ -21,7 +22,7 @@ def _test_app():
 
 
 def _test_app_cmd_line():
-    return "python {}".format(_test_app())
+    return "python3 {}".format(_test_app())
 
 
 sys.path.append(".")
@@ -48,7 +49,7 @@ if sys.platform != 'win32':
             self.assertRaises(AppNotConnected, Application().__getattribute__, 'Hiya')
             self.assertRaises(AppNotConnected, Application().__getitem__, 'Hiya')
             self.assertRaises(AppNotConnected, Application().window_, title='Hiya')
-            self.assertRaises(AppNotConnected, Application().top_window_, )
+            self.assertRaises(AppNotConnected, Application().top_window, )
 
         def test_start_problem(self):
             """Verify start_ raises on unknown command"""

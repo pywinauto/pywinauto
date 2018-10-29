@@ -89,7 +89,7 @@ install:
 build: false  # Not a C# project, build stuff at the test step instead.
 
 test_script:
-  # Build the compiled extension and run the project tests
+  # run the tests
   - "powershell ./ci/runTestsuite.ps1"
 
 

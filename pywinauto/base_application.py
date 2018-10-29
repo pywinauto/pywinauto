@@ -95,8 +95,8 @@ class WindowSpecification(object):
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
         if "best_match" in self.criteria[-1]:
-            raise AttributeError(
-                "WindowSpecification class has no '{0}' method".
+            raise AttributeError("Neither GUI element (wrapper) " \
+                "nor wrapper method '{0}' were found (typo?)".
                 format(self.criteria[-1]['best_match']))
 
         message = (

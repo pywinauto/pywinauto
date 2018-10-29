@@ -3720,6 +3720,7 @@ class PagerWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_position(self):
         """Return the current position of the pager"""
+        self._ensure_enough_privileges('PGM_GETPOS')
         return self.send_message(win32defines.PGM_GETPOS)
     # Non PEP-8 alias
     GetPosition = get_position
@@ -3727,6 +3728,7 @@ class PagerWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def set_position(self, pos):
         """Set the current position of the pager"""
+        self._ensure_enough_privileges('PGM_SETPOS')
         return self.send_message(win32defines.PGM_SETPOS, pos)
     # Non PEP-8 alias
     SetPosition = set_position
@@ -3746,6 +3748,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_position(self):
         """Return the current position of the progress bar"""
+        self._ensure_enough_privileges('PBM_GETPOS')
         return self.send_message(win32defines.PBM_GETPOS)
     # Non PEP-8 alias
     GetPosition = get_position
@@ -3753,6 +3756,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def set_position(self, pos):
         """Set the current position of the progress bar"""
+        self._ensure_enough_privileges('PBM_SETPOS')
         return self.send_message(win32defines.PBM_SETPOS, pos)
     # Non PEP-8 alias
     SetPosition = set_position
@@ -3766,6 +3770,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
          * PBST_ERROR
          * PBST_PAUSED
         """
+        self._ensure_enough_privileges('PBM_GETSTATE')
         return self.send_message(win32defines.PBM_GETSTATE)
     # Non PEP-8 alias
     GetState = set_state
@@ -3773,6 +3778,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_step(self):
         """Get the step size of the progress bar"""
+        self._ensure_enough_privileges('PBM_GETSTEP')
         return self.send_message(win32defines.PBM_GETSTEP)
     # Non PEP-8 alias
     GetStep = get_step
@@ -3780,6 +3786,7 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def step_it(self):
         """Move the progress bar one step size forward"""
+        self._ensure_enough_privileges('PBM_STEPIT')
         return self.send_message(win32defines.PBM_STEPIT)
     # Non PEP-8 alias
     StepIt = step_it
