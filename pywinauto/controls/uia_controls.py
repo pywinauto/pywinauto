@@ -567,21 +567,20 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             self.iface_grid_support = False
 
         self.is_table = self.element_info.control_type == "Table"
-        if not self.is_table:
-            return
+        self.row_header = False
+        self.col_header = False
+        self.__update_row_header()
+        self.__upfate_col_header()
+
+    def __update_row_header(self):
         try:
-            self.row_header = False
-            for row in self.children():
-                if isinstance(row.children()[0], HeaderWrapper):
-                    self.row_header = True;
-                else:
-                    raise IndexError
+            self.row_header = all(isinstance(row.children()[0], HeaderWrapper) for row in self.children())
         except IndexError:
             self.row_header = False
 
+    def __upfate_col_header(self):
         try:
-            self.col_header = len(self.children()[0].children(control_type="Header")) > 0 and \
-                              len(self.children()[0].children(control_type="DataItem")) == 0
+            self.col_header = all(isinstance(col, HeaderWrapper) for col in self.children()[0].children())
         except IndexError:
             self.col_header = False
 
