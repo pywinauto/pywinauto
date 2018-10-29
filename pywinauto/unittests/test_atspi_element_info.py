@@ -10,6 +10,7 @@ if sys.platform != 'win32':
 
 app_name = r"gtk_example.py"
 
+
 def _test_app():
     test_folder = os.path.join(os.path.dirname
                                (os.path.dirname
@@ -18,6 +19,7 @@ def _test_app():
                                r"apps/Gtk_samples")
     sys.path.append(test_folder)
     return os.path.join(test_folder, app_name)
+
 
 if sys.platform != 'win32':
     class AtspiElementInfoTests(unittest.TestCase):
@@ -58,14 +60,14 @@ if sys.platform != 'win32':
             app_info = self.get_app(app_name)
             self.assertEqual(app_info.class_name, "application")
 
-        @unittest.skip("skip for now")
+        # @unittest.skip("skip for now")
         def test_can_get_rectangle(self):
             app_info = self.get_app(app_name)
             rectangle = app_info.children()[0].children()[0].rectangle
             width = int(self.app.stdout.readline().decode(encoding='UTF-8'))
             height = int(self.app.stdout.readline().decode(encoding='UTF-8'))
-            self.assertEqual(rectangle.width, width)
-            self.assertEqual(rectangle.height, height)
+            self.assertEqual(rectangle.width(), width)
+            self.assertEqual(rectangle.height(), height)
 
 
 if __name__ == "__main__":
