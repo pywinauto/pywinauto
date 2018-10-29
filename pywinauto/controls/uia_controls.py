@@ -570,7 +570,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         self.row_header = False
         self.col_header = False
         self.__update_row_header()
-        self.__upfate_col_header()
+        self.__update_col_header()
 
     def __update_row_header(self):
         try:
@@ -578,17 +578,23 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         except IndexError:
             self.row_header = False
 
-    def __upfate_col_header(self):
+    def __update_col_header(self):
         try:
             self.col_header = all(isinstance(col, HeaderWrapper) for col in self.children()[0].children())
         except IndexError:
             self.col_header = False
 
     def __resolve_row_index(self, ind):
-        return ind + 1 if self.col_header else ind
+        return ind + 1 if self.col_header and self.is_table else ind
 
     def __resolve_col_index(self, ind):
-        return ind + 1 if self.row_header else ind
+        return ind + 1 if self.row_header and self.is_table else ind
+
+    def __resolve_row_count(self, cnt):
+        return cnt - 1 if self.col_header and self.is_table else cnt
+
+    def __resolve_col_count(self, cnt):
+        return cnt - 1 if self.row_header and self.is_table else cnt
 
     # -----------------------------------------------------------
     def item_count(self):
@@ -599,19 +605,16 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: This could be implemented by getting custom ItemCount Property using RegisterProperty
             # TODO: See https://msdn.microsoft.com/ru-ru/library/windows/desktop/ff486373%28v=vs.85%29.aspx for details
             # TODO: comtypes doesn't seem to support IUIAutomationRegistrar interface
-            cnt = len(self.children())
-            return cnt if not self.col_header else cnt - 1
+            return self.__resolve_row_count(len(self.children()))
 
     # -----------------------------------------------------------
     def column_count(self):
         """Return the number of columns"""
         if self.iface_grid_support:
             return self.iface_grid.CurrentColumnCount
+        elif self.is_table and len(self.children()) > 0:
+            return self.__resolve_col_count(len(self.children()[0].children()))
         else:
-            if self.row_header:
-                return len(self.children()[0].children()) - 1
-            elif self.is_table and item_count() > 0:
-                return len(self.children()[0].children())
             # ListBox doesn't have columns
             return 0
 
@@ -619,7 +622,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     def get_column_header_items(self):
         """Return Headers of each column (top of DataGrid)"""
         if self.col_header:
-            return self.children()[0].children(control_type="Header")
+            return get_item(0).children(control_type="Header")
         return []
 
     # -----------------------------------------------------------
@@ -660,6 +663,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             return [uiawrapper.UIAWrapper(e) for e in cols]
         elif self.is_table:
             cols = []
+            self.__update_col_header()
+            self.__update_row_header()
             for j in range(0, self.item_count()):
                 row = self.children()[self.__resolve_row_index(j)]
                 cells = row.children()
@@ -696,6 +701,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 raise IndexError
         elif self.is_table:
             # Workaround for WinForms, DataGrid equals list of lists
+            self.__update_col_header()
+            self.__update_row_header()
             _row = self.get_item(self.__resolve_row_index(row))
             cell_elem = _row.children()[self.__resolve_col_index(column)]
         else:
@@ -740,6 +747,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: Can't get virtualized items that way
             # TODO: See TODO section of item_count() method for details
             list_items = self.children(content_only=True)
+            self.__update_row_header()
             itm = list_items[self.__resolve_row_index(row)]
         else:
             raise TypeError("String type or integer is expected")
@@ -753,7 +761,9 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_items(self):
         """Return all items of the ListView control"""
-        if self.row_header:
+        self.__update_col_header()
+        self.__update_row_header()
+        if self.row_header and self.is_table:
             if not self.col_header:
                 return self.children(content_only=True)[1:]
             else:
