@@ -71,6 +71,7 @@ import time
 import warnings
 import multiprocessing
 import locale
+import codecs
 
 import win32process
 import win32api
@@ -660,8 +661,8 @@ class WindowSpecification(object):
             print("Control Identifiers:")
             print_identifiers([this_ctrl, ])
         else:
-            log_file = open(filename, "w", encoding="utf8")
-
+            log_file = codecs.open(filename, "w", locale.getpreferredencoding())
+            
             def log_func(msg):
                 log_file.write(str(msg) + os.linesep)
             log_func("Control Identifiers:")
