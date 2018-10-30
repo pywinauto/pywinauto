@@ -662,7 +662,7 @@ class WindowSpecification(object):
             print_identifiers([this_ctrl, ])
         else:
             log_file = codecs.open(filename, "w", locale.getpreferredencoding())
-            
+
             def log_func(msg):
                 log_file.write(str(msg) + os.linesep)
             log_func("Control Identifiers:")
