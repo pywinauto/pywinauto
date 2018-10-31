@@ -646,7 +646,6 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_column(self, col_index):
         """Get the information for a column of the ListView"""
-
         col = None
         try:
             col = self.columns()[self.__resolve_col_index(col_index)]
@@ -761,14 +760,13 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_items(self):
         """Return all items of the ListView control"""
+        if self.iface_grid_support:
+            return self.children(content_only=True)
         self.__update_col_header()
         self.__update_row_header()
-        if self.row_header and self.is_table:
-            if not self.col_header:
-                return self.children(content_only=True)[1:]
-            else:
-                return [a.children()[1:] for a in self.children(content_only=True)[1:]]
-        return self.children(content_only=True)
+        row_start_index = int(self.row_header and self.is_table)
+        col_start_index = int(self.col_header and self.is_table)
+        return [a.children(content_only=True)[row_start_index:] for a in self.children(content_only=True)[col_start_index:]]
 
     items = get_items  # this is an alias to be consistent with other content elements
 
