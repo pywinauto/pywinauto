@@ -61,17 +61,25 @@ For some applications it's possible to run GUI automation on a locked
 machine, but it requires using special methods. First it's worth listing 
 methods that don't work on a locked machine:
 
-  * ``click_input`` and all other mouse click and press methods ending with ``_input``.
-  * ``set_focus`` as it uses ``SetCursorPos``.
-  * ``type_keys`` for native keyboard input.
-  * Direct usage of modules ``mouse`` and ``keyboard``.
+  * `click_input`_ and all other mouse click and press methods ending with ``_input``.
+  * `set_focus`_ as it uses ``SetCursorPos`` and ``SetForegroundWindow``.
+  * `type_keys`_ for native keyboard input.
+  * Direct usage of modules `mouse`_ and `keyboard`_.
+
+.. _`click_input`: code/pywinauto.base_wrapper.html#pywinauto.base_wrapper.BaseWrapper.click_input
+.. _`set_focus`: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.set_focus
+.. _`type_keys`: code/pywinauto.base_wrapper.html#pywinauto.base_wrapper.BaseWrapper.type_keys
+.. _`mouse`: code/pywinauto.mouse.html
+.. _`keyboard`: code/pywinauto.keyboard.html
 
 Some other methods may not work also, but it depends on application. 
 There are few methods for silent text input in ``backend="win32"``:
 
-  * ``send_chars`` TODO: add link to the docs of these methods
-  * ``send_keystrokes``
+  * `send_chars`_ (special key combinations do not work)
+  * `send_keystrokes`_ (some special key combinations may work)
 
+.. _`send_chars`: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.send_chars
+.. _`send_keystrokes`: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.send_keystrokes
 
 Start remote script using agent based CI
 ----------------------------------------
@@ -102,10 +110,10 @@ First option is PsExec. Thanks to `this post on StackExchange`_.
 
  1. Download `PsTools`_.
  2. Get process ID of RDP session using ``tasklist`` command. PowerShell script:
- ::
-
-    $session = tasklist /fo CSV | findstr RDP ; $session = $session.Split(",")[3] ; $session.Split('"')[1]
-
+  ::
+ 
+     $session = tasklist /fo CSV | findstr RDP ; $session = $session.Split(",")[3] ; $session.Split('"')[1]
+ 
  3. Start process: ``PsExec.exe -s -i 123 python my_script.py``.
 
 .. _`this post on StackExchange`: https://serverfault.com/a/852877/368634
