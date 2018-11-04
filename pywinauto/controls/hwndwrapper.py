@@ -533,14 +533,14 @@ class HwndWrapper(BaseWrapper):
         It parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
         For more information about Sequences and Modifiers navigate to module `keyboard`_
 
-        .. _`keyboard`: code/pywinauto.keyboard.html
+        .. _`keyboard`: pywinauto.keyboard.html
 
         Due to the fact that each application handles input differently and this method
         is meant to be used on inactive windows, it may work only partially depending
         on the target app. If the window being inactive is not essential, use the robust
         `type_keys`_ method.
 
-        .. _`type_keys`: code/pywinauto.base_wrapper.html#pywinauto.base_wrapper.BaseWrapper.type_keys
+        .. _`type_keys`: pywinauto.base_wrapper.html#pywinauto.base_wrapper.BaseWrapper.type_keys
         """
         user32 = ctypes.windll.User32
         PBYTE256 = ctypes.c_ubyte * 256
