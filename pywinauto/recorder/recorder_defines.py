@@ -5,6 +5,13 @@ from abc import ABCMeta
 
 import six
 
+HOOK_KEY_DOWN = "key down"
+HOOK_KEY_UP = "key up"
+
+HOOK_MOUSE_LEFT_BUTTON = "LButton"
+HOOK_MOUSE_RIGHT_BUTTON = "RButton"
+HOOK_MOUSE_MIDDLE_BUTTON = "MButton"
+
 
 class EVENT(object):
     ASYNC_CONTENT_LOADED = "AsyncContentLoaded"
@@ -211,6 +218,7 @@ class PROPERTY(object):
 # -- -- RecorderMouseEvent
 # -- -- RecorderKeyboardEvent
 # -- ApplicationEvent
+# -- -- PropertyEvent
 
 class RecorderEvent(object):
     __metaclass__ = ABCMeta
@@ -224,14 +232,15 @@ class RecorderEvent(object):
 
 
 class HookEvent(RecorderEvent):
-    pass
+    def __init__(self, current_key=None, event_type=None):
+        super(HookEvent, self).__init__()
+        self.current_key = current_key
+        self.event_type = event_type
 
 
 class RecorderMouseEvent(HookEvent):
     def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
-        super(RecorderMouseEvent, self).__init__()
-        self.current_key = current_key
-        self.event_type = event_type
+        super(RecorderMouseEvent, self).__init__(current_key, event_type)
         self.mouse_x = mouse_x
         self.mouse_y = mouse_y
 
@@ -241,8 +250,8 @@ class RecorderMouseEvent(HookEvent):
         else:
             elem = ""
         description = u"<RecorderMouseEvent - '{}' - '{}' at ({}, {}){} [{}]>".format(self.current_key, self.event_type,
-                                                                                     self.mouse_x, self.mouse_y, elem,
-                                                                                     self.timestamp)
+                                                                                      self.mouse_x, self.mouse_y, elem,
+                                                                                      self.timestamp)
         if six.PY2:
             return description.encode(sys.stdout.encoding)
         else:
@@ -251,9 +260,7 @@ class RecorderMouseEvent(HookEvent):
 
 class RecorderKeyboardEvent(HookEvent):
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
-        super(RecorderKeyboardEvent, self).__init__()
-        self.current_key = current_key
-        self.event_type = event_type
+        super(RecorderKeyboardEvent, self).__init__(current_key, event_type)
         self.pressed_key = pressed_key
 
     def __repr__(self):
@@ -267,14 +274,13 @@ class RecorderKeyboardEvent(HookEvent):
 
 
 class ApplicationEvent(RecorderEvent):
-    def __init__(self, name, sender):
+    def __init__(self, name, sender=None):
         super(ApplicationEvent, self).__init__()
         self.name = name
         self.sender = sender
 
     def __repr__(self):
-        description = u"<ApplicationEvent - '{}' from '{}'>".format(self.name,
-            self.sender)
+        description = u"<ApplicationEvent - '{}' from '{}'>".format(self.name, self.sender)
         if six.PY2:
             return description.encode(sys.stdout.encoding)
         else:
@@ -288,9 +294,49 @@ class PropertyEvent(ApplicationEvent):
         self.new_value = new_value
 
     def __repr__(self):
-        description = u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name,
-            self.new_value, self.sender)
+        description = u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name, self.new_value,
+                                                                              self.sender)
         if six.PY2:
             return description.encode(sys.stdout.encoding)
         else:
             return description
+
+
+class EventPattern(object):
+    def __init__(self, hook_event=None, app_events=None):
+        self.hook_event = hook_event
+        self.app_events = app_events
+
+    def __contains__(self, item):
+        if not isinstance(item, EventPattern):
+            return False
+
+        if item.hook_event and self.hook_event:
+            if self.hook_event.current_key != item.hook_event.current_key:
+                return False
+            if self.hook_event.event_type != item.hook_event.event_type:
+                return False
+
+        if item.app_events and self.app_events:
+            idx = 0
+
+            for item_ev in item.app_events:
+                while idx < len(self.app_events):
+                    idx += 1
+
+                    self_ev = self.app_events[idx - 1]
+                    if self_ev.name == item_ev.name:
+                        break
+                else:
+                    return False
+
+        return True
+
+
+class EventHandler(object):
+    # str_pattern:
+    #     "app.{root_name}.{item_name}.{method}({args})"
+    #         args - another str_pattern ?
+    #     "pywinauto.mouse.click(button='{button}', coords=({x}, {y}))"
+    # What if methods are different for different back-ends ?
+    pass
