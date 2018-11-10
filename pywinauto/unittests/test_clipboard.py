@@ -48,7 +48,7 @@ class ClipboardTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         EmptyClipboard()
         self.app1 = Application().start("notepad.exe")
         self.app2 = Application().start("notepad.exe")

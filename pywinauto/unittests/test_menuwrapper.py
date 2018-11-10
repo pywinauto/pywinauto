@@ -52,7 +52,7 @@ class MenuWrapperTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application()
         self.app.start("Notepad.exe")
@@ -129,7 +129,7 @@ class OwnerDrawnMenuTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
         self.dlg = self.app.BCDialogMenu

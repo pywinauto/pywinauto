@@ -50,8 +50,8 @@ from pywinauto.application import Application
 from pywinauto.timings import Timings
 
 def _set_timings_fast():
-    """Set Timings.Fast() and some slower settings for reliability"""
-    Timings.Fast()
+    """Set Timings.fast() and some slower settings for reliability"""
+    Timings.fast()
     Timings.window_find_timeout = 3
     Timings.closeclick_dialog_close_wait = 2.
 
@@ -413,7 +413,7 @@ class EditTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         app = Application()
 
@@ -739,7 +739,7 @@ class StaticTestCases(unittest.TestCase):
 
     def setUp(self):
         """Start the sample application. Open a tab with ownerdraw button."""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application().Start(os.path.join(mfc_samples_folder, u"RebarTest.exe"))
         # open the Help dailog

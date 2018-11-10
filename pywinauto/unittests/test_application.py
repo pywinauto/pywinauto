@@ -94,7 +94,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
         # Force Display User and Deprecation warnings every time
         # Python 3.3+nose/unittest trys really hard to suppress them
         for warning in (UserWarning, PendingDeprecationWarning):
@@ -212,7 +212,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
@@ -708,7 +708,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
         self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit
@@ -1133,7 +1133,7 @@ class MultiLevelWindowSpecificationTests(unittest.TestCase):
     if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Slow()
+            Timings.slow()
             self.app = Application(backend='uia').start(os.path.join(mfc_samples_folder, u"RowList.exe"))
             self.dlg = self.app.RowListSampleApplication
 
@@ -1151,7 +1151,7 @@ class MultiLevelWindowSpecificationTests(unittest.TestCase):
     else: # Win32
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
+            Timings.defaults()
             self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
             self.dlg = self.app.CommonControlsSample
 
@@ -1171,7 +1171,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
     if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Slow()
+            Timings.slow()
             self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
             self.desktop = Desktop(backend='uia')
 
@@ -1220,7 +1220,7 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
     else: # Win32
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
+            Timings.defaults()
             self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
             self.desktop = Desktop(backend='win32')
             self.window_title = 'Common Controls Sample'

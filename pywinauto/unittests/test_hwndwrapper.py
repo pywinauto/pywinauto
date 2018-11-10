@@ -85,7 +85,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
@@ -568,7 +568,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
 
@@ -648,7 +648,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
@@ -734,7 +734,7 @@ class NonActiveWindowFocusTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
@@ -768,7 +768,7 @@ class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app1 = Application().start(u"cmd.exe",
                                         create_new_console=True,
@@ -806,7 +806,7 @@ class NotepadRegressionTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
@@ -894,7 +894,7 @@ class DragAndDropTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
@@ -936,7 +936,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
@@ -963,7 +963,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 class SendEnterKeyTest(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
@@ -987,7 +987,7 @@ class SendKeystrokesAltComboTests(unittest.TestCase):
     """Unit test for Alt- combos sent via send_keystrokes"""
 
     def setUp(self):
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u'CtrlTest.exe'))
         self.dlg = self.app.Control_Test_App
@@ -1007,7 +1007,7 @@ class RemoteMemoryBlockTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))

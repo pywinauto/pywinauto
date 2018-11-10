@@ -161,7 +161,7 @@ class TaskbarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.tm = _ready_timeout
         app = Application(backend='win32')

@@ -34,7 +34,7 @@ if UIA_support:
 
     def _set_timings():
         """Setup timings for UIA related tests"""
-        Timings.Defaults()
+        Timings.defaults()
         Timings.window_find_timeout = 20
 
     class UIAWrapperTests(unittest.TestCase):
@@ -1218,7 +1218,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
+            Timings.defaults()
 
             # start the application
             self.app = Application(backend='uia')
@@ -1375,7 +1375,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
+            Timings.defaults()
 
             self.app = Application(backend='uia')
             self.app.start(os.path.join(mfc_samples_folder, u"RowList.exe"))
