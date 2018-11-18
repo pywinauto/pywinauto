@@ -432,7 +432,7 @@ if UIA_support:
             self.app.kill_()
 
         def test_pretty_print(self):
-            """Test __str__ method for UIA based controls"""
+            """Test __str__ and __repr__ methods for UIA based controls"""
             if six.PY3:
                 assert_regex = self.assertRegex
             else:
@@ -489,6 +489,12 @@ if UIA_support:
             assert_regex(wrp.element_info.__str__(), "^uia_element_info\.UIAElementInfo - 'None', Window$")
             assert_regex(wrp.element_info.__repr__(), "^<uia_element_info\.UIAElementInfo - 'None', Window, [0-9-]+>$")
             wrp.element_info._get_name = orig
+
+        def test_pretty_print_encode_error(self):
+            """Test __repr__ method for BaseWrapper with specific Unicode text (issue #594)"""
+            wrp = self.dlg.wrapper_object()
+            wrp.texts = mock.Mock(return_value=u'\xb7')
+            print(wrp)
 
         def test_friendly_class_names(self):
             """Test getting friendly class names of common controls"""
