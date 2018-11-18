@@ -760,7 +760,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_items(self):
         """Return all items of the ListView control"""
-        if self.iface_grid_support:
+        if not self.is_table:
             return self.children(content_only=True)
         self.__update_col_header()
         self.__update_row_header()
