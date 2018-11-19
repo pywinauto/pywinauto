@@ -566,11 +566,15 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         except NoPatternInterfaceError:
             self.iface_grid_support = False
 
-        self.is_table = self.element_info.control_type == "Table"
+        self.is_table = not self.iface_grid_support and self.element_info.control_type == "Table"
         self.row_header = False
         self.col_header = False
-        self.__update_row_header()
-        self.__update_col_header()
+
+    def __is_header(self, wrapper):
+        return isinstance(wrapper, HeaderWrapper)
+
+    def __raise_not_implemented(self):
+        raise NotImplementedError("This method not work properly for WinForms DataGrid, use cells()")
 
     def __update_row_header(self):
         try:
@@ -585,16 +589,16 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             self.col_header = False
 
     def __resolve_row_index(self, ind):
+        self.__update_row_header()
         return ind + 1 if self.col_header and self.is_table else ind
 
     def __resolve_col_index(self, ind):
+        self.__update_col_header()
         return ind + 1 if self.row_header and self.is_table else ind
 
     def __resolve_row_count(self, cnt):
+        self.__update_col_header()
         return cnt - 1 if self.col_header and self.is_table else cnt
-
-    def __resolve_col_count(self, cnt):
-        return cnt - 1 if self.row_header and self.is_table else cnt
 
     # -----------------------------------------------------------
     def item_count(self):
@@ -612,25 +616,20 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """Return the number of columns"""
         if self.iface_grid_support:
             return self.iface_grid.CurrentColumnCount
-        elif self.is_table and len(self.children()) > 0:
-            return self.__resolve_col_count(len(self.children()[0].children()))
-        else:
-            # ListBox doesn't have columns
-            return 0
+        elif self.is_table:
+            self.__raise_not_implemented()
+        # ListBox doesn't have columns
+        return 0
 
     # -----------------------------------------------------------
-    def get_column_header_items(self):
-        """Return Headers of each column (top of DataGrid)"""
-        if self.col_header:
-            return get_item(0).children(control_type="Header")
-        return []
+    def get_header_controls(self):
+        """Return Header controls associated with the Table"""
+        try:
+            hdr = self.children(control_type="Header")
+        except NoPatternInterfaceError:
+            hdr = None
 
-    # -----------------------------------------------------------
-    def get_row_header_items(self):
-        """Return Headers of each row (left of DataGrid)"""
-        if self.row_header:
-            return get_column(0).children(control_type="Header")
-        return []
+        return hdr
 
     # -----------------------------------------------------------
     def get_header_control(self):
@@ -648,7 +647,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """Get the information for a column of the ListView"""
         col = None
         try:
-            col = self.columns()[self.__resolve_col_index(col_index)]
+            col = self.columns()[col_index]
         except comtypes.COMError:
             raise IndexError
         return col
@@ -661,19 +660,17 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             cols = uia_element_info.elements_from_uia_array(arr)
             return [uiawrapper.UIAWrapper(e) for e in cols]
         elif self.is_table:
-            cols = []
-            self.__update_col_header()
-            self.__update_row_header()
-            for j in range(0, self.item_count()):
-                row = self.children()[self.__resolve_row_index(j)]
-                cells = row.children()
-                for i in range(0, self.column_count()):
-                    if i >= len(cols):
-                        cols.append([])
-                    cols[i].append(cells[self.__resolve_col_index(i)])
-            return cols
+            self.__raise_not_implemented()
         else:
             return []
+
+    # -----------------------------------------------------------
+    def cells(self):
+        """Return list of list of cells for any type of contol"""
+        row_start_index = self.__resolve_row_index(0)
+        col_start_index = self.__resolve_col_index(0)
+        rows = self.children(content_only=True)
+        return [a.children(content_only=True)[row_start_index:] for a in rows[col_start_index:]]
 
     # -----------------------------------------------------------
     def cell(self, row, column):
@@ -700,8 +697,6 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 raise IndexError
         elif self.is_table:
             # Workaround for WinForms, DataGrid equals list of lists
-            self.__update_col_header()
-            self.__update_row_header()
             _row = self.get_item(self.__resolve_row_index(row))
             cell_elem = _row.children()[self.__resolve_col_index(column)]
         else:
@@ -746,7 +741,6 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: Can't get virtualized items that way
             # TODO: See TODO section of item_count() method for details
             list_items = self.children(content_only=True)
-            self.__update_row_header()
             itm = list_items[self.__resolve_row_index(row)]
         else:
             raise TypeError("String type or integer is expected")
@@ -760,13 +754,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_items(self):
         """Return all items of the ListView control"""
-        if not self.is_table:
-            return self.children(content_only=True)
-        self.__update_col_header()
-        self.__update_row_header()
-        row_start_index = int(self.row_header and self.is_table)
-        col_start_index = int(self.col_header and self.is_table)
-        return [a.children(content_only=True)[row_start_index:] for a in self.children(content_only=True)[col_start_index:]]
+        return self.children(content_only=True)
 
     items = get_items  # this is an alias to be consistent with other content elements
 
