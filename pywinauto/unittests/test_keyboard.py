@@ -41,11 +41,17 @@ import unittest
 import subprocess
 import time
 sys.path.append(".")
-from pywinauto.application import Application
 if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
+    from pywinauto.application import Application
+elif sys.platform == 'darwin':
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(parent_dir)
+    sys.path.append(parent_dir + '/macos')
+    import macos_functions
+    from keyboard_helper import SendKeys,KeyAction,KeySequenceError
 else:
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
@@ -77,11 +83,15 @@ class SendKeysTests(unittest.TestCase):
 
     def setUp(self):
         """Start the application set some data and ensure the application is in the state we want it."""
-        self.app = Application()
         if sys.platform == 'win32':
+            self.app = Application()
             self.app.start(_notepad_exe())
             self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
+        elif sys.platform == 'darwin':
+            macos_functions.launch_application("send_keys_test_app")
+            self.app = macos_functions.get_instance_of_app("send_keys_test_app")
+            time.sleep(1.5)
         else:
             self.app.start(_test_app())
             time.sleep(0.1)
@@ -102,8 +112,11 @@ class SendKeysTests(unittest.TestCase):
             except Exception: # TimeoutError:
                 pass
             finally:
-                if self.dlg.exists(timeout=0.1):
-                    self.app.kill()
+                if self.dlg.Exists(timeout=0.1):
+                    self.app.kill_()
+        elif sys.platform == 'darwin':
+            os.system("killall send_keys_test_app")
+            time.sleep(2)
         else:
             # call Popen.kill() on Linux since Application.kill() is not implemented yet
             self.app.kill()
@@ -112,7 +125,12 @@ class SendKeysTests(unittest.TestCase):
         """Receive data from text field"""
         received = ' '
         if sys.platform == 'win32':
-            received = self.ctrl.text_block()
+            received = self.ctrl.TextBlock()
+        elif sys.platform == 'darwin':
+            # Clear clipboard
+            os.system("pbcopy < /dev/null")
+            SendKeys('{cmd}a{cmd}x',pause=0.2)
+            received = macos_functions.read_from_clipboard()
         else:
             time.sleep(0.2)
             send_keys('^a')
@@ -317,49 +335,16 @@ if sys.platform == 'win32':
         def testModifiersForFewChars(self):
             """Make sure that repeated action works"""
             send_keys("%(SC)", pause = .3)
-            dlg = self.app.window(name='Using C++ Derived Class')
+            dlg = self.app.window(title='Using C++ Derived Class')
             dlg.wait('ready')
             dlg.Done.close_click()
             dlg.wait_not('visible')
 
             send_keys("%(H{LEFT}{UP}{ENTER})", pause = .3)
-            dlg = self.app.window(name='Sample Dialog with spin controls')
+            dlg = self.app.window(title='Sample Dialog with spin controls')
             dlg.wait('ready')
             dlg.Done.close_click()
             dlg.wait_not('visible')
-
-if sys.platform == 'win32':
-    class VkPacketTests(unittest.TestCase):
-        def testBasic(self):
-            keys = parse_keys('AAA', vk_packet=False)
-            self.assertEqual(3, len(keys))
-            for key in keys:
-                self.assertTrue(isinstance(key, VirtualKeyAction))
-                wVk, wScan, dwFlags = key._get_key_info()
-                self.assertEqual(ord('A'), wVk)
-                self.assertEqual(0, dwFlags)
-
-        def testRepeat(self):
-            keys = parse_keys('{A 3}', vk_packet=False)
-            self.assertEqual(3, len(keys))
-            for key in keys:
-                self.assertTrue(isinstance(key, VirtualKeyAction))
-                wVk, wScan, dwFlags = key._get_key_info()
-                self.assertEqual(ord('A'), wVk)
-                self.assertEqual(0, dwFlags)
-
-        def testSymbol(self):
-            key, = parse_keys('{=}', vk_packet=False)
-            self.assertTrue(isinstance(key, VirtualKeyAction))
-            wVk, wScan, dwFlags = key._get_key_info()
-            self.assertEqual(0xbb, wVk)
-            self.assertEqual(0, dwFlags)
-
-        def testNoVk(self):
-            key, = parse_keys('!', vk_packet=False)
-            self.assertTrue(isinstance(key, KeyAction))
-            wVk, wScan, dwFlags = key._get_key_info()
-            self.assertEqual(0, wVk)
 
 
 #====================================================================
