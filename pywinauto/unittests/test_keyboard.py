@@ -46,6 +46,12 @@ if sys.platform == 'win32':
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
+elif sys.platform == 'darwin':
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(parent_dir)
+    sys.path.append(parent_dir + '/macos')
+    import macos_functions
+    from keyboard_helper import SendKeys,KeyAction,KeySequenceError
 else:
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
@@ -82,6 +88,10 @@ class SendKeysTests(unittest.TestCase):
             self.app.start(_notepad_exe())
             self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
+        elif sys.platform == 'darwin':
+            macos_functions.launch_application("send_keys_test_app")
+            self.app = macos_functions.get_instance_of_app("send_keys_test_app")
+            time.sleep(1.5)
         else:
             self.app = subprocess.Popen("exec " + _test_app(), shell=True)
             time.sleep(0.1)
@@ -102,8 +112,11 @@ class SendKeysTests(unittest.TestCase):
             except Exception: # TimeoutError:
                 pass
             finally:
-                if self.dlg.exists(timeout=0.1):
-                    self.app.kill()
+                if self.dlg.Exists(timeout=0.1):
+                    self.app.kill_()
+        elif sys.platform == 'darwin':
+            os.system("killall send_keys_test_app")
+            time.sleep(2)
         else:
             # call Popen.kill() on Linux since Application.kill() is not implemented yet
             self.app.kill()
@@ -112,7 +125,12 @@ class SendKeysTests(unittest.TestCase):
         """Receive data from text field"""
         received = ' '
         if sys.platform == 'win32':
-            received = self.ctrl.text_block()
+            received = self.ctrl.TextBlock()
+        elif sys.platform == 'darwin':
+            # Clear clipboard
+            os.system("pbcopy < /dev/null")
+            SendKeys('{cmd}a{cmd}x',pause=0.2)
+            received = macos_functions.read_from_clipboard()
         else:
             time.sleep(0.2)
             send_keys('^a')
@@ -283,7 +301,7 @@ class SendKeysTests(unittest.TestCase):
         received = self.receive_text()
         self.assertEqual("A", received)
 
-    if sys.platform != 'win32':
+    if sys.platform not in ['win32', 'darwin']:
         def testAltModifier(self):
             """Make sure that alt modifier works"""
             clipboard.set_data('abc')
