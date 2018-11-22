@@ -570,9 +570,6 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         self.row_header = False
         self.col_header = False
 
-    def __is_header(self, wrapper):
-        return isinstance(wrapper, HeaderWrapper)
-
     def __raise_not_implemented(self):
         raise NotImplementedError("This method not work properly for WinForms DataGrid, use cells()")
 
@@ -670,7 +667,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         row_start_index = self.__resolve_row_index(0)
         col_start_index = self.__resolve_col_index(0)
         rows = self.children(content_only=True)
-        return [a.children(content_only=True)[row_start_index:] for a in rows[col_start_index:]]
+        return [row.children(content_only=True)[row_start_index:] for row in rows[col_start_index:]]
 
     # -----------------------------------------------------------
     def cell(self, row, column):
