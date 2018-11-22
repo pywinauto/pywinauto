@@ -694,7 +694,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 raise IndexError
         elif self.is_table:
             # Workaround for WinForms, DataGrid equals list of lists
-            _row = self.get_item(self.__resolve_row_index(row))
+            _row = self.get_item(row)
             cell_elem = _row.children()[self.__resolve_col_index(column)]
         else:
             return None

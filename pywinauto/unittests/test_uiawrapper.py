@@ -992,6 +992,30 @@ if UIA_support:
 
             self.assertRaises(IndexError, datagrid.cell, 10, 10)
 
+        def test_cells(self):
+            """Test getting a cells of the ListView controls"""
+            def compare_cells(cells, control):
+                for i in range(0, control.item_count()):
+                    for j in range(0, control.column_count()):
+                        self.assertEqual(cells[i][j], control.cell(i, j))
+
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            compare_cells(listview.cells(), listview)
+
+            # DataGrid
+            self.listbox_datagrid_tab.set_focus()
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            compare_cells(datagrid.cells(), datagrid)
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            cells = listbox.cells()
+            self.assertEqual(cells[listbox.item_count() - 1][0].window_text(), "TextItem 7")
+            self.assertEqual(cells[3][0].window_text(), "CheckItem")
+
         def test_get_item(self):
             """Test getting an item of ListView controls"""
             # ListView
