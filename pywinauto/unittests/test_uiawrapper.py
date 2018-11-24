@@ -1190,6 +1190,21 @@ if UIA_support:
             self.assertRaises(NotImplementedError, table.column_count)
             self.assertRaises(NotImplementedError, table.get_column, 0)
 
+        def test_get_header_controls(self):
+            """Test get header controls method"""
+            self.add_col_button.click()
+            table = self.dlg.Table
+            headers = table.get_header_controls()
+            self.assertEqual(len(headers), 3)
+
+            self.col_header_button.click()
+            headers = table.get_header_controls()
+            self.assertEqual(len(headers), 1)
+
+            self.row_header_button.click()
+            headers = table.get_header_controls()
+            self.assertEqual(len(headers), 0)
+
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill_()

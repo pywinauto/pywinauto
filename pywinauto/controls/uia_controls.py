@@ -621,12 +621,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_header_controls(self):
         """Return Header controls associated with the Table"""
-        try:
-            hdr = self.children(control_type="Header")
-        except NoPatternInterfaceError:
-            hdr = None
-
-        return hdr
+        return [cell for row in self.children() for cell in row.children() if isinstance(cell, HeaderWrapper)]
 
     # -----------------------------------------------------------
     def get_header_control(self):
