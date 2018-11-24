@@ -586,11 +586,11 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             self.col_header = False
 
     def __resolve_row_index(self, ind):
-        self.__update_row_header()
+        self.__update_col_header()
         return ind + 1 if self.col_header and self.is_table else ind
 
     def __resolve_col_index(self, ind):
-        self.__update_col_header()
+        self.__update_row_header()
         return ind + 1 if self.row_header and self.is_table else ind
 
     def __resolve_row_count(self, cnt):
@@ -667,7 +667,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         row_start_index = self.__resolve_row_index(0)
         col_start_index = self.__resolve_col_index(0)
         rows = self.children(content_only=True)
-        return [row.children(content_only=True)[row_start_index:] for row in rows[col_start_index:]]
+        return [row.children(content_only=True)[col_start_index:] for row in rows[row_start_index:]]
 
     # -----------------------------------------------------------
     def cell(self, row, column):
