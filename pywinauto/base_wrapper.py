@@ -171,7 +171,7 @@ class BaseWrapper(object):
         repr_str = '<{0}, {1}>'.format(self.__str__(), self.__hash__())
         if six.PY2:
             if hasattr(sys.stdout, 'encoding') and sys.stdout.encoding is not None:
-                # some frameworks override sys.stdout without encoding attribute
+                # some frameworks override sys.stdout without encoding attribute (Tee Stream),
                 # some users replace sys.stdout with file descriptor which can have None encoding
                 return repr_str.encode(sys.stdout.encoding, errors='backslashreplace')
             else:

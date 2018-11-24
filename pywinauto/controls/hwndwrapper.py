@@ -1679,7 +1679,7 @@ def _perform_click(
     else:
         coords = list(coords)
 
-    if not absolute:
+    if absolute:
         coords = ctrl.client_to_screen(coords)
 
     # figure out the messages for click/press
