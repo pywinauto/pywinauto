@@ -33,6 +33,7 @@
 
 from comtypes import COMError
 from six import integer_types, text_type
+from ctypes.wintypes import tagPOINT
 
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
@@ -330,6 +331,10 @@ class UIAElementInfo(ElementInfo):
     def dump_window(self):
         """Dump window to a set of properties"""
         return dumpwindow(self.handle)
+
+    @classmethod
+    def from_point(cls, x, y):
+        return cls(IUIA().iuia.ElementFromPoint(tagPOINT(x, y)))
 
     @property
     def rich_text(self):
