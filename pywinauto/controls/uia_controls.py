@@ -575,13 +575,13 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     def __update_row_header(self):
         try:
-            self.row_header = all(isinstance(row.iter_children().next(), HeaderWrapper) for row in self.children())
+            self.row_header = all(isinstance(six.next(row.iter_children()), HeaderWrapper) for row in self.children())
         except StopIteration:
             self.row_header = False
 
     def __update_col_header(self):
         try:
-            self.col_header = all(isinstance(col, HeaderWrapper) for col in self.iter_children().next().children())
+            self.col_header = all(isinstance(col, HeaderWrapper) for col in six.next(self.iter_children()).children())
         except StopIteration:
             self.col_header = False
 
