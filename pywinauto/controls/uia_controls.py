@@ -575,8 +575,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     def __update_row_header(self):
         try:
-            self.row_header = all(isinstance(row.children()[0], HeaderWrapper) for row in self.children())
-        except IndexError:
+            self.row_header = all(isinstance(row.iter_children().next(), HeaderWrapper) for row in self.children())
+        except StopIteration:
             self.row_header = False
 
     def __update_col_header(self):
