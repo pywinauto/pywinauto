@@ -30,6 +30,11 @@ mfc_samples_folder = os.path.join(
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
+winforms_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\WinForms_samples")
+if is_x64_Python():
+    winforms_folder = os.path.join(winforms_folder, 'x64')
+
 if UIA_support:
 
     def _set_timings():
@@ -992,6 +997,30 @@ if UIA_support:
 
             self.assertRaises(IndexError, datagrid.cell, 10, 10)
 
+        def test_cells(self):
+            """Test getting a cells of the ListView controls"""
+            def compare_cells(cells, control):
+                for i in range(0, control.item_count()):
+                    for j in range(0, control.column_count()):
+                        self.assertEqual(cells[i][j], control.cell(i, j))
+
+            # ListView
+            self.listview_tab.set_focus()
+            listview = self.listview_tab.children(class_name=u"ListView")[0]
+            compare_cells(listview.cells(), listview)
+
+            # DataGrid
+            self.listbox_datagrid_tab.set_focus()
+            datagrid = self.listbox_datagrid_tab.children(class_name=u"DataGrid")[0]
+            compare_cells(datagrid.cells(), datagrid)
+
+            # ListBox
+            self.listbox_datagrid_tab.set_focus()
+            listbox = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0]
+            cells = listbox.cells()
+            self.assertEqual(cells[listbox.item_count() - 1][0].window_text(), "TextItem 7")
+            self.assertEqual(cells[3][0].window_text(), "CheckItem")
+
         def test_get_item(self):
             """Test getting an item of ListView controls"""
             # ListView
@@ -1089,6 +1118,96 @@ if UIA_support:
 
             row = None
             self.assertRaises(TypeError, self.ctrl.get_item, row)
+
+    class ListViewWrapperTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the ListViewWrapper class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            winfoms_app = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
+
+            # start the application
+            app = Application(backend='uia')
+            app = app.start(winfoms_app)
+            dlg = app.Dialog
+
+            self.app = app
+            self.dlg = dlg
+            self.add_col_button = dlg.AddCol
+            self.add_row_button = dlg.AddRow
+            self.row_header_button = dlg.RowHeader
+            self.col_header_button = dlg.ColHeader
+
+        def test_empty_grid(self):
+            """Test some error cases handling"""
+            self.dlg.set_focus()
+            table = self.dlg.Table
+            self.assertEqual(len(table.cells()), 0)
+            self.assertRaises(IndexError, table.cell, 0, 0)
+            self.assertRaises(IndexError, table.get_item, 0)
+
+        def test_skip_headers(self):
+            """Test some error cases handling"""
+            self.dlg.set_focus()
+            self.add_col_button.click()
+            table = self.dlg.Table
+            cells = table.cells()
+            self.assertEqual(len(cells), 1)
+            self.assertEqual(len(cells[0]), 1)
+            self.assertFalse(isinstance(cells[0][0], uia_ctls.HeaderWrapper))
+
+        def test_cell_and_cells_equals(self):
+            """Test equivalence of cell and cells methods"""
+            def compare_cells():
+                table = self.dlg.Table
+                cells = table.cells()
+                self.assertEqual(len(cells), 3)
+                self.assertEqual(len(cells[0]), 2)
+                for row_ind in range(0,3):
+                    for col_ind in range(0,2):
+                        self.assertEqual(cells[row_ind][col_ind], table.cell(row_ind,col_ind))
+
+            self.add_col_button.click()
+            self.add_col_button.click()
+            self.add_row_button.click()
+            self.add_row_button.click()
+            compare_cells()
+
+            self.row_header_button.click()
+            compare_cells()
+
+            self.row_header_button.click()
+            self.col_header_button.click()
+            compare_cells()
+
+        def test_unsupported_columns(self):
+            """Test raise NotImplemented errors for columns methods"""
+            self.dlg.set_focus()
+            table = self.dlg.Table
+            self.assertRaises(NotImplementedError, table.column_count)
+            self.assertRaises(NotImplementedError, table.get_column, 0)
+
+        def test_get_header_controls(self):
+            """Test get header controls method"""
+            self.add_col_button.click()
+            table = self.dlg.Table
+            headers = table.get_header_controls()
+            self.assertEqual(len(headers), 3)
+
+            self.col_header_button.click()
+            headers = table.get_header_controls()
+            self.assertEqual(len(headers), 1)
+
+            self.row_header_button.click()
+            headers = table.get_header_controls()
+            self.assertEqual(len(headers), 0)
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
 
     class ListItemWrapperTests(unittest.TestCase):
 

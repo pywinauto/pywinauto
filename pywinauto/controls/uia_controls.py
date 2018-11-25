@@ -551,7 +551,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
 
-    _control_types = ['DataGrid', 'List', ]
+    _control_types = ['DataGrid', 'List', 'Table']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -566,6 +566,37 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         except NoPatternInterfaceError:
             self.iface_grid_support = False
 
+        self.is_table = not self.iface_grid_support and self.element_info.control_type == "Table"
+        self.row_header = False
+        self.col_header = False
+
+    def __raise_not_implemented(self):
+        raise NotImplementedError("This method not work properly for WinForms DataGrid, use cells()")
+
+    def __update_row_header(self):
+        try:
+            self.row_header = all(isinstance(six.next(row.iter_children()), HeaderWrapper) for row in self.children())
+        except StopIteration:
+            self.row_header = False
+
+    def __update_col_header(self):
+        try:
+            self.col_header = all(isinstance(col, HeaderWrapper) for col in six.next(self.iter_children()).children())
+        except StopIteration:
+            self.col_header = False
+
+    def __resolve_row_index(self, ind):
+        self.__update_col_header()
+        return ind + 1 if self.col_header and self.is_table else ind
+
+    def __resolve_col_index(self, ind):
+        self.__update_row_header()
+        return ind + 1 if self.row_header and self.is_table else ind
+
+    def __resolve_row_count(self, cnt):
+        self.__update_col_header()
+        return cnt - 1 if self.col_header and self.is_table else cnt
+
     # -----------------------------------------------------------
     def item_count(self):
         """A number of items in the ListView"""
@@ -575,16 +606,22 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: This could be implemented by getting custom ItemCount Property using RegisterProperty
             # TODO: See https://msdn.microsoft.com/ru-ru/library/windows/desktop/ff486373%28v=vs.85%29.aspx for details
             # TODO: comtypes doesn't seem to support IUIAutomationRegistrar interface
-            return (len(self.children()))
+            return self.__resolve_row_count(len(self.children()))
 
     # -----------------------------------------------------------
     def column_count(self):
         """Return the number of columns"""
         if self.iface_grid_support:
             return self.iface_grid.CurrentColumnCount
-        else:
-            # ListBox doesn't have columns
-            return 0
+        elif self.is_table:
+            self.__raise_not_implemented()
+        # ListBox doesn't have columns
+        return 0
+
+    # -----------------------------------------------------------
+    def get_header_controls(self):
+        """Return Header controls associated with the Table"""
+        return [cell for row in self.children() for cell in row.children() if isinstance(cell, HeaderWrapper)]
 
     # -----------------------------------------------------------
     def get_header_control(self):
@@ -614,9 +651,18 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             arr = self.iface_table.GetCurrentColumnHeaders()
             cols = uia_element_info.elements_from_uia_array(arr)
             return [uiawrapper.UIAWrapper(e) for e in cols]
+        elif self.is_table:
+            self.__raise_not_implemented()
         else:
-            # ListBox doesn't have columns
             return []
+
+    # -----------------------------------------------------------
+    def cells(self):
+        """Return list of list of cells for any type of contol"""
+        row_start_index = self.__resolve_row_index(0)
+        col_start_index = self.__resolve_col_index(0)
+        rows = self.children(content_only=True)
+        return [row.children(content_only=True)[col_start_index:] for row in rows[row_start_index:]]
 
     # -----------------------------------------------------------
     def cell(self, row, column):
@@ -634,15 +680,19 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
             raise TypeError("row and column must be numbers")
 
-        if not self.iface_grid_support:
+        if self.iface_grid_support:
+            try:
+                e = self.iface_grid.GetItem(row, column)
+                elem_info = uia_element_info.UIAElementInfo(e)
+                cell_elem = uiawrapper.UIAWrapper(elem_info)
+            except (comtypes.COMError, ValueError):
+                raise IndexError
+        elif self.is_table:
+            # Workaround for WinForms, DataGrid equals list of lists
+            _row = self.get_item(row)
+            cell_elem = _row.children()[self.__resolve_col_index(column)]
+        else:
             return None
-
-        try:
-            e = self.iface_grid.GetItem(row, column)
-            elem_info = uia_element_info.UIAElementInfo(e)
-            cell_elem = uiawrapper.UIAWrapper(elem_info)
-        except (comtypes.COMError, ValueError):
-            raise IndexError
 
         return cell_elem
 
@@ -683,7 +733,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: Can't get virtualized items that way
             # TODO: See TODO section of item_count() method for details
             list_items = self.children(content_only=True)
-            itm = list_items[row]
+            itm = list_items[self.__resolve_row_index(row)]
         else:
             raise TypeError("String type or integer is expected")
 
