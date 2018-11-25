@@ -581,8 +581,8 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     def __update_col_header(self):
         try:
-            self.col_header = all(isinstance(col, HeaderWrapper) for col in self.children()[0].children())
-        except IndexError:
+            self.col_header = all(isinstance(col, HeaderWrapper) for col in self.iter_children().next().children())
+        except StopIteration:
             self.col_header = False
 
     def __resolve_row_index(self, ind):
