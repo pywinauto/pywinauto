@@ -39,6 +39,8 @@ from .. import findbestmatch
 from .. import timings
 
 from . import uiawrapper
+from . import common_controls
+from ..uia_element_info import UIAElementInfo
 from ..uia_defines import IUIA
 from ..uia_defines import NoPatternInterfaceError
 from ..uia_defines import toggle_state_on
@@ -938,7 +940,16 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
           has to be applied.
         """
 
-        cc = self.children()
+        if not self.children() and self.element_info.handle is not None:
+            btn_count = self.button_count()
+            cc = []
+            for btn_num in range(btn_count):
+                button_coord = common_controls.ToolbarWrapper(self.element_info.handle)\
+                    .get_button_rect(btn_num).mid_point()
+                cc.append(UIAElementInfo.from_point(button_coord[0], [1]))
+        else:
+            cc = self.children()
+
         texts = [c.window_text() for c in cc]
         if isinstance(button_identifier, six.string_types):
             self.actions.log('Toolbar buttons: ' + str(texts))
