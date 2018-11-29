@@ -928,7 +928,12 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     #----------------------------------------------------------------
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
-        return len(self.children())
+        children_list = self.children()
+        if not children_list and self.element_info.handle is not None:
+            btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
+            return btn_count
+        else:
+            return len(children_list)
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
@@ -941,16 +946,19 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         """
 
         if not self.children() and self.element_info.handle is not None:
-            btn_count = self.button_count()
+            btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
             cc = []
             for btn_num in range(btn_count):
-                button_coord = common_controls.ToolbarWrapper(self.element_info.handle)\
+                button_coord = common_controls.ToolbarWrapper(self.element_info.handle) \
                     .get_button_rect(btn_num).mid_point()
-                cc.append(UIAElementInfo.from_point(button_coord[0], [1]))
+                button_coord = self.client_to_screen(button_coord)
+                button_elem_info = UIAElementInfo.from_point(button_coord[0], button_coord[1])
+                cc.append(uiawrapper.UIAWrapper(button_elem_info))
+            texts = [c.window_text() for c in cc]
         else:
             cc = self.children()
+            texts = [c.text() for c in cc]
 
-        texts = [c.window_text() for c in cc]
         if isinstance(button_identifier, six.string_types):
             self.actions.log('Toolbar buttons: ' + str(texts))
 
