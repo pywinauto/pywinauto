@@ -29,6 +29,7 @@ mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+mfc_app_1 = os.path.join(mfc_samples_folder, u"RebarTest.exe")
 
 if UIA_support:
 
@@ -1419,6 +1420,49 @@ if UIA_support:
             itm = lst_ctl.children()[1]
             self.assertEqual(itm.texts()[0], u'Red')
 
+    class ToolbarMfcTests(unittest.TestCase):
+
+        """Unit tests for ToolbarWrapper class on MCF demo"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.start(mfc_app_1)
+            self.dlg = self.app.RebarTest
+            self.tb = self.dlg.MenuBar.wrapper_object()
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill_()
+
+        def test_button_accesss(self):
+            """Test getting access to buttons on Toolbar of WFC demo"""
+            # Read a first toolbar with buttons: "File, View, Help"
+
+            self.assertEqual(4, self.tb.button_count())  # return 0 it hasn't children, it's right
+
+            # Test if it's in writable properties
+            props = set(self.tb.get_properties().keys())
+            self.assertEqual('button_count' in props, True)
+
+            expect_txt_1 = "File"
+            self.assertEqual(expect_txt_1, self.tb.button(0).window_text())
+
+            expect_txt_2 = "View"
+            self.assertEqual(expect_txt_2, self.tb.button(1).window_text())
+
+            expect_txt_3 = "Help"
+            self.assertEqual(expect_txt_3, self.tb.button(2).window_text())
+
+            found_txt = self.tb.button(expect_txt_1, exact=True).window_text()
+            self.assertEqual(expect_txt_1, found_txt)
+
+            found_txt = self.tb.button(expect_txt_1, exact=False).window_text()
+            self.assertEqual(expect_txt_1, found_txt)
+
     class TreeViewWpfTests(unittest.TestCase):
 
         """Unit tests for TreeViewWrapper class on WPF demo"""
@@ -1590,7 +1634,6 @@ if UIA_support:
             self.ctrl.drag_mouse_input(coords_to, coords_from)
             itm = self.ctrl.get_item(r'\Date Elements\Weeks\Months')
             self.assertEqual(itm.window_text(), 'Months')
-
 
     class WindowWrapperTests(unittest.TestCase):
 
