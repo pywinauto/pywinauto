@@ -952,7 +952,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             texts = [c.window_text() for c in cc]
         else:
             cc = self.children()
-            texts = [c.text() for c in cc]
+            texts = [c.window_text() for c in cc]
 
         if isinstance(button_identifier, six.string_types):
             self.actions.log('Toolbar buttons: ' + str(texts))
