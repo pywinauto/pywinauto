@@ -583,6 +583,10 @@ if UIA_support:
 
             cur_state = yes.select().is_selected()
             self.assertEqual(cur_state, True)
+ 
+            no = self.dlg.No.wrapper_object()
+            cur_state = no.click().is_selected()
+            self.assertEqual(cur_state, True)
 
         def test_combobox_texts(self):
             """Test items texts for the combo box control"""
