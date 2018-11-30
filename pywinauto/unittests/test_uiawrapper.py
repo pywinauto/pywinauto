@@ -1442,7 +1442,7 @@ if UIA_support:
             """Test getting access to buttons on Toolbar of WFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
 
-            self.assertEqual(4, self.tb.button_count())  # return 0 it hasn't children, it's right
+            self.assertEqual(0, self.tb.button_count())  # return 0 it hasn't children, it's right
 
             # Test if it's in writable properties
             props = set(self.tb.get_properties().keys())
