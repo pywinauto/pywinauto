@@ -928,12 +928,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     #----------------------------------------------------------------
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
-        children_list = self.children()
-        if not children_list and self.element_info.handle is not None:
-            btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
-            return btn_count
-        else:
-            return len(children_list)
+        return len(self.children())
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
