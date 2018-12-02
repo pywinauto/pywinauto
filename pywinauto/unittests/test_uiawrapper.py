@@ -345,7 +345,7 @@ if UIA_support:
 
         def test_get_legacy_properties(self):
             """Test getting legacy properties of a control"""
-            expected_properties = {'Value' : '',
+            expected_properties = {'Value': '',
                                    'DefaultAction': 'Press',
                                    'Description': '',
                                    'Name': 'OK',
@@ -355,7 +355,7 @@ if UIA_support:
                                    'State': 1048576,
                                    'Role': 43}
             button_wrp = self.dlg.window(class_name="Button",
-                                       title="OK").wrapper_object()
+                                         title="OK").wrapper_object()
 
             actual_properties = button_wrp.legacy_properties()
 
@@ -582,6 +582,10 @@ if UIA_support:
             self.assertEqual(cur_state, False)
 
             cur_state = yes.select().is_selected()
+            self.assertEqual(cur_state, True)
+
+            no = self.dlg.No.wrapper_object()
+            cur_state = no.click().is_selected()
             self.assertEqual(cur_state, True)
 
         def test_combobox_texts(self):
@@ -1166,9 +1170,9 @@ if UIA_support:
                 cells = table.cells()
                 self.assertEqual(len(cells), 3)
                 self.assertEqual(len(cells[0]), 2)
-                for row_ind in range(0,3):
-                    for col_ind in range(0,2):
-                        self.assertEqual(cells[row_ind][col_ind], table.cell(row_ind,col_ind))
+                for row_ind in range(0, 3):
+                    for col_ind in range(0, 2):
+                        self.assertEqual(cells[row_ind][col_ind], table.cell(row_ind, col_ind))
 
             self.add_col_button.click()
             self.add_col_button.click()
@@ -1709,7 +1713,6 @@ if UIA_support:
             self.ctrl.drag_mouse_input(coords_to, coords_from)
             itm = self.ctrl.get_item(r'\Date Elements\Weeks\Months')
             self.assertEqual(itm.window_text(), 'Months')
-
 
     class WindowWrapperTests(unittest.TestCase):
 

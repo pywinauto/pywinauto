@@ -112,8 +112,11 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def click(self):
-        """Click the Button control by using Invoke pattern"""
-        self.invoke()
+        """Click the Button control by using Invoke or Select patterns"""
+        try:
+            self.invoke()
+        except NoPatternInterfaceError:
+            self.select()
 
         # Return itself so that action can be chained
         return self
