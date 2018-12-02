@@ -474,14 +474,14 @@ if UIA_support:
             assert_regex(wrp.element_info.__repr__(),
                          "^<uia_element_info.UIAElementInfo - 'WPF Sample Application', Window, [0-9-]+>$")
 
-            # mock a failure in texts() method
-            orig = wrp.texts
-            wrp.texts = mock.Mock(return_value=[])  # empty texts
+            # mock a failure in window_text() method
+            orig = wrp.window_text
+            wrp.window_text = mock.Mock(return_value="")  # empty text
             assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '', Dialog$")
             assert_regex(wrp.__repr__(), "^<uiawrapper\.UIAWrapper - '', Dialog, [0-9-]+>$")
-            wrp.texts.return_value = [u'\xd1\xc1\\\xa1\xb1\ua000']  # unicode string
+            wrp.window_text.return_value = u'\xd1\xc1\\\xa1\xb1\ua000'  # unicode string
             assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '.+', Dialog$")
-            wrp.texts = orig  # restore the original method
+            wrp.window_text = orig  # restore the original method
 
             # mock a failure in element_info.name property (it's based on _get_name())
             orig = wrp.element_info._get_name
@@ -493,8 +493,9 @@ if UIA_support:
         def test_pretty_print_encode_error(self):
             """Test __repr__ method for BaseWrapper with specific Unicode text (issue #594)"""
             wrp = self.dlg.wrapper_object()
-            wrp.texts = mock.Mock(return_value=u'\xb7')
+            wrp.window_text = mock.Mock(return_value=u'\xb7')
             print(wrp)
+            print(repr(wrp))
 
         def test_friendly_class_names(self):
             """Test getting friendly class names of common controls"""
