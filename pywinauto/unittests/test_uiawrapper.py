@@ -453,8 +453,8 @@ if UIA_support:
             assert_regex(wrp.element_info.__repr__(), "^<uia_element_info.UIAElementInfo - '', TextBox, None>$")
 
             wrp = self.dlg.TabControl.wrapper_object()
-            assert_regex(wrp.__str__(), "^uia_controls\.TabControlWrapper - 'General', TabControl$")
-            assert_regex(wrp.__repr__(), "^<uia_controls\.TabControlWrapper - 'General', TabControl, [0-9-]+>$")
+            assert_regex(wrp.__str__(), "^uia_controls\.TabControlWrapper - '', TabControl$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.TabControlWrapper - '', TabControl, [0-9-]+>$")
 
             wrp = self.dlg.MenuBar.wrapper_object()
             assert_regex(wrp.__str__(), "^uia_controls\.MenuWrapper - 'System', Menu$")
