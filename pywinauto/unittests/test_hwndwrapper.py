@@ -256,7 +256,7 @@ class HwndWrapperTests(unittest.TestCase):
         # For this reason we can't use an assertRaises statement here because
         # the exception is raised before actual call to DrawOutline
         ctl = self.dlg.child_window(class_name='Button', found_index=3333)
-        self.assertRaises(ElementNotFoundError, ctl.WrapperObject)
+        self.assertRaises(ElementNotFoundError, ctl.wrapper_object)
 
     def testSearchWithPredicateFunc(self):
         """Test an access to a control by filtering with a predicate function"""
