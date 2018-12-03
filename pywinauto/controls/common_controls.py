@@ -919,7 +919,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
     def texts(self):
         """Get the texts for the ListView control"""
         texts = [self.window_text()]
-        texts.extend([item['text'] for item in self.items()])
+        texts.extend([item.text() for item in self.items()])
         return texts
 
     #-----------------------------------------------------------
@@ -1656,7 +1656,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     def is_selected(self, path):
         """Return True if the item is selected"""
         return win32defines.TVIS_SELECTED == (win32defines.TVIS_SELECTED &
-                                              self.get_item(path).State())
+                                              self.get_item(path).state())
     # Non PEP-8 alias
     IsSelected = deprecated(is_selected)
 
@@ -2775,11 +2775,11 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
 
         current_toolbar = self
         for i, index in enumerate(indices):
-            windows_before = app.Windows_(visible_only=True)
+            windows_before = app.windows(visible_only=True)
             current_toolbar.button(index).click_input()
             if i < len(indices) - 1:
-                wait_until(5, 0.1, lambda: len(app.Windows_(visible_only=True)) > len(windows_before))
-                windows_after = app.Windows_(visible_only=True)
+                wait_until(5, 0.1, lambda: len(app.windows(visible_only=True)) > len(windows_before))
+                windows_after = app.windows(visible_only=True)
                 new_window = set(windows_after) - set(windows_before)
                 current_toolbar = list(new_window)[0].children()[0]
         self.actions.logSectionEnd()
