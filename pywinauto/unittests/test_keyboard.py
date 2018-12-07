@@ -92,27 +92,27 @@ class SendKeysTests(unittest.TestCase):
         """Close the application after tests"""
         if sys.platform == 'win32':
             try:
-                self.dlg.Close(0.1)
+                self.dlg.close(0.1)
             except Exception: # TimeoutError:
                 pass
             try:
-                if self.app.Notepad["Do&n't Save"].Exists():
-                    self.app.Notepad["Do&n't Save"].Click()
-                    self.app.Notepad["Do&n't Save"].WaitNot('visible')
+                if self.app.Notepad["Do&n't Save"].exists():
+                    self.app.Notepad["Do&n't Save"].click()
+                    self.app.Notepad["Do&n't Save"].wait_not('visible')
             except Exception: # TimeoutError:
                 pass
             finally:
-                if self.dlg.Exists(timeout=0.1):
-                    self.app.kill_()
+                if self.dlg.exists(timeout=0.1):
+                    self.app.kill()
         else:
-            # call Popen.kill() on Linux since Application.kill_() is not implemented yet
+            # call Popen.kill() on Linux since Application.kill() is not implemented yet
             self.app.kill()
 
     def receive_text(self):
         """Receive data from text field"""
         received = ' '
         if sys.platform == 'win32':
-            received = self.ctrl.TextBlock()
+            received = self.ctrl.text_block()
         else:
             time.sleep(0.2)
             send_keys('^a')
@@ -308,25 +308,25 @@ if sys.platform == 'win32':
         def tearDown(self):
             """Close the application after tests"""
             try:
-                self.dlg.Close(0.5)
+                self.dlg.close(0.5)
             except Exception:
                 pass
             finally:
-                self.app.kill_()
+                self.app.kill()
 
         def testModifiersForFewChars(self):
             """Make sure that repeated action works"""
             send_keys("%(SC)", pause = .3)
-            dlg = self.app.Window_(title='Using C++ Derived Class')
-            dlg.Wait('ready')
-            dlg.Done.CloseClick()
-            dlg.WaitNot('visible')
+            dlg = self.app.window(title='Using C++ Derived Class')
+            dlg.wait('ready')
+            dlg.Done.close_click()
+            dlg.wait_not('visible')
 
             send_keys("%(H{LEFT}{UP}{ENTER})", pause = .3)
-            dlg = self.app.Window_(title='Sample Dialog with spin controls')
-            dlg.Wait('ready')
-            dlg.Done.CloseClick()
-            dlg.WaitNot('visible')
+            dlg = self.app.window(title='Sample Dialog with spin controls')
+            dlg.wait('ready')
+            dlg.Done.close_click()
+            dlg.wait_not('visible')
 
 
 #====================================================================
