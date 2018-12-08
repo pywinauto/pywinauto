@@ -66,7 +66,7 @@ At the 2nd line the SaveAs dialog might not be open by the time this line is
 executed. So what happens is that we wait until we have a control to resolve 
 before resolving the dialog. At that point, if we can't find a SaveAs dialog with
 a ComboBox5 control we wait a short period of time and try again. 
-The procedure repeats up to a maximum time limit (currently 1 second!)
+The procedure repeats up to a maximum time limit (currently 5 second!)
 
 This internal waiting loop is to avoid the user having to use time.sleep or
 implementing a custom "wait_for_dialog" function.
