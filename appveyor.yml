@@ -102,6 +102,7 @@ after_test:
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
   - path: Coverage_report
+  - path: TestResultsReport
 
 #on_success:
 #  - TODO: 
