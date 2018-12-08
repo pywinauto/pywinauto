@@ -22,12 +22,13 @@ function upload($file) {
 
     $wc = New-Object 'System.Net.WebClient'
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", $file)
-    $test_res_report_dir = ".\TestResultsReport"
-    md -Force $test_res_report_dir
-    cp $file $test_res_report_dir\$($env:APPVEYOR_JOB_ID)-$($env:APPVEYOR_REPO_COMMIT)-$($env:PYTHON_VERSION)-$($env:PYTHON_ARCH)-$($env:UIA_SUPPORT)-result.xml
 
-    # Debug
-    #dir $test_res_report_dir
+    $test_report_dir = ".\TestResultsReport"
+    md -Force $test_report_dir | Null-Out
+    $rep_dest = $test_report_dir\$($env:APPVEYOR_JOB_ID)-$($env:APPVEYOR_REPO_COMMIT)-$($env:PYTHON_VERSION)-$($env:PYTHON_ARCH)-$($env:UIA_SUPPORT)-result.xml
+
+    Write-Host "Copying test report to: " $rep_dest
+    cp $file $rep_dest
 }
 
 function run {
