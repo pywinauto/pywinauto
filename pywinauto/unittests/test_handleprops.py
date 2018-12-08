@@ -201,19 +201,19 @@ class HandlepropsTestCases(unittest.TestCase):
 
     def test_has_style(self):
         """Make sure the has_style method returns correct result"""
-        self.assertEqual(True,  has_style(self.dlghandle, 0xf0000))
+        self.assertEqual(True, has_style(self.dlghandle, 0xf0000))
         self.assertEqual(True, has_style(self.edit_handle, 0x4))
 
-        self.assertEqual(False,  has_style(self.dlghandle, 4))
+        self.assertEqual(False, has_style(self.dlghandle, 4))
         self.assertEqual(False, has_style(self.edit_handle, 1))
 
 
     def test_has_exstyle(self):
         """Make sure the has_exstyle method returns correct result"""
-        self.assertEqual(True,  has_exstyle(self.dlghandle, 0x10))
+        self.assertEqual(True, has_exstyle(self.dlghandle, 0x10))
         self.assertEqual(True, has_exstyle(self.edit_handle, 0x200))
 
-        self.assertEqual(False,  has_exstyle(self.dlghandle, 4))
+        self.assertEqual(False, has_exstyle(self.dlghandle, 4))
         self.assertEqual(False, has_exstyle(self.edit_handle, 0x10))
 
     def test_is_toplevel_window(self):

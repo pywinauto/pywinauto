@@ -88,7 +88,7 @@ class ControlProps(dict):
     def has_exstyle(self, exstyle):
         return self['exstyle'] & exstyle == exstyle
     # Non PEP-8 alias
-    HasExStyle = deprecated(has_exstyle)
+    HasExStyle = deprecated(has_exstyle, deprecated_name="HasExStyle")
 
 
 #====================================================================
