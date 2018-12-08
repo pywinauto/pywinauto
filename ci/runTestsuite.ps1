@@ -24,7 +24,7 @@ function upload($file) {
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", $file)
     $test_res_report_dir = ".\TestResultsReport"
     md -Force $test_res_report_dir
-    cp $file $test_res_report_dir\$($enf:APPVEYOR_JOB_ID)-$($env:PYTHON_VERSION)-$($env:PYTHON_ARCH)-$($env:UIA_SUPPORT)-$file
+    cp $file $test_res_report_dir\$($env:APPVEYOR_JOB_ID)-$($env:PYTHON_VERSION)-$($env:PYTHON_ARCH)-$($env:UIA_SUPPORT)-$file
 
     # Debug
     dir $test_res_report_dir
