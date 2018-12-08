@@ -25,7 +25,7 @@ function upload($file) {
 
     $test_report_dir = ".\TestResultsReport"
     md -Force $test_report_dir | Null-Out
-    $rep_dest = $test_report_dir\$($env:APPVEYOR_JOB_ID)-$($env:APPVEYOR_REPO_COMMIT)-$($env:PYTHON_VERSION)-$($env:PYTHON_ARCH)-$($env:UIA_SUPPORT)-result.xml
+    $rep_dest = "$test_report_dir\$($env:APPVEYOR_JOB_ID)-$($env:APPVEYOR_REPO_COMMIT)-$($env:PYTHON_VERSION)-$($env:PYTHON_ARCH)-$($env:UIA_SUPPORT)-result.xml"
 
     Write-Host "Copying test report to: " $rep_dest
     cp $file $rep_dest
@@ -40,7 +40,7 @@ function run {
     $output = "transformed.xml"
     
     #nosetests  --all-modules --with-xunit pywinauto/unittests
-    nosetests --nologcapture --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests\test_uiawrapper.py:UiaControlsTests 
+    nosetests --nologcapture --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests
     $success = $?
     Write-Host "result code of nosetests:" $success
 
