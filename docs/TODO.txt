@@ -114,11 +114,11 @@ PYWINAUTO TODO's
 * Need to make Menu items into classes so instead of Dlg.MenuSelect we should
   be doing ::
   
-     dlg.Menu("blah->blah").Select() 
+     dlg.Menu("blah->blah").select() 
      
   or even ::
   
-     dlg.Menu.Blah.Blah.Select()
+     dlg.Menu.Blah.Blah.select()
   
  To do this we need to change how menu's are retrieved - rather than get all 
  menuitems at the start - then we just get the requested level.
