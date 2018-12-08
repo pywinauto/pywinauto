@@ -22,9 +22,12 @@ function upload($file) {
 
     $wc = New-Object 'System.Net.WebClient'
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", $file)
-    md -Force ".\TestResultsReport"
-    cp $file .\TestResultsReport\$($enf:APPVEYOR_BUILD_FOLDER)_$file
-    dir .\TestResultsReport
+    $test_res_report_dir = ".\TestResultsReport"
+    md -Force $test_res_report_dir
+    cp $file $test_res_report_dir\$($enf:APPVEYOR_JOB_ID)_$file
+
+    # Debug
+    dir $test_res_report_dir
 }
 
 function run {
