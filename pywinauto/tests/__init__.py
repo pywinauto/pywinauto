@@ -111,7 +111,7 @@ def print_bugs(bugs):
                 ctrl.is_visible(),))
 
             try:
-                ctrl.DrawOutline()
+                ctrl.draw_outline()
             except (AttributeError, KeyError):
                 #print(e)
                 continue

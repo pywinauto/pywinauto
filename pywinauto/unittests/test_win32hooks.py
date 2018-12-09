@@ -61,7 +61,7 @@ class Win32HooksTests(unittest.TestCase):
             self.timer.cancel()
         self.hook.stop()
         if self.app:
-            self.app.kill_()
+            self.app.kill()
 
     def _get_safe_point_to_click(self):
         """Run notepad.exe to have a safe area for mouse clicks"""

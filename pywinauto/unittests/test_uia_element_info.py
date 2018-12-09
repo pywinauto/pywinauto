@@ -36,7 +36,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def testProcessId(self):
             """Test process_id equals"""
