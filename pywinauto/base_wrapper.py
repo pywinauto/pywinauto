@@ -155,6 +155,23 @@ class BaseWrapper(object):
         else:
             raise RuntimeError('NULL pointer was used to initialize BaseWrapper')
 
+    def __repr_texts(self):
+        """Internal common method to be called from __str__ and __repr__"""
+        module = self.__class__.__module__
+        module = module[module.rfind('.') + 1:]
+
+        type_name = module + "." + self.__class__.__name__
+        title = self.window_text()
+        class_name = self.friendly_class_name()
+        if six.PY2:
+            if hasattr(sys.stdout, 'encoding') and sys.stdout.encoding is not None:
+                # some frameworks override sys.stdout without encoding attribute (Tee Stream),
+                # some users replace sys.stdout with file descriptor which can have None encoding
+                title = title.encode(sys.stdout.encoding, errors='backslashreplace')
+            else:
+                title = title.encode(locale.getpreferredencoding(), errors='backslashreplace')
+        return type_name, title, class_name
+
     def __repr__(self):
         """Representation of the wrapper object
 
@@ -168,7 +185,11 @@ class BaseWrapper(object):
         a windows specification to access the control, while the unique ID is more for
         debugging purposes helping to distinguish between the runtime objects.
         """
-        return '<{0}, {1}>'.format(self.__str__(), self.__hash__())
+        type_name, title, class_name = self.__repr_texts()
+        if six.PY2:
+            return b"<{0} - '{1}', {2}, {3}>".format(type_name, title, class_name, self.__hash__())
+        else:
+            return "<{0} - '{1}', {2}, {3}>".format(type_name, title, class_name, self.__hash__())
 
     def __str__(self):
         """Pretty print representation of the wrapper object
@@ -179,20 +200,13 @@ class BaseWrapper(object):
         * friendly class name of the wrapped control
 
         Notice that the reported title and class name can be used as hints
-        to prepare a windows specification to access the control
+        to prepare a window specification to access the control
         """
-        module = self.__class__.__module__
-        module = module[module.rfind('.') + 1:]
-        type_name = module + "." + self.__class__.__name__
-
-        try:
-            title = self.texts()[0]
-        except IndexError:
-            title = ""
-
-        class_name = self.friendly_class_name()
-
-        return "{0} - '{1}', {2}".format(type_name, title, class_name)
+        type_name, title, class_name = self.__repr_texts()
+        if six.PY2:
+            return b"{0} - '{1}', {2}".format(type_name, title, class_name)
+        else:
+            return "{0} - '{1}', {2}".format(type_name, title, class_name)
 
     def __hash__(self):
         """Returns the hash value of the handle"""

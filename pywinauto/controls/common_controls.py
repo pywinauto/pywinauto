@@ -2447,6 +2447,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "Toolbar"
     windowclasses = [
         "ToolbarWindow32",
+        "TToolBar",
         r"WindowsForms\d*\.ToolbarWindow32\..*",
         "Afx:ToolBar:.*"]
 
