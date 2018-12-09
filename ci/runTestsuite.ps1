@@ -29,6 +29,7 @@ function upload($file) {
 
     Write-Host "Copying test report to: " $rep_dest
     cp $file $rep_dest
+    Push-AppveyorArtifact $rep_dest
 }
 
 function run {
@@ -40,7 +41,7 @@ function run {
     $output = "transformed.xml"
     
     #nosetests  --all-modules --with-xunit pywinauto/unittests
-    nosetests --nologcapture --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests
+    nosetests --nologcapture --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests\test_uiawrapper.py:UiaControlsTests
     $success = $?
     Write-Host "result code of nosetests:" $success
 
