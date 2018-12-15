@@ -1113,14 +1113,19 @@ class Application(object):
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
 
+        only_visible_windows = True
         timeout = Timings.window_find_timeout
         while timeout >= 0:
             windows = findwindows.find_elements(process=self.process,
-                                                backend=self.backend.name)
+                                                backend=self.backend.name,
+                                                visible_only=only_visible_windows)
+
             if windows:
                 break
             time.sleep(Timings.window_find_retry)
             timeout -= Timings.window_find_retry
+            only_visible_windows ^= True
+
         else:
             raise RuntimeError("No windows for that process could be found")
 
