@@ -58,7 +58,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_issue_296(self):
             """Test handling of disappered descendants"""
@@ -108,8 +108,8 @@ if UIA_support:
 
         def test_class(self):
             """Test getting the classname of the dialog"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.class_name(), "Button")
 
         def test_window_text(self):
@@ -119,8 +119,8 @@ if UIA_support:
 
         def test_control_id(self):
             """Test getting control ID"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.control_id(), None)
 
         def test_automation_id(self):
@@ -132,27 +132,27 @@ if UIA_support:
 
         def test_is_visible(self):
             """Test is_visible method of a control"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.is_visible(), True)
 
         def test_is_enabled(self):
             """Test is_enabled method of a control"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.is_enabled(), True)
 
         def test_process_id(self):
             """Test process_id method of a control"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.process_id(), self.dlg.process_id())
             self.assertNotEqual(button.process_id(), 0)
 
         def test_is_dialog(self):
             """Test is_dialog method of a control"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.is_dialog(), False)
 
         def test_parent(self):
@@ -162,8 +162,8 @@ if UIA_support:
 
         def test_top_level_parent(self):
             """Test getting a top-level parent of a control"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.top_level_parent(), self.dlg.wrapper_object())
 
         def test_texts(self):
@@ -172,26 +172,26 @@ if UIA_support:
 
         def test_children(self):
             """Test getting children of a control"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(len(button.children()), 1)
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
         def test_children_generator(self):
             """Test iterating children of a control"""
-            button = self.dlg.window(class_name="Button", title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button", title="OK").wrapper_object()
             children = [child for child in button.iter_children()]
             self.assertEqual(len(children), 1)
             self.assertEqual(children[0].class_name(), "TextBlock")
 
         def test_descendants(self):
             """Test iterating descendants of a control"""
-            toolbar = self.dlg.window(title="Alpha", control_type="ToolBar").wrapper_object()
+            toolbar = self.dlg.child_window(title="Alpha", control_type="ToolBar").wrapper_object()
             descendants = toolbar.descendants()
             self.assertEqual(len(descendants), 7)
 
         def test_descendants_generator(self):
-            toolbar = self.dlg.window(title="Alpha", control_type="ToolBar").wrapper_object()
+            toolbar = self.dlg.child_window(title="Alpha", control_type="ToolBar").wrapper_object()
             descendants = [desc for desc in toolbar.iter_descendants()]
             self.assertSequenceEqual(toolbar.descendants(), descendants)
 
@@ -202,8 +202,8 @@ if UIA_support:
 
         def test_equals(self):
             """Test controls comparisons"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertNotEqual(button, self.dlg.wrapper_object())
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
@@ -258,8 +258,8 @@ if UIA_support:
             """Test is_keyboard focusable method of several controls"""
             edit = self.dlg.TestLabelEdit.wrapper_object()
             label = self.dlg.TestLabel.wrapper_object()
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             self.assertEqual(button.is_keyboard_focusable(), True)
             self.assertEqual(edit.is_keyboard_focusable(), True)
             self.assertEqual(label.is_keyboard_focusable(), False)
@@ -284,8 +284,8 @@ if UIA_support:
 
         def test_no_pattern_interface_error(self):
             """Test a query interface exception handling"""
-            button = self.dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
             elem = button.element_info.element
             self.assertRaises(
                 uia_defs.NoPatternInterfaceError,
@@ -354,8 +354,8 @@ if UIA_support:
                                    'KeyboardShortcut': '',
                                    'State': 1048576,
                                    'Role': 43}
-            button_wrp = self.dlg.window(class_name="Button",
-                                         title="OK").wrapper_object()
+            button_wrp = self.dlg.child_window(class_name="Button",
+                                               title="OK").wrapper_object()
 
             actual_properties = button_wrp.legacy_properties()
 
@@ -381,14 +381,14 @@ if UIA_support:
             self.app = self.app.start(wpf_app_1)
 
             dlg = self.app.WPFSampleApplication
-            self.button = dlg.window(class_name="Button",
-                                     title="OK").wrapper_object()
+            self.button = dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
 
-            self.label = dlg.window(class_name="Text", title="TestLabel").wrapper_object()
+            self.label = dlg.child_window(class_name="Text", title="TestLabel").wrapper_object()
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         # def test_click(self):
         #    pass
@@ -434,7 +434,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_pretty_print(self):
             """Test __str__ and __repr__ methods for UIA based controls"""
@@ -577,8 +577,8 @@ if UIA_support:
 
         def test_button_click(self):
             """Test the click method for the Button control"""
-            label = self.dlg.window(class_name="Text",
-                                    title="TestLabel").wrapper_object()
+            label = self.dlg.child_window(class_name="Text",
+                                          title="TestLabel").wrapper_object()
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
 
@@ -672,12 +672,12 @@ if UIA_support:
             dlg = app.WPFSampleApplication
 
             self.app = app
-            self.ctrl = dlg.window(class_name="TabControl").wrapper_object()
+            self.ctrl = dlg.child_window(class_name="TabControl").wrapper_object()
             self.texts = [u"General", u"Tree and List Views", u"ListBox and Grid"]
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_tab_count(self):
             """Test the tab count in the Tab control"""
@@ -711,11 +711,11 @@ if UIA_support:
             self.app = app
             self.dlg = app.WPFSampleApplication
 
-            self.edit = self.dlg.window(class_name="TextBox").wrapper_object()
+            self.edit = self.dlg.child_window(class_name="TextBox").wrapper_object()
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_set_window_text(self):
             """Test setting text value of control (the text in textbox itself)"""
@@ -805,7 +805,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_min_value(self):
             """Test getting minimum value of the Slider"""
@@ -893,7 +893,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_friendly_class_name(self):
             """Test friendly class name of the ListView controls"""
@@ -1218,7 +1218,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
     class ListItemWrapperTests(unittest.TestCase):
 
@@ -1240,7 +1240,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_friendly_class_name(self):
             """Test getting friendly class name"""
@@ -1294,7 +1294,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_menu_by_index(self):
             """Test selecting a WPF menu item by index"""
@@ -1359,7 +1359,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_friendly_class_name(self):
             """Test getting the friendly class name of the menu"""
@@ -1465,7 +1465,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_button_access(self):
             """Test getting access to buttons on Toolbar of WPF demo"""
@@ -1514,7 +1514,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_tooltips(self):
             """Test working with tooltips"""
@@ -1566,7 +1566,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_tv_item_count_and_roots(self):
             """Test getting roots and a total number of items in TreeView"""
