@@ -3355,7 +3355,7 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def set_time(self, year=0, month=0, day_of_week=0, day=0, hour=0, minute=0, second=0, milliseconds=0):
-        """Get the currently selected time"""
+        """Set the currently selected time"""
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
 
