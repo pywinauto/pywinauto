@@ -1230,29 +1230,29 @@ class Application(object):
         """Should not be used - part of application data implementation"""
         return self.match_history[index]
 
-    def kill(self):
+    def kill(self, soft=False):
         """
-        Try to close and kill the application
+        Try to close (optional) and kill the application
 
         Dialogs may pop up asking to save data - but the application
         will be killed anyway - you will not be able to click the buttons.
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        windows = self.windows(visible_only=True)
+        if soft:
+            windows = self.windows(visible_only=True)
 
-        for win in windows:
+            for win in windows:
+                try:
+                    if hasattr(win, 'close'):
+                        win.close()
+                        continue
+                except TimeoutError:
+                    self.actions.log('Failed to close top level window')
 
-            try:
-                if hasattr(win, 'close'):
-                    win.close()
-                    continue
-            except TimeoutError:
-                self.actions.log('Failed to close top level window')
-
-            if hasattr(win, 'force_close'):
-                self.actions.log('application.kill: call win.force_close')
-                win.force_close()
+                if hasattr(win, 'force_close'):
+                    self.actions.log('Application.kill: call win.force_close()')
+                    win.force_close()
 
         try:
             process_wait_handle = win32api.OpenProcess(
@@ -1264,13 +1264,14 @@ class Application(object):
 
         # so we have either closed the windows - or the app is hung
         killed = True
-        if process_wait_handle:
-            try:
-                win32api.TerminateProcess(process_wait_handle, 0)
-            except win32gui.error:
-                self.actions.log('Process {0} seems already killed'.format(self.process))
-
-        win32api.CloseHandle(process_wait_handle)
+        try:
+            if process_wait_handle:
+                try:
+                    win32api.TerminateProcess(process_wait_handle, 0)
+                except win32gui.error:
+                    self.actions.log('Process {0} seems already killed'.format(self.process))
+        finally:
+            win32api.CloseHandle(process_wait_handle)
 
         return killed
 
