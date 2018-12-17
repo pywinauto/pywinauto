@@ -288,7 +288,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "ComboBox"
     windowclasses = [
         "ComboBox",
-        "WindowsForms\d*\.COMBOBOX\..*",
+        r"WindowsForms\d*\.COMBOBOX\..*",
         ".*ComboBox", ]
     has_title = False
 
