@@ -31,6 +31,7 @@
 
 """Module containing tests for xml_helpers Module"""
 
+import os
 import sys
 import unittest
 import six
@@ -52,29 +53,27 @@ class XMLHelperTestCases(unittest.TestCase):
 
     def tearDown(self):
         """delete the file we have created"""
-        import os
         os.unlink("__unittests.xml")
 
     def assertReadWriteSame(self, props):
-        "Make sure that roundtripping produces identical file"
+        """Make sure that roundtripping produces identical file"""
         WriteDialogToFile("__unittests.xml", props)
 
         read_props = ReadPropertiesFromFile("__unittests.xml")
-        self.assertEquals(props, read_props)
+        self.assertEqual(props, read_props)
 
     def testOneUnicode(self):
-        "Test writing/reading a unicode string"
+        """Test writing/reading a unicode string"""
         props = [dict(test = u"hiya")]
         self.assertReadWriteSame(props)
 
     def testOneString(self):
-        "Test writing/reading a string"
+        """Test writing/reading a string"""
         props = [dict(test = "hiya")]
         self.assertReadWriteSame(props)
 
     def testSomeEscapes(self):
-        "Test writing/reading a dictionary with some escape sequences"
-
+        """Test writing/reading a dictionary with some escape sequences"""
         test_string = []
         for i in range(0, 50000):
             test_string.append(six.unichr(i))
@@ -86,27 +85,27 @@ class XMLHelperTestCases(unittest.TestCase):
 
 
     def testOneBool(self):
-        "Test writing/reading Bool"
+        """Test writing/reading Bool"""
         props = [dict(test = True)]
         self.assertReadWriteSame(props)
 
     def testOneList(self):
-        "Test writing/reading a list"
+        """Test writing/reading a list"""
         props = [dict(test = [1, 2, 3, 4, 5, 6])]
         self.assertReadWriteSame(props)
 
     def testOneDict(self):
-        "Test writing/reading a dictionary with one element"
+        """Test writing/reading a dictionary with one element"""
         props = [dict(test_value = dict(test = 1))]
         self.assertReadWriteSame(props)
 
     def testOneLong(self):
-        "Test writing/reading one long is correct"
+        """Test writing/reading one long is correct"""
         props = [dict(test = 1)]
         self.assertReadWriteSame(props)
 
     def testLOGFONTW(self):
-        "Test writing/reading one LOGFONTW is correct"
+        """Test writing/reading one LOGFONTW is correct"""
         font = LOGFONTW()
         font.lfWeight = 23
         font.lfFaceName = u"wowow"
@@ -114,22 +113,22 @@ class XMLHelperTestCases(unittest.TestCase):
         self.assertReadWriteSame(props)
 
     def testRECT(self):
-        "Test writing/reading one RECT is correct"
+        """Test writing/reading one RECT is correct"""
         props = [dict(test = RECT(1, 2, 3, 4))]
         self.assertReadWriteSame(props)
 
     def testTwoLong(self):
-        "Test writing/reading two longs is correct"
+        """Test writing/reading two longs is correct"""
         props = [dict(test = 1), dict(test_blah = 2)]
         self.assertReadWriteSame(props)
 
     def testEmptyList(self):
-        "Test writing/reading empty list"
+        """Test writing/reading empty list"""
         props = [dict(test = [])]
         self.assertReadWriteSame(props)
 
     def testEmptyDict(self):
-        "Test writing/reading empty dict"
+        """Test writing/reading empty dict"""
         props = [dict(test = {})]
         self.assertReadWriteSame(props)
 
@@ -137,5 +136,3 @@ class XMLHelperTestCases(unittest.TestCase):
 #====================================================================
 if __name__ == "__main__":
     unittest.main()
-
-

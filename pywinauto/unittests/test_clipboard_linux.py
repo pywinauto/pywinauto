@@ -51,13 +51,13 @@ if sys.platform != 'win32':
             """Make sure that get text from clipboard works"""
             send_keys('abc')
             received = self.receive_text()
-            self.assertEquals('abc', received)
+            self.assertEqual('abc', received)
 
         def test_set_data(self):
             """Make sure that set text to clipboard works"""
             clipboard.set_data('abc1')
             received = clipboard.get_data()
-            self.assertEquals('abc1', received)
+            self.assertEqual('abc1', received)
 
 
 if __name__ == "__main__":
