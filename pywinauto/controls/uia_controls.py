@@ -928,7 +928,12 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     #----------------------------------------------------------------
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
-        return len(self.children())
+        children_list = self.children()
+        if not children_list and self.element_info.handle is not None:
+            btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
+            return btn_count
+        else:
+            return len(children_list)
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
@@ -943,12 +948,43 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         if not self.children() and self.element_info.handle is not None:
             btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
             cc = []
+            buttons_elem_list = []
+
             for btn_num in range(btn_count):
                 button_coord = common_controls.ToolbarWrapper(self.element_info.handle) \
                     .get_button_rect(btn_num).mid_point()
-                button_coord = self.client_to_screen(button_coord)
-                button_elem_info = UIAElementInfo.from_point(button_coord[0], button_coord[1])
-                cc.append(uiawrapper.UIAWrapper(button_elem_info))
+                button_coord_x, button_coord_y = self.client_to_screen(button_coord)
+
+                first_pos_y = button_coord_y
+                elem_y_pos = button_coord_y
+                direction = 0
+
+                while direction <= 1:
+                    button_elem_info = UIAElementInfo.from_point(button_coord_x, elem_y_pos)
+
+                    if not direction and button_elem_info.control_type == 'MenuItem':
+                        elem_height = button_elem_info.rectangle.height()
+                        buttons_elem_list.append(button_elem_info)
+                        elem_y_pos += elem_height
+
+                    elif not direction and button_elem_info.control_type != 'MenuItem':
+                        direction = 1
+                        elem_y_pos = first_pos_y
+
+                    if direction and button_elem_info.control_type == 'MenuItem':
+                        elem_height = button_elem_info.rectangle.height()
+                        buttons_elem_list.append(button_elem_info)
+                        elem_y_pos -= elem_height
+
+                    elif direction and button_elem_info.control_type != 'MenuItem':
+                        direction = 2
+
+                for btn_elem_info in buttons_elem_list:
+                    ctrl_text = btn_elem_info.rich_text
+                    added_ctrl_text = [el.window_text() for el in cc]
+                    if ctrl_text not in added_ctrl_text:
+                        cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+
             texts = [c.window_text() for c in cc]
         else:
             cc = self.children()
