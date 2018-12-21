@@ -67,10 +67,11 @@ if UIA_support:
             wrp.element_info._element.FindAll = mock.Mock(side_effect=ValueError("Mocked value error"),
                                                           return_value=[])  # empty list
             self.assertEqual([], wrp.descendants())
-            wrp.element_info._element.FindAll = mock.Mock(side_effect=comtypes.COMError("Mocked COM error", 0, 0),
+            exception_err = comtypes.COMError(-2147220991, "Mocked COM error", ())
+            wrp.element_info._element.FindAll = mock.Mock(side_effect=exception_err,
                                                           return_value=[])  # empty list
             self.assertEqual([], wrp.descendants())
-            wrp.element_info._element = orig  # restore the original method
+            wrp.element_info._element.FindAll = orig  # restore the original method
 
         def test_issue_278(self):
             """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
@@ -122,6 +123,18 @@ if UIA_support:
             button = self.dlg.child_window(class_name="Button",
                                            title="OK").wrapper_object()
             self.assertEqual(button.control_id(), None)
+
+        def test_runtime_id(self):
+            """Test getting runtime ID"""
+            button = self.dlg.child_window(class_name="Button",
+                                           title="OK").wrapper_object()
+            self.assertNotEqual(button.__hash__(), 0)
+
+            orig = button.element_info._element.GetRuntimeId
+            exception_err = comtypes.COMError(-2147220991, 'An event was unable to invoke any of the subscribers', ())
+            button.element_info._element.GetRuntimeId = mock.Mock(side_effect=exception_err)
+            self.assertEqual(button.__hash__(), 0)
+            button.element_info._element.GetRuntimeId = orig  # restore the original method
 
         def test_automation_id(self):
             """Test getting automation ID"""

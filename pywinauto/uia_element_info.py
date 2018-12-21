@@ -228,7 +228,10 @@ class UIAElementInfo(ElementInfo):
     @property
     def runtime_id(self):
         """Return Runtime ID (hashable value but may be different from run to run)"""
-        return self._element.GetRuntimeId()
+        try:
+            return self._element.GetRuntimeId()
+        except COMError:
+            return 0
 
     @property
     def name(self):
