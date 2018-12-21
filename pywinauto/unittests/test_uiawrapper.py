@@ -277,12 +277,6 @@ if UIA_support:
             self.assertEqual(edit.is_keyboard_focusable(), True)
             self.assertEqual(label.is_keyboard_focusable(), False)
 
-        def test_has_keyboard_focus(self):
-            """Test verifying a keyboard focus on a control"""
-            edit = self.dlg.TestLabelEdit.wrapper_object()
-            edit.set_focus()
-            self.assertEqual(edit.has_keyboard_focus(), True)
-
         def test_set_focus(self):
             """Test setting a keyboard focus on a control"""
             edit = self.dlg.TestLabelEdit.wrapper_object()
