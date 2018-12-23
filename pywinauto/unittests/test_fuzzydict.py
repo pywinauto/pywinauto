@@ -53,45 +53,45 @@ class FuzzyTestCase(unittest.TestCase):
         """Verify that not specifying any values creates an empty dictionary"""
         fd = FuzzyDict()
 
-        self.assertEquals(fd, {})
+        self.assertEqual(fd, {})
 
     def test_creation_dict(self):
         """Test creating a fuzzy dict"""
         fd = FuzzyDict(self.test_dict)
-        self.assertEquals(fd, self.test_dict)
-        self.assertEquals(self.test_dict[u'Hiya'], fd[u'hiya'])
+        self.assertEqual(fd, self.test_dict)
+        self.assertEqual(self.test_dict[u'Hiya'], fd[u'hiya'])
 
         fd2 = FuzzyDict(self.test_dict, cutoff = .8)
-        self.assertEquals(fd, self.test_dict)
+        self.assertEqual(fd, self.test_dict)
         self.assertRaises(KeyError, fd2.__getitem__, u'hiya')
 
     def test_contains(self):
         """Test checking if an item is in a FuzzyDict"""
         fd = FuzzyDict(self.test_dict)
 
-        self.assertEquals(True, fd.__contains__(u'hiya'))
+        self.assertEqual(True, fd.__contains__(u'hiya'))
 
-        self.assertEquals(True, fd.__contains__(u'test3'))
+        self.assertEqual(True, fd.__contains__(u'test3'))
 
-        self.assertEquals(True, fd.__contains__(u'hiy\xe4'))
+        self.assertEqual(True, fd.__contains__(u'hiy\xe4'))
 
-        self.assertEquals(False, fd.__contains__(u'FuzzyWuzzy'))
+        self.assertEqual(False, fd.__contains__(u'FuzzyWuzzy'))
 
-        self.assertEquals(True, fd.__contains__(1))
+        self.assertEqual(True, fd.__contains__(1))
 
-        self.assertEquals(False, fd.__contains__(23))
+        self.assertEqual(False, fd.__contains__(23))
 
     def test_get_item(self):
         """Test getting items from a FuzzyDict"""
         fd = FuzzyDict(self.test_dict)
 
-        self.assertEquals(self.test_dict[u"Hiya"], fd[u'hiya'])
+        self.assertEqual(self.test_dict[u"Hiya"], fd[u'hiya'])
         self.assertRaises(KeyError, fd.__getitem__, u'FuzzyWuzzy')
 
         fd2 = FuzzyDict(self.test_dict, cutoff = .14)
 
-        self.assertEquals(1, fd2[u'FuzzyWuzzy'])
-        self.assertEquals(324, fd2[1])
+        self.assertEqual(1, fd2[u'FuzzyWuzzy'])
+        self.assertEqual(324, fd2[1])
         self.assertRaises(KeyError, fd2.__getitem__, 23)
 
 

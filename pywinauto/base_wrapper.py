@@ -61,7 +61,7 @@ from .mouse import _perform_click_input
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
     """Make text usable for attribute name"""
-    return re.sub("\W", "_", s)
+    return re.sub(r"\W", "_", s)
 
 #=========================================================================
 class InvalidElement(RuntimeError):
