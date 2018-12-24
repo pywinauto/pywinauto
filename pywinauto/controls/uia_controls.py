@@ -1246,3 +1246,18 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
             _print_one_level(root, 0)
 
         return self.text
+
+
+# ====================================================================
+class StaticWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Text control"""
+
+    _control_types = ['Text']
+    can_be_label = True
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(StaticWrapper, self).__init__(elem)
+

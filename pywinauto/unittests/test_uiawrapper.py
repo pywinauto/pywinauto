@@ -117,6 +117,7 @@ if UIA_support:
             """Test getting the window Text of the dialog"""
             label = self.dlg.TestLabel.wrapper_object()
             self.assertEqual(label.window_text(), u"TestLabel")
+            self.assertEqual(label.can_be_label, True)
 
         def test_control_id(self):
             """Test getting control ID"""
@@ -475,6 +476,12 @@ if UIA_support:
             wrp = self.dlg.Slider.wrapper_object()
             assert_regex(wrp.__str__(), "^uia_controls\.SliderWrapper - '', Slider$")
             assert_regex(wrp.__repr__(), "^<uia_controls\.SliderWrapper - '', Slider, [0-9-]+>$")
+
+            wrp = self.dlg.TestLabel.wrapper_object()
+            assert_regex(wrp.__str__(),
+                         "^uia_controls.StaticWrapper - 'TestLabel', Static$")
+            assert_regex(wrp.__repr__(),
+                         "^<uia_controls.StaticWrapper - 'TestLabel', Static, [0-9-]+>$")
 
             wrp = self.dlg.wrapper_object()
             assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog$")
