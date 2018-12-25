@@ -973,13 +973,14 @@ class SendEnterKeyTest(unittest.TestCase):
 
     def tearDown(self):
         self.dlg.menu_select('File -> Exit')
-        if self.dlg["Do&n't Save"].exists():
-            self.dlg["Do&n't Save"].click()
-        self.app.kill()
+        try:
+            self.app.Notepad["Do&n't Save"].click()
+        except findbestmatch.MatchError:
+            self.app.kill()
 
     def test_sendEnterChar(self):
         self.ctrl.send_chars('Hello{ENTER}World')
-        self.assertEqual(['Hello\r\nWorld'], self.dlg.Edit.texts())
+        self.assertEqual('Hello\r\nWorld', self.dlg.Edit.window_text())
 
 
 class SendKeystrokesAltComboTests(unittest.TestCase):
