@@ -979,7 +979,7 @@ class SendEnterKeyTest(unittest.TestCase):
 
     def test_sendEnterChar(self):
         self.ctrl.send_chars('Hello{ENTER}World')
-        self.assertEqual(['Hello\r\nWorld'], self.dlg.Edit.Texts())
+        self.assertEqual(['Hello\r\nWorld'], self.dlg.Edit.texts())
 
 
 class SendKeystrokesAltComboTests(unittest.TestCase):
