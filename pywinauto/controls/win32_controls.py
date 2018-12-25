@@ -168,7 +168,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_CHECKED)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_buttoncheck_wait)
 
         # return this control so that actions can be chained.
@@ -183,7 +183,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_UNCHECKED)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_buttoncheck_wait)
 
         # return this control so that actions can be chained.
@@ -198,7 +198,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_INDETERMINATE)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_buttoncheck_wait)
 
         # return this control so that actions can be chained.
@@ -432,7 +432,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
             self.notify_parent(win32defines.CBN_CLOSEUP)
 
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_comboboxselect_wait)
 
         # return this control so that actions can be chained.
@@ -626,7 +626,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         # Notify the parent that we have changed
         self.notify_parent(win32defines.LBN_SELCHANGE)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_listboxselect_wait)
 
         return self
@@ -645,7 +645,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         else:
             self.send_message_timeout(win32defines.LB_SETCURSEL, index)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_listboxfocuschange_wait)
 
         # return this control so that actions can be chained.
@@ -870,7 +870,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         self.send_message(win32defines.EM_SETSEL, start, end)
 
         # give the control a chance to catch up before continuing
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
         time.sleep(Timings.after_editselect_wait)
 

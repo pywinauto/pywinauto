@@ -734,7 +734,7 @@ class HwndWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def wait_for_idle(self):
         """Backend specific function to wait for idle state of a thread or a window"""
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
     # -----------------------------------------------------------
     def click(
@@ -854,7 +854,7 @@ class HwndWrapper(BaseWrapper):
 
         _perform_click(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         return self
     # Non PEP-8 alias
     MoveMouse = deprecated(move_mouse)
@@ -897,7 +897,7 @@ class HwndWrapper(BaseWrapper):
 
         text = ctypes.c_wchar_p(six.text_type(text))
         self.post_message(win32defines.WM_SETTEXT, 0, text)
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
         self.actions.log('Set text to the ' + self.friendly_class_name() + ': ' + str(text))
         return self
@@ -1144,7 +1144,7 @@ class HwndWrapper(BaseWrapper):
         if not ret:
             raise ctypes.WinError()
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_movewindow_wait)
     # Non PEP-8 alias
     MoveWindow = deprecated(move_window)
@@ -1325,7 +1325,7 @@ class HwndWrapper(BaseWrapper):
             win32gui.SetForegroundWindow(self.handle)
 
             # make sure that we are idle before returning
-            win32functions.WaitGuiThreadIdle(self)
+            win32functions.WaitGuiThreadIdle(self.handle)
 
             # only sleep if we had to change something!
             time.sleep(Timings.after_setfocus_wait)
@@ -1345,7 +1345,7 @@ class HwndWrapper(BaseWrapper):
         focused = win32gui.GetFocus()
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
         return self.handle == focused
 
@@ -1356,7 +1356,7 @@ class HwndWrapper(BaseWrapper):
         win32gui.SetFocus(self.handle)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
         time.sleep(Timings.after_setfocus_wait)
         return self
@@ -1742,7 +1742,7 @@ def _perform_click(
         time.sleep(Timings.sendmessagetimeout_timeout)
 
         # wait until the thread can accept another message
-        win32functions.WaitGuiThreadIdle(ctrl)
+        win32functions.WaitGuiThreadIdle(ctrl.handle)
 
     # detach the Python process with the process that self is in
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.FALSE)
