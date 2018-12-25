@@ -820,10 +820,9 @@ class NotepadRegressionTests(unittest.TestCase):
     def tearDown(self):
         """Close the application after tests"""
         try:
-            self.dlg.close(0.5)
-            if self.app.Notepad["Do&n't Save"].exists():
-                self.app.Notepad["Do&n't Save"].click()
-                self.app.Notepad["Do&n't Save"].wait_not('visible')
+            self.app.UntitledNotepad.menu_select("File->Exit")
+            self.app.Notepad["Do&n't Save"].click()
+            self.app.Notepad["Do&n't Save"].wait_not('visible')
         except Exception:  # TimeoutError:
             pass
         finally:
