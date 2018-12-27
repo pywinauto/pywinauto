@@ -300,12 +300,14 @@ class EventPattern(object):
         if not isinstance(pattern, EventPattern):
             return None
 
-        subpattern = EventPattern(hook_event=pattern.hook_event, app_events=[])
+        subpattern = EventPattern(hook_event=self.hook_event, app_events=[])
 
         if pattern.hook_event and self.hook_event:
-            if self.hook_event.current_key != pattern.hook_event.current_key:
+            if not isinstance(self.hook_event, type(pattern.hook_event)):
                 return None
-            if self.hook_event.event_type != pattern.hook_event.event_type:
+            if pattern.hook_event.current_key and self.hook_event.current_key != pattern.hook_event.current_key:
+                return None
+            if pattern.hook_event.event_type and self.hook_event.event_type != pattern.hook_event.event_type:
                 return None
 
         if pattern.app_events and self.app_events:
