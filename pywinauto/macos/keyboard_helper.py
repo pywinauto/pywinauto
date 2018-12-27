@@ -30,7 +30,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Mac branch of the keyboard module
 '''
 **Available key selected_keyboard.codes:** ::
 
@@ -58,9 +57,9 @@
 
 Example how to use modifiers: ::
 
-    SendKeys('^a^c') # select all (Ctrl+A) and copy to clipboard (Ctrl+C)
-    SendKeys('+{INS}') # insert from clipboard (Shift+Ins)
-    SendKeys('%{F4}') # close an active window with Alt+F4
+    send_keys('^a^c') # select all (Ctrl+A) and copy to clipboard (Ctrl+C)
+    send_keys('+{INS}') # insert from clipboard (Shift+Ins)
+    send_keys('%{F4}') # close an active window with Alt+F4
 
 Repetition count can be specified for special keys. ``{ENTER 2}`` says to
 press Enter twice.
@@ -651,7 +650,7 @@ def parse_keys(string,with_spaces = False,
     return keys
 
 
-def SendKeys(keys,
+def send_keys(keys,
              pause=0.05,
              with_spaces=False,
              with_tabs=False,
