@@ -263,7 +263,6 @@ class RecorderKeyboardEvent(HookEvent):
         self.pressed_key = pressed_key
 
     def __repr__(self):
-        print(self.current_key)
         return u"<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(
             self.current_key, self.event_type, self.pressed_key, self.timestamp)
 
@@ -279,7 +278,7 @@ class ApplicationEvent(RecorderEvent):
 
 
 class PropertyEvent(ApplicationEvent):
-    def __init__(self, sender, property_name, new_value):
+    def __init__(self, property_name, sender=None, new_value=None):
         super(PropertyEvent, self).__init__(EVENT.PROPERTY_CHANGED, sender)
         self.property_name = property_name
         self.new_value = new_value
@@ -293,36 +292,39 @@ class EventPattern(object):
         self.hook_event = hook_event
         self.app_events = app_events
 
-    def __contains__(self, item):
-        if not isinstance(item, EventPattern):
-            return False
+    def __str__(self):
+        return u"<EventPattern: {}, {}>".format(
+            self.hook_event, ", ".join([str(e) for e in self.app_events]) if self.app_events else None)
 
-        if item.hook_event and self.hook_event:
-            if self.hook_event.current_key != item.hook_event.current_key:
-                return False
-            if self.hook_event.event_type != item.hook_event.event_type:
-                return False
+    def get_subpattern(self, pattern):
+        if not isinstance(pattern, EventPattern):
+            return None
 
-        if item.app_events and self.app_events:
+        subpattern = EventPattern(hook_event=pattern.hook_event, app_events=[])
+
+        if pattern.hook_event and self.hook_event:
+            if self.hook_event.current_key != pattern.hook_event.current_key:
+                return None
+            if self.hook_event.event_type != pattern.hook_event.event_type:
+                return None
+
+        if pattern.app_events and self.app_events:
             idx = 0
 
-            for item_ev in item.app_events:
+            for item_ev in pattern.app_events:
                 while idx < len(self.app_events):
                     idx += 1
 
                     self_ev = self.app_events[idx - 1]
                     if self_ev.name == item_ev.name:
-                        break
+                        if isinstance(self_ev, PropertyEvent):
+                            if self_ev.property_name == item_ev.property_name:
+                                subpattern.app_events.append(self_ev)
+                                break
+                        else:
+                            subpattern.app_events.append(self_ev)
+                            break
                 else:
-                    return False
+                    return None
 
-        return True
-
-
-class EventHandler(object):
-    # str_pattern:
-    #     "app.{root_name}.{item_name}.{method}({args})"
-    #         args - another str_pattern ?
-    #     "pywinauto.mouse.click(button='{button}', coords=({x}, {y}))"
-    # What if methods are different for different back-ends ?
-    pass
+        return subpattern

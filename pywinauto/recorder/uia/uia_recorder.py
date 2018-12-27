@@ -222,7 +222,7 @@ class UiaRecorder(COMObject, BaseRecorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = ApplicationEvent(name=EVENT_ID_TO_NAME_MAP[eventID], sender=sender)
+        event = ApplicationEvent(name=EVENT_ID_TO_NAME_MAP[eventID], sender=UIAElementInfo(sender))
         self.add_to_log(event)
 
         if event.name == EVENT.MENU_START:
@@ -248,19 +248,20 @@ class UiaRecorder(COMObject, BaseRecorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = PropertyEvent(sender=sender, property_name=PROPERTY_ID_TO_NAME_MAP[propertyId], new_value=newValue)
+        event = PropertyEvent(property_name=PROPERTY_ID_TO_NAME_MAP[propertyId], sender=UIAElementInfo(sender),
+                              new_value=newValue.value if hasattr(newValue, "value") else newValue)
         self.add_to_log(event)
 
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
         if not self.recorder_start_event.is_set():
             return
 
-        event = ApplicationEvent(name=EVENT.FOCUS_CHANGED, sender=sender)
+        event = ApplicationEvent(name=EVENT.FOCUS_CHANGED, sender=UIAElementInfo(sender))
         self.add_to_log(event)
 
     def IUIAutomationStructureChangedEventHandler_HandleStructureChangedEvent(self, sender, changeType, runtimeId):
         if not self.recorder_start_event.is_set():
             return
 
-        event = StructureEvent(sender=sender, change_type=changeType, runtime_id=runtimeId)
+        event = StructureEvent(sender=UIAElementInfo(sender), change_type=changeType, runtime_id=runtimeId)
         self.add_to_log(event)
