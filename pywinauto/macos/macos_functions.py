@@ -30,8 +30,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Mac branch of the keyboard module
 from __future__ import print_function
+import six
 from Quartz import kCGWindowListOptionOnScreenOnly, kCGNullWindowID
 from ApplicationServices import (AXIsProcessTrusted,
     AXUIElementCopyAttributeNames, kAXErrorSuccess,
@@ -96,7 +96,7 @@ def check_is_process_trusted():
         exit(-1)
 
 def from_py_objc_to_apple_attribute(pyObjcName):
-    return unicode(pyObjcName)
+    return six.text_type(pyObjcName)
 
 def get_list_of_attributes(ax_element):
     list_of_options_result_with_error_code = AXUIElementCopyAttributeNames(ax_element,None)
