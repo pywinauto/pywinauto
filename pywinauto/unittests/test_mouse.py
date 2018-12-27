@@ -89,14 +89,15 @@ class MouseTests(unittest.TestCase):
         time.sleep(1)
         send_keys('^a^c', pause=0.2)
         if sys.platform == 'win32':
+            send_keys('^a^c', pause=0.2)
             win32clipboard.OpenClipboard()
             data = win32clipboard.GetClipboardData()
             win32clipboard.CloseClipboard()
         elif sys.platform == 'darwin':
-            keyboard_helper.SendKeys('{cmd}a{cmd}c',pause=0.2)
+            keyboard_helper.send_keys('{cmd}a{cmd}c',pause=0.2)
             data = macos_functions.read_from_clipboard()
         else:
-            SendKeys('^a^c', pause=0.2)
+            send_keys('^a^c', pause=0.2)
             data = clipboard.get_data()
         return data
 

@@ -147,7 +147,7 @@ There are loads of reasons :-)
     Most other tools are not object oriented you end  up writing stuff like::
 
         window = findwindow(title = "Untitled - Notepad", class = "Notepad")
-        SendKeys(window, "%OF")  # Format -> Font
+        send_keys(window, "%OF")  # Format -> Font
         fontdialog  = findwindow("title = "Font")
         buttonClick(fontdialog, "OK")
 
