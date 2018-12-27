@@ -50,6 +50,7 @@ elif sys.platform == 'darwin':
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.append(parent_dir)
     sys.path.append(parent_dir + '/macos')
+    os.path.join
     import macos_functions
     from keyboard_helper import SendKeys,KeyAction,KeySequenceError
 else:
