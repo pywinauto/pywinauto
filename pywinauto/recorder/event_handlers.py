@@ -89,9 +89,9 @@ class MouseClickHandler(EventHandler):
                             elem.rect.height() < min_rect_elem.rect.height():
                         min_rect_elem = elem
             item_name = min_rect_elem.names.get_preferred_name()
-            coords = hook_event.mouse_x - min_rect_elem.rect.left, hook_event.mouse_y - min_rect_elem.rect.top
+            x, y = hook_event.mouse_x - min_rect_elem.rect.left, hook_event.mouse_y - min_rect_elem.rect.top
             script += u"app.{}.{}.click_input(button='{}', coords=({}, {}))\n".format(
-                root_name, item_name, button, coords[0], coords[1])
+                root_name, item_name, button, x, y)
         else:
             script += u"pywinauto.mouse.click(button='{}', coords=({}, {}))\n".format(
                 button, hook_event.mouse_x, hook_event.mouse_y)

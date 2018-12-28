@@ -1,5 +1,7 @@
-from .recorder_defines import *
-from .event_handlers import *
+from .recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
+    PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
+from .event_handlers import EventHandler, SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
+    ExpandCollapseHandler, MouseClickHandler, KeyboardHandler
 
 EVENT_PATTERN_MAP = [
     (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
