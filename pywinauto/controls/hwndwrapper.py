@@ -389,7 +389,6 @@ class HwndWrapper(BaseWrapper):
             the control (e.g. items in a listbox/combobox, tabs in a
             tabcontrol)
         """
-
         return [self.client_rect(), ]
     # Non PEP-8 alias
     ClientRects = deprecated(client_rects)
@@ -656,7 +655,6 @@ class HwndWrapper(BaseWrapper):
         If no timeout is given then a default timeout of .01 of a second will
         be used.
         """
-
         if timeout is None:
             timeout = Timings.sendmessagetimeout_timeout
 
@@ -737,8 +735,8 @@ class HwndWrapper(BaseWrapper):
         win32functions.WaitGuiThreadIdle(self.handle)
 
     # -----------------------------------------------------------
-    def click(
-        self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
+    def click(self, button = "left", pressed = "", coords = (0, 0),
+              double = False, absolute = False):
         """
         Simulates a mouse click on the control
 
@@ -966,7 +964,8 @@ class HwndWrapper(BaseWrapper):
     def owner(self):
         """Return the owner window for the window if it exists
 
-        Returns None if there is no owner"""
+        Returns None if there is no owner.
+        """
         owner = win32functions.GetWindow(self, win32defines.GW_OWNER)
         if owner:
             return HwndWrapper(owner)
@@ -997,7 +996,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def menu(self):
-        "Return the menu of the control"
+        """Return the menu of the control"""
         hMenu, is_main_menu = self._menu_handle()
         if hMenu: # and win32functions.IsMenu(menu_hwnd):
             return Menu(self, hMenu, is_main_menu=is_main_menu)
@@ -1081,7 +1080,6 @@ class HwndWrapper(BaseWrapper):
         The full path syntax is specified in:
         :py:meth:`.controls.menuwrapper.Menu.get_menu_path`
         """
-
         self.verify_actionable()
 
         self.menu_item(path, exact=exact).select()
@@ -1110,7 +1108,6 @@ class HwndWrapper(BaseWrapper):
           Defaults to True
 
         """
-
         cur_rect = self.rectangle()
 
         # if no X is specified - so use current coordinate
@@ -1227,7 +1224,6 @@ class HwndWrapper(BaseWrapper):
           state (neither minimized or maximized)
         * SW_SHOW The window is not hidden
         """
-
         wp = win32structures.WINDOWPLACEMENT()
         wp.lenght = ctypes.sizeof(wp)
 
@@ -1280,7 +1276,6 @@ class HwndWrapper(BaseWrapper):
     def get_focus(self):
         """Return the control in the process of this window that has the Focus
         """
-
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
         window_thread_id, _ = win32process.GetWindowThreadProcessId(self.handle)
@@ -1436,7 +1431,6 @@ class HwndWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def get_toolbar(self):
         """Get the first child toolbar if it exists"""
-
         for child in self.children():
             if child.__class__.__name__ == 'ToolbarWrapper':
                 return child

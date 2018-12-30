@@ -236,8 +236,10 @@ class BaseWrapper(object):
     #------------------------------------------------------------
     @property
     def _needs_image_prop(self):
-        """Specify whether we need to grab an image of ourselves when asked
-        for properties"""
+        """Specify whether we need to grab an image of ourselves
+
+        when asked for properties.
+        """
         return False
 
     #------------------------------------------------------------
@@ -367,12 +369,12 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def process_id(self):
-        "Return the ID of process that owns this window"
+        """Return the ID of process that owns this window"""
         return self.element_info.process_id
 
     #-----------------------------------------------------------
     def is_dialog(self):
-        "Return true if the control is a top level window"
+        """Return True if the control is a top level window"""
         if self.parent():
             return self == self.top_level_parent()
         else:
@@ -399,7 +401,7 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def root(self):
-        "Return wrapper for root element (desktop)"
+        """Return wrapper for root element (desktop)"""
         return self.backend.generic_wrapper_class(self.backend.element_info_class())
 
     #-----------------------------------------------------------
@@ -492,7 +494,7 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def control_count(self):
-        "Return the number of children of this control"
+        """Return the number of children of this control"""
         return len(self.element_info.children(process=self.process_id()))
 
     #-----------------------------------------------------------
@@ -503,7 +505,6 @@ class BaseWrapper(object):
         See PIL documentation to know what you can do with the resulting
         image.
         """
-
         control_rectangle = self.rectangle()
         if not (control_rectangle.width() and control_rectangle.height()):
             return None
@@ -586,7 +587,6 @@ class BaseWrapper(object):
         * **rect** the coordinates of the rectangle to draw (defaults to
           the rectangle of the control)
         """
-
         # don't draw if dialog is not visible
         if not self.is_visible():
             return
@@ -646,7 +646,7 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def __eq__(self, other):
-        "Returns true if 2 BaseWrapper's describe 1 actual element"
+        """Return True if 2 BaseWrapper's describe 1 actual element"""
         if hasattr(other, "element_info"):
             return self.element_info == other.element_info
         else:
@@ -654,7 +654,7 @@ class BaseWrapper(object):
 
     #-----------------------------------------------------------
     def __ne__(self, other):
-        "Returns False if the elements described by 2 BaseWrapper's are different"
+        """Return False if the elements described by 2 BaseWrapper's are different"""
         return not self == other
 
     #-----------------------------------------------------------

@@ -35,9 +35,6 @@ from __future__ import unicode_literals
 import time
 import ctypes
 import win32gui
-import win32api
-import win32con
-import win32process
 import locale
 import six
 
@@ -212,12 +209,13 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         return False
 
     #-----------------------------------------------------------
-    def click(self, *args, **kwargs):
+    def click(self, button = "left", pressed = "", coords = (0, 0),
+              double = False, absolute = False):
         """Click the Button control"""
         #import win32functions
         #win32functions.WaitGuiThreadIdle(self)
         #self.notify_parent(win32defines.BN_CLICKED)
-        hwndwrapper.HwndWrapper.click(self, *args, **kwargs)
+        hwndwrapper.HwndWrapper.click(self, button, pressed, coords, double, absolute)
         #win32functions.WaitGuiThreadIdle(self)
         time.sleep(Timings.after_button_click_wait)
 
