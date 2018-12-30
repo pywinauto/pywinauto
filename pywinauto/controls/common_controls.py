@@ -632,7 +632,7 @@ class _listview_item(object):
         #    raise ctypes.WinError()
         del new_remote_mem
 
-        win32functions.WaitGuiThreadIdle(self.listview_ctrl)
+        win32functions.WaitGuiThreadIdle(self.listview_ctrl.handle)
         time.sleep(Timings.after_listviewselect_wait)
 
     #-----------------------------------------------------------
@@ -1368,7 +1368,7 @@ class _treeview_element(object):
             win32defines.TVM_ENSUREVISIBLE,
             win32defines.TVGN_CARET,
             self.elem)
-        win32functions.WaitGuiThreadIdle(self.tree_ctrl)
+        win32functions.WaitGuiThreadIdle(self.tree_ctrl.handle)
         return self
     # Non PEP-8 alias
     EnsureVisible = deprecated(ensure_visible)
@@ -1647,7 +1647,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
 
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_treeviewselect_wait)
     # Non PEP-8 alias
     Select = deprecated(select)
@@ -2255,7 +2255,7 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
         else:
             self.send_message(win32defines.TCM_SETCURFOCUS, tab)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_tabselect_wait)
         self.actions.log('Selected tab "' + str(logging_tab) + '"')
 
@@ -2317,7 +2317,7 @@ class _toolbar_button(object):
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
-#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl.handle)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #    # Non PEP-8 alias
 #    Press = deprecated(press)
@@ -2345,7 +2345,7 @@ class _toolbar_button(object):
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
-#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl.handle)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #
 #    #----------------------------------------------------------------
@@ -3151,7 +3151,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
                 win32defines.SMTO_NORMAL,
                 int(Timings.after_updownchange_wait * 1000),
                 ctypes.byref(result))
-            win32functions.WaitGuiThreadIdle(self)
+            win32functions.WaitGuiThreadIdle(self.handle)
             time.sleep(Timings.after_updownchange_wait)
             if self.get_value() == new_pos:
                 break
@@ -3168,7 +3168,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         self.click_input(coords=(rect.left + 5, rect.top + 5))
 
         #self.set_value(self.get_value() + 1)
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_updownchange_wait)
     # Non PEP-8 alias
     Increment = deprecated(increment)
@@ -3180,7 +3180,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         self.click_input(coords=(rect.left + 5, rect.bottom - 5))
 
         #self.set_value(self.get_value() - 1)
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_updownchange_wait)
     # Non PEP-8 alias
     Decrement = deprecated(decrement)

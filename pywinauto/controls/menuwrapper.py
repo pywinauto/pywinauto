@@ -293,7 +293,7 @@ class MenuItem(object):
 
         mouse.click(coords=(x_pt, y_pt))
 
-        win32functions.WaitGuiThreadIdle(self.ctrl)
+        win32functions.WaitGuiThreadIdle(self.ctrl.handle)
         time.sleep(Timings.after_menu_wait)
     # Non PEP-8 alias
     ClickInput = deprecated(click_input)
@@ -324,7 +324,7 @@ class MenuItem(object):
         self.ctrl.send_message_timeout(
             self.menu.COMMAND, command_id, timeout=1.0)
 
-        win32functions.WaitGuiThreadIdle(self.ctrl)
+        win32functions.WaitGuiThreadIdle(self.ctrl.handle)
         time.sleep(Timings.after_menu_wait)
 
     # _perform_click() doesn't work for MenuItem, so let's call select() method
