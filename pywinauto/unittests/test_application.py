@@ -193,7 +193,7 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
         self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
 
 
-if sysinfo.UIA_support:
+if UIA_support:
     class ApplicationUiaKillTestCases(ApplicationWin32KillTestCases):
 
         """Unit tests for method Application.kill() with backend='uia'"""
