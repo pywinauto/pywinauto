@@ -193,12 +193,13 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
         self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
 
 
-class ApplicationUiaKillTestCases(ApplicationWin32KillTestCases):
+if sysinfo.UIA_support:
+    class ApplicationUiaKillTestCases(ApplicationWin32KillTestCases):
 
-    """Unit tests for method Application.kill() with backend='uia'"""
+        """Unit tests for method Application.kill() with backend='uia'"""
 
-    backend = 'uia'
-    # the same test methods run here
+        backend = 'uia'
+        # the same test methods run here
 
 
 if ctypes.windll.shell32.IsUserAnAdmin() == 0:
