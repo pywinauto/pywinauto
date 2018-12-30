@@ -923,10 +923,7 @@ class Application(object):
         if 'process' in kwargs:
             self.process = kwargs['process']
             try:
-                timings.wait_until_passes(
-                        timeout, retry_interval, assert_valid_process,
-                        ProcessNotFoundError, self.process
-                    )
+                wait_until(timeout, retry_interval, self.is_process_running, value=True)
             except TimeoutError:
                 raise ProcessNotFoundError('Process with PID={} not found!'.format(self.process))
             connected = True
@@ -1273,6 +1270,7 @@ class Application(object):
         finally:
             win32api.CloseHandle(process_wait_handle)
 
+        self.wait_for_process_exit()
         return killed
 
     # Non PEP-8 aliases
@@ -1281,11 +1279,11 @@ class Application(object):
 
     def is_process_running(self):
         """
-        Checks that process is running.
+        Check that process is running.
 
         Can be called before start/connect.
 
-        Returns True if process is running otherwise - False
+        Return True if process is running otherwise - False.
         """
         is_running = False
         try:
@@ -1324,6 +1322,14 @@ def assert_valid_process(process_id):
     if not process_handle:
         message = "Process with ID '%d' could not be opened" % process_id
         raise ProcessNotFoundError(message)
+
+    # finished process can still exist and have exit code,
+    # but it's not usable any more, so let's check it
+    exit_code = win32process.GetExitCodeProcess(process_handle)
+    is_running = (exit_code == win32defines.PROCESS_STILL_ACTIVE)
+    if not is_running:
+        raise ProcessNotFoundError('Process with pid = {} has been already ' \
+            'finished with exit code = {}'.format(process_id, exit_code))
 
     return process_handle
 
