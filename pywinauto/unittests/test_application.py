@@ -146,6 +146,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
 class ApplicationWin32KillTestCases(unittest.TestCase):
 
     """Unit tests for method Application.kill() with backend='win32'"""
+
     backend = 'win32'
 
     def setUp(self):
@@ -195,6 +196,7 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
 class ApplicationUiaKillTestCases(ApplicationWin32KillTestCases):
 
     """Unit tests for method Application.kill() with backend='uia'"""
+
     backend = 'uia'
     # the same test methods run here
 
