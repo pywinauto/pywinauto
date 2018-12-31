@@ -162,7 +162,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         try:
             self._select(item)
         except IndexError:
-            # Try to access the underlaying ListBox explicitly
+            # Try to access the underlying ListBox explicitly
             children_lst = self.children(control_type='List')
             if len(children_lst) > 0:
                 children_lst[0]._select(item)
