@@ -718,6 +718,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.dlg.set_focus()
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.get_item(r'\Birds')
+        self.ctrl.set_focus() # to make sure focus is not lost by any accident event
         birds.click(where='check')
         self.assertEqual(birds.is_checked(), True)
         birds.click_input(where='check')
