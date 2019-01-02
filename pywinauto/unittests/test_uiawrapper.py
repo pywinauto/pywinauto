@@ -1442,7 +1442,7 @@ if UIA_support:
             """Test getting access to buttons on Toolbar of WFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
 
-            self.assertEqual(0, self.tb.button_count())  # return 0 it hasn't children, it's right
+            self.assertEqual(4, self.tb.button_count())
 
             # Test if it's in writable properties
             props = set(self.tb.get_properties().keys())
@@ -1462,6 +1462,13 @@ if UIA_support:
 
             found_txt = self.tb.button(expect_txt_1, exact=False).window_text()
             self.assertEqual(expect_txt_1, found_txt)
+
+        def test_button_click(self):
+            # self.tb.button("File").click_input()
+            time.sleep(1)
+
+            self.tb.button("View").click_input()
+            toolbar_menu_item = self.tb.button("Toolbars")
 
     class TreeViewWpfTests(unittest.TestCase):
 
