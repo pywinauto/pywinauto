@@ -735,8 +735,8 @@ class HwndWrapper(BaseWrapper):
         win32functions.WaitGuiThreadIdle(self.handle)
 
     # -----------------------------------------------------------
-    def click(self, button = "left", pressed = "", coords = (0, 0),
-              double = False, absolute = False):
+    def click(self, button="left", pressed="", coords=(0, 0),
+              double=False, absolute=False):
         """
         Simulates a mouse click on the control
 

@@ -209,8 +209,8 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         return False
 
     #-----------------------------------------------------------
-    def click(self, button = "left", pressed = "", coords = (0, 0),
-              double = False, absolute = False):
+    def click(self, button="left", pressed="", coords=(0, 0),
+              double=False, absolute=False):
         """Click the Button control"""
         #import win32functions
         #win32functions.WaitGuiThreadIdle(self)
