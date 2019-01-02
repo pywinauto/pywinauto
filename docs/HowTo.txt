@@ -468,8 +468,8 @@ Example for settinpu single threaded appartment model explicitly.
    import pywinauto
 
 
-Notice that final value is assigned back to sys.coinit_flags. This is to avoid conflicts with
-other modules. Possible values for sys.coint_flags:
+Notice that the final value of COM model is assigned back to sys.coinit_flags.
+This is to avoid conflicts with other modules. Possible values for sys.coint_flags:
 0 - Multi-Threaded Apartment model (MTA)
 2 - Single-Threaded Apartments model (STA)
 
