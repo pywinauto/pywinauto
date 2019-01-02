@@ -1469,6 +1469,10 @@ if UIA_support:
 
             self.tb.button("View").click_input()
             toolbar_menu_item = self.tb.button("Toolbars")
+            toolbar_menu_item.click_input()
+            customize_menu_item = self.tb.button("Customize...")
+            customize_menu_item.click_input()
+            self.assertEqual(True, self.dlg.Customize.exists(1))
 
     class TreeViewWpfTests(unittest.TestCase):
 
