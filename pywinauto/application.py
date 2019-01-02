@@ -954,6 +954,8 @@ class Application(object):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
+            if 'visible_only' not in kwargs:
+                kwargs['visible_only'] = False
             if 'timeout' in kwargs:
                 del kwargs['timeout']
                 self.process = timings.wait_until_passes(
