@@ -456,9 +456,9 @@ COM Model
 ------------------------------------------------------------------------------------
 By default, pywinauto sets up the client Multithreading COM model (MTA) on init if
 no other model was defined prior to import of pywinauto. The model can be set up by
-another imported module implicitly or specified explicitly through ```sys.coinit_flags```
+another imported module implicitly or specified explicitly through ``sys.coinit_flags``
 
-Example for settinpu single threaded appartment model explicitly.
+Example for overriding MTA by setting the single threaded appartment model explicitly.
 
   ::
 
@@ -468,8 +468,17 @@ Example for settinpu single threaded appartment model explicitly.
    import pywinauto
 
 
-Notice that the final value of COM model is assigned back to sys.coinit_flags.
-This is to avoid conflicts with other modules. Possible values for sys.coint_flags:
-0 - Multi-Threaded Apartment model (MTA)
-2 - Single-Threaded Apartments model (STA)
+Notice that the final value of COM model is assigned back to ``sys.coinit_flags``.
+This is to avoid conflicts with other modules. Possible values for ``sys.coinit_flags:``
+
+- ``0`` - Multi-Threaded Apartment model (MTA)
+- ``2`` - Single-Threaded Apartment model (STA)
+
+More info:
+
+- About Microsoft COM threading models: `Understanding and Using COM Threading Models`_
+- Internal discussion_ on pywinauto MTA.
+
+.. _Understanding and Using COM Threading Models: https://msdn.microsoft.com/en-us/library/ms809971.aspx
+.. _discussion: https://github.com/pywinauto/pywinauto/issues/394#issuecomment-334926345
 
