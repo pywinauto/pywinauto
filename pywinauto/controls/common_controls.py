@@ -2775,6 +2775,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
         #app = Application().Connect(handle=self.handle)
 
         current_toolbar = self
+        current_toolbar.set_focus() # to make sure it can be clicked immediately
         for i, index in enumerate(indices):
             windows_before = app.windows(visible_only=True)
             current_toolbar.button(index).click_input()
