@@ -937,6 +937,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
     def _menu_item_exists(self, btn_x_coord, btn_y_coord) -> bool:
+        # Check that element is exist
         button_elem_info = UIAElementInfo.from_point(btn_x_coord, btn_y_coord)
         if button_elem_info.control_type == 'MenuItem':
             return True
@@ -944,6 +945,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             return False
 
     def _up_down_menu_items(self, btn_x_coord, btn_y_coord, side='right') -> list:
+        # Check items up, down, left and right from current item
         first_pos_y = btn_y_coord
         elem_y_pos = btn_y_coord
         menu_elem_list = []
@@ -960,8 +962,10 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
                 menu_elem_list.append(button_elem_info)
 
                 if self._menu_item_exists(right_x, elem_y_pos) and side == 'right':
+                    # Check right side from the item
                     menu_elem_list += self._up_down_menu_items(right_x, elem_y_pos, side='right')
                 elif self._menu_item_exists(left_x, elem_y_pos):
+                    # Check left side from the item
                     menu_elem_list += self._up_down_menu_items(left_x, elem_y_pos, side='left')
 
                 elem_y_pos += elem_height
@@ -977,10 +981,12 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
                 left_x = btn_x_coord - elem_width
                 menu_elem_list.append(button_elem_info)
 
-                if self._menu_item_exists(right_x, elem_y_pos):
-                    menu_elem_list += self._up_down_menu_items(right_x, elem_y_pos)
+                if self._menu_item_exists(right_x, elem_y_pos) and side == 'right':
+                    # Check right side from the item
+                    menu_elem_list += self._up_down_menu_items(right_x, elem_y_pos, side='right')
                 elif self._menu_item_exists(left_x, elem_y_pos):
-                    menu_elem_list += self._up_down_menu_items(left_x, elem_y_pos)
+                    # Check left side from the item
+                    menu_elem_list += self._up_down_menu_items(left_x, elem_y_pos, side='left')
 
                 elem_y_pos -= elem_height
 
@@ -990,6 +996,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         return menu_elem_list
 
     def _collect_menu_items(self, btn_count) -> list:
+        # Collect element info from toolbar buttons
         buttons_elem_list = []
         cc = []
         for btn_num in range(btn_count):
