@@ -1464,14 +1464,9 @@ if UIA_support:
             self.assertEqual(expect_txt_1, found_txt)
 
         def test_button_click(self):
-            # self.tb.button("File").click_input()
-            time.sleep(1)
-
             self.tb.button("View").click_input()
-            toolbar_menu_item = self.tb.button("Toolbars")
-            toolbar_menu_item.click_input()
-            customize_menu_item = self.tb.button("Customize...")
-            customize_menu_item.click_input()
+            self.tb.button("Toolbars").click_input()
+            self.tb.button("Customize...").click_input()
             self.assertEqual(True, self.dlg.Customize.exists(1))
 
     class TreeViewWpfTests(unittest.TestCase):
