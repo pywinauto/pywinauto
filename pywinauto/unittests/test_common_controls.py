@@ -1266,8 +1266,7 @@ class RebarTestCases(unittest.TestCase):
 
     def tearDown(self):
         """Close the application after tests"""
-        # close the application
-        self.app.kill()
+        self.app.kill(soft=True)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (ReBar)"""
