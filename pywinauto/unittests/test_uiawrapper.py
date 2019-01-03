@@ -29,7 +29,7 @@ mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
-mfc_app_1 = os.path.join(mfc_samples_folder, u"RebarTest.exe")
+mfc_app_rebar_test = os.path.join(mfc_samples_folder, u"RebarTest.exe")
 
 if UIA_support:
 
@@ -1430,13 +1430,13 @@ if UIA_support:
 
             # start the application
             self.app = Application(backend='uia')
-            self.app = self.app.start(mfc_app_1)
+            self.app = self.app.start(mfc_app_rebar_test)
             self.dlg = self.app.RebarTest
             self.tb = self.dlg.MenuBar.wrapper_object()
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def test_button_accesss(self):
             """Test getting access to buttons on Toolbar of WFC demo"""
@@ -1447,27 +1447,22 @@ if UIA_support:
             # Test if it's in writable properties
             props = set(self.tb.get_properties().keys())
             self.assertEqual('button_count' in props, True)
+            self.assertEqual("File", self.tb.button(0).window_text())
+            self.assertEqual("View", self.tb.button(1).window_text())
+            self.assertEqual("Help", self.tb.button(2).window_text())
 
-            expect_txt_1 = "File"
-            self.assertEqual(expect_txt_1, self.tb.button(0).window_text())
+            found_txt = self.tb.button("File", exact=True).window_text()
+            self.assertEqual(found_txt, "File")
 
-            expect_txt_2 = "View"
-            self.assertEqual(expect_txt_2, self.tb.button(1).window_text())
-
-            expect_txt_3 = "Help"
-            self.assertEqual(expect_txt_3, self.tb.button(2).window_text())
-
-            found_txt = self.tb.button(expect_txt_1, exact=True).window_text()
-            self.assertEqual(expect_txt_1, found_txt)
-
-            found_txt = self.tb.button(expect_txt_1, exact=False).window_text()
-            self.assertEqual(expect_txt_1, found_txt)
+            found_txt = self.tb.button("File", exact=False).window_text()
+            self.assertEqual(found_txt, "File")
 
         def test_button_click(self):
+            """Test getting access to nested buttons on Toolbar of WFC demo"""
             self.tb.button("View").click_input()
             self.tb.button("Toolbars").click_input()
             self.tb.button("Customize...").click_input()
-            self.assertEqual(True, self.dlg.Customize.exists(1))
+            self.assertTrue(self.dlg.Customize.exists(1))
 
     class TreeViewWpfTests(unittest.TestCase):
 
