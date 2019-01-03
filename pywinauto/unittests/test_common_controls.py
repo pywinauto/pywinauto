@@ -1250,7 +1250,7 @@ class RebarTestCases(unittest.TestCase):
         """Start the application, set some data and wait for the state we want
 
         The app title can be tricky. If no document is opened the title is just: "RebarTest"
-        However if an document is created/opened in the child frame
+        However if a document is created/opened in the child frame
         the title is appended with a document name: "RebarTest - RebarTest1"
         A findbestmatch proc does well here with guessing the title
         even though the app is started with a short title "RebarTest".
