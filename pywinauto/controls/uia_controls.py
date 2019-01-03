@@ -936,7 +936,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             return len(children_list)
 
     # ----------------------------------------------------------------
-    def _menu_item_exists(self, btn_x_coord, btn_y_coord) -> bool:
+    def _menu_item_exists(self, btn_x_coord, btn_y_coord):
         # Check that element is exist
         button_elem_info = UIAElementInfo.from_point(btn_x_coord, btn_y_coord)
         if button_elem_info.control_type == 'MenuItem':
@@ -944,7 +944,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         else:
             return False
 
-    def _up_down_menu_items(self, btn_x_coord, btn_y_coord, side='right') -> list:
+    def _up_down_menu_items(self, btn_x_coord, btn_y_coord, side='right'):
         # Check items up, down, left and right from current item
         first_pos_y = btn_y_coord
         elem_y_pos = btn_y_coord
@@ -995,7 +995,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         return menu_elem_list
 
-    def _collect_menu_items(self, btn_count) -> list:
+    def _collect_menu_items(self, btn_count):
         # Collect element info from toolbar buttons
         buttons_elem_list = []
         cc = []
