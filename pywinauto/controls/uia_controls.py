@@ -161,9 +161,13 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         self.expand()
         try:
             self._select(item)
-        # TODO: do we need to handle ValueError/IndexError for a wrong index ?
-        #except ValueError:
-        #    raise  # re-raise the last exception
+        except IndexError:
+            # Try to access the underlying ListBox explicitly
+            children_lst = self.children(control_type='List')
+            if len(children_lst) > 0:
+                children_lst[0]._select(item)
+            else:
+                raise IndexError("item '{0}' not found or can't be accessed".format(item))
         finally:
             # Make sure we collapse back in any case
             self.collapse()
@@ -178,11 +182,15 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         Notice, that in case of multi-select it will be only the text from
         a first selected item
         """
-        selection = self.get_selection()
-        if selection:
-            return selection[0].name
-        else:
-            return None
+        try:
+            selection = self.get_selection()
+            if selection:
+                return selection[0].name
+            else:
+                return None
+        except NoPatternInterfaceError:
+            # Try to fall back to Value interface pattern
+            return self.iface_value.CurrentValue
 
     # -----------------------------------------------------------
     # TODO: add selected_indices for a combobox with multi-select support
@@ -1246,3 +1254,18 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
             _print_one_level(root, 0)
 
         return self.text
+
+
+# ====================================================================
+class StaticWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Text control"""
+
+    _control_types = ['Text']
+    can_be_label = True
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(StaticWrapper, self).__init__(elem)
+

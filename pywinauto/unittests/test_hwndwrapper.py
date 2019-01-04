@@ -820,10 +820,9 @@ class NotepadRegressionTests(unittest.TestCase):
     def tearDown(self):
         """Close the application after tests"""
         try:
-            self.dlg.close(0.5)
-            if self.app.Notepad["Do&n't Save"].exists():
-                self.app.Notepad["Do&n't Save"].click()
-                self.app.Notepad["Do&n't Save"].wait_not('visible')
+            self.app.UntitledNotepad.menu_select("File->Exit")
+            self.app.Notepad["Do&n't Save"].click()
+            self.app.Notepad["Do&n't Save"].wait_not('visible')
         except Exception:  # TimeoutError:
             pass
         finally:
@@ -973,13 +972,14 @@ class SendEnterKeyTest(unittest.TestCase):
 
     def tearDown(self):
         self.dlg.menu_select('File -> Exit')
-        if self.dlg["Do&n't Save"].exists():
-            self.dlg["Do&n't Save"].click()
-        self.app.kill()
+        try:
+            self.app.Notepad["Do&n't Save"].click()
+        except findbestmatch.MatchError:
+            self.app.kill()
 
     def test_sendEnterChar(self):
         self.ctrl.send_chars('Hello{ENTER}World')
-        self.assertEqual(['Hello\r\nWorld'], self.dlg.Edit.Texts())
+        self.assertEqual('Hello\r\nWorld', self.dlg.Edit.window_text())
 
 
 class SendKeystrokesAltComboTests(unittest.TestCase):

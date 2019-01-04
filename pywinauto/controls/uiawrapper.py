@@ -675,7 +675,7 @@ class UIAWrapper(BaseWrapper):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()
         else:
-            raise IndexError("item not found")
+            raise IndexError("item '{0}' not found".format(item))
 
     # -----------------------------------------------------------
     def is_active(self):

@@ -10,3 +10,7 @@ ignore-paths:
     - sandbox
     - docs
     - pywinauto/unittests
+
+pep257:
+    disable:
+        - D211  # conflicts with D203

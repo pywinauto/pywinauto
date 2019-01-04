@@ -117,6 +117,7 @@ if UIA_support:
             """Test getting the window Text of the dialog"""
             label = self.dlg.TestLabel.wrapper_object()
             self.assertEqual(label.window_text(), u"TestLabel")
+            self.assertEqual(label.can_be_label, True)
 
         def test_control_id(self):
             """Test getting control ID"""
@@ -475,6 +476,12 @@ if UIA_support:
             wrp = self.dlg.Slider.wrapper_object()
             assert_regex(wrp.__str__(), "^uia_controls\.SliderWrapper - '', Slider$")
             assert_regex(wrp.__repr__(), "^<uia_controls\.SliderWrapper - '', Slider, [0-9-]+>$")
+
+            wrp = self.dlg.TestLabel.wrapper_object()
+            assert_regex(wrp.__str__(),
+                         "^uia_controls.StaticWrapper - 'TestLabel', Static$")
+            assert_regex(wrp.__repr__(),
+                         "^<uia_controls.StaticWrapper - 'TestLabel', Static, [0-9-]+>$")
 
             wrp = self.dlg.wrapper_object()
             assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog$")
@@ -1401,6 +1408,15 @@ if UIA_support:
             """Test that method is_dialog() works as expected"""
             self.assertEqual(self.dlg.is_dialog(), True)
             self.assertEqual(self.dlg.Edit.is_dialog(), False)
+
+        def test_issue_532(self):
+            """Test selecting a combobox item when it's wrapped in ListView"""
+            path = "Format -> Font"
+            self.dlg.menu_select(path)
+            combo_box = self.app.top_window().Font.ScriptComboBox.wrapper_object()
+            combo_box.select('Greek')
+            self.assertEqual(combo_box.selected_text(), 'Greek')
+            self.assertRaises(IndexError, combo_box.select, 'NonExistingScript')
 
         def test_menu_by_exact_text(self):
             """Test selecting a menu item by exact text match"""
