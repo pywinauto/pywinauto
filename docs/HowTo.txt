@@ -450,3 +450,35 @@ e.g.
     # Select an item in the popup menu
     outlook.PopupMenu.Menu().get_menu_path("Cancel Server Request")[0].click()
 
+
+
+COM Model
+------------------------------------------------------------------------------------
+By default, pywinauto sets up the client Multithreading COM model (MTA) on init if
+no other model was defined prior to import of pywinauto. The model can be set up by
+another imported module implicitly or specified explicitly through ``sys.coinit_flags``
+
+Example for overriding MTA by setting the single threaded appartment model explicitly.
+
+  ::
+
+   import sys
+   sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
+   
+   import pywinauto
+
+
+Notice that the final value of COM model is assigned back to ``sys.coinit_flags``.
+This is to avoid conflicts with other modules. Possible values for ``sys.coinit_flags``:
+
+- ``0`` - Multi-Threaded Apartment model (MTA)
+- ``2`` - Single-Threaded Apartment model (STA)
+
+More info:
+
+- About Microsoft COM threading models: `Understanding and Using COM Threading Models`_
+- Internal discussion_ on pywinauto MTA.
+
+.. _Understanding and Using COM Threading Models: https://msdn.microsoft.com/en-us/library/ms809971.aspx
+.. _discussion: https://github.com/pywinauto/pywinauto/issues/394#issuecomment-334926345
+
