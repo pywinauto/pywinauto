@@ -1029,10 +1029,10 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         if not self.children() and self.element_info.handle is not None:
             btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
             cc = self._collect_menu_items(btn_count)
-            texts = [c.window_text() for c in cc]
         else:
             cc = self.children()
-            texts = [c.window_text() for c in cc]
+
+        texts = [c.window_text() for c in cc]
 
         if isinstance(button_identifier, six.string_types):
             self.actions.log('Toolbar buttons: ' + str(texts))
