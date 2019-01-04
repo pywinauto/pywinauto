@@ -1000,13 +1000,13 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         * **btn_count** number of searched buttons.
         """
-        # Collect element info from toolbar buttons
+
         buttons_elem_list = []
         cc = []
         for btn_num in range(btn_count):
-            button_coord = common_controls.ToolbarWrapper(self.element_info.handle) \
-                .get_button_rect(btn_num).mid_point()
-            button_coord_x, button_coord_y = self.client_to_screen(button_coord)
+            button_coord_x, button_coord_y = self.client_to_screen(common_controls.\
+                                                                   ToolbarWrapper(self.element_info.handle).\
+                                                                   get_button_rect(btn_num).mid_point())
 
             buttons_elem_list += self._up_down_menu_items(button_coord_x, button_coord_y)
 
