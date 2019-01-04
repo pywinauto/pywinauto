@@ -150,6 +150,10 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
             search_criteria['backend'] = registry.active_backend.name
+        if 'process' in search_criteria:
+            raise KeyError('Keyword "process" is not supported any more. ' \
+                'Use Application instance with keyword "app" instead.')
+        self.app = search_criteria.pop('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
         self.backend = registry.backends[search_criteria['backend']]
@@ -189,6 +193,8 @@ class WindowSpecification(object):
         # find the dialog
         if 'backend' not in criteria[0]:
             criteria[0]['backend'] = self.backend.name
+        if self.app is not None:
+            criteria[0]['process'] = self.app.process
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
 
         ctrls = []
@@ -1195,7 +1201,8 @@ class Application(object):
                                   "anything else")
         else:
             # add the restriction for this particular process
-            kwargs['process'] = self.process
+            # kwargs['process'] = self.process
+            kwargs['app'] = self
             win_spec = WindowSpecification(kwargs)
 
         return win_spec
