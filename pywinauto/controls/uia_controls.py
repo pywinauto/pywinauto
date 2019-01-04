@@ -936,63 +936,70 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             return len(children_list)
 
     # ----------------------------------------------------------------
-    def _menu_item_exists(self, btn_x_coord, btn_y_coord):
-        # Check that element is exist
-        button_elem_info = UIAElementInfo.from_point(btn_x_coord, btn_y_coord)
-        return button_elem_info.control_type == 'MenuItem'
 
     def _up_down_menu_items(self, btn_x_coord, btn_y_coord, side='right'):
-        # Check items up, down, left and right from current item
+        """Check items up, down, left and right from current item
+
+        * **btn_x_coord** X coordinates of item
+        * **btn_y_coord** Y coordinate of item
+        * **side** flag specifies what side should check
+        """
         first_pos_y = btn_y_coord
         elem_y_pos = btn_y_coord
         menu_elem_list = []
-        direction = 0
+        direction = 'down'
 
-        while direction <= 1:
+        while direction is not None:
             button_elem_info = UIAElementInfo.from_point(btn_x_coord, elem_y_pos)
 
-            if not direction and button_elem_info.control_type == 'MenuItem':
-                elem_height = button_elem_info.rectangle.height()
-                elem_width = button_elem_info.rectangle.width()
-                right_x = btn_x_coord + elem_width
-                left_x = btn_x_coord - elem_width
-                menu_elem_list.append(button_elem_info)
+            if direction == 'down':
+                if button_elem_info.control_type == 'MenuItem':
+                    elem_height = button_elem_info.rectangle.height()
+                    elem_width = button_elem_info.rectangle.width()
+                    right_x = btn_x_coord + elem_width
+                    left_x = btn_x_coord - elem_width
+                    menu_elem_list.append(button_elem_info)
 
-                if self._menu_item_exists(right_x, elem_y_pos) and side == 'right':
-                    # Check right side from the item
-                    menu_elem_list += self._up_down_menu_items(right_x, elem_y_pos, side='right')
-                elif self._menu_item_exists(left_x, elem_y_pos):
-                    # Check left side from the item
-                    menu_elem_list += self._up_down_menu_items(left_x, elem_y_pos, side='left')
+                    if UIAElementInfo.from_point(right_x, elem_y_pos).control_type == 'MenuItem' and side == 'right':
+                        # Check right side from the item
+                        menu_elem_list += self._up_down_menu_items(right_x, elem_y_pos, side='right')
+                    elif UIAElementInfo.from_point(left_x, elem_y_pos).control_type == 'MenuItem':
+                        # Check left side from the item
+                        menu_elem_list += self._up_down_menu_items(left_x, elem_y_pos, side='left')
 
-                elem_y_pos += elem_height
+                    elem_y_pos += elem_height
 
-            elif not direction and button_elem_info.control_type != 'MenuItem':
-                direction = 1
-                elem_y_pos = first_pos_y
+                else:
+                    direction = 'up'
+                    elem_y_pos = first_pos_y
 
-            if direction and button_elem_info.control_type == 'MenuItem':
-                elem_height = button_elem_info.rectangle.height()
-                elem_width = button_elem_info.rectangle.width()
-                right_x = btn_x_coord + elem_width
-                left_x = btn_x_coord - elem_width
-                menu_elem_list.append(button_elem_info)
+            if direction == 'up':
+                if button_elem_info.control_type == 'MenuItem':
+                    elem_height = button_elem_info.rectangle.height()
+                    elem_width = button_elem_info.rectangle.width()
+                    right_x = btn_x_coord + elem_width
+                    left_x = btn_x_coord - elem_width
+                    menu_elem_list.append(button_elem_info)
 
-                if self._menu_item_exists(right_x, elem_y_pos) and side == 'right':
-                    # Check right side from the item
-                    menu_elem_list += self._up_down_menu_items(right_x, elem_y_pos, side='right')
-                elif self._menu_item_exists(left_x, elem_y_pos):
-                    # Check left side from the item
-                    menu_elem_list += self._up_down_menu_items(left_x, elem_y_pos, side='left')
+                    if UIAElementInfo.from_point(right_x, elem_y_pos).control_type == 'MenuItem' and side == 'right':
+                        # Check right side from the item
+                        menu_elem_list += self._up_down_menu_items(right_x, elem_y_pos, side='right')
+                    elif UIAElementInfo.from_point(left_x, elem_y_pos).control_type == 'MenuItem':
+                        # Check left side from the item
+                        menu_elem_list += self._up_down_menu_items(left_x, elem_y_pos, side='left')
 
-                elem_y_pos -= elem_height
+                    elem_y_pos -= elem_height
 
-            elif direction and button_elem_info.control_type != 'MenuItem':
-                direction = 2
+                else:
+                    direction = None
 
         return menu_elem_list
 
     def _collect_menu_items(self, btn_count):
+        """Return a list of buttons
+
+        * **btn_count** number of searched buttons.
+        """
         # Collect element info from toolbar buttons
         buttons_elem_list = []
         cc = []
