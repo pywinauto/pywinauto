@@ -940,9 +940,9 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def _up_down_menu_items(self, btn_x_coord, btn_y_coord, side='right'):
         """Check items up, down, left and right from current item
 
-        * **btn_x_coord** X coordinates of item
-        * **btn_y_coord** Y coordinate of item
-        * **side** flag specifies what side should check
+        * **btn_x_coord** X coordinates of item.
+        * **btn_y_coord** Y coordinate of item.
+        * **side** flag specifies what side should check.
         """
         first_pos_y = btn_y_coord
         elem_y_pos = btn_y_coord
@@ -1000,20 +1000,20 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         * **btn_count** number of searched buttons.
         """
-
         buttons_elem_list = []
         cc = []
+        cc_texts = set()
         for btn_num in range(btn_count):
-            button_coord_x, button_coord_y = self.client_to_screen(common_controls.\
-                                                                   ToolbarWrapper(self.element_info.handle).\
+            button_coord_x, button_coord_y = self.client_to_screen(common_controls.
+                                                                   ToolbarWrapper(self.element_info.handle).
                                                                    get_button_rect(btn_num).mid_point())
 
             buttons_elem_list += self._up_down_menu_items(button_coord_x, button_coord_y)
 
             for btn_elem_info in buttons_elem_list:
                 ctrl_text = btn_elem_info.name
-                added_ctrl_text = [el.window_text() for el in cc]
-                if ctrl_text not in added_ctrl_text:
+                if ctrl_text not in cc_texts:
+                    cc_texts.add(ctrl_text)
                     cc.append(uiawrapper.UIAWrapper(btn_elem_info))
         return cc
 
@@ -1025,7 +1025,6 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **exact** flag specifies if the exact match for the text look up
           has to be applied.
         """
-
         if not self.children() and self.element_info.handle is not None:
             btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
             cc = self._collect_menu_items(btn_count)
