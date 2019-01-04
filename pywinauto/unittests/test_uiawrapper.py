@@ -1422,24 +1422,25 @@ if UIA_support:
 
     class ToolbarMfcTests(unittest.TestCase):
 
-        """Unit tests for ToolbarWrapper class on MCF demo"""
+        """Unit tests for ToolbarWrapper class on MFC demo"""
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
             # start the application
-            self.app = Application(backend='uia')
-            self.app = self.app.start(mfc_app_rebar_test)
+            self.app = Application(backend='uia').start(mfc_app_rebar_test)
             self.dlg = self.app.RebarTest
             self.tb = self.dlg.MenuBar.wrapper_object()
+            self.window_edge_point = (self.dlg.rectangle().width() + 50, self.dlg.rectangle().height() + 50)
 
         def tearDown(self):
             """Close the application after tests"""
+            self.tb.move_mouse_input(coords=self.window_edge_point, absolute=False)
             self.app.kill()
 
         def test_button_accesss(self):
-            """Test getting access to buttons on Toolbar of WFC demo"""
+            """Test getting access to buttons on Toolbar of MFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
 
             self.assertEqual(4, self.tb.button_count())
@@ -1458,7 +1459,7 @@ if UIA_support:
             self.assertEqual(found_txt, "File")
 
         def test_button_click(self):
-            """Test getting access to nested buttons on Toolbar of WFC demo"""
+            """Test getting access to nested buttons on Toolbar of MFC demo"""
             self.tb.button("View").click_input()
             self.tb.button("Toolbars").click_input()
             self.tb.button("Customize...").click_input()
