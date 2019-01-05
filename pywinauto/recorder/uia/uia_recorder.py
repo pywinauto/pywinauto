@@ -25,11 +25,11 @@ class ProgressBarDialog(dialog.Dialog):
     title_font = (8, "MS Sans Serif")
 
     def __init__(self, *args, **kwargs):
-        super(ProgressBarDialog, self).__init__([[self.title, self.dimensions, self.style, None, self.title_font], ])
+        dialog.Dialog.__init__(self, [[self.title, self.dimensions, self.style, None, self.title_font], ])
         self.pbar = win32ui.CreateProgressCtrl()
 
     def OnInitDialog(self):
-        rc = super(ProgressBarDialog, self).OnInitDialog()
+        rc = dialog.Dialog.OnInitDialog(self)
         self.pbar.CreateWindow(self.cs, (10, 10, 310, 24), self, 1001)
         return rc
 

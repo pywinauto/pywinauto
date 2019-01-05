@@ -96,7 +96,7 @@ class LogParser(object):
 
                         if isinstance(handler, type) and issubclass(handler, EventHandler):
                             s = handler(subtree, self, subpattern).run()
-                            if isinstance(s, str):
+                            if isinstance(s, (str, unicode)):
                                 script += s
                         else:
                             root_name = subtree[-1].names.get_preferred_name()
