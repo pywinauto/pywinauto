@@ -3145,7 +3145,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
     def set_value(self, new_pos):
         """Set the value of the of the UpDown control to some integer value"""
         for _ in range(3):
-            result = ctypes.c_long()
+            result = win32structures.DWORD_PTR(0)
             win32functions.SendMessageTimeout(self,
                 win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
                 win32defines.SMTO_NORMAL,
