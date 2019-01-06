@@ -145,6 +145,7 @@ class HandlepropsTestCases(unittest.TestCase):
     def test_isenabled(self):
         """Make sure the isenabled method returns correct result"""
         self.assertEqual(False, isenabled(sys.maxsize))
+        self.assertEqual(False, isenabled(None))
         self.assertEqual(True, isenabled(self.dlghandle))
         self.assertEqual(True, isenabled(self.edit_handle))
 
