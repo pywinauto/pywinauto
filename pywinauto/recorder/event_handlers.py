@@ -81,7 +81,7 @@ class MouseClickHandler(EventHandler):
             button = "left"
         if hook_event.control_tree_node:
             subtree = self.log_parser.recorder.control_tree.sub_tree_from_node(hook_event.control_tree_node)
-            root_name = get_window_access_name_str(subtree[-1].names.get_preferred_name(), self.key_only)
+            root_acc_name = get_window_access_name_str(subtree[-1].names.get_preferred_name(), self.key_only)
 
             min_rect_elem = None
             for elem in subtree:
@@ -91,10 +91,24 @@ class MouseClickHandler(EventHandler):
                     elif elem.rect.width() < min_rect_elem.rect.width() and \
                             elem.rect.height() < min_rect_elem.rect.height():
                         min_rect_elem = elem
-            item_name = get_window_access_name_str(min_rect_elem.names.get_preferred_name(), self.key_only)
-            x, y = hook_event.mouse_x - min_rect_elem.rect.left, hook_event.mouse_y - min_rect_elem.rect.top
-            script += u"app{}{}.click_input(button='{}', coords=({}, {}))\n".format(
-                root_name, item_name, button, x, y)
+            item_name = min_rect_elem.names.get_preferred_name()
+            item_acc_name = get_window_access_name_str(item_name, self.key_only)
+            if self.log_parser.recorder.config.scale_click:
+                scale_x = (hook_event.mouse_x - min_rect_elem.rect.left) / float(
+                    min_rect_elem.rect.right - min_rect_elem.rect.left)
+                scale_y = (hook_event.mouse_y - min_rect_elem.rect.top) / float(
+                    min_rect_elem.rect.bottom - min_rect_elem.rect.top)
+
+                script += u"# Clicking on object '{}' with scale ({}, {})\n".format(item_name, scale_x, scale_y)
+                script += u"_elem = app{}{}.wrapper_object()\n".format(root_acc_name, item_acc_name)
+                script += u"_rect = _elem.rectangle()\n"
+                script += u"_x = int((_rect.right - _rect.left) * {})\n".format(scale_x)
+                script += u"_y = int((_rect.bottom - _rect.top) * {})\n".format(scale_y)
+                script += u"_elem.click_input(button='{}', coords=(_x, _y))\n".format(button)
+            else:
+                x, y = hook_event.mouse_x - min_rect_elem.rect.left, hook_event.mouse_y - min_rect_elem.rect.top
+                script += u"app{}{}.click_input(button='{}', coords=({}, {}))\n".format(
+                    root_acc_name, item_acc_name, button, x, y)
         else:
             script += u"pywinauto.mouse.click(button='{}', coords=({}, {}))\n".format(
                 button, hook_event.mouse_x, hook_event.mouse_y)

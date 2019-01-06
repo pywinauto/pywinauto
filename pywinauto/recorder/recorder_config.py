@@ -6,6 +6,7 @@ class RecorderConfig(object):
         self.out = None
         self.backend = None
         self.key_only = False
+        self.scale_click = False
 
     def apply(self, **kwargs):
         for k, v in kwargs.items():

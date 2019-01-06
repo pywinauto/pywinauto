@@ -35,7 +35,7 @@ def main(argv):
         config = configparser.ConfigParser()
         config.read([args.config])
         config_options = dict(config.items("Config"))
-        for key in ["verbose", "key_only"]:
+        for key in ["verbose", "key_only", "scale_click"]:
             if key in config_options:
                 config_options[key] = config.getboolean("Config", key)
 
@@ -48,6 +48,8 @@ def main(argv):
     parser.add_argument("-o", "--out", help="Filename to write generated python script to")
     parser.add_argument("-b", "--backend", help="Which backend to use", choices=backend_choises)
     parser.add_argument("-k", "--key_only", help="Access items only by key (app['Window Title'])", action="store_true")
+    parser.add_argument("-s", "--scale_click", action="store_true",
+                        help="Use scaled relative click coordinates when calling 'click_input()' method")
     args = parser.parse_args(remaining_argv)
 
     config = RecorderConfig()
