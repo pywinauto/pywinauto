@@ -1,5 +1,7 @@
+from six import string_types
+
 from .recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
-    PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
+    PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN, get_window_access_name_str
 from .event_handlers import EventHandler, SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
     ExpandCollapseHandler, MouseClickHandler, KeyboardHandler
 
@@ -44,9 +46,8 @@ EVENT_PATTERN_MAP = [
 
 
 class LogParser(object):
-    def __init__(self, recorder, verbose=False):
+    def __init__(self, recorder):
         self.recorder = recorder
-        self.verbose = verbose
 
         self.menu_sequence = []
         self.text_sequence = {}
@@ -82,7 +83,7 @@ class LogParser(object):
         for action in action_log:
             hook_event = action.hook_event
             app_events = action.app_events
-            if self.verbose:
+            if self.recorder.config.verbose:
                 print("\n================================================================================\n"
                       "Hook event: {}\n    Application events: {}"
                       "".format(hook_event, app_events))
@@ -96,18 +97,21 @@ class LogParser(object):
 
                         if isinstance(handler, type) and issubclass(handler, EventHandler):
                             s = handler(subtree, self, subpattern).run()
-                            if isinstance(s, (str, unicode)):
+                            if isinstance(s, string_types):
                                 script += s
                         else:
                             root_name = subtree[-1].names.get_preferred_name()
                             item_name = subtree[0].names.get_preferred_name()
-                            script += u"app.{}.{}.{}\n".format(root_name, item_name, handler)
+                            script += u"app{}{}.{}\n".format(
+                                get_window_access_name_str(root_name, self.recorder.config.key_only),
+                                get_window_access_name_str(item_name, self.recorder.config.key_only),
+                                handler)
                     else:
                         print("WARNING: Event skipped")
                     break
             else:
                 print("WARNING: Unrecognized pattern - {}".format(action))
-            if self.verbose:
+            if self.recorder.config.verbose:
                 print("================================================================================\n")
 
         return script

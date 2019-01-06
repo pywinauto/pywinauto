@@ -85,9 +85,8 @@ class UiaRecorder(COMObject, BaseRecorder):
                         IUIA().UIA_dll.IUIAutomationFocusChangedEventHandler,
                         IUIA().UIA_dll.IUIAutomationStructureChangedEventHandler]
 
-    def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True,
-                 verbose=False):
-        super(UiaRecorder, self).__init__(app=app, hot_output=hot_output, verbose=verbose)
+    def __init__(self, app, config, record_props=True, record_focus=False, record_struct=False):
+        super(UiaRecorder, self).__init__(app=app, config=config)
 
         if app.backend.name != "uia":
             raise TypeError("app must be a pywinauto.Application object of 'uia' backend")
@@ -99,7 +98,7 @@ class UiaRecorder(COMObject, BaseRecorder):
 
     def _add_handlers(self, element):
         """Add UIA handlers to element and all its descendants"""
-        if self.verbose:
+        if self.config.verbose:
             start_time = timeit.default_timer()
             print("[_add_handlers] Subscribing to events")
 
@@ -124,16 +123,16 @@ class UiaRecorder(COMObject, BaseRecorder):
         if self.record_struct:
             IUIA().iuia.AddStructureChangedEventHandler(element, IUIA().tree_scope['subtree'], cache_request, self)
 
-        if self.verbose:
+        if self.config.verbose:
             print("[_add_handlers] Finished subscribing to events. Time = {}".format(
                 timeit.default_timer() - start_time))
 
     def _rebuild_control_tree(self):
-        if self.verbose:
+        if self.config.verbose:
             start_time = timeit.default_timer()
             print("[_rebuild_control_tree] Rebuilding control tree")
         self.control_tree.rebuild()
-        if self.verbose:
+        if self.config.verbose:
             print("[_rebuild_control_tree] Finished rebuilding control tree. Time = {}".format(
                 timeit.default_timer() - start_time))
 

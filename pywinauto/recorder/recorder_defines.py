@@ -2,6 +2,7 @@
 import time
 import sys
 from abc import ABCMeta
+from ast import parse
 
 import six
 
@@ -330,3 +331,18 @@ class EventPattern(object):
                     return None
 
         return subpattern
+
+
+def _is_identifier(name):
+    try:
+        parse('{} = None'.format(name))
+        return True
+    except (SyntaxError, ValueError, TypeError):
+        return False
+
+
+def get_window_access_name_str(name, key_only=False):
+    if not key_only and _is_identifier(name):
+        return u".{}".format(name)
+    else:
+        return u"[u'{}']".format(name)
