@@ -718,6 +718,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.dlg.set_focus()
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.get_item(r'\Birds')
+        self.ctrl.set_focus() # to make sure focus is not lost by any accident event
         birds.click(where='check')
         self.assertEqual(birds.is_checked(), True)
         birds.click_input(where='check')
@@ -1249,7 +1250,7 @@ class RebarTestCases(unittest.TestCase):
         """Start the application, set some data and wait for the state we want
 
         The app title can be tricky. If no document is opened the title is just: "RebarTest"
-        However if an document is created/opened in the child frame
+        However if a document is created/opened in the child frame
         the title is appended with a document name: "RebarTest - RebarTest1"
         A findbestmatch proc does well here with guessing the title
         even though the app is started with a short title "RebarTest".
@@ -1265,8 +1266,7 @@ class RebarTestCases(unittest.TestCase):
 
     def tearDown(self):
         """Close the application after tests"""
-        # close the application
-        self.app.kill()
+        self.app.kill(soft=True)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (ReBar)"""

@@ -96,20 +96,17 @@ class ApplicationWarningTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
         # Force Display User and Deprecation warnings every time
-        # Python 3.3+nose/unittest trys really hard to suppress them
+        # Python 3.3 + nose/unittest tries really hard to suppress them
         for warning in (UserWarning, PendingDeprecationWarning):
             warnings.simplefilter('always', warning)
 
-        mfc_samples_folder = os.path.join(os.path.dirname(__file__),
-                                          r"..\..\apps\MFC_samples")
         if is_x64_Python():
             self.sample_exe = os.path.join(mfc_samples_folder,
-                                           "x64",
                                            "CmnCtrl1.exe")
-            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
+            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder_32,
                                                             "CmnCtrl1.exe")
         else:
-            self.sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+            self.sample_exe = os.path.join(mfc_samples_folder_32, "CmnCtrl1.exe")
             self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
                                                             "x64",
                                                             "CmnCtrl1.exe")
@@ -144,6 +141,65 @@ class ApplicationWarningTestCases(unittest.TestCase):
             assert len(args) == 2
             assert "64-bit" in args[0]
             assert args[1].__name__ == 'UserWarning'
+
+
+class ApplicationWin32KillTestCases(unittest.TestCase):
+
+    """Unit tests for method Application.kill() with backend='win32'"""
+
+    backend = 'win32'
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.defaults()
+
+        self.sample_exe = os.path.join(mfc_samples_folder, 'RowList.exe')
+        self.app = Application(backend=self.backend).start(self.sample_exe)
+        self.target_process = self.app.process
+
+    def tearDown(self):
+        self.app.kill(soft=False)
+
+    def test_kill_hard(self):
+        self.assertTrue(self.app.kill(soft=False))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+
+    def test_kill_soft(self):
+        self.assertTrue(self.app.kill(soft=True))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+
+    def test_already_killed_hard(self):
+        self.assertTrue(self.app.kill(soft=False))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+        self.assertTrue(self.app.kill(soft=False)) # already killed, returned True anyway
+
+    def test_already_killed_soft(self):
+        self.assertTrue(self.app.kill(soft=False))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+        self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
+
+    def test_kill_soft_with_modal_subdialog(self):
+        """Kill the app with modal subdialog to cover win.force_close() call"""
+        self.app.RowListSampleApplication.menu_select('Help->About RowList...')
+        if self.backend == 'win32':
+            self.app.window(title='About RowList').wait('visible')
+        elif self.backend == 'uia':
+            self.app.RowListSampleApplication.child_window(title='About RowList').wait('visible')
+        else:
+            raise NotImplementedError('test_kill_soft_with_modal_subdialog: ' \
+                'backend "{}" is not supported'.format(self.backend))
+        self.assertTrue(self.app.kill(soft=True))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+        self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
+
+
+if UIA_support:
+    class ApplicationUiaKillTestCases(ApplicationWin32KillTestCases):
+
+        """Unit tests for method Application.kill() with backend='uia'"""
+
+        backend = 'uia'
+        # the same test methods run here
 
 
 if ctypes.windll.shell32.IsUserAnAdmin() == 0:
