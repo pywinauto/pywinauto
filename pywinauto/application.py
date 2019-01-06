@@ -154,7 +154,7 @@ class WindowSpecification(object):
             raise KeyError('Keywords "process" and "app" cannot be combined (ambiguous). ' \
                 'Use one option at a time: Application object with keyword "app" or ' \
                 'integer process ID with keyword "process".')
-        self.app = search_criteria.pop('app', None)
+        self.app = search_criteria.get('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
         self.backend = registry.backends[search_criteria['backend']]
@@ -195,7 +195,9 @@ class WindowSpecification(object):
         if 'backend' not in criteria[0]:
             criteria[0]['backend'] = self.backend.name
         if self.app is not None:
+            # find_elements(...) accepts only "process" argument
             criteria[0]['process'] = self.app.process
+            del criteria[0]['app']
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
 
         ctrls = []
@@ -1201,8 +1203,7 @@ class Application(object):
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
         else:
-            # add the restriction for this particular process
-            # kwargs['process'] = self.process
+            # add the restriction for this particular application
             kwargs['app'] = self
             win_spec = WindowSpecification(kwargs)
 
