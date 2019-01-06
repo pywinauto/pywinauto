@@ -116,12 +116,13 @@ class HandlepropsTestCases(unittest.TestCase):
         self.assertEqual(True, iswindow(self.edit_handle))
 
         self.assertEqual(False, iswindow(1))
+        self.assertEqual(False, iswindow(sys.maxsize))
 
     def test_isvisible(self):
         """Make sure the isvisible method returns correct result"""
         self.assertEqual(True, isvisible(self.dlghandle))
         self.assertEqual(True, isvisible(self.edit_handle))
-
+        self.assertEqual(False, isvisible(sys.maxsize))
         # need to check something invisible
         #self.assertEqual(False, isvisible(self.edit_handle))
 
@@ -129,12 +130,14 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure the isunicode method returns correct result"""
         self.assertEqual(True, isunicode(self.dlghandle))
         self.assertEqual(True, isunicode(self.edit_handle))
+        self.assertEqual(False, isunicode(sys.maxsize))
 
         # need to check something not unicode
         #self.assertEqual(False, isunicode(self.edit_handle))
 
     def test_isenabled(self):
         """Make sure the isenabled method returns correct result"""
+        self.assertEqual(False, isenabled(sys.maxsize))
         self.assertEqual(True, isenabled(self.dlghandle))
         self.assertEqual(True, isenabled(self.edit_handle))
 

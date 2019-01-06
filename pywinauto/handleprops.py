@@ -141,25 +141,25 @@ def contexthelpid(handle):
 #=========================================================================
 def iswindow(handle):
     """Return True if the handle is a window"""
-    return bool(win32functions.IsWindow(handle))
+    return False if handle is None else  bool(win32functions.IsWindow(handle))
 
 
 #=========================================================================
 def isvisible(handle):
     """Return True if the window is visible"""
-    return bool(win32functions.IsWindowVisible(handle))
+    return False if handle is None else  bool(win32functions.IsWindowVisible(handle))
 
 
 #=========================================================================
 def isunicode(handle):
     """Return True if the window is a Unicode window"""
-    return bool(win32functions.IsWindowUnicode(handle))
+    return False if handle is None else bool(win32functions.IsWindowUnicode(handle))
 
 
 #=========================================================================
 def isenabled(handle):
     """Return True if the window is enabled"""
-    return bool(win32functions.IsWindowEnabled(handle))
+    return False if handle is None else bool(win32functions.IsWindowEnabled(handle))
 
 
 #=========================================================================

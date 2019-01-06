@@ -197,7 +197,7 @@ class HwndWrapper(BaseWrapper):
         BaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
-        if not win32functions.IsWindow(self.handle):
+        if not handleprops.iswindow(self.handle):
             raise InvalidWindowHandle(self.handle)
 
         # make it so that ctypes conversion happens correctly
@@ -770,8 +770,8 @@ class HwndWrapper(BaseWrapper):
 
         def has_closed():
             closed = not (
-                    win32functions.IsWindow(self) or
-                    win32functions.IsWindow(self.parent()))
+                    handleprops.iswindow(self) or
+                    handleprops.iswindow(self.parent()))
             if not closed:
                 # try closing again
                 try:
@@ -1166,7 +1166,7 @@ class HwndWrapper(BaseWrapper):
         # any one of these conditions evaluates to false means the window is
         # closed or we have timed out
         def has_closed():
-            return not (win32functions.IsWindow(self) and self.is_visible())
+            return not (handleprops.iswindow(self) and self.is_visible())
 
         if not wait_time:
             wait_time = Timings.closeclick_dialog_close_wait

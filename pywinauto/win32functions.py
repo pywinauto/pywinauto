@@ -111,9 +111,17 @@ GetClassName        =   ctypes.windll.user32.GetClassNameW
 GetClientRect       =   ctypes.windll.user32.GetClientRect
 IsChild				=	ctypes.windll.user32.IsChild
 IsWindow 			=	ctypes.windll.user32.IsWindow
+IsWindow.argtypes = [win32structures.HWND]
+IsWindow.restype = win32structures.BOOL
 IsWindowUnicode		=	ctypes.windll.user32.IsWindowUnicode
+IsWindowUnicode.argtypes = [win32structures.HWND]
+IsWindowUnicode.restype = win32structures.BOOL
 IsWindowVisible		=	ctypes.windll.user32.IsWindowVisible
+IsWindowVisible.argtypes = [win32structures.HWND]
+IsWindowVisible.restype = win32structures.BOOL
 IsWindowEnabled		=	ctypes.windll.user32.IsWindowEnabled
+IsWindowEnabled.argtypes = [win32structures.HWND]
+IsWindowEnabled.restype = win32structures.BOOL
 ClientToScreen      =   ctypes.windll.user32.ClientToScreen
 ScreenToClient      =   ctypes.windll.user32.ScreenToClient
 
