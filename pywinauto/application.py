@@ -150,9 +150,10 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
             search_criteria['backend'] = registry.active_backend.name
-        if 'process' in search_criteria:
-            raise KeyError('Keyword "process" is not supported any more. ' \
-                'Use Application instance with keyword "app" instead.')
+        if 'process' in search_criteria and 'app' in search_criteria:
+            raise KeyError('Keywords "process" and "app" cannot be combined (ambiguous). ' \
+                'Use one option at a time: Application object with keyword "app" or ' \
+                'integer process ID with keyword "process".')
         self.app = search_criteria.pop('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
