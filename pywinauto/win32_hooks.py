@@ -69,8 +69,8 @@ from .win32defines import VK_PACKET
 from .actionlogger import ActionLogger
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
+from .win32structures import LRESULT
 
-LRESULT = wintypes.LPARAM
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
 
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE

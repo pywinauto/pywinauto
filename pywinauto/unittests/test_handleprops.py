@@ -70,12 +70,16 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure the text method returns correct result"""
         self.assertEqual("Untitled - Notepad", text(self.dlghandle))
         self.assertEqual("", text(self.edit_handle))
+        self.assertEqual(None, text(sys.maxsize))
+        self.assertEqual(None, text(None))
 
 
     def test_classname(self):
         """Make sure the classname method returns correct result"""
         self.assertEqual("Notepad", classname(self.dlghandle))
         self.assertEqual("Edit", classname(self.edit_handle))
+        self.assertEqual("", classname(sys.maxsize))
+        self.assertEqual(None, classname(None))
 
     def test_parent(self):
         """Make sure the parent method returns correct result"""
@@ -117,12 +121,14 @@ class HandlepropsTestCases(unittest.TestCase):
 
         self.assertEqual(False, iswindow(1))
         self.assertEqual(False, iswindow(sys.maxsize))
+        self.assertEqual(False, iswindow(None))
 
     def test_isvisible(self):
         """Make sure the isvisible method returns correct result"""
         self.assertEqual(True, isvisible(self.dlghandle))
         self.assertEqual(True, isvisible(self.edit_handle))
         self.assertEqual(False, isvisible(sys.maxsize))
+        self.assertEqual(False, isvisible(None))
         # need to check something invisible
         #self.assertEqual(False, isvisible(self.edit_handle))
 
@@ -131,6 +137,7 @@ class HandlepropsTestCases(unittest.TestCase):
         self.assertEqual(True, isunicode(self.dlghandle))
         self.assertEqual(True, isunicode(self.edit_handle))
         self.assertEqual(False, isunicode(sys.maxsize))
+        self.assertEqual(False, isunicode(None))
 
         # need to check something not unicode
         #self.assertEqual(False, isunicode(self.edit_handle))

@@ -57,11 +57,13 @@ def text(handle):
         return 'Default IME'
     if class_name == 'MSCTFIME UI':
         return 'M'
+    if class_name is None:
+        return None
     #length = win32functions.SendMessage(handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
 
     # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
     # WM_GETTEXTLENGTH may hang even for notepad.exe main window!
-    c_length = win32structures.DWORD(0)
+    c_length = win32structures.DWORD_PTR(0)
     result = win32functions.SendMessageTimeout(
         handle,
         win32defines.WM_GETTEXTLENGTH,
@@ -97,8 +99,10 @@ def text(handle):
 #=========================================================================
 def classname(handle):
     """Return the class name of the window"""
-    class_name = (ctypes.c_wchar * 257)()
-    win32functions.GetClassName(handle, ctypes.byref(class_name), 256)
+    if handle is None:
+        return None
+    class_name = ctypes.create_unicode_buffer(u"", 257)
+    win32functions.GetClassName(handle, class_name, 256)
     return class_name.value
 
 
