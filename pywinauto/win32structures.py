@@ -150,6 +150,8 @@ HBRUSH = LONG_PTR #LONG
 HTREEITEM = LONG_PTR #LONG
 HWND = LONG_PTR #LONG
 
+# TODO: switch to ctypes.wintypes.LPARAM and ctypes.wintypes.WPARAM
+# Notice that wintypes definition of LPARAM/WPARAM differs between 32/64 bit
 LPARAM = LONG_PTR
 WPARAM = UINT_PTR
 
