@@ -912,6 +912,9 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ToolbarWrapper, self).__init__(elem)
+        self.win32_wrapper = None
+        if not self.children() and self.element_info.handle is not None:
+            self.win32_wrapper = common_controls.ToolbarWrapper(self.element_info.handle)
 
     @property
     def writable_props(self):
@@ -928,12 +931,11 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     #----------------------------------------------------------------
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
-        children_list = self.children()
-        if not children_list and self.element_info.handle is not None:
-            btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
+        if self.win32_wrapper is not None:
+            btn_count = self.win32_wrapper.button_count()
             return btn_count
         else:
-            return len(children_list)
+            return len(self.children())
 
     # ----------------------------------------------------------------
 
@@ -1004,8 +1006,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         cc = []
         cc_texts = set()
         for btn_num in range(btn_count):
-            button_coord_x, button_coord_y = self.client_to_screen(common_controls.
-                                                                   ToolbarWrapper(self.element_info.handle).
+            button_coord_x, button_coord_y = self.client_to_screen(self.win32_wrapper.
                                                                    get_button_rect(btn_num).mid_point())
 
             buttons_elem_list += self._up_down_menu_items(button_coord_x, button_coord_y)
@@ -1025,8 +1026,8 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **exact** flag specifies if the exact match for the text look up
           has to be applied.
         """
-        if not self.children() and self.element_info.handle is not None:
-            btn_count = common_controls.ToolbarWrapper(self.element_info.handle).button_count()
+        if self.win32_wrapper is not None:
+            btn_count = self.win32_wrapper.button_count()
             cc = self._collect_menu_items(btn_count)
         else:
             cc = self.children()
