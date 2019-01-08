@@ -781,8 +781,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
         """Test creating a new spec by hand"""
         wspec = WindowSpecification(
             dict(
-                best_match = u"UntitledNotepad",
-                app = self.app)
+                best_match=u"UntitledNotepad",
+                app=self.app)
             )
 
         self.assertEqual(
@@ -802,7 +802,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         # no best_match!
         wspec = WindowSpecification(
-            dict(title = u"blah", app = self.app) )
+            dict(title=u"blah", app=self.app)
+            )
 
         self.assertRaises(AttributeError, wspec)
 
