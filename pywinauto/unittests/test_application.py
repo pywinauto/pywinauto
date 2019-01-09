@@ -758,6 +758,7 @@ class ApplicationTestCases(unittest.TestCase):
         app = ApplicationTestCases.TestInheritedApp()
         self.assertTrue(app.test_method())
 
+
 class WindowSpecificationTestCases(unittest.TestCase):
 
     """Unit tests for the application.Application class"""
@@ -780,13 +781,19 @@ class WindowSpecificationTestCases(unittest.TestCase):
         """Test creating a new spec by hand"""
         wspec = WindowSpecification(
             dict(
-                best_match = u"UntitledNotepad",
-                process = self.app.process)
+                best_match=u"UntitledNotepad",
+                app=self.app)
             )
 
         self.assertEqual(
             wspec.window_text(),
             u"Untitled - Notepad")
+
+    def test__init__both_keywords(self):
+        """Test creating a new spec with ambiguity by process and app simultaneously"""
+        self.assertRaises(KeyError, WindowSpecification,
+            dict(best_match=u"UntitledNotepad", app=self.app, process=self.app.process)
+            )
 
     def test__call__(self):
         """Test that __call__() correctly raises an error"""
@@ -795,7 +802,8 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         # no best_match!
         wspec = WindowSpecification(
-            dict(title = u"blah", process = self.app.process) )
+            dict(title=u"blah", app=self.app)
+            )
 
         self.assertRaises(AttributeError, wspec)
 
