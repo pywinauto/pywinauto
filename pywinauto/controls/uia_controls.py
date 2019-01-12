@@ -268,10 +268,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def texts(self):
         """Get the text of the edit control"""
-        texts = [self.window_text(), ]
-
-        for i in range(self.line_count()):
-            texts.append(self.get_line(i))
+        texts = [ self.get_line(i) for i in range(self.line_count()) ]
 
         return texts
 
