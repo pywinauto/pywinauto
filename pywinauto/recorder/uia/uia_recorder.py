@@ -19,24 +19,27 @@ import win32con
 class ProgressBarDialog(dialog.Dialog):
     title = "Updating..."
     style = (win32con.DS_MODALFRAME | win32con.WS_POPUP | win32con.WS_VISIBLE | win32con.WS_CAPTION |
-             win32con.WS_SYSMENU | win32con.DS_SETFONT | win32con.WS_EX_TOPMOST)
+             win32con.DS_SETFONT | win32con.WS_EX_TOPMOST)
     cs = (win32con.WS_CHILD | win32con.WS_VISIBLE)
     dimensions = (0, 0, 215, 20)
     title_font = (8, "MS Sans Serif")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, rect, *args, **kwargs):
+        self.rect = rect
+        if rect:
+            self.dimensions = (rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)
         dialog.Dialog.__init__(self, [[self.title, self.dimensions, self.style, None, self.title_font], ])
         self.pbar = win32ui.CreateProgressCtrl()
 
     def OnInitDialog(self):
         rc = dialog.Dialog.OnInitDialog(self)
-        self.pbar.CreateWindow(self.cs, (10, 10, 310, 24), self, 1001)
+        self.pbar.CreateWindow(self.cs, (10, 10, 310 if not self.rect else self.dimensions[2] - 20, 24), self, 1001)
         return rc
 
     def show(self):
         self.CreateWindow()
         self.SetWindowPos(win32con.HWND_TOPMOST, self.dimensions,
-                          win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_SHOWWINDOW)
+                          win32con.SWP_SHOWWINDOW | (win32con.SWP_NOMOVE | win32con.SWP_NOSIZE) if not self.rect else 0)
 
     def close(self):
         self.OnCancel()
@@ -155,11 +158,14 @@ class UiaRecorder(COMObject, BaseRecorder):
 
     def _update(self, rebuild_tree=False, add_handlers_to=None):
         # Draw progress window
-        pbar_dlg = ProgressBarDialog()
+        import time
+        pbar_dlg = ProgressBarDialog(self.control_tree.root.rect if self.control_tree.root else None)
         pbar_dlg.show()
 
         # Temporary disable mouse and keyboard event processing
         self.hook.stop()
+        time.sleep(1)
+        # exit(0)
         self.hook_thread.join(1)
 
         # Subscribe to events and rebuild control tree in separate threads to speed up the process
