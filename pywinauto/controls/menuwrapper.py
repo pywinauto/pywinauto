@@ -367,7 +367,7 @@ class MenuItem(object):
         if six.PY3:
             return "<MenuItem " + self.text() + ">"
         else:
-            return "<MenuItem " + self.text().encode(locale.getpreferredencoding()) + ">"
+            return b"<MenuItem {}>".format(self.text().encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
 #    def check(self):
 #        item = self._read_item()
