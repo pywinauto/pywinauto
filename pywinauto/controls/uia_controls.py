@@ -38,7 +38,9 @@ from .. import uia_element_info
 from .. import findbestmatch
 from .. import timings
 
+from .. import uia_defines as uia_defs
 from . import uiawrapper
+from . import win32_controls
 from ..uia_defines import IUIA
 from ..uia_defines import NoPatternInterfaceError
 from ..uia_defines import toggle_state_on
@@ -135,21 +137,82 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         super(ComboBoxWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
+    def expand(self):
+        if self.is_expanded():
+            return self
+        try:
+            super(ComboBoxWrapper, self).expand()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box using Open button
+            open_buttons = self.children(title='Open', control_type='Button')
+            if open_buttons:
+                open_buttons[0].invoke()
+            else:
+                raise NoPatternInterfaceError('There is no ExpandCollapsePattern and ' \
+                    'no "Open" button in .children(). Maybe only .click_input() would help to expand.')
+        return self
+
+    # -----------------------------------------------------------
+    def collapse(self):
+        try:
+            super(ComboBoxWrapper, self).collapse()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box using Open button
+            close_buttons = self.children(title='Close', control_type='Button')
+            if not close_buttons:
+                raise RuntimeError('There is no ExpandCollapsePattern and no "Close" button for the combo box')
+            if self.is_editable():
+                close_buttons[0].click_input()
+            else:
+                close_buttons[0].invoke()
+        return self
+
+    # -----------------------------------------------------------
+    def is_editable(self):
+        edit_children = self.children(control_type="Edit")
+        return len(edit_children) > 0
+
+    # -----------------------------------------------------------
+    def get_expand_state(self):
+        try:
+            return super(ComboBoxWrapper, self).get_expand_state()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box
+            children_list = self.children(control_type="List")
+            if children_list and children_list[0].is_visible():
+                return uia_defs.expand_state_expanded
+            else:
+                return uia_defs.expand_state_collapsed
+
+    # -----------------------------------------------------------
     def texts(self):
         """Return the text of the items in the combobox"""
         texts = []
         # ComboBox has to be expanded to populate a list of its children items
         try:
-            self.expand()
+            super(ComboBoxWrapper, self).expand()
             for c in self.children():
                 texts.append(c.window_text())
         except NoPatternInterfaceError:
-            return texts
+            # workaround for WinForms combo box using Open button
+            open_buttons = self.children(title='Open', control_type='Button')
+            if open_buttons:
+                open_buttons[0].invoke() # expand
+                for c in self.children(control_type='ListItem'):
+                    texts.append(c.window_text())
+                self.collapse() # collapse back
+            elif self.handle:
+                # workaround using "win32" backend
+                win32_combo = win32_controls.ComboBoxWrapper(self.handle)
+                texts.extend(win32_combo.item_texts())
+            else:
+                return texts
         else:
             # Make sure we collapse back
-            self.collapse()
+            super(ComboBoxWrapper, self).collapse()
         return texts
 
+    # -----------------------------------------------------------
     def select(self, item):
         """
         Select the ComboBox item

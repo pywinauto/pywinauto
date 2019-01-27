@@ -34,6 +34,7 @@ winforms_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WinForms_samples")
 if is_x64_Python():
     winforms_folder = os.path.join(winforms_folder, 'x64')
+winfoms_app_grid = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
 
 if UIA_support:
 
@@ -623,7 +624,8 @@ if UIA_support:
 
             # Mock a combobox without "ExpandCollapse" pattern
             combo_box.expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())  # empty texts
-            self.assertEqual(combo_box.texts(), [])
+            # workaround works even if no ExpandCollapsePattern available
+            self.assertEqual(combo_box.texts(), ref_texts)
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
@@ -1152,11 +1154,9 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
-            winfoms_app = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
-
             # start the application
             app = Application(backend='uia')
-            app = app.start(winfoms_app)
+            app = app.start(winfoms_app_grid)
             dlg = app.Dialog
 
             self.app = app
