@@ -1176,7 +1176,7 @@ if UIA_support:
             self.assertTrue(list_box_item.is_selected())
 
         def test_list_box_getitem_overload(self):
-            """Test get_item method"""
+            """Test __getitem__ method"""
             self.list_box.set_focus()
             list_box_item = self.list_box['item (2)']
             self.assertFalse(list_box_item.is_selected())
