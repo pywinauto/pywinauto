@@ -727,7 +727,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 except NoPatternInterfaceError:
                     # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
                     itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
-            except NoPatternInterfaceError, ValueError:
+            except (NoPatternInterfaceError, ValueError):
                 # com_elem is NULL pointer or item doesn't support ItemContainer pattern
                 # Get DataGrid row
                 try:
