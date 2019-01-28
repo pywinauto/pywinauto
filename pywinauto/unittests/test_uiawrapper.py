@@ -1165,6 +1165,23 @@ if UIA_support:
             self.add_row_button = dlg.AddRow
             self.row_header_button = dlg.RowHeader
             self.col_header_button = dlg.ColHeader
+            self.list_box = dlg.ListBox
+
+        def test_list_box_item_selection(self):
+            """Test get_item method"""
+            self.list_box.set_focus()
+            list_box_item = self.list_box.get_item('item (2)')
+            self.assertFalse(list_box_item.is_selected())
+            list_box_item.select()
+            self.assertTrue(list_box_item.is_selected())
+
+        def test_list_box_getitem_overload(self):
+            """Test get_item method"""
+            self.list_box.set_focus()
+            list_box_item = self.list_box['item (2)']
+            self.assertFalse(list_box_item.is_selected())
+            list_box_item.select()
+            self.assertTrue(list_box_item.is_selected())
 
         def test_empty_grid(self):
             """Test some error cases handling"""
