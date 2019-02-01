@@ -43,6 +43,7 @@ if UIA_support:
         Timings.defaults()
         Timings.window_find_timeout = 20
 
+
     class UIAWrapperTests(unittest.TestCase):
 
         """Unit tests for the UIAWrapper class"""
@@ -1250,6 +1251,72 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill()
+
+
+    class ComboBoxTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the ComboBoxWrapper class with WinForms app"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            app = Application(backend='uia')
+            self.app = app.start(winfoms_app_grid)
+            self.dlg = dlg = app.Form1
+
+            self.combo_editable = dlg.child_window(auto_id="comboRowType", control_type="ComboBox").wrapper_object()
+            self.combo_fixed = dlg.child_window(auto_id="comboBoxReadOnly", control_type="ComboBox").wrapper_object()
+            self.combo_simple = dlg.child_window(auto_id="comboBoxSimple", control_type="ComboBox").wrapper_object()
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
+        def test_expand_collapse(self):
+            """Test methods .expand() and .collapse() for WinForms combo box"""
+            self.dlg.set_focus()
+            for combo in [self.combo_editable, self.combo_fixed, self.combo_simple]:
+                if combo != self.combo_simple:
+                    self.assertFalse(combo.is_expanded())
+                # test that method allows chaining
+                self.assertEqual(combo.expand(), combo)
+                self.assertTrue(combo.is_expanded())
+
+                # .expand() keeps already expanded state (and still allows chaining)
+                self.assertEqual(combo.expand(), combo)
+                self.assertTrue(combo.is_expanded())
+                
+                # collapse
+                self.assertEqual(combo.collapse(), combo)
+                if combo != self.combo_simple:
+                    self.assertFalse(combo.is_expanded())
+                
+                # collapse already collapsed should keep collapsed state
+                self.assertEqual(combo.collapse(), combo)
+                if combo != self.combo_simple:
+                    self.assertFalse(combo.is_expanded())
+
+        def test_texts(self):
+            """Test method .texts() for WinForms combo box"""
+            self.dlg.set_focus()
+            editable_texts = [u'Numbers', u'Letters', u'Special symbols']
+            fixed_texts = [u'Item 1', u'Item 2', u'Last Item']
+            simple_texts = [u'Simple 1', u'Simple Two', u'The Simplest']
+            
+            test_data = [
+                (self.combo_editable, editable_texts),
+                (self.combo_fixed, fixed_texts),
+                (self.combo_simple, simple_texts),
+                ]
+            
+            for combo, expected_texts in test_data:
+                self.assertEqual(combo.texts(), expected_texts)
+                self.assertEqual(combo.expand().texts(), expected_texts)
+                self.assertTrue(combo.is_expanded())
+                combo.collapse()
+
 
     class ListItemWrapperTests(unittest.TestCase):
 

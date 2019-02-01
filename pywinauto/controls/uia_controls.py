@@ -157,13 +157,18 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def collapse(self):
+        if not self.is_expanded():
+            return self
         try:
             super(ComboBoxWrapper, self).collapse()
         except NoPatternInterfaceError:
             # workaround for WinForms combo box using Open button
             close_buttons = self.children(title='Close', control_type='Button')
             if not close_buttons:
-                raise RuntimeError('There is no ExpandCollapsePattern and no "Close" button for the combo box')
+                if self.element_info.framework_id == 'WinForm':
+                    return self # simple WinForms combo box is always expanded
+                else:
+                    raise RuntimeError('There is no ExpandCollapsePattern and no "Close" button for the combo box')
             if self.is_editable():
                 close_buttons[0].click_input()
             else:
@@ -197,18 +202,12 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             for c in self.children():
                 texts.append(c.window_text())
         except NoPatternInterfaceError:
-            # workaround for WinForms combo box using Open button
-            open_buttons = self.children(title='Open', control_type='Button')
-            if open_buttons:
-                open_buttons[0].invoke() # expand
-                for c in self.children(control_type='ListItem'):
-                    texts.append(c.window_text())
-                self.collapse() # collapse back
-            elif self.handle:
+            if self.handle:
                 # workaround using "win32" backend
                 win32_combo = win32_controls.ComboBoxWrapper(self.handle)
                 texts.extend(win32_combo.item_texts())
             else:
+                # TODO: maybe add more workarounds for Qt or whatever
                 return texts
         else:
             # Make sure we collapse back
