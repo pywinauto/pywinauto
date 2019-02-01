@@ -644,6 +644,9 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         self.row_header = False
         self.col_header = False
 
+    def __getitem__(self, key):
+        return self.get_item(key)
+
     def __raise_not_implemented(self):
         raise NotImplementedError("This method not work properly for WinForms DataGrid, use cells()")
 
@@ -781,27 +784,27 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if isinstance(row, six.string_types):
             # Try to find item using FindItemByProperty
             # That way we can get access to virtualized (unloaded) items
-            com_elem = self.iface_item_container.FindItemByProperty(0, IUIA().UIA_dll.UIA_NamePropertyId, row)
-            # Try to load element using VirtualizedItem pattern
             try:
-                get_elem_interface(com_elem, "VirtualizedItem").Realize()
-                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
-            except NoPatternInterfaceError:
-                # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
+                com_elem = self.iface_item_container.FindItemByProperty(0, IUIA().UIA_dll.UIA_NamePropertyId, row)
+                # Try to load element using VirtualizedItem pattern
                 try:
+                    get_elem_interface(com_elem, "VirtualizedItem").Realize()
                     itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
-                except ValueError:
-                    # com_elem is NULL pointer
-                    # Get DataGrid row
-                    try:
-                        itm = self.descendants(title=row)[0]
-                        # Applications like explorer.exe usually return ListItem
-                        # directly while other apps can return only a cell.
-                        # In this case we need to take its parent - the whole row.
-                        if not isinstance(itm, ListItemWrapper):
-                            itm = itm.parent()
-                    except IndexError:
-                        raise ValueError("Element '{0}' not found".format(row))
+                except NoPatternInterfaceError:
+                    # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
+                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+            except (NoPatternInterfaceError, ValueError):
+                # com_elem is NULL pointer or item doesn't support ItemContainer pattern
+                # Get DataGrid row
+                try:
+                    itm = self.descendants(title=row)[0]
+                    # Applications like explorer.exe usually return ListItem
+                    # directly while other apps can return only a cell.
+                    # In this case we need to take its parent - the whole row.
+                    if not isinstance(itm, ListItemWrapper):
+                        itm = itm.parent()
+                except IndexError:
+                    raise ValueError("Element '{0}' not found".format(row))
         elif isinstance(row, six.integer_types):
             # Get the item by a row index
             # TODO: Can't get virtualized items that way
