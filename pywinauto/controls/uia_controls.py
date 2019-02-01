@@ -148,8 +148,11 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             if open_buttons:
                 open_buttons[0].invoke()
             else:
-                raise NoPatternInterfaceError('There is no ExpandCollapsePattern and ' \
-                    'no "Open" button in .children(). Maybe only .click_input() would help to expand.')
+                try:
+                    self.invoke()
+                except NoPatternInterfaceError:
+                    raise NoPatternInterfaceError('There is no ExpandCollapsePattern and ' \
+                        'no "Open" button in .children(). Maybe only .click_input() would help to expand.')
         return self
 
     # -----------------------------------------------------------
