@@ -8,6 +8,8 @@ import sys
 import unittest
 import mock
 import six
+from win32api import GetSystemMetrics
+from win32api import GetCursorPos
 
 sys.path.append(".")
 from pywinauto.application import Application, WindowSpecification  # noqa: E402
@@ -1433,6 +1435,9 @@ if UIA_support:
             self.dlg = self.app.RebarTest
             self.tb = self.dlg.MenuBar.wrapper_object()
             self.window_edge_point = (self.dlg.rectangle().width() + 50, self.dlg.rectangle().height() + 50)
+            self.scr_width = GetSystemMetrics(0)
+            self.scr_height = GetSystemMetrics(1)
+            self.title_bar_mid_point = self.dlg.children()[3].rectangle().mid_point()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -1453,17 +1458,55 @@ if UIA_support:
             self.assertEqual("Help", self.tb.button(2).window_text())
 
             found_txt = self.tb.button("File", exact=True).window_text()
-            self.assertEqual(found_txt, "File")
+            self.assertEqual("File", found_txt)
 
             found_txt = self.tb.button("File", exact=False).window_text()
-            self.assertEqual(found_txt, "File")
+            self.assertEqual("File", found_txt)
 
         def test_button_click(self):
             """Test getting access to nested buttons on Toolbar of MFC demo"""
             self.tb.button("View").click_input()
-            self.tb.button("Toolbars").click_input()
-            self.tb.button("Customize...").click_input()
-            self.assertTrue(self.dlg.Customize.exists(1))
+            found_txt = self.tb.button("Toolbars", exact=True).window_text()
+            self.assertEqual("Toolbars", found_txt)
+            self.tb.button("View").click_input()
+
+            self.tb.button("Help").click_input()
+            self.tb.button("About RebarTest...").click_input()
+            self.assertTrue(self.dlg["About RebarTest"].exists(1))
+            self.dlg["About RebarTest"].close()
+
+            self.tb.button("File").click_input()
+            self.tb.button("New\tCtrl+N").click_input()
+            dlg_test1 = self.app["RebarTest - RebarTest1"]
+            self.assertTrue(dlg_test1["RebarTest1"].exists(1))
+            dlg_test1["RebarTest1"].close()
+
+            self.tb.button("File").click_input()
+            self.tb.button("Open...").click_input()
+            self.assertTrue(self.dlg.Open.exists(1))
+            self.dlg.Open.close()
+
+        def test_window_at_right_side(self):
+            self.dlg.move_mouse_input(self.title_bar_mid_point, absolute=True)
+            current_mouse_x, current_mouse_y = GetCursorPos()
+            self.dlg.drag_mouse_input(button="left",
+                                      dst=(self.scr_width-5, current_mouse_y),
+                                      src=(current_mouse_x-100, current_mouse_y))
+
+            self.tb.button("View").click_input()
+            found_txt = self.tb.button("Toolbars", exact=True).window_text()
+            self.assertEqual("Toolbars", found_txt)
+
+        def test_window_at_bottom_side(self):
+            self.dlg.move_mouse_input(self.title_bar_mid_point, absolute=True)
+            current_mouse_x, current_mouse_y = GetCursorPos()
+            self.dlg.drag_mouse_input(button="left",
+                                      dst=(current_mouse_x, self.scr_height-70),
+                                      src=(current_mouse_x, current_mouse_y))
+
+            self.tb.button("View").click_input()
+            found_txt = self.tb.button("Toolbars", exact=True).window_text()
+            self.assertEqual("Toolbars", found_txt)
 
     class TreeViewWpfTests(unittest.TestCase):
 
