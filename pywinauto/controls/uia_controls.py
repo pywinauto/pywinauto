@@ -939,62 +939,6 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
 
-    @staticmethod
-    def _up_down_menu_items(btn_x_coord, btn_y_coord):
-        """Check items up, down, left and right from current item
-
-        * **btn_x_coord** X coordinates of item.
-        * **btn_y_coord** Y coordinate of item.
-        * **side** flag specifies what side should check.
-        """
-        first_pos_y = btn_y_coord
-        elem_y_pos = btn_y_coord
-        menu_elem_list = []
-        direction = 'down'
-
-        while direction is not None:
-            if direction == 'down':
-                button_elem_info = UIAElementInfo.from_point(btn_x_coord, elem_y_pos)
-                if button_elem_info.control_type == 'MenuItem':
-                    elem_height = button_elem_info.rectangle.height()
-                    menu_elem_list.append(button_elem_info)
-                    elem_y_pos += elem_height
-                else:
-                    direction = 'up'
-                    elem_y_pos = first_pos_y
-
-            if direction == 'up':
-                button_elem_info = UIAElementInfo.from_point(btn_x_coord, elem_y_pos)
-                if button_elem_info.control_type == 'MenuItem':
-                    elem_height = button_elem_info.rectangle.height()
-                    menu_elem_list.append(button_elem_info)
-                    elem_y_pos -= elem_height
-                else:
-                    direction = None
-
-        return menu_elem_list
-
-    def _collect_menu_items(self, btn_count):
-        """Return a list of buttons
-
-        * **btn_count** number of searched buttons.
-        """
-        buttons_elem_list = []
-        cc = []
-        cc_texts = set()
-        for btn_num in range(btn_count):
-            button_coord_x, button_coord_y = self.client_to_screen(self.win32_wrapper.
-                                                                   get_button_rect(btn_num).mid_point())
-
-            buttons_elem_list += self._up_down_menu_items(button_coord_x, button_coord_y)
-
-            for btn_elem_info in buttons_elem_list:
-                ctrl_text = btn_elem_info.name
-                if ctrl_text not in cc_texts:
-                    cc_texts.add(ctrl_text)
-                    cc.append(uiawrapper.UIAWrapper(btn_elem_info))
-        return cc
-
     def button(self, button_identifier, exact=True):
         """Return a button by the specified identifier
 
@@ -1005,7 +949,16 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         """
         if self.win32_wrapper is not None:
             btn_count = self.win32_wrapper.button_count()
-            cc = self._collect_menu_items(btn_count)
+            cc = []
+            cc_texts = set()
+            for btn_num in range(btn_count):
+                button_coord_x, button_coord_y = self.client_to_screen(self.win32_wrapper.
+                                                                       get_button_rect(btn_num).mid_point())
+                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                ctrl_text = btn_elem_info.name
+                if ctrl_text not in cc_texts:
+                    cc_texts.add(ctrl_text)
+                    cc.append(uiawrapper.UIAWrapper(btn_elem_info))
         else:
             cc = self.children()
 
