@@ -939,7 +939,8 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
     # ----------------------------------------------------------------
 
-    def _up_down_menu_items(self, btn_x_coord, btn_y_coord, side='right'):
+    @staticmethod
+    def _up_down_menu_items(btn_x_coord, btn_y_coord):
         """Check items up, down, left and right from current item
 
         * **btn_x_coord** X coordinates of item.
@@ -970,6 +971,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
                     elem_y_pos -= elem_height
                 else:
                     direction = None
+
         return menu_elem_list
 
     def _collect_menu_items(self, btn_count):
