@@ -202,12 +202,16 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             for c in self.children():
                 texts.append(c.window_text())
         except NoPatternInterfaceError:
-            if self.handle:
+            children_lists = self.children(control_type='List')
+            if children_lists:
+                # workaround for Qt5 and WinForms
+                return children_lists[0].children_texts()
+            elif self.handle:
                 # workaround using "win32" backend
                 win32_combo = win32_controls.ComboBoxWrapper(self.handle)
                 texts.extend(win32_combo.item_texts())
             else:
-                # TODO: maybe add more workarounds for Qt or whatever
+                # TODO: maybe add more workarounds
                 return texts
         else:
             # Make sure we collapse back
