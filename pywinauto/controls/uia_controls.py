@@ -288,7 +288,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         """Return the selected index"""
         try:
             return self.selected_item_index()
-        except NoPatternInterfaceError as exc:
+        except NoPatternInterfaceError:
             # workaround for Qt5 and WinForms
             return self.texts().index(self.selected_text())
 
