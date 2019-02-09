@@ -932,8 +932,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
         if self.win32_wrapper is not None:
-            btn_count = self.win32_wrapper.button_count()
-            return btn_count
+            return self.win32_wrapper.button_count()
         else:
             return len(self.children())
 
@@ -949,15 +948,11 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         if self.win32_wrapper is not None:
             btn_count = self.win32_wrapper.button_count()
             cc = []
-            cc_texts = set()
             for btn_num in range(btn_count):
                 button_coord_x, button_coord_y = self.client_to_screen(self.win32_wrapper.
                                                                        get_button_rect(btn_num).mid_point())
                 btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
-                ctrl_text = btn_elem_info.name
-                if ctrl_text not in cc_texts:
-                    cc_texts.add(ctrl_text)
-                    cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
         else:
             cc = self.children()
 
