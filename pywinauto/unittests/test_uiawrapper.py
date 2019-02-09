@@ -29,6 +29,7 @@ mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
+mfc_app_rebar_test = os.path.join(mfc_samples_folder, u"RebarTest.exe")
 
 if UIA_support:
 
@@ -1410,6 +1411,44 @@ if UIA_support:
             self.ctrl.check_button("Small Icons", True)
             itm = lst_ctl.children()[1]
             self.assertEqual(itm.texts()[0], u'Red')
+
+    class ToolbarMfcTests(unittest.TestCase):
+
+        """Unit tests for ToolbarWrapper class on MFC demo"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            self.app = Application(backend='uia').start(mfc_app_rebar_test)
+            self.dlg = self.app.RebarTest
+            self.tb = self.dlg.MenuBar.wrapper_object()
+            self.window_edge_point = (self.dlg.rectangle().width() + 50, self.dlg.rectangle().height() + 50)
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.tb.move_mouse_input(coords=self.window_edge_point, absolute=False)
+            self.app.kill()
+
+        def test_button_access(self):
+            """Test getting access to buttons on Toolbar of MFC demo"""
+            # Read a first toolbar with buttons: "File, View, Help"
+
+            self.assertEqual(4, self.tb.button_count())
+
+            # Test if it's in writable properties
+            props = set(self.tb.get_properties().keys())
+            self.assertEqual('button_count' in props, True)
+            self.assertEqual("File", self.tb.button(0).window_text())
+            self.assertEqual("View", self.tb.button(1).window_text())
+            self.assertEqual("Help", self.tb.button(2).window_text())
+
+            found_txt = self.tb.button("File", exact=True).window_text()
+            self.assertEqual("File", found_txt)
+
+            found_txt = self.tb.button("File", exact=False).window_text()
+            self.assertEqual("File", found_txt)
 
     class TreeViewWpfTests(unittest.TestCase):
 
