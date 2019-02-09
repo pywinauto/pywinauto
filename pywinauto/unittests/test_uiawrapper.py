@@ -1274,26 +1274,36 @@ if UIA_support:
         def test_expand_collapse(self):
             """Test methods .expand() and .collapse() for WinForms combo box"""
             self.dlg.set_focus()
-            for combo in [self.combo_editable, self.combo_fixed, self.combo_simple]:
+            test_data = [(self.combo_editable, 'editable'), (self.combo_fixed, 'fixed'), (self.combo_simple, 'simple')]
+            for combo, combo_name in test_data:
                 if combo != self.combo_simple:
-                    self.assertFalse(combo.is_expanded())
+                    self.assertFalse(combo.is_expanded(),
+                        msg='{} combo box must be collapsed initially'.format(combo_name))
                 # test that method allows chaining
-                self.assertEqual(combo.expand(), combo)
-                self.assertTrue(combo.is_expanded())
+                self.assertEqual(combo.expand(), combo,
+                    msg='Method .expand() for {} combo box must return self'.format(combo_name))
+                self.assertTrue(combo.is_expanded(),
+                    msg='{} combo box has not been expanded!'.format(combo_name))
 
                 # .expand() keeps already expanded state (and still allows chaining)
-                self.assertEqual(combo.expand(), combo)
-                self.assertTrue(combo.is_expanded())
+                self.assertEqual(combo.expand(), combo,
+                    msg='Method .expand() for {} combo box must return self, always!'.format(combo_name))
+                self.assertTrue(combo.is_expanded(),
+                    msg='{} combo box does NOT keep expanded state!'.format(combo_name))
                 
                 # collapse
-                self.assertEqual(combo.collapse(), combo)
+                self.assertEqual(combo.collapse(), combo,
+                    msg='Method .collapse() for {} combo box must return self'.format(combo_name))
                 if combo != self.combo_simple:
-                    self.assertFalse(combo.is_expanded())
+                    self.assertFalse(combo.is_expanded(),
+                        msg='{} combo box has not been collapsed!'.format(combo_name))
                 
                 # collapse already collapsed should keep collapsed state
-                self.assertEqual(combo.collapse(), combo)
+                self.assertEqual(combo.collapse(), combo,
+                    msg='Method .collapse() for {} combo box must return self, always!'.format(combo_name))
                 if combo != self.combo_simple:
-                    self.assertFalse(combo.is_expanded())
+                    self.assertFalse(combo.is_expanded(),
+                        msg='{} combo box does NOT keep collapsed state!'.format(combo_name))
 
         def test_texts(self):
             """Test method .texts() for WinForms combo box"""
@@ -1301,18 +1311,21 @@ if UIA_support:
             editable_texts = [u'Numbers', u'Letters', u'Special symbols']
             fixed_texts = [u'Item 1', u'Item 2', u'Last Item']
             simple_texts = [u'Simple 1', u'Simple Two', u'The Simplest']
-            
-            test_data = [
-                (self.combo_editable, editable_texts),
-                (self.combo_fixed, fixed_texts),
-                (self.combo_simple, simple_texts),
-                ]
-            
-            for combo, expected_texts in test_data:
-                self.assertEqual(combo.texts(), expected_texts)
-                self.assertEqual(combo.expand().texts(), expected_texts)
-                self.assertTrue(combo.is_expanded())
-                combo.collapse()
+
+            self.assertEqual(self.combo_editable.texts(), editable_texts)
+            self.assertEqual(self.combo_editable.expand().texts(), editable_texts)
+            self.assertTrue(self.combo_editable.is_expanded())
+            self.combo_editable.collapse()
+
+            self.assertEqual(self.combo_fixed.texts(), fixed_texts)
+            self.assertEqual(self.combo_fixed.expand().texts(), fixed_texts)
+            self.assertTrue(self.combo_fixed.is_expanded())
+            self.combo_fixed.collapse()
+
+            self.assertEqual(self.combo_simple.texts(), simple_texts)
+            self.assertEqual(self.combo_simple.expand().texts(), simple_texts)
+            self.assertTrue(self.combo_simple.is_expanded())
+            self.combo_simple.collapse()
 
         def test_select(self):
             """Test method .select() for WinForms combo box"""
