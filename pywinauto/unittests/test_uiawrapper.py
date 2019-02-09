@@ -1156,17 +1156,14 @@ if UIA_support:
             _set_timings()
 
             # start the application
-            app = Application(backend='uia')
-            app = app.start(winfoms_app_grid)
-            dlg = app.Dialog
+            self.app = Application(backend='uia').start(winfoms_app_grid)
+            self.dlg = self.app.Dialog
 
-            self.app = app
-            self.dlg = dlg
-            self.add_col_button = dlg.AddCol
-            self.add_row_button = dlg.AddRow
-            self.row_header_button = dlg.RowHeader
-            self.col_header_button = dlg.ColHeader
-            self.list_box = dlg.ListBox
+            self.add_col_button = self.dlg.AddCol
+            self.add_row_button = self.dlg.AddRow
+            self.row_header_button = self.dlg.RowHeader
+            self.col_header_button = self.dlg.ColHeader
+            self.list_box = self.dlg.ListBox
 
         def test_list_box_item_selection(self):
             """Test get_item method"""
@@ -1316,6 +1313,44 @@ if UIA_support:
                 self.assertEqual(combo.expand().texts(), expected_texts)
                 self.assertTrue(combo.is_expanded())
                 combo.collapse()
+
+        def test_select(self):
+            """Test method .select() for WinForms combo box"""
+            self.dlg.set_focus()
+            self.combo_editable.select(u'Letters')
+            self.assertEqual(self.combo_editable.selected_text(), u'Letters')
+            self.assertEqual(self.combo_editable.selected_index(), 1)
+            self.combo_editable.select(2)
+            self.assertEqual(self.combo_editable.selected_text(), u'Special symbols')
+            self.assertEqual(self.combo_editable.selected_index(), 2)
+
+            self.combo_fixed.select(u'Last Item')
+            self.assertEqual(self.combo_fixed.selected_text(), u'Last Item')
+            self.assertEqual(self.combo_fixed.selected_index(), 2)
+            self.combo_fixed.select(1)
+            self.assertEqual(self.combo_fixed.selected_text(), u'Item 2')
+            self.assertEqual(self.combo_fixed.selected_index(), 1)
+
+            self.combo_simple.select(u'The Simplest')
+            self.assertEqual(self.combo_simple.selected_text(), u'The Simplest')
+            self.assertEqual(self.combo_simple.selected_index(), 2)
+            self.combo_simple.select(0)
+            self.assertEqual(self.combo_simple.selected_text(), u'Simple 1')
+            self.assertEqual(self.combo_simple.selected_index(), 0)
+
+        def test_select_errors(self):
+            """Test errors in method .select() for WinForms combo box"""
+            self.dlg.set_focus()
+            for combo in [self.combo_editable, self.combo_fixed, self.combo_simple]:
+                self.assertRaises(IndexError, combo.select, u'FFFF')
+                self.assertRaises(IndexError, combo.select, 50)
+
+        def test_item_count(self):
+            """Test method .item_count() for WinForms combo box"""
+            self.dlg.set_focus()
+            self.assertEqual(self.combo_editable.item_count(), 3)
+            self.assertEqual(self.combo_fixed.item_count(), 3)
+            self.assertEqual(self.combo_simple.item_count(), 3)
 
 
     class ListItemWrapperTests(unittest.TestCase):
