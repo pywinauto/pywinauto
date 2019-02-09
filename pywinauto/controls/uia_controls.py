@@ -313,7 +313,6 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
                     return self.control_count()
             finally:
                 self.collapse()
-            return self.control_count()
 
 
 # ====================================================================
