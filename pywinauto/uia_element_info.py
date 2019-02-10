@@ -358,3 +358,7 @@ class UIAElementInfo(ElementInfo):
         if not isinstance(other, UIAElementInfo):
             return False
         return bool(IUIA().iuia.CompareElements(self.element, other.element))
+
+    def __ne__(self, other):
+        """Check if 2 UIAElementInfo objects describe 2 different elements"""
+        return not (self == other)

@@ -14,6 +14,7 @@ from pywinauto.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
+from pywinauto import Desktop
 if UIA_support:
     import comtypes
     import pywinauto.uia_defines as uia_defs
@@ -1369,6 +1370,26 @@ if UIA_support:
             self.assertEqual(self.combo_editable.item_count(), 3)
             self.assertEqual(self.combo_fixed.item_count(), 3)
             self.assertEqual(self.combo_simple.item_count(), 3)
+
+        def test_from_point(self):
+            """Test method .from_point() for WinForms combo box"""
+            self.dlg.set_focus()
+            x, y = self.combo_fixed.rectangle().mid_point()
+            combo_from_point = self.dlg.from_point(x, y)
+            self.assertEqual(combo_from_point, self.combo_fixed)
+
+            combo2_from_point = Desktop(backend="uia").from_point(x, y)
+            self.assertEqual(combo2_from_point, self.combo_fixed)
+
+        def test_top_from_point(self):
+            """Test method .top_from_point() for WinForms combo box"""
+            dlg_wrapper = self.dlg.set_focus()
+            x, y = self.combo_fixed.rectangle().mid_point()
+            dlg_from_point = self.dlg.top_from_point(x, y)
+            self.assertEqual(dlg_from_point, dlg_wrapper)
+
+            dlg2_from_point = Desktop(backend="uia").top_from_point(x, y)
+            self.assertEqual(dlg2_from_point, dlg_wrapper)
 
 
     class ListItemWrapperTests(unittest.TestCase):
