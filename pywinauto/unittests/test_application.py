@@ -1228,11 +1228,11 @@ class MultiLevelWindowSpecificationTests(unittest.TestCase):
             self.assertEqual(self.dlg.CPagerCtrl.Pager.Toolbar.button_count(), 12)
 
 
-class DesktopWindowSpecificationTests(unittest.TestCase):
+if UIA_support:
+    class DesktopUiaWindowSpecificationTests(unittest.TestCase):
 
-    """Unit tests for Desktop object"""
+        """Unit tests for Desktop(backend='uia') object"""
 
-    if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.slow()
@@ -1281,54 +1281,73 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
             dlgs = self.desktop.windows(enabled_only=True)
             self.assertTrue(all([win.is_enabled() for win in dlgs]))
 
-    else: # Win32
-        def setUp(self):
-            """Set some data and ensure the application is in the state we want"""
-            Timings.defaults()
-            self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
-            self.desktop = Desktop(backend='win32')
-            self.window_title = 'Common Controls Sample'
 
-        def tearDown(self):
-            """Close the application after tests"""
-            self.desktop.window(title=self.window_title, process=self.app.process).SendMessage(win32defines.WM_CLOSE)
+class DesktopWin32WindowSpecificationTests(unittest.TestCase):
 
-        def test_simple_access_through_desktop(self):
-            """Test that controls can be accessed by 4 levels of attributes"""
-            dlg = self.desktop.window(title=self.window_title, process=self.app.process)
-            self.assertEqual(dlg.Pager.Toolbar.button_count(), 12)
+    """Unit tests for Desktop(backend='win32') object"""
 
-        def test_set_backend_to_window_win32(self):
-            """Set backend to method window(), except exception ValueError"""
-            with self.assertRaises(ValueError):
-                self.desktop.window(backend='uia', title=self.window_title, process=self.app.process)
-            with self.assertRaises(ValueError):
-                self.desktop.window(backend='win32', title=self.window_title, process=self.app.process)
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.defaults()
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        self.desktop = Desktop(backend='win32')
+        self.window_title = 'Common Controls Sample'
 
-        def test_get_list_of_windows_win32(self):
-            """Test that method .windows() returns a non-empty list of windows"""
-            dlgs = self.desktop.windows()
+    def tearDown(self):
+        """Close the application after tests"""
+        self.desktop.window(title=self.window_title, process=self.app.process).SendMessage(win32defines.WM_CLOSE)
 
-            self.assertTrue(len(dlgs) > 1)
-            window_titles = [win_obj.window_text() for win_obj in dlgs]
-            self.assertTrue(self.window_title in window_titles)
+    def test_simple_access_through_desktop(self):
+        """Test that controls can be accessed by 4 levels of attributes"""
+        dlg = self.desktop.window(title=self.window_title, process=self.app.process)
+        self.assertEqual(dlg.Pager.Toolbar.button_count(), 12)
 
-        def test_set_backend_to_windows_win32(self):
-            """Set backend to method windows, except exception ValueError"""
-            with self.assertRaises(ValueError):
-                self.desktop.windows(backend='win32')
-            with self.assertRaises(ValueError):
-                self.desktop.windows(backend='uia')
+    def test_set_backend_to_window_win32(self):
+        """Set backend to method window(), except exception ValueError"""
+        with self.assertRaises(ValueError):
+            self.desktop.window(backend='uia', title=self.window_title, process=self.app.process)
+        with self.assertRaises(ValueError):
+            self.desktop.window(backend='win32', title=self.window_title, process=self.app.process)
 
-        def test_only_visible_windows_win32(self):
-            """Set visible_only to the method windows"""
-            dlgs = self.desktop.windows(visible_only=True)
-            self.assertTrue(all([win.is_visible() for win in dlgs]))
+    def test_get_list_of_windows_win32(self):
+        """Test that method .windows() returns a non-empty list of windows"""
+        dlgs = self.desktop.windows()
 
-        def test_only_enable_windows_win32(self):
-            """Set enable_only to the method windows"""
-            dlgs = self.desktop.windows(enabled_only=True)
-            self.assertTrue(all([win.is_enabled() for win in dlgs]))
+        self.assertTrue(len(dlgs) > 1)
+        window_titles = [win_obj.window_text() for win_obj in dlgs]
+        self.assertTrue(self.window_title in window_titles)
+
+    def test_set_backend_to_windows_win32(self):
+        """Set backend to method windows, except exception ValueError"""
+        with self.assertRaises(ValueError):
+            self.desktop.windows(backend='win32')
+        with self.assertRaises(ValueError):
+            self.desktop.windows(backend='uia')
+
+    def test_only_visible_windows_win32(self):
+        """Set visible_only to the method windows"""
+        dlgs = self.desktop.windows(visible_only=True)
+        self.assertTrue(all([win.is_visible() for win in dlgs]))
+
+    def test_only_enable_windows_win32(self):
+        """Set enable_only to the method windows"""
+        dlgs = self.desktop.windows(enabled_only=True)
+        self.assertTrue(all([win.is_enabled() for win in dlgs]))
+
+    def test_from_point_win32(self):
+        """Test method Desktop(backend='win32').from_point(x, y)"""
+        combo = self.app.Common_Controls_Sample.ComboBox.wrapper_object()
+        x, y = combo.rectangle().mid_point()
+        combo_from_point = self.desktop.from_point(x, y)
+        self.assertEqual(combo, combo_from_point)
+
+    def test_top_from_point_win32(self):
+        """Test method Desktop(backend='win32').top_from_point(x, y)"""
+        combo = self.app.Common_Controls_Sample.ComboBox.wrapper_object()
+        dlg = self.app.Common_Controls_Sample.wrapper_object()
+        x, y = combo.rectangle().mid_point()
+        dlg_from_point = self.desktop.top_from_point(x, y)
+        self.assertEqual(dlg, dlg_from_point)
 
 
 if __name__ == "__main__":
