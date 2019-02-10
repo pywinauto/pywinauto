@@ -41,6 +41,8 @@ from .. import timings
 from .. import uia_defines as uia_defs
 from . import uiawrapper
 from . import win32_controls
+from . import common_controls
+from ..uia_element_info import UIAElementInfo
 from ..uia_defines import IUIA
 from ..uia_defines import NoPatternInterfaceError
 from ..uia_defines import toggle_state_on
@@ -1077,6 +1079,9 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ToolbarWrapper, self).__init__(elem)
+        self.win32_wrapper = None
+        if not self.children() and self.element_info.handle is not None:
+            self.win32_wrapper = common_controls.ToolbarWrapper(self.element_info.handle)
 
     @property
     def writable_props(self):
@@ -1093,7 +1098,10 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     #----------------------------------------------------------------
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
-        return len(self.children())
+        if self.win32_wrapper is not None:
+            return self.win32_wrapper.button_count()
+        else:
+            return len(self.children())
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
@@ -1104,9 +1112,19 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **exact** flag specifies if the exact match for the text look up
           has to be applied.
         """
+        if self.win32_wrapper is not None:
+            btn_count = self.win32_wrapper.button_count()
+            cc = []
+            for btn_num in range(btn_count):
+                button_coord_x, button_coord_y = self.client_to_screen(self.win32_wrapper.
+                                                                       get_button_rect(btn_num).mid_point())
+                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+        else:
+            cc = self.children()
 
-        cc = self.children()
         texts = [c.window_text() for c in cc]
+
         if isinstance(button_identifier, six.string_types):
             self.actions.log('Toolbar buttons: ' + str(texts))
 
