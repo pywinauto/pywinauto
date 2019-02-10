@@ -249,6 +249,18 @@ class BaseWrapper(object):
         return self._element_info
 
     #------------------------------------------------------------
+    def from_point(self, x, y):
+        """Get wrapper object for element at specified screen coordinates (x, y)"""
+        element_info = self.backend.element_info_class.from_point(x, y)
+        return self.backend.generic_wrapper_class(element_info)
+
+    #------------------------------------------------------------
+    def top_from_point(self, x, y):
+        """Get wrapper object for top level element at specified screen coordinates (x, y)"""
+        top_element_info = self.backend.element_info_class.top_from_point(x, y)
+        return self.backend.generic_wrapper_class(top_element_info)
+
+    #------------------------------------------------------------
     def friendly_class_name(self):
         """
         Return the friendly class name for the control

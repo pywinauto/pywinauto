@@ -380,6 +380,7 @@ if UIA_support:
                 result = self.dlg.capture_as_image().size
                 self.assertEqual(expected, result)
 
+
     class UIAWrapperMouseTests(unittest.TestCase):
 
         """Unit tests for mouse actions of the UIAWrapper class"""
@@ -429,6 +430,7 @@ if UIA_support:
 
             # def test_press_move_release(self):
             #    pass
+
 
     class UiaControlsTests(unittest.TestCase):
 
@@ -676,6 +678,7 @@ if UIA_support:
             collapsed = combo_box.collapse().is_collapsed()
             self.assertEqual(collapsed, True)
 
+
     class TabControlWrapperTests(unittest.TestCase):
 
         """Unit tests for the TabControlWrapper class"""
@@ -713,6 +716,7 @@ if UIA_support:
         def test_texts(self):
             """Make sure the tabs captions are read correctly"""
             self.assertEqual(self.ctrl.texts(), self.texts)
+
 
     class EditWrapperTests(unittest.TestCase):
 
@@ -1705,6 +1709,7 @@ if UIA_support:
             itm = lst_ctl.children()[1]
             self.assertEqual(itm.texts()[0], u'Red')
 
+
     class ToolbarMfcTests(unittest.TestCase):
 
         """Unit tests for ToolbarWrapper class on MFC demo"""
@@ -1716,32 +1721,40 @@ if UIA_support:
             # start the application
             self.app = Application(backend='uia').start(mfc_app_rebar_test)
             self.dlg = self.app.RebarTest
-            self.tb = self.dlg.MenuBar.wrapper_object()
+            self.menu_bar = self.dlg.MenuBar.wrapper_object()
+            self.toolbar = self.dlg.StandardToolbar.wrapper_object()
             self.window_edge_point = (self.dlg.rectangle().width() + 50, self.dlg.rectangle().height() + 50)
 
         def tearDown(self):
             """Close the application after tests"""
-            self.tb.move_mouse_input(coords=self.window_edge_point, absolute=False)
+            self.menu_bar.move_mouse_input(coords=self.window_edge_point, absolute=False)
             self.app.kill()
 
         def test_button_access(self):
-            """Test getting access to buttons on Toolbar of MFC demo"""
+            """Test getting access to buttons on Toolbar for MFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
-
-            self.assertEqual(4, self.tb.button_count())
+            self.assertEqual(self.menu_bar.button_count(), 4)
+            self.assertEqual(self.toolbar.button_count(), 11)
 
             # Test if it's in writable properties
-            props = set(self.tb.get_properties().keys())
+            props = set(self.menu_bar.get_properties().keys())
             self.assertEqual('button_count' in props, True)
-            self.assertEqual("File", self.tb.button(0).window_text())
-            self.assertEqual("View", self.tb.button(1).window_text())
-            self.assertEqual("Help", self.tb.button(2).window_text())
+            self.assertEqual("File", self.menu_bar.button(0).window_text())
+            self.assertEqual("View", self.menu_bar.button(1).window_text())
+            self.assertEqual("Help", self.menu_bar.button(2).window_text())
 
-            found_txt = self.tb.button("File", exact=True).window_text()
+            found_txt = self.menu_bar.button("File", exact=True).window_text()
             self.assertEqual("File", found_txt)
 
-            found_txt = self.tb.button("File", exact=False).window_text()
+            found_txt = self.menu_bar.button("File", exact=False).window_text()
             self.assertEqual("File", found_txt)
+
+        def test_texts(self):
+            """Test method .texts() for MFC Toolbar"""
+            self.assertEqual(self.menu_bar.texts(), [u'File', u'View', u'Help', u'Help'])
+            self.assertEqual(self.toolbar.texts(), [u'New', u'Open', u'Save', u'Save',
+                u'Cut', u'Copy', u'Paste', u'Paste', u'Print', u'About', u'About'])
+
 
     class TreeViewWpfTests(unittest.TestCase):
 

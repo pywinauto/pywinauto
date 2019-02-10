@@ -240,3 +240,14 @@ class HwndElementInfo(ElementInfo):
     def full_control_type(self):
         """Return full string of control type of the element"""
         return self.__get_control_type(full=True)
+
+    @classmethod
+    def from_point(cls, x, y):
+        top_level_handle = win32gui.WindowFromPoint(x, y)
+        child_handle = win32gui.ChildWindowFromPoint(top_level_handle, (x, y))
+        return cls(child_handle)
+
+    @classmethod
+    def top_from_point(cls, x, y):
+        top_level_handle = win32gui.WindowFromPoint(x, y)
+        return cls(top_level_handle)

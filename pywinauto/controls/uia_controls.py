@@ -1093,7 +1093,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     # ----------------------------------------------------------------
     def texts(self):
         """Return texts of the Toolbar"""
-        return self.children_texts()
+        return [c.window_text() for c in self.buttons()]
 
     #----------------------------------------------------------------
     def button_count(self):
@@ -1104,6 +1104,21 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             return len(self.children())
 
     # ----------------------------------------------------------------
+    def buttons(self):
+        """Return all available buttons"""
+        if self.win32_wrapper is not None:
+            btn_count = self.win32_wrapper.button_count()
+            cc = []
+            for btn_num in range(btn_count):
+                relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
+                button_coord_x, button_coord_y = self.client_to_screen(relative_point)
+                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+        else:
+            cc = self.children()
+        return cc
+
+    # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
         """Return a button by the specified identifier
 
@@ -1112,17 +1127,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **exact** flag specifies if the exact match for the text look up
           has to be applied.
         """
-        if self.win32_wrapper is not None:
-            btn_count = self.win32_wrapper.button_count()
-            cc = []
-            for btn_num in range(btn_count):
-                button_coord_x, button_coord_y = self.client_to_screen(self.win32_wrapper.
-                                                                       get_button_rect(btn_num).mid_point())
-                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
-                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
-        else:
-            cc = self.children()
-
+        cc = self.buttons()
         texts = [c.window_text() for c in cc]
 
         if isinstance(button_identifier, six.string_types):
