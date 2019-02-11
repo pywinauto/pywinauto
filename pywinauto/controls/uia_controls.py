@@ -215,9 +215,6 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
                 # workaround using "win32" backend
                 win32_combo = win32_controls.ComboBoxWrapper(self.handle)
                 texts.extend(win32_combo.item_texts())
-            else:
-                # TODO: maybe add more workarounds
-                return texts
         else:
             # Make sure we collapse back
             super(ComboBoxWrapper, self).collapse()
