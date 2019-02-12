@@ -339,6 +339,15 @@ class UIAElementInfo(ElementInfo):
     def from_point(cls, x, y):
         return cls(IUIA().iuia.ElementFromPoint(tagPOINT(x, y)))
 
+    @classmethod
+    def top_from_point(cls, x, y):
+        current_elem = cls.from_point(x, y)
+        current_parent = current_elem.parent
+        while current_parent is not None and current_parent != cls():
+            current_elem = current_parent
+            current_parent = current_elem.parent
+        return current_elem
+
     @property
     def rich_text(self):
         """Return rich_text of the element"""
@@ -349,3 +358,7 @@ class UIAElementInfo(ElementInfo):
         if not isinstance(other, UIAElementInfo):
             return False
         return bool(IUIA().iuia.CompareElements(self.element, other.element))
+
+    def __ne__(self, other):
+        """Check if 2 UIAElementInfo objects describe 2 different elements"""
+        return not (self == other)

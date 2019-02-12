@@ -81,6 +81,15 @@ There are few methods for silent text input in ``backend="win32"``:
 .. _`send_chars`: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.send_chars
 .. _`send_keystrokes`: code/pywinauto.controls.hwndwrapper.html#pywinauto.controls.hwndwrapper.HwndWrapper.send_keystrokes
 
+There is another useful method to enter string at once (available for both backends, usually for edit box only):
+
+  * `"uia": set_edit_text`_ (enter text as is, no modifiers supported)
+  * `"win32": set_edit_text`_
+
+.. _`"uia": set_edit_text`: code/pywinauto.controls.uia_controls.html#pywinauto.controls.uia_controls.EditWrapper.set_edit_text
+.. _`"win32": set_edit_text`: code/pywinauto.controls.win32_controls.html#pywinauto.controls.win32_controls.EditWrapper.set_edit_text
+
+
 Start remote script using agent based CI
 ----------------------------------------
 

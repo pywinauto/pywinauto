@@ -32,7 +32,7 @@
 
 """Python package for automating GUI manipulation on Windows"""
 
-__version__ = "0.6.5"
+__version__ = "0.6.6"
 
 import sys  # noqa: E402
 import warnings  # noqa: E402
@@ -149,3 +149,13 @@ if sys.platform == 'win32':
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
                 return self[attr_name]  # delegate it to __get_item__
+
+        def from_point(self, x, y):
+            """Get wrapper object for element at specified screen coordinates (x, y)"""
+            element_info = self.backend.element_info_class.from_point(x, y)
+            return self.backend.generic_wrapper_class(element_info)
+
+        def top_from_point(self, x, y):
+            """Get wrapper object for top level element at specified screen coordinates (x, y)"""
+            top_element_info = self.backend.element_info_class.top_from_point(x, y)
+            return self.backend.generic_wrapper_class(top_element_info)

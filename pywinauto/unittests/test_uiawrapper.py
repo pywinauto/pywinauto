@@ -14,6 +14,7 @@ from pywinauto.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
+from pywinauto import Desktop
 if UIA_support:
     import comtypes
     import pywinauto.uia_defines as uia_defs
@@ -35,6 +36,7 @@ winforms_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WinForms_samples")
 if is_x64_Python():
     winforms_folder = os.path.join(winforms_folder, 'x64')
+winfoms_app_grid = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
 
 if UIA_support:
 
@@ -42,6 +44,7 @@ if UIA_support:
         """Setup timings for UIA related tests"""
         Timings.defaults()
         Timings.window_find_timeout = 20
+
 
     class UIAWrapperTests(unittest.TestCase):
 
@@ -378,6 +381,7 @@ if UIA_support:
                 result = self.dlg.capture_as_image().size
                 self.assertEqual(expected, result)
 
+
     class UIAWrapperMouseTests(unittest.TestCase):
 
         """Unit tests for mouse actions of the UIAWrapper class"""
@@ -427,6 +431,7 @@ if UIA_support:
 
             # def test_press_move_release(self):
             #    pass
+
 
     class UiaControlsTests(unittest.TestCase):
 
@@ -624,7 +629,8 @@ if UIA_support:
 
             # Mock a combobox without "ExpandCollapse" pattern
             combo_box.expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())  # empty texts
-            self.assertEqual(combo_box.texts(), [])
+            # workaround works even if no ExpandCollapsePattern available
+            self.assertEqual(combo_box.texts(), ref_texts)
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
@@ -673,6 +679,7 @@ if UIA_support:
             collapsed = combo_box.collapse().is_collapsed()
             self.assertEqual(collapsed, True)
 
+
     class TabControlWrapperTests(unittest.TestCase):
 
         """Unit tests for the TabControlWrapper class"""
@@ -710,6 +717,7 @@ if UIA_support:
         def test_texts(self):
             """Make sure the tabs captions are read correctly"""
             self.assertEqual(self.ctrl.texts(), self.texts)
+
 
     class EditWrapperTests(unittest.TestCase):
 
@@ -1153,20 +1161,15 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
-            winfoms_app = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
-
             # start the application
-            app = Application(backend='uia')
-            app = app.start(winfoms_app)
-            dlg = app.Dialog
+            self.app = Application(backend='uia').start(winfoms_app_grid)
+            self.dlg = self.app.Dialog
 
-            self.app = app
-            self.dlg = dlg
-            self.add_col_button = dlg.AddCol
-            self.add_row_button = dlg.AddRow
-            self.row_header_button = dlg.RowHeader
-            self.col_header_button = dlg.ColHeader
-            self.list_box = dlg.ListBox
+            self.add_col_button = self.dlg.AddCol
+            self.add_row_button = self.dlg.AddRow
+            self.row_header_button = self.dlg.RowHeader
+            self.col_header_button = self.dlg.ColHeader
+            self.list_box = self.dlg.ListBox
 
         def test_list_box_item_selection(self):
             """Test get_item method"""
@@ -1251,6 +1254,143 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill()
+
+
+    class ComboBoxTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the ComboBoxWrapper class with WinForms app"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            app = Application(backend='uia')
+            self.app = app.start(winfoms_app_grid)
+            self.dlg = dlg = app.Form1
+
+            self.combo_editable = dlg.child_window(auto_id="comboRowType", control_type="ComboBox").wrapper_object()
+            self.combo_fixed = dlg.child_window(auto_id="comboBoxReadOnly", control_type="ComboBox").wrapper_object()
+            self.combo_simple = dlg.child_window(auto_id="comboBoxSimple", control_type="ComboBox").wrapper_object()
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
+        def test_expand_collapse(self):
+            """Test methods .expand() and .collapse() for WinForms combo box"""
+            self.dlg.set_focus()
+            test_data = [(self.combo_editable, 'editable'), (self.combo_fixed, 'fixed'), (self.combo_simple, 'simple')]
+            for combo, combo_name in test_data:
+                if combo != self.combo_simple:
+                    self.assertFalse(combo.is_expanded(),
+                        msg='{} combo box must be collapsed initially'.format(combo_name))
+                # test that method allows chaining
+                self.assertEqual(combo.expand(), combo,
+                    msg='Method .expand() for {} combo box must return self'.format(combo_name))
+                self.assertTrue(combo.is_expanded(),
+                    msg='{} combo box has not been expanded!'.format(combo_name))
+
+                # .expand() keeps already expanded state (and still allows chaining)
+                self.assertEqual(combo.expand(), combo,
+                    msg='Method .expand() for {} combo box must return self, always!'.format(combo_name))
+                self.assertTrue(combo.is_expanded(),
+                    msg='{} combo box does NOT keep expanded state!'.format(combo_name))
+                
+                # collapse
+                self.assertEqual(combo.collapse(), combo,
+                    msg='Method .collapse() for {} combo box must return self'.format(combo_name))
+                if combo != self.combo_simple:
+                    self.assertFalse(combo.is_expanded(),
+                        msg='{} combo box has not been collapsed!'.format(combo_name))
+                
+                # collapse already collapsed should keep collapsed state
+                self.assertEqual(combo.collapse(), combo,
+                    msg='Method .collapse() for {} combo box must return self, always!'.format(combo_name))
+                if combo != self.combo_simple:
+                    self.assertFalse(combo.is_expanded(),
+                        msg='{} combo box does NOT keep collapsed state!'.format(combo_name))
+
+        def test_texts(self):
+            """Test method .texts() for WinForms combo box"""
+            self.dlg.set_focus()
+            editable_texts = [u'Numbers', u'Letters', u'Special symbols']
+            fixed_texts = [u'Item 1', u'Item 2', u'Last Item']
+            simple_texts = [u'Simple 1', u'Simple Two', u'The Simplest']
+
+            self.assertEqual(self.combo_editable.texts(), editable_texts)
+            self.assertEqual(self.combo_editable.expand().texts(), editable_texts)
+            self.assertTrue(self.combo_editable.is_expanded())
+            self.combo_editable.collapse()
+
+            self.assertEqual(self.combo_fixed.texts(), fixed_texts)
+            self.assertEqual(self.combo_fixed.expand().texts(), fixed_texts)
+            self.assertTrue(self.combo_fixed.is_expanded())
+            self.combo_fixed.collapse()
+
+            self.assertEqual(self.combo_simple.texts(), simple_texts)
+            self.assertEqual(self.combo_simple.expand().texts(), simple_texts)
+            self.assertTrue(self.combo_simple.is_expanded())
+            self.combo_simple.collapse()
+
+        def test_select(self):
+            """Test method .select() for WinForms combo box"""
+            self.dlg.set_focus()
+            self.combo_editable.select(u'Letters')
+            self.assertEqual(self.combo_editable.selected_text(), u'Letters')
+            self.assertEqual(self.combo_editable.selected_index(), 1)
+            self.combo_editable.select(2)
+            self.assertEqual(self.combo_editable.selected_text(), u'Special symbols')
+            self.assertEqual(self.combo_editable.selected_index(), 2)
+
+            self.combo_fixed.select(u'Last Item')
+            self.assertEqual(self.combo_fixed.selected_text(), u'Last Item')
+            self.assertEqual(self.combo_fixed.selected_index(), 2)
+            self.combo_fixed.select(1)
+            self.assertEqual(self.combo_fixed.selected_text(), u'Item 2')
+            self.assertEqual(self.combo_fixed.selected_index(), 1)
+
+            self.combo_simple.select(u'The Simplest')
+            self.assertEqual(self.combo_simple.selected_text(), u'The Simplest')
+            self.assertEqual(self.combo_simple.selected_index(), 2)
+            self.combo_simple.select(0)
+            self.assertEqual(self.combo_simple.selected_text(), u'Simple 1')
+            self.assertEqual(self.combo_simple.selected_index(), 0)
+
+        def test_select_errors(self):
+            """Test errors in method .select() for WinForms combo box"""
+            self.dlg.set_focus()
+            for combo in [self.combo_editable, self.combo_fixed, self.combo_simple]:
+                self.assertRaises(IndexError, combo.select, u'FFFF')
+                self.assertRaises(IndexError, combo.select, 50)
+
+        def test_item_count(self):
+            """Test method .item_count() for WinForms combo box"""
+            self.dlg.set_focus()
+            self.assertEqual(self.combo_editable.item_count(), 3)
+            self.assertEqual(self.combo_fixed.item_count(), 3)
+            self.assertEqual(self.combo_simple.item_count(), 3)
+
+        def test_from_point(self):
+            """Test method .from_point() for WinForms combo box"""
+            self.dlg.set_focus()
+            x, y = self.combo_fixed.rectangle().mid_point()
+            combo_from_point = self.dlg.from_point(x, y)
+            self.assertEqual(combo_from_point, self.combo_fixed)
+
+            combo2_from_point = Desktop(backend="uia").from_point(x, y)
+            self.assertEqual(combo2_from_point, self.combo_fixed)
+
+        def test_top_from_point(self):
+            """Test method .top_from_point() for WinForms combo box"""
+            dlg_wrapper = self.dlg.set_focus()
+            x, y = self.combo_fixed.rectangle().mid_point()
+            dlg_from_point = self.dlg.top_from_point(x, y)
+            self.assertEqual(dlg_from_point, dlg_wrapper)
+
+            dlg2_from_point = Desktop(backend="uia").top_from_point(x, y)
+            self.assertEqual(dlg2_from_point, dlg_wrapper)
+
 
     class ListItemWrapperTests(unittest.TestCase):
 
@@ -1590,6 +1730,7 @@ if UIA_support:
             itm = lst_ctl.children()[1]
             self.assertEqual(itm.texts()[0], u'Red')
 
+
     class ToolbarMfcTests(unittest.TestCase):
 
         """Unit tests for ToolbarWrapper class on MFC demo"""
@@ -1601,32 +1742,40 @@ if UIA_support:
             # start the application
             self.app = Application(backend='uia').start(mfc_app_rebar_test)
             self.dlg = self.app.RebarTest
-            self.tb = self.dlg.MenuBar.wrapper_object()
+            self.menu_bar = self.dlg.MenuBar.wrapper_object()
+            self.toolbar = self.dlg.StandardToolbar.wrapper_object()
             self.window_edge_point = (self.dlg.rectangle().width() + 50, self.dlg.rectangle().height() + 50)
 
         def tearDown(self):
             """Close the application after tests"""
-            self.tb.move_mouse_input(coords=self.window_edge_point, absolute=False)
+            self.menu_bar.move_mouse_input(coords=self.window_edge_point, absolute=False)
             self.app.kill()
 
         def test_button_access(self):
-            """Test getting access to buttons on Toolbar of MFC demo"""
+            """Test getting access to buttons on Toolbar for MFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
-
-            self.assertEqual(4, self.tb.button_count())
+            self.assertEqual(self.menu_bar.button_count(), 4)
+            self.assertEqual(self.toolbar.button_count(), 11)
 
             # Test if it's in writable properties
-            props = set(self.tb.get_properties().keys())
+            props = set(self.menu_bar.get_properties().keys())
             self.assertEqual('button_count' in props, True)
-            self.assertEqual("File", self.tb.button(0).window_text())
-            self.assertEqual("View", self.tb.button(1).window_text())
-            self.assertEqual("Help", self.tb.button(2).window_text())
+            self.assertEqual("File", self.menu_bar.button(0).window_text())
+            self.assertEqual("View", self.menu_bar.button(1).window_text())
+            self.assertEqual("Help", self.menu_bar.button(2).window_text())
 
-            found_txt = self.tb.button("File", exact=True).window_text()
+            found_txt = self.menu_bar.button("File", exact=True).window_text()
             self.assertEqual("File", found_txt)
 
-            found_txt = self.tb.button("File", exact=False).window_text()
+            found_txt = self.menu_bar.button("File", exact=False).window_text()
             self.assertEqual("File", found_txt)
+
+        def test_texts(self):
+            """Test method .texts() for MFC Toolbar"""
+            self.assertEqual(self.menu_bar.texts(), [u'File', u'View', u'Help', u'Help'])
+            self.assertEqual(self.toolbar.texts(), [u'New', u'Open', u'Save', u'Save',
+                u'Cut', u'Copy', u'Paste', u'Paste', u'Print', u'About', u'About'])
+
 
     class TreeViewWpfTests(unittest.TestCase):
 

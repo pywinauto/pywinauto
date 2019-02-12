@@ -38,7 +38,9 @@ from .. import uia_element_info
 from .. import findbestmatch
 from .. import timings
 
+from .. import uia_defines as uia_defs
 from . import uiawrapper
+from . import win32_controls
 from . import common_controls
 from ..uia_element_info import UIAElementInfo
 from ..uia_defines import IUIA
@@ -137,21 +139,88 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         super(ComboBoxWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
+    def expand(self):
+        if self.is_expanded():
+            return self
+        try:
+            super(ComboBoxWrapper, self).expand()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box using Open button
+            open_buttons = self.children(title='Open', control_type='Button')
+            if open_buttons:
+                open_buttons[0].invoke()
+            else:
+                try:
+                    self.invoke()
+                except NoPatternInterfaceError:
+                    raise NoPatternInterfaceError('There is no ExpandCollapsePattern and ' \
+                        'no "Open" button in .children(). Maybe only .click_input() would help to expand.')
+        return self
+
+    # -----------------------------------------------------------
+    def collapse(self):
+        if not self.is_expanded():
+            return self
+        try:
+            super(ComboBoxWrapper, self).collapse()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box using Open button
+            close_buttons = self.children(title='Close', control_type='Button')
+            if not close_buttons:
+                if self.element_info.framework_id == 'WinForm':
+                    return self # simple WinForms combo box is always expanded
+                else:
+                    raise RuntimeError('There is no ExpandCollapsePattern and no "Close" button for the combo box')
+            if self.is_editable():
+                close_buttons[0].click_input()
+            else:
+                close_buttons[0].invoke()
+        return self
+
+    # -----------------------------------------------------------
+    def is_editable(self):
+        edit_children = self.children(control_type="Edit")
+        return len(edit_children) > 0
+
+    # -----------------------------------------------------------
+    def get_expand_state(self):
+        try:
+            return super(ComboBoxWrapper, self).get_expand_state()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box
+            children_list = self.children(control_type="List")
+            if children_list and children_list[0].is_visible():
+                if self.element_info.framework_id == 'Qt':
+                    # TODO: find the way to get expand_collapse_state
+                    return uia_defs.expand_state_collapsed
+                return uia_defs.expand_state_expanded
+            else:
+                return uia_defs.expand_state_collapsed
+
+    # -----------------------------------------------------------
     def texts(self):
         """Return the text of the items in the combobox"""
         texts = []
         # ComboBox has to be expanded to populate a list of its children items
         try:
-            self.expand()
+            super(ComboBoxWrapper, self).expand()
             for c in self.children():
                 texts.append(c.window_text())
         except NoPatternInterfaceError:
-            return texts
+            children_lists = self.children(control_type='List')
+            if children_lists:
+                # workaround for Qt5 and WinForms
+                return children_lists[0].children_texts()
+            elif self.handle:
+                # workaround using "win32" backend
+                win32_combo = win32_controls.ComboBoxWrapper(self.handle)
+                texts.extend(win32_combo.item_texts())
         else:
             # Make sure we collapse back
-            self.collapse()
+            super(ComboBoxWrapper, self).collapse()
         return texts
 
+    # -----------------------------------------------------------
     def select(self, item):
         """
         Select the ComboBox item
@@ -163,11 +232,29 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         self.expand()
         try:
             self._select(item)
-        except IndexError:
+        except (IndexError, NoPatternInterfaceError):
             # Try to access the underlying ListBox explicitly
             children_lst = self.children(control_type='List')
             if len(children_lst) > 0:
                 children_lst[0]._select(item)
+                # do health check and apply workaround for Qt5 combo box if necessary
+                if isinstance(item, six.string_types):
+                    item = children_lst[0].children(title=item)[0]
+                    if self.selected_text() != item:
+                        # workaround for WinForms combo box
+                        item.invoke()
+                        if self.selected_text() != item:
+                            # workaround for Qt5 combo box
+                            item.click_input()
+                            if self.selected_text() != item:
+                                item.click_input()
+                elif self.selected_index() != item:
+                    items = children_lst[0].children(control_type='ListItem')
+                    if item < len(items):
+                        items[item].invoke()
+                    else:
+                        raise IndexError('Item number #{} is out of range ' \
+                            '({} items in total)'.format(item, len(items)))
             else:
                 raise IndexError("item '{0}' not found or can't be accessed".format(item))
         finally:
@@ -198,7 +285,11 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
-        return self.selected_item_index()
+        try:
+            return self.selected_item_index()
+        except NoPatternInterfaceError:
+            # workaround for Qt5 and WinForms
+            return self.texts().index(self.selected_text())
 
     # -----------------------------------------------------------
     def item_count(self):
@@ -208,7 +299,19 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         The interface is kept mostly for a backward compatibility with
         the native ComboBox interface
         """
-        return self.control_count()
+        children_list = self.children(control_type="List")
+        if children_list:
+            return children_list[0].control_count()
+        else:
+            self.expand()
+            try:
+                children_list = self.children(control_type="List")
+                if children_list:
+                    return children_list[0].control_count()
+                else:
+                    return self.control_count()
+            finally:
+                self.collapse()
 
 
 # ====================================================================
@@ -987,7 +1090,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     # ----------------------------------------------------------------
     def texts(self):
         """Return texts of the Toolbar"""
-        return self.children_texts()
+        return [c.window_text() for c in self.buttons()]
 
     #----------------------------------------------------------------
     def button_count(self):
@@ -998,6 +1101,21 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             return len(self.children())
 
     # ----------------------------------------------------------------
+    def buttons(self):
+        """Return all available buttons"""
+        if self.win32_wrapper is not None:
+            btn_count = self.win32_wrapper.button_count()
+            cc = []
+            for btn_num in range(btn_count):
+                relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
+                button_coord_x, button_coord_y = self.client_to_screen(relative_point)
+                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+        else:
+            cc = self.children()
+        return cc
+
+    # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
         """Return a button by the specified identifier
 
@@ -1006,17 +1124,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **exact** flag specifies if the exact match for the text look up
           has to be applied.
         """
-        if self.win32_wrapper is not None:
-            btn_count = self.win32_wrapper.button_count()
-            cc = []
-            for btn_num in range(btn_count):
-                button_coord_x, button_coord_y = self.client_to_screen(self.win32_wrapper.
-                                                                       get_button_rect(btn_num).mid_point())
-                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
-                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
-        else:
-            cc = self.children()
-
+        cc = self.buttons()
         texts = [c.window_text() for c in cc]
 
         if isinstance(button_identifier, six.string_types):
