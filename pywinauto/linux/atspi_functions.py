@@ -332,6 +332,10 @@ class AtspiFunctions:
             self.get_role_name.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
             self.get_role_name.restype = c_char_p
 
+            self.get_description = atspi.atspi_accessible_get_description
+            self.get_description.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
+            self.get_description.restype = c_char_p
+
             self.get_parent = atspi.atspi_accessible_get_parent
             self.get_parent.artypes = [POINTER(AtspiAccessible), POINTER(GError)]
             self.get_parent.restype = POINTER(AtspiAccessible)
