@@ -36,6 +36,9 @@ EVENT_PATTERN_MAP = [
     (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
                   app_events=(PropertyEvent(property_name=PROPERTY.TOGGLE_STATE),)),
      "toggle()"),
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),)),
+     "select()"),
 
     (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
      MouseClickHandler),
