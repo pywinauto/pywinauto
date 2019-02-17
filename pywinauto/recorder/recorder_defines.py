@@ -311,7 +311,7 @@ class EventPattern(object):
             if pattern.hook_event.event_type and self.hook_event.event_type != pattern.hook_event.event_type:
                 return None
 
-        if pattern.app_events and self.app_events:
+        if pattern.app_events:
             idx = 0
 
             for item_ev in pattern.app_events:
