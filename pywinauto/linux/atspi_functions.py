@@ -336,6 +336,14 @@ class AtspiFunctions:
             self.get_description.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
             self.get_description.restype = c_char_p
 
+            self.get_toolkit_name = atspi.atspi_accessible_get_toolkit_name
+            self.get_toolkit_name.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
+            self.get_toolkit_name.restype = c_char_p
+
+            self.get_toolkit_version = atspi.atspi_accessible_get_toolkit_version
+            self.get_toolkit_version.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
+            self.get_toolkit_version.restype = c_char_p
+
             self.get_parent = atspi.atspi_accessible_get_parent
             self.get_parent.artypes = [POINTER(AtspiAccessible), POINTER(GError)]
             self.get_parent.restype = POINTER(AtspiAccessible)
