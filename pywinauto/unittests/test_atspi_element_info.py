@@ -7,8 +7,10 @@ import unittest
 if sys.platform != 'win32':
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
+    from pywinauto.linux.application import Application
 
 app_name = r"gtk_example.py"
+
 
 def _test_app():
     test_folder = os.path.join(os.path.dirname
@@ -18,6 +20,7 @@ def _test_app():
                                r"apps/Gtk_samples")
     sys.path.append(test_folder)
     return os.path.join(test_folder, app_name)
+
 
 if sys.platform != 'win32':
     class AtspiElementInfoTests(unittest.TestCase):
@@ -29,7 +32,8 @@ if sys.platform != 'win32':
 
         def setUp(self):
             self.desktop_info = AtspiElementInfo()
-            self.app = subprocess.Popen(['python3', _test_app()], stdout=subprocess.PIPE, shell=False)
+            self.app = Application()
+            self.app.start("python " + _test_app())
             time.sleep(1)
 
         def tearDown(self):
@@ -52,7 +56,7 @@ if sys.platform != 'win32':
 
         def test_can_get_process_id(self):
             app_info = self.get_app(app_name)
-            self.assertEqual(app_info.process_id, self.app.pid)
+            self.assertEqual(app_info.process_id, self.app.process)
 
         def test_can_get_class_name(self):
             app_info = self.get_app(app_name)
@@ -64,8 +68,8 @@ if sys.platform != 'win32':
             rectangle = app_info.children()[0].children()[0].rectangle
             width = int(self.app.stdout.readline().decode(encoding='UTF-8'))
             height = int(self.app.stdout.readline().decode(encoding='UTF-8'))
-            self.assertEqual(rectangle.width, width)
-            self.assertEqual(rectangle.height, height)
+            self.assertEqual(rectangle.width(), width)
+            self.assertEqual(rectangle.height(), height)
 
 
 if __name__ == "__main__":
