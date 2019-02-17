@@ -227,10 +227,8 @@ class UiaRecorder(COMObject, BaseRecorder):
         event = ApplicationEvent(name=EVENT_ID_TO_NAME_MAP[eventID], sender=UIAElementInfo(sender))
         self.add_to_log(event)
 
-        if event.name == EVENT.MENU_START:
-            self._update(rebuild_tree=True, add_handlers_to=None)
-        elif event.name == EVENT.MENU_OPENED:
-            self._update(rebuild_tree=False, add_handlers_to=sender)
+        if event.name == EVENT.MENU_OPENED:
+            self._update(rebuild_tree=True, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_OPENED:
             self._update(rebuild_tree=True, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_CLOSED:
