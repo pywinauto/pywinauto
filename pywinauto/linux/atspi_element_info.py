@@ -79,6 +79,9 @@ class AtspiElementInfo(ElementInfo):
     def framework_name(self):
         return self.atspi_functions.get_toolkit_name(self._handle, None).decode(encoding='UTF-8')
 
+    def atspi_version(self):
+        return self.atspi_functions.get_atspi_version(self._handle, None).decode(encoding='UTF-8')
+
     @property
     def rectangle(self):
         """Return rectangle of element"""

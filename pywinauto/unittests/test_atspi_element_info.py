@@ -100,6 +100,10 @@ if sys.platform != 'win32':
         def test_can_get_framework_name(self):
             self.assertEqual(self.app_info.framework_name(), "gtk")
 
+        def test_can_get_atspi_version(self):
+            # TODO Get atspi version from loaded so
+            self.assertEqual(self.app_info.atspi_version(), "2.1")
+
         @unittest.skip("skip for now")
         def test_can_get_rectangle(self):
             app_info = self.get_app(app_name)
