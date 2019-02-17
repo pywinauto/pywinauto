@@ -53,6 +53,7 @@ from .. import findbestmatch
 from .. import mouse
 from ..remote_memory_block import RemoteMemoryBlock
 from ..timings import Timings
+from .. import deprecated
 
 
 class MenuItemInfo(object):
@@ -147,7 +148,7 @@ class MenuItem(object):
         """Return friendly class name"""
         return "MenuItem"
     # Non PEP-8 alias
-    FriendlyClassName = friendly_class_name
+    FriendlyClassName = deprecated(friendly_class_name)
 
     #def __print__(self, ctrl, menu, index):
     #    print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
@@ -176,25 +177,25 @@ class MenuItem(object):
 
         return rect
     # Non PEP-8 alias
-    Rectangle = rectangle
+    Rectangle = deprecated(rectangle)
 
     def index(self):
         """Return the index of this menu item"""
         return self._index
     # Non PEP-8 alias
-    Index = index
+    Index = deprecated(index)
 
     def state(self):
         """Return the state of this menu item"""
         return self._read_item().fState
     # Non PEP-8 alias
-    State = state
+    State = deprecated(state)
 
     def item_id(self):
         """Return the ID of this menu item"""
         return self._read_item().wID
     # Non PEP-8 alias
-    ID = item_id
+    ID = deprecated(item_id, deprecated_name='ID')
 
     def item_type(self):
         """
@@ -207,7 +208,7 @@ class MenuItem(object):
         """
         return self._read_item().fType
     # Non PEP-8 alias
-    Type = item_type
+    Type = deprecated(item_type, deprecated_name='Type')
 
     def text(self):
         """Return the text of this menu item"""
@@ -231,7 +232,7 @@ class MenuItem(object):
             del mem
         return item_info.text
     # Non PEP-8 alias
-    Text = text
+    Text = deprecated(text)
 
     def sub_menu(self):
         """Return the SubMenu or None if no submenu"""
@@ -248,7 +249,7 @@ class MenuItem(object):
 
         return None
     # Non PEP-8 alias
-    SubMenu = sub_menu
+    SubMenu = deprecated(sub_menu)
 
     def is_enabled(self):
         """Return True if the item is enabled."""
@@ -256,13 +257,13 @@ class MenuItem(object):
             self.state() & win32defines.MF_DISABLED or
             self.state() & win32defines.MF_GRAYED)
     # Non PEP-8 alias
-    IsEnabled = is_enabled
+    IsEnabled = deprecated(is_enabled)
 
     def is_checked(self):
         "Return True if the item is checked."
         return bool(self.state() & win32defines.MF_CHECKED)
     # Non PEP-8 alias
-    IsChecked = is_checked
+    IsChecked = deprecated(is_checked)
 
     def click_input(self):
         """
@@ -292,10 +293,10 @@ class MenuItem(object):
 
         mouse.click(coords=(x_pt, y_pt))
 
-        win32functions.WaitGuiThreadIdle(self.ctrl)
+        win32functions.WaitGuiThreadIdle(self.ctrl.handle)
         time.sleep(Timings.after_menu_wait)
     # Non PEP-8 alias
-    ClickInput = click_input
+    ClickInput = deprecated(click_input)
 
     def select(self):
         """
@@ -323,14 +324,15 @@ class MenuItem(object):
         self.ctrl.send_message_timeout(
             self.menu.COMMAND, command_id, timeout=1.0)
 
-        win32functions.WaitGuiThreadIdle(self.ctrl)
+        win32functions.WaitGuiThreadIdle(self.ctrl.handle)
         time.sleep(Timings.after_menu_wait)
 
     # _perform_click() doesn't work for MenuItem, so let's call select() method
     click = select
     # Non PEP-8 alias
-    Click = select
-    Select = select
+    Click = deprecated(click)
+    # Non PEP-8 alias
+    Select = deprecated(select)
 
     def get_properties(self):
         """
@@ -358,14 +360,14 @@ class MenuItem(object):
 
         return props
     # Non PEP-8 alias
-    GetProperties = get_properties
+    GetProperties = deprecated(get_properties)
 
     def __repr__(self):
         """Return a representation of the object as a string"""
         if six.PY3:
             return "<MenuItem " + self.text() + ">"
         else:
-            return "<MenuItem " + self.text().encode(locale.getpreferredencoding()) + ">"
+            return b"<MenuItem {}>".format(self.text().encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
 #    def check(self):
 #        item = self._read_item()
@@ -460,7 +462,7 @@ class Menu(object):
         """Return the count of items in this menu"""
         return win32gui.GetMenuItemCount(self.handle)
     # Non PEP-8 alias
-    ItemCount = item_count
+    ItemCount = deprecated(item_count)
 
     @ensure_accessible
     def item(self, index, exact=False):
@@ -479,7 +481,7 @@ class Menu(object):
             return self.get_menu_path(index, appdata=menu_appdata, exact=exact)[-1]
         return MenuItem(self.ctrl, self, index, self.is_main_menu)
     # Non PEP-8 alias
-    Item = item
+    Item = deprecated(item)
 
     @ensure_accessible
     def items(self):
@@ -490,7 +492,7 @@ class Menu(object):
 
         return items
     # Non PEP-8 alias
-    Items = items
+    Items = deprecated(items)
 
     @ensure_accessible
     def get_properties(self):
@@ -508,7 +510,7 @@ class Menu(object):
 
         return {'menu_items': item_props}
     # Non PEP-8 alias
-    GetProperties = get_properties
+    GetProperties = deprecated(get_properties)
 
     @ensure_accessible
     def get_menu_path(self, path, path_items=None, appdata=None, exact=False):
@@ -584,7 +586,7 @@ class Menu(object):
 
         return path_items
     # Non PEP-8 alias
-    GetMenuPath = get_menu_path
+    GetMenuPath = deprecated(get_menu_path)
 
     def __repr__(self):
         """Return a simple representation of the menu"""
@@ -695,5 +697,5 @@ class Menu(object):
 #
 #    return items
 #    # Non PEP-8 alias
-#    _GetMenuItems = _get_menu_items
+#    _GetMenuItems = deprecated(_get_menu_items)
 #

@@ -65,6 +65,6 @@ if is_user_an_admin():
             print(element.text())
     except ValueError:
         print('\nThere is no Administrators group')
-    app.kill_()
+    app.kill()
 else:
     print('\nYou are not an administrator')

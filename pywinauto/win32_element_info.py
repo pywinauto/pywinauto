@@ -45,6 +45,8 @@ from .remote_memory_block import RemoteMemoryBlock
 
 def _register_win_msg(msg_name):
     msg_id = win32functions.RegisterWindowMessage(six.text_type(msg_name))
+    if not isinstance(msg_id, six.integer_types):
+        return -1 # return dummy value if win32functions is mocked (on ReadTheDocs)
     if msg_id > 0:
         return msg_id
     else:
@@ -238,3 +240,21 @@ class HwndElementInfo(ElementInfo):
     def full_control_type(self):
         """Return full string of control type of the element"""
         return self.__get_control_type(full=True)
+
+    @classmethod
+    def from_point(cls, x, y):
+        current_handle = win32gui.WindowFromPoint((x, y))
+        child_handle = win32gui.ChildWindowFromPoint(current_handle, (x, y))
+        if child_handle:
+            return cls(child_handle)
+        else:
+            return cls(current_handle)
+
+    @classmethod
+    def top_from_point(cls, x, y):
+        current_elem = cls.from_point(x, y)
+        current_parent = current_elem.parent
+        while current_parent is not None and current_parent != cls():
+            current_elem = current_parent
+            current_parent = current_elem.parent
+        return current_elem

@@ -518,12 +518,12 @@ def parse_keys(string,
     return keys
 
 
-def SendKeys(keys,
-             pause=0.05,
-             with_spaces=False,
-             with_tabs=False,
-             with_newlines=False,
-             turn_off_numlock=True):
+def send_keys(keys,
+              pause=0.05,
+              with_spaces=False,
+              with_tabs=False,
+              with_newlines=False,
+              turn_off_numlock=True):
     """Parse the keys and type them"""
     keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
     for k in keys:

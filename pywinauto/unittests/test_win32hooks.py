@@ -18,7 +18,7 @@ from pywinauto import win32structures
 from pywinauto.win32_hooks import Hook
 from pywinauto.win32_hooks import KeyboardEvent
 from pywinauto.win32_hooks import MouseEvent
-from pywinauto.keyboard import SendKeys
+from pywinauto.keyboard import send_keys
 from pywinauto.mouse import click
 from pywinauto.application import Application
 from pywinauto.sysinfo import is_x64_Python
@@ -31,7 +31,7 @@ def _delete_keys_from_terminal(keys):
     We don't care if BACK is pressed more than required when special codes were used.
     """
     if keys:
-        SendKeys('{BACK ' + str(len(keys)) + '}')
+        send_keys('{BACK ' + str(len(keys)) + '}')
 
 
 class Win32HooksTests(unittest.TestCase):
@@ -61,7 +61,7 @@ class Win32HooksTests(unittest.TestCase):
             self.timer.cancel()
         self.hook.stop()
         if self.app:
-            self.app.kill_()
+            self.app.kill()
 
     def _get_safe_point_to_click(self):
         """Run notepad.exe to have a safe area for mouse clicks"""
@@ -102,7 +102,7 @@ class Win32HooksTests(unittest.TestCase):
 
     def _type_keys_and_unhook(self, key_strokes):
         """A timer callback to type key strokes and unhook"""
-        SendKeys(key_strokes)
+        send_keys(key_strokes)
 
         # Give a time to process the keys by the hook
         self._sleep_and_unhook()

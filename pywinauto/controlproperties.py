@@ -31,6 +31,7 @@
 
 """Wrap"""
 from .win32structures import RECT, LOGFONTW
+from . import deprecated
 
 
 #====================================================================
@@ -77,13 +78,17 @@ class ControlProps(dict):
     def window_text(self):
         return self['texts'][0]
     # Non PEP-8 alias
-    WindowText = window_text
+    WindowText = deprecated(window_text)
 
-    def HasStyle(self, style):
+    def has_style(self, style):
         return self['style'] & style == style
+    # Non PEP-8 alias
+    HasStyle = deprecated(has_style)
 
-    def HasExStyle(self, exstyle):
+    def has_exstyle(self, exstyle):
         return self['exstyle'] & exstyle == exstyle
+    # Non PEP-8 alias
+    HasExStyle = deprecated(has_exstyle, deprecated_name="HasExStyle")
 
 
 #====================================================================

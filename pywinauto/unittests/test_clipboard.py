@@ -36,10 +36,10 @@ import unittest
 import sys
 import time
 sys.path.append(".")
-from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard
-from pywinauto.application import Application
-from pywinauto.win32structures import RECT
-from pywinauto.timings import Timings
+from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard  # noqa E402
+from pywinauto.application import Application  # noqa E402
+from pywinauto.win32structures import RECT  # noqa E402
+from pywinauto.timings import Timings  # noqa E402
 
 
 class ClipboardTestCases(unittest.TestCase):
@@ -48,40 +48,38 @@ class ClipboardTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         EmptyClipboard()
         self.app1 = Application().start("notepad.exe")
         self.app2 = Application().start("notepad.exe")
 
-        self.app1.UntitledNotepad.MoveWindow(RECT(0, 0, 200, 200))
-        self.app2.UntitledNotepad.MoveWindow(RECT(0, 200, 200, 400))
-
+        self.app1.UntitledNotepad.move_window(RECT(0, 0, 200, 200))
+        self.app2.UntitledNotepad.move_window(RECT(0, 200, 200, 400))
 
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        self.app1.UntitledNotepad.MenuSelect('File -> Exit')
-        if self.app1.Notepad["Do&n't Save"].Exists():
-            self.app1.Notepad["Do&n't Save"].Click()
-        self.app1.kill_()
+        self.app1.UntitledNotepad.menu_select('File -> Exit')
+        if self.app1.Notepad["Do&n't Save"].exists():
+            self.app1.Notepad["Do&n't Save"].click()
+        self.app1.kill()
 
-        self.app2.UntitledNotepad.MenuSelect('File -> Exit')
-        if self.app2.Notepad["Do&n't Save"].Exists():
-            self.app2.Notepad["Do&n't Save"].Click()
-        self.app2.kill_()
-
+        self.app2.UntitledNotepad.menu_select('File -> Exit')
+        if self.app2.Notepad["Do&n't Save"].exists():
+            self.app2.Notepad["Do&n't Save"].click()
+        self.app2.kill()
 
     def testGetClipBoardFormats(self):
         typetext(self.app1, "here we are")
         copytext(self.app1)
 
-        self.assertEquals(GetClipboardFormats(), [13, 16, 1, 7])
+        self.assertEqual(GetClipboardFormats(), [13, 16, 1, 7])
 
     def testGetFormatName(self):
         typetext(self.app1, "here we are")
         copytext(self.app1)
 
-        self.assertEquals(
+        self.assertEqual(
             [GetFormatName(f) for f in GetClipboardFormats()],
             ['CF_UNICODETEXT', 'CF_LOCALE', 'CF_TEXT', 'CF_OEMTEXT']
         )
@@ -91,41 +89,42 @@ class ClipboardTestCases(unittest.TestCase):
 
         Where GetData was not closing the clipboard. FIXED.
         """
-        self.app1.UntitledNotepad.MenuSelect("Edit->Select All Ctrl+A")
+        self.app1.UntitledNotepad.menu_select("Edit->Select All Ctrl+A")
         typetext(self.app1, "some text")
         copytext(self.app1)
 
         # was not closing the clipboard!
         data = GetData()
-        self.assertEquals(data, "some text")
+        self.assertEqual(data, "some text")
 
-
-        self.assertEquals(gettext(self.app2), "")
+        self.assertEqual(gettext(self.app2), "")
         pastetext(self.app2)
-        self.assertEquals(gettext(self.app2), "some text")
-
+        self.assertEqual(gettext(self.app2), "some text")
 
 
 def gettext(app):
     return app.UntitledNotepad.Edit.texts()[1]
 
+
 def typetext(app, text):
-    app.UntitledNotepad.Edit.Wait('enabled')
-    app.UntitledNotepad.Edit.SetEditText(text)
+    app.UntitledNotepad.Edit.wait('enabled')
+    app.UntitledNotepad.Edit.set_edit_text(text)
     time.sleep(0.3)
 
 
 def copytext(app):
-    app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Select All").click_input()
+    app.UntitledNotepad.wait('enabled')
+    app.UntitledNotepad.menu_item("Edit -> Select All").click_input()
     time.sleep(0.7)
-    app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Copy").click_input()
+    app.UntitledNotepad.wait('enabled')
+    app.UntitledNotepad.menu_item("Edit -> Copy").click_input()
     time.sleep(1.0)
 
+
 def pastetext(app):
-    app.UntitledNotepad.Wait('enabled')
-    app.UntitledNotepad.MenuItem("Edit -> Paste").click_input()
+    app.UntitledNotepad.wait('enabled')
+    app.UntitledNotepad.menu_item("Edit -> Paste").click_input()
+
 
 if __name__ == "__main__":
     unittest.main()

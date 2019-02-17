@@ -46,10 +46,12 @@ import sys
 import os
 import unittest
 sys.path.append(".")
+
+import mock
 from pywinauto.application import Application  # noqa E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa E402
 from pywinauto.controls.hwndwrapper import InvalidWindowHandle  # noqa E402
-from pywinauto.controls.hwndwrapper import GetDialogPropsFromHandle  # noqa E402
+from pywinauto.controls.hwndwrapper import get_dialog_props_from_handle  # noqa E402
 from pywinauto import win32structures  # noqa E402
 from pywinauto import win32defines  # noqa E402
 from pywinauto.findwindows import ElementNotFoundError  # noqa E402
@@ -83,27 +85,27 @@ class HwndWrapperTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.dlg.TabControl.Select('CButton (Command Link)')
+        self.dlg.TabControl.select('CButton (Command Link)')
         self.ctrl = HwndWrapper(self.dlg.Command_button_here.handle)
 
         #self.dlg = self.app.Calculator
-        #self.dlg.MenuSelect('View->Scientific\tAlt+2')
+        #self.dlg.menu_select('View->Scientific\tAlt+2')
         #self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
 
     def tearDown(self):
         """Close the application after tests"""
         #self.dlg.type_keys("%{F4}")
-        #self.dlg.Close()
-        self.app.kill_()
+        #self.dlg.close()
+        self.app.kill()
 
     def test_scroll(self):
         """Test control scrolling"""
-        self.dlg.TabControl.Select('CNetworkAddressCtrl')
+        self.dlg.TabControl.select('CNetworkAddressCtrl')
         ctrl = HwndWrapper(self.dlg.TypeListBox.handle)
 
         # Check exceptions on wrong arguments
@@ -120,33 +122,33 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testFriendlyClassName(self):
         """Test getting the friendly classname of the control"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "Button")
+        self.assertEqual(self.ctrl.friendly_class_name(), "Button")
 
     def testClass(self):
         """Test getting the classname of the control"""
-        self.assertEquals(self.ctrl.class_name(), "Button")
+        self.assertEqual(self.ctrl.class_name(), "Button")
 
     def testWindowText(self):
         """Test getting the window Text of the control"""
-        self.assertEquals(
+        self.assertEqual(
             HwndWrapper(self.dlg.Set.handle).window_text(), u'Set')
 
     def testStyle(self):
-        self.dlg.Style()
-        self.assertEquals(self.ctrl.Style(),
+        self.dlg.style()
+        self.assertEqual(self.ctrl.style(),
                           win32defines.WS_CHILD |
                           win32defines.WS_VISIBLE |
                           win32defines.WS_TABSTOP |
                           win32defines.BS_COMMANDLINK)
 
     def testExStyle(self):
-        self.assertEquals(self.ctrl.ExStyle(),
+        self.assertEqual(self.ctrl.exstyle(),
                           win32defines.WS_EX_NOPARENTNOTIFY |
                           win32defines.WS_EX_LEFT |
                           win32defines.WS_EX_LTRREADING |
                           win32defines.WS_EX_RIGHTSCROLLBAR)
 
-        #self.assertEquals(self.dlg.ExStyle(),
+        #self.assertEqual(self.dlg.exstyle(),
         #    win32defines.WS_EX_WINDOWEDGE |
         #    win32defines.WS_EX_LEFT |
         #    win32defines.WS_EX_LTRREADING |
@@ -155,24 +157,24 @@ class HwndWrapperTests(unittest.TestCase):
         #    win32defines.WS_EX_APPWINDOW)
 
     def testControlID(self):
-        self.assertEquals(self.ctrl.control_id(), 1037)
+        self.assertEqual(self.ctrl.control_id(), 1037)
         self.dlg.control_id()
 
     def testUserData(self):
-        self.ctrl.UserData()
-        self.dlg.UserData()
+        self.ctrl.user_data()
+        self.dlg.user_data()
 
     def testContextHelpID(self):
-        self.ctrl.ContextHelpID()
-        self.dlg.ContextHelpID()
+        self.ctrl.context_help_id()
+        self.dlg.context_help_id()
 
     def testIsVisible(self):
         self.assertEqual(self.ctrl.is_visible(), True)
         self.assertEqual(self.dlg.is_visible(), True)
 
     def testIsUnicode(self):
-        self.assertEqual(self.ctrl.IsUnicode(), True)
-        self.assertEqual(self.dlg.IsUnicode(), True)
+        self.assertEqual(self.ctrl.is_unicode(), True)
+        self.assertEqual(self.dlg.is_unicode(), True)
 
     def testIsEnabled(self):
         self.assertEqual(self.ctrl.is_enabled(), True)
@@ -195,7 +197,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def testClientRect(self):
         rect = self.dlg.rectangle()
-        cli = self.dlg.ClientRect()
+        cli = self.dlg.client_rect()
 
         self.assertEqual(cli.left, 0)
         self.assertEqual(cli.top, 0)
@@ -204,25 +206,25 @@ class HwndWrapperTests(unittest.TestCase):
         assert(cli.height() < rect.height())
 
     def testFont(self):
-        self.assertNotEqual(self.dlg.Font(), self.ctrl.Font())
+        self.assertNotEqual(self.dlg.font(), self.ctrl.font())
 
     def testProcessID(self):
         self.assertEqual(self.ctrl.process_id(), self.dlg.process_id())
         self.assertNotEqual(self.ctrl.process_id(), 0)
 
     def testHasStyle(self):
-        self.assertEqual(self.ctrl.HasStyle(win32defines.WS_CHILD), True)
-        self.assertEqual(self.dlg.HasStyle(win32defines.WS_CHILD), False)
+        self.assertEqual(self.ctrl.has_style(win32defines.WS_CHILD), True)
+        self.assertEqual(self.dlg.has_style(win32defines.WS_CHILD), False)
 
-        self.assertEqual(self.ctrl.HasStyle(win32defines.WS_SYSMENU), False)
-        self.assertEqual(self.dlg.HasStyle(win32defines.WS_SYSMENU), True)
+        self.assertEqual(self.ctrl.has_style(win32defines.WS_SYSMENU), False)
+        self.assertEqual(self.dlg.has_style(win32defines.WS_SYSMENU), True)
 
     def testHasExStyle(self):
-        self.assertEqual(self.ctrl.HasExStyle(win32defines.WS_EX_NOPARENTNOTIFY), True)
-        self.assertEqual(self.dlg.HasExStyle(win32defines.WS_EX_NOPARENTNOTIFY), False)
+        self.assertEqual(self.ctrl.has_exstyle(win32defines.WS_EX_NOPARENTNOTIFY), True)
+        self.assertEqual(self.dlg.has_exstyle(win32defines.WS_EX_NOPARENTNOTIFY), False)
 
-        self.assertEqual(self.ctrl.HasExStyle(win32defines.WS_EX_APPWINDOW), False)
-        #self.assertEqual(self.dlg.HasExStyle(win32defines.WS_EX_APPWINDOW), True)
+        self.assertEqual(self.ctrl.has_exstyle(win32defines.WS_EX_APPWINDOW), False)
+        #self.assertEqual(self.dlg.has_exstyle(win32defines.WS_EX_APPWINDOW), True)
 
     def testIsDialog(self):
         self.assertEqual(self.ctrl.is_dialog(), False)
@@ -238,14 +240,14 @@ class HwndWrapperTests(unittest.TestCase):
     def testTexts(self):
         self.assertEqual(self.dlg.texts(), ['Common Controls Sample'])
         self.assertEqual(HwndWrapper(self.dlg.Show.handle).texts(), [u'Show'])
-        self.assertEqual(self.dlg.ChildWindow(class_name='Button', found_index=2).texts(), [u'Elevation Icon'])
+        self.assertEqual(self.dlg.child_window(class_name='Button', found_index=2).texts(), [u'Elevation Icon'])
 
     def testFoundIndex(self):
         """Test an access to a control by found_index"""
 
-        ctl = self.dlg.ChildWindow(class_name='Button', found_index=3)
+        ctl = self.dlg.child_window(class_name='Button', found_index=3)
         self.assertEqual(ctl.texts(), [u'Show'])
-        ctl.DrawOutline('blue')  # visualize
+        ctl.draw_outline('blue')  # visualize
 
         # Test an out-of-range access
         # Notice:
@@ -253,8 +255,8 @@ class HwndWrapperTests(unittest.TestCase):
         # The exception is raised later when we try to find the window.
         # For this reason we can't use an assertRaises statement here because
         # the exception is raised before actual call to DrawOutline
-        ctl = self.dlg.ChildWindow(class_name='Button', found_index=3333)
-        self.assertRaises(ElementNotFoundError, ctl.WrapperObject)
+        ctl = self.dlg.child_window(class_name='Button', found_index=3333)
+        self.assertRaises(ElementNotFoundError, ctl.wrapper_object)
 
     def testSearchWithPredicateFunc(self):
         """Test an access to a control by filtering with a predicate function"""
@@ -269,31 +271,31 @@ class HwndWrapperTests(unittest.TestCase):
                     res = True
             return res
 
-        ctl = self.dlg.ChildWindow(predicate_func=is_checkbox)
+        ctl = self.dlg.child_window(predicate_func=is_checkbox)
         self.assertEqual(ctl.texts(), [u'Show'])
-        ctl.DrawOutline('red')  # visualize
+        ctl.draw_outline('red')  # visualize
 
     def testClientRects(self):
-        self.assertEqual(self.ctrl.ClientRects()[0], self.ctrl.ClientRect())
-        self.assertEqual(self.dlg.ClientRects()[0], self.dlg.ClientRect())
+        self.assertEqual(self.ctrl.client_rects()[0], self.ctrl.client_rect())
+        self.assertEqual(self.dlg.client_rects()[0], self.dlg.client_rect())
 
     def testFonts(self):
-        self.assertEqual(self.ctrl.Fonts()[0], self.ctrl.Font())
-        self.assertEqual(self.dlg.Fonts()[0], self.dlg.Font())
+        self.assertEqual(self.ctrl.fonts()[0], self.ctrl.font())
+        self.assertEqual(self.dlg.fonts()[0], self.dlg.font())
 
     def testChildren(self):
         self.assertEqual(self.ctrl.children(), [])
         self.assertNotEqual(self.dlg.children(), [])
 
     def testIsChild(self):
-        self.assertEqual(self.ctrl.is_child(self.dlg.WrapperObject()), True)
+        self.assertEqual(self.ctrl.is_child(self.dlg.wrapper_object()), True)
         self.assertEqual(self.dlg.is_child(self.ctrl), False)
 
     def testSendMessage(self):
-        vk = self.dlg.SendMessage(win32defines.WM_GETDLGCODE)
+        vk = self.dlg.send_message(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Edit.SendMessage(win32defines.WM_GETDLGCODE)
+        code = self.dlg.Edit.send_message(win32defines.WM_GETDLGCODE)
         # The expected return code is: "Edit" ? # "Button" = 0x2000 and "Radio" = 0x40
         expected = 0x89  # 0x2000 + 0x40
         self.assertEqual(expected, code)
@@ -301,10 +303,10 @@ class HwndWrapperTests(unittest.TestCase):
     def test_send_chars(self):
         testString = "Hello World"
 
-        self.dlg.Minimize()
+        self.dlg.minimize()
         self.dlg.Edit.send_chars(testString)
 
-        actual = self.dlg.Edit.Texts()[0]
+        actual = self.dlg.Edit.texts()[0]
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
@@ -312,16 +314,16 @@ class HwndWrapperTests(unittest.TestCase):
         with self.assertRaises(keyboard.KeySequenceError):
             testString = "Hello{LEFT 2}{DEL 2}"
 
-            self.dlg.Minimize()
+            self.dlg.minimize()
             self.dlg.Edit.send_chars(testString)
 
     def test_send_keystrokes_multikey_characters(self):
         testString = "Hawaii#{%}@$"
 
-        self.dlg.Minimize()
+        self.dlg.minimize()
         self.dlg.Edit.send_keystrokes(testString)
 
-        actual = self.dlg.Edit.Texts()[0]
+        actual = self.dlg.Edit.texts()[0]
         expected = "Hawaii#%@$"
         self.assertEqual(expected, actual)
 
@@ -329,56 +331,56 @@ class HwndWrapperTests(unittest.TestCase):
         with self.assertRaises(findbestmatch.MatchError):
             testString = "{ENTER}"
 
-            self.dlg.Minimize()
+            self.dlg.minimize()
             self.dlg.Edit.send_keystrokes(testString)
 
-            self.dlg.Restore()
+            self.dlg.restore()
 
     def test_send_keystrokes_virtual_keys_left_del_back(self):
         testString = "+hello123{LEFT 2}{DEL 2}{BACKSPACE} +world"
 
-        self.dlg.Minimize()
+        self.dlg.minimize()
         self.dlg.Edit.send_keystrokes(testString)
 
-        actual = self.dlg.Edit.Texts()[0]
+        actual = self.dlg.Edit.texts()[0]
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
     def test_send_keystrokes_virtual_keys_shift(self):
         testString = "+hello +world"
 
-        self.dlg.Minimize()
+        self.dlg.minimize()
         self.dlg.Edit.send_keystrokes(testString)
 
-        actual = self.dlg.Edit.Texts()[0]
+        actual = self.dlg.Edit.texts()[0]
         expected = "Hello World"
         self.assertEqual(expected, actual)
 
     def test_send_keystrokes_virtual_keys_ctrl(self):
         testString = "^a^c{RIGHT}^v"
 
-        self.dlg.Minimize()
+        self.dlg.minimize()
         self.dlg.Edit.send_keystrokes(testString)
 
-        actual = self.dlg.Edit.Texts()[0]
+        actual = self.dlg.Edit.texts()[0]
         expected = "and the note goes here ...and the note goes here ..."
         self.assertEqual(expected, actual)
 
     def testSendMessageTimeout(self):
         default_timeout = Timings.sendmessagetimeout_timeout
         Timings.sendmessagetimeout_timeout = 0.1
-        vk = self.dlg.SendMessageTimeout(win32defines.WM_GETDLGCODE)
+        vk = self.dlg.send_message_timeout(win32defines.WM_GETDLGCODE)
         self.assertEqual(0, vk)
 
-        code = self.dlg.Show.SendMessageTimeout(win32defines.WM_GETDLGCODE)
+        code = self.dlg.Show.send_message_timeout(win32defines.WM_GETDLGCODE)
         # The expected return code is: "Button" = 0x2000 # and "Radio" = 0x40
         expected = 0x2000  # + 0x40
         Timings.sendmessagetimeout_timeout = default_timeout
         self.assertEqual(expected, code)
 
     def testPostMessage(self):
-        self.assertNotEquals(0, self.dlg.PostMessage(win32defines.WM_PAINT))
-        self.assertNotEquals(0, self.dlg.Show.PostMessage(win32defines.WM_PAINT))
+        self.assertNotEqual(0, self.dlg.post_message(win32defines.WM_PAINT))
+        self.assertNotEqual(0, self.dlg.Show.post_message(win32defines.WM_PAINT))
 
 #    def testNotifyMenuSelect(self):
 #        "Call NotifyMenuSelect to ensure it does not raise"
@@ -386,31 +388,36 @@ class HwndWrapperTests(unittest.TestCase):
 #        self.dlg.NotifyMenuSelect(1234)
 
     def testNotifyParent(self):
-        """Call NotifyParent to ensure it does not raise"""
-        self.ctrl.NotifyParent(1234)
-        #self.dlg.NotifyParent(1234)
+        """Call notify_parent to ensure it does not raise"""
+        self.ctrl.notify_parent(1234)
+        #self.dlg.notify_parent(1234)
 
     def testGetProperties(self):
         """Test getting the properties for the HwndWrapped control"""
-        props = self.dlg.GetProperties()
+        props = self.dlg.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             self.dlg.friendly_class_name(), props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.dlg.texts(), props['texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.dlg, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.dlg, prop_name)(), props[prop_name])
 
-#    def testCaptureAsImage(self):
-#        pass
+    def test_capture_as_image_multi_monitor(self):
+        with mock.patch('win32api.EnumDisplayMonitors') as mon_device:
+            mon_device.return_value = (1, 2)
+            rect = self.dlg.rectangle()
+            expected = (rect.width(), rect.height())
+            result = self.dlg.capture_as_image().size
+            self.assertEqual(expected, result)
 
     # def testDrawOutline(self):
     #     """Test the outline was drawn."""
     #     # make sure window is ready
-    #     self.dlg.Wait('active')
-    #     self.dlg.Show.Click()
+    #     self.dlg.wait('active')
+    #     self.dlg.Show.click()
     #
     #     # not sure why, but this extra call makes the test stable
     #     self.dlg.draw_outline()
@@ -436,8 +443,8 @@ class HwndWrapperTests(unittest.TestCase):
     def testMoveWindow_same(self):
         """Test calling movewindow without any parameters"""
         prevRect = self.dlg.rectangle()
-        self.dlg.MoveWindow()
-        self.assertEquals(prevRect, self.dlg.rectangle())
+        self.dlg.move_window()
+        self.assertEqual(prevRect, self.dlg.rectangle())
 
     def testMoveWindow(self):
         """Test moving the window"""
@@ -452,7 +459,7 @@ class HwndWrapperTests(unittest.TestCase):
         new_rect.right += 2
         new_rect.bottom += 2
 
-        self.ctrl.MoveWindow(
+        self.ctrl.move_window(
             new_rect.left,
             new_rect.top,
             new_rect.width(),
@@ -464,42 +471,42 @@ class HwndWrapperTests(unittest.TestCase):
         print('new_rect = ', new_rect)
         print('dlgClientRect = ', dlgClientRect)
         print('self.ctrl.rectangle() = ', self.ctrl.rectangle())
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.rectangle(),
             new_rect + dlgClientRect)
 
-        self.ctrl.MoveWindow(prev_rect)
+        self.ctrl.move_window(prev_rect)
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.rectangle(),
             prev_rect + dlgClientRect)
 
     def testMaximize(self):
-        self.dlg.Maximize()
+        self.dlg.maximize()
 
-        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWMAXIMIZED)
-        self.dlg.Restore()
+        self.assertEqual(self.dlg.get_show_state(), win32defines.SW_SHOWMAXIMIZED)
+        self.dlg.restore()
 
     def testMinimize(self):
-        self.dlg.Minimize()
-        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWMINIMIZED)
-        self.dlg.Restore()
+        self.dlg.minimize()
+        self.assertEqual(self.dlg.get_show_state(), win32defines.SW_SHOWMINIMIZED)
+        self.dlg.restore()
 
     def testRestore(self):
-        self.dlg.Maximize()
-        self.dlg.Restore()
-        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWNORMAL)
+        self.dlg.maximize()
+        self.dlg.restore()
+        self.assertEqual(self.dlg.get_show_state(), win32defines.SW_SHOWNORMAL)
 
-        self.dlg.Minimize()
-        self.dlg.Restore()
-        self.assertEquals(self.dlg.GetShowState(), win32defines.SW_SHOWNORMAL)
+        self.dlg.minimize()
+        self.dlg.restore()
+        self.assertEqual(self.dlg.get_show_state(), win32defines.SW_SHOWNORMAL)
 
     def testGetFocus(self):
-        self.assertNotEqual(self.dlg.GetFocus(), None)
-        self.assertEqual(self.dlg.GetFocus(), self.ctrl.GetFocus())
+        self.assertNotEqual(self.dlg.get_focus(), None)
+        self.assertEqual(self.dlg.get_focus(), self.ctrl.get_focus())
 
         self.dlg.Set.set_focus()
-        self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
+        self.assertEqual(self.dlg.get_focus(), self.dlg.Set.handle)
 
     def test_issue_318(self):
         self.dlg.restore()
@@ -516,9 +523,9 @@ class HwndWrapperTests(unittest.TestCase):
         self.dlg.restore()
 
     def testSetFocus(self):
-        self.assertNotEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
+        self.assertNotEqual(self.dlg.get_focus(), self.dlg.Set.handle)
         self.dlg.Set.set_focus()
-        self.assertEqual(self.dlg.GetFocus(), self.dlg.Set.handle)
+        self.assertEqual(self.dlg.get_focus(), self.dlg.Set.handle)
 
     def testHasKeyboardFocus(self):
         self.assertFalse(self.dlg.set.has_keyboard_focus())
@@ -561,77 +568,77 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
 
         self.dlg = self.app.RowListSampleApplication
-        self.ctrl = self.app.RowListSampleApplication.ListView.WrapperObject()
+        self.ctrl = self.app.RowListSampleApplication.ListView.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def testMenuItems(self):
         """Test getting menu items"""
-        self.assertEqual(self.ctrl.MenuItems(), [])
-        self.assertEqual(self.dlg.MenuItems()[1]['text'], '&View')
+        self.assertEqual(self.ctrl.menu_items(), [])
+        self.assertEqual(self.dlg.menu_items()[1]['text'], '&View')
 
     def testMenuSelect(self):
         """Test selecting a menu item"""
 
-        if self.dlg.MenuItem("View -> Toolbar").IsChecked():
-            self.dlg.MenuSelect("View -> Toolbar")
-        self.assertEquals(self.dlg.MenuItem("View -> Toolbar").IsChecked(), False)
+        if self.dlg.menu_item("View -> Toolbar").is_checked():
+            self.dlg.menu_select("View -> Toolbar")
+        self.assertEqual(self.dlg.menu_item("View -> Toolbar").is_checked(), False)
 
-        self.dlg.MenuSelect("View -> Toolbar")
-        self.assertEquals(self.dlg.MenuItem("View -> Toolbar").IsChecked(), True)
+        self.dlg.menu_select("View -> Toolbar")
+        self.assertEqual(self.dlg.menu_item("View -> Toolbar").is_checked(), True)
 
     def testClose(self):
         """Test the Close() method of windows"""
         # open about dialog
-        self.dlg.MenuSelect('Help->About RowList...')
+        self.dlg.menu_select('Help->About RowList...')
 
         # make sure it is open and visible
-        self.app.AboutRowList.Wait("visible", 20)
-        self.assertTrue(self.app.Window_(title='About RowList').is_visible(), True)
+        self.app.AboutRowList.wait("visible", 20)
+        self.assertTrue(self.app.window(title='About RowList').is_visible(), True)
 
         # close it
-        self.app.Window_(title='About RowList', class_name='#32770').Close(1)
+        self.app.window(title='About RowList', class_name='#32770').close(1)
 
         # make sure that it is not visible
         try:
             #self.assertRaises(ElementNotFoundError,
-            #                  self.app.Window_(title='About RowList', class_name='#32770').wrapper_object())
+            #                  self.app.window(title='About RowList', class_name='#32770').wrapper_object())
             # vvryabov: TimeoutError is caught by assertRaises, so the second raise is not caught correctly
-            self.app.Window_(title='About RowList', class_name='#32770').WrapperObject()
+            self.app.window(title='About RowList', class_name='#32770').wrapper_object()
         except ElementNotFoundError:
             print('ElementNotFoundError exception is raised as expected. OK.')
 
         # make sure the main RowList dialog is still open
-        self.assertEquals(self.dlg.is_visible(), True)
+        self.assertEqual(self.dlg.is_visible(), True)
 
     def testCloseClick_bug(self):
-        self.dlg.MenuSelect('Help->About RowList...')
-        self.app.AboutRowList.Wait("visible", 10)
+        self.dlg.menu_select('Help->About RowList...')
+        self.app.AboutRowList.wait("visible", 10)
 
-        self.assertEqual(self.app.AboutRowList.Exists(), True)
-        self.app.AboutRowList.CloseButton.CloseClick()
-        self.assertEqual(self.app.AboutRowList.Exists(), False)
+        self.assertEqual(self.app.AboutRowList.exists(), True)
+        self.app.AboutRowList.CloseButton.close_click()
+        self.assertEqual(self.app.AboutRowList.exists(), False)
 
         #Timings.closeclick_dialog_close_wait = .7
         #try:
-        #    self.app.AboutRowList.CloseButton.CloseClick()
+        #    self.app.AboutRowList.CloseButton.close_click()
         #except TimeoutError:
         #    pass
-        #self.app.AboutRowList.Close()
+        #self.app.AboutRowList.close()
 
     def testCloseAltF4(self):
-        self.dlg.MenuSelect('Help->About RowList...')
-        AboutRowList = self.app.Window_(title='About RowList', active_only=True, class_name='#32770')
-        AboutWrapper = AboutRowList.Wait("enabled")
-        AboutRowList.CloseAltF4()
-        AboutRowList.WaitNot('visible')
+        self.dlg.menu_select('Help->About RowList...')
+        AboutRowList = self.app.window(title='About RowList', active_only=True, class_name='#32770')
+        AboutWrapper = AboutRowList.wait("enabled")
+        AboutRowList.close_alt_f4()
+        AboutRowList.wait_not('visible')
         self.assertNotEqual(AboutWrapper.is_visible(), True)
 
 
@@ -641,74 +648,74 @@ class HwndWrapperMouseTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.dlg.TabControl.Select('CButton (Command Link)')
+        self.dlg.TabControl.select('CButton (Command Link)')
         self.ctrl = HwndWrapper(self.dlg.NoteEdit.handle)
 
     def tearDown(self):
         """Close the application after tests"""
         try:
-            self.dlg.Close(0.5)
+            self.dlg.close(0.5)
         except Exception:  # TimeoutError:
             pass
         finally:
-            self.app.kill_()
+            self.app.kill()
 
     #def testText(self):
     #    "Test getting the window Text of the dialog"
-    #    self.assertEquals(self.dlg.window_text(), "Untitled - Notepad")
+    #    self.assertEqual(self.dlg.window_text(), "Untitled - Notepad")
 
     def testClick(self):
-        self.ctrl.Click(coords=(50, 5))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (9, 9))
+        self.ctrl.click(coords=(50, 5))
+        self.assertEqual(self.dlg.Edit.selection_indices(), (9, 9))
 
     def testClickInput(self):
         self.ctrl.click_input(coords=(50, 5))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (9, 9))
+        self.assertEqual(self.dlg.Edit.selection_indices(), (9, 9))
 
     def testDoubleClick(self):
-        self.ctrl.DoubleClick(coords=(50, 5))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (8, 13))
+        self.ctrl.double_click(coords=(50, 5))
+        self.assertEqual(self.dlg.Edit.selection_indices(), (8, 13))
 
     def testDoubleClickInput(self):
         self.ctrl.double_click_input(coords=(80, 5))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (13, 18))
+        self.assertEqual(self.dlg.Edit.selection_indices(), (13, 18))
 
 #    def testRightClick(self):
 #        pass
 
     def testRightClickInput(self):
         self.dlg.Edit.type_keys('{HOME}')
-        self.dlg.Edit.Wait('enabled').right_click_input()
-        self.app.PopupMenu.Wait('ready').Menu().GetMenuPath('Select All')[0].click_input()
+        self.dlg.Edit.wait('enabled').right_click_input()
+        self.app.PopupMenu.wait('ready').menu().get_menu_path('Select All')[0].click_input()
         self.dlg.Edit.type_keys('{DEL}')
-        self.assertEquals(self.dlg.Edit.TextBlock(), '')
+        self.assertEqual(self.dlg.Edit.text_block(), '')
 
     def testPressMoveRelease(self):
-        self.dlg.NoteEdit.PressMouse(coords=(0, 5))
-        self.dlg.NoteEdit.MoveMouse(coords=(65, 5))
-        self.dlg.NoteEdit.ReleaseMouse(coords=(65, 5))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (0, 12))
+        self.dlg.NoteEdit.press_mouse(coords=(0, 5))
+        self.dlg.NoteEdit.move_mouse(coords=(65, 5))
+        self.dlg.NoteEdit.release_mouse(coords=(65, 5))
+        self.assertEqual(self.dlg.Edit.selection_indices(), (0, 12))
 
     def testDragMouse(self):
-        self.dlg.NoteEdit.DragMouse(press_coords=(0, 5), release_coords=(65, 5))
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (0, 12))
+        self.dlg.NoteEdit.drag_mouse(press_coords=(0, 5), release_coords=(65, 5))
+        self.assertEqual(self.dlg.Edit.selection_indices(), (0, 12))
 
         # continue selection with pressed Shift key
-        self.dlg.NoteEdit.DragMouse(press_coords=(65, 5), release_coords=(90, 5), pressed='shift')
-        self.assertEquals(self.dlg.Edit.SelectionIndices(), (0, 17))
+        self.dlg.NoteEdit.drag_mouse(press_coords=(65, 5), release_coords=(90, 5), pressed='shift')
+        self.assertEqual(self.dlg.Edit.selection_indices(), (0, 17))
 
     def testDebugMessage(self):
-        self.dlg.NoteEdit.DebugMessage('Test message')
+        self.dlg.NoteEdit.debug_message('Test message')
         # TODO: add screenshots comparison
 
     #def testDrawOutline(self):
     #    # TODO: add screenshots comparison
-    #    self.dlg.DrawOutline()
+    #    self.dlg.draw_outline()
 
 #    def testSetWindowText(self):
 #        pass
@@ -717,8 +724,8 @@ class HwndWrapperMouseTests(unittest.TestCase):
 #        pass
 
     def testSetTransparency(self):
-        self.dlg.SetTransparency()
-        self.assertRaises(ValueError, self.dlg.SetTransparency, 256)
+        self.dlg.set_transparency()
+        self.assertRaises(ValueError, self.dlg.set_transparency, 256)
 
 
 class NonActiveWindowFocusTests(unittest.TestCase):
@@ -727,7 +734,7 @@ class NonActiveWindowFocusTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
@@ -735,13 +742,13 @@ class NonActiveWindowFocusTests(unittest.TestCase):
 
     def tearDown(self):
         """Close the application after tests"""
-        self.app.kill_()
-        self.app2.kill_()
+        self.app.kill()
+        self.app2.kill()
 
     def test_issue_240(self):
         """Check HwndWrapper.set_focus for a desktop without a focused window"""
         ws = self.app.Common_Controls_Sample
-        ws.TabControl.Select('CButton (Command Link)')
+        ws.TabControl.select('CButton (Command Link)')
         dlg1 = ws.wrapper_object()
         dlg2 = self.app2.Notepad.wrapper_object()
         dlg2.click(coords=(2, 2))
@@ -749,7 +756,7 @@ class NonActiveWindowFocusTests(unittest.TestCase):
         # here is the trick: the window is restored but it isn't activated
         dlg2.restore()
         dlg1.set_focus()
-        self.assertEqual(ws.GetFocus(), ws.Edit.wrapper_object())
+        self.assertEqual(ws.get_focus(), ws.Edit.wrapper_object())
 
 
 class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
@@ -761,7 +768,7 @@ class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app1 = Application().start(u"cmd.exe",
                                         create_new_console=True,
@@ -772,8 +779,8 @@ class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
 
     def tearDown(self):
         """Close the application after tests"""
-        self.app1.kill_()
-        self.app2.kill_()
+        self.app1.kill()
+        self.app2.kill()
 
     def test_issue_270(self):
         """
@@ -799,56 +806,55 @@ class NotepadRegressionTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
 
-        self.dlg = self.app.Window_(title='Untitled - Notepad', class_name='Notepad')
+        self.dlg = self.app.window(title='Untitled - Notepad', class_name='Notepad')
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
-        self.dlg.Edit.SetEditText("Here is some text\r\n and some more")
+        self.dlg.Edit.set_edit_text("Here is some text\r\n and some more")
 
         self.app2 = Application().start(_notepad_exe())
 
     def tearDown(self):
         """Close the application after tests"""
         try:
-            self.dlg.Close(0.5)
-            if self.app.Notepad["Do&n't Save"].Exists():
-                self.app.Notepad["Do&n't Save"].Click()
-                self.app.Notepad["Do&n't Save"].WaitNot('visible')
+            self.app.UntitledNotepad.menu_select("File->Exit")
+            self.app.Notepad["Do&n't Save"].click()
+            self.app.Notepad["Do&n't Save"].wait_not('visible')
         except Exception:  # TimeoutError:
             pass
         finally:
-            self.app.kill_()
-        self.app2.kill_()
+            self.app.kill()
+        self.app2.kill()
 
     def testMenuSelectNotepad_bug(self):
         """In notepad - MenuSelect Edit->Paste did not work"""
         text = b'Here are some unicode characters \xef\xfc\r\n'
-        self.app2.UntitledNotepad.Edit.Wait('enabled')
+        self.app2.UntitledNotepad.Edit.wait('enabled')
         time.sleep(0.3)
-        self.app2.UntitledNotepad.Edit.SetEditText(text)
+        self.app2.UntitledNotepad.Edit.set_edit_text(text)
         time.sleep(0.3)
-        self.assertEquals(self.app2.UntitledNotepad.Edit.TextBlock().encode(locale.getpreferredencoding()), text)
+        self.assertEqual(self.app2.UntitledNotepad.Edit.text_block().encode(locale.getpreferredencoding()), text)
 
         Timings.after_menu_wait = .7
-        self.app2.UntitledNotepad.MenuSelect("Edit->Select All")
+        self.app2.UntitledNotepad.menu_select("Edit->Select All")
         time.sleep(0.3)
-        self.app2.UntitledNotepad.MenuSelect("Edit->Copy")
+        self.app2.UntitledNotepad.menu_select("Edit->Copy")
         time.sleep(0.3)
-        self.assertEquals(clipboard.GetData().encode(locale.getpreferredencoding()), text)
+        self.assertEqual(clipboard.GetData().encode(locale.getpreferredencoding()), text)
 
         self.dlg.set_focus()
-        self.dlg.MenuSelect("Edit->Select All")
-        self.dlg.MenuSelect("Edit->Paste")
-        self.dlg.MenuSelect("Edit->Paste")
-        self.dlg.MenuSelect("Edit->Paste")
+        self.dlg.menu_select("Edit->Select All")
+        self.dlg.menu_select("Edit->Paste")
+        self.dlg.menu_select("Edit->Paste")
+        self.dlg.menu_select("Edit->Paste")
 
-        self.app2.UntitledNotepad.MenuSelect("File->Exit")
-        self.app2.Window_(title='Notepad', class_name='#32770')["Don't save"].Click()
+        self.app2.UntitledNotepad.menu_select("File->Exit")
+        self.app2.window(title='Notepad', class_name='#32770')["Don't save"].click()
 
-        self.assertEquals(self.dlg.Edit.TextBlock().encode(locale.getpreferredencoding()), text * 3)
+        self.assertEqual(self.dlg.Edit.text_block().encode(locale.getpreferredencoding()), text * 3)
 
 
 class ControlStateTests(unittest.TestCase):
@@ -864,12 +870,12 @@ class ControlStateTests(unittest.TestCase):
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.dlg.TabControl.Select(4)
-        self.ctrl = self.dlg.EditBox.WrapperObject()
+        self.dlg.TabControl.select(4)
+        self.ctrl = self.dlg.EditBox.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
-        self.app.kill_()
+        self.app.kill()
 
     def test_VerifyEnabled(self):
         """Test for verify_enabled"""
@@ -877,7 +883,7 @@ class ControlStateTests(unittest.TestCase):
 
     def test_VerifyVisible(self):
         """Test for verify_visible"""
-        self.dlg.TabControl.Select(3)
+        self.dlg.TabControl.select(3)
         self.assertRaises(ElementNotVisible, self.ctrl.verify_visible)
 
 
@@ -887,39 +893,39 @@ class DragAndDropTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.ctrl = self.dlg.TreeView.WrapperObject()
+        self.ctrl = self.dlg.TreeView.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
-        self.app.kill_()
+        self.app.kill()
 
     #def testDragMouse(self):
-    #    """DragMouse works! But CmnCtrl1.exe crashes in infinite recursion."""
-    #    birds = self.ctrl.GetItem(r'\Birds')
-    #    dogs = self.ctrl.GetItem(r'\Dogs')
-    #    self.ctrl.DragMouse("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
-    #    dogs = self.ctrl.GetItem(r'\Dogs')
-    #    self.assertEquals([child.Text() for child in dogs.children()],
+    #    """drag_mouse works! But CmnCtrl1.exe crashes in infinite recursion."""
+    #    birds = self.ctrl.get_item(r'\Birds')
+    #    dogs = self.ctrl.get_item(r'\Dogs')
+    #    self.ctrl.drag_mouse("left", birds.rectangle().mid_point(), dogs.rectangle().mid_point())
+    #    dogs = self.ctrl.get_item(r'\Dogs')
+    #    self.assertEqual([child.Text() for child in dogs.children()],
     #                      [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 
     def testDragMouseInput(self):
         """Test for drag_mouse_input"""
-        birds = self.ctrl.GetItem(r'\Birds')
-        dogs = self.ctrl.GetItem(r'\Dogs')
-        #birds.Select()
+        birds = self.ctrl.get_item(r'\Birds')
+        dogs = self.ctrl.get_item(r'\Dogs')
+        #birds.select()
         birds.click_input()
         time.sleep(5)  # enough pause to prevent double click detection
         self.ctrl.drag_mouse_input(dst=dogs.client_rect().mid_point(),
                                    src=birds.client_rect().mid_point(),
                                    absolute=False)
-        dogs = self.ctrl.GetItem(r'\Dogs')
-        self.assertEquals([child.Text() for child in dogs.children()],
+        dogs = self.ctrl.get_item(r'\Dogs')
+        self.assertEqual([child.text() for child in dogs.children()],
                           [u'Birds', u'Dalmatian', u'German Shepherd', u'Great Dane'])
 
 
@@ -929,7 +935,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
@@ -941,22 +947,22 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
         """Close the application after tests"""
         # close the application
         #self.dlg.type_keys("%{F4}")
-        self.dlg.Close(0.5)
-        self.app.kill_()
+        self.dlg.close(0.5)
+        self.app.kill()
 
     def test_GetDialogPropsFromHandle(self):
         """Test some small stuff regarding GetDialogPropsFromHandle"""
-        props_from_handle = GetDialogPropsFromHandle(self.dlg.handle)
-        props_from_dialog = GetDialogPropsFromHandle(self.dlg)
-        #unused var: props_from_ctrl = GetDialogPropsFromHandle(self.ctrl)
+        props_from_handle = get_dialog_props_from_handle(self.dlg.handle)
+        props_from_dialog = get_dialog_props_from_handle(self.dlg)
+        #unused var: props_from_ctrl = get_dialog_props_from_handle(self.ctrl)
 
-        self.assertEquals(props_from_handle, props_from_dialog)
+        self.assertEqual(props_from_handle, props_from_dialog)
 
 
 class SendEnterKeyTest(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(_notepad_exe())
@@ -965,14 +971,15 @@ class SendEnterKeyTest(unittest.TestCase):
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
 
     def tearDown(self):
-        self.dlg.MenuSelect('File -> Exit')
-        if self.dlg["Do&n't Save"].Exists():
-            self.dlg["Do&n't Save"].Click()
-        self.app.kill_()
+        self.dlg.menu_select('File -> Exit')
+        try:
+            self.app.Notepad["Do&n't Save"].click()
+        except findbestmatch.MatchError:
+            self.app.kill()
 
     def test_sendEnterChar(self):
         self.ctrl.send_chars('Hello{ENTER}World')
-        self.assertEquals(['Hello\r\nWorld'], self.dlg.Edit.Texts())
+        self.assertEqual('Hello\r\nWorld', self.dlg.Edit.window_text())
 
 
 class SendKeystrokesAltComboTests(unittest.TestCase):
@@ -980,18 +987,18 @@ class SendKeystrokesAltComboTests(unittest.TestCase):
     """Unit test for Alt- combos sent via send_keystrokes"""
 
     def setUp(self):
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, u'CtrlTest.exe'))
         self.dlg = self.app.Control_Test_App
 
     def tearDown(self):
-        self.app.kill_()
+        self.app.kill()
 
     def test_send_keystrokes_alt_combo(self):
         self.dlg.send_keystrokes('%(sc)')
 
-        self.assertTrue(self.app['Using C++ Derived Class'].Exists())
+        self.assertTrue(self.app['Using C++ Derived Class'].exists())
 
 
 class RemoteMemoryBlockTests(unittest.TestCase):
@@ -1000,17 +1007,17 @@ class RemoteMemoryBlockTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application()
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.ctrl = self.dlg.TreeView.WrapperObject()
+        self.ctrl = self.dlg.TreeView.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
-        self.app.kill_()
+        self.app.kill()
 
     def testGuardSignatureCorruption(self):
         mem = RemoteMemoryBlock(self.ctrl, 16)

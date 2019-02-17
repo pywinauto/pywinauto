@@ -66,6 +66,7 @@ from ..timings import wait_until
 from ..timings import TimeoutError
 from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
+from .. import deprecated
 
 if sysinfo.UIA_support:
     from ..uia_defines import IUIA
@@ -194,14 +195,14 @@ class _listview_item(object):
         """Return the text of the item"""
         return self._readitem()[1]
     # Non PEP-8 alias
-    Text = text
+    Text = deprecated(text)
 
     #----------------------------------------------------------------
     def item(self):
         """Return the item itself (LVITEM instance)"""
         return self._readitem()[0]
     # Non PEP-8 alias
-    Item = item
+    Item = deprecated(item)
 
     #----------------------------------------------------------------
     def item_data(self):
@@ -217,28 +218,28 @@ class _listview_item(object):
 
         return item_data
     # Non PEP-8 alias
-    ItemData = item_data
+    ItemData = deprecated(item_data)
 
     #----------------------------------------------------------------
     def state(self):
         """Return the state of the item"""
         return self.item().state
     # Non PEP-8 alias
-    State = state
+    State = deprecated(state)
 
     #----------------------------------------------------------------
     def image(self):
         """Return the image index of the item"""
         return self.item().iImage
     # Non PEP-8 alias
-    Image = image
+    Image = deprecated(image)
 
     #----------------------------------------------------------------
     def indent(self):
         """Return the indent of the item"""
         return self.item().iIndent
     # Non PEP-8 alias
-    Indent = indent
+    Indent = deprecated(indent)
 
     #----------------------------------------------------------------
     def rectangle(self, area="all"):
@@ -296,7 +297,7 @@ class _listview_item(object):
 
         return rect
     # Non PEP-8 alias
-    Rectangle = rectangle
+    Rectangle = deprecated(rectangle)
 
     #----------------------------------------------------------------
     def click(self, button="left", double=False, where="text", pressed=""):
@@ -383,7 +384,7 @@ class _listview_item(object):
                 raise RuntimeError("Area ('check') not found for this list view item")
         return self
     # Non PEP-8 alias
-    Click = click
+    Click = deprecated(click)
 
     #----------------------------------------------------------------
     def click_input(self, button="left", double=False, wheel_dist=0, where="text", pressed=""):
@@ -472,7 +473,7 @@ class _listview_item(object):
                 raise RuntimeError("Area ('check') not found for this list view item")
         return self
     # Non PEP-8 alias
-    ClickInput = click_input
+    ClickInput = deprecated(click_input)
 
     #----------------------------------------------------------------
     def ensure_visible(self):
@@ -488,7 +489,7 @@ class _listview_item(object):
                                '(item_index = ' + str(self.item_index) + ')')
         return self
     # Non PEP-8 alias
-    EnsureVisible = ensure_visible
+    EnsureVisible = deprecated(ensure_visible)
 
     #-----------------------------------------------------------
     def uncheck(self):
@@ -516,7 +517,7 @@ class _listview_item(object):
         del remote_mem
         return self
     # Non PEP-8 alias
-    UnCheck = uncheck
+    UnCheck = deprecated(uncheck, deprecated_name='UnCheck')
 
     #-----------------------------------------------------------
     def check(self):
@@ -545,7 +546,7 @@ class _listview_item(object):
         del remote_mem
         return self
     # Non PEP-8 alias
-    Check = check
+    Check = deprecated(check)
 
     #-----------------------------------------------------------
     def is_checked(self):
@@ -557,7 +558,7 @@ class _listview_item(object):
 
         return state & 0x2000 == 0x2000
     # Non PEP-8 alias
-    IsChecked = is_checked
+    IsChecked = deprecated(is_checked)
 
     #-----------------------------------------------------------
     def is_selected(self):
@@ -565,7 +566,7 @@ class _listview_item(object):
         return win32defines.LVIS_SELECTED == self.listview_ctrl.send_message(
             win32defines.LVM_GETITEMSTATE, self.item_index, win32defines.LVIS_SELECTED)
     # Non PEP-8 alias
-    IsSelected = is_selected
+    IsSelected = deprecated(is_selected)
 
     #-----------------------------------------------------------
     def is_focused(self):
@@ -573,7 +574,7 @@ class _listview_item(object):
         return win32defines.LVIS_FOCUSED == self.listview_ctrl.send_message(
             win32defines.LVM_GETITEMSTATE, self.item_index, win32defines.LVIS_FOCUSED)
     # Non PEP-8 alias
-    IsFocused = is_focused
+    IsFocused = deprecated(is_focused)
 
     #-----------------------------------------------------------
     def _modify_selection(self, to_select):
@@ -631,7 +632,7 @@ class _listview_item(object):
         #    raise ctypes.WinError()
         del new_remote_mem
 
-        win32functions.WaitGuiThreadIdle(self.listview_ctrl)
+        win32functions.WaitGuiThreadIdle(self.listview_ctrl.handle)
         time.sleep(Timings.after_listviewselect_wait)
 
     #-----------------------------------------------------------
@@ -644,7 +645,7 @@ class _listview_item(object):
         self._modify_selection(True)
         return self
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
     #-----------------------------------------------------------
     def deselect(self):
@@ -656,7 +657,7 @@ class _listview_item(object):
         self._modify_selection(False)
         return self
     # Non PEP-8 alias
-    Deselect = deselect
+    Deselect = deprecated(deselect)
 
     #-----------------------------------------------------------
     def inplace_control(self, friendly_class_name=""):
@@ -772,17 +773,17 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
     def column_count(self):
         """Return the number of columns"""
         if self.get_header_control() is not None:
-            return self.get_header_control().ItemCount()
+            return self.get_header_control().item_count()
         return 0
     # Non PEP-8 alias
-    ColumnCount = column_count
+    ColumnCount = deprecated(column_count)
 
     #-----------------------------------------------------------
     def item_count(self):
         """The number of items in the ListView"""
         return self.send_message(win32defines.LVM_GETITEMCOUNT)
     # Non PEP-8 alias
-    ItemCount = item_count
+    ItemCount = deprecated(item_count)
 
     #-----------------------------------------------------------
     def get_header_control(self):
@@ -793,7 +794,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         except hwndwrapper.InvalidWindowHandle:
             return None
     # Non PEP-8 alias
-    GetHeaderControl = get_header_control
+    GetHeaderControl = deprecated(get_header_control)
 
     #-----------------------------------------------------------
     def get_column(self, col_index):
@@ -844,7 +845,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
 
         return col_props
     # Non PEP-8 alias
-    GetColumn = get_column
+    GetColumn = deprecated(get_column)
 
     #-----------------------------------------------------------
     def columns(self):
@@ -856,14 +857,14 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
 
         return cols
     # Non PEP-8 alias
-    Columns = columns
+    Columns = deprecated(columns)
 
     #-----------------------------------------------------------
     def column_widths(self):
         """Return a list of all the column widths"""
         return [col['width'] for col in self.columns()]
     # Non PEP-8 alias
-    ColumnWidths = column_widths
+    ColumnWidths = deprecated(column_widths)
 
     #-----------------------------------------------------------
     def get_item_rect(self, item_index):
@@ -871,7 +872,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).rectangle() instead", DeprecationWarning)
         return self.get_item(item_index).rectangle()
     # Non PEP-8 alias
-    GetItemRect = get_item_rect
+    GetItemRect = deprecated(get_item_rect)
 
     #-----------------------------------------------------------
     def get_item(self, item_index, subitem_index=0):
@@ -886,8 +887,9 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
 
     item = get_item  # this is an alias to be consistent with other content elements
     # Non PEP-8 alias
-    Item = get_item
-    GetItem = get_item
+    Item = deprecated(item)
+    # Non PEP-8 alias
+    GetItem = deprecated(get_item)
 
     #-----------------------------------------------------------
     def items(self):
@@ -911,13 +913,13 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
 
         return items
     # Non PEP-8 alias
-    Items = items
+    Items = deprecated(items)
 
     #-----------------------------------------------------------
     def texts(self):
         """Get the texts for the ListView control"""
         texts = [self.window_text()]
-        texts.extend([item['text'] for item in self.items()])
+        texts.extend([item.text() for item in self.items()])
         return texts
 
     #-----------------------------------------------------------
@@ -926,7 +928,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).uncheck() instead", DeprecationWarning)
         return self.get_item(item).uncheck()
     # Non PEP-8 alias
-    UnCheck = uncheck
+    UnCheck = deprecated(uncheck, deprecated_name='UnCheck')
 
     #-----------------------------------------------------------
     def check(self, item):
@@ -934,7 +936,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).check() instead", DeprecationWarning)
         return self.get_item(item).check()
     # Non PEP-8 alias
-    Check = check
+    Check = deprecated(check)
 
     #-----------------------------------------------------------
     def is_checked(self, item):
@@ -942,7 +944,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).is_checked() instead", DeprecationWarning)
         return self.get_item(item).is_checked()
     # Non PEP-8 alias
-    IsChecked = is_checked
+    IsChecked = deprecated(is_checked)
 
     #-----------------------------------------------------------
     def is_selected(self, item):
@@ -950,7 +952,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).is_selected() instead", DeprecationWarning)
         return self.get_item(item).is_selected()
     # Non PEP-8 alias
-    IsSelected = is_selected
+    IsSelected = deprecated(is_selected)
 
     #-----------------------------------------------------------
     def is_focused(self, item):
@@ -958,7 +960,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).is_focused() instead", DeprecationWarning)
         return self.get_item(item).is_focused()
     # Non PEP-8 alias
-    IsFocused = is_focused
+    IsFocused = deprecated(is_focused)
 
     #-----------------------------------------------------------
     def select(self, item):
@@ -970,7 +972,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         warnings.warn("Use get_item(item).select() instead", DeprecationWarning)
         return self.get_item(item).select()
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
     #-----------------------------------------------------------
     def deselect(self, item):
@@ -985,14 +987,14 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
     # Naming is not clear - so create an alias.
     #UnSelect = deselect
     # Non PEP-8 alias
-    Deselect = deselect
+    Deselect = deprecated(deselect)
 
     #-----------------------------------------------------------
     def get_selected_count(self):
         """Return the number of selected items"""
         return self.send_message(win32defines.LVM_GETSELECTEDCOUNT)
     # Non PEP-8 alias
-    GetSelectedCount = get_selected_count
+    GetSelectedCount = deprecated(get_selected_count)
 
 
 #====================================================================
@@ -1011,21 +1013,21 @@ class _treeview_element(object):
         """Return the text of the item"""
         return self._readitem()[1]
     # Non PEP-8 alias
-    Text = text
+    Text = deprecated(text)
 
     #----------------------------------------------------------------
     def item(self):
         """Return the item itself"""
         return self._readitem()[0]
     # Non PEP-8 alias
-    Item = item
+    Item = deprecated(item)
 
     #----------------------------------------------------------------
     def state(self):
         """Return the state of the item"""
         return self.item().state
     # Non PEP-8 alias
-    State = state
+    State = deprecated(state)
 
     #-----------------------------------------------------------
     def is_checked(self):
@@ -1037,7 +1039,7 @@ class _treeview_element(object):
 
         return state & 0x2000 == 0x2000
     # Non PEP-8 alias
-    IsChecked = is_checked
+    IsChecked = deprecated(is_checked)
 
     #----------------------------------------------------------------
     def client_rect(self, text_area_rect=True):
@@ -1069,7 +1071,7 @@ class _treeview_element(object):
         del remote_mem
         return rect
     # Non PEP-8 alias
-    ClientRect = client_rect
+    ClientRect = deprecated(client_rect)
 
     #----------------------------------------------------------------
     def click(self, button="left", double=False, where="text", pressed=""):
@@ -1133,7 +1135,7 @@ class _treeview_element(object):
         # treeview to update itself
         #self.tree_ctrl.
     # Non PEP-8 alias
-    Click = click
+    Click = deprecated(click)
 
     #----------------------------------------------------------------
     def click_input(self, button="left", double=False, wheel_dist=0, where="text", pressed=""):
@@ -1191,7 +1193,7 @@ class _treeview_element(object):
             pressed=pressed)
         return self
     # Non PEP-8 alias
-    ClickInput = click_input
+    ClickInput = deprecated(click_input)
 
     #----------------------------------------------------------------
     def start_dragging(self, button='left', pressed=''):
@@ -1209,7 +1211,7 @@ class _treeview_element(object):
                 coords=(rect.left + i, rect.top), pressed=pressed, absolute=False)
         return self
     # Non PEP-8 alias
-    StartDragging = start_dragging
+    StartDragging = deprecated(start_dragging)
 
     #----------------------------------------------------------------
     def drop(self, button='left', pressed=''):
@@ -1227,7 +1229,7 @@ class _treeview_element(object):
         time.sleep(Timings.after_drag_n_drop_wait)
         return self
     # Non PEP-8 alias
-    Drop = drop
+    Drop = deprecated(drop)
 
     #----------------------------------------------------------------
     def collapse(self):
@@ -1238,7 +1240,7 @@ class _treeview_element(object):
             self.elem)
         return self
     # Non PEP-8 alias
-    Collapse = collapse
+    Collapse = deprecated(collapse)
 
     #----------------------------------------------------------------
     def expand(self):
@@ -1249,7 +1251,7 @@ class _treeview_element(object):
             self.elem)
         return self
     # Non PEP-8 alias
-    Expand = expand
+    Expand = deprecated(expand)
 
     #----------------------------------------------------------------
     def children(self):
@@ -1288,7 +1290,7 @@ class _treeview_element(object):
 
         return children_elements
     # Non PEP-8 alias
-    Children = children
+    Children = deprecated(children)
 
     #----------------------------------------------------------------
     def next_item(self):
@@ -1308,7 +1310,7 @@ class _treeview_element(object):
         #else:
         #    raise ctypes.WinError()
     # Non PEP-8 alias
-    Next = next_item
+    Next = deprecated(next_item, deprecated_name='Next')
 
     #----------------------------------------------------------------
     def sub_elements(self):
@@ -1322,7 +1324,7 @@ class _treeview_element(object):
 
         return sub_elems
     # Non PEP-8 alias
-    SubElements = sub_elements
+    SubElements = deprecated(sub_elements)
 
     #----------------------------------------------------------------
     def get_child(self, child_spec, exact=False):
@@ -1357,7 +1359,7 @@ class _treeview_element(object):
 
         return self.children()[index]
     # Non PEP-8 alias
-    GetChild = get_child
+    GetChild = deprecated(get_child)
 
     #----------------------------------------------------------------
     def ensure_visible(self):
@@ -1366,10 +1368,10 @@ class _treeview_element(object):
             win32defines.TVM_ENSUREVISIBLE,
             win32defines.TVGN_CARET,
             self.elem)
-        win32functions.WaitGuiThreadIdle(self.tree_ctrl)
+        win32functions.WaitGuiThreadIdle(self.tree_ctrl.handle)
         return self
     # Non PEP-8 alias
-    EnsureVisible = ensure_visible
+    EnsureVisible = deprecated(ensure_visible)
 
     #----------------------------------------------------------------
     def select(self):
@@ -1387,21 +1389,21 @@ class _treeview_element(object):
             raise ctypes.WinError()
         return self
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
     #----------------------------------------------------------------
     def is_selected(self):
         """Indicate that the TreeView item is selected or not"""
         return win32defines.TVIS_SELECTED == (win32defines.TVIS_SELECTED & self.state())
     # Non PEP-8 alias
-    IsSelected = is_selected
+    IsSelected = deprecated(is_selected)
 
     #----------------------------------------------------------------
     def is_expanded(self):
         """Indicate that the TreeView item is selected or not"""
         return win32defines.TVIS_EXPANDED == (win32defines.TVIS_EXPANDED & self.state())
     # Non PEP-8 alias
-    IsExpanded = is_expanded
+    IsExpanded = deprecated(is_expanded)
 
     #----------------------------------------------------------------
     def _readitem(self):
@@ -1478,7 +1480,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         """Return the count of the items in the treeview"""
         return self.send_message(win32defines.TVM_GETCOUNT)
     # Non PEP-8 alias
-    ItemCount = item_count
+    ItemCount = deprecated(item_count)
 
     #----------------------------------------------------------------
     def texts(self):
@@ -1506,7 +1508,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
 
         return _treeview_element(root_elem, self)
     # Non PEP-8 alias
-    Root = tree_root
+    Root = deprecated(tree_root, deprecated_name='Root')
 
     #----------------------------------------------------------------
     def roots(self):
@@ -1517,11 +1519,11 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         while cur_elem:
             roots.append(cur_elem)
 
-            cur_elem = cur_elem.Next()
+            cur_elem = cur_elem.next_item()
 
         return roots
     # Non PEP-8 alias
-    Roots = roots
+    Roots = deprecated(roots)
 
     #----------------------------------------------------------------
     def get_properties(self):
@@ -1625,8 +1627,9 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
 
     item = get_item  # this is an alias to be consistent with other content elements
     # Non PEP-8 alias
-    Item = get_item
-    GetItem = get_item
+    Item = deprecated(item)
+    # Non PEP-8 alias
+    GetItem = deprecated(get_item)
 
     #----------------------------------------------------------------
     def select(self, path):
@@ -1644,18 +1647,18 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
 
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_treeviewselect_wait)
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
     #-----------------------------------------------------------
     def is_selected(self, path):
         """Return True if the item is selected"""
         return win32defines.TVIS_SELECTED == (win32defines.TVIS_SELECTED &
-                                              self.get_item(path).State())
+                                              self.get_item(path).state())
     # Non PEP-8 alias
-    IsSelected = is_selected
+    IsSelected = deprecated(is_selected)
 
     #----------------------------------------------------------------
     def ensure_visible(self, path):
@@ -1663,7 +1666,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         elem = self.get_item(path)
         return elem.ensure_visible()
     # Non PEP-8 alias
-    EnsureVisible = ensure_visible
+    EnsureVisible = deprecated(ensure_visible)
 
     #----------------------------------------------------------------
     def print_items(self):
@@ -1681,7 +1684,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
 
         return self.text
     # Non PEP-8 alias
-    PrintItems = print_items
+    PrintItems = deprecated(print_items)
 
 #   #-----------------------------------------------------------
 #    def uncheck(self, path):
@@ -1762,7 +1765,7 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
         # get the number of items in the header...
         return self.send_message(win32defines.HDM_GETITEMCOUNT)
     # Non PEP-8 alias
-    ItemCount = item_count
+    ItemCount = deprecated(item_count)
 
     #----------------------------------------------------------------
     def get_column_rectangle(self, column_index):
@@ -1786,7 +1789,7 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
 
         return rect
     # Non PEP-8 alias
-    GetColumnRectangle = get_column_rectangle
+    GetColumnRectangle = deprecated(get_column_rectangle)
 
     #----------------------------------------------------------------
     def client_rects(self):
@@ -1834,7 +1837,7 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
 
         return None
     # Non PEP-8 alias
-    GetColumnText = get_column_text
+    GetColumnText = deprecated(get_column_text)
 
     #----------------------------------------------------------------
     def texts(self):
@@ -1938,7 +1941,7 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
 
         return borders_widths
     # Non PEP-8 alias
-    BorderWidths = border_widths
+    BorderWidths = deprecated(border_widths)
 
     #----------------------------------------------------------------
     def part_count(self):
@@ -1949,7 +1952,7 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
             0,
             0)
     # Non PEP-8 alias
-    PartCount = part_count
+    PartCount = deprecated(part_count)
 
     #----------------------------------------------------------------
     def part_right_edges(self):
@@ -1971,7 +1974,7 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
 
         return [int(part) for part in parts]
     # Non PEP-8 alias
-    PartRightEdges = part_right_edges
+    PartRightEdges = deprecated(part_right_edges)
 
     #----------------------------------------------------------------
     def get_part_rect(self, part_index):
@@ -1995,7 +1998,7 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
         del remote_mem
         return rect
     # Non PEP-8 alias
-    GetPartRect = get_part_rect
+    GetPartRect = deprecated(get_part_rect)
 
     #----------------------------------------------------------------
     def client_rects(self):
@@ -2040,7 +2043,7 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
         del remote_mem
         return text.value
     # Non PEP-8 alias
-    GetPartText = get_part_text
+    GetPartText = deprecated(get_part_text)
 
     #----------------------------------------------------------------
     def texts(self):
@@ -2084,21 +2087,21 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
         """Return the number of rows of tabs"""
         return self.send_message(win32defines.TCM_GETROWCOUNT)
     # Non PEP-8 alias
-    RowCount = row_count
+    RowCount = deprecated(row_count)
 
     #----------------------------------------------------------------
     def get_selected_tab(self):
         """Return the index of the selected tab"""
         return self.send_message(win32defines.TCM_GETCURSEL)
     # Non PEP-8 alias
-    GetSelectedTab = get_selected_tab
+    GetSelectedTab = deprecated(get_selected_tab)
 
     #----------------------------------------------------------------
     def tab_count(self):
         """Return the number of tabs"""
         return self.send_message(win32defines.TCM_GETITEMCOUNT)
     # Non PEP-8 alias
-    TabCount = tab_count
+    TabCount = deprecated(tab_count)
 
     #----------------------------------------------------------------
     def get_tab_rect(self, tab_index):
@@ -2122,7 +2125,7 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
 
         return rect
     # Non PEP-8 alias
-    GetTabRect = get_tab_rect
+    GetTabRect = deprecated(get_tab_rect)
 
 #    #----------------------------------------------------------------
 #    def get_tab_state(self, tab_index):
@@ -2150,7 +2153,7 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
 #
 #        return item.dwState
 #    # Non PEP-8 alias
-#    GetTabState = get_tab_state
+#    GetTabState = deprecated(get_tab_state)
 
     #----------------------------------------------------------------
     def get_tab_text(self, tab_index):
@@ -2179,7 +2182,7 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
 
         return text.value
     # Non PEP-8 alias
-    GetTabText = get_tab_text
+    GetTabText = deprecated(get_tab_text)
 
     #----------------------------------------------------------------
     def get_properties(self):
@@ -2198,7 +2201,7 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
 #            states.append(self.GetTabState(i))
 #        return states
 #    # Non PEP-8 alias
-#    TabStates = tab_states
+#    TabStates = deprecated(tab_states)
 
     #----------------------------------------------------------------
     def client_rects(self):
@@ -2252,13 +2255,13 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
         else:
             self.send_message(win32defines.TCM_SETCURFOCUS, tab)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_tabselect_wait)
         self.actions.log('Selected tab "' + str(logging_tab) + '"')
 
         return self
     # Non PEP-8 alias
-    Select = select
+    Select = deprecated(select)
 
 
 #====================================================================
@@ -2296,7 +2299,7 @@ class _toolbar_button(object):
 
         return rect
     # Non PEP-8 alias
-    Rectangle = rectangle
+    Rectangle = deprecated(rectangle)
 
 #    #----------------------------------------------------------------
 #    def press(self, press = True):
@@ -2314,17 +2317,17 @@ class _toolbar_button(object):
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
-#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl.handle)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #    # Non PEP-8 alias
-#    Press = press
+#    Press = deprecated(press)
 #
 #    #----------------------------------------------------------------
 #    def press(self):
 #        """Find where the button is and click it"""
 #        self.Press(press = False)
 #    # Non PEP-8 alias
-#    Press = press
+#    Press = deprecated(press)
 #
 #    #----------------------------------------------------------------
 #    def check(self, check = True):
@@ -2342,7 +2345,7 @@ class _toolbar_button(object):
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
-#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl.handle)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #
 #    #----------------------------------------------------------------
@@ -2354,7 +2357,7 @@ class _toolbar_button(object):
         """Return the text of the button"""
         return self.info.text
     # Non PEP-8 alias
-    Text = text
+    Text = deprecated(text)
 
     #----------------------------------------------------------------
     def style(self):
@@ -2362,14 +2365,14 @@ class _toolbar_button(object):
         return self.toolbar_ctrl.send_message(
             win32defines.TB_GETSTYLE, self.info.idCommand)
     # Non PEP-8 alias
-    Style = style
+    Style = deprecated(style)
 
     #----------------------------------------------------------------
     def has_style(self, style):
         """Return True if the button has the specified style"""
         return self.style() & style == style
     # Non PEP-8 alias
-    HasStyle = has_style
+    HasStyle = deprecated(has_style)
 
     #----------------------------------------------------------------
     def state(self):
@@ -2377,35 +2380,35 @@ class _toolbar_button(object):
         return self.toolbar_ctrl.send_message(
             win32defines.TB_GETSTATE, self.info.idCommand)
     # Non PEP-8 alias
-    State = state
+    State = deprecated(state)
 
     #----------------------------------------------------------------
     def is_checkable(self):
         """Return if the button can be checked"""
         return self.has_style(win32defines.TBSTYLE_CHECK)
     # Non PEP-8 alias
-    IsCheckable = is_checkable
+    IsCheckable = deprecated(is_checkable)
 
     #----------------------------------------------------------------
     def is_pressable(self):
         """Return if the button can be pressed"""
         return self.has_style(win32defines.TBSTYLE_BUTTON)
     # Non PEP-8 alias
-    IsPressable = is_pressable
+    IsPressable = deprecated(is_pressable)
 
     #----------------------------------------------------------------
     def is_checked(self):
         """Return if the button is in the checked state"""
         return self.state() & win32defines.TBSTATE_CHECKED == win32defines.TBSTATE_CHECKED
     # Non PEP-8 alias
-    IsChecked = is_checked
+    IsChecked = deprecated(is_checked)
 
     #----------------------------------------------------------------
     def is_pressed(self):
         """Return if the button is in the pressed state"""
         return self.state() & win32defines.TBSTATE_PRESSED == win32defines.TBSTATE_PRESSED
     # Non PEP-8 alias
-    IsPressed = is_pressed
+    IsPressed = deprecated(is_pressed)
 
     #----------------------------------------------------------------
     def is_enabled(self):
@@ -2416,7 +2419,7 @@ class _toolbar_button(object):
 
         return self.state() & win32defines.TBSTATE_ENABLED == win32defines.TBSTATE_ENABLED
     # Non PEP-8 alias
-    IsEnabled = is_enabled
+    IsEnabled = deprecated(is_enabled)
 
     #----------------------------------------------------------------
     def click(self, button="left", pressed=""):
@@ -2424,7 +2427,7 @@ class _toolbar_button(object):
         self.toolbar_ctrl.click(button=button, coords=self.rectangle(), pressed=pressed)
         time.sleep(Timings.after_toobarpressbutton_wait)
     # Non PEP-8 alias
-    Click = click
+    Click = deprecated(click)
 
     #----------------------------------------------------------------
     def click_input(self, button="left", double=False, wheel_dist=0, pressed=""):
@@ -2433,7 +2436,7 @@ class _toolbar_button(object):
                                       double=double, wheel_dist=wheel_dist, pressed=pressed)
         time.sleep(Timings.after_toobarpressbutton_wait)
     # Non PEP-8 alias
-    ClickInput = click_input
+    ClickInput = deprecated(click_input)
 
 
 #====================================================================
@@ -2444,6 +2447,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "Toolbar"
     windowclasses = [
         "ToolbarWindow32",
+        "TToolBar",
         r"WindowsForms\d*\.ToolbarWindow32\..*",
         "Afx:ToolBar:.*"]
 
@@ -2464,7 +2468,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
         """Return the number of buttons on the ToolBar"""
         return self.send_message(win32defines.TB_BUTTONCOUNT)
     # Non PEP-8 alias
-    ButtonCount = button_count
+    ButtonCount = deprecated(button_count)
 
     #----------------------------------------------------------------
     def button(self, button_identifier, exact=True, by_tooltip=False):
@@ -2492,7 +2496,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
 
         return _toolbar_button(button_index, self)
     # Non PEP-8 alias
-    Button = button
+    Button = deprecated(button)
 
     #----------------------------------------------------------------
     def get_button_struct(self, button_index):
@@ -2523,7 +2527,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
 
         return button
     # Non PEP-8 alias
-    GetButtonStruct = get_button_struct
+    GetButtonStruct = deprecated(get_button_struct)
 
     #----------------------------------------------------------------
     def get_button(self, button_index):
@@ -2578,7 +2582,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
 
         return button_info
     # Non PEP-8 alias
-    GetButton = get_button
+    GetButton = deprecated(get_button)
 
     #----------------------------------------------------------------
     def texts(self):
@@ -2613,21 +2617,21 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
 
         return texts
     # Non PEP-8 alias
-    TipTexts = tip_texts
+    TipTexts = deprecated(tip_texts)
 
     #----------------------------------------------------------------
     def get_button_rect(self, button_index):
         """Get the rectangle of a button on the toolbar"""
         return self.button(button_index).rectangle()
     # Non PEP-8 alias
-    GetButtonRect = get_button_rect
+    GetButtonRect = deprecated(get_button_rect)
 
     #----------------------------------------------------------------
     def get_tool_tips_control(self):
         """Return the tooltip control associated with this control"""
         return ToolTipsWrapper(self.send_message(win32defines.TB_GETTOOLTIPS))
     # Non PEP-8 alias
-    GetToolTipsControl = get_tool_tips_control
+    GetToolTipsControl = deprecated(get_tool_tips_control)
 
 #    def right_click(self, button_index, **kwargs):
 #        """Right click for Toolbar buttons"""
@@ -2684,7 +2688,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
 #
 #        win32functions.ReleaseCapture()
 #    # Non PEP-8 alias
-#    Right_Click = right_click
+#    Right_Click = deprecated(right_click)
 
     #----------------------------------------------------------------
     def press_button(self, button_identifier, exact=True):
@@ -2704,7 +2708,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
             raise RuntimeError('Toolbar button "' + str(button_identifier) + '" is disabled! Cannot click it.')
         self.actions.logSectionEnd()
     # Non PEP-8 alias
-    PressButton = press_button
+    PressButton = deprecated(press_button)
 
     #----------------------------------------------------------------
     def check_button(self, button_identifier, make_checked, exact=True):
@@ -2734,7 +2738,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
             #        raise RuntimeError("Cannot wait button check state!")
         self.actions.logSectionEnd()
     # Non PEP-8 alias
-    CheckButton = check_button
+    CheckButton = deprecated(check_button)
 
     #----------------------------------------------------------------
     def menu_bar_click_input(self, path, app):
@@ -2771,17 +2775,18 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
         #app = Application().Connect(handle=self.handle)
 
         current_toolbar = self
+        current_toolbar.set_focus() # to make sure it can be clicked immediately
         for i, index in enumerate(indices):
-            windows_before = app.Windows_(visible_only=True)
+            windows_before = app.windows(visible_only=True)
             current_toolbar.button(index).click_input()
             if i < len(indices) - 1:
-                wait_until(5, 0.1, lambda: len(app.Windows_(visible_only=True)) > len(windows_before))
-                windows_after = app.Windows_(visible_only=True)
+                wait_until(5, 0.1, lambda: len(app.windows(visible_only=True)) > len(windows_before))
+                windows_after = app.windows(visible_only=True)
                 new_window = set(windows_after) - set(windows_before)
                 current_toolbar = list(new_window)[0].children()[0]
         self.actions.logSectionEnd()
     # Non PEP-8 alias
-    MenuBarClickInput = menu_bar_click_input
+    MenuBarClickInput = deprecated(menu_bar_click_input)
 
 #    #----------------------------------------------------------------
 #    def _fill_toolbar_info(self):
@@ -2895,7 +2900,7 @@ class ReBarWrapper(hwndwrapper.HwndWrapper):
         """Return the number of bands in the control"""
         return self.send_message(win32defines.RB_GETBANDCOUNT)
     # Non PEP-8 alias
-    BandCount = band_count
+    BandCount = deprecated(band_count)
 
     #----------------------------------------------------------------
     def get_band(self, band_index):
@@ -2946,7 +2951,7 @@ class ReBarWrapper(hwndwrapper.HwndWrapper):
         del remote_mem
         return band_info
     # Non PEP-8 alias
-    GetBand = get_band
+    GetBand = deprecated(get_band)
 
     #----------------------------------------------------------------
     def get_tool_tips_control(self):
@@ -2956,7 +2961,7 @@ class ReBarWrapper(hwndwrapper.HwndWrapper):
         if tips_handle:
             return ToolTipsWrapper(tips_handle)
     # Non PEP-8 alias
-    GetToolTipsControl = get_tool_tips_control
+    GetToolTipsControl = deprecated(get_tool_tips_control)
 
     #----------------------------------------------------------------
     def texts(self):
@@ -3048,21 +3053,21 @@ class ToolTipsWrapper(hwndwrapper.HwndWrapper):
                               ' available tips: {1}').format(tip_index, self.tool_count()))
         return ToolTip(self, tip_index)
     # Non PEP-8 alias
-    GetTip = get_tip
+    GetTip = deprecated(get_tip)
 
     #----------------------------------------------------------------
     def tool_count(self):
         """Return the number of tooltips"""
         return self.send_message(win32defines.TTM_GETTOOLCOUNT)
     # Non PEP-8 alias
-    ToolCount = tool_count
+    ToolCount = deprecated(tool_count)
 
     #----------------------------------------------------------------
     def get_tip_text(self, tip_index):
         """Return the text of the tooltip"""
         return ToolTip(self, tip_index).text
     # Non PEP-8 alias
-    GetTipText = get_tip_text
+    GetTipText = deprecated(get_tip_text)
 
     #----------------------------------------------------------------
     def texts(self):
@@ -3099,21 +3104,21 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         )
         return win32functions.LoWord(pos)
     # Non PEP-8 alias
-    GetValue = get_value
+    GetValue = deprecated(get_value)
 
     #----------------------------------------------------------------
     def get_base(self):
         """Get the base the UpDown control (either 10 or 16)"""
         return self.send_message(win32defines.UDM_GETBASE)
     # Non PEP-8 alias
-    GetBase = get_base
+    GetBase = deprecated(get_base)
 
     #----------------------------------------------------------------
     def set_base(self, base_value):
         """Get the base the UpDown control (either 10 or 16)"""
         return self.send_message(win32defines.UDM_SETBASE, base_value)
     # Non PEP-8 alias
-    SetBase = set_base
+    SetBase = deprecated(set_base)
 
     #----------------------------------------------------------------
     def get_range(self):
@@ -3125,7 +3130,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         )
         return updown_range
     # Non PEP-8 alias
-    GetRange = get_range
+    GetRange = deprecated(get_range)
 
     #----------------------------------------------------------------
     def get_buddy_control(self):
@@ -3135,25 +3140,25 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         buddy_handle = self.send_message(win32defines.UDM_GETBUDDY)
         return hwndwrapper.HwndWrapper(buddy_handle)
     # Non PEP-8 alias
-    GetBuddyControl = get_buddy_control
+    GetBuddyControl = deprecated(get_buddy_control)
 
     #----------------------------------------------------------------
     def set_value(self, new_pos):
         """Set the value of the of the UpDown control to some integer value"""
         for _ in range(3):
-            result = ctypes.c_long()
+            result = win32structures.DWORD_PTR(0)
             win32functions.SendMessageTimeout(self,
                 win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
                 win32defines.SMTO_NORMAL,
                 int(Timings.after_updownchange_wait * 1000),
                 ctypes.byref(result))
-            win32functions.WaitGuiThreadIdle(self)
+            win32functions.WaitGuiThreadIdle(self.handle)
             time.sleep(Timings.after_updownchange_wait)
             if self.get_value() == new_pos:
                 break
             # make one more attempt elsewhere
     # Non PEP-8 alias
-    SetValue = set_value
+    SetValue = deprecated(set_value)
 
     #----------------------------------------------------------------
     def increment(self):
@@ -3164,10 +3169,10 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         self.click_input(coords=(rect.left + 5, rect.top + 5))
 
         #self.set_value(self.get_value() + 1)
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_updownchange_wait)
     # Non PEP-8 alias
-    Increment = increment
+    Increment = deprecated(increment)
 
     #----------------------------------------------------------------
     def decrement(self):
@@ -3176,10 +3181,10 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         self.click_input(coords=(rect.left + 5, rect.bottom - 5))
 
         #self.set_value(self.get_value() - 1)
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_updownchange_wait)
     # Non PEP-8 alias
-    Decrement = decrement
+    Decrement = deprecated(decrement)
 
 
 #====================================================================
@@ -3347,11 +3352,11 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
         #return (year, month, day_of_week, day, hour, minute, second, milliseconds)
         return system_time
     # Non PEP-8 alias
-    GetTime = get_time
+    GetTime = deprecated(get_time)
 
     #----------------------------------------------------------------
     def set_time(self, year=0, month=0, day_of_week=0, day=0, hour=0, minute=0, second=0, milliseconds=0):
-        """Get the currently selected time"""
+        """Set the currently selected time"""
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
 
@@ -3372,7 +3377,7 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
         if res == 0:
             raise RuntimeError('Failed to set time in Date Time Picker')
     # Non PEP-8 alias
-    SetTime = set_time
+    SetTime = deprecated(set_time)
 
 
 #====================================================================
@@ -3722,16 +3727,18 @@ class PagerWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_position(self):
         """Return the current position of the pager"""
+        self._ensure_enough_privileges('PGM_GETPOS')
         return self.send_message(win32defines.PGM_GETPOS)
     # Non PEP-8 alias
-    GetPosition = get_position
+    GetPosition = deprecated(get_position)
 
     #----------------------------------------------------------------
     def set_position(self, pos):
         """Set the current position of the pager"""
+        self._ensure_enough_privileges('PGM_SETPOS')
         return self.send_message(win32defines.PGM_SETPOS, pos)
     # Non PEP-8 alias
-    SetPosition = set_position
+    SetPosition = deprecated(set_position)
 
 
 #====================================================================
@@ -3748,19 +3755,21 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
     #----------------------------------------------------------------
     def get_position(self):
         """Return the current position of the progress bar"""
+        self._ensure_enough_privileges('PBM_GETPOS')
         return self.send_message(win32defines.PBM_GETPOS)
     # Non PEP-8 alias
-    GetPosition = get_position
+    GetPosition = deprecated(get_position)
 
     #----------------------------------------------------------------
     def set_position(self, pos):
         """Set the current position of the progress bar"""
+        self._ensure_enough_privileges('PBM_SETPOS')
         return self.send_message(win32defines.PBM_SETPOS, pos)
     # Non PEP-8 alias
-    SetPosition = set_position
+    SetPosition = deprecated(set_position)
 
     #----------------------------------------------------------------
-    def set_state(self):
+    def get_state(self):
         """Get the state of the progress bar
 
         State will be one of the following constants:
@@ -3768,23 +3777,26 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
          * PBST_ERROR
          * PBST_PAUSED
         """
+        self._ensure_enough_privileges('PBM_GETSTATE')
         return self.send_message(win32defines.PBM_GETSTATE)
     # Non PEP-8 alias
-    GetState = set_state
+    GetState = deprecated(get_state)
 
     #----------------------------------------------------------------
     def get_step(self):
         """Get the step size of the progress bar"""
+        self._ensure_enough_privileges('PBM_GETSTEP')
         return self.send_message(win32defines.PBM_GETSTEP)
     # Non PEP-8 alias
-    GetStep = get_step
+    GetStep = deprecated(get_step)
 
     #----------------------------------------------------------------
     def step_it(self):
         """Move the progress bar one step size forward"""
+        self._ensure_enough_privileges('PBM_STEPIT')
         return self.send_message(win32defines.PBM_STEPIT)
     # Non PEP-8 alias
-    StepIt = step_it
+    StepIt = deprecated(step_it)
 
 #
 ##

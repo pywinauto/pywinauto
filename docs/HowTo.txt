@@ -2,6 +2,24 @@
 How To's
 ========
 
+Definitions
+-----------
+Some important defitions may be helpful for beginners.
+
+ * **Dialog** is a window containing several other GUI elements/controls like
+   buttons, edit boxes etc. Dialog is not necessarily a main window. Message
+   box on top of main form is also a dialog. Main form is also considered a
+   dialog by pywinauto.
+ * A control is GUI element at any level of a hierarchy. This definition
+   includes window, button, edit box, grid, grid cell, bar etc.
+ * Win32 API technology ("win32" backend in pywinauto) provides an identifier
+   for every control. This is a unique integer called **handle**.
+ * UI Automation API ("uia" backend in pywinauto) may not provide window
+   **handle** for every GUI element. Such an element is not visible to
+   "win32" backend. But ``Inspect.exe`` can show property ``NativeWindowHandle``
+   if it's available.
+
+
 How to specify a usable Application instance
 ---------------------------------------------
 An ``Application()`` instance is the point of contact for all work
@@ -431,4 +449,36 @@ e.g.
 
     # Select an item in the popup menu
     outlook.PopupMenu.Menu().get_menu_path("Cancel Server Request")[0].click()
+
+
+
+COM Threading Model
+------------------------------------------------------------------------------------
+By default, pywinauto sets up the client Multithreading COM model (MTA) on init if
+no other model was defined prior to import of pywinauto. The model can be set up by
+another imported module implicitly or specified explicitly through ``sys.coinit_flags``.
+
+Example for overriding MTA by setting the single threaded appartment model explicitly.
+
+  ::
+
+   import sys
+   sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
+   
+   import pywinauto
+
+
+Notice that the final value of COM model is assigned back to ``sys.coinit_flags``.
+This is to avoid conflicts with other modules. Possible values for ``sys.coinit_flags``:
+
+- ``0`` - Multi-Threaded Apartment model (MTA)
+- ``2`` - Single-Threaded Apartment model (STA)
+
+More info:
+
+- About Microsoft COM threading models: `Understanding and Using COM Threading Models`_
+- Internal discussion_ on pywinauto MTA.
+
+.. _Understanding and Using COM Threading Models: https://msdn.microsoft.com/en-us/library/ms809971.aspx
+.. _discussion: https://github.com/pywinauto/pywinauto/issues/394#issuecomment-334926345
 

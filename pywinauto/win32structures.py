@@ -36,7 +36,7 @@ import ctypes
 from ctypes import \
     c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
     c_ubyte, c_ushort, \
-    POINTER, sizeof, alignment, Union, c_longlong, c_size_t
+    POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
 from .win32defines import LF_FACESIZE
 from . import sysinfo
@@ -131,11 +131,13 @@ PVOID = c_void_p
 UINT = c_uint
 WCHAR = c_wchar
 WORD = c_ushort
+LRESULT = wintypes.LPARAM
 
 COLORREF = DWORD
 LPBYTE = POINTER(BYTE)
 LPWSTR = c_size_t #POINTER(WCHAR)
 DWORD_PTR = UINT_PTR = ULONG_PTR = c_size_t
+PDWORD_PTR = POINTER(DWORD_PTR)
 if sysinfo.is_x64_Python():
     INT_PTR = LONG_PTR = c_longlong
 else:
@@ -148,6 +150,8 @@ HBRUSH = LONG_PTR #LONG
 HTREEITEM = LONG_PTR #LONG
 HWND = LONG_PTR #LONG
 
+# TODO: switch to ctypes.wintypes.LPARAM and ctypes.wintypes.WPARAM
+# Notice that wintypes definition of LPARAM/WPARAM differs between 32/64 bit
 LPARAM = LONG_PTR
 WPARAM = UINT_PTR
 

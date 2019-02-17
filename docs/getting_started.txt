@@ -18,13 +18,11 @@ The list of supported accessibility technologies on Windows:
     starting. Custom properties and controls are not supported because of 
     comtypes Python library restrictions.
 
-Not supported: Java AWT/Swing, GTK+, Tkinter.
-
 AT SPI on Linux and Apple Accessibility API are in the long term plans so far.
 
 
 GUI Objects Inspection / Spy Tools
-----------------------
+----------------------------------
 If you're still not sure which backend is most appropriate for you 
 then try using object inspection / spy tools that are available for free:
 download them from GitHub repo gui-inspect-tool_.
@@ -46,6 +44,16 @@ download them from GitHub repo gui-inspect-tool_.
    Switch Inspect.exe into **UIA mode** (using MS UI Automation). If it can 
    show more controls and their properties than Spy++, probably the ``"uia"`` 
    backend is your choice.
+
+ * `py_inspect`_ is a prototype of multi-backend spy tool based on pywinauto.
+   Switching between available backends can show you a difference in
+   hierarchies with "win32" and "uia" backends. **py_inspect** is a future
+   replacement of `SWAPY`_ which supports "win32" backend only at the moment
+   when pywinauto==0.5.4 was out. Initial implementation of py_inspect contains
+   just about 150 lines of code thanks to modern pywinauto 0.6.0+ architecture.
+
+.. _`py_inspect`: https://github.com/pywinauto/py_inspect
+.. _`SWAPY`: https://github.com/pywinauto/SWAPY
 
 If some or all controls are not visible to all the inspection tools it's still 
 possible to control the application by generating mouse and keyboard events 

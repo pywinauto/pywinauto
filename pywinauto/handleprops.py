@@ -36,9 +36,12 @@ useful to other modules with the least conceptual overhead
 """
 
 import ctypes
+import warnings
 import win32process
 import win32api
 import win32con
+import win32gui
+import pywintypes
 
 from . import win32functions
 from . import win32defines
@@ -54,11 +57,13 @@ def text(handle):
         return 'Default IME'
     if class_name == 'MSCTFIME UI':
         return 'M'
+    if class_name is None:
+        return None
     #length = win32functions.SendMessage(handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
 
     # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
     # WM_GETTEXTLENGTH may hang even for notepad.exe main window!
-    c_length = win32structures.DWORD(0)
+    c_length = win32structures.DWORD_PTR(0)
     result = win32functions.SendMessageTimeout(
         handle,
         win32defines.WM_GETTEXTLENGTH,
@@ -94,8 +99,10 @@ def text(handle):
 #=========================================================================
 def classname(handle):
     """Return the class name of the window"""
-    class_name = (ctypes.c_wchar * 257)()
-    win32functions.GetClassName(handle, ctypes.byref(class_name), 256)
+    if handle is None:
+        return None
+    class_name = ctypes.create_unicode_buffer(u"", 257)
+    win32functions.GetClassName(handle, class_name, 256)
     return class_name.value
 
 
@@ -138,25 +145,25 @@ def contexthelpid(handle):
 #=========================================================================
 def iswindow(handle):
     """Return True if the handle is a window"""
-    return bool(win32functions.IsWindow(handle))
+    return False if handle is None else  bool(win32functions.IsWindow(handle))
 
 
 #=========================================================================
 def isvisible(handle):
     """Return True if the window is visible"""
-    return bool(win32functions.IsWindowVisible(handle))
+    return False if handle is None else  bool(win32functions.IsWindowVisible(handle))
 
 
 #=========================================================================
 def isunicode(handle):
     """Return True if the window is a Unicode window"""
-    return bool(win32functions.IsWindowUnicode(handle))
+    return False if handle is None else bool(win32functions.IsWindowUnicode(handle))
 
 
 #=========================================================================
 def isenabled(handle):
     """Return True if the window is enabled"""
-    return bool(win32functions.IsWindowEnabled(handle))
+    return False if handle is None else bool(win32functions.IsWindowEnabled(handle))
 
 
 #=========================================================================
@@ -181,8 +188,13 @@ def is64bitprocess(process_id):
 def is64bitbinary(filename):
     """Check if the file is 64-bit binary"""
     import win32file
-    binary_type = win32file.GetBinaryType(filename)
-    return binary_type != win32file.SCS_32BIT_BINARY
+    try:
+        binary_type = win32file.GetBinaryType(filename)
+        return binary_type != win32file.SCS_32BIT_BINARY
+    except Exception as exc:
+        warnings.warn('Cannot get binary type for file "{}". Error: {}' \
+            ''.format(filename, exc), RuntimeWarning, stacklevel=2)
+        return None
 
 
 #=========================================================================
@@ -196,9 +208,11 @@ def clientrect(handle):
 #=========================================================================
 def rectangle(handle):
     """Return the rectangle of the window"""
-    rect = win32structures.RECT()
-    win32functions.GetWindowRect(handle, ctypes.byref(rect))
-    return rect
+    # GetWindowRect returns 4-tuple
+    try:
+        return win32structures.RECT(*win32gui.GetWindowRect(handle))
+    except pywintypes.error:
+        return win32structures.RECT()
 
 
 #=========================================================================
@@ -281,6 +295,20 @@ def processid(handle):
     """Return the ID of process that controls this window"""
     _, process_id = win32process.GetWindowThreadProcessId(int(handle))
     return process_id
+
+
+#=========================================================================
+def has_enough_privileges(process_id):
+    """Check if target process has enough rights to query GUI actions"""
+    try:
+        access_level = win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ
+        process_handle = win32api.OpenProcess(access_level, 0, process_id)
+        if process_handle:
+            win32api.CloseHandle(process_handle)
+            return True
+        return False
+    except win32gui.error:
+        return False
 
 
 #=========================================================================
