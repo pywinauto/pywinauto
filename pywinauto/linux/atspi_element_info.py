@@ -70,6 +70,9 @@ class AtspiElementInfo(ElementInfo):
             self.__get_elements(obj, tree)
         return tree
 
+    def description(self):
+        return self.atspi_functions.get_description(self._handle, None).decode(encoding='UTF-8')
+
     @property
     def rectangle(self):
         """Return rectangle of element"""
