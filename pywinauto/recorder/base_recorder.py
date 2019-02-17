@@ -26,7 +26,7 @@ def synchronized_method(method):
 class BaseRecorder(object):
     """Record hook (keyboard, mouse) and back-end events"""
 
-    def __init__(self, app, **kwargs):
+    def __init__(self, app, config, **kwargs):
         super(BaseRecorder, self).__init__()
 
         if not isinstance(app, Application):
@@ -36,10 +36,7 @@ class BaseRecorder(object):
             raise TypeError("Application must be already running")
 
         self.wrapper = app.top_window().wrapper_object()
-
-        self.verbose = kwargs.get("verbose", False)
-        # Output events straight away (for debug purposes)
-        self.hot_output = kwargs.get("hot_output", False)
+        self.config = config
 
         # Main recorder thread
         self.recorder_thread = threading.Thread(target=self.recorder_target)
@@ -56,7 +53,7 @@ class BaseRecorder(object):
         # Log parser
         self.event_log = []
         self.control_tree = None
-        self.log_parser = LogParser(self, self.verbose)
+        self.log_parser = LogParser(self)
 
         # Generated script
         try:
@@ -75,8 +72,6 @@ class BaseRecorder(object):
         self.script += u"print('Recorded with pywinauto-{}'.format(recorded_version))\n"
         self.script += u"print('Running with pywinauto-{}'.format(pywinauto.__version__))\n\n"
         self.script += u"app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
-        if self.hot_output:
-            print(self.script)
 
     @synchronized_method
     def add_to_log(self, item):
@@ -85,7 +80,7 @@ class BaseRecorder(object):
         This is a synchronized method.
         """
         self.event_log.append(item)
-        if self.verbose:
+        if self.config.verbose:
             print(item)
 
     @synchronized_method
@@ -117,8 +112,6 @@ class BaseRecorder(object):
     def _parse_and_clear_log(self):
         """Parse current event log and clear it afterwards"""
         new_script = self.log_parser.parse_current_log()
-        if self.hot_output:
-            print(new_script)
         self.script += new_script
         self.clear_log()
 

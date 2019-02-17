@@ -2,8 +2,16 @@
 import time
 import sys
 from abc import ABCMeta
+from ast import parse
 
 import six
+
+HOOK_KEY_DOWN = "key down"
+HOOK_KEY_UP = "key up"
+
+HOOK_MOUSE_LEFT_BUTTON = "LButton"
+HOOK_MOUSE_RIGHT_BUTTON = "RButton"
+HOOK_MOUSE_MIDDLE_BUTTON = "MButton"
 
 
 class EVENT(object):
@@ -211,6 +219,7 @@ class PROPERTY(object):
 # -- -- RecorderMouseEvent
 # -- -- RecorderKeyboardEvent
 # -- ApplicationEvent
+# -- -- PropertyEvent
 
 class RecorderEvent(object):
     __metaclass__ = ABCMeta
@@ -227,14 +236,15 @@ class RecorderEvent(object):
 
 
 class HookEvent(RecorderEvent):
-    pass
+    def __init__(self, current_key=None, event_type=None):
+        super(HookEvent, self).__init__()
+        self.current_key = current_key
+        self.event_type = event_type
 
 
 class RecorderMouseEvent(HookEvent):
     def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
-        super(RecorderMouseEvent, self).__init__()
-        self.current_key = current_key
-        self.event_type = event_type
+        super(RecorderMouseEvent, self).__init__(current_key, event_type)
         self.mouse_x = mouse_x
         self.mouse_y = mouse_y
 
@@ -244,40 +254,95 @@ class RecorderMouseEvent(HookEvent):
         else:
             elem = u""
         return u"<RecorderMouseEvent - '{}' - '{}' at ({}, {}){} [{}]>".format(self.current_key, self.event_type,
-                                                                                     self.mouse_x, self.mouse_y, elem,
-                                                                                     self.timestamp)
+                                                                               self.mouse_x, self.mouse_y, elem,
+                                                                               self.timestamp)
 
 
 class RecorderKeyboardEvent(HookEvent):
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
-        super(RecorderKeyboardEvent, self).__init__()
-        self.current_key = current_key
-        self.event_type = event_type
+        super(RecorderKeyboardEvent, self).__init__(current_key, event_type)
         self.pressed_key = pressed_key
 
     def __repr__(self):
-        print(self.current_key)
         return u"<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(
             self.current_key, self.event_type, self.pressed_key, self.timestamp)
 
 
 class ApplicationEvent(RecorderEvent):
-    def __init__(self, name, sender):
+    def __init__(self, name, sender=None):
         super(ApplicationEvent, self).__init__()
         self.name = name
         self.sender = sender
 
     def __repr__(self):
-        return u"<ApplicationEvent - '{}' from '{}'>".format(self.name,
-            self.sender)
+        return u"<ApplicationEvent - '{}' from '{}'>".format(self.name, self.sender)
 
 
 class PropertyEvent(ApplicationEvent):
-    def __init__(self, sender, property_name, new_value):
+    def __init__(self, property_name, sender=None, new_value=None):
         super(PropertyEvent, self).__init__(EVENT.PROPERTY_CHANGED, sender)
         self.property_name = property_name
         self.new_value = new_value
 
     def __repr__(self):
-        return u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name,
-            self.new_value, self.sender)
+        return u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name, self.new_value, self.sender)
+
+
+class EventPattern(object):
+    def __init__(self, hook_event=None, app_events=None):
+        self.hook_event = hook_event
+        self.app_events = app_events
+
+    def __str__(self):
+        return u"<EventPattern: {}, {}>".format(
+            self.hook_event, ", ".join([str(e) for e in self.app_events]) if self.app_events else None)
+
+    def get_subpattern(self, pattern):
+        if not isinstance(pattern, EventPattern):
+            return None
+
+        subpattern = EventPattern(hook_event=self.hook_event, app_events=[])
+
+        if pattern.hook_event and self.hook_event:
+            if not isinstance(self.hook_event, type(pattern.hook_event)):
+                return None
+            if pattern.hook_event.current_key and self.hook_event.current_key != pattern.hook_event.current_key:
+                return None
+            if pattern.hook_event.event_type and self.hook_event.event_type != pattern.hook_event.event_type:
+                return None
+
+        if pattern.app_events and self.app_events:
+            idx = 0
+
+            for item_ev in pattern.app_events:
+                while idx < len(self.app_events):
+                    idx += 1
+
+                    self_ev = self.app_events[idx - 1]
+                    if self_ev.name == item_ev.name:
+                        if isinstance(self_ev, PropertyEvent):
+                            if self_ev.property_name == item_ev.property_name:
+                                subpattern.app_events.append(self_ev)
+                                break
+                        else:
+                            subpattern.app_events.append(self_ev)
+                            break
+                else:
+                    return None
+
+        return subpattern
+
+
+def _is_identifier(name):
+    try:
+        parse('{} = None'.format(name))
+        return True
+    except (SyntaxError, ValueError, TypeError):
+        return False
+
+
+def get_window_access_name_str(name, key_only=False):
+    if not key_only and _is_identifier(name):
+        return u".{}".format(name)
+    else:
+        return u"[u'{}']".format(name)

@@ -19,24 +19,27 @@ import win32con
 class ProgressBarDialog(dialog.Dialog):
     title = "Updating..."
     style = (win32con.DS_MODALFRAME | win32con.WS_POPUP | win32con.WS_VISIBLE | win32con.WS_CAPTION |
-             win32con.WS_SYSMENU | win32con.DS_SETFONT | win32con.WS_EX_TOPMOST)
+             win32con.DS_SETFONT | win32con.WS_EX_TOPMOST)
     cs = (win32con.WS_CHILD | win32con.WS_VISIBLE)
     dimensions = (0, 0, 215, 20)
     title_font = (8, "MS Sans Serif")
 
-    def __init__(self, *args, **kwargs):
-        super(ProgressBarDialog, self).__init__([[self.title, self.dimensions, self.style, None, self.title_font], ])
+    def __init__(self, rect, *args, **kwargs):
+        self.rect = rect
+        if rect:
+            self.dimensions = (rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)
+        dialog.Dialog.__init__(self, [[self.title, self.dimensions, self.style, None, self.title_font], ])
         self.pbar = win32ui.CreateProgressCtrl()
 
     def OnInitDialog(self):
-        rc = super(ProgressBarDialog, self).OnInitDialog()
-        self.pbar.CreateWindow(self.cs, (10, 10, 310, 24), self, 1001)
+        rc = dialog.Dialog.OnInitDialog(self)
+        self.pbar.CreateWindow(self.cs, (10, 10, 310 if not self.rect else self.dimensions[2] - 20, 24), self, 1001)
         return rc
 
     def show(self):
         self.CreateWindow()
         self.SetWindowPos(win32con.HWND_TOPMOST, self.dimensions,
-                          win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_SHOWWINDOW)
+                          win32con.SWP_SHOWWINDOW | (win32con.SWP_NOMOVE | win32con.SWP_NOSIZE) if not self.rect else 0)
 
     def close(self):
         self.OnCancel()
@@ -85,9 +88,8 @@ class UiaRecorder(COMObject, BaseRecorder):
                         IUIA().UIA_dll.IUIAutomationFocusChangedEventHandler,
                         IUIA().UIA_dll.IUIAutomationStructureChangedEventHandler]
 
-    def __init__(self, app=None, record_props=False, record_focus=False, record_struct=False, hot_output=True,
-                 verbose=False):
-        super(UiaRecorder, self).__init__(app=app, hot_output=hot_output, verbose=verbose)
+    def __init__(self, app, config, record_props=True, record_focus=False, record_struct=False):
+        super(UiaRecorder, self).__init__(app=app, config=config)
 
         if app.backend.name != "uia":
             raise TypeError("app must be a pywinauto.Application object of 'uia' backend")
@@ -99,7 +101,7 @@ class UiaRecorder(COMObject, BaseRecorder):
 
     def _add_handlers(self, element):
         """Add UIA handlers to element and all its descendants"""
-        if self.verbose:
+        if self.config.verbose:
             start_time = timeit.default_timer()
             print("[_add_handlers] Subscribing to events")
 
@@ -124,16 +126,16 @@ class UiaRecorder(COMObject, BaseRecorder):
         if self.record_struct:
             IUIA().iuia.AddStructureChangedEventHandler(element, IUIA().tree_scope['subtree'], cache_request, self)
 
-        if self.verbose:
+        if self.config.verbose:
             print("[_add_handlers] Finished subscribing to events. Time = {}".format(
                 timeit.default_timer() - start_time))
 
     def _rebuild_control_tree(self):
-        if self.verbose:
+        if self.config.verbose:
             start_time = timeit.default_timer()
             print("[_rebuild_control_tree] Rebuilding control tree")
         self.control_tree.rebuild()
-        if self.verbose:
+        if self.config.verbose:
             print("[_rebuild_control_tree] Finished rebuilding control tree. Time = {}".format(
                 timeit.default_timer() - start_time))
 
@@ -156,11 +158,14 @@ class UiaRecorder(COMObject, BaseRecorder):
 
     def _update(self, rebuild_tree=False, add_handlers_to=None):
         # Draw progress window
-        pbar_dlg = ProgressBarDialog()
+        import time
+        pbar_dlg = ProgressBarDialog(self.control_tree.root.rect if self.control_tree.root else None)
         pbar_dlg.show()
 
         # Temporary disable mouse and keyboard event processing
         self.hook.stop()
+        time.sleep(1)
+        # exit(0)
         self.hook_thread.join(1)
 
         # Subscribe to events and rebuild control tree in separate threads to speed up the process
@@ -222,7 +227,7 @@ class UiaRecorder(COMObject, BaseRecorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = ApplicationEvent(name=EVENT_ID_TO_NAME_MAP[eventID], sender=sender)
+        event = ApplicationEvent(name=EVENT_ID_TO_NAME_MAP[eventID], sender=UIAElementInfo(sender))
         self.add_to_log(event)
 
         if event.name == EVENT.MENU_START:
@@ -248,19 +253,20 @@ class UiaRecorder(COMObject, BaseRecorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = PropertyEvent(sender=sender, property_name=PROPERTY_ID_TO_NAME_MAP[propertyId], new_value=newValue)
+        event = PropertyEvent(property_name=PROPERTY_ID_TO_NAME_MAP[propertyId], sender=UIAElementInfo(sender),
+                              new_value=newValue.value if hasattr(newValue, "value") else newValue)
         self.add_to_log(event)
 
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
         if not self.recorder_start_event.is_set():
             return
 
-        event = ApplicationEvent(name=EVENT.FOCUS_CHANGED, sender=sender)
+        event = ApplicationEvent(name=EVENT.FOCUS_CHANGED, sender=UIAElementInfo(sender))
         self.add_to_log(event)
 
     def IUIAutomationStructureChangedEventHandler_HandleStructureChangedEvent(self, sender, changeType, runtimeId):
         if not self.recorder_start_event.is_set():
             return
 
-        event = StructureEvent(sender=sender, change_type=changeType, runtime_id=runtimeId)
+        event = StructureEvent(sender=UIAElementInfo(sender), change_type=changeType, runtime_id=runtimeId)
         self.add_to_log(event)
