@@ -158,14 +158,11 @@ class UiaRecorder(COMObject, BaseRecorder):
 
     def _update(self, rebuild_tree=False, add_handlers_to=None):
         # Draw progress window
-        import time
-        pbar_dlg = ProgressBarDialog(self.control_tree.root.rect if self.control_tree.root else None)
+        pbar_dlg = ProgressBarDialog(self.wrapper.rectangle())
         pbar_dlg.show()
 
         # Temporary disable mouse and keyboard event processing
         self.hook.stop()
-        time.sleep(1)
-        # exit(0)
         self.hook_thread.join(1)
 
         # Subscribe to events and rebuild control tree in separate threads to speed up the process
