@@ -7,6 +7,7 @@ import unittest
 if sys.platform != 'win32':
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
+    from pywinauto.linux.atspi_element_info import known_control_types
     from pywinauto.linux.application import Application
 
 app_name = r"gtk_example.py"
@@ -28,13 +29,18 @@ if sys.platform != 'win32':
         """Unit tests for the AtspiElementInfo class"""
 
         def get_app(self, name):
-            return [children for children in self.desktop_info.children() if children.name == app_name][0]
+            for children in self.desktop_info.children():
+                if children.name == name:
+                    return children
+            else:
+                raise Exception("Application not found")
 
         def setUp(self):
             self.desktop_info = AtspiElementInfo()
             self.app = Application()
-            self.app.start("python " + _test_app())
+            self.app.start("python3 " + _test_app())
             time.sleep(1)
+            self.app_info = self.get_app(app_name)
 
         def tearDown(self):
             self.app.kill()
@@ -50,17 +56,25 @@ if sys.platform != 'win32':
             self.assertEqual(self.desktop_info.name, "main")
 
         def test_can_get_parent(self):
-            app_info = self.get_app(app_name)
-            parent = app_info.parent
+            parent = self.app_info.parent
             self.assertEqual(parent.class_name, "desktop frame")
 
         def test_can_get_process_id(self):
-            app_info = self.get_app(app_name)
-            self.assertEqual(app_info.process_id, self.app.process)
+            self.assertEqual(self.app_info.process_id, self.app.process)
 
         def test_can_get_class_name(self):
-            app_info = self.get_app(app_name)
-            self.assertEqual(app_info.class_name, "application")
+            self.assertEqual(self.app_info.class_name, "application")
+
+        def test_can_get_control_type_property(self):
+            self.assertEqual(self.app_info.control_type, "Application")
+
+        def test_can_get_control_type_of_all_app_descendants(self):
+            for children in self.app_info.descendants():
+                self.assertTrue(children.control_type in known_control_types)
+
+        def test_control_type_equal_class_name(self):
+            for children in self.app_info.descendants():
+                self.assertEqual(children.control_type.lower().replace("_", " "), children.class_name)
 
         @unittest.skip("skip for now")
         def test_can_get_rectangle(self):
