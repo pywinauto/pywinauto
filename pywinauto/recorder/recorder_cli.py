@@ -15,6 +15,7 @@ if __package__ is None:
 
     from pywinauto.application import Application
     from pywinauto.recorder.uia.uia_recorder import UiaRecorder
+    from pywinauto.recorder.win32.win32_recorder import Win32Recorder
     from pywinauto.recorder.recorder_config import RecorderConfig
 else:
     from ..application import Application
@@ -23,7 +24,7 @@ else:
 
 
 def main(argv):
-    backend_choises = ["uia"]
+    backend_choises = ["uia", "win32"]
 
     conf_parser = argparse.ArgumentParser(add_help=False)
     conf_parser.add_argument("-c", "--config", help="Specify config file")
@@ -70,6 +71,8 @@ def main(argv):
 
     if config.backend == "uia":
         rec = UiaRecorder(app=app, config=config)
+    elif config.backend == "win32":
+        rec = Win32Recorder(app=app, config=config)
     elif config.backend is None:
         # TODO: auto backend recognition
         raise NotImplementedError()
