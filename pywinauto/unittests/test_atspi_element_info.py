@@ -3,6 +3,7 @@ import sys
 import subprocess
 import time
 import unittest
+import re
 
 if sys.platform != 'win32':
     sys.path.append(".")
@@ -79,6 +80,25 @@ if sys.platform != 'win32':
         def test_can_get_description(self):
             # TODO find a way to add meaningful description to example application
             self.assertEqual(self.app_info.description(), "")
+
+        def test_can_get_framework_id(self):
+            dpkg_output = subprocess.check_output(["dpkg", "-s", "libgtk-3-0"]).decode(encoding='UTF-8')
+            version_line = None
+            for line in dpkg_output.split("\n"):
+                if line.startswith("Version"):
+                    version_line = line
+                    break
+            print(version_line)
+            if version_line is None:
+                raise Exception("Cant get system gtk version")
+            version_pattern = "Version:\s+(\d+\.\d+\.\d+).*"
+            r_version = re.compile(version_pattern, flags=re.MULTILINE)
+            res = r_version.match(version_line)
+            gtk_version = res.group(1)
+            self.assertEqual(self.app_info.framework_id(), gtk_version)
+
+        def test_can_get_framework_name(self):
+            self.assertEqual(self.app_info.framework_name(), "gtk")
 
         @unittest.skip("skip for now")
         def test_can_get_rectangle(self):
