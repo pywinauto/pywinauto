@@ -1,4 +1,4 @@
-from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions, RECT
+from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions, RECT, known_control_types
 from pywinauto.element_info import ElementInfo
 
 
@@ -43,6 +43,12 @@ class AtspiElementInfo(ElementInfo):
     def class_name(self):
         """Return the class name of the element"""
         return self.atspi_functions.get_role_name(self._handle, None).decode(encoding='UTF-8')
+
+    @property
+    def control_type(self):
+        """Return the class name of the element"""
+        role_id = self.atspi_functions.get_role(self._handle, None)
+        return known_control_types[role_id]
 
     @property
     def parent(self):
