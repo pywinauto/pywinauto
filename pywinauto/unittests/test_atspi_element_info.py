@@ -76,6 +76,10 @@ if sys.platform != 'win32':
             for children in self.app_info.descendants():
                 self.assertEqual(children.control_type.lower().replace("_", " "), children.class_name)
 
+        def test_can_get_description(self):
+            # TODO find a way to add meaningful description to example application
+            self.assertEqual(self.app_info.description(), "")
+
         @unittest.skip("skip for now")
         def test_can_get_rectangle(self):
             app_info = self.get_app(app_name)
