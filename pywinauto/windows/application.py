@@ -93,8 +93,7 @@ from ..timings import Timings, wait_until, TimeoutError, wait_until_passes
 from ..sysinfo import is_x64_Python
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication, \
     WindowSpecification
-from . import deprecated
-
+from .. import deprecated
 
 # Display User and Deprecation warnings every time
 for warning in (UserWarning, PendingDeprecationWarning):
