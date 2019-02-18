@@ -223,8 +223,8 @@ def _GroupBoxTruncInfo(win):
     # we do this by specifying huge adjustments
     # maybe a better/more pythonic way of doing this would be
     # to set some special lineFormat (None or something?)
-    if win.HasStyle(win32defines.BS_BITMAP) or \
-        win.HasStyle(win32defines.BS_ICON):
+    if win.has_style(win32defines.BS_BITMAP) or \
+        win.has_style(win32defines.BS_ICON):
         heightAdj = -9000
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
@@ -241,7 +241,7 @@ def _RadioButtonTruncInfo(win):
     """Return truncation information specific to Button controls"""
     lineFormat = win32defines.DT_SINGLELINE
 
-    if win.HasStyle(win32defines.BS_MULTILINE):
+    if win.has_style(win32defines.BS_MULTILINE):
         lineFormat = win32defines.DT_WORDBREAK
 
     widthAdj = 19
@@ -250,8 +250,8 @@ def _RadioButtonTruncInfo(win):
     # we do this by specifying huge adjustments
     # maybe a better/more pythonic way of doing this would be
     # to set some special lineFormat (None or something?)
-    if win.HasStyle(win32defines.BS_BITMAP) or \
-        win.HasStyle(win32defines.BS_ICON):
+    if win.has_style(win32defines.BS_BITMAP) or \
+        win.has_style(win32defines.BS_ICON):
         #unused var: heightAdj = -9000
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
@@ -267,7 +267,7 @@ def _CheckBoxTruncInfo(win):
     """Return truncation information specific to Button controls"""
     lineFormat = win32defines.DT_SINGLELINE
 
-    if win.HasStyle(win32defines.BS_MULTILINE):
+    if win.has_style(win32defines.BS_MULTILINE):
         lineFormat = win32defines.DT_WORDBREAK
 
     widthAdj = 18
@@ -276,8 +276,8 @@ def _CheckBoxTruncInfo(win):
     # we do this by specifying huge adjustments
     # maybe a better/more pythonic way of doing this would be
     # to set some special lineFormat (None or something?)
-    if win.HasStyle(win32defines.BS_BITMAP) or \
-        win.HasStyle(win32defines.BS_ICON):
+    if win.has_style(win32defines.BS_BITMAP) or \
+        win.has_style(win32defines.BS_ICON):
         #unused var: heightAdj = -9000
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
@@ -293,16 +293,16 @@ def _ButtonTruncInfo(win):
     """Return truncation information specific to Button controls"""
     lineFormat = win32defines.DT_SINGLELINE
 
-    if win.HasStyle(win32defines.BS_MULTILINE):
+    if win.has_style(win32defines.BS_MULTILINE):
         lineFormat = win32defines.DT_WORDBREAK
 
     heightAdj = 4
     widthAdj = 5
 
-    if win.HasStyle(win32defines.BS_PUSHLIKE):
+    if win.has_style(win32defines.BS_PUSHLIKE):
         widthAdj = 3
         heightAdj = 3 # 3
-        if win.HasStyle(win32defines.BS_MULTILINE):
+        if win.has_style(win32defines.BS_MULTILINE):
             widthAdj = 9
             heightAdj = 2 # 3
 
@@ -310,8 +310,8 @@ def _ButtonTruncInfo(win):
     # we do this by specifying huge adjustments
     # maybe a better/more pythonic way of doing this would be
     # to set some special lineFormat (None or something?)
-    if win.HasStyle(win32defines.BS_BITMAP) or \
-        win.HasStyle(win32defines.BS_ICON):
+    if win.has_style(win32defines.BS_BITMAP) or \
+        win.has_style(win32defines.BS_ICON):
         heightAdj = -9000
         widthAdj = -9000
         lineFormat = win32defines.DT_WORDBREAK
@@ -328,8 +328,8 @@ def _ComboBoxTruncInfo(win):
     # canot wrap and never had a hotkey
     lineFormat = win32defines.DT_SINGLELINE | win32defines.DT_NOPREFIX
 
-    if win.HasStyle(win32defines.CBS_DROPDOWN) or \
-        win.HasStyle(win32defines.CBS_DROPDOWNLIST):
+    if win.has_style(win32defines.CBS_DROPDOWN) or \
+        win.has_style(win32defines.CBS_DROPDOWNLIST):
         widthAdj = 2#5
     else:
         widthAdj = 3
@@ -378,14 +378,14 @@ def _StaticTruncInfo(win):
     """Return truncation information specific to Static controls"""
     lineFormat = win32defines.DT_WORDBREAK
 
-    if win.HasStyle(win32defines.SS_CENTERIMAGE) or \
-            win.HasStyle(win32defines.SS_SIMPLE) or \
-            win.HasStyle(win32defines.SS_LEFTNOWORDWRAP) and \
+    if win.has_style(win32defines.SS_CENTERIMAGE) or \
+            win.has_style(win32defines.SS_SIMPLE) or \
+            win.has_style(win32defines.SS_LEFTNOWORDWRAP) and \
             "WindowsForms" not in win.class_name():
 
         lineFormat = win32defines.DT_SINGLELINE
 
-    if win.HasStyle(win32defines.SS_NOPREFIX):
+    if win.has_style(win32defines.SS_NOPREFIX):
         lineFormat |= win32defines.DT_NOPREFIX
 
     return [(win.window_text(), win.client_rects()[0], win.font(), lineFormat), ]
@@ -395,7 +395,7 @@ def _EditTruncInfo(win):
     """Return truncation information specific to Edit controls"""
     lineFormat = win32defines.DT_WORDBREAK | win32defines.DT_NOPREFIX
 
-    if not win.HasStyle(win32defines.ES_MULTILINE):
+    if not win.has_style(win32defines.ES_MULTILINE):
         lineFormat |= win32defines.DT_SINGLELINE
 
     return [(win.window_text(), win.client_rects()[0], win.font(), lineFormat), ]
@@ -413,51 +413,51 @@ def _DialogTruncInfo(win):
     newRect.right -= 5
 
 
-    if win.HasStyle(win32defines.WS_THICKFRAME):
+    if win.has_style(win32defines.WS_THICKFRAME):
         newRect.top += 1
         newRect.left += 1
         newRect.right -= 1
 
     # if it has the system menu but is a small caption
     # then the only button it can have is the close button
-    if win.HasStyle(win32defines.WS_SYSMENU) and \
-        (win.HasExStyle(win32defines.WS_EX_PALETTEWINDOW) or
-         win.HasExStyle(win32defines.WS_EX_TOOLWINDOW)):
+    if win.has_style(win32defines.WS_SYSMENU) and \
+        (win.has_exstyle(win32defines.WS_EX_PALETTEWINDOW) or
+         win.has_exstyle(win32defines.WS_EX_TOOLWINDOW)):
         newRect.right -= 15
 
 
     # all the rest only need to be considered if there is a system menu.
-    elif win.HasStyle(win32defines.WS_SYSMENU):
+    elif win.has_style(win32defines.WS_SYSMENU):
         buttons = []
         # account for the close button
         newRect.right -= 18
         buttons.append('close')
 
         # account for Icon if it is not disabled
-        if not win.HasExStyle(win32defines.WS_EX_DLGMODALFRAME):
+        if not win.has_exstyle(win32defines.WS_EX_DLGMODALFRAME):
             newRect.left += 19 # icon
 
 
         # account for context sensitive help if set
-        if win.HasExStyle(win32defines.WS_EX_CONTEXTHELP) and not ( \
-                        win.HasStyle(win32defines.WS_MAXIMIZEBOX) and \
-                        win.HasStyle(win32defines.WS_MINIMIZEBOX)):
+        if win.has_exstyle(win32defines.WS_EX_CONTEXTHELP) and not ( \
+            win.has_style(win32defines.WS_MAXIMIZEBOX) and \
+            win.has_style(win32defines.WS_MINIMIZEBOX)):
 
             newRect.right -= 17
 
             # there is a bigger gap if the minimize box is there
-            if win.HasStyle(win32defines.WS_MINIMIZEBOX) or \
-                win.HasStyle(win32defines.WS_MAXIMIZEBOX) or \
-                win.HasStyle(win32defines.WS_GROUP):
+            if win.has_style(win32defines.WS_MINIMIZEBOX) or \
+                win.has_style(win32defines.WS_MAXIMIZEBOX) or \
+                win.has_style(win32defines.WS_GROUP):
                 newRect.right -= 3
 
             buttons.append('help')
 
 
         # account for Maximize button (but skip if WS_GROUP is set
-        if win.HasStyle(win32defines.WS_MINIMIZEBOX) or \
-            win.HasStyle(win32defines.WS_MAXIMIZEBOX) or \
-            win.HasStyle(win32defines.WS_GROUP):
+        if win.has_style(win32defines.WS_MINIMIZEBOX) or \
+            win.has_style(win32defines.WS_MAXIMIZEBOX) or \
+            win.has_style(win32defines.WS_GROUP):
 
             newRect.right -= 32
             buttons.append('min')
@@ -525,10 +525,10 @@ def _WindowTruncInfo(win):
             rect = win.client_rects()[0]
 
         # if we have fewer fonts than titles
-        if len(win.Fonts())-1 < i:
+        if len(win.fonts())-1 < i:
             font = win.font()
         else:
-            font = win.Fonts()[i]
+            font = win.fonts()[i]
 
         # add the item
         matchedItems.append(

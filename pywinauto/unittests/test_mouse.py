@@ -9,7 +9,7 @@ if sys.platform == 'win32':
     import win32clipboard
     sys.path.append(".")
     from pywinauto.application import Application
-    from pywinauto.keyboard import SendKeys
+    from pywinauto.keyboard import send_keys
     from pywinauto import mouse
     from pywinauto.timings import Timings
 else:
@@ -20,7 +20,7 @@ else:
     import mouse
     send_keys_dir = os.path.join(parent_dir, r"linux")
     sys.path.insert(0, send_keys_dir)
-    from keyboard import SendKeys
+    from keyboard import send_keys
     import clipboard
 
 
@@ -41,7 +41,7 @@ class MouseTests(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         if sys.platform == 'win32':
-            Timings.Defaults()
+            Timings.defaults()
             self.app = Application()
             self.app.start(_test_app())
             self.dlg = self.app.mousebuttons
@@ -67,7 +67,7 @@ class MouseTests(unittest.TestCase):
     def __get_text(self):
         data = ''
         time.sleep(1)
-        SendKeys('^a^c', pause=0.2)
+        send_keys('^a^c', pause=0.2)
         if sys.platform == 'win32':
             win32clipboard.OpenClipboard()
             data = win32clipboard.GetClipboardData()

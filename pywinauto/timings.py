@@ -29,16 +29,17 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Timing settings for all of pywinauto
+"""Global timing settings for all of pywinauto
 
-This module has one object that should be used for all timing adjustments
-  timings.Timings
+This module has one object that should be used for all timing adjustments:
 
-There are a couple of predefined settings
+ * timings.Timings
 
-timings.Timings.Fast()
-timings.Timings.Defaults()
-timings.Timings.Slow()
+There are a couple of predefined settings:
+
+ * ``timings.Timings.fast()``
+ * ``timings.Timings.defaults()``
+ * ``timings.Timings.slow()``
 
 The Following are the individual timing settings that can be adjusted:
 
@@ -114,6 +115,8 @@ import six
 import time
 import operator
 from functools import wraps
+
+from . import deprecated
 
 
 #=========================================================================
@@ -219,7 +222,7 @@ class TimeConfig(object):
         else:
             raise AttributeError("Unknown timing setting: {0}".format(attr))
 
-    def Fast(self):
+    def fast(self):
         """Set fast timing values
 
         Currently this changes the timing in the following ways:
@@ -244,7 +247,7 @@ class TimeConfig(object):
 
             #self._timings['app_start_timeout'] = .5
 
-    def Slow(self):
+    def slow(self):
         """Set slow timing values
 
         Currently this changes the timing in the following ways:
@@ -273,9 +276,13 @@ class TimeConfig(object):
             if self._timings[setting] < .2:
                 self._timings[setting] = .2
 
-    def Defaults(self):
+    def defaults(self):
         """Set all timings to the default time"""
         self._timings = self.__default_timing.copy()
+
+    Fast = deprecated(fast)
+    Slow = deprecated(slow)
+    Defaults = deprecated(defaults)
 
 
 Timings = TimeConfig()
@@ -370,7 +377,7 @@ def wait_until(timeout,
     return func_val
 
 # Non PEP-8 alias
-WaitUntil = wait_until
+WaitUntil = deprecated(wait_until)
 
 
 #=========================================================================
@@ -454,4 +461,4 @@ def wait_until_passes(timeout,
     return func_val
 
 # Non PEP-8 alias
-WaitUntilPasses = wait_until_passes
+WaitUntilPasses = deprecated(wait_until_passes)

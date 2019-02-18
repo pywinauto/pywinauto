@@ -52,7 +52,7 @@ class MenuWrapperTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.app = Application()
         self.app.start("Notepad.exe")
@@ -61,7 +61,7 @@ class MenuWrapperTests(unittest.TestCase):
 
     def tearDown(self):
         "Close the application after tests"
-        self.app.kill_()
+        self.app.kill()
 
     def testInvalidHandle(self):
         "Test that an exception is raised with an invalid menu handle"
@@ -69,24 +69,24 @@ class MenuWrapperTests(unittest.TestCase):
         pass
 
     def testItemCount(self):
-        self.assertEqual(5, self.dlg.Menu().ItemCount())
+        self.assertEqual(5, self.dlg.menu().item_count())
 
     def testItem(self):
-        self.assertEqual(u'&File', self.dlg.Menu().Item(0).Text())
-        self.assertEqual(u'&File', self.dlg.Menu().Item(u'File').Text())
-        self.assertEqual(u'&File', self.dlg.Menu().Item(u'&File', exact=True).Text())
+        self.assertEqual(u'&File', self.dlg.menu().item(0).text())
+        self.assertEqual(u'&File', self.dlg.menu().item(u'File').text())
+        self.assertEqual(u'&File', self.dlg.menu().item(u'&File', exact=True).text())
 
     def testItems(self):
         self.assertEqual([u'&File', u'&Edit', u'F&ormat', u'&View', u'&Help'],
-                          [item.Text() for item in self.dlg.Menu().Items()])
+                          [item.text() for item in self.dlg.menu().items()])
 
     def testFriendlyClassName(self):
-        self.assertEqual('MenuItem', self.dlg.Menu().Item(0).friendly_class_name())
+        self.assertEqual('MenuItem', self.dlg.menu().item(0).friendly_class_name())
 
     def testMenuItemNotEnabled(self):
-        self.assertRaises(MenuItemNotEnabled, self.dlg.MenuSelect, 'Edit->Find Next')
-        self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').Click)
-        self.assertRaises(MenuItemNotEnabled, self.dlg.MenuItem('Edit->Find Next').click_input)
+        self.assertRaises(MenuItemNotEnabled, self.dlg.menu_select, 'Edit->Find Next')
+        self.assertRaises(MenuItemNotEnabled, self.dlg.menu_item('Edit->Find Next').click)
+        self.assertRaises(MenuItemNotEnabled, self.dlg.menu_item('Edit->Find Next').click_input)
 
     def testGetProperties(self):
         self.assertEqual(
@@ -94,33 +94,33 @@ class MenuWrapperTests(unittest.TestCase):
                 [{u'index': 0, u'state': 0, u'item_type': 0, u'item_id': 64, u'text': u'View &Help'},
                  {u'index': 1, u'state': 3, u'item_type': 2048, u'item_id': 0, u'text': u''},
                  {u'index': 2, u'state': 0, u'item_type': 0, u'item_id': 65, u'text': u'&About Notepad'}]},
-            self.dlg.Menu().GetMenuPath('Help')[0].SubMenu().GetProperties())
+            self.dlg.menu().get_menu_path('Help')[0].sub_menu().get_properties())
 
     def testGetMenuPath(self):
-        # print('id = ' + str(self.dlg.Menu().GetMenuPath('Help->#3')[0].id()))
-        self.assertEqual(u'&About Notepad', self.dlg.Menu().GetMenuPath(' Help -> #2 ')[-1].Text())
-        self.assertEqual(u'&About Notepad', self.dlg.Menu().GetMenuPath('Help->$65')[-1].Text())
+        # print('id = ' + str(self.dlg.menu().get_menu_path('Help->#3')[0].id()))
+        self.assertEqual(u'&About Notepad', self.dlg.menu().get_menu_path(' Help -> #2 ')[-1].text())
+        self.assertEqual(u'&About Notepad', self.dlg.menu().get_menu_path('Help->$65')[-1].text())
         self.assertEqual(u'&About Notepad',
-                          self.dlg.Menu().GetMenuPath('&Help->&About Notepad', exact=True)[-1].Text())
-        self.assertRaises(IndexError, self.dlg.Menu().GetMenuPath, '&Help->About what?', exact=True)
+                          self.dlg.menu().get_menu_path('&Help->&About Notepad', exact=True)[-1].text())
+        self.assertRaises(IndexError, self.dlg.menu().get_menu_path, '&Help->About what?', exact=True)
 
     def test__repr__(self):
-        print(self.dlg.Menu())
-        print(self.dlg.Menu().GetMenuPath('&Help->&About Notepad', exact=True)[-1])
+        print(self.dlg.menu())
+        print(self.dlg.menu().get_menu_path('&Help->&About Notepad', exact=True)[-1])
 
     def testClick(self):
-        self.dlg.Menu().GetMenuPath('&Help->&About Notepad')[-1].Click()
-        About = self.app.Window_(title='About Notepad')
-        About.Wait('ready')
-        About.OK.Click()
-        About.WaitNot('visible')
+        self.dlg.menu().get_menu_path('&Help->&About Notepad')[-1].click()
+        About = self.app.window(title='About Notepad')
+        About.wait('ready')
+        About.OK.click()
+        About.wait_not('visible')
 
     def testClickInput(self):
-        self.dlg.Menu().GetMenuPath('&Help->&About Notepad')[-1].click_input()
-        About = self.app.Window_(title='About Notepad')
-        About.Wait('ready')
-        About.OK.Click()
-        About.WaitNot('visible')
+        self.dlg.menu().get_menu_path('&Help->&About Notepad')[-1].click_input()
+        About = self.app.window(title='About Notepad')
+        About.wait('ready')
+        About.OK.click()
+        About.wait_not('visible')
 
 
 class OwnerDrawnMenuTests(unittest.TestCase):
@@ -129,21 +129,21 @@ class OwnerDrawnMenuTests(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
-        self.app = Application().Start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
+        self.app = Application().start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
         self.dlg = self.app.BCDialogMenu
         self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
         self.dlg.wait('ready')
 
     def tearDown(self):
         """Close the application after tests"""
-        self.app.kill_()
+        self.app.kill()
 
     def testCorrectText(self):
-        menu = self.dlg.Menu()
-        self.assertEqual(u'&New', menu.GetMenuPath('&File->#0')[-1].Text()[:4])
-        self.assertEqual(u'&Open...', menu.GetMenuPath('&File->#1')[-1].Text()[:8])
+        menu = self.dlg.menu()
+        self.assertEqual(u'&New', menu.get_menu_path('&File->#0')[-1].text()[:4])
+        self.assertEqual(u'&Open...', menu.get_menu_path('&File->#1')[-1].text()[:8])
 
 
 if __name__ == "__main__":

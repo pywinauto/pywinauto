@@ -307,14 +307,16 @@ class Application(BaseApplication):
         self.backend = registry.backends[backend]
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
-            self.Start = self.start
-            self.Connect = self.connect
-            self.CPUUsage = self.cpu_usage
-            self.WaitCPUUsageLower = self.wait_cpu_usage_lower
-            self.top_window_ = self.top_window
-            self.active_ = self.active
-            self.Windows_ = self.windows_ = self.windows
-            self.Window_ = self.window_ = self.window
+            self.Start = deprecated(self.start)
+            self.Connect = deprecated(self.connect)
+            self.CPUUsage = deprecated(self.cpu_usage)
+            self.WaitCPUUsageLower = deprecated(self.wait_cpu_usage_lower, deprecated_name='WaitCPUUsageLower')
+            self.top_window_ = deprecated(self.top_window, deprecated_name='top_window_')
+            self.active_ = deprecated(self.active, deprecated_name='active_')
+            self.Windows_ = deprecated(self.windows, deprecated_name='Windows_')
+            self.windows_ = deprecated(self.windows, deprecated_name='windows_')
+            self.Window_ = deprecated(self.window, deprecated_name='Window_')
+            self.window_ = deprecated(self.window, deprecated_name='window_')
 
         # load the match history if a file was specifed
         # and it exists
@@ -349,10 +351,7 @@ class Application(BaseApplication):
         if 'process' in kwargs:
             self.process = kwargs['process']
             try:
-                timings.wait_until_passes(
-                        timeout, retry_interval, assert_valid_process,
-                        ProcessNotFoundError, self.process
-                    )
+                wait_until(timeout, retry_interval, self.is_process_running, value=True)
             except TimeoutError:
                 raise ProcessNotFoundError('Process with PID={} not found!'.format(self.process))
             connected = True
@@ -380,6 +379,8 @@ class Application(BaseApplication):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
+            if 'visible_only' not in kwargs:
+                kwargs['visible_only'] = False
             if 'timeout' in kwargs:
                 del kwargs['timeout']
                 self.process = timings.wait_until_passes(
@@ -546,29 +547,29 @@ class Application(BaseApplication):
         """Should not be used - part of application data implementation"""
         return self.match_history[index]
 
-    def kill(self):
+    def kill(self, soft=False):
         """
-        Try to close and kill the application
+        Try to close (optional) and kill the application
 
         Dialogs may pop up asking to save data - but the application
         will be killed anyway - you will not be able to click the buttons.
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        windows = self.windows(visible_only=True)
+        if soft:
+            windows = self.windows(visible_only=True)
 
-        for win in windows:
+            for win in windows:
+                try:
+                    if hasattr(win, 'close'):
+                        win.close()
+                        continue
+                except TimeoutError:
+                    self.actions.log('Failed to close top level window')
 
-            try:
-                if hasattr(win, 'close'):
-                    win.close()
-                    continue
-            except TimeoutError:
-                self.actions.log('Failed to close top level window')
-
-            if hasattr(win, 'force_close'):
-                self.actions.log('application.kill: call win.force_close')
-                win.force_close()
+                if hasattr(win, 'force_close'):
+                    self.actions.log('Application.kill: call win.force_close()')
+                    win.force_close()
 
         try:
             process_wait_handle = win32api.OpenProcess(
@@ -580,26 +581,29 @@ class Application(BaseApplication):
 
         # so we have either closed the windows - or the app is hung
         killed = True
-        if process_wait_handle:
-            try:
-                win32api.TerminateProcess(process_wait_handle, 0)
-            except win32gui.error:
-                self.actions.log('Process {0} seems already killed'.format(self.process))
+        try:
+            if process_wait_handle:
+                try:
+                    win32api.TerminateProcess(process_wait_handle, 0)
+                except win32gui.error:
+                    self.actions.log('Process {0} seems already killed'.format(self.process))
+        finally:
+            win32api.CloseHandle(process_wait_handle)
 
-        win32api.CloseHandle(process_wait_handle)
-
+        self.wait_for_process_exit()
         return killed
 
     # Non PEP-8 aliases
-    kill_ = Kill_ = kill
+    kill_ = deprecated(kill, deprecated_name='kill_')
+    Kill_ = deprecated(kill, deprecated_name='Kill_')
 
     def is_process_running(self):
         """
-        Checks that process is running.
+        Check that process is running.
 
         Can be called before start/connect.
 
-        Returns True if process is running otherwise - False
+        Return True if process is running otherwise - False.
         """
         is_running = False
         try:
@@ -612,6 +616,19 @@ class Application(BaseApplication):
         except (win32gui.error, TypeError):
             is_running = False
         return is_running
+
+    def wait_for_process_exit(self, timeout=None, retry_interval=None):
+        """
+        Waits for process to exit until timeout reaches
+
+        Raises TimeoutError exception if timeout was reached
+        """
+        if timeout is None:
+            timeout = Timings.app_exit_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_exit_retry
+
+        wait_until(timeout, retry_interval, self.is_process_running, value=False)
 
 
 #=========================================================================
@@ -627,8 +644,6 @@ def assert_valid_process(process_id):
         raise ProcessNotFoundError(message)
 
     return process_handle
-
-AssertValidProcess = assert_valid_process  # just in case
 
 
 #=========================================================================

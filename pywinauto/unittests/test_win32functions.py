@@ -54,60 +54,60 @@ class Win32FunctionsTestCases(unittest.TestCase):
         )
 
         for result, (hi, lo) in data:
-            self.assertEquals(result, MakeLong(hi,lo))
+            self.assertEqual(result, MakeLong(hi,lo))
 
 
 
     def testMakeLong_zero(self):
         "test that makelong(0,0)"
-        self.assertEquals(0, MakeLong(0,0))
+        self.assertEqual(0, MakeLong(0,0))
 
     def testMakeLong_lowone(self):
         "Make sure MakeLong() function works with low word == 1"
-        self.assertEquals(1, MakeLong(0,1))
+        self.assertEqual(1, MakeLong(0,1))
 
     def testMakeLong_highone(self):
         "Make sure MakeLong() function works with high word == 1"
-        self.assertEquals(0x10000, MakeLong(1,0))
+        self.assertEqual(0x10000, MakeLong(1,0))
 
     def testMakeLong_highbig(self):
         "Make sure MakeLong() function works with big numder in high word"
-        self.assertEquals(0xffff0000, MakeLong(0xffff,0))
+        self.assertEqual(0xffff0000, MakeLong(0xffff,0))
 
     def testMakeLong_lowbig(self):
         "Make sure MakeLong() function works with big numder in low word"
-        self.assertEquals(0xffff, MakeLong(0, 0xffff))
+        self.assertEqual(0xffff, MakeLong(0, 0xffff))
 
     def testMakeLong_big(self):
         "Make sure MakeLong() function works with big numders in 2 words"
-        self.assertEquals(0xffffffff, MakeLong(0xffff, 0xffff))
+        self.assertEqual(0xffffffff, MakeLong(0xffff, 0xffff))
 
     def testLowWord_zero(self):
-        self.assertEquals(0, LoWord(0))
+        self.assertEqual(0, LoWord(0))
 
     def testLowWord_one(self):
-        self.assertEquals(1, LoWord(1))
+        self.assertEqual(1, LoWord(1))
 
     def testLowWord_big(self):
-        self.assertEquals(1, LoWord(MakeLong(0xffff, 1)))
+        self.assertEqual(1, LoWord(MakeLong(0xffff, 1)))
 
     def testLowWord_vbig(self):
-        self.assertEquals(0xffff, LoWord(MakeLong(0xffff, 0xffff)))
+        self.assertEqual(0xffff, LoWord(MakeLong(0xffff, 0xffff)))
 
     def testHiWord_zero(self):
-        self.assertEquals(0, HiWord(0))
+        self.assertEqual(0, HiWord(0))
 
     def testHiWord_one(self):
-        self.assertEquals(0, HiWord(1))
+        self.assertEqual(0, HiWord(1))
 
     def testHiWord_bigone(self):
-        self.assertEquals(1, HiWord(0x10000))
+        self.assertEqual(1, HiWord(0x10000))
 
     def testHiWord_big(self):
-        self.assertEquals(0xffff, HiWord(MakeLong(0xffff, 1)))
+        self.assertEqual(0xffff, HiWord(MakeLong(0xffff, 1)))
 
     def testHiWord_vbig(self):
-        self.assertEquals(0xffff, HiWord(MakeLong(0xffff, 0xffff)))
+        self.assertEqual(0xffff, HiWord(MakeLong(0xffff, 0xffff)))
 
     def testPOINTindexation(self):
         p = POINT(1, 2)
@@ -120,7 +120,7 @@ class Win32FunctionsTestCases(unittest.TestCase):
 
     def testPOINTiteration(self):
         p = POINT(1, 2)
-        self.assertEquals([1, 2], [i for i in p])
+        self.assertEqual([1, 2], [i for i in p])
 
 
 if __name__ == "__main__":

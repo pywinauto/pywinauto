@@ -59,7 +59,7 @@ class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         actionlogger.enable()
         self.app = Application().start(_notepad_exe())
         self.logger = logging.getLogger('pywinauto')
@@ -70,7 +70,7 @@ class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
         """Close the application after tests"""
         self.logger.handlers[0].stream.close()
         self.logger.handlers[0].stream = self.out
-        self.app.kill_()
+        self.app.kill()
 
     def __lineCount(self):
         """hack to get line count from current logger stream"""
@@ -87,11 +87,11 @@ class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
         self.assertEqual(self.__lineCount(), prev_line_count + 1)
 
         actionlogger.disable()
-        self.app.UntitledNotepad.MenuSelect('Help->About Notepad')
+        self.app.UntitledNotepad.menu_select('Help->About Notepad')
         self.assertEqual(self.__lineCount(), prev_line_count + 1)
 
         actionlogger.enable()
-        self.app.window(title='About Notepad').OK.Click()
+        self.app.window(title='About Notepad').OK.click()
         self.assertEqual(self.__lineCount(), prev_line_count + 2)
 
 

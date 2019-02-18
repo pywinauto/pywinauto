@@ -25,7 +25,7 @@ if UIA_support:
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Slow()
+            Timings.slow()
 
             self.app = Application(backend="uia")
             self.app = self.app.start(wpf_app_1)
@@ -36,7 +36,7 @@ if UIA_support:
 
         def tearDown(self):
             """Close the application after tests"""
-            self.app.kill_()
+            self.app.kill()
 
         def testProcessId(self):
             """Test process_id equals"""

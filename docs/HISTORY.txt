@@ -2,6 +2,34 @@
 Change Log
 ==========
 
+0.6.5 Handling Privileges, AutomationID for Win32 etc.
+--------------------------------------------------------------------
+30-July-2018
+
+Enhancements:
+ * Check admin privileges for both target app and Python process. This
+   allows detecting cases when window messages won't work.
+ * Add ``automation_id`` and ``control_type`` properties
+   for "win32" backend (the most useful for WinForms). Correct
+   child_window() keywords are ``auto_id`` and ``control_type``.
+ * Switch pypiwin32 dependency to pywin32 which became official again.
+ * New generators ``iter_children()`` and ``iter_descendants()``.
+ * Add method ``is_checked()`` to "win32" check box.
+
+Bug Fixes:
+ * Method ``Application().connect(...)`` works better with ``timeout``
+   argument.
+ * Fix ``.set_focus()`` for "uia" backend including minimized window case
+   (issue #443).
+ * ``maximize()/minimize()`` methods can be chained now.
+ * Fix passing keyword arguments to a function for decorators
+   ``@always_wait_until_passes`` and ``@always_wait_until``.
+ * Use correct types conversion for WaitGuiThreadIdle (issue #497).
+ * Fix reporting code coverage on Linux.
+ * Use .format() for logging BaseWrapper actions (issue #471).
+ * Print warning in case binary type is not determined (issue #387).
+
+
 0.6.4 NULL pointer access fix and enhancements
 --------------------------------------------------------------------
 21-January-2018
@@ -185,10 +213,10 @@ Enhancements:
  * Code style is much closer to PEP8: i.e. ``click_input`` should be used
    instead of ``ClickInput``.
 
- * Initial implementation of the ``hooks`` module. Keyboard and mouse event
+ * Initial implementation of the ``win32_hooks`` module. Keyboard and mouse event
    handlers can be registered in the system. It was inspired by pyHook, pyhk,
    pyhooked and similar modules, but re-written from scratch. Thanks for
-   Max Samokhvalov! The fork of the ``hooks`` module is used in pyhooked 0.8
+   Max Samokhvalov! The fork of the ``win32_hooks`` module is used in pyhooked 0.8
    by Ethan Smith.
 
  * A lot of small improvements are not counted here.

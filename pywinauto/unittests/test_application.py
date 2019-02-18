@@ -44,7 +44,6 @@ import time
 import warnings
 from threading import Thread
 import ctypes
-
 import mock
 
 sys.path.append(".")
@@ -94,22 +93,19 @@ class ApplicationWarningTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
         # Force Display User and Deprecation warnings every time
-        # Python 3.3+nose/unittest trys really hard to suppress them
+        # Python 3.3 + nose/unittest tries really hard to suppress them
         for warning in (UserWarning, PendingDeprecationWarning):
             warnings.simplefilter('always', warning)
 
-        mfc_samples_folder = os.path.join(os.path.dirname(__file__),
-                                          r"..\..\apps\MFC_samples")
         if is_x64_Python():
             self.sample_exe = os.path.join(mfc_samples_folder,
-                                           "x64",
                                            "CmnCtrl1.exe")
-            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
+            self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder_32,
                                                             "CmnCtrl1.exe")
         else:
-            self.sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
+            self.sample_exe = os.path.join(mfc_samples_folder_32, "CmnCtrl1.exe")
             self.sample_exe_inverted_bitness = os.path.join(mfc_samples_folder,
                                                             "x64",
                                                             "CmnCtrl1.exe")
@@ -123,7 +119,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             app = Application().start(self.sample_exe_inverted_bitness)
-            app.kill_()
+            app.kill()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
             assert "64-bit" in str(w[-1].message)
@@ -139,11 +135,70 @@ class ApplicationWarningTestCases(unittest.TestCase):
 
         with mock.patch("warnings.warn") as mockWarn:
             Application().connect(process=app.process)
-            app.kill_()
+            app.kill()
             args, kw = mockWarn.call_args
             assert len(args) == 2
             assert "64-bit" in args[0]
             assert args[1].__name__ == 'UserWarning'
+
+
+class ApplicationWin32KillTestCases(unittest.TestCase):
+
+    """Unit tests for method Application.kill() with backend='win32'"""
+
+    backend = 'win32'
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.defaults()
+
+        self.sample_exe = os.path.join(mfc_samples_folder, 'RowList.exe')
+        self.app = Application(backend=self.backend).start(self.sample_exe)
+        self.target_process = self.app.process
+
+    def tearDown(self):
+        self.app.kill(soft=False)
+
+    def test_kill_hard(self):
+        self.assertTrue(self.app.kill(soft=False))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+
+    def test_kill_soft(self):
+        self.assertTrue(self.app.kill(soft=True))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+
+    def test_already_killed_hard(self):
+        self.assertTrue(self.app.kill(soft=False))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+        self.assertTrue(self.app.kill(soft=False)) # already killed, returned True anyway
+
+    def test_already_killed_soft(self):
+        self.assertTrue(self.app.kill(soft=False))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+        self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
+
+    def test_kill_soft_with_modal_subdialog(self):
+        """Kill the app with modal subdialog to cover win.force_close() call"""
+        self.app.RowListSampleApplication.menu_select('Help->About RowList...')
+        if self.backend == 'win32':
+            self.app.window(title='About RowList').wait('visible')
+        elif self.backend == 'uia':
+            self.app.RowListSampleApplication.child_window(title='About RowList').wait('visible')
+        else:
+            raise NotImplementedError('test_kill_soft_with_modal_subdialog: ' \
+                'backend "{}" is not supported'.format(self.backend))
+        self.assertTrue(self.app.kill(soft=True))
+        self.assertRaises(ProcessNotFoundError, Application().connect, process=self.target_process)
+        self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
+
+
+if UIA_support:
+    class ApplicationUiaKillTestCases(ApplicationWin32KillTestCases):
+
+        """Unit tests for method Application.kill() with backend='uia'"""
+
+        backend = 'uia'
+        # the same test methods run here
 
 
 if ctypes.windll.shell32.IsUserAnAdmin() == 0:
@@ -212,7 +267,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
         self.prev_warn = warnings.showwarning
         def no_warnings(*args, **kwargs): pass
         warnings.showwarning = no_warnings
@@ -254,7 +309,7 @@ class ApplicationTestCases(unittest.TestCase):
         notepadpath = os.path.join(os.environ['systemroot'], self.notepad_subpath)
         self.assertEqual(str(process_module(app.process)).lower(), str(notepadpath).lower())
 
-        app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.menu_select("File->Exit")
 
     def testStart_bug01(self):
         """On SourceForge forum AppStartError forgot to include %s for application name"""
@@ -265,7 +320,7 @@ class ApplicationTestCases(unittest.TestCase):
         try:
             app.start(app_name)
         except AppStartError as e:
-            self.assertEquals(app_name in str(e), True)
+            self.assertEqual(app_name in str(e), True)
 
 #    def testset_timing(self):
 #        """Test that set_timing sets the timing correctly"""
@@ -283,7 +338,7 @@ class ApplicationTestCases(unittest.TestCase):
 #        )
 #        set_timing(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 #
-#        self.assertEquals(
+#        self.assertEqual(
 #            (
 #                application.window_find_timeout,
 #                application.window_retry_interval,
@@ -317,9 +372,9 @@ class ApplicationTestCases(unittest.TestCase):
 
         accessible_modules = process_get_modules()
         accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
-        self.assertEquals('notepad.exe' in accessible_process_names, True)
+        self.assertEqual('notepad.exe' in accessible_process_names, True)
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+        app_conn.UntitledNotepad.menu_select('File->Exit')
 
     def test_connect_path_timeout(self):
         """Test that connect_() works with a path with timeout"""
@@ -337,9 +392,9 @@ class ApplicationTestCases(unittest.TestCase):
 
         accessible_modules = process_get_modules()
         accessible_process_names = [os.path.basename(name.lower()) for process, name, cmdline in accessible_modules]
-        self.assertEquals('notepad.exe' in accessible_process_names, True)
+        self.assertEqual('notepad.exe' in accessible_process_names, True)
 
-        app1.UntitledNotepad.MenuSelect('File->Exit')
+        app1.UntitledNotepad.menu_select('File->Exit')
 
     def test_connect_path_timeout_problem(self):
         """Test that connect_() raise error when no process start"""
@@ -354,14 +409,14 @@ class ApplicationTestCases(unittest.TestCase):
 
         time.sleep(0.7)
 
-        app1.UntitledNotepad.MenuSelect('File->Exit')
+        app1.UntitledNotepad.menu_select('File->Exit')
 
     def test_connect_process_timeout_failed(self):
         """Test that connect_(process=...) raise error when set timeout"""
         app1 = Application()
         app1.start(_notepad_exe())
         self.assertRaises(ProcessNotFoundError, Application().connect, process=0, timeout=0.5)
-        app1.UntitledNotepad.MenuSelect('File->Exit')
+        app1.UntitledNotepad.menu_select('File->Exit')
 
 #    def test_Connect(self):
 #        """Test that connect_() works with a path"""
@@ -376,7 +431,7 @@ class ApplicationTestCases(unittest.TestCase):
 #        app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
 #        self.assertEqual(app1.process, app_conn.process)
 #
-#        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+#        app_conn.UntitledNotepad.menu_select('File->Exit')
 
     def test_connect_process(self):
         """Test that connect_() works with a process"""
@@ -387,7 +442,7 @@ class ApplicationTestCases(unittest.TestCase):
         app_conn.connect(process=app1.process)
         self.assertEqual(app1.process, app_conn.process)
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+        app_conn.UntitledNotepad.menu_select('File->Exit')
 
 
     def test_connect_handle(self):
@@ -400,7 +455,7 @@ class ApplicationTestCases(unittest.TestCase):
         app_conn.connect(handle=handle)
         self.assertEqual(app1.process, app_conn.process)
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+        app_conn.UntitledNotepad.menu_select('File->Exit')
 
     def test_connect_windowspec(self):
         """Test that connect_() works with a windowspec"""
@@ -421,7 +476,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertEqual(app1.process, app_conn.process)
 
-        app_conn.UntitledNotepad.MenuSelect('File->Exit')
+        app_conn.UntitledNotepad.menu_select('File->Exit')
 
     def test_connect_raises(self):
         """Test that connect_() raises with invalid input"""
@@ -459,13 +514,13 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertEqual(app.UntitledNotepad.handle, app.top_window_().handle)
 
-        app.UntitledNotepad.MenuSelect("Help->About Notepad")
+        app.UntitledNotepad.menu_select("Help->About Notepad")
 
         self.assertEqual(app.AboutNotepad.handle, app.top_window_().handle)
 
         app.AboutNotepad.Ok.Click()
-        app.UntitledNotepad.MenuSelect("File->Exit")
-        app.UntitledNotepad.WaitNot('exists')
+        app.UntitledNotepad.menu_select("File->Exit")
+        app.UntitledNotepad.wait_not('exists')
         self.assertRaises(RuntimeError, app.top_window_)
 
     def test_active_window(self):
@@ -474,10 +529,10 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertRaises(AppNotConnected, app.active_)
         self.assertRaises(AppNotConnected, app.is64bit)
         app.start(_notepad_exe())
-        app.UntitledNotepad.Wait('ready')
+        app.UntitledNotepad.wait('ready')
         self.assertEqual(app.active_().handle, app.UntitledNotepad.handle)
-        app.UntitledNotepad.MenuSelect("File->Exit")
-        app.UntitledNotepad.WaitNot('exists')
+        app.UntitledNotepad.menu_select("File->Exit")
+        app.UntitledNotepad.wait_not('exists')
         self.assertRaises(RuntimeError, app.active_)
 
     def test_cpu_usage(self):
@@ -485,9 +540,9 @@ class ApplicationTestCases(unittest.TestCase):
         app = Application()
         self.assertRaises(AppNotConnected, app.cpu_usage)
         app.start(_notepad_exe())
-        self.assertEquals(0.0 <= app.cpu_usage() <= 100.0, True)
-        app.UntitledNotepad.MenuSelect("File->Exit")
-        app.UntitledNotepad.WaitNot('exists')
+        self.assertEqual(0.0 <= app.cpu_usage() <= 100.0, True)
+        app.UntitledNotepad.menu_select("File->Exit")
+        app.UntitledNotepad.wait_not('exists')
 
     def test_wait_cpu_usage_lower(self):
         """Test that wait_cpu_usage_lower() works correctly"""
@@ -559,17 +614,17 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertRaises(ValueError, app.windows_, **{'backend' : 'uia'})
 
         notepad_handle = app.UntitledNotepad.handle
-        self.assertEquals(app.windows_(visible_only = True), [notepad_handle])
+        self.assertEqual(app.windows_(visible_only = True), [notepad_handle])
 
-        app.UntitledNotepad.MenuSelect("Help->About Notepad")
+        app.UntitledNotepad.menu_select("Help->About Notepad")
 
         aboutnotepad_handle = app.AboutNotepad.handle
-        self.assertEquals(
+        self.assertEqual(
             app.windows_(visible_only = True, enabled_only = False),
             [aboutnotepad_handle, notepad_handle])
 
         app.AboutNotepad.OK.Click()
-        app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.menu_select("File->Exit")
 
     def test_window(self):
         """Test that window_() works correctly"""
@@ -597,7 +652,7 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertEqual(title.handle, handle.handle)
         self.assertEqual(title.handle, bestmatch.handle)
 
-        app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.menu_select("File->Exit")
 
     def test_getitem(self):
         """Test that __getitem__() works correctly"""
@@ -615,14 +670,14 @@ class ApplicationTestCases(unittest.TestCase):
             app[u'Unt\xeftledNotepad'].handle,
             app.window_(title = "Untitled - Notepad").handle)
 
-        app.UntitledNotepad.MenuSelect("Help->About Notepad")
+        app.UntitledNotepad.menu_select("Help->About Notepad")
 
         self.assertEqual(
             app['AboutNotepad'].handle,
             app.window_(title = "About Notepad").handle)
 
         app.AboutNotepad.Ok.Click()
-        app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.menu_select("File->Exit")
 
     def test_getattribute(self):
         """Test that __getattribute__() works correctly"""
@@ -638,7 +693,7 @@ class ApplicationTestCases(unittest.TestCase):
             app.UntitledNotepad.handle,
             app.window_(title = "Untitled - Notepad").handle)
 
-        app.UntitledNotepad.MenuSelect("Help->About Notepad")
+        app.UntitledNotepad.menu_select("Help->About Notepad")
 
         # I think it's OK that this no longer raises a matcherror
         # just because the window is not enabled - doesn't mean you
@@ -651,21 +706,21 @@ class ApplicationTestCases(unittest.TestCase):
             app.window(title = "About Notepad").handle)
 
         app.AboutNotepad.Ok.Click()
-        app.UntitledNotepad.MenuSelect("File->Exit")
+        app.UntitledNotepad.menu_select("File->Exit")
 
-    def test_kill_(self):
+    def test_kill(self):
         """test killing the application"""
         app = Application()
         app.start(_notepad_exe())
 
         app.UntitledNotepad.Edit.type_keys("hello")
 
-        app.UntitledNotepad.MenuSelect("File->Print...")
+        app.UntitledNotepad.menu_select("File->Print...")
 
         #app.Print.FindPrinter.Click() # Vasily: (Win7 x64) "Find Printer" dialog is from splwow64.exe process
         #app.FindPrinters.Stop.Click()
 
-        app.kill_()
+        app.kill()
 
         self.assertRaises(AttributeError, app.UntitledNotepad.Edit)
 
@@ -702,13 +757,14 @@ class ApplicationTestCases(unittest.TestCase):
         app = ApplicationTestCases.TestInheritedApp()
         self.assertTrue(app.test_method())
 
+
 class WindowSpecificationTestCases(unittest.TestCase):
 
     """Unit tests for the application.Application class"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
         self.app = Application().start("Notepad")
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit
@@ -717,20 +773,26 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        #self.app.UntitledNotepad.MenuSelect("File->Exit")
-        self.app.kill_()
+        #self.app.UntitledNotepad.menu_select("File->Exit")
+        self.app.kill()
 
     def test__init__(self):
         """Test creating a new spec by hand"""
         wspec = WindowSpecification(
             dict(
-                best_match = u"UntitledNotepad",
-                process = self.app.process)
+                best_match=u"UntitledNotepad",
+                app=self.app)
             )
 
-        self.assertEquals(
+        self.assertEqual(
             wspec.window_text(),
             u"Untitled - Notepad")
+
+    def test__init__both_keywords(self):
+        """Test creating a new spec with ambiguity by process and app simultaneously"""
+        self.assertRaises(KeyError, WindowSpecification,
+            dict(best_match=u"UntitledNotepad", app=self.app, process=self.app.process)
+            )
 
     def test__call__(self):
         """Test that __call__() correctly raises an error"""
@@ -739,50 +801,51 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         # no best_match!
         wspec = WindowSpecification(
-            dict(title = u"blah", process = self.app.process) )
+            dict(title=u"blah", app=self.app)
+            )
 
         self.assertRaises(AttributeError, wspec)
 
     def test_wrapper_object(self):
         """Test that we can get a control"""
-        self.assertEquals(True, isinstance(self.dlgspec, WindowSpecification))
+        self.assertEqual(True, isinstance(self.dlgspec, WindowSpecification))
 
-        self.assertEquals(
+        self.assertEqual(
             True,
-            isinstance(self.dlgspec.WrapperObject(), hwndwrapper.HwndWrapper)
+            isinstance(self.dlgspec.wrapper_object(), hwndwrapper.HwndWrapper)
             )
 
     def test_window(self):
         """test specifying a sub window of an existing specification"""
-        sub_spec = self.dlgspec.ChildWindow(class_name = "Edit")
-        sub_spec_legacy = self.dlgspec.Window_(class_name = "Edit")
+        sub_spec = self.dlgspec.child_window(class_name = "Edit")
+        sub_spec_legacy = self.dlgspec.window(class_name = "Edit")
 
-        self.assertEquals(True, isinstance(sub_spec, WindowSpecification))
-        self.assertEquals(sub_spec.class_name(), "Edit")
-        self.assertEquals(sub_spec_legacy.class_name(), "Edit")
+        self.assertEqual(True, isinstance(sub_spec, WindowSpecification))
+        self.assertEqual(sub_spec.class_name(), "Edit")
+        self.assertEqual(sub_spec_legacy.class_name(), "Edit")
 
     def test__getitem__(self):
         """test item access of a windowspec"""
-        self.assertEquals(
+        self.assertEqual(
             True,
             isinstance(self.dlgspec['Edit'], WindowSpecification)
             )
 
-        self.assertEquals(self.dlgspec['Edit'].class_name(), "Edit")
+        self.assertEqual(self.dlgspec['Edit'].class_name(), "Edit")
 
         self.assertRaises(AttributeError, self.ctrlspec.__getitem__, 'edit')
 
     def test_getattr(self):
         """Test getting attributes works correctly"""
-        self.assertEquals(
+        self.assertEqual(
             True,
             isinstance(self.dlgspec.Edit, WindowSpecification)
             )
 
-        self.assertEquals(self.dlgspec.Edit.class_name(), "Edit")
+        self.assertEqual(self.dlgspec.Edit.class_name(), "Edit")
 
         # check that getting a dialog attribute works correctly
-        self.assertEquals(
+        self.assertEqual(
             "Notepad",
             self.dlgspec.class_name())
 
@@ -792,73 +855,73 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def test_exists(self):
         """Check that windows exist"""
-        self.assertEquals(True, self.dlgspec.Exists())
-        self.assertEquals(True, self.dlgspec.Exists(0))
-        self.assertEquals(True, self.ctrlspec.Exists())
+        self.assertEqual(True, self.dlgspec.exists())
+        self.assertEqual(True, self.dlgspec.exists(0))
+        self.assertEqual(True, self.ctrlspec.exists())
         # TODO: test a control that is not visible but exists
-        #self.assertEquals(True, self.app.DefaultIME.Exists())
+        #self.assertEqual(True, self.app.DefaultIME.exists())
 
         start = timestamp()
-        self.assertEquals(False, self.app.BlahBlah.Exists(timeout=.1))
-        self.assertEquals(True, timestamp() - start < .3)
+        self.assertEqual(False, self.app.BlahBlah.exists(timeout=.1))
+        self.assertEqual(True, timestamp() - start < .3)
 
         start = timestamp()
-        self.assertEquals(False, self.app.BlahBlah.exists(timeout=3))
-        self.assertEquals(True, 2.7 < timestamp() - start < 3.3)
+        self.assertEqual(False, self.app.BlahBlah.exists(timeout=3))
+        self.assertEqual(True, 2.7 < timestamp() - start < 3.3)
 
     def test_exists_timing(self):
         """test the timing of the exists method"""
         # try ones that should be found immediately
         start = timestamp()
-        self.assertEquals(True, self.dlgspec.Exists())
-        self.assertEquals(True, timestamp() - start < .3)
+        self.assertEqual(True, self.dlgspec.exists())
+        self.assertEqual(True, timestamp() - start < .3)
 
         start = timestamp()
-        self.assertEquals(True, self.ctrlspec.Exists())
-        self.assertEquals(True, timestamp() - start < .3)
+        self.assertEqual(True, self.ctrlspec.exists())
+        self.assertEqual(True, timestamp() - start < .3)
 
         # try one that should not be found
         start = timestamp()
-        self.assertEquals(True, self.dlgspec.Exists(.5))
+        self.assertEqual(True, self.dlgspec.exists(.5))
         timedif =  timestamp() - start
-        self.assertEquals(True, .49 > timedif < .6)
+        self.assertEqual(True, .49 > timedif < .6)
 
     def test_wait(self):
         """test the functionality and timing of the wait method"""
         allowable_error = .2
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("enaBleD "))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("enaBleD "))
         time_taken = (timestamp() - start)
         if not 0 <= time_taken < (0 + 2 * allowable_error):
             self.assertEqual(.02,  time_taken)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("  ready"))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("  ready"))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" exiSTS"))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait(" exiSTS"))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" VISIBLE "))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait(" VISIBLE "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait(" ready enabled"))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait(" ready enabled"))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("visible exists "))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("visible exists "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("exists "))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("exists "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.WrapperObject(), self.dlgspec.Wait("actIve "))
+        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("actIve "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
@@ -909,40 +972,40 @@ class WindowSpecificationTestCases(unittest.TestCase):
         allowable_error = .16
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "enaBleD ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, "enaBleD ", .1, .05)
         taken = timestamp() - start
         if .1 < (taken)  > .1 + allowable_error:
             self.assertEqual(.12, taken)
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "  ready", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, "  ready", .1, .05)
         self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " exiSTS", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, " exiSTS", .1, .05)
         self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " VISIBLE ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, " VISIBLE ", .1, .05)
         self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, " ready enabled", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, " ready enabled", .1, .05)
         self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "visible exists ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, "visible exists ", .1, .05)
         self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "exists ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, "exists ", .1, .05)
         self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
         start = timestamp()
-        self.assertRaises(TimeoutError, self.dlgspec.WaitNot, "actIve ", .1, .05)
+        self.assertRaises(TimeoutError, self.dlgspec.wait_not, "actIve ", .1, .05)
         self.assertEqual(True, .1 <= (timestamp() - start) < .1 + allowable_error)
 
-        self.assertRaises(SyntaxError, self.dlgspec.WaitNot, "Invalid_criteria")
+        self.assertRaises(SyntaxError, self.dlgspec.wait_not, "Invalid_criteria")
 
 #    def test_wait_ready(self):
 #        """Make sure the friendly class is set correctly"""
@@ -1085,7 +1148,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def test_find_elements_re(self):
         """Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"""
-        self.dlgspec.Wait('visible')
+        self.dlgspec.wait('visible')
         windows = findwindows.find_elements(title_re = "Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
 
@@ -1133,7 +1196,7 @@ class MultiLevelWindowSpecificationTests(unittest.TestCase):
     if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Slow()
+            Timings.slow()
             self.app = Application(backend='uia').start(os.path.join(mfc_samples_folder, u"RowList.exe"))
             self.dlg = self.app.RowListSampleApplication
 
@@ -1151,7 +1214,7 @@ class MultiLevelWindowSpecificationTests(unittest.TestCase):
     else: # Win32
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
+            Timings.defaults()
             self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
             self.dlg = self.app.CommonControlsSample
 
@@ -1164,14 +1227,14 @@ class MultiLevelWindowSpecificationTests(unittest.TestCase):
             self.assertEqual(self.dlg.CPagerCtrl.Pager.Toolbar.button_count(), 12)
 
 
-class DesktopWindowSpecificationTests(unittest.TestCase):
+if UIA_support:
+    class DesktopUiaWindowSpecificationTests(unittest.TestCase):
 
-    """Unit tests for Desktop object"""
+        """Unit tests for Desktop(backend='uia') object"""
 
-    if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            Timings.Slow()
+            Timings.slow()
             self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
             self.desktop = Desktop(backend='uia')
 
@@ -1188,22 +1251,102 @@ class DesktopWindowSpecificationTests(unittest.TestCase):
                               u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
 
-    else: # Win32
-        def setUp(self):
-            """Set some data and ensure the application is in the state we want"""
-            Timings.Defaults()
-            self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
-            self.desktop = Desktop()
+        def test_set_backend_to_window_uia(self):
+            """Set backend to method window(), except exception ValueError"""
+            with self.assertRaises(ValueError):
+                self.desktop.window(backend='uia', title='MFC_samplesDialog')
+            with self.assertRaises(ValueError):
+                self.desktop.window(backend='win32', title='MFC_samplesDialog')
 
-        def tearDown(self):
-            """Close the application after tests"""
-            self.desktop.window(title='Common Controls Sample', process=self.app.process).SendMessage(
-                win32defines.WM_CLOSE)
+        def test_get_list_of_windows_uia(self):
+            """Test that method .windows() returns a non-empty list of windows"""
+            dlgs = self.desktop.windows()
+            self.assertTrue(len(dlgs) > 1)
 
-        def test_simple_access_through_desktop(self):
-            """Test that controls can be accessed by 4 levels of attributes"""
-            dlg = self.desktop.window(title='Common Controls Sample', process=self.app.process)
-            self.assertEqual(dlg.Pager.Toolbar.button_count(), 12)
+        def test_set_backend_to_windows_uia(self):
+            """Set backend to method windows, except exception ValueError"""
+            with self.assertRaises(ValueError):
+                self.desktop.windows(backend='win32')
+            with self.assertRaises(ValueError):
+                self.desktop.windows(backend='uia')
+
+        def test_only_visible_windows_uia(self):
+            """Set visible_only to the method windows"""
+            dlgs = self.desktop.windows(visible_only=True)
+            self.assertTrue(all([win.is_visible() for win in dlgs]))
+
+        def test_only_enable_windows_uia(self):
+            """Set enable_only to the method windows"""
+            dlgs = self.desktop.windows(enabled_only=True)
+            self.assertTrue(all([win.is_enabled() for win in dlgs]))
+
+
+class DesktopWin32WindowSpecificationTests(unittest.TestCase):
+
+    """Unit tests for Desktop(backend='win32') object"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.defaults()
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        self.desktop = Desktop(backend='win32')
+        self.window_title = 'Common Controls Sample'
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.desktop.window(title=self.window_title, process=self.app.process).SendMessage(win32defines.WM_CLOSE)
+
+    def test_simple_access_through_desktop(self):
+        """Test that controls can be accessed by 4 levels of attributes"""
+        dlg = self.desktop.window(title=self.window_title, process=self.app.process)
+        self.assertEqual(dlg.Pager.Toolbar.button_count(), 12)
+
+    def test_set_backend_to_window_win32(self):
+        """Set backend to method window(), except exception ValueError"""
+        with self.assertRaises(ValueError):
+            self.desktop.window(backend='uia', title=self.window_title, process=self.app.process)
+        with self.assertRaises(ValueError):
+            self.desktop.window(backend='win32', title=self.window_title, process=self.app.process)
+
+    def test_get_list_of_windows_win32(self):
+        """Test that method .windows() returns a non-empty list of windows"""
+        dlgs = self.desktop.windows()
+
+        self.assertTrue(len(dlgs) > 1)
+        window_titles = [win_obj.window_text() for win_obj in dlgs]
+        self.assertTrue(self.window_title in window_titles)
+
+    def test_set_backend_to_windows_win32(self):
+        """Set backend to method windows, except exception ValueError"""
+        with self.assertRaises(ValueError):
+            self.desktop.windows(backend='win32')
+        with self.assertRaises(ValueError):
+            self.desktop.windows(backend='uia')
+
+    def test_only_visible_windows_win32(self):
+        """Set visible_only to the method windows"""
+        dlgs = self.desktop.windows(visible_only=True)
+        self.assertTrue(all([win.is_visible() for win in dlgs]))
+
+    def test_only_enable_windows_win32(self):
+        """Set enable_only to the method windows"""
+        dlgs = self.desktop.windows(enabled_only=True)
+        self.assertTrue(all([win.is_enabled() for win in dlgs]))
+
+    def test_from_point_win32(self):
+        """Test method Desktop(backend='win32').from_point(x, y)"""
+        combo = self.app.Common_Controls_Sample.ComboBox.wrapper_object()
+        x, y = combo.rectangle().mid_point()
+        combo_from_point = self.desktop.from_point(x, y)
+        self.assertEqual(combo, combo_from_point)
+
+    def test_top_from_point_win32(self):
+        """Test method Desktop(backend='win32').top_from_point(x, y)"""
+        combo = self.app.Common_Controls_Sample.ComboBox.wrapper_object()
+        dlg = self.app.Common_Controls_Sample.wrapper_object()
+        x, y = combo.rectangle().mid_point()
+        dlg_from_point = self.desktop.top_from_point(x, y)
+        self.assertEqual(dlg, dlg_from_point)
 
 
 if __name__ == "__main__":
