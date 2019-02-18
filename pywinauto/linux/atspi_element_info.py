@@ -1,4 +1,4 @@
-from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions, RECT
+from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions, RECT, known_control_types
 from pywinauto.element_info import ElementInfo
 
 
@@ -45,6 +45,12 @@ class AtspiElementInfo(ElementInfo):
         return self.atspi_functions.get_role_name(self._handle, None).decode(encoding='UTF-8')
 
     @property
+    def control_type(self):
+        """Return the class name of the element"""
+        role_id = self.atspi_functions.get_role(self._handle, None)
+        return known_control_types[role_id]
+
+    @property
     def parent(self):
         """Return the parent of the element"""
         return AtspiElementInfo(self.atspi_functions.get_parent(self._handle, None))
@@ -63,6 +69,18 @@ class AtspiElementInfo(ElementInfo):
         for obj in self.children():
             self.__get_elements(obj, tree)
         return tree
+
+    def description(self):
+        return self.atspi_functions.get_description(self._handle, None).decode(encoding='UTF-8')
+
+    def framework_id(self):
+        return self.atspi_functions.get_toolkit_version(self._handle, None).decode(encoding='UTF-8')
+
+    def framework_name(self):
+        return self.atspi_functions.get_toolkit_name(self._handle, None).decode(encoding='UTF-8')
+
+    def atspi_version(self):
+        return self.atspi_functions.get_atspi_version(self._handle, None).decode(encoding='UTF-8')
 
     @property
     def rectangle(self):

@@ -22,7 +22,7 @@ def _test_app():
 
 
 def _test_app_cmd_line():
-    return "python3 {}".format(_test_app())
+    return "python {}".format(_test_app())
 
 
 sys.path.append(".")
@@ -62,3 +62,7 @@ if sys.platform != 'win32':
             app.start(_test_app_cmd_line())
             self.assertNotEqual(app.process, None)
             app.kill()
+
+
+if __name__ == "__main__":
+    unittest.main()
