@@ -75,22 +75,27 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
             search_criteria['backend'] = registry.active_backend.name
+        if 'process' in search_criteria and 'app' in search_criteria:
+            raise KeyError('Keywords "process" and "app" cannot be combined (ambiguous). ' \
+                'Use one option at a time: Application object with keyword "app" or ' \
+                'integer process ID with keyword "process".')
+        self.app = search_criteria.get('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
         self.backend = registry.backends[search_criteria['backend']]
 
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
-            self.WrapperObject = self.wrapper_object
-            self.ChildWindow = self.child_window
-            self.Exists = self.exists
-            self.Wait = self.wait
-            self.WaitNot = self.wait_not
-            self.PrintControlIdentifiers = self.print_control_identifiers
+            self.WrapperObject = deprecated(self.wrapper_object)
+            self.ChildWindow = deprecated(self.child_window)
+            self.Exists = deprecated(self.exists)
+            self.Wait = deprecated(self.wait)
+            self.WaitNot = deprecated(self.wait_not)
+            self.PrintControlIdentifiers = deprecated(self.print_control_identifiers)
 
-            self.Window_ = self.window
-            self.window_ = self.window
-            self.Window = self.window
+            self.Window = deprecated(self.child_window, deprecated_name='Window')
+            self.Window_ = deprecated(self.child_window, deprecated_name='Window_')
+            self.window_ = deprecated(self.child_window, deprecated_name='window_')
 
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
@@ -114,6 +119,10 @@ class WindowSpecification(object):
         # find the dialog
         if 'backend' not in criteria[0]:
             criteria[0]['backend'] = self.backend.name
+        if self.app is not None:
+            # find_elements(...) accepts only "process" argument
+            criteria[0]['process'] = self.app.process
+            del criteria[0]['app']
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
 
         ctrls = []
@@ -586,7 +595,7 @@ class WindowSpecification(object):
             print("Control Identifiers:")
             print_identifiers([this_ctrl, ])
         else:
-            log_file = open(filename, "w")
+            log_file = codecs.open(filename, "w", locale.getpreferredencoding())
 
             def log_func(msg):
                 log_file.write(str(msg) + os.linesep)
