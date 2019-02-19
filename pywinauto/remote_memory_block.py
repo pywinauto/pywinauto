@@ -39,7 +39,7 @@ import ctypes
 import win32api
 import win32process
 
-from pywinauto.windows import win32defines, win32functions, win32structures
+from .windows import win32defines, win32functions, win32structures
 from .actionlogger import ActionLogger
 
 

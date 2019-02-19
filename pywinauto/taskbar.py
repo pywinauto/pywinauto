@@ -37,7 +37,7 @@ This module will likely change significantly in the future!
 import warnings
 
 from . import findwindows
-from pywinauto import application
+from . import application
 
 warnings.warn("The taskbar module is still very experimental", FutureWarning)
 

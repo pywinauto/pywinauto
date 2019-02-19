@@ -54,7 +54,7 @@ import locale
 import six
 
 from .. import sysinfo
-from pywinauto.windows import win32defines, win32functions, win32structures
+from ..windows import win32defines, win32functions, win32structures
 from .. import findbestmatch
 from ..remote_memory_block import RemoteMemoryBlock
 from . import hwndwrapper
@@ -67,7 +67,7 @@ from ..sysinfo import is_x64_Python
 from .. import deprecated
 
 if sysinfo.UIA_support:
-    from pywinauto.windows.uia_defines import IUIA
+    from ..windows.uia_defines import IUIA
 
 
 # Todo: I should return iterators from things like items() and texts()

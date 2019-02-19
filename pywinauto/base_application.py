@@ -20,6 +20,7 @@ from .backend import registry
 
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes
+from . import deprecated
 
 
 class AppStartError(Exception):

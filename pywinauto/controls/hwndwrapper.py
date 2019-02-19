@@ -53,7 +53,7 @@ import warnings
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
-from pywinauto.windows import win32defines, win32functions, win32structures
+from ..windows import win32defines, win32functions, win32structures
 from .. import controlproperties
 from ..actionlogger import ActionLogger
 from .. import keyboard
@@ -61,7 +61,7 @@ from .. import mouse
 from ..timings import Timings
 from .. import timings
 from .. import handleprops
-from pywinauto.windows.win32_element_info import HwndElementInfo
+from ..windows.win32_element_info import HwndElementInfo
 from .. import backend
 
 # I leave this optional because PIL is a large dependency

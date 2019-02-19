@@ -46,7 +46,7 @@ import locale
 import six
 
 from functools import wraps
-from pywinauto.windows import win32defines, win32functions, win32structures
+from ..windows import win32defines, win32functions, win32structures
 from .. import findbestmatch
 from .. import mouse
 from ..remote_memory_block import RemoteMemoryBlock
