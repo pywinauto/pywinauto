@@ -45,7 +45,7 @@ import win32con
 import six
 
 try:
-    from PIL import ImageGrab
+    from PIL import ImageGrab, Image
 except ImportError:
     ImageGrab = None
 
