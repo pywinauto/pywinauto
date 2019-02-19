@@ -8,7 +8,7 @@ import locale
 import subprocess
 import shlex
 
-from pywinauto.backend import registry
+from ..backend import registry
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 
 

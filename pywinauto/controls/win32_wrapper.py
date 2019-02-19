@@ -29,14 +29,18 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Base class for all wrappers in all backends"""
+"""Base class for all wrappers on Windows OS"""
 from __future__ import unicode_literals
 from __future__ import print_function
 
 import ctypes
 import locale
 import time
+
 import win32process
+import win32gui
+import win32ui
+import win32api
 import six
 
 try:
@@ -45,7 +49,7 @@ except ImportError:
     ImageGrab = None
 
 from .. import keyboard
-from pywinauto.windows import win32defines, win32functions, win32structures
+from ..windows import win32defines, win32functions, win32structures
 from ..timings import Timings
 from ..mouse import _perform_click_input
 
@@ -339,5 +343,72 @@ class Win32Wrapper(BaseWrapper):
     def set_focus(self):
         """Set the focus to this element"""
         pass
+
+    # -----------------------------------------------------------
+    def was_maximized(self):
+        """Indicate whether the window was maximized before minimizing or not"""
+        if self.handle:
+            (flags, _, _, _, _) = win32gui.GetWindowPlacement(self.handle)
+            return (flags & win32con.WPF_RESTORETOMAXIMIZED == win32con.WPF_RESTORETOMAXIMIZED)
+        else:
+            return None
+
+    #-----------------------------------------------------------
+    def capture_as_image(self, rect=None):
+        """
+        Return a PIL image of the control.
+
+        See PIL documentation to know what you can do with the resulting
+        image.
+        """
+        control_rectangle = self.rectangle()
+        if not (control_rectangle.width() and control_rectangle.height()):
+            return None
+
+        # PIL is optional so check first
+        if not ImageGrab:
+            print("PIL does not seem to be installed. "
+                  "PIL is required for capture_as_image")
+            self.actions.log("PIL does not seem to be installed. "
+                             "PIL is required for capture_as_image")
+            return None
+
+        if rect:
+            control_rectangle = rect
+
+        # get the control rectangle in a way that PIL likes it
+        width = control_rectangle.width()
+        height = control_rectangle.height()
+        left = control_rectangle.left
+        right = control_rectangle.right
+        top = control_rectangle.top
+        bottom = control_rectangle.bottom
+        box = (left, top, right, bottom)
+
+        # check the number of monitors connected
+        if (len(win32api.EnumDisplayMonitors()) > 1):
+                hwin = win32gui.GetDesktopWindow()
+                hwindc = win32gui.GetWindowDC(hwin)
+                srcdc = win32ui.CreateDCFromHandle(hwindc)
+                memdc = srcdc.CreateCompatibleDC()
+                bmp = win32ui.CreateBitmap()
+                bmp.CreateCompatibleBitmap(srcdc, width, height)
+                memdc.SelectObject(bmp)
+                memdc.BitBlt((0, 0), (width, height), srcdc, (left, top), win32con.SRCCOPY)
+
+                bmpinfo = bmp.GetInfo()
+                bmpstr = bmp.GetBitmapBits(True)
+                pil_img_obj = Image.frombuffer('RGB',
+                                               (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
+                                               bmpstr,
+                                               'raw',
+                                               'BGRX',
+                                               0,
+                                               1)
+        else:
+            # grab the image and get raw data as a string
+            pil_img_obj = ImageGrab.grab(box)
+
+        return pil_img_obj
 
 #====================================================================

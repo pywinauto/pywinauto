@@ -120,10 +120,11 @@ if sys.platform != 'win32':
 else:
     import time
     import ctypes
+
     import win32api
     import six
 
-    from pywinauto.windows import win32structures
+    from .windows import win32structures
     from . import win32functions
 
     __all__ = ['KeySequenceError', 'send_keys']

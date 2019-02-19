@@ -1,5 +1,5 @@
 from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions, RECT, known_control_types
-from pywinauto.element_info import ElementInfo
+from ..element_info import ElementInfo
 
 
 class AtspiElementInfo(ElementInfo):
