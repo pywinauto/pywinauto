@@ -38,9 +38,9 @@ import ctypes
 import locale
 import re
 import time
-# import win32process
-import six
 import sys
+
+import six
 
 try:
     from PIL import ImageGrab, Image
@@ -343,11 +343,7 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
     def was_maximized(self):
         """Indicate whether the window was maximized before minimizing or not"""
-        if self.handle:
-            (flags, _, _, _, _) = win32gui.GetWindowPlacement(self.handle)
-            return (flags & win32con.WPF_RESTORETOMAXIMIZED == win32con.WPF_RESTORETOMAXIMIZED)
-        else:
-            return None
+        raise NotImplementedError
 
     #------------------------------------------------------------
     def rectangle(self):
@@ -533,31 +529,10 @@ class BaseWrapper(object):
         bottom = control_rectangle.bottom
         box = (left, top, right, bottom)
 
-        # check the number of monitors connected
-        if (sys.platform == 'win32') and (len(win32api.EnumDisplayMonitors()) > 1):
-                hwin = win32gui.GetDesktopWindow()
-                hwindc = win32gui.GetWindowDC(hwin)
-                srcdc = win32ui.CreateDCFromHandle(hwindc)
-                memdc = srcdc.CreateCompatibleDC()
-                bmp = win32ui.CreateBitmap()
-                bmp.CreateCompatibleBitmap(srcdc, width, height)
-                memdc.SelectObject(bmp)
-                memdc.BitBlt((0, 0), (width, height), srcdc, (left, top), win32con.SRCCOPY)
+        # TODO: maybe check the number of monitors on Linux
 
-                bmpinfo = bmp.GetInfo()
-                bmpstr = bmp.GetBitmapBits(True)
-                pil_img_obj = Image.frombuffer('RGB',
-                                               (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-                                               bmpstr,
-                                               'raw',
-                                               'BGRX',
-                                               0,
-                                               1)
-        else:
-            # grab the image and get raw data as a string
-            pil_img_obj = ImageGrab.grab(box)
-
-        return pil_img_obj
+        # grab the image and get raw data as a string
+        return ImageGrab.grab(box)
 
     #-----------------------------------------------------------
     def get_properties(self):
