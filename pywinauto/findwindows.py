@@ -39,7 +39,7 @@ import six
 
 if sys.platform == 'win32':
     # TODO remove it after rewrite if active_only in find_elements
-    from ..windows import win32functions, win32structures
+    from .windows import win32functions, win32structures
 from . import findbestmatch
 from . import controls
 from .backend import registry
