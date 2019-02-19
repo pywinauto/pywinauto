@@ -49,7 +49,7 @@ import win32api
 import win32con
 import win32gui
 
-from ..windows import win32defines, win32functions, win32structures
+from .windows import win32defines, win32functions, win32structures
 from .actionlogger import ActionLogger
 
 
