@@ -41,6 +41,7 @@ import win32process
 import win32gui
 import win32ui
 import win32api
+import win32con
 import six
 
 try:

@@ -7,7 +7,7 @@ import time
 import warnings
 import multiprocessing
 import locale
-
+import codecs
 
 import six
 
