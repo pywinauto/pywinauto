@@ -46,7 +46,7 @@ class Injector(object):
 
         print(port)
         self._remote_call_int_param_func("InitSocket", port)
-        self._remote_call_string_param_func("SetMsgHook", b"C:\Users\bgalochk\Desktop")
+        self._remote_call_void_func("SetMsgHook")
 
     @property
     def socket(self):
@@ -100,22 +100,6 @@ class Injector(object):
 
         if not cfuncs.CreateRemoteThread(self.h_process, None, 0, proc_address, 0, 0, None):
             raise RuntimeError("Couldn't create remote thread, dll not injected, inject and try again!")
-
-    def _remote_call_string_param_func(self, func_name, param):
-        c_str = ctypes.create_unicode_buffer(param) if self.is_unicode else ctypes.create_string_buffer(byte_string(param))
-
-        # Allocate space for DLL path
-        arg_address = cfuncs.VirtualAllocEx(self.h_process, 0, ctypes.sizeof(c_str), cfuncs.VIRTUAL_MEM, cfuncs.PAGE_READWRITE)
-
-        # Write DLL path to allocated space
-        if not cfuncs.WriteProcessMemory(self.h_process, arg_address, ctypes.byref(c_str), ctypes.sizeof(c_str), 0):
-            raise AttributeError("Couldn't write data to process memory, check python acceess.")
-
-        proc_address = self._get_dll_proc_address(func_name)
-
-        self._create_remote_thread_with_timeout(proc_address, arg_address, 5000,
-            "Couldn't create remote thread, dll not injected, inject and try again!",
-            "{0}(string) function call time out".format(func_name))
 
     def _remote_call_int_param_func(self, func_name, param):
         # Resolve paramtype for different applications

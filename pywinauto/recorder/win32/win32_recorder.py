@@ -1,11 +1,16 @@
 import threading
 import timeit
+import time
 
 from comtypes import COMObject, COMError
 
 from ... import win32_hooks
 from ...win32structures import POINT
-from ...uia_element_info import UIAElementInfo
+from ..recorder_defines import EVENT, PROPERTY
+from ..recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
+    ApplicationEvent, PropertyEvent
+from ... import handleprops
+from ...win32_element_info import HwndElementInfo
 
 from ..control_tree import ControlTree
 from ..base_recorder import BaseRecorder
@@ -21,6 +26,7 @@ from .injector import Injector
 msg_id_to_key = {getattr(win32con, attr_name): attr_name for attr_name in dir(win32con) if attr_name.startswith('WM_')}
 
 def print_winmsg(msg):
+    print(handleprops.classname(msg.hWnd))
     print("hWnd:{}".format(str(msg.hWnd)))
     print("message:{}".format((msg_id_to_key[msg.message] if msg.message in msg_id_to_key else str(msg.message))))
     print("wParam:{}".format(str(msg.wParam)))
@@ -37,8 +43,6 @@ class Win32Recorder(BaseRecorder):
             raise TypeError("app must be a pywinauto.Application object of 'win32' backend")
 
         self.app = app[config.cmd]
-        self.injector = None
-        self.socket = None
         self.listen = False
         self.record_props = record_props
         self.record_focus = record_focus
@@ -53,22 +57,29 @@ class Win32Recorder(BaseRecorder):
             print(self.socket)
             self.listen = True
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
-            self._update(rebuild_tree=True)
+            self._update(rebuild_tree=True, start_message_queue=True)
         except Exception as exc:
             print(exc)
-            # TODO: Sometime we can't catch WindowClosed event in WPF applications
             self.listen = False
             self.stop()
             self.script += u"app.kill()\n"
-            # Skip exceptions thrown by AddPropertyChangedEventHandler
-            # print("Exception: {}".format(exc))
 
     def _cleanup(self):
         self.listen = False
 
-    def _update(self, rebuild_tree=False, add_handlers_to=None):
+    def _update(self, rebuild_tree=False, start_message_queue=None):
         if rebuild_tree:
             self._rebuild_control_tree()
+
+        self.hook.stop()
+        time.sleep(1)
+        self.hook_thread.join(1)
+
+        if start_message_queue:
+            self.message_thread = threading.Thread(target=self.message_queue)
+            self.message_thread.start()
+
+        # Enable mouse and keyboard event processing back
         self.hook_thread = threading.Thread(target=self.hook_target)
         self.hook_thread.start()
 
@@ -81,17 +92,53 @@ class Win32Recorder(BaseRecorder):
             print("[_rebuild_control_tree] Finished rebuilding control tree. Time = {}".format(
                 timeit.default_timer() - start_time))
 
-    def hook_target(self):
-        """Target function for hook thread"""
+    def message_queue(self):
         while self.listen:
-            print("SPAM")
+            #print("SPAM")
             msg = wintypes.MSG()
             buff = self.socket.recvfrom(1024)
-            print("SPAM1")
             ctypes.memmove(ctypes.pointer(msg), buff[0], ctypes.sizeof(msg))
-            self.handle_message(msg)
+            # self.handle_message(msg)
+            # el = HwndElementInfo(msg.hWnd)
+            if msg.message == win32con.WM_PAINT:
+                self._update(rebuild_tree=True)
+            elif msg.message == win32con.WM_KEYDOWN or msg.message == win32con.WM_KEYUP:
+                self.last_kbd_hwnd = msg.hWnd
             if msg.message == win32con.WM_QUIT:
                 self.stop()
+
+    def hook_target(self):
+        """Target function for hook thread"""
+        self.hook = win32_hooks.Hook()
+        self.hook.handler = self.handle_hook_event
+        self.hook.hook(keyboard=True, mouse=True)
+
+    def handle_hook_event(self, hook_event):
+        """Callback for keyboard and mouse events"""
+        if isinstance(hook_event, win32_hooks.KeyboardEvent):  # Handle keyboard hook events
+            keyboard_event = RecorderKeyboardEvent(hook_event.current_key, hook_event.event_type,
+                                                   hook_event.pressed_key)
+            # Add information about focused element to event
+            if not self.last_kbd_hwnd:
+                time.sleep(0.1)
+            if self.control_tree and self.last_kbd_hwnd:
+                focused_element_info = HwndElementInfo(self.last_kbd_hwnd)
+                keyboard_event.control_tree_node = self.control_tree.node_from_element_info(focused_element_info)
+            self.add_to_log(keyboard_event)
+        elif isinstance(hook_event, win32_hooks.MouseEvent):  # Handle mouse hook events
+            mouse_event = RecorderMouseEvent(hook_event.current_key, hook_event.event_type, hook_event.mouse_x,
+                                             hook_event.mouse_y)
+            # Add information about clicked item to event
+            if self.control_tree:
+                mouse_event.control_tree_node = self.control_tree.node_from_point(POINT(mouse_event.mouse_x,
+                                                                                        mouse_event.mouse_y))
+
+            self.add_to_log(mouse_event)
+
+            # TODO: choose when to parse log
+            if mouse_event.event_type == "key down":
+                self._parse_and_clear_log()
+
 
     def handle_message(self, message):
         """Callback for keyboard and mouse events"""

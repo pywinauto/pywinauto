@@ -47,6 +47,8 @@ class ExpandCollapseHandler(EventHandler):
 
 class SelectionChangedHandler(EventHandler):
     def run(self):
+        if len(self.subpattern.app_events) == 0:
+            return
         selected_elem_info = self.subpattern.app_events[-1].sender
         for node in self.subtree:
             if node.wrapper.element_info == selected_elem_info:
