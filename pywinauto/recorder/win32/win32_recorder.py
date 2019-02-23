@@ -66,7 +66,6 @@ class Win32Recorder(BaseRecorder):
             self.stop()
 
     def _cleanup(self):
-        print("STOOOP")
         self.listen = False
         self.hook.stop()
         self.message_thread.join(1)
@@ -86,20 +85,19 @@ class Win32Recorder(BaseRecorder):
 
     def _update(self, rebuild_tree=False, start_message_queue=False):
         if rebuild_tree:
-            pass
-            # pbar_dlg = ProgressBarDialog(self.control_tree.root.rect if self.control_tree.root else None)
-            # pbar_dlg.show()
+            pbar_dlg = ProgressBarDialog(self.control_tree.root.rect if self.control_tree.root else None)
+            pbar_dlg.show()
 
-            # self._pause_hook_thread()
+            self._pause_hook_thread()
 
-            # rebuild_tree_thr = threading.Thread(target=self._rebuild_control_tree)
-            # rebuild_tree_thr.start()
-            # pbar_dlg.pbar.SetPos(50)
-            # rebuild_tree_thr.join()
-            # pbar_dlg.pbar.SetPos(100)
-            # pbar_dlg.close()
+            rebuild_tree_thr = threading.Thread(target=self._rebuild_control_tree)
+            rebuild_tree_thr.start()
+            pbar_dlg.pbar.SetPos(50)
+            rebuild_tree_thr.join()
+            pbar_dlg.pbar.SetPos(100)
+            pbar_dlg.close()
 
-            # self._resume_hook_thread()
+            self._resume_hook_thread()
 
         if start_message_queue:
             self.message_thread = threading.Thread(target=self.message_queue)
@@ -153,7 +151,6 @@ class Win32Recorder(BaseRecorder):
         """Callback for keyboard and mouse events"""
         if isinstance(hook_event, win32_hooks.KeyboardEvent):
             keyboard_event = RecorderKeyboardEvent.from_hook_keyboard_event(hook_event)
-            keyboard_event.control_tree_node = self._get_keyboard_node()
             self.add_to_log(keyboard_event)
         elif isinstance(hook_event, win32_hooks.MouseEvent):
             mouse_event = RecorderMouseEvent.from_hook_mouse_event(hook_event)
@@ -162,8 +159,8 @@ class Win32Recorder(BaseRecorder):
 
     def handle_message(self, msg):
         """Callback for keyboard and mouse events"""
-        # if msg.message == win32con.WM_PAINT:
-        #     self._update(rebuild_tree=True)
+        #if msg.message == win32con.WM_PAINT:
+        #    self._update(rebuild_tree=True)
         if msg.message in self._MESSAGES_SKIP_LIST:
             return
         elif msg.message == win32con.WM_KEYDOWN or msg.message == win32con.WM_KEYUP:
@@ -172,4 +169,4 @@ class Win32Recorder(BaseRecorder):
             time.sleep(0.1)
             if not self.app.is_process_running():
                 self.stop()
-        print_winmsg(msg)
+        #print_winmsg(msg)

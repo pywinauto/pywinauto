@@ -39,7 +39,6 @@ class Injector(object):
         """Constructor inject dll, set socket and hook (one application - one class instanse)"""
         self.app = app
         self.is_unicode = is_unicode
-        print(int(self.app.handle))
         self.pid = processid(self.app.handle)
         if not sysinfo.is_x64_Python() == is64bitprocess(self.pid):
             raise RuntimeError("Application and Python must be both 32-bit or both 64-bit")
@@ -49,8 +48,7 @@ class Injector(object):
         self.port = self._init_socket()
         self._remote_call_int_param_func("InitSocket", self.port)
         self._remote_call_void_func("SetMsgHook")
-        print(desktop_out_file_path)
-        #self._remote_call_string_param_func("SetMsgHook", desktop_out_file_path)
+        # self._remote_call_string_param_func("SetMsgHook", desktop_out_file_path)
 
     @property
     def socket(self):
