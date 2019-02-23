@@ -257,6 +257,10 @@ class RecorderMouseEvent(HookEvent):
                                                                                self.mouse_x, self.mouse_y, elem,
                                                                                self.timestamp)
 
+    @classmethod
+    def from_hook_mouse_event(cls, hook_event):
+        return cls(hook_event.current_key, hook_event.event_type, hook_event.mouse_x, hook_event.mouse_y)
+
 
 class RecorderKeyboardEvent(HookEvent):
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
@@ -267,6 +271,9 @@ class RecorderKeyboardEvent(HookEvent):
         return u"<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(
             self.current_key, self.event_type, self.pressed_key, self.timestamp)
 
+    @classmethod
+    def from_hook_keyboard_event(cls, hook_event):
+        return cls(hook_event.current_key, hook_event.event_type, hook_event.pressed_key)
 
 class ApplicationEvent(RecorderEvent):
     def __init__(self, name, sender=None):
