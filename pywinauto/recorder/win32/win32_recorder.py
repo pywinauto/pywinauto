@@ -48,7 +48,8 @@ class Win32Recorder(BaseRecorder):
             raise TypeError("app must be a pywinauto.Application object of 'win32' backend")
 
         self.last_kbd_hwnd = None
-        self.app = app[config.cmd]
+        self.app = app
+        self.dlg = app[config.cmd]
         self.listen = False
         self.record_props = record_props
         self.record_focus = record_focus
@@ -56,7 +57,7 @@ class Win32Recorder(BaseRecorder):
 
     def _setup(self):
         try:
-            self.injector = Injector(self.app)
+            self.injector = Injector(self.dlg)
             self.socket = self.injector.socket
             self.listen = True
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
@@ -167,6 +168,8 @@ class Win32Recorder(BaseRecorder):
             return
         elif msg.message == win32con.WM_KEYDOWN or msg.message == win32con.WM_KEYUP:
             self.last_kbd_hwnd = msg.hWnd
-        elif msg.message == win32con.WM_QUIT and msg.pt.x == 0:
-            self.stop()
+        elif msg.message == win32con.WM_QUIT:
+            time.sleep(0.1)
+            if not self.app.is_process_running():
+                self.stop()
         print_winmsg(msg)
