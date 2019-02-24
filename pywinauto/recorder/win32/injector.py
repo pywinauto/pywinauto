@@ -35,10 +35,11 @@ class Injector(object):
         self.sock.bind(('',0))
         return self.sock.getsockname()[1]
 
-    def __init__(self, app, is_unicode = False):
+    def __init__(self, app, is_unicode = False, skip_messages_list = []):
         """Constructor inject dll, set socket and hook (one application - one class instanse)"""
         self.app = app
         self.is_unicode = is_unicode
+        skip_messages_list = [len(skip_messages_list)] + skip_messages_list
         self.pid = processid(self.app.handle)
         if not sysinfo.is_x64_Python() == is64bitprocess(self.pid):
             raise RuntimeError("Application and Python must be both 32-bit or both 64-bit")
@@ -46,9 +47,9 @@ class Injector(object):
         self.dll_path = os.path.abspath("{0}pywinmsg{1}.dll".format(dll_path, "64" if is64bitprocess(self.pid) else "32"))
         self._inject_dll_to_process()
         self.port = self._init_socket()
-        self._remote_call_int_param_func("InitSocket", self.port)
-        self._remote_call_void_func("SetMsgHook")
-        # self._remote_call_string_param_func("SetMsgHook", desktop_out_file_path)
+        self._remote_call_int_arr_param_func("SetSkipList", skip_messages_list)
+        self._remote_call_int_param_func("SetSocketPort", self.port)
+        self._remote_call_void_func("Initialize")
 
     @property
     def socket(self):
@@ -112,6 +113,12 @@ class Injector(object):
 
     def _remote_call_int_param_func(self, func_name, param):
         arg_address = self._virtual_alloc_for(ctypes.c_int32(param))
+        proc_address = self._get_dll_proc_address(func_name)
+        self._create_remote_thread_with_timeout(proc_address, arg_address,
+            "{0}(int) function call time out".format(func_name), timeout_ms = 0)
+
+    def _remote_call_int_arr_param_func(self, func_name, param):
+        arg_address = self._virtual_alloc_for((ctypes.c_int * len(param))(*param))
         proc_address = self._get_dll_proc_address(func_name)
         self._create_remote_thread_with_timeout(proc_address, arg_address,
             "{0}(int) function call time out".format(func_name), timeout_ms = 0)

@@ -37,8 +37,28 @@ def print_winmsg(msg):
 
 class Win32Recorder(BaseRecorder):
     _MESSAGES_SKIP_LIST = [
-        win32con.WM_MOUSEMOVE,
+        280,
+        96,
+        1848,
+        win32con.WM_PAINT,
+        win32con.WM_NCMOUSEMOVE,
         win32con.WM_TIMER,
+
+        # mouse events handled by win32_hooks
+        win32con.WM_MOUSEMOVE,
+        win32con.WM_LBUTTONDOWN,
+        win32con.WM_LBUTTONUP,
+        win32con.WM_RBUTTONDOWN,
+        win32con.WM_RBUTTONUP,
+        win32con.WM_MBUTTONDOWN,
+        win32con.WM_MBUTTONUP,
+        win32con.WM_MOUSEWHEEL,
+
+        # keyboard events handled by win32_hooks
+        win32con.WM_KEYDOWN,
+        win32con.WM_KEYUP,
+        win32con.WM_SYSKEYDOWN,
+        win32con.WM_SYSKEYUP,
     ]
 
     def __init__(self, app, config, record_props=True, record_focus=False, record_struct=False):
@@ -57,7 +77,7 @@ class Win32Recorder(BaseRecorder):
 
     def _setup(self):
         try:
-            self.injector = Injector(self.dlg)
+            self.injector = Injector(self.dlg, skip_messages_list = self._MESSAGES_SKIP_LIST)
             self.socket = self.injector.socket
             self.listen = True
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
@@ -161,12 +181,10 @@ class Win32Recorder(BaseRecorder):
         """Callback for keyboard and mouse events"""
         #if msg.message == win32con.WM_PAINT:
         #    self._update(rebuild_tree=True)
-        if msg.message in self._MESSAGES_SKIP_LIST:
-            return
-        elif msg.message == win32con.WM_KEYDOWN or msg.message == win32con.WM_KEYUP:
+        if msg.message == win32con.WM_KEYDOWN or msg.message == win32con.WM_KEYUP:
             self.last_kbd_hwnd = msg.hWnd
         elif msg.message == win32con.WM_QUIT:
             time.sleep(0.1)
             if not self.app.is_process_running():
                 self.stop()
-        #print_winmsg(msg)
+        print_winmsg(msg)
