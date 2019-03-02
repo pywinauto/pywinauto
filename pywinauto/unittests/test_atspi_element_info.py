@@ -102,7 +102,8 @@ if sys.platform != 'win32':
 
         def test_can_get_atspi_version(self):
             # TODO Get atspi version from loaded so
-            self.assertEqual(self.app_info.atspi_version(), "2.1")
+            version = self.app_info.atspi_version()
+            self.assertTrue(version in ["2.0", "2.1"], msg="Unexpected AT-SPI version: {}".format(version))
 
         @unittest.skip("skip for now")
         def test_can_get_rectangle(self):
