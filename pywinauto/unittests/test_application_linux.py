@@ -22,7 +22,7 @@ def _test_app():
 
 
 def _test_app_cmd_line():
-    return "python {}".format(_test_app())
+    return "python3 {}".format(_test_app())
 
 
 sys.path.append(".")

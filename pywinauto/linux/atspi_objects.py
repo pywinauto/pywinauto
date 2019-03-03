@@ -1,6 +1,9 @@
 import ctypes
 import subprocess
+import six
 from ctypes import Structure, c_char_p, c_int, POINTER
+
+from ..backend import Singleton
 
 
 class CtypesEnum(object):
@@ -141,15 +144,15 @@ class AtspiPoint (Structure):
     ]
 
 
-class AtspiAccessible (Structure):
+class _AtspiAccessible (Structure):
     pass
 
 
-class AtspiComponent (Structure):
+class _AtspiComponent (Structure):
     pass
 
 
-class GError (Structure):
+class _GError (Structure):
     pass
 
 """
@@ -285,8 +288,8 @@ known_control_types = [
     "Last_defined",
 ]
 
-
-class AtspiFunctions:
+@six.add_metaclass(Singleton)
+class IATSPI(object):
     """ Python wrapper around C functions from atspi library"""
     LIB = "libatspi"
     DEFAULT_LIB_NAME = "libatspi.so"
@@ -307,77 +310,81 @@ class AtspiFunctions:
 
     def __init__(self):
         try:
-            atspi = ctypes.cdll.LoadLibrary(self.__find_library())
-            self.get_desktop = atspi.atspi_get_desktop
-            self.get_desktop.argtypes = [c_int]
-            self.get_desktop.restype = POINTER(AtspiAccessible)
-
-            self.get_name = atspi.atspi_accessible_get_name
-            self.get_name.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_name.restype = c_char_p
-
-            self.get_id = atspi.atspi_accessible_get_id
-            self.get_id.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_id.restype = c_int
-
-            self.get_process_id = atspi.atspi_accessible_get_process_id
-            self.get_process_id.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_process_id.restypes = c_int
-
-            self.get_role = atspi.atspi_accessible_get_role
-            self.get_role.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_role.restype = c_int
-
-            self.get_role_name = atspi.atspi_accessible_get_role_name
-            self.get_role_name.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_role_name.restype = c_char_p
-
-            self.get_description = atspi.atspi_accessible_get_description
-            self.get_description.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_description.restype = c_char_p
-
-            self.get_toolkit_name = atspi.atspi_accessible_get_toolkit_name
-            self.get_toolkit_name.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_toolkit_name.restype = c_char_p
-
-            self.get_toolkit_version = atspi.atspi_accessible_get_toolkit_version
-            self.get_toolkit_version.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_toolkit_version.restype = c_char_p
-
-            self.get_atspi_version = atspi.atspi_accessible_get_atspi_version
-            self.get_atspi_version.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_atspi_version.restype = c_char_p
-
-            self.get_parent = atspi.atspi_accessible_get_parent
-            self.get_parent.artypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_parent.restype = POINTER(AtspiAccessible)
-
-            self.get_child_count = atspi.atspi_accessible_get_child_count
-            self.get_child_count.argtypes = [POINTER(AtspiAccessible), POINTER(GError)]
-            self.get_child_count.restype = c_int
-
-            self.get_child_at_index = atspi.atspi_accessible_get_child_at_index
-            self.get_child_at_index.argtypes = [POINTER(AtspiAccessible), c_int, POINTER(GError)]
-            self.get_child_at_index.restype = POINTER(AtspiAccessible)
-
-            self.get_position = atspi.atspi_component_get_position
-            self.get_position.argtypes = [POINTER(AtspiComponent), AtspiCoordType, POINTER(GError)]
-            self.get_position.restype = POINTER(AtspiPoint)
-
-            self.get_size = atspi.atspi_component_get_size
-            self.get_size.argtypes = [POINTER(AtspiComponent), POINTER(GError)]
-            self.get_size.restype = POINTER(AtspiPoint)
-
-            self.get_rectangle = atspi.atspi_component_get_extents
-            self.get_rectangle.argtypes = [POINTER(AtspiComponent), AtspiCoordType, POINTER(GError)]
-            self.get_rectangle.restype = POINTER(AtspiRect)
-
-            self.get_component = atspi.atspi_accessible_get_component
-            self.get_component.argtypes = [POINTER(AtspiAccessible)]
-            self.get_component.restype = POINTER(AtspiComponent)
+            self.atspi = ctypes.cdll.LoadLibrary(self.__find_library())
 
         except Exception:
             message = "atspi library not installed. Please install at-spi2 library or choose another backend"
             raise Exception(message)
+
+
+class AtspiAccessible:
+    def __init__(self):
+        self.get_desktop = IATSPI().atspi.atspi_get_desktop
+        self.get_desktop.argtypes = [c_int]
+        self.get_desktop.restype = POINTER(_AtspiAccessible)
+
+        self.get_name = IATSPI().atspi.atspi_accessible_get_name
+        self.get_name.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_name.restype = c_char_p
+
+        self.get_id = IATSPI().atspi.atspi_accessible_get_id
+        self.get_id.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_id.restype = c_int
+
+        self.get_process_id = IATSPI().atspi.atspi_accessible_get_process_id
+        self.get_process_id.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_process_id.restypes = c_int
+
+        self.get_role = IATSPI().atspi.atspi_accessible_get_role
+        self.get_role.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_role.restype = c_int
+
+        self.get_role_name = IATSPI().atspi.atspi_accessible_get_role_name
+        self.get_role_name.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_role_name.restype = c_char_p
+
+        self.get_description = IATSPI().atspi.atspi_accessible_get_description
+        self.get_description.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_description.restype = c_char_p
+
+        self.get_toolkit_name = IATSPI().atspi.atspi_accessible_get_toolkit_name
+        self.get_toolkit_name.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_toolkit_name.restype = c_char_p
+
+        self.get_toolkit_version = IATSPI().atspi.atspi_accessible_get_toolkit_version
+        self.get_toolkit_version.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_toolkit_version.restype = c_char_p
+
+        self.get_atspi_version = IATSPI().atspi.atspi_accessible_get_atspi_version
+        self.get_atspi_version.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_atspi_version.restype = c_char_p
+
+        self.get_parent = IATSPI().atspi.atspi_accessible_get_parent
+        self.get_parent.artypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_parent.restype = POINTER(_AtspiAccessible)
+
+        self.get_child_count = IATSPI().atspi.atspi_accessible_get_child_count
+        self.get_child_count.argtypes = [POINTER(_AtspiAccessible), POINTER(_GError)]
+        self.get_child_count.restype = c_int
+
+        self.get_child_at_index = IATSPI().atspi.atspi_accessible_get_child_at_index
+        self.get_child_at_index.argtypes = [POINTER(_AtspiAccessible), c_int, POINTER(_GError)]
+        self.get_child_at_index.restype = POINTER(_AtspiAccessible)
+
+        self.get_position = IATSPI().atspi.atspi_component_get_position
+        self.get_position.argtypes = [POINTER(_AtspiComponent), AtspiCoordType, POINTER(_GError)]
+        self.get_position.restype = POINTER(AtspiPoint)
+
+        self.get_size = IATSPI().atspi.atspi_component_get_size
+        self.get_size.argtypes = [POINTER(_AtspiComponent), POINTER(_GError)]
+        self.get_size.restype = POINTER(AtspiPoint)
+
+        self.get_rectangle = IATSPI().atspi.atspi_component_get_extents
+        self.get_rectangle.argtypes = [POINTER(_AtspiComponent), AtspiCoordType, POINTER(_GError)]
+        self.get_rectangle.restype = POINTER(AtspiRect)
+
+        self.get_component = IATSPI().atspi.atspi_accessible_get_component
+        self.get_component.argtypes = [POINTER(_AtspiAccessible)]
+        self.get_component.restype = POINTER(_AtspiComponent)
 
 
