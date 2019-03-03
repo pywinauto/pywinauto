@@ -74,7 +74,7 @@ except ImportError:
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from .win32_wrapper import Win32Wrapper
+from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
 from .. import deprecated
 
@@ -150,7 +150,7 @@ class HwndMeta(BaseMeta):
 
 #====================================================================
 @six.add_metaclass(HwndMeta)
-class HwndWrapper(Win32Wrapper):
+class HwndWrapper(WinBaseWrapper):
 
     """
     Default wrapper for controls.
@@ -192,7 +192,7 @@ class HwndWrapper(Win32Wrapper):
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
-        Win32Wrapper.__init__(self, element_info, backend.registry.backends['win32'])
+        WinBaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
         if not handleprops.iswindow(self.handle):
@@ -1439,37 +1439,37 @@ class HwndWrapper(Win32Wrapper):
 
     # Non PEP-8 aliases for Win32Wrapper methods
     # We keep them for the backward compatibility in legacy scripts
-    ClickInput = deprecated(Win32Wrapper.click_input)
-    DoubleClickInput = deprecated(Win32Wrapper.double_click_input)
-    RightClickInput = deprecated(Win32Wrapper.right_click_input)
-    VerifyVisible = deprecated(Win32Wrapper.verify_visible)
-    _NeedsImageProp = deprecated(Win32Wrapper._needs_image_prop, deprecated_name='_NeedsImageProp')
-    FriendlyClassName = deprecated(Win32Wrapper.friendly_class_name)
-    Class = deprecated(Win32Wrapper.class_name, deprecated_name='Class')
-    WindowText = deprecated(Win32Wrapper.window_text)
-    ControlID = deprecated(Win32Wrapper.control_id, deprecated_name='ControlID')
-    IsVisible = deprecated(Win32Wrapper.is_visible)
-    IsEnabled = deprecated(Win32Wrapper.is_enabled)
-    Rectangle = deprecated(Win32Wrapper.rectangle)
-    ClientToScreen = deprecated(Win32Wrapper.client_to_screen)
-    ProcessID = deprecated(Win32Wrapper.process_id, deprecated_name='ProcessID')
-    IsDialog = deprecated(Win32Wrapper.is_dialog)
-    Parent = deprecated(Win32Wrapper.parent)
-    TopLevelParent = deprecated(Win32Wrapper.top_level_parent)
-    Texts = deprecated(Win32Wrapper.texts)
-    Children = deprecated(Win32Wrapper.children)
-    CaptureAsImage = deprecated(Win32Wrapper.capture_as_image)
-    GetProperties = deprecated(Win32Wrapper.get_properties)
-    DrawOutline = deprecated(Win32Wrapper.draw_outline)
-    IsChild = deprecated(Win32Wrapper.is_child)
-    VerifyActionable = deprecated(Win32Wrapper.verify_actionable)
-    VerifyEnabled = deprecated(Win32Wrapper.verify_enabled)
-    PressMouseInput = deprecated(Win32Wrapper.press_mouse_input)
-    ReleaseMouseInput = deprecated(Win32Wrapper.release_mouse_input)
-    MoveMouseInput = deprecated(Win32Wrapper.move_mouse_input)
-    DragMouseInput = deprecated(Win32Wrapper.drag_mouse_input)
-    WheelMouseInput = deprecated(Win32Wrapper.wheel_mouse_input)
-    TypeKeys = deprecated(Win32Wrapper.type_keys)
+    ClickInput = deprecated(WinBaseWrapper.click_input)
+    DoubleClickInput = deprecated(WinBaseWrapper.double_click_input)
+    RightClickInput = deprecated(WinBaseWrapper.right_click_input)
+    VerifyVisible = deprecated(WinBaseWrapper.verify_visible)
+    _NeedsImageProp = deprecated(WinBaseWrapper._needs_image_prop, deprecated_name='_NeedsImageProp')
+    FriendlyClassName = deprecated(WinBaseWrapper.friendly_class_name)
+    Class = deprecated(WinBaseWrapper.class_name, deprecated_name='Class')
+    WindowText = deprecated(WinBaseWrapper.window_text)
+    ControlID = deprecated(WinBaseWrapper.control_id, deprecated_name='ControlID')
+    IsVisible = deprecated(WinBaseWrapper.is_visible)
+    IsEnabled = deprecated(WinBaseWrapper.is_enabled)
+    Rectangle = deprecated(WinBaseWrapper.rectangle)
+    ClientToScreen = deprecated(WinBaseWrapper.client_to_screen)
+    ProcessID = deprecated(WinBaseWrapper.process_id, deprecated_name='ProcessID')
+    IsDialog = deprecated(WinBaseWrapper.is_dialog)
+    Parent = deprecated(WinBaseWrapper.parent)
+    TopLevelParent = deprecated(WinBaseWrapper.top_level_parent)
+    Texts = deprecated(WinBaseWrapper.texts)
+    Children = deprecated(WinBaseWrapper.children)
+    CaptureAsImage = deprecated(WinBaseWrapper.capture_as_image)
+    GetProperties = deprecated(WinBaseWrapper.get_properties)
+    DrawOutline = deprecated(WinBaseWrapper.draw_outline)
+    IsChild = deprecated(WinBaseWrapper.is_child)
+    VerifyActionable = deprecated(WinBaseWrapper.verify_actionable)
+    VerifyEnabled = deprecated(WinBaseWrapper.verify_enabled)
+    PressMouseInput = deprecated(WinBaseWrapper.press_mouse_input)
+    ReleaseMouseInput = deprecated(WinBaseWrapper.release_mouse_input)
+    MoveMouseInput = deprecated(WinBaseWrapper.move_mouse_input)
+    DragMouseInput = deprecated(WinBaseWrapper.drag_mouse_input)
+    WheelMouseInput = deprecated(WinBaseWrapper.wheel_mouse_input)
+    TypeKeys = deprecated(WinBaseWrapper.type_keys)
 
 
 #====================================================================

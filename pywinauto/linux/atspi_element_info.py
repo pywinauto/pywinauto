@@ -1,4 +1,4 @@
-from .atspi_functions import AtspiRect, AtspiCoordType, AtspiFunctions, RECT, known_control_types
+from .atspi_objects import AtspiRect, AtspiCoordType, AtspiFunctions, RECT, known_control_types
 from ..element_info import ElementInfo
 
 
