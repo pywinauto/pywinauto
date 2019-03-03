@@ -1,11 +1,11 @@
-from .atspi_objects import AtspiRect, AtspiCoordType, AtspiFunctions, RECT, known_control_types
+from .atspi_objects import AtspiRect, AtspiCoordType, AtspiAccessible, RECT, known_control_types
 from ..element_info import ElementInfo
 
 
 class AtspiElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
-    atspi_functions = AtspiFunctions()
+    atspi_functions = AtspiAccessible()
 
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
