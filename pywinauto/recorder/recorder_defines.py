@@ -230,7 +230,7 @@ class RecorderEvent(object):
 
     def __str__(self):
         if six.PY2:
-            return self.__repr__().encode(sys.stdout.encoding)
+            return self.__repr__().encode(sys.stdout.encoding, errors='xmlcharrefreplace')
         else:
             return self.__repr__()
 
