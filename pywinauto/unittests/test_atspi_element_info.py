@@ -105,7 +105,7 @@ if sys.platform != 'win32':
             version = self.app_info.atspi_version()
             self.assertTrue(version in ["2.0", "2.1"], msg="Unexpected AT-SPI version: {}".format(version))
 
-        @unittest.skip("skip for now")
+        #@unittest.skip("skip for now")
         def test_can_get_rectangle(self):
             app_info = self.get_app(app_name)
             rectangle = app_info.children()[0].children()[0].rectangle
