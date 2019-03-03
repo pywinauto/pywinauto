@@ -1,64 +1,48 @@
 import threading
+import ctypes
 import timeit
 import time
 
-from comtypes import COMObject, COMError
-
 from ... import win32_hooks
-from ...win32structures import POINT
-from ..recorder_defines import EVENT, PROPERTY
-from ..recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
-    ApplicationEvent, PropertyEvent
+from ... import win32defines
 from ... import handleprops
+from ...win32structures import POINT
 from ...win32_element_info import HwndElementInfo
-from ..uia.uia_recorder import ProgressBarDialog
 
+from ..uia.uia_recorder import ProgressBarDialog
 from ..control_tree import ControlTree
 from ..base_recorder import BaseRecorder
-
-from pywin.mfc import dialog
-import win32ui
-import win32con
-from ctypes import wintypes
-import ctypes
+from ..recorder_defines import RecorderEvent, \
+    RecorderKeyboardEvent, \
+    RecorderMouseEvent, \
+    ApplicationEvent, \
+    PropertyEvent
 
 from .injector import Injector
 
-msg_id_to_key = {getattr(win32con, attr_name): attr_name for attr_name in dir(win32con) if attr_name.startswith('WM_')}
+msg_id_to_key = {getattr(win32defines, attr_name): attr_name for attr_name in dir(win32defines) if attr_name.startswith('WM_') or attr_name.startswith('CB_')}
 
 def print_winmsg(msg):
-    print(handleprops.classname(msg.hWnd))
-    print("hWnd:{}".format(str(msg.hWnd)))
+    #print(handleprops.classname(msg.hWnd))
     print("message:{}".format((msg_id_to_key[msg.message] if msg.message in msg_id_to_key else str(msg.message))))
-    print("wParam:{}".format(str(msg.wParam)))
-    print("lParam:{}".format(str(msg.lParam)))
-    print("time:{}".format(str(msg.time)))
-    print("pt:{}".format(str(msg.pt.x) + ',' + str(msg.pt.x)))
 
 class Win32Recorder(BaseRecorder):
-    _MESSAGES_SKIP_LIST = [
-        280,
-        96,
-        1848,
-        win32con.WM_PAINT,
-        win32con.WM_NCMOUSEMOVE,
-        win32con.WM_TIMER,
-
-        # mouse events handled by win32_hooks
-        win32con.WM_MOUSEMOVE,
-        win32con.WM_LBUTTONDOWN,
-        win32con.WM_LBUTTONUP,
-        win32con.WM_RBUTTONDOWN,
-        win32con.WM_RBUTTONUP,
-        win32con.WM_MBUTTONDOWN,
-        win32con.WM_MBUTTONUP,
-        win32con.WM_MOUSEWHEEL,
-
-        # keyboard events handled by win32_hooks
-        win32con.WM_KEYDOWN,
-        win32con.WM_KEYUP,
-        win32con.WM_SYSKEYDOWN,
-        win32con.WM_SYSKEYUP,
+    _APPROVED_MESSAGES_LIST = [
+        win32defines.WM_CONTEXTMENU,
+        win32defines.WM_ENTERMENULOOP,
+        win32defines.WM_EXITMENULOOP,
+        # win32defines.WM_GETTITLEBARINFOEX,
+        win32defines.WM_MENUCOMMAND,
+        # win32defines.WM_MENUDRAG,
+        # win32defines.WM_MENUGETOBJECT,
+        # win32defines.WM_MENURBUTTONUP,
+        win32defines.WM_NEXTMENU,
+        # win32defines.WM_UNINITMENUPOPUP,
+        win32defines.WM_COMMAND,
+        win32defines.WM_QUIT,
+        win32defines.WM_NOTIFY,
+        win32defines.WM_KEYUP,
+        win32defines.WM_SETFOCUS,
     ]
 
     def __init__(self, app, config, record_props=True, record_focus=False, record_struct=False):
@@ -71,13 +55,14 @@ class Win32Recorder(BaseRecorder):
         self.app = app
         self.dlg = app[config.cmd]
         self.listen = False
+        self.hook = win32_hooks.Hook()
         self.record_props = record_props
         self.record_focus = record_focus
         self.record_struct = record_struct
 
     def _setup(self):
         try:
-            self.injector = Injector(self.dlg, skip_messages_list = self._MESSAGES_SKIP_LIST)
+            self.injector = Injector(self.dlg, approved_messages_list = self._APPROVED_MESSAGES_LIST)
             self.socket = self.injector.socket
             self.listen = True
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
@@ -148,7 +133,7 @@ class Win32Recorder(BaseRecorder):
         return node
 
     def _read_message(self):
-        msg = wintypes.MSG()
+        msg = ctypes.wintypes.MSG()
         try:
             buff = self.socket.recvfrom(1024)
             ctypes.memmove(ctypes.pointer(msg), buff[0], ctypes.sizeof(msg))
@@ -163,7 +148,6 @@ class Win32Recorder(BaseRecorder):
 
     def hook_target(self):
         """Target function for hook thread"""
-        self.hook = win32_hooks.Hook()
         self.hook.handler = self.handle_hook_event
         self.hook.hook(keyboard=True, mouse=True)
 
@@ -179,11 +163,9 @@ class Win32Recorder(BaseRecorder):
 
     def handle_message(self, msg):
         """Callback for keyboard and mouse events"""
-        #if msg.message == win32con.WM_PAINT:
-        #    self._update(rebuild_tree=True)
-        if msg.message == win32con.WM_KEYDOWN or msg.message == win32con.WM_KEYUP:
+        if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
             self.last_kbd_hwnd = msg.hWnd
-        elif msg.message == win32con.WM_QUIT:
+        elif msg.message == win32defines.WM_QUIT:
             time.sleep(0.1)
             if not self.app.is_process_running():
                 self.stop()
