@@ -1,7 +1,7 @@
 import ctypes
 import subprocess
 import six
-from ctypes import Structure, c_char_p, c_int, POINTER
+from ctypes import Structure, c_char_p, c_int, c_bool, POINTER, c_uint32, c_short, c_double
 
 from ..backend import Singleton
 
@@ -123,9 +123,31 @@ class RECT(Structure):
         return pt
 
 
-class AtspiCoordType(CtypesEnum):
+class _AtspiCoordType(CtypesEnum):
     ATSPI_COORD_TYPE_SCREEN = 0
     ATSPI_COORD_TYPE_WINDOW = 1
+
+
+class _AtspiComponentLayer(CtypesEnum):
+    ATSPI_LAYER_INVALID = 0
+    ATSPI_LAYER_BACKGROUND = 1
+    ATSPI_LAYER_CANVAS = 2
+    ATSPI_LAYER_WIDGET = 3
+    ATSPI_LAYER_MDI = 4
+    ATSPI_LAYER_POPUP = 5
+    ATSPI_LAYER_OVERLAY = 6
+    ATSPI_LAYER_WINDOW = 7
+    ATSPI_LAYER_LAST_DEFINED = 8
+
+
+class _AtspiScrollType(CtypesEnum):
+    ATSPI_SCROLL_TOP_LEFT = 0
+    ATSPI_SCROLL_BOTTOM_RIGHT = 1
+    ATSPI_SCROLL_TOP_EDGE = 2
+    ATSPI_SCROLL_BOTTOM_EDGE = 3
+    ATSPI_SCROLL_LEFT_EDGE = 4
+    ATSPI_SCROLL_RIGHT_EDGE = 5
+    ATSPI_SCROLL_ANYWHERE = 6
 
 
 class AtspiRect (Structure):
@@ -317,7 +339,7 @@ class IATSPI(object):
             raise Exception(message)
 
 
-class AtspiAccessible:
+class AtspiAccessible(object):
     def __init__(self):
         self.get_desktop = IATSPI().atspi.atspi_get_desktop
         self.get_desktop.argtypes = [c_int]
@@ -371,20 +393,67 @@ class AtspiAccessible:
         self.get_child_at_index.argtypes = [POINTER(_AtspiAccessible), c_int, POINTER(_GError)]
         self.get_child_at_index.restype = POINTER(_AtspiAccessible)
 
+        self.get_component = IATSPI().atspi.atspi_accessible_get_component
+        self.get_component.argtypes = [POINTER(_AtspiAccessible)]
+        self.get_component.restype = POINTER(_AtspiComponent)
+
+
+class AtspiComponent(object):
+    def __init__(self):
+        self.contains = IATSPI().atspi.atspi_component_contains
+        self.contains.argtypes = [POINTER(_AtspiComponent), c_int, c_int, _AtspiCoordType, POINTER(_GError)]
+        self.contains.restype = c_bool
+
+        self.get_accessible_at_point = IATSPI().atspi.atspi_component_get_accessible_at_point
+        self.get_accessible_at_point.argtypes = [POINTER(_AtspiComponent), c_int, c_int, _AtspiCoordType,
+                                                 POINTER(_GError)]
+        self.get_accessible_at_point.restype = POINTER(_AtspiAccessible)
+
+        self.get_rectangle = IATSPI().atspi.atspi_component_get_extents
+        self.get_rectangle.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, POINTER(_GError)]
+        self.get_rectangle.restype = POINTER(AtspiRect)
+
         self.get_position = IATSPI().atspi.atspi_component_get_position
-        self.get_position.argtypes = [POINTER(_AtspiComponent), AtspiCoordType, POINTER(_GError)]
+        self.get_position.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, POINTER(_GError)]
         self.get_position.restype = POINTER(AtspiPoint)
 
         self.get_size = IATSPI().atspi.atspi_component_get_size
         self.get_size.argtypes = [POINTER(_AtspiComponent), POINTER(_GError)]
         self.get_size.restype = POINTER(AtspiPoint)
 
-        self.get_rectangle = IATSPI().atspi.atspi_component_get_extents
-        self.get_rectangle.argtypes = [POINTER(_AtspiComponent), AtspiCoordType, POINTER(_GError)]
-        self.get_rectangle.restype = POINTER(AtspiRect)
+        self.get_layer = IATSPI().atspi.atspi_component_get_layer
+        self.get_layer.argtypes = [POINTER(_AtspiComponent), POINTER(_GError)]
+        self.get_layer.restype = _AtspiComponentLayer
 
-        self.get_component = IATSPI().atspi.atspi_accessible_get_component
-        self.get_component.argtypes = [POINTER(_AtspiAccessible)]
-        self.get_component.restype = POINTER(_AtspiComponent)
+        self.get_mdi_z_order = IATSPI().atspi.atspi_component_get_mdi_z_order
+        self.get_mdi_z_order.argtypes = [POINTER(_AtspiComponent), POINTER(_GError)]
+        self.get_mdi_z_order.restype = c_short
 
+        self.grab_focus = IATSPI().atspi.atspi_component_grab_focus
+        self.grab_focus.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, POINTER(_GError)]
+        self.grab_focus.restype = c_bool
 
+        self.get_alpha = IATSPI().atspi.atspi_component_get_alpha
+        self.get_alpha.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, POINTER(_GError)]
+        self.get_alpha.restype = c_double
+
+        self.set_extents = IATSPI().atspi.atspi_component_set_extents
+        self.set_extents.argtypes = [POINTER(_AtspiComponent), c_int, c_int, c_int, c_int, _AtspiCoordType,
+                                     POINTER(_GError)]
+        self.set_extents.restype = c_bool
+
+        self.set_position = IATSPI().atspi.atspi_component_set_position
+        self.set_position.argtypes = [POINTER(_AtspiComponent), c_int, c_int, _AtspiCoordType, POINTER(_GError)]
+        self.set_position.restype = c_bool
+
+        self.set_size = IATSPI().atspi.atspi_component_set_size
+        self.set_size.argtypes = [POINTER(_AtspiComponent), c_int, c_int, POINTER(_GError)]
+        self.set_size.restype = c_bool
+
+        self.scroll_to = IATSPI().atspi.atspi_component_scroll_to
+        self.scroll_to.argtypes = [POINTER(_AtspiComponent), _AtspiScrollType, POINTER(_GError)]
+        self.scroll_to.restype = c_bool
+
+        self.scroll_to_point = IATSPI().atspi.atspi_component_scroll_to_point
+        self.scroll_to_point.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, c_int, c_int, POINTER(_GError)]
+        self.scroll_to_point.restype = c_bool
