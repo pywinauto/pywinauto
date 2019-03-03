@@ -56,6 +56,11 @@ class AtspiMeta(BaseMeta):
 
         BaseMeta.__init__(cls, name, bases, attrs)
 
+    @staticmethod
+    def find_wrapper(element):
+        # TODO find derived wrapper class and return it
+        return AtspiWrapper
+
 
 # =========================================================================
 @six.add_metaclass(AtspiMeta)
@@ -98,5 +103,10 @@ class AtspiWrapper(BaseWrapper):
         return hash(self.element_info.runtime_id)
 
     # ------------------------------------------------------------
+
+    def set_focus(self):
+        """Set the focus to this element"""
+        self.element_info.component.grab_focus("screen")
+
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)

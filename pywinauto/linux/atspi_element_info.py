@@ -6,7 +6,6 @@ class AtspiElementInfo(ElementInfo):
 
     """Wrapper for window handler"""
     atspi_accessible = AtspiAccessible()
-    atspi_component = AtspiComponent()
 
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
@@ -64,6 +63,11 @@ class AtspiElementInfo(ElementInfo):
             childrens.append(self.atspi_accessible.get_child_at_index(self._handle, i, None))
         return [AtspiElementInfo(ch) for ch in childrens]
 
+    @property
+    def component(self):
+        component = self.atspi_accessible.get_component(self._handle)
+        return AtspiComponent(component)
+
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         tree = []
@@ -86,6 +90,4 @@ class AtspiElementInfo(ElementInfo):
     @property
     def rectangle(self):
         """Return rectangle of element"""
-        component = self.atspi_accessible.get_component(self._handle)
-        prect = self.atspi_component.get_rectangle(component, _AtspiCoordType.ATSPI_COORD_TYPE_SCREEN, None)
-        return RECT(prect.contents)
+        return self.component.get_rectangle(coord_type="screen")
