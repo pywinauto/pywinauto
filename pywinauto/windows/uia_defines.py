@@ -35,23 +35,11 @@ import comtypes
 import comtypes.client
 import six
 
-
-class _Singleton(type):
-
-    """
-    Singleton metaclass implementation from StackOverflow
-
-    http://stackoverflow.com/q/6760685/3648361
-    """
-
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+from ..backend import Singleton
 
 
-@six.add_metaclass(_Singleton)
+
+@six.add_metaclass(Singleton)
 class IUIA(object):
 
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
