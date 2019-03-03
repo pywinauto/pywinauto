@@ -40,7 +40,7 @@ import warnings
 import comtypes
 
 from .. import backend
-from .win32_wrapper import Win32Wrapper
+from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
 
 from ..windows.uia_defines import IUIA
@@ -163,7 +163,7 @@ class UiaMeta(BaseMeta):
 
 # =========================================================================
 @six.add_metaclass(UiaMeta)
-class UIAWrapper(Win32Wrapper):
+class UIAWrapper(WinBaseWrapper):
 
     """
     Default wrapper for User Interface Automation (UIA) controls.
@@ -194,7 +194,7 @@ class UIAWrapper(Win32Wrapper):
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        Win32Wrapper.__init__(self, element_info, backend.registry.backends['uia'])
+        WinBaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     # ------------------------------------------------------------
     def __hash__(self):

@@ -60,7 +60,7 @@ from ..base_wrapper import BaseMeta
 
 #=========================================================================
 @six.add_metaclass(BaseMeta)
-class Win32Wrapper(BaseWrapper):
+class WinBaseWrapper(BaseWrapper):
     """
     Abstract wrapper for elements.
 
@@ -77,7 +77,7 @@ class Win32Wrapper(BaseWrapper):
 
     #------------------------------------------------------------
     def __new__(cls, element_info):
-        return Win32Wrapper._create_wrapper(cls, element_info, Win32Wrapper)
+        return WinBaseWrapper._create_wrapper(cls, element_info, WinBaseWrapper)
 
     #------------------------------------------------------------
     def client_to_screen(self, client_point):
@@ -248,14 +248,14 @@ class Win32Wrapper(BaseWrapper):
         if dst is src:
             raise AttributeError("Can't drag-n-drop on itself")
 
-        if isinstance(src, Win32Wrapper):
+        if isinstance(src, WinBaseWrapper):
             press_coords = src._calc_click_coords()
         elif isinstance(src, win32structures.POINT):
             press_coords = (src.x, src.y)
         else:
             press_coords = src
 
-        if isinstance(dst, Win32Wrapper):
+        if isinstance(dst, WinBaseWrapper):
             release_coords = dst._calc_click_coords()
         elif isinstance(dst, win32structures.POINT):
             release_coords = (dst.x, dst.y)
