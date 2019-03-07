@@ -35,6 +35,7 @@
 """Definition of Windows defines"""
 from __future__ import unicode_literals
 from ctypes import c_int
+import win32con
 
 __revision__ = "$Revision$"
 
