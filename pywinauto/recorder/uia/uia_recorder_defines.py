@@ -1,4 +1,4 @@
-from ..recorder_defines import EVENT, PROPERTY
+from ..recorder_defines import EVENT, PROPERTY, STRUCTURE_EVENT
 from ..recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
     ApplicationEvent, PropertyEvent
 
@@ -203,6 +203,15 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_WindowWindowVisualStatePropertyId: PROPERTY.WINDOW_WINDOW_VISUAL_STATE
 }
 
+STRUCTURE_CHANGE_TYPE_TO_NAME_MAP = {
+    IUIA().UIA_dll.StructureChangeType_ChildAdded: STRUCTURE_EVENT.CHILD_ADDED,
+    IUIA().UIA_dll.StructureChangeType_ChildRemoved: STRUCTURE_EVENT.CHILD_REMOVED,
+    IUIA().UIA_dll.StructureChangeType_ChildrenInvalidated: STRUCTURE_EVENT.CHILDREN_INVALIDATED,
+    IUIA().UIA_dll.StructureChangeType_ChildrenBulkAdded: STRUCTURE_EVENT.CHILDREN_ADDED,
+    IUIA().UIA_dll.StructureChangeType_ChildrenBulkRemoved: STRUCTURE_EVENT.CHILDREN_REMOVED,
+    IUIA().UIA_dll.StructureChangeType_ChildrenReordered: STRUCTURE_EVENT.CHILDREN_REORDERED
+}
+
 if hasattr(IUIA().UIA_dll, 'UIA_FullDescriptionPropertyId'):
     PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_FullDescriptionPropertyId] = PROPERTY.FULL_DESCRIPTION
 
@@ -214,7 +223,4 @@ class StructureEvent(ApplicationEvent):
         self.runtime_id = runtime_id
 
     def __repr__(self):
-        description = "<StructureEvent - '{}' from {} ({}, {})>".format(self.change_type, self.sender,
-                                                                        self.sender.CachedClassName,
-                                                                        self.sender.CachedName)
-        return description
+        return "<StructureEvent - '{}' from {}>".format(self.change_type, self.sender)

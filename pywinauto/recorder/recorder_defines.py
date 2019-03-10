@@ -214,6 +214,15 @@ class PROPERTY(object):
     WINDOW_WINDOW_VISUAL_STATE = "WindowWindowVisualState"
 
 
+class STRUCTURE_EVENT(object):
+    CHILD_ADDED = "ChildAdded"
+    CHILD_REMOVED = "ChildRemoved"
+    CHILDREN_INVALIDATED = "ChildrenInvalidated"
+    CHILDREN_ADDED = "ChildrenAdded"
+    CHILDREN_REMOVED = "ChildrenRemoved"
+    CHILDREN_REORDERED = "ChildrenReordered"
+
+
 # RecorderEvent
 # -- HookEvent
 # -- -- RecorderMouseEvent

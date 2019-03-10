@@ -263,5 +263,6 @@ class UiaRecorder(COMObject, BaseRecorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = StructureEvent(sender=UIAElementInfo(sender), change_type=changeType, runtime_id=runtimeId)
+        event = StructureEvent(sender=UIAElementInfo(sender), change_type=STRUCTURE_CHANGE_TYPE_TO_NAME_MAP[changeType],
+                               runtime_id=runtimeId)
         self.add_to_log(event)
