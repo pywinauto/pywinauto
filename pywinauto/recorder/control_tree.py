@@ -6,9 +6,10 @@ from ..element_info import ElementInfo
 
 
 class ControlTreeNode(object):
-    def __init__(self, wrapper, names, rect):
+    def __init__(self, wrapper, names, ctrl_type, rect):
         self.wrapper = wrapper
         self.names = names
+        self.ctrl_type = ctrl_type
         self.rect = rect
 
         self.depth = 0
@@ -52,7 +53,8 @@ class ControlTree(object):
         # Build unique control names map
         ctrls_names = findbestmatch.build_names_list(all_ctrls)
 
-        self.root = ControlTreeNode(self.wrapper, ctrls_names[0], self.wrapper.rectangle())
+        self.root = ControlTreeNode(self.wrapper, ctrls_names[0], self.wrapper.friendly_class_name(),
+                                    self.wrapper.rectangle())
         self.root_name = self.root.names.get_preferred_name()
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
@@ -65,7 +67,7 @@ class ControlTree(object):
                 except ValueError:
                     continue
 
-                ctrl_node = ControlTreeNode(ctrl, ctrls_names[ctrl_id], ctrl.rectangle())
+                ctrl_node = ControlTreeNode(ctrl, ctrls_names[ctrl_id], ctrl.friendly_class_name(), ctrl.rectangle())
                 ctrl_node.depth = current_depth
                 ctrl_node.parent = parent_node
                 parent_node.children.append(ctrl_node)
