@@ -206,10 +206,10 @@ _RB_NOTIFICATIONS = {
 }
 
 _ST_NOTIFICATIONS = {
-    # win32defins.STN_CLICKED : "STN_CLICKED",
-    # win32defins.STN_DBLCLK : "STN_DBLCLK",
-    # win32defins.STN_DISABLE : "STN_DISABLE",
-    # win32defins.STN_ENABLE : "STN_ENABLE",
+    # win32defines.STN_CLICKED : "STN_CLICKED",
+    # win32defines.STN_DBLCLK : "STN_DBLCLK",
+    # win32defines.STN_DISABLE : "STN_DISABLE",
+    # win32defines.STN_ENABLE : "STN_ENABLE",
 }
 
 _SB_NOTIFICATIONS = {
