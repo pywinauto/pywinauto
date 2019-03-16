@@ -213,11 +213,11 @@ _ST_NOTIFICATIONS = {
 }
 
 _SB_NOTIFICATIONS = {
-    # win32defins.NM_CLICK : "NM_CLICK",
-    # win32defins.NM_DBLCLK : "NM_DBLCLK",
-    # win32defins.NM_RCLICK : "NM_RCLICK",
-    # win32defins.NM_RDBLCLK : "NM_RDBLCLK",
-    # win32defins.SBN_SIMPLEMODECHANGE : "SBN_SIMPLEMODECHANGE",
+    # win32defines.NM_CLICK : "NM_CLICK",
+    # win32defines.NM_DBLCLK : "NM_DBLCLK",
+    # win32defines.NM_RCLICK : "NM_RCLICK",
+    # win32defines.NM_RDBLCLK : "NM_RDBLCLK",
+    # win32defines.SBN_SIMPLEMODECHANGE : "SBN_SIMPLEMODECHANGE",
 }
 
 _TC_NOTIFICATIONS = {
