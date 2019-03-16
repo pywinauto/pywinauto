@@ -184,7 +184,12 @@ class Win32Recorder(BaseRecorder):
         child_handle = LOWORD(msg.wParam)
         if parent_handle == 0 or child_handle == 0:
             return None
-        return HwndElementInfo(win32gui.GetDlgItem(parent_handle, child_handle))
+        element_handle = 0
+        try:
+            element_handle = win32gui.GetDlgItem(parent_handle, child_handle)
+        except:
+            element_handle = parent_handle
+        return HwndElementInfo(element_handle)
 
     def handle_message(self, msg):
         """Callback for keyboard and mouse events"""
