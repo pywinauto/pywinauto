@@ -3,11 +3,16 @@ import ctypes
 import timeit
 import time
 
+from ..recorder_defines import EVENT, PROPERTY
+
 from ... import win32_hooks
 from ... import win32defines
 from ... import handleprops
 from ...win32structures import POINT
 from ...win32_element_info import HwndElementInfo
+from ...controls.hwndwrapper import InvalidWindowHandle
+from win32api import LOWORD, HIWORD
+import win32gui
 
 from ..uia.uia_recorder import ProgressBarDialog
 from ..control_tree import ControlTree
@@ -19,10 +24,12 @@ from ..recorder_defines import RecorderEvent, \
     PropertyEvent
 
 from .injector import Injector
+from .common_controls_handlers import resolve_handle_to_event
 
 msg_id_to_key = {getattr(win32defines, attr_name): attr_name for attr_name in dir(win32defines) if attr_name.startswith('WM_') or attr_name.startswith('CB_')}
 
 def print_winmsg(msg):
+    pass
     #print(handleprops.classname(msg.hWnd))
     print("message:{}".format((msg_id_to_key[msg.message] if msg.message in msg_id_to_key else str(msg.message))))
 
@@ -39,15 +46,23 @@ class Win32Recorder(BaseRecorder):
         win32defines.WM_NEXTMENU,
         # win32defines.WM_UNINITMENUPOPUP,
         win32defines.WM_COMMAND,
+        292,
+        0x0126,
+        0x0124,
+        0x033F,
+        0x011F,
+        0x0120,
         win32defines.WM_QUIT,
         win32defines.WM_NOTIFY,
         win32defines.WM_KEYUP,
         win32defines.WM_SETFOCUS,
+        win32defines.WM_COMPAREITEM,
+        # win32defines.WM_DRAWITEM,
+        win32defines.WM_MEASUREITEM,
     ]
 
     def __init__(self, app, config, record_props=True, record_focus=False, record_struct=False):
         super(Win32Recorder, self).__init__(app=app, config=config)
-
         if app.backend.name != "win32":
             raise TypeError("app must be a pywinauto.Application object of 'win32' backend")
 
@@ -134,17 +149,20 @@ class Win32Recorder(BaseRecorder):
 
     def _read_message(self):
         msg = ctypes.wintypes.MSG()
-        try:
-            buff = self.socket.recvfrom(1024)
-            ctypes.memmove(ctypes.pointer(msg), buff[0], ctypes.sizeof(msg))
-        except:
-            self.stop()
+        buff = self.socket.recvfrom(1024)
+        ctypes.memmove(ctypes.pointer(msg), buff[0], ctypes.sizeof(msg))
         return msg
 
     def message_queue(self):
         """infine listening socket while it's alive"""
-        while self.listen:
-            self.handle_message(self._read_message())
+        try:
+            while self.listen:
+                self.handle_message(self._read_message())
+        except InvalidWindowHandle:
+            print("WARNIN: message's window already closed")
+        except Exception as e:
+            print(e)
+            self.stop()
 
     def hook_target(self):
         """Target function for hook thread"""
@@ -161,6 +179,13 @@ class Win32Recorder(BaseRecorder):
             mouse_event.control_tree_node = self._get_mouse_node(mouse_event)
             self.add_to_log(mouse_event)
 
+    def hwnd_element_from_message(self, msg):
+        parent_handle = msg.hWnd
+        child_handle = LOWORD(msg.wParam)
+        if parent_handle == 0 or child_handle == 0:
+            return None
+        return HwndElementInfo(win32gui.GetDlgItem(parent_handle, child_handle))
+
     def handle_message(self, msg):
         """Callback for keyboard and mouse events"""
         if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
@@ -169,4 +194,18 @@ class Win32Recorder(BaseRecorder):
             time.sleep(0.1)
             if not self.app.is_process_running():
                 self.stop()
-        print_winmsg(msg)
+
+        if msg.message == win32defines.WM_COMMAND:
+            component = self.hwnd_element_from_message(msg)
+            if component:
+                event_name = resolve_handle_to_event(component, msg, True)
+                if event_name:
+                    print(event_name)
+
+        if msg.message == win32defines.WM_NOTIFY:
+            component = HwndElementInfo(msg.hWnd)
+            if component:
+                event_name = resolve_handle_to_event(component, msg, False)
+                if event_name:
+                    print(event_name)
+
