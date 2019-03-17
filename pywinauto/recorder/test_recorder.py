@@ -1,7 +1,12 @@
-import os
 import sys
-import codecs
 import unittest
+
+from six import PY3
+
+if PY3:
+    import unittest.mock as mock
+else:
+    import mock
 
 # sys.path.append(".")
 sys.path.append("../..")
@@ -10,6 +15,9 @@ from pywinauto.recorder.recorder_defines import HOOK_KEY_DOWN, HOOK_KEY_UP, HOOK
     HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, EVENT, PROPERTY, STRUCTURE_EVENT, RecorderEvent, HookEvent, \
     RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, PropertyEvent, EventPattern, _is_identifier, \
     get_window_access_name_str
+from pywinauto.recorder.event_handlers import EventHandler, MenuOpenedHandler, MenuClosedHandler, \
+    ExpandCollapseHandler, SelectionChangedHandler, MouseClickHandler, KeyboardHandler
+from pywinauto.win32structures import RECT
 
 
 class EventPatternTestCases(unittest.TestCase):
@@ -22,9 +30,6 @@ class EventPatternTestCases(unittest.TestCase):
                         PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
                         ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED),
                         PropertyEvent(property_name=PROPERTY.NAME)))
-
-    def tearDown(self):
-        pass
 
     def compare_patterns(self, pattern1, pattern2):
         if str(pattern1.hook_event) != str(pattern2.hook_event):
@@ -136,3 +141,190 @@ class EventPatternTestCases(unittest.TestCase):
                         PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED)))
 
         self.assertTrue(self.log_events.get_subpattern(pattern) is None)
+
+
+class EventHandlersTestCases(unittest.TestCase):
+    """Unit tests for the Event Handlers"""
+
+    PREFERRED_NAME = "PreferredName"
+    TEXT_NAME = "TextName"
+
+    def setUp(self):
+        # RecorderConfig
+        config_mock = mock.Mock(key_only=True, scale_click=False)
+
+        # ControlNames
+        get_preferred_name_mock = mock.Mock(return_value=self.PREFERRED_NAME)
+        ctrl_names_mock = mock.Mock(get_preferred_name=get_preferred_name_mock, text_names=[self.TEXT_NAME])
+
+        # BaseWrapper
+        wrapper_mock = mock.Mock(element_info="ElementInfo")
+
+        # ControlTreeNode
+        ctrl_tree_node_mock = mock.Mock(names=ctrl_names_mock, wrapper=wrapper_mock, rect=RECT(0, 0, 10, 10))
+        ctrl_tree_node_mock.parent = ctrl_tree_node_mock
+
+        # List if ControlTreeNode
+        subtree_mock = mock.MagicMock()
+        subtree_mock.__getitem__.return_value = ctrl_tree_node_mock
+        subtree_mock.__iter__.return_value = [ctrl_tree_node_mock]
+
+        # ControlTree
+        ctrl_tree_mock = mock.Mock()
+        ctrl_tree_mock.sub_tree_from_node = mock.Mock(spec=["node"], return_value=subtree_mock)
+
+        # BaseRecorder
+        recorder_mock = mock.Mock(config=config_mock, control_tree=ctrl_tree_mock)
+
+        # LogParser
+        log_parser_mock = mock.Mock(recorder=recorder_mock, menu_sequence=[], text_sequence={})
+
+        # Arguments for EventHandler
+        self.subtree = subtree_mock
+        self.log_parser = log_parser_mock
+        self.subpattern = EventPattern(
+            hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+            app_events=[ApplicationEvent(name=EVENT.DRAG_COMPLETE),
+                        PropertyEvent(property_name=PROPERTY.CULTURE)])
+
+    def build_window_access_name(self):
+        return u"app[u'{}']".format(self.PREFERRED_NAME)
+
+    def build_item_access_name(self):
+        return u"app[u'{}'][u'{}']".format(self.PREFERRED_NAME, self.PREFERRED_NAME)
+
+    def test_get_root_name(self):
+        """Test EventHandler.get_root_name() method"""
+        handler = EventHandler(self.subtree, self.log_parser, self.subpattern)
+
+        # get_window_access_name_str is called inside
+        self.assertEqual("[u'{}']".format(self.PREFERRED_NAME), handler.get_root_name())
+
+    def test_get_item_name(self):
+        """Test EventHandler.get_item_name() method"""
+        handler = EventHandler(self.subtree, self.log_parser, self.subpattern)
+
+        # get_window_access_name_str is called inside
+        self.assertEqual("[u'{}']".format(self.PREFERRED_NAME), handler.get_item_name())
+
+    def test_menu_opened_handler(self):
+        """Test MenuOpenedHandler"""
+        handler = MenuOpenedHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertTrue(result is None)
+        self.assertEqual([self.TEXT_NAME], self.log_parser.menu_sequence)
+
+    def test_menu_closed_handler(self):
+        """Test MenuClosedHandler"""
+        self.log_parser.menu_sequence = ["MenuItem1", "MenuItem2"]
+        handler = MenuClosedHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(self.build_window_access_name() + u".menu_select('MenuItem1 -> MenuItem2 -> TextName')\n",
+                         result)
+        self.assertEqual([], self.log_parser.menu_sequence)
+
+    def test_expand_collapse_handler_expand(self):
+        """Test ExpandCollapseHandler, new expand/collapse state = 1"""
+        self.subpattern.app_events[0] = PropertyEvent(property_name=PROPERTY.TOGGLE_STATE, new_value=1)
+        handler = ExpandCollapseHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(self.build_item_access_name() + u".expand()\n", result)
+
+    def test_expand_collapse_handler_collapse(self):
+        """Test ExpandCollapseHandler, new expand/collapse state = 0"""
+        self.subpattern.app_events[0] = PropertyEvent(property_name=PROPERTY.TOGGLE_STATE, new_value=0)
+        handler = ExpandCollapseHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(self.build_item_access_name() + u".collapse()\n", result)
+
+    def test_selection_changed_handler_with_sender(self):
+        """Test SelectionChangedHandler, parent item is not main window"""
+        self.subpattern.app_events[-1] = ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED, sender="ElementInfo")
+        handler = SelectionChangedHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(self.build_item_access_name() + u".select('{}')\n".format(self.TEXT_NAME), result)
+
+    def test_selection_changed_handler_without_sender(self):
+        """Test SelectionChangedHandler, parent item is main window"""
+        handler = SelectionChangedHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(self.build_item_access_name() + u".select('{}')\n".format(self.TEXT_NAME), result)
+
+    def test_mouse_click_handler_left_no_element(self):
+        """Test MouseClickHandler with left mouse click and no detected element"""
+        self.subpattern.hook_event = RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN,
+                                                        mouse_x=1, mouse_y=2)
+        self.subpattern.hook_event.control_tree_node = None
+        handler = MouseClickHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(u"pywinauto.mouse.click(button='left', coords=(1, 2))\n", result)
+
+    def test_mouse_click_handler_right_no_element(self):
+        """Test MouseClickHandler with right mouse click and no detected element"""
+        self.subpattern.hook_event = RecorderMouseEvent(current_key=HOOK_MOUSE_RIGHT_BUTTON, event_type=HOOK_KEY_DOWN,
+                                                        mouse_x=3, mouse_y=4)
+        self.subpattern.hook_event.control_tree_node = None
+        handler = MouseClickHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(u"pywinauto.mouse.click(button='right', coords=(3, 4))\n", result)
+
+    def test_mouse_click_handler_middle_no_element(self):
+        """Test MouseClickHandler with middle mouse click and no detected element"""
+        self.subpattern.hook_event = RecorderMouseEvent(current_key=HOOK_MOUSE_MIDDLE_BUTTON, event_type=HOOK_KEY_DOWN,
+                                                        mouse_x=5, mouse_y=6)
+        self.subpattern.hook_event.control_tree_node = None
+        handler = MouseClickHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(u"pywinauto.mouse.click(button='wheel', coords=(5, 6))\n", result)
+
+    def test_mouse_click_handler_left_with_element_no_scale(self):
+        """Test MouseClickHandler with left click, detected element and scale_click set to False"""
+        self.subpattern.hook_event = RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN,
+                                                        mouse_x=5, mouse_y=5)
+        self.subpattern.hook_event.control_tree_node = self.subtree[0]
+        self.log_parser.recorder.config.scale_click = False
+        handler = MouseClickHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        self.assertEqual(self.build_item_access_name() + u".click_input(button='left', coords=(5, 5))\n", result)
+
+    def test_mouse_click_handler_left_with_element_scale(self):
+        """Test MouseClickHandler with left click, detected element and scale_click set to True"""
+        self.subpattern.hook_event = RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN,
+                                                        mouse_x=5, mouse_y=5)
+        self.subpattern.hook_event.control_tree_node = self.subtree[0]
+        self.log_parser.recorder.config.scale_click = True
+        handler = MouseClickHandler(self.subtree, self.log_parser, self.subpattern)
+
+        result = handler.run()
+
+        expected = u"# Clicking on object 'PreferredName' with scale (0.5, 0.5)\n" \
+                   u"_elem = app[u'PreferredName'][u'PreferredName'].wrapper_object()\n" \
+                   u"_rect = _elem.rectangle()\n" \
+                   u"_x = int((_rect.right - _rect.left) * 0.5)\n" \
+                   u"_y = int((_rect.bottom - _rect.top) * 0.5)\n" \
+                   u"_elem.click_input(button='left', coords=(_x, _y))\n"
+        self.assertEqual(expected, result)
+
+
+if __name__ == "__main__":
+    unittest.main()
