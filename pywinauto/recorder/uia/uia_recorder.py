@@ -66,6 +66,9 @@ class UiaRecorder(COMObject, BaseRecorder):
         self.record_focus = record_focus
         self.record_struct = record_struct
 
+        if self.record_struct is True:
+            _ignored_events.remove(IUIA().known_events_ids[IUIA().UIA_dll.UIA_StructureChangedEventId])
+
     def _add_handlers(self, element):
         """Add UIA handlers to element and all its descendants"""
         if self.config.verbose:
