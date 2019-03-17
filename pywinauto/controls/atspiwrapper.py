@@ -104,7 +104,7 @@ class AtspiWrapper(BaseWrapper):
 
     # ------------------------------------------------------------
 
-    def set_focus(self):
+    def set_keyboard_focus(self):
         """Set the focus to this element"""
         self.element_info.component.grab_focus("screen")
 
