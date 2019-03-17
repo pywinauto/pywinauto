@@ -1,7 +1,7 @@
 import ctypes
 import subprocess
 import six
-from ctypes import Structure, c_char_p, c_int, c_bool, POINTER, c_uint32, c_short, c_double, addressof
+from ctypes import *  #Structure, c_char_p, c_int, c_bool, POINTER, c_uint32, c_short, c_double, addressof, c_void_p, c_char, create_string_buffer
 from collections import namedtuple
 
 from ..backend import Singleton
@@ -236,7 +236,7 @@ class _GError(Structure):
 
 class _GArray(Structure):
     _fields_ = [
-        ('data', c_char_p),
+        ('data', POINTER(c_char)),
         ('len', c_uint32),
     ]
 
@@ -566,39 +566,57 @@ class AtspiComponent(object):
 
 
 class AtspiStateSet(object):
-    new = IATSPI().get_iface_func("atspi_state_set_new")
-    new.argtypes = [POINTER(_GArray)]
-    new.restype = POINTER(_AtspiStateSet)
+    _new = IATSPI().get_iface_func("atspi_state_set_new")
+    _new.argtypes = [POINTER(_GArray)]
+    _new.restype = POINTER(_AtspiStateSet)
 
-    set_by_name = IATSPI().get_iface_func("atspi_state_set_set_by_name")
-    set_by_name.argtypes = [POINTER(_AtspiStateSet), c_char_p, c_bool]
+    _set_by_name = IATSPI().get_iface_func("atspi_state_set_set_by_name")
+    _set_by_name.argtypes = [POINTER(_AtspiStateSet), POINTER(c_char), c_bool]
 
-    add = IATSPI().get_iface_func("atspi_state_set_add")
-    add.argtypes = [POINTER(_AtspiStateSet), _AtspiStateType]
+    _add = IATSPI().get_iface_func("atspi_state_set_add")
+    _add.argtypes = [POINTER(_AtspiStateSet), _AtspiStateType]
 
-    compare = IATSPI().get_iface_func("atspi_state_set_compare")
-    compare.argtypes = [POINTER(_AtspiStateSet), POINTER(_AtspiStateSet)]
-    compare.restype = POINTER(_AtspiStateSet)
+    _compare = IATSPI().get_iface_func("atspi_state_set_compare")
+    _compare.argtypes = [POINTER(_AtspiStateSet), POINTER(_AtspiStateSet)]
+    _compare.restype = POINTER(_AtspiStateSet)
 
-    contains = IATSPI().get_iface_func("atspi_state_set_contains")
-    contains.argtypes = [POINTER(_AtspiStateSet), _AtspiStateType]
-    contains.restype = c_bool
+    _contains = IATSPI().get_iface_func("atspi_state_set_contains")
+    _contains.argtypes = [POINTER(_AtspiStateSet), _AtspiStateType]
+    _contains.restype = c_bool
 
-    equals = IATSPI().get_iface_func("atspi_state_set_equals")
-    equals.argtypes = [POINTER(_AtspiStateSet), POINTER(_AtspiStateSet)]
-    equals.restype = c_bool
+    _equals = IATSPI().get_iface_func("atspi_state_set_equals")
+    _equals.argtypes = [POINTER(_AtspiStateSet), POINTER(_AtspiStateSet)]
+    _equals.restype = c_bool
 
-    get_states = IATSPI().get_iface_func("atspi_state_set_get_states")
-    get_states.argtypes = [POINTER(_AtspiStateSet)]
-    get_states.restype = POINTER(_GArray)
+    _get_states = IATSPI().get_iface_func("atspi_state_set_get_states")
+    _get_states.argtypes = [POINTER(_AtspiStateSet)]
+    _get_states.restype = POINTER(_GArray)
 
-    is_empty = IATSPI().get_iface_func("atspi_state_set_is_empty")
-    is_empty.argtypes = [POINTER(_AtspiStateSet)]
-    is_empty.restype = c_bool
+    _is_empty = IATSPI().get_iface_func("atspi_state_set_is_empty")
+    _is_empty.argtypes = [POINTER(_AtspiStateSet)]
+    _is_empty.restype = c_bool
 
-    remove = IATSPI().get_iface_func("atspi_state_set_remove")
-    remove.argtypes = [POINTER(_AtspiStateSet), _AtspiStateType]
+    _remove = IATSPI().get_iface_func("atspi_state_set_remove")
+    _remove.argtypes = [POINTER(_AtspiStateSet), _AtspiStateType]
 
     def __init__(self, pointer):
         self._pointer = pointer
 
+    def get_states(self):
+        states = self._get_states(self._pointer)
+        a = states.contents
+        print(a.data[0:a.len])
+
+        self.set_by_name(b"active", 0)
+        self.set_by_name(b"enabled", 0)
+        self.set_by_name(b"focused", 1)
+
+        states = self._get_states(self._pointer)
+        a = states.contents
+        print(a.data[0:a.len])
+
+        return states.contents
+
+    def set_by_name(self, state_name, status):
+        buffer = create_string_buffer(state_name)
+        self._set_by_name(self._pointer, buffer, status)

@@ -41,6 +41,7 @@ from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
 from ..linux.atspi_element_info import AtspiElementInfo
+from ..linux.atspi_objects import AtspiStateSet, AtspiAccessible
 
 # region PATTERNS
 
@@ -96,6 +97,7 @@ class AtspiWrapper(BaseWrapper):
         is raised.
         """
         BaseWrapper.__init__(self, element_info, backend.registry.backends['atspi'])
+        self.state_set = AtspiStateSet(AtspiAccessible.get_state_set(self.element_info.handle))
 
     # ------------------------------------------------------------
     def __hash__(self):
@@ -107,6 +109,9 @@ class AtspiWrapper(BaseWrapper):
     def set_keyboard_focus(self):
         """Set the focus to this element"""
         self.element_info.component.grab_focus("screen")
+
+    def get_states(self):
+        return self.state_set.get_states()
 
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)
