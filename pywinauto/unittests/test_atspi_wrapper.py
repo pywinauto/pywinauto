@@ -25,10 +25,20 @@ def _test_app():
     return os.path.join(test_folder, app_name)
 
 
-if sys.platform != 'win32':
-    class AtspiElementInfoTests(unittest.TestCase):
+def print_tree(start_el_info, level_shifter=""):
+    if level_shifter == "":
+        print(start_el_info.control_type)
+        level_shifter += "-"
 
-        """Unit tests for the AtspiElementInfo class"""
+    for children in start_el_info.children():
+        print(level_shifter, "  ", children.control_type)
+        print_tree(children, level_shifter+"-")
+
+
+if sys.platform != 'win32':
+    class AtspiWrapperTests(unittest.TestCase):
+
+        """Unit tests for the AtspiWrapper class"""
 
         def get_app(self, name):
             for children in self.desktop_info.children():
@@ -44,13 +54,16 @@ if sys.platform != 'win32':
             self.app.start("python3 " + _test_app())
             time.sleep(1)
             self.app_info = self.get_app(app_name)
+            print_tree(self.desktop_info)
+            self.app_info = self.app_info.children()[0]
             self.app_wrapper = AtspiWrapper(self.app_info)
 
         def tearDown(self):
             self.app.kill()
 
         def test_grab_focus(self):
-            self.app_wrapper.set_focus()
+
+            self.app_wrapper.set_keyboard_focus()
 
 
 if __name__ == "__main__":
