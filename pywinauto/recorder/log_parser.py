@@ -1,51 +1,9 @@
 from six import string_types
 
 from .recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
-    PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN, get_window_access_name_str
-from .event_handlers import EventHandler, SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
-    ExpandCollapseHandler, MouseClickHandler, KeyboardHandler
+    HOOK_KEY_DOWN, get_window_access_name_str
+from .event_handlers import EventHandler
 
-EVENT_PATTERN_MAP = [
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
-                              PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
-                              ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED))),
-     SelectionChangedHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(ApplicationEvent(name=EVENT.INVOKED),)),
-     "invoke()"),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(ApplicationEvent(name=EVENT.MENU_OPENED),)),
-     MenuOpenedHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(ApplicationEvent(name=EVENT.MENU_CLOSED),)),
-     MenuClosedHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),
-                              PropertyEvent(property_name=PROPERTY.TOGGLE_STATE))),
-     ExpandCollapseHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),)),
-     ExpandCollapseHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.TOGGLE_STATE),)),
-     "toggle()"),
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),)),
-     "select()"),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
-     MouseClickHandler),
-
-    (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
-     KeyboardHandler)
-]
 
 
 class LogParser(object):
@@ -92,7 +50,7 @@ class LogParser(object):
                       "".format(hook_event, app_events))
 
             # Scan action for known patterns
-            for event_pattern, handler in EVENT_PATTERN_MAP:
+            for event_pattern, handler in self.recorder.event_patterns:
                 subpattern = action.get_subpattern(event_pattern)
                 if subpattern:
                     if hook_event.control_tree_node:

@@ -300,7 +300,7 @@ class PropertyEvent(ApplicationEvent):
 class EventPattern(object):
     def __init__(self, hook_event=None, app_events=None):
         self.hook_event = hook_event
-        self.app_events = app_events
+        self.app_events = app_events if app_events else []
 
     def __str__(self):
         return u"<EventPattern: {}, {}>".format(
@@ -320,24 +320,19 @@ class EventPattern(object):
             if pattern.hook_event.event_type and self.hook_event.event_type != pattern.hook_event.event_type:
                 return None
 
-        if pattern.app_events:
-            idx = 0
-
-            for item_ev in pattern.app_events:
-                while idx < len(self.app_events):
-                    idx += 1
-
-                    self_ev = self.app_events[idx - 1]
-                    if self_ev.name == item_ev.name:
-                        if isinstance(self_ev, PropertyEvent):
-                            if self_ev.property_name == item_ev.property_name:
-                                subpattern.app_events.append(self_ev)
-                                break
-                        else:
-                            subpattern.app_events.append(self_ev)
-                            break
-                else:
-                    return None
+        idx = 0
+        for item_ev in pattern.app_events:
+            while idx < len(self.app_events):
+                idx += 1
+                self_ev = self.app_events[idx - 1]
+                if self_ev.name != item_ev.name:
+                    continue
+                if isinstance(self_ev, PropertyEvent) and self_ev.property_name != item_ev.property_name:
+                    continue
+                subpattern.app_events.append(self_ev)
+                break
+            else:
+                return None
 
         return subpattern
 

@@ -10,6 +10,10 @@ from ...uia_element_info import UIAElementInfo
 from ..control_tree import ControlTree
 from ..base_recorder import BaseRecorder
 from ..win32_progress_bar import ProgressBarDialog
+from ..recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
+    PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
+from ..event_handlers import EventHandler, SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
+    ExpandCollapseHandler, MouseClickHandler, KeyboardHandler
 from .uia_recorder_defines import *
 
 _ignored_events = [
@@ -45,6 +49,49 @@ _cached_properties = [
     IUIA().UIA_dll.UIA_LocalizedControlTypePropertyId,
     IUIA().UIA_dll.UIA_NamePropertyId,
 ]
+
+EVENT_PATTERN_MAP = [
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
+                              PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
+                              ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED))),
+     SelectionChangedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.INVOKED),)),
+     "invoke()"),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.MENU_OPENED),)),
+     MenuOpenedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.MENU_CLOSED),)),
+     MenuClosedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),
+                              PropertyEvent(property_name=PROPERTY.TOGGLE_STATE))),
+     ExpandCollapseHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),)),
+     ExpandCollapseHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.TOGGLE_STATE),)),
+     "toggle()"),
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),)),
+     "select()"),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
+     MouseClickHandler),
+
+    (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
+     KeyboardHandler)
+]
+
 
 
 class UiaRecorder(COMObject, BaseRecorder):
@@ -236,3 +283,7 @@ class UiaRecorder(COMObject, BaseRecorder):
         event = StructureEvent(sender=UIAElementInfo(sender), change_type=STRUCTURE_CHANGE_TYPE_TO_NAME_MAP[changeType],
                                runtime_id=runtimeId)
         self.add_to_log(event)
+
+    @property
+    def event_patterns(self):
+        return EVENT_PATTERN_MAP
