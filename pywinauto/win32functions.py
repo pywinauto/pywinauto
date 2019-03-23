@@ -103,13 +103,15 @@ GetWindow			=	ctypes.windll.user32.GetWindow
 ShowWindow			= 	ctypes.windll.user32.ShowWindow
 GetWindowContextHelpId =	ctypes.windll.user32.GetWindowContextHelpId
 GetWindowLong		=	ctypes.windll.user32.GetWindowLongW
+GetWindowLong.argtypes = [win32structures.HWND, ctypes.c_int]
+GetWindowLong.restype = win32structures.LONG
 GetWindowPlacement  =   ctypes.windll.user32.GetWindowPlacement
 GetWindowRect		=	ctypes.windll.user32.GetWindowRect
 GetWindowText		=	ctypes.windll.user32.GetWindowTextW
 GetWindowTextLength	=	ctypes.windll.user32.GetWindowTextLengthW
 GetClassName        =   ctypes.windll.user32.GetClassNameW
 GetClassName.argtypes = [win32structures.HWND, wintypes.LPWSTR, ctypes.c_int]
-GetClassName.restrype = ctypes.c_int
+GetClassName.restype = ctypes.c_int
 GetClientRect       =   ctypes.windll.user32.GetClientRect
 IsChild				=	ctypes.windll.user32.IsChild
 IsWindow 			=	ctypes.windll.user32.IsWindow
@@ -148,6 +150,10 @@ GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
 SendMessage			=	ctypes.windll.user32.SendMessageW
+SendMessage.argtypes = [win32structures.HWND, win32structures.UINT, win32structures.WPARAM,
+                        win32structures.LPVOID]
+SendMessage.restype = win32structures.LRESULT
+
 SendMessageTimeout  =   ctypes.windll.user32.SendMessageTimeoutW
 SendMessageTimeout.argtypes = [win32structures.HWND, win32structures.UINT, win32structures.WPARAM,
                                win32structures.LPARAM, win32structures.UINT, win32structures.UINT,

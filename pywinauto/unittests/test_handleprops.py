@@ -38,6 +38,7 @@ import sys
 import warnings
 sys.path.append(".")
 
+from pywinauto import win32structures
 from pywinauto.handleprops import children, classname, clientrect, contexthelpid, \
     controlid, dumpwindow, exstyle, font, has_exstyle, has_style, is64bitprocess, \
     is_toplevel_window, isenabled, isunicode, isvisible, iswindow, parent, processid, \
@@ -199,6 +200,12 @@ class HandlepropsTestCases(unittest.TestCase):
 
         editfont = font(self.edit_handle)
         self.assertEqual(True, isinstance(editfont.lfFaceName, six.string_types))
+
+        # handle.props font should return DEFAULT font for an invalid handle
+        # Check only for a returned type as the default font can vary
+        expected = win32structures.LOGFONTW()
+        self.assertEqual(type(expected), type(font(sys.maxsize)))
+        self.assertEqual(type(expected), type(font(None)))
 
     def test_processid(self):
         """Make sure processid() function works"""

@@ -219,6 +219,8 @@ def rectangle(handle):
 def font(handle):
     """Return the font as a LOGFONTW of the window"""
     # get the font handle
+    if handle is None:
+        handle = 0  # make sure we don't pass window handle down as None
     font_handle = win32functions.SendMessage(
         handle, win32defines.WM_GETFONT, 0, 0)
 
