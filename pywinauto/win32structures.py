@@ -119,23 +119,23 @@ def _reduce(self):
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
 #PTOOLINFOW = POINTER(tagTOOLINFOW)
-BOOL = c_int
-BYTE = c_ubyte
-CHAR = c_char
-DWORD = c_ulong
-HANDLE = c_void_p
-HBITMAP = c_long
-LONG = c_long
-LPVOID = c_void_p
+BOOL = wintypes.BOOL
+BYTE = wintypes.BYTE
+CHAR = wintypes.CHAR
+DWORD = wintypes.DWORD
+HANDLE = wintypes.HANDLE
+HBITMAP = HANDLE
+LONG = wintypes.LONG
+LPVOID = wintypes.LPVOID
 PVOID = c_void_p
-UINT = c_uint
-WCHAR = c_wchar
-WORD = c_ushort
+UINT = wintypes.UINT
+WCHAR = wintypes.WCHAR
+WORD = wintypes.WORD
 LRESULT = wintypes.LPARAM
 
-COLORREF = DWORD
-LPBYTE = POINTER(BYTE)
-LPWSTR = c_size_t #POINTER(WCHAR)
+COLORREF = wintypes.COLORREF
+LPBYTE = wintypes.LPBYTE
+LPWSTR = wintypes.LPWSTR
 DWORD_PTR = UINT_PTR = ULONG_PTR = c_size_t
 PDWORD_PTR = POINTER(DWORD_PTR)
 if sysinfo.is_x64_Python():
@@ -143,17 +143,15 @@ if sysinfo.is_x64_Python():
 else:
     INT_PTR = LONG_PTR = c_long
 
-HBITMAP = LONG_PTR #LONG
 HINSTANCE = LONG_PTR #LONG
 HMENU = LONG_PTR #LONG
 HBRUSH = LONG_PTR #LONG
 HTREEITEM = LONG_PTR #LONG
-HWND = LONG_PTR #LONG
+HWND = wintypes.HWND
 
-# TODO: switch to ctypes.wintypes.LPARAM and ctypes.wintypes.WPARAM
 # Notice that wintypes definition of LPARAM/WPARAM differs between 32/64 bit
-LPARAM = LONG_PTR
-WPARAM = UINT_PTR
+LPARAM = wintypes.LPARAM
+WPARAM = wintypes.WPARAM
 
 
 class POINT(Structure):
