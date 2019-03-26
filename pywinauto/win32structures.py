@@ -121,7 +121,7 @@ def _reduce(self):
 #PTOOLINFOW = POINTER(tagTOOLINFOW)
 BOOL = wintypes.BOOL
 BYTE = wintypes.BYTE
-CHAR = wintypes.CHAR
+CHAR = c_char
 DWORD = wintypes.DWORD
 HANDLE = wintypes.HANDLE
 HBITMAP = HANDLE
