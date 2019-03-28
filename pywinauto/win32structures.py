@@ -135,7 +135,7 @@ LRESULT = wintypes.LPARAM
 
 COLORREF = wintypes.COLORREF
 LPBYTE = POINTER(BYTE)
-LPWSTR = wintypes.LPWSTR
+LPWSTR = c_size_t #POINTER(WCHAR)
 DWORD_PTR = UINT_PTR = ULONG_PTR = c_size_t
 PDWORD_PTR = POINTER(DWORD_PTR)
 if sysinfo.is_x64_Python():
