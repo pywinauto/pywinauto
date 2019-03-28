@@ -16,7 +16,7 @@ dll_path = "./pywinauto/recorder/win32/dll_to_inject/"
 remote_call_timeout = 1000
 remote_call_error_str = "Couldn't create remote thread, dll not injected, inject and try again!"
 remote_call_injection_error_str = "Couldn't create remote thread"
-desktop_out_file_path = os.path.join(os.path.join(os.path.expanduser("~"), "Desktop"), "out.txt")
+pipe_name = "\\\\.\\pipe\\pywinauto_recorder_pipe"
 
 def byte_string(in_string):
     if isinstance(in_string, six.binary_type):
@@ -40,19 +40,6 @@ class Injector(object):
 
     """Class for injections dll and set hook on windows messages"""
 
-    def _init_socket(self):
-        self.sock = socket(AF_INET, SOCK_DGRAM)
-        self.sock.bind(('',0))
-        return self.sock.getsockname()[1]
-
-    def _get_dll_path(self):
-        dll_name = "pywinmsg{}.dll".format("64" if is64bitprocess(self.pid) else "32")
-        return unicode_string(os.path.abspath(os.path.join(dll_path, dll_name)))
-
-    def _check_compatibility(self):
-        if not sysinfo.is_x64_Python() == is64bitprocess(self.pid):
-            raise RuntimeError("Application and Python must be both 32-bit or both 64-bit")
-
     def __init__(self, app, is_unicode = False, approved_messages_list = []):
         """Constructor inject dll, set socket and hook (one application - one class instanse)"""
         self.pid = processid(app.handle)
@@ -62,16 +49,60 @@ class Injector(object):
         self.is_unicode = is_unicode
         self.h_process  = self._get_process_handle(self.pid)
         self.dll_path   = self._get_dll_path()
-        self.port       = self._init_socket()
+        self.h_pipe     = self._init_pipe()
         self._inject_dll_to_process()
         self._remote_call_int_arr_param_func("SetApprovedList", self.approved_messages_list)
-        self._remote_call_int_param_func("SetSocketPort", self.port)
         self._remote_call_void_func("Initialize")
+        self._connect()
 
-    @property
-    def socket(self):
-        """Return datagram socket"""
-        return self.sock
+    def _init_pipe(self):
+        pipe_flags = cfuncs.PIPE_TYPE_MESSAGE | cfuncs.PIPE_READMODE_MESSAGE | cfuncs.PIPE_WAIT
+        h_pipe = ctypes.windll.kernel32.CreateNamedPipeA(pipe_name,
+                                                         cfuncs.PIPE_ACCESS_DUPLEX,
+                                                         pipe_flags,
+                                                         cfuncs.PIPE_UNLIMITED_INSTANCES,
+                                                         cfuncs.BUFSIZE,
+                                                         cfuncs.BUFSIZE,
+                                                         cfuncs.NMPWAIT_USE_DEFAULT_WAIT,
+                                                         None
+                                                        )
+        if (h_pipe == cfuncs.INVALID_HANDLE_VALUE):
+            return None
+
+        if ctypes.windll.kernel32.GetLastError() == cfuncs.ERROR_PIPE_CONNECTED:
+            return None
+
+        return h_pipe
+
+    def _connect(self):
+        connected = ctypes.windll.kernel32.ConnectNamedPipe(self.h_pipe, None)
+        if connected == 0:
+            raise RuntimeError("Could not connect to application pipe")
+
+    def _get_dll_path(self):
+        dll_name = "pywinmsg{}.dll".format("64" if is64bitprocess(self.pid) else "32")
+        return unicode_string(os.path.abspath(os.path.join(dll_path, dll_name)))
+
+    def _check_compatibility(self):
+        if not sysinfo.is_x64_Python() == is64bitprocess(self.pid):
+            raise RuntimeError("Application and Python must be both 32-bit or both 64-bit")
+
+    def close_pipe(self):
+        if not self.h_pipe:
+            return
+        ctypes.windll.kernel32.FlushFileBuffers(self.h_pipe)
+        ctypes.windll.kernel32.DisconnectNamedPipe(self.h_pipe)
+        ctypes.windll.kernel32.CloseHandle(self.h_pipe)
+
+    def read_massage(self):
+        if not self.h_pipe:
+            return None
+        msg = ctypes.wintypes.MSG()
+        bytes_cnt = ctypes.c_ulong(0)
+        status = ctypes.windll.kernel32.ReadFile(self.h_pipe, msg, ctypes.sizeof(msg), ctypes.byref(bytes_cnt), None)
+        if status == 1 or bytes_cnt.value != 0:
+            return msg
+        return None
 
     @property
     def application(self):

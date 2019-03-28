@@ -26,39 +26,30 @@ from ..recorder_defines import RecorderEvent, \
 from .injector import Injector
 from .common_controls_handlers import resolve_handle_to_event
 
-msg_id_to_key = {getattr(win32defines, attr_name): attr_name for attr_name in dir(win32defines) if attr_name.startswith('WM_') or attr_name.startswith('CB_')}
-
-def print_winmsg(msg):
-    pass
-    #print(handleprops.classname(msg.hWnd))
-    print("message:{}".format((msg_id_to_key[msg.message] if msg.message in msg_id_to_key else str(msg.message))))
+APP_CLOSE_MSG = 0xFFFFFFFF
 
 class Win32Recorder(BaseRecorder):
     _APPROVED_MESSAGES_LIST = [
+        win32defines.WM_COMMAND,
+        win32defines.WM_NOTIFY,
+
+        win32defines.WM_KEYUP,
+        win32defines.WM_SETFOCUS,
+
         win32defines.WM_CONTEXTMENU,
         win32defines.WM_ENTERMENULOOP,
         win32defines.WM_EXITMENULOOP,
-        # win32defines.WM_GETTITLEBARINFOEX,
         win32defines.WM_MENUCOMMAND,
+        win32defines.WM_NEXTMENU,
+        win32defines.WM_COMPAREITEM,
+        win32defines.WM_MEASUREITEM,
+
+        # win32defines.WM_DRAWITEM,
+        # win32defines.WM_GETTITLEBARINFOEX,
         # win32defines.WM_MENUDRAG,
         # win32defines.WM_MENUGETOBJECT,
         # win32defines.WM_MENURBUTTONUP,
-        win32defines.WM_NEXTMENU,
         # win32defines.WM_UNINITMENUPOPUP,
-        win32defines.WM_COMMAND,
-        292,
-        0x0126,
-        0x0124,
-        0x033F,
-        0x011F,
-        0x0120,
-        win32defines.WM_QUIT,
-        win32defines.WM_NOTIFY,
-        win32defines.WM_KEYUP,
-        win32defines.WM_SETFOCUS,
-        win32defines.WM_COMPAREITEM,
-        # win32defines.WM_DRAWITEM,
-        win32defines.WM_MEASUREITEM,
     ]
 
     def __init__(self, app, config, record_props=True, record_focus=False, record_struct=False):
@@ -77,9 +68,8 @@ class Win32Recorder(BaseRecorder):
 
     def _setup(self):
         try:
-            self.injector = Injector(self.dlg, approved_messages_list = self._APPROVED_MESSAGES_LIST)
-            self.socket = self.injector.socket
             self.listen = True
+            self.injector = Injector(self.dlg, approved_messages_list = self._APPROVED_MESSAGES_LIST)
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
             self._update(rebuild_tree=True, start_message_queue=True)
         except:
@@ -90,7 +80,7 @@ class Win32Recorder(BaseRecorder):
         self.hook.stop()
         self.message_thread.join(1)
         self.hook_thread.join(1)
-        self.socket.close()
+        self.injector.close_pipe()
         self._parse_and_clear_log()
         self.script += u"app.kill()\n"
 
@@ -147,17 +137,11 @@ class Win32Recorder(BaseRecorder):
             node = self.control_tree.node_from_point(POINT(mouse_event.mouse_x, mouse_event.mouse_y))
         return node
 
-    def _read_message(self):
-        msg = ctypes.wintypes.MSG()
-        buff = self.socket.recvfrom(1024)
-        ctypes.memmove(ctypes.pointer(msg), buff[0], ctypes.sizeof(msg))
-        return msg
-
     def message_queue(self):
-        """infine listening socket while it's alive"""
+        """infine listening pipe while it's alive"""
         try:
             while self.listen:
-                self.handle_message(self._read_message())
+                self.handle_message(self.injector.read_massage())
         except InvalidWindowHandle:
             print("WARNIN: message's window already closed")
         except Exception as e:
@@ -193,12 +177,12 @@ class Win32Recorder(BaseRecorder):
 
     def handle_message(self, msg):
         """Callback for keyboard and mouse events"""
+        if not msg:
+            return
         if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
             self.last_kbd_hwnd = msg.hWnd
-        elif msg.message == win32defines.WM_QUIT:
-            time.sleep(0.1)
-            if not self.app.is_process_running():
-                self.stop()
+        elif msg.message == APP_CLOSE_MSG:
+            self.stop()
 
         if msg.message == win32defines.WM_COMMAND:
             component = self.hwnd_element_from_message(msg)
@@ -213,4 +197,3 @@ class Win32Recorder(BaseRecorder):
                 event_name = resolve_handle_to_event(component, msg, False)
                 if event_name:
                     print(event_name)
-
