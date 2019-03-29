@@ -32,17 +32,16 @@
 """Definition of Windows structures"""
 
 import six
-import ctypes
+from ctypes import Structure as Struct
 from ctypes import \
-    c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
-    c_ubyte, c_ushort, \
+    c_int, c_long, c_void_p, c_char, memmove, addressof, \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
 from .win32defines import LF_FACESIZE
 from . import sysinfo
 
 
-class Structure(ctypes.Structure):
+class Structure(Struct):
 
     """Override the Structure class from ctypes to add printing and comparison"""
 
@@ -61,7 +60,7 @@ class Structure(ctypes.Structure):
     #----------------------------------------------------------------
     def __eq__(self, other_struct):
         """Return True if the two structures have the same coordinates"""
-        if isinstance(other_struct, ctypes.Structure):
+        if isinstance(other_struct, Struct):
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
@@ -110,7 +109,7 @@ class Structure(ctypes.Structure):
 # e.g. RECT.__reduce__ = _reduce
 def _construct(typ, buf):
     obj = typ.__new__(typ)
-    ctypes.memmove(ctypes.addressof(obj), buf, len(buf))
+    memmove(addressof(obj), buf, len(buf))
     return obj
 
 def _reduce(self):
