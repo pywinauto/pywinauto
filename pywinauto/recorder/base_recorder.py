@@ -143,3 +143,8 @@ class BaseRecorder(object):
     def hook_target(self):
         """Target function for hook thread"""
         pass
+
+    @property
+    def event_patterns(self):
+        """Return backend-specific patterns dict"""
+        return []
