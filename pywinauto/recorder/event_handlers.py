@@ -40,7 +40,14 @@ class MenuClosedHandler(EventHandler):
 class ExpandCollapseHandler(EventHandler):
     def run(self):
         exp_coll_state = self.subpattern.app_events[0]
-        script = u"app{}{}.{}\n".format(self.get_root_name(), self.get_item_name(),
+        exp_coll_sender = exp_coll_state.sender
+        for node in self.subtree:
+            if node.wrapper.element_info == exp_coll_sender:
+                item_name = get_window_access_name_str(node.names.get_preferred_name(), self.key_only)
+                break
+        else:
+            item_name = self.get_item_name()
+        script = u"app{}{}.{}\n".format(self.get_root_name(), item_name,
                                         "expand()" if exp_coll_state.new_value else "collapse()")
         return script
 
