@@ -48,8 +48,6 @@ from ..uia_defines import NoPatternInterfaceError
 from ..uia_defines import toggle_state_on
 from ..uia_defines import get_elem_interface
 
-from ..recorder.recorder_defines import EVENT, PROPERTY
-
 
 # ====================================================================
 class ButtonWrapper(uiawrapper.UIAWrapper):
@@ -60,11 +58,6 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
         'CheckBox',
         'RadioButton',
     ]
-
-    possible_handlers = {
-        EVENT.INVOKED: "invoke",
-        PROPERTY.TOGGLE_STATE: "toggle"
-    }
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -1197,10 +1190,6 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
     """
 
     _control_types = ['TreeItem']
-
-    possible_handlers = {
-        PROPERTY.EXPAND_COLLAPSE_STATE: None
-    }
 
     # -----------------------------------------------------------
     def __init__(self, elem):
