@@ -65,13 +65,9 @@ if sys.platform != 'win32':
         #     self.app_wrapper.set_keyboard_focus()
 
         def test_get_state_set(self):
-            # test = self.app_wrapper.get_states()
-            # print(test.data, test.len)
-            time.sleep(5)
             test = self.app_wrapper.get_states()
-            time.sleep(5)
-            # print(test.data, test.len)
-            # print(type(test.data))
+
+            self.app_wrapper.set_window_focus(1499)
 
 
 if __name__ == "__main__":

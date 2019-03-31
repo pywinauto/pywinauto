@@ -43,6 +43,9 @@ from ..base_wrapper import BaseMeta
 from ..linux.atspi_element_info import AtspiElementInfo
 from ..linux.atspi_objects import AtspiStateSet, AtspiAccessible
 
+from Xlib import Xatom
+from Xlib.display import Display
+
 # region PATTERNS
 
 
@@ -109,6 +112,21 @@ class AtspiWrapper(BaseWrapper):
     def set_keyboard_focus(self):
         """Set the focus to this element"""
         self.element_info.component.grab_focus("screen")
+
+    def set_window_focus(self, pid):
+        display = Display()
+        root = display.screen().root
+
+        def top_level_set_focus_by_pid(pid, window, indent):
+            children = window.query_tree().children
+            for w in children:
+                if window.get_wm_class() is not None:
+                    if window.get_full_property(display.get_atom("_NET_WM_PID"), Xatom.CARDINAL).value[0] == pid:
+                        window.raise_window()
+
+                top_level_set_focus_by_pid(pid, w, indent + '-')
+
+        top_level_set_focus_by_pid(pid, root, '-')
 
     def get_states(self):
         return self.state_set.get_states()
