@@ -5,6 +5,7 @@ from comtypes import COMObject, COMError
 
 from ... import win32_hooks
 from ...win32structures import POINT
+from ...uia_defines import IUIA
 from ...uia_element_info import UIAElementInfo
 
 from ..control_tree import ControlTree
@@ -14,7 +15,8 @@ from ..recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboar
     PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
 from ..event_handlers import EventHandler, SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
     ExpandCollapseHandler, MouseClickHandler, KeyboardHandler
-from .uia_recorder_defines import *
+from .uia_recorder_defines import EVENT_ID_TO_NAME_MAP, PROPERTY_ID_TO_NAME_MAP, STRUCTURE_CHANGE_TYPE_TO_NAME_MAP, \
+    StructureEvent
 
 _ignored_events = [
     # Events which are handled by separate handlers
@@ -91,7 +93,6 @@ EVENT_PATTERN_MAP = [
     (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
      KeyboardHandler)
 ]
-
 
 
 class UiaRecorder(COMObject, BaseRecorder):
@@ -248,6 +249,10 @@ class UiaRecorder(COMObject, BaseRecorder):
             self._update(rebuild_tree=True, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_OPENED:
             self._update(rebuild_tree=True, add_handlers_to=sender)
+        elif event.name == EVENT.SELECTION_ELEMENT_SELECTED:
+            node = self.control_tree.node_from_element_info(UIAElementInfo(sender))
+            if node.ctrl_type == "TabItem":
+                self._update(rebuild_tree=True, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_CLOSED:
             # Detect if top_window is already closed
             try:
