@@ -95,6 +95,7 @@ Use curly brackers to escape modifiers and type reserved symbols as single keys:
 
     send_keys('{^}a{^}c{%}') # type string "^a^c%" (Ctrl will not be pressed)
     send_keys('{{}ENTER{}}') # type string "{ENTER}" without pressing Enter key
+
 """
 from __future__ import unicode_literals
 

@@ -145,13 +145,13 @@ def contexthelpid(handle):
 #=========================================================================
 def iswindow(handle):
     """Return True if the handle is a window"""
-    return False if handle is None else  bool(win32functions.IsWindow(handle))
+    return False if handle is None else bool(win32functions.IsWindow(handle))
 
 
 #=========================================================================
 def isvisible(handle):
     """Return True if the window is visible"""
-    return False if handle is None else  bool(win32functions.IsWindowVisible(handle))
+    return False if handle is None else bool(win32functions.IsWindowVisible(handle))
 
 
 #=========================================================================
@@ -192,8 +192,8 @@ def is64bitbinary(filename):
         binary_type = win32file.GetBinaryType(filename)
         return binary_type != win32file.SCS_32BIT_BINARY
     except Exception as exc:
-        warnings.warn('Cannot get binary type for file "{}". Error: {}' \
-            ''.format(filename, exc), RuntimeWarning, stacklevel=2)
+        warnings.warn('Cannot get binary type for file "{}". Error: {}'
+                      .format(filename, exc), RuntimeWarning, stacklevel=2)
         return None
 
 
@@ -219,6 +219,8 @@ def rectangle(handle):
 def font(handle):
     """Return the font as a LOGFONTW of the window"""
     # get the font handle
+    if handle is None:
+        handle = 0  # make sure we don't pass window handle down as None
     font_handle = win32functions.SendMessage(
         handle, win32defines.WM_GETFONT, 0, 0)
 
