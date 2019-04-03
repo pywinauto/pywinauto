@@ -32,17 +32,16 @@
 """Definition of Windows structures"""
 
 import six
-import ctypes
+from ctypes import Structure as Struct
 from ctypes import \
-    c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
-    c_ubyte, c_ushort, \
+    c_int, c_long, c_void_p, c_char, memmove, addressof, \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
 from .win32defines import LF_FACESIZE
 from . import sysinfo
 
 
-class Structure(ctypes.Structure):
+class Structure(Struct):
 
     """Override the Structure class from ctypes to add printing and comparison"""
 
@@ -61,7 +60,7 @@ class Structure(ctypes.Structure):
     #----------------------------------------------------------------
     def __eq__(self, other_struct):
         """Return True if the two structures have the same coordinates"""
-        if isinstance(other_struct, ctypes.Structure):
+        if isinstance(other_struct, Struct):
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
@@ -110,7 +109,7 @@ class Structure(ctypes.Structure):
 # e.g. RECT.__reduce__ = _reduce
 def _construct(typ, buf):
     obj = typ.__new__(typ)
-    ctypes.memmove(ctypes.addressof(obj), buf, len(buf))
+    memmove(addressof(obj), buf, len(buf))
     return obj
 
 def _reduce(self):
@@ -119,21 +118,21 @@ def _reduce(self):
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
 #PTOOLINFOW = POINTER(tagTOOLINFOW)
-BOOL = c_int
-BYTE = c_ubyte
+BOOL = wintypes.BOOL
+BYTE = wintypes.BYTE
 CHAR = c_char
-DWORD = c_ulong
-HANDLE = c_void_p
-HBITMAP = c_long
-LONG = c_long
-LPVOID = c_void_p
+DWORD = wintypes.DWORD
+HANDLE = wintypes.HANDLE
+HBITMAP = HANDLE
+LONG = wintypes.LONG
+LPVOID = wintypes.LPVOID
 PVOID = c_void_p
-UINT = c_uint
-WCHAR = c_wchar
-WORD = c_ushort
+UINT = wintypes.UINT
+WCHAR = wintypes.WCHAR
+WORD = wintypes.WORD
 LRESULT = wintypes.LPARAM
 
-COLORREF = DWORD
+COLORREF = wintypes.COLORREF
 LPBYTE = POINTER(BYTE)
 LPWSTR = c_size_t #POINTER(WCHAR)
 DWORD_PTR = UINT_PTR = ULONG_PTR = c_size_t
@@ -143,17 +142,15 @@ if sysinfo.is_x64_Python():
 else:
     INT_PTR = LONG_PTR = c_long
 
-HBITMAP = LONG_PTR #LONG
 HINSTANCE = LONG_PTR #LONG
 HMENU = LONG_PTR #LONG
 HBRUSH = LONG_PTR #LONG
 HTREEITEM = LONG_PTR #LONG
-HWND = LONG_PTR #LONG
+HWND = wintypes.HWND
 
-# TODO: switch to ctypes.wintypes.LPARAM and ctypes.wintypes.WPARAM
 # Notice that wintypes definition of LPARAM/WPARAM differs between 32/64 bit
-LPARAM = LONG_PTR
-WPARAM = UINT_PTR
+LPARAM = wintypes.LPARAM
+WPARAM = wintypes.WPARAM
 
 
 class POINT(Structure):
