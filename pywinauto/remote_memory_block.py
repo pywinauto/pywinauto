@@ -108,7 +108,7 @@ class RemoteMemoryBlock(object):
         self._as_parameter_ = self.mem_address
 
         # write guard signature at the end of memory block
-        signature = win32structures.LONG(0x66666666)
+        signature = ctypes.wintypes.LONG(0x66666666)
         ret = win32functions.WriteProcessMemory(
             ctypes.c_void_p(self.process),
             ctypes.c_void_p(self.mem_address + self.size),
@@ -143,7 +143,7 @@ class RemoteMemoryBlock(object):
                 ctypes.c_void_p(self.process),
                 ctypes.c_void_p(self.mem_address),
                 win32structures.ULONG_PTR(0),
-                win32structures.DWORD(win32defines.MEM_RELEASE))
+                ctypes.wintypes.DWORD(win32defines.MEM_RELEASE))
             if ret == 0:
                 print('Error: CleanUp: VirtualFreeEx() returned zero for address ', hex(self.mem_address))
                 last_error = win32api.GetLastError()

@@ -135,7 +135,7 @@ class _listview_item(object):
 
         item.iItem = self.item_index
         item.iSubItem = self.subitem_index
-        item.stateMask = win32structures.UINT(-1)
+        item.stateMask = wintypes.UINT(-1)
 
         item.cchTextMax = 2000
         item.pszText = remote_mem.Address() + \
@@ -501,9 +501,9 @@ class _listview_item(object):
 
         lvitem = self.listview_ctrl.LVITEM()
 
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(index_to_state_image_mask(1))  # win32structures.UINT(0x1000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
+        lvitem.state = wintypes.UINT(index_to_state_image_mask(1))  # wintypes.UINT(0x1000)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
@@ -530,9 +530,9 @@ class _listview_item(object):
 
         lvitem = self.listview_ctrl.LVITEM()
 
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(index_to_state_image_mask(2))  # win32structures.UINT(0x2000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
+        lvitem.state = wintypes.UINT(index_to_state_image_mask(2))  # wintypes.UINT(0x2000)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
@@ -591,12 +591,12 @@ class _listview_item(object):
 
         # first we need to change the state of the item
         lvitem = self.listview_ctrl.LVITEM()
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
 
         if to_select:
-            lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+            lvitem.state = wintypes.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
@@ -1424,7 +1424,7 @@ class _treeview_element(object):
         item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 16
         item.cchTextMax = 2000
         item.hItem = self.elem
-        item.stateMask = win32structures.UINT(-1)
+        item.stateMask = wintypes.UINT(-1)
 
         # Write the local TVITEM structure to the remote memory block
         remote_mem.Write(item)
