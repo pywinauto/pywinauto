@@ -194,6 +194,13 @@ DebugBreakProcess	=	ctypes.windll.kernel32.DebugBreakProcess
 VirtualAlloc		=	ctypes.windll.kernel32.VirtualAlloc
 VirtualFree			=	ctypes.windll.kernel32.VirtualFree
 WriteProcessMemory	=	ctypes.windll.kernel32.WriteProcessMemory
+WriteProcessMemory.argtypes = [ wintypes.HANDLE,
+                                wintypes.LPVOID,
+                                wintypes.LPVOID,
+                                ctypes.c_size_t,
+                                ctypes.POINTER(ctypes.c_size_t)]
+WriteProcessMemory.restype = wintypes.BOOL
+
 GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
 GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
 FindWindow			=	ctypes.windll.user32.FindWindowW
