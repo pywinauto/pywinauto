@@ -331,8 +331,8 @@ def children(handle):
     # define the child proc type
     enum_child_proc_t = ctypes.WINFUNCTYPE(
         ctypes.c_int,            # return type
-        wintypes.HWND,    # the window handle
-        wintypes.LPARAM)  # extra information
+        ctypes.wintypes.HWND,    # the window handle
+        ctypes.wintypes.LPARAM)  # extra information
 
     # update the proc to the correct type
     proc = enum_child_proc_t(enum_child_proc)
