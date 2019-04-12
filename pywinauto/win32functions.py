@@ -145,6 +145,12 @@ TerminateProcess    = ctypes.windll.kernel32.TerminateProcess
 ExitProcess         = ctypes.windll.kernel32.ExitProcess
 
 ReadProcessMemory   =   ctypes.windll.kernel32.ReadProcessMemory
+ReadProcessMemory.argtypes = [wintypes.HANDLE,
+                        wintypes.LPVOID,
+                        wintypes.LPVOID,
+                        ctypes.c_size_t,
+                        ctypes.POINTER(ctypes.c_size_t)]
+ReadProcessMemory.restypes = wintypes.BOOL
 GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
 GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
