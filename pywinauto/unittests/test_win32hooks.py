@@ -138,7 +138,7 @@ class Win32HooksTests(unittest.TestCase):
         # Continue here only when the hook will be removed by the timer
         _delete_keys_from_terminal(keys)
         self.assertEqual(len(self.keybd_events), 4)
-        self.assertEqual(self.keybd_events[0].current_key, u'Lshift')
+        self.assertEqual(self.keybd_events[0].current_key, u'{VK_LSHIFT}')
         self.assertEqual(self.keybd_events[0].event_type, 'key down')
         self.assertEqual(len(self.keybd_events[0].pressed_key), 0)
         self.assertEqual(self.keybd_events[1].current_key, u'A')
@@ -147,7 +147,7 @@ class Win32HooksTests(unittest.TestCase):
         self.assertEqual(self.keybd_events[2].current_key, u'A')
         self.assertEqual(self.keybd_events[2].event_type, 'key up')
         self.assertEqual(len(self.keybd_events[2].pressed_key), 0)
-        self.assertEqual(self.keybd_events[3].current_key, u'Lshift')
+        self.assertEqual(self.keybd_events[3].current_key, u'{VK_LSHIFT}')
         self.assertEqual(self.keybd_events[3].event_type, 'key up')
         self.assertEqual(len(self.keybd_events[3].pressed_key), 0)
 
