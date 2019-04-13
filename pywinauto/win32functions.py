@@ -144,13 +144,15 @@ CreateProcess       = ctypes.windll.kernel32.CreateProcessW
 TerminateProcess    = ctypes.windll.kernel32.TerminateProcess
 ExitProcess         = ctypes.windll.kernel32.ExitProcess
 
-ReadProcessMemory   =   ctypes.windll.kernel32.ReadProcessMemory
-ReadProcessMemory.argtypes = [wintypes.HANDLE,
-                        wintypes.LPVOID,
-                        wintypes.LPVOID,
-                        ctypes.c_size_t,
-                        ctypes.POINTER(ctypes.c_size_t)]
+ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
 ReadProcessMemory.restypes = wintypes.BOOL
+ReadProcessMemory.argtypes = [
+    wintypes.HANDLE,
+    wintypes.LPVOID,
+    wintypes.LPVOID,
+    ctypes.c_size_t,
+    ctypes.POINTER(ctypes.c_size_t)
+]
 GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
 GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
@@ -186,20 +188,49 @@ try:
 except AttributeError:
     SetWindowLongPtr = SetWindowLong
 SystemParametersInfo =	ctypes.windll.user32.SystemParametersInfoW
-VirtualAllocEx		=	ctypes.windll.kernel32.VirtualAllocEx
-VirtualAllocEx.restype = ctypes.c_void_p
-VirtualFreeEx		=	ctypes.windll.kernel32.VirtualFreeEx
+VirtualAllocEx = ctypes.windll.kernel32.VirtualAllocEx
+VirtualAllocEx.restype = wintypes.LPVOID
+VirtualAllocEx.argtypes = [
+    wintypes.HANDLE,
+    wintypes.LPVOID,
+    ctypes.c_size_t,
+    wintypes.DWORD,
+    wintypes.DWORD
+]
+VirtualFreeEx =	ctypes.windll.kernel32.VirtualFreeEx
+VirtualFreeEx.restypes = wintypes.BOOL
+VirtualFreeEx.argtypes = [
+    wintypes.HANDLE,
+    wintypes.LPVOID,
+    ctypes.c_size_t,
+    wintypes.DWORD
+    ]
 DebugBreakProcess	=	ctypes.windll.kernel32.DebugBreakProcess
 
-VirtualAlloc		=	ctypes.windll.kernel32.VirtualAlloc
-VirtualFree			=	ctypes.windll.kernel32.VirtualFree
-WriteProcessMemory	=	ctypes.windll.kernel32.WriteProcessMemory
-WriteProcessMemory.argtypes = [ wintypes.HANDLE,
-                                wintypes.LPVOID,
-                                wintypes.LPVOID,
-                                ctypes.c_size_t,
-                                ctypes.POINTER(ctypes.c_size_t)]
+VirtualAlloc = ctypes.windll.kernel32.VirtualAlloc
+VirtualAlloc.restype = wintypes.LPVOID
+VirtualAlloc.argtypes = [
+    wintypes.LPVOID,
+    ctypes.c_size_t,
+    wintypes.DWORD,
+    wintypes.DWORD
+]
+VirtualFree = ctypes.windll.kernel32.VirtualFree
+VirtualFree.retype = wintypes.BOOL
+VirtualFree.argtypes = [
+    wintypes.LPVOID,
+    ctypes.c_size_t,
+    wintypes.DWORD
+]
+WriteProcessMemory = ctypes.windll.kernel32.WriteProcessMemory
 WriteProcessMemory.restype = wintypes.BOOL
+WriteProcessMemory.argtypes = [
+    wintypes.HANDLE,
+    wintypes.LPVOID,
+    wintypes.LPVOID,
+    ctypes.c_size_t,
+    ctypes.POINTER(ctypes.c_size_t)
+]
 
 GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
 GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
