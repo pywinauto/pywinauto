@@ -247,11 +247,6 @@ def font(handle):
                 font_handle = win32functions.GetStockObject(
                     win32defines.ANSI_VAR_FONT)
 
-    else:
-        fontval = win32structures.LOGFONTW()
-        ret = win32functions.GetObject(
-            font_handle, ctypes.sizeof(fontval), ctypes.byref(fontval))
-
     # Get the Logfont structure of the font of the control
     fontval = win32structures.LOGFONTW()
     ret = win32functions.GetObject(
