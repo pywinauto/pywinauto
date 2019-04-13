@@ -43,6 +43,7 @@ import win32con
 import win32gui
 import pywintypes
 
+from ctypes import wintypes
 from . import win32functions
 from . import win32defines
 from . import win32structures
@@ -331,8 +332,8 @@ def children(handle):
     # define the child proc type
     enum_child_proc_t = ctypes.WINFUNCTYPE(
         ctypes.c_int,            # return type
-        ctypes.wintypes.HWND,    # the window handle
-        ctypes.wintypes.LPARAM)  # extra information
+        wintypes.HWND,           # the window handle
+        wintypes.LPARAM)         # extra information
 
     # update the proc to the correct type
     proc = enum_child_proc_t(enum_child_proc)

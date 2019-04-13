@@ -143,7 +143,7 @@ OpenProcess.restype = wintypes.HANDLE
 OpenProcess.argtypes = [
     wintypes.DWORD,
     wintypes.BOOL,
-    wintypes.DWORD
+    wintypes.DWORD,
     ]
 CloseHandle = ctypes.windll.kernel32.CloseHandle
 CloseHandle.restype = wintypes.BOOL
@@ -159,7 +159,7 @@ ReadProcessMemory.argtypes = [
     wintypes.LPVOID,
     wintypes.LPVOID,
     ctypes.c_size_t,
-    ctypes.POINTER(ctypes.c_size_t)
+    ctypes.POINTER(ctypes.c_size_t),
 ]
 GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
 GlobalLock = ctypes.windll.kernel32.GlobalLock
@@ -203,7 +203,7 @@ VirtualAllocEx.argtypes = [
     wintypes.LPVOID,
     ctypes.c_size_t,
     wintypes.DWORD,
-    wintypes.DWORD
+    wintypes.DWORD,
 ]
 VirtualFreeEx =	ctypes.windll.kernel32.VirtualFreeEx
 VirtualFreeEx.restype = wintypes.BOOL
@@ -211,7 +211,7 @@ VirtualFreeEx.argtypes = [
     wintypes.HANDLE,
     wintypes.LPVOID,
     ctypes.c_size_t,
-    wintypes.DWORD
+    wintypes.DWORD,
     ]
 DebugBreakProcess	=	ctypes.windll.kernel32.DebugBreakProcess
 
@@ -221,14 +221,14 @@ VirtualAlloc.argtypes = [
     wintypes.LPVOID,
     ctypes.c_size_t,
     wintypes.DWORD,
-    wintypes.DWORD
+    wintypes.DWORD,
 ]
 VirtualFree = ctypes.windll.kernel32.VirtualFree
 VirtualFree.retype = wintypes.BOOL
 VirtualFree.argtypes = [
     wintypes.LPVOID,
     ctypes.c_size_t,
-    wintypes.DWORD
+    wintypes.DWORD,
 ]
 WriteProcessMemory = ctypes.windll.kernel32.WriteProcessMemory
 WriteProcessMemory.restype = wintypes.BOOL
