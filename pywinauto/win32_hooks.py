@@ -117,6 +117,7 @@ windll.user32.CallNextHookEx.restypes = LRESULT
 
 
 class KeyboardEvent(object):
+
     """Created when a keyboard event happened"""
 
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
@@ -126,6 +127,7 @@ class KeyboardEvent(object):
 
 
 class MouseEvent(object):
+
     """Created when a mouse event happened"""
 
     def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
@@ -137,10 +139,12 @@ class MouseEvent(object):
         self.control_tree_node = None
 
     def __str__(self):
+        """Return a representation of the object as a string"""
         return "MouseEvent: {} - {}, ({}, {})".format(self.current_key, self.event_type, self.mouse_x, self.mouse_y)
 
 
 class Hook(object):
+
     """Hook for low level keyboard and mouse events"""
 
     MOUSE_ID_TO_KEY = {win32con.WM_MOUSEMOVE: 'Move',

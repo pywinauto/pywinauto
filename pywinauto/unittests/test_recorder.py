@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 from six import PY3
@@ -8,19 +7,17 @@ if PY3:
 else:
     import mock
 
-# sys.path.append(".")
-sys.path.append("../..")
-
 from pywinauto.recorder.recorder_defines import HOOK_KEY_DOWN, HOOK_KEY_UP, HOOK_MOUSE_LEFT_BUTTON, \
-    HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, EVENT, PROPERTY, STRUCTURE_EVENT, RecorderEvent, HookEvent, \
-    RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, PropertyEvent, EventPattern, _is_identifier, \
+    HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, EVENT, PROPERTY, STRUCTURE_EVENT, RecorderEvent, \
+    RecorderMouseEvent, ApplicationEvent, PropertyEvent, EventPattern, _is_identifier, \
     get_window_access_name_str
 from pywinauto.recorder.event_handlers import EventHandler, MenuOpenedHandler, MenuClosedHandler, \
-    ExpandCollapseHandler, SelectionChangedHandler, MouseClickHandler, KeyboardHandler
+    ExpandCollapseHandler, SelectionChangedHandler, MouseClickHandler
 from pywinauto.win32structures import RECT
 
 
 class EventPatternTestCases(unittest.TestCase):
+
     """Unit tests for the EventPattern class"""
 
     def setUp(self):
@@ -31,7 +28,8 @@ class EventPatternTestCases(unittest.TestCase):
                         ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED),
                         PropertyEvent(property_name=PROPERTY.NAME)))
 
-    def compare_patterns(self, pattern1, pattern2):
+    @classmethod
+    def compare_patterns(cls, pattern1, pattern2):
         if str(pattern1.hook_event) != str(pattern2.hook_event):
             return False
 
@@ -135,6 +133,7 @@ class EventPatternTestCases(unittest.TestCase):
         """Test EventPattern.get_subpattern() fails to detect subpattern when pattern's application events are in the
         different order compared to the log_events'.
         """
+
         pattern = EventPattern(
             hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
             app_events=(ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED),
@@ -144,6 +143,7 @@ class EventPatternTestCases(unittest.TestCase):
 
 
 class EventHandlersTestCases(unittest.TestCase):
+
     """Unit tests for the Event Handlers"""
 
     PREFERRED_NAME = "PreferredName"

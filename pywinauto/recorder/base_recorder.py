@@ -24,6 +24,7 @@ def synchronized_method(method):
 
 
 class BaseRecorder(object):
+
     """Record hook (keyboard, mouse) and back-end events"""
 
     def __init__(self, app, config, **kwargs):
@@ -75,20 +76,14 @@ class BaseRecorder(object):
 
     @synchronized_method
     def add_to_log(self, item):
-        """
-        Add *item* to event log.
-        This is a synchronized method.
-        """
+        """Add *item* to event log. This is a synchronized method."""
         self.event_log.append(item)
         if self.config.verbose:
             print(item)
 
     @synchronized_method
     def clear_log(self):
-        """
-        Clear event log.
-        This is a synchronized method.
-        """
+        """Clear event log. This is a synchronized method."""
         self.event_log = []
 
     def is_active(self):
@@ -125,9 +120,7 @@ class BaseRecorder(object):
         """Perform cleaning (close threads, unsubscribe to events, etc.)"""
         pass
 
-    """
-    Target functions
-    """
+    # Target functions
 
     def recorder_target(self):
         """Target function for recorder thread"""

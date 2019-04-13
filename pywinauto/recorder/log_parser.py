@@ -5,7 +5,6 @@ from .recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboard
 from .event_handlers import EventHandler
 
 
-
 class LogParser(object):
     def __init__(self, recorder):
         self.recorder = recorder
@@ -17,20 +16,20 @@ class LogParser(object):
         # TODO: General assumption: all hook events come before UIA events
         # TODO: click or keyboard button (hook) -> what happened (uia)
         action_log = []
-        iter = 0
+        i = 0
         for event in self.recorder.event_log:
             if isinstance(event, ApplicationEvent):
                 # Only add events if hook event has been met
-                if iter > 0:
-                    action_log[iter - 1].app_events.append(event)
+                if i > 0:
+                    action_log[i - 1].app_events.append(event)
             elif isinstance(event, RecorderMouseEvent):
                 # TODO: only add key down events, assume that user performs only clicks
                 if event.event_type == HOOK_KEY_DOWN:
                     action_log.append(EventPattern(hook_event=event, app_events=[]))
-                    iter += 1
+                    i += 1
             elif isinstance(event, RecorderKeyboardEvent):
                 action_log.append(EventPattern(hook_event=event, app_events=[]))
-                iter += 1
+                i += 1
         return action_log
 
     def parse_current_log(self):

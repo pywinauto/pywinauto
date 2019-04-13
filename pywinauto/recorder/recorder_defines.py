@@ -238,6 +238,7 @@ class RecorderEvent(object):
         self.control_tree_node = None  # event sender
 
     def __str__(self):
+        """Return a representation of the object as a string"""
         if six.PY2:
             return self.__repr__().encode(sys.stdout.encoding)
         else:
@@ -258,6 +259,7 @@ class RecorderMouseEvent(HookEvent):
         self.mouse_y = mouse_y
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         if self.control_tree_node:
             elem = u" - {}".format(self.control_tree_node)
         else:
@@ -273,6 +275,7 @@ class RecorderKeyboardEvent(HookEvent):
         self.pressed_key = pressed_key
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(
             self.current_key, self.event_type, self.pressed_key, self.timestamp)
 
@@ -284,6 +287,7 @@ class ApplicationEvent(RecorderEvent):
         self.sender = sender
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"<ApplicationEvent - '{}' from '{}'>".format(self.name, self.sender)
 
 
@@ -294,6 +298,7 @@ class PropertyEvent(ApplicationEvent):
         self.new_value = new_value
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name, self.new_value, self.sender)
 
 
@@ -303,6 +308,7 @@ class EventPattern(object):
         self.app_events = app_events if app_events else []
 
     def __str__(self):
+        """Return a representation of the object as a string"""
         return u"<EventPattern: {}, {}>".format(
             self.hook_event, ", ".join([str(e) for e in self.app_events]) if self.app_events else None)
 

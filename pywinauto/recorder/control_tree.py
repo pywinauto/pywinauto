@@ -17,9 +17,11 @@ class ControlTreeNode(object):
         self.children = []
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"{}, {}, depth={}".format(self.names, self.rect, self.depth)
 
     def __eq__(self, other):
+        """Check if 2 nodes reference the same control"""
         if not isinstance(other, ControlTreeNode):
             return False
         return self.rect.top == other.rect.top and \
@@ -29,6 +31,7 @@ class ControlTreeNode(object):
                self.depth == other.depth
 
     def __hash__(self):
+        """Return hash value based on element's dimensions"""
         width = self.rect.width()
         height = self.rect.height()
         return width * height + width - height
@@ -107,7 +110,8 @@ class ControlTree(object):
                 res = node
         return res
 
-    def sub_tree_from_node(self, node):
+    @classmethod
+    def sub_tree_from_node(cls, node):
         result = []
         curr_node = node
         while curr_node:

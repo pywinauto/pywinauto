@@ -1,6 +1,5 @@
 from ..recorder_defines import EVENT, PROPERTY, STRUCTURE_EVENT
-from ..recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
-    ApplicationEvent, PropertyEvent
+from ..recorder_defines import ApplicationEvent
 
 from ...uia_defines import IUIA
 
@@ -223,4 +222,5 @@ class StructureEvent(ApplicationEvent):
         self.runtime_id = runtime_id
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return "<StructureEvent - '{}' from {}>".format(self.change_type, self.sender)

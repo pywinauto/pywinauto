@@ -13,7 +13,7 @@ from ..base_recorder import BaseRecorder
 from ..win32_progress_bar import ProgressBarDialog
 from ..recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
     PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
-from ..event_handlers import EventHandler, SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
+from ..event_handlers import SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
     ExpandCollapseHandler, MouseClickHandler, KeyboardHandler
 from .uia_recorder_defines import EVENT_ID_TO_NAME_MAP, PROPERTY_ID_TO_NAME_MAP, STRUCTURE_CHANGE_TYPE_TO_NAME_MAP, \
     StructureEvent
@@ -96,6 +96,7 @@ EVENT_PATTERN_MAP = [
 
 
 class UiaRecorder(COMObject, BaseRecorder):
+
     """Record UIA, keyboard and mouse events"""
 
     _com_interfaces_ = [IUIA().UIA_dll.IUIAutomationEventHandler,
@@ -162,7 +163,7 @@ class UiaRecorder(COMObject, BaseRecorder):
             # Add event handlers to all app's controls
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
             self._update(rebuild_tree=True, add_handlers_to=self.wrapper.element_info.element)
-        except Exception as exc:
+        except Exception:
             # TODO: Sometime we can't catch WindowClosed event in WPF applications
             self.stop()
             self.script += u"app.kill()\n"

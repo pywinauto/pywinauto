@@ -244,7 +244,9 @@ structure_change_children_reordered = IUIA().ui_automation_client.StructureChang
 
 
 class NoPatternInterfaceError(Exception):
+
     """There is no such interface for the specified pattern"""
+
     pass
 
 
