@@ -138,14 +138,22 @@ AttachThreadInput.argtypes = [wintypes.DWORD, wintypes.DWORD, wintypes.BOOL]
 #GetWindowThreadProcessId    =   ctypes.windll.user32.GetWindowThreadProcessId
 GetLastError = ctypes.windll.kernel32.GetLastError
 
-OpenProcess			=	ctypes.windll.kernel32.OpenProcess
-CloseHandle         =   ctypes.windll.kernel32.CloseHandle
+OpenProcess = ctypes.windll.kernel32.OpenProcess
+OpenProcess.restype = wintypes.HANDLE
+OpenProcess.argtypes = [
+    wintypes.DWORD,
+    wintypes.BOOL,
+    wintypes.DWORD
+    ]
+CloseHandle = ctypes.windll.kernel32.CloseHandle
+CloseHandle.restype = wintypes.BOOL
+CloseHandle.argtypes = [ wintypes.HANDLE ]
 CreateProcess       = ctypes.windll.kernel32.CreateProcessW
 TerminateProcess    = ctypes.windll.kernel32.TerminateProcess
 ExitProcess         = ctypes.windll.kernel32.ExitProcess
 
 ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
-ReadProcessMemory.restypes = wintypes.BOOL
+ReadProcessMemory.restype = wintypes.BOOL
 ReadProcessMemory.argtypes = [
     wintypes.HANDLE,
     wintypes.LPVOID,
@@ -198,7 +206,7 @@ VirtualAllocEx.argtypes = [
     wintypes.DWORD
 ]
 VirtualFreeEx =	ctypes.windll.kernel32.VirtualFreeEx
-VirtualFreeEx.restypes = wintypes.BOOL
+VirtualFreeEx.restype = wintypes.BOOL
 VirtualFreeEx.argtypes = [
     wintypes.HANDLE,
     wintypes.LPVOID,
