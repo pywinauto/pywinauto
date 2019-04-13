@@ -237,7 +237,7 @@ WriteProcessMemory.argtypes = [
     wintypes.LPVOID,
     wintypes.LPVOID,
     ctypes.c_size_t,
-    ctypes.POINTER(ctypes.c_size_t)
+    ctypes.POINTER(ctypes.c_size_t),
 ]
 
 GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
