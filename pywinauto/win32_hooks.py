@@ -51,7 +51,6 @@ standalone library pyhooked 0.8 maintained by Ethan Smith.
 
 import atexit
 import sys
-import ctypes
 from ctypes import CFUNCTYPE
 from ctypes import POINTER
 from ctypes import byref
@@ -63,6 +62,8 @@ from ctypes import pointer
 from ctypes import windll
 from ctypes import wintypes
 from ctypes import WinDLL
+from ctypes import create_string_buffer
+from ctypes import create_unicode_buffer
 
 import six
 
@@ -81,7 +82,15 @@ from .win32structures import LRESULT
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
 
 ToUnicodeEx = WinDLL('user32').ToUnicodeEx
-ToUnicodeEx.argtypes = [wintypes.UINT,wintypes.UINT,POINTER(c_char),POINTER(c_wchar),c_int,wintypes.UINT,wintypes.HKL]
+ToUnicodeEx.argtypes = [
+    wintypes.UINT,
+    wintypes.UINT,
+    POINTER(c_char),
+    POINTER(c_wchar),
+    c_int,
+    wintypes.UINT,
+    wintypes.HKL,
+]
 ToUnicodeEx.restype = c_int
 
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
@@ -461,9 +470,9 @@ class Hook(object):
                 current_key = u'{' + keyboard.CODE_NAMES[key_code] + u'}'
             else:
                 #MAPVK_VSC_TO_VK = 1 # TODO: move to win32defines
-                #vk = ctypes.windll.user32.MapVirtualKeyExW(key_code, MAPVK_VSC_TO_VK, wintypes.HKL(input_locale_id))
-                keybd_state = ctypes.create_string_buffer(256)
-                buf = ctypes.create_unicode_buffer(5)
+                #vk = windll.user32.MapVirtualKeyExW(key_code, MAPVK_VSC_TO_VK, wintypes.HKL(input_locale_id))
+                keybd_state = create_string_buffer(256)
+                buf = create_unicode_buffer(5)
                 if ToUnicodeEx(key_code, key_code, keybd_state, buf, 5, 0, input_locale_id) > 0:
                     current_key = buf.value
                 else:
