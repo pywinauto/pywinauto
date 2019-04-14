@@ -1114,7 +1114,7 @@ class Application(object):
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_elements(process=self.process,
+            windows = findwindows.find_elements(pid=self.process,
                                                 backend=self.backend.name)
             if windows:
                 break
@@ -1140,7 +1140,7 @@ class Application(object):
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_elements(process=self.process,
+        windows = findwindows.find_elements(pid=self.process,
                                             active_only=True,
                                             backend=self.backend.name)
 
@@ -1195,7 +1195,7 @@ class Application(object):
                                   "anything else")
         else:
             # add the restriction for this particular process
-            kwargs['process'] = self.process
+            kwargs['pid'] = self.process
             win_spec = WindowSpecification(kwargs)
 
         return win_spec

@@ -71,25 +71,25 @@ class FindWindowsTestCases(unittest.TestCase):
 
     def test_find_window(self):
         """Test if function find_window() works as expected including raising the exceptions"""
-        ctrl = self.dlg.OK.WrapperObject()
-        handle = find_window(process=self.app.process, best_match='OK', top_level_only=False)
+        ctrl = self.dlg.Edit0.WrapperObject()
+        handle = find_window(pid=self.app.process, best_match='OK', top_level_only=False)
 
         self.assertEqual(handle, ctrl.handle)
 
-        self.assertRaises(WindowNotFoundError, find_window, process=self.app.process, class_name='OK')
+        self.assertRaises(WindowNotFoundError, find_window, pid=self.app.process, class_name='OK')
 
         self.assertRaises(WindowAmbiguousError, find_window,
-                          process=self.app.process, class_name='Button', top_level_only=False)
+                          pid=self.app.process, class_name='Button', top_level_only=False)
 
     def test_find_windows(self):
         """Test if function find_windows() works as expected including raising the exceptions"""
         ctrl_hwnds = [elem.handle for elem in self.dlg.children() if elem.class_name() == 'Edit']
-        handles = find_windows(process=self.app.process, class_name='Edit', top_level_only=False)
+        handles = find_windows(pid=self.app.process, class_name='Edit', top_level_only=False)
 
         self.assertEqual(set(handles), set(ctrl_hwnds))
 
         self.assertRaises(WindowNotFoundError, find_windows,
-                          process=self.app.process, class_name='FakeClassName', found_index=1)
+                          pid=self.app.process, class_name='FakeClassName', found_index=1)
 
 
 if __name__ == "__main__":

@@ -57,6 +57,10 @@ class HwndElementInfo(ElementInfo):
 
     wm_get_ctrl_name = _register_win_msg('WM_GETCONTROLNAME')
     wm_get_ctrl_type = _register_win_msg('WM_GETCONTROLTYPE')
+    re_props = ["class_name", "name", "automation_id", "control_type", "full_control_type"]
+    exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle"]
+    search_order = ["class_name", "handle", "pid", "control_id", "visible", "enabled",
+        "name", "control_type", "full_control_type", "rectangle"]
 
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
@@ -91,6 +95,8 @@ class HwndElementInfo(ElementInfo):
     def process_id(self):
         """Return the ID of process that controls this window"""
         return handleprops.processid(self.handle)
+
+    pid = process_id
 
     @property
     def class_name(self):
