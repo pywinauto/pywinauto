@@ -310,6 +310,13 @@ class UIAWrapper(BaseWrapper):
         return uia_defs.get_elem_interface(elem, "VirtualizedItem")
 
     # ------------------------------------------------------------
+    @lazy_property
+    def iface_legacy_accessible(self):
+        """Get the element's LegacyIAccessible interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+
+    # ------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -323,15 +330,11 @@ class UIAWrapper(BaseWrapper):
     # ------------------------------------------------------------
     def legacy_properties(self):
         """Get the element's LegacyIAccessible control pattern interface properties"""
-        elem = self.element_info.element
-        impl = uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+        impl = self.iface_legacy_accessible
         property_name_identifier = 'Current'
 
-        interface_properties = [prop for prop in dir(LegacyIAccessiblePattern)
-                                if (isinstance(getattr(LegacyIAccessiblePattern, prop), property)
-                                and property_name_identifier in prop)]
-
-        return {prop.replace(property_name_identifier, '') : getattr(impl, prop) for prop in interface_properties}
+        interface_properties = [prop for prop in dir(impl) if prop.startswith(property_name_identifier)]
+        return {prop.replace(property_name_identifier, ''): getattr(impl, prop) for prop in interface_properties}
 
     # ------------------------------------------------------------
     def friendly_class_name(self):
