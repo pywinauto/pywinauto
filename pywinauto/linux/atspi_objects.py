@@ -53,19 +53,16 @@ class RECT(Structure):
             self.top = top
             self.bottom = bottom
 
-
-#    # ----------------------------------------------------------------
-#    def __eq__(self, otherRect):
-#        "return true if the two rectangles have the same coordinates"
-#
-#        try:
-#            return \
-#                self.left == otherRect.left and \
-#                self.top == otherRect.top and \
-#                self.right == otherRect.right and \
-#                self.bottom == otherRect.bottom
-#        except AttributeError:
-#            return False
+    def __eq__(self, other):
+        "return true if the two rectangles have the same coordinates"
+        try:
+            return \
+                self.left == other.left and \
+                self.top == other.top and \
+                self.right == other.right and \
+                self.bottom == other.bottom
+        except AttributeError:
+            return False
 
     # ----------------------------------------------------------------
     def __str__(self):
@@ -215,7 +212,50 @@ class AtspiPoint(Structure):
     ]
 
 
-class _AtspiAccessible(Structure):
+class _GTypeInstance(Structure):
+    pass
+
+
+class _GData(Structure):
+    pass
+
+
+class _GObject(Structure):
+    _fields_ = [
+        ('g_type_instance', _GTypeInstance),
+        ('ref_count', c_uint),
+        ('qdata', POINTER(_GData)),
+    ]
+
+
+class _GError(Structure):
+    _fields_ = [
+        ('domain', c_uint32),
+        ('code', c_int),
+        ('message', c_char_p),
+    ]
+
+
+class _GArray(Structure):
+    _fields_ = [
+        ('data', POINTER(c_char)),
+        ('len', c_uint32),
+    ]
+
+
+class _GHashTable(Structure):
+    pass
+
+
+class _GPtrArray(Structure):
+    pass
+
+
+class _AtspiRole(Structure):
+    pass
+
+
+class _AtspiApplication(Structure):
     pass
 
 
@@ -227,18 +267,36 @@ class _AtspiStateSet(Structure):
     pass
 
 
-class _GError(Structure):
+class _AtspiAccessiblePrivate(Structure):
+    pass
+
+
+
+class _AtspiObject(Structure):
     _fields_ = [
-        ('domain', c_uint32),
-        ('code', c_int),
-        ('message', c_char_p),
+        ('parent', _GObject),
+        ('accessible_parent', POINTER(_AtspiApplication)),
+        ('path', c_char_p),
     ]
 
-class _GArray(Structure):
-    _fields_ = [
-        ('data', POINTER(c_char)),
-        ('len', c_uint32),
-    ]
+
+class _AtspiAccessible(Structure):
+    pass
+
+
+_AtspiAccessible._fields_ = [
+    ('parent', _AtspiObject),
+    ('accessible_parent', POINTER(_AtspiAccessible)),
+    ('children', POINTER(_GPtrArray)),
+    ('role', _AtspiRole),
+    ('gint', c_int),
+    ('name', c_char_p),
+    ('description', c_char_p),
+    ('states', POINTER(_AtspiStateSet)),
+    ('attributes', POINTER(_GHashTable)),
+    ('cached_properties', c_uint),
+    ('cached_properties', _AtspiAccessiblePrivate),
+]
 
 
 """

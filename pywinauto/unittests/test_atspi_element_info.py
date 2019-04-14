@@ -114,6 +114,16 @@ if sys.platform != 'win32':
             self.assertEqual(rectangle.width(), width)
             self.assertEqual(rectangle.height(), height)
 
+        def test_can_compare_applications(self):
+            app_info = self.get_app(app_name)
+            app_info1 = self.get_app(app_name)
+            assert app_info == app_info1
+
+        def test_can_compare_desktop(self):
+            desktop = AtspiElementInfo()
+            desktop1 = AtspiElementInfo()
+            assert desktop == desktop1
+
 
 if __name__ == "__main__":
     unittest.main()
