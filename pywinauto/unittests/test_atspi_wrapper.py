@@ -5,6 +5,8 @@ import time
 import unittest
 import re
 
+from ctypes import *
+
 if sys.platform != 'win32':
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
@@ -27,11 +29,11 @@ def _test_app():
 
 def print_tree(start_el_info, level_shifter=""):
     if level_shifter == "":
-        print(start_el_info.control_type)
+        print(start_el_info.control_type, "  ", start_el_info.name, "!")
         level_shifter += "-"
 
     for children in start_el_info.children():
-        print(level_shifter, "  ", children.control_type)
+        print(level_shifter, "  ", children.control_type, "    ", children.name, "!")
         print_tree(children, level_shifter+"-")
 
 
@@ -54,21 +56,20 @@ if sys.platform != 'win32':
             self.app.start("python3 " + _test_app())
             time.sleep(1)
             self.app_info = self.get_app(app_name)
-            print_tree(self.desktop_info)
-            self.app_info = self.app_info.children()[0]
+
             self.app_wrapper = AtspiWrapper(self.app_info)
 
         def tearDown(self):
             self.app.kill()
 
-        # def test_grab_keyboard_focus(self):
-        #     self.app_wrapper.set_keyboard_focus()
-
         def test_get_state_set(self):
             test = self.app_wrapper.get_states()
 
-            self.app_wrapper.set_window_focus(1499)
+        def test_set_window_focus(self):
+            self.app_wrapper.set_focus()
 
+        def test_top_level_parent(self):
+            assert self.app_wrapper.top_level_parent().element_info.control_type == "Application"
 
 if __name__ == "__main__":
     unittest.main()

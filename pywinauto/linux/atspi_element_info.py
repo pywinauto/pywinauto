@@ -10,7 +10,7 @@ class AtspiElementInfo(ElementInfo):
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
         if handle is None:
-            self._handle = self.atspi_accessible.get_desktop(0, None)
+            self._handle = self.atspi_accessible.get_desktop(0)
         else:
             self._handle = handle
 
@@ -18,6 +18,11 @@ class AtspiElementInfo(ElementInfo):
         tree.append(root)
         for el in root.children():
             self.__get_elements(el, tree)
+
+    def __eq__(self, other):
+        if self.class_name == "application":
+            return self.process_id == other.process_id
+        return self.rectangle == other.rectangle
 
     @property
     def handle(self):
@@ -45,6 +50,11 @@ class AtspiElementInfo(ElementInfo):
         return self.atspi_accessible.get_role_name(self._handle, None).decode(encoding='UTF-8')
 
     @property
+    def rich_text(self):
+        """Return the text of the element"""
+        return self.name
+
+    @property
     def control_type(self):
         """Return the class name of the element"""
         role_id = self.atspi_accessible.get_role(self._handle, None)
@@ -53,6 +63,8 @@ class AtspiElementInfo(ElementInfo):
     @property
     def parent(self):
         """Return the parent of the element"""
+        if self == AtspiElementInfo():
+            return None
         return AtspiElementInfo(self.atspi_accessible.get_parent(self._handle, None))
 
     def children(self, **kwargs):
