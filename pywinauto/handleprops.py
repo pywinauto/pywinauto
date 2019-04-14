@@ -35,7 +35,6 @@ These are implemented in a procedural way so as to to be
 useful to other modules with the least conceptual overhead
 """
 
-import ctypes
 import warnings
 import win32process
 import win32api
@@ -43,6 +42,12 @@ import win32con
 import win32gui
 import pywintypes
 
+from ctypes import wintypes
+from ctypes import WINFUNCTYPE
+from ctypes import c_int
+from ctypes import byref
+from ctypes import sizeof
+from ctypes import create_unicode_buffer
 from . import win32functions
 from . import win32defines
 from . import win32structures
@@ -71,7 +76,7 @@ def text(handle):
         0,
         win32defines.SMTO_ABORTIFHUNG,
         500,
-        ctypes.byref(c_length)
+        byref(c_length)
     )
     if result == 0:
         ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
@@ -85,10 +90,10 @@ def text(handle):
     if length > 0:
         length += 1
 
-        buffer_ = ctypes.create_unicode_buffer(length)
+        buffer_ = create_unicode_buffer(length)
 
         ret = win32functions.SendMessage(
-            handle, win32defines.WM_GETTEXT, length, ctypes.byref(buffer_))
+            handle, win32defines.WM_GETTEXT, length, byref(buffer_))
 
         if ret:
             textval = buffer_.value
@@ -101,7 +106,7 @@ def classname(handle):
     """Return the class name of the window"""
     if handle is None:
         return None
-    class_name = ctypes.create_unicode_buffer(u"", 257)
+    class_name = create_unicode_buffer(u"", 257)
     win32functions.GetClassName(handle, class_name, 256)
     return class_name.value
 
@@ -201,7 +206,7 @@ def is64bitbinary(filename):
 def clientrect(handle):
     """Return the client rectangle of the control"""
     client_rect = win32structures.RECT()
-    win32functions.GetClientRect(handle, ctypes.byref(client_rect))
+    win32functions.GetClientRect(handle, byref(client_rect))
     return client_rect
 
 
@@ -246,15 +251,10 @@ def font(handle):
                 font_handle = win32functions.GetStockObject(
                     win32defines.ANSI_VAR_FONT)
 
-    else:
-        fontval = win32structures.LOGFONTW()
-        ret = win32functions.GetObject(
-            font_handle, ctypes.sizeof(fontval), ctypes.byref(fontval))
-
     # Get the Logfont structure of the font of the control
     fontval = win32structures.LOGFONTW()
     ret = win32functions.GetObject(
-        font_handle, ctypes.sizeof(fontval), ctypes.byref(fontval))
+        font_handle, sizeof(fontval), byref(fontval))
 
     # The function could not get the font - this is probably
     # because the control does not have associated Font/Text
@@ -273,11 +273,11 @@ def font(handle):
             # get the title font based on the system metrics rather
             # than the font of the control itself
             ncms = win32structures.NONCLIENTMETRICSW()
-            ncms.cbSize = ctypes.sizeof(ncms)
+            ncms.cbSize = sizeof(ncms)
             win32functions.SystemParametersInfo(
                 win32defines.SPI_GETNONCLIENTMETRICS,
-                ctypes.sizeof(ncms),
-                ctypes.byref(ncms),
+                sizeof(ncms),
+                byref(ncms),
                 0)
 
             # with either of the following 2 flags set the font of the
@@ -329,10 +329,10 @@ def children(handle):
         return True
 
     # define the child proc type
-    enum_child_proc_t = ctypes.WINFUNCTYPE(
-        ctypes.c_int,            # return type
-        win32structures.HWND,    # the window handle
-        win32structures.LPARAM)  # extra information
+    enum_child_proc_t = WINFUNCTYPE(
+        c_int,                   # return type
+        wintypes.HWND,           # the window handle
+        wintypes.LPARAM)         # extra information
 
     # update the proc to the correct type
     proc = enum_child_proc_t(enum_child_proc)
