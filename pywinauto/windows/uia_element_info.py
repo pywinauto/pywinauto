@@ -58,6 +58,11 @@ def elements_from_uia_array(ptrs, cache_enable=False):
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
+    re_props = ["class_name", "name", "automation_id", "control_type", "full_control_type"]
+    exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle", "framework_id", "runtime_id"]
+    search_order = ["class_name", "handle", "pid", "control_id", "visible", "enabled",
+        "name", "control_type", "full_control_type", "rectangle", "framework_id", "runtime_id"]
+
     def __init__(self, handle_or_elem=None, cache_enable=False):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
@@ -217,6 +222,8 @@ class UIAElementInfo(ElementInfo):
             return self._element.CurrentProcessId
         except COMError:
             return None  # probably element already doesn't exist
+
+    pid = process_id
 
     @property
     def framework_id(self):

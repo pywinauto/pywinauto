@@ -120,7 +120,126 @@ def find_window(**kwargs):
         raise WindowAmbiguousError
 
 
+def _raise_search_key_error(key, backend_obj):
+    all_keywords = backend_obj.element_info_class.re_props + \
+        [prop + '_re' for prop in backend_obj.element_info_class.re_props] + \
+        backend_obj.element_info_class.exact_only_props
+    raise KeyError('Incorrect search keyword "{}". Availaible keywords: {}'.format(key, all_keywords))
+
+
 #=========================================================================
+def find_elements(**kwargs):
+    backend = kwargs.pop('backend', None)
+    parent = kwargs.pop('parent', None)
+    handle = kwargs.pop('handle', None)
+    ctrl_index = kwargs.pop('ctrl_index', None)
+    top_level_only = kwargs.pop('top_level_only', None)
+    # TODO: depth = 1, remove top_level_only?
+    depth = kwargs.pop('depth', None)
+    best_match = kwargs.pop('best_match', None)
+    predicate_func = kwargs.pop('predicate_func', None)
+
+    if backend is None:
+        backend = registry.active_backend.name
+    backend_obj = registry.backends[backend]
+
+    if handle is not None:
+        if not kwargs:
+            raise KeyError('Handle is already unique identifier, other keywords are redundant')
+        # allow a handle to be passed in
+        # if it is present - just return it
+        return [backend_obj.element_info_class(handle), ]
+
+    for key, _ in kwargs.items():
+        if key.endswith('_re') and \
+                key[:-3] not in backend_obj.element_info_class.re_props:
+            _raise_search_key_error(key, backend_obj)
+        elif key not in backend_obj.element_info_class.re_props and \
+                key not in backend_obj.element_info_class.exact_only_props:
+            _raise_search_key_error(key, backend_obj)
+
+    if isinstance(parent, backend_obj.generic_wrapper_class):
+        parent = parent.element_info
+    elif isinstance(parent, six.integer_types):
+        # check if parent is a handle of element (in case of searching native controls)
+        parent = backend_obj.element_info_class(parent)
+
+    # create initial list of all elements
+    if top_level_only:
+        # find the top level elements
+        element = backend_obj.element_info_class()
+        # TODO: think about not passing **kwargs
+        elements = element.children(cache_enable=True, **kwargs)
+
+        # if we have been given a parent
+        if parent:
+            elements = [elem for elem in elements if elem.parent == parent]
+
+    # looking for child elements
+    else:
+        # if not given a parent look for all children of the desktop
+        if not parent:
+            parent = backend_obj.element_info_class()
+
+        # look for ALL children of that parent
+        # TODO: think about not passing **kwargs
+        elements = parent.descendants(cache_enable=True, depth=depth, **kwargs)
+
+    # if the ctrl_index has been specified then just return
+    # that control
+    if ctrl_index is not None:
+        return [elements[ctrl_index], ]
+
+    for prop in backend_obj.element_info_class.search_order:
+        exact_search_value = kwargs.get(prop)
+        if prop in backend_obj.element_info_class.re_props:
+            re_search_value = kwargs.get(prop + '_re')
+            if exact_search_value is not None and \
+                    re_search_value is not None:
+                raise ValueError('Mutually exclusive keywords are used: "{}", "{}"'.format(prop, prop + '_re'))
+            if re_search_value is not None: 
+                regex = re.compile(re_search_value)
+                elements = [elem for elem in elements if regex.match(getattr(elem, prop))]
+        if exact_search_value is not None:
+            elements = [elem for elem in elements if exact_search_value == getattr(elem, prop)]
+
+    if best_match is not None:
+        # Build a list of wrapped controls.
+        # Speed up the loop by setting up local pointers
+        wrapped_elems = []
+        add_to_wrp_elems = wrapped_elems.append
+        wrp_cls = backend_obj.generic_wrapper_class
+        for elem in elements:
+            try:
+                add_to_wrp_elems(wrp_cls(elem))
+            except (controls.InvalidWindowHandle,
+                    controls.InvalidElement):
+                # skip invalid handles - they have dissapeared
+                # since the list of elements was retrieved
+                continue
+        elements = findbestmatch.find_best_control_matches(best_match, wrapped_elems)
+
+        # convert found elements back to ElementInfo
+        backup_elements = elements[:]
+        elements = []
+        for elem in backup_elements:
+            if hasattr(elem, "element_info"):
+                elem.element_info.set_cache_strategy(cached=False)
+                elements.append(elem.element_info)
+            else:
+                elements.append(backend_obj.element_info_class(elem.handle))
+    else:
+        for elem in elements:
+            elem.set_cache_strategy(cached=False)
+
+    if predicate_func is not None:
+        elements = [elem for elem in elements if predicate_func(elem)]
+
+    return elements
+
+
+#=========================================================================
+'''
 def find_elements(class_name=None,
                   class_name_re=None,
                   parent=None,
@@ -331,7 +450,7 @@ def find_elements(class_name=None,
                 found_index, len(elements)))
 
     return elements
-
+'''
 
 #=========================================================================
 def find_windows(**kwargs):
