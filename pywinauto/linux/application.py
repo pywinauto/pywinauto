@@ -82,7 +82,7 @@ class Application(BaseApplication):
         if interval:
             time.sleep(interval)
         try:
-            proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
+            proc_info = subprocess.check_output(["ps", "-p", self.process, "-o", "%cpu"], universal_newlines=True)
             proc_info = proc_info.split("\n")
             return float(proc_info[1])
         except Exception:
