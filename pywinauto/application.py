@@ -392,8 +392,8 @@ class WindowSpecification(object):
         # windows - including not visible and disabled
         exists_criteria = self.criteria[:]
         for criterion in exists_criteria:
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
+            criterion['enabled'] = None
+            criterion['visible'] = None
 
         try:
             self.__resolve_control(exists_criteria, timeout, retry_interval)
@@ -1165,11 +1165,11 @@ class Application(object):
             raise ValueError('Using another backend for this Application '
                              'instance is not allowed! Create another app object.')
 
-        if 'visible_only' not in kwargs:
-            kwargs['visible_only'] = False
+        if 'visible' not in kwargs:
+            kwargs['visible'] = None
 
         if 'enabled_only' not in kwargs:
-            kwargs['enabled_only'] = False
+            kwargs['enabled'] = None
 
         kwargs['process'] = self.process
         kwargs['backend'] = self.backend.name
@@ -1238,7 +1238,7 @@ class Application(object):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        windows = self.windows(visible_only=True)
+        windows = self.windows(visible=True)
 
         for win in windows:
 

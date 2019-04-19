@@ -560,13 +560,13 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertRaises(ValueError, app.windows_, **{'backend' : 'uia'})
 
         notepad_handle = app.UntitledNotepad.handle
-        self.assertEquals(app.windows_(visible_only = True), [notepad_handle])
+        self.assertEquals(app.windows_(visible=True), [notepad_handle])
 
         app.UntitledNotepad.MenuSelect("Help->About Notepad")
 
         aboutnotepad_handle = app.AboutNotepad.handle
         self.assertEquals(
-            app.windows_(visible_only = True, enabled_only = False),
+            app.windows(visible=True, enabled=None),
             [aboutnotepad_handle, notepad_handle])
 
         app.AboutNotepad.OK.Click()
@@ -889,7 +889,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             status_bar_menu.select()
 
         # check that existing invisible control is still found with 'exists' criterion
-        status_bar_spec = self.app.UntitledNotepad.child_window(class_name="msctls_statusbar32", visible_only=False)
+        status_bar_spec = self.app.UntitledNotepad.child_window(class_name="msctls_statusbar32", visible=None)
         self.assertEqual('StatusBar', status_bar_spec.wait('exists').friendly_class_name())
 
         start = timestamp()
