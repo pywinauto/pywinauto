@@ -187,7 +187,7 @@ class HandlepropsTestCases(unittest.TestCase):
                 self.app.Replace.child_window(
                     title_re = "Replace.*",
                     class_name = "Button",
-                    enabled_only = False).handle))
+                    enabled = None).handle))
         self.app.Replace.Cancel.click()
 
     def test_clientrect(self):

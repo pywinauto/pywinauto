@@ -183,7 +183,12 @@ def find_elements(**kwargs):
 
         # look for ALL children of that parent
         # TODO: think about not passing **kwargs
-        elements = parent.descendants(cache_enable=True, depth=depth, **kwargs)
+        elements = parent.descendants(class_name=kwargs.get('class_name'),
+                                      title=kwargs.get('name'),
+                                      control_type=kwargs.get('control_type'),
+                                      process=kwargs.get('pid'),
+                                      cache_enable=True,
+                                      depth=depth)
 
     # if the ctrl_index has been specified then just return
     # that control
