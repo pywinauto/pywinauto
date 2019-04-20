@@ -1168,10 +1168,10 @@ class Application(object):
         if 'visible' not in kwargs:
             kwargs['visible'] = None
 
-        if 'enabled_only' not in kwargs:
+        if 'enabled' not in kwargs:
             kwargs['enabled'] = None
 
-        kwargs['process'] = self.process
+        kwargs['pid'] = self.process
         kwargs['backend'] = self.backend.name
 
         windows = findwindows.find_elements(**kwargs)
