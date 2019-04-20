@@ -138,6 +138,8 @@ def find_elements(**kwargs):
     depth = kwargs.pop('depth', None)
     best_match = kwargs.pop('best_match', None)
     predicate_func = kwargs.pop('predicate_func', None)
+    # TODO: eliminate found_index by find_all
+    found_index = kwargs.pop('found_index', None)
 
     if backend is None:
         backend = registry.active_backend.name
@@ -169,7 +171,11 @@ def find_elements(**kwargs):
         # find the top level elements
         element = backend_obj.element_info_class()
         # TODO: think about not passing **kwargs
-        elements = element.children(cache_enable=True, **kwargs)
+        elements = element.children(class_name=kwargs.get('class_name'),
+                                    title=kwargs.get('name'),
+                                    control_type=kwargs.get('control_type'),
+                                    process=kwargs.get('pid'),
+                                    cache_enable=True)
 
         # if we have been given a parent
         if parent:
@@ -239,6 +245,12 @@ def find_elements(**kwargs):
 
     if predicate_func is not None:
         elements = [elem for elem in elements if predicate_func(elem)]
+
+    # TODO: add check for IndexError
+    if found_index is not None:
+        if found_index >= len(elements):
+            return []
+        elements = [elements[found_index]]
 
     return elements
 
