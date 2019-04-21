@@ -37,6 +37,7 @@ import six
 
 
 class _Singleton(type):
+
     """
     Singleton metaclass implementation from StackOverflow
 
@@ -53,6 +54,7 @@ class _Singleton(type):
 
 @six.add_metaclass(_Singleton)
 class IUIA(object):
+
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
 
     def __init__(self):
