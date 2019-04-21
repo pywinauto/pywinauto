@@ -100,7 +100,7 @@ class AtspiWrapper(BaseWrapper):
         is raised.
         """
         BaseWrapper.__init__(self, element_info, backend.registry.backends['atspi'])
-        self.state_set = AtspiStateSet(AtspiAccessible.get_state_set(self.element_info.handle))
+        self.state_set = self.element_info.get_state_set()
 
     # ------------------------------------------------------------
     def __hash__(self):

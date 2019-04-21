@@ -447,7 +447,7 @@ class IATSPI(object):
             libraries = stdout[0]
             for lib in libraries.split("\n"):
                 if cls.LIB in lib:
-                    return lib.split()[0]
+                    return lib.split()[3]
 
         except FileNotFoundError:
             # ldconfig not installed will use default lib name
@@ -455,6 +455,7 @@ class IATSPI(object):
 
     def __init__(self):
         try:
+            print(self.__find_library())
             self.atspi = ctypes.cdll.LoadLibrary(self.__find_library())
 
         except Exception:
@@ -467,7 +468,7 @@ class IATSPI(object):
         elif hasattr(self.atspi, func_name):
             return getattr(self.atspi, func_name)
         else:
-            # TODO raise warning or add version check
+            print("Warning! method: {} not found in libatspi.".format(func_name))
             return None
 
 
@@ -557,7 +558,7 @@ class AtspiComponent(object):
 
     _get_layer = IATSPI().get_iface_func("atspi_component_get_layer")
     _get_layer.argtypes = [POINTER(_AtspiComponent), POINTER(POINTER(_GError))]
-    _get_layer.restype = _AtspiComponentLayer
+    _get_layer.restype = c_int
 
     _get_mdi_z_order = IATSPI().get_iface_func("atspi_component_get_mdi_z_order")
     _get_mdi_z_order.argtypes = [POINTER(_AtspiComponent), POINTER(POINTER(_GError))]
@@ -611,7 +612,6 @@ class AtspiComponent(object):
             raise ValueError('Wrong coord_type "{}".'.format(coord_type))
         error = _GError()
         pp = POINTER(POINTER(_GError))(error)
-        # TODO segfault find root cause
         self._grab_focus(self._pointer, pp)
 
     def get_rectangle(self, coord_type="window"):
@@ -621,6 +621,16 @@ class AtspiComponent(object):
         pp = POINTER(POINTER(_GError))(error)
         prect = self._get_rectangle(self._pointer, 0 if coord_type == "screen" else 1, pp)
         return RECT(prect.contents)
+
+    def get_layer(self):
+        error = _GError()
+        pp = POINTER(POINTER(_GError))(error)
+        return self._get_layer(self._pointer, pp)
+
+    def get_mdi_x_order(self):
+        error = _GError()
+        pp = POINTER(POINTER(_GError))(error)
+        return self._get_layer(self._pointer, pp)
 
 
 class AtspiStateSet(object):
@@ -661,14 +671,6 @@ class AtspiStateSet(object):
         self._pointer = pointer
 
     def get_states(self):
-        states = self._get_states(self._pointer)
-        a = states.contents
-        print(a.data[0:a.len])
-
-        self.set_by_name(b"active", 0)
-        self.set_by_name(b"enabled", 0)
-        self.set_by_name(b"focused", 1)
-
         states = self._get_states(self._pointer)
         a = states.contents
         print(a.data[0:a.len])

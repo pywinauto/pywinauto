@@ -105,14 +105,13 @@ if sys.platform != 'win32':
             version = self.app_info.atspi_version()
             self.assertTrue(version in ["2.0", "2.1"], msg="Unexpected AT-SPI version: {}".format(version))
 
-        @unittest.skip("skip for now")
         def test_can_get_rectangle(self):
             app_info = self.get_app(app_name)
-            rectangle = app_info.children()[0].children()[0].rectangle
-            width = int(self.app.stdout.readline().decode(encoding='UTF-8'))
-            height = int(self.app.stdout.readline().decode(encoding='UTF-8'))
-            self.assertEqual(rectangle.width(), width)
-            self.assertEqual(rectangle.height(), height)
+            frame = app_info.children()[0]
+            filler = frame.children()[0]
+            rectangle = filler.rectangle
+            self.assertEqual(rectangle.width(), 600)
+            self.assertEqual(rectangle.height(), 200)
 
         def test_can_compare_applications(self):
             app_info = self.get_app(app_name)
@@ -123,6 +122,15 @@ if sys.platform != 'win32':
             desktop = AtspiElementInfo()
             desktop1 = AtspiElementInfo()
             assert desktop == desktop1
+
+        def test_can_get_layer(self):
+            self.assertEqual(self.desktop_info.get_layer(), 3)
+
+        def test_can_get_state_set(self):
+            app_info = self.app_info.children()[0]
+            app_info1 = self.app_info.children()[0].children()[0]
+            print(app_info.get_state_set().get_states())
+            print(app_info1.get_state_set().get_states())
 
 
 if __name__ == "__main__":
