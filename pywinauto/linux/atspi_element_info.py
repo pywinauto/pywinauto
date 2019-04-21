@@ -1,4 +1,5 @@
-from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, known_control_types, AtspiComponent
+from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, known_control_types, AtspiComponent, \
+    AtspiStateSet
 from ..element_info import ElementInfo
 
 
@@ -37,7 +38,7 @@ class AtspiElementInfo(ElementInfo):
     @property
     def control_id(self):
         """Return the ID of the window"""
-        return self.atspi_accessible.get_id(self._handle, None)
+        return self.atspi_accessible.get_role(self._handle, None)
 
     @property
     def process_id(self):
@@ -99,7 +100,25 @@ class AtspiElementInfo(ElementInfo):
     def atspi_version(self):
         return self.atspi_accessible.get_atspi_version(self._handle, None).decode(encoding='UTF-8')
 
+    def get_layer(self):
+        """Return rectangle of element"""
+        if self.control_type == "Application":
+            return self.children()[0].get_layer()
+        return self.component.get_layer()
+
+    def get_order(self):
+        if self.control_type == "Application":
+            return self.children()[0].get_order()
+        return self.component.get_mdi_x_order()
+
+    def get_state_set(self):
+        return AtspiStateSet(self.atspi_accessible.get_state_set(self.handle))
+
     @property
     def rectangle(self):
         """Return rectangle of element"""
+        if self.control_type == "Application":
+            # Application object have`t rectangle. It`s just a fake container which contain base application
+            # info such as process ID, window name etc. Will return application frame rectangle
+            return self.children()[0].rectangle
         return self.component.get_rectangle(coord_type="screen")
