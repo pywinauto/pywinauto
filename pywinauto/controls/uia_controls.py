@@ -960,18 +960,18 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         return item
 
     # -----------------------------------------------------------
-    @staticmethod
-    def _activate(item):
+    def _activate(self, item, is_last):
         """Activate the specified item"""
         if not item.is_active():
             item.set_focus()
         try:
             item.expand()
         except(NoPatternInterfaceError):
-            pass
+            if self.element_info.framework_id == 'WinForm' and not is_last:
+                item.select()
 
     # -----------------------------------------------------------
-    def _sub_item_by_text(self, menu, name, exact):
+    def _sub_item_by_text(self, menu, name, exact, is_last):
         """Find a menu sub-item by the specified text"""
         sub_item = None
         items = menu.items()
@@ -987,18 +987,18 @@ class MenuWrapper(uiawrapper.UIAWrapper):
                     texts.append(i.window_text())
                 sub_item = findbestmatch.find_best_match(name, texts, items)
 
-        self._activate(sub_item)
+        self._activate(sub_item, is_last)
 
         return sub_item
 
     # -----------------------------------------------------------
-    def _sub_item_by_idx(self, menu, idx):
+    def _sub_item_by_idx(self, menu, idx, is_last):
         """Find a menu sub-item by the specified index"""
         sub_item = None
         items = menu.items()
         if items:
             sub_item = items[idx]
-        self._activate(sub_item)
+        self._activate(sub_item, is_last)
         return sub_item
 
     # -----------------------------------------------------------
@@ -1011,35 +1011,39 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         Note: $ - specifier is not supported
         """
         # Get the path parts
-        part0, parts = path.split("->", 1)
-        part0 = part0.strip()
-        if len(part0) == 0:
+        menu_items = [p.strip() for p in path.split("->")]
+        items_cnt = len(menu_items)
+        if items_cnt == 0:
             raise IndexError()
+        for item in menu_items:
+            if not item:
+                raise IndexError("Empty item name between '->' separators")
+
+        def next_level_menu(parent_menu, item_name, is_last):
+            if item_name.startswith("#"):
+                return self._sub_item_by_idx(parent_menu, int(item_name[1:]), is_last)
+            else:
+                return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
 
         # Find a top level menu item and select it. After selecting this item
         # a new Menu control is created and placed on the dialog. It can be
         # a direct child or a descendant.
         # Sometimes we need to re-discover Menu again
         try:
-            menu = None
-            if part0.startswith("#"):
-                menu = self._sub_item_by_idx(self, int(part0[1:]))
-            else:
-                menu = self._sub_item_by_text(self, part0, exact)
+            menu = next_level_menu(self, menu_items[0], items_cnt == 1)
+            if items_cnt == 1:
+                return menu
 
             if not menu.items():
-                self._activate(menu)
+                self._activate(menu, False)
                 timings.wait_until(
                     timings.Timings.window_find_timeout,
                     timings.Timings.window_find_retry,
                     lambda: len(self.top_level_parent().descendants(control_type="Menu")) > 0)
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
 
-            for cur_part in [p.strip() for p in parts.split("->")]:
-                if cur_part.startswith("#"):
-                    menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
-                else:
-                    menu = self._sub_item_by_text(menu, cur_part, exact)
+            for i in range(1, items_cnt):
+                menu = next_level_menu(menu, menu_items[i], items_cnt == i + 1)
         except(AttributeError):
             raise IndexError()
 
