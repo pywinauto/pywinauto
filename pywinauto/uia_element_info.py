@@ -321,7 +321,10 @@ class UIAElementInfo(ElementInfo):
     @property
     def enabled(self):
         """Check if the element is enabled"""
-        return bool(self._element.CurrentIsEnabled)
+        try:
+            return bool(self._element.CurrentIsEnabled)
+        except COMError:
+            return False
 
     @property
     def rectangle(self):
