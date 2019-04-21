@@ -4524,9 +4524,9 @@ IMAGE_SCN_MEM_WRITE                  = 2147483648 # Variable c_uint
 IMAGE_RESOURCE_NAME_IS_STRING        = win32con.IMAGE_RESOURCE_NAME_IS_STRING # -2147483648
 IMAGE_ARCHIVE_START                  = win32con.IMAGE_ARCHIVE_START # !<arch>
 
-IMAGE_ARCHIVE_LINKER_MEMBER          = win32con.IMAGE_ARCHIVE_LINKER_MEMBER # /               
-IMAGE_ARCHIVE_LONGNAMES_MEMBER       = win32con.IMAGE_ARCHIVE_LONGNAMES_MEMBER # //              
-IMAGE_ARCHIVE_PAD                    = win32con.IMAGE_ARCHIVE_PAD # 
+IMAGE_ARCHIVE_LINKER_MEMBER          = win32con.IMAGE_ARCHIVE_LINKER_MEMBER # /
+IMAGE_ARCHIVE_LONGNAMES_MEMBER       = win32con.IMAGE_ARCHIVE_LONGNAMES_MEMBER # //
+IMAGE_ARCHIVE_PAD                    = win32con.IMAGE_ARCHIVE_PAD #
 
 IMAGE_ARCHIVE_END                    = win32con.IMAGE_ARCHIVE_END # `
 
@@ -6427,12 +6427,6 @@ MIIM_DATA       = win32con.MIIM_DATA # 32
 MIIM_STRING     = win32con.MIIM_STRING # 64
 MIIM_BITMAP     = win32con.MIIM_BITMAP # 128
 MIIM_FTYPE      = win32con.MIIM_FTYPE # 256
-MIIM_STATE      = win32con.MIIM_STATE # 1
-MIIM_ID         = win32con.MIIM_ID # 2
-MIIM_SUBMENU    = win32con.MIIM_SUBMENU # 4
-MIIM_CHECKMARKS = win32con.MIIM_CHECKMARKS # 8
-MIIM_TYPE       = win32con.MIIM_TYPE # 16
-MIIM_DATA       = win32con.MIIM_DATA # 32
 
 MIM_MAXHEIGHT       = win32con.MIM_MAXHEIGHT # 1
 MIM_BACKGROUND      = win32con.MIM_BACKGROUND # 2
@@ -7455,18 +7449,15 @@ PBM_SETMARQUEE  = 0x040A # Windows XP ~
 PBM_GETSTEP     = 0x040D # Windows Vista ~
 PBM_GETBKCOLOR  = 0x040E
 PBM_GETBARCOLOR = 0x040F
-PBM_SETRANGE    = 0x0401
-PBM_SETPOS      = 0x0402
-PBM_SETRANGE32  = 0x0406 # Internet Explorer 3.0 ~
+PBM_SETRANGE    = 0x0401  # 1025, Variable c_int
+PBM_SETPOS      = 0x0402  # 1026, Variable c_int
+PBM_SETRANGE32  = 0x0406  # 1030, Variable c_int, Internet Explorer 3.0 ~
 PBM_SETSTATE    = 0x0410
 PBM_GETSTATE    = 0x0411
 PBM_SETBKCOLOR  = 0x2001
-PBM_SETRANGE    = 1025 # Variable c_int
-PBM_SETPOS      = 1026 # Variable c_int
 PBM_DELTAPOS    = 1027 # Variable c_int
 PBM_SETSTEP     = 1028 # Variable c_int
 PBM_STEPIT      = 1029 # Variable c_int
-PBM_SETRANGE32  = 1030 # Variable c_int
 PBM_GETRANGE    = 1031 # Variable c_int
 PBM_GETPOS      = 1032 # Variable c_int
 PBM_SETBARCOLOR = 1033 # Variable c_int

@@ -30,6 +30,10 @@ class ControlTreeNode(object):
                self.rect.right == other.rect.right and \
                self.depth == other.depth
 
+    def __ne__(self, other):
+        """Check if 2 nodes reference different controls"""
+        return not self.__eq__(other)
+
     def __hash__(self):
         """Return hash value based on element's dimensions"""
         width = self.rect.width()

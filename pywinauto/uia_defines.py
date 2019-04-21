@@ -78,8 +78,8 @@ class IUIA(object):
 
         # Collect all known control types
         self._control_types = self._get_attrs_ending_with('ControlTypeId')
-        self.known_control_types = {}  # string id: numeric id
-        self.known_control_type_ids = {}  # numeric id: string id
+        self.known_control_types = {'InvalidControlType': 0}  # string id: numeric id
+        self.known_control_type_ids = {0: 'InvalidControlType'}  # numeric id: string id
 
         for ctrl_type in self._control_types:
             type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
