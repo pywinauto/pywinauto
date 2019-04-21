@@ -72,7 +72,7 @@ class BaseRecorder(object):
         self.script += u"recorded_version = {}\n".format(repr(recorded_version))
         self.script += u"print('Recorded with pywinauto-{}'.format(recorded_version))\n"
         self.script += u"print('Running with pywinauto-{}'.format(pywinauto.__version__))\n\n"
-        self.script += u"app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
+        self.script += u"app = pywinauto.Application(backend='{}').start(r'{}')\n".format(app.backend.name, cmd)
 
     @synchronized_method
     def add_to_log(self, item):

@@ -17,6 +17,16 @@ class EventHandler(object):
     def get_item_name(self):
         return get_window_access_name_str(self.subtree[0].names.get_preferred_name(), self.key_only)
 
+    def get_sender_name(self, event_idx):
+        sender = self.subpattern.app_events[event_idx].sender
+        for node in self.subtree:
+            if node.wrapper.element_info == sender:
+                item_name = get_window_access_name_str(node.names.get_preferred_name(), self.key_only)
+                break
+        else:
+            item_name = self.get_item_name()
+        return item_name
+
     @abstractmethod
     def run(self):
         raise NotImplementedError()
@@ -40,13 +50,7 @@ class MenuClosedHandler(EventHandler):
 class ExpandCollapseHandler(EventHandler):
     def run(self):
         exp_coll_state = self.subpattern.app_events[0]
-        exp_coll_sender = exp_coll_state.sender
-        for node in self.subtree:
-            if node.wrapper.element_info == exp_coll_sender:
-                item_name = get_window_access_name_str(node.names.get_preferred_name(), self.key_only)
-                break
-        else:
-            item_name = self.get_item_name()
+        item_name = self.get_sender_name(0)
         script = u"app{}{}.{}\n".format(self.get_root_name(), item_name,
                                         "expand()" if exp_coll_state.new_value else "collapse()")
         return script
@@ -66,6 +70,21 @@ class SelectionChangedHandler(EventHandler):
         return u"app{}{}.select('{}')\n".format(
             self.get_root_name(), get_window_access_name_str(parent.names.get_preferred_name(), self.key_only),
             selected.names.text_names[0])
+
+
+class InvokeHandler(EventHandler):
+    def run(self):
+        return u"app{}{}.invoke()\n".format(self.get_root_name(), self.get_sender_name(0))
+
+
+class ToggleHandler(EventHandler):
+    def run(self):
+        return u"app{}{}.toggle()\n".format(self.get_root_name(), self.get_sender_name(0))
+
+
+class SelectHandler(EventHandler):
+    def run(self):
+        return u"app{}{}.select()\n".format(self.get_root_name(), self.get_sender_name(0))
 
 
 class MouseClickHandler(EventHandler):
