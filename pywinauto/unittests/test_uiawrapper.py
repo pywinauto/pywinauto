@@ -1255,6 +1255,43 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill()
 
+    class MenuBarTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the ListViewWrapper class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            # start the application
+            self.app = Application(backend='uia').start(winfoms_app_grid)
+            self.dlg = self.app.Dialog
+
+        def test_can_select_multiple_items(self):
+            """Test menu_select multimple items with action"""
+            table = self.dlg.Table
+            cells = table.cells()
+            self.assertEqual(len(table.cells()), 0)
+            self.dlg.menu_select('#0 -> #1 -> #1 -> #0 -> #0 -> #4 ->#0')
+            cells = table.cells()
+            self.assertEqual(len(cells), 1)
+            self.assertEqual(len(cells[0]), 1)
+
+        def test_can_select_top_menu(self):
+            """Test menu_select with single item"""
+            first_menu_item = self.dlg['menuStrip1'].children()[0]
+            point = first_menu_item.rectangle().mid_point()
+            child_from_point = self.dlg.from_point(point.x, point.y + 20)
+            self.assertEqual(child_from_point.element_info.name, 'Form1')
+            self.dlg.menu_select('tem1')
+            time.sleep(0.1)
+            child_from_point = self.dlg.from_point(point.x, point.y + 20)
+            self.assertEqual(child_from_point.element_info.name, 'tem1DropDown')
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
 
     class ComboBoxTestsWinForms(unittest.TestCase):
 
