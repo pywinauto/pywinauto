@@ -35,7 +35,10 @@ import ctypes
 from ctypes import wintypes
 from . import win32defines, win32structures
 from .actionlogger import ActionLogger
-from ctypes import c_uint, c_short, c_long
+from ctypes import c_uint
+from ctypes import c_short
+from ctypes import c_long
+from ctypes import WINFUNCTYPE
 
 import sys
 if sys.platform == "cygwin":
@@ -65,9 +68,20 @@ GetSystemMetrics.argtypes = (ctypes.c_int, )
 GetTextMetrics      =   ctypes.windll.gdi32.GetTextMetricsW
 
 
-EnumChildWindows	=	ctypes.windll.user32.EnumChildWindows
+EnumChildWindows = ctypes.windll.user32.EnumChildWindows
+EnumChildWindows.restype = wintypes.BOOL
+EnumChildWindows.argtypes = [
+    wintypes.HWND,
+    WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
+    wintypes.LPARAM,
+    ]
 EnumDesktopWindows	=	ctypes.windll.user32.EnumDesktopWindows
-EnumWindows			=	ctypes.windll.user32.EnumWindows
+EnumWindows	= ctypes.windll.user32.EnumWindows
+EnumWindows.restype = wintypes.BOOL
+EnumWindows.argtypes = [
+    WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
+    wintypes.LPARAM,
+    ]
 GetDC				=	ctypes.windll.user32.GetDC
 GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
 
