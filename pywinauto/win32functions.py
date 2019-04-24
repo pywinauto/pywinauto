@@ -63,8 +63,18 @@ CreateDC.argtypes = [
      wintypes.LPCWSTR,
      ctypes.c_void_p,
 ]
-CreateFontIndirect	=	ctypes.windll.gdi32.CreateFontIndirectW
-CreatePen			=	ctypes.windll.gdi32.CreatePen
+CreateFontIndirect = ctypes.windll.gdi32.CreateFontIndirectW
+CreateFontIndirect.restype = wintypes.HFONT
+CreateFontIndirect.argtypes = [
+    ctypes.POINTER(win32structures.LOGFONTW),
+]
+CreatePen = ctypes.windll.gdi32.CreatePen
+CreatePen.restype = wintypes.HPEN
+CreatePen.argtypes = [
+    ctypes.c_int,
+    ctypes.c_int,
+    wintypes.COLORREF,
+]
 DeleteDC 			=	ctypes.windll.gdi32.DeleteDC
 GetObject           =   ctypes.windll.gdi32.GetObjectW
 DeleteObject		=	ctypes.windll.gdi32.DeleteObject
