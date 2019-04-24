@@ -75,18 +75,36 @@ EnumChildWindows.argtypes = [
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
     ]
-EnumDesktopWindows	=	ctypes.windll.user32.EnumDesktopWindows
+EnumDesktopWindows = ctypes.windll.user32.EnumDesktopWindows
+EnumDesktopWindows.restype = wintypes.BOOL
+EnumDesktopWindows.argtypes = [
+    wintypes.LPVOID,
+    WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
+    wintypes.LPARAM,
+    ]
 EnumWindows	= ctypes.windll.user32.EnumWindows
 EnumWindows.restype = wintypes.BOOL
 EnumWindows.argtypes = [
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
     ]
-GetDC				=	ctypes.windll.user32.GetDC
-GetDesktopWindow	=	ctypes.windll.user32.GetDesktopWindow
+GetDC = ctypes.windll.user32.GetDC
+GetDC.restype = wintypes.LPVOID
+GetDC.argtypes = [
+     wintypes.HWND,
+    ]
+GetDesktopWindow = ctypes.windll.user32.GetDesktopWindow
+GetDesktopWindow.restype = wintypes.HWND
+GetDesktopWindow.argtypes = [
+    ]
 
-
-SendInput           =   ctypes.windll.user32.SendInput
+SendInput = ctypes.windll.user32.SendInput
+SendInput.restype = UINT
+SendInput.argtypes = [
+    UINT,
+    ctypes.c_void_p,  # using ctypes.POINTER(win32structures.INPUT) needs rework in keyboard.py
+    ctypes.c_int,
+    ]
 SetCursorPos        =   ctypes.windll.user32.SetCursorPos
 GetCursorPos        =   ctypes.windll.user32.GetCursorPos
 GetCaretPos         =   ctypes.windll.user32.GetCaretPos
