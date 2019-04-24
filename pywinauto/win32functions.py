@@ -51,11 +51,18 @@ SHORT = c_short
 
 
 CreateBrushIndirect = ctypes.windll.gdi32.CreateBrushIndirect
-CreateBrushIndirect.restype = ctypes.c_void_p
+CreateBrushIndirect.restype = wintypes.HBRUSH
 CreateBrushIndirect.argtypes = [
     ctypes.c_void_p,
 ]
-CreateDC			=	ctypes.windll.gdi32.CreateDCW
+CreateDC = ctypes.windll.gdi32.CreateDCW
+CreateDC.restype = wintypes.HDC
+CreateDC.argtypes = [
+     wintypes.LPCWSTR,
+     wintypes.LPCWSTR,
+     wintypes.LPCWSTR,
+     ctypes.c_void_p,
+]
 CreateFontIndirect	=	ctypes.windll.gdi32.CreateFontIndirectW
 CreatePen			=	ctypes.windll.gdi32.CreatePen
 DeleteDC 			=	ctypes.windll.gdi32.DeleteDC
