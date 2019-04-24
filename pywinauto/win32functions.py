@@ -50,7 +50,11 @@ UINT = c_uint
 SHORT = c_short
 
 
-CreateBrushIndirect	=	ctypes.windll.gdi32.CreateBrushIndirect
+CreateBrushIndirect = ctypes.windll.gdi32.CreateBrushIndirect
+CreateBrushIndirect.restype = ctypes.c_void_p
+CreateBrushIndirect.argtypes = [
+    ctypes.c_void_p,
+]
 CreateDC			=	ctypes.windll.gdi32.CreateDCW
 CreateFontIndirect	=	ctypes.windll.gdi32.CreateFontIndirectW
 CreatePen			=	ctypes.windll.gdi32.CreatePen
@@ -74,29 +78,29 @@ EnumChildWindows.argtypes = [
     wintypes.HWND,
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
-    ]
+]
 EnumDesktopWindows = ctypes.windll.user32.EnumDesktopWindows
 EnumDesktopWindows.restype = wintypes.BOOL
 EnumDesktopWindows.argtypes = [
     wintypes.LPVOID,
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
-    ]
+]
 EnumWindows	= ctypes.windll.user32.EnumWindows
 EnumWindows.restype = wintypes.BOOL
 EnumWindows.argtypes = [
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
-    ]
+]
 GetDC = ctypes.windll.user32.GetDC
 GetDC.restype = wintypes.LPVOID
 GetDC.argtypes = [
      wintypes.HWND,
-    ]
+]
 GetDesktopWindow = ctypes.windll.user32.GetDesktopWindow
 GetDesktopWindow.restype = wintypes.HWND
 GetDesktopWindow.argtypes = [
-    ]
+]
 
 SendInput = ctypes.windll.user32.SendInput
 SendInput.restype = UINT
@@ -104,7 +108,7 @@ SendInput.argtypes = [
     UINT,
     ctypes.c_void_p,  # using ctypes.POINTER(win32structures.INPUT) needs rework in keyboard.py
     ctypes.c_int,
-    ]
+]
 SetCursorPos        =   ctypes.windll.user32.SetCursorPos
 GetCursorPos        =   ctypes.windll.user32.GetCursorPos
 GetCaretPos         =   ctypes.windll.user32.GetCaretPos
@@ -176,7 +180,7 @@ OpenProcess.argtypes = [
     wintypes.DWORD,
     wintypes.BOOL,
     wintypes.DWORD,
-    ]
+]
 CloseHandle = ctypes.windll.kernel32.CloseHandle
 CloseHandle.restype = wintypes.BOOL
 CloseHandle.argtypes = [ wintypes.HANDLE ]
@@ -244,7 +248,7 @@ VirtualFreeEx.argtypes = [
     wintypes.LPVOID,
     ctypes.c_size_t,
     wintypes.DWORD,
-    ]
+]
 DebugBreakProcess	=	ctypes.windll.kernel32.DebugBreakProcess
 
 VirtualAlloc = ctypes.windll.kernel32.VirtualAlloc
