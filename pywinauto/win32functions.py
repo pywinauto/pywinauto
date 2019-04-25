@@ -35,7 +35,6 @@ import ctypes
 from ctypes import wintypes
 from . import win32defines, win32structures
 from .actionlogger import ActionLogger
-from ctypes import c_uint
 from ctypes import c_short
 from ctypes import c_long
 from ctypes import WINFUNCTYPE
@@ -46,7 +45,6 @@ if sys.platform == "cygwin":
     HRESULT = c_long
 
 
-UINT = c_uint
 SHORT = c_short
 
 
@@ -58,10 +56,10 @@ CreateBrushIndirect.argtypes = [
 CreateDC = ctypes.windll.gdi32.CreateDCW
 CreateDC.restype = wintypes.HDC
 CreateDC.argtypes = [
-     wintypes.LPCWSTR,
-     wintypes.LPCWSTR,
-     wintypes.LPCWSTR,
-     ctypes.c_void_p,
+    wintypes.LPCWSTR,
+    wintypes.LPCWSTR,
+    wintypes.LPCWSTR,
+    ctypes.c_void_p,
 ]
 CreateFontIndirect = ctypes.windll.gdi32.CreateFontIndirectW
 CreateFontIndirect.restype = wintypes.HFONT
@@ -75,13 +73,48 @@ CreatePen.argtypes = [
     ctypes.c_int,
     wintypes.COLORREF,
 ]
-DeleteDC 			=	ctypes.windll.gdi32.DeleteDC
-GetObject           =   ctypes.windll.gdi32.GetObjectW
-DeleteObject		=	ctypes.windll.gdi32.DeleteObject
-DrawText			=	ctypes.windll.user32.DrawTextW
+DeleteDC = ctypes.windll.gdi32.DeleteDC
+DeleteDC.restype = wintypes.BOOL
+DeleteDC.argtypes = [
+    wintypes.HDC,
+]
+GetObject = ctypes.windll.gdi32.GetObjectW
+GetObject.restype = ctypes.c_int
+GetObject.argtypes = [
+    wintypes.HANDLE,
+    ctypes.c_int,
+    wintypes.LPVOID,
+]
+DeleteObject = ctypes.windll.gdi32.DeleteObject
+DeleteObject.restype = wintypes.BOOL
+DeleteObject.argtypes = [
+    wintypes.HGDIOBJ,
+]
+DrawText = ctypes.windll.user32.DrawTextW
+DrawText.restype = ctypes.c_int
+DrawText.argtypes = [
+    wintypes.HDC,
+    wintypes.LPCWSTR,
+    ctypes.c_int,
+    ctypes.POINTER(win32structures.RECT),
+    wintypes.UINT,
+]
 TextOut 			=	ctypes.windll.gdi32.TextOutW
-Rectangle           =   ctypes.windll.gdi32.Rectangle
-SelectObject        =   ctypes.windll.gdi32.SelectObject
+Rectangle = ctypes.windll.gdi32.Rectangle
+Rectangle.restype = wintypes.BOOL
+Rectangle.argtypes = [
+    wintypes.HDC,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+]
+SelectObject = ctypes.windll.gdi32.SelectObject
+SelectObject.restype = wintypes.HGDIOBJ
+SelectObject.argtypes = [
+    wintypes.HDC,
+    wintypes.HGDIOBJ,
+]
 GetStockObject      =   ctypes.windll.gdi32.GetStockObject
 GetSystemMetrics    =   ctypes.windll.user32.GetSystemMetrics
 GetSystemMetrics.restype = ctypes.c_int
@@ -120,9 +153,9 @@ GetDesktopWindow.argtypes = [
 ]
 
 SendInput = ctypes.windll.user32.SendInput
-SendInput.restype = UINT
+SendInput.restype = wintypes.UINT
 SendInput.argtypes = [
-    UINT,
+    wintypes.UINT,
     ctypes.c_void_p,  # using ctypes.POINTER(win32structures.INPUT) needs rework in keyboard.py
     ctypes.c_int,
 ]
@@ -232,7 +265,7 @@ SendMessageA		=	ctypes.windll.user32.SendMessageA
 PostMessage			=	ctypes.windll.user32.PostMessageW
 GetMessage          =   ctypes.windll.user32.GetMessageW
 RegisterWindowMessage = ctypes.windll.user32.RegisterWindowMessageW
-RegisterWindowMessage.restype = UINT
+RegisterWindowMessage.restype = wintypes.UINT
 
 MoveWindow          =   ctypes.windll.user32.MoveWindow
 EnableWindow        =   ctypes.windll.user32.EnableWindow
