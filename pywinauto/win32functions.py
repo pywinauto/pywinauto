@@ -99,7 +99,15 @@ DrawText.argtypes = [
     ctypes.POINTER(win32structures.RECT),
     wintypes.UINT,
 ]
-TextOut 			=	ctypes.windll.gdi32.TextOutW
+TextOut = ctypes.windll.gdi32.TextOutW
+TextOut.restype = wintypes.BOOL
+TextOut.argtypes = [
+    wintypes.HDC,
+    ctypes.c_int,
+    ctypes.c_int,
+    wintypes.LPCWSTR,
+    ctypes.c_int,
+]
 Rectangle = ctypes.windll.gdi32.Rectangle
 Rectangle.restype = wintypes.BOOL
 Rectangle.argtypes = [
@@ -115,7 +123,11 @@ SelectObject.argtypes = [
     wintypes.HDC,
     wintypes.HGDIOBJ,
 ]
-GetStockObject      =   ctypes.windll.gdi32.GetStockObject
+GetStockObject = ctypes.windll.gdi32.GetStockObject
+GetStockObject.restype = wintypes.HGDIOBJ
+GetStockObject.argtypes = [
+    ctypes.c_int,
+]
 GetSystemMetrics    =   ctypes.windll.user32.GetSystemMetrics
 GetSystemMetrics.restype = ctypes.c_int
 GetSystemMetrics.argtypes = (ctypes.c_int, )
@@ -136,7 +148,7 @@ EnumDesktopWindows.argtypes = [
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
 ]
-EnumWindows	= ctypes.windll.user32.EnumWindows
+EnumWindows = ctypes.windll.user32.EnumWindows
 EnumWindows.restype = wintypes.BOOL
 EnumWindows.argtypes = [
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
