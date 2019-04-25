@@ -128,12 +128,17 @@ GetStockObject.restype = wintypes.HGDIOBJ
 GetStockObject.argtypes = [
     ctypes.c_int,
 ]
-GetSystemMetrics    =   ctypes.windll.user32.GetSystemMetrics
+GetSystemMetrics = ctypes.windll.user32.GetSystemMetrics
 GetSystemMetrics.restype = ctypes.c_int
-GetSystemMetrics.argtypes = (ctypes.c_int, )
-GetTextMetrics      =   ctypes.windll.gdi32.GetTextMetricsW
-
-
+GetSystemMetrics.argtypes = [
+    ctypes.c_int,
+]
+GetTextMetrics = ctypes.windll.gdi32.GetTextMetricsW
+GetTextMetrics.restype = wintypes.BOOL
+GetTextMetrics.argtypes = [
+    wintypes.HDC,
+    ctypes.POINTER(win32structures.TEXTMETRICW),
+]
 EnumChildWindows = ctypes.windll.user32.EnumChildWindows
 EnumChildWindows.restype = wintypes.BOOL
 EnumChildWindows.argtypes = [
@@ -157,13 +162,12 @@ EnumWindows.argtypes = [
 GetDC = ctypes.windll.user32.GetDC
 GetDC.restype = wintypes.LPVOID
 GetDC.argtypes = [
-     wintypes.HWND,
+    wintypes.HWND,
 ]
 GetDesktopWindow = ctypes.windll.user32.GetDesktopWindow
 GetDesktopWindow.restype = wintypes.HWND
 GetDesktopWindow.argtypes = [
 ]
-
 SendInput = ctypes.windll.user32.SendInput
 SendInput.restype = wintypes.UINT
 SendInput.argtypes = [
@@ -171,9 +175,22 @@ SendInput.argtypes = [
     ctypes.c_void_p,  # using ctypes.POINTER(win32structures.INPUT) needs rework in keyboard.py
     ctypes.c_int,
 ]
-SetCursorPos        =   ctypes.windll.user32.SetCursorPos
-GetCursorPos        =   ctypes.windll.user32.GetCursorPos
-GetCaretPos         =   ctypes.windll.user32.GetCaretPos
+SetCursorPos = ctypes.windll.user32.SetCursorPos
+SetCursorPos.restype = wintypes.BOOL
+SetCursorPos.argtypes = [
+    ctypes.c_int,
+    ctypes.c_int,
+]
+GetCursorPos = ctypes.windll.user32.GetCursorPos
+GetCursorPos.restype = wintypes.BOOL
+GetCursorPos.argtypes = [
+    ctypes.POINTER(win32structures.POINT),
+]
+GetCaretPos = ctypes.windll.user32.GetCaretPos
+GetCaretPos.restype = wintypes.BOOL
+GetCaretPos.argtypes = [
+    ctypes.POINTER(win32structures.POINT),
+]
 
 # menu functions
 DrawMenuBar			=	ctypes.windll.user32.DrawMenuBar
