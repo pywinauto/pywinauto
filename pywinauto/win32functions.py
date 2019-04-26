@@ -253,12 +253,45 @@ CheckMenuItem.argtypes = [
     wintypes.UINT,
     wintypes.UINT,
 ]
-GetMenuState		=	ctypes.windll.user32.GetMenuState
-GetSubMenu	        =	ctypes.windll.user32.GetSubMenu
-GetSystemMenu		=	ctypes.windll.user32.GetSystemMenu
-HiliteMenuItem		=	ctypes.windll.user32.HiliteMenuItem
-IsMenu				=	ctypes.windll.user32.IsMenu
-MenuItemFromPoint	=	ctypes.windll.user32.MenuItemFromPoint
+GetMenuState = ctypes.windll.user32.GetMenuState
+GetMenuState.restype = wintypes.UINT
+GetMenuState.argtypes = [
+    wintypes.HMENU,
+    wintypes.UINT,
+    wintypes.UINT,
+]
+GetSubMenu = ctypes.windll.user32.GetSubMenu
+GetSubMenu.restype = wintypes.HMENU
+GetSubMenu.argtypes = [
+    wintypes.HMENU,
+    ctypes.c_int,
+]
+GetSystemMenu = ctypes.windll.user32.GetSystemMenu
+GetSystemMenu.restype = wintypes.HMENU
+GetSystemMenu.argtypes = [
+    wintypes.HWND,
+    wintypes.BOOL,
+]
+HiliteMenuItem = ctypes.windll.user32.HiliteMenuItem
+HiliteMenuItem.restype = wintypes.BOOL
+HiliteMenuItem.argtypes = [
+    wintypes.HWND,
+    wintypes.HMENU,
+    wintypes.UINT,
+    wintypes.UINT,
+]
+IsMenu = ctypes.windll.user32.IsMenu
+IsMenu.restype = wintypes.BOOL
+IsMenu.argtypes = [
+    wintypes.HMENU,
+]
+MenuItemFromPoint = ctypes.windll.user32.MenuItemFromPoint
+MenuItemFromPoint.restype = ctypes.c_int
+MenuItemFromPoint.argtypes = [
+    wintypes.HWND,
+    wintypes.HMENU,
+    ctypes.POINTER(win32structures.POINT),
+]
 
 BringWindowToTop    =   ctypes.windll.user32.BringWindowToTop
 
