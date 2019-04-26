@@ -298,14 +298,40 @@ BringWindowToTop.argtypes = [
     wintypes.HWND,
 ]
 
-GetParent			=	ctypes.windll.user32.GetParent
-GetWindow			=	ctypes.windll.user32.GetWindow
-ShowWindow			= 	ctypes.windll.user32.ShowWindow
-GetWindowContextHelpId =	ctypes.windll.user32.GetWindowContextHelpId
-GetWindowLong		=	ctypes.windll.user32.GetWindowLongW
-GetWindowLong.argtypes = [wintypes.HWND, ctypes.c_int]
+GetParent = ctypes.windll.user32.GetParent
+GetParent.restype = wintypes.HWND
+GetParent.argtypes = [
+    wintypes.HWND,
+]
+GetWindow = ctypes.windll.user32.GetWindow
+GetWindow.restype = wintypes.HWND
+GetWindow.argtypes = [
+    wintypes.HWND,
+    wintypes.UINT,
+]
+ShowWindow = ctypes.windll.user32.ShowWindow
+ShowWindow.restype = wintypes.BOOL
+ShowWindow.argtypes = [
+    wintypes.HWND,
+    ctypes.c_int,
+]
+GetWindowContextHelpId = ctypes.windll.user32.GetWindowContextHelpId
+GetWindowContextHelpId.restype = wintypes.DWORD
+GetWindowContextHelpId.argtypes = [
+    wintypes.HWND,
+]
+GetWindowLong = ctypes.windll.user32.GetWindowLongW
 GetWindowLong.restype = wintypes.LONG
-GetWindowPlacement  =   ctypes.windll.user32.GetWindowPlacement
+GetWindowLong.argtypes = [
+    wintypes.HWND,
+    ctypes.c_int,
+]
+GetWindowPlacement = ctypes.windll.user32.GetWindowPlacement
+GetWindowPlacement.restype = wintypes.BOOL
+GetWindowPlacement.argtypes = [
+    wintypes.HWND,
+    ctypes.POINTER(win32structures.WINDOWPLACEMENT),
+]
 GetWindowRect		=	ctypes.windll.user32.GetWindowRect
 GetWindowText		=	ctypes.windll.user32.GetWindowTextW
 GetWindowTextLength	=	ctypes.windll.user32.GetWindowTextLengthW
