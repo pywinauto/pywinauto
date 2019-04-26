@@ -230,9 +230,29 @@ GetMenuItemInfo.argtypes = [
     wintypes.BOOL,
     ctypes.POINTER(win32structures.MENUITEMINFOW),
 ]
-SetMenuItemInfo     =   ctypes.windll.user32.SetMenuItemInfoW
-GetMenuItemRect     =   ctypes.windll.user32.GetMenuItemRect
-CheckMenuItem		=	ctypes.windll.user32.CheckMenuItem
+SetMenuItemInfo = ctypes.windll.user32.SetMenuItemInfoW
+SetMenuItemInfo.restype = wintypes.BOOL
+SetMenuItemInfo.argtypes = [
+    wintypes.HMENU,
+    wintypes.UINT,
+    wintypes.BOOL,
+    ctypes.POINTER(win32structures.MENUITEMINFOW),
+]
+GetMenuItemRect = ctypes.windll.user32.GetMenuItemRect
+GetMenuItemRect.restype = wintypes.BOOL
+GetMenuItemRect.argtypes = [
+    wintypes.HWND,
+    wintypes.HMENU,
+    wintypes.UINT,
+    ctypes.POINTER(win32structures.RECT),
+]
+CheckMenuItem = ctypes.windll.user32.CheckMenuItem
+CheckMenuItem.restype = wintypes.DWORD
+CheckMenuItem.argtypes = [
+    wintypes.HMENU,
+    wintypes.UINT,
+    wintypes.UINT,
+]
 GetMenuState		=	ctypes.windll.user32.GetMenuState
 GetSubMenu	        =	ctypes.windll.user32.GetSubMenu
 GetSystemMenu		=	ctypes.windll.user32.GetSystemMenu
