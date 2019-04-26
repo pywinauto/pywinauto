@@ -209,7 +209,7 @@ GetMenuBarInfo.argtypes = [
     wintypes.HWND,
     wintypes.LONG,
     wintypes.LONG,
-    ctypes.POINTER(MENUBARINFO),
+    ctypes.POINTER(win32structures.MENUBARINFO),
 ]
 GetMenuInfo         =   ctypes.windll.user32.GetMenuInfo
 GetMenuItemCount	=	ctypes.windll.user32.GetMenuItemCount
