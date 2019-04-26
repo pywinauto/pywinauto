@@ -193,9 +193,24 @@ GetCaretPos.argtypes = [
 ]
 
 # menu functions
-DrawMenuBar			=	ctypes.windll.user32.DrawMenuBar
-GetMenu             =   ctypes.windll.user32.GetMenu
-GetMenuBarInfo		=	ctypes.windll.user32.GetMenuBarInfo
+DrawMenuBar = ctypes.windll.user32.DrawMenuBar
+DrawMenuBar.restype = wintypes.BOOL
+DrawMenuBar.argstype = [
+    wintypes.HWND,
+]
+GetMenu = ctypes.windll.user32.GetMenu
+GetMenu.restype = wintypes.HMENU
+GetMenu.argtypes = [
+    wintypes.HWND,
+]
+GetMenuBarInfo = ctypes.windll.user32.GetMenuBarInfo
+GetMenuBarInfo.restype = wintypes.BOOL
+GetMenuBarInfo.argtypes = [
+    wintypes.HWND,
+    wintypes.LONG,
+    wintypes.LONG,
+    ctypes.POINTER(MENUBARINFO),
+]
 GetMenuInfo         =   ctypes.windll.user32.GetMenuInfo
 GetMenuItemCount	=	ctypes.windll.user32.GetMenuItemCount
 GetMenuItemInfo		=	ctypes.windll.user32.GetMenuItemInfoW
