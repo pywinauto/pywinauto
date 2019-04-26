@@ -292,10 +292,11 @@ MenuItemFromPoint.argtypes = [
     wintypes.HMENU,
     ctypes.POINTER(win32structures.POINT),
 ]
-
-BringWindowToTop    =   ctypes.windll.user32.BringWindowToTop
-
-GetVersion          =   ctypes.windll.kernel32.GetVersion
+BringWindowToTop = ctypes.windll.user32.BringWindowToTop
+BringWindowToTop.restype = wintypes.BOOL
+BringWindowToTop.argtypes = [
+    wintypes.HWND,
+]
 
 GetParent			=	ctypes.windll.user32.GetParent
 GetWindow			=	ctypes.windll.user32.GetWindow
