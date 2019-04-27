@@ -493,7 +493,7 @@ class HwndWrapper(BaseWrapper):
         (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised. Consider using
         the method send_keystrokes for such input.
         """
-        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        input_locale_id = win32functions.GetKeyboardLayout(0)
         keys = keyboard.parse_keys(chars, with_spaces, with_tabs, with_newlines)
 
         for key in keys:
@@ -556,7 +556,7 @@ class HwndWrapper(BaseWrapper):
         keyboard_state_stack = [PBYTE256()]
         win32functions.GetKeyboardState(keyboard_state_stack[-1])
 
-        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        input_locale_id = win32functions.GetKeyboardLayout(0)
         context_code = 0
 
         keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs, with_newlines)
