@@ -555,16 +555,27 @@ SetFocus.restype = wintypes.HWND
 SetFocus.argtypes = [
     wintypes.HWND,
 ]
-SetForegroundWindow	=	ctypes.windll.user32.SetForegroundWindow
-GetForegroundWindow	=	ctypes.windll.user32.GetForegroundWindow
-SetWindowLong		=	ctypes.windll.user32.SetWindowLongW
+SetWindowLong = ctypes.windll.user32.SetWindowLongW
+SetWindowLong.restype = wintypes.LONG
+SetWindowLong.argtypes = [
+    wintypes.HWND,
+    ctypes.c_int,
+    wintypes.LONG,
+]
 try:
-    SetWindowLongPtr    =   ctypes.windll.user32.SetWindowLongPtrW
+    SetWindowLongPtr = ctypes.windll.user32.SetWindowLongPtrW
     SetWindowLongPtr.argtypes = [wintypes.HWND, ctypes.c_int, wintypes.LONG_PTR]
     SetWindowLongPtr.restype = wintypes.LONG_PTR
 except AttributeError:
     SetWindowLongPtr = SetWindowLong
-SystemParametersInfo =	ctypes.windll.user32.SystemParametersInfoW
+SystemParametersInfo = ctypes.windll.user32.SystemParametersInfoW
+SystemParametersInfo.restype = wintypes.UINT
+SystemParametersInfo.argtypes = [
+    wintypes.UINT,
+    wintypes.UINT,
+    wintypes.LPVOID,  # should map well to PVOID
+    wintypes.UINT,
+]
 VirtualAllocEx = ctypes.windll.kernel32.VirtualAllocEx
 VirtualAllocEx.restype = wintypes.LPVOID
 VirtualAllocEx.argtypes = [
@@ -574,7 +585,7 @@ VirtualAllocEx.argtypes = [
     wintypes.DWORD,
     wintypes.DWORD,
 ]
-VirtualFreeEx =	ctypes.windll.kernel32.VirtualFreeEx
+VirtualFreeEx = ctypes.windll.kernel32.VirtualFreeEx
 VirtualFreeEx.restype = wintypes.BOOL
 VirtualFreeEx.argtypes = [
     wintypes.HANDLE,
@@ -582,8 +593,6 @@ VirtualFreeEx.argtypes = [
     ctypes.c_size_t,
     wintypes.DWORD,
 ]
-DebugBreakProcess	=	ctypes.windll.kernel32.DebugBreakProcess
-
 VirtualAlloc = ctypes.windll.kernel32.VirtualAlloc
 VirtualAlloc.restype = wintypes.LPVOID
 VirtualAlloc.argtypes = [
@@ -608,11 +617,6 @@ WriteProcessMemory.argtypes = [
     ctypes.c_size_t,
     ctypes.POINTER(ctypes.c_size_t),
 ]
-
-GetActiveWindow		=	ctypes.windll.user32.GetActiveWindow
-GetLastActivePopup 	=	ctypes.windll.user32.GetLastActivePopup
-FindWindow			=	ctypes.windll.user32.FindWindowW
-GetTopWindow		=	ctypes.windll.user32.GetTopWindow
 
 SetCapture			=	ctypes.windll.user32.SetCapture
 ReleaseCapture		=	ctypes.windll.user32.ReleaseCapture
