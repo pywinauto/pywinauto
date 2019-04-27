@@ -521,10 +521,19 @@ PostMessage.argtypes = [
     wintypes.WPARAM,
     wintypes.LPARAM,
 ]
-GetMessage          =   ctypes.windll.user32.GetMessageW
+GetMessage = ctypes.windll.user32.GetMessageW
+GetMessage.restype = wintypes.BOOL
+GetMessage.argtypes = [
+    ctypes.POINTER(wintypes.MSG),
+    wintypes.HWND,
+    wintypes.UINT,
+    wintypes.UINT,
+]
 RegisterWindowMessage = ctypes.windll.user32.RegisterWindowMessageW
 RegisterWindowMessage.restype = wintypes.UINT
-
+RegisterWindowMessage.argtypes = [
+    wintypes.LPCWSTR,
+]
 MoveWindow          =   ctypes.windll.user32.MoveWindow
 EnableWindow        =   ctypes.windll.user32.EnableWindow
 SetActiveWindow		=	ctypes.windll.user32.SetActiveWindow
