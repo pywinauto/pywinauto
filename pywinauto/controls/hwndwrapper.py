@@ -506,7 +506,7 @@ class HwndWrapper(BaseWrapper):
 
             if unicode_char:
                 _, char = key_info[:2]
-                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF
+                vk = win32functions.VkKeyScanExW(chr(char), input_locale_id) & 0xFF
                 scan = keyboard.MapVirtualKey(vk, 0)
             else:
                 vk, scan = key_info[:2]
@@ -541,7 +541,6 @@ class HwndWrapper(BaseWrapper):
 
         .. _`type_keys`: pywinauto.base_wrapper.html#pywinauto.base_wrapper.BaseWrapper.type_keys
         """
-        user32 = ctypes.windll.User32
         PBYTE256 = ctypes.c_ubyte * 256
 
         win32gui.SendMessage(self.handle, win32con.WM_ACTIVATE,
