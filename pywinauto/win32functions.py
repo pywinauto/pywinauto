@@ -494,18 +494,33 @@ GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
 GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
-SendMessage			=	ctypes.windll.user32.SendMessageW
-SendMessage.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM,
-                        wintypes.LPVOID]
+SendMessage = ctypes.windll.user32.SendMessageW
 SendMessage.restype = wintypes.LPARAM
-
-SendMessageTimeout  =   ctypes.windll.user32.SendMessageTimeoutW
-SendMessageTimeout.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM,
-                               wintypes.LPARAM, wintypes.UINT, wintypes.UINT,
-                               win32structures.PDWORD_PTR]
+SendMessage.argtypes = [
+    wintypes.HWND,
+    wintypes.UINT,
+    wintypes.WPARAM,
+    wintypes.LPVOID,
+]
+SendMessageTimeout = ctypes.windll.user32.SendMessageTimeoutW
 SendMessageTimeout.restype = wintypes.LPARAM
-SendMessageA		=	ctypes.windll.user32.SendMessageA
-PostMessage			=	ctypes.windll.user32.PostMessageW
+SendMessageTimeout.argtypes = [
+    wintypes.HWND,
+    wintypes.UINT,
+    wintypes.WPARAM,
+    wintypes.LPARAM,
+    wintypes.UINT,
+    wintypes.UINT,
+    win32structures.PDWORD_PTR,
+]
+PostMessage	= ctypes.windll.user32.PostMessageW
+PostMessage.restype = wintypes.BOOL
+PostMessage.argtypes = [
+    wintypes.HWND,
+    wintypes.UINT,
+    wintypes.WPARAM,
+    wintypes.LPARAM,
+]
 GetMessage          =   ctypes.windll.user32.GetMessageW
 RegisterWindowMessage = ctypes.windll.user32.RegisterWindowMessageW
 RegisterWindowMessage.restype = wintypes.UINT

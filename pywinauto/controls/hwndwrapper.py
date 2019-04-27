@@ -602,7 +602,7 @@ class HwndWrapper(BaseWrapper):
                         0 << 31)
 
                     win32functions.SetKeyboardState(keyboard_state_stack[-1])
-                    win32api.PostMessage(self.handle, down_msg, vk, lparam)
+                    win32functions.PostMessage(self.handle, down_msg, vk, lparam)
                     if vk == keyboard.VK_MENU:
                         context_code = 1
 
@@ -620,7 +620,7 @@ class HwndWrapper(BaseWrapper):
                         1 << 30 |
                         1 << 31)
 
-                    win32api.PostMessage(self.handle, up_msg, vk, lparam)
+                    win32functions.PostMessage(self.handle, up_msg, vk, lparam)
                     win32functions.SetKeyboardState(keyboard_state_stack[-1])
 
                     if vk == keyboard.VK_MENU:
