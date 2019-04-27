@@ -76,7 +76,9 @@ class RemoteMemoryBlock(object):
 
         self._as_parameter_ = self.mem_address
 
-        _, process_id = win32process.GetWindowThreadProcessId(self.handle)
+        pid = wintypes.DWORD()
+        win32functions.GetWindowThreadProcessId(self.handle, byref(pid))
+        process_id = pid.value
         if not process_id:
             raise AccessDenied(
                 str(WinError()) + " Cannot get process ID from handle.")

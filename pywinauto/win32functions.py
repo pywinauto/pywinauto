@@ -191,7 +191,11 @@ GetCaretPos.restype = wintypes.BOOL
 GetCaretPos.argtypes = [
     ctypes.POINTER(win32structures.POINT),
 ]
-
+GetKeyboardState = ctypes.windll.user32.GetKeyboardState
+GetKeyboardState.restype = wintypes.BOOL
+GetKeyboardState.argtypes = [
+    ctypes.POINTER(ctypes.c_ubyte),
+]
 # menu functions
 DrawMenuBar = ctypes.windll.user32.DrawMenuBar
 DrawMenuBar.restype = wintypes.BOOL
@@ -332,31 +336,85 @@ GetWindowPlacement.argtypes = [
     wintypes.HWND,
     ctypes.POINTER(win32structures.WINDOWPLACEMENT),
 ]
-GetWindowRect		=	ctypes.windll.user32.GetWindowRect
-GetWindowText		=	ctypes.windll.user32.GetWindowTextW
-GetWindowTextLength	=	ctypes.windll.user32.GetWindowTextLengthW
-GetClassName        =   ctypes.windll.user32.GetClassNameW
-GetClassName.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+GetWindowRect = ctypes.windll.user32.GetWindowRect
+GetWindowRect.restype = wintypes.BOOL
+GetWindowRect.argtypes = [
+    wintypes.HWND,
+    ctypes.POINTER(win32structures.RECT),
+]
+GetWindowText = ctypes.windll.user32.GetWindowTextW
+GetWindowText.restype = ctypes.c_int
+GetWindowText.argtypes = [
+    wintypes.HWND,
+    wintypes.LPWSTR,
+    ctypes.c_int,
+]
+GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
+GetWindowTextLength.restype = ctypes.c_int
+GetWindowTextLength.argtypes = [
+    wintypes.HWND,
+]
+GetClassName = ctypes.windll.user32.GetClassNameW
 GetClassName.restype = ctypes.c_int
-GetClientRect       =   ctypes.windll.user32.GetClientRect
-IsChild				=	ctypes.windll.user32.IsChild
-IsWindow 			=	ctypes.windll.user32.IsWindow
-IsWindow.argtypes = [wintypes.HWND]
+GetClassName.argtypes = [
+    wintypes.HWND,
+    wintypes.LPWSTR,
+    ctypes.c_int
+]
+GetClientRect = ctypes.windll.user32.GetClientRect
+GetClientRect.restype = wintypes.BOOL
+GetClientRect.argtypes = [
+    wintypes.HWND,
+    ctypes.POINTER(win32structures.RECT),
+]
+IsChild = ctypes.windll.user32.IsChild
+IsChild.restype = wintypes.BOOL
+IsChild.argtypes = [
+    wintypes.HWND,
+    wintypes.HWND,
+]
+IsWindow = ctypes.windll.user32.IsWindow
 IsWindow.restype = wintypes.BOOL
-IsWindowUnicode		=	ctypes.windll.user32.IsWindowUnicode
-IsWindowUnicode.argtypes = [wintypes.HWND]
+IsWindow.argtypes = [
+    wintypes.HWND,
+]
+IsWindowUnicode = ctypes.windll.user32.IsWindowUnicode
 IsWindowUnicode.restype = wintypes.BOOL
-IsWindowVisible		=	ctypes.windll.user32.IsWindowVisible
-IsWindowVisible.argtypes = [wintypes.HWND]
+IsWindowUnicode.argtypes = [
+    wintypes.HWND,
+]
+IsWindowVisible = ctypes.windll.user32.IsWindowVisible
 IsWindowVisible.restype = wintypes.BOOL
-IsWindowEnabled		=	ctypes.windll.user32.IsWindowEnabled
-IsWindowEnabled.argtypes = [wintypes.HWND]
+IsWindowVisible.argtypes = [
+    wintypes.HWND,
+]
+IsWindowEnabled = ctypes.windll.user32.IsWindowEnabled
 IsWindowEnabled.restype = wintypes.BOOL
-ClientToScreen      =   ctypes.windll.user32.ClientToScreen
-ScreenToClient      =   ctypes.windll.user32.ScreenToClient
-
-GetCurrentThreadId  =   ctypes.windll.Kernel32.GetCurrentThreadId
-GetWindowThreadProcessId =  ctypes.windll.user32.GetWindowThreadProcessId
+IsWindowEnabled.argtypes = [
+    wintypes.HWND,
+]
+ClientToScreen = ctypes.windll.user32.ClientToScreen
+ClientToScreen.restype = wintypes.BOOL
+ClientToScreen.argtypes = [
+    wintypes.HWND,
+    ctypes.POINTER(win32structures.POINT),
+]
+ScreenToClient = ctypes.windll.user32.ScreenToClient
+ScreenToClient.restype = wintypes.BOOL
+ScreenToClient.argtypes = [
+    wintypes.HWND,
+    ctypes.POINTER(win32structures.POINT),
+]
+GetCurrentThreadId = ctypes.windll.kernel32.GetCurrentThreadId
+GetCurrentThreadId.restype = wintypes.DWORD
+GetCurrentThreadId.argtypes = [
+]
+GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
+GetWindowThreadProcessId.restype = wintypes.DWORD
+GetWindowThreadProcessId.argtypes = [
+    wintypes.HWND,
+    ctypes.POINTER(wintypes.DWORD),
+]
 GetGUIThreadInfo    =   ctypes.windll.user32.GetGUIThreadInfo
 AttachThreadInput   =   ctypes.windll.user32.AttachThreadInput
 AttachThreadInput.restype = wintypes.BOOL

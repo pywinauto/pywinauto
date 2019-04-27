@@ -546,15 +546,15 @@ class HwndWrapper(BaseWrapper):
 
         win32gui.SendMessage(self.handle, win32con.WM_ACTIVATE,
                              win32con.WA_ACTIVE, 0)
-        target_thread_id = user32.GetWindowThreadProcessId(self.handle, None)
-        current_thread_id = win32api.GetCurrentThreadId()
-        attach_success = user32.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
+        target_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
+        current_thread_id = win32functions.GetCurrentThreadId()
+        attach_success = win32functions.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
         if not attach_success:
             warnings.warn('Failed to attach app\'s thread to the current thread\'s message queue',
                           UserWarning, stacklevel=2)
 
         keyboard_state_stack = [PBYTE256()]
-        user32.GetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+        win32functions.GetKeyboardState(keyboard_state_stack[-1])
 
         input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
         context_code = 0
@@ -1256,7 +1256,7 @@ class HwndWrapper(BaseWrapper):
         """Return a handle to the active window within the process"""
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
+        window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
         ret = win32functions.GetGUIThreadInfo(
             window_thread_id,
             ctypes.byref(gui_info))
@@ -1278,7 +1278,7 @@ class HwndWrapper(BaseWrapper):
         """
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id, _ = win32process.GetWindowThreadProcessId(self.handle)
+        window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
         ret = win32functions.GetGUIThreadInfo(
             window_thread_id,
             ctypes.byref(gui_info))
@@ -1335,7 +1335,7 @@ class HwndWrapper(BaseWrapper):
 
     def has_keyboard_focus(self):
         """Check the keyboard focus on this control."""
-        control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
+        control_thread = win32functions.GetWindowThreadProcessId(self.handle, None)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
         focused = win32gui.GetFocus()
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
@@ -1346,7 +1346,7 @@ class HwndWrapper(BaseWrapper):
 
     def set_keyboard_focus(self):
         """Set the keyboard focus to this control."""
-        control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
+        control_thread = win32functions.GetWindowThreadProcessId(self.handle, None)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
         win32gui.SetFocus(self.handle)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
@@ -1602,12 +1602,13 @@ class DialogWrapper(HwndWrapper):
         #win32defines.SMTO_BLOCK)
 
         # get a handle we can wait on
-        _, pid = win32process.GetWindowThreadProcessId(int(self.handle))
+        pid = wintypes.DWORD
+        win32functions.GetWindowThreadProcessId(self.handle, ctypes.byref(pid))
         try:
             process_wait_handle = win32api.OpenProcess(
                 win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
                 0,
-                pid)
+                pid.value)
         except win32gui.error:
             return True # already closed
 
@@ -1723,7 +1724,7 @@ def _perform_click(
     # figure out the flags and pack coordinates
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
-    #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
+    #control_thread = win32functions.GetWindowThreadProcessId(ctrl, None)
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
     # TODO: check return value of AttachThreadInput properly
 

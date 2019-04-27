@@ -223,6 +223,8 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure processid() function works"""
         self.assertEqual(self.app.process, processid(self.dlghandle))
         self.assertEqual(self.app.process, processid(self.edit_handle))
+        self.assertEqual(0, processid(sys.maxsize))
+        self.assertEqual(0, processid(None))
 
     def test_children(self):
         """Make sure the children method returns correct result"""
