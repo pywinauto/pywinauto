@@ -1347,7 +1347,7 @@ class HwndWrapper(BaseWrapper):
         """Set the keyboard focus to this control."""
         control_thread = win32functions.GetWindowThreadProcessId(self.handle, None)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
-        win32gui.SetFocus(self.handle)
+        win32functions.SetFocus(self.handle)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
 
         win32functions.WaitGuiThreadIdle(self.handle)

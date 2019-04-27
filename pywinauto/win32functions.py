@@ -375,7 +375,7 @@ GetClassName.restype = ctypes.c_int
 GetClassName.argtypes = [
     wintypes.HWND,
     wintypes.LPWSTR,
-    ctypes.c_int
+    ctypes.c_int,
 ]
 GetClientRect = ctypes.windll.user32.GetClientRect
 GetClientRect.restype = wintypes.BOOL
@@ -513,7 +513,7 @@ SendMessageTimeout.argtypes = [
     wintypes.UINT,
     win32structures.PDWORD_PTR,
 ]
-PostMessage	= ctypes.windll.user32.PostMessageW
+PostMessage = ctypes.windll.user32.PostMessageW
 PostMessage.restype = wintypes.BOOL
 PostMessage.argtypes = [
     wintypes.HWND,
@@ -534,11 +534,27 @@ RegisterWindowMessage.restype = wintypes.UINT
 RegisterWindowMessage.argtypes = [
     wintypes.LPCWSTR,
 ]
-MoveWindow          =   ctypes.windll.user32.MoveWindow
-EnableWindow        =   ctypes.windll.user32.EnableWindow
-SetActiveWindow		=	ctypes.windll.user32.SetActiveWindow
-GetFocus			=	ctypes.windll.user32.GetFocus
-SetFocus			=	ctypes.windll.user32.SetFocus
+MoveWindow = ctypes.windll.user32.MoveWindow
+MoveWindow.restype = wintypes.BOOL
+MoveWindow.argtypes = [
+    wintypes.HWND,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    wintypes.BOOL,
+]
+EnableWindow = ctypes.windll.user32.EnableWindow
+EnableWindow.restype = wintypes.BOOL
+EnableWindow.argtypes = [
+    wintypes.HWND,
+    wintypes.BOOL,
+]
+SetFocus = ctypes.windll.user32.SetFocus
+SetFocus.restype = wintypes.HWND
+SetFocus.argtypes = [
+    wintypes.HWND,
+]
 SetForegroundWindow	=	ctypes.windll.user32.SetForegroundWindow
 GetForegroundWindow	=	ctypes.windll.user32.GetForegroundWindow
 SetWindowLong		=	ctypes.windll.user32.SetWindowLongW
