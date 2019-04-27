@@ -578,8 +578,8 @@ class HwndWrapper(BaseWrapper):
                 shift_state = 0
                 unicode_codepoint = flags & keyboard.KEYEVENTF_UNICODE != 0
                 if unicode_codepoint:
-                    char = scan
-                    vk_with_flags = user32.VkKeyScanExW(char, input_locale_id)
+                    char = chr(scan)
+                    vk_with_flags = win32functions.VkKeyScanExW(char, input_locale_id)
                     vk = vk_with_flags & 0xFF
                     shift_state = (vk_with_flags & 0xFF00) >> 8
                     scan = keyboard.MapVirtualKey(vk, 0)

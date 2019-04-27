@@ -196,6 +196,12 @@ GetKeyboardState.restype = wintypes.BOOL
 GetKeyboardState.argtypes = [
     ctypes.POINTER(ctypes.c_ubyte),
 ]
+VkKeyScanExW = ctypes.windll.user32.VkKeyScanExW
+VkKeyScanExW.restype = SHORT
+VkKeyScanExW.argtypes = [
+    wintypes.WCHAR,
+    wintypes.HKL,
+]
 # menu functions
 DrawMenuBar = ctypes.windll.user32.DrawMenuBar
 DrawMenuBar.restype = wintypes.BOOL
@@ -415,13 +421,19 @@ GetWindowThreadProcessId.argtypes = [
     wintypes.HWND,
     ctypes.POINTER(wintypes.DWORD),
 ]
-GetGUIThreadInfo    =   ctypes.windll.user32.GetGUIThreadInfo
-AttachThreadInput   =   ctypes.windll.user32.AttachThreadInput
+GetGUIThreadInfo = ctypes.windll.user32.GetGUIThreadInfo
+GetGUIThreadInfo.restype = wintypes.BOOL
+GetGUIThreadInfo.argtypes = [
+    wintypes.DWORD,
+    ctypes.POINTER(win32structures.GUITHREADINFO),
+]
+AttachThreadInput = ctypes.windll.user32.AttachThreadInput
 AttachThreadInput.restype = wintypes.BOOL
-AttachThreadInput.argtypes = [wintypes.DWORD, wintypes.DWORD, wintypes.BOOL]
-#GetWindowThreadProcessId    =   ctypes.windll.user32.GetWindowThreadProcessId
-GetLastError = ctypes.windll.kernel32.GetLastError
-
+AttachThreadInput.argtypes = [
+    wintypes.DWORD,
+    wintypes.DWORD,
+    wintypes.BOOL
+]
 OpenProcess = ctypes.windll.kernel32.OpenProcess
 OpenProcess.restype = wintypes.HANDLE
 OpenProcess.argtypes = [
@@ -431,11 +443,34 @@ OpenProcess.argtypes = [
 ]
 CloseHandle = ctypes.windll.kernel32.CloseHandle
 CloseHandle.restype = wintypes.BOOL
-CloseHandle.argtypes = [ wintypes.HANDLE ]
-CreateProcess       = ctypes.windll.kernel32.CreateProcessW
-TerminateProcess    = ctypes.windll.kernel32.TerminateProcess
-ExitProcess         = ctypes.windll.kernel32.ExitProcess
-
+CloseHandle.argtypes = [
+    wintypes.HANDLE,
+]
+CreateProcess = ctypes.windll.kernel32.CreateProcessW
+CreateProcess.restype = wintypes.BOOL
+CreateProcess.argtypes = [
+    wintypes.LPCWSTR,
+    wintypes.LPWSTR,
+    ctypes.POINTER(win32structures.SECURITY_ATTRIBUTES),
+    ctypes.POINTER(win32structures.SECURITY_ATTRIBUTES),
+    wintypes.BOOL,
+    wintypes.DWORD,
+    wintypes.LPVOID,
+    wintypes.LPCWSTR,
+    ctypes.POINTER(win32structures.STARTUPINFOW),
+    ctypes.POINTER(win32structures.PROCESS_INFORMATION),
+]
+TerminateProcess = ctypes.windll.kernel32.TerminateProcess
+TerminateProcess.restype = wintypes.BOOL
+TerminateProcess.argtypes = [
+    wintypes.HANDLE,
+    wintypes.UINT,
+]
+ExitProcess = ctypes.windll.kernel32.ExitProcess
+ExitProcess.restype = None
+ExitProcess.argtypes = [
+    wintypes.UINT,
+]
 ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
 ReadProcessMemory.restype = wintypes.BOOL
 ReadProcessMemory.argtypes = [
