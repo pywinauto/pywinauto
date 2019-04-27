@@ -602,7 +602,7 @@ class HwndWrapper(BaseWrapper):
                         context_code << 29 |
                         0 << 31)
 
-                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+                    win32functions.SetKeyboardState(keyboard_state_stack[-1])
                     win32api.PostMessage(self.handle, down_msg, vk, lparam)
                     if vk == keyboard.VK_MENU:
                         context_code = 1
@@ -622,7 +622,7 @@ class HwndWrapper(BaseWrapper):
                         1 << 31)
 
                     win32api.PostMessage(self.handle, up_msg, vk, lparam)
-                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+                    win32functions.SetKeyboardState(keyboard_state_stack[-1])
 
                     if vk == keyboard.VK_MENU:
                         context_code = 0
@@ -636,10 +636,10 @@ class HwndWrapper(BaseWrapper):
                               UserWarning, stacklevel=2)
             else:
                 warnings.warn(e.strerror, UserWarning, stacklevel=2)
-            user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[0]))
+            win32functions.SetKeyboardState(keyboard_state_stack[0])
 
         if attach_success:
-            user32.AttachThreadInput(target_thread_id, current_thread_id, False)
+            win32functions.AttachThreadInput(target_thread_id, current_thread_id, False)
 
     # -----------------------------------------------------------
     def send_message_timeout(

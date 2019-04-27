@@ -196,6 +196,11 @@ GetKeyboardState.restype = wintypes.BOOL
 GetKeyboardState.argtypes = [
     ctypes.POINTER(ctypes.c_ubyte),
 ]
+SetKeyboardState = ctypes.windll.user32.SetKeyboardState
+SetKeyboardState.restype = wintypes.BOOL
+SetKeyboardState.argtypes = [
+    ctypes.POINTER(ctypes.c_ubyte),
+]
 GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
 GetKeyboardLayout.restype = wintypes.HKL
 GetKeyboardLayout.argtypes = [
