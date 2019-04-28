@@ -31,268 +31,275 @@
 
 """Defines Windows(tm) functions"""
 
-import ctypes
+from ctypes import windll
 from ctypes import wintypes
 from . import win32defines, win32structures
 from .actionlogger import ActionLogger
 from ctypes import c_short
 from ctypes import c_long
 from ctypes import WINFUNCTYPE
+from ctypes import c_void_p
+from ctypes import c_int
+from ctypes import byref
+from ctypes import POINTER
+from ctypes import c_ubyte
+from ctypes import c_size_t
+from ctypes import cdll
 
 import sys
 if sys.platform == "cygwin":
-    windll = ctypes.cdll
+    cygdll = cdll
     HRESULT = c_long
 
 
 SHORT = c_short
 
 
-CreateBrushIndirect = ctypes.windll.gdi32.CreateBrushIndirect
+CreateBrushIndirect = windll.gdi32.CreateBrushIndirect
 CreateBrushIndirect.restype = wintypes.HBRUSH
 CreateBrushIndirect.argtypes = [
-    ctypes.c_void_p,
+    c_void_p,
 ]
-CreateDC = ctypes.windll.gdi32.CreateDCW
+CreateDC = windll.gdi32.CreateDCW
 CreateDC.restype = wintypes.HDC
 CreateDC.argtypes = [
     wintypes.LPCWSTR,
     wintypes.LPCWSTR,
     wintypes.LPCWSTR,
-    ctypes.c_void_p,
+    c_void_p,
 ]
-CreateFontIndirect = ctypes.windll.gdi32.CreateFontIndirectW
+CreateFontIndirect = windll.gdi32.CreateFontIndirectW
 CreateFontIndirect.restype = wintypes.HFONT
 CreateFontIndirect.argtypes = [
-    ctypes.POINTER(win32structures.LOGFONTW),
+    POINTER(win32structures.LOGFONTW),
 ]
-CreatePen = ctypes.windll.gdi32.CreatePen
+CreatePen = windll.gdi32.CreatePen
 CreatePen.restype = wintypes.HPEN
 CreatePen.argtypes = [
-    ctypes.c_int,
-    ctypes.c_int,
+    c_int,
+    c_int,
     wintypes.COLORREF,
 ]
-DeleteDC = ctypes.windll.gdi32.DeleteDC
+DeleteDC = windll.gdi32.DeleteDC
 DeleteDC.restype = wintypes.BOOL
 DeleteDC.argtypes = [
     wintypes.HDC,
 ]
-GetObject = ctypes.windll.gdi32.GetObjectW
-GetObject.restype = ctypes.c_int
+GetObject = windll.gdi32.GetObjectW
+GetObject.restype = c_int
 GetObject.argtypes = [
     wintypes.HANDLE,
-    ctypes.c_int,
+    c_int,
     wintypes.LPVOID,
 ]
-DeleteObject = ctypes.windll.gdi32.DeleteObject
+DeleteObject = windll.gdi32.DeleteObject
 DeleteObject.restype = wintypes.BOOL
 DeleteObject.argtypes = [
     wintypes.HGDIOBJ,
 ]
-DrawText = ctypes.windll.user32.DrawTextW
-DrawText.restype = ctypes.c_int
+DrawText = windll.user32.DrawTextW
+DrawText.restype = c_int
 DrawText.argtypes = [
     wintypes.HDC,
     wintypes.LPCWSTR,
-    ctypes.c_int,
-    ctypes.POINTER(win32structures.RECT),
+    c_int,
+    POINTER(win32structures.RECT),
     wintypes.UINT,
 ]
-TextOut = ctypes.windll.gdi32.TextOutW
+TextOut = windll.gdi32.TextOutW
 TextOut.restype = wintypes.BOOL
 TextOut.argtypes = [
     wintypes.HDC,
-    ctypes.c_int,
-    ctypes.c_int,
+    c_int,
+    c_int,
     wintypes.LPCWSTR,
-    ctypes.c_int,
+    c_int,
 ]
-Rectangle = ctypes.windll.gdi32.Rectangle
+Rectangle = windll.gdi32.Rectangle
 Rectangle.restype = wintypes.BOOL
 Rectangle.argtypes = [
     wintypes.HDC,
-    ctypes.c_int,
-    ctypes.c_int,
-    ctypes.c_int,
-    ctypes.c_int,
+    c_int,
+    c_int,
+    c_int,
+    c_int,
 ]
-SelectObject = ctypes.windll.gdi32.SelectObject
+SelectObject = windll.gdi32.SelectObject
 SelectObject.restype = wintypes.HGDIOBJ
 SelectObject.argtypes = [
     wintypes.HDC,
     wintypes.HGDIOBJ,
 ]
-GetStockObject = ctypes.windll.gdi32.GetStockObject
+GetStockObject = windll.gdi32.GetStockObject
 GetStockObject.restype = wintypes.HGDIOBJ
 GetStockObject.argtypes = [
-    ctypes.c_int,
+    c_int,
 ]
-GetSystemMetrics = ctypes.windll.user32.GetSystemMetrics
-GetSystemMetrics.restype = ctypes.c_int
+GetSystemMetrics = windll.user32.GetSystemMetrics
+GetSystemMetrics.restype = c_int
 GetSystemMetrics.argtypes = [
-    ctypes.c_int,
+    c_int,
 ]
-GetTextMetrics = ctypes.windll.gdi32.GetTextMetricsW
+GetTextMetrics = windll.gdi32.GetTextMetricsW
 GetTextMetrics.restype = wintypes.BOOL
 GetTextMetrics.argtypes = [
     wintypes.HDC,
-    ctypes.POINTER(win32structures.TEXTMETRICW),
+    POINTER(win32structures.TEXTMETRICW),
 ]
-EnumChildWindows = ctypes.windll.user32.EnumChildWindows
+EnumChildWindows = windll.user32.EnumChildWindows
 EnumChildWindows.restype = wintypes.BOOL
 EnumChildWindows.argtypes = [
     wintypes.HWND,
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
 ]
-EnumDesktopWindows = ctypes.windll.user32.EnumDesktopWindows
+EnumDesktopWindows = windll.user32.EnumDesktopWindows
 EnumDesktopWindows.restype = wintypes.BOOL
 EnumDesktopWindows.argtypes = [
     wintypes.LPVOID,
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
 ]
-EnumWindows = ctypes.windll.user32.EnumWindows
+EnumWindows = windll.user32.EnumWindows
 EnumWindows.restype = wintypes.BOOL
 EnumWindows.argtypes = [
     WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM),
     wintypes.LPARAM,
 ]
-GetDC = ctypes.windll.user32.GetDC
+GetDC = windll.user32.GetDC
 GetDC.restype = wintypes.LPVOID
 GetDC.argtypes = [
     wintypes.HWND,
 ]
-GetDesktopWindow = ctypes.windll.user32.GetDesktopWindow
+GetDesktopWindow = windll.user32.GetDesktopWindow
 GetDesktopWindow.restype = wintypes.HWND
 GetDesktopWindow.argtypes = [
 ]
-SendInput = ctypes.windll.user32.SendInput
+SendInput = windll.user32.SendInput
 SendInput.restype = wintypes.UINT
 SendInput.argtypes = [
     wintypes.UINT,
-    ctypes.c_void_p,  # using ctypes.POINTER(win32structures.INPUT) needs rework in keyboard.py
-    ctypes.c_int,
+    c_void_p,  # using POINTER(win32structures.INPUT) needs rework in keyboard.py
+    c_int,
 ]
-SetCursorPos = ctypes.windll.user32.SetCursorPos
+SetCursorPos = windll.user32.SetCursorPos
 SetCursorPos.restype = wintypes.BOOL
 SetCursorPos.argtypes = [
-    ctypes.c_int,
-    ctypes.c_int,
+    c_int,
+    c_int,
 ]
-GetCursorPos = ctypes.windll.user32.GetCursorPos
+GetCursorPos = windll.user32.GetCursorPos
 GetCursorPos.restype = wintypes.BOOL
 GetCursorPos.argtypes = [
-    ctypes.POINTER(win32structures.POINT),
+    POINTER(win32structures.POINT),
 ]
-GetCaretPos = ctypes.windll.user32.GetCaretPos
+GetCaretPos = windll.user32.GetCaretPos
 GetCaretPos.restype = wintypes.BOOL
 GetCaretPos.argtypes = [
-    ctypes.POINTER(win32structures.POINT),
+    POINTER(win32structures.POINT),
 ]
-GetKeyboardState = ctypes.windll.user32.GetKeyboardState
+GetKeyboardState = windll.user32.GetKeyboardState
 GetKeyboardState.restype = wintypes.BOOL
 GetKeyboardState.argtypes = [
-    ctypes.POINTER(ctypes.c_ubyte),
+    POINTER(c_ubyte),
 ]
-SetKeyboardState = ctypes.windll.user32.SetKeyboardState
+SetKeyboardState = windll.user32.SetKeyboardState
 SetKeyboardState.restype = wintypes.BOOL
 SetKeyboardState.argtypes = [
-    ctypes.POINTER(ctypes.c_ubyte),
+    POINTER(c_ubyte),
 ]
-GetKeyboardLayout = ctypes.windll.user32.GetKeyboardLayout
+GetKeyboardLayout = windll.user32.GetKeyboardLayout
 GetKeyboardLayout.restype = wintypes.HKL
 GetKeyboardLayout.argtypes = [
     wintypes.DWORD,
 ]
-VkKeyScanExW = ctypes.windll.user32.VkKeyScanExW
+VkKeyScanExW = windll.user32.VkKeyScanExW
 VkKeyScanExW.restype = SHORT
 VkKeyScanExW.argtypes = [
     wintypes.WCHAR,
     wintypes.HKL,
 ]
 # menu functions
-DrawMenuBar = ctypes.windll.user32.DrawMenuBar
+DrawMenuBar = windll.user32.DrawMenuBar
 DrawMenuBar.restype = wintypes.BOOL
 DrawMenuBar.argstype = [
     wintypes.HWND,
 ]
-GetMenu = ctypes.windll.user32.GetMenu
+GetMenu = windll.user32.GetMenu
 GetMenu.restype = wintypes.HMENU
 GetMenu.argtypes = [
     wintypes.HWND,
 ]
-GetMenuBarInfo = ctypes.windll.user32.GetMenuBarInfo
+GetMenuBarInfo = windll.user32.GetMenuBarInfo
 GetMenuBarInfo.restype = wintypes.BOOL
 GetMenuBarInfo.argtypes = [
     wintypes.HWND,
     wintypes.LONG,
     wintypes.LONG,
-    ctypes.POINTER(win32structures.MENUBARINFO),
+    POINTER(win32structures.MENUBARINFO),
 ]
-GetMenuInfo = ctypes.windll.user32.GetMenuInfo
+GetMenuInfo = windll.user32.GetMenuInfo
 GetMenuInfo.restype = wintypes.BOOL
 GetMenuInfo.argtypes = [
     wintypes.HWND,
-    ctypes.POINTER(win32structures.MENUINFO),
+    POINTER(win32structures.MENUINFO),
 ]
-GetMenuItemCount = ctypes.windll.user32.GetMenuItemCount
-GetMenuItemCount.restype = ctypes.c_int
+GetMenuItemCount = windll.user32.GetMenuItemCount
+GetMenuItemCount.restype = c_int
 GetMenuItemCount.argtypes = [
     wintypes.HMENU,
 ]
-GetMenuItemInfo = ctypes.windll.user32.GetMenuItemInfoW
+GetMenuItemInfo = windll.user32.GetMenuItemInfoW
 GetMenuItemInfo.restype = wintypes.BOOL
 GetMenuItemInfo.argtypes = [
     wintypes.HMENU,
     wintypes.UINT,
     wintypes.BOOL,
-    ctypes.POINTER(win32structures.MENUITEMINFOW),
+    POINTER(win32structures.MENUITEMINFOW),
 ]
-SetMenuItemInfo = ctypes.windll.user32.SetMenuItemInfoW
+SetMenuItemInfo = windll.user32.SetMenuItemInfoW
 SetMenuItemInfo.restype = wintypes.BOOL
 SetMenuItemInfo.argtypes = [
     wintypes.HMENU,
     wintypes.UINT,
     wintypes.BOOL,
-    ctypes.POINTER(win32structures.MENUITEMINFOW),
+    POINTER(win32structures.MENUITEMINFOW),
 ]
-GetMenuItemRect = ctypes.windll.user32.GetMenuItemRect
+GetMenuItemRect = windll.user32.GetMenuItemRect
 GetMenuItemRect.restype = wintypes.BOOL
 GetMenuItemRect.argtypes = [
     wintypes.HWND,
     wintypes.HMENU,
     wintypes.UINT,
-    ctypes.POINTER(win32structures.RECT),
+    POINTER(win32structures.RECT),
 ]
-CheckMenuItem = ctypes.windll.user32.CheckMenuItem
+CheckMenuItem = windll.user32.CheckMenuItem
 CheckMenuItem.restype = wintypes.DWORD
 CheckMenuItem.argtypes = [
     wintypes.HMENU,
     wintypes.UINT,
     wintypes.UINT,
 ]
-GetMenuState = ctypes.windll.user32.GetMenuState
+GetMenuState = windll.user32.GetMenuState
 GetMenuState.restype = wintypes.UINT
 GetMenuState.argtypes = [
     wintypes.HMENU,
     wintypes.UINT,
     wintypes.UINT,
 ]
-GetSubMenu = ctypes.windll.user32.GetSubMenu
+GetSubMenu = windll.user32.GetSubMenu
 GetSubMenu.restype = wintypes.HMENU
 GetSubMenu.argtypes = [
     wintypes.HMENU,
-    ctypes.c_int,
+    c_int,
 ]
-GetSystemMenu = ctypes.windll.user32.GetSystemMenu
+GetSystemMenu = windll.user32.GetSystemMenu
 GetSystemMenu.restype = wintypes.HMENU
 GetSystemMenu.argtypes = [
     wintypes.HWND,
     wintypes.BOOL,
 ]
-HiliteMenuItem = ctypes.windll.user32.HiliteMenuItem
+HiliteMenuItem = windll.user32.HiliteMenuItem
 HiliteMenuItem.restype = wintypes.BOOL
 HiliteMenuItem.argtypes = [
     wintypes.HWND,
@@ -300,201 +307,201 @@ HiliteMenuItem.argtypes = [
     wintypes.UINT,
     wintypes.UINT,
 ]
-IsMenu = ctypes.windll.user32.IsMenu
+IsMenu = windll.user32.IsMenu
 IsMenu.restype = wintypes.BOOL
 IsMenu.argtypes = [
     wintypes.HMENU,
 ]
-MenuItemFromPoint = ctypes.windll.user32.MenuItemFromPoint
-MenuItemFromPoint.restype = ctypes.c_int
+MenuItemFromPoint = windll.user32.MenuItemFromPoint
+MenuItemFromPoint.restype = c_int
 MenuItemFromPoint.argtypes = [
     wintypes.HWND,
     wintypes.HMENU,
-    ctypes.POINTER(win32structures.POINT),
+    POINTER(win32structures.POINT),
 ]
-BringWindowToTop = ctypes.windll.user32.BringWindowToTop
+BringWindowToTop = windll.user32.BringWindowToTop
 BringWindowToTop.restype = wintypes.BOOL
 BringWindowToTop.argtypes = [
     wintypes.HWND,
 ]
 
-GetParent = ctypes.windll.user32.GetParent
+GetParent = windll.user32.GetParent
 GetParent.restype = wintypes.HWND
 GetParent.argtypes = [
     wintypes.HWND,
 ]
-GetWindow = ctypes.windll.user32.GetWindow
+GetWindow = windll.user32.GetWindow
 GetWindow.restype = wintypes.HWND
 GetWindow.argtypes = [
     wintypes.HWND,
     wintypes.UINT,
 ]
-ShowWindow = ctypes.windll.user32.ShowWindow
+ShowWindow = windll.user32.ShowWindow
 ShowWindow.restype = wintypes.BOOL
 ShowWindow.argtypes = [
     wintypes.HWND,
-    ctypes.c_int,
+    c_int,
 ]
-GetWindowContextHelpId = ctypes.windll.user32.GetWindowContextHelpId
+GetWindowContextHelpId = windll.user32.GetWindowContextHelpId
 GetWindowContextHelpId.restype = wintypes.DWORD
 GetWindowContextHelpId.argtypes = [
     wintypes.HWND,
 ]
-GetWindowLong = ctypes.windll.user32.GetWindowLongW
+GetWindowLong = windll.user32.GetWindowLongW
 GetWindowLong.restype = wintypes.LONG
 GetWindowLong.argtypes = [
     wintypes.HWND,
-    ctypes.c_int,
+    c_int,
 ]
-GetWindowPlacement = ctypes.windll.user32.GetWindowPlacement
+GetWindowPlacement = windll.user32.GetWindowPlacement
 GetWindowPlacement.restype = wintypes.BOOL
 GetWindowPlacement.argtypes = [
     wintypes.HWND,
-    ctypes.POINTER(win32structures.WINDOWPLACEMENT),
+    POINTER(win32structures.WINDOWPLACEMENT),
 ]
-GetWindowRect = ctypes.windll.user32.GetWindowRect
+GetWindowRect = windll.user32.GetWindowRect
 GetWindowRect.restype = wintypes.BOOL
 GetWindowRect.argtypes = [
     wintypes.HWND,
-    ctypes.POINTER(win32structures.RECT),
+    POINTER(win32structures.RECT),
 ]
-GetWindowText = ctypes.windll.user32.GetWindowTextW
-GetWindowText.restype = ctypes.c_int
+GetWindowText = windll.user32.GetWindowTextW
+GetWindowText.restype = c_int
 GetWindowText.argtypes = [
     wintypes.HWND,
     wintypes.LPWSTR,
-    ctypes.c_int,
+    c_int,
 ]
-GetWindowTextLength = ctypes.windll.user32.GetWindowTextLengthW
-GetWindowTextLength.restype = ctypes.c_int
+GetWindowTextLength = windll.user32.GetWindowTextLengthW
+GetWindowTextLength.restype = c_int
 GetWindowTextLength.argtypes = [
     wintypes.HWND,
 ]
-GetClassName = ctypes.windll.user32.GetClassNameW
-GetClassName.restype = ctypes.c_int
+GetClassName = windll.user32.GetClassNameW
+GetClassName.restype = c_int
 GetClassName.argtypes = [
     wintypes.HWND,
     wintypes.LPWSTR,
-    ctypes.c_int,
+    c_int,
 ]
-GetClientRect = ctypes.windll.user32.GetClientRect
+GetClientRect = windll.user32.GetClientRect
 GetClientRect.restype = wintypes.BOOL
 GetClientRect.argtypes = [
     wintypes.HWND,
-    ctypes.POINTER(win32structures.RECT),
+    POINTER(win32structures.RECT),
 ]
-IsChild = ctypes.windll.user32.IsChild
+IsChild = windll.user32.IsChild
 IsChild.restype = wintypes.BOOL
 IsChild.argtypes = [
     wintypes.HWND,
     wintypes.HWND,
 ]
-IsWindow = ctypes.windll.user32.IsWindow
+IsWindow = windll.user32.IsWindow
 IsWindow.restype = wintypes.BOOL
 IsWindow.argtypes = [
     wintypes.HWND,
 ]
-IsWindowUnicode = ctypes.windll.user32.IsWindowUnicode
+IsWindowUnicode = windll.user32.IsWindowUnicode
 IsWindowUnicode.restype = wintypes.BOOL
 IsWindowUnicode.argtypes = [
     wintypes.HWND,
 ]
-IsWindowVisible = ctypes.windll.user32.IsWindowVisible
+IsWindowVisible = windll.user32.IsWindowVisible
 IsWindowVisible.restype = wintypes.BOOL
 IsWindowVisible.argtypes = [
     wintypes.HWND,
 ]
-IsWindowEnabled = ctypes.windll.user32.IsWindowEnabled
+IsWindowEnabled = windll.user32.IsWindowEnabled
 IsWindowEnabled.restype = wintypes.BOOL
 IsWindowEnabled.argtypes = [
     wintypes.HWND,
 ]
-ClientToScreen = ctypes.windll.user32.ClientToScreen
+ClientToScreen = windll.user32.ClientToScreen
 ClientToScreen.restype = wintypes.BOOL
 ClientToScreen.argtypes = [
     wintypes.HWND,
-    ctypes.POINTER(win32structures.POINT),
+    POINTER(win32structures.POINT),
 ]
-ScreenToClient = ctypes.windll.user32.ScreenToClient
+ScreenToClient = windll.user32.ScreenToClient
 ScreenToClient.restype = wintypes.BOOL
 ScreenToClient.argtypes = [
     wintypes.HWND,
-    ctypes.POINTER(win32structures.POINT),
+    POINTER(win32structures.POINT),
 ]
-GetCurrentThreadId = ctypes.windll.kernel32.GetCurrentThreadId
+GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
 GetCurrentThreadId.restype = wintypes.DWORD
 GetCurrentThreadId.argtypes = [
 ]
-GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
+GetWindowThreadProcessId = windll.user32.GetWindowThreadProcessId
 GetWindowThreadProcessId.restype = wintypes.DWORD
 GetWindowThreadProcessId.argtypes = [
     wintypes.HWND,
-    ctypes.POINTER(wintypes.DWORD),
+    POINTER(wintypes.DWORD),
 ]
-GetGUIThreadInfo = ctypes.windll.user32.GetGUIThreadInfo
+GetGUIThreadInfo = windll.user32.GetGUIThreadInfo
 GetGUIThreadInfo.restype = wintypes.BOOL
 GetGUIThreadInfo.argtypes = [
     wintypes.DWORD,
-    ctypes.POINTER(win32structures.GUITHREADINFO),
+    POINTER(win32structures.GUITHREADINFO),
 ]
-AttachThreadInput = ctypes.windll.user32.AttachThreadInput
+AttachThreadInput = windll.user32.AttachThreadInput
 AttachThreadInput.restype = wintypes.BOOL
 AttachThreadInput.argtypes = [
     wintypes.DWORD,
     wintypes.DWORD,
     wintypes.BOOL
 ]
-OpenProcess = ctypes.windll.kernel32.OpenProcess
+OpenProcess = windll.kernel32.OpenProcess
 OpenProcess.restype = wintypes.HANDLE
 OpenProcess.argtypes = [
     wintypes.DWORD,
     wintypes.BOOL,
     wintypes.DWORD,
 ]
-CloseHandle = ctypes.windll.kernel32.CloseHandle
+CloseHandle = windll.kernel32.CloseHandle
 CloseHandle.restype = wintypes.BOOL
 CloseHandle.argtypes = [
     wintypes.HANDLE,
 ]
-CreateProcess = ctypes.windll.kernel32.CreateProcessW
+CreateProcess = windll.kernel32.CreateProcessW
 CreateProcess.restype = wintypes.BOOL
 CreateProcess.argtypes = [
     wintypes.LPCWSTR,
     wintypes.LPWSTR,
-    ctypes.POINTER(win32structures.SECURITY_ATTRIBUTES),
-    ctypes.POINTER(win32structures.SECURITY_ATTRIBUTES),
+    POINTER(win32structures.SECURITY_ATTRIBUTES),
+    POINTER(win32structures.SECURITY_ATTRIBUTES),
     wintypes.BOOL,
     wintypes.DWORD,
     wintypes.LPVOID,
     wintypes.LPCWSTR,
-    ctypes.POINTER(win32structures.STARTUPINFOW),
-    ctypes.POINTER(win32structures.PROCESS_INFORMATION),
+    POINTER(win32structures.STARTUPINFOW),
+    POINTER(win32structures.PROCESS_INFORMATION),
 ]
-TerminateProcess = ctypes.windll.kernel32.TerminateProcess
+TerminateProcess = windll.kernel32.TerminateProcess
 TerminateProcess.restype = wintypes.BOOL
 TerminateProcess.argtypes = [
     wintypes.HANDLE,
     wintypes.UINT,
 ]
-ExitProcess = ctypes.windll.kernel32.ExitProcess
+ExitProcess = windll.kernel32.ExitProcess
 ExitProcess.restype = None
 ExitProcess.argtypes = [
     wintypes.UINT,
 ]
-ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
+ReadProcessMemory = windll.kernel32.ReadProcessMemory
 ReadProcessMemory.restype = wintypes.BOOL
 ReadProcessMemory.argtypes = [
     wintypes.HANDLE,
     wintypes.LPVOID,
     wintypes.LPVOID,
-    ctypes.c_size_t,
-    ctypes.POINTER(ctypes.c_size_t),
+    c_size_t,
+    POINTER(c_size_t),
 ]
-GlobalAlloc = ctypes.windll.kernel32.GlobalAlloc
-GlobalLock = ctypes.windll.kernel32.GlobalLock
-GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
+GlobalAlloc = windll.kernel32.GlobalAlloc
+GlobalLock = windll.kernel32.GlobalLock
+GlobalUnlock = windll.kernel32.GlobalUnlock
 
-SendMessage = ctypes.windll.user32.SendMessageW
+SendMessage = windll.user32.SendMessageW
 SendMessage.restype = wintypes.LPARAM
 SendMessage.argtypes = [
     wintypes.HWND,
@@ -502,7 +509,7 @@ SendMessage.argtypes = [
     wintypes.WPARAM,
     wintypes.LPVOID,
 ]
-SendMessageTimeout = ctypes.windll.user32.SendMessageTimeoutW
+SendMessageTimeout = windll.user32.SendMessageTimeoutW
 SendMessageTimeout.restype = wintypes.LPARAM
 SendMessageTimeout.argtypes = [
     wintypes.HWND,
@@ -513,7 +520,7 @@ SendMessageTimeout.argtypes = [
     wintypes.UINT,
     win32structures.PDWORD_PTR,
 ]
-PostMessage = ctypes.windll.user32.PostMessageW
+PostMessage = windll.user32.PostMessageW
 PostMessage.restype = wintypes.BOOL
 PostMessage.argtypes = [
     wintypes.HWND,
@@ -521,54 +528,54 @@ PostMessage.argtypes = [
     wintypes.WPARAM,
     wintypes.LPARAM,
 ]
-GetMessage = ctypes.windll.user32.GetMessageW
+GetMessage = windll.user32.GetMessageW
 GetMessage.restype = wintypes.BOOL
 GetMessage.argtypes = [
-    ctypes.POINTER(wintypes.MSG),
+    POINTER(wintypes.MSG),
     wintypes.HWND,
     wintypes.UINT,
     wintypes.UINT,
 ]
-RegisterWindowMessage = ctypes.windll.user32.RegisterWindowMessageW
+RegisterWindowMessage = windll.user32.RegisterWindowMessageW
 RegisterWindowMessage.restype = wintypes.UINT
 RegisterWindowMessage.argtypes = [
     wintypes.LPCWSTR,
 ]
-MoveWindow = ctypes.windll.user32.MoveWindow
+MoveWindow = windll.user32.MoveWindow
 MoveWindow.restype = wintypes.BOOL
 MoveWindow.argtypes = [
     wintypes.HWND,
-    ctypes.c_int,
-    ctypes.c_int,
-    ctypes.c_int,
-    ctypes.c_int,
+    c_int,
+    c_int,
+    c_int,
+    c_int,
     wintypes.BOOL,
 ]
-EnableWindow = ctypes.windll.user32.EnableWindow
+EnableWindow = windll.user32.EnableWindow
 EnableWindow.restype = wintypes.BOOL
 EnableWindow.argtypes = [
     wintypes.HWND,
     wintypes.BOOL,
 ]
-SetFocus = ctypes.windll.user32.SetFocus
+SetFocus = windll.user32.SetFocus
 SetFocus.restype = wintypes.HWND
 SetFocus.argtypes = [
     wintypes.HWND,
 ]
-SetWindowLong = ctypes.windll.user32.SetWindowLongW
+SetWindowLong = windll.user32.SetWindowLongW
 SetWindowLong.restype = wintypes.LONG
 SetWindowLong.argtypes = [
     wintypes.HWND,
-    ctypes.c_int,
+    c_int,
     wintypes.LONG,
 ]
 try:
-    SetWindowLongPtr = ctypes.windll.user32.SetWindowLongPtrW
-    SetWindowLongPtr.argtypes = [wintypes.HWND, ctypes.c_int, wintypes.LONG_PTR]
+    SetWindowLongPtr = windll.user32.SetWindowLongPtrW
+    SetWindowLongPtr.argtypes = [wintypes.HWND, c_int, wintypes.LONG_PTR]
     SetWindowLongPtr.restype = wintypes.LONG_PTR
 except AttributeError:
     SetWindowLongPtr = SetWindowLong
-SystemParametersInfo = ctypes.windll.user32.SystemParametersInfoW
+SystemParametersInfo = windll.user32.SystemParametersInfoW
 SystemParametersInfo.restype = wintypes.UINT
 SystemParametersInfo.argtypes = [
     wintypes.UINT,
@@ -576,74 +583,74 @@ SystemParametersInfo.argtypes = [
     wintypes.LPVOID,  # should map well to PVOID
     wintypes.UINT,
 ]
-VirtualAllocEx = ctypes.windll.kernel32.VirtualAllocEx
+VirtualAllocEx = windll.kernel32.VirtualAllocEx
 VirtualAllocEx.restype = wintypes.LPVOID
 VirtualAllocEx.argtypes = [
     wintypes.HANDLE,
     wintypes.LPVOID,
-    ctypes.c_size_t,
+    c_size_t,
     wintypes.DWORD,
     wintypes.DWORD,
 ]
-VirtualFreeEx = ctypes.windll.kernel32.VirtualFreeEx
+VirtualFreeEx = windll.kernel32.VirtualFreeEx
 VirtualFreeEx.restype = wintypes.BOOL
 VirtualFreeEx.argtypes = [
     wintypes.HANDLE,
     wintypes.LPVOID,
-    ctypes.c_size_t,
+    c_size_t,
     wintypes.DWORD,
 ]
-VirtualAlloc = ctypes.windll.kernel32.VirtualAlloc
+VirtualAlloc = windll.kernel32.VirtualAlloc
 VirtualAlloc.restype = wintypes.LPVOID
 VirtualAlloc.argtypes = [
     wintypes.LPVOID,
-    ctypes.c_size_t,
+    c_size_t,
     wintypes.DWORD,
     wintypes.DWORD,
 ]
-VirtualFree = ctypes.windll.kernel32.VirtualFree
+VirtualFree = windll.kernel32.VirtualFree
 VirtualFree.retype = wintypes.BOOL
 VirtualFree.argtypes = [
     wintypes.LPVOID,
-    ctypes.c_size_t,
+    c_size_t,
     wintypes.DWORD,
 ]
-WriteProcessMemory = ctypes.windll.kernel32.WriteProcessMemory
+WriteProcessMemory = windll.kernel32.WriteProcessMemory
 WriteProcessMemory.restype = wintypes.BOOL
 WriteProcessMemory.argtypes = [
     wintypes.HANDLE,
     wintypes.LPVOID,
     wintypes.LPVOID,
-    ctypes.c_size_t,
-    ctypes.POINTER(ctypes.c_size_t),
+    c_size_t,
+    POINTER(c_size_t),
 ]
-ReleaseCapture = ctypes.windll.user32.ReleaseCapture
+ReleaseCapture = windll.user32.ReleaseCapture
 ReleaseCapture.restype = wintypes.BOOL
 ReleaseCapture.argtypes = [
 ]
-WindowFromPoint = ctypes.windll.user32.WindowFromPoint
+WindowFromPoint = windll.user32.WindowFromPoint
 WindowFromPoint.restype = wintypes.HWND
 WindowFromPoint.argtypes = [
     win32structures.POINT,
 ]
-WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
+WaitForSingleObject = windll.kernel32.WaitForSingleObject
 WaitForSingleObject.restype = wintypes.DWORD
 WaitForSingleObject.argtypes = [
     wintypes.HANDLE,
     wintypes.DWORD,
 ]
-WaitForInputIdle = ctypes.windll.user32.WaitForInputIdle
+WaitForInputIdle = windll.user32.WaitForInputIdle
 WaitForInputIdle.restype = wintypes.DWORD
 WaitForInputIdle.argtypes = [
     wintypes.HANDLE,
     wintypes.DWORD,
 ]
-IsHungAppWindow = ctypes.windll.user32.IsHungAppWindow
+IsHungAppWindow = windll.user32.IsHungAppWindow
 IsHungAppWindow.restype = wintypes.BOOL
 IsHungAppWindow.argtypes = [
     wintypes.HWND,
 ]
-GetModuleFileNameEx = ctypes.windll.psapi.GetModuleFileNameExW
+GetModuleFileNameEx = windll.psapi.GetModuleFileNameExW
 GetModuleFileNameEx.restype = wintypes.DWORD
 GetModuleFileNameEx.argtypes = [
     wintypes.HANDLE,
@@ -651,45 +658,45 @@ GetModuleFileNameEx.argtypes = [
     wintypes.LPWSTR,
     wintypes.DWORD,
 ]
-GetClipboardData = ctypes.windll.user32.GetClipboardData
+GetClipboardData = windll.user32.GetClipboardData
 GetClipboardData.restype = wintypes.HANDLE
 GetClipboardData.argtypes = [
     wintypes.UINT,
 ]
-OpenClipboard = ctypes.windll.user32.OpenClipboard
+OpenClipboard = windll.user32.OpenClipboard
 OpenClipboard.restype = wintypes.BOOL
 OpenClipboard.argtypes = [
     wintypes.HWND,
 ]
-EmptyClipboard = ctypes.windll.user32.EmptyClipboard
+EmptyClipboard = windll.user32.EmptyClipboard
 EmptyClipboard.restype = wintypes.BOOL
 EmptyClipboard.argtypes = [
 ]
-CloseClipboard = ctypes.windll.user32.CloseClipboard
+CloseClipboard = windll.user32.CloseClipboard
 CloseClipboard.restype = wintypes.BOOL
 CloseClipboard.argtypes = [
 ]
-CountClipboardFormats = ctypes.windll.user32.CountClipboardFormats
-CountClipboardFormats.restype = ctypes.c_int
+CountClipboardFormats = windll.user32.CountClipboardFormats
+CountClipboardFormats.restype = c_int
 CountClipboardFormats.argtypes = [
 ]
-EnumClipboardFormats = ctypes.windll.user32.EnumClipboardFormats
+EnumClipboardFormats = windll.user32.EnumClipboardFormats
 EnumClipboardFormats.restype = wintypes.UINT
 EnumClipboardFormats.argtypes = [
     wintypes.UINT,
 ]
-GetClipboardFormatName = ctypes.windll.user32.GetClipboardFormatNameW
-GetClipboardFormatName.restype = ctypes.c_int
+GetClipboardFormatName = windll.user32.GetClipboardFormatNameW
+GetClipboardFormatName.restype = c_int
 GetClipboardFormatName.argtypes = [
     wintypes.UINT,
     wintypes.LPWSTR,
-    ctypes.c_int,
+    c_int,
 ]
 
 # DPIAware API funcs are not available on WinXP
 try:
-    IsProcessDPIAware = ctypes.windll.user32.IsProcessDPIAware
-    SetProcessDPIAware = ctypes.windll.user32.SetProcessDPIAware
+    IsProcessDPIAware = windll.user32.IsProcessDPIAware
+    SetProcessDPIAware = windll.user32.SetProcessDPIAware
 except AttributeError:
     IsProcessDPIAware = None
     SetProcessDPIAware = None
@@ -703,7 +710,7 @@ except AttributeError:
 #   Process_Per_Monitor_DPI_Aware  = 2
 # } Process_DPI_Awareness;
 try:
-    shcore = ctypes.windll.LoadLibrary("Shcore.dll")
+    shcore = windll.LoadLibrary("Shcore.dll")
     SetProcessDpiAwareness = shcore.SetProcessDpiAwareness
     GetProcessDpiAwareness = shcore.GetProcessDpiAwareness
     Process_DPI_Awareness = {
@@ -725,9 +732,9 @@ elif SetProcessDPIAware:
     ActionLogger().log("Call SetProcessDPIAware")
     SetProcessDPIAware()
 
-GetQueueStatus = ctypes.windll.user32.GetQueueStatus
+GetQueueStatus = windll.user32.GetQueueStatus
 
-LoadString = ctypes.windll.user32.LoadStringW
+LoadString = windll.user32.LoadStringW
 
 
 #def VkKeyScanW(p1):
@@ -770,7 +777,7 @@ def LoWord(value):
 def WaitGuiThreadIdle(handle):
     """Wait until the thread of the specified handle is ready"""
     process_id = wintypes.DWORD(0)
-    GetWindowThreadProcessId(handle, ctypes.POINTER(wintypes.DWORD)(process_id))
+    GetWindowThreadProcessId(handle, POINTER(wintypes.DWORD)(process_id))
 
     # ask the control if it has finished processing the message
     hprocess = OpenProcess(
@@ -800,10 +807,10 @@ def GetDpiAwarenessByPid(pid):
             return dpi_awareness
 
         try:
-            dpi_awareness = ctypes.c_int()
+            dpi_awareness = c_int()
             hRes = GetProcessDpiAwareness(
                     hProcess,
-                    ctypes.byref(dpi_awareness))
+                    byref(dpi_awareness))
             CloseHandle(hProcess)
             if hRes == 0:
                 return dpi_awareness.value

@@ -36,7 +36,6 @@ from __future__ import print_function
 
 import sys
 import win32api
-import win32process
 
 from ctypes import wintypes
 from ctypes import c_void_p
