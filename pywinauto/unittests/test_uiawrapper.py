@@ -1257,7 +1257,7 @@ if UIA_support:
 
     class MenuBarTestsWinForms(unittest.TestCase):
 
-        """Unit tests for the ListViewWrapper class"""
+        """Unit tests for the MenuBar class"""
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
@@ -1287,6 +1287,31 @@ if UIA_support:
             time.sleep(0.1)
             child_from_point = self.dlg.from_point(point.x, point.y + 20)
             self.assertEqual(child_from_point.element_info.name, 'tem1DropDown')
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
+
+    class EditTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the WinFormEdit class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+            self.app = Application(backend='uia').start(winfoms_app_grid)
+            self.dlg = self.app.Dialog
+
+        def test_edit_editable(self):
+            """Test editable method for editable edit"""
+            self.assertEqual(self.dlg.Edit2.get_value(), "Editable")
+            self.assertTrue(self.dlg.Edit2.is_editable())
+
+        def test_edit_readonly(self):
+            """Test editable method for read only edit"""
+            self.assertEqual(self.dlg.Edit1.get_value(), "ReadOnly")
+            self.assertFalse(self.dlg.Edit1.is_editable())
 
         def tearDown(self):
             """Close the application after tests"""

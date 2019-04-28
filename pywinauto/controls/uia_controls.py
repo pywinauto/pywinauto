@@ -371,6 +371,11 @@ class EditWrapper(uiawrapper.UIAWrapper):
         return self.iface_value.CurrentValue
 
     # -----------------------------------------------------------
+    def is_editable(self):
+        """Return the edit possibility of the element"""
+        return not self.iface_value.CurrentIsReadOnly
+
+    # -----------------------------------------------------------
     def texts(self):
         """Get the text of the edit control"""
         texts = [ self.get_line(i) for i in range(self.line_count()) ]
