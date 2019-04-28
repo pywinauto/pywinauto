@@ -617,32 +617,74 @@ WriteProcessMemory.argtypes = [
     ctypes.c_size_t,
     ctypes.POINTER(ctypes.c_size_t),
 ]
-
-SetCapture			=	ctypes.windll.user32.SetCapture
-ReleaseCapture		=	ctypes.windll.user32.ReleaseCapture
-
-ShowOwnedPopups		=	ctypes.windll.user32.ShowOwnedPopups
-WindowFromPoint 	=	ctypes.windll.user32.WindowFromPoint
-
-WideCharToMultiByte	=	ctypes.windll.kernel32.WideCharToMultiByte
-GetACP				=	ctypes.windll.kernel32.GetACP
-
+ReleaseCapture = ctypes.windll.user32.ReleaseCapture
+ReleaseCapture.restype = wintypes.BOOL
+ReleaseCapture.argtypes = [
+]
+WindowFromPoint = ctypes.windll.user32.WindowFromPoint
+WindowFromPoint.restype = wintypes.HWND
+WindowFromPoint.argtypes = [
+    win32structures.POINT,
+]
 WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
-WaitForInputIdle	= ctypes.windll.user32.WaitForInputIdle
-
-IsHungAppWindow     = ctypes.windll.user32.IsHungAppWindow
+WaitForSingleObject.restype = wintypes.DWORD
+WaitForSingleObject.argtypes = [
+    wintypes.HANDLE,
+    wintypes.DWORD,
+]
+WaitForInputIdle = ctypes.windll.user32.WaitForInputIdle
+WaitForInputIdle.restype = wintypes.DWORD
+WaitForInputIdle.argtypes = [
+    wintypes.HANDLE,
+    wintypes.DWORD,
+]
+IsHungAppWindow = ctypes.windll.user32.IsHungAppWindow
 IsHungAppWindow.restype = wintypes.BOOL
-IsHungAppWindow.argtypes = [wintypes.HWND]
-
+IsHungAppWindow.argtypes = [
+    wintypes.HWND,
+]
 GetModuleFileNameEx = ctypes.windll.psapi.GetModuleFileNameExW
-
+GetModuleFileNameEx.restype = wintypes.DWORD
+GetModuleFileNameEx.argtypes = [
+    wintypes.HANDLE,
+    wintypes.HMODULE,
+    wintypes.LPWSTR,
+    wintypes.DWORD,
+]
 GetClipboardData = ctypes.windll.user32.GetClipboardData
-OpenClipboard    = ctypes.windll.user32.OpenClipboard
-EmptyClipboard   = ctypes.windll.user32.EmptyClipboard
-CloseClipboard   = ctypes.windll.user32.CloseClipboard
-CountClipboardFormats  = ctypes.windll.user32.CountClipboardFormats
-EnumClipboardFormats   = ctypes.windll.user32.EnumClipboardFormats
+GetClipboardData.restype = wintypes.HANDLE
+GetClipboardData.argtypes = [
+    wintypes.UINT,
+]
+OpenClipboard = ctypes.windll.user32.OpenClipboard
+OpenClipboard.restype = wintypes.BOOL
+OpenClipboard.argtypes = [
+    wintypes.HWND,
+]
+EmptyClipboard = ctypes.windll.user32.EmptyClipboard
+EmptyClipboard.restype = wintypes.BOOL
+EmptyClipboard.argtypes = [
+]
+CloseClipboard = ctypes.windll.user32.CloseClipboard
+CloseClipboard.restype = wintypes.BOOL
+CloseClipboard.argtypes = [
+]
+CountClipboardFormats = ctypes.windll.user32.CountClipboardFormats
+CountClipboardFormats.restype = ctypes.c_int
+CountClipboardFormats.argtypes = [
+]
+EnumClipboardFormats = ctypes.windll.user32.EnumClipboardFormats
+EnumClipboardFormats.restype = wintypes.UINT
+EnumClipboardFormats.argtypes = [
+    wintypes.UINT,
+]
 GetClipboardFormatName = ctypes.windll.user32.GetClipboardFormatNameW
+GetClipboardFormatName.restype = ctypes.c_int
+GetClipboardFormatName.argtypes = [
+    wintypes.UINT,
+    wintypes.LPWSTR,
+    ctypes.c_int,
+]
 
 # DPIAware API funcs are not available on WinXP
 try:
