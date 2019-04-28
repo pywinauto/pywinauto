@@ -1601,7 +1601,7 @@ class DialogWrapper(HwndWrapper):
         #win32defines.SMTO_BLOCK)
 
         # get a handle we can wait on
-        pid = wintypes.DWORD
+        pid = ctypes.c_ulong()
         win32functions.GetWindowThreadProcessId(self.handle, ctypes.byref(pid))
         try:
             process_wait_handle = win32api.OpenProcess(
