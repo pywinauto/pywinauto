@@ -1161,7 +1161,6 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
-            # start the application
             self.app = Application(backend='uia').start(winfoms_app_grid)
             self.dlg = self.app.Dialog
 
@@ -1170,6 +1169,10 @@ if UIA_support:
             self.row_header_button = self.dlg.RowHeader
             self.col_header_button = self.dlg.ColHeader
             self.list_box = self.dlg.ListBox
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
 
         def test_list_box_item_selection(self):
             """Test get_item method"""
@@ -1251,21 +1254,21 @@ if UIA_support:
             headers = table.get_header_controls()
             self.assertEqual(len(headers), 0)
 
-        def tearDown(self):
-            """Close the application after tests"""
-            self.app.kill()
 
     class MenuBarTestsWinForms(unittest.TestCase):
 
-        """Unit tests for the ListViewWrapper class"""
+        """Unit tests for the MenuBar class"""
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
-            # start the application
             self.app = Application(backend='uia').start(winfoms_app_grid)
             self.dlg = self.app.Dialog
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
 
         def test_can_select_multiple_items(self):
             """Test menu_select multimple items with action"""
@@ -1288,9 +1291,28 @@ if UIA_support:
             child_from_point = self.dlg.from_point(point.x, point.y + 20)
             self.assertEqual(child_from_point.element_info.name, 'tem1DropDown')
 
+
+    class EditTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the WinFormEdit class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            self.app = Application(backend='uia').start(winfoms_app_grid)
+            self.dlg = self.app.Dialog
+
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill()
+
+        def test_readonly_and_editable_edits(self):
+            """Test editable method for editable edit"""
+            self.assertEqual(self.dlg.Edit2.get_value(), "Editable")
+            self.assertTrue(self.dlg.Edit2.is_editable())
+            self.assertEqual(self.dlg.Edit1.get_value(), "ReadOnly")
+            self.assertFalse(self.dlg.Edit1.is_editable())
 
 
     class ComboBoxTestsWinForms(unittest.TestCase):
