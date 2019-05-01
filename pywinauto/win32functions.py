@@ -36,7 +36,6 @@ from ctypes import wintypes
 from . import win32defines, win32structures
 from .actionlogger import ActionLogger
 from ctypes import c_short
-from ctypes import c_long
 from ctypes import WINFUNCTYPE
 from ctypes import c_void_p
 from ctypes import c_int
@@ -44,12 +43,6 @@ from ctypes import byref
 from ctypes import POINTER
 from ctypes import c_ubyte
 from ctypes import c_size_t
-from ctypes import cdll
-
-import sys
-if sys.platform == "cygwin":
-    cygdll = cdll
-    HRESULT = c_long
 
 
 SHORT = c_short
