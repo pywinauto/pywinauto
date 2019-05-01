@@ -770,7 +770,7 @@ def LoWord(value):
 def WaitGuiThreadIdle(handle):
     """Wait until the thread of the specified handle is ready"""
     process_id = wintypes.DWORD(0)
-    GetWindowThreadProcessId(handle, POINTER(wintypes.DWORD)(process_id))
+    GetWindowThreadProcessId(handle, byref(process_id))
 
     # ask the control if it has finished processing the message
     hprocess = OpenProcess(
