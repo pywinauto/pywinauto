@@ -68,9 +68,6 @@ from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
 from .. import deprecated
 
-if sysinfo.UIA_support:
-    from ..uia_defines import IUIA
-
 
 # Todo: I should return iterators from things like items() and texts()
 #       to save building full lists all the time
@@ -721,10 +718,6 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         "TSysListView",
         "ListView.*WndClass",
         ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1460,8 +1453,6 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "TreeView"
     windowclasses = [
         "SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*", "TTreeView", "TreeList.TreeListCtrl"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_TreeControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1751,8 +1742,6 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Header"
     windowclasses = ["SysHeader32", "msvb_lib_header"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_HeaderControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1894,8 +1883,6 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
         "msctls_statusbar32",
         ".*StatusBar",
         r"WindowsForms\d*\.msctls_statusbar32\..*"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_StatusBarControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2065,8 +2052,6 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
     windowclasses = [
         "SysTabControl32",
         r"WindowsForms\d*\.SysTabControl32\..*"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_TabControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2878,10 +2863,6 @@ class ReBarWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "ReBar"
     windowclasses = ["ReBarWindow32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -3086,8 +3067,6 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "UpDown"
     windowclasses = ["msctls_updown32", "msctls_updown", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_SpinnerControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -3195,8 +3174,6 @@ class TrackbarWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
 
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_SliderControlTypeId]
 
     def get_range_min(self):
         """Get min available trackbar value"""
@@ -3293,10 +3270,6 @@ class AnimationWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Animation"
     windowclasses = ["SysAnimate32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
 
 #====================================================================
@@ -3306,10 +3279,6 @@ class ComboBoxExWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "ComboBoxEx"
     windowclasses = ["ComboBoxEx32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3321,10 +3290,6 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "DateTimePicker"
     windowclasses = ["SysDateTimePick32",
                      r"WindowsForms\d*\.SysDateTimePick32\..*", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
     #----------------------------------------------------------------
@@ -3387,10 +3352,6 @@ class HotkeyWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Hotkey"
     windowclasses = ["msctls_hotkey32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3401,10 +3362,6 @@ class IPAddressWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "IPAddress"
     windowclasses = ["SysIPAddress32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3415,8 +3372,6 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
 
     place_in_calendar = {
@@ -3719,10 +3674,6 @@ class PagerWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Pager"
     windowclasses = ["SysPager", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def get_position(self):
@@ -3748,8 +3699,6 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Progress"
     windowclasses = ["msctls_progress", "msctls_progress32", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_ProgressBarControlTypeId]
     has_title = False
 
     #----------------------------------------------------------------
