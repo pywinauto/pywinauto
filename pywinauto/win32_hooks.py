@@ -79,7 +79,6 @@ windll.user32.SetWindowsHookExA.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExA.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
 windll.user32.SetWindowsHookExW.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExW.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
-windll.user32.GetMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint]
 windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
 windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
 

@@ -295,8 +295,9 @@ def font(handle):
 #=========================================================================
 def processid(handle):
     """Return the ID of process that controls this window"""
-    _, process_id = win32process.GetWindowThreadProcessId(int(handle))
-    return process_id
+    pid = wintypes.DWORD()
+    win32functions.GetWindowThreadProcessId(handle, byref(pid))
+    return pid.value
 
 
 #=========================================================================
