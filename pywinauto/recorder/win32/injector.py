@@ -119,10 +119,8 @@ class Injector(object):
 
     def _create_remote_thread(self, proc_address, arg_address, call_err_text = remote_call_error_str):
         CreateRemoteThread = ctypes.windll.kernel32.CreateRemoteThread
-        LPDWORD = ctypes.POINTER(ctypes.c_ulong)
-        LPSECURITY_ATTRIBUTES = ctypes.POINTER(win32structures.SECURITY_ATTRIBUTES)
-        CreateRemoteThread.argtypes = (ctypes.c_void_p, LPSECURITY_ATTRIBUTES, ctypes.c_ulong, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong, LPDWORD)
-        thread_handle = CreateRemoteThread(self.h_process, None, 0, proc_address, arg_address, 0, None)
+        c_function_adress = ctypes.WINFUNCTYPE(ctypes.c_ulong, ctypes.c_void_p)
+        thread_handle = CreateRemoteThread(self.h_process, None, 0, c_function_adress(proc_address), arg_address, 0, None)
         if not thread_handle:
             raise RuntimeError(call_err_text)
         return thread_handle
