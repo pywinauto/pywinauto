@@ -2,11 +2,12 @@ from ...handleprops import processid
 from ...handleprops import is64bitprocess
 from ...timings import TimeoutError as WaitError
 from ... import win32defines
+from ... import win32functions
+from ... import win32structures
 from ... import sysinfo
-from . import cfuncs
 import ctypes
-import os
 import six
+import os
 
 # Relative path, would be changed after adding to pywinauto
 dll_path = "./pywinauto/recorder/win32/dll_to_inject/"
@@ -16,6 +17,10 @@ remote_call_error_str = "Couldn't create remote thread, dll not injected, inject
 remote_call_injection_error_str = "Couldn't create remote thread"
 pipe_name = "\\\\.\\pipe\\pywinauto_recorder_pipe"
 pipe_buffer_size = 1024
+
+GetProcAddress = ctypes.windll.kernel32.GetProcAddress
+GetProcAddress.restype = ctypes.c_void_p
+GetProcAddress.argtypes = (ctypes.c_void_p, ctypes.c_char_p)
 
 def byte_string(in_string):
     if isinstance(in_string, six.binary_type):
@@ -110,18 +115,22 @@ class Injector(object):
     @staticmethod
     def _get_process_handle(pid):
         process_all_access =  win32defines.PROCESS_VM_OPERATION | win32defines.PROCESS_VM_READ | win32defines.PROCESS_VM_WRITE
-        return cfuncs.OpenProcess(process_all_access, False, pid)
+        return win32functions.OpenProcess(process_all_access, False, pid)
 
     def _create_remote_thread(self, proc_address, arg_address, call_err_text = remote_call_error_str):
-        thread_handle = cfuncs.CreateRemoteThread(self.h_process, None, 0, proc_address, arg_address, 0, None)
+        CreateRemoteThread = ctypes.windll.kernel32.CreateRemoteThread
+        LPDWORD = ctypes.POINTER(ctypes.c_ulong)
+        LPSECURITY_ATTRIBUTES = ctypes.POINTER(win32structures.SECURITY_ATTRIBUTES)
+        CreateRemoteThread.argtypes = (ctypes.c_void_p, LPSECURITY_ATTRIBUTES, ctypes.c_ulong, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong, LPDWORD)
+        thread_handle = CreateRemoteThread(self.h_process, None, 0, proc_address, arg_address, 0, None)
         if not thread_handle:
             raise RuntimeError(call_err_text)
         return thread_handle
 
     def _virtual_alloc_for(self, buffer):
         virtual_mem = win32defines.MEM_RESERVE | win32defines.MEM_COMMIT
-        address = cfuncs.VirtualAllocEx(self.h_process, 0, ctypes.sizeof(buffer), virtual_mem, win32defines.PAGE_READWRITE)
-        if not cfuncs.WriteProcessMemory(self.h_process, address, ctypes.byref(buffer), ctypes.sizeof(buffer), 0):
+        address = ctypes.c_void_p(win32functions.VirtualAllocEx(self.h_process, 0, ctypes.sizeof(buffer), virtual_mem, win32defines.PAGE_READWRITE))
+        if not win32functions.WriteProcessMemory(self.h_process, address, ctypes.byref(buffer), ctypes.sizeof(buffer), 0):
             raise AttributeError("Couldn't write data to process memory, check python acceess.")
         return address
 
@@ -131,24 +140,27 @@ class Injector(object):
         arg_address = self._virtual_alloc_for(c_dll_path)
 
         # Get LoadLibraryW Address
-        h_kernel32 = cfuncs.GetModuleHandleW(unicode_string("kernel32.dll"))
-        h_loadlib = cfuncs.GetProcAddress(h_kernel32, byte_string("LoadLibraryW"))
+        GetModuleHandleW = ctypes.windll.kernel32.GetModuleHandleW
+        GetModuleHandleW.restype = ctypes.c_void_p
+        h_kernel32 = GetModuleHandleW(ctypes.c_wchar_p(unicode_string("kernel32.dll")))
+        h_loadlib = GetProcAddress(h_kernel32, byte_string("LoadLibraryW"))
 
         # Now call CreateRemoteThread with entry point set to LoadLibraryW and pointer to DLL path as param
         thread_handle = self._create_remote_thread(h_loadlib, arg_address, remote_call_injection_error_str)
 
-        ret = cfuncs.WaitForSingleObject(thread_handle, ctypes.wintypes.DWORD(remote_call_timeout))
+        ret = win32functions.WaitForSingleObject(thread_handle, remote_call_timeout)
         if ret == win32defines.WAIT_TIMEOUT:
             raise WaitError("Injection time out")
 
     def _get_dll_proc_address(self, proc_name):
-        lib = cfuncs.LoadLibraryW(self.dll_path)
-        return cfuncs.GetProcAddress(lib, byte_string(proc_name))
+        LoadLibraryW = ctypes.windll.kernel32.LoadLibraryW
+        LoadLibraryW.restype = ctypes.c_void_p
+        lib = LoadLibraryW(self.dll_path)
+        return GetProcAddress(lib, byte_string(proc_name))
 
     def _remote_call_void_func(self, func_name):
         proc_address = self._get_dll_proc_address(func_name)
-        if not cfuncs.CreateRemoteThread(self.h_process, None, 0, proc_address, 0, 0, None):
-            raise RuntimeError(remote_call_error_str)
+        self._create_remote_thread(proc_address, 0, remote_call_error_str)
 
     def _remote_call_int_param_func(self, func_name, param):
         arg_address = self._virtual_alloc_for(ctypes.c_int32(param))
