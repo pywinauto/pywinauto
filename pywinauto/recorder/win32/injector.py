@@ -1,10 +1,8 @@
 from ...handleprops import processid
 from ...handleprops import is64bitprocess
 from ...timings import TimeoutError as WaitError
+from ... import win32defines
 from ... import sysinfo
-from socket import socket
-from socket import AF_INET
-from socket import SOCK_DGRAM
 from . import cfuncs
 import ctypes
 import os
@@ -17,24 +15,24 @@ remote_call_timeout = 1000
 remote_call_error_str = "Couldn't create remote thread, dll not injected, inject and try again!"
 remote_call_injection_error_str = "Couldn't create remote thread"
 pipe_name = "\\\\.\\pipe\\pywinauto_recorder_pipe"
+pipe_buffer_size = 1024
 
 def byte_string(in_string):
     if isinstance(in_string, six.binary_type):
         return in_string
+    if isinstance(in_string, six.text_type):
+        return in_string.encode('utf-8')
     else:
-        if isinstance(in_string, six.text_type):
-            return in_string.encode('utf-8')
-        else:
-            return str(in_string).encode('utf-8')
+        return str(in_string).encode('utf-8')
 
 def unicode_string(in_string):
     if isinstance(in_string, six.text_type):
         return in_string
+    if isinstance(in_string, six.binary_type):
+        return in_string.decode('utf-8')
     else:
-        if isinstance(in_string, six.binary_type):
-            return in_string.decode('utf-8')
-        else:
-            return str(in_string).decode('utf-8')
+        return str(in_string).decode('utf-8')
+
 
 class Injector(object):
 
@@ -56,20 +54,20 @@ class Injector(object):
         self._connect()
 
     def _init_pipe(self):
-        pipe_flags = cfuncs.PIPE_TYPE_MESSAGE | cfuncs.PIPE_READMODE_MESSAGE | cfuncs.PIPE_WAIT
-        h_pipe = ctypes.windll.kernel32.CreateNamedPipeA(pipe_name,
-                                                         cfuncs.PIPE_ACCESS_DUPLEX,
+        pipe_flags = win32defines.PIPE_TYPE_MESSAGE | win32defines.PIPE_READMODE_MESSAGE | win32defines.PIPE_WAIT
+        h_pipe = ctypes.windll.kernel32.CreateNamedPipeA(byte_string(pipe_name),
+                                                         win32defines.PIPE_ACCESS_DUPLEX,
                                                          pipe_flags,
-                                                         cfuncs.PIPE_UNLIMITED_INSTANCES,
-                                                         cfuncs.BUFSIZE,
-                                                         cfuncs.BUFSIZE,
-                                                         cfuncs.NMPWAIT_USE_DEFAULT_WAIT,
+                                                         win32defines.PIPE_UNLIMITED_INSTANCES,
+                                                         pipe_buffer_size,
+                                                         pipe_buffer_size,
+                                                         win32defines.NMPWAIT_USE_DEFAULT_WAIT,
                                                          None
                                                         )
-        if (h_pipe == cfuncs.INVALID_HANDLE_VALUE):
+        if (h_pipe == win32defines.INVALID_HANDLE_VALUE):
             return None
 
-        if ctypes.windll.kernel32.GetLastError() == cfuncs.ERROR_PIPE_CONNECTED:
+        if ctypes.windll.kernel32.GetLastError() == win32defines.ERROR_PIPE_CONNECTED:
             return None
 
         return h_pipe
@@ -111,7 +109,8 @@ class Injector(object):
 
     @staticmethod
     def _get_process_handle(pid):
-        return cfuncs.OpenProcess(cfuncs.PROCESS_ALL_ACCESS, False, pid)
+        process_all_access =  win32defines.PROCESS_VM_OPERATION | win32defines.PROCESS_VM_READ | win32defines.PROCESS_VM_WRITE
+        return cfuncs.OpenProcess(process_all_access, False, pid)
 
     def _create_remote_thread(self, proc_address, arg_address, call_err_text = remote_call_error_str):
         thread_handle = cfuncs.CreateRemoteThread(self.h_process, None, 0, proc_address, arg_address, 0, None)
@@ -120,7 +119,8 @@ class Injector(object):
         return thread_handle
 
     def _virtual_alloc_for(self, buffer):
-        address = cfuncs.VirtualAllocEx(self.h_process, 0, ctypes.sizeof(buffer), cfuncs.VIRTUAL_MEM, cfuncs.PAGE_READWRITE)
+        virtual_mem = win32defines.MEM_RESERVE | win32defines.MEM_COMMIT
+        address = cfuncs.VirtualAllocEx(self.h_process, 0, ctypes.sizeof(buffer), virtual_mem, win32defines.PAGE_READWRITE)
         if not cfuncs.WriteProcessMemory(self.h_process, address, ctypes.byref(buffer), ctypes.sizeof(buffer), 0):
             raise AttributeError("Couldn't write data to process memory, check python acceess.")
         return address
@@ -138,7 +138,7 @@ class Injector(object):
         thread_handle = self._create_remote_thread(h_loadlib, arg_address, remote_call_injection_error_str)
 
         ret = cfuncs.WaitForSingleObject(thread_handle, ctypes.wintypes.DWORD(remote_call_timeout))
-        if ret == cfuncs.WAIT_TIMEOUT:
+        if ret == win32defines.WAIT_TIMEOUT:
             raise WaitError("Injection time out")
 
     def _get_dll_proc_address(self, proc_name):

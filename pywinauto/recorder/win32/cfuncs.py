@@ -11,25 +11,11 @@ from ctypes.wintypes import LPCVOID
 from ...win32structures import SECURITY_ATTRIBUTES
 from ... import win32defines
 
-PAGE_READWRITE = win32defines.PAGE_READWRITE
-WAIT_TIMEOUT = win32defines.WAIT_TIMEOUT
-PROCESS_ALL_ACCESS = ( win32defines.PROCESS_VM_OPERATION | win32defines.PROCESS_VM_READ | win32defines.PROCESS_VM_WRITE )
-VIRTUAL_MEM = ( win32defines.MEM_RESERVE | win32defines.MEM_COMMIT )
-LPCSTR = LPCTSTR = ctypes.c_char_p
+LPCTSTR = ctypes.c_char_p
 LPWTSTR = ctypes.c_wchar_p
-LPDWORD = PDWORD = ctypes.POINTER(DWORD)
+LPDWORD = ctypes.POINTER(DWORD)
 LPTHREAD_START_ROUTINE = LPVOID
 LPSECURITY_ATTRIBUTES = ctypes.POINTER(SECURITY_ATTRIBUTES)
-
-PIPE_ACCESS_DUPLEX = 0x3
-PIPE_TYPE_MESSAGE = 0x4
-PIPE_READMODE_MESSAGE = 0x2
-PIPE_WAIT = 0
-PIPE_UNLIMITED_INSTANCES = 255
-BUFSIZE = 1024
-NMPWAIT_USE_DEFAULT_WAIT = 0
-INVALID_HANDLE_VALUE = -1
-ERROR_PIPE_CONNECTED = 535
 
 OpenProcess = ctypes.windll.kernel32.OpenProcess
 OpenProcess.restype = HANDLE
@@ -39,10 +25,6 @@ VirtualAllocEx = ctypes.windll.kernel32.VirtualAllocEx
 VirtualAllocEx.restype = LPVOID
 VirtualAllocEx.argtypes = (HANDLE, LPVOID, DWORD, DWORD, DWORD)
 
-ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
-ReadProcessMemory.restype = BOOL
-ReadProcessMemory.argtypes = (HANDLE, LPCVOID, LPVOID, DWORD, DWORD)
-
 WriteProcessMemory = ctypes.windll.kernel32.WriteProcessMemory
 WriteProcessMemory.restype = BOOL
 WriteProcessMemory.argtypes = (HANDLE, LPVOID, LPCVOID, DWORD, DWORD)
@@ -50,14 +32,6 @@ WriteProcessMemory.argtypes = (HANDLE, LPVOID, LPCVOID, DWORD, DWORD)
 CreateRemoteThread = ctypes.windll.kernel32.CreateRemoteThread
 CreateRemoteThread.restype = HANDLE
 CreateRemoteThread.argtypes = (HANDLE, LPSECURITY_ATTRIBUTES, DWORD, LPTHREAD_START_ROUTINE, LPVOID, DWORD, LPDWORD)
-
-GetModuleHandleA = ctypes.windll.kernel32.GetModuleHandleA
-GetModuleHandleA.restype = HANDLE
-GetModuleHandleA.argtypes = (LPCTSTR,)
-
-LoadLibraryA = ctypes.windll.kernel32.LoadLibraryA
-LoadLibraryA.restype = HANDLE
-LoadLibraryA.argtypes = (LPCTSTR,)
 
 GetModuleHandleW = ctypes.windll.kernel32.GetModuleHandleW
 GetModuleHandleW.restype = HANDLE
