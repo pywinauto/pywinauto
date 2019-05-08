@@ -213,11 +213,9 @@ def clientrect(handle):
 #=========================================================================
 def rectangle(handle):
     """Return the rectangle of the window"""
-    # GetWindowRect returns 4-tuple
-    try:
-        return win32structures.RECT(*win32gui.GetWindowRect(handle))
-    except pywintypes.error:
-        return win32structures.RECT()
+    rect = win32structures.RECT()
+    win32functions.GetWindowRect(handle, byref(rect))
+    return rect
 
 
 #=========================================================================

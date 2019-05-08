@@ -356,7 +356,7 @@ GetWindowRect = windll.user32.GetWindowRect
 GetWindowRect.restype = wintypes.BOOL
 GetWindowRect.argtypes = [
     wintypes.HWND,
-    POINTER(win32structures.RECT),
+    POINTER(wintypes.RECT),
 ]
 GetWindowText = windll.user32.GetWindowTextW
 GetWindowText.restype = c_int
