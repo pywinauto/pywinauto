@@ -294,6 +294,7 @@ class ApplicationTestCases(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             for a in app:
                 pass
+        app.kill()
 
     def test_not_connected(self):
         """Verify that it raises when the app is not connected"""
