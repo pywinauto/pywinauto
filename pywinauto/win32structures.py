@@ -222,6 +222,16 @@ class RECT(wintypes.RECT):
             return False
 
     # ----------------------------------------------------------------
+    def __ne__(self, otherRect):
+        """Return true if the two rectangles do not have the same coordinates"""
+        return not self == otherRect
+
+    # ----------------------------------------------------------------
+    def __hash__(self):
+        """Return unique object ID to make the instance hashable"""
+        return id(self)
+
+    # ----------------------------------------------------------------
     def __str__(self):
         """Return a string representation of the RECT"""
         return "(L%d, T%d, R%d, B%d)" % (

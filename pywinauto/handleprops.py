@@ -40,7 +40,6 @@ import win32process
 import win32api
 import win32con
 import win32gui
-import pywintypes
 
 from ctypes import wintypes
 from ctypes import WINFUNCTYPE
