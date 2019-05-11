@@ -36,6 +36,7 @@ import unittest
 import sys
 sys.path.append(".")
 from pywinauto.win32structures import POINT  # noqa: E402
+from pywinauto.win32structures import RECT  # noqa: E402
 from pywinauto.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
 
 
@@ -119,6 +120,35 @@ class Win32FunctionsTestCases(unittest.TestCase):
     def testPOINTiteration(self):
         p = POINT(1, 2)
         self.assertEqual([1, 2], [i for i in p])
+
+    def testPOINTcomparision(self):
+        """Test POINT comparision operations"""
+        p0 = POINT(1, 2)
+        p1 = POINT(0, 2)
+        self.assertNotEqual(p0, p1)
+        p1.x = p0.x
+        self.assertEqual(p0, p1)
+
+        # tuple comparision
+        self.assertEqual(p0, (1, 2))
+        self.assertNotEqual(p0, (0, 2))
+
+        # wrong type comparision
+        self.assertNotEqual(p0, 1)
+
+    def test_RECT_hash(self):
+        """Test RECT is hashable"""
+        r0 = RECT(0)
+        r1 = RECT(1)
+        d = { "r0": r0, "r1": r1 }
+        self.assertEqual(r0, d["r0"])
+        self.assertEqual(r1, d["r1"])
+        self.assertNotEqual(r0, r1)
+
+    def test_RECT_repr(self):
+        """Test RECT repr"""
+        r0 = RECT(0)
+        self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
 
 
 if __name__ == "__main__":
