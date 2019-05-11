@@ -35,8 +35,8 @@ import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.win32structures import POINT
-from pywinauto.win32functions import MakeLong, HiWord, LoWord
+from pywinauto.win32structures import POINT  # noqa: E402
+from pywinauto.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
 
 
 class Win32FunctionsTestCases(unittest.TestCase):
@@ -54,25 +54,23 @@ class Win32FunctionsTestCases(unittest.TestCase):
         )
 
         for result, (hi, lo) in data:
-            self.assertEqual(result, MakeLong(hi,lo))
-
-
+            self.assertEqual(result, MakeLong(hi, lo))
 
     def testMakeLong_zero(self):
         "test that makelong(0,0)"
-        self.assertEqual(0, MakeLong(0,0))
+        self.assertEqual(0, MakeLong(0, 0))
 
     def testMakeLong_lowone(self):
         "Make sure MakeLong() function works with low word == 1"
-        self.assertEqual(1, MakeLong(0,1))
+        self.assertEqual(1, MakeLong(0, 1))
 
     def testMakeLong_highone(self):
         "Make sure MakeLong() function works with high word == 1"
-        self.assertEqual(0x10000, MakeLong(1,0))
+        self.assertEqual(0x10000, MakeLong(1, 0))
 
     def testMakeLong_highbig(self):
         "Make sure MakeLong() function works with big numder in high word"
-        self.assertEqual(0xffff0000, MakeLong(0xffff,0))
+        self.assertEqual(0xffff0000, MakeLong(0xffff, 0))
 
     def testMakeLong_lowbig(self):
         "Make sure MakeLong() function works with big numder in low word"
@@ -125,5 +123,3 @@ class Win32FunctionsTestCases(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
