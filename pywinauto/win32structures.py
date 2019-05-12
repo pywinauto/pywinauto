@@ -180,20 +180,12 @@ assert alignment(POINT) == 4, alignment(POINT)
 
 
 # ====================================================================
-class RECT(Structure):
+class RECT(wintypes.RECT):
 
     """Wrap the RECT structure and add extra functionality"""
 
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
-        ('left', LONG),
-        ('top', LONG),
-        ('right', LONG),
-        ('bottom', LONG),
-    ]
-
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
         """Provide a constructor for RECT structures
 
         A RECT can be constructed by:
@@ -217,19 +209,27 @@ class RECT(Structure):
             self.top = long_int(top)
             self.bottom = long_int(bottom)
 
+    # ----------------------------------------------------------------
+    def __eq__(self, otherRect):
+        """Return true if the two rectangles have the same coordinates"""
+        try:
+            return \
+                self.left == otherRect.left and \
+                self.top == otherRect.top and \
+                self.right == otherRect.right and \
+                self.bottom == otherRect.bottom
+        except AttributeError:
+            return False
 
-#    # ----------------------------------------------------------------
-#    def __eq__(self, otherRect):
-#        "return true if the two rectangles have the same coordinates"
-#
-#        try:
-#            return \
-#                self.left == otherRect.left and \
-#                self.top == otherRect.top and \
-#                self.right == otherRect.right and \
-#                self.bottom == otherRect.bottom
-#        except AttributeError:
-#            return False
+    # ----------------------------------------------------------------
+    def __ne__(self, otherRect):
+        """Return true if the two rectangles do not have the same coordinates"""
+        return not self == otherRect
+
+    # ----------------------------------------------------------------
+    def __hash__(self):
+        """Return unique object ID to make the instance hashable"""
+        return id(self)
 
     # ----------------------------------------------------------------
     def __str__(self):
@@ -283,8 +283,8 @@ class RECT(Structure):
     def mid_point(self):
         """Return a POINT structure representing the mid point"""
         pt = POINT()
-        pt.x = self.left + int(float(self.width())/2.)
-        pt.y = self.top + int(float(self.height())/2.)
+        pt.x = self.left + int(float(self.width()) / 2.)
+        pt.y = self.top + int(float(self.height()) / 2.)
         return pt
 
     #def __hash__(self):

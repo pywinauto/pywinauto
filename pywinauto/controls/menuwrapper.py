@@ -283,7 +283,7 @@ class MenuItem(object):
 
         # if the item is not visible - work up along it's parents
         # until we find an item we CAN click on
-        if rect == (0, 0, 0, 0) and self.menu.owner_item:
+        if rect == win32structures.RECT(0, 0, 0, 0) and self.menu.owner_item:
             self.menu.owner_item.click_input()
 
         rect = self.rectangle()
