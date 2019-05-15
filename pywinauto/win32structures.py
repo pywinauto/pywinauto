@@ -153,13 +153,9 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(Structure):
-    _pack_ = 4
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 307
-        ('x', LONG),
-        ('y', LONG),
-    ]
+class POINT(wintypes.POINT):
+
+    """Wrap the POINT structure and add extra functionality"""
 
     def __iter__(self):
         """Allow iteration through coordinates"""
