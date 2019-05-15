@@ -96,7 +96,7 @@ DrawText.argtypes = [
     wintypes.HDC,
     wintypes.LPCWSTR,
     c_int,
-    POINTER(win32structures.RECT),
+    POINTER(wintypes.RECT),
     wintypes.UINT,
 ]
 TextOut = windll.gdi32.TextOutW
@@ -264,7 +264,7 @@ GetMenuItemRect.argtypes = [
     wintypes.HWND,
     wintypes.HMENU,
     wintypes.UINT,
-    POINTER(win32structures.RECT),
+    POINTER(wintypes.RECT),
 ]
 CheckMenuItem = windll.user32.CheckMenuItem
 CheckMenuItem.restype = wintypes.DWORD
@@ -381,7 +381,7 @@ GetClientRect = windll.user32.GetClientRect
 GetClientRect.restype = wintypes.BOOL
 GetClientRect.argtypes = [
     wintypes.HWND,
-    POINTER(win32structures.RECT),
+    POINTER(wintypes.RECT),
 ]
 IsChild = windll.user32.IsChild
 IsChild.restype = wintypes.BOOL
