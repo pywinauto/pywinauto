@@ -218,6 +218,8 @@ scroll_no_amount = IUIA().ui_automation_client.ScrollAmount_NoAmount
 scroll_large_increment = IUIA().ui_automation_client.ScrollAmount_LargeIncrement
 scroll_small_increment = IUIA().ui_automation_client.ScrollAmount_SmallIncrement
 
+vt_empty = IUIA().ui_automation_client.VARIANT.empty.vt
+vt_null = IUIA().ui_automation_client.VARIANT.null.vt
 
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name

@@ -627,10 +627,14 @@ if UIA_support:
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
 
-            # Mock a combobox without "ExpandCollapse" pattern
-            combo_box.expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())  # empty texts
-            # workaround works even if no ExpandCollapsePattern available
+            # Mock a combobox without "ItemContainer" pattern
+            combo_box.iface_item_container.FindItemByProperty = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())
             self.assertEqual(combo_box.texts(), ref_texts)
+
+            # Mock a combobox without "ExpandCollapse" pattern
+            # Expect empty texts
+            combo_box.iface_expand_collapse.Expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())
+            self.assertEqual(combo_box.texts(), [])
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
@@ -1355,14 +1359,14 @@ if UIA_support:
                     msg='Method .expand() for {} combo box must return self, always!'.format(combo_name))
                 self.assertTrue(combo.is_expanded(),
                     msg='{} combo box does NOT keep expanded state!'.format(combo_name))
-                
+
                 # collapse
                 self.assertEqual(combo.collapse(), combo,
                     msg='Method .collapse() for {} combo box must return self'.format(combo_name))
                 if combo != self.combo_simple:
                     self.assertFalse(combo.is_expanded(),
                         msg='{} combo box has not been collapsed!'.format(combo_name))
-                
+
                 # collapse already collapsed should keep collapsed state
                 self.assertEqual(combo.collapse(), combo,
                     msg='Method .collapse() for {} combo box must return self, always!'.format(combo_name))
