@@ -94,7 +94,9 @@ class StructureMixIn:
 
 
 class Structure(Struct, StructureMixIn):
+
     """Override the Structure class from ctypes to add printing and comparison"""
+
     pass
 
 ##====================================================================
