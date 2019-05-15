@@ -153,7 +153,7 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(wintypes.POINT, Structure):
+class POINT(wintypes.POINT):
 
     """Wrap the POINT structure and add extra functionality"""
 
@@ -170,6 +170,9 @@ class POINT(wintypes.POINT, Structure):
             return self.y
         else:
             raise IndexError("Illegal index")
+
+    __eq__ = Structure.__eq__
+    __str__ = Structure.__str__
 
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
