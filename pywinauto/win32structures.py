@@ -153,7 +153,7 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(wintypes.POINT):
+class POINT(wintypes.POINT, Structure):
 
     """Wrap the POINT structure and add extra functionality"""
 
