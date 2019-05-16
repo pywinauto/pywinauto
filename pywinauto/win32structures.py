@@ -99,6 +99,7 @@ class Structure(Struct, StructureMixIn):
 
     pass
 
+
 ##====================================================================
 #def PrintCtypesStruct(struct, exceptList = []):
 #    """Print out the fields of the ctypes Structure
