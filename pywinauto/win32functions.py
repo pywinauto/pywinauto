@@ -96,7 +96,7 @@ DrawText.argtypes = [
     wintypes.HDC,
     wintypes.LPCWSTR,
     c_int,
-    POINTER(win32structures.RECT),
+    POINTER(wintypes.RECT),
     wintypes.UINT,
 ]
 TextOut = windll.gdi32.TextOutW
@@ -184,12 +184,12 @@ SetCursorPos.argtypes = [
 GetCursorPos = windll.user32.GetCursorPos
 GetCursorPos.restype = wintypes.BOOL
 GetCursorPos.argtypes = [
-    POINTER(win32structures.POINT),
+    POINTER(wintypes.POINT),
 ]
 GetCaretPos = windll.user32.GetCaretPos
 GetCaretPos.restype = wintypes.BOOL
 GetCaretPos.argtypes = [
-    POINTER(win32structures.POINT),
+    POINTER(wintypes.POINT),
 ]
 GetKeyboardState = windll.user32.GetKeyboardState
 GetKeyboardState.restype = wintypes.BOOL
@@ -264,7 +264,7 @@ GetMenuItemRect.argtypes = [
     wintypes.HWND,
     wintypes.HMENU,
     wintypes.UINT,
-    POINTER(win32structures.RECT),
+    POINTER(wintypes.RECT),
 ]
 CheckMenuItem = windll.user32.CheckMenuItem
 CheckMenuItem.restype = wintypes.DWORD
@@ -310,7 +310,7 @@ MenuItemFromPoint.restype = c_int
 MenuItemFromPoint.argtypes = [
     wintypes.HWND,
     wintypes.HMENU,
-    POINTER(win32structures.POINT),
+    POINTER(wintypes.POINT),
 ]
 BringWindowToTop = windll.user32.BringWindowToTop
 BringWindowToTop.restype = wintypes.BOOL
@@ -381,7 +381,7 @@ GetClientRect = windll.user32.GetClientRect
 GetClientRect.restype = wintypes.BOOL
 GetClientRect.argtypes = [
     wintypes.HWND,
-    POINTER(win32structures.RECT),
+    POINTER(wintypes.RECT),
 ]
 IsChild = windll.user32.IsChild
 IsChild.restype = wintypes.BOOL
@@ -413,13 +413,13 @@ ClientToScreen = windll.user32.ClientToScreen
 ClientToScreen.restype = wintypes.BOOL
 ClientToScreen.argtypes = [
     wintypes.HWND,
-    POINTER(win32structures.POINT),
+    POINTER(wintypes.POINT),
 ]
 ScreenToClient = windll.user32.ScreenToClient
 ScreenToClient.restype = wintypes.BOOL
 ScreenToClient.argtypes = [
     wintypes.HWND,
-    POINTER(win32structures.POINT),
+    POINTER(wintypes.POINT),
 ]
 GetCurrentThreadId = windll.kernel32.GetCurrentThreadId
 GetCurrentThreadId.restype = wintypes.DWORD
@@ -624,7 +624,7 @@ ReleaseCapture.argtypes = [
 WindowFromPoint = windll.user32.WindowFromPoint
 WindowFromPoint.restype = wintypes.HWND
 WindowFromPoint.argtypes = [
-    win32structures.POINT,
+    wintypes.POINT,
 ]
 WaitForSingleObject = windll.kernel32.WaitForSingleObject
 WaitForSingleObject.restype = wintypes.DWORD

@@ -41,9 +41,9 @@ from .win32defines import LF_FACESIZE
 from . import sysinfo
 
 
-class Structure(Struct):
+class StructureMixIn(object):
 
-    """Override the Structure class from ctypes to add printing and comparison"""
+    """Define printing and comparison behaviors to be used for the Structure class from ctypes"""
 
     #----------------------------------------------------------------
     def __str__(self):
@@ -91,6 +91,14 @@ class Structure(Struct):
                 return False
 
         return False
+
+
+class Structure(Struct, StructureMixIn):
+
+    """Override the Structure class from ctypes to add printing and comparison"""
+
+    pass
+
 
 ##====================================================================
 #def PrintCtypesStruct(struct, exceptList = []):
@@ -153,13 +161,9 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(Structure):
-    _pack_ = 4
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 307
-        ('x', LONG),
-        ('y', LONG),
-    ]
+class POINT(wintypes.POINT, StructureMixIn):
+
+    """Wrap the POINT structure and add extra functionality"""
 
     def __iter__(self):
         """Allow iteration through coordinates"""
@@ -174,6 +178,7 @@ class POINT(Structure):
             return self.y
         else:
             raise IndexError("Illegal index")
+
 
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
