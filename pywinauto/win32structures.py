@@ -41,7 +41,7 @@ from .win32defines import LF_FACESIZE
 from . import sysinfo
 
 
-class StructureMixIn:
+class StructureMixIn(object):
 
     """Define printing and comparison behaviors to be used for the Structure class from ctypes"""
 
