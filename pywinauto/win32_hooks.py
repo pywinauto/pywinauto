@@ -569,7 +569,7 @@ class Hook(object):
                 """Forward the hook event to ourselves"""
                 return self._keyboard_low_level_handler(ncode, wparam, lparam)
 
-            self.keyboard_id = windll.user32.SetWindowsHookExW(
+            self.keyboard_id = windll.user32.SetWindowsHookExA(
                 win32con.WH_KEYBOARD_LL,
                 _kbd_ll_cb,
                 win32api.GetModuleHandle(None),
