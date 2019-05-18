@@ -200,7 +200,11 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def texts(self):
         """Return the text of the items in the combobox"""
-        texts = []
+        texts = self._texts_from_item_container()
+        if len(texts):
+            # flatten the list
+            return [ t for lst in texts for t in lst ]
+
         # ComboBox has to be expanded to populate a list of its children items
         try:
             super(ComboBoxWrapper, self).expand()
@@ -851,10 +855,19 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                     raise ValueError("Element '{0}' not found".format(row))
         elif isinstance(row, six.integer_types):
             # Get the item by a row index
-            # TODO: Can't get virtualized items that way
-            # TODO: See TODO section of item_count() method for details
-            list_items = self.children(content_only=True)
-            itm = list_items[self.__resolve_row_index(row)]
+            try:
+                com_elem = 0
+                for _ in range(0, self.__resolve_row_index(row) + 1):
+                    com_elem = self.iface_item_container.FindItemByProperty(com_elem, 0, uia_defs.vt_empty)
+                # Try to load element using VirtualizedItem pattern
+                try:
+                    get_elem_interface(com_elem, "VirtualizedItem").Realize()
+                except NoPatternInterfaceError:
+                    pass
+                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+            except (NoPatternInterfaceError, ValueError, AttributeError):
+                list_items = self.children(content_only=True)
+                itm = list_items[self.__resolve_row_index(row)]
         else:
             raise TypeError("String type or integer is expected")
 
