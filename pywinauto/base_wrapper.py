@@ -38,7 +38,6 @@ import ctypes
 import locale
 import re
 import time
-import win32process
 import win32gui
 import win32con
 import win32api
@@ -945,7 +944,7 @@ class BaseWrapper(object):
 
         # attach the Python process with the process that self is in
         if self.element_info.handle:
-            window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
+            window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
             win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
             # TODO: check return value of AttachThreadInput properly
         else:

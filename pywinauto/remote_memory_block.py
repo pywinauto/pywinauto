@@ -36,7 +36,6 @@ from __future__ import print_function
 
 import sys
 import win32api
-import win32process
 
 from ctypes import wintypes
 from ctypes import c_void_p
@@ -76,7 +75,9 @@ class RemoteMemoryBlock(object):
 
         self._as_parameter_ = self.mem_address
 
-        _, process_id = win32process.GetWindowThreadProcessId(self.handle)
+        pid = wintypes.DWORD()
+        win32functions.GetWindowThreadProcessId(self.handle, byref(pid))
+        process_id = pid.value
         if not process_id:
             raise AccessDenied(
                 str(WinError()) + " Cannot get process ID from handle.")
