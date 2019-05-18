@@ -627,6 +627,10 @@ if UIA_support:
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
 
+            # Mock a 0 pointer to COM element
+            combo_box.iface_item_container.FindItemByProperty = mock.Mock(return_value=0)
+            self.assertEqual(combo_box.texts(), ref_texts)
+
             # Mock a combobox without "ItemContainer" pattern
             combo_box.iface_item_container.FindItemByProperty = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())
             self.assertEqual(combo_box.texts(), ref_texts)
