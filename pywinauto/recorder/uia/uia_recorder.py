@@ -5,45 +5,18 @@ from comtypes import COMObject, COMError
 
 from ... import win32_hooks
 from ...win32structures import POINT
+from ...uia_defines import IUIA, window_visual_state_normal
 from ...uia_element_info import UIAElementInfo
 
 from ..control_tree import ControlTree
 from ..base_recorder import BaseRecorder
-from .uia_recorder_defines import *
-
-from pywin.mfc import dialog
-import win32ui
-import win32con
-
-
-class ProgressBarDialog(dialog.Dialog):
-    title = "Updating..."
-    style = (win32con.DS_MODALFRAME | win32con.WS_POPUP | win32con.WS_VISIBLE | win32con.WS_CAPTION |
-             win32con.DS_SETFONT | win32con.WS_EX_TOPMOST)
-    cs = (win32con.WS_CHILD | win32con.WS_VISIBLE)
-    dimensions = (0, 0, 215, 20)
-    title_font = (8, "MS Sans Serif")
-
-    def __init__(self, rect, *args, **kwargs):
-        self.rect = rect
-        if rect:
-            self.dimensions = (rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)
-        dialog.Dialog.__init__(self, [[self.title, self.dimensions, self.style, None, self.title_font], ])
-        self.pbar = win32ui.CreateProgressCtrl()
-
-    def OnInitDialog(self):
-        rc = dialog.Dialog.OnInitDialog(self)
-        self.pbar.CreateWindow(self.cs, (10, 10, 310 if not self.rect else self.dimensions[2] - 20, 24), self, 1001)
-        return rc
-
-    def show(self):
-        self.CreateWindow()
-        self.SetWindowPos(win32con.HWND_TOPMOST, self.dimensions,
-                          win32con.SWP_SHOWWINDOW | (win32con.SWP_NOMOVE | win32con.SWP_NOSIZE) if not self.rect else 0)
-
-    def close(self):
-        self.OnCancel()
-
+from ..win32_progress_bar import ProgressBarDialog
+from ..recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
+    PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
+from ..event_handlers import SelectionChangedHandler, InvokeHandler, MenuOpenedHandler, MenuClosedHandler, \
+    ExpandCollapseHandler, ToggleHandler, SelectHandler, MouseClickHandler, KeyboardHandler
+from .uia_recorder_defines import EVENT_ID_TO_NAME_MAP, PROPERTY_ID_TO_NAME_MAP, STRUCTURE_CHANGE_TYPE_TO_NAME_MAP, \
+    StructureEvent
 
 _ignored_events = [
     # Events which are handled by separate handlers
@@ -79,8 +52,51 @@ _cached_properties = [
     IUIA().UIA_dll.UIA_NamePropertyId,
 ]
 
+EVENT_PATTERN_MAP = [
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
+                              PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
+                              ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED))),
+     SelectionChangedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.INVOKED),)),
+     InvokeHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.MENU_OPENED),)),
+     MenuOpenedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.MENU_CLOSED),)),
+     MenuClosedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),
+                              PropertyEvent(property_name=PROPERTY.TOGGLE_STATE))),
+     ExpandCollapseHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),)),
+     ExpandCollapseHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.TOGGLE_STATE),)),
+     ToggleHandler),
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),)),
+     SelectHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
+     MouseClickHandler),
+
+    (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
+     KeyboardHandler)
+]
+
 
 class UiaRecorder(COMObject, BaseRecorder):
+
     """Record UIA, keyboard and mouse events"""
 
     _com_interfaces_ = [IUIA().UIA_dll.IUIAutomationEventHandler,
@@ -98,6 +114,12 @@ class UiaRecorder(COMObject, BaseRecorder):
         self.record_props = record_props
         self.record_focus = record_focus
         self.record_struct = record_struct
+
+        if self.record_struct is True:
+            _ignored_events.remove(IUIA().known_events_ids[IUIA().UIA_dll.UIA_StructureChangedEventId])
+
+        # Threading Lock for _update() method
+        self.update_lock = threading.Lock()
 
     def _add_handlers(self, element):
         """Add UIA handlers to element and all its descendants"""
@@ -144,7 +166,7 @@ class UiaRecorder(COMObject, BaseRecorder):
             # Add event handlers to all app's controls
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
             self._update(rebuild_tree=True, add_handlers_to=self.wrapper.element_info.element)
-        except Exception as exc:
+        except Exception:
             # TODO: Sometime we can't catch WindowClosed event in WPF applications
             self.stop()
             self.script += u"app.kill()\n"
@@ -157,15 +179,16 @@ class UiaRecorder(COMObject, BaseRecorder):
         self.hook.stop()
 
     def _update(self, rebuild_tree=False, add_handlers_to=None):
+        if not self.update_lock.acquire(False):
+            # TODO: implement synchronization and update queue
+            return
+
         # Draw progress window
-        import time
-        pbar_dlg = ProgressBarDialog(self.control_tree.root.rect if self.control_tree.root else None)
+        pbar_dlg = ProgressBarDialog(self.wrapper.rectangle())
         pbar_dlg.show()
 
         # Temporary disable mouse and keyboard event processing
         self.hook.stop()
-        time.sleep(1)
-        # exit(0)
         self.hook_thread.join(1)
 
         # Subscribe to events and rebuild control tree in separate threads to speed up the process
@@ -192,6 +215,8 @@ class UiaRecorder(COMObject, BaseRecorder):
         # Enable mouse and keyboard event processing back
         self.hook_thread = threading.Thread(target=self.hook_target)
         self.hook_thread.start()
+
+        self.update_lock.release()
 
     def hook_target(self):
         """Target function for hook thread"""
@@ -230,12 +255,14 @@ class UiaRecorder(COMObject, BaseRecorder):
         event = ApplicationEvent(name=EVENT_ID_TO_NAME_MAP[eventID], sender=UIAElementInfo(sender))
         self.add_to_log(event)
 
-        if event.name == EVENT.MENU_START:
-            self._update(rebuild_tree=True, add_handlers_to=None)
-        elif event.name == EVENT.MENU_OPENED:
-            self._update(rebuild_tree=False, add_handlers_to=sender)
+        if event.name == EVENT.MENU_OPENED:
+            self._update(rebuild_tree=True, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_OPENED:
             self._update(rebuild_tree=True, add_handlers_to=sender)
+        elif event.name == EVENT.SELECTION_ELEMENT_SELECTED:
+            node = self.control_tree.node_from_element_info(UIAElementInfo(sender))
+            if node.ctrl_type == "TabItem":
+                self._update(rebuild_tree=True, add_handlers_to=sender)
         elif event.name == EVENT.WINDOW_CLOSED:
             # Detect if top_window is already closed
             try:
@@ -257,6 +284,10 @@ class UiaRecorder(COMObject, BaseRecorder):
                               new_value=newValue.value if hasattr(newValue, "value") else newValue)
         self.add_to_log(event)
 
+        if (PROPERTY_ID_TO_NAME_MAP[propertyId] == PROPERTY.WINDOW_WINDOW_VISUAL_STATE and
+                newValue.value == window_visual_state_normal):
+            self._update(rebuild_tree=True, add_handlers_to=sender)
+
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
         if not self.recorder_start_event.is_set():
             return
@@ -268,5 +299,10 @@ class UiaRecorder(COMObject, BaseRecorder):
         if not self.recorder_start_event.is_set():
             return
 
-        event = StructureEvent(sender=UIAElementInfo(sender), change_type=changeType, runtime_id=runtimeId)
+        event = StructureEvent(sender=UIAElementInfo(sender), change_type=STRUCTURE_CHANGE_TYPE_TO_NAME_MAP[changeType],
+                               runtime_id=runtimeId)
         self.add_to_log(event)
+
+    @property
+    def event_patterns(self):
+        return EVENT_PATTERN_MAP

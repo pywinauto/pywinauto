@@ -57,21 +57,21 @@ class FindWindowsTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         # start the application
         self.app = Application(backend='win32')
-        self.app = self.app.Start(mfc_app_1)
+        self.app = self.app.start(mfc_app_1)
 
         self.dlg = self.app.CommonControlsSample
 
     def tearDown(self):
         """Close the application after tests"""
-        self.app.kill_()
+        self.app.kill()
 
     def test_find_window(self):
         """Test if function find_window() works as expected including raising the exceptions"""
-        ctrl = self.dlg.OK.WrapperObject()
+        ctrl = self.dlg.OK.wrapper_object()
         handle = find_window(process=self.app.process, best_match='OK', top_level_only=False)
 
         self.assertEqual(handle, ctrl.handle)

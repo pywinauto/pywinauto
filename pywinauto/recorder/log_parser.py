@@ -1,51 +1,8 @@
 from six import string_types
 
 from .recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
-    PropertyEvent, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN, get_window_access_name_str
-from .event_handlers import EventHandler, SelectionChangedHandler, MenuOpenedHandler, MenuClosedHandler, \
-    ExpandCollapseHandler, MouseClickHandler, KeyboardHandler
-
-EVENT_PATTERN_MAP = [
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
-                              PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
-                              ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED))),
-     SelectionChangedHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(ApplicationEvent(name=EVENT.INVOKED),)),
-     "invoke()"),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(ApplicationEvent(name=EVENT.MENU_OPENED),)),
-     MenuOpenedHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(ApplicationEvent(name=EVENT.MENU_CLOSED),)),
-     MenuClosedHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),
-                              PropertyEvent(property_name=PROPERTY.TOGGLE_STATE))),
-     ExpandCollapseHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),)),
-     ExpandCollapseHandler),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.TOGGLE_STATE),)),
-     "toggle()"),
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
-                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),)),
-     "select()"),
-
-    (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
-     MouseClickHandler),
-
-    (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
-     KeyboardHandler)
-]
+    HOOK_KEY_DOWN, get_window_access_name_str
+from .event_handlers import EventHandler
 
 
 class LogParser(object):
@@ -59,20 +16,20 @@ class LogParser(object):
         # TODO: General assumption: all hook events come before UIA events
         # TODO: click or keyboard button (hook) -> what happened (uia)
         action_log = []
-        iter = 0
+        i = 0
         for event in self.recorder.event_log:
             if isinstance(event, ApplicationEvent):
                 # Only add events if hook event has been met
-                if iter > 0:
-                    action_log[iter - 1].app_events.append(event)
+                if i > 0:
+                    action_log[i - 1].app_events.append(event)
             elif isinstance(event, RecorderMouseEvent):
                 # TODO: only add key down events, assume that user performs only clicks
                 if event.event_type == HOOK_KEY_DOWN:
                     action_log.append(EventPattern(hook_event=event, app_events=[]))
-                    iter += 1
+                    i += 1
             elif isinstance(event, RecorderKeyboardEvent):
                 action_log.append(EventPattern(hook_event=event, app_events=[]))
-                iter += 1
+                i += 1
         return action_log
 
     def parse_current_log(self):
@@ -92,7 +49,7 @@ class LogParser(object):
                       "".format(hook_event, app_events))
 
             # Scan action for known patterns
-            for event_pattern, handler in EVENT_PATTERN_MAP:
+            for event_pattern, handler in self.recorder.event_patterns:
                 subpattern = action.get_subpattern(event_pattern)
                 if subpattern:
                     if hook_event.control_tree_node:

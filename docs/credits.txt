@@ -6,7 +6,7 @@ Vasily Ryabov, Valentin Kroupkin, Alexander Rumyantsev - MS UI Automation backen
 
 Ivan Magazinnik - mouse/keyboard input emulation on Linux
 
-Maxim Samokhvalov - initial implementation of hooks.py module
+Maxim Samokhvalov - initial implementation of win32_hooks module
 
 Intel Corporation - Vasily Ryabov revived and maintained the project during his work at Intel (pywinauto 0.5.x)
 

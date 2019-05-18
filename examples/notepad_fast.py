@@ -60,7 +60,7 @@ def run_notepad():
     print("if pywinauto tries to access a window that is not accessible yet")
 
     # use fast timings - but allow to wait for windows a long time
-    Timings.Fast()
+    Timings.fast()
     Timings.window_find_timeout = 10
 
     start = time.time()

@@ -32,10 +32,25 @@
 
 """Python package for automating GUI manipulation on Windows"""
 
-__version__ = "0.6.5"
+__version__ = "0.6.6"
 
 import sys  # noqa: E402
 import warnings  # noqa: E402
+
+
+def deprecated(method, deprecated_name=None):
+    """Decorator for deprecated methods"""
+    if deprecated_name is None:
+        deprecated_name = ''.join([subname.capitalize() for subname in method.__name__.split('_')])
+
+    def wrap(*args, **kwargs):
+        warnings.simplefilter("default", DeprecationWarning)
+        warnings.warn("Method .{}() is deprecated, use .{}() instead." \
+            "".format(deprecated_name, method.__name__), DeprecationWarning, stacklevel=2)
+        return method(*args, **kwargs)
+
+    return wrap
+
 
 if sys.platform == 'win32':
     # Importing only pythoncom can fail with the errors like:
@@ -89,23 +104,40 @@ if sys.platform == 'win32':
 
 
     class Desktop(object):
-
         """Simple class to call something like ``Desktop().WindowName.ControlName.method()``"""
 
         def __init__(self, backend=None):
             """Create desktop element description"""
-            if backend:
-                self.backend = backend
-            else:
-                self.backend = backends.registry.name
+            if not backend:
+                backend = backends.registry.name
+            if backend not in backends.registry.backends:
+                raise ValueError('Backend "{0}" is not registered!'.format(backend))
+            self.backend = backends.registry.backends[backend]
 
-        def window(self, **criterion):
+        def window(self, **kwargs):
             """Create WindowSpecification object for top-level window"""
-            if 'top_level_only' not in criterion:
-                criterion['top_level_only'] = True
-            if 'backend' not in criterion:
-                criterion['backend'] = self.backend
-            return WindowSpecification(criterion)
+            if 'top_level_only' not in kwargs:
+                kwargs['top_level_only'] = True
+            if 'backend' in kwargs:
+                raise ValueError('Using another backend than set in Desktop constructor is not allowed!')
+            kwargs['backend'] = self.backend.name
+            return WindowSpecification(kwargs)
+
+        def windows(self, **kwargs):
+            """Return a list of wrapped top level windows"""
+            if 'backend' in kwargs:
+                raise ValueError('Using another backend than set in Desktop constructor is not allowed!!')
+
+            if 'visible_only' not in kwargs:
+                kwargs['visible_only'] = False
+
+            if 'enabled_only' not in kwargs:
+                kwargs['enabled_only'] = False
+
+            kwargs['backend'] = self.backend.name
+
+            windows = findwindows.find_elements(**kwargs)
+            return [self.backend.generic_wrapper_class(win) for win in windows]
 
         def __getitem__(self, key):
             """Allow describe top-level window as Desktop()['Window Caption']"""
@@ -117,3 +149,13 @@ if sys.platform == 'win32':
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
                 return self[attr_name]  # delegate it to __get_item__
+
+        def from_point(self, x, y):
+            """Get wrapper object for element at specified screen coordinates (x, y)"""
+            element_info = self.backend.element_info_class.from_point(x, y)
+            return self.backend.generic_wrapper_class(element_info)
+
+        def top_from_point(self, x, y):
+            """Get wrapper object for top level element at specified screen coordinates (x, y)"""
+            top_element_info = self.backend.element_info_class.top_from_point(x, y)
+            return self.backend.generic_wrapper_class(top_element_info)

@@ -34,6 +34,7 @@
 import sys
 import time
 if sys.platform == 'win32':
+    import pywintypes
     from . import win32functions
     from . import win32defines
     from .timings import Timings
@@ -51,6 +52,17 @@ BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
 
 
 if sys.platform == 'win32':
+
+    def _set_cursor_pos(coords):
+        """Wrapped SetCursorPos that handles non-active desktop case (coords is a tuple)"""
+        try:
+            win32api.SetCursorPos(coords)
+        except pywintypes.error as exc:
+            if str(exc) == "(0, 'SetCursorPos', 'No error message is available')":
+                raise RuntimeError("There is no active desktop required for moving mouse cursor!\n")
+            else:
+                raise exc
+
     def _perform_click_input(
         button="left",
         coords=(None, None),
@@ -122,10 +134,10 @@ if sys.platform == 'win32':
                 time.sleep(Timings.after_clickinput_wait)
 
         # set the cursor position
-        win32api.SetCursorPos((coords[0], coords[1]))
+        _set_cursor_pos((coords[0], coords[1]))
         time.sleep(Timings.after_setcursorpos_wait)
         if win32api.GetCursorPos() != (coords[0], coords[1]):
-            win32api.SetCursorPos((coords[0], coords[1]))
+            _set_cursor_pos((coords[0], coords[1]))
             time.sleep(Timings.after_setcursorpos_wait)
 
         keyboard_keys = pressed.lower().split()

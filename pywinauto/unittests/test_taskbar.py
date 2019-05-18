@@ -84,16 +84,16 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     handle = findwindows.find_elements(active_only=True,
                                        class_name=class_name)[-1].handle
     window = WindowSpecification({'handle': handle, 'backend': 'win32', })
-    explorer = Application().Connect(process=window.process_id())
+    explorer = Application().connect(process=window.process_id())
     cur_state = None
 
     try:
         # Go to "Control Panel -> Notification Area Icons"
         cmd_str = r'control /name Microsoft.NotificationAreaIcons'
         for _ in range(3):
-            window.Wait("ready", timeout=_ready_timeout)
+            window.wait("ready", timeout=_ready_timeout)
             window.AddressBandRoot.click_input()
-            explorer.WaitCPUUsageLower(threshold=2, timeout=_ready_timeout)
+            explorer.wait_cpu_usage_lower(threshold=2, timeout=_ready_timeout)
             window.type_keys(cmd_str, with_spaces=True, set_foreground=True)
             # verfiy the text in the address combobox after type_keys finished
             cmbx_spec = window.AddressBandRoot.ComboBoxEx
@@ -111,19 +111,19 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
             with_spaces=True,
             set_foreground=True
         )
-        explorer.WaitCPUUsageLower(threshold=5, timeout=_ready_timeout)
+        explorer.wait_cpu_usage_lower(threshold=5, timeout=_ready_timeout)
 
         # Get the new opened applet
         notif_area = Desktop().window(title="Notification Area Icons",
                                       class_name=class_name)
-        notif_area.Wait("ready", timeout=_ready_timeout)
-        cur_state = notif_area.CheckBox.GetCheckState()
+        notif_area.wait("ready", timeout=_ready_timeout)
+        cur_state = notif_area.CheckBox.get_check_state()
 
         # toggle the checkbox if it differs and close the applet
         if bool(cur_state) != show_all:
             notif_area.CheckBox.click_input()
         notif_area.Ok.click_input()
-        explorer.WaitCPUUsageLower(threshold=5, timeout=_ready_timeout)
+        explorer.wait_cpu_usage_lower(threshold=5, timeout=_ready_timeout)
 
     except Exception as e:
         if debug_img:
@@ -135,7 +135,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
 
     finally:
         # close the explorer window
-        window.Close()
+        window.close()
 
     return cur_state
 
@@ -150,7 +150,7 @@ def _wait_minimized(dlg):
     wait_until(
         timeout=_ready_timeout,
         retry_interval=_retry_interval,
-        func=lambda: (dlg.GetShowState() == win32defines.SW_SHOWMINIMIZED)
+        func=lambda: (dlg.get_show_state() == win32defines.SW_SHOWMINIMIZED)
     )
     return True
 
@@ -161,7 +161,7 @@ class TaskbarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         self.tm = _ready_timeout
         app = Application(backend='win32')
@@ -169,12 +169,12 @@ class TaskbarTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.top_window()
         mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
-        self.dlg.Wait('ready', timeout=self.tm)
+        self.dlg.wait('ready', timeout=self.tm)
 
     def tearDown(self):
         """Close the application after tests"""
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
-        self.dlg.WaitNot('ready')
+        self.dlg.send_message(win32defines.WM_CLOSE)
+        self.dlg.wait_not('ready')
 
         # cleanup additional unclosed sampleapps
         l = pywinauto.actionlogger.ActionLogger()
@@ -184,20 +184,20 @@ class TaskbarTestCases(unittest.TestCase):
                 app = Application()
                 app.connect(path="TrayMenu.exe")
                 l.log("Forse closing a leftover app: {0}".format(app))
-                app.kill_()
+                app.kill()
         except(ProcessNotFoundError):
             l.log("No more leftovers. All good.")
 
     def testTaskbar(self):
         # just make sure it's found
-        taskbar.TaskBar.Wait('visible', timeout=self.tm)
+        taskbar.TaskBar.wait('visible', timeout=self.tm)
 
     '''
     def testStartButton(self): # TODO: fix it for AppVeyor
         taskbar.StartButton.click_input()
 
         sample_app_exe = os.path.join(mfc_samples_folder, u"TrayMenu.exe")
-        start_menu = taskbar.explorer_app.Window_(class_name='DV2ControlHost')
+        start_menu = taskbar.explorer_app.window(class_name='DV2ControlHost')
         start_menu.SearchEditBoxWrapperClass.click_input()
         start_menu.SearchEditBoxWrapperClass.type_keys(
            sample_app_exe() + '{ENTER}',
@@ -211,24 +211,24 @@ class TaskbarTestCases(unittest.TestCase):
     '''
 
     def testSystemTray(self):
-        taskbar.SystemTray.Wait('visible', timeout=self.tm)  # just make sure it's found
+        taskbar.SystemTray.wait('visible', timeout=self.tm)  # just make sure it's found
 
     def testClock(self):
         "Test opening/closing of a system clock applet"
 
         # Just hide a sample app as we don't use it in this test
-        self.dlg.Minimize()
+        self.dlg.minimize()
         _wait_minimized(self.dlg)
 
         # Launch Clock applet
         taskbar.Clock.click_input()
-        ClockWindow = taskbar.explorer_app.Window_(class_name='ClockFlyoutWindow')
-        ClockWindow.Wait('visible', timeout=self.tm)
+        ClockWindow = taskbar.explorer_app.window(class_name='ClockFlyoutWindow')
+        ClockWindow.wait('visible', timeout=self.tm)
 
         # Close the applet with Esc, we don't click again on it because
         # the second click sometimes doesn't hide a clock but just relaunch it
         taskbar.Clock.type_keys("{ESC}", set_foreground=False)
-        ClockWindow.WaitNot('visible', timeout=self.tm)
+        ClockWindow.wait_not('visible', timeout=self.tm)
 
     def testClickVisibleIcon(self):
         """
@@ -248,14 +248,14 @@ class TaskbarTestCases(unittest.TestCase):
             debug_img="%s_01" % (self.id())
         )
 
-        self.dlg.Minimize()
+        self.dlg.minimize()
         _wait_minimized(self.dlg)
 
         menu_window = [None]
 
         # Click in the visible area and wait for a popup menu
         def _show_popup_menu():
-            taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=self.tm)
+            taskbar.explorer_app.wait_cpu_usage_lower(threshold=5, timeout=self.tm)
             taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
             menu = self.app.top_window().children()[0]
             res = isinstance(menu, ToolbarWrapper) and menu.is_visible()
@@ -263,13 +263,13 @@ class TaskbarTestCases(unittest.TestCase):
             return res
 
         wait_until(self.tm, _retry_interval, _show_popup_menu)
-        menu_window[0].MenuBarClickInput("#2", self.app)
+        menu_window[0].menu_bar_click_input("#2", self.app)
         popup_window = self.app.top_window()
-        hdl = self.dlg.PopupWindow()
-        self.assertEquals(popup_window.handle, hdl)
+        hdl = self.dlg.popup_window()
+        self.assertEqual(popup_window.handle, hdl)
 
         taskbar.ClickSystemTrayIcon('MFCTrayDemo', double=True)
-        self.dlg.Wait('active', timeout=self.tm)
+        self.dlg.wait('active', timeout=self.tm)
 
         # Restore Notification Area settings
         _toggle_notification_area_icons(show_all=orig_hid_state,
@@ -293,7 +293,7 @@ class TaskbarTestCases(unittest.TestCase):
             debug_img="%s_01" % (self.id())
         )
 
-        self.dlg.Minimize()
+        self.dlg.minimize()
         _wait_minimized(self.dlg)
 
         # Run one more instance of the sample app
@@ -301,26 +301,26 @@ class TaskbarTestCases(unittest.TestCase):
         app2 = Application()
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         dlg2 = app2.top_window()
-        dlg2.Wait('visible', timeout=self.tm)
-        dlg2.Minimize()
+        dlg2.wait('visible', timeout=self.tm)
+        dlg2.minimize()
         _wait_minimized(dlg2)
 
         # Click in the hidden area
-        taskbar.explorer_app.WaitCPUUsageLower(threshold=5, timeout=40)
+        taskbar.explorer_app.wait_cpu_usage_lower(threshold=5, timeout=40)
         taskbar.ClickHiddenSystemTrayIcon('MFCTrayDemo', double=True)
-        self.dlg.Wait('visible', timeout=self.tm)
+        self.dlg.wait('visible', timeout=self.tm)
 
         # Restore Notification Area settings
         _toggle_notification_area_icons(show_all=orig_hid_state,
                                         debug_img="%s_02" % (self.id()))
 
-        dlg2.SendMessage(win32defines.WM_CLOSE)
+        dlg2.send_message(win32defines.WM_CLOSE)
 
     def testClickCustomizeButton(self):
         "Test click on the 'show hidden icons' button"
 
         # Minimize to tray
-        self.dlg.Minimize()
+        self.dlg.minimize()
         _wait_minimized(self.dlg)
 
         # Make sure that the hidden icons area is enabled
@@ -334,14 +334,14 @@ class TaskbarTestCases(unittest.TestCase):
         app2 = Application()
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         dlg2 = app2.top_window()
-        dlg2.Wait('visible', timeout=self.tm)
-        dlg2.Minimize()
+        dlg2.wait('visible', timeout=self.tm)
+        dlg2.minimize()
         _wait_minimized(dlg2)
 
         # Test click on "Show Hidden Icons" button
         taskbar.ShowHiddenIconsButton.click_input()
-        niow_dlg = taskbar.explorer_app.Window_(class_name='NotifyIconOverflowWindow')
-        niow_dlg.OverflowNotificationAreaToolbar.Wait('ready', timeout=self.tm)
+        niow_dlg = taskbar.explorer_app.window(class_name='NotifyIconOverflowWindow')
+        niow_dlg.OverflowNotificationAreaToolbar.wait('ready', timeout=self.tm)
         niow_dlg.SysLink.click_input()
 
         nai = Desktop().window(
@@ -349,17 +349,17 @@ class TaskbarTestCases(unittest.TestCase):
             class_name="CabinetWClass"
         )
         nai.wait('ready')
-        origAlwaysShow = nai.CheckBox.GetCheckState()
+        origAlwaysShow = nai.CheckBox.get_check_state()
         if not origAlwaysShow:
             nai.CheckBox.click_input()
-        nai.OK.Click()
+        nai.OK.click()
 
         # Restore Notification Area settings
         _toggle_notification_area_icons(show_all=orig_hid_state,
                                         debug_img="%s_02" % (self.id()))
 
         # close the second sample app
-        dlg2.SendMessage(win32defines.WM_CLOSE)
+        dlg2.send_message(win32defines.WM_CLOSE)
 
 if __name__ == "__main__":
     unittest.main()

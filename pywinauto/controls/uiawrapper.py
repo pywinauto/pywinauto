@@ -35,8 +35,9 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import six
-import comtypes
 import time
+import warnings
+import comtypes
 
 from .. import backend
 from ..timings import Timings
@@ -46,8 +47,6 @@ from ..base_wrapper import BaseMeta
 from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
 from ..uia_element_info import UIAElementInfo, elements_from_uia_array
-
-from ..recorder.recorder_defines import EVENT, PROPERTY
 
 # =========================================================================
 _friendly_classes = {
@@ -154,11 +153,6 @@ class UIAWrapper(BaseWrapper):
     """
 
     _control_types = []
-
-    possible_handlers = {
-        EVENT.MENU_OPENED: None,
-        EVENT.MENU_CLOSED: None
-    }
 
     # ------------------------------------------------------------
     def __new__(cls, element_info):
@@ -316,6 +310,13 @@ class UIAWrapper(BaseWrapper):
         return uia_defs.get_elem_interface(elem, "VirtualizedItem")
 
     # ------------------------------------------------------------
+    @lazy_property
+    def iface_legacy_accessible(self):
+        """Get the element's LegacyIAccessible interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+
+    # ------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -329,15 +330,11 @@ class UIAWrapper(BaseWrapper):
     # ------------------------------------------------------------
     def legacy_properties(self):
         """Get the element's LegacyIAccessible control pattern interface properties"""
-        elem = self.element_info.element
-        impl = uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+        impl = self.iface_legacy_accessible
         property_name_identifier = 'Current'
 
-        interface_properties = [prop for prop in dir(LegacyIAccessiblePattern)
-                                if (isinstance(getattr(LegacyIAccessiblePattern, prop), property)
-                                and property_name_identifier in prop)]
-
-        return {prop.replace(property_name_identifier, '') : getattr(impl, prop) for prop in interface_properties}
+        interface_properties = [prop for prop in dir(impl) if prop.startswith(property_name_identifier)]
+        return {prop.replace(property_name_identifier, ''): getattr(impl, prop) for prop in interface_properties}
 
     # ------------------------------------------------------------
     def friendly_class_name(self):
@@ -381,13 +378,23 @@ class UIAWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def set_focus(self):
         """Set the focus to this element"""
-        if self.is_keyboard_focusable() and not self.has_keyboard_focus():
-            try:
-                self.element_info.element.SetFocus()
-            except comtypes.COMError:
-                pass  # TODO: add RuntimeWarning here
+        try:
+            if self.is_minimized():
+                if self.was_maximized():
+                    self.maximize()
+                else:
+                    self.restore()
+        except uia_defs.NoPatternInterfaceError:
+            pass
+        try:
+            self.element_info.element.SetFocus()
+        except comtypes.COMError as exc:
+            warnings.warn('The window has not been focused due to ' \
+                'COMError: {}'.format(exc), RuntimeWarning)
 
         return self
+
+    # TODO: figure out how to implement .has_focus() method (if no handle available)
 
     # -----------------------------------------------------------
     def close(self):
@@ -645,7 +652,7 @@ class UIAWrapper(BaseWrapper):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()
         else:
-            raise IndexError("item not found")
+            raise IndexError("item '{0}' not found".format(item))
 
     # -----------------------------------------------------------
     def is_active(self):
@@ -751,6 +758,20 @@ class UIAWrapper(BaseWrapper):
                 """)
 
         return self
+
+    # -----------------------------------------------------------
+    def _texts_from_item_container(self):
+        """Get texts through the ItemContainer interface"""
+        texts = []
+        try:
+            com_elem = self.iface_item_container.FindItemByProperty(0, 0, uia_defs.vt_empty)
+            while com_elem:
+                itm = UIAWrapper(UIAElementInfo(com_elem))
+                texts.append(itm.texts())
+                com_elem = self.iface_item_container.FindItemByProperty(com_elem, 0, uia_defs.vt_empty)
+        except (uia_defs.NoPatternInterfaceError):
+            pass
+        return texts
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

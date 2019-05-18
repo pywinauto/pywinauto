@@ -37,6 +37,7 @@ import six
 
 
 class _Singleton(type):
+
     """
     Singleton metaclass implementation from StackOverflow
 
@@ -53,6 +54,7 @@ class _Singleton(type):
 
 @six.add_metaclass(_Singleton)
 class IUIA(object):
+
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
 
     def __init__(self):
@@ -78,8 +80,8 @@ class IUIA(object):
 
         # Collect all known control types
         self._control_types = self._get_attrs_ending_with('ControlTypeId')
-        self.known_control_types = {}  # string id: numeric id
-        self.known_control_type_ids = {}  # numeric id: string id
+        self.known_control_types = {'InvalidControlType': 0}  # string id: numeric id
+        self.known_control_type_ids = {0: 'InvalidControlType'}  # numeric id: string id
 
         for ctrl_type in self._control_types:
             type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
@@ -242,9 +244,14 @@ structure_change_children_bulk_removed = IUIA().ui_automation_client.StructureCh
 structure_change_children_invalidated = IUIA().ui_automation_client.StructureChangeType_ChildrenInvalidated
 structure_change_children_reordered = IUIA().ui_automation_client.StructureChangeType_ChildrenReordered
 
+vt_empty = IUIA().ui_automation_client.VARIANT.empty.vt
+vt_null = IUIA().ui_automation_client.VARIANT.null.vt
+
 
 class NoPatternInterfaceError(Exception):
+
     """There is no such interface for the specified pattern"""
+
     pass
 
 

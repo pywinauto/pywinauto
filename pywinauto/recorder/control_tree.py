@@ -6,9 +6,10 @@ from ..element_info import ElementInfo
 
 
 class ControlTreeNode(object):
-    def __init__(self, wrapper, names, rect):
+    def __init__(self, wrapper, names, ctrl_type, rect):
         self.wrapper = wrapper
         self.names = names
+        self.ctrl_type = ctrl_type
         self.rect = rect
 
         self.depth = 0
@@ -16,9 +17,11 @@ class ControlTreeNode(object):
         self.children = []
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"{}, {}, depth={}".format(self.names, self.rect, self.depth)
 
     def __eq__(self, other):
+        """Check if 2 nodes reference the same control"""
         if not isinstance(other, ControlTreeNode):
             return False
         return self.rect.top == other.rect.top and \
@@ -27,7 +30,12 @@ class ControlTreeNode(object):
                self.rect.right == other.rect.right and \
                self.depth == other.depth
 
+    def __ne__(self, other):
+        """Check if 2 nodes reference different controls"""
+        return not self.__eq__(other)
+
     def __hash__(self):
+        """Return hash value based on element's dimensions"""
         width = self.rect.width()
         height = self.rect.height()
         return width * height + width - height
@@ -52,7 +60,8 @@ class ControlTree(object):
         # Build unique control names map
         ctrls_names = findbestmatch.build_names_list(all_ctrls)
 
-        self.root = ControlTreeNode(self.wrapper, ctrls_names[0], self.wrapper.rectangle())
+        self.root = ControlTreeNode(self.wrapper, ctrls_names[0], self.wrapper.friendly_class_name(),
+                                    self.wrapper.rectangle())
         self.root_name = self.root.names.get_preferred_name()
 
         def go_deep_down_the_tree(parent_node, child_ctrls, current_depth=1):
@@ -65,7 +74,7 @@ class ControlTree(object):
                 except ValueError:
                     continue
 
-                ctrl_node = ControlTreeNode(ctrl, ctrls_names[ctrl_id], ctrl.rectangle())
+                ctrl_node = ControlTreeNode(ctrl, ctrls_names[ctrl_id], ctrl.friendly_class_name(), ctrl.rectangle())
                 ctrl_node.depth = current_depth
                 ctrl_node.parent = parent_node
                 parent_node.children.append(ctrl_node)
@@ -105,7 +114,8 @@ class ControlTree(object):
                 res = node
         return res
 
-    def sub_tree_from_node(self, node):
+    @classmethod
+    def sub_tree_from_node(cls, node):
         result = []
         curr_node = node
         while curr_node:

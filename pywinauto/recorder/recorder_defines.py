@@ -1,6 +1,7 @@
 # encoding: utf-8
 import time
 import sys
+import locale
 from abc import ABCMeta
 from ast import parse
 
@@ -214,6 +215,15 @@ class PROPERTY(object):
     WINDOW_WINDOW_VISUAL_STATE = "WindowWindowVisualState"
 
 
+class STRUCTURE_EVENT(object):
+    CHILD_ADDED = "ChildAdded"
+    CHILD_REMOVED = "ChildRemoved"
+    CHILDREN_INVALIDATED = "ChildrenInvalidated"
+    CHILDREN_ADDED = "ChildrenAdded"
+    CHILDREN_REMOVED = "ChildrenRemoved"
+    CHILDREN_REORDERED = "ChildrenReordered"
+
+
 # RecorderEvent
 # -- HookEvent
 # -- -- RecorderMouseEvent
@@ -229,8 +239,14 @@ class RecorderEvent(object):
         self.control_tree_node = None  # event sender
 
     def __str__(self):
+        """Return a representation of the object as a string"""
         if six.PY2:
-            return self.__repr__().encode(sys.stdout.encoding, errors='xmlcharrefreplace')
+            if hasattr(sys.stdout, 'encoding') and sys.stdout.encoding is not None:
+                # some frameworks override sys.stdout without encoding attribute (Tee Stream),
+                # some users replace sys.stdout with file descriptor which can have None encoding
+                return self.__repr__().encode(sys.stdout.encoding, errors='backslashreplace')
+            else:
+                return self.__repr__().encode(locale.getpreferredencoding(), errors='backslashreplace')
         else:
             return self.__repr__()
 
@@ -249,6 +265,7 @@ class RecorderMouseEvent(HookEvent):
         self.mouse_y = mouse_y
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         if self.control_tree_node:
             elem = u" - {}".format(self.control_tree_node)
         else:
@@ -268,6 +285,7 @@ class RecorderKeyboardEvent(HookEvent):
         self.pressed_key = pressed_key
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"<RecorderKeyboardEvent - '{}' - '{}', pressed = {} [{}]>".format(
             self.current_key, self.event_type, self.pressed_key, self.timestamp)
 
@@ -282,6 +300,7 @@ class ApplicationEvent(RecorderEvent):
         self.sender = sender
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"<ApplicationEvent - '{}' from '{}'>".format(self.name, self.sender)
 
 
@@ -292,15 +311,17 @@ class PropertyEvent(ApplicationEvent):
         self.new_value = new_value
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return u"<PropertyEvent - Change '{}' to '{}' from {}>".format(self.property_name, self.new_value, self.sender)
 
 
 class EventPattern(object):
     def __init__(self, hook_event=None, app_events=None):
         self.hook_event = hook_event
-        self.app_events = app_events
+        self.app_events = app_events if app_events else []
 
     def __str__(self):
+        """Return a representation of the object as a string"""
         return u"<EventPattern: {}, {}>".format(
             self.hook_event, ", ".join([str(e) for e in self.app_events]) if self.app_events else None)
 
@@ -318,24 +339,19 @@ class EventPattern(object):
             if pattern.hook_event.event_type and self.hook_event.event_type != pattern.hook_event.event_type:
                 return None
 
-        if pattern.app_events and self.app_events:
-            idx = 0
-
-            for item_ev in pattern.app_events:
-                while idx < len(self.app_events):
-                    idx += 1
-
-                    self_ev = self.app_events[idx - 1]
-                    if self_ev.name == item_ev.name:
-                        if isinstance(self_ev, PropertyEvent):
-                            if self_ev.property_name == item_ev.property_name:
-                                subpattern.app_events.append(self_ev)
-                                break
-                        else:
-                            subpattern.app_events.append(self_ev)
-                            break
-                else:
-                    return None
+        idx = 0
+        for item_ev in pattern.app_events:
+            while idx < len(self.app_events):
+                idx += 1
+                self_ev = self.app_events[idx - 1]
+                if self_ev.name != item_ev.name:
+                    continue
+                if isinstance(self_ev, PropertyEvent) and self_ev.property_name != item_ev.property_name:
+                    continue
+                subpattern.app_events.append(self_ev)
+                break
+            else:
+                return None
 
         return subpattern
 

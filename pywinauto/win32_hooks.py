@@ -51,8 +51,6 @@ standalone library pyhooked 0.8 maintained by Ethan Smith.
 
 import atexit
 import sys
-import time
-import ctypes
 from ctypes import CFUNCTYPE
 from ctypes import POINTER
 from ctypes import byref
@@ -64,33 +62,47 @@ from ctypes import pointer
 from ctypes import windll
 from ctypes import wintypes
 from ctypes import WinDLL
+from ctypes import create_string_buffer
+from ctypes import create_unicode_buffer
 
 import six
-import win32con
-import win32process
-import win32gui
-import win32api
 
+import win32api
+import win32con
+import win32gui
+import win32process
+
+from . import keyboard
 from .actionlogger import ActionLogger
 from .win32defines import VK_PACKET
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
-from . import keyboard
+from .win32structures import LRESULT
 
-LRESULT = wintypes.LPARAM
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
 
 ToUnicodeEx = WinDLL('user32').ToUnicodeEx
-ToUnicodeEx.argtypes = [wintypes.UINT,wintypes.UINT,POINTER(c_char),POINTER(c_wchar),c_int,wintypes.UINT,wintypes.HKL]
+ToUnicodeEx.argtypes = [
+    wintypes.UINT,
+    wintypes.UINT,
+    POINTER(c_char),
+    POINTER(c_wchar),
+    c_int,
+    wintypes.UINT,
+    wintypes.HKL,
+]
 ToUnicodeEx.restype = c_int
 
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
-windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
-windll.user32.SetWindowsHookExA.restype = c_int
+windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCSTR]
+windll.user32.SetWindowsHookExA.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExA.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
-windll.user32.GetMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint]
+windll.user32.SetWindowsHookExW.restype = wintypes.HHOOK
+windll.user32.SetWindowsHookExW.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
 windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
 windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
+windll.user32.UnhookWindowsHookEx.argtypes = [wintypes.HHOOK]
+windll.user32.UnhookWindowsHookEx.restype = wintypes.BOOL
 
 # BOOL WINAPI PeekMessage(
 #  _Out_    LPMSG lpMsg,
@@ -113,6 +125,7 @@ windll.user32.CallNextHookEx.restypes = LRESULT
 
 
 class KeyboardEvent(object):
+
     """Created when a keyboard event happened"""
 
     def __init__(self, current_key=None, event_type=None, pressed_key=None):
@@ -122,6 +135,7 @@ class KeyboardEvent(object):
 
 
 class MouseEvent(object):
+
     """Created when a mouse event happened"""
 
     def __init__(self, current_key=None, event_type=None, mouse_x=0, mouse_y=0):
@@ -133,10 +147,12 @@ class MouseEvent(object):
         self.control_tree_node = None
 
     def __str__(self):
+        """Return a representation of the object as a string"""
         return "MouseEvent: {} - {}, ({}, {})".format(self.current_key, self.event_type, self.mouse_x, self.mouse_y)
 
 
 class Hook(object):
+
     """Hook for low level keyboard and mouse events"""
 
     MOUSE_ID_TO_KEY = {win32con.WM_MOUSEMOVE: 'Move',
@@ -453,9 +469,9 @@ class Hook(object):
                 current_key = u'{' + keyboard.CODE_NAMES[key_code] + u'}'
             else:
                 #MAPVK_VSC_TO_VK = 1 # TODO: move to win32defines
-                #vk = ctypes.windll.user32.MapVirtualKeyExW(key_code, MAPVK_VSC_TO_VK, wintypes.HKL(input_locale_id))
-                keybd_state = ctypes.create_string_buffer(256)
-                buf = ctypes.create_unicode_buffer(5)
+                #vk = windll.user32.MapVirtualKeyExW(key_code, MAPVK_VSC_TO_VK, wintypes.HKL(input_locale_id))
+                keybd_state = create_string_buffer(256)
+                buf = create_unicode_buffer(5)
                 if ToUnicodeEx(key_code, key_code, keybd_state, buf, 5, 0, input_locale_id) > 0:
                     current_key = buf.value
                 else:
@@ -556,7 +572,7 @@ class Hook(object):
             self.keyboard_id = windll.user32.SetWindowsHookExA(
                 win32con.WH_KEYBOARD_LL,
                 _kbd_ll_cb,
-                windll.kernel32.GetModuleHandleA(None),
+                win32api.GetModuleHandle(None),
                 0)
 
         if self.mouse_is_hook:
@@ -568,7 +584,7 @@ class Hook(object):
             self.mouse_id = windll.user32.SetWindowsHookExA(
                 win32con.WH_MOUSE_LL,
                 _mouse_ll_cb,
-                windll.kernel32.GetModuleHandleA(None),
+                win32api.GetModuleHandle(None),
                 0)
 
         self.listen()

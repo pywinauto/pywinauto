@@ -370,12 +370,14 @@ class ControlNames(object):
             return name
 
     def __contains__(self, item):
+        """Check if *item* is one of the control's names"""
         for n in self.iter_names():
             if n == item:
                 return True
         return False
 
     def __repr__(self):
+        """Return a representation of the object as a string"""
         return "<ControlNames for <{}>: text = {}, class = {}, text_class = {}, nearest_text = {}>".format(
             self.ctrl, self.text_names, self.class_names, self.text_class_names, self.nearest_text_names)
 

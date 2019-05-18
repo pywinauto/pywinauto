@@ -29,16 +29,17 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Timing settings for all of pywinauto
+"""Global timing settings for all of pywinauto
 
-This module has one object that should be used for all timing adjustments
-  timings.Timings
+This module has one object that should be used for all timing adjustments:
 
-There are a couple of predefined settings
+ * timings.Timings
 
-timings.Timings.Fast()
-timings.Timings.Defaults()
-timings.Timings.Slow()
+There are a couple of predefined settings:
+
+ * ``timings.Timings.fast()``
+ * ``timings.Timings.defaults()``
+ * ``timings.Timings.slow()``
 
 The Following are the individual timing settings that can be adjusted:
 
@@ -114,6 +115,8 @@ import six
 import time
 import operator
 from functools import wraps
+
+from . import deprecated
 
 
 #=========================================================================
@@ -219,7 +222,7 @@ class TimeConfig(object):
         else:
             raise AttributeError("Unknown timing setting: {0}".format(attr))
 
-    def Fast(self):
+    def fast(self):
         """Set fast timing values
 
         Currently this changes the timing in the following ways:
@@ -244,7 +247,7 @@ class TimeConfig(object):
 
             #self._timings['app_start_timeout'] = .5
 
-    def Slow(self):
+    def slow(self):
         """Set slow timing values
 
         Currently this changes the timing in the following ways:
@@ -273,9 +276,13 @@ class TimeConfig(object):
             if self._timings[setting] < .2:
                 self._timings[setting] = .2
 
-    def Defaults(self):
+    def defaults(self):
         """Set all timings to the default time"""
         self._timings = self.__default_timing.copy()
+
+    Fast = deprecated(fast)
+    Slow = deprecated(slow)
+    Defaults = deprecated(defaults)
 
 
 Timings = TimeConfig()
@@ -307,10 +314,10 @@ def always_wait_until(timeout,
     def wait_until_decorator(func):
         """Callable object that must be returned by the @always_wait_until decorator"""
         @wraps(func)
-        def wrapper(*args):
+        def wrapper(*args, **kwargs):
             """pre-callback, target function call and post-callback"""
             return wait_until(timeout, retry_interval,
-                              func, value, op, *args)
+                              func, value, op, *args, **kwargs)
         return wrapper
     return wait_until_decorator
 
@@ -321,9 +328,9 @@ def wait_until(timeout,
                func,
                value=True,
                op=operator.eq,
-               *args):
+               *args, **kwargs):
     r"""
-    Wait until ``op(function(*args), value)`` is True or until timeout expires
+    Wait until ``op(function(*args, **kwargs), value)`` is True or until timeout expires
 
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
@@ -331,6 +338,7 @@ def wait_until(timeout,
     * **value**  the value to be compared against (defaults to True)
     * **op** the comparison function (defaults to equality)\
     * **args** optional arguments to be passed to func when called
+    * **kwargs** optional keyword arguments to be passed to func when called
 
     Returns the return value of the function
     If the operation times out then the return value of the the function
@@ -348,7 +356,7 @@ def wait_until(timeout,
     """
     start = timestamp()
 
-    func_val = func(*args)
+    func_val = func(*args, **kwargs)
     # while the function hasn't returned what we are waiting for
     while not op(func_val, value):
 
@@ -360,7 +368,7 @@ def wait_until(timeout,
             # wait either the retry_interval or else the amount of
             # time until the timeout expires (whichever is less)
             time.sleep(min(retry_interval, time_left))
-            func_val = func(*args)
+            func_val = func(*args, **kwargs)
         else:
             err = TimeoutError("timed out")
             err.function_value = func_val
@@ -369,7 +377,7 @@ def wait_until(timeout,
     return func_val
 
 # Non PEP-8 alias
-WaitUntil = wait_until
+WaitUntil = deprecated(wait_until)
 
 
 #=========================================================================
@@ -380,10 +388,10 @@ def always_wait_until_passes(timeout,
     def wait_until_passes_decorator(func):
         """Callable object that must be returned by the @always_wait_until_passes decorator"""
         @wraps(func)
-        def wrapper(*args):
+        def wrapper(*args, **kwargs):
             """pre-callback, target function call and post-callback"""
             return wait_until_passes(timeout, retry_interval,
-                                     func, exceptions, *args)
+                                     func, exceptions, *args, **kwargs)
         return wrapper
     return wait_until_passes_decorator
 
@@ -393,15 +401,16 @@ def wait_until_passes(timeout,
                       retry_interval,
                       func,
                       exceptions=(Exception),
-                      *args):
+                      *args, **kwargs):
     """
-    Wait until ``func(*args)`` does not raise one of the exceptions in exceptions
+    Wait until ``func(*args, **kwargs)`` does not raise one of the exceptions
 
     * **timeout**  how long the function will try the function
     * **retry_interval**  how long to wait between retries
     * **func** the function that will be executed
     * **exceptions**  list of exceptions to test against (default: Exception)
     * **args** optional arguments to be passed to func when called
+    * **kwargs** optional keyword arguments to be passed to func when called
 
     Returns the return value of the function
     If the operation times out then the original exception raised is in
@@ -424,7 +433,7 @@ def wait_until_passes(timeout,
     while True:
         try:
             # Call the function with any arguments
-            func_val = func(*args)
+            func_val = func(*args, **kwargs)
 
             # if no exception is raised then we are finished
             break
@@ -452,4 +461,4 @@ def wait_until_passes(timeout,
     return func_val
 
 # Non PEP-8 alias
-WaitUntilPasses = wait_until_passes
+WaitUntilPasses = deprecated(wait_until_passes)

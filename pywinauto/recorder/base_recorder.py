@@ -24,6 +24,7 @@ def synchronized_method(method):
 
 
 class BaseRecorder(object):
+
     """Record hook (keyboard, mouse) and back-end events"""
 
     def __init__(self, app, config, **kwargs):
@@ -71,24 +72,18 @@ class BaseRecorder(object):
         self.script += u"recorded_version = {}\n".format(repr(recorded_version))
         self.script += u"print('Recorded with pywinauto-{}'.format(recorded_version))\n"
         self.script += u"print('Running with pywinauto-{}'.format(pywinauto.__version__))\n\n"
-        self.script += u"app = pywinauto.Application(backend='{}').start('{}')\n".format(app.backend.name, cmd)
+        self.script += u"app = pywinauto.Application(backend='{}').start(r'{}')\n".format(app.backend.name, cmd)
 
     @synchronized_method
     def add_to_log(self, item):
-        """
-        Add *item* to event log.
-        This is a synchronized method.
-        """
+        """Add *item* to event log. This is a synchronized method."""
         self.event_log.append(item)
         if self.config.verbose:
             print(item)
 
     @synchronized_method
     def clear_log(self):
-        """
-        Clear event log.
-        This is a synchronized method.
-        """
+        """Clear event log. This is a synchronized method."""
         self.event_log = []
 
     def is_active(self):
@@ -125,9 +120,7 @@ class BaseRecorder(object):
         """Perform cleaning (close threads, unsubscribe to events, etc.)"""
         pass
 
-    """
-    Target functions
-    """
+    # Target functions
 
     def recorder_target(self):
         """Target function for recorder thread"""
@@ -143,3 +136,8 @@ class BaseRecorder(object):
     def hook_target(self):
         """Target function for hook thread"""
         pass
+
+    @property
+    def event_patterns(self):
+        """Return backend-specific patterns dict"""
+        return []
