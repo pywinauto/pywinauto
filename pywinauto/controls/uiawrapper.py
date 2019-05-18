@@ -41,12 +41,12 @@ import comtypes
 
 from .. import backend
 from ..timings import Timings
-from ..base_wrapper import BaseWrapper
+from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
 
-from ..uia_defines import IUIA
-from .. import uia_defines as uia_defs
-from ..uia_element_info import UIAElementInfo, elements_from_uia_array
+from ..windows.uia_defines import IUIA
+from ..windows import uia_defines as uia_defs
+from ..windows.uia_element_info import UIAElementInfo, elements_from_uia_array
 
 # region PATTERNS
 AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
@@ -164,7 +164,7 @@ class UiaMeta(BaseMeta):
 
 # =========================================================================
 @six.add_metaclass(UiaMeta)
-class UIAWrapper(BaseWrapper):
+class UIAWrapper(WinBaseWrapper):
 
     """
     Default wrapper for User Interface Automation (UIA) controls.
@@ -195,7 +195,7 @@ class UIAWrapper(BaseWrapper):
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
+        WinBaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     # ------------------------------------------------------------
     def __hash__(self):

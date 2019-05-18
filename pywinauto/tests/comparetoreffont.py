@@ -83,7 +83,8 @@ The identifier for this test/bug is "CompareToRefFont"
 testname = "CompareToRefFont"
 
 import six
-from pywinauto import win32structures
+from pywinauto.windows import win32structures
+
 _font_attribs = [field[0] for field in win32structures.LOGFONTW._fields_]
 
 def CompareToRefFontTest(windows):

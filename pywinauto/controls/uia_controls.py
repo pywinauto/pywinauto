@@ -34,19 +34,18 @@ import locale
 import comtypes
 import six
 
-from .. import uia_element_info
-from .. import findbestmatch
-from .. import timings
-
-from .. import uia_defines as uia_defs
 from . import uiawrapper
 from . import win32_controls
 from . import common_controls
-from ..uia_element_info import UIAElementInfo
-from ..uia_defines import IUIA
-from ..uia_defines import NoPatternInterfaceError
-from ..uia_defines import toggle_state_on
-from ..uia_defines import get_elem_interface
+from .. import findbestmatch
+from .. import timings
+from ..windows import uia_defines as uia_defs
+from ..windows.uia_defines import IUIA
+from ..windows.uia_defines import NoPatternInterfaceError
+from ..windows.uia_defines import toggle_state_on
+from ..windows.uia_defines import get_elem_interface
+from ..windows.uia_element_info import UIAElementInfo
+from ..windows.uia_element_info import elements_from_uia_array
 
 
 # ====================================================================
@@ -765,7 +764,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """Get the information on the columns of the ListView"""
         if self.iface_grid_support:
             arr = self.iface_table.GetCurrentColumnHeaders()
-            cols = uia_element_info.elements_from_uia_array(arr)
+            cols = elements_from_uia_array(arr)
             return [uiawrapper.UIAWrapper(e) for e in cols]
         elif self.is_table:
             self.__raise_not_implemented()
@@ -799,7 +798,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if self.iface_grid_support:
             try:
                 e = self.iface_grid.GetItem(row, column)
-                elem_info = uia_element_info.UIAElementInfo(e)
+                elem_info = UIAElementInfo(e)
                 cell_elem = uiawrapper.UIAWrapper(elem_info)
             except (comtypes.COMError, ValueError):
                 raise IndexError
@@ -828,10 +827,10 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 # Try to load element using VirtualizedItem pattern
                 try:
                     get_elem_interface(com_elem, "VirtualizedItem").Realize()
-                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                    itm = uiawrapper.UIAWrapper(UIAElementInfo(com_elem))
                 except NoPatternInterfaceError:
                     # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
-                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                    itm = uiawrapper.UIAWrapper(UIAElementInfo(com_elem))
             except (NoPatternInterfaceError, ValueError):
                 # com_elem is NULL pointer or item doesn't support ItemContainer pattern
                 # Get DataGrid row

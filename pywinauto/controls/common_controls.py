@@ -54,9 +54,7 @@ import locale
 import six
 
 from .. import sysinfo
-from .. import win32functions
-from .. import win32defines
-from .. import win32structures
+from ..windows import win32defines, win32functions, win32structures
 from .. import findbestmatch
 from ..remote_memory_block import RemoteMemoryBlock
 from . import hwndwrapper
@@ -69,7 +67,7 @@ from ..sysinfo import is_x64_Python
 from .. import deprecated
 
 if sysinfo.UIA_support:
-    from ..uia_defines import IUIA
+    from ..windows.uia_defines import IUIA
 
 
 # Todo: I should return iterators from things like items() and texts()
@@ -1416,9 +1414,9 @@ class _treeview_element(object):
             item = win32structures.TVITEMW32()
 
         item.mask = win32defines.TVIF_TEXT | \
-            win32defines.TVIF_HANDLE | \
-            win32defines.TVIF_CHILDREN | \
-            win32defines.TVIF_STATE
+                    win32defines.TVIF_HANDLE | \
+                    win32defines.TVIF_CHILDREN | \
+                    win32defines.TVIF_STATE
 
         # set the address for the text
         item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 16
@@ -1809,8 +1807,8 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
 
         item = win32structures.HDITEMW()
         item.mask = win32defines.HDI_FORMAT | \
-            win32defines.HDI_WIDTH | \
-            win32defines.HDI_TEXT  # | HDI_ORDER
+                    win32defines.HDI_WIDTH | \
+                    win32defines.HDI_TEXT  # | HDI_ORDER
         item.cchTextMax = 2000
 
         # set up the pointer to the text
@@ -3440,7 +3438,7 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
         system_date = win32structures.SYSTEMTIME()
         remote_mem.Write(system_date)
 
-        res = self.send_message(win32defines.MCM_GETCURSEL , 0, remote_mem)
+        res = self.send_message(win32defines.MCM_GETCURSEL, 0, remote_mem)
         remote_mem.Read(system_date)
         del remote_mem
 

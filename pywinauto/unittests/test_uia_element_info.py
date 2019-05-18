@@ -3,14 +3,14 @@ import os
 import sys
 
 sys.path.append(".")
-from pywinauto.application import Application  # noqa: E402
+from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.handleprops import processid  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.sysinfo import UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 
 if UIA_support:
-    from pywinauto.uia_element_info import UIAElementInfo
+    from pywinauto.windows.uia_element_info import UIAElementInfo
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")

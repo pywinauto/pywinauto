@@ -35,8 +35,8 @@ import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.win32structures import POINT
-from pywinauto.win32functions import MakeLong, HiWord, LoWord
+from pywinauto.windows.win32structures import POINT
+from pywinauto.windows.win32functions import MakeLong, HiWord, LoWord
 
 
 class Win32FunctionsTestCases(unittest.TestCase):

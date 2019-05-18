@@ -43,9 +43,7 @@ import win32con
 import win32gui
 import pywintypes
 
-from . import win32functions
-from . import win32defines
-from . import win32structures
+from .windows import win32defines, win32functions, win32structures
 from .actionlogger import ActionLogger
 
 

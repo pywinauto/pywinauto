@@ -10,14 +10,14 @@ import mock
 import six
 
 sys.path.append(".")
-from pywinauto.application import Application, WindowSpecification  # noqa: E402
+from pywinauto.windows.application import Application, WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto import Desktop
 if UIA_support:
     import comtypes
-    import pywinauto.uia_defines as uia_defs
+    import pywinauto.windows.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
 
 wpf_samples_folder = os.path.join(

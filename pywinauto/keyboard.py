@@ -108,10 +108,11 @@ if sys.platform != 'win32':
 else:
     import time
     import ctypes
+
     import win32api
     import six
 
-    from . import win32structures
+    from .windows import win32structures
 
     __all__ = ['KeySequenceError', 'send_keys']
 
