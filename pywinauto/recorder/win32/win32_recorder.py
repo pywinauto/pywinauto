@@ -147,10 +147,11 @@ class Win32Recorder(BaseRecorder):
     def _message_queue(self):
         try:
             while self.listen:
-                self._handle_message(self.injector.read_massage())
-        except InvalidWindowHandle:
-            print("WARNIN: message's window already closed")
-            self.stop()
+                try:
+                    self._handle_message(self.injector.read_massage())
+                except InvalidWindowHandle:
+                    #TODO: fix it by creating tree snapshots
+                    print("WARNIN: message's window already closed")
         except Exception as e:
             print(e)
             self.stop()
