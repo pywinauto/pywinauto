@@ -640,7 +640,7 @@ class WindowSpecification(object):
                 auto_id = None
                 control_type = None
                 if hasattr(ctrl.element_info, 'automation_id'):
-                    auto_id = ctrl.element_info.automation_id
+                    auto_id = ctrl.element_info.auto_id
                 if hasattr(ctrl.element_info, 'control_type'):
                     control_type = ctrl.element_info.control_type
                     if control_type:

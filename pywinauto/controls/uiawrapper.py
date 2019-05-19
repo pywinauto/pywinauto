@@ -386,7 +386,7 @@ class UIAWrapper(BaseWrapper):
     #------------------------------------------------------------
     def automation_id(self):
         """Return the Automation ID of the control"""
-        return self.element_info.automation_id
+        return self.element_info.auto_id
 
     # -----------------------------------------------------------
     def is_keyboard_focusable(self):

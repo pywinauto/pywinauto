@@ -252,7 +252,7 @@ class HwndWrapper(BaseWrapper):
     #------------------------------------------------------------
     def automation_id(self):
         """Return the .NET name of the control"""
-        return self.element_info.automation_id
+        return self.element_info.auto_id
 
     #------------------------------------------------------------
     def control_type(self):
