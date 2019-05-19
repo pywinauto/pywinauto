@@ -601,17 +601,17 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
         # make sure it is open and visible
         self.app.AboutRowList.wait("visible", 20)
-        self.assertTrue(self.app.window(title='About RowList').is_visible(), True)
+        self.assertTrue(self.app.window(name='About RowList').is_visible(), True)
 
         # close it
-        self.app.window(title='About RowList', class_name='#32770').close(1)
+        self.app.window(name='About RowList', class_name='#32770').close(1)
 
         # make sure that it is not visible
         try:
             #self.assertRaises(ElementNotFoundError,
-            #                  self.app.window(title='About RowList', class_name='#32770').wrapper_object())
+            #                  self.app.window(name='About RowList', class_name='#32770').wrapper_object())
             # vvryabov: TimeoutError is caught by assertRaises, so the second raise is not caught correctly
-            self.app.window(title='About RowList', class_name='#32770').wrapper_object()
+            self.app.window(name='About RowList', class_name='#32770').wrapper_object()
         except ElementNotFoundError:
             print('ElementNotFoundError exception is raised as expected. OK.')
 
@@ -635,7 +635,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
     def testCloseAltF4(self):
         self.dlg.menu_select('Help->About RowList...')
-        AboutRowList = self.app.window(title='About RowList', active_only=True, class_name='#32770')
+        AboutRowList = self.app.window(name='About RowList', active_only=True, class_name='#32770')
         AboutWrapper = AboutRowList.wait("enabled")
         AboutRowList.close_alt_f4()
         AboutRowList.wait_not('visible')
@@ -811,7 +811,7 @@ class NotepadRegressionTests(unittest.TestCase):
         self.app = Application()
         self.app.start(_notepad_exe())
 
-        self.dlg = self.app.window(title='Untitled - Notepad', class_name='Notepad')
+        self.dlg = self.app.window(name='Untitled - Notepad', class_name='Notepad')
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
         self.dlg.Edit.set_edit_text("Here is some text\r\n and some more")
 
@@ -852,7 +852,7 @@ class NotepadRegressionTests(unittest.TestCase):
         self.dlg.menu_select("Edit->Paste")
 
         self.app2.UntitledNotepad.menu_select("File->Exit")
-        self.app2.window(title='Notepad', class_name='#32770')["Don't save"].click()
+        self.app2.window(name='Notepad', class_name='#32770')["Don't save"].click()
 
         self.assertEqual(self.dlg.Edit.text_block().encode(locale.getpreferredencoding()), text * 3)
 

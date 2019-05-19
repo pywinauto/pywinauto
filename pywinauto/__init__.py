@@ -127,12 +127,6 @@ if sys.platform == 'win32':
             if 'backend' in kwargs:
                 raise ValueError('Using another backend than set in Desktop constructor is not allowed!!')
 
-            if 'visible_only' not in kwargs:
-                kwargs['visible_only'] = False
-
-            if 'enabled_only' not in kwargs:
-                kwargs['enabled_only'] = False
-
             kwargs['backend'] = self.backend.name
 
             windows = findwindows.find_elements(**kwargs)

@@ -92,7 +92,7 @@ if UIA_support:
             caption = 'Apply'
             wins = self.app.windows(top_level_only=False,
                                     class_name='Button',
-                                    title=caption)
+                                    name=caption)
 
             # Verify the number of found wrappers
             self.assertEqual(len(wins), 1)
@@ -106,7 +106,7 @@ if UIA_support:
             # we don't specify it as a criteria argument
             self.dlg.wait('ready')
             caption = 'WPF Sample Application'
-            wins = self.app.windows(class_name='Window', title=caption)
+            wins = self.app.windows(class_name='Window', name=caption)
 
             # Verify the number of found wrappers
             self.assertEqual(len(wins), 1)
@@ -117,7 +117,7 @@ if UIA_support:
         def test_class(self):
             """Test getting the classname of the dialog"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.class_name(), "Button")
 
         def test_window_text(self):
@@ -129,13 +129,13 @@ if UIA_support:
         def test_control_id(self):
             """Test getting control ID"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.control_id(), None)
 
         def test_runtime_id(self):
             """Test getting runtime ID"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertNotEqual(button.__hash__(), 0)
 
             orig = button.element_info._element.GetRuntimeId
@@ -146,7 +146,7 @@ if UIA_support:
 
         def test_automation_id(self):
             """Test getting automation ID"""
-            alpha_toolbar = self.dlg.child_window(title="Alpha", control_type="ToolBar")
+            alpha_toolbar = self.dlg.child_window(name="Alpha", control_type="ToolBar")
             button = alpha_toolbar.child_window(control_type="Button",
                                                 auto_id="OverflowButton").wrapper_object()
             self.assertEqual(button.automation_id(), "OverflowButton")
@@ -154,26 +154,26 @@ if UIA_support:
         def test_is_visible(self):
             """Test is_visible method of a control"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.is_visible(), True)
 
         def test_is_enabled(self):
             """Test is_enabled method of a control"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.is_enabled(), True)
 
         def test_process_id(self):
             """Test process_id method of a control"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.process_id(), self.dlg.process_id())
             self.assertNotEqual(button.process_id(), 0)
 
         def test_is_dialog(self):
             """Test is_dialog method of a control"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.is_dialog(), False)
 
         def test_parent(self):
@@ -184,7 +184,7 @@ if UIA_support:
         def test_top_level_parent(self):
             """Test getting a top-level parent of a control"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.top_level_parent(), self.dlg.wrapper_object())
 
         def test_texts(self):
@@ -194,25 +194,25 @@ if UIA_support:
         def test_children(self):
             """Test getting children of a control"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(len(button.children()), 1)
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
         def test_children_generator(self):
             """Test iterating children of a control"""
-            button = self.dlg.child_window(class_name="Button", title="OK").wrapper_object()
+            button = self.dlg.child_window(class_name="Button", name="OK").wrapper_object()
             children = [child for child in button.iter_children()]
             self.assertEqual(len(children), 1)
             self.assertEqual(children[0].class_name(), "TextBlock")
 
         def test_descendants(self):
             """Test iterating descendants of a control"""
-            toolbar = self.dlg.child_window(title="Alpha", control_type="ToolBar").wrapper_object()
+            toolbar = self.dlg.child_window(name="Alpha", control_type="ToolBar").wrapper_object()
             descendants = toolbar.descendants()
             self.assertEqual(len(descendants), 7)
 
         def test_descendants_generator(self):
-            toolbar = self.dlg.child_window(title="Alpha", control_type="ToolBar").wrapper_object()
+            toolbar = self.dlg.child_window(name="Alpha", control_type="ToolBar").wrapper_object()
             descendants = [desc for desc in toolbar.iter_descendants()]
             self.assertSequenceEqual(toolbar.descendants(), descendants)
 
@@ -224,7 +224,7 @@ if UIA_support:
         def test_equals(self):
             """Test controls comparisons"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertNotEqual(button, self.dlg.wrapper_object())
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
@@ -234,7 +234,7 @@ if UIA_support:
             """Test scroll"""
             # Check an exception on a non-scrollable control
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             six.assertRaisesRegex(self, AttributeError, "not scrollable",
                                   button.scroll, "left", "page")
 
@@ -281,7 +281,7 @@ if UIA_support:
             edit = self.dlg.TestLabelEdit.wrapper_object()
             label = self.dlg.TestLabel.wrapper_object()
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             self.assertEqual(button.is_keyboard_focusable(), True)
             self.assertEqual(edit.is_keyboard_focusable(), True)
             self.assertEqual(label.is_keyboard_focusable(), False)
@@ -311,7 +311,7 @@ if UIA_support:
         def test_no_pattern_interface_error(self):
             """Test a query interface exception handling"""
             button = self.dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
             elem = button.element_info.element
             self.assertRaises(
                 uia_defs.NoPatternInterfaceError,
@@ -381,7 +381,7 @@ if UIA_support:
                                    'State': 1048576,
                                    'Role': 43}
             button_wrp = self.dlg.child_window(class_name="Button",
-                                               title="OK").wrapper_object()
+                                               name="OK").wrapper_object()
 
             actual_properties = button_wrp.legacy_properties()
 
@@ -409,9 +409,9 @@ if UIA_support:
 
             dlg = self.app.WPFSampleApplication
             self.button = dlg.child_window(class_name="Button",
-                                           title="OK").wrapper_object()
+                                           name="OK").wrapper_object()
 
-            self.label = dlg.child_window(class_name="Text", title="TestLabel").wrapper_object()
+            self.label = dlg.child_window(class_name="Text", name="TestLabel").wrapper_object()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -612,7 +612,7 @@ if UIA_support:
         def test_button_click(self):
             """Test the click method for the Button control"""
             label = self.dlg.child_window(class_name="Text",
-                                          title="TestLabel").wrapper_object()
+                                          name="TestLabel").wrapper_object()
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
 

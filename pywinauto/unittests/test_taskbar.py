@@ -96,7 +96,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     handle = findwindows.find_elements(active_only=True,
                                        class_name=class_name)[-1].handle
     window = WindowSpecification({'handle': handle, 'backend': 'win32', })
-    explorer = Application().connect(process=window.process_id())
+    explorer = Application().connect(pid=window.process_id())
     cur_state = None
 
     try:
@@ -126,7 +126,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
         explorer.wait_cpu_usage_lower(threshold=5, timeout=_ready_timeout)
 
         # Get the new opened applet
-        notif_area = Desktop().window(title="Notification Area Icons",
+        notif_area = Desktop().window(name="Notification Area Icons",
                                       class_name=class_name)
         notif_area.wait("ready", timeout=_ready_timeout)
         cur_state = notif_area.CheckBox.get_check_state()
@@ -361,7 +361,7 @@ class TaskbarTestCases(unittest.TestCase):
         niow_dlg.SysLink.click_input()
 
         nai = Desktop().window(
-            title="Notification Area Icons",
+            name="Notification Area Icons",
             class_name="CabinetWClass"
         )
         nai.wait('ready')

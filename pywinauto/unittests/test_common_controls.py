@@ -1308,8 +1308,8 @@ class RebarTestCases(unittest.TestCase):
         """Make sure we can click on Afx ToolBar button by index"""
         Timings.closeclick_dialog_close_wait = 2.
         self.dlg.StandardToolbar.button(1).click()
-        self.app.window(title='Open').wait('ready', timeout=30)
-        self.app.window(title='Open').Cancel.close_click()
+        self.app.window(name='Open').wait('ready', timeout=30)
+        self.app.window(name='Open').Cancel.close_click()
 
     def testMenuBarClickInput(self):
         """Make sure we can click on Menu Bar items by indexed path"""
@@ -1321,8 +1321,8 @@ class RebarTestCases(unittest.TestCase):
         self.app.Customize.wait_not('visible')
 
         self.dlg.MenuBar.menu_bar_click_input([2, 0], self.app)
-        self.app.window(title='About RebarTest').OK.click()
-        self.app.window(title='About RebarTest').wait_not('visible')
+        self.app.window(name='About RebarTest').OK.click()
+        self.app.window(name='About RebarTest').wait_not('visible')
 
 
 class DatetimeTestCases(unittest.TestCase):
