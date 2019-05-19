@@ -91,7 +91,7 @@ class IUIA(object):
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
 
-    def build_condition(self, process=None, class_name=None, title=None, control_type=None,
+    def build_condition(self, process=None, class_name=None, name=None, control_type=None,
                         content_only=None):
         """Build UIA filtering conditions"""
         conditions = []
@@ -108,9 +108,9 @@ class IUIA(object):
                 raise TypeError('control_type must be string or integer')
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
 
-        if title:
+        if name:
             # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, title))
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, name))
 
         if isinstance(content_only, bool):
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,

@@ -40,14 +40,14 @@ Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app.child_window(title="your title", classname="your class", ...)
+   dlg = app.child_window(name="your title", classname="your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
 in almost exactly the same ways. ::
 
   ctrl = dlg.YourControlTitle
-  ctrl = dlg.child_window(title="Your control", classname="Button", ...)
+  ctrl = dlg.child_window(name="Your control", classname="Button", ...)
   ctrl = dlg["Your control"]
 
 .. note::
@@ -649,7 +649,7 @@ class WindowSpecification(object):
                         control_type = None # if control_type is empty, still use class_name instead
                 criteria_texts = []
                 if title:
-                    criteria_texts.append(u'title="{}"'.format(title))
+                    criteria_texts.append(u'name="{}"'.format(title))
                 if class_name:
                     criteria_texts.append(u'class_name="{}"'.format(class_name))
                 if auto_id:
@@ -915,7 +915,7 @@ class Application(object):
 
         The action is performed according to only one of parameters
 
-        :param process: a process ID of the target
+        :param pid: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
         :param timeout: a timeout for process start (relevant if path is specified)
@@ -923,7 +923,7 @@ class Application(object):
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
+           are also can be used instead of **pid**, **handle** or **path**
         """
         timeout = Timings.app_connect_timeout
         retry_interval = Timings.app_connect_retry
@@ -933,8 +933,8 @@ class Application(object):
             retry_interval = kwargs['retry_interval']
 
         connected = False
-        if 'process' in kwargs:
-            self.process = kwargs['process']
+        if 'pid' in kwargs:
+            self.process = kwargs['pid']
             try:
                 wait_until(timeout, retry_interval, self.is_process_running, value=True)
             except TimeoutError:
@@ -964,8 +964,8 @@ class Application(object):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
-            if 'visible_only' not in kwargs:
-                kwargs['visible_only'] = False
+            if 'found_index' not in kwargs:
+                kwargs['found_index'] = 0
             if 'timeout' in kwargs:
                 del kwargs['timeout']
                 self.process = timings.wait_until_passes(
@@ -1252,7 +1252,7 @@ class Application(object):
         would do in task manager.
         """
         if soft:
-            windows = self.windows(visible_only=True)
+            windows = self.windows(visible=True)
             for win in windows:
                 try:
                     if hasattr(win, 'close'):

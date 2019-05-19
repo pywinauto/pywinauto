@@ -74,6 +74,13 @@ class ElementAmbiguousError(Exception):
 
 
 #=========================================================================
+class RenamedKeywordError(Exception):
+
+    """Search keyword has been renamed"""
+    pass
+
+
+#=========================================================================
 def find_element(**kwargs):
     """
     Call find_elements and ensure that only one element is returned
@@ -144,12 +151,27 @@ def find_elements(**kwargs):
     backend_obj = registry.backends[backend]
 
     if handle is not None:
-        if not kwargs:
-            raise KeyError('Handle is already unique identifier, other keywords are redundant')
+        # TODO: uncomment later
+        #if not kwargs:
+        #    raise KeyError('Handle is already unique identifier, other keywords are redundant')
         # allow a handle to be passed in
         # if it is present - just return it
         return [backend_obj.element_info_class(handle), ]
 
+    # tell user about new property name for every renamed one
+    if hasattr(backend_obj.element_info_class, 'renamed_props'):
+        renamed_erros = []
+        for key, value in kwargs.items():
+            renamed_prop = backend_obj.element_info_class.renamed_props.get(key, None)
+            if renamed_prop is not None:
+                new_key, values_map = renamed_prop
+                if values_map and value in values_map.keys():
+                    renamed_erros.append('"{}={}" -> "{}={}"'.format(key, value, new_key, values_map[value]))
+                else:
+                    renamed_erros.append('"{}" -> "{}"'.format(key, new_key))
+        if renamed_erros:
+            raise RenamedKeywordError('[pywinauto>=0.7.0] Some search keywords are renamed: ' + ', '.join(renamed_erros))
+    
     for key, _ in kwargs.items():
         if key.endswith('_re') and \
                 key[:-3] not in backend_obj.element_info_class.re_props:
@@ -170,7 +192,7 @@ def find_elements(**kwargs):
         element = backend_obj.element_info_class()
         # TODO: think about not passing **kwargs
         elements = element.children(class_name=kwargs.get('class_name'),
-                                    title=kwargs.get('name'),
+                                    name=kwargs.get('name'),
                                     control_type=kwargs.get('control_type'),
                                     process=kwargs.get('pid'),
                                     cache_enable=True)
@@ -188,7 +210,7 @@ def find_elements(**kwargs):
         # look for ALL children of that parent
         # TODO: think about not passing **kwargs
         elements = parent.descendants(class_name=kwargs.get('class_name'),
-                                      title=kwargs.get('name'),
+                                      name=kwargs.get('name'),
                                       control_type=kwargs.get('control_type'),
                                       process=kwargs.get('pid'),
                                       cache_enable=True,
@@ -259,7 +281,7 @@ def find_elements(class_name=None,
                   class_name_re=None,
                   parent=None,
                   process=None,
-                  title=None,
+                  name=None,
                   title_re=None,
                   top_level_only=True,
                   visible_only=True,
@@ -327,7 +349,7 @@ def find_elements(class_name=None,
         element = backend_obj.element_info_class()
         elements = element.children(process=process,
                                     class_name=class_name,
-                                    title=title,
+                                    name=title,
                                     control_type=control_type,
                                     cache_enable=True)
 
@@ -343,7 +365,7 @@ def find_elements(class_name=None,
 
         # look for ALL children of that parent
         elements = parent.descendants(class_name=class_name,
-                                      title=title,
+                                      name=title,
                                       control_type=control_type,
                                       cache_enable=True,
                                       depth=depth)

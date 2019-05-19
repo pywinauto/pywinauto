@@ -63,6 +63,15 @@ class UIAElementInfo(ElementInfo):
     search_order = ["class_name", "handle", "pid", "control_id", "visible", "enabled",
         "name", "control_type", "full_control_type", "rectangle", "framework_id", "runtime_id"]
 
+    renamed_props = {
+        "title": ("name", None),
+        "title_re": ("name_re", None),
+        "process": ("pid", None),
+        "visible_only": ("visible", {True: True, False: None}),
+        "enabled_only": ("enabled", {True: True, False: None}),
+        "top_level_only": ("depth", {True: 1, False: None}),
+    }
+
     def __init__(self, handle_or_elem=None, cache_enable=False):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
