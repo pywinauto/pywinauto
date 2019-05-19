@@ -71,6 +71,10 @@ class Win32Recorder(BaseRecorder):
         self.record_focus = record_focus
         self.record_struct = record_struct
 
+        self.prev_hwnd = None
+        self.prev_msg_id = None
+        self.prev_time = None
+
     def _setup(self):
         try:
             self.listen = True
@@ -189,10 +193,23 @@ class Win32Recorder(BaseRecorder):
             return HwndElementInfo(msg.hWnd)
         return None
 
+    def _should_skip_msg(self, msg):
+        if msg.message == self.prev_msg_id and msg.hWnd == self.prev_hwnd and msg.time == self.prev_time:
+            return True
+
+        self.prev_msg_id = msg.message
+        self.prev_hwnd = msg.hWnd
+        self.prev_time = msg.time
+        return False
+
     def _handle_message(self, msg):
         if not msg or msg.message == APP_CLOSE_MSG:
             self.stop()
             return
+
+        if self._should_skip_msg(msg):
+            return
+
         if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
             self.last_kbd_hwnd = msg.hWnd
 
