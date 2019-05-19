@@ -17,11 +17,10 @@ import win32gui
 from ..uia.uia_recorder import ProgressBarDialog
 from ..control_tree import ControlTree
 from ..base_recorder import BaseRecorder
-from ..recorder_defines import RecorderEvent, \
-    RecorderKeyboardEvent, \
-    RecorderMouseEvent, \
-    ApplicationEvent, \
-    PropertyEvent
+from ..recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
+    ApplicationEvent, PropertyEvent, EventPattern, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
+
+from ..event_handlers import MouseClickHandler, KeyboardHandler
 
 from .injector import Injector
 from .common_controls_handlers import resolve_handle_to_event
@@ -29,6 +28,12 @@ from .common_controls_handlers import resolve_handle_to_event
 APP_CLOSE_MSG = 0xFFFFFFFF
 
 class Win32Recorder(BaseRecorder):
+
+    _EVENT_PATTERN_MAP = [
+        (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)), MouseClickHandler),
+        (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)), KeyboardHandler)
+    ]
+
     _APPROVED_MESSAGES_LIST = [
         win32defines.WM_COMMAND,
         win32defines.WM_NOTIFY,
@@ -78,9 +83,11 @@ class Win32Recorder(BaseRecorder):
     def _cleanup(self):
         self.listen = False
         self.hook.stop()
-        self.message_thread.join(1)
+        if hasattr(self, 'message_thread'):
+            self.message_thread.join(1)
         self.hook_thread.join(1)
-        self.injector.close_pipe()
+        if hasattr(self, 'injector'):
+            self.injector.close_pipe()
         self._parse_and_clear_log()
         self.script += u"app.kill()\n"
 
@@ -90,7 +97,7 @@ class Win32Recorder(BaseRecorder):
         self.hook_thread.join(1)
 
     def _resume_hook_thread(self):
-        self.hook_thread = threading.Thread(target=self.hook_target)
+        self.hook_thread = threading.Thread(target=self._hook_target)
         self.hook_thread.start()
 
     def _update(self, rebuild_tree=False, start_message_queue=False):
@@ -110,7 +117,7 @@ class Win32Recorder(BaseRecorder):
             self._resume_hook_thread()
 
         if start_message_queue:
-            self.message_thread = threading.Thread(target=self.message_queue)
+            self.message_thread = threading.Thread(target=self._message_queue)
             self.message_thread.start()
 
     def _rebuild_control_tree(self):
@@ -137,33 +144,32 @@ class Win32Recorder(BaseRecorder):
             node = self.control_tree.node_from_point(POINT(mouse_event.mouse_x, mouse_event.mouse_y))
         return node
 
-    def message_queue(self):
-        """infine listening pipe while it's alive"""
+    def _message_queue(self):
         try:
             while self.listen:
-                self.handle_message(self.injector.read_massage())
+                self._handle_message(self.injector.read_massage())
         except InvalidWindowHandle:
             print("WARNIN: message's window already closed")
+            self.stop()
         except Exception as e:
             print(e)
             self.stop()
 
-    def hook_target(self):
-        """Target function for hook thread"""
-        self.hook.handler = self.handle_hook_event
+    def _hook_target(self):
+        self.hook.handler = self._handle_hook_event
         self.hook.hook(keyboard=True, mouse=True)
 
-    def handle_hook_event(self, hook_event):
-        """Callback for keyboard and mouse events"""
+    def _handle_hook_event(self, hook_event):
         if isinstance(hook_event, win32_hooks.KeyboardEvent):
             keyboard_event = RecorderKeyboardEvent.from_hook_keyboard_event(hook_event)
+            keyboard_event.control_tree_node = self._get_keyboard_node()
             self.add_to_log(keyboard_event)
         elif isinstance(hook_event, win32_hooks.MouseEvent):
             mouse_event = RecorderMouseEvent.from_hook_mouse_event(hook_event)
             mouse_event.control_tree_node = self._get_mouse_node(mouse_event)
             self.add_to_log(mouse_event)
 
-    def hwnd_element_from_message(self, msg):
+    def _hwnd_element_from_message(self, msg):
         parent_handle = msg.hWnd
         child_handle = LOWORD(msg.wParam)
         if parent_handle == 0 or child_handle == 0:
@@ -175,24 +181,27 @@ class Win32Recorder(BaseRecorder):
             element_handle = parent_handle
         return HwndElementInfo(element_handle)
 
-    def handle_message(self, msg):
-        """Callback for keyboard and mouse events"""
+    def _resolve_component(self, msg):
+        if msg.message == win32defines.WM_COMMAND:
+            return self._hwnd_element_from_message(msg)
+        elif msg.message == win32defines.WM_NOTIFY:
+            return HwndElementInfo(msg.hWnd)
+        return None
+
+    def _handle_message(self, msg):
         if not msg or msg.message == APP_CLOSE_MSG:
             self.stop()
             return
         if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
             self.last_kbd_hwnd = msg.hWnd
 
-        if msg.message == win32defines.WM_COMMAND:
-            component = self.hwnd_element_from_message(msg)
-            if component:
-                event_name = resolve_handle_to_event(component, msg, True)
-                if event_name:
-                    print(event_name)
+        component = self._resolve_component(msg)
+        if component:
+            class_name, event_name = resolve_handle_to_event(component, msg, True)
+            if class_name and event_name:
+                print('{} - {}'.format(class_name, event_name))
 
-        if msg.message == win32defines.WM_NOTIFY:
-            component = HwndElementInfo(msg.hWnd)
-            if component:
-                event_name = resolve_handle_to_event(component, msg, False)
-                if event_name:
-                    print(event_name)
+    @property
+    def event_patterns(self):
+        """Return backend-specific patterns dict"""
+        return self._EVENT_PATTERN_MAP

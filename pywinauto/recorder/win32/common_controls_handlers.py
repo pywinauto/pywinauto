@@ -347,14 +347,14 @@ _CLASS_NAME_TO_NOTIFICATIONS = {
 
 def resolve_handle_to_event(element, msg, is_command):
     class_name = HwndWrapper(element).friendlyclassname
-    print(class_name)
     if element and class_name in _CLASS_NAME_TO_NOTIFICATIONS:
         message_list = _CLASS_NAME_TO_NOTIFICATIONS[class_name]
         if is_command and HIWORD(msg.wParam) in message_list:
-            return message_list[HIWORD(msg.wParam)]
+            return class_name, message_list[HIWORD(msg.wParam)]
         if not is_command and msg.lParam in message_list:
-            return message_list[msg.lParam]
+            return class_name, message_list[msg.lParam]
     elif element:
         print("[WARNING] Unhandled class_name = " + element.class_name)
+    return None, None
 
 
