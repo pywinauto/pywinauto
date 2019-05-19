@@ -58,10 +58,10 @@ def elements_from_uia_array(ptrs, cache_enable=False):
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
-    re_props = ["class_name", "name", "automation_id", "control_type", "full_control_type"]
+    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type"]
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle", "framework_id", "runtime_id"]
-    search_order = ["class_name", "handle", "pid", "control_id", "visible", "enabled",
-        "name", "control_type", "full_control_type", "rectangle", "framework_id", "runtime_id"]
+    search_order = ["handle", "control_type", "class_name", "pid", "control_id", "visible", "enabled",
+        "name", "auto_id", "full_control_type", "rectangle", "framework_id", "runtime_id"]
 
     renamed_props = {
         "title": ("name", None),
@@ -209,7 +209,7 @@ class UIAElementInfo(ElementInfo):
         return self._element
 
     @property
-    def automation_id(self):
+    def auto_id(self):
         """Return AutomationId of the element"""
         try:
             return self._element.CurrentAutomationId

@@ -59,9 +59,9 @@ class HwndElementInfo(ElementInfo):
 
     wm_get_ctrl_name = _register_win_msg('WM_GETCONTROLNAME')
     wm_get_ctrl_type = _register_win_msg('WM_GETCONTROLTYPE')
-    re_props = ["class_name", "name", "automation_id", "control_type", "full_control_type"]
+    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type"]
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle"]
-    search_order = ["class_name", "handle", "pid", "control_id", "visible", "enabled",
+    search_order = ["handle", "class_name", "pid", "control_id", "visible", "enabled",
         "name", "control_type", "full_control_type", "rectangle"]
 
     renamed_props = {
@@ -208,7 +208,7 @@ class HwndElementInfo(ElementInfo):
         return self.handle == other.handle
 
     @property
-    def automation_id(self):
+    def auto_id(self):
         """Return AutomationId of the element"""
         textval = ''
 

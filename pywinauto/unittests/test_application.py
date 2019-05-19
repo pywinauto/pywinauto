@@ -492,7 +492,7 @@ class ApplicationTestCases(unittest.TestCase):
         """Test that connect_() raises with invalid input"""
         # try an argument that does not exist
         self.assertRaises (
-            TypeError,
+            KeyError,
             Application().connect, **{'not_arg': 23})
 
         self.assertRaises (
