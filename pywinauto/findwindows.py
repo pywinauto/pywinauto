@@ -171,13 +171,14 @@ def find_elements(**kwargs):
                     renamed_erros.append('"{}" -> "{}"'.format(key, new_key))
         if renamed_erros:
             raise RenamedKeywordError('[pywinauto>=0.7.0] Some search keywords are renamed: ' + ', '.join(renamed_erros))
-    
+
+    re_props = backend_obj.element_info_class.re_props
+    exact_only_props = backend_obj.element_info_class.exact_only_props
+    all_props = re_props + exact_only_props
     for key, _ in kwargs.items():
-        if key.endswith('_re') and \
-                key[:-3] not in backend_obj.element_info_class.re_props:
+        if key.endswith('_re') and key[:-3] not in re_props:
             _raise_search_key_error(key, backend_obj)
-        elif key not in backend_obj.element_info_class.re_props and \
-                key not in backend_obj.element_info_class.exact_only_props:
+        if not key.endswith('_re') and key not in all_props:
             _raise_search_key_error(key, backend_obj)
 
     if isinstance(parent, backend_obj.generic_wrapper_class):

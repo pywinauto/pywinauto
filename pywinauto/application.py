@@ -196,7 +196,7 @@ class WindowSpecification(object):
             criteria[0]['backend'] = self.backend.name
         if self.app is not None:
             # find_elements(...) accepts only "process" argument
-            criteria[0]['process'] = self.app.process
+            criteria[0]['pid'] = self.app.process
             del criteria[0]['app']
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
 
