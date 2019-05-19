@@ -15,7 +15,7 @@ dll_path = "./pywinauto/recorder/win32/dll_to_inject/"
 remote_call_timeout = 1000
 remote_call_error_str = "Couldn't create remote thread, dll not injected, inject and try again!"
 remote_call_injection_error_str = "Couldn't create remote thread"
-pipe_name = "\\\\.\\pipe\\pywinauto_recorder_pipe"
+pipe_name = u"\\\\.\\pipe\\pywinauto_recorder_pipe"
 pipe_buffer_size = 1024
 
 GetProcAddress = ctypes.windll.kernel32.GetProcAddress
@@ -60,7 +60,7 @@ class Injector(object):
 
     def _init_pipe(self):
         pipe_flags = win32defines.PIPE_TYPE_MESSAGE | win32defines.PIPE_READMODE_MESSAGE | win32defines.PIPE_WAIT
-        h_pipe = ctypes.windll.kernel32.CreateNamedPipeA(byte_string(pipe_name),
+        h_pipe = ctypes.windll.kernel32.CreateNamedPipeW(unicode_string(pipe_name),
                                                          win32defines.PIPE_ACCESS_DUPLEX,
                                                          pipe_flags,
                                                          win32defines.PIPE_UNLIMITED_INSTANCES,
@@ -69,7 +69,7 @@ class Injector(object):
                                                          win32defines.NMPWAIT_USE_DEFAULT_WAIT,
                                                          None
                                                         )
-        if (h_pipe == win32defines.INVALID_HANDLE_VALUE):
+        if h_pipe == win32defines.INVALID_HANDLE_VALUE:
             return None
 
         if ctypes.windll.kernel32.GetLastError() == win32defines.ERROR_PIPE_CONNECTED:
@@ -102,8 +102,8 @@ class Injector(object):
             return None
         msg = ctypes.wintypes.MSG()
         bytes_cnt = ctypes.c_ulong(0)
-        status = ctypes.windll.kernel32.ReadFile(self.h_pipe, msg, ctypes.sizeof(msg), ctypes.byref(bytes_cnt), None)
-        if status == 1 or bytes_cnt.value != 0:
+        ctypes.windll.kernel32.ReadFile(self.h_pipe, ctypes.byref(msg), ctypes.sizeof(msg), ctypes.byref(bytes_cnt), None)
+        if bytes_cnt.value == ctypes.sizeof(msg):
             return msg
         return None
 
@@ -128,7 +128,7 @@ class Injector(object):
     def _virtual_alloc_for(self, buffer):
         virtual_mem = win32defines.MEM_RESERVE | win32defines.MEM_COMMIT
         address = ctypes.c_void_p(win32functions.VirtualAllocEx(self.h_process, 0, ctypes.sizeof(buffer), virtual_mem, win32defines.PAGE_READWRITE))
-        if not win32functions.WriteProcessMemory(self.h_process, address, ctypes.byref(buffer), ctypes.sizeof(buffer), 0):
+        if not win32functions.WriteProcessMemory(self.h_process, address, ctypes.byref(buffer), ctypes.sizeof(buffer), ctypes.c_ulonglong(0)):
             raise AttributeError("Couldn't write data to process memory, check python acceess.")
         return address
 

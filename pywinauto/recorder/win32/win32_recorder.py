@@ -177,12 +177,11 @@ class Win32Recorder(BaseRecorder):
 
     def handle_message(self, msg):
         """Callback for keyboard and mouse events"""
-        if not msg:
+        if not msg or msg.message == APP_CLOSE_MSG:
+            self.stop()
             return
         if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
             self.last_kbd_hwnd = msg.hWnd
-        elif msg.message == APP_CLOSE_MSG:
-            self.stop()
 
         if msg.message == win32defines.WM_COMMAND:
             component = self.hwnd_element_from_message(msg)
