@@ -503,7 +503,7 @@ class ApplicationTestCases(unittest.TestCase):
         # try to pass an invalid process
         self.assertRaises (
             ProcessNotFoundError,
-            Application().connect, **{'process': 0})
+            Application().connect, **{'pid': 0})
 
         # try to pass an invalid handle
         self.assertRaises(
