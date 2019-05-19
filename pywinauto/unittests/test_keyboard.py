@@ -317,13 +317,13 @@ if sys.platform == 'win32':
         def testModifiersForFewChars(self):
             """Make sure that repeated action works"""
             send_keys("%(SC)", pause = .3)
-            dlg = self.app.window(title='Using C++ Derived Class')
+            dlg = self.app.window(name='Using C++ Derived Class')
             dlg.wait('ready')
             dlg.Done.close_click()
             dlg.wait_not('visible')
 
             send_keys("%(H{LEFT}{UP}{ENTER})", pause = .3)
-            dlg = self.app.window(title='Sample Dialog with spin controls')
+            dlg = self.app.window(name='Sample Dialog with spin controls')
             dlg.wait('ready')
             dlg.Done.close_click()
             dlg.wait_not('visible')
