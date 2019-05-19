@@ -53,7 +53,6 @@ import warnings
 import locale
 import six
 
-from .. import sysinfo
 from .. import win32functions
 from .. import win32defines
 from .. import win32structures
@@ -67,9 +66,6 @@ from ..timings import TimeoutError
 from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
 from .. import deprecated
-
-if sysinfo.UIA_support:
-    from ..uia_defines import IUIA
 
 
 # Todo: I should return iterators from things like items() and texts()
@@ -135,7 +131,7 @@ class _listview_item(object):
 
         item.iItem = self.item_index
         item.iSubItem = self.subitem_index
-        item.stateMask = win32structures.UINT(-1)
+        item.stateMask = wintypes.UINT(-1)
 
         item.cchTextMax = 2000
         item.pszText = remote_mem.Address() + \
@@ -501,9 +497,9 @@ class _listview_item(object):
 
         lvitem = self.listview_ctrl.LVITEM()
 
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(index_to_state_image_mask(1))  # win32structures.UINT(0x1000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
+        lvitem.state = wintypes.UINT(index_to_state_image_mask(1))  # wintypes.UINT(0x1000)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
@@ -530,9 +526,9 @@ class _listview_item(object):
 
         lvitem = self.listview_ctrl.LVITEM()
 
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(index_to_state_image_mask(2))  # win32structures.UINT(0x2000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
+        lvitem.state = wintypes.UINT(index_to_state_image_mask(2))  # wintypes.UINT(0x2000)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
@@ -591,12 +587,12 @@ class _listview_item(object):
 
         # first we need to change the state of the item
         lvitem = self.listview_ctrl.LVITEM()
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
 
         if to_select:
-            lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+            lvitem.state = wintypes.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
@@ -632,7 +628,7 @@ class _listview_item(object):
         #    raise ctypes.WinError()
         del new_remote_mem
 
-        win32functions.WaitGuiThreadIdle(self.listview_ctrl)
+        win32functions.WaitGuiThreadIdle(self.listview_ctrl.handle)
         time.sleep(Timings.after_listviewselect_wait)
 
     #-----------------------------------------------------------
@@ -721,10 +717,6 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         "TSysListView",
         "ListView.*WndClass",
         ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -919,7 +911,7 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
     def texts(self):
         """Get the texts for the ListView control"""
         texts = [self.window_text()]
-        texts.extend([item['text'] for item in self.items()])
+        texts.extend([item.text() for item in self.items()])
         return texts
 
     #-----------------------------------------------------------
@@ -1368,7 +1360,7 @@ class _treeview_element(object):
             win32defines.TVM_ENSUREVISIBLE,
             win32defines.TVGN_CARET,
             self.elem)
-        win32functions.WaitGuiThreadIdle(self.tree_ctrl)
+        win32functions.WaitGuiThreadIdle(self.tree_ctrl.handle)
         return self
     # Non PEP-8 alias
     EnsureVisible = deprecated(ensure_visible)
@@ -1424,7 +1416,7 @@ class _treeview_element(object):
         item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 16
         item.cchTextMax = 2000
         item.hItem = self.elem
-        item.stateMask = win32structures.UINT(-1)
+        item.stateMask = wintypes.UINT(-1)
 
         # Write the local TVITEM structure to the remote memory block
         remote_mem.Write(item)
@@ -1460,8 +1452,6 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "TreeView"
     windowclasses = [
         "SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*", "TTreeView", "TreeList.TreeListCtrl"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_TreeControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1647,7 +1637,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
         if retval != win32defines.TRUE:
             raise ctypes.WinError()
 
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_treeviewselect_wait)
     # Non PEP-8 alias
     Select = deprecated(select)
@@ -1656,7 +1646,7 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     def is_selected(self, path):
         """Return True if the item is selected"""
         return win32defines.TVIS_SELECTED == (win32defines.TVIS_SELECTED &
-                                              self.get_item(path).State())
+                                              self.get_item(path).state())
     # Non PEP-8 alias
     IsSelected = deprecated(is_selected)
 
@@ -1751,8 +1741,6 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Header"
     windowclasses = ["SysHeader32", "msvb_lib_header"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_HeaderControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1894,8 +1882,6 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
         "msctls_statusbar32",
         ".*StatusBar",
         r"WindowsForms\d*\.msctls_statusbar32\..*"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_StatusBarControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2065,8 +2051,6 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
     windowclasses = [
         "SysTabControl32",
         r"WindowsForms\d*\.SysTabControl32\..*"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_TabControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2255,7 +2239,7 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
         else:
             self.send_message(win32defines.TCM_SETCURFOCUS, tab)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_tabselect_wait)
         self.actions.log('Selected tab "' + str(logging_tab) + '"')
 
@@ -2317,7 +2301,7 @@ class _toolbar_button(object):
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
-#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl.handle)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #    # Non PEP-8 alias
 #    Press = deprecated(press)
@@ -2345,7 +2329,7 @@ class _toolbar_button(object):
 #        # Notify the parent that we are finished selecting
 #        #self.toolbar_ctrl.notify_parent(win32defines.TBN_TOOLBARCHANGE)
 #
-#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl)
+#        win32functions.WaitGuiThreadIdle(self.toolbar_ctrl.handle)
 #        time.sleep(Timings.after_toobarpressbutton_wait)
 #
 #    #----------------------------------------------------------------
@@ -2447,6 +2431,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "Toolbar"
     windowclasses = [
         "ToolbarWindow32",
+        "TToolBar",
         r"WindowsForms\d*\.ToolbarWindow32\..*",
         "Afx:ToolBar:.*"]
 
@@ -2774,6 +2759,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
         #app = Application().Connect(handle=self.handle)
 
         current_toolbar = self
+        current_toolbar.set_focus() # to make sure it can be clicked immediately
         for i, index in enumerate(indices):
             windows_before = app.windows(visible=True)
             current_toolbar.button(index).click_input()
@@ -2876,10 +2862,6 @@ class ReBarWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "ReBar"
     windowclasses = ["ReBarWindow32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -3084,8 +3066,6 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "UpDown"
     windowclasses = ["msctls_updown32", "msctls_updown", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_SpinnerControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -3144,13 +3124,13 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
     def set_value(self, new_pos):
         """Set the value of the of the UpDown control to some integer value"""
         for _ in range(3):
-            result = ctypes.c_long()
+            result = win32structures.DWORD_PTR(0)
             win32functions.SendMessageTimeout(self,
                 win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
                 win32defines.SMTO_NORMAL,
                 int(Timings.after_updownchange_wait * 1000),
                 ctypes.byref(result))
-            win32functions.WaitGuiThreadIdle(self)
+            win32functions.WaitGuiThreadIdle(self.handle)
             time.sleep(Timings.after_updownchange_wait)
             if self.get_value() == new_pos:
                 break
@@ -3167,7 +3147,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         self.click_input(coords=(rect.left + 5, rect.top + 5))
 
         #self.set_value(self.get_value() + 1)
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_updownchange_wait)
     # Non PEP-8 alias
     Increment = deprecated(increment)
@@ -3179,7 +3159,7 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         self.click_input(coords=(rect.left + 5, rect.bottom - 5))
 
         #self.set_value(self.get_value() - 1)
-        #win32functions.WaitGuiThreadIdle(self)
+        #win32functions.WaitGuiThreadIdle(self.handle)
         #time.sleep(Timings.after_updownchange_wait)
     # Non PEP-8 alias
     Decrement = deprecated(decrement)
@@ -3193,8 +3173,6 @@ class TrackbarWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
 
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_SliderControlTypeId]
 
     def get_range_min(self):
         """Get min available trackbar value"""
@@ -3291,10 +3269,6 @@ class AnimationWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Animation"
     windowclasses = ["SysAnimate32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
 
 #====================================================================
@@ -3304,10 +3278,6 @@ class ComboBoxExWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "ComboBoxEx"
     windowclasses = ["ComboBoxEx32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3319,10 +3289,6 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "DateTimePicker"
     windowclasses = ["SysDateTimePick32",
                      r"WindowsForms\d*\.SysDateTimePick32\..*", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
     #----------------------------------------------------------------
@@ -3354,7 +3320,7 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
 
     #----------------------------------------------------------------
     def set_time(self, year=0, month=0, day_of_week=0, day=0, hour=0, minute=0, second=0, milliseconds=0):
-        """Get the currently selected time"""
+        """Set the currently selected time"""
         remote_mem = RemoteMemoryBlock(self)
         system_time = win32structures.SYSTEMTIME()
 
@@ -3385,10 +3351,6 @@ class HotkeyWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Hotkey"
     windowclasses = ["msctls_hotkey32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3399,10 +3361,6 @@ class IPAddressWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "IPAddress"
     windowclasses = ["SysIPAddress32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3413,8 +3371,6 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
 
     place_in_calendar = {
@@ -3717,10 +3673,6 @@ class PagerWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Pager"
     windowclasses = ["SysPager", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def get_position(self):
@@ -3746,8 +3698,6 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Progress"
     windowclasses = ["msctls_progress", "msctls_progress32", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_ProgressBarControlTypeId]
     has_title = False
 
     #----------------------------------------------------------------

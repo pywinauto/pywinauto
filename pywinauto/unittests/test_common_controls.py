@@ -82,7 +82,7 @@ class ListViewTestCases32(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(self.path)
@@ -99,31 +99,31 @@ class ListViewTestCases32(unittest.TestCase):
 
         self.app = app
         self.dlg = app.RowListSampleApplication
-        self.ctrl = app.RowListSampleApplication.ListView.WrapperObject()
-        self.dlg.Toolbar.Button(0).Click()  # switch to icon view
-        self.dlg.Toolbar.Button(6).Click()  # switch off states
+        self.ctrl = app.RowListSampleApplication.ListView.wrapper_object()
+        self.dlg.Toolbar.button(0).click()  # switch to icon view
+        self.dlg.Toolbar.button(6).click()  # switch off states
 
     def tearDown(self):
         """Close the application after tests"""
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
         """Make sure the ListView friendly class is set correctly"""
-        self.assertEquals(self.ctrl.friendly_class_name(), u"ListView")
+        self.assertEqual(self.ctrl.friendly_class_name(), u"ListView")
 
     def testColumnCount(self):
         """Test the ListView ColumnCount method"""
-        self.assertEquals(self.ctrl.ColumnCount(), 8)
+        self.assertEqual(self.ctrl.column_count(), 8)
 
     def testItemCount(self):
         """Test the ListView ItemCount method"""
-        self.assertEquals(self.ctrl.ItemCount(), 7)
+        self.assertEqual(self.ctrl.item_count(), 7)
 
     def testItemText(self):
         """Test the ListView item.Text property"""
-        item = self.ctrl.GetItem(1)
+        item = self.ctrl.get_item(1)
 
-        self.assertEquals(item['text'], u"Red")
+        self.assertEqual(item.text(), u"Red")
 
     def testItems(self):
         """Test the ListView Items method"""
@@ -131,10 +131,10 @@ class ListViewTestCases32(unittest.TestCase):
         for row in self.texts:
             flat_texts.extend(row)
 
-        items = self.ctrl.Items()
+        items = self.ctrl.items()
         for i, item in enumerate(items):
-            self.assertEquals(item['text'], flat_texts[i])
-        self.assertEquals(len(items), len(flat_texts))
+            self.assertEqual(item.text(), flat_texts[i])
+        self.assertEqual(len(items), len(flat_texts))
 
     def testTexts(self):
         """Test the ListView texts method"""
@@ -142,294 +142,294 @@ class ListViewTestCases32(unittest.TestCase):
         for row in self.texts:
             flat_texts.extend(row)
 
-        self.assertEquals(flat_texts, self.ctrl.texts()[1:])
+        self.assertEqual(flat_texts, self.ctrl.texts()[1:])
 
     def testGetItem(self):
-        """Test the ListView GetItem method"""
-        for row in range(self.ctrl.ItemCount()):
-            for col in range(self.ctrl.ColumnCount()):
-                self.assertEquals(
-                    self.ctrl.GetItem(row, col)['text'], self.texts[row][col])
+        """Test the ListView get_item method"""
+        for row in range(self.ctrl.item_count()):
+            for col in range(self.ctrl.column_count()):
+                self.assertEqual(
+                    self.ctrl.get_item(row, col).text(), self.texts[row][col])
 
     def testGetItemText(self):
-        """Test the ListView GetItem method - with text this time"""
+        """Test the ListView get_item method - with text this time"""
         for text in [row[0] for row in self.texts]:
-            self.assertEquals(
-                self.ctrl.GetItem(text)['text'], text)
+            self.assertEqual(
+                self.ctrl.get_item(text).text(), text)
 
-        self.assertRaises(ValueError, self.ctrl.GetItem, "Item not in this list")
+        self.assertRaises(ValueError, self.ctrl.get_item, "Item not in this list")
 
     def testColumn(self):
-        """Test the ListView Columns method"""
-        cols = self.ctrl.Columns()
-        self.assertEqual(len(cols), self.ctrl.ColumnCount())
+        """Test the ListView columns method"""
+        cols = self.ctrl.columns()
+        self.assertEqual(len(cols), self.ctrl.column_count())
 
         # TODO: add more checking of column values
         #for col in cols:
         #    print(col)
 
     def testGetSelectionCount(self):
-        """Test the ListView GetSelectedCount method"""
-        self.assertEquals(self.ctrl.GetSelectedCount(), 0)
+        """Test the ListView get_selected_count method"""
+        self.assertEqual(self.ctrl.get_selected_count(), 0)
 
-        self.ctrl.Select(1)
-        self.ctrl.Select(6)
+        self.ctrl.get_item(1).select()
+        self.ctrl.get_item(6).select()
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 2)
+        self.assertEqual(self.ctrl.get_selected_count(), 2)
 
 
 #    def testGetSelectionCount(self):
-#        "Test the ListView GetSelectedCount method"
+#        "Test the ListView get_selected_count method"
 #
-#        self.assertEquals(self.ctrl.GetSelectedCount(), 0)
+#        self.assertEqual(self.ctrl.get_selected_count(), 0)
 #
-#        self.ctrl.Select(1)
-#        self.ctrl.Select(7)
+#        self.ctrl.select(1)
+#        self.ctrl.select(7)
 #
-#        self.assertEquals(self.ctrl.GetSelectedCount(), 2)
+#        self.assertEqual(self.ctrl.get_selected_count(), 2)
 
     def testIsSelected(self):
         """Test ListView IsSelected for some items"""
         # ensure that the item is not selected
-        self.assertEquals(self.ctrl.IsSelected(1), False)
+        self.assertEqual(self.ctrl.get_item(1).is_selected(), False)
 
         # select an item
-        self.ctrl.Select(1)
+        self.ctrl.get_item(1).select()
 
         # now ensure that the item is selected
-        self.assertEquals(self.ctrl.IsSelected(1), True)
+        self.assertEqual(self.ctrl.get_item(1).is_selected(), True)
 
     def _testFocused(self):
         """Test checking the focus of some ListView items"""
         print("Select something quick!!")
         time.sleep(3)
-        #self.ctrl.Select(1)
+        #self.ctrl.select(1)
 
-        print(self.ctrl.IsFocused(0))
-        print(self.ctrl.IsFocused(1))
-        print(self.ctrl.IsFocused(2))
-        print(self.ctrl.IsFocused(3))
-        print(self.ctrl.IsFocused(4))
-        print(self.ctrl.IsFocused(5))
+        print(self.ctrl.is_focused(0))
+        print(self.ctrl.is_focused(1))
+        print(self.ctrl.is_focused(2))
+        print(self.ctrl.is_focused(3))
+        print(self.ctrl.is_focused(4))
+        print(self.ctrl.is_focused(5))
         #for col in cols:
         #    print(col)
 
     def testSelect(self):
         """Test ListView Selecting some items"""
-        self.ctrl.Select(1)
-        self.ctrl.Select(3)
-        self.ctrl.Select(4)
+        self.ctrl.get_item(1).select()
+        self.ctrl.get_item(3).select()
+        self.ctrl.get_item(4).select()
 
-        self.assertRaises(IndexError, self.ctrl.Deselect, 23)
+        self.assertRaises(IndexError, self.ctrl.get_item(23).select)
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+        self.assertEqual(self.ctrl.get_selected_count(), 3)
 
     def testSelectText(self):
         """Test ListView Selecting some items"""
-        self.ctrl.Select(u"Green")
-        self.ctrl.Select(u"Yellow")
-        self.ctrl.Select(u"Gray")
+        self.ctrl.get_item(u"Green").select()
+        self.ctrl.get_item(u"Yellow").select()
+        self.ctrl.get_item(u"Gray").select()
 
-        self.assertRaises(ValueError, self.ctrl.Deselect, u"Item not in list")
+        self.assertRaises(ValueError, self.ctrl.get_item, u"Item not in list")
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 3)
+        self.assertEqual(self.ctrl.get_selected_count(), 3)
 
     def testDeselect(self):
         """Test ListView Selecting some items"""
-        self.ctrl.Select(1)
-        self.ctrl.Select(4)
+        self.ctrl.get_item(1).select()
+        self.ctrl.get_item(4).select()
 
-        self.ctrl.Deselect(3)
-        self.ctrl.Deselect(4)
+        self.ctrl.get_item(3).deselect()
+        self.ctrl.get_item(4).deselect()
 
-        self.assertRaises(IndexError, self.ctrl.Deselect, 23)
+        self.assertRaises(IndexError, self.ctrl.get_item(23).deselect)
 
-        self.assertEquals(self.ctrl.GetSelectedCount(), 1)
+        self.assertEqual(self.ctrl.get_selected_count(), 1)
 
     def testGetProperties(self):
         """Test getting the properties for the listview control"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             "ListView", props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
         for prop_name in props.keys():
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
-        self.assertEquals(props['column_count'], 8)
-        self.assertEquals(props['item_count'], 7)
+        self.assertEqual(props['column_count'], 8)
+        self.assertEqual(props['item_count'], 7)
 
     def testGetColumnTexts(self):
         """Test columns titles text"""
-        self.assertEquals(self.ctrl.GetColumn(0)['text'], u"Color")
-        self.assertEquals(self.ctrl.GetColumn(1)['text'], u"Red")
-        self.assertEquals(self.ctrl.GetColumn(2)['text'], u"Green")
-        self.assertEquals(self.ctrl.GetColumn(3)['text'], u"Blue")
+        self.assertEqual(self.ctrl.get_column(0)['text'], u"Color")
+        self.assertEqual(self.ctrl.get_column(1)['text'], u"Red")
+        self.assertEqual(self.ctrl.get_column(2)['text'], u"Green")
+        self.assertEqual(self.ctrl.get_column(3)['text'], u"Blue")
 
     def testItemRectangles(self):
         """Test getting item rectangles"""
-        yellow_rect = self.ctrl.GetItemRect('Yellow')
+        yellow_rect = self.ctrl.get_item_rect('Yellow')
         gold_rect = RECT(13, 0, 61, 53)
-        self.assertEquals(yellow_rect.left, gold_rect.left)
-        self.assertEquals(yellow_rect.top, gold_rect.top)
-        self.assertEquals(yellow_rect.right, gold_rect.right)
+        self.assertEqual(yellow_rect.left, gold_rect.left)
+        self.assertEqual(yellow_rect.top, gold_rect.top)
+        self.assertEqual(yellow_rect.right, gold_rect.right)
         if yellow_rect.bottom < 53 or yellow_rect.bottom > 55:
-            self.assertEquals(yellow_rect.bottom, gold_rect.bottom)
+            self.assertEqual(yellow_rect.bottom, gold_rect.bottom)
 
-        self.ctrl.GetItem('Green').Click(where='text')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        self.ctrl.get_item('Green').click(where='text')
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), True)
 
-        self.ctrl.GetItem('Magenta').Click(where='icon')
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
+        self.ctrl.get_item('Magenta').click(where='icon')
+        self.assertEqual(self.ctrl.get_item('Magenta').is_selected(), True)
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), False)
 
-        self.ctrl.GetItem('Green').Click(where='all')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+        self.ctrl.get_item('Green').click(where='all')
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), True)
+        self.assertEqual(self.ctrl.get_item('Magenta').is_selected(), False)
 
     def testItemCheck(self):
         """Test checking/unchecking item"""
-        if not self.dlg.Toolbar.Button(6).IsChecked():
-            self.dlg.Toolbar.Button(6).Click()
+        if not self.dlg.Toolbar.button(6).is_checked():
+            self.dlg.Toolbar.button(6).click()
 
-        yellow = self.ctrl.GetItem('Yellow')
-        yellow.Check()
-        self.assertEquals(yellow.IsChecked(), True)
+        yellow = self.ctrl.get_item('Yellow')
+        yellow.check()
+        self.assertEqual(yellow.is_checked(), True)
 
-        yellow.UnCheck()
-        self.assertEquals(yellow.IsChecked(), False)
+        yellow.uncheck()
+        self.assertEqual(yellow.is_checked(), False)
 
         # test legacy deprecated methods (TODO: remove later)
-        self.ctrl.Check('Yellow')
-        self.assertEquals(self.ctrl.IsChecked('Yellow'), True)
+        self.ctrl.get_item('Yellow').check()
+        self.assertEqual(self.ctrl.get_item('Yellow').is_checked(), True)
 
-        self.ctrl.UnCheck('Yellow')
-        self.assertEquals(self.ctrl.IsChecked('Yellow'), False)
+        self.ctrl.get_item('Yellow').uncheck()
+        self.assertEqual(self.ctrl.get_item('Yellow').is_checked(), False)
 
     def testItemClick(self):
-        """Test clicking item rectangles by Click() method"""
-        self.ctrl.GetItem('Green').Click(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        """Test clicking item rectangles by click() method"""
+        self.ctrl.get_item('Green').click(where='select')
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), True)
 
-        self.ctrl.GetItem('Magenta').Click(where='select')
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
+        self.ctrl.get_item('Magenta').click(where='select')
+        self.assertEqual(self.ctrl.get_item('Magenta').is_selected(), True)
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), False)
+        self.assertEqual(self.ctrl.get_item('Green').is_focused(), False)
+        self.assertEqual(self.ctrl.get_item('Green').state() & win32defines.LVIS_FOCUSED, 0)
 
-        self.ctrl.GetItem('Green').Click(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        self.assertEquals(self.ctrl.IsSelected('Green'), True)  # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
-        self.assertEquals(self.ctrl.IsFocused('Green'), True)  # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+        self.ctrl.get_item('Green').click(where='select')
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), True)
+        self.assertEqual(self.ctrl.is_selected('Green'), True)  # TODO: deprecated method
+        self.assertEqual(self.ctrl.get_item('Green').is_focused(), True)
+        self.assertEqual(self.ctrl.is_focused('Green'), True)  # TODO: deprecated method
+        self.assertEqual(self.ctrl.get_item('Magenta').is_selected(), False)
 
         # Test click on checkboxes
-        if not self.dlg.Toolbar.Button(6).IsChecked():  # switch on states
-            self.dlg.Toolbar.Button(6).Click()
+        if not self.dlg.Toolbar.button(6).is_checked():  # switch on states
+            self.dlg.Toolbar.button(6).click()
 
         for i in range(1, 6):
-            self.dlg.Toolbar.Button(i - 1).Click()
+            self.dlg.Toolbar.button(i - 1).click()
 
-            self.ctrl.GetItem(i).Click(where='check')  # check item
+            self.ctrl.get_item(i).click(where='check')  # check item
             time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
-            self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
+            self.assertEqual(self.ctrl.get_item(i).is_checked(), True)
+            self.assertEqual(self.ctrl.get_item(i - 1).is_checked(), False)
 
-            self.ctrl.GetItem(i).Click(where='check')  # uncheck item
+            self.ctrl.get_item(i).click(where='check')  # uncheck item
             time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
+            self.assertEqual(self.ctrl.get_item(i).is_checked(), False)
 
-            self.ctrl.GetItem(i).Click(where='check')  # recheck item
+            self.ctrl.get_item(i).click(where='check')  # recheck item
             time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+            self.assertEqual(self.ctrl.get_item(i).is_checked(), True)
 
-        self.dlg.Toolbar.Button(6).Click()  # switch off states
+        self.dlg.Toolbar.button(6).click()  # switch off states
 
-        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).Click, where="check")
+        self.assertRaises(RuntimeError, self.ctrl.get_item(6).click, where="check")
 
     def testItemClickInput(self):
         """Test clicking item rectangles by click_input() method"""
-        Timings.Defaults()
+        Timings.defaults()
 
-        self.ctrl.GetItem('Green').click_input(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
+        self.ctrl.get_item('Green').click_input(where='select')
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), True)
 
-        self.ctrl.GetItem('Magenta').click_input(where='select')
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), True)
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), False)
-        self.assertEquals(self.ctrl.GetItem('Green').State() & win32defines.LVIS_FOCUSED, 0)
+        self.ctrl.get_item('Magenta').click_input(where='select')
+        self.assertEqual(self.ctrl.get_item('Magenta').is_selected(), True)
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), False)
+        self.assertEqual(self.ctrl.get_item('Green').is_focused(), False)
+        self.assertEqual(self.ctrl.get_item('Green').state() & win32defines.LVIS_FOCUSED, 0)
 
-        self.ctrl.GetItem('Green').click_input(where='select')
-        self.assertEquals(self.ctrl.GetItem('Green').IsSelected(), True)
-        self.assertEquals(self.ctrl.IsSelected('Green'), True)  # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Green').IsFocused(), True)
-        self.assertEquals(self.ctrl.IsFocused('Green'), True)  # TODO: deprecated method
-        self.assertEquals(self.ctrl.GetItem('Magenta').IsSelected(), False)
+        self.ctrl.get_item('Green').click_input(where='select')
+        self.assertEqual(self.ctrl.get_item('Green').is_selected(), True)
+        self.assertEqual(self.ctrl.is_selected('Green'), True)  # TODO: deprecated method
+        self.assertEqual(self.ctrl.get_item('Green').is_focused(), True)
+        self.assertEqual(self.ctrl.is_focused('Green'), True)  # TODO: deprecated method
+        self.assertEqual(self.ctrl.get_item('Magenta').is_selected(), False)
 
         # Test click on checkboxes
-        if not self.dlg.Toolbar.Button(6).IsChecked():  # switch on states
-            self.dlg.Toolbar.Button(6).Click()
+        if not self.dlg.Toolbar.button(6).is_checked():  # switch on states
+            self.dlg.Toolbar.button(6).click()
 
         for i in range(1, 6):
-            self.dlg.Toolbar.Button(i - 1).Click()
+            self.dlg.Toolbar.button(i - 1).click()
 
-            self.ctrl.GetItem(i).click_input(where='check')  # check item
+            self.ctrl.get_item(i).click_input(where='check')  # check item
             time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
-            self.assertEquals(self.ctrl.GetItem(i - 1).IsChecked(), False)
+            self.assertEqual(self.ctrl.get_item(i).is_checked(), True)
+            self.assertEqual(self.ctrl.get_item(i - 1).is_checked(), False)
 
-            self.ctrl.GetItem(i).click_input(where='check')  # uncheck item
+            self.ctrl.get_item(i).click_input(where='check')  # uncheck item
             time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), False)
+            self.assertEqual(self.ctrl.get_item(i).is_checked(), False)
 
-            self.ctrl.GetItem(i).click_input(where='check')  # recheck item
+            self.ctrl.get_item(i).click_input(where='check')  # recheck item
             time.sleep(0.5)
-            self.assertEquals(self.ctrl.GetItem(i).IsChecked(), True)
+            self.assertEqual(self.ctrl.get_item(i).is_checked(), True)
 
-        self.dlg.Toolbar.Button(6).Click()  # switch off states
+        self.dlg.Toolbar.button(6).click()  # switch off states
 
-        self.assertRaises(RuntimeError, self.ctrl.GetItem(6).click_input, where="check")
+        self.assertRaises(RuntimeError, self.ctrl.get_item(6).click_input, where="check")
 
     def testItemMethods(self):
         """Test short item methods like Text(), State() etc"""
-        self.assertEquals(self.ctrl.GetItem('Green').Text(), 'Green')
-        self.assertEquals(self.ctrl.GetItem('Green').Image(), 2)
-        self.assertEquals(self.ctrl.GetItem('Green').Indent(), 0)
+        self.assertEqual(self.ctrl.get_item('Green').text(), 'Green')
+        self.assertEqual(self.ctrl.get_item('Green').image(), 2)
+        self.assertEqual(self.ctrl.get_item('Green').indent(), 0)
 
     def test_ensure_visible(self):
-        self.dlg.MoveWindow(width=300)
+        self.dlg.move_window(width=300)
 
         # Gray is selected by click because ensure_visible() is called inside
-        self.ctrl.GetItem('Gray').Click()
-        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), True)
+        self.ctrl.get_item('Gray').click()
+        self.assertEqual(self.ctrl.get_item('Gray').is_selected(), True)
         self.dlg.set_focus()  # just in case
 
-        self.ctrl.GetItem('Green').EnsureVisible()
-        self.ctrl.GetItem('Red').Click()
-        self.assertEquals(self.ctrl.GetItem('Gray').IsSelected(), False)
-        self.assertEquals(self.ctrl.GetItem('Red').IsSelected(), True)
+        self.ctrl.get_item('Green').ensure_visible()
+        self.ctrl.get_item('Red').click()
+        self.assertEqual(self.ctrl.get_item('Gray').is_selected(), False)
+        self.assertEqual(self.ctrl.get_item('Red').is_selected(), True)
 
 #
 #    def testSubItems(self):
 #
-#        for row in range(self.ctrl.ItemCount())
+#        for row in range(self.ctrl.item_count())
 #
-#        for i in self.ctrl.Items():
+#        for i in self.ctrl.items():
 #
-#            #self.assertEquals(item.Text, texts[i])
+#            #self.assertEqual(item.Text, texts[i])
 
     def testEqualsItems(self):
         """
         Test __eq__ and __ne__ cases for _listview_item.
         """
-        item1 = self.ctrl.GetItem(0, 0)
-        item1_copy = self.ctrl.GetItem(0, 0)
-        item2 = self.ctrl.GetItem(1, 0)
+        item1 = self.ctrl.get_item(0, 0)
+        item1_copy = self.ctrl.get_item(0, 0)
+        item2 = self.ctrl.get_item(1, 0)
 
         self.assertEqual(item1, item1_copy)
         self.assertNotEqual(item1, "Not _listview_item")
@@ -437,8 +437,8 @@ class ListViewTestCases32(unittest.TestCase):
 
     def test_cells_rectangles(self):
         """Test the ListView get_item rectangle method for cells"""
-        if not self.dlg.Toolbar.Button(4).is_checked():
-            self.dlg.Toolbar.Button(4).click()
+        if not self.dlg.Toolbar.button(4).is_checked():
+            self.dlg.Toolbar.button(4).click()
 
         for row in range(self.ctrl.item_count() - 1):
             for col in range(self.ctrl.column_count() - 1):
@@ -479,7 +479,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Defaults()
+        Timings.defaults()
 
         app = Application()
         app.start(self.path)
@@ -566,7 +566,7 @@ class TreeViewTestCases32(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.root_text = "The Planets"
         self.texts = [
@@ -584,73 +584,73 @@ class TreeViewTestCases32(unittest.TestCase):
         self.app = Application()
         self.app.start(self.path)
         self.dlg = self.app.MicrosoftControlSpy
-        self.ctrl = self.app.MicrosoftControlSpy.TreeView.WrapperObject()
+        self.ctrl = self.app.MicrosoftControlSpy.TreeView.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def test_friendly_class_name(self):
         """Make sure the friendly class name is set correctly (TreeView)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "TreeView")
+        self.assertEqual(self.ctrl.friendly_class_name(), "TreeView")
 
     def testItemCount(self):
         """Test the TreeView ItemCount method"""
-        self.assertEquals(self.ctrl.ItemCount(), 37)
+        self.assertEqual(self.ctrl.item_count(), 37)
 
     def testGetItem(self):
-        """Test the GetItem method"""
-        self.assertRaises(RuntimeError, self.ctrl.GetItem, "test\here\please")
+        """Test the get_item method"""
+        self.assertRaises(RuntimeError, self.ctrl.get_item, "test\here\please")
 
-        self.assertRaises(IndexError, self.ctrl.GetItem, r"\test\here\please")
+        self.assertRaises(IndexError, self.ctrl.get_item, r"\test\here\please")
 
-        self.assertEquals(
-            self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
+        self.assertEqual(
+            self.ctrl.get_item((0, 1, 2)).text(), self.texts[1][3] + " kg")
 
-        self.assertEquals(
-            self.ctrl.GetItem(r"\The Planets\Venus\4.869e24 kg", exact=True).Text(), self.texts[1][3] + " kg")
+        self.assertEqual(
+            self.ctrl.get_item(r"\The Planets\Venus\4.869e24 kg", exact=True).text(), self.texts[1][3] + " kg")
 
-        self.assertEquals(
-            self.ctrl.GetItem(["The Planets", "Venus", "4.869"]).Text(),
+        self.assertEqual(
+            self.ctrl.get_item(["The Planets", "Venus", "4.869"]).text(),
             self.texts[1][3] + " kg"
         )
 
     def testItemText(self):
         """Test the TreeView item Text() method"""
-        self.assertEquals(self.ctrl.Root().Text(), self.root_text)
+        self.assertEqual(self.ctrl.tree_root().text(), self.root_text)
 
-        self.assertEquals(
-            self.ctrl.GetItem((0, 1, 2)).Text(), self.texts[1][3] + " kg")
+        self.assertEqual(
+            self.ctrl.get_item((0, 1, 2)).text(), self.texts[1][3] + " kg")
 
     def testSelect(self):
         """Test selecting an item"""
-        self.ctrl.Select((0, 1, 2))
+        self.ctrl.select((0, 1, 2))
 
-        self.ctrl.GetItem((0, 1, 2)).State()
+        self.ctrl.get_item((0, 1, 2)).state()
 
-        self.assertEquals(True, self.ctrl.IsSelected((0, 1, 2)))
+        self.assertEqual(True, self.ctrl.is_selected((0, 1, 2)))
 
     def testEnsureVisible(self):
         """make sure that the item is visible"""
         # TODO: note this is partially a fake test at the moment because
         # just by getting an item - we usually make it visible
-        self.ctrl.EnsureVisible((0, 8, 2))
+        self.ctrl.ensure_visible((0, 8, 2))
 
         # make sure that the item is not hidden
-        self.assertNotEqual(None, self.ctrl.GetItem((0, 8, 2)).client_rect())
+        self.assertNotEqual(None, self.ctrl.get_item((0, 8, 2)).client_rect())
 
     def testGetProperties(self):
         """Test getting the properties for the treeview control"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             "TreeView", props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemsClick(self):
         """Test clicking of items and sub-items in the treeview control"""
@@ -658,31 +658,31 @@ class TreeViewTestCases32(unittest.TestCase):
         mercury_diam_item_path = (0, 0, 1)
         mars_dist_item_path = (0, 3, 0)
 
-        itm = self.ctrl.GetItem(planets_item_path)
-        itm.EnsureVisible()
+        itm = self.ctrl.get_item(planets_item_path)
+        itm.ensure_visible()
         time.sleep(1)
-        itm.Click(button='left')
-        self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
+        itm.click(button='left')
+        self.assertEqual(True, self.ctrl.is_selected(planets_item_path))
 
-        itm = self.ctrl.GetItem(mars_dist_item_path)
-        itm.EnsureVisible()
+        itm = self.ctrl.get_item(mars_dist_item_path)
+        itm.ensure_visible()
         time.sleep(1)
-        itm.Click(button='left')
-        self.assertEquals(True, self.ctrl.IsSelected(mars_dist_item_path))
+        itm.click(button='left')
+        self.assertEqual(True, self.ctrl.is_selected(mars_dist_item_path))
 
-        itm = self.ctrl.GetItem(mercury_diam_item_path)
-        itm.EnsureVisible()
+        itm = self.ctrl.get_item(mercury_diam_item_path)
+        itm.ensure_visible()
         time.sleep(1)
-        itm.Click(button='left')
-        self.assertEquals(True, self.ctrl.IsSelected(mercury_diam_item_path))
-        self.assertEquals(False, self.ctrl.IsSelected(mars_dist_item_path))
+        itm.click(button='left')
+        self.assertEqual(True, self.ctrl.is_selected(mercury_diam_item_path))
+        self.assertEqual(False, self.ctrl.is_selected(mars_dist_item_path))
 
-        itm = self.ctrl.GetItem(planets_item_path)
-        itm.EnsureVisible()
+        itm = self.ctrl.get_item(planets_item_path)
+        itm.ensure_visible()
         time.sleep(1)
-        itm.Click(button='left')
-        self.assertEquals(True, self.ctrl.IsSelected(planets_item_path))
-        self.assertEquals(False, self.ctrl.IsSelected(mercury_diam_item_path))
+        itm.click(button='left')
+        self.assertEqual(True, self.ctrl.is_selected(planets_item_path))
+        self.assertEqual(False, self.ctrl.is_selected(mercury_diam_item_path))
 
 
 if is_x64_Python():
@@ -700,97 +700,98 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.dlg = self.app.CommonControlsSample
-        self.ctrl = self.app.CommonControlsSample.TreeView.WrapperObject()
+        self.ctrl = self.app.CommonControlsSample.TreeView.wrapper_object()
         self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
 
     def tearDown(self):
         """Close the application after tests"""
         self.dlg.send_message(win32defines.WM_CLOSE)
-        self.app.kill_()
+        self.app.kill()
 
     def testCheckBoxes(self):
-        """Make sure tree view item method IsChecked() works as expected"""
+        """Make sure tree view item method is_checked() works as expected"""
         self.dlg.set_focus()
         self.dlg.TVS_CHECKBOXES.check_by_click()
-        birds = self.ctrl.GetItem(r'\Birds')
-        birds.Click(where='check')
-        self.assertEqual(birds.IsChecked(), True)
+        birds = self.ctrl.get_item(r'\Birds')
+        self.ctrl.set_focus() # to make sure focus is not lost by any accident event
+        birds.click(where='check')
+        self.assertEqual(birds.is_checked(), True)
         birds.click_input(where='check')
-        wait_until(3, 0.4, birds.IsChecked, value=False)
+        wait_until(3, 0.4, birds.is_checked, value=False)
 
     def testPrintItems(self):
-        """Test TreeView method PrintItems()"""
-        birds = self.ctrl.GetItem(r'\Birds')
-        birds.Expand()
-        items_str = self.ctrl.PrintItems()
-        self.assertEquals(items_str, "Treeview1\nBirds\n Eagle\n Hummingbird\n Pigeon\n" +
+        """Test TreeView method print_items()"""
+        birds = self.ctrl.get_item(r'\Birds')
+        birds.expand()
+        items_str = self.ctrl.print_items()
+        self.assertEqual(items_str, "Treeview1\nBirds\n Eagle\n Hummingbird\n Pigeon\n" +
                                      "Dogs\n Dalmatian\n German Shepherd\n Great Dane\n" +
                                      "Fish\n Salmon\n Snapper\n Sole\n")
 
     def testIsSelected(self):
         """Make sure tree view item method IsSelected() works as expected"""
-        birds = self.ctrl.GetItem(r'\Birds')
-        birds.Expand()
-        eagle = self.ctrl.GetItem(r'\Birds\Eagle')
-        eagle.Select()
-        self.assertEquals(eagle.IsSelected(), True)
+        birds = self.ctrl.get_item(r'\Birds')
+        birds.expand()
+        eagle = self.ctrl.get_item(r'\Birds\Eagle')
+        eagle.select()
+        self.assertEqual(eagle.is_selected(), True)
 
     def test_expand_collapse(self):
         """Make sure tree view item methods Expand() and Collapse() work as expected"""
-        birds = self.ctrl.GetItem(r'\Birds')
-        birds.Expand()
-        self.assertEquals(birds.IsExpanded(), True)
+        birds = self.ctrl.get_item(r'\Birds')
+        birds.expand()
+        self.assertEqual(birds.is_expanded(), True)
 
-        birds.Collapse()
-        self.assertEquals(birds.IsExpanded(), False)
+        birds.collapse()
+        self.assertEqual(birds.is_expanded(), False)
 
     def test_expand_collapse_buttons(self):
         """Make sure correct area is clicked"""
         self.dlg.TVS_HASBUTTONS.click_input()
         self.dlg.TVS_HASLINES.click_input()
         self.dlg.TVS_LINESATROOT.click_input()
-        birds = self.ctrl.GetItem(r'\Birds')
+        birds = self.ctrl.get_item(r'\Birds')
 
-        birds.Click(where='button')
-        self.assertEquals(birds.IsExpanded(), True)
-        birds.Click(double=True, where='icon')
-        self.assertEquals(birds.IsExpanded(), False)
+        birds.click(where='button')
+        self.assertEqual(birds.is_expanded(), True)
+        birds.click(double=True, where='icon')
+        self.assertEqual(birds.is_expanded(), False)
 
         birds.click_input(where='button')
-        self.assertEquals(birds.IsExpanded(), True)
+        self.assertEqual(birds.is_expanded(), True)
         birds.click_input(double=True, where='icon')
-        self.assertEquals(birds.IsExpanded(), False)
+        self.assertEqual(birds.is_expanded(), False)
 
     def testIncorrectAreas(self):
         """Make sure incorrect area raises an exception"""
-        birds = self.ctrl.GetItem(r'\Birds')
-        self.assertRaises(RuntimeError, birds.Click, where='radiob')
+        birds = self.ctrl.get_item(r'\Birds')
+        self.assertRaises(RuntimeError, birds.click, where='radiob')
         self.assertRaises(RuntimeError, birds.click_input, where='radiob')
 
     def testStartDraggingAndDrop(self):
-        """Make sure tree view item methods StartDragging() and Drop() work as expected"""
-        birds = self.ctrl.GetItem(r'\Birds')
-        birds.Expand()
+        """Make sure tree view item methods StartDragging() and drop() work as expected"""
+        birds = self.ctrl.get_item(r'\Birds')
+        birds.expand()
 
-        pigeon = self.ctrl.GetItem(r'\Birds\Pigeon')
-        pigeon.StartDragging()
+        pigeon = self.ctrl.get_item(r'\Birds\Pigeon')
+        pigeon.start_dragging()
 
-        eagle = self.ctrl.GetItem(r'\Birds\Eagle')
-        eagle.Drop()
+        eagle = self.ctrl.get_item(r'\Birds\Eagle')
+        eagle.drop()
 
-        self.assertRaises(IndexError, birds.GetChild, 'Pigeon')
-        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Birds\Pigeon')
-        self.assertRaises(IndexError, self.ctrl.GetItem, [0, 2])
-        self.assertRaises(IndexError, self.ctrl.GetItem, r'\Bread', exact=True)
+        self.assertRaises(IndexError, birds.get_child, 'Pigeon')
+        self.assertRaises(IndexError, self.ctrl.get_item, r'\Birds\Pigeon')
+        self.assertRaises(IndexError, self.ctrl.get_item, [0, 2])
+        self.assertRaises(IndexError, self.ctrl.get_item, r'\Bread', exact=True)
 
-        new_pigeon = self.ctrl.GetItem(r'\Birds\Eagle\Pigeon')
-        self.assertEquals(len(birds.children()), 2)
-        self.assertEquals(new_pigeon.children(), [])
+        new_pigeon = self.ctrl.get_item(r'\Birds\Eagle\Pigeon')
+        self.assertEqual(len(birds.children()), 2)
+        self.assertEqual(new_pigeon.children(), [])
 
 
 class HeaderTestCases(unittest.TestCase):
@@ -799,7 +800,7 @@ class HeaderTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
@@ -817,61 +818,61 @@ class HeaderTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.RowListSampleApplication
-        self.ctrl = app.RowListSampleApplication.Header.WrapperObject()
+        self.ctrl = app.RowListSampleApplication.Header.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (Header)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "Header")
+        self.assertEqual(self.ctrl.friendly_class_name(), "Header")
 
     def testTexts(self):
         """Make sure the texts are set correctly"""
-        self.assertEquals(self.ctrl.texts()[1:], self.texts)
+        self.assertEqual(self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         """Test getting the properties for the header control"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testItemCount(self):
-        self.assertEquals(8, self.ctrl.ItemCount())
+        self.assertEqual(8, self.ctrl.item_count())
 
     def testGetColumnRectangle(self):
         for i in range(0, 3):
-            self.assertEquals(self.item_rects[i].left, self.ctrl.GetColumnRectangle(i).left)
-            self.assertEquals(self.item_rects[i].right, self.ctrl.GetColumnRectangle(i).right)
-            self.assertEquals(self.item_rects[i].top, self.ctrl.GetColumnRectangle(i).top)
-            self.failIf(abs(self.item_rects[i].bottom - self.ctrl.GetColumnRectangle(i).bottom) > 2)
+            self.assertEqual(self.item_rects[i].left, self.ctrl.get_column_rectangle(i).left)
+            self.assertEqual(self.item_rects[i].right, self.ctrl.get_column_rectangle(i).right)
+            self.assertEqual(self.item_rects[i].top, self.ctrl.get_column_rectangle(i).top)
+            self.assertFalse(abs(self.item_rects[i].bottom - self.ctrl.get_column_rectangle(i).bottom) > 2)
 
     def testClientRects(self):
         test_rects = self.item_rects
         test_rects.insert(0, self.ctrl.client_rect())
 
         client_rects = self.ctrl.client_rects()
-        self.assertEquals(len(test_rects), len(client_rects))
+        self.assertEqual(len(test_rects), len(client_rects))
         for i, r in enumerate(test_rects):
-            self.assertEquals(r.left, client_rects[i].left)
-            self.assertEquals(r.right, client_rects[i].right)
-            self.assertEquals(r.top, client_rects[i].top)
-            self.failIf(abs(r.bottom - client_rects[i].bottom) > 2)  # may be equal to 17 or 19
+            self.assertEqual(r.left, client_rects[i].left)
+            self.assertEqual(r.right, client_rects[i].right)
+            self.assertEqual(r.top, client_rects[i].top)
+            self.assertFalse(abs(r.bottom - client_rects[i].bottom) > 2)  # may be equal to 17 or 19
 
     def testGetColumnText(self):
         for i in range(0, 3):
-            self.assertEquals(
+            self.assertEqual(
                 self.texts[i],
-                self.ctrl.GetColumnText(i))
+                self.ctrl.get_column_text(i))
 
 
 class StatusBarTestCases(unittest.TestCase):
@@ -880,7 +881,7 @@ class StatusBarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(os.path.join(controlspy_folder, "Status bar.exe"))
@@ -892,37 +893,37 @@ class StatusBarTestCases(unittest.TestCase):
             RECT(92, 2, 261, 22)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.StatusBar.WrapperObject()
+        self.ctrl = app.MicrosoftControlSpy.StatusBar.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def test_friendly_class_name(self):
         """Make sure the friendly class name is set correctly (StatusBar)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "StatusBar")
+        self.assertEqual(self.ctrl.friendly_class_name(), "StatusBar")
 
     def test_texts(self):
         """Make sure the texts are set correctly"""
-        self.assertEquals(self.ctrl.texts()[1:], self.texts)
+        self.assertEqual(self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         """Test getting the properties for the status bar control"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testBorderWidths(self):
         """Make sure the border widths are retrieved correctly"""
-        self.assertEquals(
-            self.ctrl.BorderWidths(),
+        self.assertEqual(
+            self.ctrl.border_widths(),
             dict(
                 Horizontal=0,
                 Vertical=2,
@@ -932,44 +933,44 @@ class StatusBarTestCases(unittest.TestCase):
 
     def testPartCount(self):
         "Make sure the number of parts is retrieved correctly"
-        self.assertEquals(self.ctrl.PartCount(), 3)
+        self.assertEqual(self.ctrl.part_count(), 3)
 
     def testPartRightEdges(self):
         "Make sure the part widths are retrieved correctly"
 
-        for i in range(0, self.ctrl.PartCount() - 1):
-            self.assertEquals(self.ctrl.PartRightEdges()[i], self.part_rects[i].right)
+        for i in range(0, self.ctrl.part_count() - 1):
+            self.assertEqual(self.ctrl.part_right_edges()[i], self.part_rects[i].right)
 
-        self.assertEquals(self.ctrl.PartRightEdges()[i + 1], -1)
+        self.assertEqual(self.ctrl.part_right_edges()[i + 1], -1)
 
     def testGetPartRect(self):
         "Make sure the part rectangles are retrieved correctly"
 
-        for i in range(0, self.ctrl.PartCount()):
-            part_rect = self.ctrl.GetPartRect(i)
-            self.assertEquals(part_rect.left, self.part_rects[i].left)
-            if i != self.ctrl.PartCount() - 1:
-                self.assertEquals(part_rect.right, self.part_rects[i].right)
-            self.assertEquals(part_rect.top, self.part_rects[i].top)
-            self.failIf(abs(part_rect.bottom - self.part_rects[i].bottom) > 2)
+        for i in range(0, self.ctrl.part_count()):
+            part_rect = self.ctrl.get_part_rect(i)
+            self.assertEqual(part_rect.left, self.part_rects[i].left)
+            if i != self.ctrl.part_count() - 1:
+                self.assertEqual(part_rect.right, self.part_rects[i].right)
+            self.assertEqual(part_rect.top, self.part_rects[i].top)
+            self.assertFalse(abs(part_rect.bottom - self.part_rects[i].bottom) > 2)
 
-        self.assertRaises(IndexError, self.ctrl.GetPartRect, 99)
+        self.assertRaises(IndexError, self.ctrl.get_part_rect, 99)
 
     def testClientRects(self):
-        self.assertEquals(self.ctrl.ClientRect(), self.ctrl.ClientRects()[0])
-        client_rects = self.ctrl.ClientRects()[1:]
+        self.assertEqual(self.ctrl.client_rect(), self.ctrl.client_rects()[0])
+        client_rects = self.ctrl.client_rects()[1:]
         for i, client_rect in enumerate(client_rects):
-            self.assertEquals(self.part_rects[i].left, client_rect.left)
+            self.assertEqual(self.part_rects[i].left, client_rect.left)
             if i != len(client_rects) - 1:
-                self.assertEquals(self.part_rects[i].right, client_rect.right)
-            self.assertEquals(self.part_rects[i].top, client_rect.top)
-            self.failIf(abs(self.part_rects[i].bottom - client_rect.bottom) > 2)
+                self.assertEqual(self.part_rects[i].right, client_rect.right)
+            self.assertEqual(self.part_rects[i].top, client_rect.top)
+            self.assertFalse(abs(self.part_rects[i].bottom - client_rect.bottom) > 2)
 
     def testGetPartText(self):
-        self.assertRaises(IndexError, self.ctrl.GetPartText, 99)
+        self.assertRaises(IndexError, self.ctrl.get_part_text, 99)
 
         for i, text in enumerate(self.texts):
-            self.assertEquals(text, self.ctrl.GetPartText(i))
+            self.assertEqual(text, self.ctrl.get_part_text(i))
 
 
 class TabControlTestCases(unittest.TestCase):
@@ -978,7 +979,7 @@ class TabControlTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         self.screen_w = win32api.GetSystemMetrics(0)
 
         app = Application()
@@ -998,36 +999,36 @@ class TabControlTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.CommonControlsSample
-        self.ctrl = app.CommonControlsSample.TabControl.WrapperObject()
+        self.ctrl = app.CommonControlsSample.TabControl.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (TabControl)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "TabControl")
+        self.assertEqual(self.ctrl.friendly_class_name(), "TabControl")
 
     def testTexts(self):
         """Make sure the texts are set correctly"""
-        self.assertEquals(self.ctrl.texts()[1:], self.texts)
+        self.assertEqual(self.ctrl.texts()[1:], self.texts)
 
     def testGetProperties(self):
         """Test getting the properties for the tabcontrol"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testRowCount(self):
-        self.assertEquals(1, self.ctrl.RowCount())
+        self.assertEqual(1, self.ctrl.row_count())
 
         dlgClientRect = self.ctrl.parent().rectangle()  # use the parent as a reference
         prev_rect = self.ctrl.rectangle() - dlgClientRect
@@ -1036,7 +1037,7 @@ class TabControlTestCases(unittest.TestCase):
         new_rect = RECT(prev_rect)
         new_rect.right = int(new_rect.width() / 2)
 
-        self.ctrl.MoveWindow(
+        self.ctrl.move_window(
             new_rect.left,
             new_rect.top,
             new_rect.width(),
@@ -1045,29 +1046,29 @@ class TabControlTestCases(unittest.TestCase):
         time.sleep(0.1)
 
         # verify two tab rows
-        self.assertEquals(2, self.ctrl.RowCount())
+        self.assertEqual(2, self.ctrl.row_count())
 
         # restore back the original size of the control
-        self.ctrl.MoveWindow(prev_rect)
-        self.assertEquals(1, self.ctrl.RowCount())
+        self.ctrl.move_window(prev_rect)
+        self.assertEqual(1, self.ctrl.row_count())
 
     def testGetSelectedTab(self):
-        self.assertEquals(0, self.ctrl.GetSelectedTab())
-        self.ctrl.Select(1)
-        self.assertEquals(1, self.ctrl.GetSelectedTab())
-        self.ctrl.Select(u"CMonthCalCtrl")
-        self.assertEquals(4, self.ctrl.GetSelectedTab())
+        self.assertEqual(0, self.ctrl.get_selected_tab())
+        self.ctrl.select(1)
+        self.assertEqual(1, self.ctrl.get_selected_tab())
+        self.ctrl.select(u"CMonthCalCtrl")
+        self.assertEqual(4, self.ctrl.get_selected_tab())
 
     def testTabCount(self):
         """Make sure the number of parts is retrieved correctly"""
-        self.assertEquals(self.ctrl.TabCount(), 5)
+        self.assertEqual(self.ctrl.tab_count(), 5)
 
     def testGetTabRect(self):
         """Make sure the part rectangles are retrieved correctly"""
         for i, _ in enumerate(self.rects):
-            self.assertEquals(self.ctrl.GetTabRect(i), self.rects[i])
+            self.assertEqual(self.ctrl.get_tab_rect(i), self.rects[i])
 
-        self.assertRaises(IndexError, self.ctrl.GetTabRect, 99)
+        self.assertRaises(IndexError, self.ctrl.get_tab_rect, 99)
 
 #    def testGetTabState(self):
 #        self.assertRaises(IndexError, self.ctrl.GetTabState, 99)
@@ -1080,7 +1081,7 @@ class TabControlTestCases(unittest.TestCase):
 #        time.sleep(2)
 #        print("==\n",self.ctrl.TabStates())
 #
-#        self.assertEquals(self.ctrl.GetTabState(1), 1)
+#        self.assertEqual(self.ctrl.GetTabState(1), 1)
 #
 #    def testTabStates(self):
 #        print(self.ctrl.TabStates())
@@ -1088,23 +1089,23 @@ class TabControlTestCases(unittest.TestCase):
 
     def testGetTabText(self):
         for i, text in enumerate(self.texts):
-            self.assertEquals(text, self.ctrl.GetTabText(i))
+            self.assertEqual(text, self.ctrl.get_tab_text(i))
 
-        self.assertRaises(IndexError, self.ctrl.GetTabText, 99)
+        self.assertRaises(IndexError, self.ctrl.get_tab_text, 99)
 
     def testClientRects(self):
-        self.assertEquals(self.ctrl.client_rect(), self.ctrl.client_rects()[0])
-        self.assertEquals(self.rects, self.ctrl.client_rects()[1:])
+        self.assertEqual(self.ctrl.client_rect(), self.ctrl.client_rects()[0])
+        self.assertEqual(self.rects, self.ctrl.client_rects()[1:])
 
     def testSelect(self):
-        self.assertEquals(0, self.ctrl.GetSelectedTab())
+        self.assertEqual(0, self.ctrl.get_selected_tab())
 
-        self.ctrl.Select(1)
-        self.assertEquals(1, self.ctrl.GetSelectedTab())
-        self.ctrl.Select(u"CToolBarCtrl")
-        self.assertEquals(2, self.ctrl.GetSelectedTab())
+        self.ctrl.select(1)
+        self.assertEqual(1, self.ctrl.get_selected_tab())
+        self.ctrl.select(u"CToolBarCtrl")
+        self.assertEqual(2, self.ctrl.get_selected_tab())
 
-        self.assertRaises(IndexError, self.ctrl.Select, 99)
+        self.assertRaises(IndexError, self.ctrl.select, 99)
 
 
 class ToolbarTestCases(unittest.TestCase):
@@ -1113,7 +1114,7 @@ class ToolbarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
 
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
@@ -1122,7 +1123,7 @@ class ToolbarTestCases(unittest.TestCase):
         self.dlg = app.CommonControlsSample
 
         # select a tab with toolbar controls
-        self.dlg.SysTabControl.Select(u"CToolBarCtrl")
+        self.dlg.SysTabControl.select(u"CToolBarCtrl")
 
         # see identifiers available at that tab
         #self.dlg.PrintControlIdentifiers()
@@ -1130,115 +1131,115 @@ class ToolbarTestCases(unittest.TestCase):
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
         # The second control goes as Toolbar2
-        self.ctrl = app.CommonControlsSample.ToolbarNew.WrapperObject()
-        self.ctrl2 = app.CommonControlsSample.ToolbarErase.WrapperObject()
+        self.ctrl = app.CommonControlsSample.ToolbarNew.wrapper_object()
+        self.ctrl2 = app.CommonControlsSample.ToolbarErase.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (Toolbar)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "Toolbar")
+        self.assertEqual(self.ctrl.friendly_class_name(), "Toolbar")
 
     def testTexts(self):
         """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
-            self.assertEquals(isinstance(txt, six.string_types), True)
+            self.assertEqual(isinstance(txt, six.string_types), True)
 
     def testGetProperties(self):
         """Test getting the properties for the toolbar control"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
-        self.assertEquals(
-            self.ctrl.ButtonCount(), props['button_count'])
+        self.assertEqual(
+            self.ctrl.button_count(), props['button_count'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testButtonCount(self):
         """Test the button count method of the toolbar"""
         # TODO: for a some reason the first toolbar returns button count = 12
         # The same as in the second toolbar, even though their handles are different.
         # Maybe the test app itself has to be fixed too.
-        #self.assertEquals(self.ctrl.ButtonCount(), 9)
+        #self.assertEqual(self.ctrl.button_count(), 9)
 
-        self.assertEquals(self.ctrl2.ButtonCount(), 12)
+        self.assertEqual(self.ctrl2.button_count(), 12)
 
     def testGetButton(self):
-        self.assertRaises(IndexError, self.ctrl.GetButton, 29)
+        self.assertRaises(IndexError, self.ctrl.get_button, 29)
 
     def testGetButtonRect(self):
-        rect_ctrl = self.ctrl.GetButtonRect(0)
-        self.assertEquals((rect_ctrl.left, rect_ctrl.top), (0, 0))
-        self.failIf((rect_ctrl.right - rect_ctrl.left) > 40)
-        self.failIf((rect_ctrl.right - rect_ctrl.left) < 36)
-        self.failIf((rect_ctrl.bottom - rect_ctrl.top) > 38)
-        self.failIf((rect_ctrl.bottom - rect_ctrl.top) < 36)
-        #self.assertEquals(rect_ctrl, RECT(0, 0, 40, 38))
+        rect_ctrl = self.ctrl.get_button_rect(0)
+        self.assertEqual((rect_ctrl.left, rect_ctrl.top), (0, 0))
+        self.assertFalse((rect_ctrl.right - rect_ctrl.left) > 40)
+        self.assertFalse((rect_ctrl.right - rect_ctrl.left) < 36)
+        self.assertFalse((rect_ctrl.bottom - rect_ctrl.top) > 38)
+        self.assertFalse((rect_ctrl.bottom - rect_ctrl.top) < 36)
+        #self.assertEqual(rect_ctrl, RECT(0, 0, 40, 38))
 
-        rect_ctrl2 = self.ctrl2.GetButtonRect(0)
-        self.assertEquals((rect_ctrl2.left, rect_ctrl2.top), (0, 0))
-        self.failIf((rect_ctrl2.right - rect_ctrl2.left) > 70)
-        self.failIf((rect_ctrl2.right - rect_ctrl2.left) < 64)
-        self.failIf((rect_ctrl2.bottom - rect_ctrl2.top) > 38)
-        self.failIf((rect_ctrl2.bottom - rect_ctrl2.top) < 36)
-        #self.assertEquals(rect_ctrl2, RECT(0, 0, 70, 38))
+        rect_ctrl2 = self.ctrl2.get_button_rect(0)
+        self.assertEqual((rect_ctrl2.left, rect_ctrl2.top), (0, 0))
+        self.assertFalse((rect_ctrl2.right - rect_ctrl2.left) > 70)
+        self.assertFalse((rect_ctrl2.right - rect_ctrl2.left) < 64)
+        self.assertFalse((rect_ctrl2.bottom - rect_ctrl2.top) > 38)
+        self.assertFalse((rect_ctrl2.bottom - rect_ctrl2.top) < 36)
+        #self.assertEqual(rect_ctrl2, RECT(0, 0, 70, 38))
 
     def testGetToolTipsControls(self):
-        tips = self.ctrl.GetToolTipsControl()
+        tips = self.ctrl.get_tool_tips_control()
         tt = tips.texts()
-        self.assertEquals(u"New" in tt, True)
-        self.assertEquals(u"About" in tt, True)
+        self.assertEqual(u"New" in tt, True)
+        self.assertEqual(u"About" in tt, True)
 
-        tips = self.ctrl2.GetToolTipsControl()
+        tips = self.ctrl2.get_tool_tips_control()
         tt = tips.texts()
-        self.assertEquals(u"Pencil" in tt, True)
-        self.assertEquals(u"Ellipse" in tt, True)
+        self.assertEqual(u"Pencil" in tt, True)
+        self.assertEqual(u"Ellipse" in tt, True)
 
     def testPressButton(self):
 
-        self.ctrl.PressButton(0)
+        self.ctrl.press_button(0)
 
         #print(self.ctrl.texts())
         self.assertRaises(
             findbestmatch.MatchError,
-            self.ctrl.PressButton,
+            self.ctrl.press_button,
             "asdfdasfasdf")
 
         # todo more tests for pressbutton
-        self.ctrl.PressButton(u"Open")
+        self.ctrl.press_button(u"Open")
 
     def testCheckButton(self):
-        self.ctrl2.CheckButton('Erase', True)
-        self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), True)
+        self.ctrl2.check_button('Erase', True)
+        self.assertEqual(self.ctrl2.button('Erase').is_checked(), True)
 
-        self.ctrl2.CheckButton('Pencil', True)
-        self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), False)
+        self.ctrl2.check_button('Pencil', True)
+        self.assertEqual(self.ctrl2.button('Erase').is_checked(), False)
 
-        self.ctrl2.CheckButton('Erase', False)
-        self.assertEquals(self.ctrl2.Button('Erase').IsChecked(), False)
+        self.ctrl2.check_button('Erase', False)
+        self.assertEqual(self.ctrl2.button('Erase').is_checked(), False)
 
         # try to check separator
-        self.assertRaises(RuntimeError, self.ctrl.CheckButton, 3, True)
+        self.assertRaises(RuntimeError, self.ctrl.check_button, 3, True)
 
     def testIsCheckable(self):
-        self.assertNotEqual(self.ctrl2.Button('Erase').IsCheckable(), False)
-        self.assertEquals(self.ctrl.Button('New').IsCheckable(), False)
+        self.assertNotEqual(self.ctrl2.button('Erase').is_checkable(), False)
+        self.assertEqual(self.ctrl.button('New').is_checkable(), False)
 
     def testIsPressable(self):
-        self.assertEquals(self.ctrl.Button('New').IsPressable(), True)
+        self.assertEqual(self.ctrl.button('New').is_pressable(), True)
 
     def testButtonByTooltip(self):
-        self.assertEquals(self.ctrl.Button('New', by_tooltip=True).Text(), 'New')
-        self.assertEquals(self.ctrl.Button('About', exact=False, by_tooltip=True).Text(), 'About')
+        self.assertEqual(self.ctrl.button('New', by_tooltip=True).text(), 'New')
+        self.assertEqual(self.ctrl.button('About', exact=False, by_tooltip=True).text(), 'About')
 
 
 class RebarTestCases(unittest.TestCase):
@@ -1249,72 +1250,71 @@ class RebarTestCases(unittest.TestCase):
         """Start the application, set some data and wait for the state we want
 
         The app title can be tricky. If no document is opened the title is just: "RebarTest"
-        However if an document is created/opened in the child frame
+        However if a document is created/opened in the child frame
         the title is appended with a document name: "RebarTest - RebarTest1"
         A findbestmatch proc does well here with guessing the title
         even though the app is started with a short title "RebarTest".
         """
-        Timings.Fast()
+        Timings.fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
         mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
         self.app = app
         self.dlg = app.RebarTest_RebarTest
-        self.dlg.Wait('ready', 20)
-        self.ctrl = app.RebarTest_RebarTest.Rebar.WrapperObject()
+        self.dlg.wait('ready', 20)
+        self.ctrl = app.RebarTest_RebarTest.Rebar.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
-        # close the application
-        self.app.kill()
+        self.app.kill(soft=True)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (ReBar)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "ReBar")
+        self.assertEqual(self.ctrl.friendly_class_name(), "ReBar")
 
     def testTexts(self):
         """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
-            self.assertEquals(isinstance(txt, six.string_types), True)
+            self.assertEqual(isinstance(txt, six.string_types), True)
 
     def testBandCount(self):
-        """Make sure BandCount() returns 2"""
-        self.assertEquals(self.ctrl.BandCount(), 2)
+        """Make sure band_count() returns 2"""
+        self.assertEqual(self.ctrl.band_count(), 2)
 
     def testGetBand(self):
-        """Check that GetBand() is working corectly"""
-        self.assertRaises(IndexError, self.ctrl.GetBand, 99)
-        self.assertRaises(IndexError, self.ctrl.GetBand, 2)
+        """Check that get_band() is working corectly"""
+        self.assertRaises(IndexError, self.ctrl.get_band, 99)
+        self.assertRaises(IndexError, self.ctrl.get_band, 2)
 
-        band = self.ctrl.GetBand(0)
+        band = self.ctrl.get_band(0)
 
-        self.assertEquals(band.hwndChild, self.dlg.MenuBar.handle)
+        self.assertEqual(band.hwndChild, self.dlg.MenuBar.handle)
 
-        self.assertEquals(self.ctrl.GetBand(1).text, u"Tools band:")
-        self.assertEquals(self.ctrl.GetBand(0).text, u"Menus band:")
+        self.assertEqual(self.ctrl.get_band(1).text, u"Tools band:")
+        self.assertEqual(self.ctrl.get_band(0).text, u"Menus band:")
 
     def testGetToolTipsControl(self):
         """Make sure GetToolTipsControl() returns None"""
-        self.assertEquals(self.ctrl.GetToolTipsControl(), None)
+        self.assertEqual(self.ctrl.get_tool_tips_control(), None)
 
     def testAfxToolBarButtons(self):
         """Make sure we can click on Afx ToolBar button by index"""
         Timings.closeclick_dialog_close_wait = 2.
-        self.dlg.StandardToolbar.Button(1).Click()
-        self.app.Window_(title='Open').Wait('ready', timeout=30)
-        self.app.Window_(title='Open').Cancel.CloseClick()
+        self.dlg.StandardToolbar.button(1).click()
+        self.app.window(title='Open').wait('ready', timeout=30)
+        self.app.window(title='Open').Cancel.close_click()
 
     def testMenuBarClickInput(self):
         """Make sure we can click on Menu Bar items by indexed path"""
-        self.assertRaises(TypeError, self.dlg.MenuBar.MenuBarClickInput, '#one->#0', self.app)
+        self.assertRaises(TypeError, self.dlg.MenuBar.menu_bar_click_input, '#one->#0', self.app)
 
-        self.dlg.MenuBar.MenuBarClickInput('#1->#0->#0', self.app)
-        self.app.Customize.CloseButton.Click()
-        self.app.Customize.WaitNot('visible')
+        self.dlg.MenuBar.menu_bar_click_input('#1->#0->#0', self.app)
+        self.app.Customize.CloseButton.click()
+        self.app.Customize.wait_not('visible')
 
-        self.dlg.MenuBar.MenuBarClickInput([2, 0], self.app)
-        self.app.Window_(title='About RebarTest').OK.Click()
-        self.app.Window_(title='About RebarTest').WaitNot('visible')
+        self.dlg.MenuBar.menu_bar_click_input([2, 0], self.app)
+        self.app.window(title='About RebarTest').OK.click()
+        self.app.window(title='About RebarTest').wait_not('visible')
 
 
 class DatetimeTestCases(unittest.TestCase):
@@ -1323,21 +1323,21 @@ class DatetimeTestCases(unittest.TestCase):
 
     def setUp(self):
         """Start the application and get 'Date Time Picker' control"""
-        Timings.Fast()
+        Timings.fast()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.app = app
         self.dlg = app.CommonControlsSample
-        self.dlg.Wait('ready', 20)
-        tab = app.CommonControlsSample.TabControl.WrapperObject()
-        tab.Select(3)
+        self.dlg.wait('ready', 20)
+        tab = app.CommonControlsSample.TabControl.wrapper_object()
+        tab.select(3)
         self.ctrl = self.dlg.DateTimePicker
 
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (DateTimePicker)"""
@@ -1348,7 +1348,7 @@ class DatetimeTestCases(unittest.TestCase):
 
         # No check for seconds and milliseconds as it can slip
         # These values are verified in the next 'testSetTime'
-        test_date_time = self.ctrl.GetTime()
+        test_date_time = self.ctrl.get_time()
         date_time_now = datetime.now()
         self.assertEqual(test_date_time.wYear, date_time_now.year)
         self.assertEqual(test_date_time.wMonth, date_time_now.month)
@@ -1366,7 +1366,7 @@ class DatetimeTestCases(unittest.TestCase):
         minute = 2
         second = 3
         milliseconds = 781
-        self.ctrl.SetTime(
+        self.ctrl.set_time(
             year=year,
             month=month,
             day_of_week=day_of_week,
@@ -1378,7 +1378,7 @@ class DatetimeTestCases(unittest.TestCase):
         )
 
         # Retrive back the values we set
-        test_date_time = self.ctrl.GetTime()
+        test_date_time = self.ctrl.get_time()
         self.assertEqual(test_date_time.wYear, year)
         self.assertEqual(test_date_time.wMonth, month)
         self.assertEqual(test_date_time.wDay, day)
@@ -1395,7 +1395,7 @@ class ToolTipsTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
         app = Application()
@@ -1409,53 +1409,53 @@ class ToolTipsTestCases(unittest.TestCase):
         # so it won't generate an unexpected tooltip
         self.dlg.move_mouse_input(coords=(-100, -100), absolute=True)
 
-        self.dlg.TabControl.Select(u'CToolBarCtrl')
+        self.dlg.TabControl.select(u'CToolBarCtrl')
 
-        self.ctrl = self.dlg.Toolbar.GetToolTipsControl()
+        self.ctrl = self.dlg.Toolbar.get_tool_tips_control()
 
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        self.app.kill_()
+        self.app.kill()
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (ToolTips)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "ToolTips")
+        self.assertEqual(self.ctrl.friendly_class_name(), "ToolTips")
 
     def testGetProperties(self):
         """Test getting the properties for the tooltips control"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
-    def testGetTip(self):
-        """Test that GetTip() returns correct ToolTip object"""
-        self.assertRaises(IndexError, self.ctrl.GetTip, 99)
-        tip = self.ctrl.GetTip(1)
-        self.assertEquals(tip.text, self.texts[1])
+    def test_get_tip(self):
+        """Test that get_tip() returns correct ToolTip object"""
+        self.assertRaises(IndexError, self.ctrl.get_tip, 99)
+        tip = self.ctrl.get_tip(1)
+        self.assertEqual(tip.text, self.texts[1])
 
-    def testToolCount(self):
-        """Test that ToolCount() returns correct value"""
-        self.assertEquals(10, self.ctrl.ToolCount())
+    def test_tool_count(self):
+        """Test that tool_count() returns correct value"""
+        self.assertEqual(10, self.ctrl.tool_count())
 
-    def testGetTipText(self):
-        """Test that GetTipText() returns correct text"""
-        self.assertEquals(self.texts[1], self.ctrl.GetTipText(1))
+    def test_get_tip_text(self):
+        """Test that get_tip_text() returns correct text"""
+        self.assertEqual(self.texts[1], self.ctrl.get_tip_text(1))
 
-    def testTexts(self):
+    def test_texts(self):
         """Make sure the texts are set correctly"""
         # just to make sure a tooltip is not shown
         self.dlg.move_mouse_input(coords=(0, 0), absolute=False)
         ActionLogger().log('ToolTips texts = ' + ';'.join(self.ctrl.texts()))
-        self.assertEquals(self.ctrl.texts()[0], '')
-        self.assertEquals(self.ctrl.texts()[1:], self.texts)
+        self.assertEqual(self.ctrl.texts()[0], '')
+        self.assertEqual(self.ctrl.texts()[1:], self.texts)
 
 
 class UpDownTestCases(unittest.TestCase):
@@ -1464,88 +1464,88 @@ class UpDownTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.Fast()
+        Timings.fast()
         app = Application()
         app.start(os.path.join(controlspy_folder, "Up-Down.exe"))
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.UpDown2.WrapperObject()
+        self.ctrl = app.MicrosoftControlSpy.UpDown2.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
         # close the application
-        self.dlg.SendMessage(win32defines.WM_CLOSE)
+        self.dlg.send_message(win32defines.WM_CLOSE)
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (UpDown)"""
-        self.assertEquals(self.ctrl.friendly_class_name(), "UpDown")
+        self.assertEqual(self.ctrl.friendly_class_name(), "UpDown")
 
     def testTexts(self):
         """Make sure the texts are set correctly"""
-        self.assertEquals(self.ctrl.texts()[1:], [])
+        self.assertEqual(self.ctrl.texts()[1:], [])
 
     def testGetProperties(self):
         """Test getting the properties for the updown control"""
-        props = self.ctrl.GetProperties()
+        props = self.ctrl.get_properties()
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.friendly_class_name(), props['friendly_class_name'])
 
-        self.assertEquals(
+        self.assertEqual(
             self.ctrl.texts(), props['texts'])
 
         for prop_name in props:
-            self.assertEquals(getattr(self.ctrl, prop_name)(), props[prop_name])
+            self.assertEqual(getattr(self.ctrl, prop_name)(), props[prop_name])
 
     def testGetValue(self):
         """Test getting up-down position"""
-        self.assertEquals(self.ctrl.GetValue(), 0)
+        self.assertEqual(self.ctrl.get_value(), 0)
 
-        self.ctrl.SetValue(23)
-        self.assertEquals(self.ctrl.GetValue(), 23)
+        self.ctrl.set_value(23)
+        self.assertEqual(self.ctrl.get_value(), 23)
 
     def testSetValue(self):
         """Test setting up-down position"""
-        self.assertEquals(self.ctrl.GetValue(), 0)
+        self.assertEqual(self.ctrl.get_value(), 0)
 
-        self.ctrl.SetValue(23)
-        self.assertEquals(self.ctrl.GetValue(), 23)
-        self.assertEquals(
-            int(self.ctrl.GetBuddyControl().texts()[1]),
+        self.ctrl.set_value(23)
+        self.assertEqual(self.ctrl.get_value(), 23)
+        self.assertEqual(
+            int(self.ctrl.get_buddy_control().texts()[1]),
             23)
 
     def testGetBase(self):
         """Test getting the base of the up-down control"""
-        self.assertEquals(self.ctrl.GetBase(), 10)
+        self.assertEqual(self.ctrl.get_base(), 10)
         #self.dlg.StatementEdit.SetEditText ("MSG (UDM_SETBASE, 16, 0)")
 
         # use CloseClick to allow the control time to respond to the message
         #self.dlg.Send.click_input()
-        self.ctrl.SetBase(16)
+        self.ctrl.set_base(16)
 
-        self.assertEquals(self.ctrl.GetBase(), 16)
+        self.assertEqual(self.ctrl.get_base(), 16)
 
     def testGetRange(self):
         """Test getting the range of the up-down control"""
-        self.assertEquals((0, 9999), self.ctrl.GetRange())
+        self.assertEqual((0, 9999), self.ctrl.get_range())
 
     def testGetBuddy(self):
         """Test getting the buddy control"""
-        self.assertEquals(self.ctrl.GetBuddyControl().handle, self.dlg.Edit6.handle)
+        self.assertEqual(self.ctrl.get_buddy_control().handle, self.dlg.Edit6.handle)
 
     def testIncrement(self):
         """Test incremementing up-down position"""
-        Timings.Defaults()
-        self.ctrl.Increment()
-        self.assertEquals(self.ctrl.GetValue(), 1)
+        Timings.defaults()
+        self.ctrl.increment()
+        self.assertEqual(self.ctrl.get_value(), 1)
 
     def testDecrement(self):
         """Test decrementing up-down position"""
-        Timings.Defaults()
-        self.ctrl.SetValue(23)
-        self.ctrl.Decrement()
-        self.assertEquals(self.ctrl.GetValue(), 22)
+        Timings.defaults()
+        self.ctrl.set_value(23)
+        self.ctrl.decrement()
+        self.assertEqual(self.ctrl.get_value(), 22)
 
 
 class TrackbarWrapperTestCases(unittest.TestCase):
@@ -1555,9 +1555,9 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         app = Application()
         app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
         dlg = app.top_window()
-        dlg.TabControl.Select(1)
+        dlg.TabControl.select(1)
 
-        ctrl = dlg.Trackbar.WrapperObject()
+        ctrl = dlg.Trackbar.wrapper_object()
         self.app = app
         self.dlg = dlg
         self.ctrl = ctrl
@@ -1569,17 +1569,17 @@ class TrackbarWrapperTestCases(unittest.TestCase):
 
     def test_friendly_class(self):
         """Make sure the Trackbar friendly class is set correctly"""
-        self.assertEquals(self.ctrl.friendly_class_name(), u"Trackbar")
+        self.assertEqual(self.ctrl.friendly_class_name(), u"Trackbar")
 
     def test_get_range_max(self):
         """Test the get_range_max method"""
         self.ctrl.set_range_max(100)
-        self.assertEquals(self.ctrl.get_range_max(), 100)
+        self.assertEqual(self.ctrl.get_range_max(), 100)
 
     def test_get_range_min(self):
         """Test the get_range_min method"""
         self.ctrl.set_range_min(25)
-        self.assertEquals(self.ctrl.get_range_min(), 25)
+        self.assertEqual(self.ctrl.get_range_min(), 25)
 
     def test_set_range_min_more_then_range_max(self):
         """Test the set_range_min method with error"""
@@ -1620,12 +1620,12 @@ class TrackbarWrapperTestCases(unittest.TestCase):
     def test_get_line_size(self):
         """Test the get_line_size method"""
         self.ctrl.set_line_size(10)
-        self.assertEquals(self.ctrl.get_line_size(), 10)
+        self.assertEqual(self.ctrl.get_line_size(), 10)
 
     def test_get_page_size(self):
         """Test the set_page_size method"""
         self.ctrl.set_page_size(14)
-        self.assertEquals(self.ctrl.get_page_size(), 14)
+        self.assertEqual(self.ctrl.get_page_size(), 14)
 
     def test_get_tool_tips_control(self):
         """Test the get_tooltips_control method"""

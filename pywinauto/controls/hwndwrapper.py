@@ -197,7 +197,7 @@ class HwndWrapper(BaseWrapper):
         BaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
-        if not win32functions.IsWindow(self.handle):
+        if not handleprops.iswindow(self.handle):
             raise InvalidWindowHandle(self.handle)
 
         # make it so that ctypes conversion happens correctly
@@ -389,7 +389,6 @@ class HwndWrapper(BaseWrapper):
             the control (e.g. items in a listbox/combobox, tabs in a
             tabcontrol)
         """
-
         return [self.client_rect(), ]
     # Non PEP-8 alias
     ClientRects = deprecated(client_rects)
@@ -494,7 +493,7 @@ class HwndWrapper(BaseWrapper):
         (e.g. VK_LEFT, VK_DELETE), a KeySequenceError is raised. Consider using
         the method send_keystrokes for such input.
         """
-        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        input_locale_id = win32functions.GetKeyboardLayout(0)
         keys = keyboard.parse_keys(chars, with_spaces, with_tabs, with_newlines)
 
         for key in keys:
@@ -507,7 +506,7 @@ class HwndWrapper(BaseWrapper):
 
             if unicode_char:
                 _, char = key_info[:2]
-                vk = ctypes.windll.User32.VkKeyScanExW(char, input_locale_id) & 0xFF
+                vk = win32functions.VkKeyScanExW(chr(char), input_locale_id) & 0xFF
                 scan = keyboard.MapVirtualKey(vk, 0)
             else:
                 vk, scan = key_info[:2]
@@ -530,30 +529,33 @@ class HwndWrapper(BaseWrapper):
         """
         Silently send keystrokes to the control in an inactive window
 
-        Parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
-        For more information about Sequences and Modifiers navigate to keyboard.py
+        It parses modifiers Shift(+), Control(^), Menu(%) and Sequences like "{TAB}", "{ENTER}"
+        For more information about Sequences and Modifiers navigate to module `keyboard`_
+
+        .. _`keyboard`: pywinauto.keyboard.html
 
         Due to the fact that each application handles input differently and this method
         is meant to be used on inactive windows, it may work only partially depending
         on the target app. If the window being inactive is not essential, use the robust
-        type_keys method.
+        `type_keys`_ method.
+
+        .. _`type_keys`: pywinauto.base_wrapper.html#pywinauto.base_wrapper.BaseWrapper.type_keys
         """
-        user32 = ctypes.windll.User32
         PBYTE256 = ctypes.c_ubyte * 256
 
         win32gui.SendMessage(self.handle, win32con.WM_ACTIVATE,
                              win32con.WA_ACTIVE, 0)
-        target_thread_id = user32.GetWindowThreadProcessId(self.handle, None)
-        current_thread_id = win32api.GetCurrentThreadId()
-        attach_success = user32.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
+        target_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
+        current_thread_id = win32functions.GetCurrentThreadId()
+        attach_success = win32functions.AttachThreadInput(target_thread_id, current_thread_id, True) != 0
         if not attach_success:
             warnings.warn('Failed to attach app\'s thread to the current thread\'s message queue',
                           UserWarning, stacklevel=2)
 
         keyboard_state_stack = [PBYTE256()]
-        user32.GetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+        win32functions.GetKeyboardState(keyboard_state_stack[-1])
 
-        input_locale_id = ctypes.windll.User32.GetKeyboardLayout(0)
+        input_locale_id = win32functions.GetKeyboardLayout(0)
         context_code = 0
 
         keys = keyboard.parse_keys(keystrokes, with_spaces, with_tabs, with_newlines)
@@ -575,8 +577,8 @@ class HwndWrapper(BaseWrapper):
                 shift_state = 0
                 unicode_codepoint = flags & keyboard.KEYEVENTF_UNICODE != 0
                 if unicode_codepoint:
-                    char = scan
-                    vk_with_flags = user32.VkKeyScanExW(char, input_locale_id)
+                    char = chr(scan)
+                    vk_with_flags = win32functions.VkKeyScanExW(char, input_locale_id)
                     vk = vk_with_flags & 0xFF
                     shift_state = (vk_with_flags & 0xFF00) >> 8
                     scan = keyboard.MapVirtualKey(vk, 0)
@@ -599,8 +601,8 @@ class HwndWrapper(BaseWrapper):
                         context_code << 29 |
                         0 << 31)
 
-                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
-                    win32api.PostMessage(self.handle, down_msg, vk, lparam)
+                    win32functions.SetKeyboardState(keyboard_state_stack[-1])
+                    win32functions.PostMessage(self.handle, down_msg, vk, lparam)
                     if vk == keyboard.VK_MENU:
                         context_code = 1
 
@@ -618,8 +620,8 @@ class HwndWrapper(BaseWrapper):
                         1 << 30 |
                         1 << 31)
 
-                    win32api.PostMessage(self.handle, up_msg, vk, lparam)
-                    user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[-1]))
+                    win32functions.PostMessage(self.handle, up_msg, vk, lparam)
+                    win32functions.SetKeyboardState(keyboard_state_stack[-1])
 
                     if vk == keyboard.VK_MENU:
                         context_code = 0
@@ -633,10 +635,10 @@ class HwndWrapper(BaseWrapper):
                               UserWarning, stacklevel=2)
             else:
                 warnings.warn(e.strerror, UserWarning, stacklevel=2)
-            user32.SetKeyboardState(ctypes.byref(keyboard_state_stack[0]))
+            win32functions.SetKeyboardState(keyboard_state_stack[0])
 
         if attach_success:
-            user32.AttachThreadInput(target_thread_id, current_thread_id, False)
+            win32functions.AttachThreadInput(target_thread_id, current_thread_id, False)
 
     # -----------------------------------------------------------
     def send_message_timeout(
@@ -652,7 +654,6 @@ class HwndWrapper(BaseWrapper):
         If no timeout is given then a default timeout of .01 of a second will
         be used.
         """
-
         if timeout is None:
             timeout = Timings.sendmessagetimeout_timeout
 
@@ -730,11 +731,11 @@ class HwndWrapper(BaseWrapper):
     #-----------------------------------------------------------
     def wait_for_idle(self):
         """Backend specific function to wait for idle state of a thread or a window"""
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
     # -----------------------------------------------------------
-    def click(
-        self, button = "left", pressed = "", coords = (0, 0), double = False, absolute = False):
+    def click(self, button="left", pressed="", coords=(0, 0),
+              double=False, absolute=False):
         """
         Simulates a mouse click on the control
 
@@ -768,8 +769,8 @@ class HwndWrapper(BaseWrapper):
 
         def has_closed():
             closed = not (
-                    win32functions.IsWindow(self) or
-                    win32functions.IsWindow(self.parent()))
+                    handleprops.iswindow(self) or
+                    handleprops.iswindow(self.parent()))
             if not closed:
                 # try closing again
                 try:
@@ -850,7 +851,7 @@ class HwndWrapper(BaseWrapper):
 
         _perform_click(self, button='move', coords=coords, absolute=absolute, pressed=pressed)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         return self
     # Non PEP-8 alias
     MoveMouse = deprecated(move_mouse)
@@ -893,7 +894,7 @@ class HwndWrapper(BaseWrapper):
 
         text = ctypes.c_wchar_p(six.text_type(text))
         self.post_message(win32defines.WM_SETTEXT, 0, text)
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
         self.actions.log('Set text to the ' + self.friendly_class_name() + ': ' + str(text))
         return self
@@ -962,7 +963,8 @@ class HwndWrapper(BaseWrapper):
     def owner(self):
         """Return the owner window for the window if it exists
 
-        Returns None if there is no owner"""
+        Returns None if there is no owner.
+        """
         owner = win32functions.GetWindow(self, win32defines.GW_OWNER)
         if owner:
             return HwndWrapper(owner)
@@ -993,7 +995,7 @@ class HwndWrapper(BaseWrapper):
 
     # -----------------------------------------------------------
     def menu(self):
-        "Return the menu of the control"
+        """Return the menu of the control"""
         hMenu, is_main_menu = self._menu_handle()
         if hMenu: # and win32functions.IsMenu(menu_hwnd):
             return Menu(self, hMenu, is_main_menu=is_main_menu)
@@ -1077,7 +1079,6 @@ class HwndWrapper(BaseWrapper):
         The full path syntax is specified in:
         :py:meth:`.controls.menuwrapper.Menu.get_menu_path`
         """
-
         self.verify_actionable()
 
         self.menu_item(path, exact=exact).select()
@@ -1106,7 +1107,6 @@ class HwndWrapper(BaseWrapper):
           Defaults to True
 
         """
-
         cur_rect = self.rectangle()
 
         # if no X is specified - so use current coordinate
@@ -1140,7 +1140,7 @@ class HwndWrapper(BaseWrapper):
         if not ret:
             raise ctypes.WinError()
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
         time.sleep(Timings.after_movewindow_wait)
     # Non PEP-8 alias
     MoveWindow = deprecated(move_window)
@@ -1165,7 +1165,7 @@ class HwndWrapper(BaseWrapper):
         # any one of these conditions evaluates to false means the window is
         # closed or we have timed out
         def has_closed():
-            return not (win32functions.IsWindow(self) and self.is_visible())
+            return not (handleprops.iswindow(self) and self.is_visible())
 
         if not wait_time:
             wait_time = Timings.closeclick_dialog_close_wait
@@ -1195,6 +1195,7 @@ class HwndWrapper(BaseWrapper):
     def minimize(self):
         """Minimize the window"""
         win32functions.ShowWindow(self, win32defines.SW_MINIMIZE)
+        # TODO: wait while window is minimized
         self.actions.log('Minimized window "{0}"'.format(self.window_text()))
         return self
     # Non PEP-8 alias
@@ -1222,7 +1223,6 @@ class HwndWrapper(BaseWrapper):
           state (neither minimized or maximized)
         * SW_SHOW The window is not hidden
         """
-
         wp = win32structures.WINDOWPLACEMENT()
         wp.lenght = ctypes.sizeof(wp)
 
@@ -1255,7 +1255,7 @@ class HwndWrapper(BaseWrapper):
         """Return a handle to the active window within the process"""
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
+        window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
         ret = win32functions.GetGUIThreadInfo(
             window_thread_id,
             ctypes.byref(gui_info))
@@ -1275,10 +1275,9 @@ class HwndWrapper(BaseWrapper):
     def get_focus(self):
         """Return the control in the process of this window that has the Focus
         """
-
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id, _ = win32process.GetWindowThreadProcessId(self.handle)
+        window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
         ret = win32functions.GetGUIThreadInfo(
             window_thread_id,
             ctypes.byref(gui_info))
@@ -1320,7 +1319,7 @@ class HwndWrapper(BaseWrapper):
             win32gui.SetForegroundWindow(self.handle)
 
             # make sure that we are idle before returning
-            win32functions.WaitGuiThreadIdle(self)
+            win32functions.WaitGuiThreadIdle(self.handle)
 
             # only sleep if we had to change something!
             time.sleep(Timings.after_setfocus_wait)
@@ -1335,23 +1334,23 @@ class HwndWrapper(BaseWrapper):
 
     def has_keyboard_focus(self):
         """Check the keyboard focus on this control."""
-        control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
+        control_thread = win32functions.GetWindowThreadProcessId(self.handle, None)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
         focused = win32gui.GetFocus()
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
         return self.handle == focused
 
     def set_keyboard_focus(self):
         """Set the keyboard focus to this control."""
-        control_thread = win32process.GetWindowThreadProcessId(self.handle)[0]
+        control_thread = win32functions.GetWindowThreadProcessId(self.handle, None)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 1)
-        win32gui.SetFocus(self.handle)
+        win32functions.SetFocus(self.handle)
         win32process.AttachThreadInput(control_thread, win32api.GetCurrentThreadId(), 0)
 
-        win32functions.WaitGuiThreadIdle(self)
+        win32functions.WaitGuiThreadIdle(self.handle)
 
         time.sleep(Timings.after_setfocus_wait)
         return self
@@ -1431,7 +1430,6 @@ class HwndWrapper(BaseWrapper):
     # -----------------------------------------------------------
     def get_toolbar(self):
         """Get the first child toolbar if it exists"""
-
         for child in self.children():
             if child.__class__.__name__ == 'ToolbarWrapper':
                 return child
@@ -1603,12 +1601,13 @@ class DialogWrapper(HwndWrapper):
         #win32defines.SMTO_BLOCK)
 
         # get a handle we can wait on
-        _, pid = win32process.GetWindowThreadProcessId(int(self.handle))
+        pid = ctypes.c_ulong()
+        win32functions.GetWindowThreadProcessId(self.handle, ctypes.byref(pid))
         try:
             process_wait_handle = win32api.OpenProcess(
                 win32con.SYNCHRONIZE | win32con.PROCESS_TERMINATE,
                 0,
-                pid)
+                pid.value)
         except win32gui.error:
             return True # already closed
 
@@ -1724,7 +1723,7 @@ def _perform_click(
     # figure out the flags and pack coordinates
     flags, click_point = _calc_flags_and_coords(pressed, coords)
 
-    #control_thread = win32functions.GetWindowThreadProcessId(ctrl, 0)
+    #control_thread = win32functions.GetWindowThreadProcessId(ctrl, None)
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.TRUE)
     # TODO: check return value of AttachThreadInput properly
 
@@ -1737,7 +1736,7 @@ def _perform_click(
         time.sleep(Timings.sendmessagetimeout_timeout)
 
         # wait until the thread can accept another message
-        win32functions.WaitGuiThreadIdle(ctrl)
+        win32functions.WaitGuiThreadIdle(ctrl.handle)
 
     # detach the Python process with the process that self is in
     #win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), control_thread, win32defines.FALSE)

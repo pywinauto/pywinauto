@@ -14,6 +14,7 @@ Contents
    getting_started
    HowTo
    wait_long_operations
+   remote_execution
    controls_overview
    credits
 

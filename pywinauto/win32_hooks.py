@@ -61,20 +61,24 @@ from ctypes import pointer
 import atexit
 import sys
 import time
+
 import win32con
+import win32api
+
 from .win32defines import VK_PACKET
 from .actionlogger import ActionLogger
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
+from .win32structures import LRESULT
 
-LRESULT = wintypes.LPARAM
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
 
 windll.kernel32.GetModuleHandleA.restype = wintypes.HMODULE
-windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCWSTR]
-windll.user32.SetWindowsHookExA.restype = c_int
+windll.kernel32.GetModuleHandleA.argtypes = [wintypes.LPCSTR]
+windll.user32.SetWindowsHookExA.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExA.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
-windll.user32.GetMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint]
+windll.user32.SetWindowsHookExW.restype = wintypes.HHOOK
+windll.user32.SetWindowsHookExW.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
 windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
 windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
 
@@ -530,7 +534,7 @@ class Hook(object):
             self.keyboard_id = windll.user32.SetWindowsHookExW(
                 win32con.WH_KEYBOARD_LL,
                 _kbd_ll_cb,
-                windll.kernel32.GetModuleHandleA(None),
+                win32api.GetModuleHandle(None),
                 0)
 
         if self.mouse_is_hook:
@@ -542,7 +546,7 @@ class Hook(object):
             self.mouse_id = windll.user32.SetWindowsHookExA(
                 win32con.WH_MOUSE_LL,
                 _mouse_ll_cb,
-                windll.kernel32.GetModuleHandleA(None),
+                win32api.GetModuleHandle(None),
                 0)
 
         self.listen()

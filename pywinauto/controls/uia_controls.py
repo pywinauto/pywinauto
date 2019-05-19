@@ -38,7 +38,11 @@ from .. import uia_element_info
 from .. import findbestmatch
 from .. import timings
 
+from .. import uia_defines as uia_defs
 from . import uiawrapper
+from . import win32_controls
+from . import common_controls
+from ..uia_element_info import UIAElementInfo
 from ..uia_defines import IUIA
 from ..uia_defines import NoPatternInterfaceError
 from ..uia_defines import toggle_state_on
@@ -112,8 +116,11 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def click(self):
-        """Click the Button control by using Invoke pattern"""
-        self.invoke()
+        """Click the Button control by using Invoke or Select patterns"""
+        try:
+            self.invoke()
+        except NoPatternInterfaceError:
+            self.select()
 
         # Return itself so that action can be chained
         return self
@@ -132,21 +139,92 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         super(ComboBoxWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
+    def expand(self):
+        if self.is_expanded():
+            return self
+        try:
+            super(ComboBoxWrapper, self).expand()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box using Open button
+            open_buttons = self.children(title='Open', control_type='Button')
+            if open_buttons:
+                open_buttons[0].invoke()
+            else:
+                try:
+                    self.invoke()
+                except NoPatternInterfaceError:
+                    raise NoPatternInterfaceError('There is no ExpandCollapsePattern and ' \
+                        'no "Open" button in .children(). Maybe only .click_input() would help to expand.')
+        return self
+
+    # -----------------------------------------------------------
+    def collapse(self):
+        if not self.is_expanded():
+            return self
+        try:
+            super(ComboBoxWrapper, self).collapse()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box using Open button
+            close_buttons = self.children(title='Close', control_type='Button')
+            if not close_buttons:
+                if self.element_info.framework_id == 'WinForm':
+                    return self # simple WinForms combo box is always expanded
+                else:
+                    raise RuntimeError('There is no ExpandCollapsePattern and no "Close" button for the combo box')
+            if self.is_editable():
+                close_buttons[0].click_input()
+            else:
+                close_buttons[0].invoke()
+        return self
+
+    # -----------------------------------------------------------
+    def is_editable(self):
+        edit_children = self.children(control_type="Edit")
+        return len(edit_children) > 0
+
+    # -----------------------------------------------------------
+    def get_expand_state(self):
+        try:
+            return super(ComboBoxWrapper, self).get_expand_state()
+        except NoPatternInterfaceError:
+            # workaround for WinForms combo box
+            children_list = self.children(control_type="List")
+            if children_list and children_list[0].is_visible():
+                if self.element_info.framework_id == 'Qt':
+                    # TODO: find the way to get expand_collapse_state
+                    return uia_defs.expand_state_collapsed
+                return uia_defs.expand_state_expanded
+            else:
+                return uia_defs.expand_state_collapsed
+
+    # -----------------------------------------------------------
     def texts(self):
         """Return the text of the items in the combobox"""
-        texts = []
+        texts = self._texts_from_item_container()
+        if len(texts):
+            # flatten the list
+            return [ t for lst in texts for t in lst ]
+
         # ComboBox has to be expanded to populate a list of its children items
         try:
-            self.expand()
+            super(ComboBoxWrapper, self).expand()
             for c in self.children():
                 texts.append(c.window_text())
         except NoPatternInterfaceError:
-            return texts
+            children_lists = self.children(control_type='List')
+            if children_lists:
+                # workaround for Qt5 and WinForms
+                return children_lists[0].children_texts()
+            elif self.handle:
+                # workaround using "win32" backend
+                win32_combo = win32_controls.ComboBoxWrapper(self.handle)
+                texts.extend(win32_combo.item_texts())
         else:
             # Make sure we collapse back
-            self.collapse()
+            super(ComboBoxWrapper, self).collapse()
         return texts
 
+    # -----------------------------------------------------------
     def select(self, item):
         """
         Select the ComboBox item
@@ -158,9 +236,31 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         self.expand()
         try:
             self._select(item)
-        # TODO: do we need to handle ValueError/IndexError for a wrong index ?
-        #except ValueError:
-        #    raise  # re-raise the last exception
+        except (IndexError, NoPatternInterfaceError):
+            # Try to access the underlying ListBox explicitly
+            children_lst = self.children(control_type='List')
+            if len(children_lst) > 0:
+                children_lst[0]._select(item)
+                # do health check and apply workaround for Qt5 combo box if necessary
+                if isinstance(item, six.string_types):
+                    item = children_lst[0].children(title=item)[0]
+                    if self.selected_text() != item:
+                        # workaround for WinForms combo box
+                        item.invoke()
+                        if self.selected_text() != item:
+                            # workaround for Qt5 combo box
+                            item.click_input()
+                            if self.selected_text() != item:
+                                item.click_input()
+                elif self.selected_index() != item:
+                    items = children_lst[0].children(control_type='ListItem')
+                    if item < len(items):
+                        items[item].invoke()
+                    else:
+                        raise IndexError('Item number #{} is out of range ' \
+                            '({} items in total)'.format(item, len(items)))
+            else:
+                raise IndexError("item '{0}' not found or can't be accessed".format(item))
         finally:
             # Make sure we collapse back in any case
             self.collapse()
@@ -175,17 +275,25 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         Notice, that in case of multi-select it will be only the text from
         a first selected item
         """
-        selection = self.get_selection()
-        if selection:
-            return selection[0].name
-        else:
-            return None
+        try:
+            selection = self.get_selection()
+            if selection:
+                return selection[0].name
+            else:
+                return None
+        except NoPatternInterfaceError:
+            # Try to fall back to Value interface pattern
+            return self.iface_value.CurrentValue
 
     # -----------------------------------------------------------
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
-        return self.selected_item_index()
+        try:
+            return self.selected_item_index()
+        except NoPatternInterfaceError:
+            # workaround for Qt5 and WinForms
+            return self.texts().index(self.selected_text())
 
     # -----------------------------------------------------------
     def item_count(self):
@@ -195,7 +303,19 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
         The interface is kept mostly for a backward compatibility with
         the native ComboBox interface
         """
-        return self.control_count()
+        children_list = self.children(control_type="List")
+        if children_list:
+            return children_list[0].control_count()
+        else:
+            self.expand()
+            try:
+                children_list = self.children(control_type="List")
+                if children_list:
+                    return children_list[0].control_count()
+                else:
+                    return self.control_count()
+            finally:
+                self.collapse()
 
 
 # ====================================================================
@@ -255,12 +375,14 @@ class EditWrapper(uiawrapper.UIAWrapper):
         return self.iface_value.CurrentValue
 
     # -----------------------------------------------------------
+    def is_editable(self):
+        """Return the edit possibility of the element"""
+        return not self.iface_value.CurrentIsReadOnly
+
+    # -----------------------------------------------------------
     def texts(self):
         """Get the text of the edit control"""
-        texts = [self.window_text(), ]
-
-        for i in range(self.line_count()):
-            texts.append(self.get_line(i))
+        texts = [ self.get_line(i) for i in range(self.line_count()) ]
 
         return texts
 
@@ -551,7 +673,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ListView control"""
 
-    _control_types = ['DataGrid', 'List', ]
+    _control_types = ['DataGrid', 'List', 'Table']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -566,6 +688,40 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         except NoPatternInterfaceError:
             self.iface_grid_support = False
 
+        self.is_table = not self.iface_grid_support and self.element_info.control_type == "Table"
+        self.row_header = False
+        self.col_header = False
+
+    def __getitem__(self, key):
+        return self.get_item(key)
+
+    def __raise_not_implemented(self):
+        raise NotImplementedError("This method not work properly for WinForms DataGrid, use cells()")
+
+    def __update_row_header(self):
+        try:
+            self.row_header = all(isinstance(six.next(row.iter_children()), HeaderWrapper) for row in self.children())
+        except StopIteration:
+            self.row_header = False
+
+    def __update_col_header(self):
+        try:
+            self.col_header = all(isinstance(col, HeaderWrapper) for col in six.next(self.iter_children()).children())
+        except StopIteration:
+            self.col_header = False
+
+    def __resolve_row_index(self, ind):
+        self.__update_col_header()
+        return ind + 1 if self.col_header and self.is_table else ind
+
+    def __resolve_col_index(self, ind):
+        self.__update_row_header()
+        return ind + 1 if self.row_header and self.is_table else ind
+
+    def __resolve_row_count(self, cnt):
+        self.__update_col_header()
+        return cnt - 1 if self.col_header and self.is_table else cnt
+
     # -----------------------------------------------------------
     def item_count(self):
         """A number of items in the ListView"""
@@ -575,16 +731,22 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # TODO: This could be implemented by getting custom ItemCount Property using RegisterProperty
             # TODO: See https://msdn.microsoft.com/ru-ru/library/windows/desktop/ff486373%28v=vs.85%29.aspx for details
             # TODO: comtypes doesn't seem to support IUIAutomationRegistrar interface
-            return (len(self.children()))
+            return self.__resolve_row_count(len(self.children()))
 
     # -----------------------------------------------------------
     def column_count(self):
         """Return the number of columns"""
         if self.iface_grid_support:
             return self.iface_grid.CurrentColumnCount
-        else:
-            # ListBox doesn't have columns
-            return 0
+        elif self.is_table:
+            self.__raise_not_implemented()
+        # ListBox doesn't have columns
+        return 0
+
+    # -----------------------------------------------------------
+    def get_header_controls(self):
+        """Return Header controls associated with the Table"""
+        return [cell for row in self.children() for cell in row.children() if isinstance(cell, HeaderWrapper)]
 
     # -----------------------------------------------------------
     def get_header_control(self):
@@ -614,9 +776,18 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             arr = self.iface_table.GetCurrentColumnHeaders()
             cols = uia_element_info.elements_from_uia_array(arr)
             return [uiawrapper.UIAWrapper(e) for e in cols]
+        elif self.is_table:
+            self.__raise_not_implemented()
         else:
-            # ListBox doesn't have columns
             return []
+
+    # -----------------------------------------------------------
+    def cells(self):
+        """Return list of list of cells for any type of contol"""
+        row_start_index = self.__resolve_row_index(0)
+        col_start_index = self.__resolve_col_index(0)
+        rows = self.children(content_only=True)
+        return [row.children(content_only=True)[col_start_index:] for row in rows[row_start_index:]]
 
     # -----------------------------------------------------------
     def cell(self, row, column):
@@ -634,15 +805,19 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
             raise TypeError("row and column must be numbers")
 
-        if not self.iface_grid_support:
+        if self.iface_grid_support:
+            try:
+                e = self.iface_grid.GetItem(row, column)
+                elem_info = uia_element_info.UIAElementInfo(e)
+                cell_elem = uiawrapper.UIAWrapper(elem_info)
+            except (comtypes.COMError, ValueError):
+                raise IndexError
+        elif self.is_table:
+            # Workaround for WinForms, DataGrid equals list of lists
+            _row = self.get_item(row)
+            cell_elem = _row.children()[self.__resolve_col_index(column)]
+        else:
             return None
-
-        try:
-            e = self.iface_grid.GetItem(row, column)
-            elem_info = uia_element_info.UIAElementInfo(e)
-            cell_elem = uiawrapper.UIAWrapper(elem_info)
-        except (comtypes.COMError, ValueError):
-            raise IndexError
 
         return cell_elem
 
@@ -657,33 +832,42 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if isinstance(row, six.string_types):
             # Try to find item using FindItemByProperty
             # That way we can get access to virtualized (unloaded) items
-            com_elem = self.iface_item_container.FindItemByProperty(0, IUIA().UIA_dll.UIA_NamePropertyId, row)
-            # Try to load element using VirtualizedItem pattern
             try:
-                get_elem_interface(com_elem, "VirtualizedItem").Realize()
-                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
-            except NoPatternInterfaceError:
-                # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
+                com_elem = self.iface_item_container.FindItemByProperty(0, IUIA().UIA_dll.UIA_NamePropertyId, row)
+                # Try to load element using VirtualizedItem pattern
                 try:
+                    get_elem_interface(com_elem, "VirtualizedItem").Realize()
                     itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
-                except ValueError:
-                    # com_elem is NULL pointer
-                    # Get DataGrid row
-                    try:
-                        itm = self.descendants(title=row)[0]
-                        # Applications like explorer.exe usually return ListItem
-                        # directly while other apps can return only a cell.
-                        # In this case we need to take its parent - the whole row.
-                        if not isinstance(itm, ListItemWrapper):
-                            itm = itm.parent()
-                    except IndexError:
-                        raise ValueError("Element '{0}' not found".format(row))
+                except NoPatternInterfaceError:
+                    # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
+                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+            except (NoPatternInterfaceError, ValueError):
+                # com_elem is NULL pointer or item doesn't support ItemContainer pattern
+                # Get DataGrid row
+                try:
+                    itm = self.descendants(title=row)[0]
+                    # Applications like explorer.exe usually return ListItem
+                    # directly while other apps can return only a cell.
+                    # In this case we need to take its parent - the whole row.
+                    if not isinstance(itm, ListItemWrapper):
+                        itm = itm.parent()
+                except IndexError:
+                    raise ValueError("Element '{0}' not found".format(row))
         elif isinstance(row, six.integer_types):
             # Get the item by a row index
-            # TODO: Can't get virtualized items that way
-            # TODO: See TODO section of item_count() method for details
-            list_items = self.children(content_only=True)
-            itm = list_items[row]
+            try:
+                com_elem = 0
+                for _ in range(0, self.__resolve_row_index(row) + 1):
+                    com_elem = self.iface_item_container.FindItemByProperty(com_elem, 0, uia_defs.vt_empty)
+                # Try to load element using VirtualizedItem pattern
+                try:
+                    get_elem_interface(com_elem, "VirtualizedItem").Realize()
+                except NoPatternInterfaceError:
+                    pass
+                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+            except (NoPatternInterfaceError, ValueError, AttributeError):
+                list_items = self.children(content_only=True)
+                itm = list_items[self.__resolve_row_index(row)]
         else:
             raise TypeError("String type or integer is expected")
 
@@ -794,18 +978,18 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         return item
 
     # -----------------------------------------------------------
-    @staticmethod
-    def _activate(item):
+    def _activate(self, item, is_last):
         """Activate the specified item"""
         if not item.is_active():
             item.set_focus()
         try:
             item.expand()
         except(NoPatternInterfaceError):
-            pass
+            if self.element_info.framework_id == 'WinForm' and not is_last:
+                item.select()
 
     # -----------------------------------------------------------
-    def _sub_item_by_text(self, menu, name, exact):
+    def _sub_item_by_text(self, menu, name, exact, is_last):
         """Find a menu sub-item by the specified text"""
         sub_item = None
         items = menu.items()
@@ -821,18 +1005,18 @@ class MenuWrapper(uiawrapper.UIAWrapper):
                     texts.append(i.window_text())
                 sub_item = findbestmatch.find_best_match(name, texts, items)
 
-        self._activate(sub_item)
+        self._activate(sub_item, is_last)
 
         return sub_item
 
     # -----------------------------------------------------------
-    def _sub_item_by_idx(self, menu, idx):
+    def _sub_item_by_idx(self, menu, idx, is_last):
         """Find a menu sub-item by the specified index"""
         sub_item = None
         items = menu.items()
         if items:
             sub_item = items[idx]
-        self._activate(sub_item)
+        self._activate(sub_item, is_last)
         return sub_item
 
     # -----------------------------------------------------------
@@ -845,35 +1029,39 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         Note: $ - specifier is not supported
         """
         # Get the path parts
-        part0, parts = path.split("->", 1)
-        part0 = part0.strip()
-        if len(part0) == 0:
+        menu_items = [p.strip() for p in path.split("->")]
+        items_cnt = len(menu_items)
+        if items_cnt == 0:
             raise IndexError()
+        for item in menu_items:
+            if not item:
+                raise IndexError("Empty item name between '->' separators")
+
+        def next_level_menu(parent_menu, item_name, is_last):
+            if item_name.startswith("#"):
+                return self._sub_item_by_idx(parent_menu, int(item_name[1:]), is_last)
+            else:
+                return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
 
         # Find a top level menu item and select it. After selecting this item
         # a new Menu control is created and placed on the dialog. It can be
         # a direct child or a descendant.
         # Sometimes we need to re-discover Menu again
         try:
-            menu = None
-            if part0.startswith("#"):
-                menu = self._sub_item_by_idx(self, int(part0[1:]))
-            else:
-                menu = self._sub_item_by_text(self, part0, exact)
+            menu = next_level_menu(self, menu_items[0], items_cnt == 1)
+            if items_cnt == 1:
+                return menu
 
             if not menu.items():
-                self._activate(menu)
+                self._activate(menu, False)
                 timings.wait_until(
                     timings.Timings.window_find_timeout,
                     timings.Timings.window_find_retry,
                     lambda: len(self.top_level_parent().descendants(control_type="Menu")) > 0)
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
 
-            for cur_part in [p.strip() for p in parts.split("->")]:
-                if cur_part.startswith("#"):
-                    menu = self._sub_item_by_idx(menu, int(cur_part[1:]))
-                else:
-                    menu = self._sub_item_by_text(menu, cur_part, exact)
+            for i in range(1, items_cnt):
+                menu = next_level_menu(menu, menu_items[i], items_cnt == i + 1)
         except(AttributeError):
             raise IndexError()
 
@@ -910,6 +1098,9 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ToolbarWrapper, self).__init__(elem)
+        self.win32_wrapper = None
+        if not self.children() and self.element_info.handle is not None:
+            self.win32_wrapper = common_controls.ToolbarWrapper(self.element_info.handle)
 
     @property
     def writable_props(self):
@@ -921,12 +1112,30 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     # ----------------------------------------------------------------
     def texts(self):
         """Return texts of the Toolbar"""
-        return self.children_texts()
+        return [c.window_text() for c in self.buttons()]
 
     #----------------------------------------------------------------
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
-        return len(self.children())
+        if self.win32_wrapper is not None:
+            return self.win32_wrapper.button_count()
+        else:
+            return len(self.children())
+
+    # ----------------------------------------------------------------
+    def buttons(self):
+        """Return all available buttons"""
+        if self.win32_wrapper is not None:
+            btn_count = self.win32_wrapper.button_count()
+            cc = []
+            for btn_num in range(btn_count):
+                relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
+                button_coord_x, button_coord_y = self.client_to_screen(relative_point)
+                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+        else:
+            cc = self.children()
+        return cc
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
@@ -937,9 +1146,9 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         * **exact** flag specifies if the exact match for the text look up
           has to be applied.
         """
-
-        cc = self.children()
+        cc = self.buttons()
         texts = [c.window_text() for c in cc]
+
         if isinstance(button_identifier, six.string_types):
             self.actions.log('Toolbar buttons: ' + str(texts))
 
@@ -1193,3 +1402,18 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
             _print_one_level(root, 0)
 
         return self.text
+
+
+# ====================================================================
+class StaticWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap an UIA-compatible Text control"""
+
+    _control_types = ['Text']
+    can_be_label = True
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(StaticWrapper, self).__init__(elem)
+

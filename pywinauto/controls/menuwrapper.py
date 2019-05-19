@@ -283,7 +283,7 @@ class MenuItem(object):
 
         # if the item is not visible - work up along it's parents
         # until we find an item we CAN click on
-        if rect == (0, 0, 0, 0) and self.menu.owner_item:
+        if rect == win32structures.RECT(0, 0, 0, 0) and self.menu.owner_item:
             self.menu.owner_item.click_input()
 
         rect = self.rectangle()
@@ -293,7 +293,7 @@ class MenuItem(object):
 
         mouse.click(coords=(x_pt, y_pt))
 
-        win32functions.WaitGuiThreadIdle(self.ctrl)
+        win32functions.WaitGuiThreadIdle(self.ctrl.handle)
         time.sleep(Timings.after_menu_wait)
     # Non PEP-8 alias
     ClickInput = deprecated(click_input)
@@ -324,7 +324,7 @@ class MenuItem(object):
         self.ctrl.send_message_timeout(
             self.menu.COMMAND, command_id, timeout=1.0)
 
-        win32functions.WaitGuiThreadIdle(self.ctrl)
+        win32functions.WaitGuiThreadIdle(self.ctrl.handle)
         time.sleep(Timings.after_menu_wait)
 
     # _perform_click() doesn't work for MenuItem, so let's call select() method
@@ -367,7 +367,7 @@ class MenuItem(object):
         if six.PY3:
             return "<MenuItem " + self.text() + ">"
         else:
-            return "<MenuItem " + self.text().encode(locale.getpreferredencoding()) + ">"
+            return b"<MenuItem {}>".format(self.text().encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
 #    def check(self):
 #        item = self._read_item()

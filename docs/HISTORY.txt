@@ -2,6 +2,41 @@
 Change Log
 ==========
 
+0.6.6 Better WinForms/Qt5 Support, Bug Fixes
+--------------------------------------------------------------------
+03-March-2019
+
+Enhancements:
+ * Improve support for WinForms and Qt5: ComboBox, ListBox, DataGrid/Table.
+ * Add an ability to use MFC toolbar buttons by text. Thanks Nebyt_!
+ * Make method ``kill()`` hard (and fast) by default (can be used with param
+   ``soft=True`` optionally).
+ * Make ``visible_only=False`` a default option for method ``connect()``
+   (useful for minimized apps).
+ * Add an ability to hold or release a key with params ``down`` and ``up``
+   for ``.type_keys()`` method. See `the improved docs for keyboard module`_
+   for more details. Thanks badari412_!
+ * Add method ``windows()`` to class ``Desktop``.
+ * Add `Remote Execution Guide`_ with all known RDP/VNC/psexec/etc tricks.
+
+Bug Fixes:
+ * Fix ``UnicodeDecodeError/UnicodeEncodeError`` in several cases
+   while printing wrapper object representation.
+ * Add static text to a list of best match names for ``backend="uia"``.
+ * Fix ``COMError`` for ``runtime_id`` property.
+ * Fix method ``click()`` for some radio buttons.
+ * Improve error message when screen is locked.
+ * Use ``utf-8`` encoding while writing ``dump_tree()`` output to file.
+ * Remove few incorrect warnings for ``backend="win32"``.
+ * Fix crash in ``GetWindowRect`` call.
+ * Fix black screenshot issue with second monitor. Thanks Nebyt_!
+
+ .. _badari412: https://github.com/badari412
+ .. _Nebyt: https://github.com/Nebyt
+ .. _`Remote Execution Guide`: remote_execution.html
+ .. _`the improved docs for keyboard module`: code/pywinauto.keyboard.html
+
+
 0.6.5 Handling Privileges, AutomationID for Win32 etc.
 --------------------------------------------------------------------
 30-July-2018
@@ -213,10 +248,10 @@ Enhancements:
  * Code style is much closer to PEP8: i.e. ``click_input`` should be used
    instead of ``ClickInput``.
 
- * Initial implementation of the ``hooks`` module. Keyboard and mouse event
+ * Initial implementation of the ``win32_hooks`` module. Keyboard and mouse event
    handlers can be registered in the system. It was inspired by pyHook, pyhk,
    pyhooked and similar modules, but re-written from scratch. Thanks for
-   Max Samokhvalov! The fork of the ``hooks`` module is used in pyhooked 0.8
+   Max Samokhvalov! The fork of the ``win32_hooks`` module is used in pyhooked 0.8
    by Ethan Smith.
 
  * A lot of small improvements are not counted here.

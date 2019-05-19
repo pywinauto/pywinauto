@@ -42,13 +42,13 @@ import subprocess
 import time
 sys.path.append(".")
 if sys.platform == 'win32':
-    from pywinauto.keyboard import SendKeys, KeySequenceError
+    from pywinauto.keyboard import send_keys, KeySequenceError
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
 else:
     from pywinauto import mouse
-    from pywinauto.linux.keyboard import SendKeys, KeySequenceError, KeyAction
+    from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
     from pywinauto.linux import clipboard
 
 def mfc_samples():
@@ -92,33 +92,33 @@ class SendKeysTests(unittest.TestCase):
         """Close the application after tests"""
         if sys.platform == 'win32':
             try:
-                self.dlg.Close(0.1)
+                self.dlg.close(0.1)
             except Exception: # TimeoutError:
                 pass
             try:
-                if self.app.Notepad["Do&n't Save"].Exists():
-                    self.app.Notepad["Do&n't Save"].Click()
-                    self.app.Notepad["Do&n't Save"].WaitNot('visible')
+                if self.app.Notepad["Do&n't Save"].exists():
+                    self.app.Notepad["Do&n't Save"].click()
+                    self.app.Notepad["Do&n't Save"].wait_not('visible')
             except Exception: # TimeoutError:
                 pass
             finally:
-                if self.dlg.Exists(timeout=0.1):
-                    self.app.kill_()
+                if self.dlg.exists(timeout=0.1):
+                    self.app.kill()
         else:
-            # call Popen.kill() on Linux since Application.kill_() is not implemented yet
+            # call Popen.kill() on Linux since Application.kill() is not implemented yet
             self.app.kill()
 
     def receive_text(self):
         """Receive data from text field"""
         received = ' '
         if sys.platform == 'win32':
-            received = self.ctrl.TextBlock()
+            received = self.ctrl.text_block()
         else:
             time.sleep(0.2)
-            SendKeys('^a')
+            send_keys('^a')
             time.sleep(0.2)
-            SendKeys('^c')
-            SendKeys('{RIGHT}')
+            send_keys('^c')
+            send_keys('{RIGHT}')
             received = clipboard.get_data()
         return received
 
@@ -131,7 +131,7 @@ class SendKeysTests(unittest.TestCase):
             if chr(i) in '~!@#$%^&*()_+{}|:"<>? ':
                 continue
 
-            SendKeys(chr(i), pause = .001, **args)
+            send_keys(chr(i), pause = .001, **args)
             received = self.receive_text()[-1]
 
             self.assertEqual(i, ord(received))
@@ -148,13 +148,13 @@ class SendKeysTests(unittest.TestCase):
 
     def testSpaceWithSpaces(self):
         """Make sure that with spaces option works"""
-        SendKeys(" \t \t ", pause = .001, with_spaces = True)
+        send_keys(" \t \t ", pause = .001, with_spaces = True)
         received = self.receive_text()
         self.assertEqual("   ", received)
 
     def testSpaceWithoutSpaces(self):
         """Make sure that with spaces option works"""
-        SendKeys(" \t \t ", pause = .001, with_spaces = False)
+        send_keys(" \t \t ", pause = .001, with_spaces = False)
         received = self.receive_text()
         self.assertEqual("", received)
 
@@ -170,20 +170,20 @@ class SendKeysTests(unittest.TestCase):
 
     def testTabWithTabs(self):
         """Make sure that with spaces option works"""
-        SendKeys("\t \t \t", pause = .1, with_tabs = True)
+        send_keys("\t \t \t", pause = .1, with_tabs = True)
         received = self.receive_text()
         self.assertEqual("\t\t\t", received)
 
     def testTabWithoutTabs(self):
         """Make sure that with spaces option works"""
-        SendKeys("\t a\t b\t", pause = .1, with_tabs = False)
+        send_keys("\t a\t b\t", pause = .1, with_tabs = False)
         received = self.receive_text()
         self.assertEqual("ab", received)
 
 
     def testTab(self):
         """Make sure that with spaces option works"""
-        SendKeys("{TAB}  {TAB} ", pause = .3)
+        send_keys("{TAB}  {TAB} ", pause = .3)
         received = self.receive_text()
         self.assertEqual("\t\t", received)
 
@@ -199,7 +199,7 @@ class SendKeysTests(unittest.TestCase):
 
     def testNewlinesWithNewlines(self):
         """Make sure that with_newlines option works"""
-        SendKeys("\t \t \t a~\tb\nc", pause = .5, with_newlines = True)
+        send_keys("\t \t \t a~\tb\nc", pause = .5, with_newlines = True)
         received = self.receive_text()
         if sys.platform == 'win32':
             self.assertEqual("a\r\nb\r\nc", received)
@@ -208,7 +208,7 @@ class SendKeysTests(unittest.TestCase):
 
     def testNewlinesWithoutNewlines(self):
         """"Make sure that with_newlines option works"""
-        SendKeys("\t \t \t\na", pause = .01, with_newlines = False)
+        send_keys("\t \t \t\na", pause = .01, with_newlines = False)
         received = self.receive_text()
         self.assertEqual("a", received)
 
@@ -228,7 +228,7 @@ class SendKeysTests(unittest.TestCase):
     #            c = str(char)
     #        else:
     #            c = char.decode(locale.getpreferredencoding()) #'cp850')
-    #        SendKeys(c, pause = .01)
+    #        send_keys(c, pause = .01)
     #        received = self.receive_text()[-1]
 
     #        if c == received:
@@ -241,24 +241,24 @@ class SendKeysTests(unittest.TestCase):
 
     def testCharsThatMustBeEscaped(self):
         """Make sure that escaping characters works"""
-        SendKeys("{%}{^}{+}{(}{)}{{}{}}{~}")
+        send_keys("{%}{^}{+}{(}{)}{{}{}}{~}")
         received = self.receive_text()
         self.assertEqual("%^+(){}~", received)
 
     def testIncorrectCases(self):
         """Make sure that incorrect key sequences raise an exception"""
-        self.assertRaises(KeySequenceError, SendKeys, "{ENTER")
-        self.assertRaises(KeySequenceError, SendKeys, "ENTER)")
-        self.assertRaises(RuntimeError, SendKeys, "%{Enterius}")
-        self.assertRaises(KeySequenceError, SendKeys, "{PAUSE small}")
+        self.assertRaises(KeySequenceError, send_keys, "{ENTER")
+        self.assertRaises(KeySequenceError, send_keys, "ENTER)")
+        self.assertRaises(RuntimeError, send_keys, "%{Enterius}")
+        self.assertRaises(KeySequenceError, send_keys, "{PAUSE small}")
 
         try:
-            SendKeys("{ENTER five}")
+            send_keys("{ENTER five}")
         except KeySequenceError as exc:
             self.assertEqual("invalid repetition count five", str(exc))
 
         try:
-            SendKeys("ENTER}")
+            send_keys("ENTER}")
         except KeySequenceError as exc:
             self.assertEqual("`}` should be preceeded by `{`", str(exc))
 
@@ -273,13 +273,13 @@ class SendKeysTests(unittest.TestCase):
 
     def testRepetition(self):
         """Make sure that repeated action works"""
-        SendKeys("{TAB 3}{PAUSE 0.5}{F 3}", pause = .3)
+        send_keys("{TAB 3}{PAUSE 0.5}{F 3}", pause = .3)
         received = self.receive_text()
         self.assertEqual("\t\t\tFFF", received)
 
     def testShiftModifier(self):
         """Make sure that Shift modifier works"""
-        SendKeys("+(a)")
+        send_keys("+(a)")
         received = self.receive_text()
         self.assertEqual("A", received)
 
@@ -289,9 +289,9 @@ class SendKeysTests(unittest.TestCase):
             clipboard.set_data('abc')
             # check alt via opening edit menu and paste text from clipboard
             time.sleep(0.3)
-            SendKeys('%(e)')
+            send_keys('%(e)')
             time.sleep(0.3)
-            SendKeys('{ENTER}')
+            send_keys('{ENTER}')
             received = self.receive_text()
             self.assertEqual('abc', received)
 
@@ -308,25 +308,25 @@ if sys.platform == 'win32':
         def tearDown(self):
             """Close the application after tests"""
             try:
-                self.dlg.Close(0.5)
+                self.dlg.close(0.5)
             except Exception:
                 pass
             finally:
-                self.app.kill_()
+                self.app.kill()
 
         def testModifiersForFewChars(self):
             """Make sure that repeated action works"""
-            SendKeys("%(SC)", pause = .3)
-            dlg = self.app.Window_(title='Using C++ Derived Class')
-            dlg.Wait('ready')
-            dlg.Done.CloseClick()
-            dlg.WaitNot('visible')
+            send_keys("%(SC)", pause = .3)
+            dlg = self.app.window(title='Using C++ Derived Class')
+            dlg.wait('ready')
+            dlg.Done.close_click()
+            dlg.wait_not('visible')
 
-            SendKeys("%(H{LEFT}{UP}{ENTER})", pause = .3)
-            dlg = self.app.Window_(title='Sample Dialog with spin controls')
-            dlg.Wait('ready')
-            dlg.Done.CloseClick()
-            dlg.WaitNot('visible')
+            send_keys("%(H{LEFT}{UP}{ENTER})", pause = .3)
+            dlg = self.app.window(title='Sample Dialog with spin controls')
+            dlg.wait('ready')
+            dlg.Done.close_click()
+            dlg.wait_not('visible')
 
 
 #====================================================================

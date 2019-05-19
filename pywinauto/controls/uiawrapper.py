@@ -679,7 +679,7 @@ class UIAWrapper(BaseWrapper):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()
         else:
-            raise IndexError("item not found")
+            raise IndexError("item '{0}' not found".format(item))
 
     # -----------------------------------------------------------
     def is_active(self):
@@ -785,6 +785,20 @@ class UIAWrapper(BaseWrapper):
                 """)
 
         return self
+
+    # -----------------------------------------------------------
+    def _texts_from_item_container(self):
+        """Get texts through the ItemContainer interface"""
+        texts = []
+        try:
+            com_elem = self.iface_item_container.FindItemByProperty(0, 0, uia_defs.vt_empty)
+            while com_elem:
+                itm = UIAWrapper(UIAElementInfo(com_elem))
+                texts.append(itm.texts())
+                com_elem = self.iface_item_container.FindItemByProperty(com_elem, 0, uia_defs.vt_empty)
+        except (uia_defs.NoPatternInterfaceError):
+            pass
+        return texts
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

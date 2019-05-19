@@ -113,7 +113,7 @@ def _GetUntranslations(win):
     """Find the text items that are not translated"""
     # remove ampersands and other non translatable bits from the string
     nonTransChars = re.compile(
-        """(\&(?!\&)|	# ampersand not followed by an ampersand
+        r"""(\&(?!\&)|	# ampersand not followed by an ampersand
             \.\.\.$|	# elipsis ...
             ^\s*|		# leading whitespace
             \s*$|		# trailing whitespace

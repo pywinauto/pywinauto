@@ -71,6 +71,7 @@ import time
 import warnings
 import multiprocessing
 import locale
+import codecs
 
 import win32process
 import win32api
@@ -149,6 +150,11 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
             search_criteria['backend'] = registry.active_backend.name
+        if 'process' in search_criteria and 'app' in search_criteria:
+            raise KeyError('Keywords "process" and "app" cannot be combined (ambiguous). ' \
+                'Use one option at a time: Application object with keyword "app" or ' \
+                'integer process ID with keyword "process".')
+        self.app = search_criteria.get('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
         self.backend = registry.backends[search_criteria['backend']]
@@ -188,6 +194,10 @@ class WindowSpecification(object):
         # find the dialog
         if 'backend' not in criteria[0]:
             criteria[0]['backend'] = self.backend.name
+        if self.app is not None:
+            # find_elements(...) accepts only "process" argument
+            criteria[0]['process'] = self.app.process
+            del criteria[0]['app']
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
 
         ctrls = []
@@ -660,7 +670,7 @@ class WindowSpecification(object):
             print("Control Identifiers:")
             print_identifiers([this_ctrl, ])
         else:
-            log_file = open(filename, "w")
+            log_file = codecs.open(filename, "w", locale.getpreferredencoding())
 
             def log_func(msg):
                 log_file.write(str(msg) + os.linesep)
@@ -896,6 +906,10 @@ class Application(object):
                 self.match_history = pickle.load(datafile)
             self.use_history = True
 
+    def __iter__(self):
+        """Raise to avoid infinite loops"""
+        raise NotImplementedError("Object is not iterable, try to use .windows()")
+
     def connect(self, **kwargs):
         """Connect to an already running process
 
@@ -922,10 +936,7 @@ class Application(object):
         if 'process' in kwargs:
             self.process = kwargs['process']
             try:
-                timings.wait_until_passes(
-                        timeout, retry_interval, assert_valid_process,
-                        ProcessNotFoundError, self.process
-                    )
+                wait_until(timeout, retry_interval, self.is_process_running, value=True)
             except TimeoutError:
                 raise ProcessNotFoundError('Process with PID={} not found!'.format(self.process))
             connected = True
@@ -953,6 +964,8 @@ class Application(object):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
+            if 'visible_only' not in kwargs:
+                kwargs['visible_only'] = False
             if 'timeout' in kwargs:
                 del kwargs['timeout']
                 self.process = timings.wait_until_passes(
@@ -1229,29 +1242,28 @@ class Application(object):
         """Should not be used - part of application data implementation"""
         return self.match_history[index]
 
-    def kill(self):
+    def kill(self, soft=False):
         """
-        Try to close and kill the application
+        Try to close (optional) and kill the application
 
         Dialogs may pop up asking to save data - but the application
         will be killed anyway - you will not be able to click the buttons.
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        windows = self.windows(visible=True)
+        if soft:
+            windows = self.windows(visible_only=True)
+            for win in windows:
+                try:
+                    if hasattr(win, 'close'):
+                        win.close()
+                        continue
+                except TimeoutError:
+                    self.actions.log('Failed to close top level window')
 
-        for win in windows:
-
-            try:
-                if hasattr(win, 'close'):
-                    win.close()
-                    continue
-            except TimeoutError:
-                self.actions.log('Failed to close top level window')
-
-            if hasattr(win, 'force_close'):
-                self.actions.log('application.kill: call win.force_close')
-                win.force_close()
+                if hasattr(win, 'force_close'):
+                    self.actions.log('Application.kill: call win.force_close()')
+                    win.force_close()
 
         try:
             process_wait_handle = win32api.OpenProcess(
@@ -1263,14 +1275,16 @@ class Application(object):
 
         # so we have either closed the windows - or the app is hung
         killed = True
-        if process_wait_handle:
-            try:
-                win32api.TerminateProcess(process_wait_handle, 0)
-            except win32gui.error:
-                self.actions.log('Process {0} seems already killed'.format(self.process))
+        try:
+            if process_wait_handle:
+                try:
+                    win32api.TerminateProcess(process_wait_handle, 0)
+                except win32gui.error:
+                    self.actions.log('Process {0} seems already killed'.format(self.process))
+        finally:
+            win32api.CloseHandle(process_wait_handle)
 
-        win32api.CloseHandle(process_wait_handle)
-
+        self.wait_for_process_exit()
         return killed
 
     # Non PEP-8 aliases
@@ -1279,11 +1293,11 @@ class Application(object):
 
     def is_process_running(self):
         """
-        Checks that process is running.
+        Check that process is running.
 
         Can be called before start/connect.
 
-        Returns True if process is running otherwise - False
+        Return True if process is running otherwise - False.
         """
         is_running = False
         try:
@@ -1322,6 +1336,14 @@ def assert_valid_process(process_id):
     if not process_handle:
         message = "Process with ID '%d' could not be opened" % process_id
         raise ProcessNotFoundError(message)
+
+    # finished process can still exist and have exit code,
+    # but it's not usable any more, so let's check it
+    exit_code = win32process.GetExitCodeProcess(process_handle)
+    is_running = (exit_code == win32defines.PROCESS_STILL_ACTIVE)
+    if not is_running:
+        raise ProcessNotFoundError('Process with pid = {} has been already ' \
+            'finished with exit code = {}'.format(process_id, exit_code))
 
     return process_handle
 

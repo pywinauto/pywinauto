@@ -82,8 +82,8 @@ class IUIA(object):
         end_len = len('ControlTypeId')
         self._control_types = [attr[start_len:-end_len] for attr in dir(self.UIA_dll) if attr.endswith('ControlTypeId')]
 
-        self.known_control_types = {} # string id: numeric id
-        self.known_control_type_ids = {} # numeric id: string id
+        self.known_control_types = { 'InvalidControlType': 0 } # string id: numeric id
+        self.known_control_type_ids = { 0: 'InvalidControlType' } # numeric id: string id
 
         for ctrl_type in self._control_types:
             type_id_name = 'UIA_' + ctrl_type + 'ControlTypeId'
@@ -218,6 +218,8 @@ scroll_no_amount = IUIA().ui_automation_client.ScrollAmount_NoAmount
 scroll_large_increment = IUIA().ui_automation_client.ScrollAmount_LargeIncrement
 scroll_small_increment = IUIA().ui_automation_client.ScrollAmount_SmallIncrement
 
+vt_empty = IUIA().ui_automation_client.VARIANT.empty.vt
+vt_null = IUIA().ui_automation_client.VARIANT.null.vt
 
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name

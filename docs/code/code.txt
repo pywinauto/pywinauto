@@ -23,6 +23,7 @@ Specific Functionality
    :maxdepth: 1
    
    pywinauto.clipboard.txt
+   pywinauto.win32_hooks.txt
 
 
 Controls Reference
@@ -64,11 +65,11 @@ Backend Internal Implementation modules
    
    pywinauto.backend.txt
    pywinauto.element_info.txt
-   pywinauto.win32_element_info.txt
-   pywinauto.uia_element_info.txt
 
+   pywinauto.win32_element_info.txt
+
+   pywinauto.uia_element_info.txt
    pywinauto.uia_defines.txt
-   pywinauto.hooks.txt
 
 Internal Modules
 ================

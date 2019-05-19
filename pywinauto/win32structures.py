@@ -32,19 +32,18 @@
 """Definition of Windows structures"""
 
 import six
-import ctypes
+from ctypes import Structure as Struct
 from ctypes import \
-    c_int, c_uint, c_long, c_ulong, c_void_p, c_wchar, c_char, \
-    c_ubyte, c_ushort, \
-    POINTER, sizeof, alignment, Union, c_longlong, c_size_t
+    c_int, c_long, c_void_p, c_char, memmove, addressof, \
+    POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
 from .win32defines import LF_FACESIZE
 from . import sysinfo
 
 
-class Structure(ctypes.Structure):
+class StructureMixIn(object):
 
-    """Override the Structure class from ctypes to add printing and comparison"""
+    """Define printing and comparison behaviors to be used for the Structure class from ctypes"""
 
     #----------------------------------------------------------------
     def __str__(self):
@@ -61,7 +60,7 @@ class Structure(ctypes.Structure):
     #----------------------------------------------------------------
     def __eq__(self, other_struct):
         """Return True if the two structures have the same coordinates"""
-        if isinstance(other_struct, ctypes.Structure):
+        if isinstance(other_struct, Struct):
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
@@ -93,6 +92,14 @@ class Structure(ctypes.Structure):
 
         return False
 
+
+class Structure(Struct, StructureMixIn):
+
+    """Override the Structure class from ctypes to add printing and comparison"""
+
+    pass
+
+
 ##====================================================================
 #def PrintCtypesStruct(struct, exceptList = []):
 #    """Print out the fields of the ctypes Structure
@@ -110,7 +117,7 @@ class Structure(ctypes.Structure):
 # e.g. RECT.__reduce__ = _reduce
 def _construct(typ, buf):
     obj = typ.__new__(typ)
-    ctypes.memmove(ctypes.addressof(obj), buf, len(buf))
+    memmove(addressof(obj), buf, len(buf))
     return obj
 
 def _reduce(self):
@@ -119,46 +126,44 @@ def _reduce(self):
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
 #PTOOLINFOW = POINTER(tagTOOLINFOW)
-BOOL = c_int
-BYTE = c_ubyte
+BOOL = wintypes.BOOL
+BYTE = wintypes.BYTE
 CHAR = c_char
-DWORD = c_ulong
-HANDLE = c_void_p
-HBITMAP = c_long
-LONG = c_long
-LPVOID = c_void_p
+DWORD = wintypes.DWORD
+HANDLE = wintypes.HANDLE
+HBITMAP = HANDLE
+LONG = wintypes.LONG
+LPVOID = wintypes.LPVOID
 PVOID = c_void_p
-UINT = c_uint
-WCHAR = c_wchar
-WORD = c_ushort
+UINT = wintypes.UINT
+WCHAR = wintypes.WCHAR
+WORD = wintypes.WORD
+LRESULT = wintypes.LPARAM
 
-COLORREF = DWORD
+COLORREF = wintypes.COLORREF
 LPBYTE = POINTER(BYTE)
 LPWSTR = c_size_t #POINTER(WCHAR)
 DWORD_PTR = UINT_PTR = ULONG_PTR = c_size_t
+PDWORD_PTR = POINTER(DWORD_PTR)
 if sysinfo.is_x64_Python():
     INT_PTR = LONG_PTR = c_longlong
 else:
     INT_PTR = LONG_PTR = c_long
 
-HBITMAP = LONG_PTR #LONG
 HINSTANCE = LONG_PTR #LONG
 HMENU = LONG_PTR #LONG
-HBRUSH = LONG_PTR #LONG
+HBRUSH = wintypes.HBRUSH  # LONG_PTR #LONG
 HTREEITEM = LONG_PTR #LONG
-HWND = LONG_PTR #LONG
+HWND = wintypes.HWND
 
-LPARAM = LONG_PTR
-WPARAM = UINT_PTR
+# Notice that wintypes definition of LPARAM/WPARAM differs between 32/64 bit
+LPARAM = wintypes.LPARAM
+WPARAM = wintypes.WPARAM
 
 
-class POINT(Structure):
-    _pack_ = 4
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 307
-        ('x', LONG),
-        ('y', LONG),
-    ]
+class POINT(wintypes.POINT, StructureMixIn):
+
+    """Wrap the POINT structure and add extra functionality"""
 
     def __iter__(self):
         """Allow iteration through coordinates"""
@@ -174,25 +179,18 @@ class POINT(Structure):
         else:
             raise IndexError("Illegal index")
 
+
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 
 
 # ====================================================================
-class RECT(Structure):
+class RECT(wintypes.RECT):
 
     """Wrap the RECT structure and add extra functionality"""
 
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
-        ('left', LONG),
-        ('top', LONG),
-        ('right', LONG),
-        ('bottom', LONG),
-    ]
-
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
         """Provide a constructor for RECT structures
 
         A RECT can be constructed by:
@@ -216,19 +214,27 @@ class RECT(Structure):
             self.top = long_int(top)
             self.bottom = long_int(bottom)
 
+    # ----------------------------------------------------------------
+    def __eq__(self, otherRect):
+        """Return true if the two rectangles have the same coordinates"""
+        try:
+            return \
+                self.left == otherRect.left and \
+                self.top == otherRect.top and \
+                self.right == otherRect.right and \
+                self.bottom == otherRect.bottom
+        except AttributeError:
+            return False
 
-#    # ----------------------------------------------------------------
-#    def __eq__(self, otherRect):
-#        "return true if the two rectangles have the same coordinates"
-#
-#        try:
-#            return \
-#                self.left == otherRect.left and \
-#                self.top == otherRect.top and \
-#                self.right == otherRect.right and \
-#                self.bottom == otherRect.bottom
-#        except AttributeError:
-#            return False
+    # ----------------------------------------------------------------
+    def __ne__(self, otherRect):
+        """Return true if the two rectangles do not have the same coordinates"""
+        return not self == otherRect
+
+    # ----------------------------------------------------------------
+    def __hash__(self):
+        """Return unique object ID to make the instance hashable"""
+        return id(self)
 
     # ----------------------------------------------------------------
     def __str__(self):
@@ -282,8 +288,8 @@ class RECT(Structure):
     def mid_point(self):
         """Return a POINT structure representing the mid point"""
         pt = POINT()
-        pt.x = self.left + int(float(self.width())/2.)
-        pt.y = self.top + int(float(self.height())/2.)
+        pt.x = self.left + int(float(self.width()) / 2.)
+        pt.y = self.top + int(float(self.height()) / 2.)
         return pt
 
     #def __hash__(self):

@@ -6,6 +6,8 @@
 [![codecov.io](http://codecov.io/github/pywinauto/pywinauto/coverage.svg?branch=master)](http://codecov.io/github/pywinauto/pywinauto?branch=master)
 [![Code Health](https://landscape.io/github/pywinauto/pywinauto/master/landscape.svg?style=flat)](https://landscape.io/github/pywinauto/pywinauto/master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b823b31c0f2b48d6873326d038c5a516)](https://www.codacy.com/app/pywinauto/pywinauto?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pywinauto/pywinauto&amp;utm_campaign=Badge_Grade)
+[![Code Quality: Python](https://img.shields.io/lgtm/grade/python/g/pywinauto/pywinauto.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/pywinauto/pywinauto/context:python)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/pywinauto/pywinauto.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/pywinauto/pywinauto/alerts)
 
 pywinauto
 ============

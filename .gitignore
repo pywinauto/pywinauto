@@ -56,3 +56,10 @@ docs/_sources/
 # PyBuilder
 target/
 /.idea
+
+# Vim
+*.*~
+*.swp
+
+# Unit tests screenshots
+__main__.*.jpg
