@@ -148,6 +148,13 @@ GlobalLock = ctypes.windll.kernel32.GlobalLock
 GlobalUnlock = ctypes.windll.kernel32.GlobalUnlock
 
 SendMessage			=	ctypes.windll.user32.SendMessageW
+SendMessage.restype = wintypes.LPARAM
+SendMessage.argtypes = [
+    wintypes.HWND,
+    wintypes.UINT,
+    wintypes.WPARAM,
+    wintypes.LPVOID,
+]
 SendMessageTimeout  =   ctypes.windll.user32.SendMessageTimeoutW
 SendMessageTimeout.argtypes = [win32structures.HWND, win32structures.UINT, win32structures.WPARAM,
                                win32structures.LPARAM, win32structures.UINT, win32structures.UINT,
