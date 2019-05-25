@@ -309,7 +309,7 @@ class WinBaseWrapper(BaseWrapper):
 
         # attach the Python process with the process that self is in
         if self.element_info.handle:
-            window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
+            window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
             win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
             # TODO: check return value of AttachThreadInput properly
         else:
@@ -325,7 +325,7 @@ class WinBaseWrapper(BaseWrapper):
             aligned_keys = six.text_type(keys)
 
         # Play the keys to the active window
-        keyboard.SendKeys(
+        keyboard.send_keys(
             aligned_keys,
             pause,
             with_spaces,
