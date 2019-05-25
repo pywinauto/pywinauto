@@ -785,57 +785,7 @@ class BaseWrapper(object):
 
         .. _keyboard: pywinauto.keyboard.html
         """
-<<<<<<< HEAD
         raise NotImplementedError()
-=======
-        self.verify_actionable()
-        friendly_class_name = self.friendly_class_name()
-
-        if pause is None:
-            pause = Timings.after_sendkeys_key_wait
-
-        if set_foreground:
-            self.set_focus()
-
-        # attach the Python process with the process that self is in
-        if self.element_info.handle:
-            window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
-            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
-            # TODO: check return value of AttachThreadInput properly
-        else:
-            # TODO: UIA stuff maybe
-            pass
-
-        if isinstance(keys, six.text_type):
-            aligned_keys = keys
-        elif isinstance(keys, six.binary_type):
-            aligned_keys = keys.decode(locale.getpreferredencoding())
-        else:
-            # convert a non-string input
-            aligned_keys = six.text_type(keys)
-
-        # Play the keys to the active window
-        keyboard.send_keys(
-            aligned_keys,
-            pause,
-            with_spaces,
-            with_tabs,
-            with_newlines,
-            turn_off_numlock)
-
-        # detach the python process from the window's process
-        if self.element_info.handle:
-            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
-            # TODO: check return value of AttachThreadInput properly
-        else:
-            # TODO: UIA stuff
-            pass
-
-        self.wait_for_idle()
-
-        self.actions.log('Typed text to the ' + friendly_class_name + ': ' + aligned_keys)
-        return self
->>>>>>> master
 
     #-----------------------------------------------------------
     def set_focus(self):
