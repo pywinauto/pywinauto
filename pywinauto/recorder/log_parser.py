@@ -1,8 +1,7 @@
 from six import string_types
 
 from .recorder_defines import EventPattern, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
-    HOOK_KEY_DOWN, get_window_access_name_str
-from .event_handlers import EventHandler
+    HOOK_KEY_DOWN, get_window_access_name_str, EventHandler
 
 
 class LogParser(object):

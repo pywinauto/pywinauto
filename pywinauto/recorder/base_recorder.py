@@ -92,8 +92,8 @@ class BaseRecorder(object):
 
     def start(self):
         """Start Recorder"""
-        self.recorder_thread.start()
         self.hook_thread.start()
+        self.recorder_thread.start()
 
     def stop(self):
         """Stop Recorder"""

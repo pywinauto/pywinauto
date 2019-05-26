@@ -1,35 +1,6 @@
-from abc import abstractmethod
-
-from .recorder_defines import HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, get_window_access_name_str
-
-
-class EventHandler(object):
-    def __init__(self, subtree, log_parser, subpattern):
-        self.subtree = subtree
-        self.log_parser = log_parser
-        self.subpattern = subpattern
-
-        self.key_only = self.log_parser.recorder.config.key_only
-
-    def get_root_name(self):
-        return get_window_access_name_str(self.subtree[-1].names.get_preferred_name(), self.key_only)
-
-    def get_item_name(self):
-        return get_window_access_name_str(self.subtree[0].names.get_preferred_name(), self.key_only)
-
-    def get_sender_name(self, event_idx):
-        sender = self.subpattern.app_events[event_idx].sender
-        for node in self.subtree:
-            if node.wrapper.element_info == sender:
-                item_name = get_window_access_name_str(node.names.get_preferred_name(), self.key_only)
-                break
-        else:
-            item_name = self.get_item_name()
-        return item_name
-
-    @abstractmethod
-    def run(self):
-        raise NotImplementedError()
+from ..recorder_defines import EVENT, PROPERTY, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
+    PropertyEvent, EventPattern, HOOK_MOUSE_LEFT_BUTTON, HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, \
+    HOOK_KEY_DOWN, get_window_access_name_str, EventHandler
 
 
 class MenuOpenedHandler(EventHandler):
@@ -151,3 +122,46 @@ class KeyboardHandler(EventHandler):
             uia_ctrl = "hotkey"
         self.log_parser.text_sequence.setdefault(uia_ctrl, "")
         self.log_parser.text_sequence[uia_ctrl] += hook_event.current_key
+
+
+UIA_EVENT_PATTERN_MAP = [
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
+                              PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
+                              ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED))),
+     SelectionChangedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.INVOKED),)),
+     InvokeHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.MENU_OPENED),)),
+     MenuOpenedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name=EVENT.MENU_CLOSED),)),
+     MenuClosedHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),
+                              PropertyEvent(property_name=PROPERTY.TOGGLE_STATE))),
+     ExpandCollapseHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.EXPAND_COLLAPSE_STATE),)),
+     ExpandCollapseHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.TOGGLE_STATE),)),
+     ToggleHandler),
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),)),
+     SelectHandler),
+
+    (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
+     MouseClickHandler),
+
+    (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)),
+     KeyboardHandler)
+]
