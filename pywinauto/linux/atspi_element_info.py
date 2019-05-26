@@ -1,5 +1,5 @@
 from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, known_control_types, AtspiComponent, \
-    AtspiStateSet
+    AtspiStateSet, AtspiStateEnum
 from ..element_info import ElementInfo
 
 
@@ -24,6 +24,14 @@ class AtspiElementInfo(ElementInfo):
         if self.class_name == "application":
             return self.process_id == other.process_id
         return self.rectangle == other.rectangle
+
+    @staticmethod
+    def _get_states_as_string(states):
+        string_states = []
+        for i in range(64):
+            if states & (1 << i):
+                string_states.append(AtspiStateEnum[i])
+        return string_states
 
     @property
     def handle(self):
@@ -112,7 +120,13 @@ class AtspiElementInfo(ElementInfo):
         return self.component.get_mdi_x_order()
 
     def get_state_set(self):
-        return AtspiStateSet(self.atspi_accessible.get_state_set(self.handle))
+        val = self.atspi_accessible.get_state_set(self.handle)
+        return self._get_states_as_string(val.contents.states)
+
+    @property
+    def visible(self):
+        states = self.get_state_set()
+        return "STATE_VISIBLE" in states and "STATE_ACTIVE" in states and "STATE_SHOWING" in states
 
     @property
     def rectangle(self):
