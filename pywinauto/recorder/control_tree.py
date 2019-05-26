@@ -15,6 +15,7 @@ class ControlTreeNode(object):
         self.depth = 0
         self.parent = None
         self.children = []
+        self.metadata = {}
 
     def __repr__(self):
         """Return a representation of the object as a string"""

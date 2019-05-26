@@ -2,6 +2,7 @@ import threading
 import ctypes
 import timeit
 import time
+import re
 
 from ..recorder_defines import EVENT, PROPERTY
 
@@ -15,21 +16,33 @@ from win32api import LOWORD, HIWORD
 import win32gui
 
 from ..uia.uia_recorder import ProgressBarDialog
-from ..control_tree import ControlTree
+from ..control_tree import ControlTree, ControlTreeNode
 from ..base_recorder import BaseRecorder
 from ..recorder_defines import RecorderEvent, RecorderKeyboardEvent, RecorderMouseEvent, \
     ApplicationEvent, PropertyEvent, EventPattern, EVENT, PROPERTY, HOOK_MOUSE_LEFT_BUTTON, HOOK_KEY_DOWN
 
-from ..event_handlers import MouseClickHandler, KeyboardHandler
+from ..event_handlers import EventHandler, MouseClickHandler, KeyboardHandler, MenuOpenedHandler, MenuClosedHandler
 
 from .injector import Injector
 from .common_controls_handlers import resolve_handle_to_event
 
 APP_CLOSE_MSG = 0xFFFFFFFF
 
+class Win32MenuSelectHandler(EventHandler):
+
+    def _cut_at_tab(self, text):
+        return re.compile(r"\t.*", re.UNICODE).sub("", text)
+
+    def run(self):
+        menu_item_text    = self._cut_at_tab(self.subtree[0].metadata["menu_item_text"])
+        submenu_item_text = self._cut_at_tab(self.subtree[0].metadata["submenu_item_text"])
+        return u"app{}.menu_select(u'{} -> {}')\n".format(self.get_root_name(), menu_item_text, submenu_item_text)
+
 class Win32Recorder(BaseRecorder):
 
     _EVENT_PATTERN_MAP = [
+        (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
+                  app_events=(ApplicationEvent(name="MENUSELECT"),)), Win32MenuSelectHandler),
         (EventPattern(hook_event=RecorderMouseEvent(current_key=None, event_type=HOOK_KEY_DOWN)), MouseClickHandler),
         (EventPattern(hook_event=RecorderKeyboardEvent(current_key=None, event_type=HOOK_KEY_DOWN)), KeyboardHandler)
     ]
@@ -49,6 +62,8 @@ class Win32Recorder(BaseRecorder):
         win32defines.WM_COMPAREITEM,
         win32defines.WM_MEASUREITEM,
 
+        win32defines.WM_MENUSELECT,
+        win32defines.WM_SYSCOMMAND,
         # win32defines.WM_DRAWITEM,
         # win32defines.WM_GETTITLEBARINFOEX,
         # win32defines.WM_MENUDRAG,
@@ -64,7 +79,7 @@ class Win32Recorder(BaseRecorder):
 
         self.last_kbd_hwnd = None
         self.app = app
-        self.dlg = app[config.cmd]
+        self.dlg = app.top_window()
         self.listen = False
         self.hook = win32_hooks.Hook()
         self.record_props = record_props
@@ -74,6 +89,7 @@ class Win32Recorder(BaseRecorder):
         self.prev_hwnd = None
         self.prev_msg_id = None
         self.prev_time = None
+        self.menu_data = {}
 
     def _setup(self):
         try:
@@ -165,14 +181,17 @@ class Win32Recorder(BaseRecorder):
         self.hook.hook(keyboard=True, mouse=True)
 
     def _handle_hook_event(self, hook_event):
+        event = None
         if isinstance(hook_event, win32_hooks.KeyboardEvent):
-            keyboard_event = RecorderKeyboardEvent.from_hook_keyboard_event(hook_event)
-            keyboard_event.control_tree_node = self._get_keyboard_node()
-            self.add_to_log(keyboard_event)
+            event = RecorderKeyboardEvent.from_hook_keyboard_event(hook_event)
+            event.control_tree_node = self._get_keyboard_node()
         elif isinstance(hook_event, win32_hooks.MouseEvent):
-            mouse_event = RecorderMouseEvent.from_hook_mouse_event(hook_event)
-            mouse_event.control_tree_node = self._get_mouse_node(mouse_event)
-            self.add_to_log(mouse_event)
+            event = RecorderMouseEvent.from_hook_mouse_event(hook_event)
+            event.control_tree_node = self._get_mouse_node(event)
+        if event and event.control_tree_node:
+            self.add_to_log(event)
+        elif not event.control_tree_node:
+            print("WARNING: can't find contol tree node, ensure you call _rebuild in right time")
 
     def _hwnd_element_from_message(self, msg):
         parent_handle = msg.hWnd
@@ -202,6 +221,79 @@ class Win32Recorder(BaseRecorder):
         self.prev_time = msg.time
         return False
 
+    def _remove_menu_rect_clicks(self, menu_item_rect):
+        def skip_this(event, item_rect):
+            return isinstance(event, RecorderMouseEvent) and (event.mouse_x, event.mouse_y) in item_rect
+        self.event_log = [event for event in self.event_log if not skip_this(event, menu_item_rect)]
+
+    def _create_dummy_tree_node(self):
+        root = self.control_tree.root
+        return ControlTreeNode(root.wrapper, root.names, root.ctrl_type, root.rect)
+
+    def _control_message_handler(self, msg):
+        component = self._resolve_component(msg)
+        if component:
+            class_name, event_name = resolve_handle_to_event(component, msg, True)
+            if class_name and event_name:
+                print('{} - {}'.format(class_name, event_name))
+
+    def _menu_open_handler(self, msg):
+        if msg.message != win32defines.WM_MENUSELECT:
+            return
+
+        selected_index = msg.wParam & 0xFFFF
+        menu_wrapper = self.app.window(handle = msg.hWnd).menu()
+        if menu_wrapper.handle == msg.lParam:
+            print("WM_MENUSELECT {} {} {} {}".format(selected_index, msg.hWnd, msg.lParam, menu_wrapper.item_count()))
+
+            def submenu_items(item_index):
+                current_parent = menu_wrapper.item(item_index)
+                items = { item.item_id() : (item.text(), item.rectangle()) for item in current_parent.sub_menu().items() }
+                items[-1] = current_parent.text()
+                items[-2] = current_parent.rectangle()
+                return items
+
+            self.menu_data["submenus"] = []
+            self.menu_data["submenus"].append(submenu_items(selected_index))
+            if selected_index > 0:
+                self.menu_data["submenus"].append(submenu_items(selected_index - 1))
+            if selected_index < menu_wrapper.item_count() - 1:
+                self.menu_data["submenus"].append(submenu_items(selected_index + 1))
+
+    def _menu_choose_handler(self, msg):
+        if msg.message != win32defines.WM_COMMAND or HIWORD(msg.wParam) != 0 or msg.lParam != 0:
+            return
+
+        menu_id = LOWORD(msg.wParam)
+        print("WM_COMMAND {}".format(menu_id))
+        for submenu_data in self.menu_data["submenus"]:
+            if menu_id in submenu_data:
+                selected_item, parent_text, parent_rect = submenu_data[menu_id], submenu_data[-1], submenu_data[-2]
+                break
+
+        if not selected_item:
+            return
+
+        self._remove_menu_rect_clicks(parent_rect)
+        self._remove_menu_rect_clicks(selected_item[1])
+        self.menu_event = RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN)
+        self.menu_event.control_tree_node = self._create_dummy_tree_node()
+        self.menu_event.control_tree_node.metadata["menu_item_text"] = parent_text
+        self.menu_event.control_tree_node.metadata["submenu_item_text"] = selected_item[0]
+        self.add_to_log(self.menu_event)
+        self.add_to_log(ApplicationEvent(name="MENUSELECT", sender=None))
+
+    def _type_keys_handle_handler(self, msg):
+        if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
+            self.last_kbd_hwnd = msg.hWnd
+
+    _message_handlers = [
+        _type_keys_handle_handler,
+        _control_message_handler,
+        _menu_open_handler,
+        _menu_choose_handler,
+    ]
+
     def _handle_message(self, msg):
         if not msg or msg.message == APP_CLOSE_MSG:
             self.stop()
@@ -210,14 +302,8 @@ class Win32Recorder(BaseRecorder):
         if self._should_skip_msg(msg):
             return
 
-        if msg.message == win32defines.WM_SETFOCUS or msg.message == win32defines.WM_KEYUP:
-            self.last_kbd_hwnd = msg.hWnd
-
-        component = self._resolve_component(msg)
-        if component:
-            class_name, event_name = resolve_handle_to_event(component, msg, True)
-            if class_name and event_name:
-                print('{} - {}'.format(class_name, event_name))
+        for handle in self._message_handlers:
+            handle(self, msg)
 
     @property
     def event_patterns(self):
