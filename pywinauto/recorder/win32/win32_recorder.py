@@ -64,12 +64,6 @@ class Win32Recorder(BaseRecorder):
 
         win32defines.WM_MENUSELECT,
         win32defines.WM_SYSCOMMAND,
-        # win32defines.WM_DRAWITEM,
-        # win32defines.WM_GETTITLEBARINFOEX,
-        # win32defines.WM_MENUDRAG,
-        # win32defines.WM_MENUGETOBJECT,
-        # win32defines.WM_MENURBUTTONUP,
-        # win32defines.WM_UNINITMENUPOPUP,
     ]
 
     def __init__(self, app, config, record_props=True, record_focus=False, record_struct=False):
@@ -244,8 +238,6 @@ class Win32Recorder(BaseRecorder):
         selected_index = msg.wParam & 0xFFFF
         menu_wrapper = self.app.window(handle = msg.hWnd).menu()
         if menu_wrapper.handle == msg.lParam:
-            print("WM_MENUSELECT {} {} {} {}".format(selected_index, msg.hWnd, msg.lParam, menu_wrapper.item_count()))
-
             def submenu_items(item_index):
                 current_parent = menu_wrapper.item(item_index)
                 items = { item.item_id() : (item.text(), item.rectangle()) for item in current_parent.sub_menu().items() }
@@ -265,7 +257,6 @@ class Win32Recorder(BaseRecorder):
             return
 
         menu_id = LOWORD(msg.wParam)
-        print("WM_COMMAND {}".format(menu_id))
         for submenu_data in self.menu_data["submenus"]:
             if menu_id in submenu_data:
                 selected_item, parent_text, parent_rect = submenu_data[menu_id], submenu_data[-1], submenu_data[-2]
