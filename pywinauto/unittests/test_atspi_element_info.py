@@ -127,11 +127,13 @@ if sys.platform != 'win32':
             self.assertEqual(self.desktop_info.get_layer(), 3)
 
         def test_can_get_state_set(self):
-            app_info = self.app_info.children()[0]
-            app_info1 = self.app_info.children()[0].children()[0]
-            print(app_info.get_state_set().get_states())
-            print(app_info1.get_state_set().get_states())
+            frame_info = self.app_info.children()[0]
+            states = frame_info.get_state_set()
+            self.assertTrue('STATE_ACTIVE' in states)
 
+        def test_initially_ran_app_visible(self):
+            frame_info = self.app_info.children()[0]
+            self.assertTrue(frame_info.visible)
 
 if __name__ == "__main__":
     unittest.main()

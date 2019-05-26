@@ -196,6 +196,55 @@ class _AtspiStateType(CtypesEnum):
     ATSPI_STATE_LAST_DEFINED = 44
 
 
+AtspiStateEnum = {
+    0: 'STATE_INVALID',
+    1: 'STATE_ACTIVE',
+    2: 'STATE_ARMED',
+    3: 'STATE_BUSY',
+    4: 'STATE_CHECKED',
+    5: 'STATE_COLLAPSED',
+    6: 'STATE_DEFUNCT',
+    7: 'STATE_EDITABLE',
+    8: 'STATE_ENABLED',
+    9: 'STATE_EXPANDABLE',
+    10: 'STATE_EXPANDED',
+    11: 'STATE_FOCUSABLE',
+    12: 'STATE_FOCUSED',
+    13: 'STATE_HAS_TOOLTIP',
+    14: 'STATE_HORIZONTAL',
+    15: 'STATE_ICONIFIED',
+    16: 'STATE_MODAL',
+    17: 'STATE_MULTI_LINE',
+    18: 'STATE_MULTISELECTABLE',
+    19: 'STATE_OPAQUE',
+    20: 'STATE_PRESSED',
+    21: 'STATE_RESIZABLE',
+    22: 'STATE_SELECTABLE',
+    23: 'STATE_SELECTED',
+    24: 'STATE_SENSITIVE',
+    25: 'STATE_SHOWING',
+    26: 'STATE_SINGLE_LINE',
+    27: 'STATE_STALE',
+    28: 'STATE_TRANSIENT',
+    29: 'STATE_VERTICAL',
+    30: 'STATE_VISIBLE',
+    31: 'STATE_MANAGES_DESCENDANTS',
+    32: 'STATE_INDETERMINATE',
+    33: 'STATE_REQUIRED',
+    34: 'STATE_TRUNCATED',
+    35: 'STATE_ANIMATED',
+    36: 'STATE_INVALID_ENTRY',
+    37: 'STATE_SUPPORTS_AUTOCOMPLETION',
+    38: 'STATE_SELECTABLE_TEXT',
+    39: 'STATE_IS_DEFAULT',
+    40: 'STATE_VISITED',
+    41: 'STATE_CHECKABLE',
+    42: 'STATE_HAS_POPUP',
+    43: 'STATE_READ_ONLY',
+    44: 'STATE_LAST_DEFINED',
+}
+
+
 class AtspiRect(Structure):
     _fields_ = [
         ('x', c_int),
@@ -271,7 +320,6 @@ class _AtspiAccessiblePrivate(Structure):
     pass
 
 
-
 class _AtspiObject(Structure):
     _fields_ = [
         ('parent', _GObject),
@@ -296,6 +344,11 @@ _AtspiAccessible._fields_ = [
     ('attributes', POINTER(_GHashTable)),
     ('cached_properties', c_uint),
     ('cached_properties', _AtspiAccessiblePrivate),
+]
+
+_AtspiStateSet._fields_ = [
+    ('fake', c_uint64 * 4),
+    ('states', c_uint64),
 ]
 
 
@@ -457,6 +510,9 @@ class IATSPI(object):
         try:
             print(self.__find_library())
             self.atspi = ctypes.cdll.LoadLibrary(self.__find_library())
+            self.atspi.atspi_init()
+            if not self.atspi.atspi_is_initialized():
+                raise Exception("Cannot initialize atspi module")
 
         except Exception:
             message = "atspi library not installed. Please install at-spi2 library or choose another backend"
@@ -672,9 +728,6 @@ class AtspiStateSet(object):
 
     def get_states(self):
         states = self._get_states(self._pointer)
-        a = states.contents
-        print(a.data[0:a.len])
-
         return states.contents
 
     def set_by_name(self, state_name, status):
