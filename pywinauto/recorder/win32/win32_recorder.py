@@ -73,7 +73,6 @@ class Win32Recorder(BaseRecorder):
 
         self.last_kbd_hwnd = None
         self.app = app
-        self.dlg = app.top_window()
         self.listen = False
         self.hook = win32_hooks.Hook()
         self.record_props = record_props
@@ -88,7 +87,7 @@ class Win32Recorder(BaseRecorder):
     def _setup(self):
         try:
             self.listen = True
-            self.injector = Injector(self.dlg, approved_messages_list = self._APPROVED_MESSAGES_LIST)
+            self.injector = Injector(self.wrapper, approved_messages_list = self._APPROVED_MESSAGES_LIST)
             self.control_tree = ControlTree(self.wrapper, skip_rebuild=True)
             self._update(rebuild_tree=True, start_message_queue=True)
         except:
