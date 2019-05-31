@@ -7,8 +7,8 @@
 ## Steps to Reproduce the Problem
 
   1.
-  1.
-  1.
+  2.
+  3.
 
 ## Short Example of Code to Demonstrate the Problem
 
