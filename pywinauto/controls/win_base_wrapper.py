@@ -37,7 +37,6 @@ import ctypes
 import locale
 import time
 
-import win32process
 import win32gui
 import win32ui
 import win32api
