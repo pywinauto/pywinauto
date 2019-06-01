@@ -244,6 +244,9 @@ structure_change_children_bulk_removed = IUIA().ui_automation_client.StructureCh
 structure_change_children_invalidated = IUIA().ui_automation_client.StructureChangeType_ChildrenInvalidated
 structure_change_children_reordered = IUIA().ui_automation_client.StructureChangeType_ChildrenReordered
 
+vt_empty = IUIA().ui_automation_client.VARIANT.empty.vt
+vt_null = IUIA().ui_automation_client.VARIANT.null.vt
+
 
 class NoPatternInterfaceError(Exception):
 

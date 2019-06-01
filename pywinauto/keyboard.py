@@ -113,6 +113,7 @@ else:
     import six
 
     from . import win32structures
+    from . import win32functions
 
     __all__ = ['KeySequenceError', 'send_keys']
 
@@ -122,10 +123,6 @@ else:
 
     GetMessageExtraInfo = ctypes.windll.user32.GetMessageExtraInfo
     MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
-    SendInput = ctypes.windll.user32.SendInput
-    UINT = ctypes.c_uint
-    SendInput.restype = UINT
-    SendInput.argtypes = [UINT, ctypes.c_void_p, ctypes.c_int]
 
     VkKeyScan = ctypes.windll.user32.VkKeyScanW
     VkKeyScan.restype = ctypes.c_short
@@ -381,7 +378,7 @@ else:
             inputs = self.GetInput()
 
             # SendInput() supports all Unicode symbols
-            num_inserted_events = SendInput(len(inputs), ctypes.byref(inputs),
+            num_inserted_events = win32functions.SendInput(len(inputs), ctypes.byref(inputs),
                                             ctypes.sizeof(win32structures.INPUT))
             if num_inserted_events != len(inputs):
                 raise RuntimeError('SendInput() inserted only ' + str(num_inserted_events) +

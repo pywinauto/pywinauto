@@ -41,9 +41,9 @@ from .win32defines import LF_FACESIZE
 from . import sysinfo
 
 
-class Structure(Struct):
+class StructureMixIn(object):
 
-    """Override the Structure class from ctypes to add printing and comparison"""
+    """Define printing and comparison behaviors to be used for the Structure class from ctypes"""
 
     #----------------------------------------------------------------
     def __str__(self):
@@ -91,6 +91,14 @@ class Structure(Struct):
                 return False
 
         return False
+
+
+class Structure(Struct, StructureMixIn):
+
+    """Override the Structure class from ctypes to add printing and comparison"""
+
+    pass
+
 
 ##====================================================================
 #def PrintCtypesStruct(struct, exceptList = []):
@@ -144,7 +152,7 @@ else:
 
 HINSTANCE = LONG_PTR #LONG
 HMENU = LONG_PTR #LONG
-HBRUSH = LONG_PTR #LONG
+HBRUSH = wintypes.HBRUSH  # LONG_PTR #LONG
 HTREEITEM = LONG_PTR #LONG
 HWND = wintypes.HWND
 
@@ -153,13 +161,9 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(Structure):
-    _pack_ = 4
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 307
-        ('x', LONG),
-        ('y', LONG),
-    ]
+class POINT(wintypes.POINT, StructureMixIn):
+
+    """Wrap the POINT structure and add extra functionality"""
 
     def __iter__(self):
         """Allow iteration through coordinates"""
@@ -175,22 +179,15 @@ class POINT(Structure):
         else:
             raise IndexError("Illegal index")
 
+
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 
 
 # ====================================================================
-class RECT(Structure):
+class RECT(wintypes.RECT):
 
     """Wrap the RECT structure and add extra functionality"""
-
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
-        ('left', LONG),
-        ('top', LONG),
-        ('right', LONG),
-        ('bottom', LONG),
-    ]
 
     # ----------------------------------------------------------------
     def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
@@ -218,19 +215,27 @@ class RECT(Structure):
             self.top = long_int(top)
             self.bottom = long_int(bottom)
 
+    # ----------------------------------------------------------------
+    def __eq__(self, otherRect):
+        """Return true if the two rectangles have the same coordinates"""
+        try:
+            return \
+                self.left == otherRect.left and \
+                self.top == otherRect.top and \
+                self.right == otherRect.right and \
+                self.bottom == otherRect.bottom
+        except AttributeError:
+            return False
 
-#    # ----------------------------------------------------------------
-#    def __eq__(self, otherRect):
-#        "return true if the two rectangles have the same coordinates"
-#
-#        try:
-#            return \
-#                self.left == otherRect.left and \
-#                self.top == otherRect.top and \
-#                self.right == otherRect.right and \
-#                self.bottom == otherRect.bottom
-#        except AttributeError:
-#            return False
+    # ----------------------------------------------------------------
+    def __ne__(self, otherRect):
+        """Return true if the two rectangles do not have the same coordinates"""
+        return not self == otherRect
+
+    # ----------------------------------------------------------------
+    def __hash__(self):
+        """Return unique object ID to make the instance hashable"""
+        return id(self)
 
     # ----------------------------------------------------------------
     def __str__(self):
@@ -284,8 +289,8 @@ class RECT(Structure):
     def mid_point(self):
         """Return a POINT structure representing the mid point"""
         pt = POINT()
-        pt.x = self.left + int(float(self.width())/2.)
-        pt.y = self.top + int(float(self.height())/2.)
+        pt.x = self.left + int(float(self.width()) / 2.)
+        pt.y = self.top + int(float(self.height()) / 2.)
         return pt
 
     # ----------------------------------------------------------------

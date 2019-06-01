@@ -30,3 +30,6 @@ class ProgressBarDialog(dialog.Dialog):
 
     def close(self):
         self.OnCancel()
+
+    def set_progress(self, value):
+        self.pbar.SetPos(value)

@@ -35,8 +35,9 @@ import unittest
 
 import sys
 sys.path.append(".")
-from pywinauto.win32structures import POINT
-from pywinauto.win32functions import MakeLong, HiWord, LoWord
+from pywinauto.win32structures import POINT  # noqa: E402
+from pywinauto.win32structures import RECT  # noqa: E402
+from pywinauto.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
 
 
 class Win32FunctionsTestCases(unittest.TestCase):
@@ -54,25 +55,23 @@ class Win32FunctionsTestCases(unittest.TestCase):
         )
 
         for result, (hi, lo) in data:
-            self.assertEqual(result, MakeLong(hi,lo))
-
-
+            self.assertEqual(result, MakeLong(hi, lo))
 
     def testMakeLong_zero(self):
         "test that makelong(0,0)"
-        self.assertEqual(0, MakeLong(0,0))
+        self.assertEqual(0, MakeLong(0, 0))
 
     def testMakeLong_lowone(self):
         "Make sure MakeLong() function works with low word == 1"
-        self.assertEqual(1, MakeLong(0,1))
+        self.assertEqual(1, MakeLong(0, 1))
 
     def testMakeLong_highone(self):
         "Make sure MakeLong() function works with high word == 1"
-        self.assertEqual(0x10000, MakeLong(1,0))
+        self.assertEqual(0x10000, MakeLong(1, 0))
 
     def testMakeLong_highbig(self):
         "Make sure MakeLong() function works with big numder in high word"
-        self.assertEqual(0xffff0000, MakeLong(0xffff,0))
+        self.assertEqual(0xffff0000, MakeLong(0xffff, 0))
 
     def testMakeLong_lowbig(self):
         "Make sure MakeLong() function works with big numder in low word"
@@ -122,8 +121,35 @@ class Win32FunctionsTestCases(unittest.TestCase):
         p = POINT(1, 2)
         self.assertEqual([1, 2], [i for i in p])
 
+    def testPOINTcomparision(self):
+        """Test POINT comparision operations"""
+        p0 = POINT(1, 2)
+        p1 = POINT(0, 2)
+        self.assertNotEqual(p0, p1)
+        p1.x = p0.x
+        self.assertEqual(p0, p1)
+
+        # tuple comparision
+        self.assertEqual(p0, (1, 2))
+        self.assertNotEqual(p0, (0, 2))
+
+        # wrong type comparision
+        self.assertNotEqual(p0, 1)
+
+    def test_RECT_hash(self):
+        """Test RECT is hashable"""
+        r0 = RECT(0)
+        r1 = RECT(1)
+        d = { "r0": r0, "r1": r1 }
+        self.assertEqual(r0, d["r0"])
+        self.assertEqual(r1, d["r1"])
+        self.assertNotEqual(r0, r1)
+
+    def test_RECT_repr(self):
+        """Test RECT repr"""
+        r0 = RECT(0)
+        self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
+
 
 if __name__ == "__main__":
     unittest.main()
-
-

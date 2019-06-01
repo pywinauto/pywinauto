@@ -2,7 +2,7 @@
 import time
 import sys
 import locale
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from ast import parse
 
 import six
@@ -362,3 +362,32 @@ def get_window_access_name_str(name, key_only=False):
         return u".{}".format(name)
     else:
         return u"[u'{}']".format(name)
+
+
+class EventHandler(object):
+    def __init__(self, subtree, log_parser, subpattern):
+        self.subtree = subtree
+        self.log_parser = log_parser
+        self.subpattern = subpattern
+
+        self.key_only = self.log_parser.recorder.config.key_only
+
+    def get_root_name(self):
+        return get_window_access_name_str(self.subtree[-1].names.get_preferred_name(), self.key_only)
+
+    def get_item_name(self):
+        return get_window_access_name_str(self.subtree[0].names.get_preferred_name(), self.key_only)
+
+    def get_sender_name(self, event_idx):
+        sender = self.subpattern.app_events[event_idx].sender
+        for node in self.subtree:
+            if node.wrapper.element_info == sender:
+                item_name = get_window_access_name_str(node.names.get_preferred_name(), self.key_only)
+                break
+        else:
+            item_name = self.get_item_name()
+        return item_name
+
+    @abstractmethod
+    def run(self):
+        raise NotImplementedError()

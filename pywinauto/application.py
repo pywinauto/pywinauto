@@ -868,6 +868,10 @@ class Application(object):
                 self.match_history = pickle.load(datafile)
             self.use_history = True
 
+    def __iter__(self):
+        """Raise to avoid infinite loops"""
+        raise NotImplementedError("Object is not iterable, try to use .windows()")
+
     def connect(self, **kwargs):
         """Connect to an already running process
 
