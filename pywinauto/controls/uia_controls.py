@@ -864,7 +864,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                     get_elem_interface(com_elem, "VirtualizedItem").Realize()
                 except NoPatternInterfaceError:
                     pass
-                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                itm = uiawrapper.UIAWrapper(UIAElementInfo(com_elem))
             except (NoPatternInterfaceError, ValueError, AttributeError):
                 list_items = self.children(content_only=True)
                 itm = list_items[self.__resolve_row_index(row)]
