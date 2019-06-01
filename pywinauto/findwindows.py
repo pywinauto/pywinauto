@@ -125,11 +125,8 @@ def find_window(**kwargs):
         raise WindowAmbiguousError
 
 
-def _raise_search_key_error(key, backend_obj):
-    all_keywords = backend_obj.element_info_class.re_props + \
-        [prop + '_re' for prop in backend_obj.element_info_class.re_props] + \
-        backend_obj.element_info_class.exact_only_props
-    raise KeyError('Incorrect search keyword "{}". Availaible keywords: {}'.format(key, all_keywords))
+def _raise_search_key_error(key, all_props):
+    raise KeyError('Incorrect search keyword "{}". Availaible keywords: {}'.format(key, all_props))
 
 
 #=========================================================================
@@ -177,9 +174,9 @@ def find_elements(**kwargs):
     all_props = re_props + exact_only_props
     for key, _ in kwargs.items():
         if key.endswith('_re') and key[:-3] not in re_props:
-            _raise_search_key_error(key, backend_obj)
+            _raise_search_key_error(key, all_props)
         if not key.endswith('_re') and key not in all_props:
-            _raise_search_key_error(key, backend_obj)
+            _raise_search_key_error(key, all_props)
 
     if isinstance(parent, backend_obj.generic_wrapper_class):
         parent = parent.element_info
