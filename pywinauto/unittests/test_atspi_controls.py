@@ -89,6 +89,19 @@ if sys.platform != 'win32':
             self.assertEqual(self.button_info.rich_text, "Click clicked")
             self.assertEqual(self._get_state_label_text(), "\"Click\" clicked")
 
+        def test_button_toggle(self):
+            toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
+            toggle_button_wrapper = ButtonWrapper(toggle_button_info)
+            toggle_button_wrapper.click()
+            self.assertEqual(self._get_state_label_text(), "Button 1 turned on")
+
+        def test_button_toggle_state(self):
+            toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
+            toggle_button_wrapper = ButtonWrapper(toggle_button_info)
+            self.assertFalse(toggle_button_wrapper.get_toggle_state())
+            toggle_button_wrapper.click()
+            self.assertTrue(toggle_button_wrapper.get_toggle_state())
+
 
 if __name__ == "__main__":
     unittest.main()

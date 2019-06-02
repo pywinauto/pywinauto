@@ -47,10 +47,11 @@ from Xlib.display import Display
 
 class ButtonWrapper(atspiwrapper.AtspiWrapper):
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
-    _control_types = ['Button',
-        'CheckBox',
-        'RadioButton',
-    ]
+    _control_types = ['Push_button',
+                      'Check_box',
+                      'Toggle_button',
+                      'Radio_button',
+                      ]
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -63,23 +64,29 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
         self.action.do_action_by_name("click")
         return self
 
-
     # -----------------------------------------------------------
     def toggle(self):
         """
         An interface to Toggle method of the Toggle control pattern.
-
-        Control supporting the Toggle pattern cycles through its
-        toggle states in the following order:
-        ToggleState_On, ToggleState_Off and,
-        if supported, ToggleState_Indeterminate
-
-        Usually applied for the check box control.
-
-        The radio button control does not implement IToggleProvider,
-        because it is not capable of cycling through its valid states.
-        Toggle a state of a check box control. (Use 'select' method instead)
-        Notice, a radio button control isn't supported by UIA.
-        https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
-        pass
+        self.click()
+
+    # -----------------------------------------------------------
+    def get_toggle_state(self):
+        """
+        Get a toggle state of a check box control.
+
+        The toggle state is represented by an integer
+        0 - unchecked
+        1 - checked
+
+        The following constants are defined in the uia_defines module
+        toggle_state_off = 0
+        toggle_state_on = 1
+        """
+        return "STATE_CHECKED" in self.element_info.get_state_set()
+
+    # -----------------------------------------------------------
+    def is_dialog(self):
+        """Buttons are never dialogs so return False"""
+        return False
