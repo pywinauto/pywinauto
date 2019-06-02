@@ -80,7 +80,7 @@ def get_app_instance_by_pid(pid):
     return NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
 
 def get_app_instance_by_bundle(bundle):
-    return NSRunningApplication.runningApplicationsWithBundleIdentifier(bundle)
+    return NSRunningApplication.runningApplicationsWithBundleIdentifier_(bundle)
 
 def get_screen_frame():
     return NSScreen.mainScreen().frame()
@@ -207,4 +207,4 @@ def cpu_usage(interval=None):
 # launch_application("Terminal")
 # launch_application("Terminal")
 # launch_application("Terminal")
-print(dir(get_ws_instance()))
+# print(running_applications())
