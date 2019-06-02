@@ -1246,21 +1246,9 @@ class HwndWrapper(WinBaseWrapper):
     # -----------------------------------------------------------
     def get_active(self):
         """Return a handle to the active window within the process"""
-        gui_info = win32structures.GUITHREADINFO()
-        gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
-        ret = win32functions.GetGUIThreadInfo(
-            window_thread_id,
-            ctypes.byref(gui_info))
+        active_elem = HwndElementInfo.get_active()
 
-        if not ret:
-            raise ctypes.WinError()
-
-        hwndActive = gui_info.hwndActive
-        if hwndActive:
-            return HwndWrapper(hwndActive)
-        else:
-            return None
+        return HwndWrapper(active_elem) if active_elem is not None else None
     # Non PEP-8 alias
     GetActive = deprecated(get_active)
 
