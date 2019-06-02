@@ -1,3 +1,4 @@
+import sys
 import unittest
 
 from six import PY3
@@ -7,11 +8,13 @@ if PY3:
 else:
     import mock
 
+sys.path.append(".")
+
 from pywinauto.recorder.recorder_defines import HOOK_KEY_DOWN, HOOK_KEY_UP, HOOK_MOUSE_LEFT_BUTTON, \
     HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, EVENT, PROPERTY, STRUCTURE_EVENT, RecorderEvent, \
     RecorderMouseEvent, ApplicationEvent, PropertyEvent, EventPattern, _is_identifier, \
     get_window_access_name_str
-from pywinauto.recorder.event_handlers import EventHandler, MenuOpenedHandler, MenuClosedHandler, \
+from pywinauto.recorder.uia.uia_event_handlers import EventHandler, MenuOpenedHandler, MenuClosedHandler, \
     ExpandCollapseHandler, SelectionChangedHandler, MouseClickHandler
 from pywinauto.win32structures import RECT
 
@@ -142,7 +145,7 @@ class EventPatternTestCases(unittest.TestCase):
         self.assertTrue(self.log_events.get_subpattern(pattern) is None)
 
 
-class EventHandlersTestCases(unittest.TestCase):
+class UIAEventHandlersTestCases(unittest.TestCase):
 
     """Unit tests for the Event Handlers"""
 
@@ -172,6 +175,7 @@ class EventHandlersTestCases(unittest.TestCase):
         # ControlTree
         ctrl_tree_mock = mock.Mock()
         ctrl_tree_mock.sub_tree_from_node = mock.Mock(spec=["node"], return_value=subtree_mock)
+        ctrl_tree_mock.node_from_element_info = mock.Mock(spec=["element_info"], return_value=ctrl_tree_node_mock)
 
         # BaseRecorder
         recorder_mock = mock.Mock(config=config_mock, control_tree=ctrl_tree_mock)
