@@ -9,7 +9,7 @@ from ...uia_defines import IUIA, window_visual_state_normal, expand_state_expand
 from ...uia_element_info import UIAElementInfo
 from ...findbestmatch import ControlNames
 
-from ..control_tree import ControlTree, ControlTreeNode
+from ..control_tree import ControlTree
 from ..base_recorder import BaseRecorder
 from ..win32_progress_bar import ProgressBarDialog
 from ..recorder_defines import RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, PropertyEvent, EVENT, \
