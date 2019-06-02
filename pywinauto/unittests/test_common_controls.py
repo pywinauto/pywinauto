@@ -485,7 +485,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         app.start(self.path)
 
         self.dlg = app.ListViewEx
-        self.ctrl = app.ListViewEx.ListView.wrapper_object()
+        self.ctrl = self.dlg.ListView.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
