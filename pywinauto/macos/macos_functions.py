@@ -79,6 +79,9 @@ def get_instance_of_app(name):
 def get_app_instance_by_pid(pid):
     return NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
 
+def get_app_instance_by_bundle(bundle):
+    return NSRunningApplication.runningApplicationsWithBundleIdentifier(bundle)
+
 def get_screen_frame():
     return NSScreen.mainScreen().frame()
 
