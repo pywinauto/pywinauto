@@ -40,6 +40,12 @@ class ControlTreeNode(object):
         height = self.rect.height()
         return width * height + width - height
 
+    def add_child(self, wrapper, names, ctrl_type, rect):
+        child_node = ControlTreeNode(wrapper, names, ctrl_type, rect)
+        child_node.depth = self.depth + 1
+        child_node.parent = self
+        self.children.append(child_node)
+
 
 class ControlTree(object):
     def __init__(self, wrapper, skip_rebuild=False):

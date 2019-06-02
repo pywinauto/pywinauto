@@ -1,16 +1,44 @@
+import traceback
+
+from abc import abstractmethod
+
 from ..recorder_defines import EVENT, PROPERTY, RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, \
     PropertyEvent, EventPattern, HOOK_MOUSE_LEFT_BUTTON, HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, \
     HOOK_KEY_DOWN, get_window_access_name_str, EventHandler
 
 
-class MenuOpenedHandler(EventHandler):
+class EventHandlerUIA(EventHandler):
+    @abstractmethod
+    def _run(self):
+        pass
+
     def run(self):
+        try:
+            s = self._run()
+            return s
+        except Exception:
+            s = '# !!! Exception occurred in Event Handler !!!\n'
+            s += '"""\n'
+            s += '{}\n'.format(traceback.format_exc())
+            s += '\n'
+            s += 'subpattern: {}\n'.format(self.subpattern)
+            s += '"""\n'
+
+            if isinstance(self.subpattern.hook_event, RecorderMouseEvent):
+                s += MouseClickHandler(self.subtree, self.log_parser, self.subpattern).run()
+                s = s.rstrip() + "  # This line is generated as a replacement\n"
+
+            return s
+
+
+class MenuOpenedHandler(EventHandlerUIA):
+    def _run(self):
         menu_item_text = self.subtree[0].names.text_names[0]
         self.log_parser.menu_sequence = [menu_item_text, ]
 
 
-class MenuClosedHandler(EventHandler):
-    def run(self):
+class MenuClosedHandler(EventHandlerUIA):
+    def _run(self):
         menu_item_text = self.subtree[0].names.text_names[0]
         script = u"app{}.menu_select({})\n".format(
             self.get_root_name(), repr(" -> ".join(self.log_parser.menu_sequence + [menu_item_text, ])))
@@ -18,8 +46,8 @@ class MenuClosedHandler(EventHandler):
         return script
 
 
-class ExpandCollapseHandler(EventHandler):
-    def run(self):
+class ExpandCollapseHandler(EventHandlerUIA):
+    def _run(self):
         exp_coll_state = self.subpattern.app_events[0]
         item_name = self.get_sender_name(0)
         script = u"app{}{}.{}\n".format(self.get_root_name(), item_name,
@@ -27,34 +55,37 @@ class ExpandCollapseHandler(EventHandler):
         return script
 
 
-class SelectionChangedHandler(EventHandler):
-    def run(self):
+class SelectionChangedHandler(EventHandlerUIA):
+    def _run(self):
         selected_elem_info = self.subpattern.app_events[-1].sender
+        # Try to find selected element in subtree
         for node in self.subtree:
             if node.wrapper.element_info == selected_elem_info:
                 selected = node
                 parent = node.parent
                 break
+        # Try to get it via SelectionElementSelected sender
         else:
-            selected = self.subtree[0]
-            parent = self.subtree[0].parent
+            selected = self.log_parser.recorder.control_tree.node_from_element_info(
+                self.subpattern.app_events[-1].sender)
+            parent = selected.parent
         return u"app{}{}.select('{}')\n".format(
             self.get_root_name(), get_window_access_name_str(parent.names.get_preferred_name(), self.key_only),
             selected.names.text_names[0])
 
 
-class InvokeHandler(EventHandler):
-    def run(self):
+class InvokeHandler(EventHandlerUIA):
+    def _run(self):
         return u"app{}{}.invoke()\n".format(self.get_root_name(), self.get_sender_name(0))
 
 
-class ToggleHandler(EventHandler):
-    def run(self):
+class ToggleHandler(EventHandlerUIA):
+    def _run(self):
         return u"app{}{}.toggle()\n".format(self.get_root_name(), self.get_sender_name(0))
 
 
-class SelectHandler(EventHandler):
-    def run(self):
+class SelectHandler(EventHandlerUIA):
+    def _run(self):
         return u"app{}{}.select()\n".format(self.get_root_name(), self.get_sender_name(0))
 
 
@@ -113,8 +144,8 @@ class MouseClickHandler(EventHandler):
         return script
 
 
-class KeyboardHandler(EventHandler):
-    def run(self):
+class KeyboardHandler(EventHandlerUIA):
+    def _run(self):
         hook_event = self.subpattern.hook_event
         if hook_event.control_tree_node:
             uia_ctrl = hook_event.control_tree_node
@@ -127,7 +158,6 @@ class KeyboardHandler(EventHandler):
 UIA_EVENT_PATTERN_MAP = [
     (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
                   app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
-                              PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
                               ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED))),
      SelectionChangedHandler),
 
