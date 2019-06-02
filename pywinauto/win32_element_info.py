@@ -38,6 +38,7 @@ import six
 import win32gui
 
 from . import win32functions
+from . import win32structures
 from . import handleprops
 from .element_info import ElementInfo
 from .remote_memory_block import RemoteMemoryBlock
@@ -273,3 +274,16 @@ class HwndElementInfo(ElementInfo):
             current_elem = current_parent
             current_parent = current_elem.parent
         return current_elem
+
+    @classmethod
+    def get_active(cls):
+        gui_info = win32structures.GUITHREADINFO()
+        gui_info.cbSize = ctypes.sizeof(gui_info)
+
+        # get all the active elements (not just the specified process)
+        ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
+
+        if not ret:
+            raise ctypes.WinError()
+
+        return cls(gui_info.hwndActive)

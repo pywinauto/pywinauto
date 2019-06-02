@@ -231,23 +231,9 @@ def find_elements(**kwargs):
 
     if active_only:
         # TODO: re-write to use ElementInfo interface
-        gui_info = win32structures.GUITHREADINFO()
-        gui_info.cbSize = ctypes.sizeof(gui_info)
+        active_elem = backend_obj.element_info_class.get_active()
 
-        # get all the active elements (not just the specified process)
-        ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
-
-        if not ret:
-            raise ctypes.WinError()
-
-        found_active = False
-        for elem in elements:
-            if elem.handle == gui_info.hwndActive:
-                found_active = True
-                elements = [elem, ]
-                break
-        if not found_active:
-            elements = []
+        return [active_elem] if active_elem else []
 
     for prop in backend_obj.element_info_class.search_order:
         exact_search_value = kwargs.get(prop)

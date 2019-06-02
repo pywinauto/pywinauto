@@ -1186,7 +1186,8 @@ class Application(object):
 
         kwargs['pid'] = self.process
         kwargs['backend'] = self.backend.name
-        kwargs['top_level_only'] = True
+        if kwargs.get('top_level_only') is None:
+            kwargs['top_level_only'] = True
 
         windows = findwindows.find_elements(**kwargs)
         return [self.backend.generic_wrapper_class(win) for win in windows]
@@ -1203,7 +1204,8 @@ class Application(object):
         if 'backend' in kwargs:
             raise ValueError('Using another backend than set in the app constructor is not allowed!')
         kwargs['backend'] = self.backend.name
-        kwargs['top_level_only'] = True
+        if kwargs.get('top_level_only') is None:
+            kwargs['top_level_only'] = True
 
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
