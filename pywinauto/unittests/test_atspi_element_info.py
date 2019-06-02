@@ -5,7 +5,7 @@ import time
 import unittest
 import re
 
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_element_info import known_control_types
@@ -24,7 +24,7 @@ def _test_app():
     return os.path.join(test_folder, app_name)
 
 
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     class AtspiElementInfoTests(unittest.TestCase):
 
         """Unit tests for the AtspiElementInfo class"""

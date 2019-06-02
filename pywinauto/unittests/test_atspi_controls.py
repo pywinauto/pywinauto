@@ -1,20 +1,14 @@
 import os
 import sys
-import subprocess
 import time
 import unittest
-import re
 
-from ctypes import *
-
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
-    from pywinauto.linux.atspi_element_info import known_control_types
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
     from pywinauto.controls.atspi_controls import ButtonWrapper
-    from pywinauto.linux.atspi_objects import known_control_types
 
 app_name = r"gtk_example.py"
 
@@ -39,7 +33,7 @@ def print_tree(start_el_info, level_shifter=""):
         print_tree(children, level_shifter+"-")
 
 
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     class AtspiControlTests(unittest.TestCase):
 
         """Unit tests for the AtspiWrapper class"""
@@ -96,6 +90,7 @@ if sys.platform != 'win32':
             self.assertEqual(self._get_state_label_text(), "Button 1 turned on")
 
         def test_button_toggle_state(self):
+            print_tree(self.app_info, "-")
             toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
             toggle_button_wrapper = ButtonWrapper(toggle_button_info)
             self.assertFalse(toggle_button_wrapper.get_toggle_state())
