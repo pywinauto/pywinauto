@@ -8,54 +8,75 @@ from gi import require_version
 require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
+from gi.repository import *
 
 
 class TestApplicationMainWindow(Gtk.Window):
+
+    def _add_combobox(self):
+        country_store = Gtk.ListStore(int)
+
+        countries = [1, 1, 1]
+        for country in countries:
+            country_store.append([country])
+
+        country_combo = Gtk.ComboBox.new_with_model(country_store)
+        country_combo.connect("changed", self.on_country_combo_changed)
+        return country_combo
 
     def __init__(self):
         Gtk.Window.__init__(self, title="MainWindow")
         self.set_default_size(600, 200)
         self.set_border_width(0)
 
-        main_objects_box = Gtk.Box(spacing=6)
-        self.add(main_objects_box)
+        grid = Gtk.Grid()
+        self.add(grid)
+
+        # main_objects_box = Gtk.Box(spacing=6)
+        # self.add(main_objects_box)
 
         self.button1 = Gtk.Button("Click")
         self.button1.connect("clicked", self.on_click_me_clicked)
-        main_objects_box.pack_start(self.button1, True, True, 0)
+        # main_objects_box.pack_start(self.button1, True, True, 0)
 
         self.button2 = Gtk.Button(stock=Gtk.STOCK_OPEN)
         self.button2.connect("clicked", self.on_open_clicked)
-        main_objects_box.pack_start(self.button2, True, True, 0)
+        # main_objects_box.pack_start(self.button2, True, True, 0)
 
         self.button3 = Gtk.Button("C_l_o_s_e", use_underline=True)
         self.button3.connect("clicked", self.on_close_clicked)
-        main_objects_box.pack_start(self.button3, True, True, 0)
+        # main_objects_box.pack_start(self.button3, True, True, 0)
 
         self.button4 = Gtk.CheckButton("Button 1")
         self.button4.connect("toggled", self.on_button_toggled, "1")
-        main_objects_box.pack_start(self.button4, False, False, 0)
+        # main_objects_box.pack_start(self.button4, False, False, 0)
 
         self.button5 = Gtk.CheckButton("B_u_t_t_o_n 2", use_underline=True)
         self.button5.set_active(True)
         self.button5.connect("toggled", self.on_button_toggled, "2")
-        main_objects_box.pack_start(self.button5, False, False, 0)
+        # main_objects_box.pack_start(self.button5, False, False, 0)
 
         self.label = Gtk.Label("Status")
-        main_objects_box.pack_start(self.label, False, False, 0)
+        # main_objects_box.pack_start(self.label, False, False, 0)
+        # self.combo = self._add_combobox()
+
+        # grid.attach(self.combo, 0, 3, 3, 1)
+        grid.attach(self.label, 0, 2, 3, 1)
+        grid.attach(self.button5, 1, 1, 1, 1)
+        grid.attach(self.button4, 0, 1, 1, 1)
+        grid.attach(self.button3, 2, 0, 1, 1)
+        grid.attach(self.button2, 1, 0, 1, 1)
+        grid.attach(self.button1, 0, 0, 1, 1)
 
     def on_click_me_clicked(self, button):
-        print("\"Click\" clicked")
-        self.label.set_label("\"Click\" clicked")
+        self._log("\"Click\" clicked")
         button.set_label("{} clicked".format(button.get_label()))
 
     def on_open_clicked(self, button):
-        self.label.set_label("\"Open\" clicked")
-        print("\"Open\" clicked")
+        self._log("\"Open\" clicked")
 
     def on_close_clicked(self, button):
-        self.label.set_label("Closing application")
-        print("Closing application")
+        self._log("Closing application")
         Gtk.main_quit()
 
     def on_button_toggled(self, button, name):
@@ -63,8 +84,18 @@ class TestApplicationMainWindow(Gtk.Window):
             state = "on"
         else:
             state = "off"
-        self.label.set_label("Button {} turned {}".format(name, state))
-        print("Button {} turned {}".format(name, state))
+        self._log("Button {} turned {}".format(name, state))
+
+    def on_country_combo_changed(self, combo):
+        tree_iter = combo.get_active_iter()
+        if tree_iter is not None:
+            model = combo.get_model()
+            country = model[tree_iter][0]
+            self._log("Selected: country={}".format(country))
+
+    def _log(self, log):
+        print(log)
+        self.label.set_label(log)
 
 
 win = TestApplicationMainWindow()

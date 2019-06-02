@@ -1,13 +1,9 @@
 import os
 import sys
-import subprocess
 import time
 import unittest
-import re
 
-from ctypes import *
-
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_element_info import known_control_types
@@ -38,7 +34,7 @@ def print_tree(start_el_info, level_shifter=""):
         print_tree(children, level_shifter+"-")
 
 
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     class AtspiWrapperTests(unittest.TestCase):
 
         """Unit tests for the AtspiWrapper class"""
