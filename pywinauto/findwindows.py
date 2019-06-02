@@ -142,6 +142,7 @@ def find_elements(**kwargs):
     predicate_func = kwargs.pop('predicate_func', None)
     # TODO: eliminate found_index by find_all
     found_index = kwargs.pop('found_index', None)
+    active_only = kwargs.pop('active_only', None)
 
     if backend is None:
         backend = registry.active_backend.name
@@ -218,6 +219,26 @@ def find_elements(**kwargs):
     # that control
     if ctrl_index is not None:
         return [elements[ctrl_index], ]
+
+    if active_only:
+        # TODO: re-write to use ElementInfo interface
+        gui_info = win32structures.GUITHREADINFO()
+        gui_info.cbSize = ctypes.sizeof(gui_info)
+
+        # get all the active elements (not just the specified process)
+        ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
+
+        if not ret:
+            raise ctypes.WinError()
+
+        found_active = False
+        for elem in elements:
+            if elem.handle == gui_info.hwndActive:
+                found_active = True
+                elements = [elem, ]
+                break
+        if not found_active:
+            elements = []
 
     for prop in backend_obj.element_info_class.search_order:
         exact_search_value = kwargs.get(prop)
