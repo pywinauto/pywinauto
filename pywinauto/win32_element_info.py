@@ -286,4 +286,6 @@ class HwndElementInfo(ElementInfo):
         if not ret:
             raise ctypes.WinError()
 
-        return cls(gui_info.hwndActive)
+        hwndActive = gui_info.hwndActive
+
+        return cls(hwndActive) if hwndActive is not None else None
