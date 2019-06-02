@@ -37,14 +37,16 @@ from ApplicationServices import (AXIsProcessTrusted,
     AXUIElementCopyAttributeNames, kAXErrorSuccess,
     AXUIElementCopyAttributeValue, AXUIElementCopyActionNames,
     AXUIElementPerformAction,CGWindowListCopyWindowInfo)
-from AppKit import NSScreen, NSWorkspace
+from AppKit import NSScreen, NSWorkspace, NSRunningApplication
 import subprocess
+import os
 
 is_debug = False
 
 def launch_application(name):
     # Open application by name(without package name)
     # Return the application instance
+    # TODO: Should open unique app
     return get_ws_instance().launchApplication_(name)
 
 def terminate_application(obj):
@@ -73,6 +75,9 @@ def get_instance_of_app(name):
             return app
     if (is_debug):
         print ("App is not allready running.Can't get instance")
+
+def get_app_instance_by_pid(pid):
+    return NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
 
 def get_screen_frame():
     return NSScreen.mainScreen().frame()
@@ -144,13 +149,20 @@ def print_child_tree(ui_element_ref,count = 0):
     role = get_ax_attribute(ui_element_ref,"AXRole")
     if role is not None:
         print("-"*count + role)
-    if (check_attribute_valid(ui_element_ref,"AXChildren")):
-        childrens = get_ax_attribute(ui_element_ref,"AXChildren")
-        if childrens is not None:
-            for item in childrens:
-                if item is None:
-                    continue
-                print_child_tree(item,count + 1)
+    childrens = get_ax_attribute(ui_element_ref,"AXChildren")
+    if childrens is not None:
+        for item in childrens:
+            if item is None:
+                continue
+            print_child_tree(item,count + 1)
+
+def get_descendants(root,descendants):
+    childrens = get_ax_attribute(ui_element_ref,"AXChildren")
+    if childrens is not None:
+        for child in childrens:
+            if child is None:
+                descendants.append(child)
+            get_descendants(child,descendants)
 
 def get_all_ax_elements_of_a_particular_type_from_app(ui_element_ref,input_type,store):
     if ( isinstance(store, list) and isinstance(input_type,str) ):
@@ -171,3 +183,25 @@ def filter_list_of_ax_element_by_attr(ui_element_refs_list,attribute_name,attr_e
                 if (get_ax_attribute(element,attribute_name) == attr_expected_value):
                     store.append(element)
 
+def get_desktop():
+    # TODO: implement 
+    pass
+
+def cpu_usage(interval=None):
+        """Return CPU usage percent during specified number of seconds"""
+        # if not self.ns_app and self.connected:
+        #     raise AppNotConnected("Please use start or connect before trying "
+        #                           "anything else")
+        if interval:
+            time.sleep(interval)
+        try:
+            proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
+            proc_info = proc_info.split("\n")
+            return float(proc_info[1])
+        except Exception:
+            raise ProcessNotFoundError()
+
+# launch_application("Terminal")
+# launch_application("Terminal")
+# launch_application("Terminal")
+print(dir(get_ws_instance()))
