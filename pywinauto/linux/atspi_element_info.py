@@ -1,5 +1,5 @@
 from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, known_control_types, AtspiComponent, \
-    AtspiStateSet, AtspiStateEnum
+    AtspiStateSet, AtspiStateEnum, AtspiAction, AtspiText
 from ..element_info import ElementInfo
 
 
@@ -122,6 +122,17 @@ class AtspiElementInfo(ElementInfo):
     def get_state_set(self):
         val = self.atspi_accessible.get_state_set(self.handle)
         return self._get_states_as_string(val.contents.states)
+
+    def get_action(self):
+        if self.atspi_accessible.is_action(self.handle):
+            print("Action can be invoked on element")  # remove this print
+            return AtspiAction(self.atspi_accessible.get_action(self.handle))
+        else:
+            print("No actions!!")  # remove this print
+            return None
+
+    def get_text_property(self):
+        return AtspiText(self.atspi_accessible.get_text(self.handle))
 
     @property
     def visible(self):
