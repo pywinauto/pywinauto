@@ -68,6 +68,14 @@ class Application(BaseApplication):
                 self.connected = True
             else:
                 raise ProcessNotFoundError('path = ' + str(kwargs['path']))
+        elif 'bundle' in kwargs:
+            # For os x you have to pass just app name
+            app = macos_functions.get_app_instance_by_bundle(kwargs['bundle'])
+            if (app):
+                self.ns_app = app
+                self.connected = True
+            else:
+                raise ProcessNotFoundError('bundle = ' + str(kwargs['bundle']))
 
     def cpu_usage(self, interval=None):
         """Return CPU usage percent during specified number of seconds"""
