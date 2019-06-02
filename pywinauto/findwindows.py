@@ -185,6 +185,7 @@ def find_elements(**kwargs):
         # check if parent is a handle of element (in case of searching native controls)
         parent = backend_obj.element_info_class(parent)
 
+
     # create initial list of all elements
     if top_level_only:
         # find the top level elements
@@ -214,6 +215,14 @@ def find_elements(**kwargs):
                                       process=kwargs.get('pid'),
                                       cache_enable=True,
                                       depth=depth)
+
+    # early stop
+    if not elements:
+        if found_index is not None:
+            if found_index > 0:
+                raise ElementNotFoundError("found_index is specified as {0}, but no windows found".format(
+                    found_index))
+        return elements
 
     # if the ctrl_index has been specified then just return
     # that control
