@@ -3,11 +3,16 @@ import os, sys
 from os import path
 import macos_functions
 import subprocess
+from .. import backend
+from ..backend import registry
+from ..element_info import ElementInfo
+from ..base_wrapper import BaseWrapper
 
-# sys.path.append( path.dirname( path.dirname( path.abspath(__file__))))
-sys.path.append(os.path.join(sys.path[0], '..'))
+sys.path.append( path.dirname( path.dirname( path.abspath(__file__))))
 
-from base_application import BaseApplication
+from ..base_application import BaseApplication
+
+backend.register('ax', ElementInfo, BaseWrapper)
 
 
 class Application(BaseApplication):
