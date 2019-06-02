@@ -4,9 +4,12 @@ import subprocess
 import time
 import unittest
 import re
+import mock
 
 if sys.platform.startswith("linux"):
     sys.path.append(".")
+    from pywinauto.linux.atspi_objects import AtspiAccessible
+    from pywinauto.linux.atspi_objects import AtspiDocument
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
@@ -93,7 +96,7 @@ if sys.platform.startswith("linux"):
             print(version_line)
             if version_line is None:
                 raise Exception("Cant get system gtk version")
-            version_pattern = "Version:\s+(\d+\.\d+\.\d+).*"
+            version_pattern = "Version:\\s+(\\d+\\.\\d+\\.\\d+).*"
             r_version = re.compile(version_pattern, flags=re.MULTILINE)
             res = r_version.match(version_line)
             gtk_version = res.group(1)
@@ -140,6 +143,31 @@ if sys.platform.startswith("linux"):
         def test_enabled(self):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.enabled)
+
+
+    class AtspiElementInfoDocumentMockedTests(unittest.TestCase):        """Mocked unit tests for the AtspiElementInfo.document related functionality"""
+
+        def setUp(self):
+            self.info = AtspiElementInfo()
+            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
+            self.mock_get_role = self.patch_get_role.start()
+            self.mock_get_role.return_value = known_control_types.index("Document_frame")
+
+        def tearDown(self):
+            self.patch_get_role.stop()
+
+        def test_document_success(self):
+            self.assertEqual(type(self.info.document), AtspiDocument)
+
+        def test_document_fail_on_wrong_role(self):
+            self.mock_get_role.return_value = known_control_types.index("Invalid")
+            self.assertRaises(AttributeError, lambda: self.info.document)
+
+        @mock.patch.object(AtspiDocument, 'get_locale')
+        def test_document_get_locale_success(self, mock_get_locale):
+            mock_get_locale.return_value = b"C"
+            self.assertEqual(self.info.document_get_locale(), u"C")
+
 
 if __name__ == "__main__":
     unittest.main()

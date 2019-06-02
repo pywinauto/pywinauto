@@ -1,5 +1,6 @@
 from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
     AtspiEditableText, IATSPI
+from .atspi_objects import AtspiDocument
 from ..element_info import ElementInfo
 
 
@@ -103,6 +104,10 @@ class AtspiElementInfo(ElementInfo):
         component = self.atspi_accessible.get_component(self._handle)
         return AtspiComponent(component)
 
+    def document_get_locale(self):
+        """Return the document's content locale"""
+        return self.document.get_locale().decode(encoding='UTF-8')
+
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         tree = []
@@ -184,3 +189,12 @@ class AtspiElementInfo(ElementInfo):
             # info such as process ID, window name etc. Will return application frame rectangle
             return self.children()[0].rectangle
         return self.component.get_rectangle(coord_type="screen")
+
+    @property
+    def document(self):
+        """Return AtspiDocument interface"""
+        if self.control_type == "Document_frame":
+            document = self.atspi_accessible.get_document(self._handle)
+            return AtspiDocument(document)
+        else:
+            raise AttributeError
