@@ -49,6 +49,16 @@ from Xlib.display import Display
 # region PATTERNS
 
 
+#====================================================================
+class InvalidWindowHandle(RuntimeError):
+
+    """Raised when an invalid handle is passed to HwndWrapper"""
+
+    def __init__(self, hwnd):
+        """Initialise the RuntimError parent with the mesage"""
+        RuntimeError.__init__(self,
+            "Handle {0} is not a vaild window handle".format(hwnd))
+
 # =========================================================================
 class AtspiMeta(BaseMeta):
 

@@ -32,6 +32,7 @@ import sys
 """Controls package"""
 if sys.platform != 'win32':
     from . import atspiwrapper  # register "atspi" back-end
+    from .atspiwrapper import InvalidWindowHandle
 else:
     from ..sysinfo import UIA_support
     if UIA_support:
