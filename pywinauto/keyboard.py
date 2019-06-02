@@ -102,17 +102,18 @@ import sys
 
 from . import deprecated
 
-if sys.platform != 'win32':
-    from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
-    from .linux.keyboard import handle_code, parse_keys, send_keys
-else:
+if sys.platform == 'win32':
     import time
     import ctypes
-
     import win32api
     import six
-
     from .windows import win32structures
+elif sys.platform == "darwin":
+    pass
+else:
+    from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
+    from .linux.keyboard import handle_code, parse_keys, send_keys
+    
 
     __all__ = ['KeySequenceError', 'send_keys']
 
