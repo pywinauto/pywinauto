@@ -38,6 +38,7 @@ import sys
 import warnings
 sys.path.append(".")
 
+from pywinauto.windows import win32structures
 from pywinauto.handleprops import children, classname, clientrect, contexthelpid, \
     controlid, dumpwindow, exstyle, font, has_exstyle, has_style, is64bitprocess, \
     is_toplevel_window, isenabled, isunicode, isvisible, iswindow, parent, processid, \
@@ -83,8 +84,10 @@ class HandlepropsTestCases(unittest.TestCase):
 
     def test_parent(self):
         """Make sure the parent method returns correct result"""
-        self.assertEqual(0, parent(self.dlghandle))
+        self.assertEqual(None, parent(self.dlghandle))
         self.assertEqual(self.dlghandle, parent(self.edit_handle))
+        self.assertEqual(None, parent(sys.maxsize))
+        self.assertEqual(None, parent(None))
 
     def test_style(self):
         """Make sure the style method returns correct result"""
@@ -93,26 +96,36 @@ class HandlepropsTestCases(unittest.TestCase):
         self.assertTrue(
             (0x50200104, 0x50300104).__contains__,
             style(self.edit_handle),)
+        self.assertEqual(0, style(sys.maxsize))
+        self.assertEqual(0, style(None))
 
     def test_exstyle(self):
         """Make sure the exstyle method returns correct result"""
         self.assertEqual(0x110, exstyle(self.dlghandle))
         self.assertEqual(0x200, exstyle(self.edit_handle))
+        self.assertEqual(0, exstyle(sys.maxsize))
+        self.assertEqual(0, exstyle(None))
 
     def test_controlid(self):
         """Make sure the controlid method returns correct result"""
         #self.assertEqual(0, controlid(self.dlghandle))
         self.assertEqual(15, controlid(self.edit_handle))
+        self.assertEqual(0, controlid(sys.maxsize))
+        self.assertEqual(0, controlid(None))
 
     def test_userdata(self):
         """Make sure the userdata method returns correct result"""
         self.assertEqual(0, userdata(self.dlghandle))
         self.assertEqual(0, userdata(self.edit_handle))
+        self.assertEqual(0, userdata(sys.maxsize))
+        self.assertEqual(0, userdata(None))
 
     def test_contexthelpid(self):
         """Make sure the contexthelpid method returns correct result"""
         self.assertEqual(0, contexthelpid(self.dlghandle))
         self.assertEqual(0, contexthelpid(self.edit_handle))
+        self.assertEqual(0, contexthelpid(sys.maxsize))
+        self.assertEqual(0, contexthelpid(None))
 
     def test_iswindow(self):
         """Make sure the iswindow method returns correct result"""
@@ -200,10 +213,18 @@ class HandlepropsTestCases(unittest.TestCase):
         editfont = font(self.edit_handle)
         self.assertEqual(True, isinstance(editfont.lfFaceName, six.string_types))
 
+        # handle.props font should return DEFAULT font for an invalid handle
+        # Check only for a returned type as the default font can vary
+        expected = win32structures.LOGFONTW()
+        self.assertEqual(type(expected), type(font(sys.maxsize)))
+        self.assertEqual(type(expected), type(font(None)))
+
     def test_processid(self):
         """Make sure processid() function works"""
         self.assertEqual(self.app.process, processid(self.dlghandle))
         self.assertEqual(self.app.process, processid(self.edit_handle))
+        self.assertEqual(0, processid(sys.maxsize))
+        self.assertEqual(0, processid(None))
 
     def test_children(self):
         """Make sure the children method returns correct result"""
