@@ -65,10 +65,12 @@ in almost exactly the same ways. ::
 
 import sys
 
-from .base_application import WindowSpecification  # noqa: W0611
+from .base_application import WindowSpecification
 
 if sys.platform == 'win32':
-    from .windows.application import Application  # noqa: W0611
+    from .windows.application import Application
+elif sys.platform == 'darwin':
+    from .macos.application import Application
     from .windows.application import process_module  # noqa: W0611
     from .windows.application import process_get_modules  # noqa: W0611
     from .windows.application import ProcessNotFoundError  # noqa: W0611
