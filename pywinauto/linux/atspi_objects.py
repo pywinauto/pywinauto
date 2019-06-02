@@ -336,10 +336,18 @@ class _AtspiAction(Structure):
         ('parent', _GTypeInterface),
     ]
 
+
 class _AtspiText(Structure):
     _fields_ = [
         ('parent', _GTypeInterface),
     ]
+
+
+class _AtspiValue(Structure):
+    _fields_ = [
+        ('parent', _GTypeInterface),
+    ]
+
 
 class _AtspiAccessible(Structure):
     pass
@@ -614,6 +622,10 @@ class AtspiAccessible(object):
     get_text.argtypes = [POINTER(_AtspiAccessible)]
     get_text.restype = POINTER(_AtspiText)
 
+    get_value = IATSPI().get_iface_func("atspi_accessible_get_value_iface")
+    get_value.argtypes = [POINTER(_AtspiAccessible)]
+    get_value.restype = POINTER(_AtspiValue)
+
 
 class AtspiComponent(object):
     _contains = IATSPI().get_iface_func("atspi_component_contains")
@@ -870,3 +882,57 @@ class AtspiText(object):
         text = self._get_character_count(self._pointer, start_offset, end_offset, ep)
         return text
 
+
+class AtspiValue(object):
+    _get_minimum_value = IATSPI().get_iface_func("atspi_value_get_minimum_value")
+    _get_minimum_value.argtypes = [POINTER(_AtspiValue), POINTER(POINTER(_GError))]
+    _get_minimum_value.restype = c_double
+
+    _get_current_value = IATSPI().get_iface_func("atspi_value_get_current_value")
+    _get_current_value.argtypes = [POINTER(_AtspiValue), POINTER(POINTER(_GError))]
+    _get_current_value.restype = c_double
+
+    _get_maximum_value = IATSPI().get_iface_func("atspi_value_get_maximum_value")
+    _get_maximum_value.argtypes = [POINTER(_AtspiValue), POINTER(POINTER(_GError))]
+    _get_maximum_value.restype = c_double
+
+    _get_minimum_increment = IATSPI().get_iface_func("atspi_value_get_minimum_increment")
+    _get_minimum_increment.argtypes = [POINTER(_AtspiValue), POINTER(POINTER(_GError))]
+    _get_minimum_increment.restype = c_double
+
+    _set_current_value = IATSPI().get_iface_func("atspi_value_set_current_value")
+    _set_current_value.argtypes = [POINTER(_AtspiValue), c_double, POINTER(POINTER(_GError))]
+    _set_current_value.restype = c_bool
+
+    def __init__(self, pointer):
+        self._pointer = pointer
+
+    def get_minimum_value(self):
+        error = _GError()
+        ep = POINTER(POINTER(_GError))(error)
+        min_value = self._get_minimum_value(self._pointer, ep)
+        return min_value
+
+    def get_current_value(self):
+        error = _GError()
+        ep = POINTER(POINTER(_GError))(error)
+        curr_value = self._get_minimum_value(self._pointer, ep)
+        return curr_value
+
+    def get_maximum_value(self):
+        error = _GError()
+        ep = POINTER(POINTER(_GError))(error)
+        max_value = self._get_maximum_value(self._pointer, ep)
+        return max_value
+
+    def get_minimum_increment(self):
+        error = _GError()
+        ep = POINTER(POINTER(_GError))(error)
+        min_increment = self._get_minimum_increment(self._pointer, ep)
+        return min_increment
+
+    def set_current_value(self, new_value):
+        error = _GError()
+        ep = POINTER(POINTER(_GError))(error)
+        status = self._set_current_value(self._pointer, new_value, ep)
+        return status
