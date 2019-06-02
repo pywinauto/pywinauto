@@ -5,10 +5,11 @@ from comtypes import COMObject, COMError
 
 from ... import win32_hooks
 from ...win32structures import POINT
-from ...uia_defines import IUIA, window_visual_state_normal
+from ...uia_defines import IUIA, window_visual_state_normal, expand_state_expanded
 from ...uia_element_info import UIAElementInfo
+from ...findbestmatch import ControlNames
 
-from ..control_tree import ControlTree
+from ..control_tree import ControlTree, ControlTreeNode
 from ..base_recorder import BaseRecorder
 from ..win32_progress_bar import ProgressBarDialog
 from ..recorder_defines import RecorderMouseEvent, RecorderKeyboardEvent, ApplicationEvent, PropertyEvent, EVENT, \
@@ -53,6 +54,7 @@ _cached_properties = [
 
 
 class UiaRecorder(COMObject, BaseRecorder):
+
     """Record UIA, keyboard and mouse events"""
 
     _com_interfaces_ = [IUIA().UIA_dll.IUIAutomationEventHandler,
@@ -255,6 +257,15 @@ class UiaRecorder(COMObject, BaseRecorder):
         if (PROPERTY_ID_TO_NAME_MAP[propertyId] == PROPERTY.WINDOW_WINDOW_VISUAL_STATE and
                 newValue.value == window_visual_state_normal):
             self._update(rebuild_tree=True, add_handlers_to=sender, log_msg="Window Visual State Changed to Normal")
+        if (PROPERTY_ID_TO_NAME_MAP[propertyId] == PROPERTY.EXPAND_COLLAPSE_STATE and
+                newValue.value == expand_state_expanded):
+            node = self.control_tree.node_from_element_info(UIAElementInfo(sender))
+            # Append children of combobox to control tree
+            if node.ctrl_type == "ComboBox":
+                for item in node.wrapper.children():
+                    names = ControlNames()
+                    names.text_names.extend(item.texts())
+                    node.add_child(item, names, "ComboBoxItem", item.rectangle())
 
     def IUIAutomationFocusChangedEventHandler_HandleFocusChangedEvent(self, sender):
         if not self.recorder_start_event.is_set():

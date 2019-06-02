@@ -30,14 +30,17 @@ class ExpandCollapseHandler(EventHandler):
 class SelectionChangedHandler(EventHandler):
     def run(self):
         selected_elem_info = self.subpattern.app_events[-1].sender
+        # Try to find selected element in subtree
         for node in self.subtree:
             if node.wrapper.element_info == selected_elem_info:
                 selected = node
                 parent = node.parent
                 break
+        # Try to get it via SelectionElementSelected sender
         else:
-            selected = self.subtree[0]
-            parent = self.subtree[0].parent
+            selected = self.log_parser.recorder.control_tree.node_from_element_info(
+                self.subpattern.app_events[-1].sender)
+            parent = selected.parent
         return u"app{}{}.select('{}')\n".format(
             self.get_root_name(), get_window_access_name_str(parent.names.get_preferred_name(), self.key_only),
             selected.names.text_names[0])
@@ -127,7 +130,6 @@ class KeyboardHandler(EventHandler):
 UIA_EVENT_PATTERN_MAP = [
     (EventPattern(hook_event=RecorderMouseEvent(current_key=HOOK_MOUSE_LEFT_BUTTON, event_type=HOOK_KEY_DOWN),
                   app_events=(PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
-                              PropertyEvent(property_name=PROPERTY.SELECTION_ITEM_IS_SELECTED),
                               ApplicationEvent(name=EVENT.SELECTION_ELEMENT_SELECTED))),
      SelectionChangedHandler),
 
