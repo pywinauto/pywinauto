@@ -263,6 +263,10 @@ class _AtspiComponent(Structure):
     pass
 
 
+class _AtspiDocument(Structure):
+    pass
+
+
 class _AtspiStateSet(Structure):
     pass
 
@@ -533,6 +537,10 @@ class AtspiAccessible(object):
     get_state_set.argtypes = [POINTER(_AtspiAccessible)]
     get_state_set.restype = POINTER(_AtspiStateSet)
 
+    get_document = IATSPI().get_iface_func("atspi_accessible_get_document")
+    get_document.argtypes = [POINTER(_AtspiAccessible)]
+    get_document.restype = POINTER(_AtspiDocument)
+
 
 class AtspiComponent(object):
     _contains = IATSPI().get_iface_func("atspi_component_contains")
@@ -680,3 +688,28 @@ class AtspiStateSet(object):
     def set_by_name(self, state_name, status):
         buffer = create_string_buffer(state_name)
         self._set_by_name(self._pointer, buffer, status)
+
+
+class AtspiDocument(object):
+
+    """
+    Low level interface to ATSPI Document Interface
+    """
+    
+    _get_locale = IATSPI().get_iface_func("atspi_document_get_locale")
+    _get_locale.argtypes = [POINTER(_AtspiDocument),POINTER(POINTER(_GError))]
+    _get_locale.restype = c_char_p
+
+    def __init__(self, pointer):
+        self._pointer = pointer
+
+    def get_locale(self):
+        """
+        Gets the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
+
+        Returns a string compliant with the POSIX standard for locale description.
+        """
+        error = _GError()
+        pp = POINTER(POINTER(_GError))(error)
+        # TODO: handle _GError
+        return self._get_locale(self._pointer, pp)
