@@ -145,6 +145,18 @@ class Win32FunctionsTestCases(unittest.TestCase):
         self.assertEqual(r1, d["r1"])
         self.assertNotEqual(r0, r1)
 
+    def test_RECT_eq(self):
+        r0 = RECT(1, 2, 3, 4)
+        self.assertEqual(r0, RECT(1, 2, 3, 4))
+        self.assertEqual(r0, [1, 2, 3, 4])
+        self.assertNotEqual(r0, RECT(1, 2, 3, 5))
+        self.assertNotEqual(r0, [1, 2, 3, 5])
+        self.assertNotEqual(r0, [1, 2, 3])
+        self.assertNotEqual(r0, [1, 2, 3, 4, 5])
+        r0.bottom = 5
+        self.assertEqual(r0, RECT(1, 2, 3, 5))
+        self.assertEqual(r0, [1, 2, 3, 5])
+
     def test_RECT_repr(self):
         """Test RECT repr"""
         r0 = RECT(0)
