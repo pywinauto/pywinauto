@@ -569,7 +569,7 @@ class ApplicationTestCases(unittest.TestCase):
         WaitUntil(40, 0.5, _cabinetwclass_exist)
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, 'backend': 'win32', })
-        explorer = Application().Connect(process = window.process_id())
+        explorer = Application().Connect(pid = window.process_id())
 
         try:
             explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
