@@ -51,41 +51,41 @@ class StructureMixIn(object):
 
         fields in exceptList will not be printed"""
         lines = []
-        for f in self._fields_:
+        for f in getattr(self, "_fields_", list()):
             name = f[0]
             lines.append("%20s\t%s"% (name, getattr(self, name)))
 
         return "\n".join(lines)
 
     #----------------------------------------------------------------
-    def __eq__(self, other_struct):
+    def __eq__(self, other):
         """Return True if the two structures have the same coordinates"""
-        if isinstance(other_struct, Struct):
+        fields = getattr(self, "_fields_", list())
+        if isinstance(other, Struct):
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
-                are_equal = True
-                for field in self._fields_:
+                if len(fields) != len(getattr(other, "_fields_", list())):
+                    return False
+                for field in fields:
                     name = field[0]
-                    if getattr(self, name) != getattr(other_struct, name):
-                        are_equal = False
-                        break
-
-                return are_equal
+                    if getattr(self, name) != getattr(other, name):
+                        return False
+                return True
 
             except AttributeError:
                 return False
 
-        if isinstance(other_struct, (list, tuple)):
+        elif isinstance(other, (list, tuple)):
             # Now try to see if we have been passed in a list or tuple
+            if len(fields) != len(other):
+                return False
             try:
-                are_equal = True
-                for i, field in enumerate(self._fields_):
+                for i, field in enumerate(fields):
                     name = field[0]
-                    if getattr(self, name) != other_struct[i]:
-                        are_equal = False
-                        break
-                return are_equal
+                    if getattr(self, name) != other[i]:
+                        return False
+                return True
 
             except Exception:
                 return False
