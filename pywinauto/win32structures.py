@@ -185,7 +185,7 @@ assert alignment(POINT) == 4, alignment(POINT)
 
 
 # ====================================================================
-class RECT(wintypes.RECT):
+class RECT(wintypes.RECT, StructureMixIn):
 
     """Wrap the RECT structure and add extra functionality"""
 
@@ -213,23 +213,6 @@ class RECT(wintypes.RECT):
             self.right = long_int(right)
             self.top = long_int(top)
             self.bottom = long_int(bottom)
-
-    # ----------------------------------------------------------------
-    def __eq__(self, otherRect):
-        """Return true if the two rectangles have the same coordinates"""
-        try:
-            return \
-                self.left == otherRect.left and \
-                self.top == otherRect.top and \
-                self.right == otherRect.right and \
-                self.bottom == otherRect.bottom
-        except AttributeError:
-            return False
-
-    # ----------------------------------------------------------------
-    def __ne__(self, otherRect):
-        """Return true if the two rectangles do not have the same coordinates"""
-        return not self == otherRect
 
     # ----------------------------------------------------------------
     def __hash__(self):
