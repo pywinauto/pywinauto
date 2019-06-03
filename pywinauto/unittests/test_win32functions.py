@@ -137,13 +137,8 @@ class Win32FunctionsTestCases(unittest.TestCase):
         self.assertNotEqual(p0, 1)
 
     def test_RECT_hash(self):
-        """Test RECT is hashable"""
-        r0 = RECT(0)
-        r1 = RECT(1)
-        d = { "r0": r0, "r1": r1 }
-        self.assertEqual(r0, d["r0"])
-        self.assertEqual(r1, d["r1"])
-        self.assertNotEqual(r0, r1)
+        """Test RECT is not hashable"""
+        self.assertRaises(TypeError, hash, (RECT(),))
 
     def test_RECT_eq(self):
         r0 = RECT(1, 2, 3, 4)

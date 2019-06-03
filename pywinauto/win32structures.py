@@ -92,6 +92,8 @@ class StructureMixIn(object):
 
         return False
 
+    __hash__ = None
+
 
 class Structure(Struct, StructureMixIn):
 
