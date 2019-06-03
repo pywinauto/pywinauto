@@ -215,11 +215,6 @@ class RECT(wintypes.RECT, StructureMixIn):
             self.bottom = long_int(bottom)
 
     # ----------------------------------------------------------------
-    def __hash__(self):
-        """Return unique object ID to make the instance hashable"""
-        return id(self)
-
-    # ----------------------------------------------------------------
     def __str__(self):
         """Return a string representation of the RECT"""
         return "(L%d, T%d, R%d, B%d)" % (
@@ -275,10 +270,8 @@ class RECT(wintypes.RECT, StructureMixIn):
         pt.y = self.top + int(float(self.height()) / 2.)
         return pt
 
-    #def __hash__(self):
-    #	return hash (self.left, self.top, self.right, self.bottom)
+    __reduce__ = _reduce
 
-RECT.__reduce__ = _reduce
 
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
