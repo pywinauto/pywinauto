@@ -841,8 +841,7 @@ class AtspiAction(object):
         for i in range(actions_count):
             if self.get_action_name(i).decode('utf-8').lower() == name.lower():
                 return i
-        else:
-            return None
+        return None
 
     def get_all_actions(self):
         actions_count = self.get_n_actions()
