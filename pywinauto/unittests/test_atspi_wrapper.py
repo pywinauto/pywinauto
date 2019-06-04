@@ -59,12 +59,12 @@ if sys.platform.startswith("linux"):
         def tearDown(self):
             self.app.kill()
 
-        def test_get_state_set(self):
-            test = self.app_wrapper.get_states()
-
         def test_set_window_focus(self):
-            self.app_wrapper.set_focus()
-            print_tree(self.desktop_info)
+            self.app_wrapper.children()[0].set_focus()
+            states = self.app_wrapper.children()[0].get_states()
+            print(states)
+            self.assertTrue("STATE_VISIBLE" in states)
+            self.assertTrue("STATE_SHOWING" in states)
 
         def test_top_level_parent_for_app_return_app(self):
             self.assertEqual(self.app_wrapper.top_level_parent().element_info.control_type, "Application")
@@ -97,7 +97,9 @@ if sys.platform.startswith("linux"):
             self.assertTrue(self.app_wrapper.is_dialog())
 
         def test_is_dialog_for_button_is_false(self):
-            self.assertFalse(self.app_wrapper.children()[0].children()[0].is_dialog())
+            frame_wrapper = self.app_wrapper.children()[0]
+            button_wrapper = frame_wrapper.children()[0].children()[0]
+            self.assertFalse(button_wrapper.is_dialog())
 
         def test_can_get_children(self):
             self.assertEqual(self.app_wrapper.children()[0].control_id(), known_control_types.index("Frame"))
@@ -109,7 +111,11 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.control_count(), 1)
 
         def test_can_get_properties(self):
-            print(self.app_wrapper.get_properties())  # Need to implement visible in El info
+            props = self.app_wrapper.get_properties()
+            self.assertEqual(props['class_name'], 'application')
+            self.assertEqual(props['friendly_class_name'], 'application')
+            self.assertEqual(props['texts'], 'gtk_example.py')
+            self.assertEqual(props['control_id'], known_control_types.index("Application"))
 
         def test_app_is_child_of_desktop(self):
             self.assertTrue(self.app_wrapper.is_child(self.desktop_wrapper))

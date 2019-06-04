@@ -110,7 +110,6 @@ class AtspiWrapper(BaseWrapper):
         is raised.
         """
         BaseWrapper.__init__(self, element_info, backend.registry.backends['atspi'])
-        self.state_set = self.element_info.get_state_set()
 
     # ------------------------------------------------------------
     def __hash__(self):
@@ -146,7 +145,7 @@ class AtspiWrapper(BaseWrapper):
             self.set_keyboard_focus()
 
     def get_states(self):
-        return self.state_set.get_states()
+        return self.element_info.get_state_set()
 
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)
