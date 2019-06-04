@@ -150,7 +150,7 @@ class Win32FunctionsTestCases(unittest.TestCase):
         self.assertNotEqual(r0, [1, 2, 3, 4, 5])
         r0.bottom = 5
         self.assertEqual(r0, RECT(1, 2, 3, 5))
-        self.assertEqual(r0, [1, 2, 3, 5])
+        self.assertEqual(r0, (1, 2, 3, 5))
 
     def test_RECT_repr(self):
         """Test RECT repr"""
