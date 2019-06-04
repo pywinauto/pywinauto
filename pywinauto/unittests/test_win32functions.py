@@ -34,9 +34,9 @@
 import unittest
 
 import sys
+import ctypes
 sys.path.append(".")
-from pywinauto.win32structures import POINT  # noqa: E402
-from pywinauto.win32structures import RECT  # noqa: E402
+from pywinauto.win32structures import Structure, POINT, RECT  # noqa: E402
 from pywinauto.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
 
 
@@ -156,6 +156,20 @@ class Win32FunctionsTestCases(unittest.TestCase):
         """Test RECT repr"""
         r0 = RECT(0)
         self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
+
+    def test_Structure(self):
+        class Structure0(Structure):
+            _fields_ = [("f0", ctypes.c_int)]
+
+        class Structure1(Structure):
+            _fields_ = [("f1", ctypes.c_int)]
+
+        s0 = Structure0(0)
+        self.assertEqual(str(s0), "%20s\t%s" % ("f0", s0.f0))
+        s1 = Structure1(0)
+        self.assertNotEqual(s0, s1)
+        s0._fields_.append(("f1", ctypes.c_int))
+        self.assertNotEqual(s0, [0, 1])
 
 
 if __name__ == "__main__":
