@@ -58,7 +58,7 @@ class StructureMixIn(object):
 
     #----------------------------------------------------------------
     def __eq__(self, other):
-        """Return True if the two structures have the same coordinates"""
+        """Return True if the two instances have the same coordinates"""
         fields = getattr(self, "_fields_", [])
         if isinstance(other, Struct):
             try:
@@ -91,6 +91,7 @@ class StructureMixIn(object):
 
     #----------------------------------------------------------------
     def __ne__(self, other):
+        """Return False if the two instances have the same coordinates"""
         return not self.__eq__(other)
 
     __hash__ = None
