@@ -10,6 +10,7 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_element_info import known_control_types
     from pywinauto.linux.application import Application
+    from pywinauto.controls.atspiwrapper import AtspiWrapper
 
 app_name = r"gtk_example.py"
 
@@ -129,11 +130,17 @@ if sys.platform.startswith("linux"):
         def test_can_get_state_set(self):
             frame_info = self.app_info.children()[0]
             states = frame_info.get_state_set()
-            self.assertTrue('STATE_ACTIVE' in states)
+            self.assertTrue('STATE_VISIBLE' in states)
 
-        def test_initially_ran_app_visible(self):
+        def test_visible(self):
             frame_info = self.app_info.children()[0]
+            frame_wrapper = AtspiWrapper(frame_info)
+            frame_wrapper.set_focus()
             self.assertTrue(frame_info.visible)
+
+        def test_enabled(self):
+            frame_info = self.app_info.children()[0]
+            self.assertTrue(frame_info.enabled)
 
 if __name__ == "__main__":
     unittest.main()

@@ -141,6 +141,11 @@ class AtspiElementInfo(ElementInfo):
         return "STATE_VISIBLE" in states and "STATE_ACTIVE" in states and "STATE_SHOWING" in states
 
     @property
+    def enabled(self):
+        states = self.get_state_set()
+        return "STATE_ENABLED" in states
+
+    @property
     def rectangle(self):
         """Return rectangle of element"""
         if self.control_type == "Application":
