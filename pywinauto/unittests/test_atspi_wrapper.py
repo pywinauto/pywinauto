@@ -62,9 +62,8 @@ if sys.platform.startswith("linux"):
         def test_set_window_focus(self):
             self.app_wrapper.children()[0].set_focus()
             states = self.app_wrapper.children()[0].get_states()
-            print(states)
-            self.assertTrue("STATE_VISIBLE" in states)
-            self.assertTrue("STATE_SHOWING" in states)
+            self.assertIn("STATE_VISIBLE", states)
+            self.assertIn("STATE_SHOWING", states)
 
         def test_top_level_parent_for_app_return_app(self):
             self.assertEqual(self.app_wrapper.top_level_parent().element_info.control_type, "Application")

@@ -32,21 +32,14 @@
 """Wrap various ATSPI windows controls"""
 
 from . import atspiwrapper
-from .. import backend
-from ..base_wrapper import BaseWrapper
-from ..base_wrapper import BaseMeta
-
-from ..linux.atspi_element_info import AtspiElementInfo
-from ..linux.atspi_objects import AtspiStateSet, AtspiAccessible, AtspiAction
-
-from Xlib import Xatom
-from Xlib.display import Display
 
 # region PATTERNS
 
 
 class ButtonWrapper(atspiwrapper.AtspiWrapper):
+
     """Wrap a Atspi-compatible Button, CheckBox or RadioButton control"""
+
     _control_types = ['Push_button',
                       'Check_box',
                       'Toggle_button',

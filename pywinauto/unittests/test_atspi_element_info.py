@@ -132,7 +132,7 @@ if sys.platform.startswith("linux"):
             # TODO replace .children call to wrapper object when wrapper fully implemented
             frame_info = self.app_info.children()[0]
             states = frame_info.get_state_set()
-            self.assertTrue('STATE_VISIBLE' in states)
+            self.assertIn('STATE_VISIBLE', states)
 
         # TODO Fix test for travis or change skip -> skipif travis
         @unittest.skip("Skip visible test on travis because travis have no real desktop")

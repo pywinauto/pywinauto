@@ -28,9 +28,9 @@ class AtspiElementInfo(ElementInfo):
     @staticmethod
     def _get_states_as_string(states):
         string_states = []
-        for i in range(len(AtspiStateEnum)):
+        for i, state in AtspiStateEnum.items():
             if states & (1 << i):
-                string_states.append(AtspiStateEnum[i])
+                string_states.append(state)
         return string_states
 
     @property
