@@ -51,25 +51,23 @@ class StructureMixIn(object):
 
         fields in exceptList will not be printed"""
         lines = []
-        for f in getattr(self, "_fields_", list()):
-            name = f[0]
-            lines.append("%20s\t%s"% (name, getattr(self, name)))
+        for field_name, _ in getattr(self, "_fields_", []):
+            lines.append("%20s\t%s"% (field_name, getattr(self, field_name)))
 
         return "\n".join(lines)
 
     #----------------------------------------------------------------
     def __eq__(self, other):
         """Return True if the two structures have the same coordinates"""
-        fields = getattr(self, "_fields_", list())
+        fields = getattr(self, "_fields_", [])
         if isinstance(other, Struct):
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
-                if len(fields) != len(getattr(other, "_fields_", list())):
+                if len(fields) != len(getattr(other, "_fields_", [])):
                     return False
-                for field in fields:
-                    name = field[0]
-                    if getattr(self, name) != getattr(other, name):
+                for field_name, _ in fields:
+                    if getattr(self, field_name) != getattr(other, field_name):
                         return False
                 return True
 
@@ -81,9 +79,8 @@ class StructureMixIn(object):
             if len(fields) != len(other):
                 return False
             try:
-                for i, field in enumerate(fields):
-                    name = field[0]
-                    if getattr(self, name) != other[i]:
+                for i, (field_name, _) in enumerate(fields):
+                    if getattr(self, field_name) != other[i]:
                         return False
                 return True
 
