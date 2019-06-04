@@ -46,7 +46,7 @@ from Xlib.display import Display
 
 
 class ButtonWrapper(atspiwrapper.AtspiWrapper):
-    """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
+    """Wrap a Atspi-compatible Button, CheckBox or RadioButton control"""
     _control_types = ['Push_button',
                       'Check_box',
                       'Toggle_button',
@@ -67,7 +67,7 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
     # -----------------------------------------------------------
     def toggle(self):
         """
-        An interface to Toggle method of the Toggle control pattern.
+        Method to change toggle button state
         """
         self.click()
 
@@ -79,10 +79,6 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
         The toggle state is represented by an integer
         0 - unchecked
         1 - checked
-
-        The following constants are defined in the uia_defines module
-        toggle_state_off = 0
-        toggle_state_on = 1
         """
         return "STATE_CHECKED" in self.element_info.get_state_set()
 

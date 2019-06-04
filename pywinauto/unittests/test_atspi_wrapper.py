@@ -70,6 +70,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.top_level_parent().element_info.control_type, "Application")
 
         def test_top_level_parent_for_button_return_app(self):
+            # TODO replace .children call to wrapper object when wrapper fully implemented
             self.assertEqual(self.app_wrapper.children()[0].children()[0].top_level_parent().element_info.control_type,
                              "Application")
 
@@ -86,6 +87,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.control_id(), known_control_types.index("Application"))
 
         def test_can_get_rectangle(self):
+            # TODO replace .children call to wrapper object when wrapper fully implemented
             rect = self.app_wrapper.children()[0].children()[0].rectangle()
             self.assertEqual(rect.width(), 600)
             self.assertEqual(rect.height(), 200)
@@ -97,6 +99,7 @@ if sys.platform.startswith("linux"):
             self.assertTrue(self.app_wrapper.is_dialog())
 
         def test_is_dialog_for_button_is_false(self):
+            # TODO replace .children call to wrapper object when wrapper fully implemented
             frame_wrapper = self.app_wrapper.children()[0]
             button_wrapper = frame_wrapper.children()[0].children()[0]
             self.assertFalse(button_wrapper.is_dialog())
@@ -114,7 +117,6 @@ if sys.platform.startswith("linux"):
             props = self.app_wrapper.get_properties()
             self.assertEqual(props['class_name'], 'application')
             self.assertEqual(props['friendly_class_name'], 'application')
-            self.assertEqual(props['texts'], 'gtk_example.py')
             self.assertEqual(props['control_id'], known_control_types.index("Application"))
 
         def test_app_is_child_of_desktop(self):
