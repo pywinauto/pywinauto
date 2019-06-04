@@ -704,26 +704,26 @@ class AtspiComponent(object):
         if coord_type not in ["window", "screen"]:
             raise ValueError('Wrong coord_type "{}".'.format(coord_type))
         error = _GError()
-        pp = POINTER(POINTER(_GError))(error)
-        self._grab_focus(self._pointer, pp)
+        g_error_pointer = POINTER(POINTER(_GError))(error)
+        self._grab_focus(self._pointer, g_error_pointer)
 
     def get_rectangle(self, coord_type="window"):
         if coord_type not in ["window", "screen"]:
             raise ValueError('Wrong coord_type "{}".'.format(coord_type))
         error = _GError()
-        pp = POINTER(POINTER(_GError))(error)
-        prect = self._get_rectangle(self._pointer, 0 if coord_type == "screen" else 1, pp)
+        g_error_pointer = POINTER(POINTER(_GError))(error)
+        prect = self._get_rectangle(self._pointer, 0 if coord_type == "screen" else 1, g_error_pointer)
         return RECT(prect.contents)
 
     def get_layer(self):
         error = _GError()
-        pp = POINTER(POINTER(_GError))(error)
-        return self._get_layer(self._pointer, pp)
+        g_error_pointer = POINTER(POINTER(_GError))(error)
+        return self._get_layer(self._pointer, g_error_pointer)
 
     def get_mdi_x_order(self):
         error = _GError()
-        pp = POINTER(POINTER(_GError))(error)
-        return self._get_layer(self._pointer, pp)
+        g_error_pointer = POINTER(POINTER(_GError))(error)
+        return self._get_layer(self._pointer, g_error_pointer)
 
 
 class AtspiStateSet(object):

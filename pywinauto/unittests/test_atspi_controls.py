@@ -30,7 +30,7 @@ def print_tree(start_el_info, level_shifter=""):
 
     for children in start_el_info.children():
         print(level_shifter, "  ", children.control_type, "    ", children.control_id, "!")
-        print_tree(children, level_shifter+"-")
+        print_tree(children, level_shifter + "-")
 
 
 if sys.platform.startswith("linux"):
@@ -52,7 +52,7 @@ if sys.platform.startswith("linux"):
             self.app.start("python3 " + _test_app())
             time.sleep(1)
             self.app_info = self.get_app(app_name)
-
+            # TODO replace .children call to wrapper object when wrapper fully implemented
             self.button_info = self.app_info.children()[0].children()[0].children()[0]
             self.button_wrapper = ButtonWrapper(self.button_info)
 
@@ -62,13 +62,15 @@ if sys.platform.startswith("linux"):
             self.app.kill()
 
         def _get_state_label_text(self):
+            # TODO replace .children call to wrapper object when wrapper fully implemented
             return self.app_info.children()[0].children()[0].children()[5].rich_text
 
         def test_get_action(self):
             actions_count = self.button_wrapper.action.get_n_actions()
             print("Button actions count is: {}".format(actions_count))
             for i in range(actions_count):
-                print("action {} is: {}. Description: {}".format(i, self.button_wrapper.action.get_action_name(i), self.button_wrapper.action.get_action_description(i)))
+                print("action {} is: {}. Description: {}".format(i, self.button_wrapper.action.get_action_name(i),
+                                                                 self.button_wrapper.action.get_action_description(i)))
 
             self.assertEqual(self.button_wrapper.action.get_localized_name(0).decode('utf-8'), "Click")
 
@@ -84,6 +86,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self._get_state_label_text(), "\"Click\" clicked")
 
         def test_button_toggle(self):
+            # TODO replace .children call to wrapper object when wrapper fully implemented
             toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
             toggle_button_wrapper = ButtonWrapper(toggle_button_info)
             toggle_button_wrapper.click()
@@ -91,12 +94,12 @@ if sys.platform.startswith("linux"):
 
         def test_button_toggle_state(self):
             print_tree(self.app_info, "-")
+            # TODO replace .children call to wrapper object when wrapper fully implemented
             toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
             toggle_button_wrapper = ButtonWrapper(toggle_button_info)
             self.assertFalse(toggle_button_wrapper.get_toggle_state())
             toggle_button_wrapper.click()
             self.assertTrue(toggle_button_wrapper.get_toggle_state())
-
 
 if __name__ == "__main__":
     unittest.main()

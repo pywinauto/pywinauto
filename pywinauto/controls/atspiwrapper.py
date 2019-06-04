@@ -52,7 +52,7 @@ from Xlib.display import Display
 #====================================================================
 class InvalidWindowHandle(RuntimeError):
 
-    """Raised when an invalid handle is passed to HwndWrapper"""
+    """Raised when an invalid handle is passed to AtspiWrapper"""
 
     def __init__(self, hwnd):
         """Initialise the RuntimError parent with the mesage"""
