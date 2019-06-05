@@ -280,6 +280,7 @@ class RECT(wintypes.RECT, StructureMixIn):
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
 
+
 class SETTEXTEX(Structure):
     _pack_ = 1
     _fields_ = [
