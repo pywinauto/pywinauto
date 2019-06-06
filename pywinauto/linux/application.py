@@ -18,6 +18,7 @@ class Application(BaseApplication):
         self.process = None
         self.xmlpath = ''
 
+        self._proc_descriptor = None
         self.match_history = []
         self.use_history = False
         self.actions = None # TODO Action logger for linux
@@ -35,6 +36,7 @@ class Application(BaseApplication):
             message = ('Could not create the process "%s"\n'
                        'Error returned by CreateProcess: %s') % (cmd_line, str(exc))
             raise AppStartError(message)
+        self._proc_descriptor = process
         self.process = process.pid
         return self
 
@@ -98,7 +100,11 @@ class Application(BaseApplication):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        if str(self.process) not in os.listdir('/proc'):
+        if self._proc_descriptor is not None:
+            # Kill process created via Application with subprocess kill
+            self._proc_descriptor.kill()
+
+        if not self.is_process_running():
             return True # already closed
         status = subprocess.check_output(["kill", "-9", str(self.process)], universal_newlines=True)
         if "Operation not permitted" in status:
@@ -114,7 +120,16 @@ class Application(BaseApplication):
 
         Returns True if process is running otherwise - False
         """
-        return str(self.process) in os.listdir('/proc')
+        if not str(self.process) in os.listdir('/proc'):
+            return False
+        else:
+            # Check process zombie state
+            with open('/proc/{}/status'.format(self.process), mode='rb') as fd:
+                content = fd.readlines()
+                for line in content:
+                    if line.decode().lower().startswith("state"):
+                        return "zombie" not in line.decode().lower()
+                return True
 
 
 def assert_valid_process(process_id):

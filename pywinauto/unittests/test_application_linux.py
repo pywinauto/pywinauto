@@ -90,6 +90,34 @@ if sys.platform != 'win32':
             self.assertGreater(app.cpu_usage(), 0)
             app.kill()
 
+        def test_is_process_running(self):
+            app = Application()
+            app.start(_test_app_cmd_line())
+            time.sleep(1)
+            self.assertTrue(app.is_process_running())
+            app.kill()
+
+        def test_killed_app_not_running(self):
+            app = Application()
+            app.start(_test_app_cmd_line())
+            time.sleep(1)
+            app.kill()
+            self.assertFalse(app.is_process_running())
+
+        def test_kill_killed_app(self):
+            app = Application()
+            app.start(_test_app_cmd_line())
+            time.sleep(1)
+            app.kill()
+            self.assertTrue(app.kill())
+
+        def test_kill_connected_app(self):
+            subprocess_app = subprocess.Popen(['python3', _test_app()], stdout=subprocess.PIPE, shell=False)
+            time.sleep(1)
+            app = Application()
+            app.connect(process=subprocess_app.pid)
+            app.kill()
+            self.assertFalse(app.is_process_running())
 
 if __name__ == "__main__":
     unittest.main()
