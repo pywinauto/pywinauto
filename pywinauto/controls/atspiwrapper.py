@@ -138,7 +138,7 @@ class AtspiWrapper(BaseWrapper):
         top_level_set_focus_by_pid(pid, root, '-')
 
     def set_focus(self):
-        if self.parent() == self.root():
+        if self.parent() == self.root() or self.parent().parent() == self.root():
             self.set_window_focus(self.element_info.process_id)
         else:
             # TODO add check is focus set
