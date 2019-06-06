@@ -2,6 +2,8 @@
 import sys
 import os
 import unittest
+import subprocess
+import time
 #import pprint
 #import pdb
 
@@ -61,6 +63,31 @@ if sys.platform != 'win32':
             self.assertEqual(app.process, None)
             app.start(_test_app_cmd_line())
             self.assertNotEqual(app.process, None)
+            app.kill()
+
+        def test_connect_by_pid(self):
+            """Create application wia subprocess then connect it to Application"""
+            subprocess_app = subprocess.Popen(['python3', _test_app()], stdout=subprocess.PIPE, shell=False)
+            time.sleep(1)
+            app = Application()
+            app.connect(process=subprocess_app.pid)
+            self.assertEqual(app.process, subprocess_app.pid)
+            app.kill()
+
+        def test_connect_by_path(self):
+            """Create application wia subprocess then connect it to Application by application name"""
+            subprocess_app = subprocess.Popen(['python3', _test_app()], stdout=subprocess.PIPE, shell=False)
+            time.sleep(1)
+            app = Application()
+            app.connect(path="python3 {}".format(_test_app()))
+            self.assertEqual(app.process, subprocess_app.pid)
+            app.kill()
+
+        def test_get_cpu_usage(self):
+            app = Application()
+            app.start(_test_app_cmd_line())
+            time.sleep(1)
+            self.assertGreater(app.cpu_usage(), 0)
             app.kill()
 
 
