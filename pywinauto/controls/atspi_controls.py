@@ -59,19 +59,13 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
     # -----------------------------------------------------------
     def toggle(self):
-        """
-        Method to change toggle button state
-        """
+        """Method to change toggle button state"""
         self.click()
 
     # -----------------------------------------------------------
     def get_toggle_state(self):
         """
         Get a toggle state of a check box control.
-
-        The toggle state is represented by an integer
-        0 - unchecked
-        1 - checked
         """
         return "STATE_CHECKED" in self.element_info.get_state_set()
 
