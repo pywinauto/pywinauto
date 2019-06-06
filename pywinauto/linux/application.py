@@ -66,9 +66,10 @@ class Application(BaseApplication):
                 except Exception:
                     continue
 
-                if kwargs['path'] in content[0]:
+                if kwargs['path'] in " ".join(content):
                     self.process = int(proc_id)
                     connected = True
+                    break
 
         if not connected:
             raise RuntimeError(
@@ -82,7 +83,7 @@ class Application(BaseApplication):
         if interval:
             time.sleep(interval)
         try:
-            proc_info = subprocess.check_output(["ps", "-p", self.process, "-o", "%cpu"], universal_newlines=True)
+            proc_info = subprocess.check_output(["ps", "-p", str(self.process), "-o", "%cpu"], universal_newlines=True)
             proc_info = proc_info.split("\n")
             return float(proc_info[1])
         except Exception:
@@ -119,7 +120,3 @@ class Application(BaseApplication):
 def assert_valid_process(process_id):
     if str(process_id) not in os.listdir('/proc'):
         raise ProcessNotFoundError('pid = ' + str(process_id))
-
-
-if __name__ == "__main__":
-    app = BaseApplication()
