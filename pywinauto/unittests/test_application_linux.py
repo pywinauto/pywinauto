@@ -102,6 +102,7 @@ if sys.platform != 'win32':
             app.start(_test_app_cmd_line())
             time.sleep(1)
             app.kill()
+            time.sleep(1)
             self.assertFalse(app.is_process_running())
 
         def test_kill_killed_app(self):
@@ -109,6 +110,7 @@ if sys.platform != 'win32':
             app.start(_test_app_cmd_line())
             time.sleep(1)
             app.kill()
+            time.sleep(1)
             self.assertTrue(app.kill())
 
         def test_kill_connected_app(self):
@@ -117,6 +119,7 @@ if sys.platform != 'win32':
             app = Application()
             app.connect(process=subprocess_app.pid)
             app.kill()
+            time.sleep(1)
             self.assertFalse(app.is_process_running())
 
 if __name__ == "__main__":
