@@ -1,9 +1,8 @@
-import ctypes
 import subprocess
 import six
 
 from ctypes import Structure, c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
-    create_string_buffer
+    create_string_buffer, cdll
 
 from ..backend import Singleton
 
@@ -569,7 +568,7 @@ class IATSPI(object):
     def __init__(self):
         try:
             print(self.__find_library())
-            self.atspi = ctypes.cdll.LoadLibrary(self.__find_library())
+            self.atspi = cdll.LoadLibrary(self.__find_library())
             self.atspi.atspi_init()
             if not self.atspi.atspi_is_initialized():
                 raise Exception("Cannot initialize atspi module")
@@ -1037,7 +1036,7 @@ class AtspiEditableText(object):
 
     @g_error_handler
     def set_text(self, text, g_error_pointer=None):
-        return self._set_text_contents(self._pointer, ctypes.c_char_p(text), g_error_pointer)
+        return self._set_text_contents(self._pointer, c_char_p(text), g_error_pointer)
 
 
 class AtspiValue(object):
