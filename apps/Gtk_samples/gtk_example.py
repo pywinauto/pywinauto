@@ -23,6 +23,20 @@ class TestApplicationMainWindow(Gtk.Window):
         country_combo.connect("changed", self.on_country_combo_changed)
         return country_combo
 
+    def _create_textview(self):
+        scrolledwindow = Gtk.ScrolledWindow()
+        scrolledwindow.set_hexpand(True)
+        scrolledwindow.set_vexpand(True)
+
+        self.textview = Gtk.TextView()
+        print(dir(self.textview))
+        self.textbuffer = self.textview.get_buffer()
+        self.textbuffer.set_text("This is some text inside of a Gtk.TextView. "
+            + "Select text and click one of the buttons 'bold', 'italic', "
+            + "or 'underline' to modify the text accordingly.")
+        scrolledwindow.add(self.textview)
+        return scrolledwindow
+
     def __init__(self):
         Gtk.Window.__init__(self, title="MainWindow")
         self.set_default_size(600, 200)
@@ -50,16 +64,17 @@ class TestApplicationMainWindow(Gtk.Window):
         self.button4.connect("toggled", self.on_button_toggled, "1")
         # main_objects_box.pack_start(self.button4, False, False, 0)
 
-        self.button5 = Gtk.CheckButton("B_u_t_t_o_n 2", use_underline=True)
+        self.button5 = Gtk.CheckButton("Editable", use_underline=True)
         self.button5.set_active(True)
-        self.button5.connect("toggled", self.on_button_toggled, "2")
+        self.button5.connect("toggled", self.on_text_editable_button_toggled, "2")
         # main_objects_box.pack_start(self.button5, False, False, 0)
 
         self.label = Gtk.Label("Status")
         # main_objects_box.pack_start(self.label, False, False, 0)
         # self.combo = self._add_combobox()
 
-        # grid.attach(self.combo, 0, 3, 3, 1)
+        self.scroll_view = self._create_textview()
+        grid.attach(self.scroll_view, 0, 3, 3, 1)
         grid.attach(self.label, 0, 2, 3, 1)
         grid.attach(self.button5, 1, 1, 1, 1)
         grid.attach(self.button4, 0, 1, 1, 1)
@@ -82,6 +97,15 @@ class TestApplicationMainWindow(Gtk.Window):
         if button.get_active():
             state = "on"
         else:
+            state = "off"
+        self._log("Button {} turned {}".format(name, state))
+
+    def on_text_editable_button_toggled(self, button, name):
+        if button.get_active():
+            state = "on"
+            self.textview.set_editable(True)
+        else:
+            self.textview.set_editable(False)
             state = "off"
         self._log("Button {} turned {}".format(name, state))
 

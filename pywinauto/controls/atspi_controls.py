@@ -71,3 +71,19 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
     def is_dialog(self):
         """Buttons are never dialogs so return False"""
         return False
+
+
+class EditWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap single-line and multiline text edit controls"""
+
+    _control_types = ['Text']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(EditWrapper, self).__init__(elem)
+
+    def is_editable(self):
+        """Return the edit possibility of the element"""
+        return "STATE_EDITABLE" in self.element_info.get_state_set()
