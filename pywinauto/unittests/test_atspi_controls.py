@@ -8,7 +8,7 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
-    from pywinauto.controls.atspi_controls import ButtonWrapper
+    from pywinauto.controls.atspi_controls import ButtonWrapper, EditWrapper
 
 app_name = r"gtk_example.py"
 
@@ -100,6 +100,15 @@ if sys.platform.startswith("linux"):
             self.assertFalse(toggle_button_wrapper.get_toggle_state())
             toggle_button_wrapper.click()
             self.assertTrue(toggle_button_wrapper.get_toggle_state())
+
+        def test_text_area_is_editable(self):
+            # TODO replace .children call to wrapper object when wrapper fully implemented
+            text_area = EditWrapper(self.app_info.children()[0].children()[0].children()[6].children()[0])
+            editable_state_button = ButtonWrapper(self.app_info.children()[0].children()[0].children()[4])
+            self.assertTrue(text_area.is_editable())
+            editable_state_button.click()
+            self.assertFalse(text_area.is_editable())
+
 
 if __name__ == "__main__":
     unittest.main()
