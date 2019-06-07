@@ -46,22 +46,22 @@ from ..linux.atspi_objects import AtspiStateSet, AtspiAccessible
 from Xlib import Xatom
 from Xlib.display import Display
 
+
 # region PATTERNS
 
 
-#====================================================================
+# ====================================================================
 class InvalidWindowHandle(RuntimeError):
-
     """Raised when an invalid handle is passed to AtspiWrapper"""
 
     def __init__(self, hwnd):
         """Initialise the RuntimError parent with the mesage"""
         RuntimeError.__init__(self,
-            "Handle {0} is not a vaild window handle".format(hwnd))
+                              "Handle {0} is not a vaild window handle".format(hwnd))
+
 
 # =========================================================================
 class AtspiMeta(BaseMeta):
-
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
@@ -79,7 +79,6 @@ class AtspiMeta(BaseMeta):
 # =========================================================================
 @six.add_metaclass(AtspiMeta)
 class AtspiWrapper(BaseWrapper):
-
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
@@ -138,10 +137,20 @@ class AtspiWrapper(BaseWrapper):
         top_level_set_focus_by_pid(pid, root, '-')
 
     def set_focus(self):
-        if self.parent() == self.root() or self.parent().parent() == self.root():
-            self.set_window_focus(self.element_info.process_id)
+        if self.parent() == self.root() or self.parent().parent() == self.root() and not self.is_visible():
+            # Try to find first child control of current window like button or text area and set focus to it.
+            # It should automatically set focus to window.
+            for child in self.descendants():
+                # TODO extend list of focusable elements
+                if child.element_info.control_type in ['Push_button', 'Check_box', 'Toggle_button', 'Radio_button',
+                                                       'Text']:
+                    child.set_keyboard_focus()
+                    break
+
+            if not self.is_visible():
+                # If unable to set window focus via ATSPI try to set focus via XLIB
+                self.set_window_focus(self.element_info.process_id)
         else:
-            # TODO add check is focus set
             self.set_keyboard_focus()
 
     def get_states(self):
