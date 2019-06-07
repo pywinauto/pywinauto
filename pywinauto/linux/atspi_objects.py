@@ -1,7 +1,9 @@
 import ctypes
 import subprocess
 import six
-from ctypes import *
+
+from ctypes import Structure, c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
+    create_string_buffer
 
 from ..backend import Singleton
 
@@ -344,6 +346,7 @@ class _AtspiText(Structure):
         ('parent', _GTypeInterface),
     ]
 
+
 class _AtspiEditableText(Structure):
     _fields_ = [
         ('parent', _GTypeInterface),
@@ -526,6 +529,21 @@ known_control_types = [
     "Footnote",
     "Last_defined",
 ]
+
+
+def g_error_handler(func):
+    def wrapper(*args, **kwargs):
+        error = _GError()
+        ep = POINTER(POINTER(_GError))(error)
+        kwargs["g_error_pointer"] = ep
+        res = func(*args, **kwargs)
+        if ep and ep.contents:
+            print("Warning g_error_handled during {} call. "
+                  "Error code: {}. "
+                  "Error message: {}".format(func.__name__, ep.contents.contents.code, ep.contents.contents.message))
+        return res
+
+    return wrapper
 
 
 @six.add_metaclass(Singleton)
@@ -725,29 +743,25 @@ class AtspiComponent(object):
     def __init__(self, pointer):
         self._pointer = pointer
 
-    def grab_focus(self, coord_type="window"):
+    @g_error_handler
+    def grab_focus(self, coord_type="window", g_error_pointer=None):
         if coord_type not in ["window", "screen"]:
             raise ValueError('Wrong coord_type "{}".'.format(coord_type))
-        error = _GError()
-        g_error_pointer = POINTER(POINTER(_GError))(error)
         self._grab_focus(self._pointer, g_error_pointer)
 
-    def get_rectangle(self, coord_type="window"):
+    @g_error_handler
+    def get_rectangle(self, coord_type="window", g_error_pointer=None):
         if coord_type not in ["window", "screen"]:
             raise ValueError('Wrong coord_type "{}".'.format(coord_type))
-        error = _GError()
-        g_error_pointer = POINTER(POINTER(_GError))(error)
         prect = self._get_rectangle(self._pointer, 0 if coord_type == "screen" else 1, g_error_pointer)
         return RECT(prect.contents)
 
-    def get_layer(self):
-        error = _GError()
-        g_error_pointer = POINTER(POINTER(_GError))(error)
+    @g_error_handler
+    def get_layer(self, g_error_pointer=None):
         return self._get_layer(self._pointer, g_error_pointer)
 
-    def get_mdi_x_order(self):
-        error = _GError()
-        g_error_pointer = POINTER(POINTER(_GError))(error)
+    @g_error_handler
+    def get_mdi_x_order(self, g_error_pointer=None):
         return self._get_layer(self._pointer, g_error_pointer)
 
 
@@ -825,40 +839,34 @@ class AtspiAction(object):
     def __init__(self, pointer):
         self._pointer = pointer
 
-    def get_action_description(self, action_number):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        description = self._get_action_description(self._pointer, action_number, ep)
+    @g_error_handler
+    def get_action_description(self, action_number, g_error_pointer=None):
+        description = self._get_action_description(self._pointer, action_number, g_error_pointer)
         return description
 
-    def get_action_name(self, action_number):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        name = self._get_action_name(self._pointer, action_number, ep)
+    @g_error_handler
+    def get_action_name(self, action_number, g_error_pointer=None):
+        name = self._get_action_name(self._pointer, action_number, g_error_pointer)
         return name
 
-    def get_n_actions(self):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        actions_number = self._get_n_actions(self._pointer, ep)
+    @g_error_handler
+    def get_n_actions(self, g_error_pointer=None):
+        actions_number = self._get_n_actions(self._pointer, g_error_pointer)
         return actions_number
 
-    def get_key_binding(self, action_number):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        key_binding = self._get_key_binding(self._pointer, action_number, ep)
+    @g_error_handler
+    def get_key_binding(self, action_number, g_error_pointer=None):
+        key_binding = self._get_key_binding(self._pointer, action_number, g_error_pointer)
         return key_binding
 
-    def get_localized_name(self, action_number):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        name = self._get_localized_name(self._pointer, action_number, ep)
+    @g_error_handler
+    def get_localized_name(self, action_number, g_error_pointer=None):
+        name = self._get_localized_name(self._pointer, action_number, g_error_pointer)
         return name
 
-    def do_action(self, action_number):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        status = self._do_action(self._pointer, action_number, ep)
+    @g_error_handler
+    def do_action(self, action_number, g_error_pointer=None):
+        status = self._do_action(self._pointer, action_number, g_error_pointer)
         return status
 
     def get_action_by_name(self, name):
@@ -880,21 +888,6 @@ class AtspiAction(object):
         if action_number is None:
             return False
         return self.do_action(action_number)
-
-
-def g_error_handler(func):
-    def wrapper(*args, **kwargs):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        kwargs["g_error_pointer"] = ep
-        res = func(*args, **kwargs)
-        if ep and ep.contents:
-            print("Warning g_error_handled during {} call. "
-                  "Error code: {}. "
-                  "Error message: {}".format(func.__name__, ep.contents.contents.code, ep.contents.contents.message))
-        return res
-
-    return wrapper
 
 
 class AtspiText(object):
@@ -1071,32 +1064,22 @@ class AtspiValue(object):
     def __init__(self, pointer):
         self._pointer = pointer
 
-    def get_minimum_value(self):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        min_value = self._get_minimum_value(self._pointer, ep)
-        return min_value
+    @g_error_handler
+    def get_minimum_value(self, g_error_pointer=None):
+        return self._get_minimum_value(self._pointer, g_error_pointer)
 
-    def get_current_value(self):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        curr_value = self._get_minimum_value(self._pointer, ep)
-        return curr_value
+    @g_error_handler
+    def get_current_value(self, g_error_pointer=None):
+        return self._get_minimum_value(self._pointer, g_error_pointer)
 
-    def get_maximum_value(self):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        max_value = self._get_maximum_value(self._pointer, ep)
-        return max_value
+    @g_error_handler
+    def get_maximum_value(self, g_error_pointer=None):
+        return self._get_maximum_value(self._pointer, g_error_pointer)
 
-    def get_minimum_increment(self):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        min_increment = self._get_minimum_increment(self._pointer, ep)
-        return min_increment
+    @g_error_handler
+    def get_minimum_increment(self, g_error_pointer=None):
+        return self._get_minimum_increment(self._pointer, g_error_pointer)
 
-    def set_current_value(self, new_value):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        status = self._set_current_value(self._pointer, new_value, ep)
-        return status
+    @g_error_handler
+    def set_current_value(self, new_value, g_error_pointer=None):
+        return self._set_current_value(self._pointer, new_value, g_error_pointer)
