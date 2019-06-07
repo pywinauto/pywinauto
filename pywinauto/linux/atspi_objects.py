@@ -1,7 +1,7 @@
 import ctypes
 import subprocess
 import six
-from ctypes import *  #Structure, c_char_p, c_int, c_bool, POINTER, c_uint32, c_short, c_double, addressof, c_void_p, c_char, create_string_buffer
+from ctypes import *  # Structure, c_char_p, c_int, c_bool, POINTER, c_uint32, c_short, c_double, addressof, c_void_p, c_char, create_string_buffer
 from collections import namedtuple
 
 from ..backend import Singleton
@@ -14,7 +14,6 @@ class CtypesEnum(object):
 
 
 class RECT(Structure):
-
     """Wrap the RECT structure and add extra functionality"""
 
     _fields_ = [
@@ -25,7 +24,7 @@ class RECT(Structure):
     ]
 
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
         """Provide a constructor for RECT structures
 
         A RECT can be constructed by:
@@ -46,7 +45,7 @@ class RECT(Structure):
             self.top = otherRect_or_left.y
             self.bottom = otherRect_or_left.y + otherRect_or_left.height
         else:
-            #if not isinstance(otherRect_or_left, (int, long)):
+            # if not isinstance(otherRect_or_left, (int, long)):
             #    print type(self), type(otherRect_or_left), otherRect_or_left
             self.left = otherRect_or_left
             self.right = right
@@ -116,8 +115,8 @@ class RECT(Structure):
     def mid_point(self):
         """Return a POINT structure representing the mid point"""
         pt = AtspiPoint()
-        pt.x = self.left + int(float(self.width())/2.)
-        pt.y = self.top + int(float(self.height())/2.)
+        pt.x = self.left + int(float(self.width()) / 2.)
+        pt.y = self.top + int(float(self.height()) / 2.)
         return pt
 
 
@@ -146,6 +145,9 @@ class _AtspiScrollType(CtypesEnum):
     ATSPI_SCROLL_LEFT_EDGE = 4
     ATSPI_SCROLL_RIGHT_EDGE = 5
     ATSPI_SCROLL_ANYWHERE = 6
+
+
+_AtspiTextGranularity = ["char", "word", "sentence", "line", "paragraph"]
 
 
 class _AtspiStateType(CtypesEnum):
@@ -299,6 +301,7 @@ class _GHashTable(Structure):
 class _GPtrArray(Structure):
     pass
 
+
 class _GTypeInterface(Structure):
     pass
 
@@ -349,6 +352,19 @@ class _AtspiValue(Structure):
     ]
 
 
+class _AtspiTextRange(Structure):
+    _fields_ = [
+        ('start_offset', c_int),
+        ('end_offset', c_int),
+        ('content', c_char_p),
+    ]
+
+class _AtspiRange(Structure):
+    _fields_ = [
+        ('start_offset', c_int),
+        ('end_offset', c_int),
+    ]
+
 class _AtspiAccessible(Structure):
     pass
 
@@ -371,7 +387,6 @@ _AtspiStateSet._fields_ = [
     ('fake', c_uint64 * 4),
     ('states', c_uint64),
 ]
-
 
 """
 AtspiRole: 
@@ -691,7 +706,7 @@ class AtspiComponent(object):
     _scroll_to_point = IATSPI().get_iface_func("atspi_component_scroll_to_point")
     try:
         _scroll_to_point.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, c_int, c_int,
-                                          POINTER(POINTER(_GError))]
+                                     POINTER(POINTER(_GError))]
         _scroll_to_point.restype = c_bool
     except:
         # TODO add version check
@@ -857,6 +872,21 @@ class AtspiAction(object):
         return self.do_action(action_number)
 
 
+def g_error_handler(func):
+    def wrapper(*args, **kwargs):
+        error = _GError()
+        ep = POINTER(POINTER(_GError))(error)
+        kwargs["g_error_pointer"] = ep
+        res = func(*args, **kwargs)
+        if ep and ep.contents:
+            print("Warning g_error_handled during {} call. "
+                  "Error code: {}. "
+                  "Error message: {}".format(func.__name__, ep.contents.contents.code, ep.contents.contents.message))
+        return res
+
+    return wrapper
+
+
 class AtspiText(object):
     _get_character_count = IATSPI().get_iface_func("atspi_text_get_character_count")
     _get_character_count.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
@@ -866,20 +896,97 @@ class AtspiText(object):
     _get_text.argtypes = [POINTER(_AtspiText), c_int, c_int, POINTER(POINTER(_GError))]
     _get_text.restype = c_char_p
 
+    _get_caret_offset = IATSPI().get_iface_func("atspi_text_get_caret_offset")
+    _get_caret_offset.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
+    _get_caret_offset.restype = c_int
+
+    _get_text_attributes = IATSPI().get_iface_func("atspi_text_get_text_attributes")
+    _get_text_attributes.argtypes = [POINTER(_AtspiText), c_int, c_int, POINTER(POINTER(_GError))]
+    _get_text_attributes.restype = POINTER(_GHashTable)
+
+    _get_attribute_run = IATSPI().get_iface_func("atspi_text_get_attribute_run")
+    _get_attribute_run.argtypes = [POINTER(_AtspiText), c_int, c_bool, c_int, c_int, POINTER(POINTER(_GError))]
+    _get_attribute_run.restype = POINTER(_GHashTable)
+
+    atspi_text_get_text_attribute_value = IATSPI().get_iface_func("atspi_text_get_text_attribute_value")
+    atspi_text_get_text_attribute_value.argtypes = [POINTER(_AtspiText), c_int, c_char_p, POINTER(POINTER(_GError))]
+    atspi_text_get_text_attribute_value.restype = c_char_p
+
+    _get_default_attributes = IATSPI().get_iface_func("atspi_text_get_default_attributes")
+    _get_default_attributes.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
+    _get_default_attributes.restype = POINTER(_GHashTable)
+
+    _set_caret_offset = IATSPI().get_iface_func("atspi_text_set_caret_offset")
+    _set_caret_offset.argtypes = [POINTER(_AtspiText), c_int, POINTER(POINTER(_GError))]
+    _set_caret_offset.restype = c_bool
+
+    _get_string_at_offset = IATSPI().get_iface_func("atspi_text_get_string_at_offset")
+    _get_string_at_offset.argtypes = [POINTER(_AtspiText), c_int, c_int, POINTER(POINTER(_GError))]
+    _get_string_at_offset.restype = POINTER(_AtspiTextRange)
+
+    _get_character_at_offset = IATSPI().get_iface_func("atspi_text_get_character_at_offset")
+    _get_character_at_offset.argtypes = [POINTER(_AtspiText), c_int, POINTER(POINTER(_GError))]
+    _get_character_at_offset.restype = c_uint
+
+    _get_character_extents = IATSPI().get_iface_func("atspi_text_get_character_at_offset")
+    _get_character_extents.argtypes = [POINTER(_AtspiText), c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
+    _get_character_extents.restype = POINTER(AtspiRect)
+
+    _get_offset_at_point = IATSPI().get_iface_func("atspi_text_get_offset_at_point")
+    _get_offset_at_point.argtypes = [POINTER(_AtspiText), c_int, c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
+    _get_offset_at_point.restype = c_int
+
+    _get_range_extents = IATSPI().get_iface_func("atspi_text_get_range_extents")
+    _get_range_extents.argtypes = [POINTER(_AtspiText), c_int, c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
+    _get_range_extents.restype = POINTER(AtspiRect)
+
+    _get_n_selections = IATSPI().get_iface_func("atspi_text_get_n_selections")
+    _get_n_selections.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
+    _get_n_selections.restype = c_int
+
+    _get_selection = IATSPI().get_iface_func("atspi_text_get_selection")
+    _get_selection.argtypes = [POINTER(_AtspiText), c_int, POINTER(POINTER(_GError))]
+    _get_selection.restype = POINTER(_AtspiRange)
+
+    _add_selection = IATSPI().get_iface_func("atspi_text_add_selection")
+    _add_selection.argtypes = [POINTER(_AtspiText), c_int, c_int, POINTER(POINTER(_GError))]
+    _add_selection.restype = c_bool
+
+    _remove_selection = IATSPI().get_iface_func("atspi_text_remove_selection")
+    _remove_selection.argtypes = [POINTER(_AtspiText), c_int, POINTER(POINTER(_GError))]
+    _remove_selection.restype = c_bool
+
+    _set_selection = IATSPI().get_iface_func("atspi_text_set_selection")
+    _set_selection.argtypes = [POINTER(_AtspiText), c_int, c_int, c_int, POINTER(POINTER(_GError))]
+    _set_selection.restype = c_bool
+
     def __init__(self, pointer):
         self._pointer = pointer
 
-    def get_character_count(self):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        character_count = self._get_character_count(self._pointer, ep)
+    @g_error_handler
+    def get_character_count(self, g_error_pointer=None):
+        character_count = self._get_character_count(self._pointer, g_error_pointer)
         return character_count
 
-    def get_text(self, start_offset, end_offset):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        text = self._get_character_count(self._pointer, start_offset, end_offset, ep)
-        return text
+    @g_error_handler
+    def get_text(self, start_offset, end_offset, g_error_pointer=None):
+        return self._get_text(self._pointer, start_offset, end_offset, g_error_pointer)
+
+    @g_error_handler
+    def get_caret_offset(self, g_error_pointer=None):
+        return self._get_caret_offset(self._pointer, g_error_pointer)
+
+    @g_error_handler
+    def set_caret_offset(self, offset, g_error_pointer=None):
+        return self._set_caret_offset(self._pointer, offset, g_error_pointer)
+
+    @g_error_handler
+    def _get_string_at_offset(self, offset, granularity):
+        assert granularity.lower() in _AtspiTextGranularity, \
+            "wrong granularity type expected one of: {}".format(_AtspiTextGranularity)
+        granularity = _AtspiTextGranularity.index(granularity.lower())
+        text_range = self._get_string_at_offset(offset, granularity)
+        return text_range.contents.content
 
 
 class AtspiValue(object):

@@ -52,6 +52,7 @@ from Xlib.display import Display
 
 # ====================================================================
 class InvalidWindowHandle(RuntimeError):
+
     """Raised when an invalid handle is passed to AtspiWrapper"""
 
     def __init__(self, hwnd):
@@ -62,6 +63,7 @@ class InvalidWindowHandle(RuntimeError):
 
 # =========================================================================
 class AtspiMeta(BaseMeta):
+
     """Metaclass for UiaWrapper objects"""
     control_type_to_cls = {}
 
@@ -79,6 +81,7 @@ class AtspiMeta(BaseMeta):
 # =========================================================================
 @six.add_metaclass(AtspiMeta)
 class AtspiWrapper(BaseWrapper):
+
     """
     Default wrapper for User Interface Automation (UIA) controls.
 
