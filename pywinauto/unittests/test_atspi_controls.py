@@ -11,6 +11,9 @@ if sys.platform.startswith("linux"):
     from pywinauto.controls.atspi_controls import ButtonWrapper, EditWrapper
 
 app_name = r"gtk_example.py"
+text = "This is some text inside of a Gtk.TextView. \n" \
+       "Select text and click one of the buttons 'bold', 'italic', \n" \
+       "or 'underline' to modify the text accordingly."
 
 
 def _test_app():
@@ -57,6 +60,7 @@ if sys.platform.startswith("linux"):
             self.button_wrapper = ButtonWrapper(self.button_info)
 
             self.app_wrapper = AtspiWrapper(self.app_info)
+            self.text_area = EditWrapper(self.app_info.children()[0].children()[0].children()[6].children()[0])
 
         def tearDown(self):
             self.app.kill()
@@ -103,12 +107,69 @@ if sys.platform.startswith("linux"):
 
         def test_text_area_is_editable(self):
             # TODO replace .children call to wrapper object when wrapper fully implemented
-            text_area = EditWrapper(self.app_info.children()[0].children()[0].children()[6].children()[0])
             editable_state_button = ButtonWrapper(self.app_info.children()[0].children()[0].children()[4])
-            self.assertTrue(text_area.is_editable())
+            self.assertTrue(self.text_area.is_editable())
             editable_state_button.click()
-            self.assertFalse(text_area.is_editable())
+            self.assertFalse(self.text_area.is_editable())
 
+        def test_text_area_get_line_count(self):
+            # TODO replace .children call to wrapper object when wrapper fully implemented
+            print(self.text_area.window_text())
+
+        def test_text_area_get_window_text(self):
+            self.assertEqual(text, self.text_area.window_text())
+
+        def test_text_area_get_text_block(self):
+            self.assertEqual(text, self.text_area.text_block())
+
+        def test_text_area_line_count(self):
+            self.assertEqual(self.text_area.line_count(), 3)
+
+        def test_text_area_line_length(self):
+            split_text = text.splitlines()
+            for i, line in enumerate(split_text):
+                self.assertEqual(self.text_area.line_length(i), len(line))
+
+        def test_text_area_get_line(self):
+            split_text = text.splitlines()
+            for i, line in enumerate(split_text):
+                self.assertEqual(self.text_area.get_line(i), line)
+
+        def test_text_area_get_texts(self):
+            self.assertEqual(self.text_area.texts(), text.splitlines())
+
+        def test_text_area_get_selection_indices(self):
+            self.assertEqual(self.text_area.selection_indices(), (len(text), len(text)))
+
+        def test_text_area_set_text(self):
+            new_text = "My new text\n"
+            self.text_area.set_text(new_text)
+            self.assertEqual(self.text_area.window_text(), new_text)
+
+        def test_text_area_set_not_str(self):
+            new_text = 111
+            self.text_area.set_text(new_text)
+            self.assertEqual(self.text_area.window_text(), str(new_text))
+
+        def test_text_area_set_byte_str(self):
+            new_text = "My new text\n"
+            self.text_area.set_text(new_text.encode("utf-8"))
+            self.assertEqual(self.text_area.window_text(), str(new_text))
+
+        def test_text_area_set_text_at_start_position(self):
+            new_text = "My new text\n"
+            self.text_area.set_text(new_text, pos_start=0, pos_end=0)
+            self.assertEqual(self.text_area.window_text(), new_text + text)
+
+        def test_text_area_set_selection(self):
+            self.text_area.select(0, 10)
+            self.assertEqual(self.text_area.selection_indices(), (0, 10))
+
+        def test_text_area_set_selection_by_text(self):
+            text_to_select = "Select text"
+            self.text_area.select(text_to_select)
+            self.assertEqual(self.text_area.selection_indices(),
+                             (text.find(text_to_select), text.find(text_to_select) + len(text_to_select)))
 
 if __name__ == "__main__":
     unittest.main()

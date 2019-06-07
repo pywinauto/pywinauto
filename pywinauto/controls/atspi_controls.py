@@ -31,6 +31,9 @@
 
 """Wrap various ATSPI windows controls"""
 
+import locale
+import six
+
 from . import atspiwrapper
 
 # region PATTERNS
@@ -87,3 +90,118 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
     def is_editable(self):
         """Return the edit possibility of the element"""
         return "STATE_EDITABLE" in self.element_info.get_state_set()
+
+    def window_text(self):
+        """Window text of the element"""
+        return self.element_info.get_text_property().get_whole_text().decode(locale.getpreferredencoding())
+
+    def text_block(self):
+        """Get the text of the edit control"""
+        return self.window_text()
+
+    def line_count(self):
+        """Return how many lines there are in the Edit"""
+        return self.window_text().count("\n") + 1
+
+    def line_length(self, line_index):
+        """Return how many characters there are in the line"""
+        # need to first get a character index of that line
+        lines = self.window_text().splitlines()
+        if line_index < len(lines):
+            return len(lines[line_index])
+        elif line_index == self.line_count() - 1:
+            return 0
+        else:
+            raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
+
+    def get_line(self, line_index):
+        """Return the line specified"""
+        lines = self.window_text().splitlines()
+        if line_index < len(lines):
+            return lines[line_index]
+        elif line_index == self.line_count() - 1:
+            return ""
+        else:
+            raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
+
+    def texts(self):
+        """Get the text of the edit control"""
+        texts = [self.get_line(i) for i in range(self.line_count())]
+        return texts
+
+    def selection_indices(self):
+        """The start and end indices of the current selection"""
+        return self.element_info.get_text_property().get_selection()
+
+    def set_edit_text(self, text, pos_start=None, pos_end=None):
+        """Set the text of the edit control"""
+        self.verify_enabled()
+
+        # allow one or both of pos_start and pos_end to be None
+        if pos_start is not None or pos_end is not None:
+            # if only one has been specified - then set the other
+            # to the current selection start or end
+            start, end = self.selection_indices()
+            if pos_start is None:
+                pos_start = start
+            if pos_end is None and not isinstance(start, six.string_types):
+                pos_end = end
+        else:
+            pos_start = 0
+            pos_end = len(self.window_text())
+
+        if isinstance(text, six.text_type):
+            if six.PY3:
+                aligned_text = text
+            else:
+                aligned_text = text.encode(locale.getpreferredencoding())
+        elif isinstance(text, six.binary_type):
+            if six.PY3:
+                aligned_text = text.decode(locale.getpreferredencoding())
+            else:
+                aligned_text = text
+        else:
+            # convert a non-string input
+            if six.PY3:
+                aligned_text = six.text_type(text)
+            else:
+                aligned_text = six.binary_type(text)
+
+        # Calculate new text value
+        current_text = self.window_text()
+        new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
+
+        self.element_info.get_editable_text_property().set_text(new_text.encode(locale.getpreferredencoding()))
+
+        # return this control so that actions can be chained.
+        return self
+
+    # set set_text as an alias to set_edit_text
+    set_text = set_edit_text
+
+    def select(self, start=0, end=None):
+        """Set the edit selection of the edit control"""
+        self.verify_enabled()
+        self.set_focus()
+
+        # if we have been asked to select a string
+        string_to_select = False
+        if isinstance(start, six.text_type):
+            string_to_select = start
+        elif isinstance(start, six.binary_type):
+            string_to_select = start.decode(locale.getpreferredencoding())
+        elif isinstance(start, six.integer_types):
+            if isinstance(end, six.integer_types) and start > end:
+                start, end = end, start
+
+        if string_to_select:
+            start = self.window_text().find(string_to_select)
+            if start == -1:
+                raise RuntimeError("Text '{0}' hasn't been found".format(string_to_select))
+
+            end = start + len(string_to_select)
+
+        self.element_info.get_text_property().add_selection(start, end)
+
+        # return this control so that actions can be chained.
+        return self
