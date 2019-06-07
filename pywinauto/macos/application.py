@@ -10,7 +10,7 @@ from ..base_wrapper import BaseWrapper
 
 sys.path.append( path.dirname( path.dirname( path.abspath(__file__))))
 
-from ..base_application import BaseApplication
+from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 
 backend.register('ax', ElementInfo, BaseWrapper)
 
@@ -20,6 +20,7 @@ class Application(BaseApplication):
     def __init__(self, backend="ax"):
         self.connected = None
         self.ns_app = None
+        self.process = None 
 
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
@@ -32,9 +33,9 @@ class Application(BaseApplication):
             message = ('Could not create the process "%s"\n') % (cmd_line)
             raise AppStartError(message)
         
-        self.instance = macos_functions.get_instance_of_app(cmd_line)
+        self.ns_app = macos_functions.get_instance_of_app(cmd_line)
         
-        if (self.instance is None):
+        if (self.ns_app is None):
             message = ('Could not get instance of "%s" app\n') % (cmd_line)
             raise AppStartError(message)
         return self
