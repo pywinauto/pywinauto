@@ -29,10 +29,9 @@ class TestApplicationMainWindow(Gtk.Window):
         scrolledwindow.set_vexpand(True)
 
         self.textview = Gtk.TextView()
-        print(dir(self.textview))
         self.textbuffer = self.textview.get_buffer()
-        self.textbuffer.set_text("This is some text inside of a Gtk.TextView. "
-            + "Select text and click one of the buttons 'bold', 'italic', "
+        self.textbuffer.set_text("This is some text inside of a Gtk.TextView. \n"
+            + "Select text and click one of the buttons 'bold', 'italic', \n"
             + "or 'underline' to modify the text accordingly.")
         scrolledwindow.add(self.textview)
         return scrolledwindow

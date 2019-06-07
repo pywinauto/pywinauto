@@ -1,8 +1,7 @@
 import ctypes
 import subprocess
 import six
-from ctypes import *  # Structure, c_char_p, c_int, c_bool, POINTER, c_uint32, c_short, c_double, addressof, c_void_p, c_char, create_string_buffer
-from collections import namedtuple
+from ctypes import *
 
 from ..backend import Singleton
 
@@ -345,6 +344,11 @@ class _AtspiText(Structure):
         ('parent', _GTypeInterface),
     ]
 
+class _AtspiEditableText(Structure):
+    _fields_ = [
+        ('parent', _GTypeInterface),
+    ]
+
 
 class _AtspiValue(Structure):
     _fields_ = [
@@ -359,11 +363,13 @@ class _AtspiTextRange(Structure):
         ('content', c_char_p),
     ]
 
+
 class _AtspiRange(Structure):
     _fields_ = [
         ('start_offset', c_int),
         ('end_offset', c_int),
     ]
+
 
 class _AtspiAccessible(Structure):
     pass
@@ -641,6 +647,10 @@ class AtspiAccessible(object):
     get_value.argtypes = [POINTER(_AtspiAccessible)]
     get_value.restype = POINTER(_AtspiValue)
 
+    get_editable_text = IATSPI().get_iface_func("atspi_accessible_get_editable_text")
+    get_editable_text.argtypes = [POINTER(_AtspiAccessible)]
+    get_editable_text.restype = POINTER(_AtspiEditableText)
+
 
 class AtspiComponent(object):
     _contains = IATSPI().get_iface_func("atspi_component_contains")
@@ -908,9 +918,9 @@ class AtspiText(object):
     _get_attribute_run.argtypes = [POINTER(_AtspiText), c_int, c_bool, c_int, c_int, POINTER(POINTER(_GError))]
     _get_attribute_run.restype = POINTER(_GHashTable)
 
-    atspi_text_get_text_attribute_value = IATSPI().get_iface_func("atspi_text_get_text_attribute_value")
-    atspi_text_get_text_attribute_value.argtypes = [POINTER(_AtspiText), c_int, c_char_p, POINTER(POINTER(_GError))]
-    atspi_text_get_text_attribute_value.restype = c_char_p
+    _get_text_attribute_value = IATSPI().get_iface_func("atspi_text_get_text_attribute_value")
+    _get_text_attribute_value.argtypes = [POINTER(_AtspiText), c_int, c_char_p, POINTER(POINTER(_GError))]
+    _get_text_attribute_value.restype = c_char_p
 
     _get_default_attributes = IATSPI().get_iface_func("atspi_text_get_default_attributes")
     _get_default_attributes.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
@@ -972,6 +982,9 @@ class AtspiText(object):
     def get_text(self, start_offset, end_offset, g_error_pointer=None):
         return self._get_text(self._pointer, start_offset, end_offset, g_error_pointer)
 
+    def get_whole_text(self):
+        return self.get_text(0, self.get_character_count())
+
     @g_error_handler
     def get_caret_offset(self, g_error_pointer=None):
         return self._get_caret_offset(self._pointer, g_error_pointer)
@@ -981,12 +994,57 @@ class AtspiText(object):
         return self._set_caret_offset(self._pointer, offset, g_error_pointer)
 
     @g_error_handler
-    def _get_string_at_offset(self, offset, granularity):
+    def get_string_at_offset(self, offset, granularity):
         assert granularity.lower() in _AtspiTextGranularity, \
             "wrong granularity type expected one of: {}".format(_AtspiTextGranularity)
         granularity = _AtspiTextGranularity.index(granularity.lower())
         text_range = self._get_string_at_offset(offset, granularity)
         return text_range.contents.content
+
+    @g_error_handler
+    def get_selection(self, offset=0, g_error_pointer=None):
+        atspi_range = self._get_selection(self._pointer, offset, g_error_pointer)
+        return atspi_range.contents.start_offset, atspi_range.contents.end_offset
+
+    def add_selection(self, start_pos, end_pos, g_error_pointer=None):
+        return self._add_selection(self._pointer, start_pos, end_pos, g_error_pointer)
+
+
+class AtspiEditableText(object):
+    _set_text_contents = IATSPI().get_iface_func("atspi_editable_text_set_text_contents")
+    _set_text_contents.argtypes = [POINTER(_AtspiEditableText), c_char_p, POINTER(POINTER(_GError))]
+    _set_text_contents.restype = c_bool
+
+    _insert_text = IATSPI().get_iface_func("atspi_editable_text_insert_text")
+    _insert_text.argtypes = [POINTER(_AtspiEditableText), c_int, c_char_p, c_int, POINTER(POINTER(_GError))]
+    _insert_text.restype = c_bool
+
+    _copy_text = IATSPI().get_iface_func("atspi_editable_text_copy_text")
+    _copy_text.argtypes = [POINTER(_AtspiEditableText), c_int, c_int, POINTER(POINTER(_GError))]
+    _copy_text.restype = c_bool
+
+    _cut_text = IATSPI().get_iface_func("atspi_editable_text_cut_text")
+    _cut_text.argtypes = [POINTER(_AtspiEditableText), c_int, c_int, POINTER(POINTER(_GError))]
+    _cut_text.restype = c_bool
+
+    _delete_text = IATSPI().get_iface_func("atspi_editable_text_delete_text")
+    _delete_text.argtypes = [POINTER(_AtspiEditableText), c_int, c_int, POINTER(POINTER(_GError))]
+    _delete_text.restype = c_bool
+
+    _paste_text = IATSPI().get_iface_func("atspi_editable_text_paste_text")
+    _paste_text.argtypes = [POINTER(_AtspiEditableText), c_int, POINTER(POINTER(_GError))]
+    _paste_text.restype = c_bool
+
+    def __init__(self, pointer):
+        self._pointer = pointer
+
+    @g_error_handler
+    def insert_text(self, text, start_positon=0, g_error_pointer=None):
+        return self._insert_text(self._pointer, start_positon, text, len(text), g_error_pointer)
+
+    @g_error_handler
+    def set_text(self, text, g_error_pointer=None):
+        return self._set_text_contents(self._pointer, ctypes.c_char_p(text), g_error_pointer)
 
 
 class AtspiValue(object):
