@@ -1,5 +1,5 @@
-from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, known_control_types, AtspiComponent, \
-    AtspiStateSet, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, AtspiEditableText
+from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, AtspiComponent, \
+    AtspiStateSet, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, AtspiEditableText, IATSPI
 from ..element_info import ElementInfo
 
 
@@ -67,7 +67,7 @@ class AtspiElementInfo(ElementInfo):
     def control_type(self):
         """Return the class name of the element"""
         role_id = self.atspi_accessible.get_role(self._handle, None)
-        return known_control_types[role_id]
+        return IATSPI().known_control_type_ids[role_id]
 
     @property
     def parent(self):

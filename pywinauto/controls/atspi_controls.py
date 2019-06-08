@@ -43,10 +43,10 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
     """Wrap a Atspi-compatible Button, CheckBox or RadioButton control"""
 
-    _control_types = ['Push_button',
-                      'Check_box',
-                      'Toggle_button',
-                      'Radio_button',
+    _control_types = ['push button',
+                      'check box',
+                      'toggle button',
+                      'radio button',
                       ]
 
     # -----------------------------------------------------------
@@ -80,7 +80,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
     """Wrap single-line and multiline text edit controls"""
 
-    _control_types = ['Text']
+    _control_types = ['text']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
