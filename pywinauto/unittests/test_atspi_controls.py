@@ -68,6 +68,11 @@ if sys.platform.startswith("linux"):
             # TODO replace .children call to wrapper object when wrapper fully implemented
             return self.app_info.children()[0].children()[0].children()[5].rich_text
 
+        def test_ololo(self):
+            app_window = self.app.gtk_example.Frame.Panel
+            print(app_window.element_info.children())
+            time.sleep(5)
+
         def test_get_action(self):
             actions_count = self.button_wrapper.action.get_n_actions()
             print("Button actions count is: {}".format(actions_count))

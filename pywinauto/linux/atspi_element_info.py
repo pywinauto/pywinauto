@@ -14,10 +14,10 @@ class AtspiElementInfo(ElementInfo):
         else:
             self._handle = handle
 
-    def __get_elements(self, root, tree):
+    def __get_elements(self, root, tree, **kwargs):
         tree.append(root)
-        for el in root.children():
-            self.__get_elements(el, tree)
+        for el in root.children(**kwargs):
+            self.__get_elements(el, tree, **kwargs)
 
     def __eq__(self, other):
         if self.control_type == "Application":
@@ -78,11 +78,25 @@ class AtspiElementInfo(ElementInfo):
 
     def children(self, **kwargs):
         """Return children of the element"""
+        process = kwargs.get("process", None)
+        class_name = kwargs.get("class_name", None)
+        title = kwargs.get("title", None)
+        control_type = kwargs.get("control_type", None)
+
         len = self.atspi_accessible.get_child_count(self._handle, None)
         childrens = []
         for i in range(len):
-            childrens.append(self.atspi_accessible.get_child_at_index(self._handle, i, None))
-        return [AtspiElementInfo(ch) for ch in childrens]
+            child = AtspiElementInfo(self.atspi_accessible.get_child_at_index(self._handle, i, None))
+            if class_name is not None and class_name != child.class_name:
+                continue
+            if title is not None and title != child.rich_text:
+                continue
+            if control_type is not None and control_type != child.control_type:
+                continue
+            if process is not None and process != child.process_id:
+                continue
+            childrens.append(child)
+        return childrens
 
     @property
     def component(self):
@@ -92,8 +106,10 @@ class AtspiElementInfo(ElementInfo):
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         tree = []
-        for obj in self.children():
-            self.__get_elements(obj, tree)
+        for obj in self.children(**kwargs):
+            self.__get_elements(obj, tree, **kwargs)
+        depth = kwargs.get("depth", None)
+        tree = self.filter_with_depth(tree, self, depth)
         return tree
 
     def description(self):
@@ -141,11 +157,19 @@ class AtspiElementInfo(ElementInfo):
     @property
     def visible(self):
         states = self.get_state_set()
+        if self.control_type == "Application":
+            states = self.children()[0].get_state_set()
         return "STATE_VISIBLE" in states and "STATE_ACTIVE" in states and "STATE_SHOWING" in states
+
+    def set_cache_strategy(self, cached):
+        """Set a cache strategy for frequently used attributes of the element"""
+        pass  # TODO: implement a cache strategy for atspi elements
 
     @property
     def enabled(self):
         states = self.get_state_set()
+        if self.control_type == "Application":
+            states = self.children()[0].get_state_set()
         return "STATE_ENABLED" in states
 
     @property

@@ -71,6 +71,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_info.control_type, "Application")
 
         def test_can_get_control_type_of_all_app_descendants(self):
+            print(self.app_info.descendants())
             for children in self.app_info.descendants():
                 self.assertTrue(children.control_type in IATSPI().known_control_types.keys())
 
