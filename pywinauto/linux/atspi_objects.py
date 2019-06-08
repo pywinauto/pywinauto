@@ -443,7 +443,8 @@ class IATSPI(object):
         for i in range(ATSPI_ROLE_COUNT):
             role = get_role_name(i)
             if role is not None:
-                control_types.append(role.decode("utf-8"))
+                role = "".join([part.capitalize() for part in role.decode("utf-8").split()])
+                control_types.append(role)
         return control_types
 
     def __init__(self):

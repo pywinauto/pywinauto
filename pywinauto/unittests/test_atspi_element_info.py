@@ -48,7 +48,7 @@ if sys.platform.startswith("linux"):
             self.app.kill()
 
         def test_can_get_desktop(self):
-            self.assertEqual(self.desktop_info.class_name, "desktop frame")
+            self.assertEqual(self.desktop_info.control_type, "DesktopFrame")
 
         def test_can_get_childrens(self):
             apps = [children.name for children in self.desktop_info.children()]
@@ -59,16 +59,16 @@ if sys.platform.startswith("linux"):
 
         def test_can_get_parent(self):
             parent = self.app_info.parent
-            self.assertEqual(parent.class_name, "desktop frame")
+            self.assertEqual(parent.control_type, "DesktopFrame")
 
         def test_can_get_process_id(self):
             self.assertEqual(self.app_info.process_id, self.app.process)
 
         def test_can_get_class_name(self):
-            self.assertEqual(self.app_info.class_name, "application")
+            self.assertEqual(self.app_info.class_name, "Application")
 
         def test_can_get_control_type_property(self):
-            self.assertEqual(self.app_info.control_type, "application")
+            self.assertEqual(self.app_info.control_type, "Application")
 
         def test_can_get_control_type_of_all_app_descendants(self):
             for children in self.app_info.descendants():
@@ -76,7 +76,7 @@ if sys.platform.startswith("linux"):
 
         def test_control_type_equal_class_name(self):
             for children in self.app_info.descendants():
-                self.assertEqual(children.control_type.lower().replace("_", " "), children.class_name)
+                self.assertEqual(children.control_type, children.class_name)
 
         def test_can_get_description(self):
             # TODO find a way to add meaningful description to example application

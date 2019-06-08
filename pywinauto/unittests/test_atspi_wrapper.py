@@ -65,24 +65,24 @@ if sys.platform.startswith("linux"):
             self.assertIn("STATE_SHOWING", states)
 
         def test_top_level_parent_for_app_return_app(self):
-            self.assertEqual(self.app_wrapper.top_level_parent().element_info.control_type, "application")
+            self.assertEqual(self.app_wrapper.top_level_parent().element_info.control_type, "Application")
 
         def test_top_level_parent_for_button_return_app(self):
             # TODO replace .children call to wrapper object when wrapper fully implemented
             self.assertEqual(self.app_wrapper.children()[0].children()[0].top_level_parent().element_info.control_type,
-                             "application")
+                             "Application")
 
         def test_root_return_desktop(self):
             self.assertEqual(self.app_wrapper.root(), self.desktop_info)
 
         def test_class_name_return_element_info_class_name(self):
-            self.assertEqual(self.app_wrapper.class_name(), "application")
+            self.assertEqual(self.app_wrapper.class_name(), "Application")
 
         def test_window_text(self):
             self.assertEqual(self.app_wrapper.window_text(), app_name)
 
         def test_control_id(self):
-            self.assertEqual(self.app_wrapper.control_id(), IATSPI().known_control_types["application"])
+            self.assertEqual(self.app_wrapper.control_id(), IATSPI().known_control_types["Application"])
 
         def test_can_get_rectangle(self):
             # TODO replace .children call to wrapper object when wrapper fully implemented
@@ -93,7 +93,7 @@ if sys.platform.startswith("linux"):
         def test_can_get_process_id(self):
             self.assertEqual(self.app_wrapper.process_id(), self.app.process)
 
-        def test_is_dialog_for_application_is_true(self):
+        def test_is_dialog_for_Application_is_true(self):
             self.assertTrue(self.app_wrapper.is_dialog())
 
         def test_is_dialog_for_button_is_false(self):
@@ -103,7 +103,7 @@ if sys.platform.startswith("linux"):
             self.assertFalse(button_wrapper.is_dialog())
 
         def test_can_get_children(self):
-            self.assertEqual(self.app_wrapper.children()[0].control_id(), IATSPI().known_control_types["frame"])
+            self.assertEqual(self.app_wrapper.children()[0].control_id(), IATSPI().known_control_types["Frame"])
 
         def test_can_get_descendants(self):
             self.assertTrue(len(self.app_wrapper.descendants()) > len(self.app_wrapper.children()))
@@ -113,9 +113,9 @@ if sys.platform.startswith("linux"):
 
         def test_can_get_properties(self):
             props = self.app_wrapper.get_properties()
-            self.assertEqual(props['class_name'], 'application')
-            self.assertEqual(props['friendly_class_name'], 'application')
-            self.assertEqual(props['control_id'], IATSPI().known_control_types["application"])
+            self.assertEqual(props['class_name'], 'Application')
+            self.assertEqual(props['friendly_class_name'], 'Application')
+            self.assertEqual(props['control_id'], IATSPI().known_control_types["Application"])
 
         def test_app_is_child_of_desktop(self):
             self.assertTrue(self.app_wrapper.is_child(self.desktop_wrapper))
