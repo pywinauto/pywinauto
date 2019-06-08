@@ -1,10 +1,9 @@
-from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, AtspiComponent, \
-    AtspiStateSet, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, AtspiEditableText, IATSPI
+from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
+    AtspiEditableText, IATSPI
 from ..element_info import ElementInfo
 
 
 class AtspiElementInfo(ElementInfo):
-
     """Wrapper for window handler"""
     atspi_accessible = AtspiAccessible()
 
