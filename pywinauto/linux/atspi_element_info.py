@@ -20,7 +20,7 @@ class AtspiElementInfo(ElementInfo):
             self.__get_elements(el, tree)
 
     def __eq__(self, other):
-        if self.class_name == "application":
+        if self.control_type == "Application":
             return self.process_id == other.process_id
         return self.rectangle == other.rectangle
 
@@ -55,7 +55,8 @@ class AtspiElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return the class name of the element"""
-        return self.atspi_accessible.get_role_name(self._handle, None).decode(encoding='UTF-8')
+        role = self.atspi_accessible.get_role_name(self._handle, None)
+        return "".join([part.capitalize() for part in role.decode("utf-8").split()])
 
     @property
     def rich_text(self):
