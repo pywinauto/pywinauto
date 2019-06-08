@@ -8,7 +8,6 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
-    from pywinauto.controls.atspi_controls import ButtonWrapper, EditWrapper
 
 app_name = r"gtk_example.py"
 text = "This is some text inside of a Gtk.TextView. \n" \
@@ -28,11 +27,11 @@ def _test_app():
 
 def print_tree(start_el_info, level_shifter=""):
     if level_shifter == "":
-        print(start_el_info.control_type, "  ", start_el_info.control_id, "!")
+        print(start_el_info.control_type, "  ", start_el_info.name, "!")
         level_shifter += "-"
 
     for children in start_el_info.children():
-        print(level_shifter, "  ", children.control_type, "    ", children.control_id, "!")
+        print(level_shifter, "  ", children.control_type, "    ", children.name, "!")
         print_tree(children, level_shifter + "-")
 
 
@@ -57,10 +56,10 @@ if sys.platform.startswith("linux"):
             self.app_info = self.get_app(app_name)
             # TODO replace .children call to wrapper object when wrapper fully implemented
             self.button_info = self.app_info.children()[0].children()[0].children()[0]
-            self.button_wrapper = ButtonWrapper(self.button_info)
+            self.button_wrapper = AtspiWrapper(self.button_info)
 
             self.app_wrapper = AtspiWrapper(self.app_info)
-            self.text_area = EditWrapper(self.app_info.children()[0].children()[0].children()[6].children()[0])
+            self.text_area = AtspiWrapper(self.app_info.children()[0].children()[0].children()[6].children()[0])
 
         def tearDown(self):
             self.app.kill()
@@ -92,7 +91,7 @@ if sys.platform.startswith("linux"):
         def test_button_toggle(self):
             # TODO replace .children call to wrapper object when wrapper fully implemented
             toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
-            toggle_button_wrapper = ButtonWrapper(toggle_button_info)
+            toggle_button_wrapper = AtspiWrapper(toggle_button_info)
             toggle_button_wrapper.click()
             self.assertEqual(self._get_state_label_text(), "Button 1 turned on")
 
@@ -100,14 +99,14 @@ if sys.platform.startswith("linux"):
             print_tree(self.app_info, "-")
             # TODO replace .children call to wrapper object when wrapper fully implemented
             toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
-            toggle_button_wrapper = ButtonWrapper(toggle_button_info)
+            toggle_button_wrapper = AtspiWrapper(toggle_button_info)
             self.assertFalse(toggle_button_wrapper.get_toggle_state())
             toggle_button_wrapper.click()
             self.assertTrue(toggle_button_wrapper.get_toggle_state())
 
         def test_text_area_is_editable(self):
             # TODO replace .children call to wrapper object when wrapper fully implemented
-            editable_state_button = ButtonWrapper(self.app_info.children()[0].children()[0].children()[4])
+            editable_state_button = AtspiWrapper(self.app_info.children()[0].children()[0].children()[4])
             self.assertTrue(self.text_area.is_editable())
             editable_state_button.click()
             self.assertFalse(self.text_area.is_editable())
