@@ -1,10 +1,5 @@
-import sys
 import os.path
-import pickle
 import time
-import warnings
-import multiprocessing
-import locale
 import subprocess
 import shlex
 
