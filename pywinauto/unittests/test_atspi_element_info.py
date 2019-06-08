@@ -8,7 +8,7 @@ import re
 if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
-    from pywinauto.linux.atspi_element_info import known_control_types
+    from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
 
@@ -68,11 +68,11 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_info.class_name, "application")
 
         def test_can_get_control_type_property(self):
-            self.assertEqual(self.app_info.control_type, "Application")
+            self.assertEqual(self.app_info.control_type, "application")
 
         def test_can_get_control_type_of_all_app_descendants(self):
             for children in self.app_info.descendants():
-                self.assertTrue(children.control_type in known_control_types)
+                self.assertTrue(children.control_type in IATSPI().known_control_types.keys())
 
         def test_control_type_equal_class_name(self):
             for children in self.app_info.descendants():

@@ -396,139 +396,6 @@ _AtspiStateSet._fields_ = [
     ('states', c_uint64),
 ]
 
-"""
-AtspiRole: 
-https://github.com/GNOME/at-spi2-core/blob/77313dabdc76ebd012d003e253a79596e3acc72d/atspi/atspi-constants.h#L1371
-"""
-known_control_types = [
-    "Invalid",
-    "Accelerator_label",
-    "Alert",
-    "Animation",
-    "Arrow",
-    "Calendar",
-    "Canvas",
-    "Check_box",
-    "Check_menu_item",
-    "Color_chooser",
-    "Column_header",
-    "Combo_box",
-    "Date_editor",
-    "Desktop_icon",
-    "Desktop_frame",
-    "Dial",
-    "Dialog",
-    "Directory_pane",
-    "Drawing_area",
-    "File_chooser",
-    "Filler",
-    "Focus_traversable",
-    "Font_chooser",
-    "Frame",
-    "Glass_pane",
-    "Html_container",
-    "Icon",
-    "Image",
-    "Internal_frame",
-    "Label",
-    "Layered_pane",
-    "List",
-    "List_item",
-    "Menu",
-    "Menu_bar",
-    "Menu_item",
-    "Option_pane",
-    "Page_tab",
-    "Page_tab_list",
-    "Panel",
-    "Password_text",
-    "Popup_menu",
-    "Progress_bar",
-    "Push_button",
-    "Radio_button",
-    "Radio_menu_item",
-    "Root_pane",
-    "Row_header",
-    "Scroll_bar",
-    "Scroll_pane",
-    "Separator",
-    "Slider",
-    "Spin_button",
-    "Split_pane",
-    "Status_bar",
-    "Table",
-    "Table_cell",
-    "Table_column_header",
-    "Table_row_header",
-    "Tearoff_menu_item",
-    "Terminal",
-    "Text",
-    "Toggle_button",
-    "Tool_bar",
-    "Tool_tip",
-    "Tree",
-    "Tree_table",
-    "Unknown",
-    "Viewport",
-    "Window",
-    "Extended",
-    "Header",
-    "Footer",
-    "Paragraph",
-    "Ruler",
-    "Application",
-    "Autocomplete",
-    "Editbar",
-    "Embedded",
-    "Entry",
-    "Chart",
-    "Caption",
-    "Document_frame",
-    "Heading",
-    "Page",
-    "Section",
-    "Redundant_object",
-    "Form",
-    "Link",
-    "Input_method_window",
-    "Table_row",
-    "Tree_item",
-    "Document_spreadsheet",
-    "Document_presentation",
-    "Document_text",
-    "Document_web",
-    "Document_email",
-    "Comment",
-    "List_box",
-    "Grouping",
-    "Image_map",
-    "Notification",
-    "Info_bar",
-    "Level_bar",
-    "Title_bar",
-    "Block_quote",
-    "Audio",
-    "Video",
-    "Definition",
-    "Article",
-    "Landmark",
-    "Log",
-    "Marquee",
-    "Math",
-    "Rating",
-    "Timer",
-    "Static",
-    "Math_fraction",
-    "Math_root",
-    "Subscript",
-    "Superscript",
-    "Description_list",
-    "Description_term",
-    "Description_value",
-    "Footnote",
-    "Last_defined",
-]
-
 
 def g_error_handler(func):
     def wrapper(*args, **kwargs):
@@ -543,6 +410,9 @@ def g_error_handler(func):
         return res
 
     return wrapper
+
+
+ATSPI_ROLE_COUNT = 126
 
 
 @six.add_metaclass(Singleton)
@@ -572,6 +442,17 @@ class IATSPI(object):
             self.atspi.atspi_init()
             if not self.atspi.atspi_is_initialized():
                 raise Exception("Cannot initialize atspi module")
+            get_role_name = self.atspi.atspi_role_get_name
+            get_role_name.argtypes = [c_int]
+            get_role_name.restype = c_char_p
+            self._control_types = [get_role_name(i).decode("utf-8") for i in range(ATSPI_ROLE_COUNT)]
+
+            self.known_control_types = {}  # string id: numeric id
+            self.known_control_type_ids = {}  # numeric id: string id
+
+            for type_id, ctrl_type in enumerate(self._control_types):
+                self.known_control_types[ctrl_type] = type_id
+                self.known_control_type_ids[type_id] = ctrl_type
 
         except Exception:
             message = "atspi library not installed. Please install at-spi2 library or choose another backend"
