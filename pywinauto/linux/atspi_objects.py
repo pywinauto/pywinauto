@@ -435,6 +435,17 @@ class IATSPI(object):
             # ldconfig not installed will use default lib name
             return cls.DEFAULT_LIB_NAME
 
+    def __get_roles(self):
+        control_types = []
+        get_role_name = self.atspi.atspi_role_get_name
+        get_role_name.argtypes = [c_int]
+        get_role_name.restype = c_char_p
+        for i in range(ATSPI_ROLE_COUNT):
+            role = get_role_name(i)
+            if role is not None:
+                control_types.append(role.decode("utf-8"))
+        return control_types
+
     def __init__(self):
         try:
             print(self.__find_library())
@@ -442,11 +453,8 @@ class IATSPI(object):
             self.atspi.atspi_init()
             if not self.atspi.atspi_is_initialized():
                 raise Exception("Cannot initialize atspi module")
-            get_role_name = self.atspi.atspi_role_get_name
-            get_role_name.argtypes = [c_int]
-            get_role_name.restype = c_char_p
-            self._control_types = [get_role_name(i).decode("utf-8") for i in range(ATSPI_ROLE_COUNT)]
 
+            self._control_types = self.__get_roles()
             self.known_control_types = {}  # string id: numeric id
             self.known_control_type_ids = {}  # numeric id: string id
 
