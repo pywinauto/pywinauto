@@ -56,7 +56,7 @@ class InvalidWindowHandle(RuntimeError):
     """Raised when an invalid handle is passed to AtspiWrapper"""
 
     def __init__(self, hwnd):
-        """Initialise the RuntimError parent with the mesage"""
+        """Initialise the RuntimeError parent with the mesage"""
         RuntimeError.__init__(self,
                               "Handle {0} is not a vaild window handle".format(hwnd))
 
@@ -64,7 +64,7 @@ class InvalidWindowHandle(RuntimeError):
 # =========================================================================
 class AtspiMeta(BaseMeta):
 
-    """Metaclass for UiaWrapper objects"""
+    """Metaclass for AtspiWrapper objects"""
     control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
@@ -72,10 +72,20 @@ class AtspiMeta(BaseMeta):
 
         BaseMeta.__init__(cls, name, bases, attrs)
 
+        for t in cls._control_types:
+            AtspiMeta.control_type_to_cls[t] = cls
+
     @staticmethod
     def find_wrapper(element):
-        # TODO find derived wrapper class and return it
-        return AtspiWrapper
+        """Find the correct wrapper for this Atspi element"""
+        # Set a general wrapper by default
+        wrapper_match = AtspiWrapper
+
+        # Check for a more specific wrapper in the registry
+        if element.control_type in AtspiMeta.control_type_to_cls:
+            wrapper_match = AtspiMeta.control_type_to_cls[element.control_type]
+
+        return wrapper_match
 
 
 # =========================================================================
@@ -83,11 +93,11 @@ class AtspiMeta(BaseMeta):
 class AtspiWrapper(BaseWrapper):
 
     """
-    Default wrapper for User Interface Automation (UIA) controls.
+    Default wrapper for User Interface Automation (Atspi) controls.
 
-    All other UIA wrappers are derived from this.
+    All other Atspi wrappers are derived from this.
 
-    This class wraps a lot of functionality of underlying UIA features
+    This class wraps a lot of functionality of underlying Atspi features
     for working with windows.
 
     Most of the methods apply to every single element type. For example
@@ -106,8 +116,8 @@ class AtspiWrapper(BaseWrapper):
         """
         Initialize the control
 
-        * **element_info** is either a valid UIAElementInfo or it can be an
-          instance or subclass of UIAWrapper.
+        * **element_info** is either a valid AtspiElementInfo or it can be an
+          instance or subclass of AtspiWrapper.
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """

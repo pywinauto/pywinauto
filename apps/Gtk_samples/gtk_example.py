@@ -44,32 +44,23 @@ class TestApplicationMainWindow(Gtk.Window):
         grid = Gtk.Grid()
         self.add(grid)
 
-        # main_objects_box = Gtk.Box(spacing=6)
-        # self.add(main_objects_box)
-
         self.button1 = Gtk.Button("Click")
         self.button1.connect("clicked", self.on_click_me_clicked)
-        # main_objects_box.pack_start(self.button1, True, True, 0)
 
         self.button2 = Gtk.Button(stock=Gtk.STOCK_OPEN)
         self.button2.connect("clicked", self.on_open_clicked)
-        # main_objects_box.pack_start(self.button2, True, True, 0)
 
         self.button3 = Gtk.Button("C_l_o_s_e", use_underline=True)
         self.button3.connect("clicked", self.on_close_clicked)
-        # main_objects_box.pack_start(self.button3, True, True, 0)
 
         self.button4 = Gtk.CheckButton("Button 1")
         self.button4.connect("toggled", self.on_button_toggled, "1")
-        # main_objects_box.pack_start(self.button4, False, False, 0)
 
         self.button5 = Gtk.CheckButton("Editable", use_underline=True)
         self.button5.set_active(True)
         self.button5.connect("toggled", self.on_text_editable_button_toggled, "2")
-        # main_objects_box.pack_start(self.button5, False, False, 0)
 
         self.label = Gtk.Label("Status")
-        # main_objects_box.pack_start(self.label, False, False, 0)
         # self.combo = self._add_combobox()
 
         self.scroll_view = self._create_textview()

@@ -30,8 +30,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import sys
 """Controls package"""
-if sys.platform != 'win32':
+if sys.platform.startswith('linux'):
     from . import atspiwrapper  # register "atspi" back-end
+    from . import atspi_controls
     from .atspiwrapper import InvalidWindowHandle
 else:
     from ..sysinfo import UIA_support
