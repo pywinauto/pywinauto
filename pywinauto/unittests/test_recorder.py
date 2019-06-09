@@ -1,4 +1,5 @@
 import sys
+import time
 import unittest
 
 from six import PY3
@@ -10,12 +11,19 @@ else:
 
 sys.path.append(".")
 
+import pywinauto.recorder.uia.uia_recorder
+import pywinauto.win32_hooks
+
+from pywinauto.application import Application
+from pywinauto.recorder.base_recorder import BaseRecorder
 from pywinauto.recorder.recorder_defines import HOOK_KEY_DOWN, HOOK_KEY_UP, HOOK_MOUSE_LEFT_BUTTON, \
     HOOK_MOUSE_RIGHT_BUTTON, HOOK_MOUSE_MIDDLE_BUTTON, EVENT, PROPERTY, STRUCTURE_EVENT, RecorderEvent, \
     RecorderMouseEvent, ApplicationEvent, PropertyEvent, EventPattern, _is_identifier, \
     get_window_access_name_str
 from pywinauto.recorder.uia.uia_event_handlers import EventHandler, MenuOpenedHandler, MenuClosedHandler, \
-    ExpandCollapseHandler, SelectionChangedHandler, MouseClickHandler
+    ExpandCollapseHandler, SelectionChangedHandler, MouseClickHandler, UIA_EVENT_PATTERN_MAP
+from pywinauto.recorder.uia.uia_recorder import UiaRecorder
+from pywinauto.uia_defines import IUIA, window_visual_state_normal, expand_state_expanded
 from pywinauto.win32structures import RECT
 
 
@@ -328,6 +336,211 @@ class UIAEventHandlersTestCases(unittest.TestCase):
                    u"_y = int((_rect.bottom - _rect.top) * 0.5)\n" \
                    u"_elem.click_input(button='left', coords=(_x, _y))\n"
         self.assertEqual(expected, result)
+
+
+class BaseRecorderTestCases(unittest.TestCase):
+
+    """Unit tests for the BaseRecorder class"""
+
+    def setUp(self):
+        self.app_mock = mock.MagicMock(spec=Application, is_process_running=mock.Mock(return_value=True), process=0,
+                                       backend=mock.Mock())
+        self.app_mock.backend.name = "uia"
+
+        self.config_mock = mock.Mock(verbose=True)
+
+        self.base_recorder = BaseRecorder(self.app_mock, self.config_mock)
+
+    def tearDown(self):
+        self.base_recorder.stop()
+
+    def test_init_without_application(self):
+        self.assertRaises(TypeError, BaseRecorder, None, self.config_mock)
+
+    def test_init_with_app_not_running(self):
+        self.app_mock.is_process_running.return_value = False
+
+        self.assertRaises(TypeError, BaseRecorder, self.app_mock, self.config_mock)
+
+    def test_init_script_with_process(self):
+        self.assertTrue("app = pywinauto.Application(backend='uia').start(r'None')" in self.base_recorder.script)
+
+    def test_init_script_without_process(self):
+        self.app_mock.process = mock.Mock(side_effect=KeyError)
+        self.base_recorder = BaseRecorder(self.app_mock, None)
+
+        self.assertTrue(
+            "app = pywinauto.Application(backend='uia').start(r'INSERT_CMD_HERE')" in self.base_recorder.script)
+
+    def test_add_to_log(self):
+        self.base_recorder.add_to_log("1")
+        self.base_recorder.add_to_log(2)
+
+        self.assertEqual(self.base_recorder.event_log, ["1", 2])
+
+    def test_clear_log(self):
+        self.base_recorder.add_to_log(3.0)
+        self.base_recorder.add_to_log(None)
+
+        self.base_recorder.clear_log()
+
+        self.assertEqual(self.base_recorder.event_log, [])
+
+    def test_start(self):
+        setup_mock = mock.Mock()
+        self.base_recorder._setup = setup_mock
+
+        self.base_recorder.start()
+        time.sleep(1)
+
+        self.assertTrue(self.base_recorder.recorder_start_event.is_set())
+        self.assertTrue(setup_mock.called)
+
+    def test_stop(self):
+        cleanup_mock = mock.Mock()
+        self.base_recorder._cleanup = cleanup_mock
+
+        self.base_recorder.start()
+        time.sleep(1)
+        self.base_recorder.stop()
+        time.sleep(1)
+
+        self.assertTrue(self.base_recorder.recorder_stop_event.is_set())
+        self.assertTrue(cleanup_mock.called)
+
+    def test_is_active(self):
+        self.base_recorder.start()
+        time.sleep(1)
+
+        self.assertTrue(self.base_recorder.is_active())
+
+        self.base_recorder.stop()
+        time.sleep(1)
+
+        self.assertFalse(self.base_recorder.is_active())
+
+    def test_wait(self):
+        self.base_recorder.is_active = mock.Mock(return_value=True)
+        self.base_recorder.recorder_thread.join = mock.Mock()
+
+        self.base_recorder.wait()
+
+        self.assertTrue(self.base_recorder.is_active.called)
+        self.assertTrue(self.base_recorder.recorder_thread.join.called)
+
+    def test_parse_and_clear_log(self):
+        # new_script = self.log_parser.parse_current_log()
+        # self.script += new_script
+        # self.clear_log()
+        self.base_recorder.log_parser = mock.Mock(parse_current_log=mock.Mock(return_value="script_line\n"))
+        self.base_recorder.add_to_log("item")
+        self.base_recorder.add_to_log(2.0)
+
+        self.base_recorder._parse_and_clear_log()
+
+        self.assertTrue(self.base_recorder.log_parser.parse_current_log.called)
+        self.assertEqual(self.base_recorder.script.splitlines()[-1], "script_line")
+        self.assertEqual(self.base_recorder.event_log, [])
+
+    def test_event_patterns(self):
+        self.assertEqual(self.base_recorder.event_patterns, [])
+
+
+class UiaRecorderTestCases(unittest.TestCase):
+
+    """Unit tests for the UiaRecorder class"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls._ignored_events_backup = pywinauto.recorder.uia.uia_recorder._ignored_events[:]
+
+        IUIA().iuia.AddAutomationEventHandler = mock.Mock()
+        IUIA().iuia.AddPropertyChangedEventHandler = mock.Mock()
+        IUIA().iuia.AddFocusChangedEventHandler = mock.Mock()
+        IUIA().iuia.AddStructureChangedEventHandler = mock.Mock()
+        IUIA().iuia.RemoveAllEventHandlers = mock.Mock()
+
+        cls.hook_hook_mock = mock.Mock(spec=["keyboard", "mouse"])
+        pywinauto.win32_hooks.Hook = mock.Mock(return_value=mock.Mock(hook=cls.hook_hook_mock))
+
+    def setUp(self):
+        self.app_mock = mock.MagicMock(spec=Application, is_process_running=mock.Mock(return_value=True), process=0,
+                                       backend=mock.Mock())
+        self.app_mock.backend.name = "uia"
+
+        self.config_mock = mock.Mock(verbose=True)
+
+        pywinauto.recorder.uia.uia_recorder._ignored_events = self._ignored_events_backup[:]
+
+        self.uia_recorder = UiaRecorder(self.app_mock, self.config_mock, record_props=True, record_focus=False,
+                                        record_struct=False)
+
+        IUIA().iuia.AddAutomationEventHandler.reset_mock()
+        IUIA().iuia.AddPropertyChangedEventHandler.reset_mock()
+        IUIA().iuia.AddFocusChangedEventHandler.reset_mock()
+        IUIA().iuia.AddStructureChangedEventHandler.reset_mock()
+        IUIA().iuia.RemoveAllEventHandlers.reset_mock()
+
+        self.hook_hook_mock.reset_mock()
+        pywinauto.win32_hooks.Hook.reset_mock()
+
+    def tearDown(self):
+        self.uia_recorder.stop()
+
+    def test_init_with_record_struct(self):
+        self.uia_recorder = UiaRecorder(self.app_mock, self.config_mock, record_struct=True)
+
+        self.assertTrue(IUIA().known_events_ids[IUIA().UIA_dll.UIA_StructureChangedEventId] not in
+                        pywinauto.recorder.uia.uia_recorder._ignored_events)
+
+    def test_event_patterns(self):
+        self.assertEqual(self.uia_recorder.event_patterns, UIA_EVENT_PATTERN_MAP)
+
+    def test_add_handlers(self):
+        self.uia_recorder = UiaRecorder(self.app_mock, self.config_mock, record_props=True, record_focus=True,
+                                        record_struct=True)
+
+        self.uia_recorder._add_handlers(None)
+
+        self.assertTrue(IUIA().iuia.AddAutomationEventHandler.called)
+        self.assertTrue(IUIA().iuia.AddPropertyChangedEventHandler.called)
+        self.assertTrue(IUIA().iuia.AddFocusChangedEventHandler.called)
+        self.assertTrue(IUIA().iuia.AddStructureChangedEventHandler.called)
+
+    def test_rebuild_control_tree(self):
+        rebuild_mock = mock.Mock()
+        self.uia_recorder.control_tree = mock.Mock(rebuild=rebuild_mock)
+
+        self.uia_recorder._rebuild_control_tree()
+
+        self.assertTrue(rebuild_mock.called)
+
+    def test_cleanup(self):
+        stop_mock = mock.Mock()
+        self.uia_recorder.hook = mock.Mock(stop=stop_mock)
+
+        self.uia_recorder._cleanup()
+
+        self.assertTrue(IUIA().iuia.RemoveAllEventHandlers.called)
+
+    def test_update(self):
+        self.uia_recorder.hook = mock.Mock(stop=mock.Mock())
+        self.uia_recorder.hook_target = mock.Mock()
+        self.uia_recorder.hook_thread = mock.Mock()
+        self.uia_recorder.rebuild_tree_thr = mock.Mock()
+        self.uia_recorder._add_handlers = mock.Mock(spec=["element"])
+        self.uia_recorder._rebuild_control_tree = mock.Mock()
+
+        self.uia_recorder._update(rebuild_tree=True, add_handlers_to="element", log_msg="test_update")
+
+        self.uia_recorder._add_handlers.assert_called_with("element")
+        self.uia_recorder._rebuild_control_tree.assert_called()
+
+    def test_hook_target(self):
+        self.uia_recorder.hook_target()
+
+        pywinauto.win32_hooks.Hook.assert_called()
+        self.hook_hook_mock.assert_called_with(keyboard=True, mouse=True)
 
 
 if __name__ == "__main__":
