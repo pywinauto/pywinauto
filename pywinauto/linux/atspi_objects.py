@@ -2,7 +2,8 @@ import subprocess
 import six
 
 from ctypes import Structure, c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
-    create_string_buffer, cdll
+    create_string_buffer, cdll, pointer
+from functools import wraps
 
 from ..backend import Singleton
 
@@ -397,17 +398,30 @@ _AtspiStateSet._fields_ = [
 ]
 
 
+class GErrorException(RuntimeError):
+
+    """Raised when an exception occurred during libatspi method call"""
+
+    def __init__(self, err_p):
+        """Initialise the RuntimeError parent with the message"""
+        RuntimeError.__init__(self, "GError with code: {0}, message: '{1}'".format(err_p[0].code,
+                                                                                   err_p[0].message.decode(
+                                                                                       encoding='UTF-8')))
+
+
 def g_error_handler(func):
+    """Helper decorator to handle GError"""
+
+    @wraps(func)
     def wrapper(*args, **kwargs):
-        error = _GError()
-        ep = POINTER(POINTER(_GError))(error)
-        kwargs["g_error_pointer"] = ep
+        err_p = pointer(_GError())
+        err_pp = pointer(err_p)
+        kwargs["g_error_pointer"] = err_pp
         res = func(*args, **kwargs)
-        if ep and ep.contents:
-            print("Warning g_error_handled during {} call. "
-                  "Error code: {}. "
-                  "Error message: {}".format(func.__name__, ep.contents.contents.code, ep.contents.contents.message))
-        return res
+        if err_p[0].code == 0:
+            return res
+        else:
+            raise GErrorException(err_p)
 
     return wrapper
 
