@@ -109,7 +109,6 @@ if sys.platform.startswith("linux"):
 
         def test_can_get_rectangle(self):
             app_info = self.get_app(app_name)
-            # TODO replace .children call to wrapper object when wrapper fully implemented
             frame = app_info.children()[0]
             filler = frame.children()[0]
             rectangle = filler.rectangle
@@ -130,22 +129,15 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.desktop_info.get_layer(), 3)
 
         def test_can_get_state_set(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
             frame_info = self.app_info.children()[0]
             states = frame_info.get_state_set()
             self.assertIn('STATE_VISIBLE', states)
 
-        # TODO Fix test for travis or change skip -> skipif travis
-        @unittest.skip("Skip visible test on travis because travis have no real desktop")
         def test_visible(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
             frame_info = self.app_info.children()[0]
-            frame_wrapper = AtspiWrapper(frame_info)
-            frame_wrapper.set_focus()
             self.assertTrue(frame_info.visible)
 
         def test_enabled(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.enabled)
 

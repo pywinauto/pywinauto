@@ -48,30 +48,19 @@ if sys.platform.startswith("linux"):
                 raise Exception("Application not found")
 
         def setUp(self):
-            self.desktop_info = AtspiElementInfo()
-            self.desktop_wrapper = AtspiWrapper(self.desktop_info)
             self.app = Application()
             self.app.start("python3 " + _test_app())
             time.sleep(1)
-            self.app_info = self.get_app(app_name)
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            self.button_info = self.app_info.children()[0].children()[0].children()[0]
-            self.button_wrapper = AtspiWrapper(self.button_info)
-
-            self.app_wrapper = AtspiWrapper(self.app_info)
-            self.text_area = AtspiWrapper(self.app_info.children()[0].children()[0].children()[6].children()[0])
+            self.app_wrapper = self.app.gtk_example
+            self.button_wrapper = self.app_wrapper.Frame.Panel.Click
+            self.button_info = self.app_wrapper.Frame.Panel.Click.element_info
+            self.text_area = self.app_wrapper.Frame.Panel.ScrollPane.Text
 
         def tearDown(self):
             self.app.kill()
 
         def _get_state_label_text(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            return self.app_info.children()[0].children()[0].children()[5].rich_text
-
-        def test_ololo(self):
-            app_window = self.app.gtk_example.Frame.Panel
-            print(app_window.element_info.children())
-            time.sleep(5)
+            return self.app.gtk_example.Frame.Panel.Label.window_text()
 
         def test_get_action(self):
             actions_count = self.button_wrapper.action.get_n_actions()
@@ -94,31 +83,21 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self._get_state_label_text(), "\"Click\" clicked")
 
         def test_button_toggle(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
-            toggle_button_wrapper = AtspiWrapper(toggle_button_info)
+            toggle_button_wrapper = self.app_wrapper.Frame.Panel.Button
             toggle_button_wrapper.click()
             self.assertEqual(self._get_state_label_text(), "Button 1 turned on")
 
         def test_button_toggle_state(self):
-            print_tree(self.app_info, "-")
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            toggle_button_info = self.app_info.children()[0].children()[0].children()[3]
-            toggle_button_wrapper = AtspiWrapper(toggle_button_info)
+            toggle_button_wrapper = self.app_wrapper.Frame.Panel.Button
             self.assertFalse(toggle_button_wrapper.get_toggle_state())
             toggle_button_wrapper.click()
             self.assertTrue(toggle_button_wrapper.get_toggle_state())
 
         def test_text_area_is_editable(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            editable_state_button = AtspiWrapper(self.app_info.children()[0].children()[0].children()[4])
+            editable_state_button = self.app_wrapper.Frame.Panel.Editable
             self.assertTrue(self.text_area.is_editable())
             editable_state_button.click()
             self.assertFalse(self.text_area.is_editable())
-
-        def test_text_area_get_line_count(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            print(self.text_area.window_text())
 
         def test_text_area_get_window_text(self):
             self.assertEqual(text, self.text_area.window_text())
