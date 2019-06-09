@@ -155,6 +155,10 @@ class AtspiElementInfo(ElementInfo):
         return AtspiValue(self.atspi_accessible.get_value(self.handle))
 
     @property
+    def runtime_id(self):
+        return 0
+
+    @property
     def visible(self):
         states = self.get_state_set()
         if self.control_type == "Application":
