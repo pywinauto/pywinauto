@@ -38,13 +38,6 @@ if sys.platform.startswith("linux"):
 
         """Unit tests for the AtspiWrapper class"""
 
-        def get_app(self, name):
-            for children in self.desktop_info.children():
-                if children.name == name:
-                    return children
-            else:
-                raise Exception("Application not found")
-
         def setUp(self):
             self.desktop_info = AtspiElementInfo()
             self.desktop_wrapper = AtspiWrapper(self.desktop_info)
