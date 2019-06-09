@@ -51,46 +51,50 @@ class StructureMixIn(object):
 
         fields in exceptList will not be printed"""
         lines = []
-        for f in self._fields_:
-            name = f[0]
-            lines.append("%20s\t%s"% (name, getattr(self, name)))
+        for field_name, _ in getattr(self, "_fields_", []):
+            lines.append("%20s\t%s"% (field_name, getattr(self, field_name)))
 
         return "\n".join(lines)
 
     #----------------------------------------------------------------
-    def __eq__(self, other_struct):
-        """Return True if the two structures have the same coordinates"""
-        if isinstance(other_struct, Struct):
+    def __eq__(self, other):
+        """Return True if the two instances have the same coordinates"""
+        fields = getattr(self, "_fields_", [])
+        if isinstance(other, Struct):
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
-                are_equal = True
-                for field in self._fields_:
-                    name = field[0]
-                    if getattr(self, name) != getattr(other_struct, name):
-                        are_equal = False
-                        break
-
-                return are_equal
+                if len(fields) != len(getattr(other, "_fields_", [])):
+                    return False
+                for field_name, _ in fields:
+                    if getattr(self, field_name) != getattr(other, field_name):
+                        return False
+                return True
 
             except AttributeError:
                 return False
 
-        if isinstance(other_struct, (list, tuple)):
+        elif isinstance(other, (list, tuple)):
             # Now try to see if we have been passed in a list or tuple
+            if len(fields) != len(other):
+                return False
             try:
-                are_equal = True
-                for i, field in enumerate(self._fields_):
-                    name = field[0]
-                    if getattr(self, name) != other_struct[i]:
-                        are_equal = False
-                        break
-                return are_equal
+                for i, (field_name, _) in enumerate(fields):
+                    if getattr(self, field_name) != other[i]:
+                        return False
+                return True
 
             except Exception:
                 return False
 
         return False
+
+    #----------------------------------------------------------------
+    def __ne__(self, other):
+        """Return False if the two instances have the same coordinates"""
+        return not self.__eq__(other)
+
+    __hash__ = None
 
 
 class Structure(Struct, StructureMixIn):
@@ -185,7 +189,7 @@ assert alignment(POINT) == 4, alignment(POINT)
 
 
 # ====================================================================
-class RECT(wintypes.RECT):
+class RECT(wintypes.RECT, StructureMixIn):
 
     """Wrap the RECT structure and add extra functionality"""
 
@@ -214,28 +218,6 @@ class RECT(wintypes.RECT):
             self.right = long_int(right)
             self.top = long_int(top)
             self.bottom = long_int(bottom)
-
-    # ----------------------------------------------------------------
-    def __eq__(self, otherRect):
-        """Return true if the two rectangles have the same coordinates"""
-        try:
-            return \
-                self.left == otherRect.left and \
-                self.top == otherRect.top and \
-                self.right == otherRect.right and \
-                self.bottom == otherRect.bottom
-        except AttributeError:
-            return False
-
-    # ----------------------------------------------------------------
-    def __ne__(self, otherRect):
-        """Return true if the two rectangles do not have the same coordinates"""
-        return not self == otherRect
-
-    # ----------------------------------------------------------------
-    def __hash__(self):
-        """Return unique object ID to make the instance hashable"""
-        return id(self)
 
     # ----------------------------------------------------------------
     def __str__(self):
@@ -303,13 +285,12 @@ class RECT(wintypes.RECT):
 
         return self.left <= point[0] <= self.right and self.top <= point[1] <= self.bottom
 
-    #def __hash__(self):
-    #	return hash (self.left, self.top, self.right, self.bottom)
+    __reduce__ = _reduce
 
-RECT.__reduce__ = _reduce
 
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
+
 
 class SETTEXTEX(Structure):
     _pack_ = 1
