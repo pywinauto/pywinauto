@@ -354,7 +354,7 @@ class WindowSpecification(object):
         if attr_name in self.__dict__:
             return self.__dict__[attr_name]
 
-        # if we already have 2 levels of criteria (dlg, conrol)
+        # if we already have 2 levels of criteria (dlg, control)
         # this third must be an attribute so resolve and get the
         # attribute and return it
         if len(self.criteria) >= 2:
@@ -1206,6 +1206,8 @@ class Application(object):
         kwargs['backend'] = self.backend.name
         if kwargs.get('top_level_only') is None:
             kwargs['top_level_only'] = True
+            if self.backend.name == 'win32':
+                kwargs['visible'] = True
 
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
