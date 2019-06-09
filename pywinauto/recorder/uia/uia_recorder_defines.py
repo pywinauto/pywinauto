@@ -47,9 +47,7 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_AnnotationAnnotationTypeNamePropertyId: PROPERTY.ANNOTATION_TYPE_NAME,
     IUIA().UIA_dll.UIA_AnnotationAuthorPropertyId: PROPERTY.ANNOTATION_AUTHOR,
     IUIA().UIA_dll.UIA_AnnotationDateTimePropertyId: PROPERTY.ANNOTATION_DATE_TIME,
-    IUIA().UIA_dll.UIA_AnnotationObjectsPropertyId: PROPERTY.ANNOTATION_OBJECTS,
     IUIA().UIA_dll.UIA_AnnotationTargetPropertyId: PROPERTY.ANNOTATION_TARGET,
-    IUIA().UIA_dll.UIA_AnnotationTypesPropertyId: PROPERTY.ANNOTATION_TYPES,
     IUIA().UIA_dll.UIA_AriaPropertiesPropertyId: PROPERTY.ARIA_PROPERTIES,
     IUIA().UIA_dll.UIA_AriaRolePropertyId: PROPERTY.ARIA_ROLE,
     IUIA().UIA_dll.UIA_AutomationIdPropertyId: PROPERTY.AUTOMATION_ID,
@@ -83,7 +81,6 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_IsAnnotationPatternAvailablePropertyId: PROPERTY.IS_ANNOTATION_PATTERN_AVAILABLE,
     IUIA().UIA_dll.UIA_IsContentElementPropertyId: PROPERTY.IS_CONTENT_ELEMENT,
     IUIA().UIA_dll.UIA_IsControlElementPropertyId: PROPERTY.IS_CONTROL_ELEMENT,
-    IUIA().UIA_dll.UIA_IsCustomNavigationPatternAvailablePropertyId: PROPERTY.IS_CUSTOM_NAVIGATION_PATTERN_AVAILABLE,
     IUIA().UIA_dll.UIA_IsDataValidForFormPropertyId: PROPERTY.IS_DATA_VALID_FOR_FORM,
     IUIA().UIA_dll.UIA_IsDockPatternAvailablePropertyId: PROPERTY.IS_DOCK_PATTERN_AVAILABLE,
     IUIA().UIA_dll.UIA_IsDragPatternAvailablePropertyId: PROPERTY.IS_DRAG_PATTERN_AVAILABLE,
@@ -126,7 +123,6 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_ItemStatusPropertyId: PROPERTY.ITEM_STATUS,
     IUIA().UIA_dll.UIA_ItemTypePropertyId: PROPERTY.ITEM_TYPE,
     IUIA().UIA_dll.UIA_LabeledByPropertyId: PROPERTY.LABELED_BY,
-    IUIA().UIA_dll.UIA_LandmarkTypePropertyId: PROPERTY.LANDMARK_TYPE,
     IUIA().UIA_dll.UIA_LegacyIAccessibleChildIdPropertyId: PROPERTY.LEGACY_I_ACCESSIBLE_CHILD_ID,
     IUIA().UIA_dll.UIA_LegacyIAccessibleDefaultActionPropertyId: PROPERTY.LEGACY_I_ACCESSIBLE_DEFAULT_ACTION,
     IUIA().UIA_dll.UIA_LegacyIAccessibleDescriptionPropertyId: PROPERTY.LEGACY_I_ACCESSIBLE_DESCRIPTION,
@@ -137,17 +133,14 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_LegacyIAccessibleSelectionPropertyId: PROPERTY.LEGACY_I_ACCESSIBLE_SELECTION,
     IUIA().UIA_dll.UIA_LegacyIAccessibleStatePropertyId: PROPERTY.LEGACY_I_ACCESSIBLE_STATE,
     IUIA().UIA_dll.UIA_LegacyIAccessibleValuePropertyId: PROPERTY.LEGACY_I_ACCESSIBLE_VALUE,
-    IUIA().UIA_dll.UIA_LevelPropertyId: PROPERTY.LEVEL,
     IUIA().UIA_dll.UIA_LiveSettingPropertyId: PROPERTY.LIVE_SETTING,
     IUIA().UIA_dll.UIA_LocalizedControlTypePropertyId: PROPERTY.LOCALIZED_CONTROL_TYPE,
-    IUIA().UIA_dll.UIA_LocalizedLandmarkTypePropertyId: PROPERTY.LOCALIZED_LANDMARK_TYPE,
     IUIA().UIA_dll.UIA_MultipleViewCurrentViewPropertyId: PROPERTY.MULTIPLE_VIEW_CURRENT_VIEW,
     IUIA().UIA_dll.UIA_MultipleViewSupportedViewsPropertyId: PROPERTY.MULTIPLE_VIEW_SUPPORTED_VIEWS,
     IUIA().UIA_dll.UIA_NamePropertyId: PROPERTY.NAME,
     IUIA().UIA_dll.UIA_NativeWindowHandlePropertyId: PROPERTY.NATIVE_WINDOW_HANDLE,
     IUIA().UIA_dll.UIA_OptimizeForVisualContentPropertyId: PROPERTY.OPTIMIZE_FOR_VISUAL_CONTENT,
     IUIA().UIA_dll.UIA_OrientationPropertyId: PROPERTY.ORIENTATION,
-    IUIA().UIA_dll.UIA_PositionInSetPropertyId: PROPERTY.POSITION_IN_SET,
     IUIA().UIA_dll.UIA_ProcessIdPropertyId: PROPERTY.PROCESS_ID,
     IUIA().UIA_dll.UIA_ProviderDescriptionPropertyId: PROPERTY.PROVIDER_DESCRIPTION,
     IUIA().UIA_dll.UIA_RangeValueIsReadOnlyPropertyId: PROPERTY.RANGE_VALUE_IS_READ_ONLY,
@@ -168,7 +161,6 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_SelectionItemIsSelectedPropertyId: PROPERTY.SELECTION_ITEM_IS_SELECTED,
     IUIA().UIA_dll.UIA_SelectionItemSelectionContainerPropertyId: PROPERTY.SELECTION_ITEM_SELECTION_CONTAINER,
     IUIA().UIA_dll.UIA_SelectionSelectionPropertyId: PROPERTY.SELECTION_SELECTION,
-    IUIA().UIA_dll.UIA_SizeOfSetPropertyId: PROPERTY.SIZE_OF_SET,
     IUIA().UIA_dll.UIA_SpreadsheetItemAnnotationObjectsPropertyId: PROPERTY.SPREADSHEET_ITEM_ANNOTATION_OBJECTS,
     IUIA().UIA_dll.UIA_SpreadsheetItemAnnotationTypesPropertyId: PROPERTY.SPREADSHEET_ITEM_ANNOTATION_TYPES,
     IUIA().UIA_dll.UIA_SpreadsheetItemFormulaPropertyId: PROPERTY.SPREADSHEET_ITEM_FORMULA,
@@ -202,6 +194,26 @@ PROPERTY_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_WindowWindowVisualStatePropertyId: PROPERTY.WINDOW_WINDOW_VISUAL_STATE
 }
 
+if hasattr(IUIA().UIA_dll, "UIA_AnnotationObjectsPropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_AnnotationObjectsPropertyId] = PROPERTY.ANNOTATION_OBJECTS
+if hasattr(IUIA().UIA_dll, "UIA_AnnotationTypesPropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_AnnotationTypesPropertyId] = PROPERTY.ANNOTATION_TYPES
+if hasattr(IUIA().UIA_dll, 'UIA_FullDescriptionPropertyId'):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_FullDescriptionPropertyId] = PROPERTY.FULL_DESCRIPTION
+if hasattr(IUIA().UIA_dll, "UIA_IsCustomNavigationPatternAvailablePropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_IsCustomNavigationPatternAvailablePropertyId] = \
+        PROPERTY.IS_CUSTOM_NAVIGATION_PATTERN_AVAILABLE
+if hasattr(IUIA().UIA_dll, "UIA_LandmarkTypePropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_LandmarkTypePropertyId] = PROPERTY.LANDMARK_TYPE
+if hasattr(IUIA().UIA_dll, "UIA_LevelPropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_LevelPropertyId] = PROPERTY.LEVEL
+if hasattr(IUIA().UIA_dll, "UIA_LocalizedLandmarkTypePropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_LocalizedLandmarkTypePropertyId] = PROPERTY.LOCALIZED_LANDMARK_TYPE
+if hasattr(IUIA().UIA_dll, "UIA_PositionInSetPropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_PositionInSetPropertyId] = PROPERTY.POSITION_IN_SET
+if hasattr(IUIA().UIA_dll, "UIA_SizeOfSetPropertyId"):
+    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_SizeOfSetPropertyId] = PROPERTY.SIZE_OF_SET
+
 STRUCTURE_CHANGE_TYPE_TO_NAME_MAP = {
     IUIA().UIA_dll.StructureChangeType_ChildAdded: STRUCTURE_EVENT.CHILD_ADDED,
     IUIA().UIA_dll.StructureChangeType_ChildRemoved: STRUCTURE_EVENT.CHILD_REMOVED,
@@ -210,9 +222,6 @@ STRUCTURE_CHANGE_TYPE_TO_NAME_MAP = {
     IUIA().UIA_dll.StructureChangeType_ChildrenBulkRemoved: STRUCTURE_EVENT.CHILDREN_REMOVED,
     IUIA().UIA_dll.StructureChangeType_ChildrenReordered: STRUCTURE_EVENT.CHILDREN_REORDERED
 }
-
-if hasattr(IUIA().UIA_dll, 'UIA_FullDescriptionPropertyId'):
-    PROPERTY_ID_TO_NAME_MAP[IUIA().UIA_dll.UIA_FullDescriptionPropertyId] = PROPERTY.FULL_DESCRIPTION
 
 
 class StructureEvent(ApplicationEvent):
