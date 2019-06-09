@@ -13,6 +13,8 @@ app_name = r"gtk_example.py"
 text = "This is some text inside of a Gtk.TextView. \n" \
        "Select text and click one of the buttons 'bold', 'italic', \n" \
        "or 'underline' to modify the text accordingly."
+countries = ['Austria', 'Brazil', 'Belgium', 'France', 'Germany', 'Switzerland', 'United Kingdom',
+             'United States of America', 'Uruguay']
 
 
 def _test_app():
@@ -140,6 +142,58 @@ if sys.platform.startswith("linux"):
         def test_text_area_set_selection(self):
             self.text_area.select(0, 10)
             self.assertEqual(self.text_area.selection_indices(), (0, 10))
+
+        def test_combobox_is_expanded(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            self.assertFalse(combo_box.is_expanded())
+
+        def test_combobox_expand(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            self.assertFalse(combo_box.is_expanded())
+            combo_box.expand()
+            self.assertTrue(combo_box.is_expanded())
+
+        def test_combobox_collapse(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box.expand()
+            self.assertTrue(combo_box.is_expanded())
+            combo_box.collapse()
+            self.assertFalse(combo_box.is_expanded())
+
+        def test_combobox_texts(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.texts(), countries)
+
+        def test_combobox_selected_text(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.selected_text(), countries[0])
+
+        def test_combobox_selected_index(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.selected_index(), 0)
+
+        def test_combobox_item_count(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.item_count(), len(countries))
+
+        def test_combobox_select_by_index(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box.select(1)
+            self.assertEqual(combo_box.selected_text(), countries[1])
+
+        def test_combobox_select_by_text(self):
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box.select(countries[1])
+            self.assertEqual(combo_box.selected_text(), countries[1])
+
+        def test_ololo(self):
+            print_tree(self.app_wrapper.element_info)
+            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            time.sleep(5)
+            print(combo_box.window_text())
+
+            # actions = self.app_wrapper.Frame.Panel.ComboBox.Menu.element_info.get_action()
+            # print(actions.get_all_actions())
 
         def test_text_area_set_selection_by_text(self):
             text_to_select = "Select text"
