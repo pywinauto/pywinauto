@@ -16,6 +16,9 @@ class TestApplicationMainWindow(Gtk.Window):
         country_store = Gtk.ListStore(int)
 
         countries = [1, 1, 1]
+
+        # TODO pgi segfault because https://github.com/pygobject/pgi/issues/27 .
+        # TODO PyGObject uses instead pgi solve the problem but PyGObject works incorrectly on python2 + Travis venv
         for country in countries:
             country_store.append([country])
 

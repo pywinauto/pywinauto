@@ -159,7 +159,7 @@ class AtspiElementInfo(ElementInfo):
         states = self.get_state_set()
         if self.control_type == "Application":
             states = self.children()[0].get_state_set()
-        return "STATE_VISIBLE" in states and "STATE_ACTIVE" in states and "STATE_SHOWING" in states
+        return "STATE_VISIBLE" in states and "STATE_SHOWING" in states
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""

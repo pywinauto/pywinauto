@@ -51,16 +51,14 @@ if sys.platform.startswith("linux"):
             self.app = Application()
             self.app.start("python3 " + _test_app())
             time.sleep(1)
-            self.app_info = self.get_app(app_name)
-
-            self.app_wrapper = AtspiWrapper(self.app_info)
+            self.app_wrapper = self.app.gtk_example
 
         def tearDown(self):
             self.app.kill()
 
         def test_set_window_focus(self):
-            self.app_wrapper.children()[0].set_focus()
-            states = self.app_wrapper.children()[0].get_states()
+            self.app_wrapper.Frame.set_focus()
+            states = self.app_wrapper.Frame.get_states()
             self.assertIn("STATE_VISIBLE", states)
             self.assertIn("STATE_SHOWING", states)
 
@@ -68,8 +66,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.top_level_parent().element_info.control_type, "Application")
 
         def test_top_level_parent_for_button_return_app(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            self.assertEqual(self.app_wrapper.children()[0].children()[0].top_level_parent().element_info.control_type,
+            self.assertEqual(self.app_wrapper.Frame.Panel.top_level_parent().element_info.control_type,
                              "Application")
 
         def test_root_return_desktop(self):
@@ -85,8 +82,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.control_id(), IATSPI().known_control_types["Application"])
 
         def test_can_get_rectangle(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            rect = self.app_wrapper.children()[0].children()[0].rectangle()
+            rect = self.app_wrapper.Frame.Panel.rectangle()
             self.assertEqual(rect.width(), 600)
             self.assertEqual(rect.height(), 200)
 
@@ -97,13 +93,10 @@ if sys.platform.startswith("linux"):
             self.assertTrue(self.app_wrapper.is_dialog())
 
         def test_is_dialog_for_button_is_false(self):
-            # TODO replace .children call to wrapper object when wrapper fully implemented
-            frame_wrapper = self.app_wrapper.children()[0]
-            button_wrapper = frame_wrapper.children()[0].children()[0]
-            self.assertFalse(button_wrapper.is_dialog())
+            self.assertFalse(self.app_wrapper.Frame.Panel.Click.is_dialog())
 
         def test_can_get_children(self):
-            self.assertEqual(self.app_wrapper.children()[0].control_id(), IATSPI().known_control_types["Frame"])
+            self.assertEqual(self.app_wrapper.Frame.control_id(), IATSPI().known_control_types["Frame"])
 
         def test_can_get_descendants(self):
             self.assertTrue(len(self.app_wrapper.descendants()) > len(self.app_wrapper.children()))
