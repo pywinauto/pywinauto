@@ -64,6 +64,7 @@ class HwndElementInfo(ElementInfo):
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle"]
     search_order = ["handle", "class_name", "pid", "control_id", "visible", "enabled", "auto_id",
         "name", "control_type", "full_control_type", "rectangle"]
+    assert(len(set(re_props + exact_only_props) ^ set(search_order)) == 0)
 
     renamed_props = {
         "title": ("name", None),
