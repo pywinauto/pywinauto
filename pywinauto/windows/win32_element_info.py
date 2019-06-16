@@ -60,8 +60,8 @@ class HwndElementInfo(ElementInfo):
     wm_get_ctrl_type = _register_win_msg('WM_GETCONTROLTYPE')
     re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type"]
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle"]
-    search_order = ["handle", "class_name", "pid", "control_id", "visible", "enabled", "auto_id",
-        "name", "control_type", "full_control_type", "rectangle"]
+    search_order = ["handle", "class_name", "pid", "control_id", "visible", "enabled", "name",
+        "auto_id", "control_type", "full_control_type", "rectangle"]
     assert set(re_props + exact_only_props) == set(search_order)
 
     renamed_props = {
