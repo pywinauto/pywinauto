@@ -231,11 +231,6 @@ def find_elements(**kwargs):
     if ctrl_index is not None:
         return [elements[ctrl_index], ]
 
-    if active_only:
-        # TODO: re-write to use ElementInfo interface
-        active_elem = backend_obj.element_info_class.get_active()
-
-        return [active_elem] if active_elem else []
 
     for prop in backend_obj.element_info_class.search_order:
         exact_search_value = kwargs.get(prop)
@@ -249,6 +244,14 @@ def find_elements(**kwargs):
                 elements = [elem for elem in elements if regex.match(getattr(elem, prop))]
         if exact_search_value is not None:
             elements = [elem for elem in elements if exact_search_value == getattr(elem, prop)]
+
+    if active_only:
+        # TODO: re-write to use ElementInfo interface
+        active_elem = backend_obj.element_info_class.get_active()
+
+        elements = [elem for elem in elements if elem.handle == active_elem]
+
+        return elements if elements else []
 
     if best_match is not None:
         # Build a list of wrapped controls.
