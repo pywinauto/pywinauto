@@ -249,8 +249,6 @@ def find_elements(**kwargs):
 
         elements = [elem for elem in elements if elem.handle == active_elem]
 
-        return elements if elements else []
-
     if best_match is not None:
         # Build a list of wrapped controls.
         # Speed up the loop by setting up local pointers
