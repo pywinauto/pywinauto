@@ -62,7 +62,7 @@ class UIAElementInfo(ElementInfo):
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle", "framework_id", "runtime_id"]
     search_order = ["handle", "control_type", "class_name", "pid", "control_id", "visible", "enabled",
         "name", "auto_id", "full_control_type", "rectangle", "framework_id", "runtime_id"]
-    assert(len(set(re_props + exact_only_props) ^ set(search_order)) == 0)
+    assert set(re_props + exact_only_props) == set(search_order)
 
     renamed_props = {
         "title": ("name", None),
