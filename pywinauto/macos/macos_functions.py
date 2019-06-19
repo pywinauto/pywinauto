@@ -224,10 +224,6 @@ def cpu_usage(interval=None):
         except Exception:
             raise ProcessNotFoundError()
 
-# launch_application("Terminal")
-# launch_application("Terminal")
-# launch_application("Terminal")
-
 
 #print(dir(get_ws_instance()))
 
