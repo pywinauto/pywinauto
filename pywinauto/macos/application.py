@@ -3,14 +3,25 @@ import os, sys
 from os import path
 import macos_functions
 import subprocess
+from subprocess import Popen, PIPE
 from .. import backend
 from ..backend import registry
 from ..element_info import ElementInfo
 from ..base_wrapper import BaseWrapper
+from AppKit import *
+from ApplicationServices import *
+
 
 sys.path.append( path.dirname( path.dirname( path.abspath(__file__))))
 
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
+
+if sys.platform == 'darwin':
+    parent_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(parent_dir)
+    os.path.join
+    from ..timings import Timings, wait_until, TimeoutError
+
 
 backend.register('ax', ElementInfo, BaseWrapper)
 
@@ -26,19 +37,27 @@ class Application(BaseApplication):
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
 
-    def start(self, cmd_line):
 
-        result = macos_functions.launch_application(cmd_line)
-        if (not result):
-            message = ('Could not create the process "%s"\n') % (cmd_line)
-            raise AppStartError(message)
+    def start(self, NewInstance = True, **kwargs):
         
-        self.ns_app = macos_functions.get_instance_of_app(cmd_line)
-        
-        if (self.ns_app is None):
-            message = ('Could not get instance of "%s" app\n') % (cmd_line)
-            raise AppStartError(message)
-        return self
+        if 'name' in kwargs:
+            result = macos_functions.launch_application(kwargs['name'])
+            if (not result):
+                message = ('Could not create the process "%s"\n') % (cmd_line)
+                raise AppStartError(message)
+
+            
+            self.ns_app = macos_functions.get_instance_of_app(kwargs['name'])
+            if (self.ns_app is None):
+                message = ('Could not get instance of "%s" app\n') % (cmd_line)
+                raise AppStartError(message)
+            return self
+
+        if 'bundleID' in kwargs:
+            result = macos_functions.launch_application_by_bundle(kwargs['bundleID'],NewInstance)
+            NsArray = macos_functions.get_app_instance_by_bundle(kwargs['bundleID'])
+            self.ns_app = NsArray[0]
+
 
     def connect(self, **kwargs):
         # TODO!
@@ -58,23 +77,25 @@ class Application(BaseApplication):
                 self.ns_app = app
                 self.connected = True
             else:
-                raise ProcessNotFoundError('pid = ' + str(process_id))
+                raise ProcessNotFoundError('pid = ' + str(self.process_id))
 
         # TODO : add bundle support
         elif 'name' in kwargs:
             # For os x you have to pass just app name
-            app = macos_functions.get_instance_of_app(kwargs['path'])
+            app = macos_functions.get_instance_of_app(kwargs['name'])
             if (app):
                 self.ns_app = app
                 self.connected = True
             else:
-                raise ProcessNotFoundError('path = ' + str(kwargs['path']))
+                raise ProcessNotFoundError('name = ' + str(kwargs['name']))
         elif 'bundle' in kwargs:
             # For os x you have to pass just app name
             app = macos_functions.get_app_instance_by_bundle(kwargs['bundle'])
             if (app):
-                self.ns_app = app
-                self.connected = True
+                pid = app[0].processIdentifier()
+                self.ns_app = app[0]
+                self.connected = None
+                AXUIElementCreateApplication(pid)
             else:
                 raise ProcessNotFoundError('bundle = ' + str(kwargs['bundle']))
 
@@ -86,10 +107,12 @@ class Application(BaseApplication):
         if interval:
             time.sleep(interval)
         try:
-            proc_info = subprocess.check_output(["ps", "-p", str(l.processIdentifier()), "-o", "%cpu"], universal_newlines=True)
+            proc_info = subprocess.check_output(["ps", "-p", str(self.ns_app.processIdentifier()), "-o", "%cpu"], universal_newlines=True)
             proc_info = proc_info.split("\n")
             return float(proc_info[1])
-        except Exception:
+        except subprocess.CalledProcessError:
+            import traceback
+            traceback.print_exc()
             raise ProcessNotFoundError()
 
     def kill(self, soft=False):
@@ -100,12 +123,25 @@ class Application(BaseApplication):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-
         if (self.ns_app):
             if (soft):
-                return self.ns_app.terminate()
+                result = self.ns_app.terminate()
             else:
-                return self.ns_app.forceTerminate()
+                result = self.ns_app.forceTerminate()
+
+            if not result:
+                return result
+
+            self.wait_for_process_exit()
+
+            self.ns_app = None
+            return True
+
+        return False    
+
+
+    def kill_process(self):
+        Popen(["kill", "-9",str(self.process_id)], stdout=PIPE).communicate()[0]
 
     def is_process_running(self):
         """
@@ -117,7 +153,13 @@ class Application(BaseApplication):
         if (self.ns_app):
             name = self.ns_app.localizedName()
             pid = self.process_id
+            #print(pid)
             app_by_pid = macos_functions.get_app_instance_by_pid(pid)
+            
+            # print(app_by_pid)
+            # if app_by_pid:
+            #     print(app_by_pid.localizedName())
+            # print(name)
             if (app_by_pid and (app_by_pid.localizedName() == name)):
                 result = True
         return result
@@ -128,6 +170,32 @@ class Application(BaseApplication):
         if (self.ns_app):
             identifier = self.ns_app.processIdentifier()
         return identifier
+
+    def wait_for_process_running(self, timeout=None, retry_interval=None):
+        """
+        Waits for process to run until timeout reaches
+
+        Raises TimeoutError exception if timeout was reached
+        """
+        if timeout is None:
+            timeout = Timings.app_start_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_start_retry
+
+        wait_until(timeout, retry_interval, self.is_process_running, value=True)
+
+    def wait_for_process_exit(self, timeout=None, retry_interval=None):
+        """
+        Waits for process to exit until timeout reaches
+
+        Raises TimeoutError exception if timeout was reached
+        """
+        if timeout is None:
+            timeout = Timings.app_exit_timeout
+        if retry_interval is None:
+            retry_interval = Timings.app_exit_retry
+
+        wait_until(timeout, retry_interval, self.is_process_running, value=False)
     
 if __name__ == "__main__":
     app = BaseApplication()
