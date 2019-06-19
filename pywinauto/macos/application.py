@@ -141,6 +141,7 @@ class Application(BaseApplication):
 
 
     def kill_process(self):
+        #kill like sigkill
         Popen(["kill", "-9",str(self.process_id)], stdout=PIPE).communicate()[0]
 
     def is_process_running(self):
