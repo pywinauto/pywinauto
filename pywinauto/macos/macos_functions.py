@@ -37,9 +37,11 @@ from ApplicationServices import (AXIsProcessTrusted,
     AXUIElementCopyAttributeNames, kAXErrorSuccess,
     AXUIElementCopyAttributeValue, AXUIElementCopyActionNames,
     AXUIElementPerformAction,CGWindowListCopyWindowInfo)
-from AppKit import NSScreen, NSWorkspace, NSRunningApplication
+from AppKit import NSScreen, NSWorkspace, NSRunningApplication, NSBundle
+import CoreFoundation
 import subprocess
 import os
+from ApplicationServices import *
 
 is_debug = False
 
@@ -49,6 +51,21 @@ def launch_application(name):
     # TODO: Should open unique app
     return get_ws_instance().launchApplication_(name)
 
+def launch_application_by_bundle(bundleID, NewInstance = True):
+    
+    if (NewInstance):
+            param = NSWorkspaceLaunchNewInstance
+    else:
+            param = NSWorkspaceLaunchAllowingClassicStartup
+
+
+    r = get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundleID,
+            param,
+            NSAppleEventDescriptor.nullDescriptor(),
+            None)
+    if not r[0]:
+            raise RuntimeError('Error launching specified application.')
+    
 def terminate_application(obj):
     if check_if_its_nsrunning_application(obj):
         obj.terminate();
@@ -66,6 +83,7 @@ def running_applications():
     """Return all running apps(system too)"""
     rApps = get_ws_instance().runningApplications()
     return rApps
+
 
 def get_instance_of_app(name):
     # Return NSRunningApplication instance if
@@ -167,6 +185,8 @@ def get_descendants(root,descendants):
                 descendants.append(child)
             get_descendants(child,descendants)
 
+
+
 def get_all_ax_elements_of_a_particular_type_from_app(ui_element_ref,input_type,store):
     if ( isinstance(store, list) and isinstance(input_type,str) ):
         if (check_attribute_valid(ui_element_ref,"AXRole") and get_ax_attribute(ui_element_ref,"AXRole") is not None):
@@ -207,4 +227,8 @@ def cpu_usage(interval=None):
 # launch_application("Terminal")
 # launch_application("Terminal")
 # launch_application("Terminal")
-# print(running_applications())
+
+
+#print(dir(get_ws_instance()))
+
+
