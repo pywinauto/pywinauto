@@ -2,8 +2,6 @@ import sys
 import os
 import unittest
 import time
-#import pprint
-#import pdb
 
 # sys.path.append(".")
 if sys.platform == 'darwin':
