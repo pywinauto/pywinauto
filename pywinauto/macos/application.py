@@ -38,24 +38,24 @@ class Application(BaseApplication):
         self.backend = registry.backends[backend]
 
 
-    def start(self, NewInstance = True, **kwargs):
+    def start(self, name=None, bundle_id=None, new_instance=True):
         
-        if 'name' in kwargs:
-            result = macos_functions.launch_application(kwargs['name'])
+        if name is not None:
+            result = macos_functions.launch_application(name)
             if (not result):
-                message = ('Could not create the process "%s"\n') % (cmd_line)
+                message = ('Could not create the process "%s"\n') % (name)
                 raise AppStartError(message)
 
             
-            self.ns_app = macos_functions.get_instance_of_app(kwargs['name'])
+            self.ns_app = macos_functions.get_instance_of_app(name)
             if (self.ns_app is None):
-                message = ('Could not get instance of "%s" app\n') % (cmd_line)
+                message = ('Could not get instance of "%s" app\n') % (name)
                 raise AppStartError(message)
             return self
 
-        if 'bundleID' in kwargs:
-            result = macos_functions.launch_application_by_bundle(kwargs['bundleID'],NewInstance)
-            NsArray = macos_functions.get_app_instance_by_bundle(kwargs['bundleID'])
+        if bundle_id is not None:
+            result = macos_functions.launch_application_by_bundle(bundle_id, new_instance)
+            NsArray = macos_functions.get_app_instance_by_bundle(bundle_id)
             self.ns_app = NsArray[0]
 
 
