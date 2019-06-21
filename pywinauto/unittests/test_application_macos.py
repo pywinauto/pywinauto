@@ -77,14 +77,14 @@ if sys.platform == 'darwin':
         def test_kill_soft(self):
             
             app= Application()
-            app.start(bundleID='com.yourcompany.send-keys-test-app')
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
             process = app.process_id
             self.assertTrue(app.kill(soft=True))
             self.assertRaises(ProcessNotFoundError, Application().connect, process=process)
 
         def test_already_killed_hard(self):
             app= Application()
-            app.start(bundleID='com.yourcompany.send-keys-test-app')
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
             process = app.process_id
             self.assertTrue(app.kill(soft=False))
             self.assertRaises(ProcessNotFoundError, Application().connect, process=process)
@@ -92,7 +92,7 @@ if sys.platform == 'darwin':
 
         def test_already_killed_soft(self):
             app= Application()
-            app.start(bundleID='com.yourcompany.send-keys-test-app')
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
             process = app.process_id
             self.assertTrue(app.kill(soft=False))
             self.assertRaises(ProcessNotFoundError, Application().connect, process=process)
@@ -105,7 +105,7 @@ if sys.platform == 'darwin':
         def test_is_process_running(self):
             """test is_process_running of the application"""
             app= Application()
-            app.start(bundleID='com.yourcompany.send-keys-test-app')
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
             self.assertTrue(app.is_process_running())
             app.kill()
             app.wait_for_process_exit()
@@ -116,7 +116,7 @@ if sys.platform == 'darwin':
             """test start() works correctly after being called by bundle"""
             app = Application()
             self.assertEqual(app.ns_app, None)
-            app.start(bundleID='com.yourcompany.send-keys-test-app')
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
             self.assertNotEqual(app.ns_app, None)
             app.kill()
             
@@ -126,7 +126,7 @@ if sys.platform == 'darwin':
             """Test that connect_() works with a path"""
             app = Application()
             self.assertEqual(app.process_id, None)
-            app.start(bundleID='com.yourcompany.send-keys-test-app')
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
             self.assertNotEqual(app.process_id, None)
             app.kill()
 
@@ -141,7 +141,7 @@ if sys.platform == 'darwin':
         def test_cpu_usage(self):
             """Verify that cpu_usage() works correctly"""
             app = Application()
-            app.start(bundleID='com.yourcompany.send-keys-test-app')
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
             self.assertEqual(0.0 <= app.cpu_usage() <= 100.0, True)
             app.kill()
 
@@ -150,7 +150,7 @@ if sys.platform == 'darwin':
         def test_connect_by_process(self):
             """Test that connect_() works with a process"""
             app1 = Application()
-            app1.start(bundleID='com.yourcompany.send-keys-test-app')
+            app1.start(bundle_id='com.yourcompany.send-keys-test-app')
            
             app_conn = Application()
             app_conn.connect(process=app1.process_id)
@@ -161,7 +161,7 @@ if sys.platform == 'darwin':
         def test_connect_by_bundle(self):
             """Test that connect_() works with a bundle"""
             app1 = Application()
-            app1.start(bundleID='com.yourcompany.send-keys-test-app')
+            app1.start(bundle_id='com.yourcompany.send-keys-test-app')
           
             app_conn = Application()
             app_conn.connect(bundle='com.yourcompany.send-keys-test-app')
@@ -172,7 +172,7 @@ if sys.platform == 'darwin':
         def test_connect_by_name(self):
             """Test that connect_() works with a bundle"""
             app1 = Application()
-            app1.start(bundleID='com.yourcompany.send-keys-test-app')
+            app1.start(bundle_id='com.yourcompany.send-keys-test-app')
           
             app_conn = Application()
             app_conn.connect(name='send_keys_test_app')

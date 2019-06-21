@@ -64,7 +64,7 @@ def launch_application_by_bundle(bundleID, NewInstance = True):
             NSAppleEventDescriptor.nullDescriptor(),
             None)
     if not r[0]:
-            raise RuntimeError('Error launching specified application.')
+            raise RuntimeError('Error launching specified application. Result: {}'.format(r))
     
 def terminate_application(obj):
     if check_if_its_nsrunning_application(obj):
