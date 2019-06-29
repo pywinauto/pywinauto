@@ -165,6 +165,4 @@ class TestApplicationMainWindow(Gtk.Window):
 win = TestApplicationMainWindow()
 win.connect("delete-event", Gtk.main_quit)
 win.show_all()
-print(win.get_size().width)
-print(win.get_size().height)
 Gtk.main()
