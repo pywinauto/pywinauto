@@ -44,7 +44,7 @@ if sys.platform.startswith("linux"):
 
         def setUp(self):
             self.app = Application()
-            self.app.start("python3 " + _test_app())
+            self.app.start("python3.4 " + _test_app())
             time.sleep(1)
             self.app_wrapper = self.app.gtk_example
             self.button_wrapper = self.app_wrapper.Frame.Panel.Click
