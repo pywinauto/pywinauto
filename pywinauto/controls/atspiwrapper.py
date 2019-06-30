@@ -41,18 +41,29 @@ from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
 from ..linux.atspi_element_info import AtspiElementInfo
-from ..linux.atspi_objects import AtspiStateSet, AtspiAccessible
 
 from Xlib import Xatom
 from Xlib.display import Display
 
+
 # region PATTERNS
+
+
+# ====================================================================
+class InvalidWindowHandle(RuntimeError):
+
+    """Raised when an invalid handle is passed to AtspiWrapper"""
+
+    def __init__(self, hwnd):
+        """Initialise the RuntimeError parent with the mesage"""
+        RuntimeError.__init__(self,
+                              "Handle {0} is not a vaild window handle".format(hwnd))
 
 
 # =========================================================================
 class AtspiMeta(BaseMeta):
 
-    """Metaclass for UiaWrapper objects"""
+    """Metaclass for AtspiWrapper objects"""
     control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
@@ -60,10 +71,20 @@ class AtspiMeta(BaseMeta):
 
         BaseMeta.__init__(cls, name, bases, attrs)
 
+        for t in cls._control_types:
+            AtspiMeta.control_type_to_cls[t] = cls
+
     @staticmethod
     def find_wrapper(element):
-        # TODO find derived wrapper class and return it
-        return AtspiWrapper
+        """Find the correct wrapper for this Atspi element"""
+        # Set a general wrapper by default
+        wrapper_match = AtspiWrapper
+
+        # Check for a more specific wrapper in the registry
+        if element.control_type in AtspiMeta.control_type_to_cls:
+            wrapper_match = AtspiMeta.control_type_to_cls[element.control_type]
+
+        return wrapper_match
 
 
 # =========================================================================
@@ -71,11 +92,11 @@ class AtspiMeta(BaseMeta):
 class AtspiWrapper(BaseWrapper):
 
     """
-    Default wrapper for User Interface Automation (UIA) controls.
+    Default wrapper for User Interface Automation (Atspi) controls.
 
-    All other UIA wrappers are derived from this.
+    All other Atspi wrappers are derived from this.
 
-    This class wraps a lot of functionality of underlying UIA features
+    This class wraps a lot of functionality of underlying Atspi features
     for working with windows.
 
     Most of the methods apply to every single element type. For example
@@ -94,13 +115,12 @@ class AtspiWrapper(BaseWrapper):
         """
         Initialize the control
 
-        * **element_info** is either a valid UIAElementInfo or it can be an
-          instance or subclass of UIAWrapper.
+        * **element_info** is either a valid AtspiElementInfo or it can be an
+          instance or subclass of AtspiWrapper.
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
         BaseWrapper.__init__(self, element_info, backend.registry.backends['atspi'])
-        self.state_set = self.element_info.get_state_set()
 
     # ------------------------------------------------------------
     def __hash__(self):
@@ -129,14 +149,24 @@ class AtspiWrapper(BaseWrapper):
         top_level_set_focus_by_pid(pid, root, '-')
 
     def set_focus(self):
-        if self.parent() == self.root():
-            self.set_window_focus(self.element_info.process_id)
+        if self.parent() == self.root() or self.parent().parent() == self.root() and not self.is_visible():
+            # Try to find first child control of current window like button or text area and set focus to it.
+            # It should automatically set focus to window.
+            for child in self.descendants():
+                # TODO extend list of focusable elements
+                if child.element_info.control_type in ['Push_button', 'Check_box', 'Toggle_button', 'Radio_button',
+                                                       'Text']:
+                    child.set_keyboard_focus()
+                    break
+
+            if not self.is_visible():
+                # If unable to set window focus via ATSPI try to set focus via XLIB
+                self.set_window_focus(self.element_info.process_id)
         else:
-            # TODO add check is focus set
             self.set_keyboard_focus()
 
     def get_states(self):
-        return self.state_set.get_states()
+        return self.element_info.get_state_set()
 
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)
