@@ -7,19 +7,18 @@ from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueC
                                  kAXErrorIllegalArgument, kAXErrorInvalidUIElement, kAXErrorInvalidUIElementObserver,
                                  kAXErrorNoValue, kAXErrorNotEnoughPrecision, kAXErrorNotImplemented, kAXErrorSuccess,
                                  AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue,
-                                 AXUIElementCopyActionNames, AXUIElementCreateApplication)
+                                 AXUIElementCopyActionNames, AXUIElementCreateApplication,AXUIElementGetPid)
 import sys
 import os
 import AppKit
+import subprocess
+from subprocess import Popen, PIPE
 
-if sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.append(parent_dir)
-    sys.path.append(parent_dir + '/macos')
-    os.path.join
-    from pywinauto.macos import macos_functions
-    from pywinauto.macos.macos_functions import get_ws_instance
+# parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# sys.path.append(parent_dir)
 
+import macos_functions
+from macos_functions import get_ws_instance
 
 def _cf_attr_to_py_object(self, attrValue):
 
@@ -46,7 +45,7 @@ def _cf_attr_to_py_object(self, attrValue):
         CFBooleanGetTypeID(): bool,
         CFArrayGetTypeID(): _cf_array_to_py_list,
         CFNumberGetTypeID(): _cf_number_to_py_number,
-        AXUIElementGetTypeID(): AXUIElementInfo,
+        AXUIElementGetTypeID(): AxElementInfo,
     }
     try:
         return cf_type_to_py_type[cf_attr_type](attrValue)
@@ -91,7 +90,7 @@ class AXError(Exception):
         raise Exception(self.message)
 
 
-class AXUIElementInfo(object):
+class AxElementInfo(object):
 
     def __init__(self, ref=None):
         self.ref = ref
@@ -126,49 +125,31 @@ class AXUIElementInfo(object):
     def __getattr__(self, name):
         if name.startswith('AX'):
             try:
-                attr = self._getAttribute(name)
+                attr = self._get_ax_attribute_value(name)
                 return attr
             except AttributeError:
                 pass
 
-    def _getAttributes(self):
+    def _get_ax_attributes(self):
         """
         Get a list of the actions available on the AXUIElement
-        :return:
         """
         err, attr = AXUIElementCopyAttributeNames(self.ref, None)
         if err != kAXErrorSuccess:
             raise AXError(err)
-        else:
-            return list(attr)
+        return list(attr)
 
-    def _getAttribute(self, attr):
+    def _get_ax_attribute_value(self, attr):
         """
         Get the value of the the specified attribute
-        :param args:
-        :return:
         """
         err, attrValue = AXUIElementCopyAttributeValue(self.ref, attr, None)
         if err == kAXErrorNoValue:
-            return
+            return None
 
         if err != kAXErrorSuccess:
             raise AXError(err)
         return _cf_attr_to_py_object(self, attrValue)
-
-    def _getActions(self):
-        """
-        Get a list of the actions available on the AXUIElement
-        :return:
-        """
-        if self.ref is None:
-            raise Error('Not a valid accessibility object')
-
-        err, actions = AXUIElementCopyActionNames(self.ref, None)
-        if err != kAXErrorSuccess:
-            raise AXError(err)
-        else:
-            return list(actions)
 
     @classmethod
     def running_applications(cls):
@@ -182,10 +163,8 @@ class AXUIElementInfo(object):
             Get an AXUIElement reference to the application specified by the given PID.
         """
         app_ref = AXUIElementCreateApplication(pid)
-
         if app_ref is None:
             raise ErrorUnsupported('Error getting app ref')
-
         return cls(app_ref)
 
     @classmethod
@@ -210,21 +189,45 @@ class AXUIElementInfo(object):
 
         r = ws.launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(
             bundleID,
-            AppKit.NSWorkspaceLaunchAllowingClassicStartup,
+            AppKit.NSWorkspaceLaunchNewInstance,
             AppKit.NSAppleEventDescriptor.nullDescriptor(),
             None)
-
         NsArray = macos_functions.get_app_instance_by_bundle(bundleID)
         self.ns_app = NsArray[0]
         if not r[0]:
             raise RuntimeError('Error launching specified application.')
 
+    @staticmethod
+    def terminateAppByBundleId(bundleID):
+        """Terminate app with a given bundle ID.
+        """
+        ra = AppKit.NSRunningApplication
+        if getattr(ra, "runningApplicationsWithBundleIdentifier_"):
+            appList = ra.runningApplicationsWithBundleIdentifier_(bundleID)
+            if appList and len(appList) > 0:
+                app = appList[0]
+                return app and app.terminate() and True or False
+        return False
+
+    def desktop(self):
+        appli = self.running_applications()
+        tab = []
+        for app in appli:
+            pid = app.processIdentifier()
+            app_ref = self.getAppRefByPid(pid)
+            tab.append(app_ref)
+        return tab
+
     def app_ref(self):
         pid = self.ns_app.processIdentifier()
         app_ref = self.getAppRefByPid(pid)
+        while app_ref.name == '':
+            app_ref = self.getAppRefByPid(pid)
         return(app_ref)
 
     def children(self):
+        if (self.ref == None and self.ns_app == None):
+            return self.desktop()
         try:
             return (self.AXChildren)
         except:
@@ -271,7 +274,6 @@ class AXUIElementInfo(object):
         try:
             return (self.AXSelected)
         except:
-            print(self.name())
             return False
 
     @property
@@ -279,7 +281,7 @@ class AXUIElementInfo(object):
         try:
             return (self.AXEnabled)
         except:
-            return 'Attribute doesnt exist'
+            return False
 
     @property
     def rectangle(self):
@@ -290,20 +292,24 @@ class AXUIElementInfo(object):
         right = None
         bottom = None
         if self.size is not None:
-            top = position[1]
-            left = position[0]
-            bottom = size[1]
-            right = left + size[0]
+            left, top = position
+            right, bottom = size
+            right += left
 
-        return (top, left, bottom, right)
+        return (int(float(top)), int(float(left)), int(float(bottom)), int(float(right)))
 
     @property
     def control_type(self):
-        control = self.AXRole.replace('AX', '')
-        return control
+        return (self.AXRole.replace('AX', ''))
 
+    @property
+    def process_id(self):
+        identifier = None
+        if (self.ns_app):
+            identifier = self.ns_app.processIdentifier()
+        return identifier
 
-app = AXUIElementInfo()
-app.launchAppByBundleId('com.apple.TextEdit')
-appli = app.descendants()
-print(appli)
+    def kill_process(self):
+        #kill like sigkill
+        Popen(["kill", "-9", str(self.process_id)], stdout=PIPE).communicate()[0]
+
