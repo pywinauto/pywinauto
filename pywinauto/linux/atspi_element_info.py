@@ -82,10 +82,6 @@ class AtspiElementInfo(ElementInfo):
         component = self.atspi_accessible.get_component(self._handle)
         return AtspiComponent(component)
 
-    def document_get_locale(self):
-        """Return the document's content locale"""
-        return self.document.get_locale().decode(encoding='UTF-8')
-
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         tree = []
@@ -136,3 +132,15 @@ class AtspiElementInfo(ElementInfo):
             return AtspiDocument(document)
         else:
             raise AttributeError
+
+    def document_get_locale(self):
+        """Return the document's content locale"""
+        return self.document.get_locale().decode(encoding='UTF-8')
+
+    def document_get_attribute_value(self, attrib):
+        """Return the document's attribute value"""
+        return self.document.get_attribute_value(attrib).decode(encoding='UTF-8')
+
+    def document_get_attributes(self):
+        """Return the document's constant attributes"""
+        return self.document.get_attributes()

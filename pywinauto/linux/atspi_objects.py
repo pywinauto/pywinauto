@@ -1,11 +1,11 @@
 import ctypes
 import subprocess
 import six
+from functools import wraps
 from ctypes import *  #Structure, c_char_p, c_int, c_bool, POINTER, c_uint32, c_short, c_double, addressof, c_void_p, c_char, create_string_buffer
 from collections import namedtuple
 
 from ..backend import Singleton
-
 
 class CtypesEnum(object):
     @classmethod
@@ -437,6 +437,24 @@ known_control_types = [
 ]
 
 
+def _handle_gerror(func, exception=ValueError):
+    """Helper decorator to handle GError"""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        """Handle the call result according to returned GError"""
+        err_p = pointer(_GError())
+        err_pp = pointer(err_p)
+        kwargs["g_error_pointer"] = err_pp
+        res = func(*args, **kwargs)
+        if err_pp.contents.contents.code == 0:
+            return res
+        else:
+            raise exception("GError with code: {0}, message: '{1}'".format(
+                            err_p[0].code, err_p[0].message.decode(encoding='UTF-8')))
+    return wrapper
+
+
 @six.add_metaclass(Singleton)
 class IATSPI(object):
     """ Python wrapper around C functions from atspi library"""
@@ -474,6 +492,59 @@ class IATSPI(object):
         else:
             print("Warning! method: {} not found in libatspi.".format(func_name))
             return None
+
+
+class GLIB(IATSPI):
+    LIB = "libglib-2.0.so"
+
+
+_GHFunc = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
+
+_glib = ctypes.cdll.LoadLibrary(GLIB.LIB)
+
+_g_str_hash = _glib.g_str_hash
+_g_str_hash.restype = c_uint
+_g_str_hash.argtypes = [c_char_p]
+_GStrHashFunc = CFUNCTYPE(c_uint, c_char_p)
+
+_g_str_equal = _glib.g_str_equal
+_g_str_equal.restype = c_bool
+_g_str_equal.argtypes = [c_char_p, c_char_p]
+_GStrEqualFunc = CFUNCTYPE(c_bool, c_char_p, c_char_p)
+
+# Basic GHashTable constructor, to be used only with
+# string-based key-value pairs that are alloc/free by Python
+_g_hash_table_new = _glib.g_hash_table_new
+_g_hash_table_new.restype = c_void_p
+_g_hash_table_new.argtypes = [_GStrHashFunc, _GStrEqualFunc]
+
+_g_hash_table_foreach = _glib.g_hash_table_foreach
+_g_hash_table_foreach.restype = None
+_g_hash_table_foreach.argtypes = [c_void_p, _GHFunc, c_void_p]
+
+_g_hash_table_destroy = _glib.g_hash_table_destroy
+_g_hash_table_destroy.restype = None
+_g_hash_table_destroy.argtypes = [c_void_p]
+
+_g_hash_table_insert = _glib.g_hash_table_insert
+_g_hash_table_insert.restype = c_bool
+_g_hash_table_insert.argtypes = [c_void_p, c_void_p, c_void_p]
+
+
+def _ghash2dic(ghash):
+    """Helper to convert GHashTable to Python dictionary
+
+    The helper is limited only to strings
+    """
+    res_dic = {}
+
+    def add_kvp(k, v, ud=None):
+        res_dic[k.decode('utf-8')] = v.decode('utf-8')
+    cbk = _GHFunc(add_kvp)
+
+    _g_hash_table_foreach(ghash, cbk, None)
+    _g_hash_table_destroy(ghash)
+    return res_dic
 
 
 class AtspiAccessible(object):
@@ -693,23 +764,49 @@ class AtspiStateSet(object):
 class AtspiDocument(object):
 
     """
-    Low level interface to ATSPI Document Interface
+    Access to ATSPI Document Interface
     """
-    
+
     _get_locale = IATSPI().get_iface_func("atspi_document_get_locale")
-    _get_locale.argtypes = [POINTER(_AtspiDocument),POINTER(POINTER(_GError))]
+    _get_locale.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
     _get_locale.restype = c_char_p
+ 
+    _get_attribute_value = IATSPI().get_iface_func("atspi_document_get_document_attribute_value")
+    _get_attribute_value.argtypes = [POINTER(_AtspiDocument), c_char_p, POINTER(POINTER(_GError))]
+    _get_attribute_value.restype = c_char_p
+  
+    _get_attributes = IATSPI().get_iface_func("atspi_document_get_document_attributes")
+    _get_attributes.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
+    _get_attributes.restype = c_void_p
 
     def __init__(self, pointer):
         self._pointer = pointer
 
-    def get_locale(self):
+    @_handle_gerror
+    def get_locale(self, g_error_pointer=None):
         """
         Gets the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
 
         Returns a string compliant with the POSIX standard for locale description.
         """
-        error = _GError()
-        pp = POINTER(POINTER(_GError))(error)
-        # TODO: handle _GError
-        return self._get_locale(self._pointer, pp)
+        return self._get_locale(self._pointer, g_error_pointer)
+
+    @_handle_gerror
+    def get_attribute_value(self, attrib, g_error_pointer=None):
+        """
+        Gets the value of a single attribute, if specified for the document as a whole.
+
+        Returns a string corresponding to the value of the specified attribute,
+        or an empty string if the attribute is unspecified for the object.
+        """
+        return self._get_attribute_value(self._pointer, c_char_p(attrib.encode()), g_error_pointer)
+
+    @_handle_gerror
+    def get_attributes(self, g_error_pointer=None):
+        """
+        Gets all constant attributes for the document as a whole.
+
+        Returns a dictionary containing the constant attributes of the document, as name-value pairs
+        """
+        res = self._get_attributes(self._pointer, g_error_pointer)
+        return _ghash2dic(res)
