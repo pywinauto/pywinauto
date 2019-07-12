@@ -4,9 +4,9 @@ import six
 from ctypes import Structure, c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
     create_string_buffer, cdll, pointer
 from functools import wraps
+from collections import namedtuple
 
 from ..backend import Singleton
-
 
 class CtypesEnum(object):
     @classmethod
@@ -494,6 +494,59 @@ class IATSPI(object):
             return None
 
 
+class GLIB(IATSPI):
+    LIB = "libglib-2.0.so"
+
+
+_GHFunc = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
+
+_glib = ctypes.cdll.LoadLibrary(GLIB.LIB)
+
+_g_str_hash = _glib.g_str_hash
+_g_str_hash.restype = c_uint
+_g_str_hash.argtypes = [c_char_p]
+_GStrHashFunc = CFUNCTYPE(c_uint, c_char_p)
+
+_g_str_equal = _glib.g_str_equal
+_g_str_equal.restype = c_bool
+_g_str_equal.argtypes = [c_char_p, c_char_p]
+_GStrEqualFunc = CFUNCTYPE(c_bool, c_char_p, c_char_p)
+
+# Basic GHashTable constructor, to be used only with
+# string-based key-value pairs that are alloc/free by Python
+_g_hash_table_new = _glib.g_hash_table_new
+_g_hash_table_new.restype = c_void_p
+_g_hash_table_new.argtypes = [_GStrHashFunc, _GStrEqualFunc]
+
+_g_hash_table_foreach = _glib.g_hash_table_foreach
+_g_hash_table_foreach.restype = None
+_g_hash_table_foreach.argtypes = [c_void_p, _GHFunc, c_void_p]
+
+_g_hash_table_destroy = _glib.g_hash_table_destroy
+_g_hash_table_destroy.restype = None
+_g_hash_table_destroy.argtypes = [c_void_p]
+
+_g_hash_table_insert = _glib.g_hash_table_insert
+_g_hash_table_insert.restype = c_bool
+_g_hash_table_insert.argtypes = [c_void_p, c_void_p, c_void_p]
+
+
+def _ghash2dic(ghash):
+    """Helper to convert GHashTable to Python dictionary
+
+    The helper is limited only to strings
+    """
+    res_dic = {}
+
+    def add_kvp(k, v, ud=None):
+        res_dic[k.decode('utf-8')] = v.decode('utf-8')
+    cbk = _GHFunc(add_kvp)
+
+    _g_hash_table_foreach(ghash, cbk, None)
+    _g_hash_table_destroy(ghash)
+    return res_dic
+
+
 class AtspiAccessible(object):
     get_desktop = IATSPI().get_iface_func("atspi_get_desktop")
     get_desktop.argtypes = [c_int]
@@ -724,17 +777,26 @@ class AtspiStateSet(object):
 class AtspiDocument(object):
 
     """
-    Low level interface to ATSPI Document Interface
+    Access to ATSPI Document Interface
     """
-    
+
     _get_locale = IATSPI().get_iface_func("atspi_document_get_locale")
-    _get_locale.argtypes = [POINTER(_AtspiDocument),POINTER(POINTER(_GError))]
+    _get_locale.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
     _get_locale.restype = c_char_p
+ 
+    _get_attribute_value = IATSPI().get_iface_func("atspi_document_get_document_attribute_value")
+    _get_attribute_value.argtypes = [POINTER(_AtspiDocument), c_char_p, POINTER(POINTER(_GError))]
+    _get_attribute_value.restype = c_char_p
+  
+    _get_attributes = IATSPI().get_iface_func("atspi_document_get_document_attributes")
+    _get_attributes.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
+    _get_attributes.restype = c_void_p
 
     def __init__(self, pointer):
         self._pointer = pointer
 
-    def get_locale(self):
+    @g_error_handler
+    def get_locale(self, g_error_pointer=None):
         """
         Gets the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
 
