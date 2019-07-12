@@ -53,8 +53,9 @@ import warnings
 import locale
 import six
 
-from .. import sysinfo
-from ..windows import win32defines, win32functions, win32structures
+from ..windows import win32functions
+from ..windows import win32defines
+from ..windows import win32structures
 from .. import findbestmatch
 from ..remote_memory_block import RemoteMemoryBlock
 from . import hwndwrapper
@@ -65,9 +66,6 @@ from ..timings import TimeoutError
 from ..handleprops import is64bitprocess
 from ..sysinfo import is_x64_Python
 from .. import deprecated
-
-if sysinfo.UIA_support:
-    from ..windows.uia_defines import IUIA
 
 
 # Todo: I should return iterators from things like items() and texts()
@@ -133,7 +131,7 @@ class _listview_item(object):
 
         item.iItem = self.item_index
         item.iSubItem = self.subitem_index
-        item.stateMask = win32structures.UINT(-1)
+        item.stateMask = wintypes.UINT(-1)
 
         item.cchTextMax = 2000
         item.pszText = remote_mem.Address() + \
@@ -499,9 +497,9 @@ class _listview_item(object):
 
         lvitem = self.listview_ctrl.LVITEM()
 
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(index_to_state_image_mask(1))  # win32structures.UINT(0x1000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
+        lvitem.state = wintypes.UINT(index_to_state_image_mask(1))  # wintypes.UINT(0x1000)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
@@ -528,9 +526,9 @@ class _listview_item(object):
 
         lvitem = self.listview_ctrl.LVITEM()
 
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
-        lvitem.state = win32structures.UINT(index_to_state_image_mask(2))  # win32structures.UINT(0x2000)
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_STATEIMAGEMASK)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
+        lvitem.state = wintypes.UINT(index_to_state_image_mask(2))  # wintypes.UINT(0x2000)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_STATEIMAGEMASK)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem)
@@ -589,12 +587,12 @@ class _listview_item(object):
 
         # first we need to change the state of the item
         lvitem = self.listview_ctrl.LVITEM()
-        lvitem.mask = win32structures.UINT(win32defines.LVIF_STATE)
+        lvitem.mask = wintypes.UINT(win32defines.LVIF_STATE)
 
         if to_select:
-            lvitem.state = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+            lvitem.state = wintypes.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
-        lvitem.stateMask = win32structures.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
+        lvitem.stateMask = wintypes.UINT(win32defines.LVIS_FOCUSED | win32defines.LVIS_SELECTED)
 
         remote_mem = RemoteMemoryBlock(self.listview_ctrl)
         remote_mem.Write(lvitem, size=ctypes.sizeof(lvitem))
@@ -719,10 +717,6 @@ class ListViewWrapper(hwndwrapper.HwndWrapper):
         "TSysListView",
         "ListView.*WndClass",
         ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_ListControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1422,7 +1416,7 @@ class _treeview_element(object):
         item.pszText = remote_mem.Address() + ctypes.sizeof(item) + 16
         item.cchTextMax = 2000
         item.hItem = self.elem
-        item.stateMask = win32structures.UINT(-1)
+        item.stateMask = wintypes.UINT(-1)
 
         # Write the local TVITEM structure to the remote memory block
         remote_mem.Write(item)
@@ -1458,8 +1452,6 @@ class TreeViewWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "TreeView"
     windowclasses = [
         "SysTreeView32", r"WindowsForms\d*\.SysTreeView32\..*", "TTreeView", "TreeList.TreeListCtrl"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_TreeControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1749,8 +1741,6 @@ class HeaderWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Header"
     windowclasses = ["SysHeader32", "msvb_lib_header"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_HeaderControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -1892,8 +1882,6 @@ class StatusBarWrapper(hwndwrapper.HwndWrapper):
         "msctls_statusbar32",
         ".*StatusBar",
         r"WindowsForms\d*\.msctls_statusbar32\..*"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_StatusBarControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2063,8 +2051,6 @@ class TabControlWrapper(hwndwrapper.HwndWrapper):
     windowclasses = [
         "SysTabControl32",
         r"WindowsForms\d*\.SysTabControl32\..*"]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_TabControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -2876,10 +2862,6 @@ class ReBarWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "ReBar"
     windowclasses = ["ReBarWindow32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -3084,8 +3066,6 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "UpDown"
     windowclasses = ["msctls_updown32", "msctls_updown", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_SpinnerControlTypeId]
 
     #----------------------------------------------------------------
     def __init__(self, hwnd):
@@ -3193,8 +3173,6 @@ class TrackbarWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "Trackbar"
     windowclasses = ["msctls_trackbar", ]
 
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_SliderControlTypeId]
 
     def get_range_min(self):
         """Get min available trackbar value"""
@@ -3291,10 +3269,6 @@ class AnimationWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Animation"
     windowclasses = ["SysAnimate32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
 
 #====================================================================
@@ -3304,10 +3278,6 @@ class ComboBoxExWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "ComboBoxEx"
     windowclasses = ["ComboBoxEx32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3319,10 +3289,6 @@ class DateTimePickerWrapper(hwndwrapper.HwndWrapper):
     friendlyclassname = "DateTimePicker"
     windowclasses = ["SysDateTimePick32",
                      r"WindowsForms\d*\.SysDateTimePick32\..*", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
     #----------------------------------------------------------------
@@ -3385,10 +3351,6 @@ class HotkeyWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Hotkey"
     windowclasses = ["msctls_hotkey32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3399,10 +3361,6 @@ class IPAddressWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "IPAddress"
     windowclasses = ["SysIPAddress32", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
     has_title = False
 
 
@@ -3413,8 +3371,6 @@ class CalendarWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Calendar"
     windowclasses = ["SysMonthCal32", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_CalendarControlTypeId]
     has_title = False
 
     place_in_calendar = {
@@ -3717,10 +3673,6 @@ class PagerWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Pager"
     windowclasses = ["SysPager", ]
-    if sysinfo.UIA_support:
-        #controltypes is empty to make wrapper search result unique
-        #possible control types: IUIA().UIA_dll.UIA_PaneControlTypeId
-        controltypes = []
 
     #----------------------------------------------------------------
     def get_position(self):
@@ -3746,8 +3698,6 @@ class ProgressWrapper(hwndwrapper.HwndWrapper):
 
     friendlyclassname = "Progress"
     windowclasses = ["msctls_progress", "msctls_progress32", ]
-    if sysinfo.UIA_support:
-        controltypes = [IUIA().UIA_dll.UIA_ProgressBarControlTypeId]
     has_title = False
 
     #----------------------------------------------------------------

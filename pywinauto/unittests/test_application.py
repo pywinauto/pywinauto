@@ -286,6 +286,15 @@ class ApplicationTestCases(unittest.TestCase):
         """Verify that Application instance is initialized or not"""
         self.assertRaises(ValueError, Application, backend='unregistered')
 
+    def test__iter__(self):
+        """Verify that Application instance is not iterable"""
+        app = Application()
+        app.start(_notepad_exe())
+        with self.assertRaises(NotImplementedError):
+            for a in app:
+                pass
+        app.kill()
+
     def test_not_connected(self):
         """Verify that it raises when the app is not connected"""
         self.assertRaises (AppNotConnected, Application().__getattribute__, 'Hiya')

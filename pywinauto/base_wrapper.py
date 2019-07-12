@@ -34,10 +34,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import abc
-import ctypes
 import locale
 import re
-import time
 import sys
 
 import six
@@ -47,11 +45,7 @@ try:
 except ImportError:
     ImageGrab = None
 
-from . import keyboard
-# from . import win32defines, win32structures, win32functions
-from .timings import Timings
 from .actionlogger import ActionLogger
-from .mouse import _perform_click_input
 
 
 #=========================================================================
@@ -521,8 +515,6 @@ class BaseWrapper(object):
             control_rectangle = rect
 
         # get the control rectangle in a way that PIL likes it
-        width = control_rectangle.width()
-        height = control_rectangle.height()
         left = control_rectangle.left
         right = control_rectangle.right
         top = control_rectangle.top

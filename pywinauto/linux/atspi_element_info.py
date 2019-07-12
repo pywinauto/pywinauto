@@ -1,11 +1,10 @@
-from .atspi_objects import AtspiRect, _AtspiCoordType, AtspiAccessible, RECT, known_control_types, AtspiComponent, \
-    AtspiStateSet
+from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
+    AtspiEditableText, IATSPI
 from .atspi_objects import AtspiDocument
 from ..element_info import ElementInfo
 
 
 class AtspiElementInfo(ElementInfo):
-
     """Wrapper for window handler"""
     atspi_accessible = AtspiAccessible()
 
@@ -16,15 +15,23 @@ class AtspiElementInfo(ElementInfo):
         else:
             self._handle = handle
 
-    def __get_elements(self, root, tree):
+    def __get_elements(self, root, tree, **kwargs):
         tree.append(root)
-        for el in root.children():
-            self.__get_elements(el, tree)
+        for el in root.children(**kwargs):
+            self.__get_elements(el, tree, **kwargs)
 
     def __eq__(self, other):
-        if self.class_name == "application":
+        if self.control_type == "Application":
             return self.process_id == other.process_id
         return self.rectangle == other.rectangle
+
+    @staticmethod
+    def _get_states_as_string(states):
+        string_states = []
+        for i, state in AtspiStateEnum.items():
+            if states & (1 << i):
+                string_states.append(state)
+        return string_states
 
     @property
     def handle(self):
@@ -49,7 +56,8 @@ class AtspiElementInfo(ElementInfo):
     @property
     def class_name(self):
         """Return the class name of the element"""
-        return self.atspi_accessible.get_role_name(self._handle, None).decode(encoding='UTF-8')
+        role = self.atspi_accessible.get_role_name(self._handle, None)
+        return "".join([part.capitalize() for part in role.decode("utf-8").split()])
 
     @property
     def rich_text(self):
@@ -60,7 +68,7 @@ class AtspiElementInfo(ElementInfo):
     def control_type(self):
         """Return the class name of the element"""
         role_id = self.atspi_accessible.get_role(self._handle, None)
-        return known_control_types[role_id]
+        return IATSPI().known_control_type_ids[role_id]
 
     @property
     def parent(self):
@@ -71,11 +79,25 @@ class AtspiElementInfo(ElementInfo):
 
     def children(self, **kwargs):
         """Return children of the element"""
+        process = kwargs.get("process", None)
+        class_name = kwargs.get("class_name", None)
+        title = kwargs.get("title", None)
+        control_type = kwargs.get("control_type", None)
+
         len = self.atspi_accessible.get_child_count(self._handle, None)
         childrens = []
         for i in range(len):
-            childrens.append(self.atspi_accessible.get_child_at_index(self._handle, i, None))
-        return [AtspiElementInfo(ch) for ch in childrens]
+            child = AtspiElementInfo(self.atspi_accessible.get_child_at_index(self._handle, i, None))
+            if class_name is not None and class_name != child.class_name:
+                continue
+            if title is not None and title != child.rich_text:
+                continue
+            if control_type is not None and control_type != child.control_type:
+                continue
+            if process is not None and process != child.process_id:
+                continue
+            childrens.append(child)
+        return childrens
 
     @property
     def component(self):
@@ -85,8 +107,10 @@ class AtspiElementInfo(ElementInfo):
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         tree = []
-        for obj in self.children():
-            self.__get_elements(obj, tree)
+        for obj in self.children(**kwargs):
+            self.__get_elements(obj, tree, **kwargs)
+        depth = kwargs.get("depth", None)
+        tree = self.filter_with_depth(tree, self, depth)
         return tree
 
     def description(self):
@@ -113,7 +137,41 @@ class AtspiElementInfo(ElementInfo):
         return self.component.get_mdi_x_order()
 
     def get_state_set(self):
-        return AtspiStateSet(self.atspi_accessible.get_state_set(self.handle))
+        val = self.atspi_accessible.get_state_set(self.handle)
+        return self._get_states_as_string(val.contents.states)
+
+    def get_action(self):
+        if self.atspi_accessible.is_action(self.handle):
+            return AtspiAction(self.atspi_accessible.get_action(self.handle))
+        else:
+            return None
+
+    def get_text_property(self):
+        return AtspiText(self.atspi_accessible.get_text(self.handle))
+
+    def get_editable_text_property(self):
+        return AtspiEditableText(self.atspi_accessible.get_editable_text(self.handle))
+
+    def get_value_property(self):
+        return AtspiValue(self.atspi_accessible.get_value(self.handle))
+
+    @property
+    def visible(self):
+        states = self.get_state_set()
+        if self.control_type == "Application":
+            states = self.children()[0].get_state_set()
+        return "STATE_VISIBLE" in states and "STATE_SHOWING" in states
+
+    def set_cache_strategy(self, cached):
+        """Set a cache strategy for frequently used attributes of the element"""
+        pass  # TODO: implement a cache strategy for atspi elements
+
+    @property
+    def enabled(self):
+        states = self.get_state_set()
+        if self.control_type == "Application":
+            states = self.children()[0].get_state_set()
+        return "STATE_ENABLED" in states
 
     @property
     def rectangle(self):
@@ -127,7 +185,7 @@ class AtspiElementInfo(ElementInfo):
     @property
     def document(self):
         """Return AtspiDocument interface"""
-        if self.control_type == "Document_frame":
+        if self.control_type == "DocumentFrame":
             document = self.atspi_accessible.get_document(self._handle)
             return AtspiDocument(document)
         else:

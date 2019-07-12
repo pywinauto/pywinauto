@@ -8,14 +8,16 @@ import six
 import mock
 import ctypes
 
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_objects import AtspiAccessible
     from pywinauto.linux.atspi_objects import AtspiDocument
     from pywinauto.linux.atspi_objects import _GError
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
-    from pywinauto.linux.atspi_element_info import known_control_types
+    from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
+    from pywinauto.controls.atspiwrapper import AtspiWrapper
+    from pywinauto.linux.atspi_objects import GErrorException
     from pywinauto.linux.atspi_objects import _g_str_hash
     from pywinauto.linux.atspi_objects import _g_str_equal
     from pywinauto.linux.atspi_objects import _g_hash_table_new
@@ -37,7 +39,7 @@ def _test_app():
     return os.path.join(test_folder, app_name)
 
 
-if sys.platform != 'win32':
+if sys.platform.startswith("linux"):
     class AtspiElementInfoTests(unittest.TestCase):
 
         """Unit tests for the AtspiElementInfo class"""
@@ -60,7 +62,7 @@ if sys.platform != 'win32':
             self.app.kill()
 
         def test_can_get_desktop(self):
-            self.assertEqual(self.desktop_info.class_name, "desktop frame")
+            self.assertEqual(self.desktop_info.control_type, "DesktopFrame")
 
         def test_can_get_childrens(self):
             apps = [children.name for children in self.desktop_info.children()]
@@ -71,24 +73,25 @@ if sys.platform != 'win32':
 
         def test_can_get_parent(self):
             parent = self.app_info.parent
-            self.assertEqual(parent.class_name, "desktop frame")
+            self.assertEqual(parent.control_type, "DesktopFrame")
 
         def test_can_get_process_id(self):
             self.assertEqual(self.app_info.process_id, self.app.process)
 
         def test_can_get_class_name(self):
-            self.assertEqual(self.app_info.class_name, "application")
+            self.assertEqual(self.app_info.class_name, "Application")
 
         def test_can_get_control_type_property(self):
             self.assertEqual(self.app_info.control_type, "Application")
 
         def test_can_get_control_type_of_all_app_descendants(self):
+            print(self.app_info.descendants())
             for children in self.app_info.descendants():
-                self.assertTrue(children.control_type in known_control_types)
+                self.assertTrue(children.control_type in IATSPI().known_control_types.keys())
 
         def test_control_type_equal_class_name(self):
             for children in self.app_info.descendants():
-                self.assertEqual(children.control_type.lower().replace("_", " "), children.class_name)
+                self.assertEqual(children.control_type, children.class_name)
 
         def test_can_get_description(self):
             # TODO find a way to add meaningful description to example application
@@ -140,10 +143,17 @@ if sys.platform != 'win32':
             self.assertEqual(self.desktop_info.get_layer(), 3)
 
         def test_can_get_state_set(self):
-            app_info = self.app_info.children()[0]
-            app_info1 = self.app_info.children()[0].children()[0]
-            print(app_info.get_state_set().get_states())
-            print(app_info1.get_state_set().get_states())
+            frame_info = self.app_info.children()[0]
+            states = frame_info.get_state_set()
+            self.assertIn('STATE_VISIBLE', states)
+
+        def test_visible(self):
+            frame_info = self.app_info.children()[0]
+            self.assertTrue(frame_info.visible)
+
+        def test_enabled(self):
+            frame_info = self.app_info.children()[0]
+            self.assertTrue(frame_info.enabled)
 
     class AtspiElementInfoDocumentMockedTests(unittest.TestCase):
 
@@ -153,7 +163,7 @@ if sys.platform != 'win32':
             self.info = AtspiElementInfo()
             self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
             self.mock_get_role = self.patch_get_role.start()
-            self.mock_get_role.return_value = known_control_types.index("Document_frame")
+            self.mock_get_role.return_value = IATSPI().known_control_types["DocumentFrame"]
 
         def tearDown(self):
             self.patch_get_role.stop()
@@ -162,7 +172,7 @@ if sys.platform != 'win32':
             self.assertEqual(type(self.info.document), AtspiDocument)
 
         def test_document_fail_on_wrong_role(self):
-            self.mock_get_role.return_value = known_control_types.index("Invalid")
+            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
             self.assertRaises(AttributeError, lambda: self.info.document)
 
         @mock.patch.object(AtspiDocument, 'get_locale')
@@ -187,7 +197,7 @@ if sys.platform != 'win32':
             expected_err_msg = "GError with code: {0}, message: '{1}'".format(
                                gerror.code, gerror.message.decode(encoding='UTF-8'))
             six.assertRaisesRegex(self,
-                                  ValueError,
+                                  GErrorException,
                                   expected_err_msg,
                                   self.info.document_get_locale)
 

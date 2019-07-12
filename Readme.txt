@@ -1,6 +1,6 @@
 pywinauto
-(c) Mark Mc Mahon 2006-2015
-Released under the LGPL v2.1 or later
+(c) Mark Mc Mahon 2006-2010, Intel Corporation 2015-2016, Open Source community 2016-2019
+Released under BSD 3-clause license
 
 
 What is it
@@ -14,14 +14,15 @@ Manual Installation
 ------------
 Install the following Python packages
 (Required) pyWin32      http://sourceforge.net/projects/pywin32/files/pywin32/
+(Required) comtypes     https://github.com/enthought/comtypes
 (Optional) PIL          http://www.pythonware.com/products/pil/index.htm
 Unzip the pywinauto zip file to a folder.
 Run "python setup.py install"
 
 To check you have it installed correctly
 run in Python REPL:
->>> from pywinauto.application import Application
->>> app = Application.start("notepad.exe")
+>>> from pywinauto import Application
+>>> app = Application(backend="uia").start("notepad.exe")
 >>> app.UntitledNotepad.type_keys("%FX")
 
 Installation in silent mode (Python 2.7, 3.3+)
@@ -37,7 +38,7 @@ It explains the core concept, how to choose appropriate backend, spy tools and m
 We also have several examples installed along with the pywinauto demonstrating the work with
 Notepad, MSPaint, WireShark, explorer.exe and etc.
 https://github.com/pywinauto/pywinauto/tree/master/examples
-Notice though these examples designed to work only on a system with English localization.
+All the examples designed to work only on a system with English as OS interface language.
 
 
 How does it work
@@ -82,25 +83,20 @@ wait for the transition to a new state like so ::
 
 
 Several similar tools for comparison
----------------------------------
-* Python tools
-
-  - PyAutoGui
-  - AXUI
-  - winGuiAuto
-
-* Other scripting language tools
-
-  - Perl Win32::GuiTest
-  - Ruby Win32-Autogui
+------------------------------------
+See rating of competitors in the open source field (updated every month):
+https://github.com/pywinauto/pywinauto/wiki/UI-Automation-tools-ratings
 
 * Other free tools
 
-  - AutoIt
   - See a collection at: https://github.com/atinfo/awesome-test-automation
 
 * Commercial tools
 
+  - TestComplete
+  - Squish
+  - HP UFT (former QTP)
+  - LeanFT
   - WinRunner
   - SilkTest
   - Many Others
