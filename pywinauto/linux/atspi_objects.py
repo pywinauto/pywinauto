@@ -31,7 +31,8 @@ class RECT(Structure):
 
     # ----------------------------------------------------------------
     def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
-        """Provide a constructor for RECT structures
+        """
+        Provide a constructor for RECT structures
 
         A RECT can be constructed by:
         - Another RECT (each value will be copied)
@@ -542,7 +543,8 @@ _g_hash_table_insert.argtypes = [c_void_p, c_void_p, c_void_p]
 
 
 def _ghash2dic(ghash):
-    """Helper to convert GHashTable to Python dictionary
+    """
+    Helper to convert GHashTable to Python dictionary
 
     The helper is limited only to strings
     """
@@ -559,7 +561,7 @@ def _ghash2dic(ghash):
 
 class AtspiAccessible(object):
 
-    """Access to ATSPI Accessible Interface """
+    """Access to ATSPI Accessible Interface"""
 
     get_desktop = IATSPI().get_iface_func("atspi_get_desktop")
     get_desktop.argtypes = [c_int]
@@ -648,7 +650,7 @@ class AtspiAccessible(object):
 
 class AtspiComponent(object):
 
-    """Access to ATSPI Component Interface """
+    """Access to ATSPI Component Interface"""
 
     _contains = IATSPI().get_iface_func("atspi_component_contains")
     _contains.argtypes = [POINTER(_AtspiComponent), c_int, c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
@@ -746,7 +748,7 @@ class AtspiComponent(object):
 
 class AtspiStateSet(object):
 
-    """Access to ATSPI StateSet Interface """
+    """Access to ATSPI StateSet Interface"""
 
     _new = IATSPI().get_iface_func("atspi_state_set_new")
     _new.argtypes = [POINTER(_GArray)]
@@ -829,7 +831,7 @@ class AtspiDocument(object):
 
 class AtspiAction(object):
 
-    """Access to ATSPI Action Interface """
+    """Access to ATSPI Action Interface"""
 
     _get_action_description = IATSPI().get_iface_func("atspi_action_get_action_description")
     _get_action_description.argtypes = [POINTER(_AtspiAction), c_int, POINTER(POINTER(_GError))]
@@ -911,7 +913,7 @@ class AtspiAction(object):
 
 class AtspiText(object):
 
-    """Access to ATSPI Text Interface """
+    """Access to ATSPI Text Interface"""
 
     _get_character_count = IATSPI().get_iface_func("atspi_text_get_character_count")
     _get_character_count.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
@@ -1027,7 +1029,7 @@ class AtspiText(object):
 
 class AtspiEditableText(object):
 
-    """Access to ATSPI Editable Interface """
+    """Access to ATSPI Editable Interface"""
 
     _set_text_contents = IATSPI().get_iface_func("atspi_editable_text_set_text_contents")
     _set_text_contents.argtypes = [POINTER(_AtspiEditableText), c_char_p, POINTER(POINTER(_GError))]
@@ -1067,7 +1069,7 @@ class AtspiEditableText(object):
 
 class AtspiValue(object):
 
-    """Access to ATSPI Value Interface """
+    """Access to ATSPI Value Interface"""
 
     _get_minimum_value = IATSPI().get_iface_func("atspi_value_get_minimum_value")
     _get_minimum_value.argtypes = [POINTER(_AtspiValue), POINTER(POINTER(_GError))]
