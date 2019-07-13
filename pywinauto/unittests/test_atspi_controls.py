@@ -46,10 +46,10 @@ if sys.platform.startswith("linux"):
             self.app = Application()
             self.app.start("python3.4 " + _test_app())
             time.sleep(1)
-            self.app_wrapper = self.app.gtk_example
-            self.button_wrapper = self.app_wrapper.Frame.Panel.Click
-            self.button_info = self.app_wrapper.Frame.Panel.Click.element_info
-            self.text_area = self.app_wrapper.Frame.Panel.ScrollPane.Text
+            self.top_win = self.app.gtk_example
+            self.button_wrapper = self.top_win.Frame.Panel.Click.wrapper_object()
+            self.button_info = self.top_win.Frame.Panel.Click.element_info
+            self.text_area = self.top_win.Frame.Panel.ScrollPane.Text
 
         def tearDown(self):
             self.app.kill()
@@ -78,18 +78,18 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self._get_state_label_text(), "\"Click\" clicked")
 
         def test_button_toggle(self):
-            toggle_button_wrapper = self.app_wrapper.Frame.Panel.Button
+            toggle_button_wrapper = self.top_win.Frame.Panel.Button
             toggle_button_wrapper.click()
             self.assertEqual(self._get_state_label_text(), "Button 1 turned on")
 
         def test_button_toggle_state(self):
-            toggle_button_wrapper = self.app_wrapper.Frame.Panel.Button
+            toggle_button_wrapper = self.top_win.Frame.Panel.Button
             self.assertFalse(toggle_button_wrapper.get_toggle_state())
             toggle_button_wrapper.click()
             self.assertTrue(toggle_button_wrapper.get_toggle_state())
 
         def test_text_area_is_editable(self):
-            editable_state_button = self.app_wrapper.Frame.Panel.Editable
+            editable_state_button = self.top_win.Frame.Panel.Editable
             self.assertTrue(self.text_area.is_editable())
             editable_state_button.click()
             self.assertFalse(self.text_area.is_editable())

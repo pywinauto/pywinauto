@@ -440,7 +440,7 @@ ATSPI_ROLE_COUNT = 126
 @six.add_metaclass(Singleton)
 class IATSPI(object):
 
-    """ Python wrapper around C functions from ATSPI library"""
+    """Python wrapper around C functions from ATSPI library"""
 
     LIB = "libatspi"
     DEFAULT_LIB_NAME = "libatspi.so"
@@ -503,7 +503,7 @@ class IATSPI(object):
 
 class GLIB(IATSPI):
 
-    """ Python wrapper around C functions from GLib library"""
+    """Python wrapper around C functions from GLib library"""
 
     LIB = "libglib-2.0.so"
 
