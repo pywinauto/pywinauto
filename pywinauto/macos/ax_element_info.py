@@ -7,18 +7,22 @@ from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueC
                                  kAXErrorIllegalArgument, kAXErrorInvalidUIElement, kAXErrorInvalidUIElementObserver,
                                  kAXErrorNoValue, kAXErrorNotEnoughPrecision, kAXErrorNotImplemented, kAXErrorSuccess,
                                  AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue,
-                                 AXUIElementCopyActionNames, AXUIElementCreateApplication,AXUIElementGetPid)
-import sys
-import os
+                                 AXUIElementCopyActionNames, AXUIElementCreateApplication, AXUIElementGetPid)
 import AppKit
-import subprocess
+from AppKit import NSScreen
 from subprocess import Popen, PIPE
-
+import warnings
 # parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # sys.path.append(parent_dir)
-
-import macos_functions
 from macos_functions import get_ws_instance
+
+
+ax_type_from_string = {
+    kAXValueCGSizeType: AppKit.NSSizeFromString,
+    kAXValueCGPointType: AppKit.NSPointFromString,
+    kAXValueCFRangeType: AppKit.NSRangeFromString,
+}
+
 
 def _cf_attr_to_py_object(self, attrValue):
 
@@ -52,18 +56,13 @@ def _cf_attr_to_py_object(self, attrValue):
     except KeyError:
         # did not get a supported CF type. Move on to AX type
         ax_attr_type = AXValueGetType(attrValue)
-        ax_type_from_string = {
-            kAXValueCGSizeType: AppKit.NSSizeFromString,
-            kAXValueCGPointType: AppKit.NSPointFromString,
-            kAXValueCFRangeType: AppKit.NSRangeFromString,
-        }
         try:
             # print("Description = {}".format(dir(attrValue)))
             # print("DescriptionType = {}".format(type(attrValue.description())))
             extracted_str = re.search('{.*}', attrValue.description()).group()
             return tuple(ax_type_from_string[ax_attr_type](extracted_str))
         except KeyError:
-            raise ErrorUnsupported('Return value not supported yet: {}'.format(ax_attr_type))
+            raise NotImplementedError()
 
 
 ax_error_description = {
@@ -87,14 +86,12 @@ class AXError(Exception):
     def __init__(self, err_code):
         self.err_code = err_code
         self.message = ax_error_description[err_code]
-        raise Exception(self.message)
 
 
 class AxElementInfo(object):
 
     def __init__(self, ref=None):
         self.ref = ref
-        self.ns_app = None
         cls = type(self)
         if isinstance(ref, cls):
             return cls(ref.ref)
@@ -105,30 +102,16 @@ class AxElementInfo(object):
         role = '<No role!>'
         c = repr(self.__class__).partition('<class \'')[-1].rpartition('\'>')[0]
         try:
-            title = repr(self.AXTitle)
-        except Exception:
-            try:
-                title = repr(self.AXValue)
-            except Exception:
-                try:
-                    title = repr(self.AXRoleDescription)
-                except Exception:
-                    pass
-        try:
-            role = self.AXRole
+            title = repr(self.name)
         except Exception:
             pass
-        if len(title) > 20:
-            title = title[:20] + '...\''
-        return '<%s %s %s>' % (c, role, title)
-
-    def __getattr__(self, name):
-        if name.startswith('AX'):
-            try:
-                attr = self._get_ax_attribute_value(name)
-                return attr
-            except AttributeError:
-                pass
+        try:
+            role = self.control_type
+        except Exception:
+            pass
+        # if len(title) > 20:
+        #     title = title[:20] + '...\''
+        return '<{} {} {}>'.format(c, role, title)
 
     def _get_ax_attributes(self):
         """
@@ -151,95 +134,30 @@ class AxElementInfo(object):
             raise AXError(err)
         return _cf_attr_to_py_object(self, attrValue)
 
-    @classmethod
-    def running_applications(cls):
-        """Get a list of the running applications."""
-        rApps = get_ws_instance().runningApplications()
-        return rApps
-
-    @classmethod
-    def getAppRefByPid(cls, pid):
-        """
-            Get an AXUIElement reference to the application specified by the given PID.
-        """
-        app_ref = AXUIElementCreateApplication(pid)
-        if app_ref is None:
-            raise ErrorUnsupported('Error getting app ref')
-        return cls(app_ref)
-
-    @classmethod
-    def getFrontmostApp(cls):
-        """Get the current frontmost application.
-        Raise a ValueError exception if no GUI applications are found.
-        """
-        apps = cls.running_applications()
-        for app in apps:
-            pid = app.processIdentifier()
-            ref = cls.getAppRefByPid(pid)
-            try:
-                if ref.AXFrontmost:
-                    return ref
-            except:
-                pass
-        raise ValueError('No GUI application found.')
-
-    def launchAppByBundleId(self, bundleID):
-        """Launch the application with the specified bundle ID"""
-        ws = AppKit.NSWorkspace.sharedWorkspace()
-
-        r = ws.launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(
-            bundleID,
-            AppKit.NSWorkspaceLaunchNewInstance,
-            AppKit.NSAppleEventDescriptor.nullDescriptor(),
-            None)
-        NsArray = macos_functions.get_app_instance_by_bundle(bundleID)
-        self.ns_app = NsArray[0]
-        if not r[0]:
-            raise RuntimeError('Error launching specified application.')
-
-    @staticmethod
-    def terminateAppByBundleId(bundleID):
-        """Terminate app with a given bundle ID.
-        """
-        ra = AppKit.NSRunningApplication
-        if getattr(ra, "runningApplicationsWithBundleIdentifier_"):
-            appList = ra.runningApplicationsWithBundleIdentifier_(bundleID)
-            if appList and len(appList) > 0:
-                app = appList[0]
-                return app and app.terminate() and True or False
-        return False
-
-    def desktop(self):
-        appli = self.running_applications()
-        tab = []
-        for app in appli:
-            pid = app.processIdentifier()
-            app_ref = self.getAppRefByPid(pid)
-            tab.append(app_ref)
-        return tab
-
-    def app_ref(self):
-        pid = self.ns_app.processIdentifier()
-        app_ref = self.getAppRefByPid(pid)
-        while app_ref.name == '':
-            app_ref = self.getAppRefByPid(pid)
-        return(app_ref)
-
     def children(self):
-        if (self.ref == None and self.ns_app == None):
-            return self.desktop()
+        if (self.ref is None):
+            cls = type(self)
+            appli = get_ws_instance().runningApplications()
+            tab = []
+            for app in appli:
+                pid = app.processIdentifier()
+                # print(app.localizedName())
+                app_ref = cls(AXUIElementCreateApplication(pid))
+                # if app_ref.name != '':
+                tab.append(app_ref)
+            return tab
         try:
-            return (self.AXChildren)
-        except:
-            return(self.getFrontmostApp().AXChildren)
+            return (self._get_ax_attribute_value("AXChildren"))
+        except Exception:
+            return [] and warnings.warn("This element has no Children")
 
     def descendants(self):
         all_desc = []
         liste = self.children()
 
         def _collect_desc(elem):
-            if elem.AXChildren is not None:
-                children = elem.AXChildren
+            if elem._get_ax_attribute_value("AXChildren") is not None:
+                children = elem._get_ax_attribute_value("AXChildren")
                 for child in children:
                     all_desc.append(child)
                     _collect_desc(child)
@@ -249,42 +167,49 @@ class AxElementInfo(object):
 
     @property
     def name(self):
+        if (self.ref is None):
+            return("Desktop")
         try:
-            return self.AXTitle
+            return self._get_ax_attribute_value("AXTitle")
         except Exception:
             try:
-                return self.AXValue
+                return self._get_ax_attribute_value("AXValue")
             except Exception:
                 return ''
 
     @property
     def parent(self):
-        return (self.AXParent)
+        if (self.ref is None):
+            return(None)
+        return (self._get_ax_attribute_value("AXParent"))
 
     @property
     def size(self):
-        return (self.AXSize)
+        return (self._get_ax_attribute_value("AXSize"))
 
     @property
     def position(self):
-        return (self.AXPosition)
+        return (self._get_ax_attribute_value("AXPosition"))
 
     @property
     def is_selected(self):
         try:
-            return (self.AXSelected)
-        except:
+            return (self._get_ax_attribute_value("AXSelected"))
+        except Exception:
             return False
 
     @property
     def is_enabled(self):
         try:
-            return (self.AXEnabled)
-        except:
+            return (self._get_ax_attribute_value("AXEnabled"))
+        except Exception:
             return False
 
     @property
     def rectangle(self):
+        if (self.ref is None):
+            e = NSScreen.mainScreen().frame()
+            return (0, 0, int(float(e.size.width)), int(float(e.size.height)))
         position = self.position
         size = self.size
         top = None
@@ -300,16 +225,24 @@ class AxElementInfo(object):
 
     @property
     def control_type(self):
-        return (self.AXRole.replace('AX', ''))
+        if (self.ref is None):
+            return("Desktop")
+        try:
+            role = self._get_ax_attribute_value("AXRole")
+        except AXError:
+            return ''
+
+        if role.startswith('AX'):
+            return role.replace('AX', '')
+        return role
 
     @property
     def process_id(self):
-        identifier = None
-        if (self.ns_app):
-            identifier = self.ns_app.processIdentifier()
-        return identifier
+        err, pid = AXUIElementGetPid(self.ref, None)
+        if err != kAXErrorSuccess:
+            raise AXError(err)
+        return pid
 
     def kill_process(self):
         #kill like sigkill
         Popen(["kill", "-9", str(self.process_id)], stdout=PIPE).communicate()[0]
-
