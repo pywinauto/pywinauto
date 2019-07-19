@@ -68,7 +68,7 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
     # -----------------------------------------------------------
     def get_toggle_state(self):
-        """Get a toggle state of a check box control."""
+        """Get a toggle state of a check box control"""
         return "STATE_CHECKED" in self.element_info.get_state_set()
 
     # -----------------------------------------------------------
@@ -78,7 +78,7 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
 
 class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
-    """Wrap a UIA CoboBox control"""
+    """Wrap a AT-SPI ComboBox control"""
 
     _control_types = ['ComboBox']
 
@@ -92,14 +92,14 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         self.action.do_action_by_name("press")
 
     def expand(self):
-        if self.is_expanded():
-            return self
-        self._press()
+        if not self.is_expanded():
+            self._press()
+        return self
 
     def collapse(self):
-        if not self.is_expanded():
-            return self
-        self._press()
+        if self.is_expanded():
+            self._press()
+        return self
 
     def is_expanded(self):
         """Test if the control is expanded"""
@@ -141,6 +141,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
                 else:
                     raise IndexError('Item number #{} is out of range ' \
                                      '({} items in total)'.format(item, len(items)))
+        # else: TODO: probably raise an exception if there is no children
 
         self.collapse()
         return self
