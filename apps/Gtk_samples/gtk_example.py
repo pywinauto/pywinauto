@@ -1,9 +1,3 @@
-import sys
-
-# if sys.version_info > (3, 0):
-#     import pgi as gi
-#     gi.install_as_gi()
-
 from gi import require_version
 require_version("Gtk", "3.0")
 
@@ -44,12 +38,12 @@ class TestApplicationMainWindow(Gtk.Window):
         country_combo.set_active(0)
         return country_combo
 
-    def language_filter_func(self, model, iter, data):
-        """Tests if the language in the row is the one in the filter"""
+    def language_filter_func(self, model, index, data):
+        """Test if the language in the row is the one in the filter"""
         if self.current_filter_language is None or self.current_filter_language == "None":
             return True
         else:
-            return model[iter][2] == self.current_filter_language
+            return model[index][2] == self.current_filter_language
 
     def _add_listview(self):
         # Creating the ListStore model
