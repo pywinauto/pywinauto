@@ -78,6 +78,7 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
 
 class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
+
     """Wrap a AT-SPI ComboBox control"""
 
     _control_types = ['ComboBox']
