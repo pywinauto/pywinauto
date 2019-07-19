@@ -15,6 +15,7 @@ from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto import Desktop
+from pywinauto import mouse  # noqa: E402
 if UIA_support:
     import comtypes
     import pywinauto.windows.uia_defines as uia_defs
@@ -53,6 +54,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
+            mouse.move((-500, 500))  # remove the mouse from the screen to avoid side effects
 
             # start the application
             self.app = Application(backend='uia')
@@ -291,8 +293,18 @@ if UIA_support:
         def test_type_keys(self):
             """Test sending key types to a control"""
             edit = self.dlg.TestLabelEdit.wrapper_object()
-            edit.type_keys("testTypeKeys")
-            self.assertEqual(edit.window_text(), "testTypeKeys")
+            edit.type_keys("t")
+            self.assertEqual(edit.window_text(), "t")
+            edit.type_keys("e")
+            self.assertEqual(edit.window_text(), "te")
+            edit.type_keys("s")
+            self.assertEqual(edit.window_text(), "tes")
+            edit.type_keys("t")
+            self.assertEqual(edit.window_text(), "test")
+            edit.type_keys("T")
+            self.assertEqual(edit.window_text(), "testT")
+            edit.type_keys("y")
+            self.assertEqual(edit.window_text(), "testTy")
 
         def test_no_pattern_interface_error(self):
             """Test a query interface exception handling"""
