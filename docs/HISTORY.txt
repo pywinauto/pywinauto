@@ -2,6 +2,23 @@
 Change Log
 ==========
 
+0.6.7 Bug Fixes
+--------------------------------------------------------------------
+07-July-2019
+
+Enhancements:
+ * Reuse ``ctypes.wintypes`` more to avoid redundant definitions for Win32 API.
+ * Add method ``EditWrapper.is_editable()`` for "uia" backend.
+
+Bug Fixes:
+ * Fix corner case with int/long conversion crash while getting text.
+ * Fix UIA crash: handle InvalidControlType properly.
+ * Fix menu_select() for one level main menu in WinForms apps.
+ * Make ``Application`` object non-iterable (iterating was hang).
+ * Fix type conversion crash in ``GetWindowRect`` (method ``.rectangle()``).
+ * Fix combo box fluttering/blinking in ``dump_tree() / print_control_identifiers()``.
+
+
 0.6.6 Better WinForms/Qt5 Support, Bug Fixes
 --------------------------------------------------------------------
 03-March-2019
