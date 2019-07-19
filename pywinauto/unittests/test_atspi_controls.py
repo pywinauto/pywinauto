@@ -46,10 +46,10 @@ if sys.platform.startswith("linux"):
             self.app = Application()
             self.app.start("python3.4 " + _test_app())
             time.sleep(1)
-            self.app_wrapper = self.app.gtk_example.wrapper_object()
-            self.button_wrapper = self.app_wrapper.Frame.Panel.Click.wrapper_object()
-            self.button_info = self.app_wrapper.Frame.Panel.Click.element_info
-            self.text_area = self.app_wrapper.Frame.Panel.ScrollPane.Text.wrapper_object()
+            self.app_window = self.app.gtk_example
+            self.button_wrapper = self.app_window.Frame.Panel.Click.wrapper_object()
+            self.button_info = self.app_window.Frame.Panel.Click.element_info
+            self.text_area = self.app_window.Frame.Panel.ScrollPane.Text.wrapper_object()
 
         def tearDown(self):
             self.app.kill()
@@ -144,55 +144,55 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.text_area.selection_indices(), (0, 10))
 
         def test_combobox_is_expanded(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             self.assertFalse(combo_box.is_expanded())
 
         def test_combobox_expand(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             self.assertFalse(combo_box.is_expanded())
             combo_box.expand()
             self.assertTrue(combo_box.is_expanded())
 
         def test_combobox_collapse(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             combo_box.expand()
             self.assertTrue(combo_box.is_expanded())
             combo_box.collapse()
             self.assertFalse(combo_box.is_expanded())
 
         def test_combobox_texts(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             self.assertEqual(combo_box.texts(), countries)
 
         def test_combobox_selected_text(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             self.assertEqual(combo_box.selected_text(), countries[0])
 
         def test_combobox_selected_index(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             self.assertEqual(combo_box.selected_index(), 0)
 
         def test_combobox_item_count(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             self.assertEqual(combo_box.item_count(), len(countries))
 
         def test_combobox_select_by_index(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             combo_box.select(1)
             self.assertEqual(combo_box.selected_text(), countries[1])
 
         def test_combobox_select_by_text(self):
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            combo_box = self.app_window.Frame.Panel.ComboBox
             combo_box.select(countries[1])
             self.assertEqual(combo_box.selected_text(), countries[1])
 
         def test_ololo(self):
-            print_tree(self.app_wrapper.element_info)
-            combo_box = self.app_wrapper.Frame.Panel.ComboBox
+            print_tree(self.app_window.element_info)
+            combo_box = self.app_window.Frame.Panel.ComboBox
             time.sleep(5)
             print(combo_box.window_text())
 
-            # actions = self.app_wrapper.Frame.Panel.ComboBox.Menu.element_info.get_action()
+            # actions = self.app_window.Frame.Panel.ComboBox.Menu.element_info.get_action()
             # print(actions.get_all_actions())
 
         def test_text_area_set_selection_by_text(self):
