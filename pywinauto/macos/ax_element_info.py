@@ -1,4 +1,6 @@
 import re
+import timeit
+import sys, os
 from CoreFoundation import (CFNumberGetValue, CFStringGetTypeID, CFArrayGetTypeID, CFGetTypeID,
                             CFNumberGetTypeID, CFBooleanGetTypeID, kCFNumberIntType, kCFNumberDoubleType)
 from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueCGSizeType, kAXValueCGPointType,
@@ -8,6 +10,8 @@ from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueC
                                  kAXErrorNoValue, kAXErrorNotEnoughPrecision, kAXErrorNotImplemented, kAXErrorSuccess,
                                  AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue,
                                  AXUIElementCopyActionNames, AXUIElementCreateApplication, AXUIElementGetPid)
+from Foundation import *
+from PyObjCTools import AppHelper
 import AppKit
 from AppKit import NSScreen
 from subprocess import Popen, PIPE
@@ -15,6 +19,12 @@ import warnings
 # parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # sys.path.append(parent_dir)
 from macos_functions import get_ws_instance
+if sys.platform == 'darwin':
+    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sys.path.append(parent_dir)
+    sys.path.append(parent_dir + '/macos')
+    os.path.join
+    from pywinauto.macos.application import Application
 
 
 ax_type_from_string = {
@@ -62,7 +72,7 @@ def _cf_attr_to_py_object(self, attrValue):
             extracted_str = re.search('{.*}', attrValue.description()).group()
             return tuple(ax_type_from_string[ax_attr_type](extracted_str))
         except KeyError:
-            raise NotImplementedError()
+            raise NotImplementedError("Type conversion for {} and {} is not implemented".format(cf_attr_type, ax_attr_type))
 
 
 ax_error_description = {
@@ -101,14 +111,9 @@ class AxElementInfo(object):
         title = repr('')
         role = '<No role!>'
         c = repr(self.__class__).partition('<class \'')[-1].rpartition('\'>')[0]
-        try:
-            title = repr(self.name)
-        except Exception:
-            pass
-        try:
-            role = self.control_type
-        except Exception:
-            pass
+        title = repr(self.name)
+        role = self.control_type
+        
         # if len(title) > 20:
         #     title = title[:20] + '...\''
         return '<{} {} {}>'.format(c, role, title)
@@ -137,7 +142,8 @@ class AxElementInfo(object):
     def children(self):
         if (self.ref is None):
             cls = type(self)
-            appli = get_ws_instance().runningApplications()
+            ws = NSWorkspace.sharedWorkspace()
+            appli = ws.runningApplications()
             tab = []
             for app in appli:
                 pid = app.processIdentifier()
@@ -147,28 +153,32 @@ class AxElementInfo(object):
                 tab.append(app_ref)
             return tab
         try:
-            return (self._get_ax_attribute_value("AXChildren"))
-        except Exception:
-            return [] and warnings.warn("This element has no Children")
+            children =self._get_ax_attribute_value("AXChildren")
+            if children is None:
+                return []
+            return children
+        except AXError as exc:
+            warnings.warn(RuntimeWarning, 'Getting AXChildren attribute caused error (code = {}): "{}"' \
+                ''.format(exc.err_code, exc.message))
+            return []
 
     def descendants(self):
         all_desc = []
         liste = self.children()
-
         def _collect_desc(elem):
-            if elem._get_ax_attribute_value("AXChildren") is not None:
-                children = elem._get_ax_attribute_value("AXChildren")
+            children= elem.children()
+            if children is not None:
                 for child in children:
                     all_desc.append(child)
                     _collect_desc(child)
         for child in liste:
             _collect_desc(child)
-        return (all_desc)
+        return all_desc
 
     @property
     def name(self):
-        if (self.ref is None):
-            return("Desktop")
+        if self.ref is None:
+            return "Desktop"
         try:
             return self._get_ax_attribute_value("AXTitle")
         except Exception:
@@ -179,35 +189,35 @@ class AxElementInfo(object):
 
     @property
     def parent(self):
-        if (self.ref is None):
-            return(None)
-        return (self._get_ax_attribute_value("AXParent"))
+        if self.ref is None:
+            return None
+        return self._get_ax_attribute_value("AXParent")
 
     @property
     def size(self):
-        return (self._get_ax_attribute_value("AXSize"))
+        return self._get_ax_attribute_value("AXSize")
 
     @property
     def position(self):
-        return (self._get_ax_attribute_value("AXPosition"))
+        return self._get_ax_attribute_value("AXPosition")
 
     @property
     def is_selected(self):
         try:
-            return (self._get_ax_attribute_value("AXSelected"))
+            return self._get_ax_attribute_value("AXSelected")
         except Exception:
             return False
 
     @property
     def is_enabled(self):
         try:
-            return (self._get_ax_attribute_value("AXEnabled"))
+            return self._get_ax_attribute_value("AXEnabled")
         except Exception:
             return False
 
     @property
     def rectangle(self):
-        if (self.ref is None):
+        if self.ref is None:
             e = NSScreen.mainScreen().frame()
             return (0, 0, int(float(e.size.width)), int(float(e.size.height)))
         position = self.position
@@ -225,12 +235,12 @@ class AxElementInfo(object):
 
     @property
     def control_type(self):
-        if (self.ref is None):
-            return("Desktop")
+        if self.ref is None:
+            return"Desktop"
         try:
             role = self._get_ax_attribute_value("AXRole")
         except AXError:
-            return ''
+            return 'InvalidControlType'
 
         if role.startswith('AX'):
             return role.replace('AX', '')
@@ -238,7 +248,9 @@ class AxElementInfo(object):
 
     @property
     def process_id(self):
+
         err, pid = AXUIElementGetPid(self.ref, None)
+        print(err)
         if err != kAXErrorSuccess:
             raise AXError(err)
         return pid
@@ -246,3 +258,17 @@ class AxElementInfo(object):
     def kill_process(self):
         #kill like sigkill
         Popen(["kill", "-9", str(self.process_id)], stdout=PIPE).communicate()[0]
+
+def runLoopAndExit():
+    AppHelper.stopEventLoop()
+
+# Get a list of running applications
+def cache_update():
+    
+    AppHelper.callLater(0.5, runLoopAndExit)
+    AppHelper.runConsoleEventLoop()
+    
+
+desktop = AxElementInfo()
+print(desktop.process_id)
+
