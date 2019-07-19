@@ -2,19 +2,23 @@ import subprocess
 import six
 
 from ctypes import Structure, c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
-    create_string_buffer, cdll, pointer
+    create_string_buffer, cdll, pointer, c_void_p, CFUNCTYPE
 from functools import wraps
 
 from ..backend import Singleton
 
 
 class CtypesEnum(object):
+
+    """Base class for Enums"""
+
     @classmethod
     def from_param(cls, obj):
         return int(obj)
 
 
 class RECT(Structure):
+
     """Wrap the RECT structure and add extra functionality"""
 
     _fields_ = [
@@ -26,7 +30,8 @@ class RECT(Structure):
 
     # ----------------------------------------------------------------
     def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
-        """Provide a constructor for RECT structures
+        """
+        Provide a constructor for RECT structures
 
         A RECT can be constructed by:
         - Another RECT (each value will be copied)
@@ -319,6 +324,10 @@ class _AtspiComponent(Structure):
     pass
 
 
+class _AtspiDocument(Structure):
+    pass
+
+
 class _AtspiStateSet(Structure):
     pass
 
@@ -431,7 +440,9 @@ ATSPI_ROLE_COUNT = 126
 
 @six.add_metaclass(Singleton)
 class IATSPI(object):
-    """ Python wrapper around C functions from atspi library"""
+
+    """Python wrapper around C functions from ATSPI library"""
+
     LIB = "libatspi"
     DEFAULT_LIB_NAME = "libatspi.so"
 
@@ -491,7 +502,67 @@ class IATSPI(object):
             return None
 
 
+class GLIB(IATSPI):
+
+    """Python wrapper around C functions from GLib library"""
+
+    LIB = "libglib-2.0.so"
+
+
+_GHFunc = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
+
+_glib = cdll.LoadLibrary(GLIB.LIB)
+
+_g_str_hash = _glib.g_str_hash
+_g_str_hash.restype = c_uint
+_g_str_hash.argtypes = [c_char_p]
+_GStrHashFunc = CFUNCTYPE(c_uint, c_char_p)
+
+_g_str_equal = _glib.g_str_equal
+_g_str_equal.restype = c_bool
+_g_str_equal.argtypes = [c_char_p, c_char_p]
+_GStrEqualFunc = CFUNCTYPE(c_bool, c_char_p, c_char_p)
+
+# Basic GHashTable constructor, to be used only with
+# string-based key-value pairs that are alloc/free by Python
+_g_hash_table_new = _glib.g_hash_table_new
+_g_hash_table_new.restype = c_void_p
+_g_hash_table_new.argtypes = [_GStrHashFunc, _GStrEqualFunc]
+
+_g_hash_table_foreach = _glib.g_hash_table_foreach
+_g_hash_table_foreach.restype = None
+_g_hash_table_foreach.argtypes = [c_void_p, _GHFunc, c_void_p]
+
+_g_hash_table_destroy = _glib.g_hash_table_destroy
+_g_hash_table_destroy.restype = None
+_g_hash_table_destroy.argtypes = [c_void_p]
+
+_g_hash_table_insert = _glib.g_hash_table_insert
+_g_hash_table_insert.restype = c_bool
+_g_hash_table_insert.argtypes = [c_void_p, c_void_p, c_void_p]
+
+
+def _ghash2dic(ghash):
+    """
+    Helper to convert GHashTable to Python dictionary
+
+    The helper is limited only to strings
+    """
+    res_dic = {}
+
+    def add_kvp(k, v, ud=None):
+        res_dic[k.decode('utf-8')] = v.decode('utf-8')
+    cbk = _GHFunc(add_kvp)
+
+    _g_hash_table_foreach(ghash, cbk, None)
+    _g_hash_table_destroy(ghash)
+    return res_dic
+
+
 class AtspiAccessible(object):
+
+    """Access to ATSPI Accessible Interface"""
+
     get_desktop = IATSPI().get_iface_func("atspi_get_desktop")
     get_desktop.argtypes = [c_int]
     get_desktop.restype = POINTER(_AtspiAccessible)
@@ -572,8 +643,15 @@ class AtspiAccessible(object):
     get_editable_text.argtypes = [POINTER(_AtspiAccessible)]
     get_editable_text.restype = POINTER(_AtspiEditableText)
 
+    get_document = IATSPI().get_iface_func("atspi_accessible_get_document")
+    get_document.argtypes = [POINTER(_AtspiAccessible)]
+    get_document.restype = POINTER(_AtspiDocument)
+
 
 class AtspiComponent(object):
+
+    """Access to ATSPI Component Interface"""
+
     _contains = IATSPI().get_iface_func("atspi_component_contains")
     _contains.argtypes = [POINTER(_AtspiComponent), c_int, c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
     _contains.restype = c_bool
@@ -669,6 +747,9 @@ class AtspiComponent(object):
 
 
 class AtspiStateSet(object):
+
+    """Access to ATSPI StateSet Interface"""
+
     _new = IATSPI().get_iface_func("atspi_state_set_new")
     _new.argtypes = [POINTER(_GArray)]
     _new.restype = POINTER(_AtspiStateSet)
@@ -715,6 +796,9 @@ class AtspiStateSet(object):
 
 
 class AtspiAction(object):
+
+    """Access to ATSPI Action Interface"""
+
     _get_action_description = IATSPI().get_iface_func("atspi_action_get_action_description")
     _get_action_description.argtypes = [POINTER(_AtspiAction), c_int, POINTER(POINTER(_GError))]
     _get_action_description.restype = c_char_p
@@ -794,6 +878,9 @@ class AtspiAction(object):
 
 
 class AtspiText(object):
+
+    """Access to ATSPI Text Interface"""
+
     _get_character_count = IATSPI().get_iface_func("atspi_text_get_character_count")
     _get_character_count.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
     _get_character_count.restype = c_int
@@ -907,6 +994,9 @@ class AtspiText(object):
 
 
 class AtspiEditableText(object):
+
+    """Access to ATSPI Editable Interface"""
+
     _set_text_contents = IATSPI().get_iface_func("atspi_editable_text_set_text_contents")
     _set_text_contents.argtypes = [POINTER(_AtspiEditableText), c_char_p, POINTER(POINTER(_GError))]
     _set_text_contents.restype = c_bool
@@ -944,6 +1034,9 @@ class AtspiEditableText(object):
 
 
 class AtspiValue(object):
+
+    """Access to ATSPI Value Interface"""
+
     _get_minimum_value = IATSPI().get_iface_func("atspi_value_get_minimum_value")
     _get_minimum_value.argtypes = [POINTER(_AtspiValue), POINTER(POINTER(_GError))]
     _get_minimum_value.restype = c_double
@@ -986,3 +1079,53 @@ class AtspiValue(object):
     @g_error_handler
     def set_current_value(self, new_value, g_error_pointer=None):
         return self._set_current_value(self._pointer, new_value, g_error_pointer)
+
+
+class AtspiDocument(object):
+
+    """Access to ATSPI Document Interface"""
+
+    _get_locale = IATSPI().get_iface_func("atspi_document_get_locale")
+    _get_locale.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
+    _get_locale.restype = c_char_p
+
+    _get_attribute_value = IATSPI().get_iface_func("atspi_document_get_document_attribute_value")
+    _get_attribute_value.argtypes = [POINTER(_AtspiDocument), c_char_p, POINTER(POINTER(_GError))]
+    _get_attribute_value.restype = c_char_p
+
+    _get_attributes = IATSPI().get_iface_func("atspi_document_get_document_attributes")
+    _get_attributes.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
+    _get_attributes.restype = c_void_p
+
+    def __init__(self, pointer):
+        """Init the ATSPI Document Interface"""
+        self._pointer = pointer
+
+    @g_error_handler
+    def get_locale(self, g_error_pointer=None):
+        """
+        Gets the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
+
+        Returns a string compliant with the POSIX standard for locale description.
+        """
+        return self._get_locale(self._pointer, g_error_pointer)
+
+    @g_error_handler
+    def get_attribute_value(self, attrib, g_error_pointer=None):
+        """
+        Gets the value of a single attribute, if specified for the document as a whole.
+
+        Returns a string corresponding to the value of the specified attribute,
+        or an empty string if the attribute is unspecified for the object.
+        """
+        return self._get_attribute_value(self._pointer, c_char_p(attrib.encode()), g_error_pointer)
+
+    @g_error_handler
+    def get_attributes(self, g_error_pointer=None):
+        """
+        Gets all constant attributes for the document as a whole.
+
+        Returns a dictionary containing the constant attributes of the document, as name-value pairs
+        """
+        res = self._get_attributes(self._pointer, g_error_pointer)
+        return _ghash2dic(res)
