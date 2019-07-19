@@ -78,15 +78,15 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self._get_state_label_text(), "\"Click\" clicked")
 
         def test_button_toggle(self):
-            toggle_button_wrapper = self.app_window.Frame.Panel.Button
-            toggle_button_wrapper.click()
+            toggle_button = self.app_window.Frame.Panel.Button
+            toggle_button.click()
             self.assertEqual(self._get_state_label_text(), "Button 1 turned on")
 
         def test_button_toggle_state(self):
-            toggle_button_wrapper = self.app_window.Frame.Panel.Button
-            self.assertFalse(toggle_button_wrapper.get_toggle_state())
-            toggle_button_wrapper.click()
-            self.assertTrue(toggle_button_wrapper.get_toggle_state())
+            toggle_button = self.app_window.Frame.Panel.Button
+            self.assertFalse(toggle_button.get_toggle_state())
+            toggle_button.click()
+            self.assertTrue(toggle_button.get_toggle_state())
 
         def test_text_area_is_editable(self):
             editable_state_button = self.app_window.Frame.Panel.Editable
