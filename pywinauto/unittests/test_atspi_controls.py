@@ -46,10 +46,10 @@ if sys.platform.startswith("linux"):
             self.app = Application()
             self.app.start("python3.4 " + _test_app())
             time.sleep(1)
-            self.top_win = self.app.gtk_example
-            self.button_wrapper = self.top_win.Frame.Panel.Click.wrapper_object()
-            self.button_info = self.top_win.Frame.Panel.Click.element_info
-            self.text_area = self.top_win.Frame.Panel.ScrollPane.Text
+            self.app_wrapper = self.app.gtk_example.wrapper_object()
+            self.button_wrapper = self.app_wrapper.Frame.Panel.Click.wrapper_object()
+            self.button_info = self.app_wrapper.Frame.Panel.Click.element_info
+            self.text_area = self.app_wrapper.Frame.Panel.ScrollPane.Text.wrapper_object()
 
         def tearDown(self):
             self.app.kill()
