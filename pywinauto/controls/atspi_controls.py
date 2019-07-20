@@ -47,6 +47,7 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
                       'CheckBox',
                       'ToggleButton',
                       'RadioButton',
+                      'MenuItem',
                       ]
 
     # -----------------------------------------------------------
@@ -67,13 +68,84 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
     # -----------------------------------------------------------
     def get_toggle_state(self):
-        """Get a toggle state of a check box control."""
+        """Get a toggle state of a check box control"""
         return "STATE_CHECKED" in self.element_info.get_state_set()
 
     # -----------------------------------------------------------
     def is_dialog(self):
         """Buttons are never dialogs so return False"""
         return False
+
+
+class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap a AT-SPI ComboBox control"""
+
+    _control_types = ['ComboBox']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ComboBoxWrapper, self).__init__(elem)
+        self.action = self.element_info.get_action()
+
+    def _press(self):
+        self.action.do_action_by_name("press")
+
+    def expand(self):
+        if not self.is_expanded():
+            self._press()
+        return self
+
+    def collapse(self):
+        if self.is_expanded():
+            self._press()
+        return self
+
+    def is_expanded(self):
+        """Test if the control is expanded"""
+        # Check that hidden element of combobox menu is visible
+        return self.children()[0].is_visible()
+
+    def texts(self):
+        combo_box_container = self.children()[0]
+        texts = []
+        for el in combo_box_container.children():
+            texts.append(el.window_text())
+        return texts
+
+    def selected_text(self):
+        """Return the selected text"""
+        return self.window_text()
+
+    def selected_index(self):
+        """Return the selected index"""
+        return self.texts().index(self.selected_text())
+
+    def item_count(self):
+        combo_box_container = self.children()[0]
+        return combo_box_container.control_count()
+
+    def select(self, item):
+        """Select the ComboBox item"""
+        self.expand()
+        children_lst = self.children(control_type='Menu')
+        if len(children_lst) > 0:
+            if isinstance(item, six.string_types):
+                if self.selected_text() != item:
+                    item = children_lst[0].children(title=item)[0]
+                    item.click()
+            elif self.selected_index() != item:
+                items = children_lst[0].children(control_type='MenuItem')
+                if item < len(items):
+                    items[item].click()
+                else:
+                    raise IndexError('Item number #{} is out of range ' \
+                                     '({} items in total)'.format(item, len(items)))
+        # else: TODO: probably raise an exception if there is no children
+
+        self.collapse()
+        return self
 
 
 class EditWrapper(atspiwrapper.AtspiWrapper):

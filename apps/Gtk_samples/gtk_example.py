@@ -1,21 +1,29 @@
-import sys
-
-if sys.version_info > (3, 0):
-    import pgi as gi
-    gi.install_as_gi()
-
 from gi import require_version
 require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
 
+software_list = [("Firefox", 2002,  "C++"),
+                 ("Eclipse", 2004, "Java" ),
+                 ("Pitivi", 2004, "Python"),
+                 ("Netbeans", 1996, "Java"),
+                 ("Chrome", 2008, "C++"),
+                 ("Filezilla", 2001, "C++"),
+                 ("Bazaar", 2005, "Python"),
+                 ("Git", 2005, "C"),
+                 ("Linux Kernel", 1991, "C"),
+                 ("GCC", 1987, "C"),
+                 ("Frostwire", 2004, "Java")]
+
 
 class TestApplicationMainWindow(Gtk.Window):
 
     def _add_combobox(self):
-        country_store = Gtk.ListStore(int)
+        country_store = Gtk.ListStore(str)
 
-        countries = [1, 1, 1]
+        countries = ["Austria", "Brazil", "Belgium", "France", "Germany",
+                     "Switzerland", "United Kingdom", "United States of America",
+                     "Uruguay"]
 
         # TODO pgi segfault because https://github.com/pygobject/pgi/issues/27 .
         # TODO PyGObject uses instead pgi solve the problem but PyGObject works incorrectly on python2 + Travis venv
@@ -24,7 +32,38 @@ class TestApplicationMainWindow(Gtk.Window):
 
         country_combo = Gtk.ComboBox.new_with_model(country_store)
         country_combo.connect("changed", self.on_country_combo_changed)
+        renderer_text = Gtk.CellRendererText()
+        country_combo.pack_start(renderer_text, True)
+        country_combo.add_attribute(renderer_text, "text", 0)
+        country_combo.set_active(0)
         return country_combo
+
+    def language_filter_func(self, model, index, data):
+        """Test if the language in the row is the one in the filter"""
+        if self.current_filter_language is None or self.current_filter_language == "None":
+            return True
+        else:
+            return model[index][2] == self.current_filter_language
+
+    def _add_listview(self):
+        # Creating the ListStore model
+        software_liststore = Gtk.ListStore(str, int, str)
+        for software_ref in software_list:
+            software_liststore.append(list(software_ref))
+        self.current_filter_language = None
+
+        # Creating the filter, feeding it with the liststore model
+        language_filter = software_liststore.filter_new()
+        # setting the filter function, note that we're not using the
+        language_filter.set_visible_func(self.language_filter_func)
+
+        # creating the treeview, making it use the filter as a model, and adding the columns
+        treeview = Gtk.TreeView.new_with_model(language_filter)
+        for i, column_title in enumerate(["Software", "Release Year", "Programming Language"]):
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+            treeview.append_column(column)
+        return treeview
 
     def _create_textview(self):
         scrolledwindow = Gtk.ScrolledWindow()
@@ -64,9 +103,12 @@ class TestApplicationMainWindow(Gtk.Window):
         self.button5.connect("toggled", self.on_text_editable_button_toggled, "2")
 
         self.label = Gtk.Label("Status")
-        # self.combo = self._add_combobox()
+        self.combo = self._add_combobox()
+        self.treeview = self._add_listview()
 
         self.scroll_view = self._create_textview()
+        grid.attach(self.treeview, 0, 5, 3, 1)
+        grid.attach(self.combo, 0, 4, 3, 1)
         grid.attach(self.scroll_view, 0, 3, 3, 1)
         grid.attach(self.label, 0, 2, 3, 1)
         grid.attach(self.button5, 1, 1, 1, 1)
@@ -117,6 +159,4 @@ class TestApplicationMainWindow(Gtk.Window):
 win = TestApplicationMainWindow()
 win.connect("delete-event", Gtk.main_quit)
 win.show_all()
-print(win.get_size().width)
-print(win.get_size().height)
 Gtk.main()

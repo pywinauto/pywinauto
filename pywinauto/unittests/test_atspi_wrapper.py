@@ -42,7 +42,7 @@ if sys.platform.startswith("linux"):
             self.desktop_info = AtspiElementInfo()
             self.desktop_wrapper = AtspiWrapper(self.desktop_info)
             self.app = Application()
-            self.app.start("python3 " + _test_app())
+            self.app.start("python3.4 " + _test_app())
             time.sleep(1)
             self.app_wrapper = self.app.gtk_example
 
@@ -77,7 +77,7 @@ if sys.platform.startswith("linux"):
         def test_can_get_rectangle(self):
             rect = self.app_wrapper.Frame.Panel.rectangle()
             self.assertEqual(rect.width(), 600)
-            self.assertEqual(rect.height(), 200)
+            self.assertEqual(rect.height(), 492)
 
         def test_can_get_process_id(self):
             self.assertEqual(self.app_wrapper.process_id(), self.app.process)

@@ -420,7 +420,6 @@ class GErrorException(RuntimeError):
 
 def g_error_handler(func):
     """Helper decorator to handle GError"""
-
     @wraps(func)
     def wrapper(*args, **kwargs):
         err_p = pointer(_GError())

@@ -13,6 +13,8 @@ app_name = r"gtk_example.py"
 text = "This is some text inside of a Gtk.TextView. \n" \
        "Select text and click one of the buttons 'bold', 'italic', \n" \
        "or 'underline' to modify the text accordingly."
+countries = ['Austria', 'Brazil', 'Belgium', 'France', 'Germany', 'Switzerland', 'United Kingdom',
+             'United States of America', 'Uruguay']
 
 
 def _test_app():
@@ -42,12 +44,12 @@ if sys.platform.startswith("linux"):
 
         def setUp(self):
             self.app = Application()
-            self.app.start("python3 " + _test_app())
+            self.app.start("python3.4 " + _test_app())
             time.sleep(1)
-            self.top_win = self.app.gtk_example
-            self.button_wrapper = self.top_win.Frame.Panel.Click.wrapper_object()
-            self.button_info = self.top_win.Frame.Panel.Click.element_info
-            self.text_area = self.top_win.Frame.Panel.ScrollPane.Text
+            self.app_window = self.app.gtk_example
+            self.button_wrapper = self.app_window.Frame.Panel.Click.wrapper_object()
+            self.button_info = self.app_window.Frame.Panel.Click.element_info
+            self.text_area = self.app_window.Frame.Panel.ScrollPane.Text.wrapper_object()
 
         def tearDown(self):
             self.app.kill()
@@ -76,18 +78,18 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self._get_state_label_text(), "\"Click\" clicked")
 
         def test_button_toggle(self):
-            toggle_button_wrapper = self.top_win.Frame.Panel.Button
-            toggle_button_wrapper.click()
+            toggle_button = self.app_window.Frame.Panel.Button
+            toggle_button.click()
             self.assertEqual(self._get_state_label_text(), "Button 1 turned on")
 
         def test_button_toggle_state(self):
-            toggle_button_wrapper = self.top_win.Frame.Panel.Button
-            self.assertFalse(toggle_button_wrapper.get_toggle_state())
-            toggle_button_wrapper.click()
-            self.assertTrue(toggle_button_wrapper.get_toggle_state())
+            toggle_button = self.app_window.Frame.Panel.Button
+            self.assertFalse(toggle_button.get_toggle_state())
+            toggle_button.click()
+            self.assertTrue(toggle_button.get_toggle_state())
 
         def test_text_area_is_editable(self):
-            editable_state_button = self.top_win.Frame.Panel.Editable
+            editable_state_button = self.app_window.Frame.Panel.Editable
             self.assertTrue(self.text_area.is_editable())
             editable_state_button.click()
             self.assertFalse(self.text_area.is_editable())
@@ -140,6 +142,58 @@ if sys.platform.startswith("linux"):
         def test_text_area_set_selection(self):
             self.text_area.select(0, 10)
             self.assertEqual(self.text_area.selection_indices(), (0, 10))
+
+        def test_combobox_is_expanded(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            self.assertFalse(combo_box.is_expanded())
+
+        def test_combobox_expand(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            self.assertFalse(combo_box.is_expanded())
+            combo_box.expand()
+            self.assertTrue(combo_box.is_expanded())
+
+        def test_combobox_collapse(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            combo_box.expand()
+            self.assertTrue(combo_box.is_expanded())
+            combo_box.collapse()
+            self.assertFalse(combo_box.is_expanded())
+
+        def test_combobox_texts(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.texts(), countries)
+
+        def test_combobox_selected_text(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.selected_text(), countries[0])
+
+        def test_combobox_selected_index(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.selected_index(), 0)
+
+        def test_combobox_item_count(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            self.assertEqual(combo_box.item_count(), len(countries))
+
+        def test_combobox_select_by_index(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            combo_box.select(1)
+            self.assertEqual(combo_box.selected_text(), countries[1])
+
+        def test_combobox_select_by_text(self):
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            combo_box.select(countries[1])
+            self.assertEqual(combo_box.selected_text(), countries[1])
+
+        def test_ololo(self):
+            print_tree(self.app_window.element_info)
+            combo_box = self.app_window.Frame.Panel.ComboBox
+            time.sleep(5)
+            print(combo_box.window_text())
+
+            # actions = self.app_window.Frame.Panel.ComboBox.Menu.element_info.get_action()
+            # print(actions.get_all_actions())
 
         def test_text_area_set_selection_by_text(self):
             text_to_select = "Select text"
