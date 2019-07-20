@@ -586,7 +586,7 @@ class GHashTable(object):
     _g_hash_table_destroy = _glib.g_hash_table_destroy
     _g_hash_table_destroy.restype = None
     _g_hash_table_destroy.argtypes = [c_void_p]
-    
+
     _g_hash_table_insert = _glib.g_hash_table_insert
     _g_hash_table_insert.restype = c_bool
     _g_hash_table_insert.argtypes = [c_void_p, c_void_p, c_void_p]
@@ -601,13 +601,13 @@ class GHashTable(object):
          - no GLib insertion/lookup operations after leaving the scope
            of the function, as hash/equal callbacks are released by GC
         """
-        hash_cbk = cls._GStrHashFunc(lambda key: cls._g_str_hash(key))
-        equal_cbk = cls._GStrEqualFunc(lambda v1, v2: cls._g_str_equal(v1, v2))
+        hash_cbk = cls._GStrHashFunc(cls._g_str_hash)
+        equal_cbk = cls._GStrEqualFunc(cls._g_str_equal)
 
         ghash_table_p = cls._g_hash_table_new(hash_cbk, equal_cbk)
         for k, v in d.items():
             res = cls._g_hash_table_insert(ghash_table_p, k, v)
-            if res == False:
+            if res is False:
                 raise ValueError("Failed to insert k='{0}', v='{1}'".format(k, v))
 
         return ghash_table_p
