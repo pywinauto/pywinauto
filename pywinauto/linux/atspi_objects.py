@@ -561,12 +561,12 @@ class GHashTable(object):
     _glib = GLIB.glib
 
     _GHFunc = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
-    
+
     _g_str_hash = _glib.g_str_hash
     _g_str_hash.restype = c_uint
     _g_str_hash.argtypes = [c_char_p]
     _GStrHashFunc = CFUNCTYPE(c_uint, c_char_p)
- 
+
     _g_str_equal = _glib.g_str_equal
     _g_str_equal.restype = c_bool
     _g_str_equal.argtypes = [c_char_p, c_char_p]
@@ -577,11 +577,11 @@ class GHashTable(object):
     _g_hash_table_new = _glib.g_hash_table_new
     _g_hash_table_new.restype = c_void_p
     _g_hash_table_new.argtypes = [_GStrHashFunc, _GStrEqualFunc]
-    
+
     _g_hash_table_foreach = _glib.g_hash_table_foreach
     _g_hash_table_foreach.restype = None
     _g_hash_table_foreach.argtypes = [c_void_p, _GHFunc, c_void_p]
-    
+
     _g_hash_table_destroy = _glib.g_hash_table_destroy
     _g_hash_table_destroy.restype = None
     _g_hash_table_destroy.argtypes = [c_void_p]
