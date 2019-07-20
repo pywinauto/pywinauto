@@ -437,6 +437,24 @@ def g_error_handler(func):
 ATSPI_ROLE_COUNT = 126
 
 
+def _find_library(libs_list):
+    """Helper for locating native system libraries from the list"""
+    try:
+        process = subprocess.Popen(["ldconfig", "-p"], stdout=subprocess.PIPE, universal_newlines=True)
+        stdout = process.communicate()
+        lines = stdout[0].split("\n")
+        for lib in libs_list:
+            for line in lines:
+                if lib in line:
+                    lib_path = line.split()[3]
+                    print("Lib located: {0}".format(lib_path))
+                    return lib_path
+
+    except FileNotFoundError:
+        # ldconfig not installed will use default lib name
+        return libs_list[-1]
+
+
 @six.add_metaclass(Singleton)
 class IATSPI(object):
 
@@ -444,20 +462,6 @@ class IATSPI(object):
 
     LIB = "libatspi"
     DEFAULT_LIB_NAME = "libatspi.so"
-
-    @classmethod
-    def __find_library(cls):
-        try:
-            process = subprocess.Popen(["ldconfig", "-p"], stdout=subprocess.PIPE, universal_newlines=True)
-            stdout = process.communicate()
-            libraries = stdout[0]
-            for lib in libraries.split("\n"):
-                if cls.LIB in lib:
-                    return lib.split()[3]
-
-        except FileNotFoundError:
-            # ldconfig not installed will use default lib name
-            return cls.DEFAULT_LIB_NAME
 
     def __get_roles(self):
         control_types = []
@@ -473,8 +477,7 @@ class IATSPI(object):
 
     def __init__(self):
         try:
-            print(self.__find_library())
-            self.atspi = cdll.LoadLibrary(self.__find_library())
+            self.atspi = cdll.LoadLibrary(_find_library([self.LIB, self.DEFAULT_LIB_NAME]))
             self.atspi.atspi_init()
             if not self.atspi.atspi_is_initialized():
                 raise Exception("Cannot initialize atspi module")
@@ -501,61 +504,96 @@ class IATSPI(object):
             return None
 
 
-class GLIB(IATSPI):
+class GLIB(object):
 
     """Python wrapper around C functions from GLib library"""
 
-    LIB = "libglib-2.0.so"
+    LIB12 = "libglib-1.2.so"
+    LIB20 = "libglib-2.0.so"
+    LIB22 = "libglib-2.2.so"
+    DEFAULT_LIB_NAME = "libglib.so"
+    glib = cdll.LoadLibrary(_find_library([LIB12, LIB20, LIB22, DEFAULT_LIB_NAME]))
 
 
-_GHFunc = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
+class GHashTable(object):
 
-_glib = cdll.LoadLibrary(GLIB.LIB)
-
-_g_str_hash = _glib.g_str_hash
-_g_str_hash.restype = c_uint
-_g_str_hash.argtypes = [c_char_p]
-_GStrHashFunc = CFUNCTYPE(c_uint, c_char_p)
-
-_g_str_equal = _glib.g_str_equal
-_g_str_equal.restype = c_bool
-_g_str_equal.argtypes = [c_char_p, c_char_p]
-_GStrEqualFunc = CFUNCTYPE(c_bool, c_char_p, c_char_p)
-
-# Basic GHashTable constructor, to be used only with
-# string-based key-value pairs that are alloc/free by Python
-_g_hash_table_new = _glib.g_hash_table_new
-_g_hash_table_new.restype = c_void_p
-_g_hash_table_new.argtypes = [_GStrHashFunc, _GStrEqualFunc]
-
-_g_hash_table_foreach = _glib.g_hash_table_foreach
-_g_hash_table_foreach.restype = None
-_g_hash_table_foreach.argtypes = [c_void_p, _GHFunc, c_void_p]
-
-_g_hash_table_destroy = _glib.g_hash_table_destroy
-_g_hash_table_destroy.restype = None
-_g_hash_table_destroy.argtypes = [c_void_p]
-
-_g_hash_table_insert = _glib.g_hash_table_insert
-_g_hash_table_insert.restype = c_bool
-_g_hash_table_insert.argtypes = [c_void_p, c_void_p, c_void_p]
-
-
-def _ghash2dic(ghash):
     """
-    Helper to convert GHashTable to Python dictionary
+    Python wrapper around C GHashTable
 
-    The helper is limited only to strings
+    Limitations:
+     - currently only for strings as key/value
     """
-    res_dic = {}
 
-    def add_kvp(k, v, ud=None):
-        res_dic[k.decode('utf-8')] = v.decode('utf-8')
-    cbk = _GHFunc(add_kvp)
+    _glib = GLIB.glib
 
-    _g_hash_table_foreach(ghash, cbk, None)
-    _g_hash_table_destroy(ghash)
-    return res_dic
+    _GHFunc = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
+    
+    _g_str_hash = _glib.g_str_hash
+    _g_str_hash.restype = c_uint
+    _g_str_hash.argtypes = [c_char_p]
+    _GStrHashFunc = CFUNCTYPE(c_uint, c_char_p)
+ 
+    _g_str_equal = _glib.g_str_equal
+    _g_str_equal.restype = c_bool
+    _g_str_equal.argtypes = [c_char_p, c_char_p]
+    _GStrEqualFunc = CFUNCTYPE(c_bool, c_char_p, c_char_p)
+
+    # Basic GHashTable constructor, to be used only with
+    # string-based key-value pairs that are alloc/free by Python
+    _g_hash_table_new = _glib.g_hash_table_new
+    _g_hash_table_new.restype = c_void_p
+    _g_hash_table_new.argtypes = [_GStrHashFunc, _GStrEqualFunc]
+    
+    _g_hash_table_foreach = _glib.g_hash_table_foreach
+    _g_hash_table_foreach.restype = None
+    _g_hash_table_foreach.argtypes = [c_void_p, _GHFunc, c_void_p]
+    
+    _g_hash_table_destroy = _glib.g_hash_table_destroy
+    _g_hash_table_destroy.restype = None
+    _g_hash_table_destroy.argtypes = [c_void_p]
+    
+    _g_hash_table_insert = _glib.g_hash_table_insert
+    _g_hash_table_insert.restype = c_bool
+    _g_hash_table_insert.argtypes = [c_void_p, c_void_p, c_void_p]
+
+    @classmethod
+    def dic2ghash(cls, d):
+        """Utility function to create GLib ghash_table
+
+        Limitations:
+         - only for strings as key/value
+         - to have valid pointers dictionary should consist of bytes
+         - no GLib insertion/lookup operations after leaving the scope
+           of the function, as hash/equal callbacks are released by GC
+        """
+        hash_cbk = cls._GStrHashFunc(lambda key: cls._g_str_hash(key))
+        equal_cbk = cls._GStrEqualFunc(lambda v1, v2: cls._g_str_equal(v1, v2))
+
+        ghash_table_p = cls._g_hash_table_new(hash_cbk, equal_cbk)
+        for k, v in d.items():
+            res = cls._g_hash_table_insert(ghash_table_p, k, v)
+            if res == False:
+                raise ValueError("Failed to insert k='{0}', v='{1}'".format(k, v))
+
+        return ghash_table_p
+
+
+    @classmethod
+    def ghash2dic(cls, ghash):
+        """
+        Helper to convert GHashTable to Python dictionary
+
+        The helper is limited only to strings
+        """
+        res_dic = {}
+
+        def add_kvp(k, v, ud=None):
+            res_dic[k.decode('utf-8')] = v.decode('utf-8')
+        cbk = cls._GHFunc(add_kvp)
+
+        cls._g_hash_table_foreach(ghash, cbk, None)
+        cls._g_hash_table_destroy(ghash)
+        return res_dic
 
 
 class AtspiAccessible(object):
@@ -1103,18 +1141,18 @@ class AtspiDocument(object):
     @g_error_handler
     def get_locale(self, g_error_pointer=None):
         """
-        Gets the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
+        Get the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
 
-        Returns a string compliant with the POSIX standard for locale description.
+        Return a string compliant with the POSIX standard for locale description.
         """
         return self._get_locale(self._pointer, g_error_pointer)
 
     @g_error_handler
     def get_attribute_value(self, attrib, g_error_pointer=None):
         """
-        Gets the value of a single attribute, if specified for the document as a whole.
+        Get the value of a single attribute, if specified for the document as a whole.
 
-        Returns a string corresponding to the value of the specified attribute,
+        Return a string corresponding to the value of the specified attribute,
         or an empty string if the attribute is unspecified for the object.
         """
         return self._get_attribute_value(self._pointer, c_char_p(attrib.encode()), g_error_pointer)
@@ -1122,9 +1160,9 @@ class AtspiDocument(object):
     @g_error_handler
     def get_attributes(self, g_error_pointer=None):
         """
-        Gets all constant attributes for the document as a whole.
+        Get all constant attributes for the document as a whole.
 
-        Returns a dictionary containing the constant attributes of the document, as name-value pairs
+        Return a dictionary containing the constant attributes of the document, as name-value pairs
         """
         res = self._get_attributes(self._pointer, g_error_pointer)
-        return _ghash2dic(res)
+        return GHashTable.ghash2dic(res)
