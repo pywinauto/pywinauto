@@ -52,6 +52,7 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.application import Application
     from pywinauto.linux.atspi_objects import GErrorException
     from pywinauto.linux.atspi_objects import GHashTable
+    from pywinauto.linux.atspi_objects import _find_library
 
 app_name = r"gtk_example.py"
 
@@ -262,6 +263,27 @@ if sys.platform.startswith("linux"):
             self.assertEqual(len(dic), 2)
             self.assertEqual(dic[u"key1"], u"val1")
             self.assertEqual(dic[u"2key"], u"value2")
+
+        @mock.patch.object(subprocess, 'Popen')
+        def test_findlibrary(self, mock_popen):
+            """Test finding systemt libraries locations"""
+            mock_popen.side_effect = IOError
+            libs = ["lib0", "lib1", "default_lib"]
+            res = _find_library(libs)
+            self.assertEqual(res, libs[-1])
+
+            libs = ["default_lib"]
+            res = _find_library(libs)
+            self.assertEqual(res, libs[-1])
+
+            mock_popen.side_effect = None
+            class MockProcess(object):
+                def communicate(self):
+                    return ["a a a l\nb b b lb\nc c  c lib1\nd d d lib0\n"]
+            mock_popen.return_value = MockProcess()
+            libs = ["lib0", "lib1", "default_lib"]
+            res = _find_library(libs)
+            self.assertEqual(res, "lib0")
 
 
 if __name__ == "__main__":
