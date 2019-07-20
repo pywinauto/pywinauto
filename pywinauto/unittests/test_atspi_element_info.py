@@ -16,13 +16,7 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
-    from pywinauto.linux.atspi_objects import _g_str_hash
-    from pywinauto.linux.atspi_objects import _g_str_equal
-    from pywinauto.linux.atspi_objects import _g_hash_table_new
-    from pywinauto.linux.atspi_objects import _g_hash_table_insert
-    from pywinauto.linux.atspi_objects import _GStrHashFunc
-    from pywinauto.linux.atspi_objects import _GStrEqualFunc
-    from pywinauto.linux.atspi_objects import _ghash2dic
+    from pywinauto.linux.atspi_objects import GHashTable
     from pywinauto.controls.atspiwrapper import AtspiWrapper
 
 app_name = r"gtk_example.py"
@@ -209,36 +203,26 @@ if sys.platform.startswith("linux"):
         @mock.patch.object(AtspiDocument, '_get_attributes')
         def test_document_get_attributes_success(self, mock_get_attributes):
             attrib = b"dummy attribute"
-            mock_get_attributes.return_value = self._dic2ghash({attrib: b"dummy val"})
+            mock_get_attributes.return_value = GHashTable.dic2ghash({attrib: b"dummy val"})
             res = self.info.document_get_attributes()
             self.assertEqual(len(res), 1)
             self.assertEqual(res[attrib.decode('utf-8')], u"dummy val")
 
-        def _dic2ghash(self, d):
-            """Utility function to create GLib ghash_table
+    class GHashTableTests(unittest.TestCase):
 
-            Limitations:
-             - only for strings as key/value
-             - to have valid pointers dictionary should consist of bytes
-             - no GLib insertion/lookup operations after leaving the scope
-               of the function, as hash/equal callbacks are released by GC
-            """
-            hash_cbk = _GStrHashFunc(lambda key: _g_str_hash(key))
-            equal_cbk = _GStrEqualFunc(lambda v1, v2: _g_str_equal(v1, v2))
+        """Tests manipulating native GHashTable"""
 
-            ghash_table_p = _g_hash_table_new(hash_cbk, equal_cbk)
-            for k, v in d.items():
-                res = _g_hash_table_insert(ghash_table_p, k, v)
-                if res == False:
-                    raise ValueError("Failed to insert k='{0}', v='{1}'".format(k, v))
+        def setUp(self):
+            pass
 
-            return ghash_table_p
+        def tearDown(self):
+            pass
 
         def test_ghash2dic(self):
             """Test handling C-created ghash_table with string-based KV pairs"""
-            ghash_table_p = self._dic2ghash({b"key1": b"val1", b"2key": b"value2"})
+            ghash_table_p = GHashTable.dic2ghash({b"key1": b"val1", b"2key": b"value2"})
 
-            dic = _ghash2dic(ghash_table_p)
+            dic = GHashTable.ghash2dic(ghash_table_p)
             print(dic)
             self.assertEqual(len(dic), 2)
             self.assertEqual(dic[u"key1"], u"val1")
