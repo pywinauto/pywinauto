@@ -485,7 +485,7 @@ def _find_library(libs_list):
                     print("Lib located: {0}".format(lib_path))
                     return lib_path
 
-    except FileNotFoundError:
+    except IOError:
         # ldconfig not installed will use default lib name
         return libs_list[-1]
 
