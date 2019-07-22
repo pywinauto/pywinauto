@@ -1,3 +1,37 @@
+# -*- coding: utf-8 -*-
+# GUI Application automation and testing library
+# Copyright (C) 2006-2019 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.readthedocs.io/en/latest/credits.html
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""Tests for Linux AtspiElementInfo"""
+
 import os
 import sys
 import subprocess
@@ -16,15 +50,9 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
-    from pywinauto.controls.atspiwrapper import AtspiWrapper
     from pywinauto.linux.atspi_objects import GErrorException
-    from pywinauto.linux.atspi_objects import _g_str_hash
-    from pywinauto.linux.atspi_objects import _g_str_equal
-    from pywinauto.linux.atspi_objects import _g_hash_table_new
-    from pywinauto.linux.atspi_objects import _g_hash_table_insert
-    from pywinauto.linux.atspi_objects import _GStrHashFunc
-    from pywinauto.linux.atspi_objects import _GStrEqualFunc
-    from pywinauto.linux.atspi_objects import _ghash2dic
+    from pywinauto.linux.atspi_objects import GHashTable
+    from pywinauto.linux.atspi_objects import _find_library
 
 app_name = r"gtk_example.py"
 
@@ -211,40 +239,51 @@ if sys.platform.startswith("linux"):
         @mock.patch.object(AtspiDocument, '_get_attributes')
         def test_document_get_attributes_success(self, mock_get_attributes):
             attrib = b"dummy attribute"
-            mock_get_attributes.return_value = self._dic2ghash({attrib: b"dummy val"})
+            mock_get_attributes.return_value = GHashTable.dic2ghash({attrib: b"dummy val"})
             res = self.info.document_get_attributes()
             self.assertEqual(len(res), 1)
             self.assertEqual(res[attrib.decode('utf-8')], u"dummy val")
 
-        def _dic2ghash(self, d):
-            """Utility function to create GLib ghash_table
+    class GHashTableTests(unittest.TestCase):
 
-            Limitations:
-             - only for strings as key/value
-             - to have valid pointers dictionary should consist of bytes
-             - no GLib insertion/lookup operations after leaving the scope
-               of the function, as hash/equal callbacks are released by GC
-            """
-            hash_cbk = _GStrHashFunc(lambda key: _g_str_hash(key))
-            equal_cbk = _GStrEqualFunc(lambda v1, v2: _g_str_equal(v1, v2))
+        """Tests manipulating native GHashTable"""
 
-            ghash_table_p = _g_hash_table_new(hash_cbk, equal_cbk)
-            for k, v in d.items():
-                res = _g_hash_table_insert(ghash_table_p, k, v)
-                if res == False:
-                    raise ValueError("Failed to insert k='{0}', v='{1}'".format(k, v))
+        def setUp(self):
+            pass
 
-            return ghash_table_p
+        def tearDown(self):
+            pass
 
         def test_ghash2dic(self):
             """Test handling C-created ghash_table with string-based KV pairs"""
-            ghash_table_p = self._dic2ghash({b"key1": b"val1", b"2key": b"value2"})
+            ghash_table_p = GHashTable.dic2ghash({b"key1": b"val1", b"2key": b"value2"})
 
-            dic = _ghash2dic(ghash_table_p)
+            dic = GHashTable.ghash2dic(ghash_table_p)
             print(dic)
             self.assertEqual(len(dic), 2)
             self.assertEqual(dic[u"key1"], u"val1")
             self.assertEqual(dic[u"2key"], u"value2")
+
+        @mock.patch.object(subprocess, 'Popen')
+        def test_findlibrary(self, mock_popen):
+            """Test finding systemt libraries locations"""
+            mock_popen.side_effect = IOError
+            libs = ["lib0", "lib1", "default_lib"]
+            res = _find_library(libs)
+            self.assertEqual(res, libs[-1])
+
+            libs = ["default_lib"]
+            res = _find_library(libs)
+            self.assertEqual(res, libs[-1])
+
+            mock_popen.side_effect = None
+            class MockProcess(object):
+                def communicate(self):
+                    return ["a a a l\nb b b lb\nc c  c lib1\nd d d lib0\n"]
+            mock_popen.return_value = MockProcess()
+            libs = ["lib0", "lib1", "default_lib"]
+            res = _find_library(libs)
+            self.assertEqual(res, "lib0")
 
 
 if __name__ == "__main__":
