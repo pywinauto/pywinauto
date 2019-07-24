@@ -9,23 +9,16 @@ from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueC
                                  kAXErrorIllegalArgument, kAXErrorInvalidUIElement, kAXErrorInvalidUIElementObserver,
                                  kAXErrorNoValue, kAXErrorNotEnoughPrecision, kAXErrorNotImplemented, kAXErrorSuccess,
                                  AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue,
-                                 AXUIElementCopyActionNames, AXUIElementCreateApplication, AXUIElementGetPid)
+                                 AXUIElementCopyActionNames, AXUIElementCreateApplication, AXUIElementGetPid, AXUIElementCreateSystemWide)
 from Foundation import *
 from PyObjCTools import AppHelper
 import AppKit
-from AppKit import NSScreen
+from AppKit import NSScreen, NSRunningApplication
 from subprocess import Popen, PIPE
 import warnings
 # parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # sys.path.append(parent_dir)
 from macos_functions import get_ws_instance
-if sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.append(parent_dir)
-    sys.path.append(parent_dir + '/macos')
-    os.path.join
-    from pywinauto.macos.application import Application
-
 
 ax_type_from_string = {
     kAXValueCGSizeType: AppKit.NSSizeFromString,
@@ -105,6 +98,11 @@ class AxElementInfo(object):
         cls = type(self)
         if isinstance(ref, cls):
             return cls(ref.ref)
+        elif isinstance (ref,NSRunningApplication):
+            pid =ref.processIdentifier()
+            self.ref = cls(AXUIElementCreateApplication(pid))
+            
+
 
     def __repr__(self):
         """Build a descriptive string for UIElements."""
@@ -147,7 +145,6 @@ class AxElementInfo(object):
             tab = []
             for app in appli:
                 pid = app.processIdentifier()
-                # print(app.localizedName())
                 app_ref = cls(AXUIElementCreateApplication(pid))
                 # if app_ref.name != '':
                 tab.append(app_ref)
@@ -248,27 +245,16 @@ class AxElementInfo(object):
 
     @property
     def process_id(self):
-
+        if self.ref is None:
+            return None
         err, pid = AXUIElementGetPid(self.ref, None)
-        print(err)
         if err != kAXErrorSuccess:
             raise AXError(err)
         return pid
 
-    def kill_process(self):
-        #kill like sigkill
-        Popen(["kill", "-9", str(self.process_id)], stdout=PIPE).communicate()[0]
-
 def runLoopAndExit():
-    AppHelper.stopEventLoop()
+    stop = AppHelper.stopEventLoop()
 
-# Get a list of running applications
 def cache_update():
-    
-    AppHelper.callLater(0.5, runLoopAndExit)
+    AppHelper.callAfter(runLoopAndExit)
     AppHelper.runConsoleEventLoop()
-    
-
-desktop = AxElementInfo()
-print(desktop.process_id)
-
