@@ -51,15 +51,21 @@ def launch_application(name):
     # TODO: Should open unique app
     return get_ws_instance().launchApplication_(name)
 
-def launch_application_by_bundle(bundleID, NewInstance = True):
+def bundle_identifier_for_application_name(app_name):
+    path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
+    bundle=NSBundle.bundleWithPath_(path)
+    bundleIdentifier=bundle.bundleIdentifier()
+    return (bundleIdentifier)
+
+def launch_application_by_bundle(bundle_id, new_instance = True):
     
-    if (NewInstance):
+    if (new_instance):
             param = NSWorkspaceLaunchNewInstance
     else:
             param = NSWorkspaceLaunchAllowingClassicStartup
 
 
-    r = get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundleID,
+    r = get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundle_id,
             param,
             NSAppleEventDescriptor.nullDescriptor(),
             None)
