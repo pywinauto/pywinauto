@@ -132,6 +132,9 @@ class Application(BaseApplication):
         if self._proc_descriptor is not None:
             # Kill process created via Application with subprocess kill
             self._proc_descriptor.kill()
+            # wait for child process to terminate
+            self._proc_descriptor.communicate()
+            self._proc_descriptor = None
 
         if not self.is_process_running():
             return True # already closed
@@ -152,13 +155,7 @@ class Application(BaseApplication):
         if not str(self.process) in os.listdir('/proc'):
             return False
         else:
-            # Check process zombie state
-            with open('/proc/{}/status'.format(self.process), mode='rb') as fd:
-                content = fd.readlines()
-                for line in content:
-                    if line.decode().lower().startswith("state"):
-                        return "zombie" not in line.decode().lower()
-                return True
+            return True
 
 
 def assert_valid_process(process_id):

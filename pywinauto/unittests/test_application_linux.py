@@ -32,11 +32,12 @@ if sys.platform != 'win32':
 
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
-            pass
+            self.subprocess_app = None
 
         def tearDown(self):
             """Close the application after tests"""
-            pass
+            if self.subprocess_app:
+                self.subprocess_app.communicate()
 
         def test__init__(self):
             """Verify that Application instance is initialized or not"""
@@ -63,20 +64,20 @@ if sys.platform != 'win32':
 
         def test_connect_by_pid(self):
             """Create application wia subprocess then connect it to Application"""
-            subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
+            self.subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
             time.sleep(1)
             app = Application()
-            app.connect(process=subprocess_app.pid)
-            self.assertEqual(app.process, subprocess_app.pid)
+            app.connect(process=self.subprocess_app.pid)
+            self.assertEqual(app.process, self.subprocess_app.pid)
             app.kill()
 
         def test_connect_by_path(self):
             """Create application wia subprocess then connect it to Application by application name"""
-            subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
+            self.subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
             time.sleep(1)
             app = Application()
             app.connect(path=_test_app())
-            self.assertEqual(app.process, subprocess_app.pid)
+            self.assertEqual(app.process, self.subprocess_app.pid)
             app.kill()
 
         def test_get_cpu_usage(self):
@@ -98,7 +99,6 @@ if sys.platform != 'win32':
             app.start(_test_app())
             time.sleep(1)
             app.kill()
-            time.sleep(1)
             self.assertFalse(app.is_process_running())
 
         def test_kill_killed_app(self):
@@ -106,16 +106,21 @@ if sys.platform != 'win32':
             app.start(_test_app())
             time.sleep(1)
             app.kill()
-            time.sleep(1)
             self.assertTrue(app.kill())
 
         def test_kill_connected_app(self):
-            subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
+            self.subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
             time.sleep(1)
             app = Application()
-            app.connect(process=subprocess_app.pid)
+            app.connect(process=self.subprocess_app.pid)
             app.kill()
-            time.sleep(1)
+      
+            # Unlock the subprocess explicity, otherwise
+            # it's presented in /proc as a zombie waiting for
+            # the parent process to pickup the return code
+            self.subprocess_app.communicate()
+            self.subprocess_app = None
+
             self.assertFalse(app.is_process_running())
 
 if __name__ == "__main__":
