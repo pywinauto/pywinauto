@@ -64,11 +64,11 @@ class InvalidWindowHandle(RuntimeError):
 class AtspiMeta(BaseMeta):
 
     """Metaclass for AtspiWrapper objects"""
+
     control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
         """Register the control types"""
-
         BaseMeta.__init__(cls, name, bases, attrs)
 
         for t in cls._control_types:
