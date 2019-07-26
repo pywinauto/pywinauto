@@ -76,16 +76,17 @@ if sys.platform.startswith("linux"):
             self.desktop_info = AtspiElementInfo()
             self.desktop_wrapper = AtspiWrapper(self.desktop_info)
             self.app = Application()
-            self.app.start("python3.4 " + _test_app())
+            self.app.start(_test_app())
             time.sleep(1)
-            self.app_wrapper = self.app.gtk_example
+            self.app_wrapper = self.app.gtk_example.wrapper_object()
+            self.app_frame = self.app.gtk_example.Frame
 
         def tearDown(self):
             self.app.kill()
 
         def test_set_window_focus(self):
-            self.app_wrapper.Frame.set_focus()
-            states = self.app_wrapper.Frame.get_states()
+            self.app_frame.set_focus()
+            states = self.app_frame.get_states()
             self.assertIn("STATE_VISIBLE", states)
             self.assertIn("STATE_SHOWING", states)
 
@@ -93,7 +94,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.top_level_parent().element_info.control_type, "Application")
 
         def test_top_level_parent_for_button_return_app(self):
-            self.assertEqual(self.app_wrapper.Frame.Panel.top_level_parent().element_info.control_type,
+            self.assertEqual(self.app_frame.Panel.top_level_parent().element_info.control_type,
                              "Application")
 
         def test_root_return_desktop(self):
@@ -109,7 +110,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.control_id(), IATSPI().known_control_types["Application"])
 
         def test_can_get_rectangle(self):
-            rect = self.app_wrapper.Frame.Panel.rectangle()
+            rect = self.app_frame.Panel.rectangle()
             self.assertEqual(rect.width(), 600)
             self.assertEqual(rect.height(), 492)
 
@@ -120,10 +121,10 @@ if sys.platform.startswith("linux"):
             self.assertTrue(self.app_wrapper.is_dialog())
 
         def test_is_dialog_for_button_is_false(self):
-            self.assertFalse(self.app_wrapper.Frame.Panel.Click.is_dialog())
+            self.assertFalse(self.app_frame.Panel.Click.is_dialog())
 
         def test_can_get_children(self):
-            self.assertEqual(self.app_wrapper.Frame.control_id(), IATSPI().known_control_types["Frame"])
+            self.assertEqual(self.app_frame.control_id(), IATSPI().known_control_types["Frame"])
 
         def test_can_get_descendants(self):
             self.assertTrue(len(self.app_wrapper.descendants()) > len(self.app_wrapper.children()))
