@@ -114,7 +114,7 @@ if sys.platform != 'win32':
             app = Application()
             app.connect(process=self.subprocess_app.pid)
             app.kill()
-      
+
             # Unlock the subprocess explicity, otherwise
             # it's presented in /proc as a zombie waiting for
             # the parent process to pickup the return code

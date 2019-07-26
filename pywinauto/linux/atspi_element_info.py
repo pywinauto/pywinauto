@@ -39,7 +39,9 @@ from ..element_info import ElementInfo
 
 
 class AtspiElementInfo(ElementInfo):
+
     """Wrapper for window handler"""
+
     atspi_accessible = AtspiAccessible()
 
     def __init__(self, handle=None):
@@ -55,6 +57,7 @@ class AtspiElementInfo(ElementInfo):
             self.__get_elements(el, tree, **kwargs)
 
     def __eq__(self, other):
+        """Check if two AtspiElementInfo objects describe the same element"""
         if self.control_type == "Application":
             return self.process_id == other.process_id
         return self.rectangle == other.rectangle
@@ -118,9 +121,9 @@ class AtspiElementInfo(ElementInfo):
         title = kwargs.get("title", None)
         control_type = kwargs.get("control_type", None)
 
-        len = self.atspi_accessible.get_child_count(self._handle, None)
+        cnt = self.atspi_accessible.get_child_count(self._handle, None)
         childrens = []
-        for i in range(len):
+        for i in range(cnt):
             child = AtspiElementInfo(self.atspi_accessible.get_child_at_index(self._handle, i, None))
             if class_name is not None and class_name != child.class_name:
                 continue
