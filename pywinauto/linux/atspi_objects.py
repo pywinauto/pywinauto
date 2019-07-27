@@ -992,7 +992,7 @@ class AtspiText(object):
     _get_character_at_offset.argtypes = [POINTER(_AtspiText), c_int, POINTER(POINTER(_GError))]
     _get_character_at_offset.restype = c_uint
 
-    _get_character_extents = IATSPI().get_iface_func("atspi_text_get_character_at_offset")
+    _get_character_extents = IATSPI().get_iface_func("atspi_text_get_character_extents")
     _get_character_extents.argtypes = [POINTER(_AtspiText), c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
     _get_character_extents.restype = POINTER(AtspiRect)
 
