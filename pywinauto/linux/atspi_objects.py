@@ -432,7 +432,7 @@ _AtspiAccessible._fields_ = [
     ('states', POINTER(_AtspiStateSet)),
     ('attributes', POINTER(_GHashTable)),
     ('cached_properties', c_uint),
-    ('cached_properties', _AtspiAccessiblePrivate),
+    ('priv', POINTER(_AtspiAccessiblePrivate)),
 ]
 
 _AtspiStateSet._fields_ = [
