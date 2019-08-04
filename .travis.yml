@@ -10,9 +10,14 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
-  - "3.7"
 os:
   - linux
+matris:
+  include:
+    - python: "3.7"
+      dist: xenial  # required for Python >= 3.7 on Travis CI
+  allow_failures:   # opt-qt58 is not compatible with xenial
+    - python: "3.7"
 before_install:
   - sudo add-apt-repository -y ppa:beineri/opt-qt58-trusty
 
