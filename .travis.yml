@@ -1,4 +1,4 @@
-dist: xenial
+dist: trusty
 language: cpp
 notifications:
   email: false
