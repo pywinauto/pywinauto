@@ -12,7 +12,7 @@ python:
   - "3.6"
 os:
   - linux
-matris:
+matrix:
   include:
     - python: "3.7"
       dist: xenial  # required for Python >= 3.7 on Travis CI
