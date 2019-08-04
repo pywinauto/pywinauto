@@ -25,7 +25,6 @@ install:
   - source /opt/qt58/bin/qt58-env.sh;
   
 before_script:
-  - xauth generate :99.0 . trusted
   # Clone test apps
   - git init apps
   - cd apps
