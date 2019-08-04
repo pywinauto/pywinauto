@@ -1,5 +1,4 @@
-sudo: required
-dist: trusty
+dist: xenial
 language: cpp
 notifications:
   email: false
@@ -8,12 +7,10 @@ notifications:
 language: python
 
 python:
-  #- "2.6"
   - "2.7"
-  - "3.3"
-  - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
 os:
   - linux
 before_install:
