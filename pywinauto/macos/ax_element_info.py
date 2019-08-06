@@ -1,5 +1,6 @@
 import re
 import timeit
+import inspect
 import sys, os
 from CoreFoundation import (CFNumberGetValue, CFStringGetTypeID, CFArrayGetTypeID, CFGetTypeID,
                             CFNumberGetTypeID, CFBooleanGetTypeID, kCFNumberIntType, kCFNumberDoubleType)
@@ -8,12 +9,12 @@ from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueC
                                  kAXErrorAttributeUnsupported, kAXErrorCannotComplete, kAXErrorFailure,
                                  kAXErrorIllegalArgument, kAXErrorInvalidUIElement, kAXErrorInvalidUIElementObserver,
                                  kAXErrorNoValue, kAXErrorNotEnoughPrecision, kAXErrorNotImplemented, kAXErrorSuccess,
-                                 AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue,
+                                 AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue, AXUIElementRef,
                                  AXUIElementCopyActionNames, AXUIElementCreateApplication, AXUIElementGetPid, AXUIElementCreateSystemWide)
 from Foundation import *
 from PyObjCTools import AppHelper
 import AppKit
-from AppKit import NSScreen, NSRunningApplication
+from AppKit import NSScreen, NSRunningApplication, NSSize, NSPoint
 from subprocess import Popen, PIPE
 import warnings
 # parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -23,9 +24,19 @@ from macos_functions import get_ws_instance
 ax_type_from_string = {
     kAXValueCGSizeType: AppKit.NSSizeFromString,
     kAXValueCGPointType: AppKit.NSPointFromString,
-    kAXValueCFRangeType: AppKit.NSRangeFromString,
+    # kAXValueCFRangeType: AppKit.NSRangeFromString,
 }
 
+# ax_type_from_string = {
+#     kAXValueCGSizeType: AppKit.NSSizeFromCGSize,
+#     kAXValueCGPointType: AppKit.NSPointFromCGPoint,
+    
+# }
+
+# d = {
+#     kAXValueCGSizeType: lambda ns_size: (NSSize().height, NSSize().width),
+#     kAXValueCGPointType: lambda ns_point: (NSPoint().x, NSPoint().y),
+# }
 
 def _cf_attr_to_py_object(self, attrValue):
 
@@ -44,7 +55,7 @@ def _cf_attr_to_py_object(self, attrValue):
         if success:
             return float(float_value)
 
-        raise ErrorUnsupported('Error converting numeric attribute: {}'.format(number_value))
+        raise TypeError('Value {} is not CFNumber'.format(number_value))
 
     cf_attr_type = CFGetTypeID(attrValue)
     cf_type_to_py_type = {
@@ -60,10 +71,11 @@ def _cf_attr_to_py_object(self, attrValue):
         # did not get a supported CF type. Move on to AX type
         ax_attr_type = AXValueGetType(attrValue)
         try:
-            # print("Description = {}".format(dir(attrValue)))
-            # print("DescriptionType = {}".format(type(attrValue.description())))
             extracted_str = re.search('{.*}', attrValue.description()).group()
+            # obj = ax_type_from_string[ax_attr_type]
+            # t = obj(attrValue)
             return tuple(ax_type_from_string[ax_attr_type](extracted_str))
+            # return tuple(d[ax_attr_type](attrValue))
         except KeyError:
             raise NotImplementedError("Type conversion for {} and {} is not implemented".format(cf_attr_type, ax_attr_type))
 
@@ -97,12 +109,14 @@ class AxElementInfo(object):
         self.ref = ref
         cls = type(self)
         if isinstance(ref, cls):
-            return cls(ref.ref)
-        elif isinstance (ref,NSRunningApplication):
-            pid =ref.processIdentifier()
-            self.ref = cls(AXUIElementCreateApplication(pid))
-            
-
+            self.ref = ref.ref
+        elif isinstance (ref, NSRunningApplication):
+            pid = ref.processIdentifier()
+            self.ref = AXUIElementCreateApplication(pid)
+        elif isinstance(ref,(AXUIElementRef,type(None))):
+            pass
+        else:
+            print('Unknown type: {}'.format(type(ref)))
 
     def __repr__(self):
         """Build a descriptive string for UIElements."""
@@ -111,9 +125,7 @@ class AxElementInfo(object):
         c = repr(self.__class__).partition('<class \'')[-1].rpartition('\'>')[0]
         title = repr(self.name)
         role = self.control_type
-        
-        # if len(title) > 20:
-        #     title = title[:20] + '...\''
+       
         return '<{} {} {}>'.format(c, role, title)
 
     def _get_ax_attributes(self):
@@ -155,8 +167,11 @@ class AxElementInfo(object):
                 return []
             return children
         except AXError as exc:
-            warnings.warn(RuntimeWarning, 'Getting AXChildren attribute caused error (code = {}): "{}"' \
+            # warnings.warn(RuntimeWarning, 'Getting AXChildren attribute caused error (code = {}): "{}"' \
+            #     ''.format(exc.err_code, exc.message))
+            print('Getting AXChildren attribute caused error (code = {}): "{}"' \
                 ''.format(exc.err_code, exc.message))
+            print(type(self.ref))
             return []
 
     def descendants(self):
@@ -228,7 +243,7 @@ class AxElementInfo(object):
             right, bottom = size
             right += left
 
-        return (int(float(top)), int(float(left)), int(float(bottom)), int(float(right)))
+        return (int(float(top)), int(float(left)), int(float(right)), int(float(bottom)))
 
     @property
     def control_type(self):
@@ -253,8 +268,9 @@ class AxElementInfo(object):
         return pid
 
 def runLoopAndExit():
-    stop = AppHelper.stopEventLoop()
+    AppHelper.stopEventLoop()
 
 def cache_update():
     AppHelper.callAfter(runLoopAndExit)
     AppHelper.runConsoleEventLoop()
+
