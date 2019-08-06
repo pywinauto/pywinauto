@@ -31,7 +31,10 @@ class Application(BaseApplication):
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
 
-    def start(self, name=None, bundle_id=None, new_instance=True,):
+    def start(self, name=None, bundle_id=None, new_instance=True):
+
+        if name is not None and bundle_id is not None:
+              raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
 
         if name is not None:
             bundle = macos_functions.bundle_identifier_for_application_name(name)
@@ -57,20 +60,12 @@ class Application(BaseApplication):
             return False
 
         wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_idle, value=True)
+        return self
 
     def connect(self, **kwargs):
-        # TODO!
-        """Connect to an already running process
-        The action is performed according to only one of parameters
-        :param process: a process ID of the target
-        :param path: a path used to launch the target
-        .. seealso::
-           :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
-        """
+        
         self.connected = False
         if 'process' in kwargs:
-            # self.process = kwargs['process']
             app = macos_functions.get_app_instance_by_pid(kwargs['process'])
             if (app):
                 self.ns_app = app
@@ -78,7 +73,6 @@ class Application(BaseApplication):
             else:
                 raise ProcessNotFoundError('pid = ' + str(self.process_id))
 
-        # TODO : add bundle support
         elif 'name' in kwargs:
             # For os x you have to pass just app name
             app = macos_functions.get_instance_of_app(kwargs['name'])
@@ -97,6 +91,7 @@ class Application(BaseApplication):
                 AXUIElementCreateApplication(pid)
             else:
                 raise ProcessNotFoundError('bundle = ' + str(kwargs['bundle']))
+        return self
 
     def cpu_usage(self, interval=None):
         """Return CPU usage percent during specified number of seconds"""
@@ -135,10 +130,6 @@ class Application(BaseApplication):
             self.ns_app = None
             return True
         return False
-
-    def kill_process(self):
-        #kill like sigkill
-        Popen(["kill", "-9", str(self.process_id)], stdout=PIPE).communicate()[0]
 
     def is_process_running(self):
         """
