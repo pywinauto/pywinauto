@@ -1,6 +1,7 @@
 import sys
 import os
 import unittest
+import subprocess
 
 # sys.path.append(".")
 if sys.platform == 'darwin':
@@ -52,6 +53,16 @@ if sys.platform == 'darwin':
             self.assertRaises(AppNotConnected, Application().__getitem__, 'Hiya')
             self.assertRaises(AppNotConnected, Application().window_, title='Hiya')
             self.assertRaises(AppNotConnected, Application().top_window, )
+
+        def test_cpu_error(self):
+            """Verify that it raises when the app is not connected"""
+            app = Application()
+            self.assertRaises(ProcessNotFoundError, app.cpu_usage, interval = 1)
+            
+
+        def test_not_connected(self):
+            """Verify that it raises when the app is not connected"""
+            self.assertRaises(ValueError, Application().start, name = 'send_keys_test_app', bundle_id = 'com.yourcompany.send-keys-test-app')
 
         def test_start_by_cmd_line(self):
             """test start() works correctly after being called by name"""
@@ -115,6 +126,16 @@ if sys.platform == 'darwin':
             app.start(bundle_id='com.yourcompany.send-keys-test-app')
             self.assertEqual(0.0 <= app.cpu_usage() <= 100.0, True)
             app.kill()
+
+        def test_wait_for_process_running(self):
+            """test is_process_running of the application"""
+            app = Application()
+            self.assertFalse(app.is_process_running())
+            app.start(bundle_id='com.yourcompany.send-keys-test-app')
+            app.wait_for_process_running()
+            self.assertTrue(app.is_process_running())
+            app.kill()
+
 
         def test_connect_by_process(self):
             """Test that connect_() works with a process"""
