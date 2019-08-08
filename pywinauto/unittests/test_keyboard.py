@@ -130,7 +130,7 @@ class SendKeysTests(unittest.TestCase):
         elif sys.platform == 'darwin':
             # Clear clipboard
             os.system("pbcopy < /dev/null")
-            send_keys('{cmd}a{cmd}x',pause=0.2)
+            send_keys('{cmd}a{cmd}c', pause=0.2)
             received = macos_functions.read_from_clipboard()
         else:
             time.sleep(0.2)
