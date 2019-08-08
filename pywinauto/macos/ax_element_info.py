@@ -17,8 +17,6 @@ import AppKit
 from AppKit import NSScreen, NSRunningApplication, NSSize, NSPoint
 from subprocess import Popen, PIPE
 import warnings
-# parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# sys.path.append(parent_dir)
 from macos_functions import get_ws_instance
 
 ax_type_from_string = {
