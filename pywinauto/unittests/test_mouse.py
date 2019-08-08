@@ -87,7 +87,7 @@ class MouseTests(unittest.TestCase):
     def __get_text(self):
         data = ''
         time.sleep(1)
-        SendKeys('^a^c', pause=0.2)
+        send_keys('^a^c', pause=0.2)
         if sys.platform == 'win32':
             send_keys('^a^c', pause=0.2)
             win32clipboard.OpenClipboard()
