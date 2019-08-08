@@ -2,7 +2,7 @@ import sys
 import os
 import unittest
 import subprocess
-
+from subprocess import Popen, PIPE
 # sys.path.append(".")
 if sys.platform == 'darwin':
     parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -57,9 +57,10 @@ if sys.platform == 'darwin':
         def test_cpu_error(self):
             """Verify that it raises when the app is not connected"""
             app = Application()
+            app.start('send_keys_test_app')
+            Popen(["kill", "-9", str(app.process_id)], stdout=PIPE).communicate()[0]
             self.assertRaises(ProcessNotFoundError, app.cpu_usage, interval = 1)
-            
-
+    
         def test_not_connected(self):
             """Verify that it raises when the app is not connected"""
             self.assertRaises(ValueError, Application().start, name = 'send_keys_test_app', bundle_id = 'com.yourcompany.send-keys-test-app')
