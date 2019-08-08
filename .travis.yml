@@ -43,7 +43,7 @@ language: python
 python:
   #- "2.6"
   - "2.7_with_system_site_packages"
-  - "3.3"
+  #- "3.3"
   - "3.4_with_system_site_packages"
   - "3.5"
   - "3.6"
@@ -80,9 +80,9 @@ install:
 
   # Linux dev dependencies:
 
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then pip install python-xlib codecov coverag; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then pip install python-xlib codecov coverage; fi
   # All this dependencies only to build tests application. No real dependency of this packages
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get updat; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get update; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get -y install at-spi2-core; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install -qq qt58base; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get -y install qt58declarative qt58tools; fi
