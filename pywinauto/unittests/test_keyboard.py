@@ -52,7 +52,7 @@ elif sys.platform == 'darwin':
     sys.path.append(parent_dir + '/macos')
     os.path.join
     import macos_functions
-    from keyboard_helper import SendKeys,KeyAction,KeySequenceError
+    from keyboard_helper import send_keys, KeyAction, KeySequenceError
 else:
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
@@ -130,7 +130,7 @@ class SendKeysTests(unittest.TestCase):
         elif sys.platform == 'darwin':
             # Clear clipboard
             os.system("pbcopy < /dev/null")
-            SendKeys('{cmd}a{cmd}x',pause=0.2)
+            send_keys('{cmd}a{cmd}x',pause=0.2)
             received = macos_functions.read_from_clipboard()
         else:
             time.sleep(0.2)
