@@ -19,6 +19,7 @@ elif sys.platform == 'darwin':
     sys.path.append(parent_dir + '/macos')
     import macos_functions
     import keyboard_helper
+    from keyboard_helper import send_keys
     from Quartz import (CGPoint)
 else:
     import subprocess
