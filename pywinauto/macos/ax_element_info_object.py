@@ -25,4 +25,5 @@ known_control_types = [
 	'MenuItem', 
 	'Table', 
 	'Row',
+	'SystemWide'
 	]
