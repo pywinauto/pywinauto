@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # GUI Application automation and testing library
 # Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors

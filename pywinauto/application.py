@@ -1,4 +1,3 @@
-import os
 import sys
 
 from .base_application import WindowSpecification

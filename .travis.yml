@@ -54,6 +54,8 @@ before_install:
 
 install:
 
+  # macOS dev dependencies:
+
   # Install 'pyenv': a utility for downloading and switching between multiple
   # Python interpreters on the same system.
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then git clone https://github.com/yyuu/pyenv.git ~/.pyenv; fi
@@ -75,17 +77,19 @@ install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew install qt; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew link qt --force; fi
 
+
+  # Linux dev dependencies:
+
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then pip install python-xlib codecov coverag; fi
+  # All this dependencies only to build tests application. No real dependency of this packages
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get updat; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get -y install at-spi2-cor; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get -y install at-spi2-core; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install -qq qt58base; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get -y install qt58declarative qt58tool; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install xse; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install libgtk-3-dev libgtk2.0-de; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get -y install qt58declarative qt58tools; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install xsel; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install libgtk-3-dev libgtk2.0-dev; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then pip install pg; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install python3-pi; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo python3 -m pip install pg; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo aptitude instal; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then sudo apt-get install -y python3-gi; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then source /opt/qt58/bin/qt58-env.sh; fi
 
 before_script:
@@ -103,7 +107,8 @@ before_script:
   - echo "SendKeysTester/source" >> .git/info/sparse-checkout
   - git pull origin master
   - cd MouseTester/source
-  # Build test apps linux
+
+  # Build test apps on Linux
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then qmake; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then make; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then chmod a+x mousebuttons; fi
@@ -115,7 +120,9 @@ before_script:
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then chmod a+x send_keys_test_app; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then cp send_keys_test_app ../; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then cd $TRAVIS_BUILD_DIR; fi
-  # Build test apps osx
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then chmod a+x $TRAVIS_BUILD_DIR/apps/Gtk_samples/gtk_example.py; fi
+
+  # Build test apps on macOS
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then export PATH="/usr/local/lib:$PATH"; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then export PATH="/usr/local/include:$PATH"; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then export PATH="/usr/local/opt/qt/bin:$PATH"; fi
@@ -131,11 +138,16 @@ script:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd pywinauto; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=mouse.py unittests/test_mouse.py; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=keyboard_helper.py unittests/test_keyboard.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_application_macos.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_element_info_macos.py; fi
+
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py; fi
-  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/linux/atspi_element_info.py pywinauto/unittests/test_atspi_element_info.py; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/linux/application.py pywinauto/unittests/test_application_linux.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --source=pywinauto/linux,pywinauto/controls pywinauto/unittests/test_atspi_element_info.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --source=pywinauto/linux,pywinauto/controls pywinauto/unittests/test_atspi_wrapper.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --source=pywinauto/linux,pywinauto/controls pywinauto/unittests/test_atspi_controls.py; fi
 
 after_success:
   - codecov

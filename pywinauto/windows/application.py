@@ -325,6 +325,10 @@ class Application(BaseApplication):
                 self.match_history = pickle.load(datafile)
             self.use_history = True
 
+    def __iter__(self):
+        """Raise to avoid infinite loops"""
+        raise NotImplementedError("Object is not iterable, try to use .windows()")
+
     def connect(self, **kwargs):
         """Connect to an already running process
 
@@ -616,19 +620,6 @@ class Application(BaseApplication):
         except (win32gui.error, TypeError):
             is_running = False
         return is_running
-
-    def wait_for_process_exit(self, timeout=None, retry_interval=None):
-        """
-        Waits for process to exit until timeout reaches
-
-        Raises TimeoutError exception if timeout was reached
-        """
-        if timeout is None:
-            timeout = Timings.app_exit_timeout
-        if retry_interval is None:
-            retry_interval = Timings.app_exit_retry
-
-        wait_until(timeout, retry_interval, self.is_process_running, value=False)
 
 
 #=========================================================================

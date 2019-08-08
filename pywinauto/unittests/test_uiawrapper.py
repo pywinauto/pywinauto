@@ -15,6 +15,7 @@ from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto import Desktop
+from pywinauto import mouse  # noqa: E402
 if UIA_support:
     import comtypes
     import pywinauto.windows.uia_defines as uia_defs
@@ -53,6 +54,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
+            mouse.move((-500, 500))  # remove the mouse from the screen to avoid side effects
 
             # start the application
             self.app = Application(backend='uia')
@@ -291,8 +293,18 @@ if UIA_support:
         def test_type_keys(self):
             """Test sending key types to a control"""
             edit = self.dlg.TestLabelEdit.wrapper_object()
-            edit.type_keys("testTypeKeys")
-            self.assertEqual(edit.window_text(), "testTypeKeys")
+            edit.type_keys("t")
+            self.assertEqual(edit.window_text(), "t")
+            edit.type_keys("e")
+            self.assertEqual(edit.window_text(), "te")
+            edit.type_keys("s")
+            self.assertEqual(edit.window_text(), "tes")
+            edit.type_keys("t")
+            self.assertEqual(edit.window_text(), "test")
+            edit.type_keys("T")
+            self.assertEqual(edit.window_text(), "testT")
+            edit.type_keys("y")
+            self.assertEqual(edit.window_text(), "testTy")
 
         def test_no_pattern_interface_error(self):
             """Test a query interface exception handling"""
@@ -627,10 +639,18 @@ if UIA_support:
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
 
-            # Mock a combobox without "ExpandCollapse" pattern
-            combo_box.expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())  # empty texts
-            # workaround works even if no ExpandCollapsePattern available
+            # Mock a 0 pointer to COM element
+            combo_box.iface_item_container.FindItemByProperty = mock.Mock(return_value=0)
             self.assertEqual(combo_box.texts(), ref_texts)
+
+            # Mock a combobox without "ItemContainer" pattern
+            combo_box.iface_item_container.FindItemByProperty = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())
+            self.assertEqual(combo_box.texts(), ref_texts)
+
+            # Mock a combobox without "ExpandCollapse" pattern
+            # Expect empty texts
+            combo_box.iface_expand_collapse.Expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())
+            self.assertEqual(combo_box.texts(), [])
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""
@@ -1161,7 +1181,6 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
-            # start the application
             self.app = Application(backend='uia').start(winfoms_app_grid)
             self.dlg = self.app.Dialog
 
@@ -1170,6 +1189,10 @@ if UIA_support:
             self.row_header_button = self.dlg.RowHeader
             self.col_header_button = self.dlg.ColHeader
             self.list_box = self.dlg.ListBox
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
 
         def test_list_box_item_selection(self):
             """Test get_item method"""
@@ -1251,9 +1274,65 @@ if UIA_support:
             headers = table.get_header_controls()
             self.assertEqual(len(headers), 0)
 
+
+    class MenuBarTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the MenuBar class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            self.app = Application(backend='uia').start(winfoms_app_grid)
+            self.dlg = self.app.Dialog
+
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill()
+
+        def test_can_select_multiple_items(self):
+            """Test menu_select multimple items with action"""
+            table = self.dlg.Table
+            cells = table.cells()
+            self.assertEqual(len(table.cells()), 0)
+            self.dlg.menu_select('#0 -> #1 -> #1 -> #0 -> #0 -> #4 ->#0')
+            cells = table.cells()
+            self.assertEqual(len(cells), 1)
+            self.assertEqual(len(cells[0]), 1)
+
+        def test_can_select_top_menu(self):
+            """Test menu_select with single item"""
+            first_menu_item = self.dlg['menuStrip1'].children()[0]
+            point = first_menu_item.rectangle().mid_point()
+            child_from_point = self.dlg.from_point(point.x, point.y + 20)
+            self.assertEqual(child_from_point.element_info.name, 'Form1')
+            self.dlg.menu_select('tem1')
+            time.sleep(0.1)
+            child_from_point = self.dlg.from_point(point.x, point.y + 20)
+            self.assertEqual(child_from_point.element_info.name, 'tem1DropDown')
+
+
+    class EditTestsWinForms(unittest.TestCase):
+
+        """Unit tests for the WinFormEdit class"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            self.app = Application(backend='uia').start(winfoms_app_grid)
+            self.dlg = self.app.Dialog
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
+        def test_readonly_and_editable_edits(self):
+            """Test editable method for editable edit"""
+            self.assertEqual(self.dlg.Edit2.get_value(), "Editable")
+            self.assertTrue(self.dlg.Edit2.is_editable())
+            self.assertEqual(self.dlg.Edit1.get_value(), "ReadOnly")
+            self.assertFalse(self.dlg.Edit1.is_editable())
 
 
     class ComboBoxTestsWinForms(unittest.TestCase):
@@ -1296,14 +1375,14 @@ if UIA_support:
                     msg='Method .expand() for {} combo box must return self, always!'.format(combo_name))
                 self.assertTrue(combo.is_expanded(),
                     msg='{} combo box does NOT keep expanded state!'.format(combo_name))
-                
+
                 # collapse
                 self.assertEqual(combo.collapse(), combo,
                     msg='Method .collapse() for {} combo box must return self'.format(combo_name))
                 if combo != self.combo_simple:
                     self.assertFalse(combo.is_expanded(),
                         msg='{} combo box has not been collapsed!'.format(combo_name))
-                
+
                 # collapse already collapsed should keep collapsed state
                 self.assertEqual(combo.collapse(), combo,
                     msg='Method .collapse() for {} combo box must return self, always!'.format(combo_name))

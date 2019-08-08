@@ -1,10 +1,39 @@
-import sys
+# -*- coding: utf-8 -*-
+# GUI Application automation and testing library
+# Copyright (C) 2006-2019 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.readthedocs.io/en/latest/credits.html
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""Linux Application class"""
+
 import os.path
-import pickle
 import time
-import warnings
-import multiprocessing
-import locale
 import subprocess
 import shlex
 
@@ -18,6 +47,7 @@ class Application(BaseApplication):
         self.process = None
         self.xmlpath = ''
 
+        self._proc_descriptor = None
         self.match_history = []
         self.use_history = False
         self.actions = None # TODO Action logger for linux
@@ -35,6 +65,7 @@ class Application(BaseApplication):
             message = ('Could not create the process "%s"\n'
                        'Error returned by CreateProcess: %s') % (cmd_line, str(exc))
             raise AppStartError(message)
+        self._proc_descriptor = process
         self.process = process.pid
         return self
 
@@ -66,9 +97,10 @@ class Application(BaseApplication):
                 except Exception:
                     continue
 
-                if kwargs['path'] in content[0]:
+                if kwargs['path'] in " ".join(content):
                     self.process = int(proc_id)
                     connected = True
+                    break
 
         if not connected:
             raise RuntimeError(
@@ -82,7 +114,7 @@ class Application(BaseApplication):
         if interval:
             time.sleep(interval)
         try:
-            proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
+            proc_info = subprocess.check_output(["ps", "-p", str(self.process), "-o", "%cpu"], universal_newlines=True)
             proc_info = proc_info.split("\n")
             return float(proc_info[1])
         except Exception:
@@ -97,7 +129,14 @@ class Application(BaseApplication):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        if str(self.process) not in os.listdir('/proc'):
+        if self._proc_descriptor is not None:
+            # Kill process created via Application with subprocess kill
+            self._proc_descriptor.kill()
+            # wait for child process to terminate
+            self._proc_descriptor.communicate()
+            self._proc_descriptor = None
+
+        if not self.is_process_running():
             return True # already closed
         status = subprocess.check_output(["kill", "-9", str(self.process)], universal_newlines=True)
         if "Operation not permitted" in status:
@@ -113,13 +152,12 @@ class Application(BaseApplication):
 
         Returns True if process is running otherwise - False
         """
-        return str(self.process) in os.listdir('/proc')
+        if not str(self.process) in os.listdir('/proc'):
+            return False
+        else:
+            return True
 
 
 def assert_valid_process(process_id):
     if str(process_id) not in os.listdir('/proc'):
         raise ProcessNotFoundError('pid = ' + str(process_id))
-
-
-if __name__ == "__main__":
-    app = BaseApplication()

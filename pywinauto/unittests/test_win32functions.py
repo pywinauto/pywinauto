@@ -34,13 +34,16 @@
 import unittest
 
 import sys
+import ctypes
 sys.path.append(".")
-from pywinauto.windows.win32structures import POINT
-from pywinauto.windows.win32functions import MakeLong, HiWord, LoWord
+from pywinauto.windows.win32structures import Structure  # noqa: E402
+from pywinauto.windows.win32structures import POINT  # noqa: E402
+from pywinauto.windows.win32structures import RECT  # noqa: E402
+from pywinauto.windows.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
 
 
 class Win32FunctionsTestCases(unittest.TestCase):
-    "Unit tests for the win32function methods"
+    """Unit tests for the win32function methods"""
 
     def testMakeLong(self):
         data = (
@@ -54,32 +57,30 @@ class Win32FunctionsTestCases(unittest.TestCase):
         )
 
         for result, (hi, lo) in data:
-            self.assertEqual(result, MakeLong(hi,lo))
-
-
+            self.assertEqual(result, MakeLong(hi, lo))
 
     def testMakeLong_zero(self):
-        "test that makelong(0,0)"
-        self.assertEqual(0, MakeLong(0,0))
+        """test that makelong(0,0)"""
+        self.assertEqual(0, MakeLong(0, 0))
 
     def testMakeLong_lowone(self):
-        "Make sure MakeLong() function works with low word == 1"
-        self.assertEqual(1, MakeLong(0,1))
+        """Make sure MakeLong() function works with low word == 1"""
+        self.assertEqual(1, MakeLong(0, 1))
 
     def testMakeLong_highone(self):
-        "Make sure MakeLong() function works with high word == 1"
-        self.assertEqual(0x10000, MakeLong(1,0))
+        """Make sure MakeLong() function works with high word == 1"""
+        self.assertEqual(0x10000, MakeLong(1, 0))
 
     def testMakeLong_highbig(self):
-        "Make sure MakeLong() function works with big numder in high word"
-        self.assertEqual(0xffff0000, MakeLong(0xffff,0))
+        """Make sure MakeLong() function works with big numder in high word"""
+        self.assertEqual(0xffff0000, MakeLong(0xffff, 0))
 
     def testMakeLong_lowbig(self):
-        "Make sure MakeLong() function works with big numder in low word"
+        """Make sure MakeLong() function works with big numder in low word"""
         self.assertEqual(0xffff, MakeLong(0, 0xffff))
 
     def testMakeLong_big(self):
-        "Make sure MakeLong() function works with big numders in 2 words"
+        """Make sure MakeLong() function works with big numders in 2 words"""
         self.assertEqual(0xffffffff, MakeLong(0xffff, 0xffff))
 
     def testLowWord_zero(self):
@@ -122,8 +123,56 @@ class Win32FunctionsTestCases(unittest.TestCase):
         p = POINT(1, 2)
         self.assertEqual([1, 2], [i for i in p])
 
+    def testPOINTcomparision(self):
+        """Test POINT comparision operations"""
+        p0 = POINT(1, 2)
+        p1 = POINT(0, 2)
+        self.assertNotEqual(p0, p1)
+        p1.x = p0.x
+        self.assertEqual(p0, p1)
+
+        # tuple comparision
+        self.assertEqual(p0, (1, 2))
+        self.assertNotEqual(p0, (0, 2))
+
+        # wrong type comparision
+        self.assertNotEqual(p0, 1)
+
+    def test_RECT_hash(self):
+        """Test RECT is not hashable"""
+        self.assertRaises(TypeError, hash, RECT())
+
+    def test_RECT_eq(self):
+        r0 = RECT(1, 2, 3, 4)
+        self.assertEqual(r0, RECT(1, 2, 3, 4))
+        self.assertEqual(r0, [1, 2, 3, 4])
+        self.assertNotEqual(r0, RECT(1, 2, 3, 5))
+        self.assertNotEqual(r0, [1, 2, 3, 5])
+        self.assertNotEqual(r0, [1, 2, 3])
+        self.assertNotEqual(r0, [1, 2, 3, 4, 5])
+        r0.bottom = 5
+        self.assertEqual(r0, RECT(1, 2, 3, 5))
+        self.assertEqual(r0, (1, 2, 3, 5))
+
+    def test_RECT_repr(self):
+        """Test RECT repr"""
+        r0 = RECT(0)
+        self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
+
+    def test_Structure(self):
+        class Structure0(Structure):
+            _fields_ = [("f0", ctypes.c_int)]
+
+        class Structure1(Structure):
+            _fields_ = [("f1", ctypes.c_int)]
+
+        s0 = Structure0(0)
+        self.assertEqual(str(s0), "%20s\t%s" % ("f0", s0.f0))
+        s1 = Structure1(0)
+        self.assertNotEqual(s0, s1)
+        s0._fields_.append(("f1", ctypes.c_int))
+        self.assertNotEqual(s0, [0, 1])
+
 
 if __name__ == "__main__":
     unittest.main()
-
-

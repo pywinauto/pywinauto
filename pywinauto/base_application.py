@@ -2,10 +2,8 @@ from __future__ import print_function
 
 import sys
 import os.path
-import pickle
 import time
 import warnings
-import multiprocessing
 import locale
 import codecs
 
@@ -42,7 +40,6 @@ class AppNotConnected(Exception):
     """Application has not been connected to a process yet"""
 
     pass    # pragma: no cover
-
 
 
 # TODO problem with if active_only: in findwindows to use on linux
@@ -572,7 +569,7 @@ class WindowSpecification(object):
                     if control_type:
                         class_name = None  # no need for class_name if control_type exists
                     else:
-                        control_type = None # if control_type is empty, still use class_name instead
+                        control_type = None  # if control_type is empty, still use class_name instead
                 criteria_texts = []
                 if title:
                     criteria_texts.append(u'title="{}"'.format(title))
@@ -639,7 +636,6 @@ class BaseApplication(object):
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True, work_dir=None):
         """Start the application as specified by cmd_line"""
-
         raise NotImplementedError()
 
     def cpu_usage(self, interval=None):

@@ -95,6 +95,7 @@ Use curly brackers to escape modifiers and type reserved symbols as single keys:
 
     send_keys('{^}a{^}c{%}') # type string "^a^c%" (Ctrl will not be pressed)
     send_keys('{{}ENTER{}}') # type string "{ENTER}" without pressing Enter key
+
 """
 from __future__ import unicode_literals
 
@@ -108,12 +109,12 @@ if sys.platform == 'win32':
     import win32api
     import six
     from .windows import win32structures
+    from .windows import win32functions
 elif sys.platform == "darwin":
     pass
 else:
     from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
     from .linux.keyboard import handle_code, parse_keys, send_keys
-    
 
     __all__ = ['KeySequenceError', 'send_keys']
 
@@ -123,10 +124,6 @@ else:
 
     GetMessageExtraInfo = ctypes.windll.user32.GetMessageExtraInfo
     MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
-    SendInput = ctypes.windll.user32.SendInput
-    UINT = ctypes.c_uint
-    SendInput.restype = UINT
-    SendInput.argtypes = [UINT, ctypes.c_void_p, ctypes.c_int]
 
     VkKeyScan = ctypes.windll.user32.VkKeyScanW
     VkKeyScan.restype = ctypes.c_short
@@ -382,7 +379,7 @@ else:
             inputs = self.GetInput()
 
             # SendInput() supports all Unicode symbols
-            num_inserted_events = SendInput(len(inputs), ctypes.byref(inputs),
+            num_inserted_events = win32functions.SendInput(len(inputs), ctypes.byref(inputs),
                                             ctypes.sizeof(win32structures.INPUT))
             if num_inserted_events != len(inputs):
                 raise RuntimeError('SendInput() inserted only ' + str(num_inserted_events) +
