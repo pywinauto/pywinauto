@@ -51,7 +51,7 @@ def cmd_exists(cmd):
 def set_up_clipboard(is_input):
     """Find clipboard app in system"""
     command = []
-    if sys.platform == 'linux' or sys.platform == 'linux2':
+    if sys.platform.startswith('linux'):
         if cmd_exists('xclip'):
             command.append('xclip')
             if is_input:

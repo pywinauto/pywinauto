@@ -88,7 +88,6 @@ class MouseTests(unittest.TestCase):
     def __get_text(self):
         data = ''
         time.sleep(1)
-        send_keys('^a^c', pause=0.2)
         if sys.platform == 'win32':
             send_keys('^a^c', pause=0.2)
             win32clipboard.OpenClipboard()
@@ -152,7 +151,7 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
 
-    if sys.platform not in ['win32', 'darwin']:
+    if sys.platform.startswith('linux'):
         def test_swapped_buttons(self):
             current_map = self.display.get_pointer_mapping()
             swapped_map = copy.copy(current_map)

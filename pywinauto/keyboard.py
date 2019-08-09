@@ -111,7 +111,8 @@ if sys.platform == 'win32':
     from .windows import win32structures
     from .windows import win32functions
 elif sys.platform == "darwin":
-    pass
+    from .macos.keyboard import KeySequenceError, KeyAction, PauseAction
+    from .macos.keyboard import handle_code, parse_keys, send_keys
 else:
     from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
     from .linux.keyboard import handle_code, parse_keys, send_keys
