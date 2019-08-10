@@ -102,7 +102,7 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(wintypes.POINT, PointIteratorMixin):
+class POINT(wintypes.POINT, PointIteratorMixin, StructureMixIn):
     pass
 
 assert sizeof(POINT) == 8, sizeof(POINT)

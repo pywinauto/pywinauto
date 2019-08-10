@@ -74,6 +74,31 @@ def _test_app():
 
 
 if sys.platform.startswith("linux"):
+    class AtspiPointTests(unittest.TestCase):
+
+        """Unit tests for AtspiPoint class"""
+
+        def test_indexation(self):
+            p = POINT(1, 2)
+            self.assertEqual(p[0], p.x)
+            self.assertEqual(p[1], p.y)
+            self.assertEqual(p[-2], p.x)
+            self.assertEqual(p[-1], p.y)
+            self.assertRaises(IndexError, lambda: p[2])
+            self.assertRaises(IndexError, lambda: p[-3])
+
+        def test_iteration(self):
+            p = POINT(1, 2)
+            self.assertEqual([1, 2], [i for i in p])
+
+        def test_equal(self):
+            p0 = POINT(1, 2)
+            p1 = POINT(0, 2)
+            self.assertNotEqual(p0, p1)
+            p1.x = p0.x
+            self.assertEqual(p0, p1)
+
+
     class AtspiElementInfoTests(unittest.TestCase):
 
         """Unit tests for the AtspiElementInfo class"""
