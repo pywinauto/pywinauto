@@ -278,3 +278,37 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
         # return this control so that actions can be chained.
         return self
+
+
+class ImageWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap image controls"""
+
+    _control_types = ['Image', 'Icon']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ImageWrapper, self).__init__(elem)
+
+    def get_description(self):
+        """Get image description"""
+        self.element_info.image_get_description()
+
+    def get_locale(self):
+        """Get image locale"""
+        self.element_info.image_get_locale()
+
+    def get_size(self):
+        """Get image size.
+        Return a tupe with width and height"""
+        pnt = self.element_info.image_get_size()
+        return (pnt.x, pnt.y)
+
+    def get_bounding_box(self):
+        """Get image bounding box"""
+        return self.element_info.image_get_extents()
+
+    def get_position(self):
+        """Get image position coordinates"""
+        return self.element_info.image_get_position()
