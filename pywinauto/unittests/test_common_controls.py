@@ -716,6 +716,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def testCheckBoxes(self):
         """Make sure tree view item method is_checked() works as expected"""
         self.dlg.set_focus()
+        self.dlg.TVS_CHECKBOXES.uncheck_by_click()
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.get_item(r'\Birds')
         self.ctrl.set_focus() # to make sure focus is not lost by any accident event
