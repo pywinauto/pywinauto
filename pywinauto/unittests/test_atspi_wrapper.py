@@ -123,7 +123,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(bb.left, pos.x)
             self.assertEqual(bb.top, pos.y)
             self.assertEqual(bb.right, 470)
-            self.assertEqual(bb.bottom, 53)
+            self.assertAlmostEqual(bb.bottom, 55, delta=2)
 
         def test_can_get_rectangle(self):
             rect = self.app_frame.Panel.rectangle()
