@@ -160,7 +160,7 @@ if sys.platform.startswith("linux"):
             filler = frame.children()[0]
             rectangle = filler.rectangle
             self.assertEqual(rectangle.width(), 600)
-            self.assertEqual(rectangle.height(), 492)
+            self.assertAlmostEqual(rectangle.height(), 495, delta=95)
 
         def test_can_compare_applications(self):
             app_info = self.get_app(app_name)
