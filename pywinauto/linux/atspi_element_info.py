@@ -35,6 +35,7 @@
 from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
     AtspiEditableText, IATSPI
 from .atspi_objects import AtspiDocument
+from .atspi_objects import AtspiImage
 from ..element_info import ElementInfo
 
 
@@ -84,6 +85,11 @@ class AtspiElementInfo(ElementInfo):
     def control_id(self):
         """Return the ID of the window"""
         return self.atspi_accessible.get_role(self._handle, None)
+
+    @property
+    def runtime_id(self):
+        """Return the runtime ID of the element"""
+        return self.atspi_accessible.get_index_in_parent(self._handle, None)
 
     @property
     def process_id(self):
@@ -239,3 +245,32 @@ class AtspiElementInfo(ElementInfo):
     def document_get_attributes(self):
         """Return the document's constant attributes"""
         return self.document.get_attributes()
+
+    @property
+    def image(self):
+        """Return AtspiImage interface"""
+        if self.control_type == "Image" or self.control_type == "Icon":
+            image = self.atspi_accessible.get_image(self._handle)
+            return AtspiImage(image)
+        else:
+            raise AttributeError
+
+    def image_get_locale(self):
+        """Return the image locale"""
+        return self.image.get_locale().decode(encoding='UTF-8')
+
+    def image_get_description(self):
+        """Return the image description"""
+        return self.image.get_description().decode(encoding='UTF-8')
+
+    def image_get_position(self):
+        """Return the image position"""
+        return self.image.get_position()
+
+    def image_get_extents(self):
+        """Return the image extents"""
+        return self.image.get_extents()
+
+    def image_get_size(self):
+        """Return the image size"""
+        return self.image.get_size()
