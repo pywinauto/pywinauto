@@ -116,9 +116,14 @@ if sys.platform.startswith("linux"):
             self.assertEqual(img_wrp.get_locale(), None)
             self.assertEqual(img_wrp.get_description(), None)
             self.assertEqual(img_wrp.get_size(), (48, 24))
-            self.assertEqual(img_wrp.rectangle(), RECT(475, 132, 653, 156))
-            self.assertEqual(img_wrp.get_bounding_box(), RECT(422, 29, 470, 53))
-            self.assertEqual(img_wrp.get_position(), POINT(422, 29))
+            pos = img_wrp.get_position()
+            self.assertEqual(pos.x, 422)
+            self.assertAlmostEqual(pos.y, 31, delta=2)
+            bb = img_wrp.get_bounding_box()
+            self.assertEqual(bb.left, pos.x)
+            self.assertEqual(bb.top, pos.y)
+            self.assertEqual(bb.right, 470)
+            self.assertEqual(bb.bottom, 53)
 
         def test_can_get_rectangle(self):
             rect = self.app_frame.Panel.rectangle()
