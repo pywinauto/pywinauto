@@ -36,7 +36,7 @@ from ctypes import \
     c_int, c_long, c_void_p, c_char, memmove, addressof, \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
-from ..base_types import Structure, PointIterMixin
+from ..base_types import Structure, PointIteratorMixin
 from .win32defines import LF_FACESIZE
 from pywinauto import sysinfo
 
@@ -102,7 +102,7 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(wintypes.POINT, PointIterMixin):
+class POINT(wintypes.POINT, PointIteratorMixin):
     pass
 
 assert sizeof(POINT) == 8, sizeof(POINT)
