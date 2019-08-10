@@ -124,7 +124,7 @@ if sys.platform.startswith("linux"):
             rect = self.app_frame.Panel.rectangle()
             self.assertEqual(rect.width(), 600)
             rect = self.app_frame.Icon.rectangle()
-            self.assertEqual(rect.height(), 24)
+            self.assertAlmostEqual(rect.height(), 26, delta=2)
 
         def test_can_get_process_id(self):
             self.assertEqual(self.app_wrapper.process_id(), self.app.process)
