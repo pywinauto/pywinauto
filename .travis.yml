@@ -123,9 +123,8 @@ before_script:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
 script:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd pywinauto; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=mouse.py unittests/test_mouse.py; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=keyboard_helper.py unittests/test_keyboard.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=pywinauto/macos/keyboard_helper.py pywinauto/unittests/test_keyboard.py; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_application_macos.py; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_element_info_macos.py; fi
 
