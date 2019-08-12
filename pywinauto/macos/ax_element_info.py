@@ -2,6 +2,9 @@ import re
 import timeit
 import inspect
 import sys, os
+from subprocess import Popen, PIPE
+import warnings
+
 from CoreFoundation import (CFNumberGetValue, CFStringGetTypeID, CFArrayGetTypeID, CFGetTypeID,
                             CFNumberGetTypeID, CFBooleanGetTypeID, kCFNumberIntType, kCFNumberDoubleType)
 from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueCGSizeType, kAXValueCGPointType,
@@ -15,9 +18,8 @@ from Foundation import *
 from PyObjCTools import AppHelper
 import AppKit
 from AppKit import NSScreen, NSRunningApplication, NSSize, NSPoint
-from subprocess import Popen, PIPE
-import warnings
-from macos_functions import get_ws_instance
+
+from .macos_functions import get_ws_instance
 
 ax_type_from_string = {
     kAXValueCGSizeType: AppKit.NSSizeFromString,

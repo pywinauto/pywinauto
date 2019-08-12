@@ -2,18 +2,21 @@ import os
 import time
 import sys
 from os import path
-import macos_functions
-import ax_element_info
 import subprocess
 from subprocess import Popen, PIPE
+
+from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
+from Foundation import NSAppleEventDescriptor
+from ApplicationServices import AXUIElementCreateApplication
+
+from . import macos_functions
+from . import ax_element_info
 from .. import backend
 from ..backend import registry
 from ..element_info import ElementInfo
 from ..base_wrapper import BaseWrapper
-from ApplicationServices import AXUIElementCreateApplication
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
-from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
-from Foundation import NSAppleEventDescriptor
+
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 parent_dir = os.path.dirname(os.path.abspath(__file__))
