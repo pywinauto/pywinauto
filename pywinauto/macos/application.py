@@ -12,6 +12,8 @@ from ..element_info import ElementInfo
 from ..base_wrapper import BaseWrapper
 from ApplicationServices import AXUIElementCreateApplication
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
+from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
+from Foundation import NSAppleEventDescriptor
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 parent_dir = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +26,7 @@ backend.register('ax', ElementInfo, BaseWrapper)
 class Application(BaseApplication):
 
     def __init__(self, backend="ax"):
-        self.connected = None
+        self.connected = False
         self.ns_app = None
         self.process = None
         if backend not in registry.backends:
@@ -32,6 +34,13 @@ class Application(BaseApplication):
         self.backend = registry.backends[backend]
 
     def start(self, name=None, bundle_id=None, new_instance=True):
+
+        liste1 = []
+        liste2 = []
+        global pids
+        pids = 0
+        for apps in macos_functions.running_applications():
+            liste1.append(apps.processIdentifier()) 
 
         if name is not None and bundle_id is not None:
               raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
@@ -45,10 +54,43 @@ class Application(BaseApplication):
                 message = ('Could not get instance of "%s" app\n') % (name)
                 raise AppStartError(message)
 
-        if bundle_id is not None:
-            macos_functions.launch_application_by_bundle(bundle_id, new_instance)
+        if bundle_id is not None: 
+            if (new_instance):
+                param = NSWorkspaceLaunchNewInstance
+            else:
+                param = NSWorkspaceLaunchAllowingClassicStartup
+
+            r = macos_functions.get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundle_id,
+                    param,
+                    NSAppleEventDescriptor.nullDescriptor(),
+                    None)
+            if not r[0]:
+                    raise AppStartError('Could not launch application by bundle id "{}". Error code: {}'.format(bundle_id, r))
+
             NsArray = macos_functions.get_app_instance_by_bundle(bundle_id)
             self.ns_app = NsArray[0]
+
+        self.connected = True
+
+        def app_launched():
+            global pids
+            ax_element_info.cache_update()
+            for apps in macos_functions.running_applications():
+                liste2.append(apps.processIdentifier())
+
+            for element in liste2:
+                if element not in liste1:
+                    pids = element
+                    name_app = macos_functions.get_app_instance_by_pid(pids)
+                    if name == name_app.localizedName():
+                        return True
+                    if bundle_id == name_app.bundleIdentifier():
+                        return True
+            return False
+
+        if new_instance:
+            wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_launched, value=True)
+            self.ns_app = macos_functions.get_app_instance_by_pid(pids)
 
         def app_idle():
             ax_element_info.cache_update()
@@ -60,6 +102,7 @@ class Application(BaseApplication):
             return False
 
         wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_idle, value=True)
+
         return self
 
     def connect(self, **kwargs):
@@ -95,7 +138,7 @@ class Application(BaseApplication):
 
     def cpu_usage(self, interval=None):
         """Return CPU usage percent during specified number of seconds"""
-        if not self.ns_app and self.connected:
+        if not self.ns_app and not self.connected:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
         if interval:
@@ -106,8 +149,8 @@ class Application(BaseApplication):
             proc_info = proc_info.split("\n")
             return float(proc_info[1])
         except subprocess.CalledProcessError:
-            import traceback
-            traceback.print_exc()
+            # import traceback
+            # traceback.print_exc()
             raise ProcessNotFoundError()
 
     def kill(self, soft=False):

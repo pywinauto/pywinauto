@@ -27,7 +27,7 @@ class AxelementinfoTestCases(unittest.TestCase):
         pass
 
     def test_can_get_control_type_of_all_app_descendants_app(self):
-    	application = Application()
+        application = Application()
         application.start(bundle_id = 'com.yourcompany.send-keys-test-app')
         elem = AxElementInfo(application.ns_app)
         for children in elem.descendants():

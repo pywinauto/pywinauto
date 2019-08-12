@@ -37,7 +37,7 @@ from ApplicationServices import (AXIsProcessTrusted,
     AXUIElementCopyAttributeNames, kAXErrorSuccess,
     AXUIElementCopyAttributeValue, AXUIElementCopyActionNames,
     AXUIElementPerformAction,CGWindowListCopyWindowInfo)
-from AppKit import NSScreen, NSWorkspace, NSRunningApplication, NSBundle
+from AppKit import NSScreen, NSWorkspace, NSRunningApplication, NSBundle, NSWorkspaceLaunchNewInstance
 import CoreFoundation
 import subprocess
 import os
@@ -57,7 +57,9 @@ def bundle_identifier_for_application_name(app_name):
     bundleIdentifier=bundle.bundleIdentifier()
     return (bundleIdentifier)
 
-def launch_application_by_bundle(bundle_id, new_instance = True):
+
+
+def launch_application_by_bundle(bundle_id, new_instance=True):
     
     if (new_instance):
             param = NSWorkspaceLaunchNewInstance
