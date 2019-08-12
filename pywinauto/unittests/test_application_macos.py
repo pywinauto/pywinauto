@@ -61,6 +61,12 @@ if sys.platform == 'darwin':
             Popen(["kill", "-9", str(app.process_id)], stdout=PIPE).communicate()[0]
             self.assertRaises(ProcessNotFoundError, app.cpu_usage, interval = 1)
     
+
+        def test_cpu_app_not_started(self):
+            """Verify that it raises when the app is not connected"""
+            app = Application()
+            self.assertRaises(AppNotConnected, app.cpu_usage, interval = 1)
+
         def test_not_connected(self):
             """Verify that it raises when the app is not connected"""
             self.assertRaises(ValueError, Application().start, name = 'send_keys_test_app', bundle_id = 'com.yourcompany.send-keys-test-app')
@@ -71,6 +77,16 @@ if sys.platform == 'darwin':
             self.assertEqual(app.ns_app, None)
             app.start('send_keys_test_app')
             self.assertNotEqual(app.ns_app, None)
+            app.kill()
+
+        def test_start_with_same_instance(self):
+            """test start() works correctly after being called by name"""
+            app = Application()
+            app.start(bundle_id = 'com.yourcompany.send-keys-test-app',new_instance=False)
+            first = app.process_id
+            app.start(bundle_id = 'com.yourcompany.send-keys-test-app', new_instance=False)
+            second = app.process_id
+            self.assertEqual(first, second)
             app.kill()
 
         def test_kill_soft(self):
