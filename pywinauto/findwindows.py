@@ -191,7 +191,7 @@ def find_elements(class_name=None,
         element = backend_obj.element_info_class()
         elements = element.children(process=process,
                                     class_name=class_name,
-                                    title=title,
+                                    # title=title,
                                     control_type=control_type,
                                     cache_enable=True)
 
@@ -207,7 +207,7 @@ def find_elements(class_name=None,
 
         # look for ALL children of that parent
         elements = parent.descendants(class_name=class_name,
-                                      title=title,
+                                      # title=title,
                                       control_type=control_type,
                                       cache_enable=True,
                                       depth=depth)
