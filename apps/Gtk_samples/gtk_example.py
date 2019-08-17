@@ -21,23 +21,23 @@ software_list = [("Firefox", 2002,  "C++"),
                  ("Frostwire", 2004, "Java")]
 
 
+def _add_image_widget():
+    width = 48
+    height = 24
+    color = Gdk.color_parse("orange")
+    pixel = 0
+    if color is not None:
+        pixel = ((color.red >> 8) << 24
+                | (color.green >> 8) << 16
+                | (color.blue >> 8) << 8)
+
+    pixbuf = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, False, 8, width, height)
+    pixbuf.fill(pixel)
+    img = Gtk.Image.new_from_pixbuf(pixbuf)
+    img.set_tooltip_text("orange image")
+    return img
+
 class TestApplicationMainWindow(Gtk.Window):
-
-    def _add_image(self):
-        width = 48
-        height = 24
-        color = Gdk.color_parse("orange")
-        pixel = 0
-        if color is not None:
-            pixel = ((color.red >> 8) << 24
-                    | (color.green >> 8) << 16
-                    | (color.blue >> 8) << 8)
-
-        pixbuf = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, False, 8, width, height)
-        pixbuf.fill(pixel)
-        img = Gtk.Image.new_from_pixbuf(pixbuf)
-        img.set_tooltip_text("orange image")
-        return img
 
     def _add_combobox(self):
         country_store = Gtk.ListStore(str)
@@ -126,7 +126,7 @@ class TestApplicationMainWindow(Gtk.Window):
         self.label = Gtk.Label("Status")
         self.combo = self._add_combobox()
         self.treeview = self._add_listview()
-        self.image = self._add_image()
+        self.image = _add_image_widget()
 
         self.scroll_view = self._create_textview()
         grid.attach(self.treeview, 0, 5, 3, 1)
