@@ -228,6 +228,7 @@ if UIA_support:
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
 
+        @unittest.skip("To be solved with issue #790")
         def test_scroll(self):
             """Test scroll"""
             # Check an exception on a non-scrollable control
