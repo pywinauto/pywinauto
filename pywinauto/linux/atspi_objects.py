@@ -804,21 +804,15 @@ class AtspiComponent(object):
 
     _scroll_to = IATSPI().get_iface_func("atspi_component_scroll_to")
 
-    try:
+    if _scroll_to:
         _scroll_to.restype = c_bool
         _scroll_to.argtypes = [POINTER(_AtspiComponent), _AtspiScrollType, POINTER(POINTER(_GError))]
-    except:
-        # TODO add version check
-        pass
 
     _scroll_to_point = IATSPI().get_iface_func("atspi_component_scroll_to_point")
-    try:
+    if _scroll_to_point:
         _scroll_to_point.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, c_int, c_int,
                                      POINTER(POINTER(_GError))]
         _scroll_to_point.restype = c_bool
-    except:
-        # TODO add version check
-        pass
 
     def __init__(self, pointer):
         self._pointer = pointer
