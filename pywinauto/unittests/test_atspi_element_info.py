@@ -199,6 +199,9 @@ if sys.platform.startswith("linux"):
         def test_can_get_layer(self):
             self.assertEqual(self.desktop_info.get_layer(), 3)
 
+        def test_can_get_order(self):
+            self.assertEqual(self.desktop_info.get_order(), 0)
+
         def test_can_get_state_set(self):
             frame_info = self.app_info.children()[0]
             states = frame_info.get_state_set()

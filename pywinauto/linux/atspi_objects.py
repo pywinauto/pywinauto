@@ -833,8 +833,8 @@ class AtspiComponent(object):
         return self._get_layer(self._pointer, g_error_pointer)
 
     @g_error_handler
-    def get_mdi_x_order(self, g_error_pointer=None):
-        return self._get_layer(self._pointer, g_error_pointer)
+    def get_mdi_z_order(self, g_error_pointer=None):
+        return self._get_mdi_z_order(self._pointer, g_error_pointer)
 
 
 class AtspiStateSet(object):

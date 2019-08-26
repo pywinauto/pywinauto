@@ -177,7 +177,7 @@ class AtspiElementInfo(ElementInfo):
     def get_order(self):
         if self.control_type == "Application":
             return self.children()[0].get_order()
-        return self.component.get_mdi_x_order()
+        return self.component.get_mdi_z_order()
 
     def get_state_set(self):
         val = self.atspi_accessible.get_state_set(self.handle)
