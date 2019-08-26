@@ -64,13 +64,11 @@ in almost exactly the same ways. ::
 """
 from __future__ import print_function
 
-import sys
 import os
 import pickle
 import time
 import warnings
 import multiprocessing
-import locale
 import codecs
 
 import win32process
@@ -78,7 +76,6 @@ import win32api
 import win32gui
 import win32con
 import win32event
-import six
 
 from .. import timings
 from .. import controls
@@ -91,8 +88,7 @@ from ..backend import registry
 from ..actionlogger import ActionLogger
 from ..timings import Timings, wait_until, TimeoutError, wait_until_passes
 from ..sysinfo import is_x64_Python
-from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication, \
-    WindowSpecification
+from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 from .. import deprecated
 
 # Display User and Deprecation warnings every time

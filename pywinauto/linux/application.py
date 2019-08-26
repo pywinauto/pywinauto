@@ -94,7 +94,7 @@ class Application(BaseApplication):
                 try:
                     with open('/proc/{}/cmdline'.format(proc_id), mode='rb') as fd:
                         content = fd.read().decode().split('\x00')
-                except Exception:
+                except IOError:
                     continue
 
                 if kwargs['path'] in " ".join(content):
