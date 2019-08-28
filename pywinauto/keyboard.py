@@ -63,6 +63,8 @@ below. The module is also available on Linux.
     {VK_OEM_CLEAR}, {VK_ESCAPE}, {UP}, {VK_DIVIDE}, {INS}, {VK_JUNJA},
     {VK_F19}, {VK_EXECUTE}, {VK_PLAY}, {VK_RMENU}, {VK_F13}, {VK_F12}, {LWIN},
     {VK_DOWN}, {VK_F17}, {VK_F16}, {VK_F15}, {VK_F14}
+    
+    ~ is a shorter alias for {ENTER}
 
 **Modifiers:**
 
