@@ -816,9 +816,9 @@ class EditWrapper(hwndwrapper.HwndWrapper):
                 aligned_text = six.binary_type(text)
 
         if isinstance(aligned_text, six.text_type):
-            buffer = ctypes.create_unicode_buffer(aligned_text, size=len(aligned_text) + 1)
+            buffer = ctypes.create_unicode_buffer(aligned_text, size=len(aligned_text.encode('unicode_escape')) + 1)
         else:
-            buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
+            buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text.encode('unicode_escape')) + 1)
 
         # replace the selection with
         self.send_message(win32defines.EM_REPLACESEL, True, ctypes.byref(buffer))
