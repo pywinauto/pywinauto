@@ -290,25 +290,25 @@ class ImageWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ImageWrapper, self).__init__(elem)
+        self.image = elem.image
 
-    def get_description(self):
+    def description(self):
         """Get image description"""
-        self.element_info.image_get_description()
+        return self.image.get_description().decode(encoding='UTF-8')
 
-    def get_locale(self):
+    def locale(self):
         """Get image locale"""
-        self.element_info.image_get_locale()
+        return self.image.get_locale().decode(encoding='UTF-8')
 
-    def get_size(self):
-        """Get image size.
-        Return a tupe with width and height"""
-        pnt = self.element_info.image_get_size()
+    def size(self):
+        """Get image size. Return a tuple with width and height"""
+        pnt = self.image.get_size()
         return (pnt.x, pnt.y)
 
-    def get_bounding_box(self):
+    def bounding_box(self):
         """Get image bounding box"""
-        return self.element_info.image_get_extents()
+        return self.image.get_extents()
 
-    def get_position(self):
+    def position(self):
         """Get image position coordinates"""
-        return self.element_info.image_get_position()
+        return self.image.get_position()

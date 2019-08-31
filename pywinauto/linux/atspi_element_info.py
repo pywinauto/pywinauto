@@ -254,23 +254,3 @@ class AtspiElementInfo(ElementInfo):
             return AtspiImage(image)
         else:
             raise AttributeError
-
-    def image_get_locale(self):
-        """Return the image locale"""
-        return self.image.get_locale().decode(encoding='UTF-8')
-
-    def image_get_description(self):
-        """Return the image description"""
-        return self.image.get_description().decode(encoding='UTF-8')
-
-    def image_get_position(self):
-        """Return the image position"""
-        return self.image.get_position()
-
-    def image_get_extents(self):
-        """Return the image extents"""
-        return self.image.get_extents()
-
-    def image_get_size(self):
-        """Return the image size"""
-        return self.image.get_size()
