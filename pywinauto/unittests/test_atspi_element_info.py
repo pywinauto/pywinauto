@@ -345,18 +345,18 @@ if sys.platform.startswith("linux"):
         @mock.patch.object(AtspiImage, '_get_image_locale')
         def test_image_get_locale_success(self, mock_get_locale):
             mock_get_locale.return_value = b"I"
-            self.assertEqual(self.info.image_get_locale(), u"I")
+            self.assertEqual(self.info.image.get_locale(), b"I")
 
         @mock.patch.object(AtspiImage, '_get_image_description')
         def test_image_get_description_success(self, mock_get_description):
             mock_get_description.return_value = b"descr"
-            self.assertEqual(self.info.image_get_description(), u"descr")
+            self.assertEqual(self.info.image.get_description(), b"descr")
 
         @mock.patch.object(AtspiImage, '_get_image_extents')
         def test_image_get_image_extents_success(self, mock_get_extents):
             extents_rect = _AtspiRect(22, 11, 33, 44)
             mock_get_extents.return_value = ctypes.pointer(extents_rect)
-            self.assertEqual(self.info.image_get_extents(), RECT(extents_rect))
+            self.assertEqual(self.info.image.get_extents(), RECT(extents_rect))
             self.assertEqual(mock_get_extents.call_args[0][1],
                              _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
 
@@ -366,7 +366,7 @@ if sys.platform.startswith("linux"):
             pnt.x = 55
             pnt.y = 66
             mock_get_position.return_value = ctypes.pointer(pnt)
-            self.assertEqual(self.info.image_get_position(), POINT(pnt.x, pnt.y))
+            self.assertEqual(self.info.image.get_position(), POINT(pnt.x, pnt.y))
             self.assertEqual(mock_get_position.call_args[0][1],
                              _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
 
