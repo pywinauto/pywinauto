@@ -211,6 +211,16 @@ if sys.platform.startswith("linux"):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.visible)
 
+        def test_service_is_not_visible(self):
+            desktop = AtspiElementInfo()
+            service = None
+            # we suppose the app running as a service doesn't have children
+            for c in desktop.children():
+                if not c.children():
+                    service = c
+                    break
+            self.assertFalse(service.visible)
+
         def test_enabled(self):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.enabled)
