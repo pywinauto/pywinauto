@@ -212,19 +212,30 @@ if sys.platform.startswith("linux"):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.visible)
 
-        def test_service_is_not_visible(self):
-            desktop = AtspiElementInfo()
-            service = None
-            # we suppose the app running as a service doesn't have children
-            for c in desktop.children():
-                if not c.children():
-                    service = c
-                    break
-            self.assertFalse(service.visible)
-
         def test_enabled(self):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.enabled)
+
+    class AtspiElementInfoWithoutChildrenMockedTests(unittest.TestCase):
+
+        """Mocked unit tests for the AtspiElementInfo without children"""
+
+        def setUp(self):
+            self.info = AtspiElementInfo()
+            self.patch_get_child_count = mock.patch.object(AtspiAccessible, 'get_child_count')
+            self.mock_get_child_count = self.patch_get_child_count.start()
+            # we suppose the app running as a service doesn't have children
+            self.mock_get_child_count.return_value = 0
+            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
+            self.mock_get_role = self.patch_get_role.start()
+            self.mock_get_role.return_value = IATSPI().known_control_types["Application"]
+
+        def tearDown(self):
+            self.patch_get_role.stop()
+            self.patch_get_child_count.stop()
+
+        def test_service_is_not_visible(self):
+            self.assertFalse(self.info.visible)
 
     class AtspiElementInfoDocumentMockedTests(unittest.TestCase):
 
