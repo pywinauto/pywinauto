@@ -4,6 +4,9 @@ from gi import require_version
 require_version("Gtk", "3.0")
 
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
+from gi.repository import Gdk
+
 
 software_list = [("Firefox", 2002,  "C++"),
                  ("Eclipse", 2004, "Java" ),
@@ -17,6 +20,22 @@ software_list = [("Firefox", 2002,  "C++"),
                  ("GCC", 1987, "C"),
                  ("Frostwire", 2004, "Java")]
 
+
+def _add_image_widget():
+    width = 48
+    height = 24
+    color = Gdk.color_parse("orange")
+    pixel = 0
+    if color is not None:
+        pixel = ((color.red >> 8) << 24
+                | (color.green >> 8) << 16
+                | (color.blue >> 8) << 8)
+
+    pixbuf = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, False, 8, width, height)
+    pixbuf.fill(pixel)
+    img = Gtk.Image.new_from_pixbuf(pixbuf)
+    img.set_tooltip_text("orange image")
+    return img
 
 class TestApplicationMainWindow(Gtk.Window):
 
@@ -107,6 +126,7 @@ class TestApplicationMainWindow(Gtk.Window):
         self.label = Gtk.Label("Status")
         self.combo = self._add_combobox()
         self.treeview = self._add_listview()
+        self.image = _add_image_widget()
 
         self.scroll_view = self._create_textview()
         grid.attach(self.treeview, 0, 5, 3, 1)
@@ -118,6 +138,7 @@ class TestApplicationMainWindow(Gtk.Window):
         grid.attach(self.button3, 2, 0, 1, 1)
         grid.attach(self.button2, 1, 0, 1, 1)
         grid.attach(self.button1, 0, 0, 1, 1)
+        grid.attach(self.image, 2, 1, 1, 1)
 
     def on_click_me_clicked(self, button):
         self._log("\"Click\" clicked")

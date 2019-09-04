@@ -51,7 +51,7 @@ from pywinauto import Desktop
 from pywinauto.windows import application, win32defines
 from pywinauto.controls import hwndwrapper
 from pywinauto.windows.application import Application
-from pywinauto.windows.application import WindowSpecification
+from pywinauto.base_application import WindowSpecification  # noqa: E402
 from pywinauto.windows.application import process_module
 from pywinauto.windows.application import process_get_modules
 from pywinauto.windows.application import ProcessNotFoundError

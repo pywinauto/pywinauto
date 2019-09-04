@@ -40,7 +40,7 @@ from pywinauto import taskbar  # noqa: E402
 from pywinauto import findwindows  # noqa: E402
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.windows.application import ProcessNotFoundError  # noqa: E402
-from pywinauto.windows.application import WindowSpecification  # noqa: E402
+from pywinauto.base_application import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS  # noqa: E402
 from pywinauto.windows import win32defines
 from pywinauto.timings import wait_until  # noqa: E402

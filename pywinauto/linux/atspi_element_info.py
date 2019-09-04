@@ -35,6 +35,7 @@
 from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
     AtspiEditableText, IATSPI
 from .atspi_objects import AtspiDocument
+from .atspi_objects import AtspiImage
 from ..element_info import ElementInfo
 
 
@@ -84,6 +85,11 @@ class AtspiElementInfo(ElementInfo):
     def control_id(self):
         """Return the ID of the window"""
         return self.atspi_accessible.get_role(self._handle, None)
+
+    @property
+    def runtime_id(self):
+        """Return the runtime ID of the element"""
+        return self.atspi_accessible.get_index_in_parent(self._handle, None)
 
     @property
     def process_id(self):
@@ -171,7 +177,7 @@ class AtspiElementInfo(ElementInfo):
     def get_order(self):
         if self.control_type == "Application":
             return self.children()[0].get_order()
-        return self.component.get_mdi_x_order()
+        return self.component.get_mdi_z_order()
 
     def get_state_set(self):
         val = self.atspi_accessible.get_state_set(self.handle)
@@ -196,7 +202,11 @@ class AtspiElementInfo(ElementInfo):
     def visible(self):
         states = self.get_state_set()
         if self.control_type == "Application":
-            states = self.children()[0].get_state_set()
+            children = self.children()
+            if children:
+                states = children[0].get_state_set()
+            else:
+                return False
         return "STATE_VISIBLE" in states and "STATE_SHOWING" in states
 
     def set_cache_strategy(self, cached):
@@ -239,3 +249,12 @@ class AtspiElementInfo(ElementInfo):
     def document_get_attributes(self):
         """Return the document's constant attributes"""
         return self.document.get_attributes()
+
+    @property
+    def image(self):
+        """Return AtspiImage interface"""
+        if self.control_type == "Image" or self.control_type == "Icon":
+            image = self.atspi_accessible.get_image(self._handle)
+            return AtspiImage(image)
+        else:
+            raise AttributeError

@@ -32,76 +32,13 @@
 """Definition of Windows structures"""
 
 import six
-from ctypes import Structure as Struct
 from ctypes import \
     c_int, c_long, c_void_p, c_char, memmove, addressof, \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
+from ..base_types import Structure, StructureMixIn, PointIteratorMixin
 from .win32defines import LF_FACESIZE
 from pywinauto import sysinfo
-
-
-class StructureMixIn(object):
-
-    """Define printing and comparison behaviors to be used for the Structure class from ctypes"""
-
-    #----------------------------------------------------------------
-    def __str__(self):
-        """Print out the fields of the ctypes Structure
-
-        fields in exceptList will not be printed"""
-        lines = []
-        for field_name, _ in getattr(self, "_fields_", []):
-            lines.append("%20s\t%s"% (field_name, getattr(self, field_name)))
-
-        return "\n".join(lines)
-
-    #----------------------------------------------------------------
-    def __eq__(self, other):
-        """Return True if the two instances have the same coordinates"""
-        fields = getattr(self, "_fields_", [])
-        if isinstance(other, Struct):
-            try:
-                # pretend they are two structures - check that they both
-                # have the same value for all fields
-                if len(fields) != len(getattr(other, "_fields_", [])):
-                    return False
-                for field_name, _ in fields:
-                    if getattr(self, field_name) != getattr(other, field_name):
-                        return False
-                return True
-
-            except AttributeError:
-                return False
-
-        elif isinstance(other, (list, tuple)):
-            # Now try to see if we have been passed in a list or tuple
-            if len(fields) != len(other):
-                return False
-            try:
-                for i, (field_name, _) in enumerate(fields):
-                    if getattr(self, field_name) != other[i]:
-                        return False
-                return True
-
-            except Exception:
-                return False
-
-        return False
-
-    #----------------------------------------------------------------
-    def __ne__(self, other):
-        """Return False if the two instances have the same coordinates"""
-        return not self.__eq__(other)
-
-    __hash__ = None
-
-
-class Structure(Struct, StructureMixIn):
-
-    """Override the Structure class from ctypes to add printing and comparison"""
-
-    pass
 
 
 ##====================================================================
@@ -165,28 +102,11 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(wintypes.POINT, StructureMixIn):
-
-    """Wrap the POINT structure and add extra functionality"""
-
-    def __iter__(self):
-        """Allow iteration through coordinates"""
-        yield self.x
-        yield self.y
-
-    def __getitem__(self, key):
-        """Allow indexing of coordinates"""
-        if key == 0 or key == -2:
-            return self.x
-        elif key == 1 or key == -1:
-            return self.y
-        else:
-            raise IndexError("Illegal index")
-
+class POINT(wintypes.POINT, PointIteratorMixin, StructureMixIn):
+    pass
 
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
-
 
 # ====================================================================
 class RECT(wintypes.RECT, StructureMixIn):

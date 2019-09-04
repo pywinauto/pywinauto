@@ -46,6 +46,12 @@ if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_objects import AtspiAccessible
     from pywinauto.linux.atspi_objects import AtspiDocument
+    from pywinauto.linux.atspi_objects import AtspiImage
+    from pywinauto.linux.atspi_objects import _AtspiRect
+    from pywinauto.linux.atspi_objects import RECT
+    from pywinauto.linux.atspi_objects import _AtspiPoint
+    from pywinauto.linux.atspi_objects import POINT
+    from pywinauto.linux.atspi_objects import _AtspiCoordType
     from pywinauto.linux.atspi_objects import _GError
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_objects import IATSPI
@@ -68,6 +74,31 @@ def _test_app():
 
 
 if sys.platform.startswith("linux"):
+    class AtspiPointTests(unittest.TestCase):
+
+        """Unit tests for AtspiPoint class"""
+
+        def test_indexation(self):
+            p = POINT(1, 2)
+            self.assertEqual(p[0], p.x)
+            self.assertEqual(p[1], p.y)
+            self.assertEqual(p[-2], p.x)
+            self.assertEqual(p[-1], p.y)
+            self.assertRaises(IndexError, lambda: p[2])
+            self.assertRaises(IndexError, lambda: p[-3])
+
+        def test_iteration(self):
+            p = POINT(1, 2)
+            self.assertEqual([1, 2], [i for i in p])
+
+        def test_equal(self):
+            p0 = POINT(1, 2)
+            p1 = POINT(0, 2)
+            self.assertNotEqual(p0, p1)
+            p1.x = p0.x
+            self.assertEqual(p0, p1)
+
+
     class AtspiElementInfoTests(unittest.TestCase):
 
         """Unit tests for the AtspiElementInfo class"""
@@ -76,8 +107,7 @@ if sys.platform.startswith("linux"):
             for children in self.desktop_info.children():
                 if children.name == name:
                     return children
-            else:
-                raise Exception("Application not found")
+            raise Exception("Application not found")
 
         def setUp(self):
             self.desktop_info = AtspiElementInfo()
@@ -155,7 +185,7 @@ if sys.platform.startswith("linux"):
             filler = frame.children()[0]
             rectangle = filler.rectangle
             self.assertEqual(rectangle.width(), 600)
-            self.assertEqual(rectangle.height(), 492)
+            self.assertAlmostEqual(rectangle.height(), 450, delta=50)
 
         def test_can_compare_applications(self):
             app_info = self.get_app(app_name)
@@ -170,6 +200,9 @@ if sys.platform.startswith("linux"):
         def test_can_get_layer(self):
             self.assertEqual(self.desktop_info.get_layer(), 3)
 
+        def test_can_get_order(self):
+            self.assertEqual(self.desktop_info.get_order(), 0)
+
         def test_can_get_state_set(self):
             frame_info = self.app_info.children()[0]
             states = frame_info.get_state_set()
@@ -182,6 +215,27 @@ if sys.platform.startswith("linux"):
         def test_enabled(self):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.enabled)
+
+    class AtspiElementInfoWithoutChildrenMockedTests(unittest.TestCase):
+
+        """Mocked unit tests for the AtspiElementInfo without children"""
+
+        def setUp(self):
+            self.info = AtspiElementInfo()
+            self.patch_get_child_count = mock.patch.object(AtspiAccessible, 'get_child_count')
+            self.mock_get_child_count = self.patch_get_child_count.start()
+            # we suppose the app running as a service doesn't have children
+            self.mock_get_child_count.return_value = 0
+            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
+            self.mock_get_role = self.patch_get_role.start()
+            self.mock_get_role.return_value = IATSPI().known_control_types["Application"]
+
+        def tearDown(self):
+            self.patch_get_role.stop()
+            self.patch_get_child_count.stop()
+
+        def test_service_is_not_visible(self):
+            self.assertFalse(self.info.visible)
 
     class AtspiElementInfoDocumentMockedTests(unittest.TestCase):
 
@@ -277,6 +331,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(res, libs[-1])
 
             mock_popen.side_effect = None
+
             class MockProcess(object):
                 def communicate(self):
                     return ["a a a l\nb b b lb\nc c  c lib1\nd d d lib0\n"]
@@ -284,6 +339,59 @@ if sys.platform.startswith("linux"):
             libs = ["lib0", "lib1", "default_lib"]
             res = _find_library(libs)
             self.assertEqual(res, "lib0")
+
+    class AtspiElementInfoImageMockedTests(unittest.TestCase):
+
+        """Mocked unit tests for the AtspiElementInfo.image related functionality"""
+
+        def setUp(self):
+            self.info = AtspiElementInfo()
+            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
+            self.mock_get_role = self.patch_get_role.start()
+            self.mock_get_role.return_value = IATSPI().known_control_types["Image"]
+
+        def tearDown(self):
+            self.patch_get_role.stop()
+
+        def test_image_success(self):
+            self.assertEqual(type(self.info.image), AtspiImage)
+
+            # Icon role should be also handled by AtspiImage
+            self.mock_get_role.return_value = IATSPI().known_control_types["Icon"]
+            iconInfo = AtspiElementInfo()
+            self.assertEqual(type(iconInfo.image), AtspiImage)
+
+        def test_image_fail_on_wrong_role(self):
+            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
+            self.assertRaises(AttributeError, lambda: self.info.image)
+
+        @mock.patch.object(AtspiImage, '_get_image_locale')
+        def test_image_get_locale_success(self, mock_get_locale):
+            mock_get_locale.return_value = b"I"
+            self.assertEqual(self.info.image.get_locale(), b"I")
+
+        @mock.patch.object(AtspiImage, '_get_image_description')
+        def test_image_get_description_success(self, mock_get_description):
+            mock_get_description.return_value = b"descr"
+            self.assertEqual(self.info.image.get_description(), b"descr")
+
+        @mock.patch.object(AtspiImage, '_get_image_extents')
+        def test_image_get_image_extents_success(self, mock_get_extents):
+            extents_rect = _AtspiRect(22, 11, 33, 44)
+            mock_get_extents.return_value = ctypes.pointer(extents_rect)
+            self.assertEqual(self.info.image.get_extents(), RECT(extents_rect))
+            self.assertEqual(mock_get_extents.call_args[0][1],
+                             _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
+
+        @mock.patch.object(AtspiImage, '_get_image_position')
+        def test_image_get_image_position_success(self, mock_get_position):
+            pnt = _AtspiPoint()
+            pnt.x = 55
+            pnt.y = 66
+            mock_get_position.return_value = ctypes.pointer(pnt)
+            self.assertEqual(self.info.image.get_position(), POINT(pnt.x, pnt.y))
+            self.assertEqual(mock_get_position.call_args[0][1],
+                             _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
 
 
 if __name__ == "__main__":
