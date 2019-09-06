@@ -249,12 +249,3 @@ class AtspiElementInfo(ElementInfo):
     def document_get_attributes(self):
         """Return the document's constant attributes"""
         return self.document.get_attributes()
-
-    @property
-    def image(self):
-        """Return AtspiImage interface"""
-        if self.control_type == "Image" or self.control_type == "Icon":
-            image = self.atspi_accessible.get_image(self._handle)
-            return AtspiImage(image)
-        else:
-            raise AttributeError
