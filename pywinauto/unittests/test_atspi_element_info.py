@@ -38,24 +38,20 @@ import subprocess
 import time
 import unittest
 import re
-import six
 import mock
 import ctypes
 
 if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_objects import AtspiAccessible
-    from pywinauto.linux.atspi_objects import AtspiDocument
     from pywinauto.linux.atspi_objects import _AtspiRect
     from pywinauto.linux.atspi_objects import RECT
     from pywinauto.linux.atspi_objects import _AtspiPoint
     from pywinauto.linux.atspi_objects import POINT
     from pywinauto.linux.atspi_objects import _AtspiCoordType
-    from pywinauto.linux.atspi_objects import _GError
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
-    from pywinauto.linux.atspi_objects import GErrorException
     from pywinauto.linux.atspi_objects import GHashTable
     from pywinauto.linux.atspi_objects import _find_library
 
@@ -235,67 +231,6 @@ if sys.platform.startswith("linux"):
 
         def test_service_is_not_visible(self):
             self.assertFalse(self.info.visible)
-
-    class AtspiElementInfoDocumentMockedTests(unittest.TestCase):
-
-        """Mocked unit tests for the AtspiElementInfo.document related functionality"""
-
-        def setUp(self):
-            self.info = AtspiElementInfo()
-            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
-            self.mock_get_role = self.patch_get_role.start()
-            self.mock_get_role.return_value = IATSPI().known_control_types["DocumentFrame"]
-
-        def tearDown(self):
-            self.patch_get_role.stop()
-
-        def test_document_success(self):
-            self.assertEqual(type(self.info.document), AtspiDocument)
-
-        def test_document_fail_on_wrong_role(self):
-            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
-            self.assertRaises(AttributeError, lambda: self.info.document)
-
-        @mock.patch.object(AtspiDocument, 'get_locale')
-        def test_document_get_locale_success(self, mock_get_locale):
-            mock_get_locale.return_value = b"C"
-            self.assertEqual(self.info.document_get_locale(), u"C")
-
-        @mock.patch.object(AtspiDocument, '_get_locale')
-        def test_document_get_locale_gerror_fail(self, mock_get_locale):
-            gerror = _GError()
-            gerror.code = 222
-            gerror.message = b"Mocked GError message"
-
-            def stub_get_locale(atspi_doc_ptr, gerr_pp):
-                self.assertEqual(type(atspi_doc_ptr), AtspiAccessible.get_document.restype)
-                self.assertEqual(type(gerr_pp), (ctypes.POINTER(ctypes.POINTER(_GError))))
-                gerr_pp[0] = ctypes.pointer(gerror)
-                return b"C"
-
-            mock_get_locale.side_effect = stub_get_locale
-
-            expected_err_msg = "GError with code: {0}, message: '{1}'".format(
-                               gerror.code, gerror.message.decode(encoding='UTF-8'))
-            six.assertRaisesRegex(self,
-                                  GErrorException,
-                                  expected_err_msg,
-                                  self.info.document_get_locale)
-
-        @mock.patch.object(AtspiDocument, '_get_attribute_value')
-        def test_document_get_attribute_value_success(self, mock_get_attribute_value):
-            attrib = u"dummy attribute"
-            mock_get_attribute_value.return_value = b"dummy val"
-            self.assertEqual(self.info.document_get_attribute_value(attrib), u"dummy val")
-            self.assertEqual(type(mock_get_attribute_value.call_args[0][1]), ctypes.c_char_p)
-
-        @mock.patch.object(AtspiDocument, '_get_attributes')
-        def test_document_get_attributes_success(self, mock_get_attributes):
-            attrib = b"dummy attribute"
-            mock_get_attributes.return_value = GHashTable.dic2ghash({attrib: b"dummy val"})
-            res = self.info.document_get_attributes()
-            self.assertEqual(len(res), 1)
-            self.assertEqual(res[attrib.decode('utf-8')], u"dummy val")
 
     class GHashTableTests(unittest.TestCase):
 

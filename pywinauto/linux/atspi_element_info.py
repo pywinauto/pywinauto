@@ -34,8 +34,6 @@
 
 from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
     AtspiEditableText, IATSPI
-from .atspi_objects import AtspiDocument
-from .atspi_objects import AtspiImage
 from ..element_info import ElementInfo
 
 
@@ -228,24 +226,3 @@ class AtspiElementInfo(ElementInfo):
             # info such as process ID, window name etc. Will return application frame rectangle
             return self.children()[0].rectangle
         return self.component.get_rectangle(coord_type="screen")
-
-    @property
-    def document(self):
-        """Return AtspiDocument interface"""
-        if self.control_type == "DocumentFrame":
-            document = self.atspi_accessible.get_document(self._handle)
-            return AtspiDocument(document)
-        else:
-            raise AttributeError
-
-    def document_get_locale(self):
-        """Return the document's content locale"""
-        return self.document.get_locale().decode(encoding='UTF-8')
-
-    def document_get_attribute_value(self, attrib):
-        """Return the document's attribute value"""
-        return self.document.get_attribute_value(attrib).decode(encoding='UTF-8')
-
-    def document_get_attributes(self):
-        """Return the document's constant attributes"""
-        return self.document.get_attributes()
