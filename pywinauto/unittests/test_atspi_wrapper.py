@@ -74,7 +74,7 @@ def print_tree(start_el_info, level_shifter=""):
 
     for children in start_el_info.children():
         print(level_shifter, "  ", children.control_type, "    ", children.control_id, children.runtime_id, "!")
-        print_tree(children, level_shifter+"-")
+        print_tree(children, level_shifter + "-")
 
 
 if sys.platform.startswith("linux"):
@@ -166,9 +166,9 @@ if sys.platform.startswith("linux"):
         def test_app_is_child_of_desktop(self):
             self.assertTrue(self.app_wrapper.is_child(self.desktop_wrapper))
 
-    class AtspiElementInfoImageMockedTests(unittest.TestCase):
+    class AtspiWrapperImageMockedTests(unittest.TestCase):
 
-        """Mocked unit tests for atspi_controls.ImageWrapper.image related functionality"""
+        """Mocked unit tests for atspi_controls.ImageWrapper.image property"""
 
         def setUp(self):
             self.info = AtspiElementInfo()

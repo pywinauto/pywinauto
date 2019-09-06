@@ -37,6 +37,7 @@ import six
 
 from . import atspiwrapper
 from ..linux.atspi_objects import AtspiImage
+from ..linux.atspi_objects import AtspiDocument
 
 # region PATTERNS
 
@@ -313,3 +314,28 @@ class ImageWrapper(atspiwrapper.AtspiWrapper):
     def position(self):
         """Get image position coordinates"""
         return self.image.get_position()
+
+
+class DocumentWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap document control"""
+
+    _control_types = ['DocumentFrame']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(DocumentWrapper, self).__init__(elem)
+        self.document = AtspiDocument(self._atspi_accessible.get_document(elem.handle))
+
+    def locale(self):
+        """Return the document's content locale"""
+        return self.document.get_locale().decode(encoding='UTF-8')
+
+    def attribute_value(self, attrib):
+        """Return the document's attribute value"""
+        return self.document.get_attribute_value(attrib).decode(encoding='UTF-8')
+
+    def attributes(self):
+        """Return the document's constant attributes"""
+        return self.document.get_attributes()

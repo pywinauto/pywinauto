@@ -36,12 +36,22 @@ import os
 import sys
 import time
 import unittest
+import six
+import mock
+import ctypes
 
 if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
+    from pywinauto.linux.atspi_objects import AtspiAccessible
+    from pywinauto.linux.atspi_objects import AtspiDocument
+    from pywinauto.linux.atspi_objects import _GError
+    from pywinauto.linux.atspi_objects import GHashTable
+    from pywinauto.linux.atspi_objects import GErrorException
+    from pywinauto.controls.atspi_controls import DocumentWrapper
+    from pywinauto.linux.atspi_objects import IATSPI
 
 app_name = r"gtk_example.py"
 text = "This is some text inside of a Gtk.TextView. \n" \
@@ -221,7 +231,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(combo_box.selected_text(), countries[1])
 
         def test_ololo(self):
-            print_tree(self.app_window.element_info)
+            #print_tree(self.app_window.element_info)
             combo_box = self.app_window.Frame.Panel.ComboBox
             time.sleep(5)
             print(combo_box.window_text())
@@ -234,6 +244,70 @@ if sys.platform.startswith("linux"):
             self.text_area.select(text_to_select)
             self.assertEqual(self.text_area.selection_indices(),
                              (text.find(text_to_select), text.find(text_to_select) + len(text_to_select)))
+
+    class AtspiWrapperDocumentMockedTests(unittest.TestCase):
+
+        """Mocked unit tests for atspi_controls.DocumentWrapper.document property"""
+
+        def setUp(self):
+            self.info = AtspiElementInfo()
+            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
+            self.mock_get_role = self.patch_get_role.start()
+            self.mock_get_role.return_value = IATSPI().known_control_types["DocumentFrame"]
+            self.wrp = AtspiWrapper(self.info)
+
+        def tearDown(self):
+            self.patch_get_role.stop()
+
+        def test_document_success(self):
+            self.assertEqual(type(self.wrp), DocumentWrapper)
+            self.assertEqual(type(self.wrp.document), AtspiDocument)
+
+        def test_document_fail_on_wrong_role(self):
+            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
+            self.wrp = AtspiWrapper(self.info)
+            self.assertRaises(AttributeError, lambda: self.wrp.document)
+
+        @mock.patch.object(AtspiDocument, 'get_locale')
+        def test_document_get_locale_success(self, mock_get_locale):
+            mock_get_locale.return_value = b"C"
+            self.assertEqual(self.wrp.locale(), u"C")
+
+        @mock.patch.object(AtspiDocument, '_get_locale')
+        def test_document_get_locale_gerror_fail(self, mock_get_locale):
+            gerror = _GError()
+            gerror.code = 222
+            gerror.message = b"Mocked GError message"
+
+            def stub_get_locale(atspi_doc_ptr, gerr_pp):
+                self.assertEqual(type(atspi_doc_ptr), AtspiAccessible.get_document.restype)
+                self.assertEqual(type(gerr_pp), (ctypes.POINTER(ctypes.POINTER(_GError))))
+                gerr_pp[0] = ctypes.pointer(gerror)
+                return b"C"
+
+            mock_get_locale.side_effect = stub_get_locale
+
+            expected_err_msg = "GError with code: {0}, message: '{1}'".format(
+                               gerror.code, gerror.message.decode(encoding='UTF-8'))
+            six.assertRaisesRegex(self,
+                                  GErrorException,
+                                  expected_err_msg,
+                                  self.wrp.locale)
+
+        @mock.patch.object(AtspiDocument, '_get_attribute_value')
+        def test_document_get_attribute_value_success(self, mock_get_attribute_value):
+            attrib = u"dummy attribute"
+            mock_get_attribute_value.return_value = b"dummy val"
+            self.assertEqual(self.wrp.attribute_value(attrib), u"dummy val")
+            self.assertEqual(type(mock_get_attribute_value.call_args[0][1]), ctypes.c_char_p)
+
+        @mock.patch.object(AtspiDocument, '_get_attributes')
+        def test_document_get_attributes_success(self, mock_get_attributes):
+            attrib = b"dummy attribute"
+            mock_get_attributes.return_value = GHashTable.dic2ghash({attrib: b"dummy val"})
+            res = self.wrp.attributes()
+            self.assertEqual(len(res), 1)
+            self.assertEqual(res[attrib.decode('utf-8')], u"dummy val")
 
 if __name__ == "__main__":
     unittest.main()
