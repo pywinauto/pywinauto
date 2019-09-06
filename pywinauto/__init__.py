@@ -89,7 +89,7 @@ if sys.platform == 'win32':
     from . import findwindows
 
     WindowAmbiguousError = findwindows.WindowAmbiguousError
-    ElementNotFoundError = findwindows.ElementNotFoundError
+    WindowNotFoundError = findwindows.WindowNotFoundError
 
     if UIA_support:
         ElementNotFoundError = findwindows.ElementNotFoundError
