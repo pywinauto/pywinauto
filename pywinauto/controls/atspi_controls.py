@@ -36,6 +36,7 @@ import locale
 import six
 
 from . import atspiwrapper
+from ..linux.atspi_objects import AtspiImage
 
 # region PATTERNS
 
@@ -290,7 +291,7 @@ class ImageWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ImageWrapper, self).__init__(elem)
-        self.image = elem.image
+        self.image = AtspiImage(self._atspi_accessible.get_image(elem.handle))
 
     def description(self):
         """Get image description"""
