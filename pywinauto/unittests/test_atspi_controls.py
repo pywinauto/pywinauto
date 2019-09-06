@@ -52,6 +52,13 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.atspi_objects import GErrorException
     from pywinauto.controls.atspi_controls import DocumentWrapper
     from pywinauto.linux.atspi_objects import IATSPI
+    from pywinauto.linux.atspi_objects import AtspiImage
+    from pywinauto.linux.atspi_objects import _AtspiRect
+    from pywinauto.linux.atspi_objects import _AtspiPoint
+    from pywinauto.linux.atspi_objects import _AtspiCoordType
+    from pywinauto.linux.atspi_objects import RECT
+    from pywinauto.linux.atspi_objects import POINT
+    from pywinauto.controls.atspi_controls import ImageWrapper
 
 app_name = r"gtk_example.py"
 text = "This is some text inside of a Gtk.TextView. \n" \
@@ -308,6 +315,63 @@ if sys.platform.startswith("linux"):
             res = self.wrp.attributes()
             self.assertEqual(len(res), 1)
             self.assertEqual(res[attrib.decode('utf-8')], u"dummy val")
+
+    class AtspiWrapperImageMockedTests(unittest.TestCase):
+
+        """Mocked unit tests for atspi_controls.ImageWrapper.image property"""
+
+        def setUp(self):
+            self.info = AtspiElementInfo()
+            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
+            self.mock_get_role = self.patch_get_role.start()
+            self.mock_get_role.return_value = IATSPI().known_control_types["Image"]
+            self.wrp = AtspiWrapper(self.info)
+
+        def tearDown(self):
+            self.patch_get_role.stop()
+
+        def test_image_success(self):
+            self.assertEqual(type(self.wrp), ImageWrapper)
+            self.assertEqual(type(self.wrp.image), AtspiImage)
+
+            # Icon role should be also handled by AtspiImage
+            self.mock_get_role.return_value = IATSPI().known_control_types["Icon"]
+            iconWrp = AtspiWrapper(self.info)
+            self.assertEqual(type(iconWrp.image), AtspiImage)
+
+        def test_image_fail_on_wrong_role(self):
+            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
+            self.wrp = AtspiWrapper(self.info)
+            self.assertEqual(type(self.wrp), AtspiWrapper)
+            self.assertRaises(AttributeError, lambda: self.wrp.image)
+
+        @mock.patch.object(AtspiImage, '_get_image_locale')
+        def test_image_get_locale_success(self, mock_get_locale):
+            mock_get_locale.return_value = b"I"
+            self.assertEqual(self.wrp.image.get_locale(), b"I")
+
+        @mock.patch.object(AtspiImage, '_get_image_description')
+        def test_image_get_description_success(self, mock_get_description):
+            mock_get_description.return_value = b"descr"
+            self.assertEqual(self.wrp.image.get_description(), b"descr")
+
+        @mock.patch.object(AtspiImage, '_get_image_extents')
+        def test_image_get_image_extents_success(self, mock_get_extents):
+            extents_rect = _AtspiRect(22, 11, 33, 44)
+            mock_get_extents.return_value = ctypes.pointer(extents_rect)
+            self.assertEqual(self.wrp.image.get_extents(), RECT(extents_rect))
+            self.assertEqual(mock_get_extents.call_args[0][1],
+                             _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
+
+        @mock.patch.object(AtspiImage, '_get_image_position')
+        def test_image_get_image_position_success(self, mock_get_position):
+            pnt = _AtspiPoint()
+            pnt.x = 55
+            pnt.y = 66
+            mock_get_position.return_value = ctypes.pointer(pnt)
+            self.assertEqual(self.wrp.image.get_position(), POINT(pnt.x, pnt.y))
+            self.assertEqual(mock_get_position.call_args[0][1],
+                             _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
 
 if __name__ == "__main__":
     unittest.main()
