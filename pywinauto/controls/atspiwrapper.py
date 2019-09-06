@@ -156,7 +156,7 @@ class AtspiWrapper(BaseWrapper):
             # It should automatically set focus to window.
             for child in self.descendants():
                 # TODO extend list of focusable elements
-                if child.element_info.control_type in ['Push_button', 'Check_box', 'Toggle_button', 'Radio_button',
+                if child.element_info.control_type in ['PushButton', 'CheckBox', 'ToggleButton', 'RadioButton',
                                                        'Text']:
                     child.set_keyboard_focus()
                     break
