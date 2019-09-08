@@ -94,6 +94,32 @@ if sys.platform.startswith("linux"):
             self.assertEqual(p0, p1)
 
 
+    class AtspiRectTests(unittest.TestCase):
+
+        """Unit tests for AtspiRect class"""
+
+        def test_RECT_hash(self):
+            """Test RECT is not hashable"""
+            self.assertRaises(TypeError, hash, RECT())
+
+        def test_RECT_eq(self):
+            r0 = RECT(1, 2, 3, 4)
+            self.assertEqual(r0, RECT(1, 2, 3, 4))
+            self.assertEqual(r0, [1, 2, 3, 4])
+            self.assertNotEqual(r0, RECT(1, 2, 3, 5))
+            self.assertNotEqual(r0, [1, 2, 3, 5])
+            self.assertNotEqual(r0, [1, 2, 3])
+            self.assertNotEqual(r0, [1, 2, 3, 4, 5])
+            r0.bottom = 5
+            self.assertEqual(r0, RECT(1, 2, 3, 5))
+            self.assertEqual(r0, (1, 2, 3, 5))
+    
+        def test_RECT_repr(self):
+            """Test RECT repr"""
+            r0 = RECT(0)
+            self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
+
+
     class AtspiElementInfoTests(unittest.TestCase):
 
         """Unit tests for the AtspiElementInfo class"""
