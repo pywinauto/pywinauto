@@ -92,7 +92,21 @@ RectExtMixin._POINT = POINT
 
 
 class RECT(wintypes.RECT, RectExtMixin, StructureMixIn):
-    pass
+
+    """Wrap the wintypes.RECT structure and add extra functionality"""
+
+    # ----------------------------------------------------------------
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
+        """
+        Try to construct RECT from wintypes.RECT otherwise pass it down to RecExtMixin
+        """
+        if isinstance(otherRect_or_left, wintypes.RECT):
+            self.left = otherRect_or_left.left
+            self.right = otherRect_or_left.right
+            self.top = otherRect_or_left.top
+            self.bottom = otherRect_or_left.bottom
+        else:
+            RectExtMixin.__init__(self, otherRect_or_left, top, right, bottom)
 
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
