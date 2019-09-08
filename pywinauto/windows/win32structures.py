@@ -31,38 +31,17 @@
 
 """Definition of Windows structures"""
 
-import six
 from ctypes import \
-    c_int, c_long, c_void_p, c_char, memmove, addressof, \
+    c_int, c_long, c_void_p, c_char, \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
-from ..base_types import Structure, StructureMixIn, PointIteratorMixin
+from ..base_types import Structure
+from ..base_types import StructureMixIn
+from ..base_types import PointIteratorMixin
+from ..base_types import RectExtMixin
+from ..base_types import _reduce
 from .win32defines import LF_FACESIZE
 from pywinauto import sysinfo
-
-
-##====================================================================
-#def PrintCtypesStruct(struct, exceptList = []):
-#    """Print out the fields of the ctypes Structure
-#
-#    fields in exceptList will not be printed"""
-#    for f in struct._fields_:
-#        name = f[0]
-#        if name in exceptList:
-#            continue
-#        print("%20s "% name, getattr(struct, name))
-
-
-# allow ctypes structures to be pickled
-# set struct.__reduce__ = _reduce
-# e.g. RECT.__reduce__ = _reduce
-def _construct(typ, buf):
-    obj = typ.__new__(typ)
-    memmove(addressof(obj), buf, len(buf))
-    return obj
-
-def _reduce(self):
-    return (_construct, (self.__class__, bytes(memoryview(self))))
 
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
@@ -108,97 +87,18 @@ class POINT(wintypes.POINT, PointIteratorMixin, StructureMixIn):
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 
-# ====================================================================
-class RECT(wintypes.RECT, StructureMixIn):
 
-    """Wrap the RECT structure and add extra functionality"""
+RectExtMixin._POINT = POINT
 
-    # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
-        """Provide a constructor for RECT structures
 
-        A RECT can be constructed by:
-        - Another RECT (each value will be copied)
-        - Values for left, top, right and bottom
-
-        e.g. my_rect = RECT(otherRect)
-        or   my_rect = RECT(10, 20, 34, 100)
-        """
-        if isinstance(otherRect_or_left, RECT):
-            self.left = otherRect_or_left.left
-            self.right = otherRect_or_left.right
-            self.top = otherRect_or_left.top
-            self.bottom = otherRect_or_left.bottom
-        else:
-            #if not isinstance(otherRect_or_left, (int, long)):
-            #    print type(self), type(otherRect_or_left), otherRect_or_left
-            long_int = six.integer_types[-1]
-            self.left = long_int(otherRect_or_left)
-            self.right = long_int(right)
-            self.top = long_int(top)
-            self.bottom = long_int(bottom)
-
-    # ----------------------------------------------------------------
-    def __str__(self):
-        """Return a string representation of the RECT"""
-        return "(L%d, T%d, R%d, B%d)" % (
-            self.left, self.top, self.right, self.bottom)
-
-    # ----------------------------------------------------------------
-    def __repr__(self):
-        """Return some representation of the RECT"""
-        return "<RECT L%d, T%d, R%d, B%d>" % (
-            self.left, self.top, self.right, self.bottom)
-
-    # ----------------------------------------------------------------
-    def __sub__(self, other):
-        """Return a new rectangle which is offset from the one passed in"""
-        newRect = RECT()
-
-        newRect.left = self.left - other.left
-        newRect.right = self.right - other.left
-
-        newRect.top = self.top - other.top
-        newRect.bottom = self.bottom - other.top
-
-        return newRect
-
-    # ----------------------------------------------------------------
-    def __add__(self, other):
-        """Allow two rects to be added using +"""
-        newRect = RECT()
-
-        newRect.left = self.left + other.left
-        newRect.right = self.right + other.left
-
-        newRect.top = self.top + other.top
-        newRect.bottom = self.bottom + other.top
-
-        return newRect
-
-    # ----------------------------------------------------------------
-    def width(self):
-        """Return the width of the  rect"""
-        return self.right - self.left
-
-    # ----------------------------------------------------------------
-    def height(self):
-        """Return the height of the rect"""
-        return self.bottom - self.top
-
-    # ----------------------------------------------------------------
-    def mid_point(self):
-        """Return a POINT structure representing the mid point"""
-        pt = POINT()
-        pt.x = self.left + int(float(self.width()) / 2.)
-        pt.y = self.top + int(float(self.height()) / 2.)
-        return pt
-
-    __reduce__ = _reduce
-
+class RECT(wintypes.RECT, RectExtMixin, StructureMixIn):
+    pass
 
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
+
+
+RectExtMixin._RECT = RECT
 
 
 class SETTEXTEX(Structure):
