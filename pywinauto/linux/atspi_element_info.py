@@ -32,8 +32,8 @@
 
 """Linux AtspiElementInfo class"""
 
-from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
-    AtspiEditableText, IATSPI
+from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiValue, \
+    IATSPI
 from ..element_info import ElementInfo
 
 
@@ -186,12 +186,6 @@ class AtspiElementInfo(ElementInfo):
             return AtspiAction(self.atspi_accessible.get_action(self.handle))
         else:
             return None
-
-    def get_text_property(self):
-        return AtspiText(self.atspi_accessible.get_text(self.handle))
-
-    def get_editable_text_property(self):
-        return AtspiEditableText(self.atspi_accessible.get_editable_text(self.handle))
 
     def get_value_property(self):
         return AtspiValue(self.atspi_accessible.get_value(self.handle))
