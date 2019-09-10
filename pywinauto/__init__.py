@@ -90,10 +90,8 @@ if sys.platform == 'win32':
 
     WindowAmbiguousError = findwindows.WindowAmbiguousError
     WindowNotFoundError = findwindows.WindowNotFoundError
-
-    if UIA_support:
-        ElementNotFoundError = findwindows.ElementNotFoundError
-        ElementAmbiguousError = findwindows.ElementAmbiguousError
+    ElementNotFoundError = findwindows.ElementNotFoundError
+    ElementAmbiguousError = findwindows.ElementAmbiguousError
 
     from . import findbestmatch
     from . import backend as backends
