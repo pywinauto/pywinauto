@@ -48,32 +48,6 @@ from ..uia_defines import IUIA
 from .. import uia_defines as uia_defs
 from ..uia_element_info import UIAElementInfo, elements_from_uia_array
 
-# region PATTERNS
-AutomationElement = IUIA().ui_automation_client.IUIAutomationElement
-DockPattern = IUIA().ui_automation_client.IUIAutomationDockPattern
-ExpandCollapsePattern = IUIA().ui_automation_client.IUIAutomationExpandCollapsePattern
-GridItemPattern = IUIA().ui_automation_client.IUIAutomationGridItemPattern
-GridPattern = IUIA().ui_automation_client.IUIAutomationGridPattern
-InvokePattern = IUIA().ui_automation_client.IUIAutomationInvokePattern
-ItemContainerPattern = IUIA().ui_automation_client.IUIAutomationItemContainerPattern
-LegacyIAccessiblePattern = IUIA().ui_automation_client.IUIAutomationLegacyIAccessiblePattern
-MultipleViewPattern = IUIA().ui_automation_client.IUIAutomationMultipleViewPattern
-RangeValuePattern = IUIA().ui_automation_client.IUIAutomationRangeValuePattern
-ScrollItemPattern = IUIA().ui_automation_client.IUIAutomationScrollItemPattern
-ScrollPattern = IUIA().ui_automation_client.IUIAutomationScrollPattern
-SelectionItemPattern = IUIA().ui_automation_client.IUIAutomationSelectionItemPattern
-SelectionPattern = IUIA().ui_automation_client.IUIAutomationSelectionPattern
-SynchronizedInputPattern = IUIA().ui_automation_client.IUIAutomationSynchronizedInputPattern
-TableItemPattern = IUIA().ui_automation_client.IUIAutomationTableItemPattern
-TablePattern = IUIA().ui_automation_client.IUIAutomationTablePattern
-TextPattern = IUIA().ui_automation_client.IUIAutomationTextPattern
-TogglePattern = IUIA().ui_automation_client.IUIAutomationTogglePattern
-TransformPattern = IUIA().ui_automation_client.IUIAutomationTransformPattern
-ValuePattern = IUIA().ui_automation_client.IUIAutomationValuePattern
-VirtualizedItemPattern = IUIA().ui_automation_client.IUIAutomationVirtualizedItemPattern
-WindowPattern = IUIA().ui_automation_client.IUIAutomationWindowPattern
-# endregion
-
 # =========================================================================
 _friendly_classes = {
     'Custom': None,
@@ -336,6 +310,13 @@ class UIAWrapper(BaseWrapper):
         return uia_defs.get_elem_interface(elem, "VirtualizedItem")
 
     # ------------------------------------------------------------
+    @lazy_property
+    def iface_legacy_accessible(self):
+        """Get the element's LegacyIAccessible interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+
+    # ------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -349,15 +330,11 @@ class UIAWrapper(BaseWrapper):
     # ------------------------------------------------------------
     def legacy_properties(self):
         """Get the element's LegacyIAccessible control pattern interface properties"""
-        elem = self.element_info.element
-        impl = uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+        impl = self.iface_legacy_accessible
         property_name_identifier = 'Current'
 
-        interface_properties = [prop for prop in dir(LegacyIAccessiblePattern)
-                                if (isinstance(getattr(LegacyIAccessiblePattern, prop), property)
-                                and property_name_identifier in prop)]
-
-        return {prop.replace(property_name_identifier, '') : getattr(impl, prop) for prop in interface_properties}
+        interface_properties = [prop for prop in dir(impl) if prop.startswith(property_name_identifier)]
+        return {prop.replace(property_name_identifier, ''): getattr(impl, prop) for prop in interface_properties}
 
     # ------------------------------------------------------------
     def friendly_class_name(self):

@@ -204,6 +204,7 @@ class RECT(wintypes.RECT, StructureMixIn):
         e.g. my_rect = RECT(otherRect)
         or   my_rect = RECT(10, 20, 34, 100)
         """
+        super(RECT, self).__init__()
         if isinstance(otherRect_or_left, RECT):
             self.left = otherRect_or_left.left
             self.right = otherRect_or_left.right
@@ -273,6 +274,16 @@ class RECT(wintypes.RECT, StructureMixIn):
         pt.x = self.left + int(float(self.width()) / 2.)
         pt.y = self.top + int(float(self.height()) / 2.)
         return pt
+
+    # ----------------------------------------------------------------
+    def __contains__(self, point):
+        """Return True if point is inside this rectangle"""
+        if not isinstance(point, (POINT, tuple)):
+            raise TypeError("point must be an instance of POINT or 2-tuple")
+        elif isinstance(point, tuple) and len(point) != 2:
+            raise ValueError("point tuple length must be 2")
+
+        return self.left <= point[0] <= self.right and self.top <= point[1] <= self.bottom
 
     __reduce__ = _reduce
 

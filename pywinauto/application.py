@@ -550,32 +550,6 @@ class WindowSpecification(object):
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
-    def _ctrl_identifiers(self):
-
-        ctrls = self.__resolve_control(self.criteria)
-
-        if ctrls[-1].is_dialog():
-            # dialog controls are all the control on the dialog
-            dialog_controls = ctrls[-1].children()
-
-            ctrls_to_print = dialog_controls[:]
-            # filter out hidden controls
-            ctrls_to_print = [
-                ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
-        else:
-            dialog_controls = ctrls[-1].top_level_parent().children()
-            ctrls_to_print = [ctrls[-1]]
-
-        # build the list of disambiguated list of control names
-        name_control_map = findbestmatch.build_unique_dict(dialog_controls)
-
-        # swap it around so that we are mapped off the controls
-        control_name_map = {}
-        for name, ctrl in name_control_map.items():
-            control_name_map.setdefault(ctrl, []).append(name)
-
-        return control_name_map
-
     def print_control_identifiers(self, depth=None, filename=None):
         """
         Prints the 'identifiers'
@@ -597,20 +571,8 @@ class WindowSpecification(object):
         # Create a list of this control and all its descendants
         all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
 
-        # Create a list of all visible text controls
-        txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
-
-        # Build a dictionary of disambiguated list of control names
-        name_ctrl_id_map = findbestmatch.UniqueDict()
-        for index, ctrl in enumerate(all_ctrls):
-            ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
-            for name in ctrl_names:
-                name_ctrl_id_map[name] = index
-
-        # Swap it around so that we are mapped off the control indices
-        ctrl_id_name_map = {}
-        for name, index in name_ctrl_id_map.items():
-            ctrl_id_name_map.setdefault(index, []).append(name)
+        # Build unique control names map
+        ctrls_names = findbestmatch.build_names_list(all_ctrls)
 
         def print_identifiers(ctrls, current_depth=1, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
@@ -633,7 +595,7 @@ class WindowSpecification(object):
                     "".format(class_name=ctrl.friendly_class_name(),
                               text=ctrl_text,
                               rect=ctrl.rectangle())
-                output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
+                output += indent + u'{}'.format(ctrls_names[ctrl_id].to_list())
 
                 title = ctrl_text
                 class_name = ctrl.class_name()
@@ -1380,6 +1342,15 @@ def _process_get_modules_wmi():
         if isinstance(p.ProcessId, int):
             modules.append((p.ProcessId, p.ExecutablePath, p.CommandLine))  # p.Name
     return modules
+
+
+#=========================================================================
+def get_process_command_line_wmi(process_id):
+    """Return full command line of process"""
+    from win32com.client import GetObject
+    _wmi = GetObject('winmgmts:')
+    proc = _wmi.ExecQuery("Select CommandLine from Win32_Process where ProcessId={}".format(process_id))[0]
+    return proc.CommandLine
 
 
 #=========================================================================

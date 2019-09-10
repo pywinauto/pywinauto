@@ -138,16 +138,16 @@ class Win32HooksTests(unittest.TestCase):
         # Continue here only when the hook will be removed by the timer
         _delete_keys_from_terminal(keys)
         self.assertEqual(len(self.keybd_events), 4)
-        self.assertEqual(self.keybd_events[0].current_key, u'Lshift')
+        self.assertEqual(self.keybd_events[0].current_key, u'{VK_LSHIFT}')
         self.assertEqual(self.keybd_events[0].event_type, 'key down')
         self.assertEqual(len(self.keybd_events[0].pressed_key), 0)
-        self.assertEqual(self.keybd_events[1].current_key, u'A')
+        self.assertEqual(self.keybd_events[1].current_key, u'a')
         self.assertEqual(self.keybd_events[1].event_type, 'key down')
         self.assertEqual(len(self.keybd_events[1].pressed_key), 0)
-        self.assertEqual(self.keybd_events[2].current_key, u'A')
+        self.assertEqual(self.keybd_events[2].current_key, u'a')
         self.assertEqual(self.keybd_events[2].event_type, 'key up')
         self.assertEqual(len(self.keybd_events[2].pressed_key), 0)
-        self.assertEqual(self.keybd_events[3].current_key, u'Lshift')
+        self.assertEqual(self.keybd_events[3].current_key, u'{VK_LSHIFT}')
         self.assertEqual(self.keybd_events[3].event_type, 'key up')
         self.assertEqual(len(self.keybd_events[3].pressed_key), 0)
 
@@ -229,16 +229,16 @@ class Win32HooksWithMocksTests(unittest.TestCase):
 
         # replace the system API with a mock object
         windll.user32.CallNextHookEx = mock.Mock(return_value=0)
-        # prepare arguments for _keyboard_ll_hdl call
+        # prepare arguments for _keyboard_low_level_handler call
         kbd = win32structures.KBDLLHOOKSTRUCT(0, 0, 0, 0, 0)
-        res = self.hook._keyboard_ll_hdl(-1, 3, id(kbd))
+        res = self.hook._keyboard_low_level_handler(-1, 3, id(kbd))
         windll.user32.CallNextHookEx.assert_called_with(self.fake_kbhook_id, -1, 3, id(kbd))
         self.assertEqual(res, 0)
 
-        # Setup a fresh mock object and arguments for _mouse_ll_hdl call
+        # Setup a fresh mock object and arguments for _mouse_low_level_handler call
         windll.user32.CallNextHookEx = mock.Mock(return_value=0)
         mouse = win32structures.MSLLHOOKSTRUCT((11, 12), 0, 0, 0, 0)
-        res = self.hook._mouse_ll_hdl(-1, 3, id(mouse))
+        res = self.hook._mouse_low_level_handler(-1, 3, id(mouse))
         self.assertEqual(res, 0)
         windll.user32.CallNextHookEx.assert_called_with(self.fake_mousehook_id, -1, 3, id(mouse))
 
@@ -250,10 +250,10 @@ class Win32HooksWithMocksTests(unittest.TestCase):
         self.hook.keyboard_id = self.fake_kbhook_id
 
         # Verify CallNextHookEx is called even if there is an exception is raised
-        self.assertRaises(ValueError, self.hook._keyboard_ll_hdl, -1, 3, id(kbd))
+        self.assertRaises(ValueError, self.hook._keyboard_low_level_handler, -1, 3, id(kbd))
         windll.user32.CallNextHookEx.assert_called()
         windll.user32.CallNextHookEx.assert_called_with(self.fake_kbhook_id, -1, 3, id(kbd))
-        self.assertRaises(ValueError, self.hook._keyboard_ll_hdl, 0, 3, id(kbd))
+        self.assertRaises(ValueError, self.hook._keyboard_low_level_handler, 0, 3, id(kbd))
         windll.user32.CallNextHookEx.assert_called()
         windll.user32.CallNextHookEx.assert_called_with(self.fake_kbhook_id, 0, 3, id(kbd))
 
@@ -265,10 +265,10 @@ class Win32HooksWithMocksTests(unittest.TestCase):
         self.hook.mouse_id = self.fake_mousehook_id
 
         # Verify CallNextHookEx is called even if there is an exception is raised
-        self.assertRaises(ValueError, self.hook._mouse_ll_hdl, -1, 3, id(mouse))
+        self.assertRaises(ValueError, self.hook._mouse_low_level_handler, -1, 3, id(mouse))
         windll.user32.CallNextHookEx.assert_called()
         windll.user32.CallNextHookEx.assert_called_with(self.fake_mousehook_id, -1, 3, id(mouse))
-        self.assertRaises(ValueError, self.hook._mouse_ll_hdl, 0, 3, id(mouse))
+        self.assertRaises(ValueError, self.hook._mouse_low_level_handler, 0, 3, id(mouse))
         windll.user32.CallNextHookEx.assert_called()
         windll.user32.CallNextHookEx.assert_called_with(self.fake_mousehook_id, 0, 3, id(mouse))
 
