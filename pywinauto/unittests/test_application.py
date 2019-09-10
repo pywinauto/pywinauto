@@ -45,6 +45,7 @@ import warnings
 from threading import Thread
 import ctypes
 import mock
+import six
 
 sys.path.append(".")
 from pywinauto import Desktop
@@ -788,6 +789,8 @@ class ApplicationTestCases(unittest.TestCase):
         with self.assertRaises(AttributeError):
             window.Edit
 
+        app_no_magic.kill()
+        app_no_magic.wait_for_process_exit()
 
 class WindowSpecificationTestCases(unittest.TestCase):
 
@@ -1287,7 +1290,7 @@ if UIA_support:
         def tearDown(self):
             """Close the application after tests"""
             self.desktop.MFC_samplesDialog.close()
-            self.desktop.MFC_samplesDialog.wait_not('visible')
+            self.desktop.MFC_samplesDialog.wait_not('exists')
 
         def test_folder_list(self):
             """Test that ListViewWrapper returns correct files list in explorer.exe"""
@@ -1430,7 +1433,7 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         self.assertIsInstance(dlg, TrackbarWrapper)
 
         pos = dlg.get_position()
-        self.assertIsInstance(pos, int)
+        self.assertIsInstance(pos, six.integer_types)
 
         with self.assertRaises(AttributeError):
             getattr(self.desktop_no_magic, self.window_title.replace(" ", "_"))
