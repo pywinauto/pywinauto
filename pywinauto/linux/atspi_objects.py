@@ -229,7 +229,7 @@ class RECT(RectExtMixin, Structure):
     # ----------------------------------------------------------------
     def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
         """
-        Try to construct RECT from _AtspiRec otherwise pass it down to RecExtMixin
+        Try to construct RECT from _AtspiRect otherwise pass it down to RecExtMixin
         """
         if isinstance(otherRect_or_left, _AtspiRect):
             self.left = otherRect_or_left.x

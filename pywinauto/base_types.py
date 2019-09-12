@@ -151,8 +151,8 @@ class RectExtMixin(object):
     """Wrap the RECT structure and add extra functionality"""
 
     # To be initiated by OS-specific types
-    _RECT = None
-    _POINT = None
+    _RECT = type(None)
+    _POINT = type(None)
 
     # ----------------------------------------------------------------
     def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
