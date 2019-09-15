@@ -1128,7 +1128,8 @@ class Application(object):
         timeout = Timings.window_find_timeout
         while timeout >= 0:
             windows = findwindows.find_elements(pid=self.process,
-                                                backend=self.backend.name)
+                                                backend=self.backend.name,
+                                                visible=True)
             if windows:
                 break
             time.sleep(Timings.window_find_retry)
