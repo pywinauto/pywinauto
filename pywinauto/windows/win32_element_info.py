@@ -138,6 +138,7 @@ class HwndElementInfo(ElementInfo):
         class_name = kwargs.get('class_name', None)
         title = kwargs.get('name', None)
         control_type = kwargs.get('control_type', None)
+        process = kwargs.get('process', None)
         # TODO: 'cache_enable' and 'depth' are ignored so far
 
         # this will be filled in the callback function
@@ -148,6 +149,8 @@ class HwndElementInfo(ElementInfo):
         def enum_window_proc(hwnd, lparam):
             """Called for each window - adds wrapped elements to a list"""
             element = HwndElementInfo(hwnd)
+            if process is not None and process != element.pid:
+                return True
             if class_name is not None and class_name != element.class_name:
                 return True
             if title is not None and title != element.rich_text:
