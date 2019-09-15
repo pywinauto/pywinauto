@@ -57,8 +57,6 @@ def bundle_identifier_for_application_name(app_name):
     bundleIdentifier=bundle.bundleIdentifier()
     return (bundleIdentifier)
 
-
-
 def launch_application_by_bundle(bundle_id, new_instance=True):
     
     if (new_instance):
