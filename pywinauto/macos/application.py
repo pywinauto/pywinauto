@@ -26,7 +26,30 @@ from ..timings import Timings, wait_until
 backend.register('ax', ElementInfo, BaseWrapper)
 
 
+class Pidmonitor():
+    
+    pid = None
+    pid_before = []
+
+    @staticmethod
+    def pid_before():
+        liste1 = []
+        for apps in macos_functions.running_applications():
+            liste1.append(apps.processIdentifier()) 
+        return liste1
+
+    @staticmethod        
+    def pid_after():
+        liste2 = [] 
+        ax_element_info.cache_update()
+        for apps in macos_functions.running_applications():
+            liste2.append(apps.processIdentifier())
+        return liste2
+
+
 class Application(BaseApplication):
+
+    Pidmonitor.pid_before = Pidmonitor.pid_before()
 
     def __init__(self, backend="ax"):
         self.connected = False
@@ -38,20 +61,15 @@ class Application(BaseApplication):
 
     def start(self, name=None, bundle_id=None, new_instance=True):
 
-        liste1 = []
-        liste2 = []
-        global pids
-        pids = 0
-        for apps in macos_functions.running_applications():
-            liste1.append(apps.processIdentifier()) 
-
         if name is not None and bundle_id is not None:
               raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
 
         if name is not None:
             bundle = macos_functions.bundle_identifier_for_application_name(name)
+            print(bundle)
             macos_functions.launch_application_by_bundle(bundle, new_instance)
             NsArray = macos_functions.get_app_instance_by_bundle(bundle)
+
             self.ns_app = NsArray[0]
             if (self.ns_app is None):
                 message = ('Could not get instance of "%s" app\n') % (name)
@@ -75,25 +93,20 @@ class Application(BaseApplication):
 
         self.connected = True
 
-        def app_launched():
-            global pids
-            ax_element_info.cache_update()
-            for apps in macos_functions.running_applications():
-                liste2.append(apps.processIdentifier())
-
-            for element in liste2:
-                if element not in liste1:
-                    pids = element
-                    name_app = macos_functions.get_app_instance_by_pid(pids)
-                    if name == name_app.localizedName():
-                        return True
-                    if bundle_id == name_app.bundleIdentifier():
+        def app_launched(pid_before = Pidmonitor.pid_before):
+            pid_after = Pidmonitor.pid_after()
+            for element in pid_after:
+                if element not in pid_before:
+                    name_app = macos_functions.get_app_instance_by_pid(element)
+                    print(name_app)
+                    if name == name_app.localizedName() or bundle_id == name_app.bundleIdentifier():
+                        Pidmonitor.pid = element
                         return True
             return False
 
         if new_instance:
             wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_launched, value=True)
-            self.ns_app = macos_functions.get_app_instance_by_pid(pids)
+            self.ns_app = macos_functions.get_app_instance_by_pid(Pidmonitor.pid)
 
         def app_idle():
             ax_element_info.cache_update()
