@@ -155,7 +155,7 @@ class RectExtMixin(object):
     _POINT = type(None)
 
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
+    def __init__(self, other=0, top=0, right=0, bottom=0):
         """Provide a constructor for _RECT structures
 
         A _RECT can be constructed by:
@@ -165,16 +165,16 @@ class RectExtMixin(object):
         e.g. my_rect = _RECT(otherRect)
         or   my_rect = _RECT(10, 20, 34, 100)
         """
-        if isinstance(otherRect_or_left, self._RECT):
-            self.left = otherRect_or_left.left
-            self.right = otherRect_or_left.right
-            self.top = otherRect_or_left.top
-            self.bottom = otherRect_or_left.bottom
+        if isinstance(other, self._RECT):
+            self.left = other.left
+            self.right = other.right
+            self.top = other.top
+            self.bottom = other.bottom
         else:
-            #if not isinstance(otherRect_or_left, (int, long)):
-            #    print type(self), type(otherRect_or_left), otherRect_or_left
+            #if not isinstance(other, (int, long)):
+            #    print type(self), type(other), other
             long_int = six.integer_types[-1]
-            self.left = long_int(otherRect_or_left)
+            self.left = long_int(other)
             self.right = long_int(right)
             self.top = long_int(top)
             self.bottom = long_int(bottom)
@@ -194,28 +194,28 @@ class RectExtMixin(object):
     # ----------------------------------------------------------------
     def __sub__(self, other):
         """Return a new rectangle which is offset from the one passed in"""
-        newRect = self._RECT()
+        new_rect = self._RECT()
 
-        newRect.left = self.left - other.left
-        newRect.right = self.right - other.left
+        new_rect.left = self.left - other.left
+        new_rect.right = self.right - other.left
 
-        newRect.top = self.top - other.top
-        newRect.bottom = self.bottom - other.top
+        new_rect.top = self.top - other.top
+        new_rect.bottom = self.bottom - other.top
 
-        return newRect
+        return new_rect
 
     # ----------------------------------------------------------------
     def __add__(self, other):
         """Allow two rects to be added using +"""
-        newRect = self._RECT()
+        new_rect = self._RECT()
 
-        newRect.left = self.left + other.left
-        newRect.right = self.right + other.left
+        new_rect.left = self.left + other.left
+        new_rect.right = self.right + other.left
 
-        newRect.top = self.top + other.top
-        newRect.bottom = self.bottom + other.top
+        new_rect.top = self.top + other.top
+        new_rect.bottom = self.bottom + other.top
 
-        return newRect
+        return new_rect
 
     # ----------------------------------------------------------------
     def width(self):
