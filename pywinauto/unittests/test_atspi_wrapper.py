@@ -43,8 +43,6 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
     from pywinauto.linux.atspi_objects import IATSPI
-    from pywinauto.linux.atspi_objects import RECT
-    from pywinauto.linux.atspi_objects import POINT
 
 app_name = r"gtk_example.py"
 
@@ -66,7 +64,7 @@ def print_tree(start_el_info, level_shifter=""):
 
     for children in start_el_info.children():
         print(level_shifter, "  ", children.control_type, "    ", children.control_id, children.runtime_id, "!")
-        print_tree(children, level_shifter+"-")
+        print_tree(children, level_shifter + "-")
 
 
 if sys.platform.startswith("linux"):
@@ -157,6 +155,7 @@ if sys.platform.startswith("linux"):
 
         def test_app_is_child_of_desktop(self):
             self.assertTrue(self.app_wrapper.is_child(self.desktop_wrapper))
+
 
 if __name__ == "__main__":
     unittest.main()

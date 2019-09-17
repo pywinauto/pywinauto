@@ -36,6 +36,10 @@ import locale
 import six
 
 from . import atspiwrapper
+from ..linux.atspi_objects import AtspiImage
+from ..linux.atspi_objects import AtspiDocument
+from ..linux.atspi_objects import AtspiText
+from ..linux.atspi_objects import AtspiEditableText
 
 # region PATTERNS
 
@@ -141,7 +145,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
                 if item < len(items):
                     items[item].click()
                 else:
-                    raise IndexError('Item number #{} is out of range ' \
+                    raise IndexError('Item number #{} is out of range '
                                      '({} items in total)'.format(item, len(items)))
         # else: TODO: probably raise an exception if there is no children
 
@@ -159,6 +163,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(EditWrapper, self).__init__(elem)
+        self.text = AtspiText(self._atspi_accessible.get_text(self))
 
     def is_editable(self):
         """Return the edit possibility of the element"""
@@ -166,7 +171,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
     def window_text(self):
         """Window text of the element"""
-        return self.element_info.get_text_property().get_whole_text().decode(locale.getpreferredencoding())
+        return self.text.get_whole_text().decode(locale.getpreferredencoding())
 
     def text_block(self):
         """Get the text of the edit control"""
@@ -204,7 +209,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
     def selection_indices(self):
         """The start and end indices of the current selection"""
-        return self.element_info.get_text_property().get_selection()
+        return self.text.get_selection()
 
     def set_edit_text(self, text, pos_start=None, pos_end=None):
         """Set the text of the edit control"""
@@ -244,7 +249,8 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
         current_text = self.window_text()
         new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
 
-        self.element_info.get_editable_text_property().set_text(new_text.encode(locale.getpreferredencoding()))
+        editable_text = AtspiEditableText(self._atspi_accessible.get_editable_text(self))
+        editable_text.set_text(new_text.encode(locale.getpreferredencoding()))
 
         # return this control so that actions can be chained.
         return self
@@ -274,7 +280,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
             end = start + len(string_to_select)
 
-        self.element_info.get_text_property().add_selection(start, end)
+        self.text.add_selection(start, end)
 
         # return this control so that actions can be chained.
         return self
@@ -290,7 +296,7 @@ class ImageWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ImageWrapper, self).__init__(elem)
-        self.image = elem.image
+        self.image = AtspiImage(self._atspi_accessible.get_image(self))
 
     def description(self):
         """Get image description"""
@@ -312,3 +318,28 @@ class ImageWrapper(atspiwrapper.AtspiWrapper):
     def position(self):
         """Get image position coordinates"""
         return self.image.get_position()
+
+
+class DocumentWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap document control"""
+
+    _control_types = ['DocumentFrame']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(DocumentWrapper, self).__init__(elem)
+        self.document = AtspiDocument(self._atspi_accessible.get_document(elem.handle))
+
+    def locale(self):
+        """Return the document's content locale"""
+        return self.document.get_locale().decode(encoding='UTF-8')
+
+    def attribute_value(self, attrib):
+        """Return the document's attribute value"""
+        return self.document.get_attribute_value(attrib).decode(encoding='UTF-8')
+
+    def attributes(self):
+        """Return the document's constant attributes"""
+        return self.document.get_attributes()

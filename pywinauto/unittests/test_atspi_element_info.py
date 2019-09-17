@@ -38,25 +38,20 @@ import subprocess
 import time
 import unittest
 import re
-import six
 import mock
 import ctypes
 
 if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_objects import AtspiAccessible
-    from pywinauto.linux.atspi_objects import AtspiDocument
-    from pywinauto.linux.atspi_objects import AtspiImage
     from pywinauto.linux.atspi_objects import _AtspiRect
     from pywinauto.linux.atspi_objects import RECT
     from pywinauto.linux.atspi_objects import _AtspiPoint
     from pywinauto.linux.atspi_objects import POINT
     from pywinauto.linux.atspi_objects import _AtspiCoordType
-    from pywinauto.linux.atspi_objects import _GError
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
-    from pywinauto.linux.atspi_objects import GErrorException
     from pywinauto.linux.atspi_objects import GHashTable
     from pywinauto.linux.atspi_objects import _find_library
 
@@ -97,6 +92,32 @@ if sys.platform.startswith("linux"):
             self.assertNotEqual(p0, p1)
             p1.x = p0.x
             self.assertEqual(p0, p1)
+
+
+    class AtspiRectTests(unittest.TestCase):
+
+        """Unit tests for AtspiRect class"""
+
+        def test_RECT_hash(self):
+            """Test RECT is not hashable"""
+            self.assertRaises(TypeError, hash, RECT())
+
+        def test_RECT_eq(self):
+            r0 = RECT(1, 2, 3, 4)
+            self.assertEqual(r0, RECT(1, 2, 3, 4))
+            self.assertEqual(r0, [1, 2, 3, 4])
+            self.assertNotEqual(r0, RECT(1, 2, 3, 5))
+            self.assertNotEqual(r0, [1, 2, 3, 5])
+            self.assertNotEqual(r0, [1, 2, 3])
+            self.assertNotEqual(r0, [1, 2, 3, 4, 5])
+            r0.bottom = 5
+            self.assertEqual(r0, RECT(1, 2, 3, 5))
+            self.assertEqual(r0, (1, 2, 3, 5))
+    
+        def test_RECT_repr(self):
+            """Test RECT repr"""
+            r0 = RECT(0)
+            self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
 
 
     class AtspiElementInfoTests(unittest.TestCase):
@@ -237,67 +258,6 @@ if sys.platform.startswith("linux"):
         def test_service_is_not_visible(self):
             self.assertFalse(self.info.visible)
 
-    class AtspiElementInfoDocumentMockedTests(unittest.TestCase):
-
-        """Mocked unit tests for the AtspiElementInfo.document related functionality"""
-
-        def setUp(self):
-            self.info = AtspiElementInfo()
-            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
-            self.mock_get_role = self.patch_get_role.start()
-            self.mock_get_role.return_value = IATSPI().known_control_types["DocumentFrame"]
-
-        def tearDown(self):
-            self.patch_get_role.stop()
-
-        def test_document_success(self):
-            self.assertEqual(type(self.info.document), AtspiDocument)
-
-        def test_document_fail_on_wrong_role(self):
-            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
-            self.assertRaises(AttributeError, lambda: self.info.document)
-
-        @mock.patch.object(AtspiDocument, 'get_locale')
-        def test_document_get_locale_success(self, mock_get_locale):
-            mock_get_locale.return_value = b"C"
-            self.assertEqual(self.info.document_get_locale(), u"C")
-
-        @mock.patch.object(AtspiDocument, '_get_locale')
-        def test_document_get_locale_gerror_fail(self, mock_get_locale):
-            gerror = _GError()
-            gerror.code = 222
-            gerror.message = b"Mocked GError message"
-
-            def stub_get_locale(atspi_doc_ptr, gerr_pp):
-                self.assertEqual(type(atspi_doc_ptr), AtspiAccessible.get_document.restype)
-                self.assertEqual(type(gerr_pp), (ctypes.POINTER(ctypes.POINTER(_GError))))
-                gerr_pp[0] = ctypes.pointer(gerror)
-                return b"C"
-
-            mock_get_locale.side_effect = stub_get_locale
-
-            expected_err_msg = "GError with code: {0}, message: '{1}'".format(
-                               gerror.code, gerror.message.decode(encoding='UTF-8'))
-            six.assertRaisesRegex(self,
-                                  GErrorException,
-                                  expected_err_msg,
-                                  self.info.document_get_locale)
-
-        @mock.patch.object(AtspiDocument, '_get_attribute_value')
-        def test_document_get_attribute_value_success(self, mock_get_attribute_value):
-            attrib = u"dummy attribute"
-            mock_get_attribute_value.return_value = b"dummy val"
-            self.assertEqual(self.info.document_get_attribute_value(attrib), u"dummy val")
-            self.assertEqual(type(mock_get_attribute_value.call_args[0][1]), ctypes.c_char_p)
-
-        @mock.patch.object(AtspiDocument, '_get_attributes')
-        def test_document_get_attributes_success(self, mock_get_attributes):
-            attrib = b"dummy attribute"
-            mock_get_attributes.return_value = GHashTable.dic2ghash({attrib: b"dummy val"})
-            res = self.info.document_get_attributes()
-            self.assertEqual(len(res), 1)
-            self.assertEqual(res[attrib.decode('utf-8')], u"dummy val")
-
     class GHashTableTests(unittest.TestCase):
 
         """Tests manipulating native GHashTable"""
@@ -339,59 +299,6 @@ if sys.platform.startswith("linux"):
             libs = ["lib0", "lib1", "default_lib"]
             res = _find_library(libs)
             self.assertEqual(res, "lib0")
-
-    class AtspiElementInfoImageMockedTests(unittest.TestCase):
-
-        """Mocked unit tests for the AtspiElementInfo.image related functionality"""
-
-        def setUp(self):
-            self.info = AtspiElementInfo()
-            self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
-            self.mock_get_role = self.patch_get_role.start()
-            self.mock_get_role.return_value = IATSPI().known_control_types["Image"]
-
-        def tearDown(self):
-            self.patch_get_role.stop()
-
-        def test_image_success(self):
-            self.assertEqual(type(self.info.image), AtspiImage)
-
-            # Icon role should be also handled by AtspiImage
-            self.mock_get_role.return_value = IATSPI().known_control_types["Icon"]
-            iconInfo = AtspiElementInfo()
-            self.assertEqual(type(iconInfo.image), AtspiImage)
-
-        def test_image_fail_on_wrong_role(self):
-            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
-            self.assertRaises(AttributeError, lambda: self.info.image)
-
-        @mock.patch.object(AtspiImage, '_get_image_locale')
-        def test_image_get_locale_success(self, mock_get_locale):
-            mock_get_locale.return_value = b"I"
-            self.assertEqual(self.info.image.get_locale(), b"I")
-
-        @mock.patch.object(AtspiImage, '_get_image_description')
-        def test_image_get_description_success(self, mock_get_description):
-            mock_get_description.return_value = b"descr"
-            self.assertEqual(self.info.image.get_description(), b"descr")
-
-        @mock.patch.object(AtspiImage, '_get_image_extents')
-        def test_image_get_image_extents_success(self, mock_get_extents):
-            extents_rect = _AtspiRect(22, 11, 33, 44)
-            mock_get_extents.return_value = ctypes.pointer(extents_rect)
-            self.assertEqual(self.info.image.get_extents(), RECT(extents_rect))
-            self.assertEqual(mock_get_extents.call_args[0][1],
-                             _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
-
-        @mock.patch.object(AtspiImage, '_get_image_position')
-        def test_image_get_image_position_success(self, mock_get_position):
-            pnt = _AtspiPoint()
-            pnt.x = 55
-            pnt.y = 66
-            mock_get_position.return_value = ctypes.pointer(pnt)
-            self.assertEqual(self.info.image.get_position(), POINT(pnt.x, pnt.y))
-            self.assertEqual(mock_get_position.call_args[0][1],
-                             _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
 
 
 if __name__ == "__main__":
