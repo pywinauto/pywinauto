@@ -771,10 +771,10 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_non_magic_application(self):
         app = Application()
-        self.assertEqual(app.use_magic_lookup, True)
+        self.assertEqual(app.allow_magic_lookup, True)
 
-        app_no_magic = Application(use_magic_lookup=False)
-        self.assertEqual(app_no_magic.use_magic_lookup, False)
+        app_no_magic = Application(allow_magic_lookup=False)
+        self.assertEqual(app_no_magic.allow_magic_lookup, False)
 
         app_no_magic.start(_notepad_exe())
 
@@ -889,9 +889,9 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def test_non_magic_getattr(self):
         ws = WindowSpecification(dict(best_match="Notepad"))
-        self.assertEqual(ws.use_magic_lookup, True)
-        ws_no_magic = WindowSpecification(dict(best_match="Notepad"), use_magic_lookup=False)
-        self.assertEqual(ws_no_magic.use_magic_lookup, False)
+        self.assertEqual(ws.allow_magic_lookup, True)
+        ws_no_magic = WindowSpecification(dict(best_match="Notepad"), allow_magic_lookup=False)
+        self.assertEqual(ws_no_magic.allow_magic_lookup, False)
 
         dlg = ws_no_magic.child_window(best_match="Edit")
         has_focus = dlg.has_keyboard_focus()
@@ -1285,7 +1285,7 @@ if UIA_support:
             Timings.slow()
             self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
             self.desktop = Desktop(backend='uia')
-            self.desktop_no_magic = Desktop(backend='uia', use_magic_lookup=False)
+            self.desktop_no_magic = Desktop(backend='uia', allow_magic_lookup=False)
 
         def tearDown(self):
             """Close the application after tests"""
@@ -1332,14 +1332,14 @@ if UIA_support:
         def test_non_magic_desktop(self):
             from pywinauto.controls.uiawrapper import UIAWrapper
 
-            self.assertEqual(self.desktop.use_magic_lookup, True)
-            self.assertEqual(self.desktop_no_magic.use_magic_lookup, False)
+            self.assertEqual(self.desktop.allow_magic_lookup, True)
+            self.assertEqual(self.desktop_no_magic.allow_magic_lookup, False)
 
             dlgs = self.desktop_no_magic.windows()
             self.assertTrue(len(dlgs) > 1)
 
             window = self.desktop_no_magic.window(title="MFC_samples")
-            self.assertEqual(window.use_magic_lookup, False)
+            self.assertEqual(window.allow_magic_lookup, False)
 
             dlg = window.child_window(class_name="ShellTabWindowClass").wrapper_object()
             self.assertIsInstance(dlg, UIAWrapper)
@@ -1363,7 +1363,7 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         Timings.defaults()
         self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
         self.desktop = Desktop(backend='win32')
-        self.desktop_no_magic = Desktop(backend='win32', use_magic_lookup=False)
+        self.desktop_no_magic = Desktop(backend='win32', allow_magic_lookup=False)
         self.window_title = 'Common Controls Sample'
 
     def tearDown(self):
@@ -1423,11 +1423,11 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         self.assertEqual(dlg, dlg_from_point)
 
     def test_non_magic_desktop(self):
-        self.assertEqual(self.desktop.use_magic_lookup, True)
-        self.assertEqual(self.desktop_no_magic.use_magic_lookup, False)
+        self.assertEqual(self.desktop.allow_magic_lookup, True)
+        self.assertEqual(self.desktop_no_magic.allow_magic_lookup, False)
 
         window = self.desktop_no_magic.window(title=self.window_title, process=self.app.process)
-        self.assertEqual(window.use_magic_lookup, False)
+        self.assertEqual(window.allow_magic_lookup, False)
 
         dlg = window.child_window(class_name="msctls_trackbar32").wrapper_object()
         self.assertIsInstance(dlg, TrackbarWrapper)

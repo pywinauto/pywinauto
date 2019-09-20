@@ -493,6 +493,8 @@ def find_best_control_matches(search_text, controls):
     """
     name_control_map = build_unique_dict(controls)
 
+
+    #print ">>>>>>>", repr(name_control_map).decode("ascii", "ignore")
 #    # collect all the possible names for all controls
 #    # and build a list of them
 #    for ctrl in controls:

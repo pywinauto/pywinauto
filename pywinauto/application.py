@@ -141,12 +141,12 @@ class WindowSpecification(object):
                          'active': ('is_active',),
                          }
 
-    def __init__(self, search_criteria, use_magic_lookup=True):
+    def __init__(self, search_criteria, allow_magic_lookup=True):
         """
         Initialize the class
 
         :param search_criteria: the criteria to match a dialog
-        :param use_magic_lookup: whether attribute access must turn into child_window(best_match=...) search as fallback
+        :param allow_magic_lookup: whether attribute access must turn into child_window(best_match=...) search as fallback
         """
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
@@ -159,7 +159,7 @@ class WindowSpecification(object):
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
         self.backend = registry.backends[search_criteria['backend']]
-        self.use_magic_lookup = use_magic_lookup
+        self.allow_magic_lookup = allow_magic_lookup
 
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
@@ -279,7 +279,7 @@ class WindowSpecification(object):
         if 'top_level_only' not in criteria:
             criteria['top_level_only'] = False
 
-        new_item = WindowSpecification(self.criteria[0], use_magic_lookup=self.use_magic_lookup)
+        new_item = WindowSpecification(self.criteria[0], allow_magic_lookup=self.allow_magic_lookup)
         new_item.criteria.extend(self.criteria[1:])
         new_item.criteria.append(criteria)
 
@@ -326,7 +326,7 @@ class WindowSpecification(object):
 
         # if we get here then we must have only had one criteria so far
         # so create a new :class:`WindowSpecification` for this control
-        new_item = WindowSpecification(self.criteria[0], use_magic_lookup=self.use_magic_lookup)
+        new_item = WindowSpecification(self.criteria[0], allow_magic_lookup=self.allow_magic_lookup)
 
         # add our new criteria
         new_item.criteria.append({"best_match": key})
@@ -347,8 +347,8 @@ class WindowSpecification(object):
         Otherwise delegate functionality to :func:`__getitem__` - which
         sets the appropriate criteria for the control.
         """
-        use_magic_lookup = object.__getattribute__(self, "use_magic_lookup")  # Beware of recursions here!
-        if not use_magic_lookup:
+        allow_magic_lookup = object.__getattribute__(self, "allow_magic_lookup")  # Beware of recursions here!
+        if not allow_magic_lookup:
             try:
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
@@ -358,7 +358,7 @@ class WindowSpecification(object):
                 except AttributeError:
                     message = (
                         'Attribute "%s" exists neither on %s object nor on'
-                        'targeted %s element wrapper (typo? or set use_magic_lookup to True?)' %
+                        'targeted %s element wrapper (typo? or set allow_magic_lookup to True?)' %
                         (attr_name, self.__class__, wrapper_object.__class__))
                     raise AttributeError(message)
 
@@ -888,7 +888,7 @@ class Application(object):
     .. automethod:: __getitem__
     """
 
-    def __init__(self, backend="win32", datafilename=None, use_magic_lookup=True):
+    def __init__(self, backend="win32", datafilename=None, allow_magic_lookup=True):
         """
         Initialize the Application object
 
@@ -904,7 +904,7 @@ class Application(object):
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
-        self.use_magic_lookup = use_magic_lookup
+        self.allow_magic_lookup = allow_magic_lookup
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
             self.Start = deprecated(self.start)
@@ -1162,7 +1162,7 @@ class Application(object):
         else:
             criteria['title'] = windows[0].name
 
-        return WindowSpecification(criteria, use_magic_lookup=self.use_magic_lookup)
+        return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)
 
     def active(self):
         """Return WindowSpecification for an active window of the application"""
@@ -1186,7 +1186,7 @@ class Application(object):
         else:
             criteria['title'] = windows[0].name
 
-        return WindowSpecification(criteria, use_magic_lookup=self.use_magic_lookup)
+        return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)
 
     def windows(self, **kwargs):
         """Return a list of wrapped top level windows of the application"""
@@ -1228,7 +1228,7 @@ class Application(object):
         else:
             # add the restriction for this particular application
             kwargs['app'] = self
-            win_spec = WindowSpecification(kwargs, use_magic_lookup=self.use_magic_lookup)
+            win_spec = WindowSpecification(kwargs, allow_magic_lookup=self.allow_magic_lookup)
 
         return win_spec
     Window_ = window_ = window
@@ -1239,14 +1239,14 @@ class Application(object):
         return self.window(best_match=key)
 
     def __getattribute__(self, attr_name):
-        use_magic_lookup = object.__getattribute__(self, "use_magic_lookup")  # Beware of recursions here!
-        if not use_magic_lookup:
+        allow_magic_lookup = object.__getattribute__(self, "allow_magic_lookup")  # Beware of recursions here!
+        if not allow_magic_lookup:
             try:
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
                 message = (
                     'Attribute "%s" doesn\'t exist on %s object'
-                    ' (typo? or set use_magic_lookup to True?)' %
+                    ' (typo? or set allow_magic_lookup to True?)' %
                     (attr_name, self.__class__))
                 raise AttributeError(message)
 
