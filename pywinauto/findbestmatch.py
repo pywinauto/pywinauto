@@ -331,8 +331,9 @@ def get_control_names(control, allcontrols, textcontrols):
         if non_text_names:
             names.extend(non_text_names)
 
-    # return the names - and make sure there are no duplicates
-    return set(names)
+    # return the names - and make sure there are no duplicates or empty values
+    cleaned_names = set(names) - set([None, ""])
+    return cleaned_names
 
 
 #====================================================================
