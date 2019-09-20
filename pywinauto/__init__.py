@@ -104,13 +104,14 @@ if sys.platform == 'win32':
     class Desktop(object):
         """Simple class to call something like ``Desktop().WindowName.ControlName.method()``"""
 
-        def __init__(self, backend=None):
+        def __init__(self, backend=None, allow_magic_lookup=True):
             """Create desktop element description"""
             if not backend:
                 backend = backends.registry.name
             if backend not in backends.registry.backends:
                 raise ValueError('Backend "{0}" is not registered!'.format(backend))
             self.backend = backends.registry.backends[backend]
+            self.allow_magic_lookup = allow_magic_lookup
 
         def window(self, **kwargs):
             """Create WindowSpecification object for top-level window"""
@@ -119,7 +120,7 @@ if sys.platform == 'win32':
             if 'backend' in kwargs:
                 raise ValueError('Using another backend than set in Desktop constructor is not allowed!')
             kwargs['backend'] = self.backend.name
-            return WindowSpecification(kwargs)
+            return WindowSpecification(kwargs, allow_magic_lookup=self.allow_magic_lookup)
 
         def windows(self, **kwargs):
             """Return a list of wrapped top level windows"""
@@ -143,9 +144,12 @@ if sys.platform == 'win32':
 
         def __getattribute__(self, attr_name):
             """Attribute access for this class"""
+            allow_magic_lookup = object.__getattribute__(self, "allow_magic_lookup")  # Beware of recursions here!
             try:
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
+                if not allow_magic_lookup:
+                    raise
                 return self[attr_name]  # delegate it to __get_item__
 
         def from_point(self, x, y):
