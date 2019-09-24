@@ -938,9 +938,27 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
         super(MenuItemWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
+    _cache_items = {}
     def items(self):
         """Find all items of the menu item"""
-        return self.children(control_type="MenuItem")
+        items = self.children(control_type="MenuItem")
+
+        # If a menu is not displayed then the UIA controls (children of self)
+        # will not yet exist. We can bring them into existence by clicking the
+        # menu (self). The controls can also (mysteriously) lose all their
+        # element_info. So once we see them bv clicking the menu we cache them
+        # for subsequent use.
+        if not items:
+            if self._cache_items.get(self.element_info.automation_id, None):
+                items = self._cache_items[self.element_info.automation_id].copy()
+            else:
+                self.click_input()
+                if self.children():
+                    me = self.children()[0]
+                    items = me.children(control_type="MenuItem")
+                    self._cache_items[self.element_info.automation_id] = items.copy()
+
+        return items
 
     # -----------------------------------------------------------
     def select(self):
