@@ -45,6 +45,10 @@ from ctypes import POINTER
 from ctypes import c_ubyte
 from ctypes import c_size_t
 
+# Quote: "If you want cached libs without polluting ctypes.cdll or
+# ctypes.windll, just create your own instance such as
+# windll = ctypes.LibraryLoader(ctypes.WinDLL)."
+# see https://bugs.python.org/issue22552
 windll = LibraryLoader(WinDLL)
 
 SHORT = c_short
