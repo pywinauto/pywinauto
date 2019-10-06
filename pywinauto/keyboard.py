@@ -123,13 +123,6 @@ else:
 
     DEBUG = 0
 
-    GetMessageExtraInfo = ctypes.windll.user32.GetMessageExtraInfo
-    MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
-
-    VkKeyScan = ctypes.windll.user32.VkKeyScanW
-    VkKeyScan.restype = ctypes.c_short
-    VkKeyScan.argtypes = [ctypes.c_wchar]
-
     INPUT_KEYBOARD = 1
     KEYEVENTF_EXTENDEDKEY = 1
     KEYEVENTF_KEYUP = 2
@@ -367,7 +360,7 @@ else:
 
                 # it seems to return 0 every time but it's required by MSDN specification
                 # so call it just in case
-                inp.ki.dwExtraInfo = GetMessageExtraInfo()
+                inp.ki.dwExtraInfo = win32functions.GetMessageExtraInfo()
 
             # if we are releasing - then let it up
             if self.up:
@@ -446,7 +439,7 @@ else:
             # return self.key, 0, 0
 
             # this works for Tic Tac Toe i.e. +{RIGHT} SHIFT + RIGHT
-            return self.key, MapVirtualKey(self.key, 0), flags
+            return self.key, win32functions.MapVirtualKeyW(self.key, 0), flags
 
         def run(self):
             """Execute the action"""
@@ -467,9 +460,9 @@ else:
 
             The vk and scan code are generated differently.
             """
-            vkey_scan = LoByte(VkKeyScan(self.key))
+            vkey_scan = LoByte(win32functions.VkKeyScanW(self.key))
 
-            return (vkey_scan, MapVirtualKey(vkey_scan, 0), 0)
+            return (vkey_scan, win32functions.MapVirtualKeyW(vkey_scan, 0), 0)
 
         def key_description(self):
             """Return a description of the key"""
