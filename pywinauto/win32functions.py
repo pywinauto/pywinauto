@@ -31,7 +31,8 @@
 
 """Defines Windows(tm) functions"""
 
-from ctypes import windll
+from ctypes import LibraryLoader
+from ctypes import WinDLL
 from ctypes import wintypes
 from . import win32defines, win32structures
 from .actionlogger import ActionLogger
@@ -44,6 +45,11 @@ from ctypes import POINTER
 from ctypes import c_ubyte
 from ctypes import c_size_t
 
+# Quote: "If you want cached libs without polluting ctypes.cdll or
+# ctypes.windll, just create your own instance such as
+# windll = ctypes.LibraryLoader(ctypes.WinDLL)."
+# see https://bugs.python.org/issue22552
+windll = LibraryLoader(WinDLL)
 
 SHORT = c_short
 
@@ -206,12 +212,19 @@ GetKeyboardLayout.restype = wintypes.HKL
 GetKeyboardLayout.argtypes = [
     wintypes.DWORD,
 ]
+VkKeyScanW = windll.user32.VkKeyScanW
+VkKeyScanW.restype = SHORT
+VkKeyScanW.argtypes = [
+    wintypes.WCHAR,
+]
 VkKeyScanExW = windll.user32.VkKeyScanExW
 VkKeyScanExW.restype = SHORT
 VkKeyScanExW.argtypes = [
     wintypes.WCHAR,
     wintypes.HKL,
 ]
+GetMessageExtraInfo = windll.user32.GetMessageExtraInfo
+MapVirtualKeyW = windll.user32.MapVirtualKeyW
 # menu functions
 DrawMenuBar = windll.user32.DrawMenuBar
 DrawMenuBar.restype = wintypes.BOOL
@@ -730,21 +743,12 @@ GetQueueStatus = windll.user32.GetQueueStatus
 LoadString = windll.user32.LoadStringW
 
 
-#def VkKeyScanW(p1):
-#    # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4225
-#    return VkKeyScanW._api_(p1)
-#VkKeyScan = stdcall(SHORT, 'user32', [c_wchar]) (VkKeyScanW)
-#
 #def MapVirtualKeyExW(p1, p2, p3):
 #    # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4376
 #    return MapVirtualKeyExW._api_(p1, p2, p3)
 #MapVirtualKeyEx = stdcall(
 #    UINT, 'user32', [c_uint, c_uint, c_long]) (MapVirtualKeyExW)
 #
-#def MapVirtualKeyW(p1, p2):
-#    # C:/PROGRA~1/MICROS~4/VC98/Include/winuser.h 4355
-#    return MapVirtualKeyW._api_(p1, p2)
-#MapVirtualKey = stdcall(UINT, 'user32', [c_uint, c_uint]) (MapVirtualKeyW)
 
 
 #====================================================================

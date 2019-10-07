@@ -2,6 +2,26 @@
 Change Log
 ==========
 
+0.6.8 Bug Fixes
+--------------------------------------------------------------------
+TODO: Cooming soon...
+
+Enhancements:
+ * Add ``allow_magic_lookup`` flag for Application and Desktop object. Thanks pakal_!
+ * Don't duplicate already pressed key in internal list in ``win32_hooks.py``. Thanks TomRobo237_!
+
+Bug Fixes:
+ * Fix ctypes.windll usage conflicts with other libraries.
+ * Minor fixes in top-level ``__init__.py``. Thanks pakal_!
+ * Fix logging issues in ``remote_memory_block.py``. Thanks TomRobo237_!
+ * Minor docs improvements. Thanks olesteban_ and caoyaxing221_!
+
+ .. _pakal: https://github.com/pakal
+ .. _TomRobo237: https://github.com/TomRobo237
+ .. _olesteban: https://github.com/olesteban
+ .. _caoyaxing221: https://github.com/caoyaxing221
+
+
 0.6.7 Bug Fixes
 --------------------------------------------------------------------
 07-July-2019
