@@ -98,10 +98,19 @@ Use curly brackers to escape modifiers and type reserved symbols as single keys:
     send_keys('{^}a{^}c{%}') # type string "^a^c%" (Ctrl will not be pressed)
     send_keys('{{}ENTER{}}') # type string "{ENTER}" without pressing Enter key
 
+For Windows only, pywinauto defaults to sending a virtual key packet
+(VK_PACKET) for textual input.  For applications that do not handle VK_PACKET
+appropriately, the ``vk_packet`` option may be set to ``False``.  In this case
+pywinauto will attempt to send the virtual key code of the requested key.  This
+option only affects the behavior of keys matching [-=[]\;',./a-zA-Z0-9 ].  Note
+that upper and lower case are included for a-z.  Both reference the same
+virtual key for convenience.
+
 """
 from __future__ import unicode_literals
 
 import sys
+import string
 
 from . import deprecated
 
@@ -302,6 +311,29 @@ else:
         '%': VK_MENU,
     }
 
+    # Virtual keys that map to an ASCII character
+    # See https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    ascii_vk = {
+        ' ': 0x20,
+        '=': 0xbb,
+        ',': 0xbc,
+        '-': 0xbd,
+        '.': 0xbe,
+        # According to the above reference, the following characters vary per region.
+        # This mapping applies to US keyboards
+        ';': 0xba,
+        '/': 0xbf,
+        '`': 0xc0,
+        '[': 0xdb,
+        '\\': 0xdc,
+        ']': 0xdd,
+        '\'': 0xde,
+    }
+    # [0-9A-Z] map exactly to their ASCII counterparts
+    ascii_vk.update(dict((c, ord(c)) for c in string.ascii_uppercase + string.digits))
+    # map [a-z] to their uppercase ASCII counterparts
+    ascii_vk.update(dict((c, ord(c.upper())) for c in string.ascii_lowercase))
+
 
     class KeySequenceError(Exception):
 
@@ -492,7 +524,7 @@ else:
         __repr__ = __str__
 
 
-    def handle_code(code):
+    def handle_code(code, vk_packet):
         """Handle a key or sequence of keys in braces"""
         code_keys = []
         # it is a known code (e.g. {DOWN}, {ENTER}, etc)
@@ -501,7 +533,10 @@ else:
 
         # it is an escaped modifier e.g. {%}, {^}, {+}
         elif len(code) == 1:
-            code_keys.append(KeyAction(code))
+            if not vk_packet and code in ascii_vk:
+                code_keys.append(VirtualKeyAction(ascii_vk[code]))
+            else:
+                code_keys.append(KeyAction(code))
 
         # it is a repetition or a pause  {DOWN 5}, {PAUSE 1.3}
         elif ' ' in code:
@@ -527,7 +562,7 @@ else:
                         [VirtualKeyAction(CODES[to_repeat])] * count)
                 # otherwise parse the keys and we get back a KeyAction
                 else:
-                    to_repeat = parse_keys(to_repeat)
+                    to_repeat = parse_keys(to_repeat, vk_packet=vk_packet)
                     if isinstance(to_repeat, list):
                         keys = to_repeat * count
                     else:
@@ -542,7 +577,8 @@ else:
                    with_spaces=False,
                    with_tabs=False,
                    with_newlines=False,
-                   modifiers=None):
+                   modifiers=None,
+                   vk_packet=True):
         """Return the parsed keys"""
         keys = []
         if not modifiers:
@@ -571,8 +607,10 @@ else:
                 end_pos = string.find(")", index)
                 if end_pos == -1:
                     raise KeySequenceError('`)` not found')
-                keys.extend(
-                    parse_keys(string[index:end_pos], modifiers=modifiers))
+                keys.extend(parse_keys(
+                        string[index:end_pos],
+                        modifiers=modifiers,
+                        vk_packet=vk_packet))
                 index = end_pos + 1
 
             # Escape or named key
@@ -589,7 +627,7 @@ else:
                 if any(key_event in code.lower() for key_event in key_events):
                     code, current_key_event = code.split(' ')
                     should_escape_next_keys = True
-                current_keys = handle_code(code)
+                current_keys = handle_code(code, vk_packet)
                 if current_key_event is not None:
                     if isinstance(current_keys[0].key, six.string_types):
                         current_keys[0] = EscapedKeyAction(current_keys[0].key)
@@ -628,6 +666,11 @@ else:
                 elif modifiers or should_escape_next_keys:
                     keys.append(EscapedKeyAction(c))
 
+                # if user disables the vk_packet option, always try to send a
+                # virtual key of the actual keystroke
+                elif not vk_packet and c in ascii_vk:
+                    keys.append(VirtualKeyAction(ascii_vk[c]))
+
                 else:
                     keys.append(KeyAction(c))
 
@@ -659,9 +702,12 @@ else:
                   with_spaces=False,
                   with_tabs=False,
                   with_newlines=False,
-                  turn_off_numlock=True):
+                  turn_off_numlock=True,
+                  vk_packet=True):
         """Parse the keys and type them"""
-        keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
+        keys = parse_keys(
+                keys, with_spaces, with_tabs, with_newlines,
+                vk_packet=vk_packet)
 
         for k in keys:
             k.run()

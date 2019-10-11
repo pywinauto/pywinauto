@@ -42,7 +42,7 @@ import subprocess
 import time
 sys.path.append(".")
 if sys.platform == 'win32':
-    from pywinauto.keyboard import send_keys, KeySequenceError
+    from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
@@ -327,6 +327,39 @@ if sys.platform == 'win32':
             dlg.wait('ready')
             dlg.Done.close_click()
             dlg.wait_not('visible')
+
+if sys.platform == 'win32':
+    class VkPacketTests(unittest.TestCase):
+        def testBasic(self):
+            keys = parse_keys('AAA', vk_packet=False)
+            self.assertEqual(3, len(keys))
+            for key in keys:
+                self.assertTrue(isinstance(key, VirtualKeyAction))
+                wVk, wScan, dwFlags = key._get_key_info()
+                self.assertEqual(ord('A'), wVk)
+                self.assertEqual(0, dwFlags)
+
+        def testRepeat(self):
+            keys = parse_keys('{A 3}', vk_packet=False)
+            self.assertEqual(3, len(keys))
+            for key in keys:
+                self.assertTrue(isinstance(key, VirtualKeyAction))
+                wVk, wScan, dwFlags = key._get_key_info()
+                self.assertEqual(ord('A'), wVk)
+                self.assertEqual(0, dwFlags)
+
+        def testSymbol(self):
+            key, = parse_keys('{=}', vk_packet=False)
+            self.assertTrue(isinstance(key, VirtualKeyAction))
+            wVk, wScan, dwFlags = key._get_key_info()
+            self.assertEqual(0xbb, wVk)
+            self.assertEqual(0, dwFlags)
+
+        def testNoVk(self):
+            key, = parse_keys('!', vk_packet=False)
+            self.assertTrue(isinstance(key, KeyAction))
+            wVk, wScan, dwFlags = key._get_key_info()
+            self.assertEqual(0, wVk)
 
 
 #====================================================================
