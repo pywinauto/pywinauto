@@ -71,8 +71,8 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure the text method returns correct result"""
         self.assertEqual("Untitled - Notepad", text(self.dlghandle))
         self.assertEqual("", text(self.edit_handle))
-        self.assertEqual(None, text(sys.maxsize))
-        self.assertEqual(None, text(None))
+        self.assertEqual("", text(sys.maxsize))
+        self.assertEqual("", text(None))
 
 
     def test_classname(self):

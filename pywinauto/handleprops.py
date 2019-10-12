@@ -62,7 +62,7 @@ def text(handle):
     if class_name == 'MSCTFIME UI':
         return 'M'
     if class_name is None:
-        return None
+        return ''
     #length = win32functions.SendMessage(handle, win32defines.WM_GETTEXTLENGTH, 0, 0)
 
     # XXX: there are some very rare cases when WM_GETTEXTLENGTH hangs!
@@ -79,7 +79,7 @@ def text(handle):
     )
     if result == 0:
         ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
-        return None
+        return ''
     else:
         length = c_length.value
 
