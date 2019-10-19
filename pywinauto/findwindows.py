@@ -189,9 +189,10 @@ def find_elements(class_name=None,
     if top_level_only:
         # find the top level elements
         element = backend_obj.element_info_class()
+        # vryabov: we don't use title=title below, because it fixes issue 779:
+        # https://github.com/pywinauto/pywinauto/issues/779
         elements = element.children(process=process,
                                     class_name=class_name,
-                                    # title=title,
                                     control_type=control_type,
                                     cache_enable=True)
 
@@ -206,8 +207,9 @@ def find_elements(class_name=None,
             parent = backend_obj.element_info_class()
 
         # look for ALL children of that parent
+        # vryabov: we don't use title=title below, because it fixes issue 779:
+        # https://github.com/pywinauto/pywinauto/issues/779
         elements = parent.descendants(class_name=class_name,
-                                      # title=title,
                                       control_type=control_type,
                                       cache_enable=True,
                                       depth=depth)
