@@ -327,15 +327,6 @@ class HwndWrapperTests(unittest.TestCase):
         expected = "Hawaii#%@$"
         self.assertEqual(expected, actual)
 
-    def test_send_keystrokes_enter(self):
-        with self.assertRaises(findbestmatch.MatchError):
-            testString = "{ENTER}"
-
-            self.dlg.minimize()
-            self.dlg.Edit.send_keystrokes(testString)
-
-            self.dlg.restore()
-
     def test_send_keystrokes_virtual_keys_left_del_back(self):
         testString = "+hello123{LEFT 2}{DEL 2}{BACKSPACE} +world"
 
@@ -561,6 +552,41 @@ class HwndWrapperTests(unittest.TestCase):
         children = [child for child in dlg.iter_children()]
         self.assertSequenceEqual(dlg.children(), children)
 
+
+class SendKeystrokesTests(unittest.TestCase):
+    """Unit tests for the SendKeyStrokes class"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.fast()
+        notepad2_mod_folder = os.path.join(
+        os.path.dirname(__file__), r"..\..\apps\Notepad2-mod")
+        if is_x64_Python():
+            notepad2_mod_folder = os.path.join(notepad2_mod_folder, 'x64')
+        self.app = Application().start(os.path.join(notepad2_mod_folder, u"Notepad2.exe"))
+
+        self.dlg = self.app.window(name_re=".*Untitled - Notepad2-mod", visible=None)
+        self.ctrl = HwndWrapper(self.dlg.Scintilla.handle)
+
+        #self.dlg = self.app.Calculator
+        #self.dlg.menu_select('View->Scientific\tAlt+2')
+        #self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
+
+    def tearDown(self):
+        """Close the application after tests"""
+        #self.dlg.type_keys("%{F4}")
+        #self.dlg.close()
+        self.app.kill()
+
+    def test_send_keystrokes_enter(self):
+        expected = "some test string"
+
+        self.dlg.minimize()
+        self.ctrl.send_keystrokes(expected)
+        self.ctrl.send_keystrokes("{ENTER}") # click set button
+        self.dlg.restore()
+        actual = self.ctrl.window_text()
+        self.assertEqual(expected + "\r\n", actual)
 
 class HwndWrapperMenuTests(unittest.TestCase):
 
