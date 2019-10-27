@@ -283,9 +283,3 @@ class AxElementInfo(object):
             raise AXError(err)
         return pid
 
-def runLoopAndExit():
-    AppHelper.stopEventLoop()
-
-def cache_update():
-    AppHelper.callAfter(runLoopAndExit)
-    AppHelper.runConsoleEventLoop()
