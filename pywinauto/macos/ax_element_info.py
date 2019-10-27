@@ -1,25 +1,44 @@
 import re
-import timeit
-import inspect
-import sys, os
-from subprocess import Popen, PIPE
-import warnings
 
-from CoreFoundation import (CFNumberGetValue, CFStringGetTypeID, CFArrayGetTypeID, CFGetTypeID,
-                            CFNumberGetTypeID, CFBooleanGetTypeID, kCFNumberIntType, kCFNumberDoubleType)
-from ApplicationServices import (AXUIElementGetTypeID, AXValueGetType, kAXValueCGSizeType, kAXValueCGPointType,
-                                 kAXValueCFRangeType, kAXErrorAPIDisabled, kAXErrorActionUnsupported,
-                                 kAXErrorAttributeUnsupported, kAXErrorCannotComplete, kAXErrorFailure,
-                                 kAXErrorIllegalArgument, kAXErrorInvalidUIElement, kAXErrorInvalidUIElementObserver,
-                                 kAXErrorNoValue, kAXErrorNotEnoughPrecision, kAXErrorNotImplemented, kAXErrorSuccess,
-                                 AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue, AXUIElementRef,
-                                 AXUIElementCopyActionNames, AXUIElementCreateApplication, AXUIElementGetPid, AXUIElementCreateSystemWide)
-from Foundation import *
+from CoreFoundation import CFNumberGetValue
+from CoreFoundation import CFStringGetTypeID
+from CoreFoundation import CFArrayGetTypeID
+from CoreFoundation import CFGetTypeID
+from CoreFoundation import CFNumberGetTypeID
+from CoreFoundation import CFBooleanGetTypeID
+from CoreFoundation import kCFNumberIntType
+from CoreFoundation import kCFNumberDoubleType
+from ApplicationServices import AXUIElementGetTypeID
+from ApplicationServices import AXValueGetType
+from ApplicationServices import kAXValueCGSizeType
+from ApplicationServices import kAXValueCGPointType
+# from ApplicationServices import kAXValueCFRangeType
+from ApplicationServices import kAXErrorAPIDisabled
+from ApplicationServices import kAXErrorActionUnsupported
+from ApplicationServices import kAXErrorAttributeUnsupported
+from ApplicationServices import kAXErrorCannotComplete
+from ApplicationServices import kAXErrorFailure,
+from ApplicationServices import kAXErrorIllegalArgument
+from ApplicationServices import kAXErrorInvalidUIElement
+from ApplicationServices import kAXErrorInvalidUIElementObserver
+from ApplicationServices import kAXErrorNoValue
+from ApplicationServices import kAXErrorNotEnoughPrecision
+from ApplicationServices import kAXErrorNotImplemented
+from ApplicationServices import kAXErrorSuccess
+from ApplicationServices import AXUIElementCopyAttributeNames
+from ApplicationServices import AXUIElementCopyAttributeValue
+from ApplicationServices import AXUIElementRef
+# from ApplicationServices import AXUIElementCopyActionNames
+from ApplicationServices import AXUIElementCreateApplication
+from ApplicationServices import AXUIElementGetPid
+# from ApplicationServices import AXUIElementCreateSystemWide
+from Foundation import * # TODO: eliminate wildcard import
 from PyObjCTools import AppHelper
 import AppKit
-from AppKit import NSScreen, NSRunningApplication, NSSize, NSPoint
-
-from .macos_functions import get_ws_instance
+from AppKit import NSScreen
+from AppKit import NSRunningApplication
+# from AppKit import NSSize
+# from AppKit import NSPoint
 
 ax_type_from_string = {
     kAXValueCGSizeType: AppKit.NSSizeFromString,
@@ -120,12 +139,9 @@ class AxElementInfo(object):
 
     def __repr__(self):
         """Build a descriptive string for UIElements."""
-        title = repr('')
-        role = '<No role!>'
         c = repr(self.__class__).partition('<class \'')[-1].rpartition('\'>')[0]
         title = repr(self.name)
         role = self.control_type
-       
         return '<{} {} {}>'.format(c, role, title)
 
     def _get_ax_attributes(self):
@@ -266,11 +282,3 @@ class AxElementInfo(object):
         if err != kAXErrorSuccess:
             raise AXError(err)
         return pid
-
-def runLoopAndExit():
-    AppHelper.stopEventLoop()
-
-def cache_update():
-    AppHelper.callAfter(runLoopAndExit)
-    AppHelper.runConsoleEventLoop()
-
