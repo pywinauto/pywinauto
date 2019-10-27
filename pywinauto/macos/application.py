@@ -40,16 +40,21 @@ class Application(BaseApplication):
         pids_before = get_process_ids(cache_update=False)
 
         if name is not None and bundle_id is not None:
-              raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
+            raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
 
         if name is not None:
             bundle = macos_functions.bundle_identifier_for_application_name(name)
-            # print(bundle)
-            macos_functions.launch_application_by_bundle(bundle, new_instance)
-            ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
-
-            self.ns_app = ns_app_array[0]
-            if self.ns_app is None:
+            if bundle is not None:
+                macos_functions.launch_application_by_bundle(bundle, new_instance)
+                ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
+                self.ns_app = ns_app_array[0]
+            else:  
+                # Workaround when user has not opened the application
+                executable_url = macos_functions.url_for_application_name(name)
+                macos_functions.launch_application_by_url(executable_url, new_instance)
+                self.ns_app = macos_functions.get_instance_of_app(name)
+            
+            if (self.ns_app is None):
                 message = ('Could not get instance of "%s" app\n') % (name)
                 raise AppStartError(message)
 

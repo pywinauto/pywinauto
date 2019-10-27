@@ -40,6 +40,7 @@ from ApplicationServices import (AXIsProcessTrusted,
 from AppKit import NSScreen, NSWorkspace, NSRunningApplication, NSBundle, NSWorkspaceLaunchNewInstance
 import subprocess
 from ApplicationServices import *
+from PyObjCTools import AppHelper
 
 is_debug = False
 
@@ -51,15 +52,15 @@ def launch_application(name):
 
 def bundle_identifier_for_application_name(app_name):
     path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
-    bundle=NSBundle.bundleWithPath_(path)
-    bundleIdentifier=bundle.bundleIdentifier()
-    return (bundleIdentifier)
+    bundle = NSBundle.bundleWithPath_(path)
+    bundleIdentifier = bundle.bundleIdentifier()
+    return bundleIdentifier
 
 def launch_application_by_bundle(bundle_id, new_instance=True):
     if (new_instance):
-            param = NSWorkspaceLaunchNewInstance
+        param = NSWorkspaceLaunchNewInstance
     else:
-            param = NSWorkspaceLaunchAllowingClassicStartup
+        param = NSWorkspaceLaunchAllowingClassicStartup
 
     r = get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundle_id,
             param,
@@ -68,6 +69,27 @@ def launch_application_by_bundle(bundle_id, new_instance=True):
     if not r[0]:
             raise RuntimeError('Error launching specified application. Result: {}'.format(r))
 
+    
+    
+
+def url_for_application_name(app_name):
+    path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
+    bundle = NSBundle.bundleWithPath_(path)
+    return bundle.executableURL()
+
+def launch_application_by_url(url, new_instance=True):
+    if (new_instance):
+        param = NSWorkspaceLaunchNewInstance
+    else:
+        param = NSWorkspaceLaunchAllowingClassicStartup
+
+    r = get_ws_instance().launchApplicationAtURL_options_configuration_error_(url,
+            param,
+            {},
+            None)
+    if not r[0]:
+            raise RuntimeError('Error launching specified application. Result: {}'.format(r))
+    
 def terminate_application(obj):
     if check_if_its_nsrunning_application(obj):
         obj.terminate();
@@ -83,6 +105,11 @@ def get_ws_instance():
 
 def running_applications():
     """Return all running apps(system too)"""
+    def runLoopAndExit():
+        AppHelper.stopEventLoop()
+
+    AppHelper.callLater(1, runLoopAndExit)
+    AppHelper.runConsoleEventLoop()
     rApps = get_ws_instance().runningApplications()
     return rApps
 
@@ -95,6 +122,7 @@ def get_instance_of_app(name):
             return app
     if (is_debug):
         print ("App is not allready running.Can't get instance")
+    return None
 
 def get_app_instance_by_pid(pid):
     return NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
